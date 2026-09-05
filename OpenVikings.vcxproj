@@ -69,15 +69,21 @@
     <NMakeOutput>OpenVikings.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
-  </ItemDefinitionGroup>
+<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+  <ClCompile>
+    <LanguageStandard>stdcpp17</LanguageStandard>
+  </ClCompile>
+  <Manifest>
+    <EnableSegmentHeap>true</EnableSegmentHeap>
+  </Manifest>
+</ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Manifest>
-      <EnableSegmentHeap>true</EnableSegmentHeap>
-    </Manifest>
+  <ClCompile>
+    <LanguageStandard>stdcpp17</LanguageStandard>
+  </ClCompile>
+  <Manifest>
+    <EnableSegmentHeap>true</EnableSegmentHeap>
+  </Manifest>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
