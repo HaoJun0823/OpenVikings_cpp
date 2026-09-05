@@ -1,0 +1,140 @@
+#include "MasterControlProgram.h"
+#include "X2DApplication.h"
+
+#include <cstddef>
+#include <cstdint>
+
+namespace NMasterControlProgram
+{
+	// Original function: FUN_004017a7
+	void CMasterControlProgram::DisplayResolution_SetDirectly(std::int32_t width, std::int32_t height, std::uint32_t depth, bool updateStoredResolution, bool saveOptions, bool applicationFlag)
+	{
+		if (updateStoredResolution)
+		{
+			mDisplayWidth = width;
+			mDisplayHeight = height;
+			mDisplayDepth = static_cast<std::int32_t>(depth);
+		}
+
+		const int currentWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
+
+		if (currentWidth == width)
+		{
+			const int currentHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
+
+			if (currentHeight == height)
+			{
+				const std::uint32_t currentDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+
+				if (currentDepth == depth)
+				{
+					return;
+				}
+			}
+		}
+
+		if (mProgramState == 11 || mProgramState == 12)
+		{
+			std::uint32_t displayedMapPosition = 0;
+
+			auto* inGameGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005690cc);
+
+			auto* inGameDesktop = *reinterpret_cast<std::byte**>(inGameGuiManagerBytes + 0x04);
+
+			void* inGameDisplay = *reinterpret_cast<void**>(inGameDesktop + 0x30);
+
+			FUN_0047cf89(inGameDisplay, &displayedMapPosition);
+
+			FUN_004a0aaf(DAT_005690cc);
+
+			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, flag);
+
+			const int actualWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
+
+			const int actualHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
+
+			const std::uint32_t actualDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+
+			FUN_004a030c(DAT_005690cc, actualWidth, actualHeight, actualDepth);
+
+			inGameGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005690cc);
+
+			inGameDesktop = *reinterpret_cast<std::byte**>(inGameGuiManagerBytes + 0x04);
+
+			inGameDisplay = *reinterpret_cast<void**>(inGameDesktop + 0x30);
+
+			FUN_0047c876(inGameDisplay, &displayedMapPosition);
+		}
+		else if (mProgramState == static_cast<std::int32_t>(TProgramState::MainMenu))
+		{
+			std::uint32_t displayedMapPosition = 0;
+
+			auto* mainMenuGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005694dc);
+
+			auto* mainMenuDesktop = *reinterpret_cast<std::byte**>(mainMenuGuiManagerBytes + 0x04);
+
+			void* mainMenuDisplay = *reinterpret_cast<void**>(mainMenuDesktop + 0x30);
+
+			FUN_0047cf89(mainMenuDisplay, &displayedMapPosition);
+
+			FUN_004d2fdc(DAT_005694dc);
+
+			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, flag);
+
+			const int actualWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
+
+			const int actualHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
+
+			const std::uint32_t actualDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+
+			FUN_004d2e77(DAT_005694dc, actualWidth, actualHeight, actualDepth);
+
+			mainMenuGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005694dc);
+
+			mainMenuDesktop = *reinterpret_cast<std::byte**>(mainMenuGuiManagerBytes + 0x04);
+
+			mainMenuDisplay = *reinterpret_cast<void**>(mainMenuDesktop + 0x30);
+
+			FUN_0047c876(mainMenuDisplay, &displayedMapPosition);
+		}
+		else
+		{
+			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, flag);
+		}
+
+		if (saveOptions)
+		{
+			FUN_004e1816(DAT_005697ec);
+		}
+
+		HardwareMouseCursor_ReSet();
+	}
+
+	// Original function: FUN_00401936
+	void CMasterControlProgram::DisplayResolution_SetDuringNextMainloop(std::int32_t width, std::int32_t height, std::uint32_t depth)
+	{
+		mRequestedDisplayWidth = width;
+		mRequestedDisplayHeight = height;
+		mRequestedDisplayDepth = depth;
+		mDisplayResolutionChangeRequested = true;
+	}
+
+	// Original function: FUN_00401952
+	void CMasterControlProgram::DisplayResolution_ResetToUserResolution()
+	{
+		DisplayResolution_SetDirectly(mDisplayWidth, mDisplayHeight, static_cast<std::uint32_t>(mDisplayDepth), true, false, false);
+	}
+
+	// Original function: FUN_00401967
+	void CMasterControlProgram::DisplayResolution_CheckChangeRequest()
+	{
+		if (!mDisplayResolutionChangeRequested)
+		{
+			return;
+		}
+
+		mDisplayResolutionChangeRequested = false;
+
+		DisplayResolution_SetDirectly(mRequestedDisplayWidth, mRequestedDisplayHeight, mRequestedDisplayDepth, true, true, false);
+	}
+}
