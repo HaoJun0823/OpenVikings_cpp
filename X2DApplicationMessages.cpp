@@ -30,8 +30,7 @@ namespace NXSys2DApp
 		}
 
 		const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
-		const auto* messageControl =
-			*reinterpret_cast<const std::uint8_t* const*>(objectBytes + 0x4C);
+		const auto* messageControl = *reinterpret_cast<const std::uint8_t* const*>(objectBytes + 0x4C);
 
 		if (messageControl[5] != 0)
 		{

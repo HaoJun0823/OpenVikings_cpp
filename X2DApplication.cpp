@@ -7,6 +7,23 @@ namespace NXSys2DApp
 {
 	CApplication* CApplication::sTheObjectPtr = nullptr;
 
+	HINSTANCE CApplication::GetInstance() const
+	{
+		return *reinterpret_cast<const HINSTANCE*>(reinterpret_cast<const std::byte*>(this) + 0x00);
+	}
+
+	HWND CApplication::GetWindowHandle() const
+	{
+		const auto* window = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
+
+		if (window == nullptr)
+		{
+			return nullptr;
+		}
+
+		return *reinterpret_cast<const HWND*>(window);
+	}
+
 	// Original function: FUN_00478d16
 	int CApplication::GetDisplayWidth() const
 	{
@@ -158,5 +175,85 @@ namespace NXSys2DApp
 		}
 
 		return false;
+	}
+
+	// Original function: FUN_00478c98
+	bool CApplication::ToggleFullscreen()
+	{
+		auto* window = *reinterpret_cast<std::byte**>(reinterpret_cast<std::byte*>(this) + 0x4C);
+
+		if (window == nullptr)
+		{
+			return false;
+		}
+
+		const std::uint32_t depth = static_cast<std::uint32_t>(GetDisplayDepth());
+		const std::uint32_t height = static_cast<std::uint32_t>(GetDisplayHeight());
+		const std::uint32_t width = static_cast<std::uint32_t>(GetDisplayWidth());
+
+		const bool targetFullscreen = !IsFullscreen();
+
+		if (!CanDisplayModeBeActivated(targetFullscreen, width, height, depth))
+		{
+			return false;
+		}
+
+		FUN_0047b8a2(window);
+
+		return true;
+	}
+
+	// Original function: FUN_00478d38
+	int CApplication::GetWindowOffsetX() const
+	{
+		const auto* window = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
+
+		if (window == nullptr)
+		{
+			return 0;
+		}
+
+		const auto* displayBackend = *reinterpret_cast<std::byte* const*>(window + 0x08);
+
+		if (displayBackend == nullptr)
+		{
+			return 0;
+		}
+
+		const bool fullscreen = *reinterpret_cast<const bool*>(displayBackend + 0x34);
+
+		if (fullscreen)
+		{
+			return 0;
+		}
+
+		return *reinterpret_cast<const std::int32_t*>(displayBackend + 0x38);
+	}
+
+	// Original function: FUN_00478d4b
+	int CApplication::GetWindowOffsetY() const
+	{
+		const auto* window = *reinterpret_cast<std::byte* const*>(reinterpret_cast<const std::byte*>(this) + 0x4C);
+
+		if (window == nullptr)
+		{
+			return 0;
+		}
+
+		const auto* displayBackend = *reinterpret_cast<std::byte* const*>(window + 0x08);
+
+		if (displayBackend == nullptr)
+		{
+			return 0;
+		}
+
+		const bool fullscreen = *reinterpret_cast<const bool*>(displayBackend + 0x34);
+
+		if (fullscreen)
+		{
+			return 0;
+		}
+
+		return *reinterpret_cast<const std::int32_t*>(displayBackend + 0x3C);
 	}
 }

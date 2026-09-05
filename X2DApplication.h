@@ -43,18 +43,29 @@ namespace NXSys2DApp
 
 		bool StartUp();
 
-		int GetDisplayWidth() const;
-		int GetDisplayHeight() const;
-		int GetDisplayDepth() const;
-
 		// Original function: FUN_00478c02
 		bool SetDisplayMode(std::int32_t width, std::int32_t height, std::uint32_t depth, bool skipDisplayModeValidation);
 
-		// Original function: FUN_00478d6f
-		bool IsFullscreen() const;
-
 		// Original function: FUN_00478c98
 		bool ToggleFullscreen();
+
+		// Original function: FUN_00478d16
+		int GetDisplayWidth() const;
+
+		// Original function: FUN_00478d27
+		int GetDisplayHeight() const;
+
+		// Original function: FUN_00478d38
+		int GetWindowOffsetX() const;
+
+		// Original function: FUN_00478d4b
+		int GetWindowOffsetY() const;
+
+		// Original function: FUN_00478d5e
+		int GetDisplayDepth() const;
+
+		// Original function: FUN_00478d6f
+		bool IsFullscreen() const;
 
 		// Original function: FUN_00478efa
 		bool CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;

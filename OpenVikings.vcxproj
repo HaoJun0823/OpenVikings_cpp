@@ -22,11 +22,13 @@
     <ClCompile Include="MasterControlProgram.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
     <ClCompile Include="X2DApplicationMessages.cpp" />
+    <ClCompile Include="XMDirectInputMouse.cpp" />
     <ClCompile Include="XMMouseManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MasterControlProgram.h" />
     <ClInclude Include="X2DApplication.h" />
+    <ClInclude Include="XMDirectInputMouse.h" />
     <ClInclude Include="XMMouseManager.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
