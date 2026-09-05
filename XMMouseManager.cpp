@@ -2,10 +2,12 @@
 #include "XMDirectInputMouse.h"
 #include "X2DApplication.h"
 
+#include <Windows.h>
+
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
-#include <mmsystem.h>
+#include <cstdint>
 #include <new>
 
 namespace NXSysMouseManager

@@ -1,6 +1,8 @@
 #include "XMDirectInputMouse.h"
-
 #include "X2DApplication.h"
+
+#include <Windows.h>
+#include <dinput.h>
 
 #include <cstring>
 #include <new>
