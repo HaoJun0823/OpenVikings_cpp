@@ -66,11 +66,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previousInstance, LPSTR command
 		masterControlProgram->System_ProgramState_EndCurrent();
 	}
 
-	int* object = DAT_0050f624;
+	auto* object = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
 
 	if (object != nullptr)
 	{
-		FUN_004015fb(object);
+		object->~CMasterControlProgram();
 		FUN_004e5e48(object);
 	}
 

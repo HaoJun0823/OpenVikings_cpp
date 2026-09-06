@@ -104,7 +104,7 @@ namespace NMasterControlProgram
 		}
 
 		FUN_004019da(this);
-		FUN_00402620(this);
+		ProgressBar_Exit();
 
 		mProgramState = static_cast<std::int32_t>(TProgramState::Game);
 

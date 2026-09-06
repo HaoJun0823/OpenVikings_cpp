@@ -24,6 +24,15 @@ namespace NMasterControlProgram
 		// Original function: FUN_00401000
 		CMasterControlProgram(HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand);
 
+		// Original function: FUN_004015fb
+		~CMasterControlProgram();
+
+		// Original function: FUN_00401b85
+		void GameEngine_ShutDownEngine();
+
+		// Original function: FUN_00402620
+		void ProgressBar_Exit();
+
 		// Original function: FUN_0040235c
 		bool System_ProgramState_Start(TProgramState programState);
 
@@ -128,12 +137,14 @@ namespace NMasterControlProgram
 		std::int32_t mDisplayHeight;
 		std::int32_t mDisplayDepth;
 
-		bool mDisplayResolutionChangeRequested;     // +0x18
-		std::byte mPadding19[3];                    // +0x19
+		bool mDisplayResolutionChangeRequested;		// +0x18
+		std::byte mPadding19[3];					// +0x19
 		int mRequestedDisplayWidth;					// +0x1C
 		int mRequestedDisplayHeight;				// +0x20
 		unsigned int mRequestedDisplayDepth;        // +0x24
-		std::byte mUnknown28[0x124];                // +0x28
+		std::uint8_t mEngineInitialized;            // +0x28
+		std::uint8_t mGameInitialized;              // +0x29
+		std::byte mUnknown2A[0x122];                // +0x2A
 
 		bool mHardwareMouseCursorEnabled;
 		std::byte mPadding14D[3];

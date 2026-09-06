@@ -1,4 +1,5 @@
 #include "MasterControlProgram.h"
+#include "NetworkShutdown.h"
 #include "X2DApplication.h"
 #include "XSystemMouseCursor.h"
 
@@ -6,6 +7,9 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
+
+// Original pointer slots: 0x005106C4 through 0x005106D4.
+extern void* DAT_005106c4[5];
 
 namespace NMasterControlProgram
 {
@@ -250,5 +254,136 @@ namespace NMasterControlProgram
 		}
 
 		mProgramState = 2;
+	}
+
+	// Original function: FUN_00401b85
+	void CMasterControlProgram::GameEngine_ShutDownEngine()
+	{
+		if (mEngineInitialized == 0)
+		{
+			return;
+		}
+
+		if (mGameInitialized != 0)
+		{
+			FUN_004071c3();
+			mGameInitialized = 0;
+		}
+
+		auto* engineManager = DAT_00554da4;
+
+		if (engineManager != nullptr)
+		{
+			FUN_0047e181(engineManager);
+			FUN_004e5e48(engineManager);
+		}
+
+		auto* game = DAT_005109d0;
+
+		if (game != nullptr)
+		{
+			FUN_00406d85(game);
+			FUN_004e5e48(game);
+		}
+
+		mEngineInitialized = 0;
+	}
+
+	// Original function: FUN_00402620
+	void CMasterControlProgram::ProgressBar_Exit()
+	{
+		void* progressBar = mProgressBar;
+
+		if (progressBar == nullptr)
+		{
+			return;
+		}
+
+		// Invoke vtable slot 3 with the original argument.
+		using VirtualCleanup = void(__thiscall*)(void*, std::uint32_t);
+
+		auto* vtable = *reinterpret_cast<VirtualCleanup**>(progressBar);
+		vtable[3](progressBar, 1);
+
+		mProgressBar = nullptr;
+	}
+
+	// Original function: FUN_004015fb
+	CMasterControlProgram::~CMasterControlProgram()
+	{
+		System_ProgramState_EndCurrent();
+		NNetwork::Network_ShutDown();
+		GameEngine_ShutDownEngine();
+		ProgressBar_Exit();
+
+		mProgramState = 3;
+
+		NXSys2DApp::CApplication::sTheObjectPtr->ShutDown();
+
+		auto* cdAudioManager = DAT_0050f69c;
+
+		if (cdAudioManager != nullptr)
+		{
+			FUN_00403e62(cdAudioManager);
+			FUN_004e5e48(cdAudioManager);
+		}
+
+		void* directMusicManager = DAT_0050f698;
+
+		if (directMusicManager != nullptr)
+		{
+			// Invoke vtable slot 0 with the original deletion flag.
+			using DeletingDestructor = void* (__thiscall*)(void*, unsigned int);
+
+			auto* vtable = *reinterpret_cast<DeletingDestructor**>(directMusicManager);
+			vtable[0](directMusicManager, 1);
+		}
+
+		auto* soundManager = DAT_0050f6a4;
+
+		if (soundManager != nullptr)
+		{
+			FUN_00404762(soundManager);
+			FUN_004e5e48(soundManager);
+		}
+
+		auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+
+		if (application != nullptr)
+		{
+			application->~CApplication();
+			FUN_004e5e48(application);
+		}
+
+		auto* propertyManager = DAT_005697ec;
+
+		if (propertyManager != nullptr)
+		{
+			FUN_004e1436(propertyManager);
+			FUN_004e5e48(propertyManager);
+		}
+
+		for (std::size_t index = 0; index < 5; ++index)
+		{
+			void* fileLibrary = DAT_005106c4[index];
+
+			if (fileLibrary != nullptr)
+			{
+				FUN_00406510(fileLibrary);
+				FUN_004067d7(fileLibrary);
+				FUN_004e5e48(fileLibrary);
+			}
+		}
+
+		auto* systemManager = DAT_005106d8;
+
+		if (systemManager != nullptr)
+		{
+			FUN_00406ab5(systemManager);
+			FUN_004e5e48(systemManager);
+		}
+
+		mProgramState = 0;
+		sTheObjectPtr = nullptr;
 	}
 }

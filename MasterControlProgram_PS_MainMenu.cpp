@@ -52,7 +52,7 @@ namespace NMasterControlProgram
 		FUN_004d2e77(DAT_005694dc, displayWidth, displayHeight, displayDepth);
 
 		FUN_00402298(this);
-		FUN_00402620(this);
+		ProgressBar_Exit();
 
 		if (DAT_0050f69c != nullptr)
 		{
