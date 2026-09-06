@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C2CallbackManager.cpp" />
+    <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
     <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
     <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp" />
@@ -19,6 +21,9 @@
     <ClCompile Include="MasterControlProgram_PS_PreIngameFmv.cpp" />
     <ClCompile Include="MasterControlProgram_PS_System.cpp" />
     <ClCompile Include="MasterControlProgram_PS_TitleScreen.cpp" />
+    <ClCompile Include="NetworkRuntime.cpp" />
+    <ClCompile Include="NetworkShutdown.cpp" />
+    <ClCompile Include="OriginalMemory.cpp" />
     <ClCompile Include="winmain.cpp" />
     <ClCompile Include="MasterControlProgram.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
@@ -33,8 +38,13 @@
     <ClCompile Include="XSystemMouseCursor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C2CallbackManager.h" />
+    <ClInclude Include="CRC32.h" />
+    <ClInclude Include="dpaddr.h" />
+    <ClInclude Include="dplay8.h" />
     <ClInclude Include="InGameGuiManager.h" />
     <ClInclude Include="MasterControlProgram.h" />
+    <ClInclude Include="NetworkShutdown.h" />
     <ClInclude Include="X2DApplication.h" />
     <ClInclude Include="X2DDisplay.h" />
     <ClInclude Include="X2DWindow.h" />

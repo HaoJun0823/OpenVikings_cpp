@@ -1,5 +1,6 @@
 #include "MasterControlProgram.h"
 #include "InGameGuiManager.h"
+#include "NetworkShutdown.h"
 
 #include <cstring>
 #include <cstdint>
@@ -299,7 +300,7 @@ namespace NMasterControlProgram
 			FUN_004038bd(DAT_0050f698, 0, 0, 1);
 		}
 
-		FUN_00405949();
+		NNetwork::Network_ShutDown();
 		FUN_004a0aaf(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 		FUN_004a0295(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 		FUN_00401bd5(this);

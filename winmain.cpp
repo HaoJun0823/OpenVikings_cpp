@@ -28,6 +28,15 @@ namespace
 
 		return GetLastError() != ERROR_ALREADY_EXISTS;
 	}
+
+	// Original function: FUN_0047a9d9
+	void ReleaseSingleInstanceGuard()
+	{
+		if (g_singleInstanceMutex != nullptr)
+		{
+			CloseHandle(g_singleInstanceMutex);
+		}
+	}
 }
 
 // Original function: FUN_00403487
@@ -65,6 +74,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previousInstance, LPSTR command
 		FUN_004e5e48(object);
 	}
 
-	FUN_0047a9d9();
+	ReleaseSingleInstanceGuard();
 	return 0;
 }
