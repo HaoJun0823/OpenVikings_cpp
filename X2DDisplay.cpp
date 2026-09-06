@@ -842,4 +842,12 @@ namespace NXSys2DApp
 
 		NXBasics::g32BitPixelConverter->SetColorMasks(0x00FF0000, 0x0000FF00, 0x000000FF);
 	}
+	// Original function: FUN_0047b43c
+	void CDDDisplay::FlipToGDISurface()
+	{
+		if (mFullscreen)
+		{
+			mDirectDraw->FlipToGDISurface();
+		}
+	}
 }

@@ -27,6 +27,7 @@
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XMDirectInputMouse.cpp" />
     <ClCompile Include="XMKeyManager.cpp" />
+    <ClCompile Include="XMMessageDialogs.cpp" />
     <ClCompile Include="XMMouseManager.cpp" />
     <ClCompile Include="XPixelFormatConverter.cpp" />
     <ClCompile Include="XSystemMouseCursor.cpp" />
@@ -39,6 +40,7 @@
     <ClInclude Include="X2DWindow.h" />
     <ClInclude Include="XMDirectInputMouse.h" />
     <ClInclude Include="XMKeyManager.h" />
+    <ClInclude Include="XMMessageDialogs.h" />
     <ClInclude Include="XMMouseManager.h" />
     <ClInclude Include="XPixelFormatConverter.h" />
     <ClInclude Include="XSystemMouseCursor.h" />

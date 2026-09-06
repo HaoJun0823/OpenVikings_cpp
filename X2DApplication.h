@@ -72,6 +72,9 @@ namespace NXSys2DApp
 	class CApplication : public SApplicationControl
 	{
 	public:
+		// Original function: FUN_00478ce0
+		void FlipToGDISurface();
+
 		// Original function: FUN_004790cd
 		explicit CApplication(const SApplicationControl& applicationControl);
 

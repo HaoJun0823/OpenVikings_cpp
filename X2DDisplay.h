@@ -11,6 +11,9 @@ namespace NXSys2DApp
 	class CDDDisplay
 	{
 	public:
+		// Original function: FUN_0047b43c
+		void FlipToGDISurface();
+
 		// Original function: FUN_0047ab9a
 		explicit CDDDisplay(bool fullscreen);
 

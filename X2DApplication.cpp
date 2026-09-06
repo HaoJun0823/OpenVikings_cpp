@@ -2,6 +2,7 @@
 #include "X2DDisplay.h"
 #include "XMMouseManager.h"
 #include "XMKeyManager.h"
+#include "XMMessageDialogs.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -31,7 +32,6 @@ namespace NXBasics
 namespace NXSysMisc
 {
 	void __cdecl XWS_AbortBox();
-	void __cdecl XWS_WarningBox(const char* message);
 	void __cdecl XWS_AssertBox();
 }
 
@@ -538,14 +538,14 @@ namespace NXSys2DApp
 
 			if (!CanDisplayModeBeActivated(fullscreen, static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height), depth))
 			{
-				FUN_0047a9ea("NXSys2DApp::CApplication::SetDisplayMode\n\n display mode not available (%d*%d-%d)", width, height, depth);
+				NXSysMisc::XWS_WarningBoxV("NXSys2DApp::CApplication::SetDisplayMode\n\n display mode not available (%d*%d-%d)", width, height, depth);
 				return false;
 			}
 		}
 
 		if (!display->SetDisplayMode(width, height, static_cast<std::int32_t>(depth)))
 		{
-			FUN_0047a9ea("NXSys2DApp::CApplication::SetDisplayMode\n\n could not set display mode (%d*%d-%d)", width, height, depth);
+			NXSysMisc::XWS_WarningBoxV("NXSys2DApp::CApplication::SetDisplayMode\n\n could not set display mode (%d*%d-%d)", width, height, depth);
 			PostMessageA(mWindow->GetWindowHandle(), WM_CLOSE, 0, 0);
 			return false;
 		}
@@ -794,5 +794,13 @@ namespace NXSys2DApp
 		}
 
 		return *reinterpret_cast<const std::int32_t*>(displayBackend + 0x3C);
+	}
+	// Original function: FUN_00478ce0
+	void CApplication::FlipToGDISurface()
+	{
+		if (mWindow != nullptr)
+		{
+			mWindow->FlipToGDISurface();
+		}
 	}
 }

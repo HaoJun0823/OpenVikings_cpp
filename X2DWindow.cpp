@@ -243,4 +243,12 @@ namespace NXSys2DApp
 			mDisplay->Update();
 		}
 	}
+	// Original function: FUN_0047b895
+	void CWindow::FlipToGDISurface()
+	{
+		if (mDisplay != nullptr)
+		{
+			mDisplay->FlipToGDISurface();
+		}
+	}
 }

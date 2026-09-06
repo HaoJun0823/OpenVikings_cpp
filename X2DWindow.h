@@ -12,6 +12,9 @@ namespace NXSys2DApp
 	class CWindow
 	{
 	public:
+		// Original function: FUN_0047b895
+		void FlipToGDISurface();
+
 		// Original function: FUN_0047b524
 		CWindow(HINSTANCE instance, int showCommand, std::int32_t width, std::int32_t height, std::int32_t depth, bool fullscreen);
 

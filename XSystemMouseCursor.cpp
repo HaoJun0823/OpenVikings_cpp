@@ -80,6 +80,12 @@ namespace NXSysMisc
 		XWS_SystemMouseCursor_SetCustom(gCustomCursor);
 	}
 
+	// Original function: FUN_00478bc6
+	bool __stdcall XWS_SystemMouseCursor_IsShown()
+	{
+		return gSystemMouseCursorShown;
+	}
+
 	// Original function: FUN_00478bcc
 	void __stdcall XWS_SystemMouseCursor_Hide()
 	{
