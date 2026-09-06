@@ -56,7 +56,6 @@ namespace
 
 			if (versionInformation.dwMajorVersion < 4)
 			{
-				*directXPlatform = 0;
 				return;
 			}
 
@@ -73,6 +72,7 @@ namespace
 				}
 
 				const FARPROC directInputCreate = GetProcAddress(directInputModule, "DirectInputCreateA");
+
 				FreeLibrary(directInputModule);
 
 				if (directInputCreate == nullptr)
@@ -85,16 +85,11 @@ namespace
 				return;
 			}
 
-			*directXVersion = 0x0501;
-			return;
+			// Windows NT 5 and newer continue with the DirectDraw tests below.
 		}
-
-		*directXPlatform = VER_PLATFORM_WIN32_WINDOWS;
-
-		if ((versionInformation.dwBuildNumber & 0xFFFF) > 1353)
+		else
 		{
-			*directXVersion = 0x0501;
-			return;
+			*directXPlatform = VER_PLATFORM_WIN32_WINDOWS;
 		}
 
 		HMODULE directDrawModule = LoadLibraryA("DDRAW.DLL");
@@ -387,8 +382,7 @@ namespace NXSys2DApp
 			return;
 		}
 
-		const auto directDrawCreateEx = reinterpret_cast<DirectDrawCreateExFunction>(
-			GetProcAddress(directDrawModule, "DirectDrawCreateEx"));
+		const auto directDrawCreateEx = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(directDrawModule, "DirectDrawCreateEx"));
 
 		if (directDrawCreateEx != nullptr)
 		{
@@ -566,6 +560,32 @@ namespace NXSys2DApp
 		}
 
 		return *reinterpret_cast<const bool*>(displayData + 0x34);
+	}
+
+	// Original function: FUN_00478cfa
+	bool CApplication::IsWindowActive() const
+	{
+		if (mDisplaySystem == nullptr)
+		{
+			return false;
+		}
+
+		const auto* windowBytes = static_cast<const std::byte*>(mDisplaySystem);
+
+		return *reinterpret_cast<const bool*>(windowBytes + 0x05);
+	}
+
+	// Original function: FUN_00478d08
+	bool CApplication::IsApplicationActive() const
+	{
+		if (mDisplaySystem == nullptr)
+		{
+			return false;
+		}
+
+		const auto* windowBytes = static_cast<const std::byte*>(mDisplaySystem);
+
+		return *reinterpret_cast<const bool*>(windowBytes + 0x04);
 	}
 
 	// Original function: FUN_00478efa

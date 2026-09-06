@@ -9,6 +9,7 @@
 namespace NXSys2DApp
 {
 	using TApplicationCallback = void(__cdecl*)();
+	using TWindowMessageCallback = bool(__cdecl*)(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 	struct SApplicationControl
 	{
@@ -35,11 +36,12 @@ namespace NXSys2DApp
 		std::int32_t maximumScreenHeight;
 		std::int32_t maximumScreenDepth;
 
-		bool fullscreenToggle;
-		std::byte padding39[3];
+		bool fullscreenToggle;                                     // +0x38
+		std::byte padding39[3];                                    // +0x39
 
-		std::byte mUnknown3C[8];
-		TApplicationCallback callback;
+		TApplicationCallback fullscreenToggledCallback;            // +0x3C
+		TApplicationCallback applicationActivationCallback;        // +0x40
+		TWindowMessageCallback windowMessageCallback;              // +0x44
 	};
 
 	static_assert(sizeof(SApplicationControl) == 0x48);
@@ -70,7 +72,14 @@ namespace NXSys2DApp
 		// Original function: FUN_004790cd
 		explicit CApplication(const SApplicationControl& applicationControl);
 
+		// Original function: FUN_00479169
+		~CApplication();
+
+		// Original function: FUN_004791a6
 		bool StartUp();
+
+		// Original function: FUN_0047929c
+		void ShutDown();
 
 		// Original function: FUN_00478c02
 		bool SetDisplayMode(std::int32_t width, std::int32_t height, std::uint32_t depth, bool skipDisplayModeValidation);
@@ -95,6 +104,12 @@ namespace NXSys2DApp
 
 		// Original function: FUN_00478d6f
 		bool IsFullscreen() const;
+
+		// Original function: FUN_00478cfa
+		bool IsWindowActive() const;
+
+		// Original function: FUN_00478d08
+		bool IsApplicationActive() const;
 
 		// Original function: FUN_00478efa
 		bool CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;

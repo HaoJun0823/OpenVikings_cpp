@@ -20,7 +20,7 @@ namespace NXSysMouseManager
 		StartUp();
 	}
 
-	// Original function: FUN_0047c34e
+	// Original function: FUN_0047c341
 	CDirectInputMouse::~CDirectInputMouse()
 	{
 		ShutDown();

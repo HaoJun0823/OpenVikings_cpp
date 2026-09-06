@@ -26,6 +26,22 @@ namespace NXSysMouseManager
 		ResetWindowsMouseState();
 	}
 
+	// Original function: FUN_00479323
+	CMouseManager::~CMouseManager()
+	{
+		if (CDirectInputMouse::sTheObjectPtr != nullptr)
+		{
+			delete CDirectInputMouse::sTheObjectPtr;
+		}
+
+		ClipCursor(nullptr);
+
+		FUN_00478b1b();
+		FUN_00478be9();
+
+		sTheObjectPtr = nullptr;
+	}
+
 	// Original function: FUN_0047938d
 	void CMouseManager::UpdateMouseWheelState(int wheelDelta)
 	{
@@ -39,8 +55,24 @@ namespace NXSysMouseManager
 		l_SetState_Total(leftButton, middleButton, rightButton, mMouseX, mMouseY, 0, 0, 0);
 	}
 
-	// Original function: FUN_004793c2
+	// Original function: FUN_00479357
 	void CMouseManager::UpdateMouseState()
+	{
+		l_UpdateMouseState();
+
+		NXSys2DApp::CApplication* application = NXSys2DApp::CApplication::sTheObjectPtr;
+
+		if (application != nullptr && application->IsApplicationActive())
+		{
+			l_UpdateMouseButtonState();
+			return;
+		}
+
+		l_SetState_Total(false, false, false, mMouseX, mMouseY, 0, 0, 0);
+	}
+
+	// Original function: FUN_004793c2
+	void CMouseManager::l_UpdateMouseState()
 	{
 		POINT cursorPosition{};
 
@@ -50,6 +82,12 @@ namespace NXSysMouseManager
 		}
 
 		NXSys2DApp::CApplication* application = NXSys2DApp::CApplication::sTheObjectPtr;
+
+		if (application == nullptr)
+		{
+			return;
+		}
+
 		const int mouseX = cursorPosition.x - application->GetWindowOffsetX();
 		const int mouseY = cursorPosition.y - application->GetWindowOffsetY();
 
@@ -71,10 +109,12 @@ namespace NXSysMouseManager
 
 				SetCursorPos(fixedCursorX, fixedCursorY);
 
-				RECT cursorRectangle{ fixedCursorX, fixedCursorY, fixedCursorX + 1, fixedCursorY + 1 };
+				RECT cursorRectangle{ fixedCursorX,	fixedCursorY, fixedCursorX + 1, fixedCursorY + 1 };
+
 				ClipCursor(&cursorRectangle);
 
 				mDirectInputCursorLocked = true;
+
 				l_SetState_Total(mLeftButton, mMiddleButton, mRightButton, mMouseX, mMouseY, deltaX, deltaY, 0);
 			}
 			else if (mDirectInputCursorLocked)
@@ -300,6 +340,98 @@ namespace NXSysMouseManager
 		{
 			mStateChanged = true;
 			mLastStateChangeTime = timeGetTime();
+		}
+	}
+
+	// Original function: FUN_004796af
+	void CMouseManager::Callback_FullscreenToggled(bool fullscreen)
+	{
+		(void)fullscreen;
+
+		l_UpdateWindowsMouseState();
+	}
+
+	// Original function: FUN_00479880
+	void CMouseManager::GetNewMouseMessage(SMouseMessage& mouseMessage)
+	{
+		mouseMessage = {};
+
+		if (!mStateChanged)
+		{
+			return;
+		}
+
+		mStateChanged = false;
+
+		mouseMessage.mouseX = mMouseX;
+		mouseMessage.mouseY = mMouseY;
+		mouseMessage.deltaX = mAccumulatedDeltaX;
+		mouseMessage.deltaY = mAccumulatedDeltaY;
+		mouseMessage.wheelDelta = mAccumulatedWheelDelta;
+
+		mAccumulatedDeltaX = 0;
+		mAccumulatedDeltaY = 0;
+		mAccumulatedWheelDelta = 0;
+
+		if (mLeftButtonReleased)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::LeftButtonReleased);
+
+			mLeftButtonReleased = false;
+		}
+
+		if (mLeftButtonPressed)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::LeftButtonPressed);
+
+			mLeftButtonPressed = false;
+		}
+
+		if (mMiddleButtonReleased)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::MiddleButtonReleased);
+
+			mMiddleButtonReleased = false;
+		}
+
+		if (mMiddleButtonPressed)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::MiddleButtonPressed);
+
+			mMiddleButtonPressed = false;
+		}
+
+		if (mRightButtonReleased)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::RightButtonReleased);
+
+			mRightButtonReleased = false;
+		}
+
+		if (mRightButtonPressed)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::RightButtonPressed);
+
+			mRightButtonPressed = false;
+		}
+
+		if (mLeftButtonDoubleClicked)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::LeftButtonDoubleClicked);
+
+			mLeftButtonDoubleClicked = false;
+		}
+
+		if (mPositionChanged)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::PositionChanged);
+
+			mPositionChanged = false;
+		}
+
+		if (mouseMessage.wheelDelta != 0)
+		{
+			mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::WheelChanged);
 		}
 	}
 

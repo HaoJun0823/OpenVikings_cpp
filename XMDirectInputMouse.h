@@ -13,7 +13,7 @@ namespace NXSysMouseManager
 		// Original function: FUN_0047c320
 		CDirectInputMouse();
 
-		// Original function: FUN_0047c34e
+		// Original function: FUN_0047c341
 		~CDirectInputMouse();
 
 		// Original function: FUN_0047c47e

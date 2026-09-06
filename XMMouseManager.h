@@ -7,6 +7,32 @@
 
 namespace NXSysMouseManager
 {
+	enum class EMouseMessageFlags : std::uint32_t
+	{
+		None = 0x000,
+		PositionChanged = 0x001,
+		WheelChanged = 0x002,
+		LeftButtonPressed = 0x004,
+		LeftButtonReleased = 0x008,
+		MiddleButtonPressed = 0x010,
+		MiddleButtonReleased = 0x020,
+		RightButtonPressed = 0x040,
+		RightButtonReleased = 0x080,
+		LeftButtonDoubleClicked = 0x100
+	};
+
+	struct SMouseMessage
+	{
+		std::uint32_t flags;     // +0x00
+		std::int32_t mouseX;     // +0x04
+		std::int32_t mouseY;     // +0x08
+		std::int32_t deltaX;     // +0x0C
+		std::int32_t deltaY;     // +0x10
+		std::int32_t wheelDelta; // +0x14
+	};
+
+	static_assert(sizeof(SMouseMessage) == 0x18);
+
 	class CMouseManager
 	{
 	public:
@@ -19,8 +45,17 @@ namespace NXSysMouseManager
 		// Original function: FUN_004793a4
 		void UpdateMouseButtonState(bool leftButton, bool middleButton, bool rightButton);
 
-		// Original function: FUN_004793c2
+		// Original function: FUN_00479323
+		~CMouseManager();
+
+		// Original function: FUN_00479357
 		void UpdateMouseState();
+
+		// Original function: FUN_004796af
+		void Callback_FullscreenToggled(bool fullscreen);
+
+		// Original function: FUN_00479880
+		void GetNewMouseMessage(SMouseMessage& mouseMessage);
 
 		// Original function: FUN_0047953d
 		void ResetWindowsMouseState();
@@ -32,6 +67,9 @@ namespace NXSysMouseManager
 
 	private:
 		using TMousePositionOverrideCallback = bool(__cdecl*)();
+
+		// Original function: FUN_004793c2
+		void l_UpdateMouseState();
 
 		// Original function: FUN_004794eb
 		void l_UpdateMouseButtonState();
