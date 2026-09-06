@@ -63,6 +63,9 @@ namespace NXSysMouseManager
 		// Original function: FUN_00479923
 		void SetHideSystemMouseCursorWhenFullscreenState(bool hideSystemMouseCursor);
 
+		// Original function: FUN_0047969a
+		void Callback_WindowActivationChanged(bool active);
+
 		static CMouseManager* sTheObjectPtr;
 
 	private:

@@ -21,6 +21,9 @@ namespace NXSysMouseManager
 
 		bool IsInitialised() const;
 
+		// Original function: FUN_0047c34e
+		void Restart();
+
 		static CDirectInputMouse* sTheObjectPtr;
 
 	private:

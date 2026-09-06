@@ -1,4 +1,6 @@
 #include "MasterControlProgram.h"
+#include "XMMouseManager.h"
+#include "XSystemMouseCursor.h"
 
 namespace NMasterControlProgram
 {
@@ -6,18 +8,18 @@ namespace NMasterControlProgram
 	void CMasterControlProgram::HardwareMouseCursor_Enable()
 	{
 		mHardwareMouseCursorEnabled = true;
-		FUN_00479923(DAT_00554d78, false);
-		FUN_00478b1b();
-		FUN_00478be9();
+		NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(false);
+		NXSysMisc::XWS_SystemMouseCursor_SetNormal();
+		NXSysMisc::XWS_SystemMouseCursor_Show();
 	}
 
 	// Original function: FUN_0040170c
 	void CMasterControlProgram::HardwareMouseCursor_Disable()
 	{
 		mHardwareMouseCursorEnabled = false;
-		FUN_00479923(DAT_00554d78, true);
-		FUN_00478b1b();
-		FUN_00478bcc();
+		NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(true);
+		NXSysMisc::XWS_SystemMouseCursor_SetNormal();
+		NXSysMisc::XWS_SystemMouseCursor_Hide();
 	}
 
 	// Original function: FUN_0040172a
@@ -32,11 +34,11 @@ namespace NMasterControlProgram
 
 		if (mouseCursorIndex == -1)
 		{
-			FUN_00478b53(nullptr);
+			NXSysMisc::XWS_SystemMouseCursor_SetCustom(nullptr);
 			return;
 		}
 
-		FUN_00478b53(mMouseCursors[mouseCursorIndex]);
+		NXSysMisc::XWS_SystemMouseCursor_SetCustom(mMouseCursors[mouseCursorIndex]);
 	}
 
 	// Original function: FUN_00401750
@@ -44,20 +46,20 @@ namespace NMasterControlProgram
 	{
 		if (mHardwareMouseCursorEnabled)
 		{
-			FUN_00479923(DAT_00554d78, false);
-			FUN_00478b1b();
-			FUN_00478be9();
+			NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(false);
+			NXSysMisc::XWS_SystemMouseCursor_SetNormal();
+			NXSysMisc::XWS_SystemMouseCursor_Show();
 
 			if (mHardwareMouseCursorEnabled)
 			{
-				FUN_00478b53(mMouseCursors[0]);
+				NXSysMisc::XWS_SystemMouseCursor_SetCustom(mMouseCursors[0]);
 			}
 		}
 		else
 		{
-			FUN_00479923(DAT_00554d78, true);
-			FUN_00478b1b();
-			FUN_00478bcc();
+			NXSysMouseManager::CMouseManager::sTheObjectPtr->SetHideSystemMouseCursorWhenFullscreenState(true);
+			NXSysMisc::XWS_SystemMouseCursor_SetNormal();
+			NXSysMisc::XWS_SystemMouseCursor_Hide();
 		}
 	}
 }

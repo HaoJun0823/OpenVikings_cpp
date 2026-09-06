@@ -1,4 +1,7 @@
 #include "X2DApplication.h"
+#include "X2DDisplay.h"
+#include "XMMouseManager.h"
+#include "XMKeyManager.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -16,6 +19,7 @@ namespace NXBasics
 	{
 	public:
 		CXBSystemManager();
+		~CXBSystemManager();
 
 		static CXBSystemManager* sTheObjectPtr;
 		static void* sFatalErrorFunctionPtr;
@@ -27,7 +31,7 @@ namespace NXBasics
 namespace NXSysMisc
 {
 	void __cdecl XWS_AbortBox();
-	void __cdecl XWS_WarningBox();
+	void __cdecl XWS_WarningBox(const char* message);
 	void __cdecl XWS_AssertBox();
 }
 
@@ -325,7 +329,7 @@ namespace NXSys2DApp
 	CApplication::CApplication(const SApplicationControl& applicationControl) : SApplicationControl(applicationControl),
 		mOwnsSystemManager(false),
 		mPadding49{},
-		mDisplaySystem(nullptr),
+		mWindow(nullptr),
 		mMouseWheelMessage(0),
 		mDirectXVersion(0),
 		mDirectXPlatform(0),
@@ -348,6 +352,22 @@ namespace NXSys2DApp
 		GetDXVersion(&mDirectXVersion, &mDirectXPlatform);
 		l_GetDesktopDisplayMode();
 		l_GetFullscreenDisplayModes();
+	}
+
+	// Original function: FUN_00479169
+	CApplication::~CApplication()
+	{
+		ShutDown();
+
+		NXBasics::CXBSystemManager::sAssertFunctionPtr = nullptr;
+		NXBasics::CXBSystemManager::sWarningErrorFunctionPtr = nullptr;
+
+		if (mOwnsSystemManager && NXBasics::CXBSystemManager::sTheObjectPtr != nullptr)
+		{
+			delete NXBasics::CXBSystemManager::sTheObjectPtr;
+		}
+
+		sTheObjectPtr = nullptr;
 	}
 
 	// Original function: FUN_00478d8a
@@ -505,11 +525,9 @@ namespace NXSys2DApp
 	// Original function: FUN_00478c02
 	bool CApplication::SetDisplayMode(std::int32_t width, std::int32_t height, std::uint32_t depth, bool skipDisplayModeValidation)
 	{
-		auto* displaySystem = *reinterpret_cast<std::byte**>(reinterpret_cast<std::byte*>(this) + 0x4C);
+		CDDDisplay* display = mWindow->GetDisplay();
 
-		auto* displayData = *reinterpret_cast<std::byte**>(displaySystem + 0x08);
-
-		if (displayData == nullptr)
+		if (display == nullptr)
 		{
 			return false;
 		}
@@ -521,23 +539,18 @@ namespace NXSys2DApp
 			if (!CanDisplayModeBeActivated(fullscreen, static_cast<std::uint32_t>(width), static_cast<std::uint32_t>(height), depth))
 			{
 				FUN_0047a9ea("NXSys2DApp::CApplication::SetDisplayMode\n\n display mode not available (%d*%d-%d)", width, height, depth);
-
 				return false;
 			}
 		}
 
-		if (!FUN_0047b38e(displayData, width, height, static_cast<std::int32_t>(depth)))
+		if (!display->SetDisplayMode(width, height, static_cast<std::int32_t>(depth)))
 		{
 			FUN_0047a9ea("NXSys2DApp::CApplication::SetDisplayMode\n\n could not set display mode (%d*%d-%d)", width, height, depth);
-
-			const HWND window = *reinterpret_cast<HWND*>(displaySystem);
-
-			PostMessageA(window, WM_CLOSE, 0, 0);
-
+			PostMessageA(mWindow->GetWindowHandle(), WM_CLOSE, 0, 0);
 			return false;
 		}
 
-		FUN_0047953d(DAT_00554d78);
+		NXSysMouseManager::CMouseManager::sTheObjectPtr->ResetWindowsMouseState();
 
 		return true;
 	}
@@ -565,27 +578,109 @@ namespace NXSys2DApp
 	// Original function: FUN_00478cfa
 	bool CApplication::IsWindowActive() const
 	{
-		if (mDisplaySystem == nullptr)
+		if (mWindow == nullptr)
 		{
 			return false;
 		}
 
-		const auto* windowBytes = static_cast<const std::byte*>(mDisplaySystem);
-
-		return *reinterpret_cast<const bool*>(windowBytes + 0x05);
+		return mWindow->IsWindowActive();
 	}
 
 	// Original function: FUN_00478d08
 	bool CApplication::IsApplicationActive() const
 	{
-		if (mDisplaySystem == nullptr)
+		if (mWindow == nullptr)
 		{
 			return false;
 		}
 
-		const auto* windowBytes = static_cast<const std::byte*>(mDisplaySystem);
+		return mWindow->IsApplicationActive();
+	}
 
-		return *reinterpret_cast<const bool*>(windowBytes + 0x04);
+	// Original function: FUN_00478ced
+	HWND CApplication::GetWindowHandle() const
+	{
+		if (mWindow == nullptr)
+		{
+			return nullptr;
+		}
+
+		return mWindow->GetWindowHandle();
+	}
+
+	HINSTANCE CApplication::GetInstance() const
+	{
+		return instance;
+	}
+
+	// Original function: FUN_004791a6
+	bool CApplication::StartUp()
+	{
+		if (mDirectXVersion < 0x0700)
+		{
+			NXSysMisc::XWS_WarningBox("NXSysMisc::CApplication::StartUp\n\n DirectX 7.0 required");
+			return false;
+		}
+
+		HMODULE directDrawModule = LoadLibraryA("DDRAW.DLL");
+
+		if (directDrawModule == nullptr)
+		{
+			return false;
+		}
+
+		const auto directDrawCreateEx = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(directDrawModule, "DirectDrawCreateEx"));
+
+		if (directDrawCreateEx == nullptr)
+		{
+			FreeLibrary(directDrawModule);
+			return false;
+		}
+
+		IDirectDraw7* directDraw = nullptr;
+		const HRESULT result = directDrawCreateEx(nullptr, reinterpret_cast<void**>(&directDraw), IID_IDirectDraw7, nullptr);
+
+		if (FAILED(result) || directDraw == nullptr)
+		{
+			FreeLibrary(directDrawModule);
+			return false;
+		}
+
+		directDraw->Release();
+		FreeLibrary(directDrawModule);
+
+		mWindow = new (std::nothrow) CWindow(instance, showCommand, screenWidth, screenHeight, screenDepth, fullscreen);
+
+		if (mWindow == nullptr || !mWindow->IsInitialized())
+		{
+			delete mWindow;
+			mWindow = nullptr;
+			return false;
+		}
+
+		new (std::nothrow) NXSysKeyManager::CKeyManager();
+		new (std::nothrow) NXSysMouseManager::CMouseManager();
+
+		return true;
+	}
+
+	// Original function: FUN_0047929c
+	void CApplication::ShutDown()
+	{
+		delete mWindow;
+		mWindow = nullptr;
+
+		delete NXSysMouseManager::CMouseManager::sTheObjectPtr;
+		delete NXSysKeyManager::CKeyManager::sTheObjectPtr;
+	}
+
+	// Original function: FUN_00479a54
+	void CApplication::UpdateDisplay()
+	{
+		if (mWindow != nullptr)
+		{
+			mWindow->Update();
+		}
 	}
 
 	// Original function: FUN_00478efa
@@ -627,9 +722,7 @@ namespace NXSys2DApp
 	// Original function: FUN_00478c98
 	bool CApplication::ToggleFullscreen()
 	{
-		auto* window = *reinterpret_cast<std::byte**>(reinterpret_cast<std::byte*>(this) + 0x4C);
-
-		if (window == nullptr)
+		if (mWindow == nullptr)
 		{
 			return false;
 		}
@@ -637,7 +730,6 @@ namespace NXSys2DApp
 		const std::uint32_t depth = static_cast<std::uint32_t>(GetDisplayDepth());
 		const std::uint32_t height = static_cast<std::uint32_t>(GetDisplayHeight());
 		const std::uint32_t width = static_cast<std::uint32_t>(GetDisplayWidth());
-
 		const bool targetFullscreen = !IsFullscreen();
 
 		if (!CanDisplayModeBeActivated(targetFullscreen, width, height, depth))
@@ -645,7 +737,7 @@ namespace NXSys2DApp
 			return false;
 		}
 
-		FUN_0047b8a2(window);
+		mWindow->ToggleFullscreen();
 
 		return true;
 	}

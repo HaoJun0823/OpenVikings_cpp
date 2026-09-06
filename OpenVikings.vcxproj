@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="InGameGuiManager.cpp" />
     <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
     <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp" />
     <ClCompile Include="MasterControlProgram_PS_InGame.cpp" />
@@ -22,14 +23,25 @@
     <ClCompile Include="MasterControlProgram.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
     <ClCompile Include="X2DApplicationMessages.cpp" />
+    <ClCompile Include="X2DDisplay.cpp" />
+    <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XMDirectInputMouse.cpp" />
+    <ClCompile Include="XMKeyManager.cpp" />
     <ClCompile Include="XMMouseManager.cpp" />
+    <ClCompile Include="XPixelFormatConverter.cpp" />
+    <ClCompile Include="XSystemMouseCursor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="InGameGuiManager.h" />
     <ClInclude Include="MasterControlProgram.h" />
     <ClInclude Include="X2DApplication.h" />
+    <ClInclude Include="X2DDisplay.h" />
+    <ClInclude Include="X2DWindow.h" />
     <ClInclude Include="XMDirectInputMouse.h" />
+    <ClInclude Include="XMKeyManager.h" />
     <ClInclude Include="XMMouseManager.h" />
+    <ClInclude Include="XPixelFormatConverter.h" />
+    <ClInclude Include="XSystemMouseCursor.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
@@ -69,21 +81,21 @@
     <NMakeOutput>OpenVikings.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
-<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-  <ClCompile>
-    <LanguageStandard>stdcpp17</LanguageStandard>
-  </ClCompile>
-  <Manifest>
-    <EnableSegmentHeap>true</EnableSegmentHeap>
-  </Manifest>
-</ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-  <ClCompile>
-    <LanguageStandard>stdcpp17</LanguageStandard>
-  </ClCompile>
-  <Manifest>
-    <EnableSegmentHeap>true</EnableSegmentHeap>
-  </Manifest>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -32,6 +32,13 @@ namespace NXSysMouseManager
 		return mInitialised;
 	}
 
+	// Original function: FUN_0047c34e
+	void CDirectInputMouse::Restart()
+	{
+		ShutDown();
+		StartUp();
+	}
+
 	// Original function: FUN_0047c35f
 	void CDirectInputMouse::StartUp()
 	{

@@ -1,6 +1,7 @@
+#include "X2DApplication.h"
 #include "XMMouseManager.h"
 #include "XMDirectInputMouse.h"
-#include "X2DApplication.h"
+#include "XSystemMouseCursor.h"
 
 #include <Windows.h>
 
@@ -36,8 +37,8 @@ namespace NXSysMouseManager
 
 		ClipCursor(nullptr);
 
-		FUN_00478b1b();
-		FUN_00478be9();
+		NXSysMisc::XWS_SystemMouseCursor_SetNormal();
+		NXSysMisc::XWS_SystemMouseCursor_Show();
 
 		sTheObjectPtr = nullptr;
 	}
@@ -148,14 +149,14 @@ namespace NXSysMouseManager
 
 		if (application->IsFullscreen() && mHideSystemMouseCursorWhenFullscreen)
 		{
-			FUN_00478bcc();
+			NXSysMisc::XWS_SystemMouseCursor_Hide();
 		}
 		else
 		{
-			FUN_00478be9();
+			NXSysMisc::XWS_SystemMouseCursor_Show();
 		}
 
-		FUN_00478b94();
+		NXSysMisc::XWS_SystemMouseCursor_Reset();
 	}
 
 	// Original function: FUN_0047956d
@@ -343,6 +344,22 @@ namespace NXSysMouseManager
 		}
 	}
 
+	// Original function: FUN_0047969a
+	void CMouseManager::Callback_WindowActivationChanged(bool active)
+	{
+		if (!active)
+		{
+			return;
+		}
+
+		CDirectInputMouse* directInputMouse = CDirectInputMouse::sTheObjectPtr;
+
+		if (directInputMouse != nullptr)
+		{
+			directInputMouse->Restart();
+		}
+	}
+
 	// Original function: FUN_004796af
 	void CMouseManager::Callback_FullscreenToggled(bool fullscreen)
 	{
@@ -439,5 +456,14 @@ namespace NXSysMouseManager
 	void CMouseManager::SetHideSystemMouseCursorWhenFullscreenState(bool hideSystemMouseCursor)
 	{
 		mHideSystemMouseCursorWhenFullscreen = hideSystemMouseCursor;
+
+		if (hideSystemMouseCursor)
+		{
+			NXSysMisc::XWS_SystemMouseCursor_Hide();
+		}
+		else
+		{
+			NXSysMisc::XWS_SystemMouseCursor_Show();
+		}
 	}
 }

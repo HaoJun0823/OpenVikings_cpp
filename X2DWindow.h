@@ -1,0 +1,72 @@
+#pragma once
+
+#include <Windows.h>
+
+#include <cstddef>
+#include <cstdint>
+
+namespace NXSys2DApp
+{
+	class CDDDisplay;
+
+	class CWindow
+	{
+	public:
+		// Original function: FUN_0047b524
+		CWindow(HINSTANCE instance, int showCommand, std::int32_t width, std::int32_t height, std::int32_t depth, bool fullscreen);
+
+		// Original function: FUN_0047b868
+		~CWindow();
+
+		// Original function: FUN_0047b662
+		LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+
+		// Original function: FUN_0047b8a2
+		void ToggleFullscreen();
+
+		// Original function: FUN_0047b888
+		void Update();
+
+		HWND GetWindowHandle() const
+		{
+			return mWindowHandle;
+		}
+
+		bool IsApplicationActive() const
+		{
+			return mApplicationActive;
+		}
+
+		bool IsWindowActive() const
+		{
+			return mWindowActive;
+		}
+
+		bool IsInitialized() const
+		{
+			return mInitialized;
+		}
+
+		CDDDisplay* GetDisplay() const
+		{
+			return mDisplay;
+		}
+
+	private:
+		static constexpr const char* WindowClassName = "Funatics Software Application Window";
+
+		// Original function: FUN_0047b638
+		static LRESULT CALLBACK WindowProcedure(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+
+		HWND mWindowHandle;             // +0x00
+		bool mApplicationActive;        // +0x04
+		bool mWindowActive;             // +0x05
+		bool mInitialized;              // +0x06
+		std::byte mPadding07;            // +0x07
+		CDDDisplay* mDisplay;            // +0x08
+		HINSTANCE mInstance;             // +0x0C
+		int mShowCommand;                // +0x10
+	};
+
+	static_assert(sizeof(CWindow) == 0x14);
+}

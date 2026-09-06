@@ -5,11 +5,12 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "X2DWindow.h"
 
 namespace NXSys2DApp
 {
 	using TApplicationCallback = void(__cdecl*)();
-	using TWindowMessageCallback = bool(__cdecl*)(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
+	using TWindowMessageCallback = int(__cdecl*)(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 	struct SApplicationControl
 	{
@@ -66,6 +67,8 @@ namespace NXSys2DApp
 
 	static_assert(sizeof(SDisplayModeData) == 0x3D0);
 
+	class CWindow;
+
 	class CApplication : public SApplicationControl
 	{
 	public:
@@ -105,8 +108,17 @@ namespace NXSys2DApp
 		// Original function: FUN_00478d6f
 		bool IsFullscreen() const;
 
+		// Original function: FUN_00478ced
+		HWND GetWindowHandle() const;
+
 		// Original function: FUN_00478cfa
 		bool IsWindowActive() const;
+
+		// Original function: FUN_00479a54
+		void UpdateDisplay();
+
+		// Original function: FUN_00479a61
+		LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
 		// Original function: FUN_00478d08
 		bool IsApplicationActive() const;
@@ -115,7 +127,6 @@ namespace NXSys2DApp
 		bool CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
 
 		HINSTANCE GetInstance() const;
-		HWND GetWindowHandle() const;
 
 		// Original function: FUN_004799d8
 		bool DoMessages();
@@ -134,7 +145,7 @@ namespace NXSys2DApp
 
 		bool mOwnsSystemManager;             // +0x48
 		std::byte mPadding49[3];             // +0x49
-		void* mDisplaySystem;                // +0x4C
+		CWindow* mWindow;					 // +0x4C
 		UINT mMouseWheelMessage;             // +0x50
 		DWORD mDirectXVersion;               // +0x54
 		DWORD mDirectXPlatform;              // +0x58

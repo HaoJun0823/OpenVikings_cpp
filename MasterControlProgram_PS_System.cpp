@@ -93,12 +93,12 @@ namespace NMasterControlProgram
 			FUN_004040eb(DAT_0050f69c);
 		}
 
-		FUN_00479a54(NXSys2DApp::CApplication::sTheObjectPtr);
+		NXSys2DApp::CApplication::sTheObjectPtr->UpdateDisplay();
 
 		DisplayResolution_CheckChangeRequest();
 		System_ProgramState_ExecuteWantedChange();
 
-		if (!FUN_00478cfa(NXSys2DApp::CApplication::sTheObjectPtr) && !FUN_00478d08(NXSys2DApp::CApplication::sTheObjectPtr))
+		if (!NXSys2DApp::CApplication::sTheObjectPtr->IsWindowActive() && !NXSys2DApp::CApplication::sTheObjectPtr->IsApplicationActive())
 		{
 			Sleep(10);
 		}

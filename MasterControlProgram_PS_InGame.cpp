@@ -1,4 +1,5 @@
 #include "MasterControlProgram.h"
+#include "InGameGuiManager.h"
 
 #include <cstring>
 #include <cstdint>
@@ -78,16 +79,11 @@ namespace NMasterControlProgram
 
 		FUN_00402530(this, false);
 
-		void* guiManagerMemory = ::operator new(0x1F0, std::nothrow);
-
-		if (guiManagerMemory != nullptr)
-		{
-			FUN_0049fd79(guiManagerMemory);
-		}
+		new (std::nothrow) NInGameGuiManager::CInGameGuiManager();
 
 		FUN_00401985(this);
 
-		FUN_004a0205(DAT_005690cc);
+		FUN_004a0205(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
 		const int displayDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
 
@@ -95,17 +91,15 @@ namespace NMasterControlProgram
 
 		const int displayWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
 
-		FUN_004a030c(DAT_005690cc, displayWidth, displayHeight, displayDepth);
+		FUN_004a030c(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, displayWidth, displayHeight, displayDepth);
 
-		FUN_004a2653(DAT_005690cc);
+		FUN_004a2653(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
-		auto* guiManagerBytes = reinterpret_cast<const std::uint8_t*>(DAT_005690cc);
-
-		if (guiManagerBytes[0xE5] != 0)
+		if (NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->AreCheatsAllowed())
 		{
 			auto* message = FUN_004e1e35(0x56);
 
-			FUN_004a25e0(DAT_005690cc, message);
+			FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, message);
 		}
 
 		FUN_004019da(this);
@@ -138,7 +132,7 @@ namespace NMasterControlProgram
 					switch (record.type)
 					{
 					case 1:
-						FUN_004a25e0(DAT_005690cc, receivedText);
+						FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, receivedText);
 						FUN_004e2bcf();
 						break;
 
@@ -176,7 +170,7 @@ namespace NMasterControlProgram
 						auto* playerStateBytes = reinterpret_cast<std::byte*>(DAT_00510a00) + playerIndex * 0xC58;
 						const bool playerStateActive = playerStateBytes[0] != std::byte{ 0 };
 						const int storedValidationValue = *reinterpret_cast<const int*>(playerStateBytes + 0x08);
-						const int localPlayerId = *reinterpret_cast<const int*>(DAT_005690cc);
+						const int localPlayerId = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
 
 						if (playerStateActive &&
 							storedValidationValue == validationValue &&
@@ -194,7 +188,7 @@ namespace NMasterControlProgram
 
 				if (receivedRecords != nullptr)
 				{
-					FUN_004e5e48(receivedRecords);
+					::operator delete(static_cast<void*>(receivedRecords));
 				}
 			}
 		}
@@ -268,7 +262,7 @@ namespace NMasterControlProgram
 
 			if (outputText[0] != '\0')
 			{
-				FUN_004a25e0(DAT_005690cc, outputText);
+				FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, outputText);
 			}
 
 			char diagnosticText[200]{};
@@ -285,7 +279,7 @@ namespace NMasterControlProgram
 		}
 
 		thunk_FUN_004077b8();
-		FUN_004a0184(DAT_005690cc);
+		FUN_004a0184(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
 		const auto* desktopBytes = reinterpret_cast<const std::byte*>(DAT_00554d5c);
 		const std::uint32_t displayBitmap = *reinterpret_cast<const std::uint32_t*>(desktopBytes + 0x10);
@@ -306,17 +300,11 @@ namespace NMasterControlProgram
 		}
 
 		FUN_00405949();
-		FUN_004a0aaf(DAT_005690cc);
-		FUN_004a0295(DAT_005690cc);
+		FUN_004a0aaf(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+		FUN_004a0295(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 		FUN_00401bd5(this);
 
-		auto* inGameGuiManager = DAT_005690cc;
-
-		if (inGameGuiManager != nullptr)
-		{
-			FUN_004a00c1(inGameGuiManager);
-			FUN_004e5e48(inGameGuiManager);
-		}
+		delete NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 
 		mProgramState = static_cast<std::int32_t>(TProgramState::None);
 	}

@@ -1,5 +1,6 @@
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
+#include "XSystemMouseCursor.h"
 
 #include <cstddef>
 #include <cstdint>

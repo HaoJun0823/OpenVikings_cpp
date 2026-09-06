@@ -1,4 +1,5 @@
 #include "MasterControlProgram.h"
+#include "InGameGuiManager.h"
 #include "X2DApplication.h"
 
 #include <cstddef>
@@ -37,30 +38,22 @@ namespace NMasterControlProgram
 		{
 			std::uint32_t displayedMapPosition = 0;
 
-			auto* inGameGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005690cc);
-
-			auto* inGameDesktop = *reinterpret_cast<std::byte**>(inGameGuiManagerBytes + 0x04);
-
+			auto* inGameGuiManager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+			auto* inGameDesktop = static_cast<std::byte*>(inGameGuiManager->GetDesktop());
 			void* inGameDisplay = *reinterpret_cast<void**>(inGameDesktop + 0x30);
 
 			FUN_0047cf89(inGameDisplay, &displayedMapPosition);
+			FUN_004a0aaf(inGameGuiManager);
 
-			FUN_004a0aaf(DAT_005690cc);
-
-			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, flag);
+			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, applicationFlag);
 
 			const int actualWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
-
 			const int actualHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
-
 			const std::uint32_t actualDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
 
-			FUN_004a030c(DAT_005690cc, actualWidth, actualHeight, actualDepth);
+			FUN_004a030c(inGameGuiManager, actualWidth, actualHeight, actualDepth);
 
-			inGameGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005690cc);
-
-			inGameDesktop = *reinterpret_cast<std::byte**>(inGameGuiManagerBytes + 0x04);
-
+			inGameDesktop = static_cast<std::byte*>(inGameGuiManager->GetDesktop());
 			inGameDisplay = *reinterpret_cast<void**>(inGameDesktop + 0x30);
 
 			FUN_0047c876(inGameDisplay, &displayedMapPosition);
@@ -79,7 +72,7 @@ namespace NMasterControlProgram
 
 			FUN_004d2fdc(DAT_005694dc);
 
-			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, flag);
+			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, applicationFlag);
 
 			const int actualWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
 
@@ -99,7 +92,7 @@ namespace NMasterControlProgram
 		}
 		else
 		{
-			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, flag);
+			NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, applicationFlag);
 		}
 
 		if (saveOptions)
