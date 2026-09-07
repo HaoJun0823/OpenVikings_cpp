@@ -135,6 +135,40 @@ namespace NXBasics
 		}
 	}
 
+	// Original function: FUN_0040fc47
+	inline const std::uint16_t* Palette_GetHighColorTablePtr(void* palette)
+	{
+		const auto* paletteBytes = static_cast<const std::byte*>(palette);
+
+		const std::uint16_t* table;
+		std::memcpy(&table, paletteBytes + 0x404, sizeof(table));
+
+		if (table == nullptr)
+		{
+			Palette_RebuildHighColorTable(palette);
+			std::memcpy(&table, paletteBytes + 0x404, sizeof(table));
+		}
+
+		return table;
+	}
+
+	// Original function: FUN_0040fd04
+	inline const std::uint32_t* Palette_GetTrueColorTablePtr(void* palette)
+	{
+		const auto* paletteBytes = static_cast<const std::byte*>(palette);
+
+		const std::uint32_t* table;
+		std::memcpy(&table, paletteBytes + 0x408, sizeof(table));
+
+		if (table == nullptr)
+		{
+			Palette_RebuildTrueColorTable(palette);
+			std::memcpy(&table, paletteBytes + 0x408, sizeof(table));
+		}
+
+		return table;
+	}
+
 	// Original function: FUN_0040fc61
 	inline std::uint16_t Palette_GetHighColorWord(void* palette, std::uint32_t colorIndex)
 	{

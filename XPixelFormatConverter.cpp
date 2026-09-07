@@ -78,7 +78,6 @@ namespace NXBasics
 	}
 
 	C16BitPixelConverter* g16BitPixelConverter = nullptr;
-	C16BitPixelConverter* g16BitPixelConverter = nullptr;
 	C32BitPixelConverter* g32BitPixelConverter = nullptr;
 
 	// Original function: FUN_0040fe27
@@ -123,9 +122,10 @@ namespace NXBasics
 			return 0;
 		}
 
-		const std::uint32_t packedRed = (red >> mRedRightShift) << mRedLeftShift;
-		const std::uint32_t packedGreen = (green >> mGreenRightShift) << mGreenLeftShift;
-		const std::uint32_t packedBlue = (blue >> mBlueRightShift) << mBlueLeftShift;
+		// x86 masks each 32-bit shift count to five bits.
+		const std::uint32_t packedRed = (red >> (mRedRightShift & 31u)) << (mRedLeftShift & 31u);
+		const std::uint32_t packedGreen = (green >> (mGreenRightShift & 31u)) << (mGreenLeftShift & 31u);
+		const std::uint32_t packedBlue = (blue >> (mBlueRightShift & 31u)) << (mBlueLeftShift & 31u);
 
 		return static_cast<std::uint16_t>(packedRed | packedGreen | packedBlue);
 	}

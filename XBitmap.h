@@ -1,13 +1,14 @@
 #pragma once
 
 #include "XBasicTypes.h"
+#include "XStorable.h"
 
 #include <cstddef>
 #include <cstdint>
 
 namespace NXBasics
 {
-	class CBitmap
+	class CBitmap : public CStorable
 	{
 	public:
 		// Original function: FUN_0040c624
@@ -15,6 +16,27 @@ namespace NXBasics
 
 		// Original function: FUN_0040c65f
 		CBitmap(CBitmap* sourceBitmap, const SRectangle& rectangle);
+
+		// Original function: FUN_0040cb4c
+		void CopyIntoBitmap(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const;
+
+		// Original function: FUN_0040d56b
+		void CopyIntoBitmap_FitIn(CBitmap* destination) const;
+
+		// Original function: FUN_0040eeb1
+		const std::uint16_t* GetHighColorTablePtr() const;
+
+		// Original function: FUN_0040eee3
+		const std::uint32_t* GetTrueColorTablePtr() const;
+
+		// Original function: FUN_0040d9ee
+		std::uint8_t Draw_GetPixel(std::int32_t x, std::int32_t y) const;
+
+		// Original function: FUN_0040da2b
+		std::uint16_t Draw_GetPixel_Word(std::int32_t x, std::int32_t y) const;
+
+		// Original function: FUN_0040da6a
+		std::uint32_t Draw_GetPixel_Long(std::int32_t x, std::int32_t y) const;
 
 		// Original function: FUN_0040ee96
 		std::uint16_t GetHighColorWord(std::uint8_t colorIndex) const;
@@ -56,16 +78,16 @@ namespace NXBasics
 		void Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, const SColorRGB& color);
 
 		// Original function: LAB_0040d00a
-		virtual std::uint32_t Storable_GetId();
+		std::uint32_t Storable_GetId() override;
 
 		// Original function: LAB_0040c775
-		virtual std::uint32_t Storable_GetVersion();
+		std::uint32_t Storable_GetVersion() override;
 
 		// Original function: FUN_0040c734
-		virtual void Storable_SaveData(void* file);
+		void Storable_SaveData(void* file) override;
 
 		// Original function: FUN_0040c6bf
-		virtual ~CBitmap();
+		~CBitmap() override;
 
 		// Original function: FUN_004e5e48
 		static void operator delete(void* allocation) noexcept;

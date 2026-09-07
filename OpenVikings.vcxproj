@@ -32,6 +32,7 @@
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XBitmap.cpp" />
     <ClCompile Include="XMDirectInputMouse.cpp" />
+    <ClCompile Include="XMemory.cpp" />
     <ClCompile Include="XMKeyManager.cpp" />
     <ClCompile Include="XMMessageDialogs.cpp" />
     <ClCompile Include="XMMouseManager.cpp" />
@@ -53,11 +54,13 @@
     <ClInclude Include="XBitmap.h" />
     <ClInclude Include="XBitmapTools.h" />
     <ClInclude Include="XMDirectInputMouse.h" />
+    <ClInclude Include="XMemory.h" />
     <ClInclude Include="XMKeyManager.h" />
     <ClInclude Include="XMMessageDialogs.h" />
     <ClInclude Include="XMMouseManager.h" />
     <ClInclude Include="XPaletteAccess.h" />
     <ClInclude Include="XPixelFormatConverter.h" />
+    <ClInclude Include="XStorable.h" />
     <ClInclude Include="XSystemMouseCursor.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

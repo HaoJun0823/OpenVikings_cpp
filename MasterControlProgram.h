@@ -36,9 +36,6 @@ namespace NMasterControlProgram
 		// Original function: FUN_00401b85
 		void GameEngine_ShutDownEngine();
 
-		// Original function: FUN_00401c12
-		void __stdcall FUN_00401c12();
-
 		// Original function: FUN_00402530
 		void ProgressBar_Init(bool useTitleScreen);
 

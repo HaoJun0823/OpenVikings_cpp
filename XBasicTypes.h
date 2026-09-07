@@ -134,6 +134,12 @@ namespace NXBasics
 		}
 	};
 
+	// Original function: FUN_0041037f
+	inline std::int32_t __cdecl operator==(const SRectangle& first, const SRectangle& second) noexcept
+	{
+		return first.x == second.x && first.y == second.y && first.width == second.width && first.height == second.height ? 1 : 0;
+	}
+
 	struct alignas(4) SColorRGB
 	{
 		std::uint8_t blue;      // +0x00

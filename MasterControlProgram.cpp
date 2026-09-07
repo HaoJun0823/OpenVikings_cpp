@@ -332,7 +332,7 @@ namespace NMasterControlProgram
 
 		// Reload the picture's bitmap pointer at the original call site.
 		std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
-		FUN_0040cb4c(sourceBitmap, bitmapStorage, 0, 0);
+		static_cast<NXBasics::CBitmap*>(sourceBitmap)->CopyIntoBitmap(temporaryBitmap, 0, 0);
 
 		void* progressBarMemory = ::operator new(0x54, std::nothrow);
 		void* progressBar = nullptr;
@@ -351,7 +351,7 @@ namespace NMasterControlProgram
 
 		mProgressBar = progressBar;
 
-		FUN_0040d56b(bitmapStorage, progressBar);
+		temporaryBitmap->CopyIntoBitmap_FitIn(static_cast<NXBasics::CBitmap*>(progressBar));
 		temporaryBitmap->~CBitmap();
 		FUN_0040be7d(pictureStorage);
 

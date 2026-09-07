@@ -31,6 +31,8 @@ namespace NXBasics
 		}
 
 	private:
+		friend class CBitmap;
+
 		bool mInitialized;                       // +0x00
 		std::byte mPadding01[3];                 // +0x01
 		void* mUnknownBuffer;                    // +0x04

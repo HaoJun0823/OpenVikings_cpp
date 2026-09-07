@@ -1,7 +1,9 @@
+#include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XBitmapTools.h"
 #include "XPixelFormatConverter.h"
 #include "XPaletteAccess.h"
+#include "XMemory.h"
 
 #include <cstring>
 #include <new>
@@ -11,6 +13,23 @@ extern void FUN_004e5e48(void* allocation);
 
 namespace NXBasics
 {
+	template <typename T>
+	T* BitmapPixelAddress(T* pixels, std::uint32_t index)
+	{
+		// Preserve the original 32-bit byte-offset arithmetic.
+		const std::uint32_t offset = index * static_cast<std::uint32_t>(sizeof(T));
+		return reinterpret_cast<T*>(reinterpret_cast<std::uintptr_t>(pixels) + offset);
+	}
+
+	std::int32_t ScaleBitmapCoordinate(std::int32_t sourceExtent, std::int32_t coordinate, std::int32_t destinationExtent)
+	{
+		// IMUL keeps the low 32 bits; IDIV then interprets them as signed.
+		const std::uint32_t productBits = static_cast<std::uint32_t>(sourceExtent) * static_cast<std::uint32_t>(coordinate);
+		std::int32_t product;
+		std::memcpy(&product, &productBits, sizeof(product));
+		return product / destinationExtent;
+	}
+
 	// Original function: FUN_0040c624
 	CBitmap::CBitmap(std::int32_t width, std::int32_t height, std::int32_t depth) : mRectangle(0, 0, 0, 0)
 	{
@@ -24,6 +43,32 @@ namespace NXBasics
 	{
 		l_InitObject();
 		l_ConstructVirtual(sourceBitmap, rectangle);
+	}
+
+	// Original function: FUN_0040eeb1
+	const std::uint16_t* CBitmap::GetHighColorTablePtr() const
+	{
+		void* palette = mPalette;
+
+		if (palette == nullptr)
+		{
+			palette = DAT_005106dc;
+		}
+
+		return Palette_GetHighColorTablePtr(palette);
+	}
+
+	// Original function: FUN_0040eee3
+	const std::uint32_t* CBitmap::GetTrueColorTablePtr() const
+	{
+		void* palette = mPalette;
+
+		if (palette == nullptr)
+		{
+			palette = DAT_005106dc;
+		}
+
+		return Palette_GetTrueColorTablePtr(palette);
 	}
 
 	// Original function: FUN_0040c953
@@ -101,7 +146,7 @@ namespace NXBasics
 
 		if (memoryStorage != nullptr)
 		{
-			memory = FUN_0042f805(memoryStorage, allocationSize);
+			memory = ::new (memoryStorage) CMemory(allocationSize);
 		}
 
 		mMemory = memory;
@@ -310,6 +355,104 @@ namespace NXBasics
 		}
 	}
 
+	// Original function: FUN_0040d9ee
+	std::uint8_t CBitmap::Draw_GetPixel(std::int32_t x, std::int32_t y) const
+	{
+		const auto* pixels = mRawMemory;
+
+		if (pixels == nullptr)
+			return 0;
+
+		// The cached bounds are compared as signed 32-bit values.
+		std::int32_t right;
+		std::memcpy(&right, &mRightBits, sizeof(right));
+
+		if (x < mRectangle.x || x > right)
+			return 0;
+
+		std::int32_t bottom;
+		std::memcpy(&bottom, &mBottomBits, sizeof(bottom));
+
+		if (y < mRectangle.y || y > bottom)
+			return 0;
+
+		if (mDepth != 0)
+			return 0;
+
+		// Coordinates are used directly, without subtracting the rectangle origin.
+		const std::uint32_t index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
+		const std::uintptr_t address = reinterpret_cast<std::uintptr_t>(pixels) + index;
+
+		std::uint8_t result;
+		std::memcpy(&result, reinterpret_cast<const void*>(address), sizeof(result));
+		return result;
+	}
+
+	// Original function: FUN_0040da2b
+	std::uint16_t CBitmap::Draw_GetPixel_Word(std::int32_t x, std::int32_t y) const
+	{
+		const auto* pixels = mHighColorMemory;
+
+		if (pixels == nullptr)
+			return 0;
+
+		std::int32_t right;
+		std::memcpy(&right, &mRightBits, sizeof(right));
+
+		if (x < mRectangle.x || x > right)
+			return 0;
+
+		std::int32_t bottom;
+		std::memcpy(&bottom, &mBottomBits, sizeof(bottom));
+
+		if (y < mRectangle.y || y > bottom)
+			return 0;
+
+		if (mDepth != 1)
+			return 0;
+
+		// Preserve 32-bit wraparound before adding the base address.
+		const std::uint32_t index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
+		const std::uint32_t byteOffset = index * 2u;
+		const std::uintptr_t address = reinterpret_cast<std::uintptr_t>(pixels) + byteOffset;
+
+		std::uint16_t result;
+		std::memcpy(&result, reinterpret_cast<const void*>(address), sizeof(result));
+		return result;
+	}
+
+	// Original function: FUN_0040da6a
+	std::uint32_t CBitmap::Draw_GetPixel_Long(std::int32_t x, std::int32_t y) const
+	{
+		const auto* pixels = mTrueColorMemory;
+
+		if (pixels == nullptr)
+			return 0;
+
+		std::int32_t right;
+		std::memcpy(&right, &mRightBits, sizeof(right));
+
+		if (x < mRectangle.x || x > right)
+			return 0;
+
+		std::int32_t bottom;
+		std::memcpy(&bottom, &mBottomBits, sizeof(bottom));
+
+		if (y < mRectangle.y || y > bottom)
+			return 0;
+
+		if (mDepth != 2)
+			return 0;
+
+		const std::uint32_t index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
+		const std::uint32_t byteOffset = index * 4u;
+		const std::uintptr_t address = reinterpret_cast<std::uintptr_t>(pixels) + byteOffset;
+
+		std::uint32_t result;
+		std::memcpy(&result, reinterpret_cast<const void*>(address), sizeof(result));
+		return result;
+	}
+
 	// Original function: FUN_0040daa7
 	void CBitmap::Draw_Box(SRectangle rectangle, std::uint8_t colorIndex)
 	{
@@ -513,7 +656,7 @@ namespace NXBasics
 
 		FUN_004061bc(file, &mDepth, 0x04);
 		FUN_004061bc(file, &mRectangle, 0x10);
-		FUN_0041067e(mMemory, file);
+		static_cast<CMemory*>(mMemory)->Storable_Save(file);
 	}
 
 	// Original function: FUN_0040c6bf
@@ -530,6 +673,290 @@ namespace NXBasics
 			vtable[3](memory, 1);
 
 			mMemory = nullptr;
+		}
+	}
+
+	// Original function: FUN_0040cb4c
+	void CBitmap::CopyIntoBitmap(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const
+	{
+		enum class CopyMode
+		{
+			None,
+			Byte,
+			Word,
+			Long,
+			ByteToWord,
+			ByteToLong
+		};
+
+		CopyMode mode = CopyMode::None;
+		const std::uint16_t* highColorTable = nullptr;
+		const std::uint32_t* trueColorTable = nullptr;
+
+		if (mDepth == 0 && destination->mDepth == 0)
+		{
+			if (mRawMemory == nullptr || destination->mRawMemory == nullptr)
+				return;
+
+			mode = CopyMode::Byte;
+		}
+		else if (mDepth == 1 && destination->mDepth == 1)
+		{
+			if (mHighColorMemory == nullptr || destination->mHighColorMemory == nullptr)
+				return;
+
+			mode = CopyMode::Word;
+		}
+		else if (mDepth == 2 && destination->mDepth == 2)
+		{
+			if (mTrueColorMemory == nullptr || destination->mTrueColorMemory == nullptr)
+				return;
+
+			mode = CopyMode::Long;
+		}
+		else if (mDepth == 0 && destination->mDepth == 1)
+		{
+			highColorTable = GetHighColorTablePtr();
+
+			if (highColorTable == nullptr)
+				return;
+
+			if (mRawMemory == nullptr || destination->mHighColorMemory == nullptr)
+				return;
+
+			mode = CopyMode::ByteToWord;
+		}
+		else if (mDepth == 0 && destination->mDepth == 2)
+		{
+			trueColorTable = GetTrueColorTablePtr();
+
+			if (trueColorTable == nullptr)
+				return;
+
+			if (mRawMemory == nullptr || destination->mTrueColorMemory == nullptr)
+				return;
+
+			mode = CopyMode::ByteToLong;
+		}
+
+		if (mode != CopyMode::None)
+		{
+			const SRectangle destinationBounds(0, 0, destination->mRectangle.width, destination->mRectangle.height);
+			SRectangle area(destinationX, destinationY, mRectangle.width, mRectangle.height);
+
+			if (!area.IsTouching(destinationBounds))
+				return;
+
+			area.CutInside(destinationBounds);
+
+			const std::uint32_t sourceX = static_cast<std::uint32_t>(area.x) - static_cast<std::uint32_t>(destinationX);
+			const std::uint32_t sourceY = static_cast<std::uint32_t>(area.y) - static_cast<std::uint32_t>(destinationY);
+			const std::uint32_t sourceIndex = sourceY * mRowPixelCount + sourceX;
+			const std::uint32_t destinationIndex = static_cast<std::uint32_t>(area.y) * destination->mRowPixelCount + static_cast<std::uint32_t>(area.x);
+
+			switch (mode)
+			{
+			case CopyMode::Byte:
+				XB_Tool_Byte_CopyBlock(BitmapPixelAddress(mRawMemory, sourceIndex), BitmapPixelAddress(destination->mRawMemory, destinationIndex), static_cast<std::uint32_t>(area.width), area.height, mRowPixelCount, destination->mRowPixelCount);
+				break;
+
+			case CopyMode::Word:
+				XB_Tool_Word_CopyBlock(BitmapPixelAddress(mHighColorMemory, sourceIndex), BitmapPixelAddress(destination->mHighColorMemory, destinationIndex), static_cast<std::uint32_t>(area.width), area.height, mRowPixelCount, destination->mRowPixelCount);
+				break;
+
+			case CopyMode::Long:
+				XB_Tool_Long_CopyBlock(BitmapPixelAddress(mTrueColorMemory, sourceIndex), BitmapPixelAddress(destination->mTrueColorMemory, destinationIndex), static_cast<std::uint32_t>(area.width), area.height, mRowPixelCount, destination->mRowPixelCount);
+				break;
+
+			case CopyMode::ByteToWord:
+				XB_Tool_ByteToWord_CopyBlock(BitmapPixelAddress(mRawMemory, sourceIndex), BitmapPixelAddress(destination->mHighColorMemory, destinationIndex), area.width, area.height, mRowPixelCount, destination->mRowPixelCount, highColorTable);
+				break;
+
+			case CopyMode::ByteToLong:
+				XB_Tool_ByteToLong_CopyBlock(BitmapPixelAddress(mRawMemory, sourceIndex), BitmapPixelAddress(destination->mTrueColorMemory, destinationIndex), area.width, area.height, mRowPixelCount, destination->mRowPixelCount, trueColorTable);
+				break;
+
+			default:
+				break;
+			}
+
+			return;
+		}
+
+		// These conversion paths ignore the requested destination position.
+		if (mDepth == 1 && destination->mDepth == 2)
+		{
+			if (mRectangle == destination->mRectangle)
+			{
+				const auto* highColorConverter = g16BitPixelConverter;
+				const auto* trueColorConverter = g32BitPixelConverter;
+
+				for (std::int32_t y = 0; y < mRectangle.height; ++y)
+				{
+					for (std::int32_t x = 0; x < mRectangle.width; ++x)
+					{
+						const std::uint16_t pixel = Draw_GetPixel_Word(x, y);
+
+						// The original uses adjustment fields at +0x2C/+0x30/+0x34.
+						const std::uint32_t red = ((static_cast<std::uint32_t>(pixel) & highColorConverter->mRedMask) >> (static_cast<std::uint32_t>(highColorConverter->mRedAdjustment) & 31u)) << 3;
+						const std::uint32_t green = ((static_cast<std::uint32_t>(pixel) & highColorConverter->mGreenMask) >> (static_cast<std::uint32_t>(highColorConverter->mGreenAdjustment) & 31u)) << 3;
+						const std::uint32_t blue = ((static_cast<std::uint32_t>(pixel) & highColorConverter->mBlueMask) >> (static_cast<std::uint32_t>(highColorConverter->mBlueAdjustment) & 31u)) << 3;
+						const std::uint32_t color = trueColorConverter->PackColor(red, green, blue);
+
+						const std::uint32_t index = static_cast<std::uint32_t>(y) * destination->mRowPixelCount + static_cast<std::uint32_t>(x);
+						std::memcpy(BitmapPixelAddress(destination->mTrueColorMemory, index), &color, sizeof(color));
+					}
+				}
+			}
+		}
+
+		if (mDepth == 2 && destination->mDepth == 1)
+		{
+			if (!(mRectangle == destination->mRectangle))
+				return;
+
+			for (std::int32_t y = 0; y < mRectangle.height; ++y)
+			{
+				for (std::int32_t x = 0; x < mRectangle.width; ++x)
+				{
+					const std::uint32_t pixel = Draw_GetPixel_Long(x, y);
+					const std::uint32_t red = (pixel >> 16) & 0xFFu;
+					const std::uint32_t green = (pixel >> 8) & 0xFFu;
+					const std::uint32_t blue = pixel & 0xFFu;
+					const std::uint16_t color = g16BitPixelConverter->PackColor(red, green, blue);
+
+					const std::uint32_t index = static_cast<std::uint32_t>(y) * destination->mRowPixelCount + static_cast<std::uint32_t>(x);
+					std::memcpy(BitmapPixelAddress(destination->mHighColorMemory, index), &color, sizeof(color));
+				}
+			}
+		}
+	}
+
+	// Original function: FUN_0040d56b
+	void CBitmap::CopyIntoBitmap_FitIn(CBitmap* destination) const
+	{
+		if (mRawMemory == nullptr)
+			return;
+
+		if (destination->mRawMemory == nullptr)
+			return;
+
+		const std::int32_t destinationWidth = destination->mRectangle.width;
+		const std::int32_t destinationHeight = destination->mRectangle.height;
+
+		enum class ScaleMode
+		{
+			Byte,
+			ByteToWord,
+			ByteToLong,
+			Word,
+			Long
+		};
+
+		ScaleMode mode;
+		const std::uint16_t* highColorTable = nullptr;
+		const std::uint32_t* trueColorTable = nullptr;
+
+		if (mDepth == 0 && destination->mDepth == 0)
+		{
+			mode = ScaleMode::Byte;
+		}
+		else if (mDepth == 0 && destination->mDepth == 1)
+		{
+			highColorTable = GetHighColorTablePtr();
+
+			if (highColorTable == nullptr)
+				return;
+
+			mode = ScaleMode::ByteToWord;
+		}
+		else if (mDepth == 0 && destination->mDepth == 2)
+		{
+			trueColorTable = GetTrueColorTablePtr();
+
+			if (trueColorTable == nullptr)
+				return;
+
+			mode = ScaleMode::ByteToLong;
+		}
+		else if (mDepth == 1 && destination->mDepth == 1)
+		{
+			mode = ScaleMode::Word;
+		}
+		else if (mDepth == 2 && destination->mDepth == 2)
+		{
+			mode = ScaleMode::Long;
+		}
+		else
+		{
+			return;
+		}
+
+		if (mode == ScaleMode::Byte || mode == ScaleMode::ByteToWord)
+		{
+			for (std::int32_t y = 0; y < destinationHeight; ++y)
+			{
+				const std::int32_t sourceY = ScaleBitmapCoordinate(mRectangle.height, y, destinationHeight);
+				const std::uint32_t sourceRowIndex = static_cast<std::uint32_t>(sourceY) * mRowPixelCount;
+				const auto* sourceRow = BitmapPixelAddress(mRawMemory, sourceRowIndex);
+
+				const std::uint32_t destinationRowIndex = static_cast<std::uint32_t>(y) * destination->mRowPixelCount;
+				std::uintptr_t destinationAddress;
+
+				if (mode == ScaleMode::Byte)
+					destinationAddress = reinterpret_cast<std::uintptr_t>(BitmapPixelAddress(destination->mRawMemory, destinationRowIndex));
+				else
+					destinationAddress = reinterpret_cast<std::uintptr_t>(BitmapPixelAddress(destination->mHighColorMemory, destinationRowIndex));
+
+				for (std::int32_t x = 0; x < destinationWidth; ++x)
+				{
+					const std::int32_t sourceX = ScaleBitmapCoordinate(mRectangle.width, x, destinationWidth);
+					const std::uint8_t index = *BitmapPixelAddress(sourceRow, static_cast<std::uint32_t>(sourceX));
+
+					if (mode == ScaleMode::Byte)
+					{
+						*reinterpret_cast<std::uint8_t*>(destinationAddress) = index;
+						++destinationAddress;
+					}
+					else
+					{
+						const std::uint16_t color = highColorTable[index];
+						std::memcpy(reinterpret_cast<void*>(destinationAddress), &color, sizeof(color));
+						destinationAddress += 2u;
+					}
+				}
+			}
+
+			return;
+		}
+
+		for (std::int32_t y = 0; y < destinationHeight; ++y)
+		{
+			for (std::int32_t x = 0; x < destinationWidth; ++x)
+			{
+				const std::int32_t sourceX = ScaleBitmapCoordinate(mRectangle.width, x, destinationWidth);
+				const std::int32_t sourceY = ScaleBitmapCoordinate(mRectangle.height, y, destinationHeight);
+
+				if (mode == ScaleMode::ByteToLong)
+				{
+					const std::uint8_t index = Draw_GetPixel(sourceX, sourceY);
+					const std::uint32_t color = trueColorTable[index];
+					const std::uint32_t destinationIndex = static_cast<std::uint32_t>(y) * destination->mRowPixelCount + static_cast<std::uint32_t>(x);
+					std::memcpy(BitmapPixelAddress(destination->mTrueColorMemory, destinationIndex), &color, sizeof(color));
+				}
+				else if (mode == ScaleMode::Word)
+				{
+					const std::uint16_t color = Draw_GetPixel_Word(sourceX, sourceY);
+					const std::uint32_t destinationIndex = static_cast<std::uint32_t>(y) * destination->mRowPixelCount + static_cast<std::uint32_t>(x);
+					std::memcpy(BitmapPixelAddress(destination->mHighColorMemory, destinationIndex), &color, sizeof(color));
+				}
+				else
+				{
+					const std::uint32_t color = Draw_GetPixel_Long(sourceX, sourceY);
+					const std::uint32_t destinationIndex = static_cast<std::uint32_t>(y) * destination->mRowPixelCount + static_cast<std::uint32_t>(x);
+					std::memcpy(BitmapPixelAddress(destination->mTrueColorMemory, destinationIndex), &color, sizeof(color));
+				}
+			}
 		}
 	}
 
