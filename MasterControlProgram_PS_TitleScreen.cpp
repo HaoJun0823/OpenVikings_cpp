@@ -4,12 +4,9 @@
 
 // Constructor/initializer called with the object pointer in ECX.
 extern int* __fastcall FUN_004027d2(int* object);
-
 extern int* DAT_0050f634;
 extern void __fastcall FUN_00402a58(int* object);
-
 extern void __fastcall FUN_00402a15(int* object);
-extern void FUN_004e5e48(void* object);
 
 namespace NMasterControlProgram
 {
@@ -46,7 +43,7 @@ namespace NMasterControlProgram
 		if (titleScreenManager != nullptr)
 		{
 			FUN_00402a15(titleScreenManager);
-			FUN_004e5e48(titleScreenManager);
+			::operator delete(static_cast<void*>(titleScreenManager));
 		}
 
 		mProgramState = static_cast<std::int32_t>(TProgramState::None);

@@ -31,6 +31,7 @@
     <ClCompile Include="X2DDisplay.cpp" />
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XBitmap.cpp" />
+    <ClCompile Include="XFile.cpp" />
     <ClCompile Include="XMDirectInputMouse.cpp" />
     <ClCompile Include="XMemory.cpp" />
     <ClCompile Include="XMKeyManager.cpp" />
@@ -53,6 +54,9 @@
     <ClInclude Include="XBasicTypes.h" />
     <ClInclude Include="XBitmap.h" />
     <ClInclude Include="XBitmapTools.h" />
+    <ClInclude Include="XCrtFileAccess.h" />
+    <ClInclude Include="XFile.h" />
+    <ClInclude Include="XFileAccess.h" />
     <ClInclude Include="XMDirectInputMouse.h" />
     <ClInclude Include="XMemory.h" />
     <ClInclude Include="XMKeyManager.h" />

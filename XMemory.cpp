@@ -1,10 +1,8 @@
+#include "XFileAccess.h"
 #include "XMemory.h"
 
 #include <cstring>
 #include <new>
-
-// Original allocation-release wrapper.
-extern void FUN_004e5e48(void* allocation);
 
 namespace NXBasics
 {
@@ -19,8 +17,8 @@ namespace NXBasics
 	{
 		std::memset(mData, 0xED, mSize);
 
-		// Reload the data pointer after overwriting the buffer.
-		FUN_004e5e48(mData);
+		// Release the buffer allocated by l_AllocateMemory().
+		::operator delete(mData);
 	}
 
 	// Original function: FUN_0042f984
@@ -53,18 +51,18 @@ namespace NXBasics
 	// Original function: FUN_0042f95e
 	void CMemory::Storable_SaveData(void* file)
 	{
-		FUN_004061bc(file, &mSize, 0x04);
+		File_Write(file, &mSize, 0x04);
 
 		// Reload the size and data pointer after writing the size field.
 		const std::uint32_t size = mSize;
 		const auto* data = mData;
 
-		FUN_004061bc(file, data, size);
+		File_Write(file, data, size);
 	}
 
 	// Original function: FUN_004e5e48
 	void CMemory::operator delete(void* allocation) noexcept
 	{
-		FUN_004e5e48(allocation);
+		::operator delete(allocation);
 	}
 }

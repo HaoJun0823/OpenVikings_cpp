@@ -496,8 +496,7 @@ namespace NMasterControlProgram
 
 		if (application != nullptr)
 		{
-			application->~CApplication();
-			FUN_004e5e48(application);
+			delete application;
 		}
 
 		auto* propertyManager = DAT_005697ec;

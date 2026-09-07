@@ -1,5 +1,7 @@
 #pragma once
 
+#include "XFileAccess.h"
+
 #include <cstdint>
 
 namespace NXBasics
@@ -13,8 +15,8 @@ namespace NXBasics
 			std::uint32_t id = Storable_GetId();
 			std::uint32_t version = Storable_GetVersion();
 
-			FUN_004061bc(file, &id, 0x04);
-			FUN_004061bc(file, &version, 0x04);
+			File_Write(file, &id, 0x04);
+			File_Write(file, &version, 0x04);
 
 			Storable_SaveData(file);
 		}

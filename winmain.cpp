@@ -1,10 +1,10 @@
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
 
-#include <Windows.h>
 #include <cstdint>
-#include <cstddef>
 #include <new>
+#include <sal.h>
+#include <Windows.h>
 
 namespace
 {
@@ -40,7 +40,7 @@ namespace
 }
 
 // Original function: FUN_00403487
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand)
+int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
 {
 	// Original function: FUN_0047a9a4
 	if (!InitializeSingleInstanceGuard("weltwunder"))
@@ -70,8 +70,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previousInstance, LPSTR command
 
 	if (object != nullptr)
 	{
-		object->~CMasterControlProgram();
-		FUN_004e5e48(object);
+		delete object;
 	}
 
 	ReleaseSingleInstanceGuard();

@@ -7,9 +7,6 @@
 #include <cstring>
 #include <new>
 
-// Original allocation-release wrapper.
-extern void FUN_004e5e48(void* allocation);
-
 namespace NXBasics
 {
 	// Original function: FUN_0040faf5
@@ -63,7 +60,7 @@ namespace NXBasics
 
 		if (table != nullptr)
 		{
-			FUN_004e5e48(table);
+			::operator delete(table);
 
 			table = nullptr;
 			std::memcpy(paletteBytes + 0x404, &table, sizeof(table));
@@ -104,7 +101,7 @@ namespace NXBasics
 
 		if (table != nullptr)
 		{
-			FUN_004e5e48(table);
+			::operator delete(table);
 
 			table = nullptr;
 			std::memcpy(paletteBytes + 0x408, &table, sizeof(table));

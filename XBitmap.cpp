@@ -1,15 +1,13 @@
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XBitmapTools.h"
+#include "XFileAccess.h"
 #include "XPixelFormatConverter.h"
 #include "XPaletteAccess.h"
 #include "XMemory.h"
 
 #include <cstring>
 #include <new>
-
-// Original allocation-release wrapper.
-extern void FUN_004e5e48(void* allocation);
 
 namespace NXBasics
 {
@@ -65,8 +63,8 @@ namespace NXBasics
 			FUN_00406935(DAT_004ff994);
 		}
 
-		FUN_004061bc(file, &mDepth, 0x04);
-		FUN_004061bc(file, &mRectangle, 0x10);
+		File_Write(file, &mDepth, 0x04);
+		File_Write(file, &mRectangle, 0x10);
 		static_cast<CMemory*>(mMemory)->Storable_Save(file);
 	}
 
@@ -958,6 +956,6 @@ namespace NXBasics
 	// Original function: FUN_004e5e48
 	void CBitmap::operator delete(void* allocation) noexcept
 	{
-		FUN_004e5e48(allocation);
+		::operator delete(allocation);
 	}
 }
