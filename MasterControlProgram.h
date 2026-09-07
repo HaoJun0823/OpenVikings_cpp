@@ -5,6 +5,12 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NC2LogicExternals
+{
+	// Original function: FUN_00401c12
+	void __stdcall External_Misc_ProgressBar_Update();
+}
+
 namespace NMasterControlProgram
 {
 	enum class TProgramState : std::int32_t
@@ -30,8 +36,20 @@ namespace NMasterControlProgram
 		// Original function: FUN_00401b85
 		void GameEngine_ShutDownEngine();
 
+		// Original function: FUN_00401c12
+		void __stdcall FUN_00401c12();
+
+		// Original function: FUN_00402530
+		void ProgressBar_Init(bool useTitleScreen);
+
 		// Original function: FUN_00402620
 		void ProgressBar_Exit();
+
+		// Original function: FUN_0040272c
+		void ProgressBar_PrintToScreen();
+
+		// Original function: FUN_0040263d
+		void ProgressBar_Update();
 
 		// Original function: FUN_0040235c
 		bool System_ProgramState_Start(TProgramState programState);
@@ -146,12 +164,14 @@ namespace NMasterControlProgram
 		std::uint8_t mGameInitialized;              // +0x29
 		std::byte mUnknown2A[0x122];                // +0x2A
 
-		bool mHardwareMouseCursorEnabled;
-		std::byte mPadding14D[3];
+		bool mHardwareMouseCursorEnabled;          // +0x14C
+		std::byte mPadding14D[3];                  // +0x14D
 
-		HCURSOR mMouseCursors[3];
+		HCURSOR mMouseCursors[3];                  // +0x150
 
-		std::byte mUnknown15C[0x0C];
+		void* mProgressBar;                        // +0x15C
+		std::uint32_t mProgressBarValue;           // +0x160
+		std::byte mUnknown164[0x04];               // +0x164
 	};
 
 	static_assert(sizeof(CMasterControlProgram) == 0x168);

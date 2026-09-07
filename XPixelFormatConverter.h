@@ -1,5 +1,7 @@
 #pragma once
 
+#include "XBasicTypes.h"
+
 #include <cstddef>
 #include <cstdint>
 
@@ -19,6 +21,14 @@ namespace NXBasics
 
 		// Original function: FUN_004100d8
 		std::uint16_t PackColor(std::uint32_t red, std::uint32_t green, std::uint32_t blue) const;
+
+		// Original function: FUN_00410117
+		std::uint16_t PackColor(const SColorRGB& color) const;
+
+		bool IsInitialized() const noexcept
+		{
+			return mInitialized;
+		}
 
 	private:
 		bool mInitialized;                       // +0x00
@@ -58,6 +68,17 @@ namespace NXBasics
 
 		// Original function: FUN_00410232
 		void SetColorMasks(std::uint32_t redMask, std::uint32_t greenMask, std::uint32_t blueMask);
+
+		// Original function: FUN_004102e8
+		std::uint32_t PackColor(std::uint32_t red, std::uint32_t green, std::uint32_t blue) const;
+
+		// Original function: FUN_00410326
+		std::uint32_t PackColor(const SColorRGB& color) const;
+
+		bool IsInitialized() const noexcept
+		{
+			return mInitialized;
+		}
 
 	private:
 		bool mInitialized;                // +0x00

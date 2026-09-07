@@ -78,7 +78,7 @@ namespace NMasterControlProgram
 	{
 		mProgramState = 10;
 
-		FUN_00402530(this, false);
+		ProgressBar_Init(false);
 
 		new (std::nothrow) NInGameGuiManager::CInGameGuiManager();
 

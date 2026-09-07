@@ -30,9 +30,7 @@ namespace NMasterControlProgram
 	{
 		mProgramState = 7;
 
-		const auto* objectBytes = reinterpret_cast<const std::uint8_t*>(this);
-
-		FUN_00402530(this, objectBytes[0x28] == 0);
+		ProgressBar_Init(mEngineInitialized == 0);
 
 		void* guiManagerMemory = ::operator new(0x21B4, std::nothrow);
 

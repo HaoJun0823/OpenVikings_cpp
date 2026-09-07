@@ -41,6 +41,43 @@ namespace
 
 namespace NXBasics
 {
+	// Original function: FUN_00410117
+	std::uint16_t C16BitPixelConverter::PackColor(const SColorRGB& color) const
+	{
+		const std::uint32_t blue = color.blue;
+		const std::uint32_t green = color.green;
+		const std::uint32_t red = color.red;
+
+		return PackColor(red, green, blue);
+	}
+
+	// Original function: FUN_004102e8
+	std::uint32_t C32BitPixelConverter::PackColor(std::uint32_t red, std::uint32_t green, std::uint32_t blue) const
+	{
+		if (!mInitialized)
+		{
+			return 0;
+		}
+
+		// x86 masks each 32-bit shift count to five bits.
+		const std::uint32_t packedRed = (red >> (mRedRightShift & 31u)) << (mRedLeftShift & 31u);
+		const std::uint32_t packedGreen = (green >> (mGreenRightShift & 31u)) << (mGreenLeftShift & 31u);
+		const std::uint32_t packedBlue = (blue >> (mBlueRightShift & 31u)) << (mBlueLeftShift & 31u);
+
+		return packedRed | packedGreen | packedBlue;
+	}
+
+	// Original function: FUN_00410326
+	std::uint32_t C32BitPixelConverter::PackColor(const SColorRGB& color) const
+	{
+		const std::uint32_t blue = color.blue;
+		const std::uint32_t green = color.green;
+		const std::uint32_t red = color.red;
+
+		return PackColor(red, green, blue);
+	}
+
+	C16BitPixelConverter* g16BitPixelConverter = nullptr;
 	C16BitPixelConverter* g16BitPixelConverter = nullptr;
 	C32BitPixelConverter* g32BitPixelConverter = nullptr;
 

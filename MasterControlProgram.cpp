@@ -1,6 +1,8 @@
 #include "MasterControlProgram.h"
 #include "NetworkShutdown.h"
 #include "X2DApplication.h"
+#include "XBasicTypes.h"
+#include "XBitmap.h"
 #include "XSystemMouseCursor.h"
 
 #include <cstddef>
@@ -10,6 +12,15 @@
 
 // Original pointer slots: 0x005106C4 through 0x005106D4.
 extern void* DAT_005106c4[5];
+
+namespace NC2LogicExternals
+{
+	// Original function: FUN_00401c12
+	void __stdcall External_Misc_ProgressBar_Update()
+	{
+		NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->ProgressBar_Update();
+	}
+}
 
 namespace NMasterControlProgram
 {
@@ -289,6 +300,145 @@ namespace NMasterControlProgram
 		mEngineInitialized = 0;
 	}
 
+	// Original function: FUN_00402530
+	void CMasterControlProgram::ProgressBar_Init(bool useTitleScreen)
+	{
+		ProgressBar_Exit();
+
+		const char* fileNamePattern = useTitleScreen ? "data\\gui\\lang\\%s\\pictures\\titlescreen.bmp" : "data\\gui\\lang\\%s\\pictures\\loadscreen.bmp";
+
+		char fileName[0x104];
+		FUN_00405adb(fileNamePattern, fileName, false);
+
+		// Temporary x86 object storage until the corresponding classes are implemented.
+		alignas(4) std::byte pictureStorage[0x0C];
+		alignas(4) std::byte bitmapStorage[0x54];
+
+		FUN_0040bd76(pictureStorage, fileName);
+
+		void* sourceBitmap;
+		std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
+
+		const auto sourceDisplayDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+		const auto sourceBitmapFormat = NXBasics::ConvertBitsToTDepth(sourceDisplayDepth);
+
+		std::uint32_t sourceHeight;
+		std::uint32_t sourceWidth;
+
+		std::memcpy(&sourceHeight, static_cast<const std::byte*>(sourceBitmap) + 0x14, sizeof(sourceHeight));
+		std::memcpy(&sourceWidth, static_cast<const std::byte*>(sourceBitmap) + 0x10, sizeof(sourceWidth));
+
+		auto* temporaryBitmap = ::new (static_cast<void*>(bitmapStorage)) NXBasics::CBitmap(sourceWidth, sourceHeight, sourceBitmapFormat);
+
+		// Reload the picture's bitmap pointer at the original call site.
+		std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
+		FUN_0040cb4c(sourceBitmap, bitmapStorage, 0, 0);
+
+		void* progressBarMemory = ::operator new(0x54, std::nothrow);
+		void* progressBar = nullptr;
+
+		if (progressBarMemory != nullptr)
+		{
+			auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+
+			const auto displayDepth = application->GetDisplayDepth();
+			const auto bitmapFormat = NXBasics::ConvertBitsToTDepth(displayDepth);
+			const auto displayHeight = application->GetDisplayHeight();
+			const auto displayWidth = application->GetDisplayWidth();
+
+			progressBar = ::new (progressBarMemory) NXBasics::CBitmap(displayWidth, displayHeight, bitmapFormat);
+		}
+
+		mProgressBar = progressBar;
+
+		FUN_0040d56b(bitmapStorage, progressBar);
+		temporaryBitmap->~CBitmap();
+		FUN_0040be7d(pictureStorage);
+
+		ProgressBar_PrintToScreen();
+
+		mProgressBarValue = 0;
+	}
+
+	// Original function: FUN_0040263d
+	void CMasterControlProgram::ProgressBar_Update()
+	{
+		void* progressBar = mProgressBar;
+
+		if (progressBar == nullptr)
+		{
+			return;
+		}
+
+		++mProgressBarValue;
+
+		std::uint32_t heightBits;
+		std::uint32_t widthBits;
+
+		std::memcpy(&heightBits, static_cast<const std::byte*>(progressBar) + 0x14, sizeof(heightBits));
+		std::memcpy(&widthBits, static_cast<const std::byte*>(progressBar) + 0x10, sizeof(widthBits));
+
+		// Preserve 32-bit subtraction before interpreting the signed coordinates.
+		widthBits -= 84u;
+		heightBits -= 6u;
+
+		std::int32_t widthDifference;
+		std::int32_t top;
+
+		std::memcpy(&widthDifference, &widthBits, sizeof(widthDifference));
+		std::memcpy(&top, &heightBits, sizeof(top));
+
+		const std::int32_t left = widthDifference / 2;
+
+		NXBasics::SRectangle rectangle(left, top, 84, 4);
+
+		// Preserve the original explicit destruction point.
+		alignas(NXBasics::CBitmap) std::byte bitmapStorage[sizeof(NXBasics::CBitmap)];
+		auto* temporaryBitmap = ::new (static_cast<void*>(bitmapStorage)) NXBasics::CBitmap(static_cast<NXBasics::CBitmap*>(mProgressBar), rectangle);
+
+		// Original static storage: DAT_0050f628 and DAT_0050f62c.
+		static std::uint8_t backgroundInitializationFlags = 0;
+		static NXBasics::SColorRGB backgroundColor(0, 0, 0);
+
+		if ((backgroundInitializationFlags & 1u) == 0)
+		{
+			backgroundInitializationFlags |= 1u;
+
+			backgroundColor = NXBasics::SColorRGB(108, 100, 83);
+
+			// Original callback at 0x0040272B contains only RET.
+			FUN_004e6040(+[]() {});
+		}
+
+		temporaryBitmap->Fill(backgroundColor);
+
+		const std::uint32_t doubledValue = mProgressBarValue << 1;
+		const std::int32_t position = static_cast<std::int32_t>(doubledValue % 84u);
+
+		for (std::int32_t offset = -7; offset <= 7; ++offset)
+		{
+			const std::int32_t distance = offset < 0 ? -offset : offset;
+			const std::uint8_t intensity = static_cast<std::uint8_t>(255 - distance * 14);
+
+			NXBasics::SColorRGB lineColor(intensity, intensity, intensity);
+			temporaryBitmap->Draw_VerticalLine(position + offset, 0, 4, lineColor);
+		}
+
+		temporaryBitmap->~CBitmap();
+		ProgressBar_PrintToScreen();
+	}
+
+	// Original function: FUN_0040272c
+	void CMasterControlProgram::ProgressBar_PrintToScreen()
+	{
+		for (int iteration = 0; iteration < 4; ++iteration)
+		{
+			FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, mProgressBar, nullptr, 0);
+			NXSys2DApp::CApplication::sTheObjectPtr->UpdateDisplay();
+			Sleep(10);
+		}
+	}
+
 	// Original function: FUN_00402620
 	void CMasterControlProgram::ProgressBar_Exit()
 	{
@@ -299,12 +449,7 @@ namespace NMasterControlProgram
 			return;
 		}
 
-		// Invoke vtable slot 3 with the original argument.
-		using VirtualCleanup = void(__thiscall*)(void*, std::uint32_t);
-
-		auto* vtable = *reinterpret_cast<VirtualCleanup**>(progressBar);
-		vtable[3](progressBar, 1);
-
+		delete static_cast<NXBasics::CBitmap*>(progressBar);
 		mProgressBar = nullptr;
 	}
 
