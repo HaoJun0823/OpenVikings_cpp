@@ -21,6 +21,7 @@
     <ClCompile Include="MasterControlProgram_PS_PreIngameFmv.cpp" />
     <ClCompile Include="MasterControlProgram_PS_System.cpp" />
     <ClCompile Include="MasterControlProgram_PS_TitleScreen.cpp" />
+    <ClCompile Include="MasterPropertyManager.cpp" />
     <ClCompile Include="NetworkRuntime.cpp" />
     <ClCompile Include="NetworkShutdown.cpp" />
     <ClCompile Include="OriginalMemory.cpp" />
@@ -38,6 +39,8 @@
     <ClCompile Include="XMMessageDialogs.cpp" />
     <ClCompile Include="XMMouseManager.cpp" />
     <ClCompile Include="XPixelFormatConverter.cpp" />
+    <ClCompile Include="XStorableIO.cpp" />
+    <ClCompile Include="XStringArray.cpp" />
     <ClCompile Include="XSystemMouseCursor.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +50,7 @@
     <ClInclude Include="dplay8.h" />
     <ClInclude Include="InGameGuiManager.h" />
     <ClInclude Include="MasterControlProgram.h" />
+    <ClInclude Include="MasterPropertyManager.h" />
     <ClInclude Include="NetworkShutdown.h" />
     <ClInclude Include="X2DApplication.h" />
     <ClInclude Include="X2DDisplay.h" />
@@ -57,6 +61,7 @@
     <ClInclude Include="XCrtFileAccess.h" />
     <ClInclude Include="XFile.h" />
     <ClInclude Include="XFileAccess.h" />
+    <ClInclude Include="XIniFileReaderAccess.h" />
     <ClInclude Include="XMDirectInputMouse.h" />
     <ClInclude Include="XMemory.h" />
     <ClInclude Include="XMKeyManager.h" />
@@ -65,6 +70,9 @@
     <ClInclude Include="XPaletteAccess.h" />
     <ClInclude Include="XPixelFormatConverter.h" />
     <ClInclude Include="XStorable.h" />
+    <ClInclude Include="XStorableIO.h" />
+    <ClInclude Include="XStringArray.h" />
+    <ClInclude Include="XStringMemory.h" />
     <ClInclude Include="XSystemMouseCursor.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

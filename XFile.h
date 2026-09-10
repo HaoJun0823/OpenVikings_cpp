@@ -25,6 +25,24 @@ namespace NXBasics
 		// Original function: FUN_00406126
 		void Close();
 
+		// Original function: FUN_00406170
+		void Read(void* destination, std::uint32_t byteCount);
+
+		// Original function: FUN_004062ee
+		std::uint32_t GetPosition() const;
+
+		// Original function: FUN_00406286
+		void SeekToPosition(std::uint32_t position);
+
+		// Original function: FUN_0040635a
+		std::uint32_t GetSize() const;
+
+		// Original function: FUN_0040659c
+		static bool FileSystem_Tool_FileExists(const char* fileName, bool searchPaths);
+
+		// Original function: FUN_00406542
+		static bool FileSystem_Tool_GetRealFilename(const char* fileName, char* destination);
+
 	private:
 		std::int32_t mDescriptor;    // +0x004
 		char mFileName[0x104];       // +0x008

@@ -77,6 +77,57 @@ namespace NXSysKeyManager
 		return message.state != 0 ? 1 : 2;
 	}
 
+	// Original function: FUN_00439da8
+	void* CKeyEntryListBase::Remove(void* value)
+	{
+		if (mCount == 0)
+		{
+			return value;
+		}
+
+		if (mFirst->value == value)
+		{
+			return PopFront();
+		}
+
+		if (mLast->value == value)
+		{
+			return PopBack();
+		}
+
+		SKeyEntryNode* previous = mFirst;
+
+		while (previous->next != nullptr)
+		{
+			SKeyEntryNode* node = previous->next;
+
+			if (node->value == value)
+			{
+				previous->next = node->next;
+
+				// Nodes are allocated by the existing native PushBack().
+				::operator delete(static_cast<void*>(node));
+				--mCount;
+				return value;
+			}
+
+			previous = node;
+		}
+
+		return value;
+	}
+
+	// Original function: FUN_00439e41
+	void* CKeyEntryListBase::GetStartElement() const
+	{
+		if (mCount == 0)
+		{
+			return nullptr;
+		}
+
+		return mFirst->value;
+	}
+
 	// Original function: FUN_00439bed
 	CKeyEntryListBase::CKeyEntryListBase(std::uint8_t destroyValues) : mCount(0), mFirst(nullptr), mLast(nullptr), mDestroyValues(destroyValues), mPadding11{} {}
 
@@ -143,6 +194,50 @@ namespace NXSysKeyManager
 		return value;
 	}
 
+	// Original function: FUN_00439d54
+	void* CKeyEntryListBase::PopBack()
+	{
+		if (mCount == 0)
+		{
+			return nullptr;
+		}
+
+		void* value = mLast->value;
+		SKeyEntryNode* current = mFirst;
+		SKeyEntryNode* previous = nullptr;
+
+		// The original compares stored values, not node addresses.
+		while (current->next != nullptr)
+		{
+			if (current->next->value == value)
+			{
+				previous = current;
+				break;
+			}
+
+			current = current->next;
+		}
+
+		if (previous != nullptr)
+		{
+			previous->next = nullptr;
+		}
+
+		::operator delete(static_cast<void*>(mLast));
+
+		const std::uint32_t count = mCount;
+		mLast = previous;
+
+		// Preserve the original check before decrementing the count.
+		if (count == 0)
+		{
+			mFirst = nullptr;
+		}
+
+		mCount = count - 1u;
+		return value;
+	}
+
 	// Original function: FUN_00439e0e
 	void CKeyEntryListBase::DeleteFront()
 	{
@@ -198,5 +293,44 @@ namespace NXSysKeyManager
 		sTheObjectPtr = nullptr;
 
 		// mEntries is destroyed automatically afterward.
+	}
+
+	CKeyEntryListBase::Iterator::Iterator(CKeyEntryListBase& list) : mList(&list), mPosition(nullptr), mStarted(0)
+	{}
+
+	// Original function: FUN_0048d143
+	void* CKeyEntryListBase::Iterator::First()
+	{
+		if (mList->mCount == 0)
+		{
+			// The original leaves the iterator state unchanged here.
+			return nullptr;
+		}
+
+		mStarted = 1;
+		mPosition = mList->mFirst;
+		return mPosition->value;
+	}
+
+	// Original function: FUN_004259f3
+	void* CKeyEntryListBase::Iterator::Next()
+	{
+		if (mStarted == 0)
+		{
+			return First();
+		}
+
+		if (mPosition != nullptr)
+		{
+			mPosition = mPosition->next;
+
+			if (mPosition != nullptr)
+			{
+				return mPosition->value;
+			}
+		}
+
+		mStarted = 0;
+		return nullptr;
 	}
 }

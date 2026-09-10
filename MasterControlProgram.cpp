@@ -1,4 +1,5 @@
 #include "MasterControlProgram.h"
+#include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
 #include "X2DApplication.h"
 #include "XBasicTypes.h"
@@ -47,9 +48,7 @@ namespace NMasterControlProgram
 
 		NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Load();
 		NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_WorkOnIniFile("game.ini");
-
-		FUN_004e1463(NMasterPropertyManager::CPropertyManager::sTheObjectPtr, commandLine);
-
+		NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_WorkOnCommandLine(commandLine);
 		NMasterPropertyManager::CPropertyManager::sTheObjectPtr->System_AddDefaultProperties();
 
 		bool customDataFileLoaded = false;
@@ -499,12 +498,11 @@ namespace NMasterControlProgram
 			delete application;
 		}
 
-		auto* propertyManager = DAT_005697ec;
+		auto* propertyManager = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
 
 		if (propertyManager != nullptr)
 		{
-			FUN_004e1436(propertyManager);
-			FUN_004e5e48(propertyManager);
+			delete propertyManager;
 		}
 
 		for (std::size_t index = 0; index < 5; ++index)

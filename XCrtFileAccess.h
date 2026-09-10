@@ -66,6 +66,80 @@ namespace NXBasics
 
 	static_assert(sizeof(gRuntimeErrorMappings) / sizeof(gRuntimeErrorMappings[0]) == 45, "The original error table contains 45 entries");
 
+	// Original function: FUN_004e6a84
+	inline std::int32_t Runtime_Read(std::uint32_t descriptor, void* destination, std::uint32_t byteCount)
+	{
+		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
+		{
+			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
+
+			const std::uint8_t* block;
+			std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
+
+			const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+
+			if ((block[entryOffset + 0x04] & 0x01) != 0)
+			{
+				Runtime_LockDescriptor(descriptor);
+
+				const std::int32_t result = FUN_004e6ae9(descriptor, destination, byteCount);
+
+				Runtime_UnlockDescriptor(descriptor);
+
+				return result;
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+
+		return -1;
+	}
+
+	// Original function: FUN_004e6d9a
+	inline std::uint32_t Runtime_GetFileSize(std::uint32_t descriptor)
+	{
+		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
+		{
+			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
+
+			const std::uint8_t* block;
+			std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
+
+			const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+
+			if ((block[entryOffset + 0x04] & 0x01) != 0)
+			{
+				Runtime_LockDescriptor(descriptor);
+
+				const std::uint32_t originalPosition = FUN_004e6d27(descriptor, 0, 1);
+				std::uint32_t size = UINT32_C(0xFFFFFFFF);
+
+				if (originalPosition != UINT32_C(0xFFFFFFFF))
+				{
+					size = FUN_004e6d27(descriptor, 0, 2);
+
+					if (originalPosition != size)
+					{
+						std::int32_t restoreOffset;
+						std::memcpy(&restoreOffset, &originalPosition, sizeof(restoreOffset));
+
+						FUN_004e6d27(descriptor, restoreOffset, 0);
+					}
+				}
+
+				Runtime_UnlockDescriptor(descriptor);
+
+				return size;
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+
+		return UINT32_C(0xFFFFFFFF);
+	}
+
 	// Original function: FUN_004e7575
 	inline void Runtime_MapOsError(std::uint32_t osError)
 	{
@@ -94,6 +168,23 @@ namespace NXBasics
 		}
 
 		*Runtime_GetErrnoPointer() = 0x16;
+	}
+
+	// Original function: FUN_00410bdd
+	// Original function: FUN_004e7cea
+	inline bool Runtime_IsDigit(char character)
+	{
+		const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
+		const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+		if (cbMultiByte_0050c604 > 1)
+		{
+			return FUN_004ea094(signedCharacter, 0x04) != 0;
+		}
+
+		const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+
+		return (classificationTable[signedCharacter * 2] & 0x04) != 0;
 	}
 
 	// Original function: FUN_004eb1bb
@@ -285,6 +376,202 @@ namespace NXBasics
 		}
 
 		::EnterCriticalSection(*slot);
+	}
+
+	// Original function: FUN_004e7928
+	inline std::uint32_t Runtime_ToLowerNoLock(std::uint32_t character)
+	{
+		std::int32_t signedCharacter;
+		std::memcpy(&signedCharacter, &character, sizeof(signedCharacter));
+
+		if (DAT_00569b98 == 0)
+		{
+			if (signedCharacter >= 0x41 && signedCharacter <= 0x5A)
+			{
+				return character + 0x20u;
+			}
+
+			return character;
+		}
+
+		if (signedCharacter < 0x100)
+		{
+			bool isUpper;
+
+			if (cbMultiByte_0050c604 > 1)
+			{
+				isUpper = FUN_004ea094(signedCharacter, 1) != 0;
+			}
+			else
+			{
+				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+
+				// Preserve signed indexing, including the original EOF case.
+				isUpper = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & 0x01u) != 0;
+			}
+
+			if (!isUpper)
+			{
+				return character;
+			}
+		}
+
+		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+		const std::uint32_t highByte = (character >> 8) & 0xFFu;
+
+		char source[3];
+		int sourceLength;
+
+		if ((characterTypes[highByte * 2u + 1u] & 0x80u) != 0)
+		{
+			// Emit the lead byte before the low byte.
+			source[0] = static_cast<char>(highByte);
+			source[1] = static_cast<char>(character & 0xFFu);
+			source[2] = '\0';
+			sourceLength = 2;
+		}
+		else
+		{
+			source[0] = static_cast<char>(character & 0xFFu);
+			source[1] = '\0';
+			sourceLength = 1;
+		}
+
+		char destination[3];
+
+		const int mappedLength = FUN_004ec998(DAT_00569b98, 0x100u, source, sourceLength, destination, 3, 0, 1);
+
+		if (mappedLength == 0)
+		{
+			return character;
+		}
+
+		const auto firstByte = static_cast<std::uint8_t>(destination[0]);
+
+		if (mappedLength == 1)
+		{
+			return firstByte;
+		}
+
+		// Preserve the original output-byte packing.
+		const auto secondByte = static_cast<std::uint8_t>(destination[1]);
+		return (static_cast<std::uint32_t>(secondByte) << 8) | firstByte;
+	}
+
+	// Original function: FUN_00410bca
+	// Original function: FUN_004e7cbc
+	inline bool Runtime_IsLetter(char character)
+	{
+		const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
+		const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+		if (cbMultiByte_0050c604 > 1)
+		{
+			return FUN_004ea094(signedCharacter, 0x0103) != 0;
+		}
+
+		const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+
+		std::uint16_t classification;
+		std::memcpy(&classification, classificationTable + signedCharacter * 2, sizeof(classification));
+
+		return (classification & 0x0103) != 0;
+	}
+
+	// Original function: FUN_004e7d70
+	inline std::int32_t Runtime_CompareStringsIgnoreCase(const char* first, const char* second)
+	{
+		const auto* left = reinterpret_cast<const std::uint8_t*>(first);
+		const auto* right = reinterpret_cast<const std::uint8_t*>(second);
+
+		if (DAT_00569b98 == 0)
+		{
+			for (;;)
+			{
+				std::uint32_t rightCharacter = *right++;
+				std::uint32_t leftCharacter = *left++;
+
+				if (leftCharacter != rightCharacter)
+				{
+					if (rightCharacter >= 0x41u && rightCharacter <= 0x5Au)
+					{
+						rightCharacter += 0x20u;
+					}
+
+					if (leftCharacter >= 0x41u && leftCharacter <= 0x5Au)
+					{
+						leftCharacter += 0x20u;
+					}
+
+					if (leftCharacter != rightCharacter)
+					{
+						return leftCharacter < rightCharacter ? -1 : 1;
+					}
+				}
+
+				if (rightCharacter == 0)
+				{
+					return 0;
+				}
+			}
+		}
+
+		auto* activeReaders = reinterpret_cast<volatile LONG*>(&DAT_0056b5f4);
+		const auto* localeChangeState = reinterpret_cast<const volatile LONG*>(&DAT_0056b5f0);
+
+		::InterlockedIncrement(activeReaders);
+
+		bool locked = false;
+
+		if (*localeChangeState > 0)
+		{
+			::InterlockedDecrement(activeReaders);
+			Runtime_Lock(0x13);
+			locked = true;
+		}
+
+		// Preserve the register values across byte loads and conversion calls.
+		std::uint32_t rightValue = 0xFFu;
+		std::uint32_t leftValue = 0;
+
+		while ((rightValue & 0xFFu) != 0)
+		{
+			rightValue = (rightValue & 0xFFFFFF00u) | *right++;
+			leftValue = (leftValue & 0xFFFFFF00u) | *left++;
+
+			if ((rightValue & 0xFFu) == (leftValue & 0xFFu))
+			{
+				continue;
+			}
+
+			// The original converts the first string's character first.
+			leftValue = Runtime_ToLowerNoLock(leftValue);
+			rightValue = Runtime_ToLowerNoLock(rightValue);
+
+			const std::uint32_t leftByte = leftValue & 0xFFu;
+			const std::uint32_t rightByte = rightValue & 0xFFu;
+
+			if (leftByte != rightByte)
+			{
+				rightValue = leftByte < rightByte ? 0xFFFFFFFFu : 1u;
+				break;
+			}
+		}
+
+		const std::uint32_t resultBits = rightValue;
+
+		if (locked)
+		{
+			Runtime_Unlock(0x13);
+		}
+		else
+		{
+			::InterlockedDecrement(activeReaders);
+		}
+
+		std::int32_t result;
+		std::memcpy(&result, &resultBits, sizeof(result));
+		return result;
 	}
 
 	// Original function: FUN_004ea8a6
@@ -883,6 +1170,84 @@ namespace NXBasics
 	inline std::int32_t Runtime_Open(const char* fileName, std::uint32_t flags, std::uint32_t permissions)
 	{
 		return Runtime_OpenShared(fileName, flags, 0x40u, permissions);
+	}
+
+	// Original functions: FUN_004e5f2c; forwarding wrapper: FUN_004e5fb7.
+	inline std::int32_t Runtime_StringToInteger(const char* text)
+	{
+		const auto* cursor = reinterpret_cast<const std::uint8_t*>(text);
+
+		const auto hasCharacterType = [](std::uint32_t character, std::uint32_t mask) -> bool
+			{
+				if (cbMultiByte_0050c604 > 1)
+				{
+					return FUN_004ea094(static_cast<std::int32_t>(character), mask) != 0;
+				}
+
+				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+				return (characterTypes[character * 2u] & mask) != 0;
+			};
+
+		while (hasCharacterType(*cursor, 0x08u))
+		{
+			++cursor;
+		}
+
+		std::uint32_t character = *cursor++;
+		const bool negative = character == 0x2Du;
+
+		if (negative || character == 0x2Bu)
+		{
+			character = *cursor++;
+		}
+
+		std::uint32_t value = 0;
+
+		while (hasCharacterType(character, 0x04u))
+		{
+			// Preserve 32-bit wraparound without signed-overflow undefined behavior.
+			value = value * 10u + character - 0x30u;
+			character = *cursor++;
+		}
+
+		if (negative)
+		{
+			value = 0u - value;
+		}
+
+		std::int32_t result;
+		std::memcpy(&result, &value, sizeof(result));
+		return result;
+	}
+
+	// Original function: FUN_004e7d12
+	inline std::uint32_t Runtime_ClassifyAlphanumeric(std::int32_t character)
+	{
+		if (cbMultiByte_0050c604 > 1)
+		{
+			return static_cast<std::uint32_t>(FUN_004ea094(character, 0x107));
+		}
+
+		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+
+		std::uint16_t flags;
+		std::memcpy(&flags, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(flags));
+
+		return flags & 0x107u;
+	}
+
+	// Original function: FUN_00410c03
+	inline bool Runtime_IsPropertyNameCharacter(char character)
+	{
+		const auto byteValue = static_cast<std::uint8_t>(character);
+		const std::int32_t signedCharacter = byteValue < 0x80u ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+		if (Runtime_ClassifyAlphanumeric(signedCharacter) != 0)
+		{
+			return true;
+		}
+
+		return byteValue == 0x5Fu;
 	}
 
 	static_assert(sizeof(void*) == 4, "These CRT descriptor accesses require an x86 build");

@@ -30,6 +30,25 @@ namespace NXSysKeyManager
 	class CKeyEntryListBase
 	{
 	public:
+		class Iterator
+		{
+		public:
+			explicit Iterator(CKeyEntryListBase& list);
+
+			// Original function: FUN_0048d143
+			void* First();
+
+			// Original function: FUN_004259f3
+			void* Next();
+
+		private:
+			CKeyEntryListBase* mList;  // +0x00
+			SKeyEntryNode* mPosition;  // +0x04
+			std::uint8_t mStarted;     // +0x08
+		};
+
+		static_assert(sizeof(Iterator) == 0x0C, "List iterator must be 12 bytes");
+
 		// Original function: FUN_00439bed
 		explicit CKeyEntryListBase(std::uint8_t destroyValues);
 
@@ -41,6 +60,9 @@ namespace NXSysKeyManager
 
 		// Original function: FUN_00439d1e
 		void* PopFront();
+
+		// Original function: FUN_00439d54
+		void* PopBack();
 
 		// Original function: FUN_00439e0e
 		void DeleteFront();
@@ -55,6 +77,12 @@ namespace NXSysKeyManager
 		{
 			return mCount == 0;
 		}
+
+		// Original function: FUN_00439da8
+		void* Remove(void* value);
+
+		// Original function: FUN_00439e41
+		void* GetStartElement() const;
 
 	protected:
 		// Container vtable slot at +0x04 in the x86 build.
