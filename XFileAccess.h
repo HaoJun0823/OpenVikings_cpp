@@ -83,7 +83,7 @@ namespace NXBasics
 			return 0;
 		}
 
-		std::uint32_t position = FUN_004e6cc2(static_cast<std::uint32_t>(descriptor), 0, 1);
+		std::uint32_t position = Runtime_Seek(static_cast<std::uint32_t>(descriptor), 0, 1);
 		const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
 		if (position == UINT32_C(0xFFFFFFFF))
@@ -92,7 +92,7 @@ namespace NXBasics
 			const auto errorText = FUN_004e7525(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
-			FUN_00406935(reinterpret_cast<const char*>(&DAT_004ff190), fileName, currentError, errorText);
+			FUN_00406935("NXBasics::CFile::Position\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 		}
 
 		std::uint32_t archiveIndex;
@@ -105,7 +105,7 @@ namespace NXBasics
 			void* archive;
 			std::memcpy(&archive, archiveSlots + archiveIndex * 4u, sizeof(archive));
 
-			const std::uint32_t entryOffset = FUN_0040688a(archive, fileName);
+			const std::uint32_t entryOffset = Archive_GetFileOffset(archive, fileName);
 			position -= entryOffset;
 		}
 
@@ -137,7 +137,7 @@ namespace NXBasics
 			void* archive;
 			std::memcpy(&archive, archiveSlots + archiveIndex * 4u, sizeof(archive));
 
-			const std::uint32_t entryOffset = FUN_0040688a(archive, fileName);
+			const std::uint32_t entryOffset = Archive_GetFileOffset(archive, fileName);
 			position += entryOffset;
 		}
 
@@ -147,7 +147,7 @@ namespace NXBasics
 		std::int32_t seekOffset;
 		std::memcpy(&seekOffset, &position, sizeof(seekOffset));
 
-		const std::uint32_t result = FUN_004e6cc2(static_cast<std::uint32_t>(descriptor), seekOffset, 0);
+		const std::uint32_t result = Runtime_Seek(static_cast<std::uint32_t>(descriptor), seekOffset, 0);
 
 		if (result == UINT32_C(0xFFFFFFFF))
 		{
@@ -155,7 +155,7 @@ namespace NXBasics
 			const auto errorText = FUN_004e7525(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
-			FUN_00406935(reinterpret_cast<const char*>(&DAT_004ff158), fileName, currentError, errorText);
+			FUN_00406935("NXBasics::CFile::SeekToPosition\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 		}
 	}
 
@@ -172,7 +172,7 @@ namespace NXBasics
 			return 0;
 		}
 
-		const std::uint32_t entryIndex = FUN_004068b3(archive, fileName);
+		const std::uint32_t entryIndex = Archive_FindFileIndex(archive, fileName);
 
 		if (entryIndex == UINT32_C(0xFFFFFFFF))
 		{
@@ -228,6 +228,92 @@ namespace NXBasics
 		}
 
 		return size;
+	}
+
+	// Original function: FUN_00406903
+	inline std::uint8_t Archive_CalculateNameCheck(const char* fileName)
+	{
+		const std::uint32_t lengthBits = static_cast<std::uint32_t>(std::strlen(fileName));
+
+		std::int32_t length;
+		std::memcpy(&length, &lengthBits, sizeof(length));
+
+		std::uint8_t result = 0;
+
+		for (std::int32_t index = 0; index < length; ++index)
+		{
+			const std::uint8_t character = static_cast<std::uint8_t>(fileName[index]);
+			const std::int32_t signedCharacter = character < 0x80 ? static_cast<std::int32_t>(character) : static_cast<std::int32_t>(character) - 0x100;
+			const std::uint8_t convertedCharacter = static_cast<std::uint8_t>(Runtime_ToLower(signedCharacter));
+
+			result = static_cast<std::uint8_t>(result + convertedCharacter);
+		}
+
+		return result;
+	}
+
+	// Original function: FUN_004068b3
+	inline std::uint32_t Archive_FindFileIndex(void* archive, const char* fileName)
+	{
+		const std::uint8_t nameCheck = Archive_CalculateNameCheck(fileName);
+		const auto* archiveBytes = static_cast<const std::uint8_t*>(archive);
+
+		for (std::uint32_t index = 0;; ++index)
+		{
+			std::uint32_t entryCount;
+			std::memcpy(&entryCount, archiveBytes, sizeof(entryCount));
+
+			if (index >= entryCount)
+			{
+				return UINT32_C(0xFFFFFFFF);
+			}
+
+			const std::uint8_t* entries;
+			std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
+
+			const std::uint8_t* entry = entries + index * 0x10u;
+
+			if (entry[0x04] != nameCheck)
+			{
+				continue;
+			}
+
+			const char* storedName;
+			std::memcpy(&storedName, entry, sizeof(storedName));
+
+			if (Runtime_CompareStringsIgnoreCase(fileName, storedName) == 0)
+			{
+				return index;
+			}
+		}
+	}
+
+	// Original function: FUN_0040688a
+	inline std::uint32_t Archive_GetFileOffset(void* archive, const char* fileName)
+	{
+		const auto* archiveBytes = static_cast<const std::uint8_t*>(archive);
+
+		const std::uint8_t* entries;
+		std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
+
+		if (entries == nullptr)
+		{
+			return 0;
+		}
+
+		const std::uint32_t entryIndex = Archive_FindFileIndex(archive, fileName);
+
+		if (entryIndex == UINT32_C(0xFFFFFFFF))
+		{
+			return 0;
+		}
+
+		std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
+
+		std::uint32_t offset;
+		std::memcpy(&offset, entries + entryIndex * 0x10u + 0x08, sizeof(offset));
+
+		return offset;
 	}
 
 	inline bool File_OpenForReading(void* file, bool reportErrors, bool searchPaths);
@@ -472,7 +558,7 @@ namespace NXBasics
 		}
 
 		// Use the originally selected archive for the entry offset.
-		const auto entryOffset = FUN_0040688a(getArchive(selectedArchiveIndex), fileName);
+		const auto entryOffset = Archive_GetFileOffset(getArchive(selectedArchiveIndex), fileName);
 		File_SeekToPosition(file, entryOffset);
 
 		std::memcpy(fileBytes + 0x10C, &selectedArchiveIndex, sizeof(selectedArchiveIndex));

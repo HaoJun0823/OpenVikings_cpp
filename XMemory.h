@@ -47,6 +47,7 @@ namespace NXBasics
 
 	private:
 		friend class CStringArray;
+		friend class CIniFileReader;
 
 		// Original function: FUN_0042f984
 		void l_AllocateMemory(std::uint32_t size);

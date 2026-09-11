@@ -21,6 +21,9 @@ namespace NXBasics
 			Storable_SaveData(file);
 		}
 
+		// Original function: FUN_004106c2
+		bool Storable_Save(const char* fileName, bool openOption);
+
 		// Original virtual slot: +0x00
 		virtual std::uint32_t Storable_GetId() = 0;
 

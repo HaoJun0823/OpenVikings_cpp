@@ -1,7 +1,7 @@
 #include "MasterPropertyManager.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
-#include "XIniFileReaderAccess.h"
+#include "XIniFileReader.h"
 #include "XStringMemory.h"
 
 #include <cstring>
@@ -137,52 +137,42 @@ namespace NMasterPropertyManager
 	// Original function: FUN_004e1551
 	void CPropertyManager::Property_WorkOnIniFile(const char* fileName)
 	{
-		if (static_cast<std::uint8_t>(NXBasics::CFile::FileSystem_Tool_FileExists(fileName, false)) == 0)
+		if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, false))
 		{
 			return;
 		}
 
-		// Temporary storage matching the original stack region.
-		// Replace with CIniFileReader once its native layout is reconstructed.
-		alignas(4) std::byte readerStorage[0x1890];
-		void* reader = readerStorage;
+		NXBasics::CIniFileReader reader(fileName, nullptr, false, nullptr, nullptr);
 
-		FUN_00424df8(reader, fileName, nullptr, false, nullptr, nullptr);
-
-		if (readerStorage[0] != std::byte{ 0 })
+		if (reader.IsLoaded())
 		{
-			if (NXBasics::IniFileReader_GetFirstLine(reader) != nullptr)
+			if (reader.GetFirstLine() != nullptr)
 			{
 				do
 				{
-					std::int32_t lineType;
-					std::memcpy(&lineType, readerStorage + 0x110, sizeof(lineType));
-
-					if (lineType != 1)
+					if (reader.GetCurrentLineType() != 1)
 					{
 						bool isInteger = false;
 						std::int32_t integerValue = 0;
 						const char* stringValue = nullptr;
 
-						if (NXBasics::IniFileReader_GetTypeOfNextParameter(reader) == 3)
+						if (reader.GetTypeOfNextParameter() == 3)
 						{
 							isInteger = true;
-							integerValue = NXBasics::IniFileReader_GetInt(reader);
+							integerValue = reader.GetInt();
 						}
-						else if (NXBasics::IniFileReader_GetTypeOfNextParameter(reader) == 2)
+						else if (reader.GetTypeOfNextParameter() == 2)
 						{
-							stringValue = NXBasics::IniFileReader_GetString(reader);
+							stringValue = reader.GetString();
 						}
 
 						// Read the name after the parameter-access calls.
-						const auto* propertyName = reinterpret_cast<const char*>(readerStorage + 0x8EC);
+						const char* propertyName = reader.GetCurrentName();
 						Property_Add(propertyName, isInteger, integerValue, stringValue);
 					}
-				} while (NXBasics::IniFileReader_GetNextLine(reader) != nullptr);
+				} while (reader.GetNextLine() != nullptr);
 			}
 		}
-
-		FUN_00424f6c(reader);
 	}
 
 	// Original function: FUN_004e171d

@@ -19,6 +19,9 @@ namespace NXBasics
 		// Original function: FUN_00405ee5
 		bool OpenForReading(bool reportErrors, bool searchPaths);
 
+		// Original function: FUN_004060ca
+		bool OpenForWriting(bool reportError);
+
 		// Original function: FUN_004061bc
 		void Write(const void* data, std::uint32_t byteCount);
 
@@ -36,6 +39,15 @@ namespace NXBasics
 
 		// Original function: FUN_0040635a
 		std::uint32_t GetSize() const;
+
+		// Original function: FUN_004063f9
+		static std::int32_t FileSystem_SystemPathName_Set(const char* systemPathName, const char* replacementPath);
+
+		// Original function: FUN_0040648a
+		static bool FileSystem_SystemPathName_Clear(const char* systemPathName);
+
+		// Original function: FUN_004064ac
+		static std::int32_t FileSystem_SystemPathName_GetId(const char* systemPathName);
 
 		// Original function: FUN_0040659c
 		static bool FileSystem_Tool_FileExists(const char* fileName, bool searchPaths);

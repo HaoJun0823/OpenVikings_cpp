@@ -1,4 +1,5 @@
 #include "XStringArray.h"
+#include "XDiagnostics.h"
 #include "XFileAccess.h"
 #include "XStorableIO.h"
 
@@ -8,26 +9,10 @@
 namespace NXBasics
 {
 	// Original function: FUN_0042ba56
-	CStringArray::CStringArray(std::uint8_t useCountForNextId) : mUseCountForNextId(useCountForNextId), mPadding05{}, mStringCount(0), mIdUpperBound(0), mOffsetCapacity(0), mUsedStringBytes(0), mOffsets(nullptr), mStrings(nullptr)
+	CStringArray::CStringArray(std::uint8_t useCountForNextId) : mUseCountForNextId(useCountForNextId), mPadding05{}, mStringCount(0), mIdUpperBound(1), mOffsetCapacity(100), mUsedStringBytes(0), mOffsets(nullptr), mStrings(nullptr)
 	{
-		File_Read(file, &mUseCountForNextId, 0x14);
-
-		mOffsets = static_cast<CMemory*>(XB_Storable_LoadObject(file));
-		mOffsets->Decrypt(1);
-
-		// Original function: FUN_00406208
-		std::uint8_t hasStrings;
-		File_Read(file, &hasStrings, 1);
-
-		if (hasStrings != 0)
-		{
-			mStrings = static_cast<CMemory*>(XB_Storable_LoadObject(file));
-			mStrings->Decrypt(1);
-		}
-		else
-		{
-			mStrings = nullptr;
-		}
+		mOffsets = new (std::nothrow) CMemory(mOffsetCapacity * std::uint32_t{ 4 });
+		mOffsets->Fill(0xFF);
 	}
 
 	// Original function: FUN_0042bad3
@@ -43,6 +28,29 @@ namespace NXBasics
 		if (mStrings != nullptr)
 		{
 			delete mStrings;
+			mStrings = nullptr;
+		}
+	}
+
+	// Original function: FUN_0042bb02
+	CStringArray::CStringArray(void* file, std::uint32_t /*version*/) : mUseCountForNextId(0), mPadding05{}, mStringCount(0), mIdUpperBound(0), mOffsetCapacity(0), mUsedStringBytes(0), mOffsets(nullptr), mStrings(nullptr)
+	{
+		auto* objectBytes = reinterpret_cast<std::byte*>(this);
+		File_Read(file, objectBytes + 0x04, 0x14);
+
+		mOffsets = static_cast<CMemory*>(XB_Storable_LoadObject(file));
+		mOffsets->Decrypt(1);
+
+		std::uint8_t hasStrings;
+		File_Read(file, &hasStrings, 1);
+
+		if (hasStrings != 0)
+		{
+			mStrings = static_cast<CMemory*>(XB_Storable_LoadObject(file));
+			mStrings->Decrypt(1);
+		}
+		else
+		{
 			mStrings = nullptr;
 		}
 	}
@@ -122,7 +130,7 @@ namespace NXBasics
 		{
 			if (stringId >= UINT32_C(1000000))
 			{
-				FUN_00406995("NXBasics::CStringArray::InsertString  too much strings! Maximum is %d!", stringId);
+				ReportWarning("NXBasics::CStringArray::InsertString  too much strings! Maximum is %d!", stringId);
 				return false;
 			}
 

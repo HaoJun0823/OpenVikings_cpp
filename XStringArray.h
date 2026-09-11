@@ -43,6 +43,8 @@ namespace NXBasics
 		std::uint32_t InsertString(const char* text);
 
 	private:
+		friend class CIniFileReader;
+
 		// Original function: FUN_0042bd39
 		std::uint32_t l_GetNextFreeStringId() const;
 

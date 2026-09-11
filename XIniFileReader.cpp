@@ -1,136 +1,150 @@
-#pragma once
-
-#include "XFile.h"
+#include "XIniFileReader.h"
+#include "XDiagnostics.h"
 #include "XCrtFileAccess.h"
+#include "XFile.h"
 #include "XMemory.h"
 #include "XMKeyManager.h"
-#include "XStorable.h"
+#include "XStorableIO.h"
 #include "XStringArray.h"
 
-#include <new>
-
-#include <cstddef>
-#include <cstdint>
 #include <cstring>
+#include <new>
+#include <type_traits>
 
 namespace NXBasics
 {
-	namespace IniFileReaderDetail
+	// Original function: FUN_00424df8
+	CIniFileReader::CIniFileReader(const char* fileName, const char* preliminaryFileName, bool createCompiledFile, const char* compiledExtension, ErrorCallback errorCallback)
 	{
-		static_assert(sizeof(void*) == 4, "Original reader access requires an x86 build");
+		static_assert(std::is_standard_layout_v<CIniFileReader>);
+		static_assert(offsetof(CIniFileReader, mLoaded) == 0x000);
+		static_assert(offsetof(CIniFileReader, mFileName) == 0x001);
+		static_assert(offsetof(CIniFileReader, mLines) == 0x108);
+		static_assert(offsetof(CIniFileReader, mCurrentLine) == 0x10C);
+		static_assert(offsetof(CIniFileReader, mCurrentLineType) == 0x110);
+		static_assert(offsetof(CIniFileReader, mUnknown114) == 0x114);
+		static_assert(offsetof(CIniFileReader, mParameterPosition) == 0x118);
+		static_assert(offsetof(CIniFileReader, mLineBuffer) == 0x11C);
+		static_assert(offsetof(CIniFileReader, mNameBuffer) == 0x8EC);
+		static_assert(offsetof(CIniFileReader, mStringBuffer) == 0x10BC);
+		static_assert(offsetof(CIniFileReader, mErrorCallback) == 0x188C);
 
-		template<typename T>
-		inline T ReadField(const void* object, std::size_t offset)
+		std::memset(static_cast<void*>(this), 0, sizeof(*this));
+		std::strncpy(mFileName, fileName, sizeof(mFileName));
+
+		mErrorCallback = errorCallback;
+
+		char compiledFileName[260];
+
+		if (!CFile::FileSystem_Tool_FileExists(fileName, true))
 		{
-			T value;
-			std::memcpy(&value, static_cast<const std::byte*>(object) + offset, sizeof(value));
-			return value;
-		}
+			FUN_004e5c20(compiledFileName, fileName);
+			l_CreateCompiledFilename(compiledFileName, compiledExtension);
 
-		template<typename T>
-		inline void WriteField(void* object, std::size_t offset, const T& value)
-		{
-			std::memcpy(static_cast<std::byte*>(object) + offset, &value, sizeof(value));
-		}
-	}
+			if (!CFile::FileSystem_Tool_FileExists(compiledFileName, true))
+			{
+				return;
+			}
 
-	// Original function: FUN_004258eb
-	inline void IniFileReader_CopyCurrentLineIntoBuffer(void* reader)
-	{
-		using namespace IniFileReaderDetail;
-
-		CStringArray* lines = ReadField<CStringArray*>(reader, 0x108);
-		const std::uint32_t lineIndex = ReadField<std::uint32_t>(reader, 0x10C);
-		const char* storedLine = lines->GetStringPtr(lineIndex);
-
-		const std::uint8_t typeByte = static_cast<std::uint8_t>(storedLine[0]);
-		const std::int32_t lineType = typeByte < 0x80 ? static_cast<std::int32_t>(typeByte) : static_cast<std::int32_t>(typeByte) - 0x100;
-
-		WriteField(reader, 0x110, lineType);
-
-		char* lineBuffer = reinterpret_cast<char*>(static_cast<std::byte*>(reader) + 0x11C);
-		char* nameBuffer = reinterpret_cast<char*>(static_cast<std::byte*>(reader) + 0x8EC);
-
-		std::strcpy(lineBuffer, storedLine + 1);
-
-		char* separator = std::strchr(lineBuffer, ' ');
-
-		if (separator == nullptr)
-		{
-			std::strcpy(nameBuffer, lineBuffer);
-
-			char* parameterPosition = lineBuffer + std::strlen(lineBuffer);
-			WriteField(reader, 0x118, parameterPosition);
+			mLines = static_cast<CStringArray*>(XB_Storable_LoadObject(static_cast<const char*>(compiledFileName)));
+			mLoaded = 1;
 			return;
 		}
 
-		const std::size_t nameLength = static_cast<std::size_t>(separator - lineBuffer);
+		std::uint32_t objectId = 0;
+		std::uint32_t version = 0;
 
-		std::strncpy(nameBuffer, lineBuffer, nameLength);
-		nameBuffer[nameLength] = '\0';
+		XB_Storable_GetObjectIdAndVersion(fileName, &objectId, &version);
 
-		char* parameterPosition = separator + 1;
-		WriteField(reader, 0x118, parameterPosition);
+		if (objectId == 0x3FD)
+		{
+			mLines = static_cast<CStringArray*>(XB_Storable_LoadObject(fileName));
+			mLoaded = 1;
+			return;
+		}
+
+		// The original does not test the filename-resolution result.
+		CFile::FileSystem_Tool_GetRealFilename(fileName, compiledFileName);
+		l_CreateCompiledFilename(compiledFileName, compiledExtension);
+
+		mLines = new (std::nothrow) CStringArray(std::uint8_t{ 1 });
+
+		char drive[4];
+		char directory[256];
+		char iniFilePath[256];
+
+		// Derive the temporary system path from the original input filename.
+		FUN_004e7aa8(fileName, drive, directory, nullptr, nullptr);
+		FUN_004e8215(iniFilePath, drive, directory, nullptr, nullptr);
+
+		CFile::FileSystem_SystemPathName_Set("$inifilepath$", iniFilePath);
+
+		l_LoadIniFile(fileName, preliminaryFileName);
+
+		CFile::FileSystem_SystemPathName_Clear("$inifilepath$");
+
+		mLoaded = 1;
+
+		if (createCompiledFile)
+		{
+			mLines->Storable_Save(static_cast<const char*>(compiledFileName), false);
+		}
+	}
+
+	// Original function: FUN_00424f6c
+	CIniFileReader::~CIniFileReader()
+	{
+		delete mLines;
 	}
 
 	// Original function: FUN_00424f7e
-	inline char* IniFileReader_GetFirstLine(void* reader)
+	char* CIniFileReader::GetFirstLine()
 	{
-		using namespace IniFileReaderDetail;
-
-		const void* lines = ReadField<const void*>(reader, 0x108);
-
-		if (ReadField<std::uint32_t>(lines, 0x08) == 0)
+		if (mLines->mStringCount == 0)
 		{
 			return nullptr;
 		}
 
-		WriteField(reader, 0x10C, std::uint32_t{ 0 });
-		IniFileReader_CopyCurrentLineIntoBuffer(reader);
+		mCurrentLine = 0;
+		l_CopyCurrentLineIntoBuffer();
 
-		return reinterpret_cast<char*>(static_cast<std::byte*>(reader) + 0x11C);
+		return mLineBuffer;
 	}
 
 	// Original function: FUN_00424fa7
-	inline char* IniFileReader_GetNextLine(void* reader)
+	char* CIniFileReader::GetNextLine()
 	{
-		using namespace IniFileReaderDetail;
-
-		const void* lines = ReadField<const void*>(reader, 0x108);
-		const std::uint32_t lineCount = ReadField<std::uint32_t>(lines, 0x08);
+		const std::uint32_t lineCount = mLines->mStringCount;
 
 		if (lineCount == 0)
 		{
 			return nullptr;
 		}
 
-		const std::uint32_t nextIndex = ReadField<std::uint32_t>(reader, 0x10C) + std::uint32_t{ 1 };
+		const std::uint32_t nextIndex = mCurrentLine + std::uint32_t{ 1 };
 
 		if (nextIndex == lineCount)
 		{
 			return nullptr;
 		}
 
-		if (static_cast<const CStringArray*>(lines)->GetStringPtr(nextIndex) == nullptr)
+		if (mLines->GetStringPtr(nextIndex) == nullptr)
 		{
 			return nullptr;
 		}
 
-		WriteField(reader, 0x10C, nextIndex);
-		IniFileReader_CopyCurrentLineIntoBuffer(reader);
+		mCurrentLine = nextIndex;
+		l_CopyCurrentLineIntoBuffer();
 
-		return reinterpret_cast<char*>(static_cast<std::byte*>(reader) + 0x11C);
+		return mLineBuffer;
 	}
 
 	// Original function: FUN_0042538d
-	inline std::int32_t IniFileReader_GetTypeOfNextParameter(void* reader)
+	std::int32_t CIniFileReader::GetTypeOfNextParameter()
 	{
-		using namespace IniFileReaderDetail;
-
 		for (;;)
 		{
-			char* position = ReadField<char*>(reader, 0x118);
-			const char character = *position;
+			const char character = *mParameterPosition;
 
 			if (character == '\0')
 			{
@@ -157,17 +171,14 @@ namespace NXBasics
 				return 1;
 			}
 
-			++position;
-			WriteField(reader, 0x118, position);
+			++mParameterPosition;
 		}
 	}
 
 	// Original function: FUN_00425291
-	inline std::int32_t IniFileReader_GetInt(void* reader)
+	std::int32_t CIniFileReader::GetInt()
 	{
-		using namespace IniFileReaderDetail;
-
-		char* position = ReadField<char*>(reader, 0x118);
+		char* position = mParameterPosition;
 
 		while (*position != '\0')
 		{
@@ -186,30 +197,23 @@ namespace NXBasics
 
 		const std::int32_t value = Runtime_StringToInteger(position);
 		char* separator = std::strchr(position, ' ');
-		char* nextPosition;
 
 		if (separator != nullptr)
 		{
-			nextPosition = separator + 1;
+			mParameterPosition = separator + 1;
 		}
 		else
 		{
-			char* lineBuffer = reinterpret_cast<char*>(static_cast<std::byte*>(reader) + 0x11C);
-			nextPosition = lineBuffer + std::strlen(lineBuffer);
+			mParameterPosition = mLineBuffer + std::strlen(mLineBuffer);
 		}
-
-		WriteField(reader, 0x118, nextPosition);
 
 		return value;
 	}
 
 	// Original function: FUN_0042522e
-	inline char* IniFileReader_GetString(void* reader)
+	char* CIniFileReader::GetString()
 	{
-		using namespace IniFileReaderDetail;
-
-		char* position = ReadField<char*>(reader, 0x118);
-		char* openingQuote = std::strchr(position, '"');
+		char* openingQuote = std::strchr(mParameterPosition, '"');
 
 		if (openingQuote == nullptr)
 		{
@@ -225,30 +229,83 @@ namespace NXBasics
 		}
 
 		const std::size_t stringLength = static_cast<std::size_t>(closingQuote - stringStart);
-		char* stringBuffer = reinterpret_cast<char*>(static_cast<std::byte*>(reader) + 0x10BC);
 
-		std::strncpy(stringBuffer, stringStart, stringLength);
-		stringBuffer[stringLength] = '\0';
+		std::strncpy(mStringBuffer, stringStart, stringLength);
+		mStringBuffer[stringLength] = '\0';
 
-		char* nextPosition = closingQuote + 1;
-		WriteField(reader, 0x118, nextPosition);
+		mParameterPosition = closingQuote + 1;
 
-		return stringBuffer;
+		return mStringBuffer;
 	}
 
-	struct SIniFileReaderDefine
+	bool CIniFileReader::IsLoaded() const
 	{
-		char name[100];
-		char replacement[200];
-	};
+		return mLoaded != 0;
+	}
 
-	static_assert(sizeof(SIniFileReaderDefine) == 0x12C);
-	static_assert(offsetof(SIniFileReaderDefine, replacement) == 0x64);
+	std::int32_t CIniFileReader::GetCurrentLineType() const
+	{
+		return mCurrentLineType;
+	}
+
+	const char* CIniFileReader::GetCurrentName() const
+	{
+		return mNameBuffer;
+	}
+
+	// Original function: FUN_004258eb
+	void CIniFileReader::l_CopyCurrentLineIntoBuffer()
+	{
+		const char* storedLine = mLines->GetStringPtr(mCurrentLine);
+
+		const std::uint8_t typeByte = static_cast<std::uint8_t>(storedLine[0]);
+		mCurrentLineType = typeByte < 0x80 ? static_cast<std::int32_t>(typeByte) : static_cast<std::int32_t>(typeByte) - 0x100;
+
+		std::strcpy(mLineBuffer, storedLine + 1);
+
+		char* separator = std::strchr(mLineBuffer, ' ');
+
+		if (separator == nullptr)
+		{
+			std::strcpy(mNameBuffer, mLineBuffer);
+			mParameterPosition = mLineBuffer + std::strlen(mLineBuffer);
+			return;
+		}
+
+		const std::size_t nameLength = static_cast<std::size_t>(separator - mLineBuffer);
+
+		std::strncpy(mNameBuffer, mLineBuffer, nameLength);
+		mNameBuffer[nameLength] = '\0';
+
+		mParameterPosition = separator + 1;
+	}
+
+	// Original function: FUN_004253e0
+	void CIniFileReader::l_LoadIniFile(const char* fileName, const char* preliminaryFileName)
+	{
+		// Original list destructor: FUN_004259d6
+		// Original value destruction: LAB_00479e17
+		NXSysKeyManager::CKeyEntryList definitions(true);
+
+		if (preliminaryFileName != nullptr)
+		{
+			l_DoLoadIniFile(preliminaryFileName, definitions);
+		}
+
+		l_DoLoadIniFile(fileName, definitions);
+	}
 
 	// Original function: FUN_00425429
-	inline void IniFileReader_DoLoadIniFile(void* reader, const char* fileName, NXSysKeyManager::CKeyEntryListBase& definitions)
+	void CIniFileReader::l_DoLoadIniFile(const char* fileName, NXSysKeyManager::CKeyEntryListBase& definitions)
 	{
-		using namespace IniFileReaderDetail;
+		struct SIniFileReaderDefine
+		{
+			char name[100];
+			char replacement[200];
+		};
+
+		static_assert(sizeof(SIniFileReaderDefine) == 0x12C);
+		static_assert(offsetof(SIniFileReaderDefine, replacement) == 0x64);
 
 		CMemory* memory;
 
@@ -258,11 +315,11 @@ namespace NXBasics
 
 			memory = new (std::nothrow) CMemory(fileSize + std::uint32_t{ 1 }, std::uint8_t{ 0 });
 
-			char* destination = ReadField<char*>(memory, 0x08);
+			char* destination = reinterpret_cast<char*>(memory->mData);
 			file.Read(destination, fileSize);
 		}
 
-		char* fileData = ReadField<char*>(memory, 0x08);
+		char* fileData = reinterpret_cast<char*>(memory->mData);
 
 		char rawLine[2000];
 		char normalizedLine[2000];
@@ -372,7 +429,7 @@ namespace NXBasics
 					std::memcpy(includedFileName, includedName, nameLength);
 					includedFileName[nameLength] = '\0';
 
-					IniFileReader_DoLoadIniFile(reader, includedFileName, definitions);
+					l_DoLoadIniFile(includedFileName, definitions);
 					continue;
 				}
 
@@ -435,8 +492,7 @@ namespace NXBasics
 						*replacementOutput++ = character;
 					}
 
-					// The original ultimately writes a terminator here,
-					// even when the replacement contains an unmatched quote.
+					// Preserve termination even with an unmatched quote.
 					*replacementOutput = '\0';
 				}
 
@@ -457,8 +513,7 @@ namespace NXBasics
 
 				*closingBracket = '\0';
 
-				CStringArray* lines = ReadField<CStringArray*>(reader, 0x108);
-				lines->InsertString(normalizedLine);
+				mLines->InsertString(normalizedLine);
 				continue;
 			}
 
@@ -537,8 +592,7 @@ namespace NXBasics
 						}
 					}
 
-					// The first character after the number has already
-					// been consumed and is not processed again.
+					// The character after the number has already been consumed.
 				}
 				else if (character == '#')
 				{
@@ -578,18 +632,17 @@ namespace NXBasics
 					}
 					else
 					{
-						FUN_00406995("NXBasics::CIniFileReader::l_DoLoadIniFile  #define could not be solved - <%s> in file <%s>", defineName, fileName);
+						ReportWarning("NXBasics::CIniFileReader::l_DoLoadIniFile  #define could not be solved - <%s> in file <%s>", defineName, fileName);
 					}
 				}
 				else
 				{
-					using ErrorCallback = void(__cdecl*)(std::int32_t, const char*, const char*);
-
-					ErrorCallback errorCallback = ReadField<ErrorCallback>(reader, 0x188C);
+					ErrorCallback errorCallback = mErrorCallback;
 
 					if (errorCallback == nullptr)
 					{
-						errorCallback = ReadField<ErrorCallback>(&DAT_00512580, 0);
+						// Original global fallback callback: DAT_00512580
+						std::memcpy(&errorCallback, &DAT_00512580, sizeof(errorCallback));
 					}
 
 					if (errorCallback != nullptr)
@@ -608,31 +661,15 @@ namespace NXBasics
 
 			if (storedOutput != storedLine + 1)
 			{
-				CStringArray* lines = ReadField<CStringArray*>(reader, 0x108);
-				lines->InsertString(storedLine);
+				mLines->InsertString(storedLine);
 			}
 		}
 
 		delete memory;
 	}
 
-	// Original function: FUN_004253e0
-	inline void IniFileReader_LoadIniFile(void* reader, const char* fileName, const char* preliminaryFileName)
-	{
-		// Original list destructor: FUN_004259d6
-		// Original value destruction: LAB_00479e17
-		NXSysKeyManager::CKeyEntryList definitions(true);
-
-		if (preliminaryFileName != nullptr)
-		{
-			IniFileReader_DoLoadIniFile(reader, preliminaryFileName, definitions);
-		}
-
-		IniFileReader_DoLoadIniFile(reader, fileName, definitions);
-	}
-
 	// Original function: FUN_00425980
-	inline void IniFileReader_CreateCompiledFilename(char* fileName, const char* compiledExtension)
+	void CIniFileReader::l_CreateCompiledFilename(char* fileName, const char* compiledExtension)
 	{
 		char drive[4];
 		char directory[256];
