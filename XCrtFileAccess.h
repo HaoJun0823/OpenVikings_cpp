@@ -6,14 +6,130 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <malloc.h>
+
+// Reconstructed Win32/x86 CRT subset; requires C++17 or later.
+// Static initializers below were verified against Game.exe (image base 00400000).
+// The external __amsg_exit and __fassign implementations remain to be supplied.
+// Allocation and freeing use this reconstructed runtime heap throughout.
+// Heap, thread, descriptor and stream startup must run in the original order.
 
 namespace NXBasics
 {
+	// Types and data are ordered by initialization dependencies.
+
+	// Original data: 0056b5e8.
+	inline HANDLE gRuntimeHeap = nullptr;
+
+	// Original data: 0056b5ec.
+	inline std::uint32_t gRuntimeHeapMode = 0;
+
+	// Original data: 0056b3a4.
+	inline std::uint32_t gRuntimeSmallBlockRegionCapacity = 0;
+
+	// Original data: 0056b3a8.
+	inline std::uint32_t gRuntimeSmallBlockPendingGroupIndex = 0;
+
+	// Original data: 0056b3ac.
+	// Stores a 32-bit address in the current x86 representation.
+	inline std::uint32_t gRuntimeSmallBlockSearchRegion = 0;
+
+	// Original data: 0056b3b0.
+	// Stores a 32-bit address in the current x86 representation.
+	inline std::uint32_t gRuntimeSmallBlockPendingRegion = 0;
+
+	// Original data: 0056b3b4.
+	inline std::uint32_t gRuntimeSmallBlockRegionCount = 0;
+
+	// Original data: 0056b3b8.
+	inline void* gRuntimeSmallBlockRegionTable = nullptr;
+
+	// Original data: 0056b3bc.
+	inline std::uint32_t gRuntimeSmallBlockThreshold = 0;
+
 	struct RuntimeErrorMapping
 	{
 		std::uint32_t osError;
 		std::uint32_t crtError;
 	};
+
+	struct RuntimeSmallBlockRegion
+	{
+		std::uint32_t availableClassesLow;   // +0x00
+		std::uint32_t availableClassesHigh;  // +0x04
+		std::uint32_t uncommittedGroups;     // +0x08
+		void* reservation;                  // +0x0C
+		void* metadata;                     // +0x10
+	};
+
+	static_assert(sizeof(RuntimeSmallBlockRegion) == 0x14);
+	static_assert(offsetof(RuntimeSmallBlockRegion, reservation) == 0x0C);
+	static_assert(offsetof(RuntimeSmallBlockRegion, metadata) == 0x10);
+
+	struct RuntimeSmallBlockPageEntryMode2
+	{
+		std::uint32_t freeUnits;             // +0x00
+		std::uint32_t failedRequestLimit;    // +0x04
+	};
+
+	struct RuntimeSmallBlockRegionMode2
+	{
+		RuntimeSmallBlockRegionMode2* next;                  // +0x0000
+		RuntimeSmallBlockRegionMode2* previous;              // +0x0004
+		RuntimeSmallBlockPageEntryMode2* searchStart;        // +0x0008
+		RuntimeSmallBlockPageEntryMode2* firstUncommitted;   // +0x000C
+		void* reservation;                                 // +0x0010
+		void* reservationEnd;                              // +0x0014
+		RuntimeSmallBlockPageEntryMode2 pages[0x400];        // +0x0018
+		std::byte trailingStorage[8];                       // +0x2018
+	};
+
+	static_assert(sizeof(RuntimeSmallBlockPageEntryMode2) == 8);
+	static_assert(sizeof(RuntimeSmallBlockRegionMode2) == 0x2020);
+	static_assert(offsetof(RuntimeSmallBlockRegionMode2, searchStart) == 0x08);
+	static_assert(offsetof(RuntimeSmallBlockRegionMode2, reservation) == 0x10);
+	static_assert(offsetof(RuntimeSmallBlockRegionMode2, pages) == 0x18);
+	static_assert(offsetof(RuntimeSmallBlockRegionMode2, trailingStorage) == 0x2018);
+
+	struct RuntimeDescriptorRecord
+	{
+		std::uint32_t osHandle;             // +0x00
+		std::uint8_t flags;                 // +0x04
+		std::uint8_t lookaheadCharacter;    // +0x05
+		std::byte reserved06[2];            // +0x06
+		std::uint32_t lockInitialized;      // +0x08
+		CRITICAL_SECTION lock;             // +0x0C
+	};
+
+	static_assert(sizeof(void*) == 4, "The reconstructed runtime requires x86");
+	static_assert(sizeof(CRITICAL_SECTION) == 0x18);
+	static_assert(sizeof(RuntimeDescriptorRecord) == 0x24);
+	static_assert(offsetof(RuntimeDescriptorRecord, flags) == 0x04);
+	static_assert(offsetof(RuntimeDescriptorRecord, lookaheadCharacter) == 0x05);
+	static_assert(offsetof(RuntimeDescriptorRecord, lockInitialized) == 0x08);
+	static_assert(offsetof(RuntimeDescriptorRecord, lock) == 0x0C);
+
+	// Original data: 0050c610 through 0050c633.
+	inline RuntimeDescriptorRecord gRuntimeInvalidDescriptorRecord = {
+    0xFFFFFFFFu, 0x00u, 0x0Au, {}, 0u, {}
+	};
+	struct RuntimeExceptionAction
+{
+    std::uint32_t exceptionCode;
+    std::int32_t signalNumber;
+    std::uint32_t action;
+	};
+	static_assert(sizeof(RuntimeExceptionAction) == 0x0C);
+	static_assert(offsetof(RuntimeExceptionAction, action) == 0x08);
+	// Original data: 0050c968 through 0050c9df.
+	inline RuntimeExceptionAction gRuntimeDefaultExceptionActions[10] = {
+    { 0xC0000005u, 11, 0u }, { 0xC000001Du, 4, 0u },
+    { 0xC0000096u, 4, 0u }, { 0xC000008Du, 8, 0u },
+    { 0xC000008Eu, 8, 0u }, { 0xC000008Fu, 8, 0u },
+    { 0xC0000090u, 8, 0u }, { 0xC0000091u, 8, 0u },
+    { 0xC0000092u, 8, 0u }, { 0xC0000093u, 8, 0u }
+	};
+	static_assert(sizeof(gRuntimeDefaultExceptionActions) == 0x78);
 
 	// Original data: 0050c250 through 0050c3b7.
 	inline constexpr RuntimeErrorMapping gRuntimeErrorMappings[] =
@@ -88,6 +204,58 @@ namespace NXBasics
 
 	static_assert(sizeof(gRuntimeErrorMappings) / sizeof(gRuntimeErrorMappings[0]) == 45, "The original error table contains 45 entries");
 
+	// Original data: 00569b30 through 00569b8f.
+	inline CRITICAL_SECTION gRuntimeStaticLocks[4] = {};
+	// Original data: 0050c798 through 0050c857.
+	inline CRITICAL_SECTION* gRuntimeLockTable[48] = {
+    nullptr, &gRuntimeStaticLocks[0], nullptr, nullptr,
+    nullptr, nullptr, nullptr, nullptr,
+    nullptr, &gRuntimeStaticLocks[2], nullptr, nullptr,
+    nullptr, &gRuntimeStaticLocks[3], nullptr, nullptr,
+    nullptr, &gRuntimeStaticLocks[1]
+	};
+	static_assert(sizeof(gRuntimeStaticLocks) == 0x60);
+	static_assert(sizeof(gRuntimeLockTable) == 0xC0);
+
+	// Original data: 0056a3a0 through 0056b39f.
+	inline char gRuntimeStdinBuffer[0x1000] = {};
+	// Original data: 0050ecc8 through 0050ef47.
+	inline RuntimeFormatStream gRuntimeStaticStreams[20] = {
+    { gRuntimeStdinBuffer, 0u, gRuntimeStdinBuffer, 0x101u, 0u, {}, 0x1000u, {} },
+    { nullptr, 0u, nullptr, 0x02u, 1u, {}, 0u, {} },
+    { nullptr, 0u, nullptr, 0x02u, 2u, {}, 0u, {} }
+	};
+
+	// Original data: 0050ecc8.
+	inline RuntimeFormatStream& gRuntimeStdinStream = gRuntimeStaticStreams[0];
+
+	// Original data: 0050ece8.
+	inline RuntimeFormatStream& gRuntimeStdoutStream = gRuntimeStaticStreams[1];
+
+	// Original data: 0050ed08.
+	inline RuntimeFormatStream& gRuntimeStderrStream = gRuntimeStaticStreams[2];
+
+	static_assert(sizeof(gRuntimeStaticStreams) == 0x280);
+
+	// Original data: 0050cca0 through 0050ecbf.
+	inline RuntimeSmallBlockRegionMode2 gRuntimeSmallBlockInitialRegionMode2 = {
+    &gRuntimeSmallBlockInitialRegionMode2,
+    &gRuntimeSmallBlockInitialRegionMode2,
+    &gRuntimeSmallBlockInitialRegionMode2.pages[0],
+    &gRuntimeSmallBlockInitialRegionMode2.pages[0],
+    reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
+    reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
+    { { 0xF0u, 0xF1u } },
+    {}
+	};
+
+	// Original data: 0050ecc0.
+	inline RuntimeSmallBlockRegionMode2* gRuntimeSmallBlockSearchRegionMode2 = &gRuntimeSmallBlockInitialRegionMode2;
+	// Original data: 0050ecc4.
+	inline std::uint32_t gRuntimeSmallBlockThresholdMode2 = 0x1E0u;
+	// Original data: 00569cd4.
+	inline std::uint32_t gRuntimeSmallBlockEmptyPageCountMode2 = 0;
+
 	// Original data: DAT_004fb9d8 through 004fba33.
 	inline constexpr std::uint8_t gRuntimeFormatTable[] =
 	{
@@ -107,12 +275,927 @@ namespace NXBasics
 
 	static_assert(sizeof(gRuntimeFormatTable) == 0x5C);
 
+	// Original data: 0056b600 through 0056b6ff.
+	// Each allocated block contains 32 descriptor records.
+	inline std::uint8_t* gRuntimeDescriptorBlocks[64] = {};
+
+	// Original data: 0056b700.
+	// Runtime descriptor initialization sets this to 32 after allocating block zero.
+	inline std::uint32_t gRuntimeDescriptorCapacity = 0;
+
+	static_assert(sizeof(gRuntimeDescriptorBlocks) == 0x100);
+	static_assert(sizeof(RuntimeDescriptorRecord) * 32 == 0x480);
+
+
+
+
+	struct RuntimeFloatConversionState
+	{
+		std::int32_t sign;               // +0x00
+		std::int32_t decimalPosition;    // +0x04
+		std::uint32_t conversionResult;  // +0x08
+		char* digits;                    // +0x0C
+	};
+
+	static_assert(sizeof(RuntimeFloatConversionState) == 0x10);
+	static_assert(offsetof(RuntimeFloatConversionState, sign) == 0x00);
+	static_assert(offsetof(RuntimeFloatConversionState, decimalPosition) == 0x04);
+	static_assert(offsetof(RuntimeFloatConversionState, conversionResult) == 0x08);
+	static_assert(offsetof(RuntimeFloatConversionState, digits) == 0x0C);
+
+	struct RuntimeFloatIntermediate
+	{
+		std::uint32_t word0;  // +0x00
+		std::uint32_t word1;  // +0x04
+		std::uint16_t word2;  // +0x08
+	};
+
+	static_assert(sizeof(RuntimeFloatIntermediate) == 0x0C);
+	static_assert(offsetof(RuntimeFloatIntermediate, word2) == 0x08);
+
+	struct RuntimeFloatDecimalResult
+	{
+		std::int16_t decimalPosition;  // +0x00
+		std::int8_t sign;              // +0x02
+		std::uint8_t digitCount;       // +0x03
+		char digits[24];               // +0x04
+	};
+
+	static_assert(sizeof(RuntimeFloatDecimalResult) == 0x1C);
+	static_assert(offsetof(RuntimeFloatDecimalResult, sign) == 0x02);
+	static_assert(offsetof(RuntimeFloatDecimalResult, digitCount) == 0x03);
+	static_assert(offsetof(RuntimeFloatDecimalResult, digits) == 0x04);
+
+	// Original data: DAT_0050f360
+	inline constexpr std::uint32_t Runtime_PositivePowerFactors[29][3] = {
+		{ 0x00000000u, 0x00000000u, 0x4002A000u }, // 10^1
+		{ 0x00000000u, 0x00000000u, 0x4005C800u }, // 10^2
+		{ 0x00000000u, 0x00000000u, 0x4008FA00u }, // 10^3
+		{ 0x00000000u, 0x00000000u, 0x400C9C40u }, // 10^4
+		{ 0x00000000u, 0x00000000u, 0x400FC350u }, // 10^5
+		{ 0x00000000u, 0x00000000u, 0x4012F424u }, // 10^6
+		{ 0x00000000u, 0x80000000u, 0x40169896u }, // 10^7
+		{ 0x00000000u, 0x20000000u, 0x4019BEBCu }, // 10^8
+		{ 0x00000000u, 0xC9BF0400u, 0x40348E1Bu }, // 10^16
+		{ 0xA1000000u, 0x1BCECCEDu, 0x404ED3C2u }, // 10^24
+		{ 0xB59EF020u, 0xADA82B70u, 0x40699DC5u }, // 10^32
+		{ 0x25FD5DD0u, 0x4F8E1AE5u, 0x4083EB19u }, // 10^40
+		{ 0x95D79671u, 0x8D050E43u, 0x409EAF29u }, // 10^48
+		{ 0x44A0BFF9u, 0x8F1281EDu, 0x40B98281u }, // 10^56
+		{ 0xA6D53CBFu, 0x1F49FFCFu, 0x40D3C278u }, // 10^64
+		{ 0x8CE0C66Fu, 0x47C980E9u, 0x41A893BAu }, // 10^128
+		{ 0x556B85BCu, 0xF78D3927u, 0x427CE070u }, // 10^192
+		{ 0xDE8EDDBCu, 0xEBFB9DF9u, 0x4351AA7Eu }, // 10^256
+		{ 0xE376E6A1u, 0x2F29F2CCu, 0x44268184u }, // 10^320
+		{ 0xAA171028u, 0xE310AEF8u, 0x44FAC4C5u }, // 10^384
+		{ 0xF3D4A7EBu, 0x4AE1EBF7u, 0x45CF957Au }, // 10^448
+		{ 0x91C7CC65u, 0xA0AEA60Eu, 0x46A3E319u }, // 10^512
+		{ 0x0C17650Du, 0x75868175u, 0x4D48C976u }, // 10^1024
+		{ 0xA7E44258u, 0x353B3993u, 0x53EDB2B8u }, // 10^1536
+		{ 0x5DE5A74Du, 0x3B5DC53Du, 0x5A929E8Bu }, // 10^2048
+		{ 0xF0A65DFFu, 0x54C020A1u, 0x61378CA5u }, // 10^2560
+		{ 0x5A8BFDD1u, 0x5D25D88Bu, 0x67DBF989u }, // 10^3072
+		{ 0xF3F895AAu, 0xC8A2BF27u, 0x6E80DD5Du }, // 10^3584
+		{ 0x979BC94Cu, 0x52028A20u, 0x7525C460u }, // 10^4096
+	};
+
+	// Original data: DAT_0050f4c0
+	inline constexpr std::uint32_t Runtime_NegativePowerFactors[29][3] = {
+		{ 0xCCCDCCCDu, 0xCCCCCCCCu, 0x3FFBCCCCu }, // 10^-1
+		{ 0xD70A3D71u, 0x0A3D70A3u, 0x3FF8A3D7u }, // 10^-2
+		{ 0xDF3B645Au, 0x6E978D4Fu, 0x3FF58312u }, // 10^-3
+		{ 0x652CD3C3u, 0x1758E219u, 0x3FF1D1B7u }, // 10^-4
+		{ 0x84230FD0u, 0xAC471B47u, 0x3FEEA7C5u }, // 10^-5
+		{ 0x69B6A640u, 0xBD05AF6Cu, 0x3FEB8637u }, // 10^-6
+		{ 0x42BC3D33u, 0x94D5E57Au, 0x3FE7D6BFu }, // 10^-7
+		{ 0xCEFDFDC2u, 0x77118461u, 0x3FE4ABCCu }, // 10^-8
+		{ 0xE15B4C2Fu, 0x94BEC44Du, 0x3FC9E695u }, // 10^-16
+		{ 0x3B53C492u, 0x14CD4475u, 0x3FAF9ABEu }, // 10^-24
+		{ 0x94BA67DEu, 0x1EAD4539u, 0x3F94CFB1u }, // 10^-32
+		{ 0xE2C62324u, 0x313BBABCu, 0x3F7A8B61u }, // 10^-40
+		{ 0xC1595561u, 0x7C53B17Eu, 0x3F5FBB12u }, // 10^-48
+		{ 0x8D2FEED7u, 0x8592BE06u, 0x3F44FB15u }, // 10^-56
+		{ 0xE9A53F24u, 0xEA27A539u, 0x3F2AA87Fu }, // 10^-64
+		{ 0xE4A1AC7Du, 0x467C64BCu, 0x3E55DDD0u }, // 10^-128
+		{ 0xCC067B63u, 0x83775423u, 0x3D8191FFu }, // 10^-192
+		{ 0x193AFA91u, 0x4325637Au, 0x3CACC031u }, // 10^-256
+		{ 0x38D18921u, 0xB8974782u, 0x3BD7FD00u }, // 10^-320
+		{ 0x085888DCu, 0xE3E8B11Bu, 0x3B03A686u }, // 10^-384
+		{ 0x424584C6u, 0x7599B607u, 0x3A2EDB37u }, // 10^-448
+		{ 0xD21C7133u, 0xEE32DB23u, 0x395A9049u }, // 10^-512
+		{ 0xC0BE87A6u, 0x82A5DA57u, 0x32B5A2A6u }, // 10^-1024
+		{ 0x11B268E2u, 0x449F52A7u, 0x2C10B759u }, // 10^-1536
+		{ 0x2DE44925u, 0x534F3436u, 0x256BCEAEu }, // 10^-2048
+		{ 0xA404598Fu, 0x7DC2DEC0u, 0x1EC6E8FBu }, // 10^-2560
+		{ 0x5A88E79Eu, 0xBF3C9157u, 0x18228350u }, // 10^-3072
+		{ 0x62654B4Eu, 0xAF8F83FDu, 0x117D9406u }, // 10^-3584
+		{ 0x9FDE2DE4u, 0x04C8D2CEu, 0x0AD8A6DDu }, // 10^-4096
+	};
+
+	static_assert(sizeof(Runtime_PositivePowerFactors) == 0x15C);
+	static_assert(sizeof(Runtime_NegativePowerFactors) == 0x15C);
+
+
+
+	static_assert(sizeof(va_list) == 4, "Argument access requires the MSVC x86 va_list layout");
+
+	static_assert(sizeof(CRITICAL_SECTION) == 0x18, "Descriptor locks require the Win32 critical-section layout");
+
+	static_assert(sizeof(void*) == 4, "These CRT descriptor accesses require an x86 build");
+
+	
+
+	// Additional CRT data (original-address order).
+	// Original data: 0050c244.
+	inline std::uint32_t gRuntimeApplicationType = 0x00000002u;
+
+	// Original data: 0050c604.
+	inline std::int32_t gRuntimeMaxMultibyteLength = 0x00000001u;
+
+	// Original data: 0050c608.
+	inline char gRuntimeDecimalSeparator = '.';
+
+	// Original data: 0050c6e4.
+	inline DWORD gRuntimeThreadDataTlsIndex = 0xFFFFFFFFu;
+
+	// Original data: 00569a00.
+	inline std::uint32_t gRuntimeFileCreationMask = 0x00000000u;
+
+	// Original data: 00569b2c.
+	inline std::int32_t gRuntimeDefaultFileMode = 0x00000000u;
+
+	// Original data: 00569b98.
+	inline LCID gRuntimeCTypeLocale = 0x00000000u;
+
+	// Original data: 00569ba8.
+	inline UINT gRuntimeCodePage = 0x00000000u;
+
+	// Original data: 00569cc8.
+	inline std::uint32_t gRuntimeMapStringBackend = 0x00000000u;
+
+	// Original data: 00569ccc.
+	inline std::int32_t gRuntimeNewHandlerMode = 0x00000000u;
+
+	// Original data: 00569cd8.
+	inline std::uint32_t gRuntimeStreamBufferRequestCount = 0x00000000u;
+
+	// Original data: 00569cec.
+	inline std::uint32_t gRuntimeGetStringTypeBackend = 0x00000000u;
+
+	// Original data: 0056b5f0.
+	inline LONG gRuntimeLocaleChangeState = 0x00000000u;
+
+	// Original data: 0056b5f4.
+	inline LONG gRuntimeLocaleReaderCount = 0x00000000u;
+
+	// Original data: 0050c400 through 0050c601; element zero represents EOF.
+	inline std::uint16_t gRuntimeCharacterTypeStorage[257] = {
+		0x0000u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0028u, 0x0028u,
+		0x0028u, 0x0028u, 0x0028u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u,
+		0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0020u, 0x0048u, 0x0010u, 0x0010u,
+		0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u,
+		0x0010u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0084u, 0x0010u,
+		0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0081u, 0x0081u, 0x0081u, 0x0081u, 0x0081u, 0x0081u,
+		0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u,
+		0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0001u, 0x0010u, 0x0010u, 0x0010u, 0x0010u,
+		0x0010u, 0x0010u, 0x0082u, 0x0082u, 0x0082u, 0x0082u, 0x0082u, 0x0082u, 0x0002u, 0x0002u, 0x0002u, 0x0002u,
+		0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0002u,
+		0x0002u, 0x0002u, 0x0002u, 0x0002u, 0x0010u, 0x0010u, 0x0010u, 0x0010u, 0x0020u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+		0x0000u, 0x0000u, 0x0000u, 0x0000u, 0x0000u,
+	};
+	// Original data: 0050c3f8; original target: 0050c402.
+	inline std::uint16_t* gRuntimeCharacterTypes = gRuntimeCharacterTypeStorage + 1;
+
+    // Original data: 0050c3f0; original target: 004fba44.
+    inline const char* gRuntimeNullString = "(null)";
+    // Original data: 0050c3f4; original target: 004fba34.
+    inline const wchar_t* gRuntimeNullWideString = L"(null)";
+    static_assert(sizeof(wchar_t) == 2, "The runtime requires Windows UTF-16 wchar_t");
+    // Original data: 005699c8; initially zero-filled, later registered by the application.
+    using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
+    inline RuntimeNewHandler gRuntimeNewHandler = nullptr;
+
+
+    // External CRT implementations still to be reconstructed in this subset.
+    // Original function: FUN_004e71a6
+    [[noreturn]] void __cdecl __amsg_exit(int errorCode);
+    // Original function: FUN_004eba5c
+    void __cdecl __fassign(int storeDouble, void* destination, const char* text);
+    inline void Runtime_FloatSupportUnavailable();
+    inline void* Runtime_Allocate(std::uint32_t requestedBytes);
+    inline void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler);
+    inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes);
+
+	// Function declarations (original-address order).
+	inline bool Runtime_IsLetter(char character);
+	inline bool Runtime_IsDigit(char character);
+	inline bool Runtime_IsPropertyNameCharacter(char character);
+	inline std::int32_t Runtime_StringToInteger(const char* text);
+	inline std::int32_t Runtime_Close(std::uint32_t descriptor);
+	inline std::int32_t Runtime_CloseNoLock(std::uint32_t descriptor);
+	inline std::int32_t Runtime_Write(std::uint32_t descriptor, const void* data, std::uint32_t byteCount);
+	inline std::int32_t Runtime_WriteNoLock(std::uint32_t descriptor, const void* data, std::uint32_t byteCount);
+	inline std::int32_t Runtime_Open(const char* fileName, std::uint32_t flags, std::uint32_t permissions);
+	inline std::int32_t Runtime_OpenShared(const char* fileName, std::uint32_t flags, std::uint32_t shareMode, std::uint32_t permissions);
+	inline std::int32_t Runtime_Read(std::uint32_t descriptor, void* destination, std::uint32_t byteCount);
+	inline std::int32_t Runtime_ReadNoLock(std::uint32_t descriptor, void* destination, std::uint32_t byteCount);
+	inline std::uint32_t Runtime_Seek(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin);
+	inline std::uint32_t Runtime_SeekNoLock(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin);
+	inline std::uint32_t Runtime_GetFileSize(std::uint32_t descriptor);
+	inline void Runtime_InitializeFloatCallbacks();
+	inline void Runtime_MapOsError(std::uint32_t osError);
+	inline DWORD* Runtime_GetErrnoPointer();
+	inline DWORD* Runtime_GetDosErrnoPointer();
+	inline std::int32_t Runtime_FormatString(char* destination, std::int32_t capacity, const char* format, va_list arguments);
+	inline std::int32_t Runtime_ToLower(std::int32_t character);
+	inline std::uint32_t Runtime_ToLowerNoLock(std::uint32_t character);
+	inline int Runtime_CallNewHandler(std::uint32_t allocationSize);
+	inline std::uint32_t Runtime_ClassifyAlphanumeric(std::int32_t character);
+	inline std::int32_t Runtime_CompareStringsIgnoreCase(const char* first, const char* second);
+	inline void Runtime_Free(void* memory);
+	inline std::uint32_t Runtime_FlushAndWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream);
+	inline std::int32_t Runtime_FormatToStream(RuntimeFormatStream* stream, const char* format, va_list arguments);
+	inline void Runtime_FormatWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream, std::int32_t* writtenCharacters);
+	inline void Runtime_FormatWriteRepeated(std::uint32_t character, std::int32_t count, RuntimeFormatStream* stream, std::int32_t* writtenCharacters);
+	inline void Runtime_FormatWriteText(const char* text, std::int32_t length, RuntimeFormatStream* stream, std::int32_t* writtenCharacters);
+	inline std::uint32_t Runtime_FormatReadArgument32(va_list* arguments);
+	inline std::uint64_t Runtime_FormatReadArgument64(va_list* arguments);
+	inline std::uint32_t Runtime_FormatReadArgument16(va_list* arguments);
+	inline std::uint32_t Runtime_ClassifyCharacter(std::int32_t character, std::uint32_t mask);
+	inline std::uint32_t Runtime_AllocateDescriptor();
+	inline std::int32_t Runtime_SetOsHandle(std::uint32_t descriptor, HANDLE handle);
+	inline std::int32_t Runtime_ClearOsHandle(std::uint32_t descriptor);
+	inline std::uint32_t Runtime_GetOsHandle(std::uint32_t descriptor);
+	inline void Runtime_LockDescriptor(std::uint32_t descriptor);
+	inline void Runtime_UnlockDescriptor(std::uint32_t descriptor);
+	inline std::int32_t Runtime_InitializeThreading();
+	inline void Runtime_InitializeThreadData(void* threadData);
+	inline DWORD* Runtime_GetThreadData();
+	inline std::int32_t Runtime_ResizeNoLock(std::uint32_t descriptor, std::uint32_t newSize);
+	inline void Runtime_FloatInsertDecimalPoint(char* text);
+	inline void Runtime_FloatTrimTrailingZeros(char* text);
+	inline std::int32_t Runtime_FloatAtLeastReference(const double* value);
+	inline char* Runtime_ConvertFloatScientific(const double* value, char* buffer, std::int32_t precision, std::int32_t uppercase);
+	inline char* Runtime_FormatExponentialDigits(char* buffer, std::int32_t precision, std::int32_t uppercase, const RuntimeFloatConversionState* state, char generalFormat);
+	inline char* Runtime_ConvertFloatFixed(const double* value, char* buffer, std::int32_t precision);
+	inline char* Runtime_FormatFixedDigits(char* buffer, std::int32_t precision, const RuntimeFloatConversionState* state, char generalFormat);
+	inline void Runtime_ConvertFloatGeneral(const double* value, char* buffer, std::int32_t precision, std::int32_t uppercase);
+	inline void Runtime_ConvertFloat(const double* value, char* buffer, std::int32_t format, std::int32_t precision, std::int32_t uppercase);
+	inline void Runtime_ShiftString(char* text, std::int32_t offset);
+	inline void Runtime_InitializeLocks();
+	inline void Runtime_Lock(std::int32_t lockIndex);
+	inline void Runtime_Unlock(std::int32_t lockIndex);
+	inline void Runtime_GetExecutableLinkerVersion(std::uint32_t* version);
+	inline std::int32_t Runtime_SelectHeapMode();
+	inline int Runtime_InitializeHeap(std::int32_t enableSerialization);
+	inline int Runtime_MapString(LCID locale, DWORD mapFlags, const char* source, int sourceLength, char* destination, int destinationCapacity, UINT codePage, int rejectInvalidCharacters);
+	inline int Runtime_InitializeSmallBlockHeap(std::uint32_t maximumRequest);
+	inline std::uint32_t Runtime_FindSmallBlockRegion(std::uint32_t memoryAddress);
+	inline void Runtime_FreeSmallBlock(std::uint32_t regionAddress, void* memory);
+	inline void* Runtime_AllocateSmallBlock(std::uint32_t requestedBytes);
+	inline void* Runtime_CreateSmallBlockRegion();
+	inline std::int32_t Runtime_CommitSmallBlockGroup(std::uint32_t regionAddress);
+	inline void* Runtime_CreateSmallBlockRegionMode2();
+	inline void Runtime_ReleaseSmallBlockRegionMode2(std::uint32_t regionAddress);
+	inline void Runtime_DecommitSmallBlockPagesMode2(std::uint32_t pagesToRelease);
+	inline std::uint32_t Runtime_FindSmallBlockEntryMode2(void* memory, std::uint32_t* regionOutput, std::uint32_t* pageOutput);
+	inline void Runtime_FreeSmallBlockMode2(std::uint32_t regionAddress, std::uint32_t pageAddress, std::uint32_t entryAddress);
+	inline void* Runtime_AllocateSmallBlockMode2(std::uint32_t unitCount);
+	inline void* Runtime_AllocateFromSmallBlockPageMode2(void* pageMemory, std::uint32_t freeUnits, std::uint32_t unitCount);
+	inline std::int32_t Runtime_StringToLong(const char* text, char** endPointer, std::int32_t base);
+	inline std::uint32_t Runtime_ParseInteger32(const char* text, char** endPointer, std::int32_t base, std::uint32_t flags);
+	inline void Runtime_AllocateStreamBuffer(RuntimeFormatStream* stream);
+	inline std::uint32_t Runtime_IsCharacterDevice(std::uint32_t descriptor);
+	inline std::int32_t Runtime_WideCharacterToMultibyte(char* destination, std::uint32_t characterBits);
+	inline std::int32_t Runtime_WideCharacterToMultibyteNoLock(char* destination, std::uint32_t characterBits);
+	inline BOOL Runtime_GetStringType(DWORD informationType, LPCSTR source, int sourceLength, LPWORD characterTypes, UINT codePage, LCID locale, int rejectInvalidCharacters);
+	inline void* Runtime_AllocateZeroed(std::uint32_t count, std::uint32_t elementSize);
+	inline std::int32_t Runtime_SetModeNoLock(std::uint32_t descriptor, std::int32_t mode);
+	inline void Runtime_GenerateFloatDigits(char* buffer, std::int32_t digitCount, RuntimeFloatConversionState* state);
+	inline RuntimeFloatConversionState* Runtime_PrepareFloatConversion(double value, RuntimeFloatConversionState* state, char* workspace);
+	inline void Runtime_DoubleToIntermediate(RuntimeFloatIntermediate* destination, const double* source);
+	inline std::int32_t Runtime_BoundedStringLength(const char* text, std::int32_t maximumLength);
+	inline std::int32_t Runtime_ToUpper(std::int32_t character);
+	inline std::uint32_t Runtime_ToUpperNoLock(std::uint32_t character);
+	inline std::uint32_t Runtime_Add32WithCarry(std::uint32_t first, std::uint32_t second, std::uint32_t* destination);
+	inline void Runtime_ShiftLeft96(std::uint32_t* value);
+	inline void Runtime_ShiftRight96(std::uint32_t* value);
+	inline std::uint32_t Runtime_IntermediateToDecimal(RuntimeFloatIntermediate value, std::int32_t requestedDigits, std::uint32_t options, RuntimeFloatDecimalResult* result);
+	inline void Runtime_MultiplyExtended12(std::uint32_t* destination, const std::uint32_t* source);
+	inline void Runtime_ScaleExtended12(std::uint32_t* value, std::int32_t exponent, std::int32_t preserveLowWord);
+	inline void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source);
+
+
+	// Float dispatch slots initially point to the missing-float-support handler.
+	// Original data: 0050c780.
+	inline decltype(&Runtime_ConvertFloat) gRuntimeFloatConvertCallback = reinterpret_cast<decltype(&Runtime_ConvertFloat)>(&Runtime_FloatSupportUnavailable);
+	// Original data: 0050c784.
+	inline decltype(&Runtime_FloatTrimTrailingZeros) gRuntimeFloatTrimTrailingZerosCallback = reinterpret_cast<decltype(&Runtime_FloatTrimTrailingZeros)>(&Runtime_FloatSupportUnavailable);
+	// Original data: 0050c788.
+	inline decltype(&__fassign) gRuntimeFloatAssignCallback = reinterpret_cast<decltype(&__fassign)>(&Runtime_FloatSupportUnavailable);
+	// Original data: 0050c78c.
+	inline decltype(&Runtime_FloatInsertDecimalPoint) gRuntimeFloatInsertDecimalPointCallback = reinterpret_cast<decltype(&Runtime_FloatInsertDecimalPoint)>(&Runtime_FloatSupportUnavailable);
+	// Original data: 0050c790.
+	inline decltype(&Runtime_FloatAtLeastReference) gRuntimeFloatReferenceCheckCallback = reinterpret_cast<decltype(&Runtime_FloatAtLeastReference)>(&Runtime_FloatSupportUnavailable);
+	// Original data: 0050c794.
+	inline decltype(&Runtime_ConvertFloat) gRuntimeFloatConvertAlternateCallback = reinterpret_cast<decltype(&Runtime_ConvertFloat)>(&Runtime_FloatSupportUnavailable);
+
+	// Function definitions (original-address order; unaddressed helpers follow).
+	// Original function: FUN_00410bca
+	// Original function: FUN_004e7cbc
+	inline bool Runtime_IsLetter(char character)
+	{
+		const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
+		const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+		if (gRuntimeMaxMultibyteLength > 1)
+		{
+			return Runtime_ClassifyCharacter(signedCharacter, 0x0103u) != 0;
+		}
+
+		const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+
+		std::uint16_t classification;
+		std::memcpy(&classification, classificationTable + signedCharacter * 2, sizeof(classification));
+
+		return (classification & 0x0103) != 0;
+	}
+
+	// Original function: FUN_00410bdd
+	// Original function: FUN_004e7cea
+	inline bool Runtime_IsDigit(char character)
+	{
+		const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
+		const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+		if (gRuntimeMaxMultibyteLength > 1)
+		{
+			return Runtime_ClassifyCharacter(signedCharacter, 0x04u) != 0;
+		}
+
+		const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+
+		return (classificationTable[signedCharacter * 2] & 0x04) != 0;
+	}
+
+	// Original function: FUN_00410c03
+	inline bool Runtime_IsPropertyNameCharacter(char character)
+	{
+		const auto byteValue = static_cast<std::uint8_t>(character);
+		const std::int32_t signedCharacter = byteValue < 0x80u ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+		if (Runtime_ClassifyAlphanumeric(signedCharacter) != 0)
+		{
+			return true;
+		}
+
+		return byteValue == 0x5Fu;
+	}
+
+	// Original functions: FUN_004e5f2c; forwarding wrapper: FUN_004e5fb7.
+	inline std::int32_t Runtime_StringToInteger(const char* text)
+	{
+		const auto* cursor = reinterpret_cast<const std::uint8_t*>(text);
+
+		const auto hasCharacterType = [](std::uint32_t character, std::uint32_t mask) -> bool
+			{
+				if (gRuntimeMaxMultibyteLength > 1)
+				{
+					return Runtime_ClassifyCharacter(static_cast<std::int32_t>(character), mask) != 0;
+				}
+
+				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+				return (characterTypes[character * 2u] & mask) != 0;
+			};
+
+		while (hasCharacterType(*cursor, 0x08u))
+		{
+			++cursor;
+		}
+
+		std::uint32_t character = *cursor++;
+		const bool negative = character == 0x2Du;
+
+		if (negative || character == 0x2Bu)
+		{
+			character = *cursor++;
+		}
+
+		std::uint32_t value = 0;
+
+		while (hasCharacterType(character, 0x04u))
+		{
+			// Preserve 32-bit wraparound without signed-overflow undefined behavior.
+			value = value * 10u + character - 0x30u;
+			character = *cursor++;
+		}
+
+		if (negative)
+		{
+			value = 0u - value;
+		}
+
+		std::int32_t result;
+		std::memcpy(&result, &value, sizeof(result));
+		return result;
+	}
+
+	// Original function: FUN_004e6081
+	inline std::int32_t Runtime_Close(std::uint32_t descriptor)
+	{
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+		{
+			const auto* block = reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+
+			if ((block[entryOffset + 4u] & 0x01u) != 0)
+			{
+				Runtime_LockDescriptor(descriptor);
+
+				const std::int32_t result = Runtime_CloseNoLock(descriptor);
+
+				Runtime_UnlockDescriptor(descriptor);
+				return result;
+			}
+		}
+
+		// Invalid or closed descriptor.
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+		return -1;
+	}
+
+	// Original function: FUN_004e60de
+	inline std::int32_t Runtime_CloseNoLock(std::uint32_t descriptor)
+	{
+		DWORD closeError = 0;
+
+		const auto initialHandle = Runtime_GetOsHandle(descriptor);
+
+		if (static_cast<std::uint32_t>(initialHandle) != 0xFFFFFFFFu)
+		{
+			bool closeHandle = true;
+
+			if (descriptor == 1u || descriptor == 2u)
+			{
+				// Preserve the original lookup order.
+				const auto stderrHandle = Runtime_GetOsHandle(2u);
+				const auto stdoutHandle = Runtime_GetOsHandle(1u);
+
+				closeHandle = stdoutHandle != stderrHandle;
+			}
+
+			if (closeHandle)
+			{
+				// The original retrieves the handle again before closing it.
+				const auto handleValue = Runtime_GetOsHandle(descriptor);
+				const HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleValue));
+
+				if (!::CloseHandle(handle))
+				{
+					closeError = ::GetLastError();
+				}
+			}
+		}
+
+		// Perform descriptor cleanup even when CloseHandle failed.
+		Runtime_ClearOsHandle(descriptor);
+
+		auto* block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+		const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+
+		// Clear the entire flags byte, not only the open bit.
+		block[entryOffset + 4u] = 0;
+
+		if (closeError != 0)
+		{
+			Runtime_MapOsError(closeError);
+			return -1;
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004e64a5
+	inline std::int32_t Runtime_Write(std::uint32_t descriptor, const void* data, std::uint32_t byteCount)
+	{
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+		{
+			const auto* block = reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+
+			if ((block[entryOffset + 4u] & 0x01u) != 0)
+			{
+				Runtime_LockDescriptor(descriptor);
+
+				const std::int32_t result = Runtime_WriteNoLock(descriptor, data, byteCount);
+
+				Runtime_UnlockDescriptor(descriptor);
+				return result;
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+		return -1;
+	}
+
+	// Original function: FUN_004e650a
+	inline std::int32_t Runtime_WriteNoLock(std::uint32_t descriptor, const void* data, std::uint32_t byteCount)
+	{
+		if (byteCount == 0)
+		{
+			return 0;
+		}
+
+		const std::uint32_t blockIndex = descriptor >> 5;
+		const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+
+		// gRuntimeDescriptorBlocks remains the original, unresolved descriptor-block table.
+		const auto getEntry = [blockIndex, entryOffset]() -> const std::uint8_t*
+			{
+				return reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]) + entryOffset;
+			};
+
+		const auto getHandle = [&getEntry]() -> HANDLE
+			{
+				HANDLE handle;
+				std::memcpy(&handle, getEntry(), sizeof(handle));
+				return handle;
+			};
+
+		if ((getEntry()[4] & 0x20u) != 0)
+		{
+			// The original ignores the result of seeking to the end.
+			Runtime_SeekNoLock(descriptor, 0, 2);
+		}
+
+		const auto* input = static_cast<const std::uint8_t*>(data);
+		std::uint32_t writtenTotal = 0;
+		std::uint32_t insertedCarriageReturns = 0;
+		DWORD writeError = 0;
+
+		if ((getEntry()[4] & 0x80u) != 0)
+		{
+			std::uint8_t buffer[0x401];
+			std::uint32_t consumed = 0;
+
+			while (consumed < byteCount)
+			{
+				std::uint32_t buffered = 0;
+
+				while (consumed < byteCount)
+				{
+					const std::uint8_t value = input[consumed];
+					++consumed;
+
+					if (value == 0x0A)
+					{
+						++insertedCarriageReturns;
+						buffer[buffered++] = 0x0D;
+					}
+
+					buffer[buffered++] = value;
+
+					if (buffered >= 0x400u)
+					{
+						break;
+					}
+				}
+
+				DWORD written;
+
+				if (!::WriteFile(getHandle(), buffer, buffered, &written, nullptr))
+				{
+					writeError = ::GetLastError();
+					break;
+				}
+
+				writtenTotal += written;
+
+				// Preserve the signed comparison performed by the original.
+				std::int32_t signedWritten;
+				std::memcpy(&signedWritten, &written, sizeof(signedWritten));
+
+				if (signedWritten < static_cast<std::int32_t>(buffered))
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			DWORD written;
+
+			if (::WriteFile(getHandle(), data, byteCount, &written, nullptr))
+			{
+				writtenTotal = written;
+			}
+			else
+			{
+				writeError = ::GetLastError();
+			}
+		}
+
+		if (writtenTotal != 0)
+		{
+			// Count all inserted CR bytes, including those in a partially written
+			// or failed final text chunk, as the original does.
+			const std::uint32_t resultBits = writtenTotal - insertedCarriageReturns;
+			std::int32_t result;
+			std::memcpy(&result, &resultBits, sizeof(result));
+			return result;
+		}
+
+		if (writeError != 0)
+		{
+			if (writeError == 5)
+			{
+				*Runtime_GetErrnoPointer() = 9;
+				*Runtime_GetDosErrnoPointer() = 5;
+			}
+			else
+			{
+				Runtime_MapOsError(writeError);
+			}
+
+			return -1;
+		}
+
+		if ((getEntry()[4] & 0x40u) != 0 && input[0] == 0x1A)
+		{
+			return 0;
+		}
+
+		*Runtime_GetErrnoPointer() = 28;
+		*Runtime_GetDosErrnoPointer() = 0;
+		return -1;
+	}
+
+	// Original function: FUN_004e679e
+	inline std::int32_t Runtime_Open(const char* fileName, std::uint32_t flags, std::uint32_t permissions)
+	{
+		return Runtime_OpenShared(fileName, flags, 0x40u, permissions);
+	}
+
+	// Original function: FUN_004e67b5
+	inline std::int32_t Runtime_OpenShared(const char* fileName, std::uint32_t flags, std::uint32_t shareMode, std::uint32_t permissions)
+	{
+		SECURITY_ATTRIBUTES security{};
+		security.nLength = sizeof(security);
+		security.lpSecurityDescriptor = nullptr;
+		security.bInheritHandle = (flags & 0x80u) == 0;
+
+		std::uint8_t descriptorFlags = (flags & 0x80u) != 0 ? 0x10u : 0u;
+
+		if ((flags & 0x8000u) == 0)
+		{
+			if ((flags & 0x4000u) != 0 || gRuntimeDefaultFileMode != 0x8000)
+			{
+				descriptorFlags |= 0x80u;
+			}
+		}
+
+		const auto failWithError = [](std::int32_t error) -> std::int32_t
+			{
+				*Runtime_GetErrnoPointer() = error;
+				*Runtime_GetDosErrnoPointer() = 0;
+				return -1;
+			};
+
+		DWORD desiredAccess;
+
+		switch (flags & 3u)
+		{
+		case 0:
+			desiredAccess = GENERIC_READ;
+			break;
+
+		case 1:
+			desiredAccess = GENERIC_WRITE;
+			break;
+
+		case 2:
+			desiredAccess = GENERIC_READ | GENERIC_WRITE;
+			break;
+
+		default:
+			return failWithError(22);
+		}
+
+		DWORD sharing;
+
+		switch (shareMode)
+		{
+		case 0x10:
+			sharing = 0;
+			break;
+
+		case 0x20:
+			sharing = FILE_SHARE_READ;
+			break;
+
+		case 0x30:
+			sharing = FILE_SHARE_WRITE;
+			break;
+
+		case 0x40:
+			sharing = FILE_SHARE_READ | FILE_SHARE_WRITE;
+			break;
+
+		default:
+			return failWithError(22);
+		}
+
+		DWORD creationDisposition;
+
+		switch (flags & 0x700u)
+		{
+		case 0x000:
+		case 0x400:
+			creationDisposition = OPEN_EXISTING;
+			break;
+
+		case 0x100:
+			creationDisposition = OPEN_ALWAYS;
+			break;
+
+		case 0x200:
+		case 0x600:
+			creationDisposition = TRUNCATE_EXISTING;
+			break;
+
+		case 0x300:
+			creationDisposition = CREATE_ALWAYS;
+			break;
+
+		case 0x500:
+		case 0x700:
+			creationDisposition = CREATE_NEW;
+			break;
+
+		default:
+			return failWithError(22);
+		}
+
+		DWORD attributes = FILE_ATTRIBUTE_NORMAL;
+
+		if ((flags & 0x100u) != 0)
+		{
+			const std::uint32_t effectivePermissions = permissions & ~static_cast<std::uint32_t>(gRuntimeFileCreationMask);
+
+			if ((effectivePermissions & 0x80u) == 0)
+			{
+				attributes = FILE_ATTRIBUTE_READONLY;
+			}
+		}
+
+		if ((flags & 0x40u) != 0)
+		{
+			attributes |= FILE_FLAG_DELETE_ON_CLOSE;
+			desiredAccess |= DELETE;
+		}
+
+		if ((flags & 0x1000u) != 0)
+		{
+			attributes |= FILE_ATTRIBUTE_TEMPORARY;
+		}
+
+		if ((flags & 0x20u) != 0)
+		{
+			attributes |= FILE_FLAG_SEQUENTIAL_SCAN;
+		}
+		else if ((flags & 0x10u) != 0)
+		{
+			attributes |= FILE_FLAG_RANDOM_ACCESS;
+		}
+
+		const std::uint32_t descriptorBits = Runtime_AllocateDescriptor();
+
+		if (descriptorBits == 0xFFFFFFFFu)
+		{
+			return failWithError(24);
+		}
+
+		std::int32_t descriptor;
+		std::memcpy(&descriptor, &descriptorBits, sizeof(descriptor));
+
+		const HANDLE handle = ::CreateFileA(fileName, desiredAccess, sharing, &security, creationDisposition, attributes, nullptr);
+
+		const auto failWithLastError = [descriptor]() -> std::int32_t
+			{
+				const DWORD error = ::GetLastError();
+				Runtime_MapOsError(error);
+				Runtime_UnlockDescriptor(descriptor);
+				return -1;
+			};
+
+		if (handle == INVALID_HANDLE_VALUE)
+		{
+			return failWithLastError();
+		}
+
+		const DWORD fileType = ::GetFileType(handle);
+
+		if (fileType == FILE_TYPE_UNKNOWN)
+		{
+			// Preserve the original order: close first, then obtain the error.
+			::CloseHandle(handle);
+			return failWithLastError();
+		}
+
+		if (fileType == FILE_TYPE_CHAR)
+		{
+			descriptorFlags |= 0x40u;
+		}
+		else if (fileType == FILE_TYPE_PIPE)
+		{
+			descriptorFlags |= 0x08u;
+		}
+
+		Runtime_SetOsHandle(descriptor, handle);
+
+		const std::uint32_t blockIndex = descriptorBits >> 5;
+		const std::uint32_t entryOffset = (descriptorBits & 31u) * 36u;
+
+		const auto getEntry = [blockIndex, entryOffset]() -> std::uint8_t*
+			{
+				return reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]) + entryOffset;
+			};
+
+		descriptorFlags |= 0x01u;
+		getEntry()[4] = descriptorFlags;
+
+		const bool isDeviceOrPipe = (descriptorFlags & 0x48u) != 0;
+
+		const auto closeAndFail = [descriptor]() -> std::int32_t
+			{
+				Runtime_Close(descriptor);
+				Runtime_UnlockDescriptor(descriptor);
+				return -1;
+			};
+
+		if (!isDeviceOrPipe && (descriptorFlags & 0x80u) != 0 && (flags & 2u) != 0)
+		{
+			const std::uint32_t endPosition = Runtime_SeekNoLock(descriptor, -1, 2);
+
+			if (endPosition == 0xFFFFFFFFu)
+			{
+				if (*Runtime_GetDosErrnoPointer() != 0x83u)
+				{
+					return closeAndFail();
+				}
+			}
+			else
+			{
+				std::uint8_t finalByte = 0;
+				const std::int32_t readResult = Runtime_ReadNoLock(descriptor, &finalByte, 1);
+
+				// Preserve the original zero-result test.
+				if (readResult == 0 && finalByte == 0x1A)
+				{
+					const std::int32_t resizeResult = Runtime_ResizeNoLock(descriptor, endPosition);
+
+					if (resizeResult == -1)
+					{
+						return closeAndFail();
+					}
+				}
+
+				const std::uint32_t resetPosition = Runtime_SeekNoLock(descriptor, 0, 0);
+
+				if (resetPosition == 0xFFFFFFFFu)
+				{
+					return closeAndFail();
+				}
+			}
+		}
+
+		if (!isDeviceOrPipe && (flags & 0x08u) != 0)
+		{
+			getEntry()[4] |= 0x20u;
+		}
+
+		Runtime_UnlockDescriptor(descriptor);
+		return descriptor;
+	}
+
 	// Original function: FUN_004e6a84
 	inline std::int32_t Runtime_Read(std::uint32_t descriptor, void* destination, std::uint32_t byteCount)
 	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
 		{
-			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
+			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
 
 			const std::uint8_t* block;
 			std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
@@ -137,83 +1220,6 @@ namespace NXBasics
 		return -1;
 	}
 
-	// Original function: FUN_004e6d27
-	inline std::uint32_t Runtime_SeekNoLock(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin);
-
-	// Original function: FUN_004e6cc2
-	inline std::uint32_t Runtime_Seek(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin);
-
-	// Original function: FUN_004e6ae9
-	inline std::int32_t Runtime_ReadNoLock(std::uint32_t descriptor, void* destination, std::uint32_t byteCount);
-
-	// Original function: FUN_004e6d27
-	inline std::uint32_t Runtime_SeekNoLock(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin)
-	{
-		const std::uint32_t handleValue = Runtime_GetOsHandle(descriptor);
-
-		if (handleValue == UINT32_C(0xFFFFFFFF))
-		{
-			*Runtime_GetErrnoPointer() = 9;
-			return UINT32_C(0xFFFFFFFF);
-		}
-
-		HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleValue));
-		const DWORD position = SetFilePointer(handle, static_cast<LONG>(offset), nullptr, static_cast<DWORD>(origin));
-
-		DWORD error = 0;
-
-		if (position == INVALID_SET_FILE_POINTER)
-		{
-			error = GetLastError();
-		}
-
-		if (error != 0)
-		{
-			Runtime_MapOsError(error);
-			return UINT32_C(0xFFFFFFFF);
-		}
-
-		const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
-
-		std::uint8_t* block;
-		std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
-
-		const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
-		block[entryOffset + 0x04] &= 0xFD;
-
-		return position;
-	}
-
-	// Original function: FUN_004e6cc2
-	inline std::uint32_t Runtime_Seek(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin)
-	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
-		{
-			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
-
-			const std::uint8_t* block;
-			std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
-
-			const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
-
-			if ((block[entryOffset + 0x04] & 0x01) != 0)
-			{
-				Runtime_LockDescriptor(descriptor);
-
-				const std::uint32_t position = Runtime_SeekNoLock(descriptor, offset, origin);
-
-				Runtime_UnlockDescriptor(descriptor);
-
-				return position;
-			}
-		}
-
-		*Runtime_GetErrnoPointer() = 9;
-		*Runtime_GetDosErrnoPointer() = 0;
-
-		return UINT32_C(0xFFFFFFFF);
-	}
-
 	// Original function: FUN_004e6ae9
 	inline std::int32_t Runtime_ReadNoLock(std::uint32_t descriptor, void* destination, std::uint32_t byteCount)
 	{
@@ -222,7 +1228,7 @@ namespace NXBasics
 			return 0;
 		}
 
-		const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
+		const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
 		const std::uint32_t blockOffset = (descriptor >> 5) * 4u;
 		const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
 
@@ -423,12 +1429,80 @@ namespace NXBasics
 		return result;
 	}
 
+	// Original function: FUN_004e6cc2
+	inline std::uint32_t Runtime_Seek(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin)
+	{
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+		{
+			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
+
+			const std::uint8_t* block;
+			std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
+
+			const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+
+			if ((block[entryOffset + 0x04] & 0x01) != 0)
+			{
+				Runtime_LockDescriptor(descriptor);
+
+				const std::uint32_t position = Runtime_SeekNoLock(descriptor, offset, origin);
+
+				Runtime_UnlockDescriptor(descriptor);
+
+				return position;
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+
+		return UINT32_C(0xFFFFFFFF);
+	}
+
+	// Original function: FUN_004e6d27
+	inline std::uint32_t Runtime_SeekNoLock(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin)
+	{
+		const std::uint32_t handleValue = Runtime_GetOsHandle(descriptor);
+
+		if (handleValue == UINT32_C(0xFFFFFFFF))
+		{
+			*Runtime_GetErrnoPointer() = 9;
+			return UINT32_C(0xFFFFFFFF);
+		}
+
+		HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleValue));
+		const DWORD position = SetFilePointer(handle, static_cast<LONG>(offset), nullptr, static_cast<DWORD>(origin));
+
+		DWORD error = 0;
+
+		if (position == INVALID_SET_FILE_POINTER)
+		{
+			error = GetLastError();
+		}
+
+		if (error != 0)
+		{
+			Runtime_MapOsError(error);
+			return UINT32_C(0xFFFFFFFF);
+		}
+
+		const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
+
+		std::uint8_t* block;
+		std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
+
+		const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+		block[entryOffset + 0x04] &= 0xFD;
+
+		return position;
+	}
+
 	// Original function: FUN_004e6d9a
 	inline std::uint32_t Runtime_GetFileSize(std::uint32_t descriptor)
 	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
 		{
-			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&DAT_0056b600);
+			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
 
 			const std::uint8_t* block;
 			std::memcpy(&block, descriptorBlocks + (descriptor >> 5) * 4u, sizeof(block));
@@ -467,669 +1541,15 @@ namespace NXBasics
 		return UINT32_C(0xFFFFFFFF);
 	}
 
-	// Original function: FUN_004eb99c
-	inline void Runtime_FloatInsertDecimalPoint(char* text)
-	{
-		char* position = text;
-
-		const std::uint8_t firstByte = static_cast<std::uint8_t>(*position);
-		const std::int32_t firstCharacter = firstByte < 0x80 ? static_cast<std::int32_t>(firstByte) : static_cast<std::int32_t>(firstByte) - 0x100;
-
-		if (Runtime_ToLower(firstCharacter) != 'e')
-		{
-			// The original advances before testing the next character.
-			do
-			{
-				++position;
-			} while (Runtime_IsDigit(*position));
-		}
-
-		char decimalSeparator;
-		std::memcpy(&decimalSeparator, &DAT_0050c608, sizeof(decimalSeparator));
-
-		char carriedCharacter = *position;
-		*position++ = decimalSeparator;
-
-		for (;;)
-		{
-			const char nextCharacter = *position;
-			*position = carriedCharacter;
-
-			const char writtenCharacter = *position;
-			carriedCharacter = nextCharacter;
-			++position;
-
-			if (writtenCharacter == '\0')
-			{
-				break;
-			}
-		}
-	}
-
-	// Original function: LAB_004eb9f6
-	inline void Runtime_FloatTrimTrailingZeros(char* text)
-	{
-		char decimalSeparator;
-		std::memcpy(&decimalSeparator, &DAT_0050c608, sizeof(decimalSeparator));
-
-		char* position = text;
-
-		while (*position != '\0' && *position != decimalSeparator)
-		{
-			++position;
-		}
-
-		if (*position == '\0')
-		{
-			return;
-		}
-
-		++position;
-
-		while (*position != '\0' && *position != 'e' && *position != 'E')
-		{
-			++position;
-		}
-
-		const char* suffix = position;
-		char* destination = position;
-
-		while (destination[-1] == '0')
-		{
-			--destination;
-		}
-
-		if (destination[-1] == decimalSeparator)
-		{
-			--destination;
-		}
-
-		for (;;)
-		{
-			const char character = *suffix++;
-			*destination++ = character;
-
-			if (character == '\0')
-			{
-				break;
-			}
-		}
-	}
-
-	// Original function: LAB_004eba44
-	inline std::int32_t Runtime_FloatAtLeastReference(const double* value)
-	{
-		// Original reference value at DAT_004f3348: +0.0.
-		return *value >= 0.0 ? 1 : 0;
-	}
-
-	struct RuntimeFloatConversionState
-	{
-		std::int32_t sign;               // +0x00
-		std::int32_t decimalPosition;    // +0x04
-		std::uint32_t conversionResult;  // +0x08
-		char* digits;                    // +0x0C
-	};
-
-	static_assert(sizeof(RuntimeFloatConversionState) == 0x10);
-	static_assert(offsetof(RuntimeFloatConversionState, sign) == 0x00);
-	static_assert(offsetof(RuntimeFloatConversionState, decimalPosition) == 0x04);
-	static_assert(offsetof(RuntimeFloatConversionState, conversionResult) == 0x08);
-	static_assert(offsetof(RuntimeFloatConversionState, digits) == 0x0C);
-
-	struct RuntimeFloatIntermediate
-	{
-		std::uint32_t word0;  // +0x00
-		std::uint32_t word1;  // +0x04
-		std::uint16_t word2;  // +0x08
-	};
-
-	static_assert(sizeof(RuntimeFloatIntermediate) == 0x0C);
-	static_assert(offsetof(RuntimeFloatIntermediate, word2) == 0x08);
-
-	struct RuntimeFloatDecimalResult
-	{
-		std::int16_t decimalPosition;  // +0x00
-		std::int8_t sign;              // +0x02
-		std::uint8_t digitCount;       // +0x03
-		char digits[24];               // +0x04
-	};
-
-	static_assert(sizeof(RuntimeFloatDecimalResult) == 0x1C);
-	static_assert(offsetof(RuntimeFloatDecimalResult, sign) == 0x02);
-	static_assert(offsetof(RuntimeFloatDecimalResult, digitCount) == 0x03);
-	static_assert(offsetof(RuntimeFloatDecimalResult, digits) == 0x04);
-
-	// Original function: FUN_004f0b60
-	inline void Runtime_DoubleToIntermediate(RuntimeFloatIntermediate* destination, const double* source)
-	{
-		std::uint32_t sourceWords[2];
-		std::memcpy(sourceWords, source, sizeof(sourceWords));
-
-		const std::uint32_t sourceLow = sourceWords[0];
-		const std::uint32_t sourceHigh = sourceWords[1];
-
-		const std::uint32_t sign = (sourceHigh >> 16) & 0x8000u;
-		const std::uint32_t exponent = (sourceHigh >> 20) & 0x7FFu;
-		const std::uint32_t fractionHigh = sourceHigh & 0xFFFFFu;
-
-		std::uint32_t explicitIntegerBit = 0x80000000u;
-		std::uint32_t extendedExponent;
-
-		if (exponent != 0)
-		{
-			if (exponent == 0x7FFu)
-			{
-				extendedExponent = 0x7FFFu;
-			}
-			else
-			{
-				extendedExponent = exponent + 0x3C00u;
-			}
-		}
-		else
-		{
-			if (fractionHigh == 0 && sourceLow == 0)
-			{
-				// The original also clears the sign of negative zero.
-				destination->word1 = 0;
-				destination->word0 = 0;
-				destination->word2 = 0;
-				return;
-			}
-
-			extendedExponent = 0x3C01u;
-			explicitIntegerBit = 0;
-		}
-
-		std::uint32_t mantissaHigh = (sourceLow >> 21) | (fractionHigh << 11) | explicitIntegerBit;
-		std::uint32_t mantissaLow = sourceLow << 11;
-
-		destination->word1 = mantissaHigh;
-		destination->word0 = mantissaLow;
-
-		while ((mantissaHigh & 0x80000000u) == 0)
-		{
-			mantissaLow = destination->word0;
-
-			mantissaHigh = (mantissaHigh << 1) | (mantissaLow >> 31);
-			mantissaLow <<= 1;
-
-			destination->word0 = mantissaLow;
-			destination->word1 = mantissaHigh;
-
-			// Preserve the original addition; only the low word is stored.
-			extendedExponent += 0xFFFFu;
-		}
-
-		destination->word2 = static_cast<std::uint16_t>(sign | extendedExponent);
-	}
-
-	// Original function: FUN_004f20f9
-	inline void Runtime_ShiftLeft96(std::uint32_t* value)
-	{
-		const std::uint32_t low = value[0];
-		const std::uint32_t middle = value[1];
-
-		value[0] = low << 1;
-
-		const std::uint32_t shiftedMiddle = (middle << 1) | (low >> 31);
-		const std::uint32_t high = value[2];
-
-		value[1] = shiftedMiddle;
-		value[2] = (high << 1) | (middle >> 31);
-	}
-
-	// Original function: FUN_004f2127
-	inline void Runtime_ShiftRight96(std::uint32_t* value)
-	{
-		const std::uint32_t high = value[2];
-		const std::uint32_t middle = value[1];
-
-		value[1] = (middle >> 1) | (high << 31);
-
-		const std::uint32_t low = value[0];
-
-		value[2] = high >> 1;
-		value[0] = (low >> 1) | (middle << 31);
-	}
-
-	// Original function: ___add_12 at 004f209b
-	inline void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source)
-	{
-		if (FUN_004f207a(destination[0], source[0], &destination[0]) != 0)
-		{
-			if (FUN_004f207a(destination[1], 1u, &destination[1]) != 0)
-			{
-				++destination[2];
-			}
-		}
-
-		if (FUN_004f207a(destination[1], source[1], &destination[1]) != 0)
-		{
-			++destination[2];
-		}
-
-		FUN_004f207a(destination[2], source[2], &destination[2]);
-	}
-
-	// Original function: FUN_004f221b
-	inline std::uint32_t Runtime_IntermediateToDecimal(RuntimeFloatIntermediate value, std::int32_t requestedDigits, std::uint32_t options, RuntimeFloatDecimalResult* result)
-	{
-		const auto asSigned = [](std::uint32_t bits) -> std::int32_t
-			{
-				std::int32_t value;
-				std::memcpy(&value, &bits, sizeof(value));
-				return value;
-			};
-
-		const auto writeZero = [result]() -> std::uint32_t
-			{
-				result->decimalPosition = 0;
-				result->sign = ' ';
-				result->digitCount = 1;
-				result->digits[0] = '0';
-				result->digits[1] = '\0';
-
-				return 1;
-			};
-
-		const std::uint32_t sign = value.word2 & 0x8000u;
-		const std::uint32_t exponent = value.word2 & 0x7FFFu;
-		const std::uint32_t mantissaHigh = value.word1;
-		const std::uint32_t mantissaLow = value.word0;
-
-		result->sign = sign != 0 ? '-' : ' ';
-
-		if (exponent == 0 && mantissaHigh == 0 && mantissaLow == 0)
-		{
-			return writeZero();
-		}
-
-		if (exponent == 0x7FFFu)
-		{
-			result->decimalPosition = 1;
-
-			const bool isInfinity = mantissaHigh == 0x80000000u && mantissaLow == 0;
-
-			if (!isInfinity && (mantissaHigh & 0x40000000u) == 0)
-			{
-				FUN_004e5c20(result->digits, "1#SNAN");
-				result->digitCount = 6;
-			}
-			else if (sign != 0 && mantissaHigh == 0xC0000000u && mantissaLow == 0)
-			{
-				FUN_004e5c20(result->digits, "1#IND");
-				result->digitCount = 5;
-			}
-			else if (isInfinity)
-			{
-				FUN_004e5c20(result->digits, "1#INF");
-				result->digitCount = 5;
-			}
-			else
-			{
-				FUN_004e5c20(result->digits, "1#QNAN");
-				result->digitCount = 6;
-			}
-
-			return 0;
-		}
-
-		// Original twelve-byte constant at local_20.
-		std::uint32_t scaleFactor[3] =
-		{
-			0xCCCCCCCCu,
-			0xCCCCCCCCu,
-			0x3FFBCCCCu
-		};
-
-		// The working representation has a two-byte low extension.
-		std::uint32_t working[3] =
-		{
-			mantissaLow << 16,
-			(mantissaLow >> 16) | (mantissaHigh << 16),
-			(mantissaHigh >> 16) | (exponent << 16)
-		};
-
-		const std::uint32_t estimateBits = exponent * 0x4D10u + ((exponent >> 8) + (mantissaHigh >> 24) * 2u) * 0x4Du + 0xECBced0Cu;
-
-		std::int32_t decimalEstimate = asSigned(estimateBits) >> 16;
-
-		FUN_004f26ce(working, -decimalEstimate, 1);
-
-		if ((working[2] >> 16) >= 0x3FFFu)
-		{
-			++decimalEstimate;
-			FUN_004f24ae(working, scaleFactor);
-		}
-
-		result->decimalPosition = static_cast<std::int16_t>(decimalEstimate);
-
-		std::int32_t digitLimit = requestedDigits;
-
-		if ((options & 0x01u) != 0)
-		{
-			const std::uint32_t limitBits = static_cast<std::uint32_t>(requestedDigits) + static_cast<std::uint32_t>(static_cast<std::int32_t>(result->decimalPosition));
-			digitLimit = asSigned(limitBits);
-
-			if (digitLimit <= 0)
-			{
-				return writeZero();
-			}
-		}
-
-		if (digitLimit > 21)
-		{
-			digitLimit = 21;
-		}
-
-		const std::int32_t binaryShift = static_cast<std::int32_t>(working[2] >> 16) - 0x3FFE;
-
-		working[2] &= 0x0000FFFFu;
-
-		for (std::int32_t index = 0; index < 8; ++index)
-		{
-			Runtime_ShiftLeft96(working);
-		}
-
-		if (binaryShift < 0)
-		{
-			std::uint32_t remainingShifts = static_cast<std::uint32_t>(-binaryShift) & 0xFFu;
-
-			while (remainingShifts != 0)
-			{
-				Runtime_ShiftRight96(working);
-				--remainingShifts;
-			}
-		}
-
-		auto* resultBytes = reinterpret_cast<std::uint8_t*>(result);
-		std::ptrdiff_t outputOffset = 4;
-
-		const std::uint32_t generatedCountBits = static_cast<std::uint32_t>(digitLimit) + std::uint32_t{ 1 };
-		std::int32_t remainingDigits = asSigned(generatedCountBits);
-
-		while (remainingDigits > 0)
-		{
-			std::uint32_t previous[3];
-			std::memcpy(previous, working, sizeof(previous));
-
-			Runtime_ShiftLeft96(working);
-			Runtime_ShiftLeft96(working);
-			Runtime_Add96(working, previous);
-			Runtime_ShiftLeft96(working);
-
-			const std::uint8_t digit = static_cast<std::uint8_t>(working[2] >> 24);
-			working[2] &= 0x00FFFFFFu;
-
-			resultBytes[outputOffset++] = static_cast<std::uint8_t>(digit + 0x30u);
-			--remainingDigits;
-		}
-
-		const std::uint8_t roundingByte = resultBytes[outputOffset - 1];
-		const std::int32_t roundingCharacter = roundingByte < 0x80 ? static_cast<std::int32_t>(roundingByte) : static_cast<std::int32_t>(roundingByte) - 0x100;
-
-		std::ptrdiff_t lastOffset = outputOffset - 2;
-
-		if (roundingCharacter >= '5')
-		{
-			while (lastOffset >= 4 && resultBytes[lastOffset] == '9')
-			{
-				resultBytes[lastOffset] = '0';
-				--lastOffset;
-			}
-
-			if (lastOffset < 4)
-			{
-				++lastOffset;
-
-				std::uint16_t positionBits;
-				std::memcpy(&positionBits, &result->decimalPosition, sizeof(positionBits));
-
-				++positionBits;
-
-				std::memcpy(&result->decimalPosition, &positionBits, sizeof(positionBits));
-			}
-
-			resultBytes[lastOffset] = static_cast<std::uint8_t>(resultBytes[lastOffset] + 1u);
-		}
-		else
-		{
-			while (lastOffset >= 4 && resultBytes[lastOffset] == '0')
-			{
-				--lastOffset;
-			}
-
-			if (lastOffset < 4)
-			{
-				return writeZero();
-			}
-		}
-
-		// Preserve the byte-sized length and its signed extension.
-		const std::uint8_t lengthByte = static_cast<std::uint8_t>(lastOffset - 3);
-		result->digitCount = lengthByte;
-
-		const std::int32_t signedLength = lengthByte < 0x80 ? static_cast<std::int32_t>(lengthByte) : static_cast<std::int32_t>(lengthByte) - 0x100;
-		resultBytes[4 + signedLength] = 0;
-
-		return 1;
-	}
-
-	// Original function: FUN_004f0b04
-	inline RuntimeFloatConversionState* Runtime_PrepareFloatConversion(double value, RuntimeFloatConversionState* state, char* workspace)
-	{
-		RuntimeFloatIntermediate intermediate;
-		RuntimeFloatDecimalResult decimal;
-
-		Runtime_DoubleToIntermediate(&intermediate, &value);
-
-		// The intermediate value occupies twelve stack bytes by value.
-		state->conversionResult = Runtime_IntermediateToDecimal(intermediate, 17, 0, &decimal);
-
-		state->sign = static_cast<std::int32_t>(decimal.sign);
-		state->decimalPosition = static_cast<std::int32_t>(decimal.decimalPosition);
-
-		FUN_004e5c20(workspace, decimal.digits);
-
-		state->digits = workspace;
-
-		return state;
-	}
-
-	// Original function: FUN_004f0a8d
-	inline void Runtime_GenerateFloatDigits(char* buffer, std::int32_t digitCount, RuntimeFloatConversionState* state)
-	{
-		const char* source = state->digits;
-		char* output = buffer + 1;
-
-		buffer[0] = '0';
-
-		if (digitCount > 0)
-		{
-			std::int32_t remaining = digitCount;
-
-			do
-			{
-				const char character = *source;
-
-				if (character != '\0')
-				{
-					*output++ = character;
-					++source;
-				}
-				else
-				{
-					*output++ = '0';
-				}
-
-				--remaining;
-			} while (remaining != 0);
-		}
-
-		*output = '\0';
-
-		if (digitCount >= 0)
-		{
-			const std::uint8_t nextByte = static_cast<std::uint8_t>(*source);
-			const std::int32_t nextCharacter = nextByte < 0x80 ? static_cast<std::int32_t>(nextByte) : static_cast<std::int32_t>(nextByte) - 0x100;
-
-			// The original uses a signed byte comparison against '5'.
-			if (nextCharacter >= '5')
-			{
-				for (;;)
-				{
-					--output;
-
-					if (*output != '9')
-					{
-						break;
-					}
-
-					*output = '0';
-				}
-
-				const std::uint8_t incrementedByte = static_cast<std::uint8_t>(static_cast<std::uint8_t>(*output) + 1u);
-				std::memcpy(output, &incrementedByte, sizeof(incrementedByte));
-			}
-		}
-
-		if (buffer[0] == '1')
-		{
-			// Preserve the 32-bit increment of the decimal position.
-			std::uint32_t positionBits;
-			std::memcpy(&positionBits, &state->decimalPosition, sizeof(positionBits));
-
-			++positionBits;
-
-			std::memcpy(&state->decimalPosition, &positionBits, sizeof(positionBits));
-		}
-		else
-		{
-			const std::size_t byteCount = std::strlen(buffer + 1) + 1;
-			FUN_004e71f0(buffer, buffer + 1, byteCount);
-		}
-	}
-
-	// Original function: FUN_004eba9a
-	inline char* Runtime_ConvertFloatScientific(const double* value, char* buffer, std::int32_t precision, std::int32_t uppercase)
-	{
-		RuntimeFloatConversionState state;
-		char workspace[24];
-
-		Runtime_PrepareFloatConversion(*value, &state, workspace);
-
-		// Preserve the 32-bit addition used for the requested digit count.
-		const std::uint32_t digitCountBits = static_cast<std::uint32_t>(precision) + std::uint32_t{ 1 };
-
-		std::int32_t digitCount;
-		std::memcpy(&digitCount, &digitCountBits, sizeof(digitCount));
-
-		char* digits = buffer + (state.sign == '-' ? 1 : 0) + (precision > 0 ? 1 : 0);
-
-		Runtime_GenerateFloatDigits(digits, digitCount, &state);
-		FUN_004ebafb(buffer, precision, uppercase, &state, 0);
-
-		return buffer;
-	}
-
-	// Original function: FUN_004ebbbd
-	inline char* Runtime_ConvertFloatFixed(const double* value, char* buffer, std::int32_t precision)
-	{
-		RuntimeFloatConversionState state;
-		char workspace[24];
-
-		FUN_004f0b04(*value, &state, workspace);
-
-		const std::uint32_t digitCountBits = static_cast<std::uint32_t>(state.decimalPosition) + static_cast<std::uint32_t>(precision);
-
-		std::int32_t digitCount;
-		std::memcpy(&digitCount, &digitCountBits, sizeof(digitCount));
-
-		char* digits = buffer + (state.sign == '-' ? 1 : 0);
-
-		Runtime_GenerateFloatDigits(digits, precision, &state);
-		FUN_004ebc12(buffer, precision, &state, 0);
-
-		return buffer;
-	}
-
-	// Original function: FUN_004ebcb9
-	inline void Runtime_ConvertFloatGeneral(const double* value, char* buffer, std::int32_t precision, std::int32_t uppercase)
-	{
-		RuntimeFloatConversionState state;
-		char workspace[24];
-
-		FUN_004f0b04(*value, &state, workspace);
-
-		const std::uint32_t initialExponentBits = static_cast<std::uint32_t>(state.decimalPosition) - std::uint32_t{ 1 };
-
-		std::int32_t initialExponent;
-		std::memcpy(&initialExponent, &initialExponentBits, sizeof(initialExponent));
-
-		char* digits = buffer + (state.sign == '-' ? 1 : 0);
-
-		Runtime_PrepareFloatConversion(digits, precision, &state);
-
-		// The digit-generation step may change the decimal position.
-		const std::uint32_t roundedExponentBits = static_cast<std::uint32_t>(state.decimalPosition) - std::uint32_t{ 1 };
-
-		std::int32_t roundedExponent;
-		std::memcpy(&roundedExponent, &roundedExponentBits, sizeof(roundedExponent));
-
-		const bool exponentIncreased = initialExponent < roundedExponent;
-
-		if (roundedExponent < -4 || roundedExponent >= precision)
-		{
-			FUN_004ebafb(buffer, precision, uppercase, &state, 1);
-			return;
-		}
-
-		if (exponentIncreased)
-		{
-			char* position = digits;
-			char character;
-
-			do
-			{
-				character = *position++;
-			} while (character != '\0');
-
-			// Remove the final generated digit after an exponent increase.
-			position[-2] = '\0';
-		}
-
-		FUN_004ebc12(buffer, precision, &state, 1);
-	}
-
-	// Original function: __cfltcvt at 004ebd4c
-	inline void Runtime_ConvertFloat(const double* value, char* buffer, std::int32_t format, std::int32_t precision, std::int32_t uppercase)
-	{
-		if (format == 'e' || format == 'E')
-		{
-			Runtime_ConvertFloatScientific(value, buffer, precision, uppercase);
-			return;
-		}
-
-		if (format == 'f')
-		{
-			Runtime_ConvertFloatFixed(value, buffer, precision);
-			return;
-		}
-
-		Runtime_ConvertFloatGeneral(value, buffer, precision, uppercase);
-	}
-
 	// Original function: FUN_004e6f13
-	inline void __stdcall Runtime_InitializeFloatFunctions()
+	inline void Runtime_InitializeFloatCallbacks()
 	{
-		PTR_FUN_0050c784 = &Runtime_FloatTrimTrailingZeros;
-		PTR_FUN_0050c780 = &Runtime_ConvertFloat;
-		PTR_FUN_0050c788 = &__fassign;
-		PTR_FUN_0050c78c = &Runtime_FloatInsertDecimalPoint;
-		PTR_FUN_0050c790 = &Runtime_FloatAtLeastReference;
-		PTR_FUN_0050c794 = &Runtime_ConvertFloat;
+		gRuntimeFloatTrimTrailingZerosCallback = &Runtime_FloatTrimTrailingZeros;
+		gRuntimeFloatConvertCallback = &Runtime_ConvertFloat;
+		gRuntimeFloatAssignCallback = &__fassign;
+		gRuntimeFloatInsertDecimalPointCallback = &Runtime_FloatInsertDecimalPoint;
+		gRuntimeFloatReferenceCheckCallback = &Runtime_FloatAtLeastReference;
+		gRuntimeFloatConvertAlternateCallback = &Runtime_ConvertFloat;
 	}
 
 	// Original function: FUN_004e7575
@@ -1162,126 +1582,18 @@ namespace NXBasics
 		*Runtime_GetErrnoPointer() = 0x16;
 	}
 
-	// Original function: FUN_004e64a5
-	inline std::int32_t Runtime_Write(std::uint32_t descriptor, const void* data, std::uint32_t byteCount);
-
-	// Original function: FUN_004e6cc2
-	inline std::uint32_t Runtime_Seek(std::uint32_t descriptor, std::int32_t offset, std::uint32_t origin);
-
-	// Original function: FUN_004e9772
-	inline std::uint32_t Runtime_FlushAndWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream)
+	// Original function: FUN_004e75e8
+	inline DWORD* Runtime_GetErrnoPointer()
 	{
-		const std::uint32_t initialFlags = stream->flags;
+		auto* threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
+		return reinterpret_cast<DWORD*>(threadBytes + 0x08);
+	}
 
-		if ((initialFlags & 0x82u) == 0 || (initialFlags & 0x40u) != 0)
-		{
-			stream->flags = initialFlags | 0x20u;
-			return UINT32_C(0xFFFFFFFF);
-		}
-
-		// Read only after rejecting string streams, whose descriptor
-		// is not initialized by Runtime_FormatString.
-		const std::uint32_t descriptor = stream->descriptor;
-
-		if ((initialFlags & 0x01u) != 0)
-		{
-			stream->remainingBytes = 0;
-
-			if ((initialFlags & 0x10u) == 0)
-			{
-				stream->flags = initialFlags | 0x20u;
-				return UINT32_C(0xFFFFFFFF);
-			}
-
-			stream->position = stream->buffer;
-			stream->flags = initialFlags & ~UINT32_C(0x01);
-		}
-
-		stream->remainingBytes = 0;
-		std::uint32_t writtenBytes = 0;
-
-		stream->flags = (stream->flags & ~UINT32_C(0x10)) | 0x02u;
-
-		if ((stream->flags & 0x10Cu) == 0)
-		{
-			bool allocateBuffer = true;
-
-			if (static_cast<const void*>(stream) == static_cast<const void*>(&DAT_0050ece8) || static_cast<const void*>(stream) == static_cast<const void*>(&DAT_0050ed08))
-			{
-				if (FUN_004ef178(descriptor) != 0)
-				{
-					allocateBuffer = false;
-				}
-			}
-
-			if (allocateBuffer)
-			{
-				FUN_004ef134(stream);
-			}
-		}
-
-		std::uint32_t expectedBytes;
-
-		if ((stream->flags & 0x108u) != 0)
-		{
-			char* buffer = stream->buffer;
-
-			const std::uint32_t bufferedBytes = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->position) - reinterpret_cast<std::uintptr_t>(buffer));
-
-			expectedBytes = bufferedBytes;
-			stream->position = buffer + 1;
-			stream->remainingBytes = stream->bufferSize - std::uint32_t{ 1 };
-
-			// Preserve the signed comparison performed by TEST/JLE.
-			if (bufferedBytes != 0 && (bufferedBytes & UINT32_C(0x80000000)) == 0)
-			{
-				writtenBytes = static_cast<std::uint32_t>(Runtime_Write(descriptor, buffer, bufferedBytes));
-			}
-			else
-			{
-				const std::uint8_t* descriptorRecord;
-
-				if (descriptor == UINT32_C(0xFFFFFFFF))
-				{
-					descriptorRecord = reinterpret_cast<const std::uint8_t*>(&DAT_0050c610);
-				}
-				else
-				{
-					// Reproduce the arithmetic right shift used for the block index.
-					std::int32_t signedDescriptor;
-					std::memcpy(&signedDescriptor, &descriptor, sizeof(signedDescriptor));
-
-					const std::int32_t blockIndex = signedDescriptor >> 5;
-					const auto* descriptorBlocks = reinterpret_cast<const std::byte*>(&DAT_0056b600);
-
-					const std::uint8_t* block;
-					std::memcpy(&block, descriptorBlocks + blockIndex * 4, sizeof(block));
-
-					descriptorRecord = block + (descriptor & 0x1Fu) * 0x24u;
-				}
-
-				if ((descriptorRecord[0x04] & 0x20u) != 0)
-				{
-					Runtime_Seek(descriptor, 0, 2);
-				}
-			}
-
-			// Reload the buffer pointer after the write or seek.
-			*reinterpret_cast<std::uint8_t*>(stream->buffer) = static_cast<std::uint8_t>(character);
-		}
-		else
-		{
-			expectedBytes = 1;
-			writtenBytes = static_cast<std::uint32_t>(Runtime_Write(descriptor, &character, 1));
-		}
-
-		if (writtenBytes != expectedBytes)
-		{
-			stream->flags |= 0x20u;
-			return UINT32_C(0xFFFFFFFF);
-		}
-
-		return character & 0xFFu;
+	// Original function: FUN_004e75f1
+	inline DWORD* Runtime_GetDosErrnoPointer()
+	{
+		auto* threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
+		return reinterpret_cast<DWORD*>(threadBytes + 0x0C);
 	}
 
 	// Original function: FUN_004e75fa
@@ -1314,7 +1626,7 @@ namespace NXBasics
 	// Original function: FUN_004e78b9
 	inline std::int32_t Runtime_ToLower(std::int32_t character)
 	{
-		if (DAT_00569b98 == 0)
+		if (gRuntimeCTypeLocale == 0)
 		{
 			if (character >= 0x41 && character <= 0x5A)
 			{
@@ -1324,23 +1636,23 @@ namespace NXBasics
 			return character;
 		}
 
-		auto* localeUsers = reinterpret_cast<volatile LONG*>(&DAT_0056b5f4);
+		auto* localeUsers = reinterpret_cast<volatile LONG*>(&gRuntimeLocaleReaderCount);
 		bool localeLocked = false;
 
 		InterlockedIncrement(localeUsers);
 
-		if (DAT_0056b5f0 != 0)
+		if (gRuntimeLocaleChangeState != 0)
 		{
 			InterlockedDecrement(localeUsers);
-			FUN_004ebdeb(0x13);
+			Runtime_Lock(0x13);
 			localeLocked = true;
 		}
 
-		const std::uint32_t resultBits = FUN_004e7928(character);
+		const std::uint32_t resultBits = Runtime_ToLowerNoLock(static_cast<std::uint32_t>(character));
 
 		if (localeLocked)
 		{
-			FUN_004ebe4c(0x13);
+			Runtime_Unlock(0x13);
 		}
 		else
 		{
@@ -1353,221 +1665,13 @@ namespace NXBasics
 		return result;
 	}
 
-	// Original function: FUN_00410bdd
-	// Original function: FUN_004e7cea
-	inline bool Runtime_IsDigit(char character)
-	{
-		const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
-		const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
-
-		if (cbMultiByte_0050c604 > 1)
-		{
-			return FUN_004ea094(signedCharacter, 0x04) != 0;
-		}
-
-		const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
-
-		return (classificationTable[signedCharacter * 2] & 0x04) != 0;
-	}
-
-	// Original function: FUN_004eb1bb
-	inline void Runtime_InitializeThreadData(void* threadData)
-	{
-		auto* threadBytes = static_cast<std::uint8_t*>(threadData);
-
-		const void* initialTable = &DAT_0050c968;
-		std::memcpy(threadBytes + 0x50, &initialTable, sizeof(initialTable));
-
-		const std::uint32_t initialValue = 1;
-		std::memcpy(threadBytes + 0x14, &initialValue, sizeof(initialValue));
-	}
-
-	// Original function: FUN_004eb1ce
-	inline DWORD* Runtime_GetThreadData()
-	{
-		const DWORD savedLastError = ::GetLastError();
-		void* threadData = ::TlsGetValue(dwTlsIndex_0050c6e4);
-
-		if (threadData == nullptr)
-		{
-			threadData = FUN_004ef3ac(1, 0x74);
-
-			if (threadData == nullptr || !::TlsSetValue(dwTlsIndex_0050c6e4, threadData))
-			{
-				// Fatal CRT error; the original performs no local cleanup.
-				__amsg_exit(0x10);
-			}
-			else
-			{
-				Runtime_InitializeThreadData(threadData);
-
-				const DWORD threadId = ::GetCurrentThreadId();
-				auto* threadBytes = static_cast<std::uint8_t*>(threadData);
-
-				const std::uint32_t invalidHandle = 0xFFFFFFFFu;
-				std::memcpy(threadBytes + 0x04, &invalidHandle, sizeof(invalidHandle));
-				std::memcpy(threadBytes, &threadId, sizeof(threadId));
-			}
-		}
-
-		::SetLastError(savedLastError);
-		return static_cast<DWORD*>(threadData);
-	}
-
-	// Original function: FUN_004e75e8
-	inline DWORD* Runtime_GetErrnoPointer()
-	{
-		auto* threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
-		return reinterpret_cast<DWORD*>(threadBytes + 0x08);
-	}
-
-	// Original function: FUN_004e75f1
-	inline DWORD* Runtime_GetDosErrnoPointer()
-	{
-		auto* threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
-		return reinterpret_cast<DWORD*>(threadBytes + 0x0C);
-	}
-
-	// Original function: FUN_004e7575
-	inline void Runtime_MapOsError(std::uint32_t osError)
-	{
-		*Runtime_GetDosErrnoPointer() = osError;
-
-		const auto* errorTable = reinterpret_cast<const std::uint8_t*>(&DAT_0050c250);
-
-		for (std::uint32_t index = 0; index < 45u; ++index)
-		{
-			const auto* entry = errorTable + index * 8u;
-
-			std::uint32_t tableOsError;
-			std::memcpy(&tableOsError, entry, sizeof(tableOsError));
-
-			if (tableOsError == osError)
-			{
-				// Obtain the errno pointer before reading the mapped value.
-				DWORD* errorPointer = Runtime_GetErrnoPointer();
-
-				std::uint32_t mappedError;
-				std::memcpy(&mappedError, entry + 4u, sizeof(mappedError));
-
-				*errorPointer = mappedError;
-				return;
-			}
-		}
-
-		if (osError >= 0x13u && osError <= 0x24u)
-		{
-			*Runtime_GetErrnoPointer() = 0x0D;
-			return;
-		}
-
-		if (osError >= 0xBCu && osError <= 0xCAu)
-		{
-			*Runtime_GetErrnoPointer() = 0x08;
-			return;
-		}
-
-		*Runtime_GetErrnoPointer() = 0x16;
-	}
-
-	// Original function: FUN_004eb167
-	inline std::int32_t Runtime_InitializeThreading()
-	{
-		Runtime_InitializeLocks();
-
-		const DWORD tlsIndex = ::TlsAlloc();
-		dwTlsIndex_0050c6e4 = tlsIndex;
-
-		if (tlsIndex == TLS_OUT_OF_INDEXES)
-		{
-			return 0;
-		}
-
-		auto* threadData = FUN_004ef3ac(1, 0x74);
-
-		if (threadData == nullptr)
-		{
-			return 0;
-		}
-
-		if (!::TlsSetValue(dwTlsIndex_0050c6e4, threadData))
-		{
-			return 0;
-		}
-
-		Runtime_InitializeThreadData(threadData);
-
-		const DWORD threadId = ::GetCurrentThreadId();
-		auto* threadBytes = reinterpret_cast<std::uint8_t*>(threadData);
-
-		const std::uint32_t invalidHandle = 0xFFFFFFFFu;
-		std::memcpy(threadBytes + 0x04, &invalidHandle, sizeof(invalidHandle));
-		std::memcpy(threadBytes, &threadId, sizeof(threadId));
-
-		return 1;
-	}
-
-	// Original function: FUN_004ebdc2
-	inline void Runtime_InitializeLocks()
-	{
-		auto* slots = reinterpret_cast<CRITICAL_SECTION* volatile*>(&lpCriticalSection_0050c798);
-
-		::InitializeCriticalSection(slots[0x11]);
-		::InitializeCriticalSection(slots[0x0D]);
-		::InitializeCriticalSection(slots[0x09]);
-		::InitializeCriticalSection(slots[0x01]);
-	}
-
-	// Original function: FUN_004ebe4c
-	inline void Runtime_Unlock(std::int32_t lockIndex)
-	{
-		auto* slots = reinterpret_cast<CRITICAL_SECTION* volatile*>(&lpCriticalSection_0050c798);
-
-		::LeaveCriticalSection(slots[lockIndex]);
-	}
-
-	// Original function: FUN_004ebdeb
-	inline void Runtime_Lock(std::int32_t lockIndex)
-	{
-		auto* slots = reinterpret_cast<CRITICAL_SECTION* volatile*>(&lpCriticalSection_0050c798);
-		auto* slot = slots + lockIndex;
-
-		if (*slot == nullptr)
-		{
-			// Keep the original CRT allocation and deallocation pair.
-			auto* candidate = static_cast<CRITICAL_SECTION*>(_malloc(0x18));
-
-			if (candidate == nullptr)
-			{
-				__amsg_exit(0x11);
-			}
-
-			Runtime_Lock(0x11);
-
-			// Another thread may have initialized this slot in the meantime.
-			if (*slot == nullptr)
-			{
-				::InitializeCriticalSection(candidate);
-				*slot = candidate;
-			}
-			else
-			{
-				FUN_004e8513(reinterpret_cast<std::uint8_t*>(candidate));
-			}
-
-			Runtime_Unlock(0x11);
-		}
-
-		::EnterCriticalSection(*slot);
-	}
-
 	// Original function: FUN_004e7928
 	inline std::uint32_t Runtime_ToLowerNoLock(std::uint32_t character)
 	{
 		std::int32_t signedCharacter;
 		std::memcpy(&signedCharacter, &character, sizeof(signedCharacter));
 
-		if (DAT_00569b98 == 0)
+		if (gRuntimeCTypeLocale == 0)
 		{
 			if (signedCharacter >= 0x41 && signedCharacter <= 0x5A)
 			{
@@ -1581,13 +1685,13 @@ namespace NXBasics
 		{
 			bool isUpper;
 
-			if (cbMultiByte_0050c604 > 1)
+			if (gRuntimeMaxMultibyteLength > 1)
 			{
-				isUpper = FUN_004ea094(signedCharacter, 1) != 0;
+				isUpper = Runtime_ClassifyCharacter(signedCharacter, 1u) != 0;
 			}
 			else
 			{
-				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
 
 				// Preserve signed indexing, including the original EOF case.
 				isUpper = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & 0x01u) != 0;
@@ -1599,7 +1703,7 @@ namespace NXBasics
 			}
 		}
 
-		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
 		const std::uint32_t highByte = (character >> 8) & 0xFFu;
 
 		char source[3];
@@ -1622,7 +1726,7 @@ namespace NXBasics
 
 		char destination[3];
 
-		const int mappedLength = FUN_004ec998(DAT_00569b98, 0x100u, source, sourceLength, destination, 3, 0, 1);
+		const int mappedLength = Runtime_MapString(gRuntimeCTypeLocale, 0x100u, source, sourceLength, destination, 3, 0, 1);
 
 		if (mappedLength == 0)
 		{
@@ -1641,24 +1745,35 @@ namespace NXBasics
 		return (static_cast<std::uint32_t>(secondByte) << 8) | firstByte;
 	}
 
-	// Original function: FUN_00410bca
-	// Original function: FUN_004e7cbc
-	inline bool Runtime_IsLetter(char character)
+	// Original function: FUN_004e7a4b
+	inline int Runtime_CallNewHandler(std::uint32_t allocationSize)
 	{
-		const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
-		const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+		using NewHandler = int(__cdecl*)(std::uint32_t);
 
-		if (cbMultiByte_0050c604 > 1)
-		{
-			return FUN_004ea094(signedCharacter, 0x0103) != 0;
+		NewHandler handler;
+		std::memcpy(&handler, &gRuntimeNewHandler, sizeof(handler));
+
+		if (handler == nullptr) {
+			return 0;
 		}
 
-		const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+		return handler(allocationSize) != 0 ? 1 : 0;
+	}
 
-		std::uint16_t classification;
-		std::memcpy(&classification, classificationTable + signedCharacter * 2, sizeof(classification));
+	// Original function: FUN_004e7d12
+	inline std::uint32_t Runtime_ClassifyAlphanumeric(std::int32_t character)
+	{
+		if (gRuntimeMaxMultibyteLength > 1)
+		{
+			return Runtime_ClassifyCharacter(character, 0x107u);
+		}
 
-		return (classification & 0x0103) != 0;
+		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+
+		std::uint16_t flags;
+		std::memcpy(&flags, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(flags));
+
+		return flags & 0x107u;
 	}
 
 	// Original function: FUN_004e7d70
@@ -1667,7 +1782,7 @@ namespace NXBasics
 		const auto* left = reinterpret_cast<const std::uint8_t*>(first);
 		const auto* right = reinterpret_cast<const std::uint8_t*>(second);
 
-		if (DAT_00569b98 == 0)
+		if (gRuntimeCTypeLocale == 0)
 		{
 			for (;;)
 			{
@@ -1699,8 +1814,8 @@ namespace NXBasics
 			}
 		}
 
-		auto* activeReaders = reinterpret_cast<volatile LONG*>(&DAT_0056b5f4);
-		const auto* localeChangeState = reinterpret_cast<const volatile LONG*>(&DAT_0056b5f0);
+		auto* activeReaders = reinterpret_cast<volatile LONG*>(&gRuntimeLocaleReaderCount);
+		const auto* localeChangeState = reinterpret_cast<const volatile LONG*>(&gRuntimeLocaleChangeState);
 
 		::InterlockedIncrement(activeReaders);
 
@@ -1757,182 +1872,250 @@ namespace NXBasics
 		return result;
 	}
 
-	// Original function: FUN_004e9fcb
-	inline void Runtime_FormatWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream, std::int32_t* writtenCharacters)
+	// Original function: FUN_004e8513
+	inline void Runtime_Free(void* memory)
 	{
-		stream->remainingBytes -= std::uint32_t{ 1 };
-
-		std::uint32_t result;
-
-		if ((stream->remainingBytes & UINT32_C(0x80000000)) == 0)
-		{
-			const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
-
-			std::memcpy(stream->position, &byteValue, sizeof(byteValue));
-			++stream->position;
-
-			result = byteValue;
-		}
-		else
-		{
-			result = Runtime_FlushAndWriteCharacter(character, stream);
-		}
-
-		if (result == UINT32_C(0xFFFFFFFF))
-		{
-			*writtenCharacters = -1;
+		if (memory == nullptr)
 			return;
-		}
 
-		// Preserve the 32-bit INC, including wraparound.
-		std::uint32_t countBits;
-		std::memcpy(&countBits, writtenCharacters, sizeof(countBits));
+		const std::uint32_t heapMode = static_cast<std::uint32_t>(gRuntimeHeapMode);
 
-		++countBits;
-
-		std::memcpy(writtenCharacters, &countBits, sizeof(countBits));
-	}
-
-	// Original function: FUN_004ea000
-	inline void Runtime_FormatWriteRepeated(std::uint32_t character, std::int32_t count, RuntimeFormatStream* stream, std::int32_t* writtenCharacters)
-	{
-		while (count > 0)
+		if (heapMode == 3)
 		{
-			Runtime_FormatWriteCharacter(character, stream, writtenCharacters);
+			std::uint32_t heapRecord = 0;
 
-			if (*writtenCharacters == -1)
+			Runtime_Lock(0x09);
+
+			__try
 			{
+				heapRecord = Runtime_FindSmallBlockRegion(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory)));
+
+				if (heapRecord != 0)
+				{
+					Runtime_FreeSmallBlock(heapRecord, memory);
+				}
+			}
+			__finally
+			{
+				Runtime_Unlock(0x09);
+			}
+
+			if (heapRecord != 0)
 				return;
+		}
+		else if (heapMode == 2)
+		{
+			// Preserve the three DWORD-sized values used by the original.
+			std::uint32_t firstHeapValue;
+			std::uint32_t secondHeapValue;
+			std::uint32_t allocationRecord = 0;
+
+			Runtime_Lock(0x09);
+
+			__try
+			{
+				allocationRecord = Runtime_FindSmallBlockEntryMode2(memory, &firstHeapValue, &secondHeapValue);
+
+				if (allocationRecord != 0)
+				{
+					Runtime_FreeSmallBlockMode2(firstHeapValue, secondHeapValue, allocationRecord);
+				}
+			}
+			__finally
+			{
+				Runtime_Unlock(0x09);
 			}
 
-			--count;
-		}
-	}
-
-	// Original function: FUN_004ea031
-	inline void Runtime_FormatWriteText(const char* text, std::int32_t length, RuntimeFormatStream* stream, std::int32_t* writtenCharacters)
-	{
-		while (length > 0)
-		{
-			const std::uint8_t byteValue = static_cast<std::uint8_t>(*text++);
-
-			// Original MOVSX sign-extends the source byte.
-			const std::int32_t character = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
-
-			Runtime_FormatWriteCharacter(static_cast<std::uint32_t>(character), stream, writtenCharacters);
-
-			if (*writtenCharacters == -1)
-			{
+			if (allocationRecord != 0)
 				return;
-			}
-
-			--length;
-		}
-	}
-
-	static_assert(sizeof(va_list) == 4, "Argument access requires the MSVC x86 va_list layout");
-
-	// Original function: FUN_004ea069
-	inline std::uint32_t Runtime_FormatReadArgument32(va_list* arguments)
-	{
-		*arguments += 4;
-
-		std::uint32_t value;
-		std::memcpy(&value, *arguments - 4, sizeof(value));
-
-		return value;
-	}
-
-	// Original function: FUN_004ea076
-	inline std::uint64_t Runtime_FormatReadArgument64(va_list* arguments)
-	{
-		*arguments += 8;
-
-		std::uint64_t value;
-		std::memcpy(&value, *arguments - 8, sizeof(value));
-
-		return value;
-	}
-
-	// Original function: FUN_004ea086
-	inline std::uint32_t Runtime_FormatReadArgument16(va_list* arguments)
-	{
-		*arguments += 4;
-
-		const std::uint32_t advancedAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(*arguments));
-
-		std::uint16_t value;
-		std::memcpy(&value, *arguments - 4, sizeof(value));
-
-		// MOV AX preserves the upper half of the advanced argument address.
-		return (advancedAddress & UINT32_C(0xFFFF0000)) | static_cast<std::uint32_t>(value);
-	}
-
-	// Original function: FUN_004ef1fa
-	inline std::int32_t Runtime_WideCharacterToMultibyteNoLock(char* destination, std::uint32_t characterBits)
-	{
-		if (destination == nullptr)
-		{
-			return 0;
 		}
 
-		const WCHAR character = static_cast<WCHAR>(characterBits);
+		// The original ignores HeapFree's return value.
+		::HeapFree(gRuntimeHeap, 0, memory);
+	}
 
-		if (DAT_00569b98 == 0)
+
+    // Original function: FUN_004e85fc
+    inline void* Runtime_Allocate(std::uint32_t requestedBytes)
+    {
+        return Runtime_AllocateWithNewHandler(requestedBytes, gRuntimeNewHandlerMode);
+    }
+
+    // Original function: FUN_004e860e
+    inline void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler)
+    {
+        if (requestedBytes > 0xFFFFFFE0u)
+            return nullptr;
+        for (;;)
+        {
+            void* allocation = Runtime_AllocateHeapBlock(requestedBytes);
+            if (allocation != nullptr || useNewHandler == 0)
+                return allocation;
+            if (Runtime_CallNewHandler(requestedBytes) == 0)
+                return nullptr;
+        }
+    }
+
+    // Original function: FUN_004e863a
+    inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes)
+    {
+        void* allocation = nullptr;
+        if (gRuntimeHeapMode == 3)
+        {
+            if (requestedBytes <= gRuntimeSmallBlockThreshold)
+            {
+                Runtime_Lock(0x09);
+                __try
+                {
+                    allocation = Runtime_AllocateSmallBlock(requestedBytes);
+                }
+                __finally
+                {
+                    // Original cleanup funclet: 004e86a1.
+                    Runtime_Unlock(0x09);
+                }
+                if (allocation != nullptr)
+                    return allocation;
+            }
+        }
+        else if (gRuntimeHeapMode == 2)
+        {
+            requestedBytes = requestedBytes == 0 ? 16u : (requestedBytes + 15u) & 0xFFFFFFF0u;
+            if (requestedBytes <= gRuntimeSmallBlockThresholdMode2)
+            {
+                Runtime_Lock(0x09);
+                __try
+                {
+                    allocation = Runtime_AllocateSmallBlockMode2(requestedBytes >> 4);
+                }
+                __finally
+                {
+                    // Original cleanup funclet: 004e8700.
+                    Runtime_Unlock(0x09);
+                }
+                if (allocation != nullptr)
+                    return allocation;
+            }
+            return HeapAlloc(gRuntimeHeap, 0, requestedBytes);
+        }
+        const std::uint32_t allocationBytes = ((requestedBytes == 0 ? 1u : requestedBytes) + 15u) & 0xFFFFFFF0u;
+        return HeapAlloc(gRuntimeHeap, 0, allocationBytes);
+    }
+
+	// Original function: FUN_004e9772
+	inline std::uint32_t Runtime_FlushAndWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream)
+	{
+		const std::uint32_t initialFlags = stream->flags;
+
+		if ((initialFlags & 0x82u) == 0 || (initialFlags & 0x40u) != 0)
 		{
-			if (character > 0xFF)
+			stream->flags = initialFlags | 0x20u;
+			return UINT32_C(0xFFFFFFFF);
+		}
+
+		// Read only after rejecting string streams, whose descriptor
+		// is not initialized by Runtime_FormatString.
+		const std::uint32_t descriptor = stream->descriptor;
+
+		if ((initialFlags & 0x01u) != 0)
+		{
+			stream->remainingBytes = 0;
+
+			if ((initialFlags & 0x10u) == 0)
 			{
-				*Runtime_GetErrnoPointer() = 0x2A;
-				return -1;
+				stream->flags = initialFlags | 0x20u;
+				return UINT32_C(0xFFFFFFFF);
 			}
 
-			const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
-			std::memcpy(destination, &byteValue, sizeof(byteValue));
-
-			return 1;
+			stream->position = stream->buffer;
+			stream->flags = initialFlags & ~UINT32_C(0x01);
 		}
 
-		BOOL usedDefaultCharacter = FALSE;
+		stream->remainingBytes = 0;
+		std::uint32_t writtenBytes = 0;
 
-		const int result = WideCharToMultiByte(CodePage_00569ba8, 0x220, &character, 1, destination, cbMultiByte_0050c604, nullptr, &usedDefaultCharacter);
+		stream->flags = (stream->flags & ~UINT32_C(0x10)) | 0x02u;
 
-		if (result == 0 || usedDefaultCharacter != FALSE)
+		if ((stream->flags & 0x10Cu) == 0)
 		{
-			*Runtime_GetErrnoPointer() = 0x2A;
-			return -1;
+			bool allocateBuffer = true;
+
+			if (static_cast<const void*>(stream) == static_cast<const void*>(&gRuntimeStdoutStream) || static_cast<const void*>(stream) == static_cast<const void*>(&gRuntimeStderrStream))
+			{
+				if (Runtime_IsCharacterDevice(descriptor) != 0)
+				{
+					allocateBuffer = false;
+				}
+			}
+
+			if (allocateBuffer)
+			{
+				Runtime_AllocateStreamBuffer(stream);
+			}
 		}
 
-		return result;
-	}
+		std::uint32_t expectedBytes;
 
-	// Original function: FUN_004ef1a1
-	inline std::int32_t Runtime_WideCharacterToMultibyte(char* destination, std::uint32_t characterBits)
-	{
-		auto* localeUsers = reinterpret_cast<volatile LONG*>(&DAT_0056b5f4);
-
-		InterlockedIncrement(localeUsers);
-
-		bool localeLocked = false;
-
-		if (DAT_0056b5f0 != 0)
+		if ((stream->flags & 0x108u) != 0)
 		{
-			InterlockedDecrement(localeUsers);
-			FUN_004ebdeb(0x13);
-			localeLocked = true;
-		}
+			char* buffer = stream->buffer;
 
-		const std::int32_t result = Runtime_WideCharacterToMultibyteNoLock(destination, characterBits);
+			const std::uint32_t bufferedBytes = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->position) - reinterpret_cast<std::uintptr_t>(buffer));
 
-		if (localeLocked)
-		{
-			FUN_004ebe4c(0x13);
+			expectedBytes = bufferedBytes;
+			stream->position = buffer + 1;
+			stream->remainingBytes = stream->bufferSize - std::uint32_t{ 1 };
+
+			// Preserve the signed comparison performed by TEST/JLE.
+			if (bufferedBytes != 0 && (bufferedBytes & UINT32_C(0x80000000)) == 0)
+			{
+				writtenBytes = static_cast<std::uint32_t>(Runtime_Write(descriptor, buffer, bufferedBytes));
+			}
+			else
+			{
+				const std::uint8_t* descriptorRecord;
+
+				if (descriptor == UINT32_C(0xFFFFFFFF))
+				{
+					descriptorRecord = reinterpret_cast<const std::uint8_t*>(&gRuntimeInvalidDescriptorRecord);
+				}
+				else
+				{
+					// Reproduce the arithmetic right shift used for the block index.
+					std::int32_t signedDescriptor;
+					std::memcpy(&signedDescriptor, &descriptor, sizeof(signedDescriptor));
+
+					const std::int32_t blockIndex = signedDescriptor >> 5;
+					const auto* descriptorBlocks = reinterpret_cast<const std::byte*>(&gRuntimeDescriptorBlocks);
+
+					const std::uint8_t* block;
+					std::memcpy(&block, descriptorBlocks + blockIndex * 4, sizeof(block));
+
+					descriptorRecord = block + (descriptor & 0x1Fu) * 0x24u;
+				}
+
+				if ((descriptorRecord[0x04] & 0x20u) != 0)
+				{
+					Runtime_Seek(descriptor, 0, 2);
+				}
+			}
+
+			// Reload the buffer pointer after the write or seek.
+			*reinterpret_cast<std::uint8_t*>(stream->buffer) = static_cast<std::uint8_t>(character);
 		}
 		else
 		{
-			InterlockedDecrement(localeUsers);
+			expectedBytes = 1;
+			writtenBytes = static_cast<std::uint32_t>(Runtime_Write(descriptor, &character, 1));
 		}
 
-		return result;
+		if (writtenBytes != expectedBytes)
+		{
+			stream->flags |= 0x20u;
+			return UINT32_C(0xFFFFFFFF);
+		}
+
+		return character & 0xFFu;
 	}
 
 	// Original function: FUN_004e988a
@@ -1979,7 +2162,7 @@ namespace NXBasics
 			{
 				wideText = false;
 
-				const auto* classification = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+				const auto* classification = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
 
 				if ((classification[static_cast<std::uint32_t>(character) * 2u + 1u] & 0x80u) != 0)
 				{
@@ -1987,7 +2170,7 @@ namespace NXBasics
 					character = static_cast<std::uint8_t>(*formatPosition++);
 				}
 
-				FUN_004e9fcb(signedCharacter(character), stream, &writtenCharacters);
+				Runtime_FormatWriteCharacter(static_cast<std::uint32_t>(signedCharacter(character)), stream, &writtenCharacters);
 			};
 
 		while (character != 0)
@@ -2140,7 +2323,7 @@ namespace NXBasics
 					{
 						if (text == nullptr)
 						{
-							text = reinterpret_cast<const char*>(PTR_DAT_0050c3f4);
+							text = reinterpret_cast<const char*>(gRuntimeNullWideString);
 						}
 
 						wideText = true;
@@ -2167,7 +2350,7 @@ namespace NXBasics
 					{
 						if (text == nullptr)
 						{
-							text = reinterpret_cast<const char*>(PTR_DAT_0050c3f0);
+							text = reinterpret_cast<const char*>(gRuntimeNullString);
 						}
 
 						const char* position = text;
@@ -2236,7 +2419,7 @@ namespace NXBasics
 
 					if (countedString == nullptr || stringBuffer == nullptr)
 					{
-						text = reinterpret_cast<const char*>(PTR_DAT_0050c3f0);
+						text = reinterpret_cast<const char*>(gRuntimeNullString);
 						textLength = static_cast<std::uint32_t>(std::strlen(text));
 					}
 					else
@@ -2294,14 +2477,14 @@ namespace NXBasics
 					using FloatAdjustment = void(__cdecl*)(char*);
 
 					FloatConversion convertFloat;
-					std::memcpy(&convertFloat, &PTR_FUN_0050c780, sizeof(convertFloat));
+					std::memcpy(&convertFloat, &gRuntimeFloatConvertCallback, sizeof(convertFloat));
 
 					convertFloat(&value, scratch, signedCharacter(character), asSigned(precision), uppercaseFloat);
 
 					if ((flags & 0x80u) != 0 && precision == 0)
 					{
 						FloatAdjustment adjustDecimalPoint;
-						std::memcpy(&adjustDecimalPoint, &PTR_FUN_0050c78c, sizeof(adjustDecimalPoint));
+						std::memcpy(&adjustDecimalPoint, &gRuntimeFloatInsertDecimalPointCallback, sizeof(adjustDecimalPoint));
 
 						adjustDecimalPoint(scratch);
 					}
@@ -2309,7 +2492,7 @@ namespace NXBasics
 					if (character == 'g' && (flags & 0x80u) == 0)
 					{
 						FloatAdjustment adjustGeneralFormat;
-						std::memcpy(&adjustGeneralFormat, &PTR_FUN_0050c784, sizeof(adjustGeneralFormat));
+						std::memcpy(&adjustGeneralFormat, &gRuntimeFloatTrimTrailingZerosCallback, sizeof(adjustGeneralFormat));
 
 						adjustGeneralFormat(scratch);
 					}
@@ -2569,13 +2752,389 @@ namespace NXBasics
 		return writtenCharacters;
 	}
 
+	// Original function: FUN_004e9fcb
+	inline void Runtime_FormatWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream, std::int32_t* writtenCharacters)
+	{
+		stream->remainingBytes -= std::uint32_t{ 1 };
+
+		std::uint32_t result;
+
+		if ((stream->remainingBytes & UINT32_C(0x80000000)) == 0)
+		{
+			const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
+
+			std::memcpy(stream->position, &byteValue, sizeof(byteValue));
+			++stream->position;
+
+			result = byteValue;
+		}
+		else
+		{
+			result = Runtime_FlushAndWriteCharacter(character, stream);
+		}
+
+		if (result == UINT32_C(0xFFFFFFFF))
+		{
+			*writtenCharacters = -1;
+			return;
+		}
+
+		// Preserve the 32-bit INC, including wraparound.
+		std::uint32_t countBits;
+		std::memcpy(&countBits, writtenCharacters, sizeof(countBits));
+
+		++countBits;
+
+		std::memcpy(writtenCharacters, &countBits, sizeof(countBits));
+	}
+
+	// Original function: FUN_004ea000
+	inline void Runtime_FormatWriteRepeated(std::uint32_t character, std::int32_t count, RuntimeFormatStream* stream, std::int32_t* writtenCharacters)
+	{
+		while (count > 0)
+		{
+			Runtime_FormatWriteCharacter(character, stream, writtenCharacters);
+
+			if (*writtenCharacters == -1)
+			{
+				return;
+			}
+
+			--count;
+		}
+	}
+
+	// Original function: FUN_004ea031
+	inline void Runtime_FormatWriteText(const char* text, std::int32_t length, RuntimeFormatStream* stream, std::int32_t* writtenCharacters)
+	{
+		while (length > 0)
+		{
+			const std::uint8_t byteValue = static_cast<std::uint8_t>(*text++);
+
+			// Original MOVSX sign-extends the source byte.
+			const std::int32_t character = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+			Runtime_FormatWriteCharacter(static_cast<std::uint32_t>(character), stream, writtenCharacters);
+
+			if (*writtenCharacters == -1)
+			{
+				return;
+			}
+
+			--length;
+		}
+	}
+
+	// Original function: FUN_004ea069
+	inline std::uint32_t Runtime_FormatReadArgument32(va_list* arguments)
+	{
+		*arguments += 4;
+
+		std::uint32_t value;
+		std::memcpy(&value, *arguments - 4, sizeof(value));
+
+		return value;
+	}
+
+	// Original function: FUN_004ea076
+	inline std::uint64_t Runtime_FormatReadArgument64(va_list* arguments)
+	{
+		*arguments += 8;
+
+		std::uint64_t value;
+		std::memcpy(&value, *arguments - 8, sizeof(value));
+
+		return value;
+	}
+
+	// Original function: FUN_004ea086
+	inline std::uint32_t Runtime_FormatReadArgument16(va_list* arguments)
+	{
+		*arguments += 4;
+
+		const std::uint32_t advancedAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(*arguments));
+
+		std::uint16_t value;
+		std::memcpy(&value, *arguments - 4, sizeof(value));
+
+		// MOV AX preserves the upper half of the advanced argument address.
+		return (advancedAddress & UINT32_C(0xFFFF0000)) | static_cast<std::uint32_t>(value);
+	}
+
+	// Original function: FUN_004ea094
+	inline std::uint32_t Runtime_ClassifyCharacter(std::int32_t character, std::uint32_t mask)
+	{
+		const std::uint32_t characterBits = static_cast<std::uint32_t>(character);
+		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+
+		// The unsigned comparison includes EOF (-1) and byte values 0 through 255.
+		if (characterBits + 1u <= 0x100u)
+		{
+			std::uint16_t classification;
+			std::memcpy(&classification, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(classification));
+
+			return static_cast<std::uint32_t>(classification) & mask;
+		}
+
+		const std::uint8_t highByte = static_cast<std::uint8_t>(characterBits >> 8);
+		const std::uint8_t lowByte = static_cast<std::uint8_t>(characterBits);
+
+		char source[3];
+		std::int32_t sourceLength;
+
+		if ((characterTypes[static_cast<std::uint32_t>(highByte) * 2u + 1u] & 0x80u) != 0)
+		{
+			source[0] = static_cast<char>(highByte);
+			source[1] = static_cast<char>(lowByte);
+			source[2] = '\0';
+			sourceLength = 2;
+		}
+		else
+		{
+			source[0] = static_cast<char>(lowByte);
+			source[1] = '\0';
+			sourceLength = 1;
+		}
+
+		// The original uses the upper word of its character argument as output storage.
+		std::uint16_t classification = static_cast<std::uint16_t>(characterBits >> 16);
+
+		if (Runtime_GetStringType(1, source, sourceLength, &classification, 0, 0, 1) == FALSE)
+			return 0;
+
+		return static_cast<std::uint32_t>(classification) & mask;
+	}
+
+	// Original function: FUN_004ea646
+	inline std::uint32_t Runtime_AllocateDescriptor()
+	{
+		Runtime_Lock(0x12);
+
+		auto* descriptorBlocks = reinterpret_cast<std::uint8_t*>(&gRuntimeDescriptorBlocks);
+		std::uint32_t result = 0xFFFFFFFFu;
+
+		const auto readBlock = [descriptorBlocks](std::uint32_t index) -> std::uint8_t*
+			{
+				std::uint8_t* block;
+				std::memcpy(&block, descriptorBlocks + index * 4u, sizeof(block));
+				return block;
+			};
+
+		for (std::uint32_t blockIndex = 0; blockIndex < 64u; ++blockIndex)
+		{
+			std::uint8_t* block = readBlock(blockIndex);
+
+			if (block == nullptr)
+			{
+				block = static_cast<std::uint8_t*>(Runtime_Allocate(0x480));
+
+				if (block == nullptr)
+					break;
+
+				std::uint32_t descriptorCount;
+				std::memcpy(&descriptorCount, &gRuntimeDescriptorCapacity, sizeof(descriptorCount));
+				descriptorCount += 32u;
+				std::memcpy(&gRuntimeDescriptorCapacity, &descriptorCount, sizeof(descriptorCount));
+
+				std::memcpy(descriptorBlocks + blockIndex * 4u, &block, sizeof(block));
+
+				const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+				const std::uint32_t uninitialized = 0;
+
+				for (std::uint32_t index = 0; index < 32u; ++index)
+				{
+					std::uint8_t* entry = block + index * 0x24u;
+
+					entry[0x04] = 0;
+					std::memcpy(entry, &invalidHandle, sizeof(invalidHandle));
+					std::memcpy(entry + 0x08, &uninitialized, sizeof(uninitialized));
+					entry[0x05] = '\n';
+				}
+
+				result = blockIndex * 32u;
+				Runtime_LockDescriptor(result);
+				break;
+			}
+
+			std::uint8_t* entry = block;
+
+			while (entry < readBlock(blockIndex) + 0x480u)
+			{
+				if ((entry[0x04] & 0x01u) == 0)
+				{
+					auto* initialized = reinterpret_cast<volatile std::uint32_t*>(entry + 0x08);
+					auto* criticalSection = reinterpret_cast<CRITICAL_SECTION*>(entry + 0x0C);
+
+					if (*initialized == 0)
+					{
+						Runtime_Lock(0x11);
+
+						if (*initialized == 0)
+						{
+							::InitializeCriticalSection(criticalSection);
+							*initialized = *initialized + 1u;
+						}
+
+						Runtime_Unlock(0x11);
+					}
+
+					::EnterCriticalSection(criticalSection);
+
+					// Another thread may have opened the descriptor before this lock was acquired.
+					if ((entry[0x04] & 0x01u) == 0)
+					{
+						const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+						std::memcpy(entry, &invalidHandle, sizeof(invalidHandle));
+
+						const std::ptrdiff_t entryIndex = (entry - readBlock(blockIndex)) / 0x24;
+						result = blockIndex * 32u + static_cast<std::uint32_t>(entryIndex);
+						break;
+					}
+
+					::LeaveCriticalSection(criticalSection);
+				}
+
+				entry += 0x24;
+			}
+
+			if (result != 0xFFFFFFFFu)
+				break;
+		}
+
+		// A successfully allocated descriptor remains locked for the caller.
+		Runtime_Unlock(0x12);
+		return result;
+	}
+
+	// Original function: FUN_004ea769
+	inline std::int32_t Runtime_SetOsHandle(std::uint32_t descriptor, HANDLE handle)
+	{
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+		{
+			std::int32_t signedDescriptor;
+			std::memcpy(&signedDescriptor, &descriptor, sizeof(signedDescriptor));
+
+			const std::int32_t blockIndex = signedDescriptor >> 5;
+			const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
+			const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+
+			std::uint8_t* block;
+			std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
+
+			std::uint32_t previousHandle;
+			std::memcpy(&previousHandle, block + entryOffset, sizeof(previousHandle));
+
+			if (previousHandle == 0xFFFFFFFFu)
+			{
+				if (gRuntimeApplicationType == 1)
+				{
+					switch (descriptor)
+					{
+					case 0:
+						::SetStdHandle(STD_INPUT_HANDLE, handle);
+						break;
+
+					case 1:
+						::SetStdHandle(STD_OUTPUT_HANDLE, handle);
+						break;
+
+					case 2:
+						::SetStdHandle(STD_ERROR_HANDLE, handle);
+						break;
+					}
+				}
+
+				// Reload the block pointer after the possible Windows call.
+				std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
+				std::memcpy(block + entryOffset, &handle, sizeof(handle));
+
+				return 0;
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+		return -1;
+	}
+
+	// Original function: FUN_004ea7e5
+	inline std::int32_t Runtime_ClearOsHandle(std::uint32_t descriptor)
+	{
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+		{
+			const std::uint32_t blockIndex = descriptor >> 5;
+			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+			auto* block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
+
+			if ((block[entryOffset + 4u] & 0x01u) != 0)
+			{
+				std::uint32_t handleValue;
+				std::memcpy(&handleValue, block + entryOffset, sizeof(handleValue));
+
+				if (handleValue != 0xFFFFFFFFu)
+				{
+					if (gRuntimeApplicationType == 1)
+					{
+						// The original ignores the return value of SetStdHandle.
+						switch (descriptor)
+						{
+						case 0u:
+							::SetStdHandle(STD_INPUT_HANDLE, nullptr);
+							break;
+
+						case 1u:
+							::SetStdHandle(STD_OUTPUT_HANDLE, nullptr);
+							break;
+
+						case 2u:
+							::SetStdHandle(STD_ERROR_HANDLE, nullptr);
+							break;
+						}
+					}
+
+					// Reload the block pointer after the possible Windows call.
+					block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
+
+					const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+					std::memcpy(block + entryOffset, &invalidHandle, sizeof(invalidHandle));
+					return 0;
+				}
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+		return -1;
+	}
+
+	// Original function: FUN_004ea864
+	inline std::uint32_t Runtime_GetOsHandle(std::uint32_t descriptor)
+	{
+		if (descriptor < static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+		{
+			const auto* block = reinterpret_cast<const std::uint8_t*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+
+			if ((block[entryOffset + 4u] & 0x01u) != 0)
+			{
+				std::uint32_t handleValue;
+				std::memcpy(&handleValue, block + entryOffset, sizeof(handleValue));
+				return handleValue;
+			}
+		}
+
+		*Runtime_GetErrnoPointer() = 9;
+		*Runtime_GetDosErrnoPointer() = 0;
+		return 0xFFFFFFFFu;
+	}
+
 	// Original function: FUN_004ea8a6
 	inline void Runtime_LockDescriptor(std::uint32_t descriptor)
 	{
 		const std::uint32_t blockIndex = descriptor >> 5;
 		const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
 
-		auto* block = reinterpret_cast<std::uint8_t*>(DAT_0056b600[blockIndex]);
+		auto* block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
 		auto* entry = block + entryOffset;
 		auto* initialized = reinterpret_cast<volatile std::uint32_t*>(entry + 0x08);
 
@@ -2596,7 +3155,7 @@ namespace NXBasics
 		}
 
 		// The original reloads the block pointer before entering the section.
-		block = reinterpret_cast<std::uint8_t*>(DAT_0056b600[blockIndex]);
+		block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
 		auto* criticalSection = reinterpret_cast<CRITICAL_SECTION*>(block + entryOffset + 0x0C);
 
 		::EnterCriticalSection(criticalSection);
@@ -2608,642 +3167,3302 @@ namespace NXBasics
 		const std::uint32_t blockIndex = descriptor >> 5;
 		const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
 
-		auto* block = reinterpret_cast<std::uint8_t*>(DAT_0056b600[blockIndex]);
+		auto* block = reinterpret_cast<std::uint8_t*>(gRuntimeDescriptorBlocks[blockIndex]);
 		auto* criticalSection = reinterpret_cast<CRITICAL_SECTION*>(block + entryOffset + 0x0C);
 
 		::LeaveCriticalSection(criticalSection);
 	}
 
-	static_assert(sizeof(CRITICAL_SECTION) == 0x18, "Descriptor locks require the Win32 critical-section layout");
-
-	// Original function: FUN_004ea864
-	inline std::uint32_t Runtime_GetOsHandle(std::uint32_t descriptor)
+	// Original function: FUN_004eb167
+	inline std::int32_t Runtime_InitializeThreading()
 	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
-		{
-			const auto* block = reinterpret_cast<const std::uint8_t*>(DAT_0056b600[descriptor >> 5]);
-			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+		Runtime_InitializeLocks();
 
-			if ((block[entryOffset + 4u] & 0x01u) != 0)
+		const DWORD tlsIndex = ::TlsAlloc();
+		gRuntimeThreadDataTlsIndex = tlsIndex;
+
+		if (tlsIndex == TLS_OUT_OF_INDEXES)
+		{
+			return 0;
+		}
+
+		auto* threadData = Runtime_AllocateZeroed(1u, 0x74u);
+
+		if (threadData == nullptr)
+		{
+			return 0;
+		}
+
+		if (!::TlsSetValue(gRuntimeThreadDataTlsIndex, threadData))
+		{
+			return 0;
+		}
+
+		Runtime_InitializeThreadData(threadData);
+
+		const DWORD threadId = ::GetCurrentThreadId();
+		auto* threadBytes = reinterpret_cast<std::uint8_t*>(threadData);
+
+		const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+		std::memcpy(threadBytes + 0x04, &invalidHandle, sizeof(invalidHandle));
+		std::memcpy(threadBytes, &threadId, sizeof(threadId));
+
+		return 1;
+	}
+
+	// Original function: FUN_004eb1bb
+	inline void Runtime_InitializeThreadData(void* threadData)
+	{
+		auto* threadBytes = static_cast<std::uint8_t*>(threadData);
+
+		const void* initialTable = &gRuntimeDefaultExceptionActions;
+		std::memcpy(threadBytes + 0x50, &initialTable, sizeof(initialTable));
+
+		const std::uint32_t initialValue = 1;
+		std::memcpy(threadBytes + 0x14, &initialValue, sizeof(initialValue));
+	}
+
+	// Original function: FUN_004eb1ce
+	inline DWORD* Runtime_GetThreadData()
+	{
+		const DWORD savedLastError = ::GetLastError();
+		void* threadData = ::TlsGetValue(gRuntimeThreadDataTlsIndex);
+
+		if (threadData == nullptr)
+		{
+			threadData = Runtime_AllocateZeroed(1u, 0x74u);
+
+			if (threadData == nullptr || !::TlsSetValue(gRuntimeThreadDataTlsIndex, threadData))
 			{
-				std::uint32_t handleValue;
-				std::memcpy(&handleValue, block + entryOffset, sizeof(handleValue));
-				return handleValue;
+				// Fatal CRT error; the original performs no local cleanup.
+				__amsg_exit(0x10);
+			}
+			else
+			{
+				Runtime_InitializeThreadData(threadData);
+
+				const DWORD threadId = ::GetCurrentThreadId();
+				auto* threadBytes = static_cast<std::uint8_t*>(threadData);
+
+				const std::uint32_t invalidHandle = 0xFFFFFFFFu;
+				std::memcpy(threadBytes + 0x04, &invalidHandle, sizeof(invalidHandle));
+				std::memcpy(threadBytes, &threadId, sizeof(threadId));
 			}
 		}
 
-		*Runtime_GetErrnoPointer() = 9;
-		*Runtime_GetDosErrnoPointer() = 0;
-		return 0xFFFFFFFFu;
+		::SetLastError(savedLastError);
+		return static_cast<DWORD*>(threadData);
 	}
 
-	// Original function: FUN_004ea7e5
-	inline std::int32_t Runtime_ClearOsHandle(std::uint32_t descriptor)
+	// Original function: FUN_004eb235
+	inline std::int32_t Runtime_ResizeNoLock(std::uint32_t descriptor, std::uint32_t newSize)
 	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
-		{
-			const std::uint32_t blockIndex = descriptor >> 5;
-			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
-			auto* block = reinterpret_cast<std::uint8_t*>(DAT_0056b600[blockIndex]);
-
-			if ((block[entryOffset + 4u] & 0x01u) != 0)
+		const auto asSigned = [](std::uint32_t bits) -> std::int32_t
 			{
-				std::uint32_t handleValue;
-				std::memcpy(&handleValue, block + entryOffset, sizeof(handleValue));
+				std::int32_t value;
+				std::memcpy(&value, &bits, sizeof(value));
+				return value;
+			};
 
-				if (handleValue != 0xFFFFFFFFu)
+		const std::uint32_t originalPosition = Runtime_SeekNoLock(descriptor, 0, 1);
+
+		if (originalPosition == 0xFFFFFFFFu)
+			return -1;
+
+		const std::uint32_t currentSize = Runtime_SeekNoLock(descriptor, 0, 2);
+
+		if (currentSize == 0xFFFFFFFFu)
+			return -1;
+
+		std::uint32_t remainingBits = newSize - currentSize;
+		std::int32_t result = 0;
+
+		if (asSigned(remainingBits) > 0)
+		{
+			std::uint8_t zeros[0x1000];
+			std::memset(zeros, 0, sizeof(zeros));
+
+			const std::int32_t previousMode = Runtime_SetModeNoLock(descriptor, 0x8000);
+
+			do
+			{
+				const std::int32_t remaining = asSigned(remainingBits);
+				const std::uint32_t chunkSize = remaining < 0x1000
+					? static_cast<std::uint32_t>(remaining)
+					: 0x1000u;
+
+				const std::int32_t written = Runtime_WriteNoLock(descriptor, zeros, chunkSize);
+
+				if (written == -1)
 				{
-					if (DAT_0050c244 == 1)
+					if (*Runtime_GetDosErrnoPointer() == 5)
+						*Runtime_GetErrnoPointer() = 0x0D;
+
+					result = -1;
+					break;
+				}
+
+				// Preserve the original subtraction and signed continuation test.
+				remainingBits -= static_cast<std::uint32_t>(written);
+			} while (asSigned(remainingBits) > 0);
+
+			Runtime_SetModeNoLock(descriptor, previousMode);
+		}
+		else if (asSigned(remainingBits) < 0)
+		{
+			// The original ignores this seek's return value.
+			Runtime_SeekNoLock(descriptor, asSigned(newSize), 0);
+
+			const std::uint32_t handleValue = Runtime_GetOsHandle(descriptor);
+			const HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleValue));
+
+			if (::SetEndOfFile(handle) == FALSE)
+			{
+				result = -1;
+
+				// Preserve the original order of errno access and GetLastError.
+				*Runtime_GetErrnoPointer() = 0x0D;
+				const DWORD error = ::GetLastError();
+				*Runtime_GetDosErrnoPointer() = error;
+			}
+		}
+
+		// The restore result does not replace the resize result.
+		Runtime_SeekNoLock(descriptor, asSigned(originalPosition), 0);
+		return result;
+	}
+
+	// Original function: FUN_004eb99c
+	inline void Runtime_FloatInsertDecimalPoint(char* text)
+	{
+		char* position = text;
+
+		const std::uint8_t firstByte = static_cast<std::uint8_t>(*position);
+		const std::int32_t firstCharacter = firstByte < 0x80 ? static_cast<std::int32_t>(firstByte) : static_cast<std::int32_t>(firstByte) - 0x100;
+
+		if (Runtime_ToLower(firstCharacter) != 'e')
+		{
+			// The original advances before testing the next character.
+			do
+			{
+				++position;
+			} while (Runtime_IsDigit(*position));
+		}
+
+		char decimalSeparator;
+		std::memcpy(&decimalSeparator, &gRuntimeDecimalSeparator, sizeof(decimalSeparator));
+
+		char carriedCharacter = *position;
+		*position++ = decimalSeparator;
+
+		for (;;)
+		{
+			const char nextCharacter = *position;
+			*position = carriedCharacter;
+
+			const char writtenCharacter = *position;
+			carriedCharacter = nextCharacter;
+			++position;
+
+			if (writtenCharacter == '\0')
+			{
+				break;
+			}
+		}
+	}
+
+	// Original function: LAB_004eb9f6
+	inline void Runtime_FloatTrimTrailingZeros(char* text)
+	{
+		char decimalSeparator;
+		std::memcpy(&decimalSeparator, &gRuntimeDecimalSeparator, sizeof(decimalSeparator));
+
+		char* position = text;
+
+		while (*position != '\0' && *position != decimalSeparator)
+		{
+			++position;
+		}
+
+		if (*position == '\0')
+		{
+			return;
+		}
+
+		++position;
+
+		while (*position != '\0' && *position != 'e' && *position != 'E')
+		{
+			++position;
+		}
+
+		const char* suffix = position;
+		char* destination = position;
+
+		while (destination[-1] == '0')
+		{
+			--destination;
+		}
+
+		if (destination[-1] == decimalSeparator)
+		{
+			--destination;
+		}
+
+		for (;;)
+		{
+			const char character = *suffix++;
+			*destination++ = character;
+
+			if (character == '\0')
+			{
+				break;
+			}
+		}
+	}
+
+	// Original function: LAB_004eba44
+	inline std::int32_t Runtime_FloatAtLeastReference(const double* value)
+	{
+		// Original reference value at DAT_004f3348: +0.0.
+		return *value >= 0.0 ? 1 : 0;
+	}
+
+	// Original function: FUN_004eba9a
+	inline char* Runtime_ConvertFloatScientific(const double* value, char* buffer, std::int32_t precision, std::int32_t uppercase)
+	{
+		RuntimeFloatConversionState state;
+		char workspace[24];
+
+		Runtime_PrepareFloatConversion(*value, &state, workspace);
+
+		// Preserve the 32-bit addition used for the requested digit count.
+		const std::uint32_t digitCountBits = static_cast<std::uint32_t>(precision) + std::uint32_t{ 1 };
+
+		std::int32_t digitCount;
+		std::memcpy(&digitCount, &digitCountBits, sizeof(digitCount));
+
+		char* digits = buffer + (state.sign == '-' ? 1 : 0) + (precision > 0 ? 1 : 0);
+
+		Runtime_GenerateFloatDigits(digits, digitCount, &state);
+		Runtime_FormatExponentialDigits(buffer, precision, uppercase, &state, 0);
+
+		return buffer;
+	}
+
+	// Original function: FUN_004ebafb
+	inline char* Runtime_FormatExponentialDigits(char* buffer, std::int32_t precision, std::int32_t uppercase, const RuntimeFloatConversionState* state, char generalFormat)
+	{
+		if (generalFormat != 0)
+		{
+			Runtime_ShiftString(buffer + (state->sign == '-' ? 1 : 0), precision > 0 ? 1 : 0);
+		}
+
+		char* position = buffer;
+
+		if (state->sign == '-')
+			*position++ = '-';
+
+		if (precision > 0)
+		{
+			position[0] = position[1];
+			++position;
+			*position = static_cast<char>(gRuntimeDecimalSeparator);
+		}
+
+		char* exponentText = position + precision + (generalFormat == 0 ? 1 : 0);
+		std::memcpy(exponentText, "e+000", 6);
+
+		if (uppercase != 0)
+			exponentText[0] = 'E';
+
+		// The original checks the source digits when deciding whether the value is zero.
+		if (state->digits[0] != '0')
+		{
+			std::int32_t exponent = state->decimalPosition - 1;
+
+			if (exponent < 0)
+			{
+				exponent = -exponent;
+				exponentText[1] = '-';
+			}
+
+			if (exponent >= 100)
+			{
+				exponentText[2] = static_cast<char>('0' + exponent / 100);
+				exponent %= 100;
+			}
+
+			if (exponent >= 10)
+			{
+				exponentText[3] = static_cast<char>('0' + exponent / 10);
+				exponent %= 10;
+			}
+
+			exponentText[4] = static_cast<char>('0' + exponent);
+		}
+
+		return buffer;
+	}
+
+	// Original function: FUN_004ebbbd
+	inline char* Runtime_ConvertFloatFixed(const double* value, char* buffer, std::int32_t precision)
+	{
+		RuntimeFloatConversionState state;
+		char workspace[24];
+
+		Runtime_PrepareFloatConversion(*value, &state, workspace);
+
+		const std::uint32_t digitCountBits = static_cast<std::uint32_t>(state.decimalPosition) + static_cast<std::uint32_t>(precision);
+
+		std::int32_t digitCount;
+		std::memcpy(&digitCount, &digitCountBits, sizeof(digitCount));
+
+		char* digits = buffer + (state.sign == '-' ? 1 : 0);
+
+		Runtime_GenerateFloatDigits(digits, digitCount, &state);
+		Runtime_FormatFixedDigits(buffer, precision, &state, 0);
+
+		return buffer;
+	}
+
+	// Original function: FUN_004ebc12
+	inline char* Runtime_FormatFixedDigits(char* buffer, std::int32_t precision, const RuntimeFloatConversionState* state, char generalFormat)
+	{
+		const std::int32_t lastIntegerDigit = state->decimalPosition - 1;
+
+		if (generalFormat != 0 && lastIntegerDigit == precision)
+		{
+			char* position = buffer + (state->sign == '-' ? 1 : 0) + lastIntegerDigit;
+			position[0] = '0';
+			position[1] = '\0';
+		}
+
+		char* position = buffer;
+
+		if (state->sign == '-')
+			*position++ = '-';
+
+		if (state->decimalPosition <= 0)
+		{
+			Runtime_ShiftString(position, 1);
+			*position++ = '0';
+		}
+		else
+		{
+			position += state->decimalPosition;
+		}
+
+		if (precision > 0)
+		{
+			Runtime_ShiftString(position, 1);
+			*position++ = static_cast<char>(gRuntimeDecimalSeparator);
+
+			if (state->decimalPosition < 0)
+			{
+				const std::int32_t leadingZeros = -state->decimalPosition;
+
+				if (generalFormat != 0 || precision >= leadingZeros)
+					precision = leadingZeros;
+
+				Runtime_ShiftString(position, precision);
+				std::memset(position, '0', static_cast<std::size_t>(precision));
+			}
+		}
+
+		return buffer;
+	}
+
+	// Original function: FUN_004ebcb9
+	inline void Runtime_ConvertFloatGeneral(const double* value, char* buffer, std::int32_t precision, std::int32_t uppercase)
+	{
+		RuntimeFloatConversionState state;
+		char workspace[24];
+
+		Runtime_PrepareFloatConversion(*value, &state, workspace);
+
+		const std::uint32_t initialExponentBits = static_cast<std::uint32_t>(state.decimalPosition) - std::uint32_t{ 1 };
+
+		std::int32_t initialExponent;
+		std::memcpy(&initialExponent, &initialExponentBits, sizeof(initialExponent));
+
+		char* digits = buffer + (state.sign == '-' ? 1 : 0);
+
+		Runtime_GenerateFloatDigits(digits, precision, &state);
+
+		// The digit-generation step may change the decimal position.
+		const std::uint32_t roundedExponentBits = static_cast<std::uint32_t>(state.decimalPosition) - std::uint32_t{ 1 };
+
+		std::int32_t roundedExponent;
+		std::memcpy(&roundedExponent, &roundedExponentBits, sizeof(roundedExponent));
+
+		const bool exponentIncreased = initialExponent < roundedExponent;
+
+		if (roundedExponent < -4 || roundedExponent >= precision)
+		{
+			Runtime_FormatExponentialDigits(buffer, precision, uppercase, &state, 1);
+			return;
+		}
+
+		if (exponentIncreased)
+		{
+			char* position = digits;
+			char character;
+
+			do
+			{
+				character = *position++;
+			} while (character != '\0');
+
+			// Remove the final generated digit after an exponent increase.
+			position[-2] = '\0';
+		}
+
+		Runtime_FormatFixedDigits(buffer, precision, &state, 1);
+	}
+
+	// Original function: __cfltcvt at 004ebd4c
+	inline void Runtime_ConvertFloat(const double* value, char* buffer, std::int32_t format, std::int32_t precision, std::int32_t uppercase)
+	{
+		if (format == 'e' || format == 'E')
+		{
+			Runtime_ConvertFloatScientific(value, buffer, precision, uppercase);
+			return;
+		}
+
+		if (format == 'f')
+		{
+			Runtime_ConvertFloatFixed(value, buffer, precision);
+			return;
+		}
+
+		Runtime_ConvertFloatGeneral(value, buffer, precision, uppercase);
+	}
+
+	// Original function: FUN_004ebd9d
+	inline void Runtime_ShiftString(char* text, std::int32_t offset)
+	{
+		if (offset == 0)
+			return;
+
+		const std::size_t byteCount = std::strlen(text) + 1;
+		std::memmove(text + offset, text, byteCount);
+	}
+
+	// Original function: FUN_004ebdc2
+	inline void Runtime_InitializeLocks()
+	{
+		auto* slots = reinterpret_cast<CRITICAL_SECTION* volatile*>(&gRuntimeLockTable);
+
+		::InitializeCriticalSection(slots[0x11]);
+		::InitializeCriticalSection(slots[0x0D]);
+		::InitializeCriticalSection(slots[0x09]);
+		::InitializeCriticalSection(slots[0x01]);
+	}
+
+	// Original function: FUN_004ebdeb
+	inline void Runtime_Lock(std::int32_t lockIndex)
+	{
+		auto* slots = reinterpret_cast<CRITICAL_SECTION* volatile*>(&gRuntimeLockTable);
+		auto* slot = slots + lockIndex;
+
+		if (*slot == nullptr)
+		{
+			// Keep the original CRT allocation and deallocation pair.
+			auto* candidate = static_cast<CRITICAL_SECTION*>(Runtime_Allocate(0x18));
+
+			if (candidate == nullptr)
+			{
+				__amsg_exit(0x11);
+			}
+
+			Runtime_Lock(0x11);
+
+			// Another thread may have initialized this slot in the meantime.
+			if (*slot == nullptr)
+			{
+				::InitializeCriticalSection(candidate);
+				*slot = candidate;
+			}
+			else
+			{
+				Runtime_Free(candidate);
+			}
+
+			Runtime_Unlock(0x11);
+		}
+
+		::EnterCriticalSection(*slot);
+	}
+
+	// Original function: FUN_004ebe4c
+	inline void Runtime_Unlock(std::int32_t lockIndex)
+	{
+		auto* slots = reinterpret_cast<CRITICAL_SECTION* volatile*>(&gRuntimeLockTable);
+
+		::LeaveCriticalSection(slots[lockIndex]);
+	}
+
+	// Original function: FUN_004ec469
+	inline void Runtime_GetExecutableLinkerVersion(std::uint32_t* version)
+	{
+		*version = 0;
+
+		const auto* module = reinterpret_cast<const std::uint8_t*>(GetModuleHandleA(nullptr));
+
+		std::uint16_t signature;
+		std::memcpy(&signature, module, sizeof(signature));
+
+		if (signature != 0x5A4Du)
+		{
+			return;
+		}
+
+		std::uint32_t peOffset;
+		std::memcpy(&peOffset, module + 0x3C, sizeof(peOffset));
+
+		if (peOffset == 0)
+		{
+			return;
+		}
+
+		// Preserve the original check: no additional PE signature validation.
+		const auto* peHeader = module + peOffset;
+		*version = static_cast<std::uint32_t>(peHeader[0x1A]) | (static_cast<std::uint32_t>(peHeader[0x1B]) << 8);
+	}
+
+	// Original function: FUN_004ec496
+	inline std::int32_t Runtime_SelectHeapMode()
+	{
+		OSVERSIONINFOA version;
+		version.dwOSVersionInfoSize = sizeof(version);
+
+		if (GetVersionExA(&version) != FALSE)
+		{
+			if (version.dwPlatformId == 2u && version.dwMajorVersion >= 5u)
+			{
+				return 1;
+			}
+		}
+
+		char selection[0x1090];
+
+		if (GetEnvironmentVariableA("__MSVCRT_HEAP_SELECT", selection, sizeof(selection)) != 0)
+		{
+			const auto uppercaseAscii = [](char* text)
+				{
+					while (*text != '\0')
 					{
-						// The original ignores the return value of SetStdHandle.
-						switch (descriptor)
+						if (*text >= 'a' && *text <= 'z')
 						{
-						case 0u:
-							::SetStdHandle(STD_INPUT_HANDLE, nullptr);
-							break;
+							*text = static_cast<char>(*text - 0x20);
+						}
 
-						case 1u:
-							::SetStdHandle(STD_OUTPUT_HANDLE, nullptr);
-							break;
+						++text;
+					}
+				};
 
-						case 2u:
-							::SetStdHandle(STD_ERROR_HANDLE, nullptr);
+			uppercaseAscii(selection);
+
+			char* selectedEntry;
+
+			// Original function: FUN_004e7a70
+			// Preserve the original comparison length, including the literal's NUL.
+			if (std::strncmp("__GLOBAL_HEAP_SELECTED", selection, 0x16u) == 0)
+			{
+				selectedEntry = selection;
+			}
+			else
+			{
+				char executablePath[0x104];
+
+				GetModuleFileNameA(nullptr, executablePath, sizeof(executablePath));
+				uppercaseAscii(executablePath);
+
+				// Original function: FUN_004e8010
+				selectedEntry = std::strstr(selection, executablePath);
+			}
+
+			if (selectedEntry != nullptr)
+			{
+				// Original function: FUN_004e5e70
+				char* comma = std::strchr(selectedEntry, ',');
+
+				if (comma != nullptr)
+				{
+					char* number = comma + 1;
+
+					for (char* cursor = number; *cursor != '\0'; ++cursor)
+					{
+						if (*cursor == ';')
+						{
+							*cursor = '\0';
 							break;
 						}
 					}
 
-					// Reload the block pointer after the possible Windows call.
-					block = reinterpret_cast<std::uint8_t*>(DAT_0056b600[blockIndex]);
+					const std::int32_t selectedMode = Runtime_StringToLong(number, nullptr, 10);
 
-					const std::uint32_t invalidHandle = 0xFFFFFFFFu;
-					std::memcpy(block + entryOffset, &invalidHandle, sizeof(invalidHandle));
-					return 0;
+					if (selectedMode == 1 || selectedMode == 2 || selectedMode == 3)
+					{
+						return selectedMode;
+					}
 				}
 			}
 		}
 
-		*Runtime_GetErrnoPointer() = 9;
-		*Runtime_GetDosErrnoPointer() = 0;
-		return -1;
+		std::uint32_t linkerVersion;
+		Runtime_GetExecutableLinkerVersion(&linkerVersion);
+		return (linkerVersion & 0xFFu) >= 6u ? 3 : 2;
 	}
 
-	// Original function: FUN_004e60de
-	inline std::int32_t Runtime_CloseNoLock(std::uint32_t descriptor)
+	// Original function: FUN_004ec5de
+	inline int Runtime_InitializeHeap(std::int32_t enableSerialization)
 	{
-		DWORD closeError = 0;
+		const DWORD options = enableSerialization == 0 ? HEAP_NO_SERIALIZE : 0;
+		gRuntimeHeap = HeapCreate(options, 0x1000, 0);
 
-		const auto initialHandle = Runtime_GetOsHandle(descriptor);
-
-		if (static_cast<std::uint32_t>(initialHandle) != 0xFFFFFFFFu)
-		{
-			bool closeHandle = true;
-
-			if (descriptor == 1u || descriptor == 2u)
-			{
-				// Preserve the original lookup order.
-				const auto stderrHandle = Runtime_GetOsHandle(2u);
-				const auto stdoutHandle = Runtime_GetOsHandle(1u);
-
-				closeHandle = stdoutHandle != stderrHandle;
-			}
-
-			if (closeHandle)
-			{
-				// The original retrieves the handle again before closing it.
-				const auto handleValue = Runtime_GetOsHandle(descriptor);
-				const HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleValue));
-
-				if (!::CloseHandle(handle))
-				{
-					closeError = ::GetLastError();
-				}
-			}
+		if (gRuntimeHeap == nullptr) {
+			return 0;
 		}
 
-		// Perform descriptor cleanup even when CloseHandle failed.
-		Runtime_ClearOsHandle(descriptor);
+		gRuntimeHeapMode = static_cast<std::uint32_t>(Runtime_SelectHeapMode());
 
-		auto* block = reinterpret_cast<std::uint8_t*>(DAT_0056b600[descriptor >> 5]);
-		const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+		int initialized = 1;
 
-		// Clear the entire flags byte, not only the open bit.
-		block[entryOffset + 4u] = 0;
+		if (gRuntimeHeapMode == 3) {
+			initialized = Runtime_InitializeSmallBlockHeap(0x3F8);
+		}
+		else if (gRuntimeHeapMode == 2) {
+			initialized = Runtime_CreateSmallBlockRegionMode2() != nullptr ? 1 : 0;
+		}
 
-		if (closeError != 0)
+		if (initialized == 0) {
+			// The original leaves the stored handle unchanged after destruction.
+			HeapDestroy(gRuntimeHeap);
+			return 0;
+		}
+
+		return 1;
+	}
+
+	// Original function: FUN_004ec998
+	inline int Runtime_MapString(LCID locale, DWORD mapFlags, const char* source, int sourceLength, char* destination, int destinationCapacity, UINT codePage, int rejectInvalidCharacters)
+	{
+		std::uint32_t backend = static_cast<std::uint32_t>(gRuntimeMapStringBackend);
+
+		if (backend == 0)
 		{
-			Runtime_MapOsError(closeError);
-			return -1;
+			if (::LCMapStringW(0, 0x100u, L"", 1, nullptr, 0) != 0)
+			{
+				backend = 1;
+			}
+			else
+			{
+				if (::LCMapStringA(0, 0x100u, "", 1, nullptr, 0) == 0)
+					return 0;
+
+				backend = 2;
+			}
+
+			gRuntimeMapStringBackend = backend;
+		}
+
+		if (sourceLength > 0)
+			sourceLength = Runtime_BoundedStringLength(source, sourceLength);
+
+		if (backend == 2)
+			return ::LCMapStringA(locale, mapFlags, source, sourceLength, destination, destinationCapacity);
+
+		if (backend != 1)
+			return 0;
+
+		if (codePage == 0)
+			codePage = static_cast<UINT>(gRuntimeCodePage);
+
+		const DWORD queryFlags = rejectInvalidCharacters != 0 ? 0x09u : 0x01u;
+		const int wideSourceLength = ::MultiByteToWideChar(codePage, queryFlags, source, sourceLength, nullptr, 0);
+
+		if (wideSourceLength == 0)
+			return 0;
+
+		WCHAR* wideSource = nullptr;
+
+		__try
+		{
+			const std::uint32_t byteCount = static_cast<std::uint32_t>(wideSourceLength) * 2u;
+			const std::uint32_t allocationSize = (byteCount + 3u) & 0xFFFFFFFCu;
+
+			wideSource = static_cast<WCHAR*>(_alloca(allocationSize));
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			wideSource = nullptr;
+		}
+
+		if (wideSource == nullptr)
+			return 0;
+
+		// The actual conversion always uses 0x01.
+		if (::MultiByteToWideChar(codePage, 0x01u, source, sourceLength, wideSource, wideSourceLength) == 0)
+			return 0;
+
+		// Preserve the queried source length rather than using the conversion result.
+		const int mappedLength = ::LCMapStringW(locale, mapFlags, wideSource, wideSourceLength, nullptr, 0);
+
+		if (mappedLength == 0)
+			return 0;
+
+		if ((mapFlags & 0x400u) != 0)
+		{
+			// Sort keys are byte sequences written directly to the caller's buffer.
+			if (destinationCapacity == 0)
+				return mappedLength;
+
+			if (mappedLength > destinationCapacity)
+				return 0;
+
+			if (::LCMapStringW(locale, mapFlags, wideSource, wideSourceLength, reinterpret_cast<LPWSTR>(destination), destinationCapacity) == 0)
+				return 0;
+
+			return mappedLength;
+		}
+
+		WCHAR* wideDestination = nullptr;
+
+		__try
+		{
+			const std::uint32_t byteCount = static_cast<std::uint32_t>(mappedLength) * 2u;
+			const std::uint32_t allocationSize = (byteCount + 3u) & 0xFFFFFFFCu;
+
+			wideDestination = static_cast<WCHAR*>(_alloca(allocationSize));
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			wideDestination = nullptr;
+		}
+
+		if (wideDestination == nullptr)
+			return 0;
+
+		if (::LCMapStringW(locale, mapFlags, wideSource, wideSourceLength, wideDestination, mappedLength) == 0)
+			return 0;
+
+		// The original uses the queried mapping length for conversion back to bytes.
+		if (destinationCapacity == 0)
+			return ::WideCharToMultiByte(codePage, 0x220u, wideDestination, mappedLength, nullptr, 0, nullptr, nullptr);
+
+		return ::WideCharToMultiByte(codePage, 0x220u, wideDestination, mappedLength, destination, destinationCapacity, nullptr, nullptr);
+	}
+
+	// Original function: FUN_004ed45a
+	inline int Runtime_InitializeSmallBlockHeap(std::uint32_t maximumRequest)
+	{
+		void* table = HeapAlloc(gRuntimeHeap, 0, 0x140);
+		gRuntimeSmallBlockRegionTable = table;
+
+		if (table == nullptr) {
+			return 0;
+		}
+
+		gRuntimeSmallBlockPendingRegion = 0;
+		gRuntimeSmallBlockRegionCount = 0;
+		gRuntimeSmallBlockSearchRegion = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(table));
+		gRuntimeSmallBlockThreshold = maximumRequest;
+		gRuntimeSmallBlockRegionCapacity = 0x10;
+
+		return 1;
+	}
+
+	// Original function: FUN_004ed4a2
+	inline std::uint32_t Runtime_FindSmallBlockRegion(std::uint32_t memoryAddress)
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
+
+		const std::uint32_t count = read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionCount));
+		const std::uint32_t table = read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionTable));
+		const std::uint32_t end = table + count * 0x14u;
+
+		for (std::uint32_t region = table; region < end; region += 0x14u) {
+			const std::uint32_t offset = memoryAddress - read32(region + 0x0C);
+
+			if (offset < 0x100000u) {
+				return region;
+			}
 		}
 
 		return 0;
 	}
 
-	// Original function: FUN_004e6081
-	inline std::int32_t Runtime_Close(std::uint32_t descriptor)
+	// Original function: FUN_004ed4cd
+	inline void Runtime_FreeSmallBlock(std::uint32_t regionAddress, void* memory)
 	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
-		{
-			const auto* block = reinterpret_cast<const std::uint8_t*>(DAT_0056b600[descriptor >> 5]);
-			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
 
-			if ((block[entryOffset + 4u] & 0x01u) != 0)
-			{
-				Runtime_LockDescriptor(descriptor);
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
 
-				const std::int32_t result = Runtime_CloseNoLock(descriptor);
+		const auto read8 = [](std::uintptr_t address) -> std::uint8_t {
+			return *reinterpret_cast<const std::uint8_t*>(address);
+			};
 
-				Runtime_UnlockDescriptor(descriptor);
-				return result;
+		const auto write8 = [](std::uintptr_t address, std::uint8_t value) {
+			*reinterpret_cast<std::uint8_t*>(address) = value;
+			};
+
+		const auto asSigned = [](std::uint32_t value) -> std::int32_t {
+			std::int32_t result;
+			std::memcpy(&result, &value, sizeof(result));
+			return result;
+			};
+
+		const auto sizeClass = [&](std::uint32_t size) -> std::uint32_t {
+			const std::uint32_t index = static_cast<std::uint32_t>(asSigned(size) >> 4) - 1u;
+			return index > 0x3Fu ? 0x3Fu : index;
+			};
+
+		std::uintptr_t region = regionAddress;
+		const std::uint32_t memoryAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory));
+		const std::uintptr_t metadata = read32(region + 0x10);
+		const std::uint32_t groupIndex = (memoryAddress - read32(region + 0x0C)) >> 15;
+		const std::uintptr_t group = metadata + 0x144 + groupIndex * 0x204u;
+
+		std::uintptr_t block = static_cast<std::uint32_t>(memoryAddress - 4u);
+		std::uint32_t blockSize = read32(block) - 1u;
+
+		if ((blockSize & 1u) != 0) {
+			return;
+		}
+
+		const std::uintptr_t nextBlock = block + blockSize;
+		const std::uint32_t nextSize = read32(nextBlock);
+		const std::uint32_t previousSize = read32(block - 4);
+
+		const auto removeFreeBlock = [&](std::uintptr_t freeBlock, std::uint32_t index) {
+			if (read32(freeBlock + 0x04) == read32(freeBlock + 0x08)) {
+				const std::uint32_t mask = ~(0x80000000u >> (index & 31u));
+				const std::uintptr_t groupMap = metadata + (index < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
+				const std::uintptr_t regionMap = region + (index < 32u ? 0u : 4u);
+				const std::uintptr_t counter = metadata + 0x04 + index;
+
+				write32(groupMap, read32(groupMap) & mask);
+				write8(counter, static_cast<std::uint8_t>(read8(counter) - 1u));
+
+				if (read8(counter) == 0) {
+					write32(regionMap, read32(regionMap) & mask);
+				}
+			}
+
+			write32(read32(freeBlock + 0x08) + 0x04, read32(freeBlock + 0x04));
+			write32(read32(freeBlock + 0x04) + 0x08, read32(freeBlock + 0x08));
+			};
+
+		// Merge with the following block if its allocation bit is clear.
+		if ((nextSize & 1u) == 0) {
+			removeFreeBlock(nextBlock, sizeClass(nextSize));
+			blockSize += nextSize;
+		}
+
+		std::uint32_t mergedClass = sizeClass(blockSize);
+		bool insertBlock = true;
+
+		// A preceding free block can stay in its list if its size class is unchanged.
+		if ((previousSize & 1u) == 0) {
+			block -= previousSize;
+
+			const std::uint32_t previousClass = sizeClass(previousSize);
+			blockSize += previousSize;
+			mergedClass = sizeClass(blockSize);
+
+			if (previousClass == mergedClass) {
+				insertBlock = false;
+			}
+			else {
+				removeFreeBlock(block, previousClass);
 			}
 		}
 
-		// Invalid or closed descriptor.
-		*Runtime_GetErrnoPointer() = 9;
-		*Runtime_GetDosErrnoPointer() = 0;
-		return -1;
+		if (insertBlock) {
+			const std::uintptr_t sentinel = group + mergedClass * 8u;
+
+			write32(block + 0x04, read32(sentinel + 0x04));
+			write32(block + 0x08, static_cast<std::uint32_t>(sentinel));
+			write32(sentinel + 0x04, static_cast<std::uint32_t>(block));
+			write32(read32(block + 0x04) + 0x08, static_cast<std::uint32_t>(block));
+
+			if (read32(block + 0x04) == read32(block + 0x08)) {
+				const std::uintptr_t counter = metadata + 0x04 + mergedClass;
+				const std::uint8_t previousCount = read8(counter);
+				const std::uint32_t mask = 0x80000000u >> (mergedClass & 31u);
+				const std::uintptr_t regionMap = region + (mergedClass < 32u ? 0u : 4u);
+				const std::uintptr_t groupMap = metadata + (mergedClass < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
+
+				write8(counter, static_cast<std::uint8_t>(previousCount + 1u));
+
+				if (previousCount == 0) {
+					write32(regionMap, read32(regionMap) | mask);
+				}
+
+				write32(groupMap, read32(groupMap) | mask);
+			}
+		}
+
+		write32(block, blockSize);
+		write32(block + blockSize - 4, blockSize);
+
+		write32(group, read32(group) - 1u);
+
+		if (read32(group) != 0) {
+			return;
+		}
+
+		const std::uintptr_t pendingRegionAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockPendingRegion);
+		const std::uintptr_t pendingGroupAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockPendingGroupIndex);
+		const std::uintptr_t regionCountAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionCount);
+		const std::uintptr_t tableAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionTable);
+		const std::uintptr_t searchCursorAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockSearchRegion);
+
+		if (read32(pendingRegionAddress) != 0) {
+			std::uintptr_t pendingRegion = read32(pendingRegionAddress);
+			std::uint32_t pendingGroup = read32(pendingGroupAddress);
+			const std::uint32_t groupMemory = read32(pendingRegion + 0x0C) + (pendingGroup << 15);
+
+			// The original updates its bookkeeping even if VirtualFree fails.
+			VirtualFree(reinterpret_cast<void*>(static_cast<std::uintptr_t>(groupMemory)), 0x8000, MEM_DECOMMIT);
+
+			pendingRegion = read32(pendingRegionAddress);
+			pendingGroup = read32(pendingGroupAddress);
+
+			write32(pendingRegion + 0x08, read32(pendingRegion + 0x08) | (0x80000000u >> (pendingGroup & 31u)));
+
+			pendingRegion = read32(pendingRegionAddress);
+			pendingGroup = read32(pendingGroupAddress);
+			std::uintptr_t pendingMetadata = read32(pendingRegion + 0x10);
+
+			write32(pendingMetadata + 0xC4 + pendingGroup * 4u, 0);
+
+			pendingRegion = read32(pendingRegionAddress);
+			pendingMetadata = read32(pendingRegion + 0x10);
+			write8(pendingMetadata + 0x43, static_cast<std::uint8_t>(read8(pendingMetadata + 0x43) - 1u));
+
+			pendingRegion = read32(pendingRegionAddress);
+			pendingMetadata = read32(pendingRegion + 0x10);
+
+			if (read8(pendingMetadata + 0x43) == 0) {
+				write32(pendingRegion + 0x04, read32(pendingRegion + 0x04) & 0xFFFFFFFEu);
+				pendingRegion = read32(pendingRegionAddress);
+			}
+
+			if (read32(pendingRegion + 0x08) == 0xFFFFFFFFu) {
+				VirtualFree(reinterpret_cast<void*>(static_cast<std::uintptr_t>(read32(pendingRegion + 0x0C))), 0, MEM_RELEASE);
+
+				pendingRegion = read32(pendingRegionAddress);
+				HeapFree(gRuntimeHeap, 0, reinterpret_cast<void*>(static_cast<std::uintptr_t>(read32(pendingRegion + 0x10))));
+
+				const std::uint32_t table = read32(tableAddress);
+				const std::uint32_t count = read32(regionCountAddress);
+				const std::uintptr_t removedRegion = read32(pendingRegionAddress);
+				const std::uint32_t bytesToMove = table + count * 0x14u - static_cast<std::uint32_t>(removedRegion) - 0x14u;
+
+				std::memmove(reinterpret_cast<void*>(removedRegion), reinterpret_cast<const void*>(removedRegion + 0x14), bytesToMove);
+
+				write32(regionCountAddress, read32(regionCountAddress) - 1u);
+
+				if (region > read32(pendingRegionAddress)) {
+					region -= 0x14;
+				}
+
+				write32(searchCursorAddress, read32(tableAddress));
+			}
+		}
+
+		// Keep the newly emptied group until another group becomes empty.
+		write32(pendingGroupAddress, groupIndex);
+		write32(pendingRegionAddress, static_cast<std::uint32_t>(region));
 	}
 
-	// Original function: FUN_004e650a
-	inline std::int32_t Runtime_WriteNoLock(std::uint32_t descriptor, const void* data, std::uint32_t byteCount)
+	// Original function: FUN_004ed7f6
+	inline void* Runtime_AllocateSmallBlock(std::uint32_t requestedBytes)
 	{
-		if (byteCount == 0)
-		{
-			return 0;
-		}
-
-		const std::uint32_t blockIndex = descriptor >> 5;
-		const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
-
-		// DAT_0056b600 remains the original, unresolved descriptor-block table.
-		const auto getEntry = [blockIndex, entryOffset]() -> const std::uint8_t*
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t
 			{
-				return reinterpret_cast<const std::uint8_t*>(DAT_0056b600[blockIndex]) + entryOffset;
+				std::uint32_t value;
+				std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+				return value;
 			};
 
-		const auto getHandle = [&getEntry]() -> HANDLE
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value)
 			{
-				HANDLE handle;
-				std::memcpy(&handle, getEntry(), sizeof(handle));
-				return handle;
+				std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
 			};
 
-		if ((getEntry()[4] & 0x20u) != 0)
+		const auto read8 = [](std::uintptr_t address) -> std::uint8_t
+			{
+				std::uint8_t value;
+				std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+				return value;
+			};
+
+		const auto write8 = [](std::uintptr_t address, std::uint8_t value)
+			{
+				std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const auto asSigned = [](std::uint32_t bits) -> std::int32_t
+			{
+				std::int32_t value;
+				std::memcpy(&value, &bits, sizeof(value));
+				return value;
+			};
+
+		const std::uintptr_t regionTable = read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionTable));
+		const std::uint32_t regionCount = read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionCount));
+		const std::uintptr_t regionEnd = regionTable + regionCount * 0x14u;
+		const std::uintptr_t searchStart = read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockSearchRegion));
+
+		// Include the two size tags and round the block size to sixteen bytes.
+		const std::uint32_t blockSize = (requestedBytes + 0x17u) & 0xFFFFFFF0u;
+		const std::int32_t requestedClass = (asSigned(blockSize) >> 4) - 1;
+
+		std::uint32_t lowMask;
+		std::uint32_t highMask;
+
+		if (requestedClass < 32)
 		{
-			// The original ignores the result of seeking to the end.
-			Runtime_SeekNoLock(descriptor, 0, 2);
+			lowMask = 0xFFFFFFFFu >> (static_cast<std::uint32_t>(requestedClass) & 31u);
+			highMask = 0xFFFFFFFFu;
+		}
+		else
+		{
+			lowMask = 0;
+			highMask = 0xFFFFFFFFu >> ((static_cast<std::uint32_t>(requestedClass) - 32u) & 31u);
 		}
 
-		const auto* input = static_cast<const std::uint8_t*>(data);
-		std::uint32_t writtenTotal = 0;
-		std::uint32_t insertedCarriageReturns = 0;
-		DWORD writeError = 0;
-
-		if ((getEntry()[4] & 0x80u) != 0)
-		{
-			std::uint8_t buffer[0x401];
-			std::uint32_t consumed = 0;
-
-			while (consumed < byteCount)
+		const auto hasSuitableBlock = [&](std::uintptr_t region) -> bool
 			{
-				std::uint32_t buffered = 0;
+				return ((read32(region) & lowMask) | (read32(region + 0x04) & highMask)) != 0;
+			};
 
-				while (consumed < byteCount)
+		std::uintptr_t region = searchStart;
+
+		while (region < regionEnd && !hasSuitableBlock(region))
+			region += 0x14;
+
+		if (region == regionEnd)
+		{
+			region = regionTable;
+
+			while (region < searchStart && !hasSuitableBlock(region))
+				region += 0x14;
+
+			if (region == searchStart)
+			{
+				// Search for a region that can supply another group.
+				while (region < regionEnd && read32(region + 0x08) == 0)
+					region += 0x14;
+
+				if (region == regionEnd)
 				{
-					const std::uint8_t value = input[consumed];
-					++consumed;
+					region = regionTable;
 
-					if (value == 0x0A)
+					while (region < searchStart && read32(region + 0x08) == 0)
+						region += 0x14;
+
+					if (region == searchStart)
 					{
-						++insertedCarriageReturns;
-						buffer[buffered++] = 0x0D;
+						region = reinterpret_cast<std::uintptr_t>(Runtime_CreateSmallBlockRegion());
+
+						if (region == 0)
+							return nullptr;
+					}
+				}
+
+				const std::int32_t group = Runtime_CommitSmallBlockGroup(static_cast<std::uint32_t>(region));
+
+				// Reload the metadata pointer after creating the group.
+				write32(read32(region + 0x10), static_cast<std::uint32_t>(group));
+
+				if (read32(read32(region + 0x10)) == 0xFFFFFFFFu)
+					return nullptr;
+			}
+		}
+
+		write32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockSearchRegion), static_cast<std::uint32_t>(region));
+
+		const std::uintptr_t metadata = read32(region + 0x10);
+		std::uint32_t groupIndex = read32(metadata);
+
+		const auto groupHasSuitableBlock = [&](std::uint32_t index) -> bool
+			{
+				return ((read32(metadata + 0x44u + index * 4u) & lowMask) |
+					(read32(metadata + 0xC4u + index * 4u) & highMask)) != 0;
+			};
+
+		if (groupIndex == 0xFFFFFFFFu || !groupHasSuitableBlock(groupIndex))
+		{
+			groupIndex = 0;
+
+			while (!groupHasSuitableBlock(groupIndex))
+				++groupIndex;
+		}
+
+		const std::uintptr_t group = metadata + 0x144u + groupIndex * 0x204u;
+
+		std::uint32_t availableBits = read32(metadata + 0x44u + groupIndex * 4u) & lowMask;
+		std::uint32_t sizeClass = 0;
+
+		if (availableBits == 0)
+		{
+			availableBits = read32(metadata + 0xC4u + groupIndex * 4u) & highMask;
+			sizeClass = 32;
+		}
+
+		// Size classes are ordered from the most significant bit downwards.
+		while ((availableBits & 0x80000000u) == 0)
+		{
+			availableBits <<= 1;
+			++sizeClass;
+		}
+
+		std::uintptr_t block = read32(group + sizeClass * 8u + 0x04);
+		const std::uint32_t remainingSize = read32(block) - blockSize;
+
+		std::int32_t remainingClass = (asSigned(remainingSize) >> 4) - 1;
+
+		if (remainingClass > 63)
+			remainingClass = 63;
+
+		if (remainingClass != static_cast<std::int32_t>(sizeClass))
+		{
+			if (read32(block + 0x04) == read32(block + 0x08))
+			{
+				// Removing the only block empties this group's size-class list.
+				const std::uint32_t bit = 0x80000000u >> (sizeClass & 31u);
+				const std::uintptr_t groupMask = metadata + (sizeClass < 32 ? 0x44u : 0xC4u) + groupIndex * 4u;
+
+				write32(groupMask, read32(groupMask) & ~bit);
+
+				const std::uintptr_t counterAddress = metadata + 0x04u + sizeClass;
+				const std::uint8_t count = static_cast<std::uint8_t>(read8(counterAddress) - 1u);
+				write8(counterAddress, count);
+
+				if (count == 0)
+				{
+					const std::uintptr_t regionMask = region + (sizeClass < 32 ? 0u : 4u);
+					write32(regionMask, read32(regionMask) & ~bit);
+				}
+			}
+
+			// Unlink the block, preserving the original write order.
+			write32(read32(block + 0x08) + 0x04u, read32(block + 0x04));
+			write32(read32(block + 0x04) + 0x08u, read32(block + 0x08));
+
+			if (remainingSize != 0)
+			{
+				const std::uint32_t newClass = static_cast<std::uint32_t>(remainingClass);
+				const std::uintptr_t sentinel = group + newClass * 8u;
+
+				// Insert the remainder at the front of its new size-class list.
+				write32(block + 0x04, read32(sentinel + 0x04));
+				write32(block + 0x08, static_cast<std::uint32_t>(sentinel));
+				write32(sentinel + 0x04, static_cast<std::uint32_t>(block));
+				write32(read32(block + 0x04) + 0x08u, static_cast<std::uint32_t>(block));
+
+				if (read32(block + 0x04) == read32(block + 0x08))
+				{
+					const std::uintptr_t counterAddress = metadata + 0x04u + newClass;
+					const std::uint8_t previousCount = read8(counterAddress);
+					write8(counterAddress, static_cast<std::uint8_t>(previousCount + 1u));
+
+					const std::uint32_t bit = 0x80000000u >> (newClass & 31u);
+
+					if (previousCount == 0)
+					{
+						const std::uintptr_t regionMask = region + (newClass < 32 ? 0u : 4u);
+						write32(regionMask, read32(regionMask) | bit);
 					}
 
-					buffer[buffered++] = value;
+					const std::uintptr_t groupMask = metadata + (newClass < 32 ? 0x44u : 0xC4u) + groupIndex * 4u;
+					write32(groupMask, read32(groupMask) | bit);
+				}
+			}
+		}
 
-					if (buffered >= 0x400u)
-					{
+		if (remainingSize != 0)
+		{
+			write32(block, remainingSize);
+			write32(block + remainingSize - 4u, remainingSize);
+		}
+
+		// Allocate from the high end of the original free block.
+		block += remainingSize;
+
+		const std::uint32_t allocatedTag = blockSize + 1u;
+		write32(block, allocatedTag);
+		write32(block + blockSize - 4u, allocatedTag);
+
+		const std::uint32_t previousAllocationCount = read32(group);
+		write32(group, previousAllocationCount + 1u);
+
+		if (previousAllocationCount == 0 &&
+			region == read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockPendingRegion)) &&
+			groupIndex == read32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockPendingGroupIndex)))
+		{
+			write32(reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockPendingRegion), 0);
+		}
+
+		write32(metadata, groupIndex);
+		return reinterpret_cast<void*>(block + 4u);
+	}
+
+	// Original function: FUN_004edaff
+	inline void* Runtime_CreateSmallBlockRegion()
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t
+			{
+				std::uint32_t value;
+				std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+				return value;
+			};
+
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value)
+			{
+				std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const std::uintptr_t countAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionCount);
+		const std::uintptr_t capacityAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionCapacity);
+		const std::uintptr_t tableAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockRegionTable);
+
+		std::uint32_t regionCount = read32(countAddress);
+		const std::uint32_t regionCapacity = read32(capacityAddress);
+
+		if (regionCount == regionCapacity)
+		{
+			// Grow the table by sixteen entries of twenty bytes each.
+			const std::uint32_t tableBytes = (regionCapacity + 16u) * 0x14u;
+			void* previousTable = reinterpret_cast<void*>(static_cast<std::uintptr_t>(read32(tableAddress)));
+
+			void* resizedTable = ::HeapReAlloc(gRuntimeHeap, 0, previousTable, tableBytes);
+
+			if (resizedTable == nullptr)
+				return nullptr;
+
+			write32(capacityAddress, read32(capacityAddress) + 16u);
+			write32(tableAddress, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(resizedTable)));
+
+			regionCount = read32(countAddress);
+		}
+
+		const std::uintptr_t region = read32(tableAddress) + regionCount * 0x14u;
+
+		void* metadata = ::HeapAlloc(gRuntimeHeap, HEAP_ZERO_MEMORY, 0x41C4);
+		write32(region + 0x10, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(metadata)));
+
+		if (metadata == nullptr)
+			return nullptr;
+
+		void* reservedMemory = ::VirtualAlloc(nullptr, 0x100000, MEM_RESERVE, PAGE_READWRITE);
+		write32(region + 0x0C, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(reservedMemory)));
+
+		if (reservedMemory == nullptr)
+		{
+			// The original frees the metadata without clearing its stored pointer.
+			::HeapFree(gRuntimeHeap, 0, reinterpret_cast<void*>(static_cast<std::uintptr_t>(read32(region + 0x10))));
+			return nullptr;
+		}
+
+		write32(region + 0x08, 0xFFFFFFFFu);
+		write32(region, 0);
+		write32(region + 0x04, 0);
+
+		write32(countAddress, read32(countAddress) + 1u);
+		write32(read32(region + 0x10), 0xFFFFFFFFu);
+
+		return reinterpret_cast<void*>(region);
+	}
+
+	// Original function: FUN_004edbb0
+	inline std::int32_t Runtime_CommitSmallBlockGroup(std::uint32_t regionAddress)
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t
+			{
+				std::uint32_t value;
+				std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+				return value;
+			};
+
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value)
+			{
+				std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const std::uintptr_t region = regionAddress;
+		const std::uintptr_t metadata = read32(region + 0x10);
+
+		std::uint32_t availableGroups = read32(region + 0x08);
+		std::uint32_t groupIndex = 0;
+
+		// The caller supplies a region with at least one available group.
+		while ((availableGroups & 0x80000000u) == 0)
+		{
+			availableGroups <<= 1;
+			++groupIndex;
+		}
+
+		const std::uintptr_t group = metadata + 0x144u + groupIndex * 0x204u;
+
+		// Initialize the first 63 size-class sentinels before committing memory.
+		for (std::uint32_t sizeClass = 0; sizeClass < 63u; ++sizeClass)
+		{
+			const std::uintptr_t sentinel = group + sizeClass * 8u;
+
+			write32(sentinel + 0x08, static_cast<std::uint32_t>(sentinel));
+			write32(sentinel + 0x04, static_cast<std::uint32_t>(sentinel));
+		}
+
+		const std::uintptr_t groupMemory = read32(region + 0x0C) + (groupIndex << 15);
+
+		if (::VirtualAlloc(reinterpret_cast<void*>(groupMemory), 0x8000, MEM_COMMIT, PAGE_READWRITE) == nullptr)
+			return -1;
+
+		// Each page contributes one free block with two boundary tags.
+		for (std::uint32_t pageIndex = 0; pageIndex < 8u; ++pageIndex)
+		{
+			const std::uintptr_t page = groupMemory + pageIndex * 0x1000u;
+			const std::uintptr_t block = page + 0x0C;
+
+			write32(page + 0x08, 0xFFFFFFFFu);
+			write32(page + 0xFFC, 0xFFFFFFFFu);
+
+			write32(block, 0xFF0u);
+			write32(block + 0x04, static_cast<std::uint32_t>(block + 0x1000u));
+			write32(block + 0x08, static_cast<std::uint32_t>(block - 0x1000u));
+			write32(page + 0xFF8, 0xFF0u);
+		}
+
+		// Connect the eight blocks to the final size-class sentinel.
+		const std::uintptr_t sentinel = group + 0x1F8u;
+		const std::uintptr_t firstBlock = groupMemory + 0x0C;
+		const std::uintptr_t lastBlock = groupMemory + 0x700Cu;
+
+		write32(sentinel + 0x04, static_cast<std::uint32_t>(firstBlock));
+		write32(firstBlock + 0x08, static_cast<std::uint32_t>(sentinel));
+		write32(sentinel + 0x08, static_cast<std::uint32_t>(lastBlock));
+		write32(lastBlock + 0x04, static_cast<std::uint32_t>(sentinel));
+
+		write32(metadata + 0x44u + groupIndex * 4u, 0);
+		write32(metadata + 0xC4u + groupIndex * 4u, 1);
+
+		const std::uintptr_t counterAddress = metadata + 0x43u;
+
+		std::uint8_t previousCount;
+		std::memcpy(&previousCount, reinterpret_cast<const void*>(counterAddress), sizeof(previousCount));
+
+		const std::uint8_t updatedCount = static_cast<std::uint8_t>(previousCount + 1u);
+		std::memcpy(reinterpret_cast<void*>(counterAddress), &updatedCount, sizeof(updatedCount));
+
+		if (previousCount == 0)
+			write32(region + 0x04, read32(region + 0x04) | 1u);
+
+		const std::uint32_t groupBit = 0x80000000u >> (groupIndex & 31u);
+		write32(region + 0x08, read32(region + 0x08) & ~groupBit);
+
+		return static_cast<std::int32_t>(groupIndex);
+	}
+
+	// Original function: FUN_004edfa1
+	inline void* Runtime_CreateSmallBlockRegionMode2()
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
+
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const std::uintptr_t firstRegion = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockInitialRegionMode2);
+		std::uintptr_t region = firstRegion;
+
+		if (read32(firstRegion + 0x10) != 0xFFFFFFFFu) {
+			void* metadata = HeapAlloc(gRuntimeHeap, 0, 0x2020);
+
+			if (metadata == nullptr) {
+				return nullptr;
+			}
+
+			region = reinterpret_cast<std::uintptr_t>(metadata);
+		}
+
+		void* reserved = VirtualAlloc(nullptr, 0x400000, MEM_RESERVE, PAGE_READWRITE);
+
+		if (reserved == nullptr) {
+			if (region != firstRegion) {
+				HeapFree(gRuntimeHeap, 0, reinterpret_cast<void*>(region));
+			}
+
+			return nullptr;
+		}
+
+		void* committed = VirtualAlloc(reserved, 0x10000, MEM_COMMIT, PAGE_READWRITE);
+
+		if (committed == nullptr) {
+			VirtualFree(reserved, 0, MEM_RELEASE);
+
+			if (region != firstRegion) {
+				HeapFree(gRuntimeHeap, 0, reinterpret_cast<void*>(region));
+			}
+
+			return nullptr;
+		}
+
+		if (region == firstRegion) {
+			if (read32(firstRegion) == 0) {
+				write32(firstRegion, static_cast<std::uint32_t>(firstRegion));
+			}
+
+			if (read32(firstRegion + 0x04) == 0) {
+				write32(firstRegion + 0x04, static_cast<std::uint32_t>(firstRegion));
+			}
+		}
+		else {
+			// Append the new region immediately before the static first region.
+			write32(region, static_cast<std::uint32_t>(firstRegion));
+			write32(region + 0x04, read32(firstRegion + 0x04));
+			write32(firstRegion + 0x04, static_cast<std::uint32_t>(region));
+			write32(read32(region + 0x04), static_cast<std::uint32_t>(region));
+		}
+
+		const std::uintptr_t base = reinterpret_cast<std::uintptr_t>(reserved);
+
+		write32(region + 0x14, static_cast<std::uint32_t>(base + 0x400000));
+		write32(region + 0x0C, static_cast<std::uint32_t>(region + 0x98));
+		write32(region + 0x10, static_cast<std::uint32_t>(base));
+		write32(region + 0x08, static_cast<std::uint32_t>(region + 0x18));
+
+		for (std::uint32_t index = 0; index < 0x400; ++index) {
+			const std::uintptr_t entry = region + 0x18 + index * 8u;
+
+			write32(entry, index < 0x10 ? 0xF0u : 0xFFFFFFFFu);
+			write32(entry + 0x04, 0xF1);
+		}
+
+		std::memset(reserved, 0, 0x10000);
+
+		for (std::uint32_t index = 0; index < 0x10; ++index) {
+			const std::uintptr_t page = base + (index << 12);
+
+			*reinterpret_cast<std::uint8_t*>(page + 0xF8) = 0xFF;
+			write32(page, static_cast<std::uint32_t>(page + 0x08));
+			write32(page + 0x04, 0xF0);
+		}
+
+		return reinterpret_cast<void*>(region);
+	}
+
+	// Original function: FUN_004ee0e5
+	inline void Runtime_ReleaseSmallBlockRegionMode2(std::uint32_t regionAddress)
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
+
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const std::uintptr_t region = regionAddress;
+		const std::uintptr_t firstRegion = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockInitialRegionMode2);
+		const std::uintptr_t cursorAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockSearchRegionMode2);
+
+		VirtualFree(reinterpret_cast<void*>(static_cast<std::uintptr_t>(read32(region + 0x10))), 0, MEM_RELEASE);
+
+		if (read32(cursorAddress) == regionAddress) {
+			write32(cursorAddress, read32(region + 0x04));
+		}
+
+		if (region == firstRegion) {
+			// The static region remains linked and only loses its reservation.
+			write32(firstRegion + 0x10, 0xFFFFFFFFu);
+			return;
+		}
+
+		write32(read32(region + 0x04), read32(region));
+		write32(read32(region) + 0x04, read32(region + 0x04));
+
+		HeapFree(gRuntimeHeap, 0, reinterpret_cast<void*>(region));
+	}
+
+	// Original function: FUN_004ee13b
+	inline void Runtime_DecommitSmallBlockPagesMode2(std::uint32_t pagesToRelease)
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
+
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const auto asSigned = [](std::uint32_t value) -> std::int32_t {
+			std::int32_t result;
+			std::memcpy(&result, &value, sizeof(result));
+			return result;
+			};
+
+		const std::uintptr_t firstRegion = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockInitialRegionMode2);
+		const std::uintptr_t emptyPageCountAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockEmptyPageCountMode2);
+
+		std::uintptr_t region = read32(firstRegion + 0x04);
+
+		for (;;) {
+			if (read32(region + 0x10) != 0xFFFFFFFFu) {
+				std::uint32_t releasedPages = 0;
+
+				// Visit pages from the end of the region toward its beginning.
+				for (std::int32_t index = 0x3FF; index >= 0; --index) {
+					const std::uintptr_t entry = region + 0x18 + static_cast<std::uint32_t>(index) * 8u;
+
+					if (read32(entry) != 0xF0u) {
+						continue;
+					}
+
+					const std::uint32_t pageAddress = read32(region + 0x10) + (static_cast<std::uint32_t>(index) << 12);
+
+					if (VirtualFree(reinterpret_cast<void*>(static_cast<std::uintptr_t>(pageAddress)), 0x1000, MEM_DECOMMIT) == FALSE) {
+						continue;
+					}
+
+					write32(entry, 0xFFFFFFFFu);
+					write32(emptyPageCountAddress, read32(emptyPageCountAddress) - 1u);
+
+					const std::uintptr_t firstUncommittedEntry = read32(region + 0x0C);
+
+					if (firstUncommittedEntry == 0 || firstUncommittedEntry > entry) {
+						write32(region + 0x0C, static_cast<std::uint32_t>(entry));
+					}
+
+					++releasedPages;
+					--pagesToRelease;
+
+					if (pagesToRelease == 0) {
 						break;
 					}
 				}
 
-				DWORD written;
+				const std::uintptr_t processedRegion = region;
+				region = read32(processedRegion + 0x04);
 
-				if (!::WriteFile(getHandle(), buffer, buffered, &written, nullptr))
-				{
-					writeError = ::GetLastError();
-					break;
-				}
+				if (releasedPages != 0) {
+					std::uint32_t index = 0;
 
-				writtenTotal += written;
+					while (index < 0x400u && read32(processedRegion + 0x18 + index * 8u) == 0xFFFFFFFFu) {
+						++index;
+					}
 
-				// Preserve the signed comparison performed by the original.
-				std::int32_t signedWritten;
-				std::memcpy(&signedWritten, &written, sizeof(signedWritten));
-
-				if (signedWritten < static_cast<std::int32_t>(buffered))
-				{
-					break;
+					if (index == 0x400u) {
+						Runtime_ReleaseSmallBlockRegionMode2(static_cast<std::uint32_t>(processedRegion));
+					}
 				}
 			}
-		}
-		else
-		{
-			DWORD written;
 
-			if (::WriteFile(getHandle(), data, byteCount, &written, nullptr))
-			{
-				writtenTotal = written;
-			}
-			else
-			{
-				writeError = ::GetLastError();
+			// Reload the tail because releasing a region can change it.
+			if (region == read32(firstRegion + 0x04) || asSigned(pagesToRelease) <= 0) {
+				return;
 			}
 		}
+	}
 
-		if (writtenTotal != 0)
-		{
-			// Count all inserted CR bytes, including those in a partially written
-			// or failed final text chunk, as the original does.
-			const std::uint32_t resultBits = writtenTotal - insertedCarriageReturns;
+	// Original function: FUN_004ee1fd
+	inline std::uint32_t Runtime_FindSmallBlockEntryMode2(void* memory, std::uint32_t* regionOutput, std::uint32_t* pageOutput)
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
+
+		const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory));
+		const std::uintptr_t firstRegion = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockInitialRegionMode2);
+		std::uintptr_t region = firstRegion;
+
+		do {
+			if (address > read32(region + 0x10) && address < read32(region + 0x14)) {
+				if ((address & 0x0Fu) != 0) {
+					return 0;
+				}
+
+				const std::uint32_t pageOffset = address & 0xFFFu;
+
+				if (pageOffset < 0x100u) {
+					return 0;
+				}
+
+				const std::uint32_t page = address & 0xFFFFF000u;
+
+				*regionOutput = static_cast<std::uint32_t>(region);
+				*pageOutput = page;
+
+				return page + 0x08u + ((pageOffset - 0x100u) >> 4);
+			}
+
+			region = read32(region);
+		} while (region != firstRegion);
+
+		return 0;
+	}
+
+	// Original function: FUN_004ee254
+	inline void Runtime_FreeSmallBlockMode2(std::uint32_t regionAddress, std::uint32_t pageAddress, std::uint32_t entryAddress)
+	{
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
+			};
+
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const auto asSigned = [](std::uint32_t value) -> std::int32_t {
 			std::int32_t result;
-			std::memcpy(&result, &resultBits, sizeof(result));
+			std::memcpy(&result, &value, sizeof(result));
 			return result;
-		}
+			};
 
-		if (writeError != 0)
-		{
-			if (writeError == 5)
-			{
-				*Runtime_GetErrnoPointer() = 9;
-				*Runtime_GetDosErrnoPointer() = 5;
+		const std::uintptr_t region = regionAddress;
+		const std::uint32_t pageOffset = pageAddress - read32(region + 0x10);
+		const std::uint32_t pageIndex = static_cast<std::uint32_t>(asSigned(pageOffset) >> 12);
+		const std::uintptr_t pageEntry = region + 0x18 + pageIndex * 8u;
+
+		auto* allocationEntry = reinterpret_cast<std::uint8_t*>(static_cast<std::uintptr_t>(entryAddress));
+		const std::uint32_t releasedUnits = *allocationEntry;
+
+		write32(pageEntry, read32(pageEntry) + releasedUnits);
+		*allocationEntry = 0;
+
+		const bool pageIsEmpty = read32(pageEntry) == 0xF0u;
+		write32(pageEntry + 0x04, 0xF1u);
+
+		if (pageIsEmpty) {
+			const std::uintptr_t countAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockEmptyPageCountMode2);
+			write32(countAddress, read32(countAddress) + 1u);
+
+			if (read32(countAddress) == 0x20u) {
+				Runtime_DecommitSmallBlockPagesMode2(0x10u);
 			}
-			else
-			{
-				Runtime_MapOsError(writeError);
-			}
-
-			return -1;
 		}
-
-		if ((getEntry()[4] & 0x40u) != 0 && input[0] == 0x1A)
-		{
-			return 0;
-		}
-
-		*Runtime_GetErrnoPointer() = 28;
-		*Runtime_GetDosErrnoPointer() = 0;
-		return -1;
 	}
 
-	// Original function: FUN_004e64a5
-	inline std::int32_t Runtime_Write(std::uint32_t descriptor, const void* data, std::uint32_t byteCount)
+	// Original function: FUN_004ee299
+	inline void* Runtime_AllocateSmallBlockMode2(std::uint32_t unitCount)
 	{
-		if (descriptor < static_cast<std::uint32_t>(uNumber_0056b700))
-		{
-			const auto* block = reinterpret_cast<const std::uint8_t*>(DAT_0056b600[descriptor >> 5]);
-			const std::uint32_t entryOffset = (descriptor & 31u) * 36u;
-
-			if ((block[entryOffset + 4u] & 0x01u) != 0)
-			{
-				FUN_004ea8a6(descriptor);
-
-				const std::int32_t result = Runtime_WriteNoLock(descriptor, data, byteCount);
-
-				FUN_004ea905(descriptor);
-				return result;
-			}
-		}
-
-		*Runtime_GetErrnoPointer() = 9;
-		*Runtime_GetDosErrnoPointer() = 0;
-		return -1;
-	}
-
-	// Original function: FUN_004e67b5
-	inline std::int32_t Runtime_OpenShared(const char* fileName, std::uint32_t flags, std::uint32_t shareMode, std::uint32_t permissions)
-	{
-		SECURITY_ATTRIBUTES security{};
-		security.nLength = sizeof(security);
-		security.lpSecurityDescriptor = nullptr;
-		security.bInheritHandle = (flags & 0x80u) == 0;
-
-		std::uint8_t descriptorFlags = (flags & 0x80u) != 0 ? 0x10u : 0u;
-
-		if ((flags & 0x8000u) == 0)
-		{
-			if ((flags & 0x4000u) != 0 || DAT_00569b2c != 0x8000)
-			{
-				descriptorFlags |= 0x80u;
-			}
-		}
-
-		const auto failWithError = [](std::int32_t error) -> std::int32_t
-			{
-				*Runtime_GetErrnoPointer() = error;
-				*Runtime_GetDosErrnoPointer() = 0;
-				return -1;
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
 			};
 
-		DWORD desiredAccess;
-
-		switch (flags & 3u)
-		{
-		case 0:
-			desiredAccess = GENERIC_READ;
-			break;
-
-		case 1:
-			desiredAccess = GENERIC_WRITE;
-			break;
-
-		case 2:
-			desiredAccess = GENERIC_READ | GENERIC_WRITE;
-			break;
-
-		default:
-			return failWithError(22);
-		}
-
-		DWORD sharing;
-
-		switch (shareMode)
-		{
-		case 0x10:
-			sharing = 0;
-			break;
-
-		case 0x20:
-			sharing = FILE_SHARE_READ;
-			break;
-
-		case 0x30:
-			sharing = FILE_SHARE_WRITE;
-			break;
-
-		case 0x40:
-			sharing = FILE_SHARE_READ | FILE_SHARE_WRITE;
-			break;
-
-		default:
-			return failWithError(22);
-		}
-
-		DWORD creationDisposition;
-
-		switch (flags & 0x700u)
-		{
-		case 0x000:
-		case 0x400:
-			creationDisposition = OPEN_EXISTING;
-			break;
-
-		case 0x100:
-			creationDisposition = OPEN_ALWAYS;
-			break;
-
-		case 0x200:
-		case 0x600:
-			creationDisposition = TRUNCATE_EXISTING;
-			break;
-
-		case 0x300:
-			creationDisposition = CREATE_ALWAYS;
-			break;
-
-		case 0x500:
-		case 0x700:
-			creationDisposition = CREATE_NEW;
-			break;
-
-		default:
-			return failWithError(22);
-		}
-
-		DWORD attributes = FILE_ATTRIBUTE_NORMAL;
-
-		if ((flags & 0x100u) != 0)
-		{
-			const std::uint32_t effectivePermissions = permissions & ~static_cast<std::uint32_t>(DAT_00569a00);
-
-			if ((effectivePermissions & 0x80u) == 0)
-			{
-				attributes = FILE_ATTRIBUTE_READONLY;
-			}
-		}
-
-		if ((flags & 0x40u) != 0)
-		{
-			attributes |= FILE_FLAG_DELETE_ON_CLOSE;
-			desiredAccess |= DELETE;
-		}
-
-		if ((flags & 0x1000u) != 0)
-		{
-			attributes |= FILE_ATTRIBUTE_TEMPORARY;
-		}
-
-		if ((flags & 0x20u) != 0)
-		{
-			attributes |= FILE_FLAG_SEQUENTIAL_SCAN;
-		}
-		else if ((flags & 0x10u) != 0)
-		{
-			attributes |= FILE_FLAG_RANDOM_ACCESS;
-		}
-
-		const std::uint32_t descriptorBits = FUN_004ea646();
-
-		if (descriptorBits == 0xFFFFFFFFu)
-		{
-			return failWithError(24);
-		}
-
-		std::int32_t descriptor;
-		std::memcpy(&descriptor, &descriptorBits, sizeof(descriptor));
-
-		const HANDLE handle = ::CreateFileA(fileName, desiredAccess, sharing, &security, creationDisposition, attributes, nullptr);
-
-		const auto failWithLastError = [descriptor]() -> std::int32_t
-			{
-				const DWORD error = ::GetLastError();
-				Runtime_MapOsError(error);
-				FUN_004ea905(descriptor);
-				return -1;
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
 			};
 
-		if (handle == INVALID_HANDLE_VALUE)
-		{
-			return failWithLastError();
-		}
-
-		const DWORD fileType = ::GetFileType(handle);
-
-		if (fileType == FILE_TYPE_UNKNOWN)
-		{
-			// Preserve the original order: close first, then obtain the error.
-			::CloseHandle(handle);
-			return failWithLastError();
-		}
-
-		if (fileType == FILE_TYPE_CHAR)
-		{
-			descriptorFlags |= 0x40u;
-		}
-		else if (fileType == FILE_TYPE_PIPE)
-		{
-			descriptorFlags |= 0x08u;
-		}
-
-		FUN_004ea769(descriptor, handle);
-
-		const std::uint32_t blockIndex = descriptorBits >> 5;
-		const std::uint32_t entryOffset = (descriptorBits & 31u) * 36u;
-
-		const auto getEntry = [blockIndex, entryOffset]() -> std::uint8_t*
-			{
-				return reinterpret_cast<std::uint8_t*>(DAT_0056b600[blockIndex]) + entryOffset;
+		const auto write8 = [](std::uintptr_t address, std::uint8_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
 			};
 
-		descriptorFlags |= 0x01u;
-		getEntry()[4] = descriptorFlags;
-
-		const bool isDeviceOrPipe = (descriptorFlags & 0x48u) != 0;
-
-		const auto closeAndFail = [descriptor]() -> std::int32_t
-			{
-				Runtime_Close(descriptor);
-				FUN_004ea905(descriptor);
-				return -1;
+		const auto asSigned = [](std::uint32_t value) -> std::int32_t {
+			std::int32_t result;
+			std::memcpy(&result, &value, sizeof(result));
+			return result;
 			};
 
-		if (!isDeviceOrPipe && (descriptorFlags & 0x80u) != 0 && (flags & 2u) != 0)
-		{
-			const std::uint32_t endPosition = Runtime_SeekNoLock(descriptor, -1, 2);
+		const auto cursorAddress = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockSearchRegionMode2);
+		const auto firstRegion = reinterpret_cast<std::uintptr_t>(&gRuntimeSmallBlockInitialRegionMode2);
 
-			if (endPosition == 0xFFFFFFFFu)
-			{
-				if (*Runtime_GetDosErrnoPointer() != 0x83u)
-				{
-					return closeAndFail();
-				}
-			}
-			else
-			{
-				std::uint8_t finalByte = 0;
-				const std::int32_t readResult = Runtime_ReadNoLock(descriptor, &finalByte, 1);
+		std::uintptr_t region = read32(cursorAddress);
 
-				// Preserve the original zero-result test.
-				if (readResult == 0 && finalByte == 0x1A)
-				{
-					const std::uint32_t resizeResult = FUN_004eb235(descriptor, endPosition);
+		// Search committed pages, starting at the cached page of each region.
+		do {
+			const std::uint32_t base = read32(region + 0x10);
 
-					if (resizeResult == 0xFFFFFFFFu)
+			if (base != 0xFFFFFFFFu) {
+				std::uintptr_t entry = read32(region + 0x08);
+				const std::uintptr_t entriesEnd = region + 0x2018;
+
+				const std::uint32_t entryOffset = static_cast<std::uint32_t>(entry - region - 0x18);
+				const std::uint32_t pageIndex = static_cast<std::uint32_t>(asSigned(entryOffset) >> 3);
+				std::uint32_t page = base + (pageIndex << 12);
+
+				for (; entry < entriesEnd; entry += 8, page += 0x1000u) {
+					const std::uint32_t freeUnits = read32(entry);
+
+					if (asSigned(freeUnits) >= asSigned(unitCount) && read32(entry + 4) > unitCount)
 					{
-						return closeAndFail();
+						const std::uintptr_t allocation = reinterpret_cast<std::uintptr_t>(Runtime_AllocateFromSmallBlockPageMode2(reinterpret_cast<void*>(static_cast<std::uintptr_t>(page)), freeUnits, unitCount));
+
+						if (allocation != 0) {
+							write32(cursorAddress, static_cast<std::uint32_t>(region));
+							write32(entry, read32(entry) - unitCount);
+							write32(region + 0x08, static_cast<std::uint32_t>(entry));
+							return reinterpret_cast<void*>(allocation);
+						}
+
+						write32(entry + 4, unitCount);
 					}
 				}
 
-				const std::uint32_t resetPosition = Runtime_SeekNoLock(descriptor, 0, 0);
+				// Reload the cached entry and base after the helper calls.
+				const std::uintptr_t cachedEntry = read32(region + 0x08);
+				entry = region + 0x18;
+				page = read32(region + 0x10);
 
-				if (resetPosition == 0xFFFFFFFFu)
-				{
-					return closeAndFail();
+				for (; entry < cachedEntry; entry += 8, page += 0x1000u) {
+					const std::uint32_t freeUnits = read32(entry);
+
+					if (asSigned(freeUnits) >= asSigned(unitCount) && read32(entry + 4) > unitCount)
+					{
+						const std::uintptr_t allocation = reinterpret_cast<std::uintptr_t>(Runtime_AllocateFromSmallBlockPageMode2(reinterpret_cast<void*>(static_cast<std::uintptr_t>(page)), freeUnits, unitCount));
+
+						if (allocation != 0) {
+							write32(cursorAddress, static_cast<std::uint32_t>(region));
+							write32(entry, read32(entry) - unitCount);
+							write32(region + 0x08, static_cast<std::uint32_t>(entry));
+							return reinterpret_cast<void*>(allocation);
+						}
+
+						write32(entry + 4, unitCount);
+					}
 				}
+			}
+
+			region = read32(region);
+		} while (region != read32(cursorAddress));
+
+		// Find a region with pages that have not been committed yet.
+		region = firstRegion;
+
+		for (;;) {
+			if (read32(region + 0x10) != 0xFFFFFFFFu && read32(region + 0x0C) != 0) {
+				break;
+			}
+
+			region = read32(region);
+
+			if (region == firstRegion)
+			{
+				const std::uintptr_t newRegion = reinterpret_cast<std::uintptr_t>(Runtime_CreateSmallBlockRegionMode2());
+
+				if (newRegion == 0) {
+					return nullptr;
+				}
+
+				const std::uintptr_t page = read32(newRegion + 0x10);
+
+				write8(page + 0x08, static_cast<std::uint8_t>(unitCount));
+				write32(cursorAddress, static_cast<std::uint32_t>(newRegion));
+				write32(page, static_cast<std::uint32_t>(page + unitCount + 0x08));
+				write32(page + 0x04, 0xF0u - unitCount);
+
+				// This path subtracts only the low byte of the requested count.
+				write32(newRegion + 0x18, read32(newRegion + 0x18) - static_cast<std::uint8_t>(unitCount));
+
+				return reinterpret_cast<void*>(page + 0x100);
 			}
 		}
 
-		if (!isDeviceOrPipe && (flags & 0x08u) != 0)
-		{
-			getEntry()[4] |= 0x20u;
+		const std::uintptr_t firstEntry = read32(region + 0x0C);
+		const std::uint32_t entryOffset = static_cast<std::uint32_t>(firstEntry - region - 0x18);
+		const std::uint32_t pageIndex = static_cast<std::uint32_t>(asSigned(entryOffset) >> 3);
+		const std::uint32_t pageAddress = read32(region + 0x10) + (pageIndex << 12);
+		const std::uintptr_t firstPage = pageAddress;
+
+		std::uintptr_t entry = firstEntry;
+		std::uint32_t pageCount = 0;
+
+		// The original also reads the next entry after counting the sixteenth page.
+		while (read32(entry) == 0xFFFFFFFFu) {
+			if (pageCount >= 0x10u) {
+				break;
+			}
+
+			entry += 8;
+			++pageCount;
 		}
 
-		FUN_004ea905(descriptor);
-		return descriptor;
+		const std::uint32_t commitBytes = pageCount << 12;
+
+		void* committed = VirtualAlloc(reinterpret_cast<void*>(firstPage), commitBytes, MEM_COMMIT, PAGE_READWRITE);
+
+		if (reinterpret_cast<std::uintptr_t>(committed) != firstPage) {
+			return nullptr;
+		}
+
+		// The original pushes a zero byte count, so this call writes no bytes.
+		std::memset(reinterpret_cast<void*>(firstPage), static_cast<int>(commitBytes), 0);
+
+		entry = firstEntry;
+
+		for (std::uint32_t index = 0; index < pageCount; ++index) {
+			const std::uintptr_t page = firstPage + (index << 12);
+
+			write8(page + 0xF8, 0xFF);
+			write32(page, static_cast<std::uint32_t>(page + 0x08));
+			write32(page + 0x04, 0xF0);
+			write32(entry, 0xF0);
+			write32(entry + 0x04, 0xF1);
+
+			entry += 8;
+		}
+
+		write32(cursorAddress, static_cast<std::uint32_t>(region));
+
+		const std::uintptr_t entriesEnd = region + 0x2018;
+
+		while (entry < entriesEnd && read32(entry) != 0xFFFFFFFFu) {
+			entry += 8;
+		}
+
+		write32(region + 0x0C, entry < entriesEnd ? static_cast<std::uint32_t>(entry) : 0u);
+
+		// Allocate directly from the first newly committed page.
+		write8(firstPage + 0x08, static_cast<std::uint8_t>(unitCount));
+		write32(region + 0x08, static_cast<std::uint32_t>(firstEntry));
+		write32(firstEntry, read32(firstEntry) - unitCount);
+		write32(firstPage + 0x04, read32(firstPage + 0x04) - unitCount);
+		write32(firstPage, static_cast<std::uint32_t>(firstPage + unitCount + 0x08));
+
+		return reinterpret_cast<void*>(firstPage + 0x100);
 	}
 
-	// Original function: FUN_004e679e
-	inline std::int32_t Runtime_Open(const char* fileName, std::uint32_t flags, std::uint32_t permissions)
+	// Original function: FUN_004ee4a1
+	inline void* Runtime_AllocateFromSmallBlockPageMode2(void* pageMemory, std::uint32_t freeUnits, std::uint32_t unitCount)
 	{
-		return Runtime_OpenShared(fileName, flags, 0x40u, permissions);
-	}
-
-	// Original functions: FUN_004e5f2c; forwarding wrapper: FUN_004e5fb7.
-	inline std::int32_t Runtime_StringToInteger(const char* text)
-	{
-		const auto* cursor = reinterpret_cast<const std::uint8_t*>(text);
-
-		const auto hasCharacterType = [](std::uint32_t character, std::uint32_t mask) -> bool
-			{
-				if (cbMultiByte_0050c604 > 1)
-				{
-					return FUN_004ea094(static_cast<std::int32_t>(character), mask) != 0;
-				}
-
-				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
-				return (characterTypes[character * 2u] & mask) != 0;
+		const auto read32 = [](std::uintptr_t address) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, reinterpret_cast<const void*>(address), sizeof(value));
+			return value;
 			};
 
-		while (hasCharacterType(*cursor, 0x08u))
+		const auto write32 = [](std::uintptr_t address, std::uint32_t value) {
+			std::memcpy(reinterpret_cast<void*>(address), &value, sizeof(value));
+			};
+
+		const auto read8 = [](std::uintptr_t address) -> std::uint8_t {
+			return *reinterpret_cast<const std::uint8_t*>(address);
+			};
+
+		const auto write8 = [](std::uintptr_t address, std::uint8_t value) {
+			*reinterpret_cast<std::uint8_t*>(address) = value;
+			};
+
+		const std::uintptr_t page = reinterpret_cast<std::uintptr_t>(pageMemory);
+		const std::uintptr_t mapBegin = page + 0x08;
+		const std::uintptr_t mapEnd = page + 0xF8;
+		const std::uint32_t cachedFreeUnits = read32(page + 0x04);
+		const std::uintptr_t cachedPosition = read32(page);
+
+		const auto allocationAddress = [page](std::uintptr_t entry) -> void* {
+			const std::uint32_t address = (static_cast<std::uint32_t>(entry + 0x08) << 4) - static_cast<std::uint32_t>(page) * 15u;
+			return reinterpret_cast<void*>(static_cast<std::uintptr_t>(address));
+			};
+
+		const auto updateCursor = [&](std::uintptr_t entry, std::uint32_t runLength) {
+			const std::uintptr_t next = entry + unitCount;
+
+			if (next < mapEnd) {
+				write32(page, static_cast<std::uint32_t>(next));
+				write32(page + 0x04, runLength - unitCount);
+			}
+			else {
+				write32(page + 0x04, 0);
+				write32(page, static_cast<std::uint32_t>(mapBegin));
+			}
+			};
+
+		if (cachedFreeUnits >= unitCount) {
+			// The fast path writes the allocation marker before updating the cursor.
+			write8(cachedPosition, static_cast<std::uint8_t>(unitCount));
+			updateCursor(cachedPosition, cachedFreeUnits);
+			return allocationAddress(cachedPosition);
+		}
+
+		std::uintptr_t position = cachedPosition;
+		const std::uintptr_t cachedRunEnd = cachedPosition + cachedFreeUnits;
+
+		if (read8(cachedRunEnd) != 0) {
+			position = cachedRunEnd;
+		}
+
+		// Search from the cached position toward the end of the map.
+		while (position + unitCount < mapEnd) {
+			const std::uint8_t marker = read8(position);
+
+			if (marker != 0) {
+				position += marker;
+				continue;
+			}
+
+			std::uintptr_t runEnd = position + 1;
+			std::uint32_t runLength = 1;
+
+			while (read8(runEnd) == 0) {
+				++runEnd;
+				++runLength;
+			}
+
+			if (runLength >= unitCount) {
+				updateCursor(position, runLength);
+				write8(position, static_cast<std::uint8_t>(unitCount));
+				return allocationAddress(position);
+			}
+
+			if (position == cachedPosition) {
+				write32(page + 0x04, runLength);
+			}
+			else {
+				freeUnits -= runLength;
+
+				if (freeUnits < unitCount) {
+					return nullptr;
+				}
+			}
+
+			position = runEnd;
+		}
+
+		// Wrap around and search up to the original cached position.
+		position = mapBegin;
+
+		while (position < cachedPosition) {
+			if (position + unitCount >= mapEnd) {
+				return nullptr;
+			}
+
+			const std::uint8_t marker = read8(position);
+
+			if (marker != 0) {
+				position += marker;
+				continue;
+			}
+
+			std::uintptr_t runEnd = position + 1;
+			std::uint32_t runLength = 1;
+
+			while (read8(runEnd) == 0) {
+				++runEnd;
+				++runLength;
+			}
+
+			if (runLength >= unitCount) {
+				updateCursor(position, runLength);
+				write8(position, static_cast<std::uint8_t>(unitCount));
+				return allocationAddress(position);
+			}
+
+			freeUnits -= runLength;
+
+			if (freeUnits < unitCount) {
+				return nullptr;
+			}
+
+			position = runEnd;
+		}
+
+		return nullptr;
+	}
+
+	// Original function: FUN_004eee22
+	inline std::int32_t Runtime_StringToLong(const char* text, char** endPointer, std::int32_t base)
+	{
+		const std::uint32_t resultBits = Runtime_ParseInteger32(text, endPointer, base, 0u);
+		std::int32_t result;
+		std::memcpy(&result, &resultBits, sizeof(result));
+		return result;
+	}
+
+	// Original function: FUN_004eee39
+	inline std::uint32_t Runtime_ParseInteger32(const char* text, char** endPointer, std::int32_t base, std::uint32_t flags)
+	{
+		const char* cursor = text;
+		std::uint32_t value = 0;
+
+		const auto classify = [](std::uint8_t character, std::uint32_t mask) -> bool
+			{
+				if (gRuntimeMaxMultibyteLength > 1)
+				{
+					return Runtime_ClassifyCharacter(character, mask) != 0;
+				}
+
+				const auto* types = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+				std::uint16_t type;
+				std::memcpy(&type, types + static_cast<std::size_t>(character) * 2u, sizeof(type));
+				return (type & mask) != 0;
+			};
+
+		while (classify(static_cast<std::uint8_t>(*cursor), 0x08u))
 		{
 			++cursor;
 		}
 
-		std::uint32_t character = *cursor++;
-		const bool negative = character == 0x2Du;
-
-		if (negative || character == 0x2Bu)
+		if (*cursor == '-')
 		{
-			character = *cursor++;
+			flags |= 0x02u;
+			++cursor;
+		}
+		else if (*cursor == '+')
+		{
+			++cursor;
 		}
 
-		std::uint32_t value = 0;
-
-		while (hasCharacterType(character, 0x04u))
+		if (base < 0 || base == 1 || base > 36)
 		{
-			// Preserve 32-bit wraparound without signed-overflow undefined behavior.
-			value = value * 10u + character - 0x30u;
-			character = *cursor++;
+			if (endPointer != nullptr)
+			{
+				*endPointer = const_cast<char*>(text);
+			}
+
+			// The original invalid-base path does not set errno.
+			return 0;
 		}
 
-		if (negative)
+		if (base == 0)
+		{
+			if (*cursor != '0')
+			{
+				base = 10;
+			}
+			else if (cursor[1] == 'x' || cursor[1] == 'X')
+			{
+				base = 16;
+			}
+			else
+			{
+				base = 8;
+			}
+		}
+
+		if (base == 16 && cursor[0] == '0' && (cursor[1] == 'x' || cursor[1] == 'X'))
+		{
+			cursor += 2;
+		}
+
+		const auto radix = static_cast<std::uint32_t>(base);
+		const std::uint32_t cutoff = 0xFFFFFFFFu / radix;
+		const std::uint32_t remainder = 0xFFFFFFFFu % radix;
+
+		for (;;)
+		{
+			const auto character = static_cast<std::uint8_t>(*cursor);
+			const std::int32_t signedCharacter = character < 0x80u ? character : static_cast<std::int32_t>(character) - 0x100;
+			std::uint32_t digit;
+
+			if (classify(character, 0x04u))
+			{
+				digit = static_cast<std::uint32_t>(signedCharacter) - 0x30u;
+			}
+			else
+			{
+				if (!classify(character, 0x103u))
+				{
+					break;
+				}
+
+				digit = static_cast<std::uint32_t>(Runtime_ToUpper(signedCharacter)) - 0x37u;
+			}
+
+			if (digit >= radix)
+			{
+				break;
+			}
+
+			flags |= 0x08u;
+
+			if (value > cutoff || (value == cutoff && digit > remainder))
+			{
+				flags |= 0x04u;
+			}
+			else
+			{
+				value = value * radix + digit;
+			}
+
+			// Continue consuming valid digits after overflow.
+			++cursor;
+		}
+
+		if ((flags & 0x08u) == 0)
+		{
+			cursor = text;
+			value = 0;
+		}
+		else
+		{
+			const bool unsignedConversion = (flags & 0x01u) != 0;
+			const bool negative = (flags & 0x02u) != 0;
+			const std::uint32_t signedLimit = negative ? 0x80000000u : 0x7FFFFFFFu;
+
+			if ((flags & 0x04u) != 0 || (!unsignedConversion && value > signedLimit))
+			{
+				*Runtime_GetErrnoPointer() = 0x22u;
+				value = unsignedConversion ? 0xFFFFFFFFu : signedLimit;
+			}
+		}
+
+		if (endPointer != nullptr)
+		{
+			*endPointer = const_cast<char*>(cursor);
+		}
+
+		if ((flags & 0x02u) != 0)
 		{
 			value = 0u - value;
 		}
 
-		std::int32_t result;
-		std::memcpy(&result, &value, sizeof(result));
+		return value;
+	}
+
+	// Original function: FUN_004ef134
+	inline void Runtime_AllocateStreamBuffer(RuntimeFormatStream* stream)
+	{
+		// Count allocation attempts, including unsuccessful ones.
+		std::uint32_t allocationCount;
+		std::memcpy(&allocationCount, &gRuntimeStreamBufferRequestCount, sizeof(allocationCount));
+		++allocationCount;
+		std::memcpy(&gRuntimeStreamBufferRequestCount, &allocationCount, sizeof(allocationCount));
+
+		stream->buffer = static_cast<char*>(Runtime_Allocate(0x1000));
+
+		if (stream->buffer != nullptr)
+		{
+			stream->flags |= 0x08u;
+			stream->bufferSize = 0x1000u;
+		}
+		else
+		{
+			stream->flags |= 0x04u;
+			stream->buffer = reinterpret_cast<char*>(stream->unknown14);
+			stream->bufferSize = 2;
+		}
+
+		stream->remainingBytes = 0;
+		stream->position = stream->buffer;
+	}
+
+	// Original function: FUN_004ef178
+	inline std::uint32_t Runtime_IsCharacterDevice(std::uint32_t descriptor)
+	{
+		if (descriptor >= static_cast<std::uint32_t>(gRuntimeDescriptorCapacity))
+			return 0;
+
+		std::int32_t signedDescriptor;
+		std::memcpy(&signedDescriptor, &descriptor, sizeof(signedDescriptor));
+
+		const std::int32_t blockIndex = signedDescriptor >> 5;
+		const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
+
+		const std::uint8_t* block;
+		std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
+
+		const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+		return block[entryOffset + 0x04] & 0x40u;
+	}
+
+	// Original function: FUN_004ef1a1
+	inline std::int32_t Runtime_WideCharacterToMultibyte(char* destination, std::uint32_t characterBits)
+	{
+		auto* localeUsers = reinterpret_cast<volatile LONG*>(&gRuntimeLocaleReaderCount);
+
+		InterlockedIncrement(localeUsers);
+
+		bool localeLocked = false;
+
+		if (gRuntimeLocaleChangeState != 0)
+		{
+			InterlockedDecrement(localeUsers);
+			Runtime_Lock(0x13);
+			localeLocked = true;
+		}
+
+		const std::int32_t result = Runtime_WideCharacterToMultibyteNoLock(destination, characterBits);
+
+		if (localeLocked)
+		{
+			Runtime_Unlock(0x13);
+		}
+		else
+		{
+			InterlockedDecrement(localeUsers);
+		}
+
 		return result;
 	}
 
-	// Original function: FUN_004e7d12
-	inline std::uint32_t Runtime_ClassifyAlphanumeric(std::int32_t character)
+	// Original function: FUN_004ef1fa
+	inline std::int32_t Runtime_WideCharacterToMultibyteNoLock(char* destination, std::uint32_t characterBits)
 	{
-		if (cbMultiByte_0050c604 > 1)
+		if (destination == nullptr)
 		{
-			return static_cast<std::uint32_t>(FUN_004ea094(character, 0x107));
+			return 0;
 		}
 
-		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(PTR_DAT_0050c3f8);
+		const WCHAR character = static_cast<WCHAR>(characterBits);
 
-		std::uint16_t flags;
-		std::memcpy(&flags, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(flags));
-
-		return flags & 0x107u;
-	}
-
-	// Original function: FUN_00410c03
-	inline bool Runtime_IsPropertyNameCharacter(char character)
-	{
-		const auto byteValue = static_cast<std::uint8_t>(character);
-		const std::int32_t signedCharacter = byteValue < 0x80u ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
-
-		if (Runtime_ClassifyAlphanumeric(signedCharacter) != 0)
+		if (gRuntimeCTypeLocale == 0)
 		{
-			return true;
+			if (character > 0xFF)
+			{
+				*Runtime_GetErrnoPointer() = 0x2A;
+				return -1;
+			}
+
+			const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
+			std::memcpy(destination, &byteValue, sizeof(byteValue));
+
+			return 1;
 		}
 
-		return byteValue == 0x5Fu;
+		BOOL usedDefaultCharacter = FALSE;
+
+		const int result = WideCharToMultiByte(gRuntimeCodePage, 0x220, &character, 1, destination, gRuntimeMaxMultibyteLength, nullptr, &usedDefaultCharacter);
+
+		if (result == 0 || usedDefaultCharacter != FALSE)
+		{
+			*Runtime_GetErrnoPointer() = 0x2A;
+			return -1;
+		}
+
+		return result;
 	}
 
-	static_assert(sizeof(void*) == 4, "These CRT descriptor accesses require an x86 build");
+	// Original function: FUN_004ef263
+	inline BOOL Runtime_GetStringType(DWORD informationType, LPCSTR source, int sourceLength, LPWORD characterTypes, UINT codePage, LCID locale, int rejectInvalidCharacters)
+	{
+		std::uint32_t backend = static_cast<std::uint32_t>(gRuntimeGetStringTypeBackend);
+
+		if (backend == 0)
+		{
+			WORD probeType;
+
+			if (::GetStringTypeW(1, L"", 1, &probeType) != FALSE)
+			{
+				backend = 1;
+			}
+			else
+			{
+				if (::GetStringTypeA(0, 1, "", 1, &probeType) == FALSE)
+					return FALSE;
+
+				backend = 2;
+			}
+
+			gRuntimeGetStringTypeBackend = backend;
+		}
+
+		if (backend == 2)
+		{
+			if (locale == 0)
+				locale = static_cast<LCID>(gRuntimeCTypeLocale);
+
+			return ::GetStringTypeA(locale, informationType, source, sourceLength, characterTypes);
+		}
+
+		if (backend != 1)
+			return FALSE;
+
+		if (codePage == 0)
+			codePage = static_cast<UINT>(gRuntimeCodePage);
+
+		const DWORD queryFlags = rejectInvalidCharacters != 0 ? 0x09u : 0x01u;
+		const int requiredCharacters = ::MultiByteToWideChar(codePage, queryFlags, source, sourceLength, nullptr, 0);
+
+		if (requiredCharacters == 0)
+			return FALSE;
+
+		WCHAR* wideBuffer = nullptr;
+
+		__try
+		{
+			// Preserve the original 32-bit size calculation and four-byte alignment.
+			const std::uint32_t byteCount = static_cast<std::uint32_t>(requiredCharacters) * 2u;
+			const std::uint32_t allocationSize = (byteCount + 3u) & 0xFFFFFFFCu;
+
+			wideBuffer = static_cast<WCHAR*>(_alloca(allocationSize));
+			std::memset(wideBuffer, 0, byteCount);
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			wideBuffer = nullptr;
+		}
+
+		if (wideBuffer == nullptr)
+			return FALSE;
+
+		// The conversion call always uses 0x01, even when the size query used 0x09.
+		const int convertedCharacters = ::MultiByteToWideChar(codePage, 0x01u, source, sourceLength, wideBuffer, requiredCharacters);
+
+		if (convertedCharacters == 0)
+			return FALSE;
+
+		return ::GetStringTypeW(informationType, wideBuffer, convertedCharacters, characterTypes);
+	}
+
+	// Original function: FUN_004ef3ac
+	inline void* Runtime_AllocateZeroed(std::uint32_t count, std::uint32_t elementSize)
+	{
+		// Preserve the original multiplication modulo 2^32.
+		const std::uint32_t requestedBytes = count * elementSize;
+		std::uint32_t allocationBytes = requestedBytes;
+
+		if (allocationBytes <= 0xFFFFFFE0u)
+		{
+			if (allocationBytes == 0)
+				allocationBytes = 1;
+
+			allocationBytes = (allocationBytes + 15u) & 0xFFFFFFF0u;
+		}
+
+		for (;;)
+		{
+			void* allocation = nullptr;
+
+			if (allocationBytes <= 0xFFFFFFE0u)
+			{
+				const std::uint32_t heapMode = static_cast<std::uint32_t>(gRuntimeHeapMode);
+
+				if (heapMode == 3)
+				{
+					if (requestedBytes <= static_cast<std::uint32_t>(gRuntimeSmallBlockThreshold))
+					{
+						Runtime_Lock(0x09);
+
+						__try
+						{
+							allocation = Runtime_AllocateSmallBlock(requestedBytes);
+						}
+						__finally
+						{
+							Runtime_Unlock(0x09);
+						}
+
+						if (allocation != nullptr)
+							std::memset(allocation, 0, requestedBytes);
+					}
+				}
+				else if (heapMode == 2)
+				{
+					if (allocationBytes <= static_cast<std::uint32_t>(gRuntimeSmallBlockThresholdMode2))
+					{
+						Runtime_Lock(0x09);
+
+						__try
+						{
+							allocation = Runtime_AllocateSmallBlockMode2(allocationBytes >> 4);
+						}
+						__finally
+						{
+							Runtime_Unlock(0x09);
+						}
+
+						if (allocation != nullptr)
+							std::memset(allocation, 0, allocationBytes);
+					}
+				}
+
+				if (allocation != nullptr)
+					return allocation;
+
+				allocation = ::HeapAlloc(gRuntimeHeap, HEAP_ZERO_MEMORY, allocationBytes);
+			}
+
+			if (allocation != nullptr)
+				return allocation;
+
+			if (gRuntimeNewHandlerMode == 0)
+				return nullptr;
+
+			if (Runtime_CallNewHandler(allocationBytes) == 0) {
+				return nullptr;
+			}
+		}
+	}
+
+	// Original function: FUN_004ef4e9
+	inline std::int32_t Runtime_SetModeNoLock(std::uint32_t descriptor, std::int32_t mode)
+	{
+		std::int32_t signedDescriptor;
+		std::memcpy(&signedDescriptor, &descriptor, sizeof(signedDescriptor));
+
+		const std::int32_t blockIndex = signedDescriptor >> 5;
+		const auto* descriptorBlocks = reinterpret_cast<const std::uint8_t*>(&gRuntimeDescriptorBlocks);
+
+		std::uint8_t* block;
+		std::memcpy(&block, descriptorBlocks + static_cast<std::ptrdiff_t>(blockIndex) * 4, sizeof(block));
+
+		const std::uint32_t entryOffset = (descriptor & 0x1Fu) * 0x24u;
+		std::uint8_t* flags = block + entryOffset + 0x04;
+		const std::uint8_t previousFlags = *flags;
+
+		if (mode == 0x8000)
+		{
+			*flags = static_cast<std::uint8_t>(previousFlags & 0x7Fu);
+		}
+		else if (mode == 0x4000)
+		{
+			*flags = static_cast<std::uint8_t>(previousFlags | 0x80u);
+		}
+		else
+		{
+			*Runtime_GetErrnoPointer() = 0x16;
+			return -1;
+		}
+
+		return (previousFlags & 0x80u) != 0 ? 0x4000 : 0x8000;
+	}
+
+	// Original function: FUN_004f0a8d
+	inline void Runtime_GenerateFloatDigits(char* buffer, std::int32_t digitCount, RuntimeFloatConversionState* state)
+	{
+		const char* source = state->digits;
+		char* output = buffer + 1;
+
+		buffer[0] = '0';
+
+		if (digitCount > 0)
+		{
+			std::int32_t remaining = digitCount;
+
+			do
+			{
+				const char character = *source;
+
+				if (character != '\0')
+				{
+					*output++ = character;
+					++source;
+				}
+				else
+				{
+					*output++ = '0';
+				}
+
+				--remaining;
+			} while (remaining != 0);
+		}
+
+		*output = '\0';
+
+		if (digitCount >= 0)
+		{
+			const std::uint8_t nextByte = static_cast<std::uint8_t>(*source);
+			const std::int32_t nextCharacter = nextByte < 0x80 ? static_cast<std::int32_t>(nextByte) : static_cast<std::int32_t>(nextByte) - 0x100;
+
+			// The original uses a signed byte comparison against '5'.
+			if (nextCharacter >= '5')
+			{
+				for (;;)
+				{
+					--output;
+
+					if (*output != '9')
+					{
+						break;
+					}
+
+					*output = '0';
+				}
+
+				const std::uint8_t incrementedByte = static_cast<std::uint8_t>(static_cast<std::uint8_t>(*output) + 1u);
+				std::memcpy(output, &incrementedByte, sizeof(incrementedByte));
+			}
+		}
+
+		if (buffer[0] == '1')
+		{
+			// Preserve the 32-bit increment of the decimal position.
+			std::uint32_t positionBits;
+			std::memcpy(&positionBits, &state->decimalPosition, sizeof(positionBits));
+
+			++positionBits;
+
+			std::memcpy(&state->decimalPosition, &positionBits, sizeof(positionBits));
+		}
+		else
+		{
+			const std::size_t byteCount = std::strlen(buffer + 1) + 1;
+			std::memmove(buffer, buffer + 1, byteCount);
+		}
+	}
+
+	// Original function: FUN_004f0b04
+	inline RuntimeFloatConversionState* Runtime_PrepareFloatConversion(double value, RuntimeFloatConversionState* state, char* workspace)
+	{
+		RuntimeFloatIntermediate intermediate;
+		RuntimeFloatDecimalResult decimal;
+
+		Runtime_DoubleToIntermediate(&intermediate, &value);
+
+		// The intermediate value occupies twelve stack bytes by value.
+		state->conversionResult = Runtime_IntermediateToDecimal(intermediate, 17, 0, &decimal);
+
+		state->sign = static_cast<std::int32_t>(decimal.sign);
+		state->decimalPosition = static_cast<std::int32_t>(decimal.decimalPosition);
+
+		std::strcpy(workspace, decimal.digits);
+
+		state->digits = workspace;
+
+		return state;
+	}
+
+	// Original function: FUN_004f0b60
+	inline void Runtime_DoubleToIntermediate(RuntimeFloatIntermediate* destination, const double* source)
+	{
+		std::uint32_t sourceWords[2];
+		std::memcpy(sourceWords, source, sizeof(sourceWords));
+
+		const std::uint32_t sourceLow = sourceWords[0];
+		const std::uint32_t sourceHigh = sourceWords[1];
+
+		const std::uint32_t sign = (sourceHigh >> 16) & 0x8000u;
+		const std::uint32_t exponent = (sourceHigh >> 20) & 0x7FFu;
+		const std::uint32_t fractionHigh = sourceHigh & 0xFFFFFu;
+
+		std::uint32_t explicitIntegerBit = 0x80000000u;
+		std::uint32_t extendedExponent;
+
+		if (exponent != 0)
+		{
+			if (exponent == 0x7FFu)
+			{
+				extendedExponent = 0x7FFFu;
+			}
+			else
+			{
+				extendedExponent = exponent + 0x3C00u;
+			}
+		}
+		else
+		{
+			if (fractionHigh == 0 && sourceLow == 0)
+			{
+				// The original also clears the sign of negative zero.
+				destination->word1 = 0;
+				destination->word0 = 0;
+				destination->word2 = 0;
+				return;
+			}
+
+			extendedExponent = 0x3C01u;
+			explicitIntegerBit = 0;
+		}
+
+		std::uint32_t mantissaHigh = (sourceLow >> 21) | (fractionHigh << 11) | explicitIntegerBit;
+		std::uint32_t mantissaLow = sourceLow << 11;
+
+		destination->word1 = mantissaHigh;
+		destination->word0 = mantissaLow;
+
+		while ((mantissaHigh & 0x80000000u) == 0)
+		{
+			mantissaLow = destination->word0;
+
+			mantissaHigh = (mantissaHigh << 1) | (mantissaLow >> 31);
+			mantissaLow <<= 1;
+
+			destination->word0 = mantissaLow;
+			destination->word1 = mantissaHigh;
+
+			// Preserve the original addition; only the low word is stored.
+			extendedExponent += 0xFFFFu;
+		}
+
+		destination->word2 = static_cast<std::uint16_t>(sign | extendedExponent);
+	}
+
+
+    // Original function: FUN_004f0c16
+    inline void Runtime_FloatSupportUnavailable()
+    {
+        __amsg_exit(2);
+    }
+
+	// Original function: FUN_004f1534
+	inline std::int32_t Runtime_BoundedStringLength(const char* text, std::int32_t maximumLength)
+	{
+		const char* position = text;
+		std::uint32_t remaining = static_cast<std::uint32_t>(maximumLength);
+
+		while (remaining != 0)
+		{
+			if (*position == '\0')
+				break;
+
+			++position;
+			--remaining;
+		}
+
+		// Preserve the original final byte check, including at the limit.
+		if (*position == '\0')
+		{
+			const std::uint32_t lengthBits = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(position) - reinterpret_cast<std::uintptr_t>(text));
+
+			std::int32_t length;
+			std::memcpy(&length, &lengthBits, sizeof(length));
+			return length;
+		}
+
+		return maximumLength;
+	}
+
+	// Original function: FUN_004f17a5
+	inline std::int32_t Runtime_ToUpper(std::int32_t character)
+	{
+		if (gRuntimeCTypeLocale == 0)
+		{
+			if (character >= 0x61 && character <= 0x7A)
+			{
+				return character - 0x20;
+			}
+
+			return character;
+		}
+
+		auto* localeUsers = reinterpret_cast<volatile LONG*>(&gRuntimeLocaleReaderCount);
+		bool localeLocked = false;
+
+		InterlockedIncrement(localeUsers);
+
+		if (gRuntimeLocaleChangeState != 0)
+		{
+			InterlockedDecrement(localeUsers);
+			Runtime_Lock(0x13);
+			localeLocked = true;
+		}
+
+		const std::uint32_t resultBits = Runtime_ToUpperNoLock(static_cast<std::uint32_t>(character));
+
+		if (localeLocked)
+		{
+			Runtime_Unlock(0x13);
+		}
+		else
+		{
+			InterlockedDecrement(localeUsers);
+		}
+
+		std::int32_t result;
+		std::memcpy(&result, &resultBits, sizeof(result));
+		return result;
+	}
+
+	// Original function: FUN_004f1814
+	inline std::uint32_t Runtime_ToUpperNoLock(std::uint32_t character)
+	{
+		std::int32_t signedCharacter;
+		std::memcpy(&signedCharacter, &character, sizeof(signedCharacter));
+
+		if (gRuntimeCTypeLocale == 0)
+		{
+			if (signedCharacter >= 0x61 && signedCharacter <= 0x7A)
+			{
+				return character - 0x20u;
+			}
+
+			return character;
+		}
+
+		if (signedCharacter < 0x100)
+		{
+			bool isLower;
+
+			if (gRuntimeMaxMultibyteLength > 1)
+			{
+				isLower = Runtime_ClassifyCharacter(signedCharacter, 2u);
+			}
+			else
+			{
+				const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+
+				// Preserve signed indexing, including the original EOF case.
+				isLower = (characterTypes[static_cast<std::ptrdiff_t>(signedCharacter) * 2] & 0x02u) != 0;
+			}
+
+			if (!isLower)
+			{
+				return character;
+			}
+		}
+
+		const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+		const std::uint32_t highByte = (character >> 8) & 0xFFu;
+
+		char source[3];
+		int sourceLength;
+
+		if ((characterTypes[highByte * 2u + 1u] & 0x80u) != 0)
+		{
+			// Emit the lead byte before the low byte.
+			source[0] = static_cast<char>(highByte);
+			source[1] = static_cast<char>(character & 0xFFu);
+			source[2] = '\0';
+			sourceLength = 2;
+		}
+		else
+		{
+			source[0] = static_cast<char>(character & 0xFFu);
+			source[1] = '\0';
+			sourceLength = 1;
+		}
+
+		char destination[3];
+
+		const int mappedLength = Runtime_MapString(gRuntimeCTypeLocale, 0x200u, source, sourceLength, destination, 3, 0, 1);
+
+		if (mappedLength == 0)
+		{
+			return character;
+		}
+
+		const auto firstByte = static_cast<std::uint8_t>(destination[0]);
+
+		if (mappedLength == 1)
+		{
+			return firstByte;
+		}
+
+		// Preserve the original output-byte packing.
+		const auto secondByte = static_cast<std::uint8_t>(destination[1]);
+		return (static_cast<std::uint32_t>(secondByte) << 8) | firstByte;
+	}
+
+	// Original function: FUN_004f207a
+	inline std::uint32_t Runtime_Add32WithCarry(std::uint32_t first, std::uint32_t second, std::uint32_t* destination)
+	{
+		const std::uint32_t sum = first + second;
+		const std::uint32_t carry = (sum < first || sum < second) ? 1u : 0u;
+		*destination = sum;
+		return carry;
+	}
+
+	// Original function: FUN_004f20f9
+	inline void Runtime_ShiftLeft96(std::uint32_t* value)
+	{
+		const std::uint32_t low = value[0];
+		const std::uint32_t middle = value[1];
+
+		value[0] = low << 1;
+
+		const std::uint32_t shiftedMiddle = (middle << 1) | (low >> 31);
+		const std::uint32_t high = value[2];
+
+		value[1] = shiftedMiddle;
+		value[2] = (high << 1) | (middle >> 31);
+	}
+
+	// Original function: FUN_004f2127
+	inline void Runtime_ShiftRight96(std::uint32_t* value)
+	{
+		const std::uint32_t high = value[2];
+		const std::uint32_t middle = value[1];
+
+		value[1] = (middle >> 1) | (high << 31);
+
+		const std::uint32_t low = value[0];
+
+		value[2] = high >> 1;
+		value[0] = (low >> 1) | (middle << 31);
+	}
+
+	// Original function: FUN_004f221b
+	inline std::uint32_t Runtime_IntermediateToDecimal(RuntimeFloatIntermediate value, std::int32_t requestedDigits, std::uint32_t options, RuntimeFloatDecimalResult* result)
+	{
+		const auto asSigned = [](std::uint32_t bits) -> std::int32_t
+			{
+				std::int32_t value;
+				std::memcpy(&value, &bits, sizeof(value));
+				return value;
+			};
+
+		const auto writeZero = [result]() -> std::uint32_t
+			{
+				result->decimalPosition = 0;
+				result->sign = ' ';
+				result->digitCount = 1;
+				result->digits[0] = '0';
+				result->digits[1] = '\0';
+
+				return 1;
+			};
+
+		const std::uint32_t sign = value.word2 & 0x8000u;
+		const std::uint32_t exponent = value.word2 & 0x7FFFu;
+		const std::uint32_t mantissaHigh = value.word1;
+		const std::uint32_t mantissaLow = value.word0;
+
+		result->sign = sign != 0 ? '-' : ' ';
+
+		if (exponent == 0 && mantissaHigh == 0 && mantissaLow == 0)
+		{
+			return writeZero();
+		}
+
+		if (exponent == 0x7FFFu)
+		{
+			result->decimalPosition = 1;
+
+			const bool isInfinity = mantissaHigh == 0x80000000u && mantissaLow == 0;
+
+			if (!isInfinity && (mantissaHigh & 0x40000000u) == 0)
+			{
+				std::strcpy(result->digits, "1#SNAN");
+				result->digitCount = 6;
+			}
+			else if (sign != 0 && mantissaHigh == 0xC0000000u && mantissaLow == 0)
+			{
+				std::strcpy(result->digits, "1#IND");
+				result->digitCount = 5;
+			}
+			else if (isInfinity)
+			{
+				std::strcpy(result->digits, "1#INF");
+				result->digitCount = 5;
+			}
+			else
+			{
+				std::strcpy(result->digits, "1#QNAN");
+				result->digitCount = 6;
+			}
+
+			return 0;
+		}
+
+		// Original twelve-byte constant at local_20.
+		std::uint32_t scaleFactor[3] =
+		{
+			0xCCCCCCCCu,
+			0xCCCCCCCCu,
+			0x3FFBCCCCu
+		};
+
+		// The working representation has a two-byte low extension.
+		std::uint32_t working[3] =
+		{
+			mantissaLow << 16,
+			(mantissaLow >> 16) | (mantissaHigh << 16),
+			(mantissaHigh >> 16) | (exponent << 16)
+		};
+
+		const std::uint32_t estimateBits = exponent * 0x4D10u + ((exponent >> 8) + (mantissaHigh >> 24) * 2u) * 0x4Du + 0xECBced0Cu;
+
+		std::int32_t decimalEstimate = asSigned(estimateBits) >> 16;
+
+		Runtime_ScaleExtended12(working, -decimalEstimate, 1);
+
+		if ((working[2] >> 16) >= 0x3FFFu)
+		{
+			++decimalEstimate;
+			Runtime_MultiplyExtended12(working, scaleFactor);
+		}
+
+		result->decimalPosition = static_cast<std::int16_t>(decimalEstimate);
+
+		std::int32_t digitLimit = requestedDigits;
+
+		if ((options & 0x01u) != 0)
+		{
+			const std::uint32_t limitBits = static_cast<std::uint32_t>(requestedDigits) + static_cast<std::uint32_t>(static_cast<std::int32_t>(result->decimalPosition));
+			digitLimit = asSigned(limitBits);
+
+			if (digitLimit <= 0)
+			{
+				return writeZero();
+			}
+		}
+
+		if (digitLimit > 21)
+		{
+			digitLimit = 21;
+		}
+
+		const std::int32_t binaryShift = static_cast<std::int32_t>(working[2] >> 16) - 0x3FFE;
+
+		working[2] &= 0x0000FFFFu;
+
+		for (std::int32_t index = 0; index < 8; ++index)
+		{
+			Runtime_ShiftLeft96(working);
+		}
+
+		if (binaryShift < 0)
+		{
+			std::uint32_t remainingShifts = static_cast<std::uint32_t>(-binaryShift) & 0xFFu;
+
+			while (remainingShifts != 0)
+			{
+				Runtime_ShiftRight96(working);
+				--remainingShifts;
+			}
+		}
+
+		auto* resultBytes = reinterpret_cast<std::uint8_t*>(result);
+		std::ptrdiff_t outputOffset = 4;
+
+		const std::uint32_t generatedCountBits = static_cast<std::uint32_t>(digitLimit) + std::uint32_t{ 1 };
+		std::int32_t remainingDigits = asSigned(generatedCountBits);
+
+		while (remainingDigits > 0)
+		{
+			std::uint32_t previous[3];
+			std::memcpy(previous, working, sizeof(previous));
+
+			Runtime_ShiftLeft96(working);
+			Runtime_ShiftLeft96(working);
+			Runtime_Add96(working, previous);
+			Runtime_ShiftLeft96(working);
+
+			const std::uint8_t digit = static_cast<std::uint8_t>(working[2] >> 24);
+			working[2] &= 0x00FFFFFFu;
+
+			resultBytes[outputOffset++] = static_cast<std::uint8_t>(digit + 0x30u);
+			--remainingDigits;
+		}
+
+		const std::uint8_t roundingByte = resultBytes[outputOffset - 1];
+		const std::int32_t roundingCharacter = roundingByte < 0x80 ? static_cast<std::int32_t>(roundingByte) : static_cast<std::int32_t>(roundingByte) - 0x100;
+
+		std::ptrdiff_t lastOffset = outputOffset - 2;
+
+		if (roundingCharacter >= '5')
+		{
+			while (lastOffset >= 4 && resultBytes[lastOffset] == '9')
+			{
+				resultBytes[lastOffset] = '0';
+				--lastOffset;
+			}
+
+			if (lastOffset < 4)
+			{
+				++lastOffset;
+
+				std::uint16_t positionBits;
+				std::memcpy(&positionBits, &result->decimalPosition, sizeof(positionBits));
+
+				++positionBits;
+
+				std::memcpy(&result->decimalPosition, &positionBits, sizeof(positionBits));
+			}
+
+			resultBytes[lastOffset] = static_cast<std::uint8_t>(resultBytes[lastOffset] + 1u);
+		}
+		else
+		{
+			while (lastOffset >= 4 && resultBytes[lastOffset] == '0')
+			{
+				--lastOffset;
+			}
+
+			if (lastOffset < 4)
+			{
+				return writeZero();
+			}
+		}
+
+		// Preserve the byte-sized length and its signed extension.
+		const std::uint8_t lengthByte = static_cast<std::uint8_t>(lastOffset - 3);
+		result->digitCount = lengthByte;
+
+		const std::int32_t signedLength = lengthByte < 0x80 ? static_cast<std::int32_t>(lengthByte) : static_cast<std::int32_t>(lengthByte) - 0x100;
+		resultBytes[4 + signedLength] = 0;
+
+		return 1;
+	}
+
+	// Original function: FUN_004f24ae
+	inline void Runtime_MultiplyExtended12(std::uint32_t* destination, const std::uint32_t* source)
+	{
+		const auto read16 = [](const void* data, std::size_t offset) -> std::uint16_t {
+			std::uint16_t value;
+			std::memcpy(&value, static_cast<const unsigned char*>(data) + offset, sizeof(value));
+			return value;
+			};
+
+		const auto read32 = [](const void* data, std::size_t offset) -> std::uint32_t {
+			std::uint32_t value;
+			std::memcpy(&value, static_cast<const unsigned char*>(data) + offset, sizeof(value));
+			return value;
+			};
+
+		const auto write16 = [](void* data, std::size_t offset, std::uint16_t value) {
+			std::memcpy(static_cast<unsigned char*>(data) + offset, &value, sizeof(value));
+			};
+
+		const auto write32 = [](void* data, std::size_t offset, std::uint32_t value) {
+			std::memcpy(static_cast<unsigned char*>(data) + offset, &value, sizeof(value));
+			};
+
+		const auto signedExponent = [](std::uint32_t bits) -> std::int32_t {
+			const std::uint32_t low = bits & 0xFFFFu;
+			return (low & 0x8000u) != 0
+				? static_cast<std::int32_t>(low) - 0x10000
+				: static_cast<std::int32_t>(low);
+			};
+
+		const std::uint16_t leftSignExponent = read16(destination, 10);
+		const std::uint16_t rightSignExponent = read16(source, 10);
+		const std::uint32_t sign = (leftSignExponent ^ rightSignExponent) & 0x8000u;
+		const std::uint32_t leftExponent = leftSignExponent & 0x7FFFu;
+		const std::uint32_t rightExponent = rightSignExponent & 0x7FFFu;
+
+		std::uint32_t exponentBits = leftExponent + rightExponent;
+		std::uint32_t product[3] = {};
+
+		const auto setOverflow = [&]() {
+			destination[1] = 0;
+			destination[0] = 0;
+			destination[2] = 0x7FFF8000u + (sign != 0 ? 0x80000000u : 0u);
+			};
+
+		const auto setZero = [&]() {
+			destination[2] = 0;
+			destination[1] = 0;
+			destination[0] = 0;
+			};
+
+		if (leftExponent >= 0x7FFFu ||
+			rightExponent >= 0x7FFFu ||
+			(exponentBits & 0xFFFFu) > 0xBFFDu)
+		{
+			setOverflow();
+			return;
+		}
+
+		if ((exponentBits & 0xFFFFu) <= 0x3FBFu)
+		{
+			setZero();
+			return;
+		}
+
+		if (leftExponent == 0)
+		{
+			++exponentBits;
+
+			if ((destination[2] & 0x7FFFFFFFu) == 0 &&
+				destination[1] == 0 &&
+				destination[0] == 0)
+			{
+				write16(destination, 10, 0);
+				return;
+			}
+		}
+
+		if (rightExponent == 0)
+		{
+			++exponentBits;
+
+			if ((source[2] & 0x7FFFFFFFu) == 0 &&
+				source[1] == 0 &&
+				source[0] == 0)
+			{
+				setZero();
+				return;
+			}
+		}
+
+		// Accumulate only the partial products retained by the original routine.
+		for (std::size_t row = 0; row < 5; ++row)
+		{
+			const std::size_t offset = row * 2;
+
+			for (std::size_t column = 0; column < 5 - row; ++column)
+			{
+				const std::uint32_t left = read16(destination, (row + column) * 2);
+				const std::uint32_t right = read16(source, (4 - column) * 2);
+				const std::uint32_t term = left * right;
+
+				std::uint32_t sum;
+				const std::uint32_t carry = Runtime_Add32WithCarry(read32(product, offset), term, &sum);
+				write32(product, offset, sum);
+
+				if (carry != 0)
+				{
+					const std::uint16_t next = read16(product, offset + 4);
+					write16(product, offset + 4, static_cast<std::uint16_t>(next + 1u));
+				}
+			}
+		}
+
+		exponentBits += 0xC002u;
+
+		if (signedExponent(exponentBits) > 0)
+		{
+			while ((product[2] & 0x80000000u) == 0)
+			{
+				Runtime_ShiftLeft96(product);
+				exponentBits += 0xFFFFu;
+
+				if (signedExponent(exponentBits) <= 0)
+					break;
+			}
+		}
+
+		if (signedExponent(exponentBits) <= 0)
+		{
+			exponentBits += 0xFFFFu;
+
+			if (signedExponent(exponentBits) < 0)
+			{
+				const std::uint32_t shiftCount = static_cast<std::uint32_t>(-signedExponent(exponentBits));
+				exponentBits += shiftCount;
+
+				bool discardedBit = false;
+
+				for (std::uint32_t index = 0; index < shiftCount; ++index)
+				{
+					if ((product[0] & 1u) != 0)
+						discardedBit = true;
+
+					Runtime_ShiftRight96(product);
+				}
+
+				if (discardedBit)
+					product[0] |= 1u;
+			}
+		}
+
+		// Round to nearest, choosing an even retained significand on a tie.
+		if ((product[0] & 0xFFFFu) > 0x8000u ||
+			(product[0] & 0x1FFFFu) == 0x18000u)
+		{
+			const std::uint32_t low = read32(product, 2);
+
+			if (low != 0xFFFFFFFFu)
+			{
+				write32(product, 2, low + 1u);
+			}
+			else
+			{
+				write32(product, 2, 0);
+
+				const std::uint32_t middle = read32(product, 6);
+
+				if (middle != 0xFFFFFFFFu)
+				{
+					write32(product, 6, middle + 1u);
+				}
+				else
+				{
+					write32(product, 6, 0);
+
+					const std::uint16_t high = read16(product, 10);
+
+					if (high != 0xFFFFu)
+					{
+						write16(product, 10, static_cast<std::uint16_t>(high + 1u));
+					}
+					else
+					{
+						++exponentBits;
+						write16(product, 10, 0x8000u);
+					}
+				}
+			}
+		}
+
+		if ((exponentBits & 0xFFFFu) >= 0x7FFFu)
+		{
+			setOverflow();
+			return;
+		}
+
+		write16(destination, 0, read16(product, 2));
+		write32(destination, 2, product[1]);
+		write32(destination, 6, product[2]);
+		write16(destination, 10, static_cast<std::uint16_t>(exponentBits | sign));
+	}
+
+	// Original function: FUN_004f26ce
+	inline void Runtime_ScaleExtended12(std::uint32_t* value, std::int32_t exponent, std::int32_t preserveLowWord)
+	{
+		if (exponent == 0)
+			return;
+
+		const std::uint32_t(*table)[3] = Runtime_PositivePowerFactors;
+		std::uint32_t remaining = static_cast<std::uint32_t>(exponent);
+
+		if (exponent < 0)
+		{
+			table = Runtime_NegativePowerFactors;
+			remaining = 0u - remaining;
+		}
+
+		if (preserveLowWord == 0)
+			value[0] &= 0xFFFF0000u;
+
+		std::size_t groupOffset = 0;
+
+		do
+		{
+			const std::uint32_t digit = remaining & 7u;
+
+			// Preserve the original arithmetic right shift.
+			remaining = (remaining >> 3) | ((remaining & 0x80000000u) != 0 ? 0xE0000000u : 0u);
+
+			if (digit != 0)
+			{
+				const std::uint32_t* factor = table[groupOffset + digit - 1u];
+				std::uint32_t adjusted[3];
+
+				if ((factor[0] & 0xFFFFu) >= 0x8000u)
+				{
+					std::memcpy(adjusted, factor, sizeof(adjusted));
+
+					// Decrement only the DWORD at byte offset 2.
+					std::uint32_t part;
+					auto* bytes = reinterpret_cast<unsigned char*>(adjusted);
+					std::memcpy(&part, bytes + 2, sizeof(part));
+					--part;
+					std::memcpy(bytes + 2, &part, sizeof(part));
+
+					factor = adjusted;
+				}
+
+				Runtime_MultiplyExtended12(value, factor);
+			}
+
+			groupOffset += 7;
+		} while (remaining != 0);
+	}
+
+	// Original function: ___add_12
+	inline void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source)
+	{
+		if (Runtime_Add32WithCarry(destination[0], source[0], &destination[0]) != 0)
+		{
+			if (Runtime_Add32WithCarry(destination[1], 1u, &destination[1]) != 0)
+				++destination[2];
+		}
+
+		if (Runtime_Add32WithCarry(destination[1], source[1], &destination[1]) != 0)
+			++destination[2];
+
+		Runtime_Add32WithCarry(destination[2], source[2], &destination[2]);
+	}
 }

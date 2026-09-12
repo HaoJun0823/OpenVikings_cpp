@@ -364,8 +364,8 @@ namespace NXBasics
 
 			const auto* replacement = reinterpret_cast<const char*>(record + 0x10C);
 
-			FUN_004e5c20(fileName, replacement);
-			FUN_004e5c30(fileName, inputFileName + prefixLength);
+			std::strcpy(fileName, replacement);
+			std::strcat(fileName, inputFileName + prefixLength);
 			break;
 		}
 
@@ -484,7 +484,7 @@ namespace NXBasics
 
 		if (searchPaths)
 		{
-			FUN_004e5c20(temporaryName, fileName);
+			std::strcpy(temporaryName, fileName);
 
 			for (std::uint32_t index = 0; index < 5; ++index)
 			{
@@ -497,8 +497,8 @@ namespace NXBasics
 
 				const auto* prefix = reinterpret_cast<const char*>(pathRecord + 1);
 
-				FUN_004e5c20(fileName, prefix);
-				FUN_004e5c30(fileName, temporaryName);
+				std::strcpy(fileName, prefix);
+				std::strcat(fileName, temporaryName);
 
 				if (tryOpen(fileName))
 				{
@@ -507,7 +507,7 @@ namespace NXBasics
 				}
 			}
 
-			FUN_004e5c20(fileName, temporaryName);
+			std::strcpy(fileName, temporaryName);
 		}
 
 		std::uint32_t selectedArchiveIndex = 0;
@@ -542,8 +542,8 @@ namespace NXBasics
 
 				const auto* prefix = reinterpret_cast<const char*>(pathRecord + 1);
 
-				FUN_004e5c20(temporaryName, prefix);
-				FUN_004e5c30(temporaryName, getArchiveFileName(getArchive(index)));
+				std::strcpy(temporaryName, prefix);
+				std::strcat(temporaryName, getArchiveFileName(getArchive(index)));
 
 				if (tryOpen(temporaryName))
 				{

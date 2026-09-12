@@ -38,7 +38,7 @@ namespace NXBasics
 
 		if (!CFile::FileSystem_Tool_FileExists(fileName, true))
 		{
-			FUN_004e5c20(compiledFileName, fileName);
+			std::strcpy(compiledFileName, fileName);
 			l_CreateCompiledFilename(compiledFileName, compiledExtension);
 
 			if (!CFile::FileSystem_Tool_FileExists(compiledFileName, true))
