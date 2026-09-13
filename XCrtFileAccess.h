@@ -10,9 +10,21 @@
 
 // Reconstructed Win32/x86 CRT subset; requires C++17 or later.
 // Static initializers below were verified against Game.exe (image base 00400000).
-// The external __amsg_exit and __fassign implementations remain to be supplied.
+// Fatal-error handling and decimal float assignment are implemented below.
 // Allocation and freeing use this reconstructed runtime heap throughout.
 // Heap, thread, descriptor and stream startup must run in the original order.
+// Validation: 808 decimal conversion cases matched emulated Game.exe x86 routines
+// (extended bytes, parse endpoint/status, binary results and selected conversion status).
+// Windows error/quick-exit paths were tested with mocked WinAPI calls. A complete
+// MSVC x86 build and real Windows startup/shutdown integration remain unverified.
+// Startup audit (entry 004e709e): heap 004ec5de -> threading 004eb167 ->
+// descriptor startup 004ea927 -> argument/environment setup -> CRT initializers 004ea109.
+// Descriptor startup and the complete initializer dispatcher are not implemented here.
+// Normal exit 004ea136/004ea158 also runs onexit callbacks and pre-terminators:
+// 004fe070..004fe07c = { null, 004ee716, 004ef0c7 }. Those cleanup chains remain
+// outside this subset; Runtime_QuickExit deliberately implements only the quick path.
+// The new semantic names are derived from Windows instructions/data; no matching
+// private Microsoft CRT implementation was identified in the supplied Mac sources.
 
 namespace NXBasics
 {
@@ -111,23 +123,23 @@ namespace NXBasics
 
 	// Original data: 0050c610 through 0050c633.
 	inline RuntimeDescriptorRecord gRuntimeInvalidDescriptorRecord = {
-    0xFFFFFFFFu, 0x00u, 0x0Au, {}, 0u, {}
+	0xFFFFFFFFu, 0x00u, 0x0Au, {}, 0u, {}
 	};
 	struct RuntimeExceptionAction
-{
-    std::uint32_t exceptionCode;
-    std::int32_t signalNumber;
-    std::uint32_t action;
+	{
+		std::uint32_t exceptionCode;
+		std::int32_t signalNumber;
+		std::uint32_t action;
 	};
 	static_assert(sizeof(RuntimeExceptionAction) == 0x0C);
 	static_assert(offsetof(RuntimeExceptionAction, action) == 0x08);
 	// Original data: 0050c968 through 0050c9df.
 	inline RuntimeExceptionAction gRuntimeDefaultExceptionActions[10] = {
-    { 0xC0000005u, 11, 0u }, { 0xC000001Du, 4, 0u },
-    { 0xC0000096u, 4, 0u }, { 0xC000008Du, 8, 0u },
-    { 0xC000008Eu, 8, 0u }, { 0xC000008Fu, 8, 0u },
-    { 0xC0000090u, 8, 0u }, { 0xC0000091u, 8, 0u },
-    { 0xC0000092u, 8, 0u }, { 0xC0000093u, 8, 0u }
+	{ 0xC0000005u, 11, 0u }, { 0xC000001Du, 4, 0u },
+	{ 0xC0000096u, 4, 0u }, { 0xC000008Du, 8, 0u },
+	{ 0xC000008Eu, 8, 0u }, { 0xC000008Fu, 8, 0u },
+	{ 0xC0000090u, 8, 0u }, { 0xC0000091u, 8, 0u },
+	{ 0xC0000092u, 8, 0u }, { 0xC0000093u, 8, 0u }
 	};
 	static_assert(sizeof(gRuntimeDefaultExceptionActions) == 0x78);
 
@@ -190,7 +202,7 @@ namespace NXBasics
 		std::uint32_t descriptor;       // +0x10
 		std::byte unknown14[4];         // +0x14
 		std::uint32_t bufferSize;       // +0x18
-		std::byte unknown1C[4];         // +0x1C
+		char* temporaryFileName;        // +0x1C
 	};
 
 	static_assert(sizeof(void*) == 4, "RuntimeFormatStream requires an x86 build");
@@ -208,11 +220,11 @@ namespace NXBasics
 	inline CRITICAL_SECTION gRuntimeStaticLocks[4] = {};
 	// Original data: 0050c798 through 0050c857.
 	inline CRITICAL_SECTION* gRuntimeLockTable[48] = {
-    nullptr, &gRuntimeStaticLocks[0], nullptr, nullptr,
-    nullptr, nullptr, nullptr, nullptr,
-    nullptr, &gRuntimeStaticLocks[2], nullptr, nullptr,
-    nullptr, &gRuntimeStaticLocks[3], nullptr, nullptr,
-    nullptr, &gRuntimeStaticLocks[1]
+	nullptr, &gRuntimeStaticLocks[0], nullptr, nullptr,
+	nullptr, nullptr, nullptr, nullptr,
+	nullptr, &gRuntimeStaticLocks[2], nullptr, nullptr,
+	nullptr, &gRuntimeStaticLocks[3], nullptr, nullptr,
+	nullptr, &gRuntimeStaticLocks[1]
 	};
 	static_assert(sizeof(gRuntimeStaticLocks) == 0x60);
 	static_assert(sizeof(gRuntimeLockTable) == 0xC0);
@@ -221,9 +233,9 @@ namespace NXBasics
 	inline char gRuntimeStdinBuffer[0x1000] = {};
 	// Original data: 0050ecc8 through 0050ef47.
 	inline RuntimeFormatStream gRuntimeStaticStreams[20] = {
-    { gRuntimeStdinBuffer, 0u, gRuntimeStdinBuffer, 0x101u, 0u, {}, 0x1000u, {} },
-    { nullptr, 0u, nullptr, 0x02u, 1u, {}, 0u, {} },
-    { nullptr, 0u, nullptr, 0x02u, 2u, {}, 0u, {} }
+	{ gRuntimeStdinBuffer, 0u, gRuntimeStdinBuffer, 0x101u, 0u, {}, 0x1000u, {} },
+	{ nullptr, 0u, nullptr, 0x02u, 1u, {}, 0u, {} },
+	{ nullptr, 0u, nullptr, 0x02u, 2u, {}, 0u, {} }
 	};
 
 	// Original data: 0050ecc8.
@@ -239,14 +251,14 @@ namespace NXBasics
 
 	// Original data: 0050cca0 through 0050ecbf.
 	inline RuntimeSmallBlockRegionMode2 gRuntimeSmallBlockInitialRegionMode2 = {
-    &gRuntimeSmallBlockInitialRegionMode2,
-    &gRuntimeSmallBlockInitialRegionMode2,
-    &gRuntimeSmallBlockInitialRegionMode2.pages[0],
-    &gRuntimeSmallBlockInitialRegionMode2.pages[0],
-    reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
-    reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
-    { { 0xF0u, 0xF1u } },
-    {}
+	&gRuntimeSmallBlockInitialRegionMode2,
+	&gRuntimeSmallBlockInitialRegionMode2,
+	&gRuntimeSmallBlockInitialRegionMode2.pages[0],
+	&gRuntimeSmallBlockInitialRegionMode2.pages[0],
+	reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
+	reinterpret_cast<void*>(static_cast<std::uintptr_t>(0xFFFFFFFFu)),
+	{ { 0xF0u, 0xF1u } },
+	{}
 	};
 
 	// Original data: 0050ecc0.
@@ -403,7 +415,7 @@ namespace NXBasics
 
 	static_assert(sizeof(void*) == 4, "These CRT descriptor accesses require an x86 build");
 
-	
+
 
 	// Additional CRT data (original-address order).
 	// Original data: 0050c244.
@@ -476,25 +488,127 @@ namespace NXBasics
 	// Original data: 0050c3f8; original target: 0050c402.
 	inline std::uint16_t* gRuntimeCharacterTypes = gRuntimeCharacterTypeStorage + 1;
 
-    // Original data: 0050c3f0; original target: 004fba44.
-    inline const char* gRuntimeNullString = "(null)";
-    // Original data: 0050c3f4; original target: 004fba34.
-    inline const wchar_t* gRuntimeNullWideString = L"(null)";
-    static_assert(sizeof(wchar_t) == 2, "The runtime requires Windows UTF-16 wchar_t");
-    // Original data: 005699c8; initially zero-filled, later registered by the application.
-    using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
-    inline RuntimeNewHandler gRuntimeNewHandler = nullptr;
+	// Original data: 0050c3f0; original target: 004fba44.
+	inline const char* gRuntimeNullString = "(null)";
+	// Original data: 0050c3f4; original target: 004fba34.
+	inline const wchar_t* gRuntimeNullWideString = L"(null)";
+	static_assert(sizeof(wchar_t) == 2, "The runtime requires Windows UTF-16 wchar_t");
+	// Original data: 005699c8; initially zero-filled, later registered by the application.
+	using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
+	inline RuntimeNewHandler gRuntimeNewHandler = nullptr;
 
 
-    // External CRT implementations still to be reconstructed in this subset.
-    // Original function: FUN_004e71a6
-    [[noreturn]] void __cdecl __amsg_exit(int errorCode);
-    // Original function: FUN_004eba5c
-    void __cdecl __fassign(int storeDouble, void* destination, const char* text);
-    inline void Runtime_FloatSupportUnavailable();
-    inline void* Runtime_Allocate(std::uint32_t requestedBytes);
-    inline void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler);
-    inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes);
+	struct RuntimeBinaryFormat
+	{
+		int maximumExponent, minimumExponent, precision, exponentBits, totalBits, bias;
+	};
+	// Original data: 0050f120 and 0050f138.
+	inline const RuntimeBinaryFormat gRuntimeDoubleFormat = { 1024, -1023, 53, 11, 64, 1023 };
+	inline const RuntimeBinaryFormat gRuntimeFloatFormat = { 128, -127, 24, 8, 32, 127 };
+	using RuntimeVoidCallback = void(__cdecl*)();
+	using RuntimeOnExitCallback = int(__cdecl*)();
+
+	inline void Runtime_InitializeOnExitTable();
+	inline std::uint32_t Runtime_GetAllocationSize(void* memory);
+
+	// Function declarations for stream startup and cleanup.
+	inline std::int32_t Runtime_CloseStreamNoLock(RuntimeFormatStream* stream);
+	inline std::int32_t Runtime_FlushStreamNoLock(RuntimeFormatStream* stream);
+	inline std::int32_t Runtime_FlushStreamBuffer(RuntimeFormatStream* stream);
+	inline std::int32_t Runtime_FlushStreams(std::int32_t mode);
+	inline void Runtime_Exit(std::int32_t exitCode);
+	inline void Runtime_PerformExit(std::int32_t exitCode, std::int32_t quickExit, std::int32_t returnToCaller);
+	inline void Runtime_InitializeStreams();
+	inline void Runtime_PreTerminateStreams();
+	inline void Runtime_LockStreamIndex(std::int32_t index, RuntimeFormatStream* stream);
+	inline void Runtime_UnlockStreamIndex(std::int32_t index, RuntimeFormatStream* stream);
+	inline void Runtime_FreeStreamBuffer(RuntimeFormatStream* stream);
+	inline std::int32_t Runtime_CommitDescriptor(std::uint32_t descriptor);
+	inline std::int32_t Runtime_RemoveTemporaryStreams();
+	inline std::int32_t Runtime_CloseAllStreams();
+
+	// Original data: 0056a384.
+	inline RuntimeFormatStream** gRuntimeStreamTable = nullptr;
+
+	// Original data: 0056b3a0.
+	inline std::int32_t gRuntimeStreamCapacity = 0;
+
+	// Original data: 0056b70c and 0056b710.
+	inline RuntimeOnExitCallback* gRuntimeOnExitEnd = nullptr;
+	inline RuntimeOnExitCallback* gRuntimeOnExitBegin = nullptr;
+
+	// Original range: 004fe070..004fe07c, end exclusive.
+	// The adapter discards the original temporary-stream cleanup return value.
+	inline RuntimeVoidCallback gRuntimePreTerminators[3] = {
+		nullptr,
+		&Runtime_PreTerminateStreams,
+		+[]() { Runtime_RemoveTemporaryStreams(); }
+	};
+	using RuntimeMessageBoxCallback = int(WINAPI*)(HWND, LPCSTR, LPCSTR, UINT);
+	using RuntimeActiveWindowCallback = HWND(WINAPI*)();
+	using RuntimeLastPopupCallback = HWND(WINAPI*)(HWND);
+	// Original data: 0056999c, 00569a38, 00569a3c, 00569a40 (zero-filled).
+	inline int gRuntimeErrorOutputMode = 0;
+	inline unsigned char gRuntimeCleanupReturnsToCaller = 0;
+	inline int gRuntimeCleanupStarted = 0;
+	inline int gRuntimeProcessExitStarted = 0;
+	// Original data: 00569cc4 and 00569d54..00569d5c (zero-filled).
+	inline RuntimeVoidCallback gRuntimeErrorBannerCallback = nullptr;
+	inline RuntimeMessageBoxCallback gRuntimeMessageBox = nullptr;
+	inline RuntimeActiveWindowCallback gRuntimeGetActiveWindow = nullptr;
+	inline RuntimeLastPopupCallback gRuntimeGetLastActivePopup = nullptr;
+	// Original range: 004fe080..004fe084 (exclusive), one null slot in Game.exe.
+	inline RuntimeVoidCallback gRuntimeTerminators[1] = { nullptr };
+	struct RuntimeFatalMessage { int code; const char* text; };
+	// Original table: 0050ca08..0050ca98 (exclusive).
+	inline const RuntimeFatalMessage gRuntimeFatalMessages[] = {
+		{2, "R6002\r\n- floating point not loaded\r\n"}, // 0050ca08; text 004fbde8.
+		{8, "R6008\r\n- not enough space for arguments\r\n"}, // 0050ca10; text 004fbdbc.
+		{9, "R6009\r\n- not enough space for environment\r\n"}, // 0050ca18; text 004fbd90.
+		{10, "\r\nabnormal program termination\r\n"}, // 0050ca20; text 004fbd6c.
+		{16, "R6016\r\n- not enough space for thread data\r\n"}, // 0050ca28; text 004fbd40.
+		{17, "R6017\r\n- unexpected multithread lock error\r\n"}, // 0050ca30; text 004fbd10.
+		{18, "R6018\r\n- unexpected heap error\r\n"}, // 0050ca38; text 004fbcec.
+		{19, "R6019\r\n- unable to open console device\r\n"}, // 0050ca40; text 004fbcc0.
+		{24, "R6024\r\n- not enough space for _onexit/atexit table\r\n"}, // 0050ca48; text 004fbc88.
+		{25, "R6025\r\n- pure virtual function call\r\n"}, // 0050ca50; text 004fbc60.
+		{26, "R6026\r\n- not enough space for stdio initialization\r\n"}, // 0050ca58; text 004fbc28.
+		{27, "R6027\r\n- not enough space for lowio initialization\r\n"}, // 0050ca60; text 004fbbf0.
+		{28, "R6028\r\n- unable to initialize heap\r\n"}, // 0050ca68; text 004fbbc8.
+		{120, "DOMAIN error\r\n"}, // 0050ca70; text 004fbbb8.
+		{121, "SING error\r\n"}, // 0050ca78; text 004fbba8.
+		{122, "TLOSS error\r\n"}, // 0050ca80; text 004fbb98.
+		{252, "\r\n"}, // 0050ca88; text 004fe480.
+		{255, "runtime error "}, // 0050ca90; text 004fbb88.
+	};
+
+	// Forward declarations for fatal-error handling and float dispatch.
+	// Original function: FUN_004e71a6
+	inline void Runtime_FatalExit(int errorCode);
+	inline void Runtime_StartupFatalExit(int errorCode);
+	// Original function: FUN_004eba5c
+	inline void Runtime_AssignFloat(int storeDouble, void* destination, const char* text);
+	inline void Runtime_FloatSupportUnavailable();
+	inline void* Runtime_Allocate(std::uint32_t requestedBytes);
+	inline void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler);
+	inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes);
+
+	inline void Runtime_QuickExit(int exitCode);
+	inline void Runtime_CallInitializers(RuntimeVoidCallback* begin, RuntimeVoidCallback* end);
+	inline void Runtime_WriteErrorBanner();
+	inline void Runtime_WriteErrorMessage(int errorCode);
+	inline bool Runtime_MantissaTailIsZero(const std::uint32_t* value, int bitIndex);
+	inline std::uint32_t Runtime_IncrementMantissa(std::uint32_t* value, int bitIndex);
+	inline std::uint32_t Runtime_RoundMantissa(std::uint32_t* value, int precision);
+	inline void Runtime_ShiftMantissaRight(std::uint32_t* value, int count);
+	inline int Runtime_Extended12ToBinary(const std::uint32_t* source, void* destination, const RuntimeBinaryFormat& format);
+	inline int Runtime_Extended12ToDouble(const std::uint32_t* source, void* destination);
+	inline int Runtime_Extended12ToFloat(const std::uint32_t* source, void* destination);
+	inline int Runtime_ParseDouble(void* destination, const char* text);
+	inline int Runtime_ParseFloat(void* destination, const char* text);
+	inline int Runtime_ShowErrorDialog(const char* text, const char* caption, UINT flags);
+	inline int Runtime_ParseExtended12(std::uint32_t* destination, const char** endPointer, const char* text, int preserveLowWord, int defaultExponent, int defaultFractionDigits, int allowBareExponent);
+	inline void Runtime_DigitsToExtended12(const signed char* digits, int count, std::uint32_t* destination);
 
 	// Function declarations (original-address order).
 	inline bool Runtime_IsLetter(char character);
@@ -596,13 +710,16 @@ namespace NXBasics
 	inline void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source);
 
 
+	// Original data: 0050c240, initially FUN_004ea147.
+	inline void(__cdecl* gRuntimeFatalExitCallback)(int) = &Runtime_QuickExit;
+
 	// Float dispatch slots initially point to the missing-float-support handler.
 	// Original data: 0050c780.
 	inline decltype(&Runtime_ConvertFloat) gRuntimeFloatConvertCallback = reinterpret_cast<decltype(&Runtime_ConvertFloat)>(&Runtime_FloatSupportUnavailable);
 	// Original data: 0050c784.
 	inline decltype(&Runtime_FloatTrimTrailingZeros) gRuntimeFloatTrimTrailingZerosCallback = reinterpret_cast<decltype(&Runtime_FloatTrimTrailingZeros)>(&Runtime_FloatSupportUnavailable);
 	// Original data: 0050c788.
-	inline decltype(&__fassign) gRuntimeFloatAssignCallback = reinterpret_cast<decltype(&__fassign)>(&Runtime_FloatSupportUnavailable);
+	inline decltype(&Runtime_AssignFloat) gRuntimeFloatAssignCallback = reinterpret_cast<decltype(&Runtime_AssignFloat)>(&Runtime_FloatSupportUnavailable);
 	// Original data: 0050c78c.
 	inline decltype(&Runtime_FloatInsertDecimalPoint) gRuntimeFloatInsertDecimalPointCallback = reinterpret_cast<decltype(&Runtime_FloatInsertDecimalPoint)>(&Runtime_FloatSupportUnavailable);
 	// Original data: 0050c790.
@@ -612,6 +729,16 @@ namespace NXBasics
 
 	// Function definitions (original-address order; unaddressed helpers follow).
 	// Original function: FUN_00410bca
+
+
+	// Original function: FUN_004e71a6 (__amsg_exit).
+	// The default callback terminates; a replacement callback may return, as in the ASM.
+	inline void Runtime_FatalExit(int errorCode)
+	{
+		if (gRuntimeErrorOutputMode == 1) Runtime_WriteErrorBanner();
+		Runtime_WriteErrorMessage(errorCode);
+		gRuntimeFatalExitCallback(255);
+	}
 	// Original function: FUN_004e7cbc
 	inline bool Runtime_IsLetter(char character)
 	{
@@ -708,6 +835,19 @@ namespace NXBasics
 		std::int32_t result;
 		std::memcpy(&result, &value, sizeof(result));
 		return result;
+	}
+
+	// Original function: FUN_004e6052
+	inline void Runtime_InitializeOnExitTable()
+	{
+		gRuntimeOnExitBegin = static_cast<RuntimeOnExitCallback*>(Runtime_Allocate(0x80u));
+
+		if (gRuntimeOnExitBegin == nullptr)
+			Runtime_FatalExit(0x18);
+
+		// The initial null entry is outside the populated callback range.
+		gRuntimeOnExitBegin[0] = nullptr;
+		gRuntimeOnExitEnd = gRuntimeOnExitBegin;
 	}
 
 	// Original function: FUN_004e6081
@@ -1546,10 +1686,19 @@ namespace NXBasics
 	{
 		gRuntimeFloatTrimTrailingZerosCallback = &Runtime_FloatTrimTrailingZeros;
 		gRuntimeFloatConvertCallback = &Runtime_ConvertFloat;
-		gRuntimeFloatAssignCallback = &__fassign;
+		gRuntimeFloatAssignCallback = &Runtime_AssignFloat;
 		gRuntimeFloatInsertDecimalPointCallback = &Runtime_FloatInsertDecimalPoint;
 		gRuntimeFloatReferenceCheckCallback = &Runtime_FloatAtLeastReference;
 		gRuntimeFloatConvertAlternateCallback = &Runtime_ConvertFloat;
+	}
+
+	// Original function: FUN_004e71cb.
+	// Used before locks/TLS are usable; must not dispatch through Runtime_QuickExit.
+	inline void Runtime_StartupFatalExit(int errorCode)
+	{
+		if (gRuntimeErrorOutputMode == 1) Runtime_WriteErrorBanner();
+		Runtime_WriteErrorMessage(errorCode);
+		ExitProcess(255);
 	}
 
 	// Original function: FUN_004e7575
@@ -1935,72 +2084,180 @@ namespace NXBasics
 	}
 
 
-    // Original function: FUN_004e85fc
-    inline void* Runtime_Allocate(std::uint32_t requestedBytes)
-    {
-        return Runtime_AllocateWithNewHandler(requestedBytes, gRuntimeNewHandlerMode);
-    }
+	// Original function: FUN_004e85fc
+	inline void* Runtime_Allocate(std::uint32_t requestedBytes)
+	{
+		return Runtime_AllocateWithNewHandler(requestedBytes, gRuntimeNewHandlerMode);
+	}
 
-    // Original function: FUN_004e860e
-    inline void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler)
-    {
-        if (requestedBytes > 0xFFFFFFE0u)
-            return nullptr;
-        for (;;)
-        {
-            void* allocation = Runtime_AllocateHeapBlock(requestedBytes);
-            if (allocation != nullptr || useNewHandler == 0)
-                return allocation;
-            if (Runtime_CallNewHandler(requestedBytes) == 0)
-                return nullptr;
-        }
-    }
+	// Original function: FUN_004e860e
+	inline void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler)
+	{
+		if (requestedBytes > 0xFFFFFFE0u)
+			return nullptr;
+		for (;;)
+		{
+			void* allocation = Runtime_AllocateHeapBlock(requestedBytes);
+			if (allocation != nullptr || useNewHandler == 0)
+				return allocation;
+			if (Runtime_CallNewHandler(requestedBytes) == 0)
+				return nullptr;
+		}
+	}
 
-    // Original function: FUN_004e863a
-    inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes)
-    {
-        void* allocation = nullptr;
-        if (gRuntimeHeapMode == 3)
-        {
-            if (requestedBytes <= gRuntimeSmallBlockThreshold)
-            {
-                Runtime_Lock(0x09);
-                __try
-                {
-                    allocation = Runtime_AllocateSmallBlock(requestedBytes);
-                }
-                __finally
-                {
-                    // Original cleanup funclet: 004e86a1.
-                    Runtime_Unlock(0x09);
-                }
-                if (allocation != nullptr)
-                    return allocation;
-            }
-        }
-        else if (gRuntimeHeapMode == 2)
-        {
-            requestedBytes = requestedBytes == 0 ? 16u : (requestedBytes + 15u) & 0xFFFFFFF0u;
-            if (requestedBytes <= gRuntimeSmallBlockThresholdMode2)
-            {
-                Runtime_Lock(0x09);
-                __try
-                {
-                    allocation = Runtime_AllocateSmallBlockMode2(requestedBytes >> 4);
-                }
-                __finally
-                {
-                    // Original cleanup funclet: 004e8700.
-                    Runtime_Unlock(0x09);
-                }
-                if (allocation != nullptr)
-                    return allocation;
-            }
-            return HeapAlloc(gRuntimeHeap, 0, requestedBytes);
-        }
-        const std::uint32_t allocationBytes = ((requestedBytes == 0 ? 1u : requestedBytes) + 15u) & 0xFFFFFFF0u;
-        return HeapAlloc(gRuntimeHeap, 0, allocationBytes);
-    }
+	// Original function: FUN_004e863a
+	inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes)
+	{
+		void* allocation = nullptr;
+		if (gRuntimeHeapMode == 3)
+		{
+			if (requestedBytes <= gRuntimeSmallBlockThreshold)
+			{
+				Runtime_Lock(0x09);
+				__try
+				{
+					allocation = Runtime_AllocateSmallBlock(requestedBytes);
+				}
+				__finally
+				{
+					// Original cleanup funclet: 004e86a1.
+					Runtime_Unlock(0x09);
+				}
+				if (allocation != nullptr)
+					return allocation;
+			}
+		}
+		else if (gRuntimeHeapMode == 2)
+		{
+			requestedBytes = requestedBytes == 0 ? 16u : (requestedBytes + 15u) & 0xFFFFFFF0u;
+			if (requestedBytes <= gRuntimeSmallBlockThresholdMode2)
+			{
+				Runtime_Lock(0x09);
+				__try
+				{
+					allocation = Runtime_AllocateSmallBlockMode2(requestedBytes >> 4);
+				}
+				__finally
+				{
+					// Original cleanup funclet: 004e8700.
+					Runtime_Unlock(0x09);
+				}
+				if (allocation != nullptr)
+					return allocation;
+			}
+			return HeapAlloc(gRuntimeHeap, 0, requestedBytes);
+		}
+		const std::uint32_t allocationBytes = ((requestedBytes == 0 ? 1u : requestedBytes) + 15u) & 0xFFFFFFF0u;
+		return HeapAlloc(gRuntimeHeap, 0, allocationBytes);
+	}
+
+	// Original function: FUN_004e8c7b
+	inline std::int32_t Runtime_CloseStreamNoLock(RuntimeFormatStream* stream)
+	{
+		std::int32_t result = -1;
+
+		if ((stream->flags & 0x83u) != 0)
+		{
+			result = Runtime_FlushStreamBuffer(stream);
+			Runtime_FreeStreamBuffer(stream);
+
+			if (Runtime_Close(stream->descriptor) < 0)
+			{
+				result = -1;
+			}
+			else if (stream->temporaryFileName != nullptr)
+			{
+				Runtime_Free(stream->temporaryFileName);
+				stream->temporaryFileName = nullptr;
+			}
+		}
+
+		stream->flags = 0;
+		return result;
+	}
+
+	// Original function: FUN_004e8cf6
+	inline std::int32_t Runtime_FlushStreamNoLock(RuntimeFormatStream* stream)
+	{
+		if (Runtime_FlushStreamBuffer(stream) != 0)
+			return -1;
+
+		if ((stream->flags & 0x4000u) != 0)
+			return Runtime_CommitDescriptor(stream->descriptor) != 0 ? -1 : 0;
+
+		return 0;
+	}
+
+	// Original function: FUN_004e8d24
+	inline std::int32_t Runtime_FlushStreamBuffer(RuntimeFormatStream* stream)
+	{
+		std::int32_t result = 0;
+
+		if ((stream->flags & 3u) == 2u && (stream->flags & 0x108u) != 0)
+		{
+			const std::uint32_t position = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->position));
+			const std::uint32_t buffer = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->buffer));
+			const std::int32_t byteCount = static_cast<std::int32_t>(position - buffer);
+
+			if (byteCount > 0)
+			{
+				if (Runtime_Write(stream->descriptor, stream->buffer, static_cast<std::uint32_t>(byteCount)) == byteCount)
+				{
+					if ((stream->flags & 0x80u) != 0)
+						stream->flags &= ~0x02u;
+				}
+				else
+				{
+					stream->flags |= 0x20u;
+					result = -1;
+				}
+			}
+		}
+
+		stream->remainingBytes = 0;
+		stream->position = stream->buffer;
+		return result;
+	}
+
+	// Original function: FUN_004e8d89
+	inline std::int32_t Runtime_FlushStreams(std::int32_t mode)
+	{
+		std::int32_t flushedCount = 0;
+		std::int32_t result = 0;
+
+		Runtime_Lock(2);
+
+		for (std::int32_t index = 0; index < gRuntimeStreamCapacity; ++index)
+		{
+			RuntimeFormatStream* stream = gRuntimeStreamTable[index];
+
+			if (stream == nullptr || (stream->flags & 0x83u) == 0)
+				continue;
+
+			Runtime_LockStreamIndex(index, stream);
+
+			stream = gRuntimeStreamTable[index];
+
+			if ((stream->flags & 0x83u) != 0)
+			{
+				if (mode == 1)
+				{
+					if (Runtime_FlushStreamNoLock(stream) != -1)
+						++flushedCount;
+				}
+				else if (mode == 0 && (stream->flags & 0x02u) != 0)
+				{
+					if (Runtime_FlushStreamNoLock(stream) == -1)
+						result = -1;
+				}
+			}
+
+			Runtime_UnlockStreamIndex(index, gRuntimeStreamTable[index]);
+		}
+
+		Runtime_Unlock(2);
+		return mode == 1 ? flushedCount : result;
+	}
 
 	// Original function: FUN_004e9772
 	inline std::uint32_t Runtime_FlushAndWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream)
@@ -2905,6 +3162,139 @@ namespace NXBasics
 		return static_cast<std::uint32_t>(classification) & mask;
 	}
 
+
+	// Original function: FUN_004ea136
+	inline void Runtime_Exit(std::int32_t exitCode)
+	{
+		Runtime_PerformExit(exitCode, 0, 0);
+	}
+
+	// Original function: FUN_004ea147
+	inline void Runtime_QuickExit(int exitCode)
+	{
+		Runtime_PerformExit(exitCode, 1, 0);
+	}
+
+	// Original function: FUN_004ea158
+	inline void Runtime_PerformExit(std::int32_t exitCode, std::int32_t quickExit, std::int32_t returnToCaller)
+	{
+		// Original lock/unlock helpers: FUN_004ea1fd and FUN_004ea206.
+		Runtime_Lock(13);
+
+		if (gRuntimeProcessExitStarted == 1)
+			::TerminateProcess(::GetCurrentProcess(), static_cast<UINT>(exitCode));
+
+		gRuntimeCleanupStarted = 1;
+		gRuntimeCleanupReturnsToCaller = static_cast<unsigned char>(returnToCaller);
+
+		if (quickExit == 0)
+		{
+			if (gRuntimeOnExitBegin != nullptr)
+			{
+				// Preserve reverse traversal and reloading of the lower bound.
+				std::uintptr_t cursor = reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd);
+				cursor -= sizeof(RuntimeOnExitCallback);
+
+				while (cursor >= reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin))
+				{
+					RuntimeOnExitCallback callback;
+					std::memcpy(&callback, reinterpret_cast<const void*>(cursor), sizeof(callback));
+
+					if (callback != nullptr)
+						callback();
+
+					cursor -= sizeof(RuntimeOnExitCallback);
+				}
+			}
+
+			Runtime_CallInitializers(gRuntimePreTerminators, gRuntimePreTerminators + 3);
+		}
+
+		Runtime_CallInitializers(gRuntimeTerminators, gRuntimeTerminators + 1);
+
+		if (returnToCaller != 0)
+		{
+			Runtime_Unlock(13);
+			return;
+		}
+
+		gRuntimeProcessExitStarted = 1;
+		::ExitProcess(static_cast<UINT>(exitCode));
+	}
+
+	// Original function: FUN_004ea20f.
+	inline void Runtime_CallInitializers(RuntimeVoidCallback* begin, RuntimeVoidCallback* end)
+	{
+		for (; begin != end; ++begin)
+			if (*begin != nullptr) (*begin)();
+	}
+
+	// Original function: FUN_004ea558
+	inline std::uint32_t Runtime_GetAllocationSize(void* memory)
+	{
+		if (gRuntimeHeapMode == 3u)
+		{
+			std::uint32_t regionAddress = 0;
+			std::uint32_t allocationSize = 0;
+
+			Runtime_Lock(9);
+
+			__try
+			{
+				const auto memoryAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory));
+				regionAddress = Runtime_FindSmallBlockRegion(memoryAddress);
+
+				if (regionAddress != 0)
+				{
+					std::uint32_t blockHeader;
+					std::memcpy(&blockHeader, static_cast<const std::uint8_t*>(memory) - 4, sizeof(blockHeader));
+
+					// Remove the allocation bit and both four-byte boundary tags.
+					allocationSize = blockHeader - 9u;
+				}
+			}
+			__finally
+			{
+				// Original cleanup helper: FUN_004ea5c2.
+				Runtime_Unlock(9);
+			}
+
+			if (regionAddress != 0)
+				return allocationSize;
+		}
+		else if (gRuntimeHeapMode == 2u)
+		{
+			std::uint32_t entryAddress = 0;
+			std::uint32_t allocationSize = 0;
+
+			Runtime_Lock(9);
+
+			__try
+			{
+				std::uint32_t regionAddress;
+				std::uint32_t pageAddress;
+
+				entryAddress = Runtime_FindSmallBlockEntryMode2(memory, &regionAddress, &pageAddress);
+
+				if (entryAddress != 0)
+				{
+					const auto* entry = reinterpret_cast<const std::uint8_t*>(static_cast<std::uintptr_t>(entryAddress));
+					allocationSize = static_cast<std::uint32_t>(*entry) << 4;
+				}
+			}
+			__finally
+			{
+				// Original cleanup helper: FUN_004ea63d.
+				Runtime_Unlock(9);
+			}
+
+			if (entryAddress != 0)
+				return allocationSize;
+		}
+
+		return static_cast<std::uint32_t>(::HeapSize(gRuntimeHeap, 0, memory));
+	}
+
 	// Original function: FUN_004ea646
 	inline std::uint32_t Runtime_AllocateDescriptor()
 	{
@@ -3173,6 +3563,153 @@ namespace NXBasics
 		::LeaveCriticalSection(criticalSection);
 	}
 
+	// Original function: FUN_004ea927
+	inline void Runtime_InitializeDescriptors()
+	{
+		auto* firstBlock = static_cast<RuntimeDescriptorRecord*>(Runtime_Allocate(0x480u));
+
+		if (firstBlock == nullptr)
+			Runtime_FatalExit(0x1B);
+
+		gRuntimeDescriptorBlocks[0] = reinterpret_cast<std::uint8_t*>(firstBlock);
+		gRuntimeDescriptorCapacity = 32u;
+
+		for (std::uint32_t index = 0; index < 32u; ++index)
+		{
+			firstBlock[index].osHandle = 0xFFFFFFFFu;
+			firstBlock[index].flags = 0;
+			firstBlock[index].lookaheadCharacter = '\n';
+			firstBlock[index].lockInitialized = 0;
+		}
+
+		STARTUPINFOA startupInfo;
+		::GetStartupInfoA(&startupInfo);
+
+		if (startupInfo.cbReserved2 != 0 && startupInfo.lpReserved2 != nullptr)
+		{
+			std::int32_t inheritedCount;
+			std::memcpy(&inheritedCount, startupInfo.lpReserved2, sizeof(inheritedCount));
+
+			const std::uint8_t* inheritedFlags = startupInfo.lpReserved2 + sizeof(inheritedCount);
+
+			// The handle array follows the original number of flag bytes,
+			// before the descriptor count is limited to this runtime's capacity.
+			const std::uint8_t* inheritedHandles = inheritedFlags + inheritedCount;
+
+			if (inheritedCount >= 2048)
+				inheritedCount = 2048;
+
+			std::uint32_t blockIndex = 1;
+
+			while (static_cast<std::int32_t>(gRuntimeDescriptorCapacity) < inheritedCount)
+			{
+				auto* block = static_cast<RuntimeDescriptorRecord*>(Runtime_Allocate(0x480u));
+
+				if (block == nullptr)
+				{
+					inheritedCount = static_cast<std::int32_t>(gRuntimeDescriptorCapacity);
+					break;
+				}
+
+				gRuntimeDescriptorCapacity += 32u;
+				gRuntimeDescriptorBlocks[blockIndex] = reinterpret_cast<std::uint8_t*>(block);
+
+				for (std::uint32_t index = 0; index < 32u; ++index)
+				{
+					block[index].osHandle = 0xFFFFFFFFu;
+					block[index].flags = 0;
+					block[index].lookaheadCharacter = '\n';
+					block[index].lockInitialized = 0;
+				}
+
+				++blockIndex;
+			}
+
+			for (std::int32_t descriptor = 0; descriptor < inheritedCount; ++descriptor)
+			{
+				std::uint32_t handleBits;
+				std::memcpy(&handleBits, inheritedHandles + static_cast<std::size_t>(descriptor) * sizeof(handleBits), sizeof(handleBits));
+
+				const std::uint8_t flags = inheritedFlags[descriptor];
+
+				if (handleBits == 0xFFFFFFFFu || (flags & 0x01u) == 0)
+					continue;
+
+				// Inherited pipe handles bypass GetFileType in the original.
+				if ((flags & 0x08u) == 0)
+				{
+					HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(handleBits));
+
+					if (::GetFileType(handle) == FILE_TYPE_UNKNOWN)
+						continue;
+				}
+
+				const std::uint32_t index = static_cast<std::uint32_t>(descriptor);
+				auto* block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[index >> 5]);
+				RuntimeDescriptorRecord& entry = block[index & 31u];
+
+				entry.osHandle = handleBits;
+				entry.flags = flags;
+			}
+		}
+
+		for (std::uint32_t descriptor = 0; descriptor < 3u; ++descriptor)
+		{
+			auto* block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[0]);
+			RuntimeDescriptorRecord& entry = block[descriptor];
+
+			if (entry.osHandle != 0xFFFFFFFFu)
+			{
+				// Standard descriptors always use text mode after startup.
+				entry.flags |= 0x80u;
+				continue;
+			}
+
+			entry.flags = 0x81u;
+
+			DWORD standardHandle;
+
+			if (descriptor == 0)
+				standardHandle = STD_INPUT_HANDLE;
+			else if (descriptor == 1)
+				standardHandle = STD_OUTPUT_HANDLE;
+			else
+				standardHandle = STD_ERROR_HANDLE;
+
+			HANDLE handle = ::GetStdHandle(standardHandle);
+
+			if (handle == INVALID_HANDLE_VALUE)
+			{
+				entry.flags |= 0x40u;
+				continue;
+			}
+
+			const DWORD fileType = ::GetFileType(handle);
+
+			if (fileType == FILE_TYPE_UNKNOWN)
+			{
+				// Preserve the invalid stored handle and mark it as a device.
+				entry.flags |= 0x40u;
+				continue;
+			}
+
+			entry.osHandle = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(handle));
+
+			switch (fileType & 0xFFu)
+			{
+			case FILE_TYPE_CHAR:
+				entry.flags |= 0x40u;
+				break;
+
+			case FILE_TYPE_PIPE:
+				entry.flags |= 0x08u;
+				break;
+			}
+		}
+
+		::SetHandleCount(gRuntimeDescriptorCapacity);
+	}
+
 	// Original function: FUN_004eb167
 	inline std::int32_t Runtime_InitializeThreading()
 	{
@@ -3235,7 +3772,7 @@ namespace NXBasics
 			if (threadData == nullptr || !::TlsSetValue(gRuntimeThreadDataTlsIndex, threadData))
 			{
 				// Fatal CRT error; the original performs no local cleanup.
-				__amsg_exit(0x10);
+				Runtime_FatalExit(0x10);
 			}
 			else
 			{
@@ -3426,6 +3963,23 @@ namespace NXBasics
 	{
 		// Original reference value at DAT_004f3348: +0.0.
 		return *value >= 0.0 ? 1 : 0;
+	}
+
+
+	// Original function: FUN_004eba5c (__fassign).
+	inline void Runtime_AssignFloat(int storeDouble, void* destination, const char* text)
+	{
+		std::uint32_t result[2];
+		if (storeDouble != 0)
+		{
+			Runtime_ParseDouble(result, text);
+			std::memcpy(destination, result, 8);
+		}
+		else
+		{
+			Runtime_ParseFloat(result, text);
+			std::memcpy(destination, result, 4);
+		}
 	}
 
 	// Original function: FUN_004eba9a
@@ -3673,7 +4227,7 @@ namespace NXBasics
 
 			if (candidate == nullptr)
 			{
-				__amsg_exit(0x11);
+				Runtime_FatalExit(0x11);
 			}
 
 			Runtime_Lock(0x11);
@@ -3844,6 +4398,48 @@ namespace NXBasics
 		}
 
 		return 1;
+	}
+
+
+	// Original function: FUN_004ec80c.
+	inline void Runtime_WriteErrorBanner()
+	{
+		if (gRuntimeErrorOutputMode == 1 || (gRuntimeErrorOutputMode == 0 && gRuntimeApplicationType == 1))
+		{
+			Runtime_WriteErrorMessage(252);
+			if (gRuntimeErrorBannerCallback != nullptr) gRuntimeErrorBannerCallback();
+			Runtime_WriteErrorMessage(255);
+		}
+	}
+
+
+	// Original function: FUN_004ec845.
+	inline void Runtime_WriteErrorMessage(int errorCode)
+	{
+		const char* message = nullptr;
+		for (const auto& entry : gRuntimeFatalMessages)
+			if (entry.code == errorCode) { message = entry.text; break; }
+		if (message == nullptr) return;
+		if (gRuntimeErrorOutputMode == 1 || (gRuntimeErrorOutputMode == 0 && gRuntimeApplicationType == 1))
+		{
+			DWORD written;
+			WriteFile(GetStdHandle(STD_ERROR_HANDLE), message, static_cast<DWORD>(std::strlen(message)), &written, nullptr);
+		}
+		else if (errorCode != 252)
+		{
+			char path[261] = {};
+			if (GetModuleFileNameA(nullptr, path, 260) == 0) std::strcpy(path, "<program name unknown>");
+			// One extra zero byte makes legacy Win32 truncation safe for strlen.
+			char* shortPath = path;
+			const std::size_t length = std::strlen(path);
+			if (length + 1 > 60) { shortPath += length - 59; std::memcpy(shortPath, "...", 3); }
+			char buffer[160];
+			std::strcpy(buffer, "Runtime Error!\n\nProgram: ");
+			std::strcat(buffer, shortPath);
+			std::strcat(buffer, "\n\n");
+			std::strcat(buffer, message);
+			Runtime_ShowErrorDialog(buffer, "Microsoft Visual C++ Runtime Library", 0x12010);
+		}
 	}
 
 	// Original function: FUN_004ec998
@@ -5189,6 +5785,139 @@ namespace NXBasics
 		return nullptr;
 	}
 
+	// Original function: FUN_004ee66e
+	inline void Runtime_InitializeStreams()
+	{
+		if (gRuntimeStreamCapacity == 0)
+			gRuntimeStreamCapacity = 512;
+		else if (gRuntimeStreamCapacity < 20)
+			gRuntimeStreamCapacity = 20;
+
+		gRuntimeStreamTable = static_cast<RuntimeFormatStream**>(Runtime_AllocateZeroed(static_cast<std::uint32_t>(gRuntimeStreamCapacity), sizeof(RuntimeFormatStream*)));
+
+		if (gRuntimeStreamTable == nullptr)
+		{
+			gRuntimeStreamCapacity = 20;
+			gRuntimeStreamTable = static_cast<RuntimeFormatStream**>(Runtime_AllocateZeroed(20u, sizeof(RuntimeFormatStream*)));
+
+			if (gRuntimeStreamTable == nullptr)
+				Runtime_FatalExit(0x1A);
+		}
+
+		for (std::int32_t index = 0; index < 20; ++index)
+			gRuntimeStreamTable[index] = &gRuntimeStaticStreams[index];
+
+		auto* descriptors = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[0]);
+
+		for (std::uint32_t index = 0; index < 3u; ++index)
+		{
+			const std::uint32_t handle = descriptors[index].osHandle;
+
+			if (handle == 0xFFFFFFFFu || handle == 0)
+				gRuntimeStaticStreams[index].descriptor = 0xFFFFFFFFu;
+		}
+	}
+
+	// Original function: FUN_004ee716
+	inline void Runtime_PreTerminateStreams()
+	{
+		// Original forwarding wrapper FUN_004e8d80 calls the flush helper with 1.
+		Runtime_FlushStreams(1);
+
+		if (gRuntimeCleanupReturnsToCaller != 0)
+			Runtime_CloseAllStreams();
+	}
+
+	// Original function: FUN_004ee759
+	inline void Runtime_LockStreamIndex(std::int32_t index, RuntimeFormatStream* stream)
+	{
+		if (index < 20)
+		{
+			Runtime_Lock(index + 0x1C);
+		}
+		else
+		{
+			auto* lock = reinterpret_cast<CRITICAL_SECTION*>(reinterpret_cast<std::uint8_t*>(stream) + 0x20);
+			::EnterCriticalSection(lock);
+		}
+	}
+
+	// Original function: FUN_004ee7ab
+	inline void Runtime_UnlockStreamIndex(std::int32_t index, RuntimeFormatStream* stream)
+	{
+		if (index < 20)
+		{
+			Runtime_Unlock(index + 0x1C);
+		}
+		else
+		{
+			auto* lock = reinterpret_cast<CRITICAL_SECTION*>(reinterpret_cast<std::uint8_t*>(stream) + 0x20);
+			::LeaveCriticalSection(lock);
+		}
+	}
+
+	// Original function: FUN_004ee7ce
+	inline void Runtime_FreeStreamBuffer(RuntimeFormatStream* stream)
+	{
+		if ((stream->flags & 0x83u) != 0 && (stream->flags & 0x08u) != 0)
+		{
+			Runtime_Free(stream->buffer);
+			stream->flags &= ~0x408u;
+			stream->position = nullptr;
+			stream->buffer = nullptr;
+			stream->remainingBytes = 0;
+		}
+	}
+
+	// Original function: FUN_004ee7f9
+	inline std::int32_t Runtime_CommitDescriptor(std::uint32_t descriptor)
+	{
+		if (descriptor >= gRuntimeDescriptorCapacity)
+		{
+			*Runtime_GetErrnoPointer() = 9;
+			return -1;
+		}
+
+		auto* block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+		const std::uint32_t index = descriptor & 31u;
+
+		if ((block[index].flags & 0x01u) == 0)
+		{
+			*Runtime_GetErrnoPointer() = 9;
+			return -1;
+		}
+
+		Runtime_LockDescriptor(descriptor);
+
+		block = reinterpret_cast<RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+		std::int32_t result = 0;
+
+		if ((block[index].flags & 0x01u) == 0)
+		{
+			*Runtime_GetErrnoPointer() = 9;
+			result = -1;
+		}
+		else
+		{
+			HANDLE handle = reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(Runtime_GetOsHandle(descriptor)));
+			DWORD error = 0;
+
+			if (::FlushFileBuffers(handle) == FALSE)
+				error = ::GetLastError();
+
+			// The original treats a zero last-error value as success.
+			if (error != 0)
+			{
+				*Runtime_GetDosErrnoPointer() = error;
+				*Runtime_GetErrnoPointer() = 9;
+				result = -1;
+			}
+		}
+
+		Runtime_UnlockDescriptor(descriptor);
+		return result;
+	}
+
 	// Original function: FUN_004eee22
 	inline std::int32_t Runtime_StringToLong(const char* text, char** endPointer, std::int32_t base)
 	{
@@ -5337,6 +6066,37 @@ namespace NXBasics
 		}
 
 		return value;
+	}
+
+	// Original function: FUN_004ef0c7
+	inline std::int32_t Runtime_RemoveTemporaryStreams()
+	{
+		std::int32_t count = 0;
+
+		Runtime_Lock(2);
+
+		for (std::int32_t index = 0; index < gRuntimeStreamCapacity; ++index)
+		{
+			RuntimeFormatStream* stream = gRuntimeStreamTable[index];
+
+			if (stream == nullptr)
+				continue;
+
+			Runtime_LockStreamIndex(index, stream);
+
+			stream = gRuntimeStreamTable[index];
+
+			if ((stream->flags & 0x83u) != 0 && stream->temporaryFileName != nullptr)
+			{
+				Runtime_CloseStreamNoLock(stream);
+				++count;
+			}
+
+			Runtime_UnlockStreamIndex(index, gRuntimeStreamTable[index]);
+		}
+
+		Runtime_Unlock(2);
+		return count;
 	}
 
 	// Original function: FUN_004ef134
@@ -5637,6 +6397,165 @@ namespace NXBasics
 		return (previousFlags & 0x80u) != 0 ? 0x4000 : 0x8000;
 	}
 
+
+	// Original function: FUN_004f06a1.
+	// Big-endian word order; tests bits strictly AFTER bitIndex (MSB is bit 0).
+	inline bool Runtime_MantissaTailIsZero(const std::uint32_t* value, int bitIndex)
+	{
+		const int word = bitIndex / 32;
+		if ((value[word] & ~(0xffffffffu << (31 - bitIndex % 32))) != 0)
+			return false;
+		for (int i = word + 1; i < 3; ++i)
+			if (value[i] != 0) return false;
+		return true;
+	}
+
+
+	// Original function: FUN_004f06ea.
+	inline std::uint32_t Runtime_IncrementMantissa(std::uint32_t* value, int bitIndex)
+	{
+		int word = bitIndex / 32;
+		std::uint64_t sum = std::uint64_t(value[word]) + (1u << (31 - bitIndex % 32));
+		value[word] = static_cast<std::uint32_t>(sum);
+		std::uint32_t carry = static_cast<std::uint32_t>(sum >> 32);
+		while (--word >= 0 && carry != 0)
+		{
+			sum = std::uint64_t(value[word]) + carry;
+			value[word] = static_cast<std::uint32_t>(sum);
+			carry = static_cast<std::uint32_t>(sum >> 32);
+		}
+		return carry;
+	}
+
+
+	// Original function: FUN_004f0740.
+	// Preserve the original rule: the tail test skips bit precision + 1.
+	// This is deliberately not replaced with host floating-point rounding.
+	inline std::uint32_t Runtime_RoundMantissa(std::uint32_t* value, int precision)
+	{
+		const int word = precision / 32;
+		const int shift = 31 - precision % 32;
+		std::uint32_t carry = 0;
+		if ((value[word] & (1u << shift)) != 0 && !Runtime_MantissaTailIsZero(value, precision + 1))
+			carry = Runtime_IncrementMantissa(value, precision - 1);
+		value[word] &= 0xffffffffu << shift;
+		for (int i = word + 1; i < 3; ++i) value[i] = 0;
+		return carry;
+	}
+
+
+	// Original function: FUN_004f080e.
+	// Big-endian word order; distinct from Runtime_ShiftRight96's little-endian order.
+	inline void Runtime_ShiftMantissaRight(std::uint32_t* value, int count)
+	{
+		const std::uint32_t original[3] = { value[0], value[1], value[2] };
+		const int words = count / 32;
+		const int bits = count % 32;
+		for (int i = 0; i < 3; ++i)
+		{
+			const int source = i - words;
+			value[i] = source >= 0 ? original[source] >> bits : 0;
+			if (bits != 0 && source > 0) value[i] |= original[source - 1] << (32 - bits);
+		}
+	}
+
+
+	// Original function: FUN_004f089b.
+	// FUN_004f07cc, FUN_004f07e7 and FUN_004f07f3 are folded into local copy/zero checks.
+	inline int Runtime_Extended12ToBinary(const std::uint32_t* source, void* destination, const RuntimeBinaryFormat& format)
+	{
+		const auto* bytes = reinterpret_cast<const unsigned char*>(source);
+		std::uint16_t signExponent, low;
+		std::uint32_t mantissa[3];
+		std::memcpy(&signExponent, bytes + 10, 2);
+		std::memcpy(&mantissa[0], bytes + 6, 4);
+		std::memcpy(&mantissa[1], bytes + 2, 4);
+		std::memcpy(&low, bytes, 2);
+		mantissa[2] = std::uint32_t(low) << 16;
+		int exponent = (signExponent & 0x7fff) - 0x3fff;
+		int field = 0;
+		int status = 0;
+		if (exponent == -0x3fff)
+		{
+			if ((mantissa[0] | mantissa[1] | mantissa[2]) != 0) status = 2;
+			mantissa[0] = mantissa[1] = mantissa[2] = 0;
+		}
+		else
+		{
+			const std::uint32_t original[3] = { mantissa[0], mantissa[1], mantissa[2] };
+			if (Runtime_RoundMantissa(mantissa, format.precision) != 0) ++exponent;
+			if (exponent < format.minimumExponent - format.precision)
+			{
+				mantissa[0] = mantissa[1] = mantissa[2] = 0;
+				status = 2;
+			}
+			else if (exponent <= format.minimumExponent)
+			{
+				std::memcpy(mantissa, original, sizeof(mantissa));
+				Runtime_ShiftMantissaRight(mantissa, format.minimumExponent - exponent);
+				Runtime_RoundMantissa(mantissa, format.precision);
+				Runtime_ShiftMantissaRight(mantissa, format.exponentBits + 1);
+				status = 2;
+			}
+			else if (exponent >= format.maximumExponent)
+			{
+				mantissa[0] = 0x80000000u;
+				mantissa[1] = mantissa[2] = 0;
+				Runtime_ShiftMantissaRight(mantissa, format.exponentBits);
+				field = format.bias + format.maximumExponent;
+				status = 1;
+			}
+			else
+			{
+				mantissa[0] &= 0x7fffffffu;
+				Runtime_ShiftMantissaRight(mantissa, format.exponentBits);
+				field = format.bias + exponent;
+			}
+		}
+		const std::uint32_t high = (std::uint32_t(field) << (31 - format.exponentBits)) | ((signExponent & 0x8000u) << 16) | mantissa[0];
+		if (format.totalBits == 64)
+		{
+			std::memcpy(destination, &mantissa[1], 4);
+			std::memcpy(static_cast<unsigned char*>(destination) + 4, &high, 4);
+		}
+		else if (format.totalBits == 32) std::memcpy(destination, &high, 4);
+		return status;
+	}
+
+
+	// Original function: FUN_004f0a07.
+	inline int Runtime_Extended12ToDouble(const std::uint32_t* source, void* destination)
+	{
+		return Runtime_Extended12ToBinary(source, destination, gRuntimeDoubleFormat);
+	}
+
+
+	// Original function: FUN_004f0a1d.
+	inline int Runtime_Extended12ToFloat(const std::uint32_t* source, void* destination)
+	{
+		return Runtime_Extended12ToBinary(source, destination, gRuntimeFloatFormat);
+	}
+
+
+	// Original function: FUN_004f0a33.
+	inline int Runtime_ParseDouble(void* destination, const char* text)
+	{
+		std::uint32_t extended[3];
+		const char* end;
+		Runtime_ParseExtended12(extended, &end, text, 0, 0, 0, 0);
+		return Runtime_Extended12ToDouble(extended, destination);
+	}
+
+
+	// Original function: FUN_004f0a60.
+	inline int Runtime_ParseFloat(void* destination, const char* text)
+	{
+		std::uint32_t extended[3];
+		const char* end;
+		Runtime_ParseExtended12(extended, &end, text, 0, 0, 0, 0);
+		return Runtime_Extended12ToFloat(extended, destination);
+	}
+
 	// Original function: FUN_004f0a8d
 	inline void Runtime_GenerateFloatDigits(char* buffer, std::int32_t digitCount, RuntimeFloatConversionState* state)
 	{
@@ -5798,11 +6717,218 @@ namespace NXBasics
 	}
 
 
-    // Original function: FUN_004f0c16
-    inline void Runtime_FloatSupportUnavailable()
-    {
-        __amsg_exit(2);
-    }
+	// Original function: FUN_004f0c16
+	inline void Runtime_FloatSupportUnavailable()
+	{
+		Runtime_FatalExit(2);
+	}
+
+
+	// Original function: FUN_004f0cdc.
+	inline int Runtime_ShowErrorDialog(const char* text, const char* caption, UINT flags)
+	{
+		if (gRuntimeMessageBox == nullptr)
+		{
+			HMODULE user32 = LoadLibraryA("user32.dll");
+			if (user32 == nullptr) return 0;
+			gRuntimeMessageBox = reinterpret_cast<RuntimeMessageBoxCallback>(GetProcAddress(user32, "MessageBoxA"));
+			if (gRuntimeMessageBox == nullptr) return 0;
+			gRuntimeGetActiveWindow = reinterpret_cast<RuntimeActiveWindowCallback>(GetProcAddress(user32, "GetActiveWindow"));
+			gRuntimeGetLastActivePopup = reinterpret_cast<RuntimeLastPopupCallback>(GetProcAddress(user32, "GetLastActivePopup"));
+		}
+		HWND owner = nullptr;
+		if (gRuntimeGetActiveWindow != nullptr)
+		{
+			owner = gRuntimeGetActiveWindow();
+			if (owner != nullptr && gRuntimeGetLastActivePopup != nullptr) owner = gRuntimeGetLastActivePopup(owner);
+		}
+		return gRuntimeMessageBox(owner, text, caption, flags);
+	}
+
+
+	// Original function: FUN_004f0d65.
+	inline int Runtime_ParseExtended12(std::uint32_t* destination, const char** endPointer, const char* text, int preserveLowWord, int defaultExponent, int defaultFractionDigits, int allowBareExponent)
+	{
+		const char* cursor = text;
+		const char* backup = text;
+		signed char digits[25] = {};
+		int count = 0, state = 0, exponentSign = 1;
+		std::uint32_t adjustment = 0, parsedExponent = 0;
+		bool sawDigits = false, sawDecimal = false, sawExponent = false, done = false;
+		std::uint16_t sign = 0;
+		const auto isDigit = [](unsigned char c) { return Runtime_ClassifyCharacter(c, 4) != 0; };
+		const auto isNonzeroDigit = [](unsigned char c) { return c >= '1' && c <= '9'; };
+		while (*cursor == ' ' || *cursor == '\t' || *cursor == '\n' || *cursor == '\r') ++cursor;
+		while (!done)
+		{
+			unsigned char c = static_cast<unsigned char>(*cursor++);
+			switch (state)
+			{
+			case 0:
+			case 2:
+				if (isNonzeroDigit(c)) { state = 3; --cursor; }
+				else if (c == static_cast<unsigned char>(gRuntimeDecimalSeparator)) state = 5;
+				else if (c == '0') state = 1;
+				else if (state == 0 && (c == '+' || c == '-')) { sign = c == '-' ? 0x8000 : 0; state = 2; }
+				else { cursor = state == 2 ? backup : cursor - 1; done = true; }
+				break;
+			case 1:
+				sawDigits = true;
+				if (c == '0') break;
+				if (isNonzeroDigit(c)) { state = 3; --cursor; break; }
+				if (c == static_cast<unsigned char>(gRuntimeDecimalSeparator)) { state = 4; break; }
+				goto exponentMarker;
+			case 3:
+				sawDigits = true;
+				while (isDigit(c))
+				{
+					if (count < 25) digits[count++] = static_cast<signed char>(c - '0');
+					else ++adjustment;
+					c = static_cast<unsigned char>(*cursor++);
+				}
+				if (c == static_cast<unsigned char>(gRuntimeDecimalSeparator)) { state = 4; break; }
+				goto exponentMarker;
+			case 4:
+				sawDigits = sawDecimal = true;
+				if (count == 0)
+					while (c == '0') { --adjustment; c = static_cast<unsigned char>(*cursor++); }
+				while (isDigit(c))
+				{
+					if (count < 25) { digits[count++] = static_cast<signed char>(c - '0'); --adjustment; }
+					c = static_cast<unsigned char>(*cursor++);
+				}
+				goto exponentMarker;
+			case 5:
+				sawDecimal = true;
+				if (isDigit(c)) { state = 4; --cursor; }
+				else { cursor = backup; done = true; }
+				break;
+			case 6:
+				backup = cursor - 2;
+				if (c == '+' || c == '-') { exponentSign = c == '-' ? -1 : 1; state = 7; break; }
+				[[fallthrough]];
+			case 7:
+				if (isNonzeroDigit(c)) { state = 9; --cursor; }
+				else if (c == '0') state = 8;
+				else { cursor = backup; done = true; }
+				break;
+			case 8:
+				sawExponent = true;
+				while (c == '0') c = static_cast<unsigned char>(*cursor++);
+				if (isNonzeroDigit(c)) { state = 9; --cursor; }
+				else { --cursor; done = true; }
+				break;
+			case 9:
+				sawExponent = true;
+				while (isDigit(c))
+				{
+					parsedExponent = parsedExponent * 10 + static_cast<std::int32_t>(static_cast<signed char>(c)) - '0';
+					if (static_cast<std::int32_t>(parsedExponent) > 5200) { parsedExponent = 5201; break; }
+					c = static_cast<unsigned char>(*cursor++);
+				}
+				while (isDigit(c)) c = static_cast<unsigned char>(*cursor++);
+				--cursor;
+				done = true;
+				break;
+			case 11:
+				if (allowBareExponent == 0) { --cursor; done = true; break; }
+				backup = cursor - 1;
+				if (c == '+' || c == '-') { exponentSign = c == '-' ? -1 : 1; state = 7; }
+				else { cursor = backup; done = true; }
+				break;
+			}
+			continue;
+		exponentMarker:
+			if (c == '+' || c == '-') { --cursor; state = 11; }
+			else if (c == 'd' || c == 'D' || c == 'e' || c == 'E') state = 6;
+			else { --cursor; done = true; }
+		}
+		*endPointer = cursor;
+		destination[0] = destination[1] = destination[2] = 0;
+		int status = sawDigits ? 0 : 4;
+		if (sawDigits && count != 0)
+		{
+			if (count > 24)
+			{
+				// Original 004f10f4 reads digits[23], not digits[24].
+				if (digits[23] >= 5) ++digits[23];
+				count = 24;
+				++adjustment;
+			}
+			while (count > 0 && digits[count - 1] == 0) { --count; ++adjustment; }
+			if (count != 0)
+			{
+				Runtime_DigitsToExtended12(digits, count, destination);
+				std::uint32_t exponentBits = (exponentSign < 0 ? 0u - parsedExponent : parsedExponent) + adjustment;
+				if (!sawExponent) exponentBits += static_cast<std::uint32_t>(defaultExponent);
+				if (!sawDecimal) exponentBits -= static_cast<std::uint32_t>(defaultFractionDigits);
+				const auto exponent = static_cast<std::int32_t>(exponentBits);
+				if (exponent > 5200)
+				{
+					destination[0] = 0; destination[1] = 0; destination[2] = 0x7fff8000u;
+					status = 2;
+				}
+				else if (exponent < -5200)
+				{
+					destination[0] = destination[1] = destination[2] = 0;
+					status = 1;
+				}
+				else Runtime_ScaleExtended12(destination, exponent, preserveLowWord);
+			}
+		}
+		destination[2] |= std::uint32_t(sign) << 16;
+		return status;
+	}
+
+	// Original function: FUN_004f1236
+	inline std::int32_t Runtime_CloseAllStreams()
+	{
+		std::int32_t closedCount = 0;
+
+		Runtime_Lock(2);
+
+		// Standard streams 0, 1 and 2 are excluded.
+		for (std::int32_t index = 3; index < gRuntimeStreamCapacity; ++index)
+		{
+			RuntimeFormatStream* stream = gRuntimeStreamTable[index];
+
+			if (stream == nullptr)
+				continue;
+
+			if ((stream->flags & 0x83u) != 0)
+			{
+				// Original close wrapper: FUN_004e8c4a.
+				if ((stream->flags & 0x40u) != 0)
+				{
+					stream->flags = 0;
+				}
+				else
+				{
+					// Original pointer-based lock wrappers: FUN_004ee72a / FUN_004ee77c.
+					// Table indices select the same static or embedded locks here.
+					Runtime_LockStreamIndex(index, stream);
+					const std::int32_t result = Runtime_CloseStreamNoLock(stream);
+					Runtime_UnlockStreamIndex(index, stream);
+
+					if (result != -1)
+						++closedCount;
+				}
+			}
+
+			if (index >= 20)
+			{
+				stream = gRuntimeStreamTable[index];
+				auto* lock = reinterpret_cast<CRITICAL_SECTION*>(reinterpret_cast<std::uint8_t*>(stream) + 0x20);
+				::DeleteCriticalSection(lock);
+
+				Runtime_Free(gRuntimeStreamTable[index]);
+				gRuntimeStreamTable[index] = nullptr;
+			}
+		}
+
+		Runtime_Unlock(2);
+		return closedCount;
+	}
 
 	// Original function: FUN_004f1534
 	inline std::int32_t Runtime_BoundedStringLength(const char* text, std::int32_t maximumLength)
@@ -5989,6 +7115,34 @@ namespace NXBasics
 
 		value[2] = high >> 1;
 		value[0] = (low >> 1) | (middle << 31);
+	}
+
+
+	// Original function: FUN_004f2154.
+	// Called with at least one nonzero decimal digit; words are little-endian.
+	inline void Runtime_DigitsToExtended12(const signed char* digits, int count, std::uint32_t* destination)
+	{
+		destination[0] = destination[1] = destination[2] = 0;
+		std::uint16_t exponent = 0x404e;
+		for (int i = 0; i < count; ++i)
+		{
+			const std::uint32_t original[3] = { destination[0], destination[1], destination[2] };
+			Runtime_ShiftLeft96(destination);
+			Runtime_ShiftLeft96(destination);
+			Runtime_Add96(destination, original);
+			Runtime_ShiftLeft96(destination);
+			const std::uint32_t digit[3] = { static_cast<std::uint32_t>(static_cast<std::int32_t>(digits[i])), 0, 0 };
+			Runtime_Add96(destination, digit);
+		}
+		while (destination[2] == 0)
+		{
+			destination[2] = destination[1] >> 16;
+			destination[1] = (destination[1] << 16) | (destination[0] >> 16);
+			destination[0] <<= 16;
+			exponent = static_cast<std::uint16_t>(exponent - 16);
+		}
+		while ((destination[2] & 0x8000u) == 0) { Runtime_ShiftLeft96(destination); --exponent; }
+		destination[2] = (destination[2] & 0xffffu) | (std::uint32_t(exponent) << 16);
 	}
 
 	// Original function: FUN_004f221b
