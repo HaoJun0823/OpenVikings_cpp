@@ -500,9 +500,6 @@ namespace NXBasics
 	using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
 	inline RuntimeNewHandler gRuntimeNewHandler = nullptr;
 
-	// Original data: 0050c230, initially FUN_004e6efc.
-	inline RuntimeVoidCallback gRuntimeFloatingPointInitializer = &Runtime_InitializeFloatingPoint;
-
 	// Original data: 00569990.
 	inline int gRuntimePentiumFdivAdjustment = 0;
 
@@ -836,6 +833,8 @@ namespace NXBasics
 	inline void Runtime_ScaleExtended12(std::uint32_t* value, std::int32_t exponent, std::int32_t preserveLowWord);
 	inline void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source);
 
+	// Original data: 0050c230, initially FUN_004e6efc.
+	inline RuntimeVoidCallback gRuntimeFloatingPointInitializer = &Runtime_InitializeFloatingPoint;
 
 	// Original data: 0050c240, initially FUN_004ea147.
 	inline void(__cdecl* gRuntimeFatalExitCallback)(int) = &Runtime_QuickExit;
@@ -3427,8 +3426,12 @@ namespace NXBasics
 	// Original function: FUN_004ea20f.
 	inline void Runtime_CallInitializers(RuntimeVoidCallback* begin, RuntimeVoidCallback* end)
 	{
-		for (; begin != end; ++begin)
-			if (*begin != nullptr) (*begin)();
+		// Preserve the original unsigned address comparison.
+		for (; reinterpret_cast<std::uintptr_t>(begin) < reinterpret_cast<std::uintptr_t>(end); ++begin)
+		{
+			if (*begin != nullptr)
+				(*begin)();
+		}
 	}
 
 	// Original function: FUN_004ea229
@@ -5907,7 +5910,7 @@ namespace NXBasics
 			};
 
 		const std::uint32_t oldTotal = word(address - 4u) - 1u;
-		const std::uint32_t newTotal = (requestedBytes + 0x17u) & ~0x0u;
+		const std::uint32_t newTotal = (requestedBytes + 0x17u) & 0xFFFFFFF0u;
 
 		if (newTotal == oldTotal)
 			return 1;
