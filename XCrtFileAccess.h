@@ -19,10 +19,13 @@
 // MSVC x86 build and real Windows startup/shutdown integration remain unverified.
 // Startup audit (entry 004e709e): heap 004ec5de -> threading 004eb167 ->
 // descriptor startup 004ea927 -> argument/environment setup -> CRT initializers 004ea109.
-// Descriptor startup and the complete initializer dispatcher are not implemented here.
-// Normal exit 004ea136/004ea158 also runs onexit callbacks and pre-terminators:
-// 004fe070..004fe07c = { null, 004ee716, 004ef0c7 }. Those cleanup chains remain
-// outside this subset; Runtime_QuickExit deliberately implements only the quick path.
+// Descriptor startup, CRT initialization and normal/quick exit are reconstructed.
+// CRT initialization includes floating-point setup, the onexit table,
+// multibyte tables and stream initialization.
+// Application initializer callbacks are supplied by the owning application.
+// Heap allocation, zeroed allocation, reallocation, size queries and freeing
+// use the reconstructed runtime heap, including both small-block heap modes.
+// This is the application's reconstructed CRT subset, not a complete CRT library.
 // The new semantic names are derived from Windows instructions/data; no matching
 // private Microsoft CRT implementation was identified in the supplied Mac sources.
 
@@ -497,6 +500,104 @@ namespace NXBasics
 	using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
 	inline RuntimeNewHandler gRuntimeNewHandler = nullptr;
 
+	// Original data: 0050c230, initially FUN_004e6efc.
+	inline RuntimeVoidCallback gRuntimeFloatingPointInitializer = &Runtime_InitializeFloatingPoint;
+
+	// Original data: 00569990.
+	inline int gRuntimePentiumFdivAdjustment = 0;
+
+	// Original data: 00569cd0.
+	inline int gRuntimeSystemCodePageRequested = 0;
+
+	// Original data: 0056b3c0.
+	inline UINT gRuntimeMultibyteCodePage = 0;
+
+	// Original data: 0056b3d0 through 0056b3db.
+	// Preserve the original packed representation.
+	inline std::uint32_t gRuntimeMultibyteFullWidthCase[3] = {};
+
+	// Original data: 0056b3dc.
+	inline int gRuntimeIsMultibyteCodePage = 0;
+
+	// Original data: 0056b3e0 through 0056b4df.
+	inline std::uint8_t gRuntimeMultibyteCaseMap[256] = {};
+
+	// Original data: 0056b4e0 through 0056b5e0.
+	// Byte values use indices 1 through 256.
+	inline std::uint8_t gRuntimeMultibyteTypes[257] = {};
+
+	// Original data: 0056b5e4.
+	inline LCID gRuntimeMultibyteLocale = 0;
+
+	// Original data: 0056b708.
+	inline int gRuntimeMultibyteInitialized = 0;
+
+	struct RuntimeMultibyteProfile
+	{
+		UINT codePage;
+		std::uint32_t fullWidthCase[3];
+		std::uint8_t ranges[4][8];
+	};
+
+	// Original data: 0050cb50.
+	inline constexpr std::uint8_t gRuntimeMultibyteRangeMasks[4] = {
+		0x01, 0x02, 0x04, 0x08
+	};
+
+	// Original data: 0050cb58 through 0050cc47.
+	inline constexpr RuntimeMultibyteProfile gRuntimeMultibyteProfiles[5] = {
+		{
+			932,
+			{ 0x82798260u, 0x00000021u, 0x00000000u },
+			{
+				{ 0xA6, 0xDF, 0, 0, 0, 0, 0, 0 },
+				{ 0xA1, 0xA5, 0, 0, 0, 0, 0, 0 },
+				{ 0x81, 0x9F, 0xE0, 0xFC, 0, 0, 0, 0 },
+				{ 0x40, 0x7E, 0x80, 0xFC, 0, 0, 0, 0 }
+			}
+		},
+		{
+			936,
+			{ 0xA3DAA3C1u, 0x00000020u, 0x00000000u },
+			{
+				{},
+				{},
+				{ 0x81, 0xFE, 0, 0, 0, 0, 0, 0 },
+				{ 0x40, 0xFE, 0, 0, 0, 0, 0, 0 }
+			}
+		},
+		{
+			949,
+			{ 0xA3DAA3C1u, 0x00000020u, 0x00000000u },
+			{
+				{},
+				{},
+				{ 0x81, 0xFE, 0, 0, 0, 0, 0, 0 },
+				{ 0x41, 0xFE, 0, 0, 0, 0, 0, 0 }
+			}
+		},
+		{
+			950,
+			{ 0xA2E4A2CFu, 0xA2E5001Au, 0x005BA2E8u },
+			{
+				{},
+				{},
+				{ 0x81, 0xFE, 0, 0, 0, 0, 0, 0 },
+				{ 0x40, 0x7E, 0xA1, 0xFE, 0, 0, 0, 0 }
+			}
+		},
+		{
+			1361,
+			{ 0xDA5EDA51u, 0xDA5F0020u, 0x0032DA6Au },
+			{
+				{},
+				{},
+				{ 0x81, 0xD3, 0xD8, 0xDE, 0xE0, 0xF9, 0, 0 },
+				{ 0x31, 0x7E, 0x81, 0xFE, 0, 0, 0, 0 }
+			}
+		}
+	};
+
 
 	struct RuntimeBinaryFormat
 	{
@@ -526,6 +627,32 @@ namespace NXBasics
 	inline std::int32_t Runtime_CommitDescriptor(std::uint32_t descriptor);
 	inline std::int32_t Runtime_RemoveTemporaryStreams();
 	inline std::int32_t Runtime_CloseAllStreams();
+
+	inline RuntimeOnExitCallback Runtime_RegisterOnExit(RuntimeOnExitCallback callback);
+	inline int Runtime_AtExit(RuntimeOnExitCallback callback);
+
+	inline void Runtime_InitializeFloatingPoint();
+	inline void Runtime_InitializeCrt(RuntimeVoidCallback* applicationBegin, RuntimeVoidCallback* applicationEnd);
+
+	inline void* Runtime_Reallocate(void* memory, std::uint32_t requestedBytes);
+
+	inline int Runtime_ProbePentiumDivision();
+	inline int Runtime_GetPentiumDivisionAdjustment();
+
+	inline int Runtime_SetMultibyteCodePage(std::int32_t requestedCodePage);
+	inline UINT Runtime_ResolveMultibyteCodePage(std::int32_t requestedCodePage);
+	inline LCID Runtime_GetMultibyteLocale(UINT codePage);
+	inline void Runtime_ResetMultibyteCodePage();
+	inline void Runtime_UpdateMultibyteCaseTables();
+	inline void Runtime_InitializeMultibyte();
+
+	inline int Runtime_ResizeSmallBlock(std::uint32_t regionAddress, void* memory, std::uint32_t requestedBytes);
+	inline int Runtime_ResizeSmallBlockMode2(std::uint32_t regionAddress, std::uint32_t pageAddress, std::uint32_t entryAddress, std::uint32_t requestedUnits);
+
+	inline std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask);
+	inline std::uint32_t Runtime_ControlFloatingPoint(std::uint32_t newControl, std::uint32_t mask);
+	inline std::uint32_t Runtime_DecodeX87ControlWord(std::uint16_t controlWord);
+	inline std::uint16_t Runtime_EncodeX87ControlWord(std::uint32_t control);
 
 	// Original data: 0056a384.
 	inline RuntimeFormatStream** gRuntimeStreamTable = nullptr;
@@ -835,6 +962,50 @@ namespace NXBasics
 		std::int32_t result;
 		std::memcpy(&result, &value, sizeof(result));
 		return result;
+	}
+
+	// Original function: FUN_004e5fc2
+	inline RuntimeOnExitCallback Runtime_RegisterOnExit(RuntimeOnExitCallback callback)
+	{
+		Runtime_Lock(0x0D);
+
+		const std::uint32_t capacity = Runtime_GetAllocationSize(gRuntimeOnExitBegin);
+		const std::uint32_t usedBytes = static_cast<std::uint32_t>(
+			reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) -
+			reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
+
+		if (capacity < usedBytes + sizeof(RuntimeOnExitCallback))
+		{
+			const std::uint32_t newCapacity = Runtime_GetAllocationSize(gRuntimeOnExitBegin) + 0x10u;
+			auto* replacement = static_cast<RuntimeOnExitCallback*>(
+				Runtime_Reallocate(gRuntimeOnExitBegin, newCapacity));
+
+			if (replacement == nullptr)
+			{
+				Runtime_Unlock(0x0D);
+				return nullptr;
+			}
+
+			// Reload the globals after realloc, as the original does.
+			const std::uint32_t endOffset = static_cast<std::uint32_t>(
+				reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) -
+				reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
+
+			gRuntimeOnExitBegin = replacement;
+			gRuntimeOnExitEnd = reinterpret_cast<RuntimeOnExitCallback*>(
+				reinterpret_cast<std::uintptr_t>(replacement) + endOffset);
+		}
+
+		*gRuntimeOnExitEnd++ = callback;
+
+		Runtime_Unlock(0x0D);
+		return callback;
+	}
+
+	// Original function: FUN_004e6040
+	inline int Runtime_AtExit(RuntimeOnExitCallback callback)
+	{
+		return Runtime_RegisterOnExit(callback) != nullptr ? 0 : -1;
 	}
 
 	// Original function: FUN_004e6052
@@ -1679,6 +1850,37 @@ namespace NXBasics
 		*Runtime_GetDosErrnoPointer() = 0;
 
 		return UINT32_C(0xFFFFFFFF);
+	}
+
+	// Original function: FUN_004e6efc
+	// Includes the precision-setting wrapper FUN_004eb923.
+	inline void Runtime_InitializeFloatingPoint()
+	{
+		Runtime_InitializeFloatCallbacks();
+
+		gRuntimePentiumFdivAdjustment = Runtime_GetPentiumDivisionAdjustment();
+		Runtime_ControlFloatingPoint(0x00010000u, 0x00030000u);
+
+		__asm
+		{
+			fnclex
+		}
+	}
+
+	// Original function: FUN_004ea109.
+	// The original application initializer range is 004fe000..004fe058.
+	// Supply translated application callbacks, never original executable addresses.
+	inline void Runtime_InitializeCrt(RuntimeVoidCallback* applicationBegin, RuntimeVoidCallback* applicationEnd)
+	{
+		if (gRuntimeFloatingPointInitializer != nullptr)
+			gRuntimeFloatingPointInitializer();
+
+		// Original C initializer range: 004fe05c..004fe06c.
+		Runtime_InitializeOnExitTable();
+		Runtime_InitializeMultibyte();
+		Runtime_InitializeStreams();
+
+		Runtime_CallInitializers(applicationBegin, applicationEnd);
 	}
 
 	// Original function: FUN_004e6f13
@@ -3229,6 +3431,168 @@ namespace NXBasics
 			if (*begin != nullptr) (*begin)();
 	}
 
+	// Original function: FUN_004ea229
+	inline void* Runtime_Reallocate(void* memory, std::uint32_t requestedBytes)
+	{
+		if (memory == nullptr)
+			return Runtime_Allocate(requestedBytes);
+
+		if (requestedBytes == 0)
+		{
+			Runtime_Free(memory);
+			return nullptr;
+		}
+
+		const std::uint32_t heapMode = gRuntimeHeapMode;
+
+		if (heapMode == 2 && requestedBytes <= 0xFFFFFFE0u)
+			requestedBytes = (requestedBytes + 0x0Fu) & ~0x0Fu;
+
+		for (;;)
+		{
+			void* replacement = nullptr;
+
+			if (requestedBytes <= 0xFFFFFFE0u)
+			{
+				if (heapMode == 3)
+				{
+					std::uint32_t regionAddress = 0;
+
+					Runtime_Lock(9);
+					__try
+					{
+						regionAddress = Runtime_FindSmallBlockRegion(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory)));
+
+						if (regionAddress != 0)
+						{
+							if (requestedBytes <= gRuntimeSmallBlockThreshold)
+							{
+								if (Runtime_ResizeSmallBlock(regionAddress, memory, requestedBytes))
+								{
+									replacement = memory;
+								}
+								else
+								{
+									replacement = Runtime_AllocateSmallBlock(requestedBytes);
+
+									if (replacement != nullptr)
+									{
+										// Preserve the original header-minus-one copy bound.
+										const std::uint32_t oldSize = *(static_cast<std::uint32_t*>(memory) - 1) - 1u;
+										const std::uint32_t copySize = oldSize < requestedBytes ? oldSize : requestedBytes;
+
+										std::memcpy(replacement, memory, copySize);
+
+										// Allocation may have moved the region table.
+										regionAddress = Runtime_FindSmallBlockRegion(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory)));
+
+										Runtime_FreeSmallBlock(regionAddress, memory);
+									}
+								}
+							}
+
+							if (replacement == nullptr)
+							{
+								requestedBytes = (requestedBytes + 0x0Fu) & ~0x0Fu;
+								replacement = HeapAlloc(gRuntimeHeap, 0, requestedBytes);
+
+								if (replacement != nullptr)
+								{
+									const std::uint32_t oldSize = *(static_cast<std::uint32_t*>(memory) - 1) - 1u;
+									const std::uint32_t copySize = oldSize < requestedBytes ? oldSize : requestedBytes;
+
+									std::memcpy(replacement, memory, copySize);
+									Runtime_FreeSmallBlock(regionAddress, memory);
+								}
+							}
+						}
+					}
+					__finally
+					{
+						Runtime_Unlock(9);
+					}
+
+					if (regionAddress == 0)
+					{
+						requestedBytes = (requestedBytes + 0x0Fu) & ~0x0Fu;
+						replacement = HeapReAlloc(gRuntimeHeap, 0, memory, requestedBytes);
+					}
+				}
+				else if (heapMode == 2)
+				{
+					Runtime_Lock(9);
+					__try
+					{
+						std::uint32_t regionAddress = 0;
+						std::uint32_t pageAddress = 0;
+
+						const std::uint32_t entryAddress = Runtime_FindSmallBlockEntryMode2(memory, &regionAddress, &pageAddress);
+
+						if (entryAddress != 0)
+						{
+							// The original comparison is strictly less than.
+							if (requestedBytes < gRuntimeSmallBlockThresholdMode2)
+							{
+								const std::uint32_t requestedUnits = requestedBytes >> 4;
+
+								if (Runtime_ResizeSmallBlockMode2(regionAddress, pageAddress, entryAddress, requestedUnits))
+								{
+									replacement = memory;
+								}
+								else
+								{
+									replacement = Runtime_AllocateSmallBlockMode2(requestedUnits);
+
+									if (replacement != nullptr)
+									{
+										const std::uint32_t oldSize = static_cast<std::uint32_t>(*reinterpret_cast<std::uint8_t*>(entryAddress)) << 4;
+										const std::uint32_t copySize = oldSize < requestedBytes ? oldSize : requestedBytes;
+
+										std::memcpy(replacement, memory, copySize);
+										Runtime_FreeSmallBlockMode2(regionAddress, pageAddress, entryAddress);
+									}
+								}
+							}
+
+							if (replacement == nullptr)
+							{
+								replacement = HeapAlloc(gRuntimeHeap, 0, requestedBytes);
+
+								if (replacement != nullptr)
+								{
+									const std::uint32_t oldSize = static_cast<std::uint32_t>(*reinterpret_cast<std::uint8_t*>(entryAddress)) << 4;
+									const std::uint32_t copySize = oldSize < requestedBytes ? oldSize : requestedBytes;
+
+									std::memcpy(replacement, memory, copySize);
+									Runtime_FreeSmallBlockMode2(regionAddress, pageAddress, entryAddress);
+								}
+							}
+						}
+						else
+						{
+							replacement = HeapReAlloc(gRuntimeHeap, 0, memory, requestedBytes);
+						}
+					}
+					__finally
+					{
+						Runtime_Unlock(9);
+					}
+				}
+				else
+				{
+					requestedBytes = (requestedBytes + 0x0Fu) & ~0x0Fu;
+					replacement = HeapReAlloc(gRuntimeHeap, 0, memory, requestedBytes);
+				}
+			}
+
+			if (replacement != nullptr)
+				return replacement;
+
+			if (gRuntimeNewHandlerMode == 0 || Runtime_CallNewHandler(requestedBytes) == 0)
+				return nullptr;
+		}
+	}
+
 	// Original function: FUN_004ea558
 	inline std::uint32_t Runtime_GetAllocationSize(void* memory)
 	{
@@ -3867,6 +4231,51 @@ namespace NXBasics
 		// The restore result does not replace the resize result.
 		Runtime_SeekNoLock(descriptor, asSigned(originalPosition), 0);
 		return result;
+	}
+
+	// Original function: FUN_004eb935
+	inline int Runtime_ProbePentiumDivision()
+	{
+		// Original constants: 004fbb18, 004fbb20 and 004f3350.
+		const double numerator = 4195835.0;
+		const double denominator = 3145727.0;
+		const double reference = 1.0;
+		double residual;
+		std::uint16_t status;
+
+		// Preserve x87 evaluation and the explicit double-precision store.
+		__asm
+		{
+			fld qword ptr numerator
+			fdiv qword ptr denominator
+			fmul qword ptr denominator
+			fsubr qword ptr numerator
+			fstp qword ptr residual
+			fld qword ptr residual
+			fcomp qword ptr reference
+			fnstsw ax
+			mov status, ax
+		}
+
+		return (status & 0x4100u) == 0 ? 1 : 0;
+	}
+
+	// Original function: FUN_004eb973
+	inline int Runtime_GetPentiumDivisionAdjustment()
+	{
+		const HMODULE kernel = GetModuleHandleA("KERNEL32");
+
+		if (kernel != nullptr)
+		{
+			using ProcessorFeatureQuery = BOOL(WINAPI*)(DWORD);
+
+			const auto query = reinterpret_cast<ProcessorFeatureQuery>(GetProcAddress(kernel, "IsProcessorFeaturePresent"));
+
+			if (query != nullptr)
+				return query(0);
+		}
+
+		return Runtime_ProbePentiumDivision();
 	}
 
 	// Original function: FUN_004eb99c
@@ -4551,6 +4960,240 @@ namespace NXBasics
 		return ::WideCharToMultiByte(codePage, 0x220u, wideDestination, mappedLength, destination, destinationCapacity, nullptr, nullptr);
 	}
 
+	// Original function: FUN_004ecbbc
+	inline int Runtime_SetMultibyteCodePage(std::int32_t requestedCodePage)
+	{
+		Runtime_Lock(0x19);
+
+		const UINT codePage = Runtime_ResolveMultibyteCodePage(requestedCodePage);
+
+		if (codePage == gRuntimeMultibyteCodePage)
+		{
+			Runtime_Unlock(0x19);
+			return 0;
+		}
+
+		if (codePage == 0)
+		{
+			Runtime_ResetMultibyteCodePage();
+			Runtime_UpdateMultibyteCaseTables();
+			Runtime_Unlock(0x19);
+			return 0;
+		}
+
+		const RuntimeMultibyteProfile* profile = nullptr;
+
+		for (const auto& candidate : gRuntimeMultibyteProfiles)
+		{
+			if (candidate.codePage == codePage)
+			{
+				profile = &candidate;
+				break;
+			}
+		}
+
+		if (profile != nullptr)
+		{
+			std::memset(gRuntimeMultibyteTypes, 0, sizeof(gRuntimeMultibyteTypes));
+
+			for (unsigned category = 0; category < 4; ++category)
+			{
+				const auto* ranges = profile->ranges[category];
+
+				for (unsigned pair = 0; pair < 8 && ranges[pair] != 0; pair += 2)
+				{
+					if (ranges[pair + 1] == 0)
+						break;
+
+					for (unsigned character = ranges[pair]; character <= ranges[pair + 1]; ++character)
+						gRuntimeMultibyteTypes[character + 1] |= gRuntimeMultibyteRangeMasks[category];
+				}
+			}
+
+			gRuntimeMultibyteCodePage = codePage;
+			gRuntimeIsMultibyteCodePage = 1;
+			gRuntimeMultibyteLocale = Runtime_GetMultibyteLocale(codePage);
+
+			std::memcpy(gRuntimeMultibyteFullWidthCase, profile->fullWidthCase, sizeof(gRuntimeMultibyteFullWidthCase));
+		}
+		else
+		{
+			CPINFO information;
+
+			if (GetCPInfo(codePage, &information) != 1)
+			{
+				if (gRuntimeSystemCodePageRequested == 0)
+				{
+					Runtime_Unlock(0x19);
+					return -1;
+				}
+
+				Runtime_ResetMultibyteCodePage();
+				Runtime_UpdateMultibyteCaseTables();
+				Runtime_Unlock(0x19);
+				return 0;
+			}
+
+			std::memset(gRuntimeMultibyteTypes, 0, sizeof(gRuntimeMultibyteTypes));
+
+			gRuntimeMultibyteCodePage = codePage;
+			gRuntimeMultibyteLocale = 0;
+			gRuntimeIsMultibyteCodePage = 0;
+
+			if (information.MaxCharSize > 1)
+			{
+				for (unsigned pair = 0; pair < MAX_LEADBYTES && information.LeadByte[pair] != 0; pair += 2)
+				{
+					if (information.LeadByte[pair + 1] == 0)
+						break;
+
+					for (unsigned character = information.LeadByte[pair]; character <= information.LeadByte[pair + 1]; ++character)
+						gRuntimeMultibyteTypes[character + 1] |= 0x04u;
+				}
+
+				// The original excludes byte values 0 and 255.
+				for (unsigned character = 1; character < 255; ++character)
+					gRuntimeMultibyteTypes[character + 1] |= 0x08u;
+
+				gRuntimeMultibyteLocale = Runtime_GetMultibyteLocale(codePage);
+				gRuntimeIsMultibyteCodePage = 1;
+			}
+
+			std::memset(gRuntimeMultibyteFullWidthCase, 0, sizeof(gRuntimeMultibyteFullWidthCase));
+		}
+
+		Runtime_UpdateMultibyteCaseTables();
+
+		Runtime_Unlock(0x19);
+		return 0;
+	}
+
+	// Original function: FUN_004ecd69
+	inline UINT Runtime_ResolveMultibyteCodePage(std::int32_t requestedCodePage)
+	{
+		gRuntimeSystemCodePageRequested = 0;
+
+		switch (requestedCodePage)
+		{
+		case -2:
+			gRuntimeSystemCodePageRequested = 1;
+			return GetOEMCP();
+
+		case -3:
+			gRuntimeSystemCodePageRequested = 1;
+			return GetACP();
+
+		case -4:
+			gRuntimeSystemCodePageRequested = 1;
+			return gRuntimeCodePage;
+
+		default:
+			return static_cast<UINT>(requestedCodePage);
+		}
+	}
+
+	// Original function: FUN_004ecdb3
+	inline LCID Runtime_GetMultibyteLocale(UINT codePage)
+	{
+		switch (codePage)
+		{
+		case 932: return 0x0411;
+		case 936: return 0x0804;
+		case 949: return 0x0412;
+		case 950: return 0x0404;
+		default:  return 0;
+		}
+	}
+
+	// Original function: FUN_004ecde6
+	inline void Runtime_ResetMultibyteCodePage()
+	{
+		std::memset(gRuntimeMultibyteTypes, 0, sizeof(gRuntimeMultibyteTypes));
+		std::memset(gRuntimeMultibyteFullWidthCase, 0, sizeof(gRuntimeMultibyteFullWidthCase));
+
+		gRuntimeMultibyteCodePage = 0;
+		gRuntimeIsMultibyteCodePage = 0;
+		gRuntimeMultibyteLocale = 0;
+	}
+
+	// Original function: FUN_004ece0f
+	inline void Runtime_UpdateMultibyteCaseTables()
+	{
+		CPINFO information;
+
+		if (GetCPInfo(gRuntimeMultibyteCodePage, &information) == 1)
+		{
+			char characters[256];
+			char lowercase[256];
+			char uppercase[256];
+			WORD characterTypes[256];
+
+			for (unsigned character = 0; character < 256; ++character)
+				characters[character] = static_cast<char>(character);
+
+			characters[0] = ' ';
+
+			for (unsigned pair = 0; pair < MAX_LEADBYTES && information.LeadByte[pair] != 0; pair += 2)
+			{
+				for (unsigned character = information.LeadByte[pair]; character <= information.LeadByte[pair + 1]; ++character)
+					characters[character] = ' ';
+			}
+
+			// The original does not check these three return values.
+			Runtime_GetStringType(1, characters, 256, characterTypes, gRuntimeMultibyteCodePage, gRuntimeMultibyteLocale, 0);
+			Runtime_MapString(gRuntimeMultibyteLocale, 0x100, characters, 256, lowercase, 256, gRuntimeMultibyteCodePage, 0);
+			Runtime_MapString(gRuntimeMultibyteLocale, 0x200, characters, 256, uppercase, 256, gRuntimeMultibyteCodePage, 0);
+
+			for (unsigned character = 0; character < 256; ++character)
+			{
+				if ((characterTypes[character] & 0x01u) != 0)
+				{
+					gRuntimeMultibyteTypes[character + 1] |= 0x10u;
+					gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(lowercase[character]);
+				}
+				else if ((characterTypes[character] & 0x02u) != 0)
+				{
+					gRuntimeMultibyteTypes[character + 1] |= 0x20u;
+					gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(uppercase[character]);
+				}
+				else
+				{
+					gRuntimeMultibyteCaseMap[character] = 0;
+				}
+			}
+		}
+		else
+		{
+			for (unsigned character = 0; character < 256; ++character)
+			{
+				if (character >= 'A' && character <= 'Z')
+				{
+					gRuntimeMultibyteTypes[character + 1] |= 0x10u;
+					gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(character + 0x20u);
+				}
+				else if (character >= 'a' && character <= 'z')
+				{
+					gRuntimeMultibyteTypes[character + 1] |= 0x20u;
+					gRuntimeMultibyteCaseMap[character] = static_cast<std::uint8_t>(character - 0x20u);
+				}
+				else
+				{
+					gRuntimeMultibyteCaseMap[character] = 0;
+				}
+			}
+		}
+	}
+
+	// Original function: FUN_004ecf94
+	inline void Runtime_InitializeMultibyte()
+	{
+		if (gRuntimeMultibyteInitialized == 0)
+		{
+			Runtime_SetMultibyteCodePage(-3);
+			gRuntimeMultibyteInitialized = 1;
+		}
+	}
+
 	// Original function: FUN_004ed45a
 	inline int Runtime_InitializeSmallBlockHeap(std::uint32_t maximumRequest)
 	{
@@ -5176,6 +5819,136 @@ namespace NXBasics
 		return static_cast<std::int32_t>(groupIndex);
 	}
 
+	// Original function: FUN_004edcab
+	inline int Runtime_ResizeSmallBlock(std::uint32_t regionAddress, void* memory, std::uint32_t requestedBytes)
+	{
+		auto* region = reinterpret_cast<RuntimeSmallBlockRegion*>(regionAddress);
+
+		const auto address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(memory));
+		const auto reservation = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(region->reservation));
+		const auto metadata = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(region->metadata));
+
+		const std::uint32_t groupIndex = (address - reservation) >> 15;
+		const std::uint32_t groupAddress = metadata + 0x144u + groupIndex * 0x204u;
+
+		const auto word = [](std::uint32_t location) -> std::uint32_t&
+			{
+				return *reinterpret_cast<std::uint32_t*>(location);
+			};
+
+		const auto sizeClass = [](std::uint32_t bytes) -> std::uint32_t
+			{
+				const std::uint32_t index = (bytes >> 4) - 1u;
+				return index < 63u ? index : 63u;
+			};
+
+		const auto removeFreeBlock = [&](std::uint32_t block, std::uint32_t bytes)
+			{
+				const std::uint32_t index = sizeClass(bytes);
+				const std::uint32_t next = word(block + 4u);
+				const std::uint32_t previous = word(block + 8u);
+
+				if (next == previous)
+				{
+					const std::uint32_t mask = 0x80000000u >> (index & 31u);
+					const std::uint32_t bitmap = metadata + (index < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
+
+					word(bitmap) &= ~mask;
+
+					auto& count = *reinterpret_cast<std::uint8_t*>(metadata + 4u + index);
+
+					--count;
+
+					if (count == 0)
+					{
+						if (index < 32u)
+							region->availableClassesLow &= ~mask;
+						else
+							region->availableClassesHigh &= ~mask;
+					}
+				}
+
+				word(previous + 4u) = next;
+				word(next + 8u) = previous;
+			};
+
+		const auto insertFreeBlock = [&](std::uint32_t block, std::uint32_t bytes)
+			{
+				const std::uint32_t index = sizeClass(bytes);
+				const std::uint32_t sentinel = groupAddress + index * 8u;
+				const std::uint32_t next = word(sentinel + 4u);
+
+				word(block + 4u) = next;
+				word(block + 8u) = sentinel;
+				word(sentinel + 4u) = block;
+				word(next + 8u) = block;
+
+				if (next == sentinel)
+				{
+					const std::uint32_t mask = 0x80000000u >> (index & 31u);
+					const std::uint32_t bitmap = metadata + (index < 32u ? 0x44u : 0xC4u) + groupIndex * 4u;
+
+					auto& count = *reinterpret_cast<std::uint8_t*>(metadata + 4u + index);
+					const std::uint8_t previousCount = count++;
+
+					if (previousCount == 0)
+					{
+						if (index < 32u)
+							region->availableClassesLow |= mask;
+						else
+							region->availableClassesHigh |= mask;
+					}
+
+					word(bitmap) |= mask;
+				}
+
+				word(block) = bytes;
+				word(block + bytes - 4u) = bytes;
+			};
+
+		const std::uint32_t oldTotal = word(address - 4u) - 1u;
+		const std::uint32_t newTotal = (requestedBytes + 0x17u) & ~0x0u;
+
+		if (newTotal == oldTotal)
+			return 1;
+
+		const std::uint32_t followingBlock = address + oldTotal - 4u;
+		const std::uint32_t followingSize = word(followingBlock);
+
+		if (newTotal > oldTotal)
+		{
+			if ((followingSize & 1u) != 0 || newTotal > oldTotal + followingSize)
+				return 0;
+
+			removeFreeBlock(followingBlock, followingSize);
+
+			const std::uint32_t remainder = oldTotal + followingSize - newTotal;
+
+			if (remainder != 0)
+				insertFreeBlock(address + newTotal - 4u, remainder);
+
+			word(address - 4u) = newTotal + 1u;
+			word(address + newTotal - 8u) = newTotal + 1u;
+		}
+		else
+		{
+			std::uint32_t remainder = oldTotal - newTotal;
+
+			word(address - 4u) = newTotal + 1u;
+			word(address + newTotal - 8u) = newTotal + 1u;
+
+			if ((followingSize & 1u) == 0)
+			{
+				removeFreeBlock(followingBlock, followingSize);
+				remainder += followingSize;
+			}
+
+			insertFreeBlock(address + newTotal - 4u, remainder);
+		}
+
+		return 1;
+	}
+
 	// Original function: FUN_004edfa1
 	inline void* Runtime_CreateSmallBlockRegionMode2()
 	{
@@ -5783,6 +6556,74 @@ namespace NXBasics
 		}
 
 		return nullptr;
+	}
+
+	// Original function: FUN_004ee5c5
+	inline int Runtime_ResizeSmallBlockMode2(std::uint32_t regionAddress, std::uint32_t pageAddress, std::uint32_t entryAddress, std::uint32_t requestedUnits)
+	{
+		auto* region = reinterpret_cast<RuntimeSmallBlockRegionMode2*>(regionAddress);
+		auto* entry = reinterpret_cast<std::uint8_t*>(entryAddress);
+
+		const std::uint32_t reservationAddress =
+			static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(region->reservation));
+		const std::uint32_t pageIndex = (pageAddress - reservationAddress) >> 12;
+
+		auto& pageEntry = region->pages[pageIndex];
+		const std::uint32_t oldUnits = *entry;
+
+		if (oldUnits > requestedUnits)
+		{
+			*entry = static_cast<std::uint8_t>(requestedUnits);
+			pageEntry.freeUnits += oldUnits - requestedUnits;
+			pageEntry.failedRequestLimit = 0xF1u;
+			return 1;
+		}
+
+		// Equal sizes return zero in this allocator.
+		if (oldUnits == requestedUnits)
+			return 0;
+
+		const std::uint32_t endAddress = entryAddress + requestedUnits;
+		const std::uint32_t mapEnd = pageAddress + 0xF8u;
+
+		if (endAddress > mapEnd)
+			return 0;
+
+		std::uint32_t scanAddress = entryAddress + oldUnits;
+
+		while (scanAddress < endAddress && *reinterpret_cast<std::uint8_t*>(scanAddress) == 0)
+			++scanAddress;
+
+		if (scanAddress != endAddress)
+			return 0;
+
+		*entry = static_cast<std::uint8_t>(requestedUnits);
+
+		auto* pageHeader = reinterpret_cast<std::uint32_t*>(pageAddress);
+		const std::uint32_t searchAddress = pageHeader[0];
+
+		if (entryAddress <= searchAddress && endAddress > searchAddress)
+		{
+			if (endAddress < mapEnd)
+			{
+				pageHeader[0] = endAddress;
+
+				std::uint32_t remainingUnits = 0;
+
+				while (*reinterpret_cast<std::uint8_t*>(endAddress + remainingUnits) == 0)
+					++remainingUnits;
+
+				pageHeader[1] = remainingUnits;
+			}
+			else
+			{
+				pageHeader[0] = pageAddress + 8u;
+				pageHeader[1] = 0;
+			}
+		}
+
+		pageEntry.freeUnits += oldUnits - requestedUnits;
+		return 1;
 	}
 
 	// Original function: FUN_004ee66e
@@ -6397,6 +7238,103 @@ namespace NXBasics
 		return (previousFlags & 0x80u) != 0 ? 0x4000 : 0x8000;
 	}
 
+	// Original function: FUN_004f053b
+	inline std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask)
+	{
+		std::uint16_t controlWord;
+
+		__asm
+		{
+			fwait
+			fnstcw controlWord
+		}
+
+		const std::uint32_t previousControl = Runtime_DecodeX87ControlWord(controlWord);
+		const std::uint32_t updatedControl = (previousControl & ~mask) | (newControl & mask);
+
+		controlWord = Runtime_EncodeX87ControlWord(updatedControl);
+
+		__asm
+		{
+			fldcw controlWord
+		}
+
+		return updatedControl;
+	}
+
+	// Original function: FUN_004f0570
+	inline std::uint32_t Runtime_ControlFloatingPoint(std::uint32_t newControl, std::uint32_t mask)
+	{
+		return Runtime_ControlX87(newControl, mask & ~0x00080000u);
+	}
+
+	// Original function: FUN_004f0586
+	inline std::uint32_t Runtime_DecodeX87ControlWord(std::uint16_t controlWord)
+	{
+		std::uint32_t control = 0;
+
+		if ((controlWord & 0x0001u) != 0) control |= 0x00000010u;
+		if ((controlWord & 0x0004u) != 0) control |= 0x00000008u;
+		if ((controlWord & 0x0008u) != 0) control |= 0x00000004u;
+		if ((controlWord & 0x0010u) != 0) control |= 0x00000002u;
+		if ((controlWord & 0x0020u) != 0) control |= 0x00000001u;
+		if ((controlWord & 0x0002u) != 0) control |= 0x00080000u;
+
+		control |= static_cast<std::uint32_t>(controlWord & 0x0C00u) >> 2;
+
+		switch (controlWord & 0x0300u)
+		{
+		case 0x0000u:
+			control |= 0x00020000u;
+			break;
+
+		case 0x0200u:
+			control |= 0x00010000u;
+			break;
+
+		default:
+			break;
+		}
+
+		if ((controlWord & 0x1000u) != 0)
+			control |= 0x00040000u;
+
+		return control;
+	}
+
+	// Original function: FUN_004f0618
+	inline std::uint16_t Runtime_EncodeX87ControlWord(std::uint32_t control)
+	{
+		std::uint32_t controlWord = 0;
+
+		if ((control & 0x00000010u) != 0) controlWord |= 0x0001u;
+		if ((control & 0x00000008u) != 0) controlWord |= 0x0004u;
+		if ((control & 0x00000004u) != 0) controlWord |= 0x0008u;
+		if ((control & 0x00000002u) != 0) controlWord |= 0x0010u;
+		if ((control & 0x00000001u) != 0) controlWord |= 0x0020u;
+		if ((control & 0x00080000u) != 0) controlWord |= 0x0002u;
+
+		controlWord |= (control & 0x00000300u) << 2;
+
+		switch (control & 0x00030000u)
+		{
+		case 0x00000000u:
+			controlWord |= 0x0300u;
+			break;
+
+		case 0x00010000u:
+			controlWord |= 0x0200u;
+			break;
+
+		default:
+			break;
+		}
+
+		if ((control & 0x00040000u) != 0)
+			controlWord |= 0x1000u;
+
+		return static_cast<std::uint16_t>(controlWord);
+	}
 
 	// Original function: FUN_004f06a1.
 	// Big-endian word order; tests bits strictly AFTER bitIndex (MSB is bit 0).
