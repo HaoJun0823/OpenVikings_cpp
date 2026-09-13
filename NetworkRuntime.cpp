@@ -1,10 +1,11 @@
+#include "OriginalStrings.h"
+#include "XCrtFileAccess.h"
 #include "NetworkShutdown.h"
 
 #include <cstring>
 #include <new>
 
 // Pending dependencies.
-extern void FUN_004e5e48(void* allocation);
 extern char* FUN_004e3252(std::int32_t result);
 
 extern int FUN_004e8f88(void* stream, const char* format, ...);
@@ -18,26 +19,12 @@ extern HRESULT WINAPI FUN_004dbd68(void* context, DWORD messageId, void* message
 // The initial value of this global has not been established here.
 extern std::uint8_t DAT_00569650;
 
-// Original strings whose complete contents remain unresolved.
-extern const char lpOutputString_0050071c[];
-extern const char lpOutputString_00509630[];
-extern const char DAT_005087fc[];
-extern const char DAT_0050978c[];
-
-extern const char DAT_00509eb8[];
-extern const char DAT_00509e30[];
-extern const char DAT_00509e8c[];
-extern const char DAT_00509dec[];
-
 // Original data: DAT_00569658
-NNetwork::CDPNet* DAT_00569658 = nullptr;
+NNetwork::CDPNet* gNetworkInstance = nullptr;
 
 // Original data: DAT_00569654
-NNetwork::SNetLog* DAT_00569654 = nullptr;
+NNetwork::SNetLog* gNetworkLog = nullptr;
 
-NNetwork::SNetLog* FUN_004db855();
-void* FUN_004dbc6d(NNetwork::SNetLog* object, const char* text, std::int32_t indentation);
-void FUN_004ddc42(std::int32_t level, const char* text, std::int32_t indentation);
 
 namespace
 {
@@ -69,16 +56,16 @@ namespace
 	void ReportDirectPlayError(const char* operation, HRESULT result)
 	{
 		OutputDebugStringA(operation);
-		OutputDebugStringA(lpOutputString_0050071c);
+		OutputDebugStringA(OriginalStrings::DirectPlayErrorSeparator);
 		OutputDebugStringA(FUN_004e3252(result));
-		OutputDebugStringA(lpOutputString_00509630);
+		OutputDebugStringA(OriginalStrings::NewLine);
 	}
 }
 
 // Original function: FUN_004db855
-NNetwork::SNetLog* FUN_004db855()
+NNetwork::SNetLog* GetNetworkLog()
 {
-	if (DAT_00569654 == nullptr)
+	if (gNetworkLog == nullptr)
 	{
 		// No value-initialization: the original constructor leaves bytes untouched.
 		NNetwork::SNetLog* object = new (std::nothrow) NNetwork::SNetLog;
@@ -88,10 +75,10 @@ NNetwork::SNetLog* FUN_004db855()
 			object = InitializeNetworkLog(object);
 		}
 
-		DAT_00569654 = object;
+		gNetworkLog = object;
 	}
 
-	return DAT_00569654;
+	return gNetworkLog;
 }
 
 namespace NNetwork
@@ -108,7 +95,7 @@ namespace NNetwork
 		std::memset(data58, 0, sizeof(data58));
 
 		// Copy the complete 0x124-byte log object, including untouched bytes.
-		std::memcpy(&log, FUN_004db855(), sizeof(log));
+		std::memcpy(&log, GetNetworkLog(), sizeof(log));
 
 		peer = nullptr;
 		interface70 = nullptr;
@@ -132,18 +119,18 @@ namespace NNetwork
 }
 
 // Original function: FUN_004dc409
-NNetwork::CDPNet* FUN_004dc409()
+NNetwork::CDPNet* GetNetworkInstance()
 {
-	if (DAT_00569658 == nullptr)
+	if (gNetworkInstance == nullptr)
 	{
-		DAT_00569658 = new (std::nothrow) NNetwork::CDPNet;
+		gNetworkInstance = new (std::nothrow) NNetwork::CDPNet;
 	}
 
-	return DAT_00569658;
+	return gNetworkInstance;
 }
 
 // Original function: FUN_004dbc6d
-void* FUN_004dbc6d(NNetwork::SNetLog* object, const char* text, std::int32_t indentation)
+void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t indentation)
 {
 	if (DAT_00569650 == 0)
 	{
@@ -179,7 +166,7 @@ void* FUN_004dbc6d(NNetwork::SNetLog* object, const char* text, std::int32_t ind
 		char timeBuffer[9] = {};
 
 		char* timeText = FUN_004e8f0f(timeBuffer);
-		const int result = FUN_004e8f88(object->stream, DAT_005087fc, timeText);
+		const int result = FUN_004e8f88(object->stream, OriginalStrings::NetworkLogTimeFormat, timeText);
 
 		if (result < 0)
 		{
@@ -191,7 +178,7 @@ void* FUN_004dbc6d(NNetwork::SNetLog* object, const char* text, std::int32_t ind
 
 	for (std::int32_t remaining = indentation; remaining > 0; --remaining)
 	{
-		FUN_004e8f88(object->stream, DAT_0050978c);
+		FUN_004e8f88(object->stream, OriginalStrings::NetworkLogIndentation);
 	}
 
 	// The original passes text directly as the format string.
@@ -206,7 +193,7 @@ void* FUN_004dbc6d(NNetwork::SNetLog* object, const char* text, std::int32_t ind
 }
 
 // Original function: FUN_004ddc42
-void FUN_004ddc42(std::int32_t level, const char* text, std::int32_t indentation)
+void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t indentation)
 {
 	// Preserve the signed comparison: negative levels also pass this check.
 	if (level == 0 || level > 3)
@@ -214,18 +201,18 @@ void FUN_004ddc42(std::int32_t level, const char* text, std::int32_t indentation
 		return;
 	}
 
-	if (FUN_004db855()->stream == nullptr)
+	if (GetNetworkLog()->stream == nullptr)
 	{
 		return;
 	}
 
-	FUN_004dbc6d(FUN_004db855(), text, indentation);
+	WriteNetworkLog(GetNetworkLog(), text, indentation);
 }
 
 namespace NNetwork
 {
 	// Original function: FUN_004dc700
-	bool CDPNet::FUN_004dc700(void* context, bool option)
+	bool CDPNet::InitializePeer(void* context, bool option)
 	{
 		// The original ignores the supplied context and reads this->callbackContext.
 		(void)context;
@@ -241,31 +228,31 @@ namespace NNetwork
 				return true;
 			}
 
-			ReportDirectPlayError(DAT_00509eb8, result);
-			FUN_004ddc42(3, DAT_00509e8c, 0);
+			ReportDirectPlayError(OriginalStrings::NetworkInitializeOperation, result);
+			WriteNetworkLogLevel(3, OriginalStrings::NetworkReinitializationFailed, 0);
 
 			return false;
 		}
 
-		ReportDirectPlayError(DAT_00509e30, 0);
-		FUN_004ddc42(3, DAT_00509dec, 0);
+		ReportDirectPlayError(OriginalStrings::NetworkPeerDestroyedError, 0);
+		WriteNetworkLogLevel(3, OriginalStrings::NetworkPeerDestroyedLog, 0);
 
 		return false;
 	}
 }
 
 // Original function: FUN_004d77da
-void FUN_004d77da(NNetwork::SSessionNode* object)
+void ReleaseSessionNodeResources(NNetwork::SSessionNode* object)
 {
 	if (object->description != nullptr && object->description->pwszSessionName != nullptr)
 	{
-		FUN_004e5e48(object->description->pwszSessionName);
+		NXBasics::Runtime_Free(object->description->pwszSessionName);
 		object->description->pwszSessionName = nullptr;
 	}
 
 	if (object->description != nullptr)
 	{
-		FUN_004e5e48(object->description);
+		NXBasics::Runtime_Free(object->description);
 		object->description = nullptr;
 	}
 

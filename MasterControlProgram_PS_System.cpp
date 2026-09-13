@@ -1,3 +1,4 @@
+#include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
 
@@ -83,7 +84,7 @@ namespace NMasterControlProgram
 					OutputDebugStringA(buffer);
 				}
 
-				FUN_004e5e48(*errorMessage);
+				NXBasics::Runtime_Free(*errorMessage);
 				*errorMessage = nullptr;
 			}
 		}

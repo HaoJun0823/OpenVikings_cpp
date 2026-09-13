@@ -24,7 +24,6 @@
     <ClCompile Include="MasterPropertyManager.cpp" />
     <ClCompile Include="NetworkRuntime.cpp" />
     <ClCompile Include="NetworkShutdown.cpp" />
-    <ClCompile Include="OriginalMemory.cpp" />
     <ClCompile Include="winmain.cpp" />
     <ClCompile Include="MasterControlProgram.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
@@ -62,6 +61,8 @@
     <ClInclude Include="XBitmap.h" />
     <ClInclude Include="XBitmapTools.h" />
     <ClInclude Include="XCrtFileAccess.h" />
+    <ClInclude Include="OriginalStrings.h" />
+    <ClInclude Include="XSystemManager.h" />
     <ClInclude Include="XDiagnostics.h" />
     <ClInclude Include="XFile.h" />
     <ClInclude Include="XFileAccess.h" />

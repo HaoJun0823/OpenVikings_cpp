@@ -42,7 +42,7 @@ namespace NMasterControlProgram
 		if (preIngameFmvManager != nullptr)
 		{
 			FUN_0040313f(preIngameFmvManager);
-			FUN_004e5e48(preIngameFmvManager);
+			::operator delete(preIngameFmvManager);
 		}
 
 		mProgramState = static_cast<std::int32_t>(TProgramState::None);

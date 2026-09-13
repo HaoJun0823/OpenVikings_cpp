@@ -146,6 +146,27 @@ namespace NXBasics
 	};
 	static_assert(sizeof(gRuntimeDefaultExceptionActions) == 0x78);
 
+	// Original data: 0050c9e0.
+	inline std::int32_t gRuntimeFloatingPointActionBegin = 3;
+
+	// Original data: 0050c9e4.
+	inline std::int32_t gRuntimeFloatingPointActionCount = 7;
+
+	// Original data: 0050c9ec.
+	inline std::int32_t gRuntimeExceptionActionCount = 10;
+
+	// Original data: 005699cc.
+	inline std::uint32_t gRuntimeInterruptSignalAction = 0;
+
+	// Original data: 005699d0.
+	inline std::uint32_t gRuntimeBreakSignalAction = 0;
+
+	// Original data: 005699d4.
+	inline std::uint32_t gRuntimeAbortSignalAction = 0;
+
+	// Original data: 005699d8.
+	inline std::uint32_t gRuntimeTerminateSignalAction = 0;
+
 	// Original data: 0050c250 through 0050c3b7.
 	inline constexpr RuntimeErrorMapping gRuntimeErrorMappings[] =
 	{
@@ -718,6 +739,10 @@ namespace NXBasics
 	inline void* Runtime_AllocateHeapBlock(std::uint32_t requestedBytes);
 
 	inline void Runtime_QuickExit(int exitCode);
+
+	inline void Runtime_Abort();
+	inline int Runtime_RaiseSignal(std::int32_t signalNumber);
+	inline RuntimeExceptionAction* Runtime_FindSignalAction(std::int32_t signalNumber, RuntimeExceptionAction* actions);
 	inline void Runtime_CallInitializers(RuntimeVoidCallback* begin, RuntimeVoidCallback* end);
 	inline void Runtime_WriteErrorBanner();
 	inline void Runtime_WriteErrorMessage(int errorCode);
@@ -969,15 +994,12 @@ namespace NXBasics
 		Runtime_Lock(0x0D);
 
 		const std::uint32_t capacity = Runtime_GetAllocationSize(gRuntimeOnExitBegin);
-		const std::uint32_t usedBytes = static_cast<std::uint32_t>(
-			reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) -
-			reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
+		const std::uint32_t usedBytes = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) - reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
 
 		if (capacity < usedBytes + sizeof(RuntimeOnExitCallback))
 		{
 			const std::uint32_t newCapacity = Runtime_GetAllocationSize(gRuntimeOnExitBegin) + 0x10u;
-			auto* replacement = static_cast<RuntimeOnExitCallback*>(
-				Runtime_Reallocate(gRuntimeOnExitBegin, newCapacity));
+			auto* replacement = static_cast<RuntimeOnExitCallback*>(Runtime_Reallocate(gRuntimeOnExitBegin, newCapacity));
 
 			if (replacement == nullptr)
 			{
@@ -986,13 +1008,10 @@ namespace NXBasics
 			}
 
 			// Reload the globals after realloc, as the original does.
-			const std::uint32_t endOffset = static_cast<std::uint32_t>(
-				reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) -
-				reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
+			const std::uint32_t endOffset = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) - reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
 
 			gRuntimeOnExitBegin = replacement;
-			gRuntimeOnExitEnd = reinterpret_cast<RuntimeOnExitCallback*>(
-				reinterpret_cast<std::uintptr_t>(replacement) + endOffset);
+			gRuntimeOnExitEnd = reinterpret_cast<RuntimeOnExitCallback*>(reinterpret_cast<std::uintptr_t>(replacement) + endOffset);
 		}
 
 		*gRuntimeOnExitEnd++ = callback;
@@ -2220,6 +2239,187 @@ namespace NXBasics
 		std::int32_t result;
 		std::memcpy(&result, &resultBits, sizeof(result));
 		return result;
+	}
+
+	// Original function: FUN_004e79f3
+	inline void Runtime_Abort()
+	{
+		Runtime_WriteErrorMessage(10);
+		Runtime_RaiseSignal(22);
+		Runtime_QuickExit(3);
+	}
+
+	// Original function: FUN_004e8354
+	inline int Runtime_RaiseSignal(std::int32_t signalNumber)
+	{
+		std::uint32_t* actionSlot = nullptr;
+		std::uint8_t* threadBytes = nullptr;
+		bool usesGlobalLock = false;
+
+		switch (signalNumber)
+		{
+		case 2:
+			actionSlot = &gRuntimeInterruptSignalAction;
+			usesGlobalLock = true;
+			break;
+
+		case 4:
+		case 8:
+		case 11:
+		{
+			threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
+
+			RuntimeExceptionAction* actions;
+			std::memcpy(&actions, threadBytes + 0x50, sizeof(actions));
+
+			actionSlot = &Runtime_FindSignalAction(signalNumber, actions)->action;
+			break;
+		}
+
+		case 15:
+			actionSlot = &gRuntimeTerminateSignalAction;
+			usesGlobalLock = true;
+			break;
+
+		case 21:
+			actionSlot = &gRuntimeBreakSignalAction;
+			usesGlobalLock = true;
+			break;
+
+		case 22:
+			actionSlot = &gRuntimeAbortSignalAction;
+			usesGlobalLock = true;
+			break;
+
+		default:
+			return -1;
+		}
+
+		// Preserve the original action snapshot before acquiring the lock.
+		const std::uint32_t action = *actionSlot;
+
+		if (usesGlobalLock)
+		{
+			Runtime_Lock(1);
+		}
+
+		// Action 1 means ignore.
+		if (action == 1)
+		{
+			if (usesGlobalLock)
+			{
+				Runtime_Unlock(1);
+			}
+
+			return 0;
+		}
+
+		// Action 0 means the default termination action.
+		if (action == 0)
+		{
+			if (usesGlobalLock)
+			{
+				Runtime_Unlock(1);
+			}
+
+			Runtime_QuickExit(3);
+		}
+
+		std::uint32_t savedExceptionInformation = 0;
+		std::int32_t savedFloatingPointCode = 0;
+
+		if (signalNumber == 4 || signalNumber == 8 || signalNumber == 11)
+		{
+			std::memcpy(&savedExceptionInformation, threadBytes + 0x54, sizeof(savedExceptionInformation));
+
+			const std::uint32_t clearedExceptionInformation = 0;
+			std::memcpy(threadBytes + 0x54, &clearedExceptionInformation, sizeof(clearedExceptionInformation));
+
+			if (signalNumber == 8)
+			{
+				std::memcpy(&savedFloatingPointCode, threadBytes + 0x58, sizeof(savedFloatingPointCode));
+
+				const std::int32_t floatingPointCode = 0x8C;
+				std::memcpy(threadBytes + 0x58, &floatingPointCode, sizeof(floatingPointCode));
+			}
+		}
+
+		if (signalNumber == 8)
+		{
+			for (std::int32_t index = gRuntimeFloatingPointActionBegin;
+				index < gRuntimeFloatingPointActionBegin + gRuntimeFloatingPointActionCount;
+				++index)
+			{
+				RuntimeExceptionAction* actions;
+				std::memcpy(&actions, threadBytes + 0x50, sizeof(actions));
+
+				actions[index].action = 0;
+			}
+		}
+		else
+		{
+			*actionSlot = 0;
+		}
+
+		if (usesGlobalLock)
+		{
+			Runtime_Unlock(1);
+		}
+
+		if (signalNumber == 8)
+		{
+			using FloatingPointSignalCallback = void(__cdecl*)(std::int32_t, std::int32_t);
+
+			const auto callback = reinterpret_cast<FloatingPointSignalCallback>(static_cast<std::uintptr_t>(action));
+
+			std::int32_t floatingPointCode;
+			std::memcpy(&floatingPointCode, threadBytes + 0x58, sizeof(floatingPointCode));
+
+			callback(8, floatingPointCode);
+		}
+		else
+		{
+			using SignalCallback = void(__cdecl*)(std::int32_t);
+
+			const auto callback = reinterpret_cast<SignalCallback>(static_cast<std::uintptr_t>(action));
+
+			callback(signalNumber);
+		}
+
+		if (signalNumber == 4 || signalNumber == 8 || signalNumber == 11)
+		{
+			std::memcpy(threadBytes + 0x54, &savedExceptionInformation, sizeof(savedExceptionInformation));
+
+			if (signalNumber == 8)
+			{
+				std::memcpy(threadBytes + 0x58, &savedFloatingPointCode, sizeof(savedFloatingPointCode));
+			}
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004e84d6
+	inline RuntimeExceptionAction* Runtime_FindSignalAction(std::int32_t signalNumber, RuntimeExceptionAction* actions)
+	{
+		RuntimeExceptionAction* current = actions;
+
+		if (current->signalNumber != signalNumber)
+		{
+			RuntimeExceptionAction* end = actions + gRuntimeExceptionActionCount;
+
+			do
+			{
+				++current;
+			} while (current < end && current->signalNumber != signalNumber);
+		}
+
+		if (current >= actions + gRuntimeExceptionActionCount || current->signalNumber != signalNumber)
+		{
+			return nullptr;
+		}
+
+		return current;
 	}
 
 	// Original function: FUN_004e8513

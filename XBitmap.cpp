@@ -1,6 +1,9 @@
+#include "XSystemManager.h"
+#include "OriginalStrings.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XBitmapTools.h"
+#include "XDiagnostics.h"
 #include "XFileAccess.h"
 #include "XPixelFormatConverter.h"
 #include "XPaletteAccess.h"
@@ -60,7 +63,7 @@ namespace NXBasics
 	{
 		if (mIsVirtual != 0)
 		{
-			FUN_00406935(DAT_004ff994);
+			NXBasics::ReportFatalError(OriginalStrings::CannotSaveVirtualBitmap);
 		}
 
 		File_Write(file, &mDepth, 0x04);
@@ -306,7 +309,7 @@ namespace NXBasics
 
 			if (palette == nullptr)
 			{
-				palette = DAT_005106dc;
+				palette = NXBasics::CXBSystemManager::sPalettePtr;
 			}
 
 			const std::uint8_t colorIndex = Palette_FindMatchingColor(palette, color);
@@ -875,7 +878,7 @@ namespace NXBasics
 
 			if (palette == nullptr)
 			{
-				palette = DAT_005106dc;
+				palette = NXBasics::CXBSystemManager::sPalettePtr;
 			}
 
 			const std::uint8_t colorIndex = Palette_FindMatchingColor(palette, color);
@@ -907,7 +910,7 @@ namespace NXBasics
 
 		if (palette == nullptr)
 		{
-			palette = DAT_005106dc;
+			palette = NXBasics::CXBSystemManager::sPalettePtr;
 		}
 
 		return Palette_GetHighColorWord(palette, paletteIndex);
@@ -920,7 +923,7 @@ namespace NXBasics
 
 		if (palette == nullptr)
 		{
-			palette = DAT_005106dc;
+			palette = NXBasics::CXBSystemManager::sPalettePtr;
 		}
 
 		return Palette_GetHighColorTablePtr(palette);
@@ -934,7 +937,7 @@ namespace NXBasics
 
 		if (palette == nullptr)
 		{
-			palette = DAT_005106dc;
+			palette = NXBasics::CXBSystemManager::sPalettePtr;
 		}
 
 		return Palette_GetTrueColorWord(palette, paletteIndex);
@@ -947,7 +950,7 @@ namespace NXBasics
 
 		if (palette == nullptr)
 		{
-			palette = DAT_005106dc;
+			palette = NXBasics::CXBSystemManager::sPalettePtr;
 		}
 
 		return Palette_GetTrueColorTablePtr(palette);

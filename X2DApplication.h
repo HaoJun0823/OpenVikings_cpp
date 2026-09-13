@@ -134,6 +134,7 @@ namespace NXSys2DApp
 		// Original function: FUN_004799d8
 		bool DoMessages();
 
+		// Original data: 00554d74.
 		static CApplication* sTheObjectPtr;
 
 	private:

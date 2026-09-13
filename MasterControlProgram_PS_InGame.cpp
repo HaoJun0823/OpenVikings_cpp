@@ -1,3 +1,6 @@
+#include "X2DApplication.h"
+#include "MasterPropertyManager.h"
+#include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "InGameGuiManager.h"
 #include "NetworkShutdown.h"
@@ -139,7 +142,7 @@ namespace NMasterControlProgram
 
 					case 2:
 					{
-						const int senderPlayerId = FUN_004e5fb7(receivedText);
+						const int senderPlayerId = NXBasics::Runtime_StringToInteger(receivedText);
 
 						int playerIndex = -1;
 						int validationValue = 0;
@@ -150,14 +153,14 @@ namespace NMasterControlProgram
 						if (firstSeparator != nullptr)
 						{
 							++firstSeparator;
-							playerIndex = FUN_004e5fb7(firstSeparator);
+							playerIndex = NXBasics::Runtime_StringToInteger(firstSeparator);
 
 							char* secondSeparator = std::strchr(firstSeparator, ':');
 
 							if (secondSeparator != nullptr)
 							{
 								++secondSeparator;
-								validationValue = FUN_004e5fb7(secondSeparator);
+								validationValue = NXBasics::Runtime_StringToInteger(secondSeparator);
 
 								char* thirdSeparator = std::strchr(secondSeparator, ':');
 
@@ -272,9 +275,9 @@ namespace NMasterControlProgram
 			currentMessage = currentMessage->next;
 		}
 
-		thunk_FUN_004db528(messageCollection);
+		NNetwork::ClearEventQueue(reinterpret_cast<NNetwork::SEventQueue*>(messageCollection));
 
-		if (FUN_004e166b(DAT_005697ec, "start_fmv"))
+		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("start_fmv"))
 		{
 			System_ProgramState_ChangeNextTimePossible(TProgramState::TitleScreen, false);
 		}
@@ -285,7 +288,7 @@ namespace NMasterControlProgram
 		const auto* desktopBytes = reinterpret_cast<const std::byte*>(DAT_00554d5c);
 		const std::uint32_t displayBitmap = *reinterpret_cast<const std::uint32_t*>(desktopBytes + 0x10);
 
-		FUN_00479052(DAT_00554d74, displayBitmap, nullptr, 0);
+		FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, displayBitmap, nullptr, 0);
 	}
 
 	// Original function: FUN_00401ccb

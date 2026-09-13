@@ -1,3 +1,4 @@
+#include "XDiagnostics.h"
 #include "XFile.h"
 #include "XStorableIO.h"
 #include "XStringArray.h"
@@ -85,7 +86,7 @@ namespace NXBasics
 			return new (std::nothrow) CStringArray(file, version);
 
 		default:
-			FUN_00406935("NXBasics::XB_Storable_LoadObject  cannot load unknown object - class id %d", objectId);
+			NXBasics::ReportFatalError("NXBasics::XB_Storable_LoadObject  cannot load unknown object - class id %d", objectId);
 			return nullptr;
 		}
 	}

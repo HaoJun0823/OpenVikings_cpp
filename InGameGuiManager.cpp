@@ -1,3 +1,4 @@
+#include "MasterPropertyManager.h"
 #include "InGameGuiManager.h"
 
 #include <cstring>
@@ -5,7 +6,6 @@
 
 extern void* DAT_005690dc;
 extern std::byte DAT_005690b8[0x14];
-extern void* DAT_005697ec;
 extern void* DAT_00569888;
 extern void* DAT_00569954;
 
@@ -17,8 +17,6 @@ extern void* __fastcall FUN_004a3d47(void* object);
 extern void __stdcall FUN_004e1da1();
 extern void __stdcall FUN_004e2edf();
 
-extern bool FUN_004e166b(void* propertyManager, const char* propertyName);
-extern std::int32_t FUN_004e163b(void* propertyManager, const char* propertyName);
 
 namespace
 {
@@ -100,12 +98,12 @@ namespace
 
 	std::int32_t ReadIntegerProperty(const char* propertyName, std::int32_t defaultValue)
 	{
-		if (!FUN_004e166b(DAT_005697ec, propertyName))
+		if (!NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists(propertyName))
 		{
 			return defaultValue;
 		}
 
-		return FUN_004e163b(DAT_005697ec, propertyName);
+		return NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue(propertyName);
 	}
 }
 
@@ -185,7 +183,7 @@ namespace NInGameGuiManager
 		mLegacyState[0xE3] = ReadIntegerProperty("gui_scroll_on_border", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
 		mLegacyState[0xE4] = ReadIntegerProperty("gui_mouse_software", 0) != 0 ? std::byte{ 1 } : std::byte{ 0 };
 
-		if (FUN_004e166b(DAT_005697ec, "allow_cheats") && FUN_004e163b(DAT_005697ec, "allow_cheats") != 0)
+		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("allow_cheats") && NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("allow_cheats") != 0)
 		{
 			mLegacyState[0xE5] = std::byte{ 1 };
 		}

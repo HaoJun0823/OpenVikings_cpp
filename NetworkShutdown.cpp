@@ -1,3 +1,6 @@
+#include "OriginalStrings.h"
+#include <new>
+#include "XCrtFileAccess.h"
 #include "NetworkShutdown.h"
 
 #include <cstring>
@@ -5,13 +8,8 @@
 // Pending dependencies.
 // These declarations describe reconstruction interfaces, not absolute-address bindings.
 
-extern void FUN_004e5e48(void* allocation);
 extern char* FUN_004e3252(std::int32_t result);
 
-extern NNetwork::CDPNet* FUN_004dc409();
-extern NNetwork::SNetLog* FUN_004db855();
-extern void* FUN_004dbc6d(NNetwork::SNetLog* object, const char* text, std::int32_t indentation);
-extern void FUN_004d77da(NNetwork::SSessionNode* object);
 
 extern int FUN_004e8cc7(void* stream);
 extern int FUN_004e8c4a(void* stream);
@@ -19,49 +17,39 @@ extern int FUN_004e5d8b(char* destination, const char* format, ...);
 extern char* FUN_004e907b(std::uint32_t value, char* destination, int radix);
 
 // Original globals. Storage remains with the corresponding owning module.
-extern NNetwork::CDPNet* DAT_00569658;
-extern NNetwork::SNetLog* DAT_00569654;
 extern NNetwork::SDynamicNetworkData DAT_0050f6a8;
 
-// Original strings whose complete contents have not been supplied.
-extern const char lpOutputString_0050071c[];
-extern const char lpOutputString_00509630[];
-extern const char DAT_0050a698[];
-extern const char DAT_0050a9ec[];
-extern const char DAT_0050a9dc[];
-extern const char DAT_0050a9d8[];
-extern const char DAT_0050a9c8[];
 
 namespace NNetwork
 {
+	// Original function: FUN_004db528
+	SEventQueue* ClearEventQueue(SEventQueue* queue)
+	{
+		while (queue->first != nullptr)
+		{
+			SEventNode* node = queue->first;
+			queue->first = node->next;
+
+			NXBasics::Runtime_Free(node);
+		}
+
+		queue->last = nullptr;
+		queue->first = nullptr;
+		queue->count = 0;
+		queue->changed = 0;
+
+		return queue;
+	}
+
 	namespace
 	{
 		// Shared expansion of the original four OutputDebugStringA calls.
 		void ReportDirectPlayError(const char* operation, HRESULT result)
 		{
 			OutputDebugStringA(operation);
-			OutputDebugStringA(lpOutputString_0050071c);
+			OutputDebugStringA(OriginalStrings::DirectPlayErrorSeparator);
 			OutputDebugStringA(FUN_004e3252(result));
-			OutputDebugStringA(lpOutputString_00509630);
-		}
-
-		// Original function: FUN_004db528
-		SEventQueue* ClearEventQueue(SEventQueue* queue)
-		{
-			while (queue->first != nullptr)
-			{
-				SEventNode* node = queue->first;
-				queue->first = node->next;
-
-				FUN_004e5e48(node);
-			}
-
-			queue->last = nullptr;
-			queue->first = nullptr;
-			queue->count = 0;
-			queue->changed = 0;
-
-			return queue;
+			OutputDebugStringA(OriginalStrings::NewLine);
 		}
 
 		// Original function: FUN_004e101b
@@ -91,7 +79,7 @@ namespace NNetwork
 
 			if (array->slots != nullptr)
 			{
-				FUN_004e5e48(array->slots);
+				NXBasics::Runtime_Free(array->slots);
 				array->slots = nullptr;
 			}
 		}
@@ -99,25 +87,25 @@ namespace NNetwork
 		// Original function: FUN_004de9da
 		void ReleaseDynamicNetworkMemory(SDynamicNetworkData* data)
 		{
-			FUN_004dbc6d(FUN_004db855(), "Deleting dynamic memory", 0);
+			WriteNetworkLog(GetNetworkLog(), "Deleting dynamic memory", 0);
 
 			ClearEventQueue(&data->events);
 
 			if (data->allocation10 != nullptr)
 			{
-				FUN_004e5e48(data->allocation10);
+				NXBasics::Runtime_Free(data->allocation10);
 				data->allocation10 = nullptr;
 			}
 
 			if (data->allocation28 != nullptr)
 			{
-				FUN_004e5e48(data->allocation28);
+				NXBasics::Runtime_Free(data->allocation28);
 				data->allocation28 = nullptr;
 			}
 
 			if (data->allocation30 != nullptr)
 			{
-				FUN_004e5e48(data->allocation30);
+				NXBasics::Runtime_Free(data->allocation30);
 				data->allocation30 = nullptr;
 			}
 
@@ -150,18 +138,18 @@ namespace NNetwork
 			{
 				char buffer[20] = {};
 
-				OutputDebugStringA(DAT_0050a9ec);
-				OutputDebugStringA(DAT_0050a9dc);
+				OutputDebugStringA(OriginalStrings::TimerNotRespondingWarning);
+				OutputDebugStringA(OriginalStrings::TimerThreadLabel);
 
-				FUN_004e5d8b(buffer, DAT_0050a9d8, timer->thread);
+				FUN_004e5d8b(buffer, OriginalStrings::TimerThreadFormat, timer->thread);
 				OutputDebugStringA(buffer);
 
-				OutputDebugStringA(DAT_0050a9c8);
+				OutputDebugStringA(OriginalStrings::TimerTimeoutLabel);
 
 				FUN_004e907b(0xFFFFFFFFu, buffer, 10);
 				OutputDebugStringA(buffer);
 
-				OutputDebugStringA(lpOutputString_00509630);
+				OutputDebugStringA(OriginalStrings::NewLine);
 			}
 
 			CloseHandle(timer->thread);
@@ -181,14 +169,14 @@ namespace NNetwork
 		// Original function: FUN_004db87e
 		void DestroyLogSingleton()
 		{
-			SNetLog* log = DAT_00569654;
+			SNetLog* log = gNetworkLog;
 
 			if (log != nullptr)
 			{
 				CloseNetworkLog(log);
-				FUN_004e5e48(log);
+				::operator delete(log);
 
-				DAT_00569654 = nullptr;
+				gNetworkLog = nullptr;
 			}
 		}
 
@@ -206,8 +194,8 @@ namespace NNetwork
 
 			if (last == node)
 			{
-				FUN_004d77da(node);
-				FUN_004e5e48(node);
+				ReleaseSessionNodeResources(node);
+				NXBasics::Runtime_Free(node);
 				return;
 			}
 
@@ -221,8 +209,8 @@ namespace NNetwork
 				// The original stops after destroying the captured last node.
 				finished = node == last;
 
-				FUN_004d77da(node);
-				FUN_004e5e48(node);
+				ReleaseSessionNodeResources(node);
+				NXBasics::Runtime_Free(node);
 			} while (!finished);
 		}
 	}
@@ -235,7 +223,7 @@ namespace NNetwork
 		if (timer != nullptr)
 		{
 			ShutDownTimer(timer);
-			FUN_004e5e48(timer);
+			NXBasics::Runtime_Free(timer);
 
 			searchTimer = nullptr;
 		}
@@ -275,7 +263,7 @@ namespace NNetwork
 
 		flags &= 0xFFFFFFF4u;
 
-		return FUN_004dc700(callbackContext, false);
+		return InitializePeer(callbackContext, false);
 	}
 
 	// Original function: FUN_004dd9fe
@@ -287,13 +275,13 @@ namespace NNetwork
 
 			if (FAILED(result))
 			{
-				ReportDirectPlayError(DAT_0050a698, result);
+				ReportDirectPlayError(OriginalStrings::NetworkReturnBufferOperation, result);
 			}
 		}
 
 		if (messages != nullptr)
 		{
-			FUN_004e5e48(messages);
+			NXBasics::Runtime_Free(messages);
 		}
 	}
 
@@ -364,7 +352,7 @@ namespace NNetwork
 	// Original function: FUN_004dc391
 	CDPNet::~CDPNet()
 	{
-		if (DAT_00569654 != nullptr)
+		if (gNetworkLog != nullptr)
 		{
 			DestroyLogSingleton();
 		}
@@ -374,7 +362,7 @@ namespace NNetwork
 		if (timer != nullptr)
 		{
 			ShutDownTimer(timer);
-			FUN_004e5e48(timer);
+			NXBasics::Runtime_Free(timer);
 
 			searchTimer = nullptr;
 		}
@@ -384,7 +372,7 @@ namespace NNetwork
 		if (sessionList != nullptr)
 		{
 			DestroySessionListContents(sessionList);
-			FUN_004e5e48(sessionList);
+			NXBasics::Runtime_Free(sessionList);
 
 			sessions = nullptr;
 		}
@@ -398,14 +386,14 @@ namespace NNetwork
 	// Original function: FUN_004dc438
 	void DestroyNetworkSingleton()
 	{
-		CDPNet* object = DAT_00569658;
+		CDPNet* object = gNetworkInstance;
 
 		if (object != nullptr)
 		{
 			object->~CDPNet();
-			FUN_004e5e48(object);
+			::operator delete(object);
 
-			DAT_00569658 = nullptr;
+			gNetworkInstance = nullptr;
 		}
 	}
 
@@ -414,7 +402,7 @@ namespace NNetwork
 	{
 		ShutDownDynamicNetworkData(&DAT_0050f6a8);
 
-		CDPNet* network = FUN_004dc409();
+		CDPNet* network = GetNetworkInstance();
 
 		if ((network->flags & 0x04u) != 0)
 		{

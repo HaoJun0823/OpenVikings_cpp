@@ -1,3 +1,5 @@
+#include "OriginalStrings.h"
+#include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XFileAccess.h"
 
@@ -28,7 +30,7 @@ namespace NXBasics
 	{
 		Close();
 
-		mDescriptor = FUN_004e679e(mFileName, 0x8301, 0x180);
+		mDescriptor = NXBasics::Runtime_Open(mFileName, 0x8301, 0x180);
 
 		if (mDescriptor != -1)
 		{
@@ -43,7 +45,7 @@ namespace NXBasics
 			// Read errno again after obtaining its description.
 			const auto currentError = *Runtime_GetErrnoPointer();
 
-			FUN_00406935(reinterpret_cast<const char*>(&DAT_004ff090), mFileName, currentError, errorText);
+			NXBasics::ReportFatalError(OriginalStrings::FileOpenForWritingError, mFileName, currentError, errorText);
 		}
 
 		return false;

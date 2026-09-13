@@ -1,3 +1,4 @@
+#include "XSystemManager.h"
 #include "X2DApplication.h"
 #include "X2DDisplay.h"
 #include "XMMouseManager.h"
@@ -13,21 +14,6 @@
 #pragma comment(lib, "Ole32.lib")
 #pragma comment(lib, "Version.lib")
 #pragma comment(lib, "dxguid.lib")
-
-namespace NXBasics
-{
-	class CXBSystemManager
-	{
-	public:
-		CXBSystemManager();
-		~CXBSystemManager();
-
-		static CXBSystemManager* sTheObjectPtr;
-		static void* sFatalErrorFunctionPtr;
-		static void* sWarningErrorFunctionPtr;
-		static void* sAssertFunctionPtr;
-	};
-}
 
 namespace NXSysMisc
 {

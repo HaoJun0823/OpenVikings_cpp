@@ -1,3 +1,5 @@
+#include "X2DApplication.h"
+#include "MasterPropertyManager.h"
 #include <new>
 
 #include "MasterControlProgram.h"
@@ -22,7 +24,7 @@ namespace NMasterControlProgram
 		const auto* desktopBytes = reinterpret_cast<const std::byte*>(DAT_00554d5c);
 		const std::uint32_t displayBitmap = *reinterpret_cast<const std::uint32_t*>(desktopBytes + 0x10);
 
-		FUN_00479052(DAT_00554d74, displayBitmap, nullptr, 0);
+		FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, displayBitmap, nullptr, 0);
 	}
 
 	// Original function: FUN_0040212b
@@ -61,10 +63,10 @@ namespace NMasterControlProgram
 
 		constexpr const char* propertyName = "start_campaign_3_screen";
 
-		if (FUN_004e166b(DAT_005697ec, propertyName))
+		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists(propertyName))
 		{
 			FUN_004d33c6(DAT_005694dc, 5, false);
-			FUN_004e16fb(DAT_005697ec, propertyName);
+			NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove(propertyName);
 		}
 
 		return true;
@@ -92,7 +94,7 @@ namespace NMasterControlProgram
 		if (mainMenuGuiManager != nullptr)
 		{
 			FUN_004d2ba8(mainMenuGuiManager);
-			FUN_004e5e48(mainMenuGuiManager);
+			::operator delete(mainMenuGuiManager);
 		}
 
 		mProgramState = static_cast<std::int32_t>(TProgramState::None);

@@ -1,3 +1,4 @@
+#include "MasterPropertyManager.h"
 #include "MasterControlProgram.h"
 #include "InGameGuiManager.h"
 #include "X2DApplication.h"
@@ -97,7 +98,7 @@ namespace NMasterControlProgram
 
 		if (saveOptions)
 		{
-			FUN_004e1816(DAT_005697ec);
+			FUN_004e1816(NMasterPropertyManager::CPropertyManager::sTheObjectPtr);
 		}
 
 		HardwareMouseCursor_ReSet();

@@ -17,6 +17,9 @@ namespace NXBasics
 	public:
 		using ErrorCallback = void(__cdecl*)(std::int32_t, const char*, const char*);
 
+		// Original data: 00512580. Semantic name; no Mac symbol was identified.
+		inline static ErrorCallback sDefaultErrorCallback = nullptr;
+
 		// Original function: FUN_00424df8
 		CIniFileReader(const char* fileName, const char* preliminaryFileName, bool createCompiledFile, const char* compiledExtension, ErrorCallback errorCallback);
 

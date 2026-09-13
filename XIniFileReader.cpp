@@ -642,7 +642,7 @@ namespace NXBasics
 					if (errorCallback == nullptr)
 					{
 						// Original global fallback callback: DAT_00512580
-						std::memcpy(&errorCallback, &DAT_00512580, sizeof(errorCallback));
+						errorCallback = sDefaultErrorCallback;
 					}
 
 					if (errorCallback != nullptr)

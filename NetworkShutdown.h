@@ -24,6 +24,9 @@ namespace NNetwork
 		SEventNode* last;                          // +0x0C
 	};
 
+	// Original function: FUN_004db528
+	SEventQueue* ClearEventQueue(SEventQueue* queue);
+
 	struct SReceivedMessage
 	{
 		DPNID sender;                             // +0x00
@@ -109,7 +112,7 @@ namespace NNetwork
 	class CDPNet
 	{
 	public:
-		// Original function: FUN_004dc31e — implementation remains pending.
+		// Original function: FUN_004dc31e.
 		CDPNet();
 
 		// Original function: FUN_004dc391
@@ -127,8 +130,8 @@ namespace NNetwork
 		// Original function: FUN_004dd9fe
 		void ReleaseReceivedMessages(SReceivedMessage* messages, std::uint32_t count);
 
-		// Original function: FUN_004dc700 — implementation remains pending.
-		bool FUN_004dc700(void* context, bool option);
+		// Original function: FUN_004dc700.
+		bool InitializePeer(void* context, bool option);
 
 		std::uint32_t flags;                       // +0x000
 		std::uint32_t playerChangeCount;           // +0x004
@@ -196,3 +199,18 @@ namespace NNetwork
 	static_assert(offsetof(CDPNet, log) == 0x104);
 	static_assert(sizeof(CDPNet) == 0x228);
 }
+// Existing reconstruction interfaces, with their original addresses retained.
+// Original function: FUN_004db855
+NNetwork::SNetLog* GetNetworkLog();
+// Original function: FUN_004dc409
+NNetwork::CDPNet* GetNetworkInstance();
+// Original function: FUN_004dbc6d
+void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t indentation);
+// Original function: FUN_004ddc42
+void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t indentation);
+// Original function: FUN_004d77da
+void ReleaseSessionNodeResources(NNetwork::SSessionNode* object);
+// Original data: 00569654
+extern NNetwork::SNetLog* gNetworkLog;
+// Original data: 00569658
+extern NNetwork::CDPNet* gNetworkInstance;

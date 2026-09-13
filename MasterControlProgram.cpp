@@ -1,3 +1,5 @@
+#include "XSystemManager.h"
+#include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
@@ -285,7 +287,7 @@ namespace NMasterControlProgram
 		if (engineManager != nullptr)
 		{
 			FUN_0047e181(engineManager);
-			FUN_004e5e48(engineManager);
+			NXBasics::Runtime_Free(engineManager);
 		}
 
 		auto* game = DAT_005109d0;
@@ -293,7 +295,7 @@ namespace NMasterControlProgram
 		if (game != nullptr)
 		{
 			FUN_00406d85(game);
-			FUN_004e5e48(game);
+			NXBasics::Runtime_Free(game);
 		}
 
 		mEngineInitialized = 0;
@@ -406,7 +408,7 @@ namespace NMasterControlProgram
 			backgroundColor = NXBasics::SColorRGB(108, 100, 83);
 
 			// Original callback at 0x0040272B contains only RET.
-			FUN_004e6040(+[]() {});
+			NXBasics::Runtime_AtExit(+[]() {});
 		}
 
 		temporaryBitmap->Fill(backgroundColor);
@@ -469,7 +471,7 @@ namespace NMasterControlProgram
 		if (cdAudioManager != nullptr)
 		{
 			FUN_00403e62(cdAudioManager);
-			FUN_004e5e48(cdAudioManager);
+			NXBasics::Runtime_Free(cdAudioManager);
 		}
 
 		void* directMusicManager = DAT_0050f698;
@@ -488,7 +490,7 @@ namespace NMasterControlProgram
 		if (soundManager != nullptr)
 		{
 			FUN_00404762(soundManager);
-			FUN_004e5e48(soundManager);
+			NXBasics::Runtime_Free(soundManager);
 		}
 
 		auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
@@ -513,16 +515,16 @@ namespace NMasterControlProgram
 			{
 				FUN_00406510(fileLibrary);
 				FUN_004067d7(fileLibrary);
-				FUN_004e5e48(fileLibrary);
+				NXBasics::Runtime_Free(fileLibrary);
 			}
 		}
 
-		auto* systemManager = DAT_005106d8;
+		auto* systemManager = NXBasics::CXBSystemManager::sTheObjectPtr;
 
 		if (systemManager != nullptr)
 		{
 			FUN_00406ab5(systemManager);
-			FUN_004e5e48(systemManager);
+			::operator delete(systemManager);
 		}
 
 		mProgramState = 0;

@@ -1,15 +1,17 @@
 #pragma once
 
+#include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
+#include "XDiagnostics.h"
 
 #include <cstdint>
 #include <cstring>
 
-// Original function: FUN_00406286
-inline void File_SeekToPosition(void* file, std::uint32_t position);
-
 namespace NXBasics
 {
+	// Original function: FUN_00406286
+	inline void File_SeekToPosition(void* file, std::uint32_t position);
+
 	// Original function: FUN_00406126; NXBasics::CFile::Close().
 	inline void File_Close(void* file)
 	{
@@ -27,14 +29,14 @@ namespace NXBasics
 
 		if (static_cast<std::uint32_t>(result) == 0xFFFFFFFFu)
 		{
-			const auto firstError = *FUN_004e75e8();
+			const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
 			const auto errorText = FUN_004e7525(firstError);
 
 			// Read errno again after obtaining its description.
-			const auto currentError = *FUN_004e75e8();
+			const auto currentError = *NXBasics::Runtime_GetErrnoPointer();
 			const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-			FUN_00406935(DAT_004ff0c8, fileName, currentError, errorText);
+			NXBasics::ReportFatalError(OriginalStrings::FileCloseError, fileName, currentError, errorText);
 		}
 
 		const std::int32_t invalidIndex = -1;
@@ -67,7 +69,7 @@ namespace NXBasics
 		const auto currentError = *Runtime_GetErrnoPointer();
 		const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-		FUN_00406935("NXBasics::CFile::Read\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
+		NXBasics::ReportFatalError("NXBasics::CFile::Read\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 	}
 
 	// Original function: FUN_004062ee
@@ -92,7 +94,7 @@ namespace NXBasics
 			const auto errorText = FUN_004e7525(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
-			FUN_00406935("NXBasics::CFile::Position\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
+			NXBasics::ReportFatalError("NXBasics::CFile::Position\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 		}
 
 		std::uint32_t archiveIndex;
@@ -155,7 +157,7 @@ namespace NXBasics
 			const auto errorText = FUN_004e7525(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
-			FUN_00406935("NXBasics::CFile::SeekToPosition\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
+			NXBasics::ReportFatalError("NXBasics::CFile::SeekToPosition\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 		}
 	}
 
@@ -224,7 +226,7 @@ namespace NXBasics
 			const auto errorText = FUN_004e7525(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
-			FUN_00406935("NXBasics::CFile::Size\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
+			NXBasics::ReportFatalError("NXBasics::CFile::Size\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 		}
 
 		return size;
@@ -433,11 +435,11 @@ namespace NXBasics
 			{
 				if (reportErrors)
 				{
-					const auto firstError = *FUN_004e75e8();
+					const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
 					const auto errorText = FUN_004e7525(firstError);
-					const auto currentError = *FUN_004e75e8();
+					const auto currentError = *NXBasics::Runtime_GetErrnoPointer();
 
-					FUN_00406935(DAT_004ff058, fileName, currentError, errorText);
+					NXBasics::ReportFatalError(OriginalStrings::FileOpenForReadingError, fileName, currentError, errorText);
 				}
 
 				return false;
@@ -586,14 +588,14 @@ namespace NXBasics
 			return;
 		}
 
-		const auto firstError = *FUN_004e75e8();
+		const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
 		const auto errorText = FUN_004e7525(firstError);
 
 		// Read the error value again after obtaining its description.
-		const auto currentError = *FUN_004e75e8();
+		const auto currentError = *NXBasics::Runtime_GetErrnoPointer();
 		const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-		FUN_00406935("NXBasics::CFile::Write\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
+		NXBasics::ReportFatalError("NXBasics::CFile::Write\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 	}
 
 	static_assert(sizeof(void*) == 4, "These file accesses require an x86 build");
