@@ -6,15 +6,14 @@
 #include "X2DApplication.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "XFile.h"
+#include "XFileAccess.h"
 #include "XSystemMouseCursor.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <new>
-
-// Original pointer slots: 0x005106C4 through 0x005106D4.
-extern void* DAT_005106c4[5];
 
 namespace NC2LogicExternals
 {
@@ -72,7 +71,13 @@ namespace NMasterControlProgram
 				continue;
 			}
 
-			auto* fileLibrary = new (std::nothrow) NXBasics::CSimpleFileLibrary(configuredFile);
+			void* fileLibrary = NXBasics::Runtime_AllocateWithNewHandler(0x14u, 1);
+
+			if (fileLibrary != nullptr)
+			{
+				NXBasics::Archive_Initialize(fileLibrary, configuredFile);
+			}
+
 			NXBasics::CFile::FileSystem_FileLibrary_Add(fileLibrary);
 			customDataFileLoaded = true;
 		}
@@ -88,7 +93,13 @@ namespace NMasterControlProgram
 					continue;
 				}
 
-				auto* fileLibrary = new (std::nothrow) NXBasics::CSimpleFileLibrary(fileName);
+				void* fileLibrary = NXBasics::Runtime_AllocateWithNewHandler(0x14u, 1);
+
+				if (fileLibrary != nullptr)
+				{
+					NXBasics::Archive_Initialize(fileLibrary, fileName);
+				}
+
 				NXBasics::CFile::FileSystem_FileLibrary_Add(fileLibrary);
 			}
 		}
@@ -509,12 +520,12 @@ namespace NMasterControlProgram
 
 		for (std::size_t index = 0; index < 5; ++index)
 		{
-			void* fileLibrary = DAT_005106c4[index];
+			void* fileLibrary = NXBasics::CFile::mStaticVars.fileLibraries[index];
 
 			if (fileLibrary != nullptr)
 			{
-				FUN_00406510(fileLibrary);
-				FUN_004067d7(fileLibrary);
+				NXBasics::CFile::FileSystem_FileLibrary_Remove(fileLibrary);
+				NXBasics::Archive_Destroy(fileLibrary);
 				NXBasics::Runtime_Free(fileLibrary);
 			}
 		}

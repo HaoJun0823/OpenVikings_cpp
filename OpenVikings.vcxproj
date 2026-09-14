@@ -62,6 +62,7 @@
     <ClInclude Include="XBitmapTools.h" />
     <ClInclude Include="XCrtFileAccess.h" />
     <ClInclude Include="OriginalStrings.h" />
+    <ClInclude Include="XDirectoryScanner.h" />
     <ClInclude Include="XSystemManager.h" />
     <ClInclude Include="XDiagnostics.h" />
     <ClInclude Include="XFile.h" />

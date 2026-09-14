@@ -2,14 +2,20 @@
 
 #include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
+#include "XFile.h"
 #include "XDiagnostics.h"
 
 #include <cstdint>
 #include <cstring>
+#include <new>
 
 namespace NXBasics
 {
-	// Original function: FUN_00406286
+	inline std::uint8_t Archive_CalculateNameCheck(const char* fileName);
+	inline std::uint32_t Archive_FindFileIndex(void* archive, const char* fileName);
+	inline bool Archive_IsFileInLibrary(void* archive, const char* fileName);
+	inline std::uint32_t Archive_GetFileOffset(void* archive, const char* fileName);
+	inline std::uint32_t Archive_GetFileSize(void* archive, const char* fileName);
 	inline void File_SeekToPosition(void* file, std::uint32_t position);
 
 	// Original function: FUN_00406126; NXBasics::CFile::Close().
@@ -30,7 +36,7 @@ namespace NXBasics
 		if (static_cast<std::uint32_t>(result) == 0xFFFFFFFFu)
 		{
 			const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
-			const auto errorText = FUN_004e7525(firstError);
+			const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
 
 			// Read errno again after obtaining its description.
 			const auto currentError = *NXBasics::Runtime_GetErrnoPointer();
@@ -65,7 +71,7 @@ namespace NXBasics
 		}
 
 		const auto firstError = *Runtime_GetErrnoPointer();
-		const auto errorText = FUN_004e7525(firstError);
+		const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
 		const auto currentError = *Runtime_GetErrnoPointer();
 		const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
@@ -91,7 +97,7 @@ namespace NXBasics
 		if (position == UINT32_C(0xFFFFFFFF))
 		{
 			const auto firstError = *Runtime_GetErrnoPointer();
-			const auto errorText = FUN_004e7525(firstError);
+			const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
 			NXBasics::ReportFatalError("NXBasics::CFile::Position\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
@@ -102,10 +108,7 @@ namespace NXBasics
 
 		if (archiveIndex != UINT32_C(0xFFFFFFFF))
 		{
-			const auto* archiveSlots = reinterpret_cast<const std::uint8_t*>(&DAT_005106c4);
-
-			void* archive;
-			std::memcpy(&archive, archiveSlots + archiveIndex * 4u, sizeof(archive));
+			void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
 			const std::uint32_t entryOffset = Archive_GetFileOffset(archive, fileName);
 			position -= entryOffset;
@@ -134,10 +137,7 @@ namespace NXBasics
 
 		if (archiveIndex != UINT32_C(0xFFFFFFFF))
 		{
-			const auto* archiveSlots = reinterpret_cast<const std::uint8_t*>(&DAT_005106c4);
-
-			void* archive;
-			std::memcpy(&archive, archiveSlots + archiveIndex * 4u, sizeof(archive));
+			void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
 			const std::uint32_t entryOffset = Archive_GetFileOffset(archive, fileName);
 			position += entryOffset;
@@ -154,7 +154,7 @@ namespace NXBasics
 		if (result == UINT32_C(0xFFFFFFFF))
 		{
 			const auto firstError = *Runtime_GetErrnoPointer();
-			const auto errorText = FUN_004e7525(firstError);
+			const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
 			NXBasics::ReportFatalError("NXBasics::CFile::SeekToPosition\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
@@ -164,12 +164,9 @@ namespace NXBasics
 	// Original function: FUN_00406861
 	inline std::uint32_t Archive_GetFileSize(void* archive, const char* fileName)
 	{
-		const auto* archiveBytes = static_cast<const std::uint8_t*>(archive);
+		const auto* state = static_cast<const SArchiveState*>(archive);
 
-		const std::uint8_t* entries;
-		std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
-
-		if (entries == nullptr)
+		if (state->entries == nullptr)
 		{
 			return 0;
 		}
@@ -181,13 +178,7 @@ namespace NXBasics
 			return 0;
 		}
 
-		// Reload the entry table after the lookup.
-		std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
-
-		std::uint32_t size;
-		std::memcpy(&size, entries + entryIndex * 0x10u + 0x0C, sizeof(size));
-
-		return size;
+		return state->entries[entryIndex].fileSize;
 	}
 
 	// Original function: FUN_0040635a
@@ -210,10 +201,7 @@ namespace NXBasics
 
 		if (archiveIndex != UINT32_C(0xFFFFFFFF))
 		{
-			const auto* archiveSlots = reinterpret_cast<const std::uint8_t*>(&DAT_005106c4);
-
-			void* archive;
-			std::memcpy(&archive, archiveSlots + archiveIndex * std::uint32_t{ 4 }, sizeof(archive));
+			void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
 			return Archive_GetFileSize(archive, fileName);
 		}
@@ -223,13 +211,89 @@ namespace NXBasics
 		if (size == UINT32_C(0xFFFFFFFF))
 		{
 			const auto firstError = *Runtime_GetErrnoPointer();
-			const auto errorText = FUN_004e7525(firstError);
+			const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
 			const auto currentError = *Runtime_GetErrnoPointer();
 
 			NXBasics::ReportFatalError("NXBasics::CFile::Size\n\nfile %s - errno %d: %s", fileName, currentError, errorText);
 		}
 
 		return size;
+	}
+
+	// Original function: FUN_0040665d
+	// Mac symbol: NXBasics::CSimpleFileLibrary::CSimpleFileLibrary(char const*).
+	inline void* Archive_Initialize(void* archive, const char* fileName)
+	{
+		auto* state = ::new (archive) SArchiveState;
+		std::memset(state, 0, sizeof(*state));
+
+		void* fileStorage = Runtime_AllocateWithNewHandler(0x110u, 1);
+		CFile* archiveFile = nullptr;
+
+		if (fileStorage != nullptr)
+		{
+			archiveFile = ::new (fileStorage) CFile(fileName, true);
+		}
+
+		state->archiveFile = archiveFile;
+
+		// The original reads but does not validate this value.
+		std::uint32_t ignoredHeader;
+		File_Read(state->archiveFile, &ignoredHeader, 4u);
+		File_Read(state->archiveFile, &state->directoryEntryCount, 4u);
+		File_Read(state->archiveFile, &state->entryCount, 4u);
+
+		// Preserve the original reuse of the filename argument slot.
+		std::uint32_t nameLength = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(fileName));
+
+		if (state->directoryEntryCount != 0)
+		{
+			const std::uint32_t allocationBytes = state->directoryEntryCount << 3;
+			auto* tableStorage = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(allocationBytes, 1));
+			state->directoryEntries = reinterpret_cast<SArchiveDirectoryEntry*>(tableStorage);
+
+			const std::uint32_t clearBytes = state->directoryEntryCount << 3;
+			std::memset(tableStorage, 0, clearBytes);
+
+			for (std::uint32_t index = 0; index < state->directoryEntryCount; ++index)
+			{
+				auto* entry = ::new (tableStorage + index * 0x08u) SArchiveDirectoryEntry;
+
+				File_Read(state->archiveFile, &nameLength, 4u);
+
+				entry->name = static_cast<char*>(Runtime_AllocateWithNewHandler(nameLength + 1u, 1));
+				entry->name[nameLength] = '\0';
+
+				File_Read(state->archiveFile, entry->name, nameLength);
+				File_Read(state->archiveFile, &entry->value, 4u);
+			}
+		}
+
+		// Preserve allocation even when the file entry count is zero.
+		const std::uint32_t allocationBytes = state->entryCount << 4;
+		auto* tableStorage = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(allocationBytes, 1));
+		state->entries = reinterpret_cast<SArchiveFileEntry*>(tableStorage);
+
+		const std::uint32_t clearBytes = state->entryCount << 4;
+		std::memset(tableStorage, 0, clearBytes);
+
+		for (std::uint32_t index = 0; index < state->entryCount; ++index)
+		{
+			auto* entry = ::new (tableStorage + index * 0x10u) SArchiveFileEntry;
+
+			File_Read(state->archiveFile, &nameLength, 4u);
+
+			entry->name = static_cast<char*>(Runtime_AllocateWithNewHandler(nameLength + 1u, 1));
+			entry->name[nameLength] = '\0';
+
+			File_Read(state->archiveFile, entry->name, nameLength);
+			entry->nameCheck = Archive_CalculateNameCheck(entry->name);
+
+			File_Read(state->archiveFile, &entry->fileOffset, 4u);
+			File_Read(state->archiveFile, &entry->fileSize, 4u);
+		}
+
+		return state;
 	}
 
 	// Original function: FUN_00406903
@@ -258,47 +322,78 @@ namespace NXBasics
 	inline std::uint32_t Archive_FindFileIndex(void* archive, const char* fileName)
 	{
 		const std::uint8_t nameCheck = Archive_CalculateNameCheck(fileName);
-		const auto* archiveBytes = static_cast<const std::uint8_t*>(archive);
+		const auto* state = static_cast<const SArchiveState*>(archive);
 
-		for (std::uint32_t index = 0;; ++index)
+		for (std::uint32_t index = 0; index < state->entryCount; ++index)
 		{
-			std::uint32_t entryCount;
-			std::memcpy(&entryCount, archiveBytes, sizeof(entryCount));
+			const auto& entry = state->entries[index];
 
-			if (index >= entryCount)
-			{
-				return UINT32_C(0xFFFFFFFF);
-			}
-
-			const std::uint8_t* entries;
-			std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
-
-			const std::uint8_t* entry = entries + index * 0x10u;
-
-			if (entry[0x04] != nameCheck)
+			if (entry.nameCheck != nameCheck)
 			{
 				continue;
 			}
 
-			const char* storedName;
-			std::memcpy(&storedName, entry, sizeof(storedName));
-
-			if (Runtime_CompareStringsIgnoreCase(fileName, storedName) == 0)
+			if (Runtime_CompareStringsIgnoreCase(fileName, entry.name) == 0)
 			{
 				return index;
 			}
 		}
+
+		return UINT32_C(0xFFFFFFFF);
+	}
+
+	// Original function: FUN_004067d7
+	// Mac symbol: NXBasics::CSimpleFileLibrary::~CSimpleFileLibrary().
+	inline void Archive_Destroy(void* archive)
+	{
+		auto* state = static_cast<SArchiveState*>(archive);
+
+		for (std::uint32_t index = 0; index < state->entryCount; ++index)
+		{
+			Runtime_Free(state->entries[index].name);
+		}
+
+		Runtime_Free(state->entries);
+
+		for (std::uint32_t index = 0; index < state->directoryEntryCount; ++index)
+		{
+			Runtime_Free(state->directoryEntries[index].name);
+		}
+
+		Runtime_Free(state->directoryEntries);
+
+		CFile* archiveFile = state->archiveFile;
+
+		if (archiveFile != nullptr)
+		{
+			archiveFile->~CFile();
+			Runtime_Free(archiveFile);
+		}
+
+		// The caller frees the archive allocation after this function returns.
+		std::memset(state, 0, sizeof(*state));
+	}
+
+	// Original function: FUN_00406841
+	// Mac symbol: NXBasics::CSimpleFileLibrary::IsFileInLibrary(char const*) const.
+	inline bool Archive_IsFileInLibrary(void* archive, const char* fileName)
+	{
+		const auto* state = static_cast<const SArchiveState*>(archive);
+
+		if (state->entries == nullptr)
+		{
+			return false;
+		}
+
+		return Archive_FindFileIndex(archive, fileName) != UINT32_C(0xFFFFFFFF);
 	}
 
 	// Original function: FUN_0040688a
 	inline std::uint32_t Archive_GetFileOffset(void* archive, const char* fileName)
 	{
-		const auto* archiveBytes = static_cast<const std::uint8_t*>(archive);
+		const auto* state = static_cast<const SArchiveState*>(archive);
 
-		const std::uint8_t* entries;
-		std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
-
-		if (entries == nullptr)
+		if (state->entries == nullptr)
 		{
 			return 0;
 		}
@@ -310,12 +405,7 @@ namespace NXBasics
 			return 0;
 		}
 
-		std::memcpy(&entries, archiveBytes + 0x04, sizeof(entries));
-
-		std::uint32_t offset;
-		std::memcpy(&offset, entries + entryIndex * 0x10u + 0x08, sizeof(offset));
-
-		return offset;
+		return state->entries[entryIndex].fileOffset;
 	}
 
 	inline bool File_OpenForReading(void* file, bool reportErrors, bool searchPaths);
@@ -343,31 +433,23 @@ namespace NXBasics
 		// The original does not explicitly append a terminator here.
 		std::strncpy(fileName, inputFileName, 0x103);
 
-		const auto* replacementRecords = reinterpret_cast<const std::uint8_t*>(&DAT_0050f758);
-
 		for (std::uint32_t index = 0; index < 5; ++index)
 		{
-			const auto* record = replacementRecords + index * 0x210u;
+			const auto& record = CFile::mStaticVars.systemPathNames[index];
 
-			if (record[0] == 0)
+			if (record.enabled == 0)
 			{
 				continue;
 			}
 
-			std::uint32_t prefixLength;
-			std::memcpy(&prefixLength, record + 0x108, sizeof(prefixLength));
-
-			const auto* prefix = reinterpret_cast<const char*>(record + 0x01);
-
-			if (FUN_004e6f80(inputFileName, prefix, prefixLength) != 0)
+			if (Runtime_CompareStringsIgnoreCaseN(inputFileName, record.systemPathName, record.nameLength) != 0)
 			{
 				continue;
 			}
 
-			const auto* replacement = reinterpret_cast<const char*>(record + 0x10C);
-
-			std::strcpy(fileName, replacement);
-			std::strcat(fileName, inputFileName + prefixLength);
+			// Preserve first-match selection and the original unchecked concatenation.
+			std::strcpy(fileName, record.replacementPath);
+			std::strcat(fileName, inputFileName + record.nameLength);
 			break;
 		}
 
@@ -412,38 +494,38 @@ namespace NXBasics
 		auto* fileBytes = static_cast<std::uint8_t*>(file);
 		auto* fileName = reinterpret_cast<char*>(fileBytes + 0x08);
 
-		const auto getDescriptor = [fileBytes]() -> std::int32_t
+		const auto getDescriptor = [fileBytes] () -> std::int32_t
+		{
+			std::int32_t descriptor;
+			std::memcpy(&descriptor, fileBytes + 0x04, sizeof(descriptor));
+			return descriptor;
+		};
+
+		const auto storeDescriptor = [fileBytes] (std::int32_t descriptor)
+		{
+			std::memcpy(fileBytes + 0x04, &descriptor, sizeof(descriptor));
+		};
+
+		const auto tryOpen = [&storeDescriptor] (const char* name) -> bool
+		{
+			const std::int32_t descriptor = Runtime_Open(name, 0x8000u, 0u);
+			storeDescriptor(descriptor);
+			return descriptor != -1;
+		};
+
+		const auto reportFailure = [reportErrors, fileName] () -> bool
+		{
+			if (reportErrors)
 			{
-				std::int32_t descriptor;
-				std::memcpy(&descriptor, fileBytes + 0x04, sizeof(descriptor));
-				return descriptor;
-			};
+				const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
+				const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
+				const auto currentError = *NXBasics::Runtime_GetErrnoPointer();
 
-		const auto storeDescriptor = [fileBytes](std::int32_t descriptor)
-			{
-				std::memcpy(fileBytes + 0x04, &descriptor, sizeof(descriptor));
-			};
+				NXBasics::ReportFatalError(OriginalStrings::FileOpenForReadingError, fileName, currentError, errorText);
+			}
 
-		const auto tryOpen = [&storeDescriptor](const char* name) -> bool
-			{
-				const std::int32_t descriptor = Runtime_Open(name, 0x8000u, 0u);
-				storeDescriptor(descriptor);
-				return descriptor != -1;
-			};
-
-		const auto reportFailure = [reportErrors, fileName]() -> bool
-			{
-				if (reportErrors)
-				{
-					const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
-					const auto errorText = FUN_004e7525(firstError);
-					const auto currentError = *NXBasics::Runtime_GetErrnoPointer();
-
-					NXBasics::ReportFatalError(OriginalStrings::FileOpenForReadingError, fileName, currentError, errorText);
-				}
-
-				return false;
-			};
+			return false;
+		};
 
 		if (getDescriptor() != -1)
 		{
@@ -461,26 +543,13 @@ namespace NXBasics
 			return reportFailure();
 		}
 
-		// Each search-path record contains an enabled byte and a path string.
-		const auto* pathRecords = reinterpret_cast<const std::uint8_t*>(&DAT_005101a8);
-		const auto* archiveSlots = reinterpret_cast<const std::uint8_t*>(&DAT_005106c4);
+		const auto getArchiveFileName = [] (void* archive) -> const char*
+		{
+			const auto* state = static_cast<const SArchiveState*>(archive);
+			const auto* fileBytes = reinterpret_cast<const std::uint8_t*>(state->archiveFile);
 
-		const auto getArchive = [archiveSlots](std::uint32_t index) -> void*
-			{
-				void* archive;
-				std::memcpy(&archive, archiveSlots + index * 4u, sizeof(archive));
-				return archive;
-			};
-
-		const auto getArchiveFileName = [](void* archive) -> const char*
-			{
-				const auto* archiveBytes = static_cast<const std::uint8_t*>(archive);
-
-				void* archiveFile;
-				std::memcpy(&archiveFile, archiveBytes + 0x10, sizeof(archiveFile));
-
-				return reinterpret_cast<const char*>(static_cast<const std::uint8_t*>(archiveFile) + 0x08);
-			};
+			return reinterpret_cast<const char*>(fileBytes + 0x08);
+		};
 
 		char temporaryName[0x104];
 
@@ -490,14 +559,14 @@ namespace NXBasics
 
 			for (std::uint32_t index = 0; index < 5; ++index)
 			{
-				const auto* pathRecord = pathRecords + index * 0x105u;
+				const auto& pathRecord = CFile::mStaticVars.additionalLoadPaths[index];
 
-				if (pathRecord[0] == 0)
+				if (pathRecord.enabled == 0)
 				{
 					continue;
 				}
 
-				const auto* prefix = reinterpret_cast<const char*>(pathRecord + 1);
+				const char* prefix = pathRecord.path;
 
 				std::strcpy(fileName, prefix);
 				std::strcat(fileName, temporaryName);
@@ -516,9 +585,9 @@ namespace NXBasics
 
 		for (; selectedArchiveIndex < 5; ++selectedArchiveIndex)
 		{
-			void* archive = getArchive(selectedArchiveIndex);
+			void* archive = CFile::mStaticVars.fileLibraries[selectedArchiveIndex];
 
-			if (archive != nullptr && FUN_00406841(archive, fileName))
+			if (archive != nullptr && Archive_IsFileInLibrary(archive, fileName))
 			{
 				break;
 			}
@@ -529,23 +598,23 @@ namespace NXBasics
 			return reportFailure();
 		}
 
-		if (!tryOpen(getArchiveFileName(getArchive(selectedArchiveIndex))))
+		if (!tryOpen(getArchiveFileName(CFile::mStaticVars.fileLibraries[selectedArchiveIndex])))
 		{
 			// This fallback runs even when searchPaths is false.
 			// The original advances the path and archive indices together.
 			for (std::uint32_t index = 0; index < 5; ++index)
 			{
-				const auto* pathRecord = pathRecords + index * 0x105u;
+				const auto& pathRecord = CFile::mStaticVars.additionalLoadPaths[index];
 
-				if (pathRecord[0] == 0)
+				if (pathRecord.enabled == 0)
 				{
 					continue;
 				}
 
-				const auto* prefix = reinterpret_cast<const char*>(pathRecord + 1);
+				const char* prefix = pathRecord.path;
 
 				std::strcpy(temporaryName, prefix);
-				std::strcat(temporaryName, getArchiveFileName(getArchive(index)));
+				std::strcat(temporaryName, getArchiveFileName(CFile::mStaticVars.fileLibraries[index]));
 
 				if (tryOpen(temporaryName))
 				{
@@ -560,7 +629,7 @@ namespace NXBasics
 		}
 
 		// Use the originally selected archive for the entry offset.
-		const auto entryOffset = Archive_GetFileOffset(getArchive(selectedArchiveIndex), fileName);
+		const auto entryOffset = Archive_GetFileOffset(CFile::mStaticVars.fileLibraries[selectedArchiveIndex], fileName);
 		File_SeekToPosition(file, entryOffset);
 
 		std::memcpy(fileBytes + 0x10C, &selectedArchiveIndex, sizeof(selectedArchiveIndex));
@@ -589,7 +658,7 @@ namespace NXBasics
 		}
 
 		const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
-		const auto errorText = FUN_004e7525(firstError);
+		const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
 
 		// Read the error value again after obtaining its description.
 		const auto currentError = *NXBasics::Runtime_GetErrnoPointer();

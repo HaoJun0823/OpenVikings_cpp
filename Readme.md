@@ -157,6 +157,154 @@ Alle folgenden CRT-Funde betreffen die **im Spiel enthaltene Runtime**. Daraus f
 - **Renewed-Aufgabe:** Text über ein festes `%s`-Format oder eine reine Textausgabe schreiben.
 - **Status:** Übernommen / Originaldefekt; Renewed offen.
 
+### OB-011 — Gemeinsamer Fehlertext-Puffer bei Allokationsfehler
+
+- **Bereich/Datei:** XCrtFileAccess.h, Runtime_GetErrorText.
+- **Originalbeleg:** FUN_004e7525 allokiert bei 004e7538 einen Thread-Puffer. Bei Fehlschlag wird bei 004e7545 die gemeinsame Adresse 005699a0 verwendet. Die Stringkopie bei 004e756a ist nicht durch eine Sperre geschützt.
+- **Auslöser:** Mehrere Threads verwenden nach fehlgeschlagener Pufferallokation gleichzeitig den Ersatzpuffer.
+- **Wirkung:** Fehlertexte können gegenseitig überschrieben werden; gleichzeitige Zugriffe sind nicht synchronisiert.
+- **Entscheidung:** Gemeinsamen Ersatzpuffer bewusst übernommen.
+- **Renewed-Aufgabe:** Einen auch bei Speichermangel threadsicheren Rückgabevertrag umsetzen.
+- **Status:** Übernommen / Originaldefekt; Renewed offen. Kein konkret beobachteter Spielabsturz behauptet.
+
+### OB012 – Ungeprüfte Längen bei Systempfaden und Präfix-Ersetzung
+
+- Originalfunktionen: FUN_004063f9 und FUN_00405d8b.
+- Status: Bewusst übernommen; Korrektur erst in der Renewed-Version.
+- Systempfadname und Ersatzpfad werden ohne Längenprüfung in feste Zeichenpuffer kopiert. Der Ersatzpfadpuffer umfasst 0x104 Bytes.
+- Die Präfix-Ersetzung kopiert den Ersatzpfad und hängt anschließend den verbleibenden Dateinamen ohne Prüfung der Zielkapazität an.
+- Überlange Eingaben können angrenzenden Speicher überschreiben.
+- Die Rekonstruktion übernimmt die ungeprüften Kopieroperationen. Das konkrete Verhalten nach einem Überlauf ist in C++ nicht garantiert.
+- Renewed-Version: Eingabelängen und kombinierte Ausgabelänge prüfen und einen definierten Fehlerpfad vorsehen.
+
+### OB013 – Archiv-Fallback verwendet den Suchpfadindex als Archivindex
+
+- Originalfunktion: FUN_00405ee5.
+- Beleg: 00406006–0040606e sowie 00406076–0040608b.
+- Status: Bewusst übernommen.
+- Wenn das ausgewählte Archiv nicht direkt geöffnet werden kann, verwendet der Fallback für Suchpfad i den Archivzeiger aus Slot i. Er verwendet nicht durchgehend das ursprünglich ausgewählte Archiv.
+- Dadurch kann ein anderes Archiv geöffnet werden. Dateioffset und gespeicherter Archivindex stammen anschließend weiterhin vom ursprünglich ausgewählten Archiv.
+- Bei einem aktiven Suchpfad und leerem zugehörigem Archivslot wird außerdem ein Nullzeiger dereferenziert.
+- Der Fallback läuft auch bei deaktiviertem searchPaths-Parameter.
+- Renewed-Version: Durchgehend das ausgewählte Archiv verwenden und die gewünschte Behandlung von searchPaths festlegen.
+
+### OB014 – Ungeprüfte Allokationen im Archivkonstruktor
+
+- Originalfunktion: FUN_0040665d.
+- Status: Bewusst übernommen.
+- Nach fehlgeschlagener Allokation des CFile-Objekts wird trotzdem dessen Lesefunktion mit einem Nullzeiger aufgerufen.
+- Tabellen- und Namensallokationen werden ebenfalls ohne Prüfung beschrieben beziehungsweise mit null initialisiert.
+- Belege: 00406680–0040669f, 004066c3–004066d7, 004066ff–0040670f, 00406740–00406756 und 00406779–00406789.
+- Renewed-Version: Allokationsfehler behandeln und bereits angelegte Ressourcen geordnet freigeben.
+- Das konkrete Verhalten nach ungültigen Speicherzugriffen ist in der C++-Rekonstruktion nicht garantiert.
+
+### OB015 – Größenüberläufe beim Einlesen von Archiven
+
+- Originalfunktion: FUN_0040665d.
+- Status: Bewusst übernommen.
+- Die Tabellengrößen werden durch 32-Bit-Verschiebungen um drei beziehungsweise vier Bits berechnet.
+- Die Speichergröße für Namen wird als 32-Bit-Namenslänge plus eins berechnet. Überläufe werden nicht geprüft.
+- Die anschließenden Zugriffe verwenden weiterhin die ursprünglichen Anzahlen beziehungsweise Namenslängen.
+- Manipulierte Archivdaten können dadurch zu zu kleinen Allokationen und anschließenden Speicherüberschreibungen führen.
+- Renewed-Version: Anzahlen, Namenslängen, Größenberechnungen und verbleibende Dateilänge vor Allokation und Zugriff prüfen.
+
+### OB016 – Verzeichnisscanner hängt immer einen Backslash an
+
+- Originalfunktion: FUN_00440008.
+- Beleg: 00440099–004400b5.
+- Status: Bewusst übernommen.
+- Im normalen Dateisystemmodus wird das letzte Zeichen des Ergebnisses vorzeichenerweitert geladen und mit 0x5C20 verglichen.
+- Ein einzelnes vorzeichenerweitertes Byte kann diesen Wert nicht erreichen. Bei Verzeichnissuche wird deshalb immer ein Backslash angehängt, auch wenn bereits einer vorhanden ist.
+- Der Mac-Code vergleicht dagegen mit 0x5C.
+- Renewed-Version: Vor dem Anhängen korrekt auf einen vorhandenen abschließenden Backslash prüfen.
+
+### OB017 – Ungültiger Archiveintrag wird im Scanner dereferenziert
+
+- Originalfunktion: FUN_00440008.
+- Beleg: 00440035–00440050.
+- Status: Bewusst übernommen.
+- Für einen außerhalb der Tabelle liegenden Eintragsindex wird zunächst ein Nullzeiger erzeugt, anschließend jedoch dessen Namenszeiger gelesen.
+- Der Aufruf mit einem ungültigen aktuellen Eintrag kann dadurch abstürzen.
+- Renewed-Version: Einen definierten Rückgabewert für einen ungültigen beziehungsweise bereits beendeten Suchzustand festlegen.
+
+### OB018 – Pfadzerlegung überspringt Terminator nach Mehrbyte-Leitbyte
+
+- Originalfunktion: FUN_004e7aa8.
+- Beleg: 004e7b05–004e7b2f.
+- Status: Bewusst übernommen.
+- Erkennt die Zeichentabelle ein Mehrbyte-Leitbyte, überspringt die Pfadsuche das folgende Byte ohne Prüfung.
+- Steht unmittelbar nach dem Leitbyte bereits der Stringterminator, wird dieser übersprungen. Die weitere Suche liest hinter dem Stringende weiter.
+- Voraussetzung ist eine entsprechende Mehrbyte-Konfiguration und eine unvollständige Zeichenfolge am Pfadende.
+- Renewed-Version: Vor dem Überspringen das Folgebyte auf den Stringterminator prüfen und ungültige Eingaben definiert behandeln.
+
+### OB019 – Scanner verwirft Suchhandle auch bei fehlgeschlagenem Schließen
+
+- Originalfunktion: FUN_0043ffde.
+- Beleg: 0043fff8–00440002.
+- Status: Bewusst übernommen.
+- Der Rückgabewert der CRT-Suchhandle-Freigabe wird ignoriert.
+- Auch bei fehlgeschlagenem FindClose werden der gespeicherte Handlewert und der Scannermodus auf null gesetzt.
+- Ein erneuter Stop-Aufruf versucht deshalb keine erneute Freigabe.
+- Renewed-Version: Fehler beim Schließen behandeln und festlegen, wie ein weiterhin offener Suchzustand erhalten beziehungsweise zuverlässig freigegeben wird.
+
+### OB020 – Suchhandle geht beim Wechsel zur Archivsuche verloren
+
+- Originalfunktion: FUN_0043fefc.
+- Beleg: 0043ff31–0043ffa4; Freigabeprüfung in FUN_0043ffde.
+- Status: Bewusst übernommen.
+- Nach einem fehlgeschlagenen FindNext wird der Modus von 2 auf 3 geändert, ohne das bisherige Suchhandle zu schließen.
+- Der CRT-Helfer FUN_004e7743 schließt das Handle ebenfalls nicht.
+- Stop schließt Handles ausschließlich im Modus 2. Nach dem Übergang zur Archivsuche erreicht das alte Handle diesen Freigabepfad nicht mehr.
+- Renewed-Version: Das native Suchhandle vor dem Moduswechsel schließen und seinen gespeicherten Wert zurücksetzen.
+
+### OB021 – GetNextMatchingFile hängt bei inaktivem Scanner
+
+- Originalfunktion: FUN_0043fefc.
+- Beleg: 0043ff0c–0043ff22.
+- Status: Bewusst übernommen.
+- Nur die Modi 1 bis 4 besitzen einen Bearbeitungspfad.
+- Für Modus 0 und andere Werte wird die Modusprüfung endlos wiederholt.
+- Das betrifft insbesondere Aufrufe nach Suchende, Stop oder unmittelbar nach der Initialisierung.
+- Renewed-Version: Für den inaktiven Zustand false zurückgeben und ungültige Zustände definiert behandeln.
+
+### OB022 – Ungeprüfte Pfadlängen beim Scannerstart
+
+- Originalfunktionen: FUN_0043fe62 und FUN_0043fefc.
+- Status: Bewusst übernommen.
+- Pfad und Erweiterung werden ohne Kapazitätsprüfung kopiert und ergänzt.
+- Das Suchmuster wird anschließend aus Pfad, Stern und Erweiterung in einem Puffer von 0x104 Bytes zusammengesetzt.
+- Zu lange Eingaben oder eine zu lange Kombination können Speicher überschreiben.
+- Renewed-Version: Einzel- und Gesamtlängen vor dem Schreiben prüfen.
+
+### OB023 – Dateisuche übernimmt nur die unteren 32 Bits der Dateigröße
+
+- Originalfunktionen: FUN_004e7676 und FUN_004e7743.
+- Beleg: 004e7721–004e7727 sowie 004e77ea–004e77f0.
+- Status: Bewusst übernommene Größenbeschränkung.
+- Die Suchergebnisstruktur erhält ausschließlich nFileSizeLow. nFileSizeHigh wird nicht berücksichtigt.
+- Bei Dateien ab 4 GiB enthält das Größenfeld daher nur den Rest modulo 2^32.
+- Renewed-Version: Suchergebnisstruktur und deren Verbraucher gemeinsam auf 64-Bit-Dateigrößen umstellen.
+
+### OB024 – Uninitialisierte Zeitfelder bei der Sommerzeitprüfung
+
+- Originalfunktion: FUN_004eb0a5.
+- Beleg: 004eb0f9, 004eb0fe, 004eb10c, 004eb126 und 004eb146–004eb14a.
+- Status: Bewusst übernommen.
+- Für die automatische Sommerzeitprüfung werden nur Stunde, Monat, Jahr und Jahrestag der lokalen Zeitstruktur initialisiert.
+- Die Sommerzeitprüfung liest an den Umschalttagen zusätzlich Sekunden und Minuten aus dieser Struktur.
+- Diese Felder enthalten im Original vorherige Stackinhalte.
+- Die Rekonstruktion lässt die Felder ebenfalls uninitialisiert. Das daraus folgende Verhalten ist in C++ nicht definiert und kann nicht als exakte Nachbildung bestimmter Stackinhalte garantiert werden.
+- Renewed-Version: Sekunden und Minuten aus den Funktionsargumenten setzen und die gesamte Zeitstruktur definiert initialisieren.
+
+### OB025 – Zeitkonvertierung akzeptiert 2038 ohne Überlaufprüfung
+
+- Originalfunktion: FUN_004eb0a5.
+- Status: Bewusst übernommen.
+- Die Jahresprüfung akzeptiert 1970 bis einschließlich 2038.
+- Die anschließende Sekundenberechnung erfolgt mit 32-Bit-Arithmetik ohne abschließende Prüfung des darstellbaren positiven Bereichs.
+- Zeitpunkte jenseits des positiven 32-Bit-Zeitbereichs können als negative Werte zurückgegeben werden.
+- Renewed-Version: Auf 64-Bit-Zeitwerte umstellen oder den zulässigen Wertebereich vollständig prüfen.
+
 ## Originalauffälligkeiten und noch offene Fehlerbewertungen
 
 Auch diese früher aufgefallenen Fälle bleiben erhalten. Sie werden bewusst **nicht ohne ausreichenden Nachweis zu bestätigten Spiel-Bugs erklärt**.
@@ -212,6 +360,26 @@ Auch diese früher aufgefallenen Fälle bleiben erhalten. Sie werden bewusst **n
 - **Entscheidung:** Reihenfolge bewusst übernommen.
 - **Renewed-Aufgabe:** Handlerregistrierung und Signalauslösung gemeinsam  auf Synchronisierung prüfen.
 - **Status:** Übernommen / Originalauffälligkeit; Renewed offen.
+
+### OA-008 — Keine CRT-Thread-Datenfreigabe nachgewiesen
+
+- **Bereich:** CRT-Thread-Daten und Fehlertext-Puffer.
+- **Originalbeleg:** FUN_004eb1ce legt bei Bedarf Thread-Daten an. FUN_004e7525 speichert den Fehlertext-Puffer bei Offset 0x24. Die sichtbaren Referenzen auf den TLS-Index 0050c6e4 betreffen Initialisierung und Abruf, keinen Aufräumpfad.
+- **Zusätzlicher Befund:** Die Thread-Einstiege FUN_004de7d1 und FUN_004e00e4 kehren ohne ausdrückliche CRT-Thread-Bereinigung zurück.
+- **Mögliche Wirkung:** Falls ein solcher Thread CRT-Daten anlegt und kein anderer Besitzer sie freigibt, bleiben diese Allokationen bis zum Prozessende bestehen.
+- **Erfassungsgrenze:** Indirekte Bereinigung und die tatsächliche CRT-Nutzung sämtlicher Thread-Pfade sind nicht abschließend geklärt.
+- **Entscheidung:** Keine unbelegte zusätzliche Freigabe einbauen.
+- **Renewed-Aufgabe:** Thread-Lebenszyklen und Besitzverhältnisse vollständig prüfen; gegebenenfalls gezielt bereinigen.
+- **Status:** Übernommen / Originalauffälligkeit; Renewed offen.
+
+### OA009 – Registerreste im begrenzten Locale-Stringvergleich
+
+- Originaladresse: FUN_004e6f80, insbesondere 004e7024–004e7048.
+- Status: Prüfpunkt; Originalverhalten bewusst übernommen.
+- Nach der Zeichenumwandlung überschreibt die nächste Iteration nur AL beziehungsweise BL. Die oberen 24 Bits bleiben erhalten. Nullprüfungen und Vergleiche verwenden jedoch die vollständigen Register.
+- Falls die Umwandlung Werte oberhalb von 0xFF zurückgibt und der Vergleich weiterläuft, können diese Registerreste die folgenden Zeichen und die Erkennung des Stringendes beeinflussen.
+- Die Erreichbarkeit mit den tatsächlich verwendeten Codepages ist noch nicht nachgewiesen.
+- Renewed-Version: Eingabezeichen bei jeder Iteration vollständig nullerweitern und das gewünschte Multibyte-Verhalten festlegen.
 
 ## Keine Original-Bugs: bekannte Rekonstruktionsfehler
 

@@ -1,5 +1,6 @@
 #include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
+#include "XDiagnostics.h"
 #include "XFile.h"
 #include "XFileAccess.h"
 
@@ -40,7 +41,7 @@ namespace NXBasics
 		if (reportError)
 		{
 			const auto errorForText = *Runtime_GetErrnoPointer();
-			const auto errorText = FUN_004e7525(errorForText);
+			const auto errorText = NXBasics::Runtime_GetErrorText(errorForText);
 
 			// Read errno again after obtaining its description.
 			const auto currentError = *Runtime_GetErrnoPointer();
@@ -81,36 +82,37 @@ namespace NXBasics
 		return File_GetSize(this);
 	}
 
+	// Original function: FUN_004063e4
+	void CFile::FileSystem_Initialize()
+	{
+		std::memset(&mStaticVars, 0, sizeof(mStaticVars));
+	}
+
 	// Original function: FUN_004063f9
 	std::int32_t CFile::FileSystem_SystemPathName_Set(const char* systemPathName, const char* replacementPath)
 	{
-		auto* records = reinterpret_cast<std::uint8_t*>(&DAT_0050f758);
 		const std::int32_t existingIndex = FileSystem_SystemPathName_GetId(systemPathName);
 
 		if (existingIndex != -1)
 		{
-			auto* record = records + static_cast<std::uint32_t>(existingIndex) * 0x210u;
-			std::strcpy(reinterpret_cast<char*>(record + 0x10C), replacementPath);
-
+			std::strcpy(mStaticVars.systemPathNames[existingIndex].replacementPath, replacementPath);
 			return existingIndex;
 		}
 
 		for (std::uint32_t index = 0; index < 5; ++index)
 		{
-			auto* record = records + index * 0x210u;
+			auto& record = mStaticVars.systemPathNames[index];
 
-			if (record[0] != 0)
+			if (record.enabled != 0)
 			{
 				continue;
 			}
 
-			std::strcpy(reinterpret_cast<char*>(record + 0x01), systemPathName);
-			std::strcpy(reinterpret_cast<char*>(record + 0x10C), replacementPath);
-
-			const std::uint32_t nameLength = static_cast<std::uint32_t>(std::strlen(systemPathName));
-			std::memcpy(record + 0x108, &nameLength, sizeof(nameLength));
-
-			record[0] = 1;
+			// Preserve the original unchecked copies and write order.
+			std::strcpy(record.systemPathName, systemPathName);
+			std::strcpy(record.replacementPath, replacementPath);
+			record.nameLength = static_cast<std::uint32_t>(std::strlen(systemPathName));
+			record.enabled = 1;
 
 			return static_cast<std::int32_t>(index);
 		}
@@ -128,30 +130,74 @@ namespace NXBasics
 			return false;
 		}
 
-		auto* records = reinterpret_cast<std::uint8_t*>(&DAT_0050f758);
-		records[static_cast<std::uint32_t>(index) * 0x210u] = 0;
-
+		// The original retains the strings and cached length.
+		mStaticVars.systemPathNames[index].enabled = 0;
 		return true;
 	}
 
 	// Original function: FUN_004064ac
 	std::int32_t CFile::FileSystem_SystemPathName_GetId(const char* systemPathName)
 	{
-		const auto* records = reinterpret_cast<const std::uint8_t*>(&DAT_0050f758);
-
 		for (std::int32_t index = 0; index < 5; ++index)
 		{
-			const auto* record = records + static_cast<std::uint32_t>(index) * 0x210u;
+			const auto& record = mStaticVars.systemPathNames[index];
 
-			if (record[0] == 0)
+			if (record.enabled == 0)
 			{
 				continue;
 			}
 
-			const auto* storedName = reinterpret_cast<const char*>(record + 0x01);
-
-			if (Runtime_CompareStringsIgnoreCase(storedName, systemPathName) == 0)
+			if (Runtime_CompareStringsIgnoreCase(record.systemPathName, systemPathName) == 0)
 			{
+				return index;
+			}
+		}
+
+		return -1;
+	}
+
+	// Original function: FUN_004064e4
+	std::int32_t CFile::FileSystem_FileLibrary_Add(void* fileLibrary)
+	{
+		if (fileLibrary == nullptr)
+		{
+			return -1;
+		}
+
+		for (std::int32_t index = 0; index < 5; ++index)
+		{
+			if (mStaticVars.fileLibraries[index] == nullptr)
+			{
+				// The original does not reject duplicate registrations.
+				mStaticVars.fileLibraries[index] = fileLibrary;
+				return index;
+			}
+		}
+
+		return -1;
+	}
+
+	// Original function: FUN_00406510
+	std::int32_t CFile::FileSystem_FileLibrary_Remove(void* fileLibrary)
+	{
+		if (fileLibrary == nullptr)
+		{
+			return -1;
+		}
+
+		const auto* state = static_cast<const SArchiveState*>(fileLibrary);
+
+		// Preserve the original prerequisite for removing a registration.
+		if (state->archiveFile == nullptr)
+		{
+			return -1;
+		}
+
+		for (std::int32_t index = 0; index < 5; ++index)
+		{
+			if (mStaticVars.fileLibraries[index] == fileLibrary)
+			{
+				mStaticVars.fileLibraries[index] = nullptr;
 				return index;
 			}
 		}
