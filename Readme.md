@@ -305,6 +305,81 @@ Alle folgenden CRT-Funde betreffen die **im Spiel enthaltene Runtime**. Daraus f
 - Zeitpunkte jenseits des positiven 32-Bit-Zeitbereichs können als negative Werte zurückgegeben werden.
 - Renewed-Version: Auf 64-Bit-Zeitwerte umstellen oder den zulässigen Wertebereich vollständig prüfen.
 
+### OB026 — TZ parser assumes a three-byte standard name
+
+- Original function: 004eab11.
+- The parser advances the environment string pointer by three bytes without checking the string length.
+- A nonempty TZ value shorter than three bytes can cause reads beyond the string terminator.
+- Status: intentionally preserved during reconstruction.
+- Renewed: validate the input before advancing the pointer.
+- Exact behavior for invalid memory reads is not guaranteed by the C++ reconstruction.
+
+### OB027 — TZ parsing retains the previous daylight bias
+
+- Original function: 004eab11.
+- The TZ branch updates the standard offset and daylight-enabled value but does not update the daylight bias at 0050c63c.
+- After a previous Windows time-zone refresh, TZ-based conversion can retain an unsuitable daylight offset.
+- Status: intentionally preserved during reconstruction.
+- Renewed: define and consistently apply the daylight offset when parsing TZ.
+
+### OB028 — TZ parsing continues after releasing the environment lock
+
+- Original function: 004eab11.
+- The implementation caches a copy of TZ, releases lock 0x0c, and then parses the original environment pointer.
+- Concurrent environment modification can invalidate that pointer.
+- Status: the original lock scope and pointer selection are intentionally preserved.
+- Renewed: parse a stable owned snapshot.
+- Exact behavior in the presence of a concurrent invalidation is not guaranteed by C++.
+
+### OB029 — Replacing an environment entry leaks the previous string
+
+- Original function: 004f155f.
+- Replacing an existing entry overwrites its pointer without freeing the old string.
+- Status: intentionally preserved during reconstruction.
+- Renewed: establish ownership and release the replaced allocation.
+
+### OB030 — Wide environment conversion ignores insertion failures
+
+- Original function: 004eeb03.
+- The return value of 004f155f is ignored.
+- Conversion can report success while entries are missing or the environment is only partially populated.
+- Rejected or failed insertions can also leave the converted string allocation unowned.
+- Status: intentionally preserved.
+- Renewed: propagate insertion failures and define cleanup for transferred and untransferred buffers.
+
+### OB031 — Failed second conversion leaks its destination buffer
+
+- Original function: 004eeb03.
+- If the second WideCharToMultiByte call fails after allocation, the function returns -1 without freeing the buffer.
+- Status: intentionally preserved.
+- Renewed: release the allocation before returning.
+
+### OB032 — Copying the environment does not check individual string allocations
+
+- Original function: 004f173e.
+- Failure to allocate the pointer table is fatal, but individual string-copy failures are not checked.
+- A null entry inside the copied table can prematurely terminate subsequent iteration and hide later allocations.
+- Status: intentionally preserved.
+- Renewed: unwind a failed copy and leave the original table intact.
+
+### OB033 — Environment update can report success without updating Windows
+
+- Original function: 004f155f.
+- Failure to allocate the temporary Windows-update buffer is ignored.
+- The return value of SetEnvironmentVariableA is also ignored.
+- The CRT table and Windows environment can therefore diverge while the function returns zero.
+- Status: intentionally preserved.
+- Renewed: define consistent error reporting and update semantics.
+
+### OB034 — Startup environment acquisition failure is not checked before parsing
+
+- Original functions: 004ec337 and 004ec031.
+- Environment acquisition can return null.
+- The original startup passes that result to the initializer, which dereferences the block without a null check.
+- Status: intentionally preserved.
+- Renewed: handle acquisition failure explicitly before parsing.
+- The resulting invalid-memory behavior is not guaranteed by the C++ reconstruction.
+
 ## Originalauffälligkeiten und noch offene Fehlerbewertungen
 
 Auch diese früher aufgefallenen Fälle bleiben erhalten. Sie werden bewusst **nicht ohne ausreichenden Nachweis zu bestätigten Spiel-Bugs erklärt**.
@@ -380,6 +455,23 @@ Auch diese früher aufgefallenen Fälle bleiben erhalten. Sie werden bewusst **n
 - Falls die Umwandlung Werte oberhalb von 0xFF zurückgibt und der Vergleich weiterläuft, können diese Registerreste die folgenden Zeichen und die Erkennung des Stringendes beeinflussen.
 - Die Erreichbarkeit mit den tatsächlich verwendeten Codepages ist noch nicht nachgewiesen.
 - Renewed-Version: Eingabezeichen bei jeder Iteration vollständig nullerweitern und das gewünschte Multibyte-Verhalten festlegen.
+
+### OA010 — Historical fallback daylight rules
+
+- Original functions: 004eadb9 and 004eaf65.
+- Without Windows time-zone rules, the implementation uses the first Sunday in April and the last Sunday in October.
+- The TZ parser does not interpret explicit transition rules following the daylight name.
+- This is a historical compatibility limitation, not evidence of a reconstruction error.
+- Status: intentionally preserved.
+- Renewed: decide whether to support historical rules, current rules, or an explicit time-zone database.
+
+### OA011 — Absolute Windows transition year is not checked
+
+- Original function: 004eadb9.
+- A nonzero SYSTEMTIME.wYear selects a fixed month/day transition.
+- The calculation nevertheless uses the requested calendar year and does not compare it with SYSTEMTIME.wYear.
+- Status: intentionally preserved; relevance depends on the supplied Windows time-zone data.
+- Renewed: evaluate absolute-date rules against their specified year.
 
 ## Keine Original-Bugs: bekannte Rekonstruktionsfehler
 

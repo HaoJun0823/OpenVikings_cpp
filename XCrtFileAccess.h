@@ -619,6 +619,42 @@ namespace NXBasics
 	// Original data: 0056b708.
 	inline int gRuntimeMultibyteInitialized = 0;
 
+	// Original address: 00569994.
+	inline char* gRuntimeStartupEnvironmentBlock = nullptr;
+
+	// Original address: 00569a20.
+	inline char** gRuntimeEnvironment = nullptr;
+
+	// Original address: 00569a24.
+	// Shared environment table checked before making a writable copy.
+	inline char** gRuntimeInitialEnvironment = nullptr;
+
+	// Original address: 00569a28.
+	inline wchar_t** gRuntimeWideEnvironment = nullptr;
+
+	// Original address: 00569cc0.
+	// 0 = undetected, 1 = Unicode API, 2 = ANSI API.
+	inline std::int32_t gRuntimeEnvironmentStringsBackend = 0;
+
+	// Original address: 00569d60.
+	// 0 = undetected, 1 = Unicode API, 2 = ANSI API.
+	inline std::int32_t gRuntimeCompareStringBackend = 0;
+
+	// Original address: 0056b704.
+	inline std::int32_t gRuntimeEnvironmentInitialized = 0;
+
+	inline char* Runtime_GetEnvironmentVariable(const char* name);
+	inline void Runtime_InitializeEnvironment();
+	inline char* Runtime_GetEnvironmentBlock();
+	inline std::int32_t Runtime_CompareEnvironmentNames(const char* first, const char* second, std::int32_t length);
+	inline std::int32_t Runtime_ConvertWideEnvironment();
+	inline char* Runtime_DuplicateString(const char* source);
+	inline int Runtime_CompareLocaleStrings(LCID locale, DWORD flags, const char* first, int firstLength, const char* second, int secondLength, UINT codePage);
+	inline std::int32_t Runtime_SetEnvironmentEntry(char* entry, std::int32_t updateSystemEnvironment);
+	inline std::int32_t Runtime_FindEnvironmentEntry(const char* name, std::int32_t nameLength);
+	inline char** Runtime_CopyEnvironment(char** source);
+	inline const char* Runtime_FindMultibyteCharacter(const char* text, std::uint32_t character);
+
 	struct RuntimeMultibyteProfile
 	{
 		UINT codePage;
@@ -725,13 +761,62 @@ namespace NXBasics
 	// Original data: 00569b00.
 	inline std::uint32_t gRuntimeTimeZoneInitialized = 0;
 
-	// Original data: 0050ef88 through 0050efbb.
-	// Valid month indices are 1 through 12.
-	// Index zero preserves the adjacent original value.
-	inline constexpr std::int32_t gRuntimeMonthDayOffsets[13] = {
-		365, -1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333
-	};
+	// Original indexed memory base: 0050ef54.
+	// Index zero belongs to the preceding data; valid months use indices 1 through 12.
+	// Index 13 supplies the final day of December.
+	inline constexpr std::int32_t gRuntimeLeapMonthDayOffsets[14] = { 1, -1, 30, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
 
+	// Original indexed memory base: 0050ef88.
+	// Index zero is the final entry of the preceding leap-year table.
+	inline constexpr std::int32_t gRuntimeMonthDayOffsets[14] = { 365, -1, 30, 58, 89, 119, 150, 180, 211, 242, 272, 303, 333, 364 };
+
+	// Original address: 0050c640.
+	inline char gRuntimeStandardTimeZoneName[64] = "PST";
+
+	// Original address: 0050c680.
+	inline char gRuntimeDaylightTimeZoneName[64] = "PDT";
+
+	// Original addresses: 0050c6c0 and 0050c6c4.
+	inline char* gRuntimeTimeZoneNames[2] = { gRuntimeStandardTimeZoneName, gRuntimeDaylightTimeZoneName };
+
+	// Original address: 0050c6c8.
+	inline std::int32_t gRuntimeDaylightStartYear = -1;
+
+	// Original address: 0050c6cc.
+	inline std::int32_t gRuntimeDaylightStartYearDay = 0;
+
+	// Original address: 0050c6d0.
+	inline std::int32_t gRuntimeDaylightStartMilliseconds = 0;
+
+	// Original address: 0050c6d8.
+	inline std::int32_t gRuntimeDaylightEndYear = -1;
+
+	// Original address: 0050c6dc.
+	inline std::int32_t gRuntimeDaylightEndYearDay = 0;
+
+	// Original address: 0050c6e0.
+	inline std::int32_t gRuntimeDaylightEndMilliseconds = 0;
+
+	// Original address: 00569a48.
+	inline std::int32_t gRuntimeUsesWindowsTimeZone = 0;
+
+	// Original address: 00569a50.
+	inline TIME_ZONE_INFORMATION gRuntimeTimeZoneInformation{};
+
+	// Original address: 00569afc.
+	inline char* gRuntimePreviousTimeZoneEnvironment = nullptr;
+
+	inline void Runtime_RefreshTimeZone();
+	inline std::int32_t Runtime_IsDaylightTimeNoLock(const RuntimeCalendarTime* calendar);
+	inline void Runtime_SetDaylightTransition(std::int32_t isStart, std::int32_t ruleType, std::int32_t year, std::int32_t month, std::int32_t week, std::int32_t weekDay, std::int32_t monthDay, std::int32_t hour, std::int32_t minute, std::int32_t second, std::int32_t millisecond);
+
+	// Reconstruction helper; no separate original function.
+	inline std::int32_t Runtime_TimeSigned32(std::uint32_t bits)
+	{
+		std::int32_t result;
+		std::memcpy(&result, &bits, sizeof(result));
+		return result;
+	}
 
 	inline void Runtime_InitializeOnExitTable();
 	inline std::uint32_t Runtime_GetAllocationSize(void* memory);
@@ -3052,6 +3137,66 @@ namespace NXBasics
 		return mode == 1 ? flushedCount : result;
 	}
 
+	// Original function: FUN_004e8e92.
+	inline char* Runtime_GetEnvironmentVariable(const char* name)
+	{
+		char** environment = gRuntimeEnvironment;
+
+		if (gRuntimeEnvironmentInitialized == 0)
+		{
+			return nullptr;
+		}
+
+		if (environment == nullptr)
+		{
+			if (gRuntimeWideEnvironment == nullptr)
+			{
+				return nullptr;
+			}
+
+			if (Runtime_ConvertWideEnvironment() != 0)
+			{
+				return nullptr;
+			}
+
+			environment = gRuntimeEnvironment;
+
+			if (environment == nullptr)
+			{
+				return nullptr;
+			}
+		}
+
+		if (name == nullptr)
+		{
+			return nullptr;
+		}
+
+		const std::uint32_t nameLength = static_cast<std::uint32_t>(std::strlen(name));
+
+		for (; *environment != nullptr; ++environment)
+		{
+			char* entry = *environment;
+
+			if (std::strlen(entry) <= nameLength)
+			{
+				continue;
+			}
+
+			if (entry[nameLength] != '=')
+			{
+				continue;
+			}
+
+			if (Runtime_CompareEnvironmentNames(entry, name, Runtime_TimeSigned32(nameLength)) == 0)
+			{
+				return entry + nameLength + 1u;
+			}
+		}
+
+		return nullptr;
+	}
+
 	// Original function: FUN_004e9772
 	inline std::uint32_t Runtime_FlushAndWriteCharacter(std::uint32_t character, RuntimeFormatStream* stream)
 	{
@@ -4684,7 +4829,7 @@ namespace NXBasics
 		if (*initialized == 0)
 		{
 			// Open dependency: original TZ/environment and Windows timezone setup.
-			FUN_004eab11();
+			Runtime_RefreshTimeZone();
 
 			// The original marks initialization complete even when setup returns early.
 			++gRuntimeTimeZoneInitialized;
@@ -4693,16 +4838,348 @@ namespace NXBasics
 		Runtime_Unlock(0x0B);
 	}
 
+	// Original function: FUN_004eab11.
+	inline void Runtime_RefreshTimeZone()
+	{
+		Runtime_Lock(0x0C);
+
+		gRuntimeDaylightStartYear = -1;
+		gRuntimeDaylightEndYear = -1;
+		gRuntimeUsesWindowsTimeZone = 0;
+
+		// This must access the original CRT environment, not the live Win32 environment.
+		const char* environmentValue = Runtime_GetEnvironmentVariable("TZ");
+
+		if (environmentValue == nullptr)
+		{
+			Runtime_Unlock(0x0C);
+
+			if (GetTimeZoneInformation(&gRuntimeTimeZoneInformation) == TIME_ZONE_ID_INVALID)
+			{
+				return;
+			}
+
+			const std::int32_t standardBias = gRuntimeTimeZoneInformation.StandardBias;
+			std::uint32_t bias = static_cast<std::uint32_t>(gRuntimeTimeZoneInformation.Bias) * 60u;
+
+			gRuntimeUsesWindowsTimeZone = 1;
+
+			if (gRuntimeTimeZoneInformation.StandardDate.wMonth != 0)
+			{
+				bias += static_cast<std::uint32_t>(standardBias) * 60u;
+			}
+
+			gRuntimeTimeZoneBiasSeconds = Runtime_TimeSigned32(bias);
+
+			if (gRuntimeTimeZoneInformation.DaylightDate.wMonth != 0 && gRuntimeTimeZoneInformation.DaylightBias != 0)
+			{
+				gRuntimeDaylightEnabled = 1;
+
+				const std::uint32_t daylightBias = static_cast<std::uint32_t>(gRuntimeTimeZoneInformation.DaylightBias) - static_cast<std::uint32_t>(standardBias);
+				gRuntimeDaylightBiasSeconds = Runtime_TimeSigned32(daylightBias * 60u);
+			}
+			else
+			{
+				gRuntimeDaylightEnabled = 0;
+				gRuntimeDaylightBiasSeconds = 0;
+			}
+
+			BOOL usedDefaultCharacter = FALSE;
+
+			const int standardNameLength = WideCharToMultiByte(gRuntimeCodePage, 0x220u, gRuntimeTimeZoneInformation.StandardName, -1, gRuntimeTimeZoneNames[0], 63, nullptr, &usedDefaultCharacter);
+
+			if (standardNameLength != 0 && usedDefaultCharacter == FALSE)
+			{
+				gRuntimeTimeZoneNames[0][63] = '\0';
+			}
+			else
+			{
+				gRuntimeTimeZoneNames[0][0] = '\0';
+			}
+
+			const int daylightNameLength = WideCharToMultiByte(gRuntimeCodePage, 0x220u, gRuntimeTimeZoneInformation.DaylightName, -1, gRuntimeTimeZoneNames[1], 63, nullptr, &usedDefaultCharacter);
+
+			if (daylightNameLength != 0 && usedDefaultCharacter == FALSE)
+			{
+				gRuntimeTimeZoneNames[1][63] = '\0';
+			}
+			else
+			{
+				gRuntimeTimeZoneNames[1][0] = '\0';
+			}
+
+			return;
+		}
+
+		if (*environmentValue == '\0')
+		{
+			Runtime_Unlock(0x0C);
+			return;
+		}
+
+		if (gRuntimePreviousTimeZoneEnvironment != nullptr && std::strcmp(environmentValue, gRuntimePreviousTimeZoneEnvironment) == 0)
+		{
+			Runtime_Unlock(0x0C);
+			return;
+		}
+
+		Runtime_Free(gRuntimePreviousTimeZoneEnvironment);
+
+		const std::uint32_t requiredBytes = static_cast<std::uint32_t>(std::strlen(environmentValue)) + 1u;
+		gRuntimePreviousTimeZoneEnvironment = static_cast<char*>(Runtime_Allocate(requiredBytes));
+
+		if (gRuntimePreviousTimeZoneEnvironment == nullptr)
+		{
+			Runtime_Unlock(0x0C);
+			return;
+		}
+
+		std::strcpy(gRuntimePreviousTimeZoneEnvironment, environmentValue);
+
+		// The original releases the environment lock before parsing the original pointer.
+		Runtime_Unlock(0x0C);
+
+		std::strncpy(gRuntimeTimeZoneNames[0], environmentValue, 3u);
+		gRuntimeTimeZoneNames[0][3] = '\0';
+
+		// The original assumes that the standard name occupies at least three bytes.
+		const char* cursor = environmentValue + 3;
+		bool negativeBias = false;
+
+		if (*cursor == '-')
+		{
+			negativeBias = true;
+			++cursor;
+		}
+
+		std::uint32_t bias = static_cast<std::uint32_t>(Runtime_StringToInteger(cursor)) * 3600u;
+		gRuntimeTimeZoneBiasSeconds = Runtime_TimeSigned32(bias);
+
+		while (*cursor == '+' || (*cursor >= '0' && *cursor <= '9'))
+		{
+			++cursor;
+		}
+
+		if (*cursor == ':')
+		{
+			++cursor;
+
+			bias += static_cast<std::uint32_t>(Runtime_StringToInteger(cursor)) * 60u;
+			gRuntimeTimeZoneBiasSeconds = Runtime_TimeSigned32(bias);
+
+			while (*cursor >= '0' && *cursor <= '9')
+			{
+				++cursor;
+			}
+
+			if (*cursor == ':')
+			{
+				++cursor;
+
+				bias += static_cast<std::uint32_t>(Runtime_StringToInteger(cursor));
+				gRuntimeTimeZoneBiasSeconds = Runtime_TimeSigned32(bias);
+
+				while (*cursor >= '0' && *cursor <= '9')
+				{
+					++cursor;
+				}
+			}
+		}
+
+		if (negativeBias)
+		{
+			bias = 0u - bias;
+			gRuntimeTimeZoneBiasSeconds = Runtime_TimeSigned32(bias);
+		}
+
+		const std::uint32_t daylightByte = static_cast<unsigned char>(*cursor);
+		gRuntimeDaylightEnabled = daylightByte < 0x80u ? static_cast<std::int32_t>(daylightByte) : static_cast<std::int32_t>(daylightByte) - 256;
+
+		if (gRuntimeDaylightEnabled != 0)
+		{
+			std::strncpy(gRuntimeTimeZoneNames[1], cursor, 3u);
+			gRuntimeTimeZoneNames[1][3] = '\0';
+		}
+		else
+		{
+			gRuntimeTimeZoneNames[1][0] = '\0';
+		}
+
+		// Preserve the existing daylight bias: the original TZ branch does not update it.
+	}
+
 	// Original function: FUN_004ead98
 	inline std::int32_t Runtime_IsDaylightTime(const RuntimeCalendarTime* calendar)
 	{
 		Runtime_Lock(0x0B);
 
 		// Open dependency: original daylight transition calculation and comparison.
-		const std::int32_t result = FUN_004eadb9(calendar);
+		const std::int32_t result = Runtime_IsDaylightTimeNoLock(calendar);
 
 		Runtime_Unlock(0x0B);
 		return result;
+	}
+
+	// Original function: FUN_004eadb9.
+	inline std::int32_t Runtime_IsDaylightTimeNoLock(const RuntimeCalendarTime* calendar)
+	{
+		if (gRuntimeDaylightEnabled == 0)
+		{
+			return 0;
+		}
+
+		const std::int32_t year = calendar->year;
+
+		if (year != gRuntimeDaylightStartYear || year != gRuntimeDaylightEndYear)
+		{
+			if (gRuntimeUsesWindowsTimeZone != 0)
+			{
+				const SYSTEMTIME& daylightDate = gRuntimeTimeZoneInformation.DaylightDate;
+
+				if (daylightDate.wYear == 0)
+				{
+					Runtime_SetDaylightTransition(1, 1, year, daylightDate.wMonth, daylightDate.wDay, daylightDate.wDayOfWeek, 0, daylightDate.wHour, daylightDate.wMinute, daylightDate.wSecond, daylightDate.wMilliseconds);
+				}
+				else
+				{
+					Runtime_SetDaylightTransition(1, 0, year, daylightDate.wMonth, 0, 0, daylightDate.wDay, daylightDate.wHour, daylightDate.wMinute, daylightDate.wSecond, daylightDate.wMilliseconds);
+				}
+
+				const SYSTEMTIME& standardDate = gRuntimeTimeZoneInformation.StandardDate;
+
+				if (standardDate.wYear == 0)
+				{
+					Runtime_SetDaylightTransition(0, 1, year, standardDate.wMonth, standardDate.wDay, standardDate.wDayOfWeek, 0, standardDate.wHour, standardDate.wMinute, standardDate.wSecond, standardDate.wMilliseconds);
+				}
+				else
+				{
+					Runtime_SetDaylightTransition(0, 0, year, standardDate.wMonth, 0, 0, standardDate.wDay, standardDate.wHour, standardDate.wMinute, standardDate.wSecond, standardDate.wMilliseconds);
+				}
+			}
+			else
+			{
+				Runtime_SetDaylightTransition(1, 1, year, 4, 1, 0, 0, 2, 0, 0, 0);
+				Runtime_SetDaylightTransition(0, 1, year, 10, 5, 0, 0, 2, 0, 0, 0);
+			}
+		}
+
+		const std::int32_t yearDay = calendar->yearDay;
+		const std::int32_t startDay = gRuntimeDaylightStartYearDay;
+		const std::int32_t endDay = gRuntimeDaylightEndYearDay;
+
+		if (startDay < endDay)
+		{
+			if (yearDay < startDay || yearDay > endDay)
+			{
+				return 0;
+			}
+
+			if (yearDay > startDay && yearDay < endDay)
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			if (yearDay < endDay || yearDay > startDay)
+			{
+				return 1;
+			}
+
+			if (yearDay > endDay && yearDay < startDay)
+			{
+				return 0;
+			}
+		}
+
+		std::uint32_t milliseconds = static_cast<std::uint32_t>(calendar->hour);
+		milliseconds = milliseconds * 60u + static_cast<std::uint32_t>(calendar->minute);
+		milliseconds = milliseconds * 60u + static_cast<std::uint32_t>(calendar->second);
+		milliseconds *= 1000u;
+
+		const std::int32_t signedMilliseconds = Runtime_TimeSigned32(milliseconds);
+
+		if (yearDay == startDay)
+		{
+			return signedMilliseconds >= gRuntimeDaylightStartMilliseconds ? 1 : 0;
+		}
+
+		return signedMilliseconds < gRuntimeDaylightEndMilliseconds ? 1 : 0;
+	}
+
+	// Original function: FUN_004eaf65.
+	inline void Runtime_SetDaylightTransition(std::int32_t isStart, std::int32_t ruleType, std::int32_t year, std::int32_t month, std::int32_t week, std::int32_t weekDay, std::int32_t monthDay, std::int32_t hour, std::int32_t minute, std::int32_t second, std::int32_t millisecond)
+	{
+		const std::uint32_t yearBits = static_cast<std::uint32_t>(year);
+		const std::int32_t* monthOffsets = (yearBits & 3u) == 0u ? gRuntimeLeapMonthDayOffsets : gRuntimeMonthDayOffsets;
+
+		std::uint32_t transitionDay;
+
+		if (ruleType == 1)
+		{
+			const std::uint32_t firstDay = static_cast<std::uint32_t>(monthOffsets[month]) + 1u;
+			const std::uint32_t previousYear = yearBits - 1u;
+
+			// Reproduce SAR by two without relying on signed right-shift behavior.
+			const std::uint32_t leapYears = (previousYear >> 2u) | ((previousYear & 0x80000000u) != 0u ? 0xC0000000u : 0u);
+			const std::uint32_t weekdayValue = yearBits * 365u + firstDay + leapYears - 0x63DBu;
+			const std::int32_t firstWeekDay = Runtime_TimeSigned32(weekdayValue) % 7;
+
+			transitionDay = firstDay + static_cast<std::uint32_t>(week) * 7u;
+			transitionDay -= static_cast<std::uint32_t>(firstWeekDay);
+			transitionDay += static_cast<std::uint32_t>(weekDay);
+
+			if (firstWeekDay <= weekDay)
+			{
+				transitionDay -= 7u;
+			}
+
+			if (week == 5 && Runtime_TimeSigned32(transitionDay) > monthOffsets[month + 1])
+			{
+				transitionDay -= 7u;
+			}
+		}
+		else
+		{
+			transitionDay = static_cast<std::uint32_t>(monthOffsets[month]) + static_cast<std::uint32_t>(monthDay);
+		}
+
+		std::uint32_t milliseconds = static_cast<std::uint32_t>(hour) * 60u;
+		milliseconds += static_cast<std::uint32_t>(minute);
+		milliseconds *= 60u;
+
+		if (isStart == 1)
+		{
+			milliseconds += static_cast<std::uint32_t>(second);
+			milliseconds *= 1000u;
+			milliseconds += static_cast<std::uint32_t>(millisecond);
+
+			gRuntimeDaylightStartYearDay = Runtime_TimeSigned32(transitionDay);
+			gRuntimeDaylightStartYear = year;
+			gRuntimeDaylightStartMilliseconds = Runtime_TimeSigned32(milliseconds);
+			return;
+		}
+
+		milliseconds += static_cast<std::uint32_t>(gRuntimeDaylightBiasSeconds);
+		milliseconds += static_cast<std::uint32_t>(second);
+		milliseconds *= 1000u;
+		milliseconds += static_cast<std::uint32_t>(millisecond);
+
+		// The original adjusts by at most one day.
+		if (Runtime_TimeSigned32(milliseconds) < 0)
+		{
+			milliseconds += 86400000u;
+			--transitionDay;
+		}
+		else if (Runtime_TimeSigned32(milliseconds) >= 86400000)
+		{
+			milliseconds -= 86400000u;
+			++transitionDay;
+		}
+
+		gRuntimeDaylightEndYearDay = Runtime_TimeSigned32(transitionDay);
+		gRuntimeDaylightEndMilliseconds = Runtime_TimeSigned32(milliseconds);
+		gRuntimeDaylightEndYear = year;
 	}
 
 	// Original function: FUN_004eb0a5
@@ -5462,6 +5939,176 @@ namespace NXBasics
 			::InterlockedDecrement(activeReaders);
 		}
 
+		return result;
+	}
+
+	// Original function: FUN_004ec031.
+	inline void Runtime_InitializeEnvironment()
+	{
+		if (gRuntimeMultibyteInitialized == 0)
+		{
+			Runtime_InitializeMultibyte();
+		}
+
+		char* cursor = gRuntimeStartupEnvironmentBlock;
+		std::uint32_t count = 0;
+
+		while (*cursor != '\0')
+		{
+			if (*cursor != '=')
+			{
+				++count;
+			}
+
+			cursor += std::strlen(cursor) + 1u;
+		}
+
+		gRuntimeEnvironment = static_cast<char**>(Runtime_Allocate(count * 4u + 4u));
+
+		if (gRuntimeEnvironment == nullptr)
+		{
+			Runtime_FatalExit(9);
+		}
+
+		char** destination = gRuntimeEnvironment;
+		cursor = gRuntimeStartupEnvironmentBlock;
+
+		while (*cursor != '\0')
+		{
+			const std::uint32_t length = static_cast<std::uint32_t>(std::strlen(cursor)) + 1u;
+
+			if (*cursor != '=')
+			{
+				*destination = static_cast<char*>(Runtime_Allocate(length));
+
+				if (*destination == nullptr)
+				{
+					Runtime_FatalExit(9);
+				}
+
+				std::strcpy(*destination, cursor);
+				++destination;
+			}
+
+			cursor += length;
+		}
+
+		Runtime_Free(gRuntimeStartupEnvironmentBlock);
+		gRuntimeStartupEnvironmentBlock = nullptr;
+
+		*destination = nullptr;
+		gRuntimeEnvironmentInitialized = 1;
+	}
+
+	// Original function: FUN_004ec337.
+	inline char* Runtime_GetEnvironmentBlock()
+	{
+		wchar_t* wideBlock = nullptr;
+		char* ansiBlock = nullptr;
+
+		if (gRuntimeEnvironmentStringsBackend == 0)
+		{
+			wideBlock = GetEnvironmentStringsW();
+
+			if (wideBlock != nullptr)
+			{
+				gRuntimeEnvironmentStringsBackend = 1;
+			}
+			else
+			{
+				ansiBlock = GetEnvironmentStringsA();
+
+				if (ansiBlock == nullptr)
+				{
+					return nullptr;
+				}
+
+				gRuntimeEnvironmentStringsBackend = 2;
+			}
+		}
+
+		if (gRuntimeEnvironmentStringsBackend == 1)
+		{
+			if (wideBlock == nullptr)
+			{
+				wideBlock = GetEnvironmentStringsW();
+
+				if (wideBlock == nullptr)
+				{
+					return nullptr;
+				}
+			}
+
+			const wchar_t* end = wideBlock;
+
+			while (*end != L'\0')
+			{
+				while (*end != L'\0')
+				{
+					++end;
+				}
+
+				++end;
+			}
+
+			const int characterCount = static_cast<int>(end - wideBlock + 1);
+			const int requiredBytes = WideCharToMultiByte(0, 0, wideBlock, characterCount, nullptr, 0, nullptr, nullptr);
+			char* result = nullptr;
+
+			if (requiredBytes != 0)
+			{
+				result = static_cast<char*>(Runtime_Allocate(static_cast<std::uint32_t>(requiredBytes)));
+
+				if (result != nullptr)
+				{
+					if (WideCharToMultiByte(0, 0, wideBlock, characterCount, result, requiredBytes, nullptr, nullptr) == 0)
+					{
+						Runtime_Free(result);
+						result = nullptr;
+					}
+				}
+			}
+
+			FreeEnvironmentStringsW(wideBlock);
+			return result;
+		}
+
+		if (gRuntimeEnvironmentStringsBackend != 2)
+		{
+			return nullptr;
+		}
+
+		if (ansiBlock == nullptr)
+		{
+			ansiBlock = GetEnvironmentStringsA();
+
+			if (ansiBlock == nullptr)
+			{
+				return nullptr;
+			}
+		}
+
+		const char* end = ansiBlock;
+
+		while (*end != '\0')
+		{
+			while (*end != '\0')
+			{
+				++end;
+			}
+
+			++end;
+		}
+
+		const std::uint32_t requiredBytes = static_cast<std::uint32_t>(end - ansiBlock) + 1u;
+		char* result = static_cast<char*>(Runtime_Allocate(requiredBytes));
+
+		if (result != nullptr)
+		{
+			std::memcpy(result, ansiBlock, requiredBytes);
+		}
+
+		FreeEnvironmentStringsA(ansiBlock);
 		return result;
 	}
 
@@ -7732,6 +8379,78 @@ namespace NXBasics
 		return result;
 	}
 
+	// Original function: FUN_004eeac4.
+	inline std::int32_t Runtime_CompareEnvironmentNames(const char* first, const char* second, std::int32_t length)
+	{
+		if (length == 0)
+		{
+			return 0;
+		}
+
+		const int result = Runtime_CompareLocaleStrings(gRuntimeMultibyteLocale, 1u, first, length, second, length, gRuntimeMultibyteCodePage);
+
+		if (result == 0)
+		{
+			return 0x7FFFFFFF;
+		}
+
+		return result - 2;
+	}
+
+	// Original function: FUN_004eeb03.
+	inline std::int32_t Runtime_ConvertWideEnvironment()
+	{
+		wchar_t** source = gRuntimeWideEnvironment;
+
+		while (*source != nullptr)
+		{
+			const int requiredBytes = WideCharToMultiByte(1, 0, *source, -1, nullptr, 0, nullptr, nullptr);
+
+			if (requiredBytes == 0)
+			{
+				return -1;
+			}
+
+			char* entry = static_cast<char*>(Runtime_Allocate(static_cast<std::uint32_t>(requiredBytes)));
+
+			if (entry == nullptr)
+			{
+				return -1;
+			}
+
+			if (WideCharToMultiByte(1, 0, *source, -1, entry, requiredBytes, nullptr, nullptr) == 0)
+			{
+				// Preserve the original allocation leak on conversion failure.
+				return -1;
+			}
+
+			// Preserve the original ignored insertion result.
+			Runtime_SetEnvironmentEntry(entry, 0);
+			++source;
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004eedf1.
+	inline char* Runtime_DuplicateString(const char* source)
+	{
+		if (source == nullptr)
+		{
+			return nullptr;
+		}
+
+		const std::uint32_t requiredBytes = static_cast<std::uint32_t>(std::strlen(source)) + 1u;
+		char* result = static_cast<char*>(Runtime_Allocate(requiredBytes));
+
+		if (result != nullptr)
+		{
+			std::strcpy(result, source);
+		}
+
+		return result;
+	}
+
 	// Original function: FUN_004eee22
 	inline std::int32_t Runtime_StringToLong(const char* text, char** endPointer, std::int32_t base)
 	{
@@ -8914,6 +9633,186 @@ namespace NXBasics
 		return closedCount;
 	}
 
+	// Original function: FUN_004f12b7.
+	inline int Runtime_CompareLocaleStrings(LCID locale, DWORD flags, const char* first, int firstLength, const char* second, int secondLength, UINT codePage)
+	{
+		if (gRuntimeCompareStringBackend == 0)
+		{
+			if (CompareStringW(0, 0, L"", 1, L"", 1) != 0)
+			{
+				gRuntimeCompareStringBackend = 1;
+			}
+			else if (CompareStringA(0, 0, "", 1, "", 1) != 0)
+			{
+				gRuntimeCompareStringBackend = 2;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		if (firstLength > 0)
+		{
+			firstLength = Runtime_BoundedStringLength(first, firstLength);
+		}
+
+		if (secondLength > 0)
+		{
+			secondLength = Runtime_BoundedStringLength(second, secondLength);
+		}
+
+		if (gRuntimeCompareStringBackend == 2)
+		{
+			return CompareStringA(locale, flags, first, firstLength, second, secondLength);
+		}
+
+		if (gRuntimeCompareStringBackend != 1)
+		{
+			return 0;
+		}
+
+		if (codePage == 0)
+		{
+			codePage = gRuntimeCodePage;
+		}
+
+		if (firstLength == 0 || secondLength == 0)
+		{
+			if (firstLength == secondLength)
+			{
+				return 2;
+			}
+
+			if (secondLength > 1)
+			{
+				return 1;
+			}
+
+			if (firstLength > 1)
+			{
+				return 3;
+			}
+
+			CPINFO information;
+
+			if (GetCPInfo(codePage, &information) == FALSE)
+			{
+				return 0;
+			}
+
+			if (firstLength > 0)
+			{
+				if (information.MaxCharSize >= 2)
+				{
+					const BYTE character = static_cast<BYTE>(*first);
+
+					for (int index = 0; information.LeadByte[index] != 0; index += 2)
+					{
+						const BYTE last = information.LeadByte[index + 1];
+
+						if (last == 0)
+						{
+							break;
+						}
+
+						if (character >= information.LeadByte[index] && character <= last)
+						{
+							return 2;
+						}
+					}
+				}
+
+				return 3;
+			}
+
+			if (secondLength > 0)
+			{
+				if (information.MaxCharSize >= 2)
+				{
+					const BYTE character = static_cast<BYTE>(*second);
+
+					for (int index = 0; information.LeadByte[index] != 0; index += 2)
+					{
+						const BYTE last = information.LeadByte[index + 1];
+
+						if (last == 0)
+						{
+							break;
+						}
+
+						if (character >= information.LeadByte[index] && character <= last)
+						{
+							return 2;
+						}
+					}
+				}
+
+				return 1;
+			}
+		}
+
+		const int firstWideLength = MultiByteToWideChar(codePage, 9u, first, firstLength, nullptr, 0);
+
+		if (firstWideLength == 0)
+		{
+			return 0;
+		}
+
+		WCHAR* firstWide = nullptr;
+
+		__try
+		{
+			const std::uint32_t allocationSize = (static_cast<std::uint32_t>(firstWideLength) * 2u + 3u) & ~3u;
+			firstWide = static_cast<WCHAR*>(_alloca(allocationSize));
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			firstWide = nullptr;
+		}
+
+		if (firstWide == nullptr)
+		{
+			return 0;
+		}
+
+		if (MultiByteToWideChar(codePage, 1u, first, firstLength, firstWide, firstWideLength) == 0)
+		{
+			return 0;
+		}
+
+		const int secondWideLength = MultiByteToWideChar(codePage, 9u, second, secondLength, nullptr, 0);
+
+		if (secondWideLength == 0)
+		{
+			return 0;
+		}
+
+		WCHAR* secondWide = nullptr;
+
+		__try
+		{
+			const std::uint32_t allocationSize = (static_cast<std::uint32_t>(secondWideLength) * 2u + 3u) & ~3u;
+			secondWide = static_cast<WCHAR*>(_alloca(allocationSize));
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			secondWide = nullptr;
+		}
+
+		if (secondWide == nullptr)
+		{
+			return 0;
+		}
+
+		if (MultiByteToWideChar(codePage, 1u, second, secondLength, secondWide, secondWideLength) == 0)
+		{
+			return 0;
+		}
+
+		return CompareStringW(locale, flags, firstWide, firstWideLength, secondWide, secondWideLength);
+	}
+
 	// Original function: FUN_004f1534
 	inline std::int32_t Runtime_BoundedStringLength(const char* text, std::int32_t maximumLength)
 	{
@@ -8940,6 +9839,201 @@ namespace NXBasics
 		}
 
 		return maximumLength;
+	}
+
+	// Original function: FUN_004f155f.
+	inline std::int32_t Runtime_SetEnvironmentEntry(char* entry, std::int32_t updateSystemEnvironment)
+	{
+		if (entry == nullptr)
+		{
+			return -1;
+		}
+
+		const char* separator = Runtime_FindMultibyteCharacter(entry, '=');
+
+		if (separator == nullptr || separator == entry)
+		{
+			return -1;
+		}
+
+		const bool removeEntry = separator[1] == '\0';
+
+		if (gRuntimeEnvironment == gRuntimeInitialEnvironment)
+		{
+			gRuntimeEnvironment = Runtime_CopyEnvironment(gRuntimeEnvironment);
+		}
+
+		if (gRuntimeEnvironment == nullptr)
+		{
+			if (updateSystemEnvironment != 0 && gRuntimeWideEnvironment != nullptr)
+			{
+				if (Runtime_ConvertWideEnvironment() != 0)
+				{
+					return -1;
+				}
+			}
+			else
+			{
+				if (removeEntry)
+				{
+					return 0;
+				}
+
+				gRuntimeEnvironment = static_cast<char**>(Runtime_Allocate(4u));
+
+				if (gRuntimeEnvironment == nullptr)
+				{
+					return -1;
+				}
+
+				gRuntimeEnvironment[0] = nullptr;
+
+				if (gRuntimeWideEnvironment == nullptr)
+				{
+					gRuntimeWideEnvironment = static_cast<wchar_t**>(Runtime_Allocate(4u));
+
+					if (gRuntimeWideEnvironment == nullptr)
+					{
+						return -1;
+					}
+
+					gRuntimeWideEnvironment[0] = nullptr;
+				}
+			}
+		}
+
+		const std::int32_t nameLength = static_cast<std::int32_t>(separator - entry);
+		char** environment = gRuntimeEnvironment;
+		std::int32_t index = Runtime_FindEnvironmentEntry(entry, nameLength);
+
+		if (index >= 0 && environment[0] != nullptr)
+		{
+			if (removeEntry)
+			{
+				Runtime_Free(environment[index]);
+
+				do
+				{
+					environment[index] = environment[index + 1];
+					++index;
+				} while (environment[index - 1] != nullptr);
+
+				char** resized = static_cast<char**>(Runtime_Reallocate(environment, static_cast<std::uint32_t>(index) * 4u));
+
+				if (resized != nullptr)
+				{
+					gRuntimeEnvironment = resized;
+				}
+			}
+			else
+			{
+				// Preserve the original missing release of the replaced string.
+				environment[index] = entry;
+			}
+		}
+		else
+		{
+			if (removeEntry)
+			{
+				return 0;
+			}
+
+			if (index < 0)
+			{
+				index = -index;
+			}
+
+			const std::uint32_t requiredBytes = static_cast<std::uint32_t>(index) * 4u + 8u;
+			char** resized = static_cast<char**>(Runtime_Reallocate(environment, requiredBytes));
+
+			if (resized == nullptr)
+			{
+				return -1;
+			}
+
+			resized[index] = entry;
+			resized[index + 1] = nullptr;
+			gRuntimeEnvironment = resized;
+		}
+
+		if (updateSystemEnvironment != 0)
+		{
+			const std::uint32_t requiredBytes = static_cast<std::uint32_t>(std::strlen(entry)) + 2u;
+			char* temporary = static_cast<char*>(Runtime_Allocate(requiredBytes));
+
+			if (temporary != nullptr)
+			{
+				std::strcpy(temporary, entry);
+
+				char* temporarySeparator = temporary + (separator - entry);
+				*temporarySeparator = '\0';
+
+				const char* value = removeEntry ? nullptr : temporarySeparator + 1;
+				SetEnvironmentVariableA(temporary, value);
+
+				Runtime_Free(temporary);
+			}
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004f16e6.
+	inline std::int32_t Runtime_FindEnvironmentEntry(const char* name, std::int32_t nameLength)
+	{
+		char** entry = gRuntimeEnvironment;
+		std::int32_t index = 0;
+
+		while (*entry != nullptr)
+		{
+			if (Runtime_CompareEnvironmentNames(name, *entry, nameLength) == 0)
+			{
+				const char delimiter = (*entry)[nameLength];
+
+				if (delimiter == '=' || delimiter == '\0')
+				{
+					return index;
+				}
+			}
+
+			++entry;
+			++index;
+		}
+
+		// An empty table returns zero; the caller also checks its first entry.
+		return -index;
+	}
+
+	// Original function: FUN_004f173e.
+	inline char** Runtime_CopyEnvironment(char** source)
+	{
+		if (source == nullptr)
+		{
+			return nullptr;
+		}
+
+		std::uint32_t count = 0;
+
+		while (source[count] != nullptr)
+		{
+			++count;
+		}
+
+		char** result = static_cast<char**>(Runtime_Allocate(count * 4u + 4u));
+
+		if (result == nullptr)
+		{
+			Runtime_FatalExit(9);
+		}
+
+		for (std::uint32_t index = 0; index < count; ++index)
+		{
+			// Preserve the original unchecked per-string allocation result.
+			result[index] = Runtime_DuplicateString(source[index]);
+		}
+
+		result[count] = nullptr;
+		return result;
 	}
 
 	// Original function: FUN_004f17a5
@@ -9597,6 +10691,58 @@ namespace NXBasics
 
 			groupOffset += 7;
 		} while (remaining != 0);
+	}
+
+	// Original function: FUN_004f274a.
+	inline const char* Runtime_FindMultibyteCharacter(const char* text, std::uint32_t character)
+	{
+		if (gRuntimeIsMultibyteCodePage == 0)
+		{
+			return std::strchr(text, static_cast<int>(character & 0xFFu));
+		}
+
+		Runtime_Lock(0x19);
+
+		const auto* cursor = reinterpret_cast<const unsigned char*>(text);
+
+		while (*cursor != 0)
+		{
+			const unsigned char first = *cursor;
+
+			if ((gRuntimeMultibyteTypes[static_cast<std::uint32_t>(first) + 1u] & 4u) != 0)
+			{
+				const unsigned char second = cursor[1];
+
+				if (second == 0)
+				{
+					Runtime_Unlock(0x19);
+					return nullptr;
+				}
+
+				const std::uint32_t combined = (static_cast<std::uint32_t>(first) << 8u) | second;
+
+				if (combined == character)
+				{
+					Runtime_Unlock(0x19);
+					return reinterpret_cast<const char*>(cursor);
+				}
+
+				cursor += 2;
+			}
+			else
+			{
+				if (static_cast<std::uint32_t>(first) == character)
+				{
+					Runtime_Unlock(0x19);
+					return reinterpret_cast<const char*>(cursor);
+				}
+
+				++cursor;
+			}
+		}
+
+		Runtime_Unlock(0x19);
+		return character == 0 ? reinterpret_cast<const char*>(cursor) : nullptr;
 	}
 
 	// Original function: ___add_12
