@@ -31,6 +31,7 @@
     <ClCompile Include="X2DDisplay.cpp" />
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XBitmap.cpp" />
+    <ClCompile Include="XCrtFileAccess.cpp" />
     <ClCompile Include="XDiagnostics.cpp" />
     <ClCompile Include="XFile.cpp" />
     <ClCompile Include="XIniFileReader.cpp" />
