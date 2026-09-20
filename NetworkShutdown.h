@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include "dplay8.h"
+#include "dpaddr.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -10,9 +11,17 @@ namespace NNetwork
 {
 	struct SEventNode
 	{
-		std::byte unknown000[0x20C];
+		DPNID playerId;                           // +0x000
+		wchar_t playerName[0x100];                 // +0x004
+		std::uint32_t timestamp;                  // +0x204
+		std::uint32_t eventType;                  // +0x208
 		SEventNode* next;                         // +0x20C
 	};
+
+	static_assert(sizeof(SEventNode) == 0x210);
+	static_assert(offsetof(SEventNode, playerName) == 0x004);
+	static_assert(offsetof(SEventNode, timestamp) == 0x204);
+	static_assert(offsetof(SEventNode, eventType) == 0x208);
 
 	struct SEventQueue
 	{
@@ -41,8 +50,8 @@ namespace NNetwork
 		std::byte unknown01[3];
 		std::uint32_t responseTime;                 // +0x04
 		std::uint32_t lastResponseTime;             // +0x08
-		IUnknown* address0C;                        // +0x0C
-		IUnknown* address10;                        // +0x10
+		IDirectPlay8Address* address0C;              // +0x0C
+		IDirectPlay8Address* address10;              // +0x10
 		DPN_APPLICATION_DESC* description;          // +0x14
 		SSessionNode* next;                         // +0x18
 		SSessionNode* previous;                     // +0x1C
@@ -54,6 +63,13 @@ namespace NNetwork
 		std::uint32_t flags;                       // +0x04
 		SSessionNode* first;                       // +0x08
 	};
+
+	// Original function: FUN_004ddd3c
+	void UpdateSessionList(SSessionList* list, const DPNMSG_ENUM_HOSTS_RESPONSE* response);
+
+	static_assert(sizeof(DPN_APPLICATION_DESC) == 0x48);
+	static_assert(offsetof(DPN_APPLICATION_DESC, guidInstance) == 0x08);
+	static_assert(offsetof(DPN_APPLICATION_DESC, pwszSessionName) == 0x30);
 
 	struct SNetLog
 	{
@@ -114,6 +130,15 @@ namespace NNetwork
 		std::uint32_t unknown7C;                   // +0x7C
 	};
 
+	// Original function: FUN_004deac6
+	DPNID GetDynamicNetworkHostPlayerId(const SDynamicNetworkData* data);
+
+	// Original function: FUN_004dec8a
+	bool SendDynamicNetworkMessage(SDynamicNetworkData* data, DPNID recipient, const void* payload, std::uint32_t byteCount);
+
+	// Original function: FUN_004df207
+	bool BroadcastControlMessage8(SDynamicNetworkData* data);
+
 	// Original data: DAT_005697e8.
 	inline std::uint32_t gDynamicSlotArrayConstructionCount = 0;
 
@@ -129,6 +154,36 @@ namespace NNetwork
 	static_assert(sizeof(SDynamicNetworkData) == 0x80);
 	static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
 	static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
+
+	// Reconstructed player record populated by FUN_004dd0de.
+	struct SPlayerInfo
+	{
+		DPNID playerId;                           // +0x00
+		wchar_t playerName[0x40];                 // +0x04
+		std::uint8_t isHost;                      // +0x84
+		std::uint8_t isLocal;                     // +0x85
+		std::byte reserved86[2];                  // +0x86
+		std::uint32_t bytesSent;                  // +0x88
+		std::uint32_t bytesReceived;              // +0x8C
+		std::uint32_t roundTripLatencyMS;         // +0x90
+		std::uint32_t throughputBPS;              // +0x94
+	};
+
+	static_assert(sizeof(SPlayerInfo) == 0x98);
+	static_assert(offsetof(SPlayerInfo, playerName) == 0x04);
+	static_assert(offsetof(SPlayerInfo, isHost) == 0x84);
+	static_assert(offsetof(SPlayerInfo, isLocal) == 0x85);
+	static_assert(offsetof(SPlayerInfo, bytesSent) == 0x88);
+	static_assert(offsetof(SPlayerInfo, bytesReceived) == 0x8C);
+	static_assert(offsetof(SPlayerInfo, roundTripLatencyMS) == 0x90);
+	static_assert(offsetof(SPlayerInfo, throughputBPS) == 0x94);
+
+	static_assert(sizeof(DPN_PLAYER_INFO) == 0x18);
+	static_assert(sizeof(DPN_CONNECTION_INFO) == 0x5C);
+	static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesSentGuaranteed) == 0x10);
+	static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesSentNonGuaranteed) == 0x18);
+	static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesReceivedGuaranteed) == 0x48);
+	static_assert(offsetof(DPN_CONNECTION_INFO, dwBytesReceivedNonGuaranteed) == 0x50);
 
 	class CDPNet
 	{
@@ -148,6 +203,9 @@ namespace NNetwork
 		// Original function: FUN_004dc7a3
 		bool Uninitialize();
 
+		// Original function: FUN_004dd65e
+		bool SendPacket(DPNID recipient, const void* packet);
+
 		// Original function: FUN_004dd9fe
 		void ReleaseReceivedMessages(SReceivedMessage* messages, std::uint32_t count);
 
@@ -159,6 +217,35 @@ namespace NNetwork
 
 		// Original function: FUN_004dc700.
 		bool InitializePeer(void* context, bool option);
+
+		// Original function: FUN_004dbd68
+		static HRESULT WINAPI MessageProc(void* context, DWORD messageId, void* message);
+
+		// Original function: FUN_004dc9cc
+		DPNID GetLocalPlayerId();
+
+		// Original function: FUN_004dca43
+		DPNID GetHostPlayerId();
+
+		// Original function: FUN_004dcf42
+		bool GetPlayerName(DPNID playerId, wchar_t** playerName);
+
+		// Original function: FUN_004dd0de
+		// Initialize *players to nullptr before calling.
+		// Release a successful result with NXBasics::Runtime_Free.
+		bool GetPlayerInfo(SPlayerInfo** players, DWORD* playerCount);
+
+		// Original function: FUN_004dd888
+		void SaveReceivedMessage(const DPNMSG_RECEIVE* message);
+
+		// Original function: FUN_004ddadb
+		void AddPlayerEvent(DPNID playerId, std::uint32_t eventType);
+
+		// Original function: FUN_004dda6f
+		void GetSendStatistics(std::uint32_t* statistics);
+
+		// Original function: FUN_004ddaa5
+		void SetSendStatistics(const std::uint32_t* statistics);
 
 		std::uint32_t flags;                       // +0x000
 		std::uint32_t playerChangeCount;           // +0x004

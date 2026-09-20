@@ -1,8 +1,8 @@
 #include "X2DApplication.h"
+#include "MainMenuGuiManager.h"
+#include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include <new>
-
-#include "MasterControlProgram.h"
 
 namespace NMasterControlProgram
 {
@@ -65,7 +65,7 @@ namespace NMasterControlProgram
 
 		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists(propertyName))
 		{
-			FUN_004d33c6(DAT_005694dc, 5, false);
+			reinterpret_cast<NC2MainMenuGuiManager::CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(5, false);
 			NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove(propertyName);
 		}
 

@@ -2983,6 +2983,39 @@ namespace NXBasics
 		return destination;
 	}
 
+	// Original function: FUN_004e8fc4
+	wchar_t* Runtime_DuplicateWideString(const wchar_t* source)
+	{
+		if (source == nullptr)
+		{
+			return nullptr;
+		}
+
+		std::uint32_t length = 0;
+
+		while (source[length] != L'\0')
+		{
+			++length;
+		}
+
+		const std::uint32_t allocationSize = length * 2u + 2u;
+		auto* duplicate = static_cast<wchar_t*>(Runtime_Allocate(allocationSize));
+
+		if (duplicate == nullptr)
+		{
+			return nullptr;
+		}
+
+		wchar_t* destination = duplicate;
+
+		do
+		{
+			*destination++ = *source;
+		} while (*source++ != L'\0');
+
+		return duplicate;
+	}
+
 	// Original function: FUN_004e907b
 	char* Runtime_LongToString(std::int32_t value, char* destination, std::int32_t radix)
 	{
@@ -11067,4 +11100,413 @@ namespace NXBasics
 		std::memcpy(&result, &bits, sizeof(result));
 		return result;
 	}
-} // namespace NXBasics
+
+	// Original function: FUN_004e788f
+	std::int32_t Runtime_RemoveFile(const char* fileName)
+	{
+		const std::uint32_t error = DeleteFileA(fileName) != FALSE ? 0u : GetLastError();
+
+		if (error != 0)
+		{
+			Runtime_MapOsError(error);
+			return -1;
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004e89e4
+	std::int32_t Runtime_RenameFile(const char* oldFileName, const char* newFileName)
+	{
+		const std::uint32_t error = MoveFileA(oldFileName, newFileName) != FALSE ? 0u : GetLastError();
+
+		if (error != 0)
+		{
+			Runtime_MapOsError(error);
+			return -1;
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004e9494
+	std::int32_t Runtime_TellStreamNoLock(RuntimeFormatStream* stream)
+	{
+		if (Runtime_TimeSigned32(stream->remainingBytes) < 0)
+			stream->remainingBytes = 0;
+
+		const std::uint32_t descriptor = stream->descriptor;
+		std::uint32_t filePosition = Runtime_Seek(descriptor, 0, 1);
+
+		if (Runtime_TimeSigned32(filePosition) < 0)
+			return -1;
+
+		if ((stream->flags & 0x108u) == 0)
+			return Runtime_TimeSigned32(filePosition - stream->remainingBytes);
+
+		const std::uint32_t bufferOffset = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(stream->position) - reinterpret_cast<std::uintptr_t>(stream->buffer));
+		std::uint32_t logicalOffset = bufferOffset;
+
+		if ((stream->flags & 3u) != 0)
+		{
+			const auto* block = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+			const RuntimeDescriptorRecord& record = block[descriptor & 0x1Fu];
+
+			if ((record.flags & 0x80u) != 0)
+			{
+				for (const char* current = stream->buffer; current < stream->position; ++current)
+				{
+					if (*current == '\n')
+						++logicalOffset;
+				}
+			}
+		}
+		else if ((stream->flags & 0x80u) == 0)
+		{
+			*Runtime_GetErrnoPointer() = 22;
+			return -1;
+		}
+
+		if (filePosition == 0)
+			return Runtime_TimeSigned32(logicalOffset);
+
+		if ((stream->flags & 1u) != 0)
+		{
+			if (stream->remainingBytes == 0)
+			{
+				logicalOffset = 0;
+			}
+			else
+			{
+				std::uint32_t bufferedBytes = bufferOffset + stream->remainingBytes;
+				const auto* block = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+				const RuntimeDescriptorRecord& record = block[descriptor & 0x1Fu];
+
+				if ((record.flags & 0x80u) != 0)
+				{
+					const std::uint32_t endPosition = Runtime_Seek(descriptor, 0, 2);
+
+					if (endPosition == filePosition)
+					{
+						const char* end = stream->buffer + bufferedBytes;
+
+						for (const char* current = stream->buffer; current < end; ++current)
+						{
+							if (*current == '\n')
+								++bufferedBytes;
+						}
+
+						if ((stream->flags & 0x2000u) != 0)
+							++bufferedBytes;
+					}
+					else
+					{
+						Runtime_Seek(descriptor, Runtime_TimeSigned32(filePosition), 0);
+
+						if (bufferedBytes <= 0x200u && (stream->flags & 8u) != 0 && (stream->flags & 0x400u) == 0)
+							bufferedBytes = 0x200u;
+						else
+							bufferedBytes = stream->bufferSize;
+
+						const auto* currentBlock = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[descriptor >> 5]);
+
+						if ((currentBlock[descriptor & 0x1Fu].flags & 4u) != 0)
+							++bufferedBytes;
+					}
+				}
+
+				filePosition -= bufferedBytes;
+			}
+		}
+
+		return Runtime_TimeSigned32(filePosition + logicalOffset);
+	}
+
+	// Original function: FUN_004e9240
+	std::int32_t Runtime_SeekStreamNoLock(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin)
+	{
+		if ((stream->flags & 0x83u) == 0 || origin > 2u)
+		{
+			*Runtime_GetErrnoPointer() = 22;
+			return -1;
+		}
+
+		stream->flags &= ~0x10u;
+
+		if (origin == 1u)
+		{
+			const std::uint32_t position = static_cast<std::uint32_t>(Runtime_TellStreamNoLock(stream));
+
+			// Preserve the original 32-bit addition, including an error result.
+			offset = Runtime_TimeSigned32(static_cast<std::uint32_t>(offset) + position);
+			origin = 0;
+		}
+
+		// The original implementation ignores the flush result.
+		Runtime_FlushStreamBuffer(stream);
+
+		if ((stream->flags & 0x80u) != 0)
+		{
+			stream->flags &= ~3u;
+		}
+		else if ((stream->flags & 1u) != 0 && (stream->flags & 8u) != 0 && (stream->flags & 0x400u) == 0)
+		{
+			stream->bufferSize = 0x200u;
+		}
+
+		return Runtime_Seek(stream->descriptor, offset, origin) == 0xFFFFFFFFu ? -1 : 0;
+	}
+
+	// Original function: FUN_004e9214
+	std::int32_t Runtime_SeekStream(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin)
+	{
+		Runtime_LockStream(stream);
+
+		const std::int32_t result = Runtime_SeekStreamNoLock(stream, offset, origin);
+
+		Runtime_UnlockStream(stream);
+		return result;
+	}
+
+	// Original function: FUN_004eed15
+	std::int32_t Runtime_FillStreamBufferAndReadCharacter(RuntimeFormatStream* stream)
+	{
+		if ((stream->flags & 0x83u) == 0 || (stream->flags & 0x40u) != 0)
+			return -1;
+
+		if ((stream->flags & 2u) != 0)
+		{
+			stream->flags |= 0x20u;
+			return -1;
+		}
+
+		stream->flags |= 1u;
+
+		if ((stream->flags & 0x10Cu) == 0)
+			Runtime_AllocateStreamBuffer(stream);
+		else
+			stream->position = stream->buffer;
+
+		const std::int32_t readResult = Runtime_Read(stream->descriptor, stream->buffer, stream->bufferSize);
+		stream->remainingBytes = static_cast<std::uint32_t>(readResult);
+
+		if (readResult == 0 || readResult == -1)
+		{
+			stream->flags |= readResult == 0 ? 0x10u : 0x20u;
+			stream->remainingBytes = 0;
+			return -1;
+		}
+
+		if ((stream->flags & 0x82u) == 0)
+		{
+			const RuntimeDescriptorRecord* record;
+
+			if (stream->descriptor == 0xFFFFFFFFu)
+			{
+				record = &gRuntimeInvalidDescriptorRecord;
+			}
+			else
+			{
+				const auto* block = reinterpret_cast<const RuntimeDescriptorRecord*>(gRuntimeDescriptorBlocks[stream->descriptor >> 5]);
+				record = &block[stream->descriptor & 0x1Fu];
+			}
+
+			if ((record->flags & 0x82u) == 0x82u)
+				stream->flags |= 0x2000u;
+		}
+
+		if (stream->bufferSize == 0x200u && (stream->flags & 8u) != 0 && (stream->flags & 0x400u) == 0)
+			stream->bufferSize = 0x1000u;
+
+		--stream->remainingBytes;
+
+		const std::int32_t result = static_cast<unsigned char>(*stream->position);
+		++stream->position;
+		return result;
+	}
+
+	// Original function: FUN_004e92cd
+	std::int32_t Runtime_ReadStreamCharacter(RuntimeFormatStream* stream)
+	{
+		Runtime_LockStream(stream);
+
+		--stream->remainingBytes;
+
+		std::int32_t result;
+
+		if (Runtime_TimeSigned32(stream->remainingBytes) >= 0)
+		{
+			result = static_cast<unsigned char>(*stream->position);
+			++stream->position;
+		}
+		else
+		{
+			result = Runtime_FillStreamBufferAndReadCharacter(stream);
+		}
+
+		Runtime_UnlockStream(stream);
+		return result;
+	}
+
+	// Original function: FUN_004e932d
+	std::uint32_t Runtime_WriteStreamNoLock(const void* data, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream)
+	{
+		// Preserve the original unsigned 32-bit multiplication.
+		const std::uint32_t totalBytes = elementSize * elementCount;
+
+		if (totalBytes == 0)
+			return 0;
+
+		const auto* source = static_cast<const unsigned char*>(data);
+		std::uint32_t remaining = totalBytes;
+		std::uint32_t blockSize = (stream->flags & 0x10Cu) != 0 ? stream->bufferSize : 0x1000u;
+
+		while (remaining != 0)
+		{
+			const bool hasBuffer = (stream->flags & 0x108u) != 0;
+
+			if (hasBuffer && stream->remainingBytes != 0)
+			{
+				const std::uint32_t copiedBytes = remaining < stream->remainingBytes ? remaining : stream->remainingBytes;
+
+				std::memcpy(stream->position, source, copiedBytes);
+
+				stream->remainingBytes -= copiedBytes;
+				stream->position += copiedBytes;
+				source += copiedBytes;
+				remaining -= copiedBytes;
+			}
+			else if (remaining >= blockSize)
+			{
+				if (hasBuffer && Runtime_FlushStreamBuffer(stream) != 0)
+					return (totalBytes - remaining) / elementSize;
+
+				const std::uint32_t requestedBytes = blockSize != 0 ? remaining - remaining % blockSize : remaining;
+				const std::int32_t writeResult = Runtime_Write(stream->descriptor, source, requestedBytes);
+
+				if (writeResult == -1)
+				{
+					stream->flags |= 0x20u;
+					return (totalBytes - remaining) / elementSize;
+				}
+
+				const std::uint32_t writtenBytes = static_cast<std::uint32_t>(writeResult);
+
+				source += writtenBytes;
+				remaining -= writtenBytes;
+
+				if (writtenBytes < requestedBytes)
+				{
+					stream->flags |= 0x20u;
+					return (totalBytes - remaining) / elementSize;
+				}
+			}
+			else
+			{
+				// The original call sign-extends the source byte.
+				const std::int32_t character = *source < 0x80u ? static_cast<std::int32_t>(*source) : static_cast<std::int32_t>(*source) - 0x100;
+
+				if (Runtime_FlushAndWriteCharacter(static_cast<std::uint32_t>(character), stream) == 0xFFFFFFFFu)
+					return (totalBytes - remaining) / elementSize;
+
+				++source;
+				--remaining;
+
+				blockSize = stream->bufferSize;
+
+				if (Runtime_TimeSigned32(blockSize) <= 0)
+					blockSize = 1;
+			}
+		}
+
+		return elementCount;
+	}
+
+	// Original function: FUN_004e92fe
+	std::uint32_t Runtime_WriteStream(const void* data, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream)
+	{
+		Runtime_LockStream(stream);
+
+		const std::uint32_t result = Runtime_WriteStreamNoLock(data, elementSize, elementCount, stream);
+
+		Runtime_UnlockStream(stream);
+		return result;
+	}
+
+	// Original function: FUN_004e912c
+	std::uint32_t Runtime_ReadStreamNoLock(void* destination, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream)
+	{
+		const std::uint32_t totalBytes = elementSize * elementCount;
+
+		if (totalBytes == 0)
+			return 0;
+
+		auto* output = static_cast<unsigned char*>(destination);
+		std::uint32_t remaining = totalBytes;
+		std::uint32_t blockSize = (stream->flags & 0x10Cu) != 0 ? stream->bufferSize : 0x1000u;
+
+		while (remaining != 0)
+		{
+			if ((stream->flags & 0x10Cu) != 0 && stream->remainingBytes != 0)
+			{
+				const std::uint32_t copiedBytes = remaining < stream->remainingBytes ? remaining : stream->remainingBytes;
+
+				std::memcpy(output, stream->position, copiedBytes);
+
+				remaining -= copiedBytes;
+				stream->remainingBytes -= copiedBytes;
+				stream->position += copiedBytes;
+				output += copiedBytes;
+			}
+			else if (remaining >= blockSize)
+			{
+				const std::uint32_t requestedBytes = blockSize != 0 ? remaining - remaining % blockSize : remaining;
+				const std::int32_t readResult = Runtime_Read(stream->descriptor, output, requestedBytes);
+
+				if (readResult == 0)
+				{
+					stream->flags |= 0x10u;
+					return (totalBytes - remaining) / elementSize;
+				}
+
+				if (readResult == -1)
+				{
+					stream->flags |= 0x20u;
+					return (totalBytes - remaining) / elementSize;
+				}
+
+				const std::uint32_t readBytes = static_cast<std::uint32_t>(readResult);
+
+				remaining -= readBytes;
+				output += readBytes;
+			}
+			else
+			{
+				const std::int32_t character = Runtime_FillStreamBufferAndReadCharacter(stream);
+
+				if (character == -1)
+					return (totalBytes - remaining) / elementSize;
+
+				*output = static_cast<unsigned char>(character);
+
+				++output;
+				--remaining;
+
+				blockSize = stream->bufferSize;
+			}
+		}
+
+		return elementCount;
+	}
+
+	// Original function: FUN_004e90fd
+	std::uint32_t Runtime_ReadStream(void* destination, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream)
+	{
+		Runtime_LockStream(stream);
+
+		const std::uint32_t result = Runtime_ReadStreamNoLock(destination, elementSize, elementCount, stream);
+
+		Runtime_UnlockStream(stream);
+		return result;
+	}
+}

@@ -1,14 +1,15 @@
+#include "DirectXErrorText.h"
 #include "OriginalStrings.h"
 #include <new>
 #include "XCrtFileAccess.h"
 #include "NetworkShutdown.h"
+#include "FileTransferManager.h"
 
 #include <cstring>
 
-// Pending dependencies.
-// These declarations describe reconstruction interfaces, not absolute-address bindings.
-
-extern char* FUN_004e3252(std::int32_t result);
+// Original data: DAT_00509910.
+// The diagnostic string contents are not present in the supplied ASM export.
+extern const char DAT_00509910[];
 
 // Original data: DAT_0050f6a8.
 NNetwork::SDynamicNetworkData DAT_0050f6a8{};
@@ -42,7 +43,7 @@ namespace NNetwork
 		{
 			OutputDebugStringA(operation);
 			OutputDebugStringA(OriginalStrings::DirectPlayErrorSeparator);
-			OutputDebugStringA(FUN_004e3252(result));
+			OutputDebugStringA(NXBasics::GetDirectXErrorText(result));
 			OutputDebugStringA(OriginalStrings::NewLine);
 		}
 
@@ -492,5 +493,349 @@ namespace NNetwork
 
 		// Original destructor: FUN_004db49b -> FUN_004db528.
 		ClearEventQueue(&data->events);
+	}
+}
+
+namespace NNetwork
+{
+	// Original function: FUN_004dd888
+	void CDPNet::SaveReceivedMessage(const DPNMSG_RECEIVE* message)
+	{
+		EnterCriticalSection(&criticalEC);
+
+		if (receivedMessageCount == 0x40u)
+		{
+			const HRESULT result = peer->ReturnBuffer(receivedMessages[0].bufferHandle, 0);
+
+			if (FAILED(result))
+			{
+				ReportDirectPlayError("CDPNet::SaveReceivedMessage(): IDirectPlay8Peer::ReturnBuffer", result);
+			}
+
+			std::memmove(receivedMessages, receivedMessages + 1, 0x3F0);
+			--receivedMessageCount;
+		}
+
+		receivedMessages[receivedMessageCount].sender = message->dpnidSender;
+		receivedMessages[receivedMessageCount].size = message->dwReceiveDataSize;
+		receivedMessages[receivedMessageCount].data = message->pReceiveData;
+		receivedMessages[receivedMessageCount].bufferHandle = message->hBufferHandle;
+		++receivedMessageCount;
+
+		LeaveCriticalSection(&criticalEC);
+	}
+
+	// Original function: FUN_004dda6f
+	void CDPNet::GetSendStatistics(std::uint32_t* statistics)
+	{
+		EnterCriticalSection(&critical8C);
+
+		if (statistics != nullptr)
+		{
+			std::memcpy(statistics, data58, 0x10);
+		}
+
+		LeaveCriticalSection(&critical8C);
+	}
+
+	// Original function: FUN_004ddaa5
+	void CDPNet::SetSendStatistics(const std::uint32_t* statistics)
+	{
+		EnterCriticalSection(&critical8C);
+
+		if (statistics != nullptr)
+		{
+			std::memcpy(data58, statistics, 0x10);
+		}
+
+		LeaveCriticalSection(&critical8C);
+	}
+
+	// Original function: FUN_004dbd68
+	HRESULT WINAPI CDPNet::MessageProc(void* context, DWORD messageId, void* message)
+	{
+		switch (messageId)
+		{
+			case DPN_MSGID_INDICATE_CONNECT:
+				{
+					WriteNetworkLogLevel(3, "Remote peer attempts to connect", 0);
+					OutputDebugStringA("# DPN_MSGID_INDICATE_CONNECT - Remote peer attempts to connect\n");
+
+					return GetNetworkInstance()->allowConnections != 0 ? S_FALSE : S_OK;
+				}
+
+			case DPN_MSGID_CREATE_PLAYER:
+				{
+					WriteNetworkLogLevel(3, "A new player joined the session", 0);
+					OutputDebugStringA("# DPN_MSGID_CREATE_PLAYER - New player joined the session\n");
+
+					GetNetworkInstance()->playerInfoChanged = 1;
+					++GetNetworkInstance()->playerChangeCount;
+
+					const auto* created = static_cast<const DPNMSG_CREATE_PLAYER*>(message);
+
+					// Pending player-event implementation.
+					GetNetworkInstance()->AddPlayerEvent(created->dpnidPlayer, 2u);
+
+					return S_OK;
+				}
+
+			case DPN_MSGID_DESTROY_PLAYER:
+				{
+					OutputDebugStringA("# DPN_MSGID_DESTROY_PLAYER - A player has left the session\n");
+
+					GetNetworkInstance()->playerInfoChanged = 1;
+					++GetNetworkInstance()->playerChangeCount;
+
+					const auto* destroyed = static_cast<const DPNMSG_DESTROY_PLAYER*>(message);
+					std::uint32_t eventType;
+
+					switch (destroyed->dwReason)
+					{
+						case DPNDESTROYPLAYERREASON_NORMAL:
+							WriteNetworkLogLevel(3, "A player has left the session normally", 0);
+							eventType = 3;
+							break;
+
+						case DPNDESTROYPLAYERREASON_CONNECTIONLOST:
+							WriteNetworkLogLevel(3, "A player has lost the connection", 0);
+							eventType = 5;
+							break;
+
+						case DPNDESTROYPLAYERREASON_SESSIONTERMINATED:
+							WriteNetworkLogLevel(3, "The session was terminated", 0);
+							eventType = 6;
+							break;
+
+						case DPNDESTROYPLAYERREASON_HOSTDESTROYEDPLAYER:
+							WriteNetworkLogLevel(3, "A player was kicked by the host", 0);
+							eventType = 4;
+							break;
+
+						default:
+							WriteNetworkLogLevel(3, "A player lost the connection", 0);
+							eventType = 7;
+							break;
+					}
+
+					GetNetworkInstance()->AddPlayerEvent(destroyed->dpnidPlayer, eventType);
+
+					return S_OK;
+				}
+
+			case DPN_MSGID_ASYNC_OP_COMPLETE:
+				{
+					WriteNetworkLogLevel(3, "Cancel search for sessions complete", 0);
+					OutputDebugStringA("# DPN_MSGID_ASYNC_OP_COMPLETE - Cancel search for sessions completely\n");
+
+					const auto* completed = static_cast<const DPNMSG_ASYNC_OP_COMPLETE*>(message);
+
+					if (completed->hAsyncOp != GetNetworkInstance()->searchOperation)
+					{
+						return S_OK;
+					}
+
+					EnterCriticalSection(&GetNetworkInstance()->criticalD4);
+
+					if (GetNetworkInstance()->sessions != nullptr)
+					{
+						SSessionList* sessionList = GetNetworkInstance()->sessions;
+
+						if (sessionList != nullptr)
+						{
+							DestroySessionListContents(sessionList);
+							NXBasics::Runtime_Free(sessionList);
+						}
+
+						GetNetworkInstance()->sessions = nullptr;
+					}
+
+					LeaveCriticalSection(&GetNetworkInstance()->criticalD4);
+					DeleteCriticalSection(&GetNetworkInstance()->criticalD4);
+
+					GetNetworkInstance()->searchOperation = 0;
+					GetNetworkInstance()->flags &= ~0x04u;
+
+					return S_OK;
+				}
+
+			case DPN_MSGID_ENUM_HOSTS_RESPONSE:
+				{
+					WriteNetworkLogLevel(3, "Remote host found", 0);
+					OutputDebugStringA("# DPN_MSGID_ENUM_HOSTS_RESPONSE - Remote host found\n");
+
+					EnterCriticalSection(&GetNetworkInstance()->criticalD4);
+
+					if (GetNetworkInstance()->sessions != nullptr)
+					{
+						UpdateSessionList(GetNetworkInstance()->sessions, static_cast<const DPNMSG_ENUM_HOSTS_RESPONSE*>(message));
+					}
+
+					LeaveCriticalSection(&GetNetworkInstance()->criticalD4);
+
+					return S_OK;
+				}
+
+			case DPN_MSGID_ENUM_HOSTS_QUERY:
+				{
+					WriteNetworkLogLevel(3, "Remote peer is searching for sessions on the local system", 0);
+					OutputDebugStringA("# DPN_MSGID_ENUM_HOSTS_QUERY - Remote peer is searching for sessions on the local system\n");
+
+					if (context != nullptr)
+					{
+						std::uint32_t contextValue;
+						std::memcpy(&contextValue, context, sizeof(contextValue));
+
+						if (contextValue == 0)
+						{
+							return S_OK;
+						}
+					}
+
+					return GetNetworkInstance()->allowConnections != 0 ? S_FALSE : S_OK;
+				}
+
+			case DPN_MSGID_RECEIVE:
+				{
+					const auto* received = static_cast<const DPNMSG_RECEIVE*>(message);
+					const std::uint8_t* packet = received->pReceiveData;
+
+					switch (packet[0])
+					{
+						case 2:
+							GetNetworkInstance()->allowConnections = packet[1];
+							return S_OK;
+
+						case 6:
+							{
+								if ((GetNetworkInstance()->flags & 0x08u) == 0)
+								{
+									return S_OK;
+								}
+
+								EnterCriticalSection(&GetNetworkInstance()->critical74);
+
+								if (GetNetworkInstance()->data48[1] != std::byte{ 0 })
+								{
+									GetNetworkInstance()->data48[1] = std::byte{ 0 };
+									std::memcpy(GetNetworkInstance()->data48 + 8, packet + 4, sizeof(std::uint32_t));
+								}
+
+								LeaveCriticalSection(&GetNetworkInstance()->critical74);
+
+								return S_OK;
+							}
+
+						case 7:
+							return S_OK;
+
+						case 11:
+						case 12:
+						case 13:
+						case 14:
+						case 15:
+							{
+								CFileTransferManager* fileTransferManager = CFileTransferManager::GetInstance();
+
+								if (fileTransferManager != nullptr)
+								{
+									fileTransferManager->DispatchMessage(received->pReceiveData);
+								}
+								else
+								{
+									OutputDebugStringA(DAT_00509910);
+								}
+
+								return S_OK;
+							}
+
+						default:
+							GetNetworkInstance()->SaveReceivedMessage(received);
+							return DPNSUCCESS_PENDING;
+					}
+				}
+
+			case DPN_MSGID_SEND_COMPLETE:
+				{
+					if ((GetNetworkInstance()->flags & 0x40u) == 0)
+					{
+						return S_OK;
+					}
+
+					std::uint32_t statistics[4] = {};
+					GetNetworkInstance()->GetSendStatistics(statistics);
+
+					const auto* completed = static_cast<const DPNMSG_SEND_COMPLETE*>(message);
+
+					if (completed->dwSendTime < statistics[0])
+					{
+						statistics[0] = completed->dwSendTime;
+					}
+
+					if (completed->dwSendTime > statistics[2])
+					{
+						statistics[2] = completed->dwSendTime;
+					}
+
+					statistics[1] = 0;
+
+					GetNetworkInstance()->SetSendStatistics(statistics);
+					GetNetworkInstance()->flags &= ~0x40u;
+
+					return S_OK;
+				}
+
+			case DPN_MSGID_HOST_MIGRATE:
+				{
+					WriteNetworkLogLevel(3, "Host migration detected", 0);
+					OutputDebugStringA("# DPN_MSGID_HOST_MIGRATE - Host migration detected\n");
+
+					const auto* migrated = static_cast<const DPNMSG_HOST_MIGRATE*>(message);
+
+					GetNetworkInstance()->AddPlayerEvent(migrated->dpnidNewHost, 8u);
+
+					if (GetNetworkInstance()->GetLocalPlayerId() != 0)
+					{
+						const DPNID hostPlayer = GetNetworkInstance()->GetHostPlayerId();
+
+						if (GetNetworkInstance()->GetLocalPlayerId() == hostPlayer)
+						{
+							WriteNetworkLogLevel(3, "Local peer is new host", 0);
+
+							GetNetworkInstance()->flags |= 0x02u;
+							GetNetworkInstance()->flags &= ~0x08u;
+						}
+					}
+
+					return S_OK;
+				}
+
+			case DPN_MSGID_CONNECT_COMPLETE:
+				WriteNetworkLogLevel(3, "Connect complete", 0);
+				OutputDebugStringA("# DPN_MSGID_CONNECT_COMPLETE - Connect complete");
+				return S_OK;
+
+			case DPN_MSGID_TERMINATE_SESSION:
+				WriteNetworkLogLevel(3, "Terminate session", 0);
+				return S_OK;
+
+			default:
+				{
+					WriteNetworkLogLevel(3, "Unknown DirectPlay message ignored", 0);
+
+					// The original stack buffer is too small for this diagnostic.
+					char diagnostic[64] = {};
+					NXBasics::Runtime_PrintString(diagnostic, "DirectPlay message type is 0x%x", static_cast<unsigned int>(messageId));
+
+					WriteNetworkLogLevel(3, diagnostic, 0);
+
+					OutputDebugStringA("CDPNet::MessageProc(): Unknown network message type ignored.");
+					OutputDebugStringA(OriginalStrings::DirectPlayErrorSeparator);
+					OutputDebugStringA(NXBasics::GetDirectXErrorText(0));
+					OutputDebugStringA(OriginalStrings::NewLine);
+
+					return S_FALSE;
+				}
+		}
 	}
 }

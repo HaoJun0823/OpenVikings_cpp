@@ -13,7 +13,9 @@
   <ItemGroup>
     <ClCompile Include="C2CallbackManager.cpp" />
     <ClCompile Include="CRC32.cpp" />
+    <ClCompile Include="DirectXErrorText.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
+    <ClCompile Include="MainMenuGuiManager.cpp" />
     <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
     <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp" />
     <ClCompile Include="MasterControlProgram_PS_InGame.cpp" />
@@ -51,12 +53,16 @@
     <ClInclude Include="ApplicationStartup.h" />
     <ClInclude Include="C2CallbackManager.h" />
     <ClInclude Include="CRC32.h" />
+    <ClInclude Include="DirectXErrorText.h" />
     <ClInclude Include="dpaddr.h" />
     <ClInclude Include="dplay8.h" />
+    <ClInclude Include="FileTransferManager.h" />
     <ClInclude Include="InGameGuiManager.h" />
+    <ClInclude Include="MainMenuGuiManager.h" />
     <ClInclude Include="MasterControlProgram.h" />
     <ClInclude Include="MasterPropertyManager.h" />
     <ClInclude Include="NetworkShutdown.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="X2DApplication.h" />
     <ClInclude Include="X2DDisplay.h" />
     <ClInclude Include="X2DWindow.h" />
@@ -84,6 +90,12 @@
     <ClInclude Include="XStringArray.h" />
     <ClInclude Include="XStringMemory.h" />
     <ClInclude Include="XSystemMouseCursor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OpenVikings.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>

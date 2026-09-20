@@ -31,6 +31,24 @@ namespace
 
 namespace NCRC32
 {
+	// Original function: FUN_004f2981
+	std::uint32_t Calculate(const void* data, std::int32_t byteCount)
+	{
+		if (g_crcTable[1] == 0)
+			InitializeCRCTable();
+
+		const auto* bytes = static_cast<const std::uint8_t*>(data);
+		std::uint32_t checksum = 0xFFFFFFFFu;
+
+		for (std::int32_t index = 0; index < byteCount; ++index)
+		{
+			const std::uint32_t tableIndex = (checksum >> 24) ^ bytes[index];
+			checksum = (checksum << 8) ^ g_crcTable[tableIndex];
+		}
+
+		return ~checksum;
+	}
+
 	// Original function: FUN_004f29c1
 	void UpdateByte(std::uint32_t* checksum, std::uint8_t value)
 	{

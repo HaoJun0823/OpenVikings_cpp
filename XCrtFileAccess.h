@@ -453,6 +453,10 @@ namespace NXBasics
 
 	std::int32_t Runtime_ConvertWideEnvironment();
 
+	wchar_t* Runtime_DuplicateWideString(const wchar_t* source);
+
+	char* Runtime_DuplicateString(const char* source);
+
 	char* Runtime_DuplicateString(const char* source);
 
 	std::int32_t Runtime_StringToLong(const char* text, char** endPointer, std::int32_t base);
@@ -565,6 +569,19 @@ namespace NXBasics
 	RuntimeFormatStream* Runtime_OpenStreamShared(const char* fileName, const char* mode, std::uint32_t shareMode);
 	RuntimeFormatStream* Runtime_OpenStream(const char* fileName, const char* mode);
 	char* Runtime_GetEnvironmentVariableLocked(const char* name);
+
+	std::int32_t Runtime_RemoveFile(const char* fileName);
+	std::int32_t Runtime_RenameFile(const char* oldFileName, const char* newFileName);
+	std::int32_t Runtime_SeekStream(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin);
+	std::int32_t Runtime_SeekStreamNoLock(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin);
+	std::int32_t Runtime_TellStreamNoLock(RuntimeFormatStream* stream);
+	std::int32_t Runtime_ReadStreamCharacter(RuntimeFormatStream* stream);
+	std::int32_t Runtime_FillStreamBufferAndReadCharacter(RuntimeFormatStream* stream);
+	std::uint32_t Runtime_WriteStream(const void* data, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream);
+	std::uint32_t Runtime_WriteStreamNoLock(const void* data, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream);
+
+	std::uint32_t Runtime_ReadStream(void* destination, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream);
+	std::uint32_t Runtime_ReadStreamNoLock(void* destination, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream);
 
 	// Shared runtime data and compile-time tables
 
