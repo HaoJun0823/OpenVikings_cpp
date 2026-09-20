@@ -35,14 +35,47 @@ namespace NXBasics
 		// Original function: FUN_00424fa7
 		char* GetNextLine();
 
-		// Original function: FUN_0042538d
-		std::int32_t GetTypeOfNextParameter();
+		// Original function: FUN_00424fe7
+		void SetCurrentLineToGroupStart();
+
+		// Original function: FUN_00424ff8
+		char* GetFirstGroup();
+
+		// Original function: FUN_00425030
+		char* GetNextGroup();
+
+		// Original function: FUN_00425071
+		char* GetFirstGroup(const char* groupName);
+
+		// Original function: FUN_004250a4
+		char* GetNextGroup(const char* groupName);
+
+		// Original function: FUN_004250d0
+		bool SearchGroup(const char* groupName);
+
+		// Original function: FUN_00425109
+		bool SearchCommand(const char* commandName);
+
+		// Original function: FUN_00425169
+		char* GetNextCommandLineInGroup();
+
+		// Original function: FUN_0042518d
+		std::uint32_t GetNumberOfGroups(const char* groupName);
+
+		// Original function: FUN_004251c7
+		std::uint32_t GetNumberOfCommandsInGroup(const char* commandName);
+
+		// Original function: FUN_0042522e
+		char* GetString();
 
 		// Original function: FUN_00425291
 		std::int32_t GetInt();
 
-		// Original function: FUN_0042522e
-		char* GetString();
+		// Original function: FUN_00425309
+		double GetDouble();
+
+		// Original function: FUN_0042538d
+		std::int32_t GetTypeOfNextParameter();
 
 		// Field accessors for the property-manager path.
 		bool IsLoaded() const;
@@ -68,7 +101,7 @@ namespace NXBasics
 		CStringArray* mLines;           // +0x108
 		std::uint32_t mCurrentLine;     // +0x10C
 		std::int32_t mCurrentLineType;  // +0x110
-		std::uint32_t mUnknown114;      // +0x114
+		std::uint32_t mGroupStartLine;  // +0x114
 		char* mParameterPosition;      // +0x118
 		char mLineBuffer[2000];         // +0x11C
 		char mNameBuffer[2000];         // +0x8EC

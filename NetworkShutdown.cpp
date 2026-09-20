@@ -16,8 +16,8 @@ extern int FUN_004e8c4a(void* stream);
 extern int FUN_004e5d8b(char* destination, const char* format, ...);
 extern char* FUN_004e907b(std::uint32_t value, char* destination, int radix);
 
-// Original globals. Storage remains with the corresponding owning module.
-extern NNetwork::SDynamicNetworkData DAT_0050f6a8;
+// Original data: DAT_0050f6a8.
+NNetwork::SDynamicNetworkData DAT_0050f6a8{};
 
 
 namespace NNetwork
@@ -423,5 +423,79 @@ namespace NNetwork
 		network->Uninitialize();
 
 		DestroyNetworkSingleton();
+	}
+}
+
+namespace NNetwork
+{
+	// Original function: FUN_004058dd
+	void InitializeGlobalDynamicNetworkData()
+	{
+		ConstructDynamicNetworkData(&DAT_0050f6a8);
+
+		// Original function: FUN_004058f3
+		// The existing reconstructed onexit interface expects an int return value.
+		NXBasics::Runtime_AtExit(+[] () -> int
+		{
+			DestroyDynamicNetworkData(&DAT_0050f6a8);
+			return 0;
+		});
+	}
+
+	// Original function: FUN_004de956
+	SDynamicNetworkData* ConstructDynamicNetworkData(SDynamicNetworkData* data)
+	{
+		// Original function: FUN_004db429
+		data->events.count = 0;
+		data->events.last = nullptr;
+		data->events.first = nullptr;
+		data->events.changed = 0;
+
+		for (std::uint32_t index = 0; index < 3; ++index)
+		{
+			// Original function: FUN_004e0ffd
+			++gDynamicSlotArrayConstructionCount;
+
+			SDynamicSlotArray& array = data->arrays[index];
+
+			array.revision = 0;
+			array.unknown00 = 0;
+			array.unknown0C = 0;
+			array.count = 0;
+			array.slots = nullptr;
+		}
+
+		data->active = 0;
+		data->unknown04 = 0;
+		data->allocation10 = nullptr;
+		data->allocation28 = nullptr;
+		data->receivedRecordCount = 0;
+		data->unknown2C = 0;
+		data->allocation30 = nullptr;
+		data->unknown08 = 0;
+		data->unknown7C = 0;
+
+		// Original allocation: FUN_004e5ddd -> FUN_004e860e(size, 1).
+		data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300u, 1);
+
+		// Preserve the original unconditional initialization after allocation.
+		std::memset(data->allocation30, 0, 0x10300u);
+
+		return data;
+	}
+
+	// Original function: FUN_004de9b1
+	void DestroyDynamicNetworkData(SDynamicNetworkData* data)
+	{
+		ReleaseDynamicNetworkMemory(data);
+
+		// Original destructors: FUN_004e1016 -> FUN_004e10fb.
+		for (std::uint32_t index = 3; index != 0; --index)
+		{
+			ReleaseDynamicSlots(&data->arrays[index - 1]);
+		}
+
+		// Original destructor: FUN_004db49b -> FUN_004db528.
+		ClearEventQueue(&data->events);
 	}
 }

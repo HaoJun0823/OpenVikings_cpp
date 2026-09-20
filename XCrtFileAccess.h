@@ -251,6 +251,10 @@ namespace NXBasics
 
 	inline std::int32_t Runtime_CompareStringsIgnoreCase(const char* first, const char* second);
 
+	inline void Runtime_MakePath(char* path, const char* drive, const char* directory, const char* baseName, const char* extension);
+
+	inline double Runtime_StringToDouble(const char* text);
+
 	inline int Runtime_RaiseSignal(std::int32_t signalNumber);
 
 	inline RuntimeExceptionAction* Runtime_FindSignalAction(std::int32_t signalNumber, RuntimeExceptionAction* actions);
@@ -400,6 +404,8 @@ namespace NXBasics
 	inline void Runtime_InitializeMultibyte();
 
 	inline char* Runtime_CopyMultibyteBytes(char* destination, const char* source, std::uint32_t byteCount);
+
+	inline const char* Runtime_PreviousMultibyteCharacter(const char* start, const char* current);
 
 	inline int Runtime_InitializeSmallBlockHeap(std::uint32_t maximumRequest);
 
@@ -3260,6 +3266,94 @@ namespace NXBasics
 		std::int32_t result;
 		std::memcpy(&result, &resultBits, sizeof(result));
 		return result;
+	}
+
+	// Original function: FUN_004e8215
+	inline void Runtime_MakePath(char* path, const char* drive, const char* directory, const char* baseName, const char* extension)
+	{
+		char* output = path;
+
+		if (drive != nullptr && *drive != '\0')
+		{
+			// The original uses only the first drive character.
+			*output++ = *drive;
+			*output++ = ':';
+		}
+
+		if (directory != nullptr && *directory != '\0')
+		{
+			const char* cursor = directory;
+
+			while (*cursor != '\0')
+			{
+				*output++ = *cursor++;
+			}
+
+			const char* lastCharacter = Runtime_PreviousMultibyteCharacter(directory, cursor);
+
+			if (*lastCharacter != '/' && *lastCharacter != '\\')
+			{
+				*output++ = '\\';
+			}
+		}
+
+		if (baseName != nullptr)
+		{
+			while (*baseName != '\0')
+			{
+				*output++ = *baseName++;
+			}
+		}
+
+		if (extension != nullptr)
+		{
+			if (*extension != '\0' && *extension != '.')
+			{
+				*output++ = '.';
+			}
+
+			do
+			{
+				*output++ = *extension;
+			} while (*extension++ != '\0');
+		}
+		else
+		{
+			*output = '\0';
+		}
+	}
+
+	// Original function: FUN_004e82a6
+	inline double Runtime_StringToDouble(const char* text)
+	{
+		for (;;)
+		{
+			const std::uint8_t character = static_cast<std::uint8_t>(*text);
+
+			if (Runtime_ClassifyCharacter(character, 8u) == 0)
+			{
+				break;
+			}
+
+			++text;
+		}
+
+		// Original helper: FUN_004ed0b7.
+		// Only its binary64 result is consumed by FUN_004e82a6.
+		std::uint32_t extended[3]{};
+		const char* endPointer = nullptr;
+
+		const int parseFlags = Runtime_ParseExtended12(extended, &endPointer, text, 0, 0, 0, 0);
+
+		if ((parseFlags & 4) != 0)
+		{
+			return 0.0;
+		}
+
+		double value;
+		Runtime_Extended12ToDouble(extended, &value);
+
+		return value;
 	}
 
 	// Original function: FUN_004e8354
@@ -7146,6 +7240,50 @@ namespace NXBasics
 
 		Runtime_Unlock(0x19);
 		return destination;
+	}
+
+	// Original function: FUN_004ed04a
+	inline const char* Runtime_PreviousMultibyteCharacter(const char* start, const char* current)
+	{
+		const std::uintptr_t begin = reinterpret_cast<std::uintptr_t>(start);
+		const std::uintptr_t position = reinterpret_cast<std::uintptr_t>(current);
+
+		if (begin >= position)
+		{
+			return nullptr;
+		}
+
+		if (gRuntimeIsMultibyteCodePage == 0)
+		{
+			return current - 1;
+		}
+
+		Runtime_Lock(0x19);
+
+		std::uintptr_t scan = position - 1;
+
+		if ((gRuntimeMultibyteTypes[*reinterpret_cast<const std::uint8_t*>(scan) + 1u] & 4u) != 0)
+		{
+			Runtime_Unlock(0x19);
+
+			// Preserve the original immediate two-byte step.
+			return reinterpret_cast<const char*>(scan - 1);
+		}
+
+		--scan;
+
+		// Integer addresses preserve the original scan below the lower bound
+		// without constructing an out-of-range pointer for the comparison.
+		while (scan >= begin && (gRuntimeMultibyteTypes[*reinterpret_cast<const std::uint8_t*>(scan) + 1u] & 4u) != 0)
+		{
+			--scan;
+		}
+
+		Runtime_Unlock(0x19);
+
+		const std::uintptr_t adjustment = (position - scan) & 1u;
+
+		return reinterpret_cast<const char*>(position - adjustment - 1u);
 	}
 
 	// Original function: FUN_004ed45a

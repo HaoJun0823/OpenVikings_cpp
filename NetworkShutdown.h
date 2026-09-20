@@ -95,19 +95,40 @@ namespace NNetwork
 		SDynamicSlot* slots;                       // +0x10
 	};
 
-	// Only the prefix accessed by FUN_004de9da/FUN_004debfd is described.
+	// Storage required by the original constructor and existing shutdown paths.
 	struct SDynamicNetworkData
 	{
 		std::uint8_t active;                       // +0x00
-		std::byte unknown01[0x0F];
+		std::byte unknown01[3];
+		std::uint32_t unknown04;                   // +0x04
+		std::uint32_t unknown08;                   // +0x08
+		std::uint32_t unknown0C;                   // +0x0C
 		void* allocation10;                       // +0x10
 		SEventQueue events;                        // +0x14
-		std::byte unknown24[4];
+		std::uint32_t receivedRecordCount;         // +0x24
 		void* allocation28;                       // +0x28
-		std::byte unknown2C[4];
+		std::uint32_t unknown2C;                   // +0x2C
 		void* allocation30;                       // +0x30
 		SDynamicSlotArray arrays[3];               // +0x34, +0x48, +0x5C
+		std::byte unknown70[0x0C];
+		std::uint32_t unknown7C;                   // +0x7C
 	};
+
+	// Original data: DAT_005697e8.
+	inline std::uint32_t gDynamicSlotArrayConstructionCount = 0;
+
+	// Original function: FUN_004058dd
+	void InitializeGlobalDynamicNetworkData();
+
+	// Original function: FUN_004de956
+	SDynamicNetworkData* ConstructDynamicNetworkData(SDynamicNetworkData* data);
+
+	// Original function: FUN_004de9b1
+	void DestroyDynamicNetworkData(SDynamicNetworkData* data);
+
+	static_assert(sizeof(SDynamicNetworkData) == 0x80);
+	static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
+	static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
 
 	class CDPNet
 	{
@@ -199,18 +220,28 @@ namespace NNetwork
 	static_assert(offsetof(CDPNet, log) == 0x104);
 	static_assert(sizeof(CDPNet) == 0x228);
 }
+
 // Existing reconstruction interfaces, with their original addresses retained.
 // Original function: FUN_004db855
 NNetwork::SNetLog* GetNetworkLog();
+
 // Original function: FUN_004dc409
 NNetwork::CDPNet* GetNetworkInstance();
+
 // Original function: FUN_004dbc6d
 void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t indentation);
+
 // Original function: FUN_004ddc42
 void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t indentation);
+
 // Original function: FUN_004d77da
 void ReleaseSessionNodeResources(NNetwork::SSessionNode* object);
+
 // Original data: 00569654
 extern NNetwork::SNetLog* gNetworkLog;
+
 // Original data: 00569658
 extern NNetwork::CDPNet* gNetworkInstance;
+
+// Original data: 0050f6a8.
+extern NNetwork::SDynamicNetworkData DAT_0050f6a8;

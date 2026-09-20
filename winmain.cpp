@@ -1,5 +1,7 @@
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
+#include "XCrtStartup.h"
+#include "ApplicationStartup.h"
 
 #include <cstdint>
 #include <new>
@@ -39,40 +41,50 @@ namespace
 	}
 }
 
-// Original function: FUN_00403487
+// Hosted entry for the reconstructed startup at FUN_004e709e.
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
 {
-	// Original function: FUN_0047a9a4
-	if (!InitializeSingleInstanceGuard("weltwunder"))
+	// The reconstructed startup obtains these values from the Win32 APIs.
+	(void) instance;
+	(void) previousInstance;
+	(void) commandLine;
+	(void) showCommand;
+
+	// Original function: FUN_00403487
+	const auto applicationEntry = +[] (HINSTANCE applicationInstance, HINSTANCE applicationPreviousInstance, LPSTR applicationCommandLine, int applicationShowCommand) -> int
 	{
-		return 0;
-	}
-
-	new (std::nothrow) NMasterControlProgram::CMasterControlProgram(instance, previousInstance, commandLine, showCommand);
-
-	auto* masterControlProgram = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
-
-	if (*reinterpret_cast<const std::int32_t*>(masterControlProgram) == 2 &&
-		masterControlProgram->System_ProgramState_StartUpSystem())
-	{
-		do
+		if (!InitializeSingleInstanceGuard("weltwunder"))
 		{
-			if (!NXSys2DApp::CApplication::sTheObjectPtr->DoMessages())
+			return 0;
+		}
+
+		new (std::nothrow) NMasterControlProgram::CMasterControlProgram(applicationInstance, applicationPreviousInstance, applicationCommandLine, applicationShowCommand);
+
+		auto* masterControlProgram = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
+
+		if (*reinterpret_cast<const std::int32_t*>(masterControlProgram) == 2 && masterControlProgram->System_ProgramState_StartUpSystem())
+		{
+			do
 			{
-				break;
-			}
-		} while (!masterControlProgram->System_Update());
+				if (!NXSys2DApp::CApplication::sTheObjectPtr->DoMessages())
+				{
+					break;
+				}
+			} while (!masterControlProgram->System_Update());
 
-		masterControlProgram->System_ProgramState_EndCurrent();
-	}
+			masterControlProgram->System_ProgramState_EndCurrent();
+		}
 
-	auto* object = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
+		auto* object = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
 
-	if (object != nullptr)
-	{
-		delete object;
-	}
+		if (object != nullptr)
+		{
+			delete object;
+		}
 
-	ReleaseSingleInstanceGuard();
-	return 0;
+		ReleaseSingleInstanceGuard();
+		return 0;
+	};
+
+	return NXBasics::Runtime_RunApplication(applicationEntry, NApplicationStartup::gApplicationInitializers, NApplicationStartup::gApplicationInitializers + NApplicationStartup::ApplicationInitializerCount);
 }

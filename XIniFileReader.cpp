@@ -22,7 +22,7 @@ namespace NXBasics
 		static_assert(offsetof(CIniFileReader, mLines) == 0x108);
 		static_assert(offsetof(CIniFileReader, mCurrentLine) == 0x10C);
 		static_assert(offsetof(CIniFileReader, mCurrentLineType) == 0x110);
-		static_assert(offsetof(CIniFileReader, mUnknown114) == 0x114);
+		static_assert(offsetof(CIniFileReader, mGroupStartLine) == 0x114);
 		static_assert(offsetof(CIniFileReader, mParameterPosition) == 0x118);
 		static_assert(offsetof(CIniFileReader, mLineBuffer) == 0x11C);
 		static_assert(offsetof(CIniFileReader, mNameBuffer) == 0x8EC);
@@ -74,8 +74,8 @@ namespace NXBasics
 		char iniFilePath[256];
 
 		// Derive the temporary system path from the original input filename.
-		FUN_004e7aa8(fileName, drive, directory, nullptr, nullptr);
-		FUN_004e8215(iniFilePath, drive, directory, nullptr, nullptr);
+		Runtime_SplitPath(fileName, drive, directory, nullptr, nullptr);
+		Runtime_MakePath(iniFilePath, drive, directory, nullptr, nullptr);
 
 		CFile::FileSystem_SystemPathName_Set("$inifilepath$", iniFilePath);
 
@@ -139,6 +139,177 @@ namespace NXBasics
 		return mLineBuffer;
 	}
 
+	// Original function: FUN_00424fe7
+	void CIniFileReader::SetCurrentLineToGroupStart()
+	{
+		mCurrentLine = mGroupStartLine;
+		l_CopyCurrentLineIntoBuffer();
+	}
+
+	// Original function: FUN_00424ff8
+	char* CIniFileReader::GetFirstGroup()
+	{
+		char* line = GetFirstLine();
+
+		while (line != nullptr)
+		{
+			if (mCurrentLineType == 1)
+			{
+				mGroupStartLine = mCurrentLine;
+				return line;
+			}
+
+			line = GetNextLine();
+		}
+
+		// The original leaves the previous group-start index unchanged.
+		return nullptr;
+	}
+
+	// Original function: FUN_00425030
+	char* CIniFileReader::GetNextGroup()
+	{
+		SetCurrentLineToGroupStart();
+
+		char* line;
+
+		while ((line = GetNextLine()) != nullptr)
+		{
+			if (mCurrentLineType == 1)
+			{
+				mGroupStartLine = mCurrentLine;
+				return line;
+			}
+		}
+
+		mGroupStartLine = 0;
+		return nullptr;
+	}
+
+	// Original function: FUN_00425071
+	char* CIniFileReader::GetFirstGroup(const char* groupName)
+	{
+		char* line = GetFirstGroup();
+
+		while (line != nullptr && Runtime_CompareStringsIgnoreCase(line, groupName) != 0)
+		{
+			line = GetNextGroup();
+		}
+
+		return line;
+	}
+
+	// Original function: FUN_004250a4
+	char* CIniFileReader::GetNextGroup(const char* groupName)
+	{
+		char* line = GetNextGroup();
+
+		while (line != nullptr && Runtime_CompareStringsIgnoreCase(line, groupName) != 0)
+		{
+			line = GetNextGroup();
+		}
+
+		return line;
+	}
+
+	// Original function: FUN_004250d0
+	bool CIniFileReader::SearchGroup(const char* groupName)
+	{
+		return GetFirstGroup(groupName) != nullptr;
+	}
+
+	// Original function: FUN_00425109
+	bool CIniFileReader::SearchCommand(const char* commandName)
+	{
+		if (mLines->mStringCount == 0)
+		{
+			return false;
+		}
+
+		if (mCurrentLineType == 1)
+		{
+			if (GetNextLine() == nullptr || mCurrentLineType == 1)
+			{
+				return false;
+			}
+		}
+
+		for (;;)
+		{
+			if (Runtime_CompareStringsIgnoreCase(mNameBuffer, commandName) == 0)
+			{
+				return true;
+			}
+
+			if (GetNextLine() == nullptr || mCurrentLineType == 1)
+			{
+				return false;
+			}
+		}
+	}
+
+	// Original function: FUN_00425169
+	char* CIniFileReader::GetNextCommandLineInGroup()
+	{
+		char* line;
+
+		while ((line = GetNextLine()) != nullptr)
+		{
+			if (mCurrentLineType == 1)
+			{
+				return nullptr;
+			}
+
+			if (mCurrentLineType == 2)
+			{
+				return line;
+			}
+		}
+
+		return nullptr;
+	}
+
+	// Original function: FUN_0042518d
+	std::uint32_t CIniFileReader::GetNumberOfGroups(const char* groupName)
+	{
+		std::uint32_t count = 0;
+
+		for (char* line = GetFirstGroup(); line != nullptr; line = GetNextGroup())
+		{
+			if (Runtime_CompareStringsIgnoreCase(line, groupName) == 0)
+			{
+				++count;
+			}
+		}
+
+		return count;
+	}
+
+	// Original function: FUN_004251c7
+	std::uint32_t CIniFileReader::GetNumberOfCommandsInGroup(const char* commandName)
+	{
+		const std::uint32_t savedLine = mCurrentLine;
+
+		SetCurrentLineToGroupStart();
+
+		std::uint32_t count = 0;
+
+		while (GetNextCommandLineInGroup() != nullptr)
+		{
+			if (Runtime_CompareStringsIgnoreCase(commandName, mNameBuffer) == 0)
+			{
+				++count;
+			}
+		}
+
+		mCurrentLine = savedLine;
+
+		// Reloading restores the line but resets its parameter position.
+		l_CopyCurrentLineIntoBuffer();
+
+		return count;
+	}
+
 	// Original function: FUN_0042538d
 	std::int32_t CIniFileReader::GetTypeOfNextParameter()
 	{
@@ -196,6 +367,42 @@ namespace NXBasics
 		}
 
 		const std::int32_t value = Runtime_StringToInteger(position);
+		char* separator = std::strchr(position, ' ');
+
+		if (separator != nullptr)
+		{
+			mParameterPosition = separator + 1;
+		}
+		else
+		{
+			mParameterPosition = mLineBuffer + std::strlen(mLineBuffer);
+		}
+
+		return value;
+	}
+
+	// Original function: FUN_00425309
+	double CIniFileReader::GetDouble()
+	{
+		char* position = mParameterPosition;
+
+		while (*position != '\0')
+		{
+			if (*position == '-' || *position == '.' || Runtime_IsDigit(*position))
+			{
+				break;
+			}
+
+			++position;
+		}
+
+		if (*position == '\0')
+		{
+			// The original does not update the parameter position here.
+			return 0.0;
+		}
+
+		const double value = Runtime_StringToDouble(position);
 		char* separator = std::strchr(position, ' ');
 
 		if (separator != nullptr)
@@ -680,7 +887,7 @@ namespace NXBasics
 			compiledExtension = ".cif";
 		}
 
-		FUN_004e7aa8(fileName, drive, directory, baseName, nullptr);
-		FUN_004e8215(fileName, drive, directory, baseName, compiledExtension);
+		Runtime_SplitPath(fileName, drive, directory, baseName, nullptr);
+		Runtime_MakePath(fileName, drive, directory, baseName, compiledExtension);
 	}
 }

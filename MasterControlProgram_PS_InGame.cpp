@@ -117,9 +117,9 @@ namespace NMasterControlProgram
 	// Original function: FUN_00401d38
 	void CMasterControlProgram::System_ProgramState_Game_Update()
 	{
-		if (DAT_0050f6a8 != 0)
+		if (DAT_0050f6a8.active != 0)
 		{
-			if (DAT_0050f6cc > 0)
+			if (DAT_0050f6a8.receivedRecordCount > 0)
 			{
 				SReceivedNetworkRecord* receivedRecords = nullptr;
 				std::uint32_t receivedRecordCount = 0;
