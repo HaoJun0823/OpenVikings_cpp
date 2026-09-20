@@ -97,7 +97,7 @@ namespace NNetwork
 	struct SDynamicSlot
 	{
 		std::uint32_t unknown00;                   // +0x00
-		std::uint8_t used;                         // +0x04
+		std::uint8_t used;                         // +0x04: message length; zero means missing
 		std::byte data[200];                       // +0x05
 		std::byte unknownCD[3];
 	};
@@ -110,6 +110,20 @@ namespace NNetwork
 		std::uint32_t unknown0C;                   // +0x0C
 		SDynamicSlot* slots;                       // +0x10
 	};
+
+	struct SDynamicDataMessage
+	{
+		DPNID sender;                       // +0x000
+		std::uint32_t payloadSize;          // +0x004
+		std::uint8_t payload[0x400];         // +0x008
+		std::uint8_t checksumMismatch;      // +0x408
+		std::byte padding409[3];            // +0x409
+	};
+
+	static_assert(sizeof(SDynamicDataMessage) == 0x40C);
+	static_assert(offsetof(SDynamicDataMessage, payload) == 0x008);
+	static_assert(offsetof(SDynamicDataMessage, checksumMismatch) == 0x408);
+	static_assert(sizeof(SDynamicDataMessage) * 64 == 0x10300);
 
 	// Storage required by the original constructor and existing shutdown paths.
 	struct SDynamicNetworkData
@@ -136,8 +150,27 @@ namespace NNetwork
 	// Original function: FUN_004dec8a
 	bool SendDynamicNetworkMessage(SDynamicNetworkData* data, DPNID recipient, const void* payload, std::uint32_t byteCount);
 
+	// Original function: FUN_004db4a0
+	SEventQueue* AppendEventQueueCopy(SEventQueue* destination, const SEventQueue* source);
+
+	// Original function: FUN_004db4dd
+	SEventQueue* ReplaceEventQueueAndClearSource(SEventQueue* destination, SEventQueue* source);
+
+	// Original function: FUN_004df227
+	void ClearDynamicNetworkEvents(SDynamicNetworkData* data);
+
+	// Extracted initialization and event processing from FUN_004df240.
+	// Returns true only when the remaining update stages should execute.
+	bool PrepareDynamicNetworkUpdate(SDynamicNetworkData* data, bool reset);
+
 	// Original function: FUN_004df207
 	bool BroadcastControlMessage8(SDynamicNetworkData* data);
+
+	// Extracted type-4 receive branch from FUN_004df240.
+	void StoreDynamicDataMessage(SDynamicNetworkData* data, const SReceivedMessage& received);
+
+	// Original function: FUN_004decf5
+	void GetDynamicNetworkMessages(SDynamicNetworkData* data, SDynamicDataMessage** messages, std::uint32_t* count);
 
 	// Original data: DAT_005697e8.
 	inline std::uint32_t gDynamicSlotArrayConstructionCount = 0;
@@ -150,6 +183,51 @@ namespace NNetwork
 
 	// Original function: FUN_004de9b1
 	void DestroyDynamicNetworkData(SDynamicNetworkData* data);
+
+	// Original function: FUN_004e1122
+	void UpdateCommandBufferPlayers(SDynamicSlotArray* buffer, const DPNID* playerIds, std::uint32_t playerCount);
+
+	// Original function: FUN_004def63
+	void UpdateDynamicCommandBuffers(SDynamicNetworkData* data);
+
+	// Original function: FUN_004dfdce
+	void HandleSpecialPlayerDepartureEvent(const SEventNode* event);
+
+	// Original function: FUN_004db788
+	void ConvertNetworkAnsiToWide(wchar_t* destination, const char* source, std::int32_t length);
+
+	// Original function: FUN_004db7cc
+	void ConvertNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length);
+
+	// Original function: FUN_004db811
+	void CopyNetworkAnsiToWide(wchar_t* destination, const char* source, std::int32_t length);
+
+	// Original function: FUN_004db833
+	void CopyNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length);
+
+	// Original function: FUN_004df240
+	void UpdateDynamicNetwork(SDynamicNetworkData* data, bool reset);
+
+	// Original function: FUN_004e1249
+	bool IsCommandBufferComplete(const SDynamicSlotArray* buffer);
+
+	// Original function: FUN_004e127b
+	std::uint32_t FindCommandBufferPlayerIndex(const SDynamicSlotArray* buffer, DPNID playerId);
+
+	// Original function: FUN_004e12a6
+	DPNID GetFirstMissingCommandPlayerId(const SDynamicSlotArray* buffer);
+
+	// Original function: FUN_004e12de
+	bool SetCommandMessageLength(SDynamicSlotArray* buffer, DPNID playerId, std::uint8_t length);
+
+	// Original function: FUN_004e1310
+	bool StoreCommandMessageData(SDynamicSlotArray* buffer, DPNID playerId, const void* source, std::uint32_t length);
+
+	// Original function: FUN_004e1375
+	std::uint8_t GetCommandMessageLength(const SDynamicSlotArray* buffer, DPNID playerId);
+
+	// Original function: FUN_004e13a1
+	bool CopyCommandMessageData(const SDynamicSlotArray* buffer, DPNID playerId, void* destination, std::uint32_t destinationSize);
 
 	static_assert(sizeof(SDynamicNetworkData) == 0x80);
 	static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
@@ -203,11 +281,32 @@ namespace NNetwork
 		// Original function: FUN_004dc7a3
 		bool Uninitialize();
 
+		// Original function: FUN_004dcfe9
+		bool GetPlayerIds(DPNID** playerIds, DWORD* playerCount);
+
+		// Original function: FUN_004dcf42
+		bool GetPlayerName(DPNID playerId, wchar_t** playerName);
+
+		// Original function: FUN_004dd5f2
+		bool KickPlayer(DPNID playerId);
+
+		// Original function: FUN_004ddb9f
+		bool HasPlayerConnectionFailed(DPNID playerId);
+
 		// Original function: FUN_004dd65e
 		bool SendPacket(DPNID recipient, const void* packet);
 
+		// Original function: FUN_004dd948
+		void GetReceivedMessages(SReceivedMessage** messages, std::uint32_t* count);
+
 		// Original function: FUN_004dd9fe
 		void ReleaseReceivedMessages(SReceivedMessage* messages, std::uint32_t count);
+
+		// Original function: FUN_004ddb3e
+		void GetEvents(SEventQueue* destination);
+
+		// Original function: FUN_004ddb76
+		void ClearEvents();
 
 		// Original function: FUN_004dc3f3
 		void SetApplicationGuid(const GUID* applicationGuid);
@@ -341,6 +440,12 @@ void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t ind
 
 // Original function: FUN_004d77da
 void ReleaseSessionNodeResources(NNetwork::SSessionNode* object);
+
+// Original function: FUN_004deafc
+DPNID GetDynamicNetworkLocalPlayerId(const SDynamicNetworkData* data);
+
+// Original function: FUN_004dee72
+void PrepareDynamicCommandBuffers(SDynamicNetworkData* data);
 
 // Original data: 00569654
 extern NNetwork::SNetLog* gNetworkLog;

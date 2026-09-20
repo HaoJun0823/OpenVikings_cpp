@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C2CallbackManager.cpp" />
+    <ClCompile Include="CRC16.cpp" />
     <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="DirectXErrorText.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
     <ClInclude Include="C2CallbackManager.h" />
+    <ClInclude Include="CRC16.h" />
     <ClInclude Include="CRC32.h" />
     <ClInclude Include="DirectXErrorText.h" />
     <ClInclude Include="dpaddr.h" />

@@ -15,6 +15,9 @@ namespace NC2MainMenuGuiManager
 	class CGuiManager
 	{
 	public:
+		// Original function: FUN_004d2bf2
+		void System_UpdateGui();
+
 		// Original function: FUN_004d3308
 		void Debug_ErrorString_Add(const char* text);
 
@@ -30,8 +33,17 @@ namespace NC2MainMenuGuiManager
 		// Extracted transfer dispatch and host-change checks from FUN_004d85cf.
 		void l_Transfer_Update();
 
+		// Original function: FUN_004d6b4a
+		bool Screen_IsMultiPlayerScreen() const;
+
+		// Original function: FUN_004d85cf
+		void l_Network_Update();
+
 		// Extracted host upload branches from FUN_004d85cf.
 		void l_Transfer_UpdateUpload(bool userMap);
+
+		// Extracted data-message processing from FUN_004d85cf.
+		void l_Network_ProcessDataMessages();
 
 		// Extracted client download branches from FUN_004d85cf.
 		void l_Transfer_UpdateDownload(bool userMap);

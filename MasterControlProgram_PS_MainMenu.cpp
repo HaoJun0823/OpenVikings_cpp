@@ -19,7 +19,7 @@ namespace NMasterControlProgram
 		}
 
 		thunk_FUN_004077b8();
-		FUN_004d2bf2(DAT_005694dc);
+		reinterpret_cast<NC2MainMenuGuiManager::CGuiManager*>(DAT_005694dc)->System_UpdateGui();
 
 		const auto* desktopBytes = reinterpret_cast<const std::byte*>(DAT_00554d5c);
 		const std::uint32_t displayBitmap = *reinterpret_cast<const std::uint32_t*>(desktopBytes + 0x10);

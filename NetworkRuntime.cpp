@@ -8,11 +8,13 @@
 #include "NetworkShutdown.h"
 #include "MasterPropertyManager.h"
 #include "FileTransferManager.h"
+#include "CRC16.h"
 #include "CRC32.h"
 
 #include <cstring>
 #include <cstdint>
 #include <cstddef>
+#include <cwchar>
 #include <new>
 
 // Original data: DAT_00569650.
@@ -25,8 +27,297 @@ NNetwork::CDPNet* gNetworkInstance = nullptr;
 // Original data: DAT_00569654
 NNetwork::SNetLog* gNetworkLog = nullptr;
 
+// Original data: DAT_005697b0.
+std::uint8_t DAT_005697b0 = 0;
+
+// Original data: DAT_005697b4.
+std::uint32_t DAT_005697b4 = 0;
+
+// Original data: DAT_005697b8.
+std::uint32_t DAT_005697b8 = 0;
+
+// Original data: DAT_005697bc.
+std::uint32_t DAT_005697bc = 0;
+
+// Original data: DAT_0050aa2c.
+// Initial file-backed value still requires verification.
+extern std::uint8_t DAT_0050aa2c;
+
 namespace NNetwork
 {
+	// Original function: FUN_004dcf42
+	bool CDPNet::GetPlayerName(DPNID playerId, wchar_t** playerName)
+	{
+		DWORD requiredBytes = 0;
+
+		HRESULT result = peer->GetPeerInfo(playerId, nullptr, &requiredBytes, 0);
+
+		if (result != DPNERR_BUFFERTOOSMALL)
+			return false;
+
+		auto* info = static_cast<DPN_PLAYER_INFO*>(NXBasics::Runtime_AllocateWithNewHandler(requiredBytes, 1));
+
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x573, info != nullptr, "Memory allocation failed.");
+
+		static_assert(sizeof(DPN_PLAYER_INFO) == 0x18);
+
+		std::memset(info, 0, sizeof(DPN_PLAYER_INFO));
+		info->dwSize = sizeof(DPN_PLAYER_INFO);
+
+		result = peer->GetPeerInfo(playerId, info, &requiredBytes, 0);
+
+		if (FAILED(result))
+		{
+			// The original leaves the allocation and output argument unchanged.
+			return false;
+		}
+
+		wchar_t* copy = nullptr;
+
+		if (info->pwszName != nullptr)
+		{
+			// Original string duplication: FUN_004e8fc4.
+			const std::uint32_t allocationBytes = static_cast<std::uint32_t>(std::wcslen(info->pwszName)) * 2u + 2u;
+
+			copy = static_cast<wchar_t*>(NXBasics::Runtime_Allocate(allocationBytes));
+
+			if (copy != nullptr)
+				std::wcscpy(copy, info->pwszName);
+		}
+
+		*playerName = copy;
+
+		if (info != nullptr)
+			NXBasics::Runtime_Free(info);
+
+		return true;
+	}
+
+	// Original function: FUN_004dd5f2
+	bool CDPNet::KickPlayer(DPNID playerId)
+	{
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x6C1, peer != nullptr, "DirectPlay peer object is invalid (0).");
+
+		const HRESULT result = peer->DestroyPeer(playerId, nullptr, 0, 0);
+
+		if (FAILED(result))
+		{
+			ReportDirectPlayError("CDPNet::KickPlayer(): IDirectPlay8Peer::DestroyPeer", result);
+			return false;
+		}
+
+		return true;
+	}
+
+	// Original function: FUN_004ddb9f
+	bool CDPNet::HasPlayerConnectionFailed(DPNID playerId)
+	{
+		// The original checks member +0x3C, not the peer pointer at +0x68.
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x8EE, receivedMessages != nullptr, "DirectPlay peer object is invalid.");
+
+		std::uint8_t packet[2] = { 7, 0 };
+
+		DPN_BUFFER_DESC buffer = {};
+		buffer.dwBufferSize = sizeof(packet);
+		buffer.pBufferData = packet;
+
+		// Preserve the original send flags and 500 ms timeout.
+		const HRESULT result = peer->SendTo(playerId, &buffer, 1, 500, nullptr, nullptr, 0x80000088u);
+
+		if (FAILED(result))
+			ReportDirectPlayError("Guaranteed send operation failed", result);
+
+		return FAILED(result);
+	}
+
+	// Original function: FUN_004deafc
+	DPNID GetDynamicNetworkLocalPlayerId(const SDynamicNetworkData* data)
+	{
+		const auto* players = static_cast<const std::byte*>(data->allocation10);
+
+		if (players == nullptr)
+			return 0;
+
+		for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+		{
+			const std::byte* player = players + index * 0x98u;
+
+			if (player[0x85] != std::byte{ 0 })
+			{
+				DPNID playerId = 0;
+				std::memcpy(&playerId, player, sizeof(playerId));
+				return playerId;
+			}
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004dee72
+	void PrepareDynamicCommandBuffers(SDynamicNetworkData* data)
+	{
+		std::uint32_t bufferIndex = 0;
+		std::memcpy(&bufferIndex, data->unknown70, sizeof(bufferIndex));
+
+		if (data->arrays[bufferIndex].slots != nullptr)
+			return;
+
+		DPNID* playerIds = nullptr;
+		DWORD playerCount = 0;
+
+		if (!GetNetworkInstance()->GetPlayerIds(&playerIds, &playerCount))
+		{
+			ReportDirectPlayError("CDPLogic::PrepareCmdBuffers(): CDPNet::GetPlayerIds()", 0);
+			return;
+		}
+
+		const std::uint32_t initialIndices[3] = { 0, 1, 2 };
+		std::memcpy(data->unknown70, initialIndices, sizeof(initialIndices));
+
+		UpdateCommandBufferPlayers(&data->arrays[0], playerIds, playerCount);
+
+		for (std::uint32_t selector = 1; selector < 3; ++selector)
+		{
+			std::memcpy(&bufferIndex, data->unknown70 + selector * sizeof(bufferIndex), sizeof(bufferIndex));
+			UpdateCommandBufferPlayers(&data->arrays[bufferIndex], playerIds, playerCount);
+		}
+
+		if (playerIds != nullptr)
+			NXBasics::Runtime_Free(playerIds);
+
+		data->unknown0C = 0;
+
+		if (data->allocation10 != nullptr)
+		{
+			NXBasics::Runtime_Free(data->allocation10);
+			data->allocation10 = nullptr;
+		}
+
+		SPlayerInfo* playerInfo = nullptr;
+		const bool success = GetNetworkInstance()->GetPlayerInfo(&playerInfo, &data->unknown0C);
+
+		data->allocation10 = playerInfo;
+
+		if (!success)
+			ReportDirectPlayError("CDPLogic::PrepareCmdBuffers(): CDPNet::GetPlayerInfo()\n", 0);
+	}
+
+	// Original function: FUN_004e1249
+	bool IsCommandBufferComplete(const SDynamicSlotArray* buffer)
+	{
+		if (buffer->slots == nullptr)
+			return false;
+
+		for (std::uint32_t index = 0; index < buffer->count; ++index)
+		{
+			const SDynamicSlot& slot = buffer->slots[index];
+
+			if (slot.used == 0 && slot.unknown00 != 0xFFFFFFFFu)
+				return false;
+		}
+
+		return true;
+	}
+
+	// Original function: FUN_004e127b
+	std::uint32_t FindCommandBufferPlayerIndex(const SDynamicSlotArray* buffer, DPNID playerId)
+	{
+		if (buffer->slots == nullptr)
+			return 0xFFFFFFFFu;
+
+		for (std::uint32_t index = 0; index < buffer->count; ++index)
+		{
+			if (buffer->slots[index].unknown00 == playerId)
+				return index;
+		}
+
+		return 0xFFFFFFFFu;
+	}
+
+	// Original function: FUN_004e12a6
+	DPNID GetFirstMissingCommandPlayerId(const SDynamicSlotArray* buffer)
+	{
+		if (buffer->slots == nullptr)
+			return 0;
+
+		for (std::uint32_t index = 0; index < buffer->count; ++index)
+		{
+			const SDynamicSlot& slot = buffer->slots[index];
+
+			if (slot.unknown00 != 0xFFFFFFFFu && slot.used == 0)
+				return slot.unknown00;
+		}
+
+		return 0;
+	}
+
+	// Original function: FUN_004e12de
+	bool SetCommandMessageLength(SDynamicSlotArray* buffer, DPNID playerId, std::uint8_t length)
+	{
+		if (buffer->slots == nullptr)
+			return false;
+
+		const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
+
+		if (index == 0xFFFFFFFFu)
+			return false;
+
+		buffer->slots[index].used = length;
+		return true;
+	}
+
+	// Original function: FUN_004e1310
+	bool StoreCommandMessageData(SDynamicSlotArray* buffer, DPNID playerId, const void* source, std::uint32_t length)
+	{
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\cmdbuffer.cpp", 0x13A, length <= 200u, "Message buffer overflow.");
+
+		if (buffer->slots == nullptr)
+			return false;
+
+		const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
+
+		if (index == 0xFFFFFFFFu)
+			return false;
+
+		// Original function 004e71f0 supports overlapping memory regions.
+		std::memmove(buffer->slots[index].data, source, length);
+		return true;
+	}
+
+	// Original function: FUN_004e1375
+	std::uint8_t GetCommandMessageLength(const SDynamicSlotArray* buffer, DPNID playerId)
+	{
+		if (buffer->slots == nullptr)
+			return 0;
+
+		const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
+
+		if (index == 0xFFFFFFFFu)
+			return 0;
+
+		return buffer->slots[index].used;
+	}
+
+	// Original function: FUN_004e13a1
+	bool CopyCommandMessageData(const SDynamicSlotArray* buffer, DPNID playerId, void* destination, std::uint32_t destinationSize)
+	{
+		// Preserve the original comparison; it does not validate the stored length.
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\cmdbuffer.cpp", 0x16A, destinationSize <= 200u, "Message target buffer too small.");
+
+		if (buffer->slots == nullptr)
+			return false;
+
+		const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
+
+		if (index == 0xFFFFFFFFu)
+			return false;
+
+		const SDynamicSlot& slot = buffer->slots[index];
+
+		std::memmove(destination, slot.data, slot.used);
+		return true;
+	}
+
 	// Original function: FUN_004deac6
 	DPNID GetDynamicNetworkHostPlayerId(const SDynamicNetworkData* data)
 	{
@@ -97,6 +388,95 @@ namespace NNetwork
 		const std::uint8_t packet[2] = { 8, 0 };
 
 		return network->SendPacket(0, packet);
+	}
+
+	// Original function: FUN_004df240
+	// Extracted prefix: 004df240 through 004df383.
+	bool PrepareDynamicNetworkUpdate(SDynamicNetworkData* data, bool reset)
+	{
+		CDPNet* network = GetNetworkInstance();
+
+		if (reset)
+		{
+			DAT_005697b0 = 0;
+			DAT_005697b8 = 0;
+			DAT_005697b4 = 0;
+			DAT_005697bc = 0;
+			DAT_0050aa2c = 1;
+			return false;
+		}
+
+		if (DAT_0050aa2c != 0)
+		{
+			WriteNetworkLog(GetNetworkLog(), "Update(): Initial call", 0);
+			ClearEventQueue(&data->events);
+			DAT_0050aa2c = 0;
+		}
+
+		if (DAT_005697b0 != 0)
+			return false;
+
+		const std::uint32_t playerChangeCount = network->playerChangeCount;
+
+		if (playerChangeCount > DAT_005697bc)
+		{
+			SEventQueue events;
+
+			// Original function: FUN_004db429.
+			// The remaining bytes are not initialized by the original constructor.
+			events.count = 0;
+			events.last = nullptr;
+			events.first = nullptr;
+			events.changed = 0;
+
+			network->GetEvents(&events);
+			AppendEventQueueCopy(&data->events, &events);
+
+			if (events.first == nullptr)
+			{
+				WriteNetworkLog(GetNetworkLog(), "Update(): Session has changed but event list is not yet updated.", 0);
+				ClearEventQueue(&events);
+				return false;
+			}
+
+			for (SEventNode* event = events.first; event != nullptr; event = event->next)
+			{
+				const auto* eventBytes = reinterpret_cast<const std::byte*>(event);
+
+				DPNID playerId;
+				std::int32_t eventType;
+
+				std::memcpy(&playerId, eventBytes, sizeof(playerId));
+				std::memcpy(&eventType, eventBytes + 0x208, sizeof(eventType));
+
+				if (eventType < 3 || eventType > 7)
+					continue;
+
+				if (DAT_005697b4 == playerId)
+					DAT_005697b4 = 0;
+
+				const auto* players = static_cast<const std::byte*>(data->allocation10);
+
+				for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+				{
+					DPNID existingPlayerId;
+					std::memcpy(&existingPlayerId, players + index * 0x98u, sizeof(existingPlayerId));
+
+					if (existingPlayerId == playerId)
+					{
+						UpdateDynamicCommandBuffers(data);
+						break;
+					}
+				}
+
+				HandleSpecialPlayerDepartureEvent(event);
+			}
+
+			ClearEventQueue(&events);
+		}
+
+		DAT_005697bc = playerChangeCount;
+		return true;
 	}
 
 	// Original data: 005097a8; initial bytes verified against Game.exe.
@@ -322,6 +702,75 @@ namespace
 		queue->changed = 0;
 	}
 
+	// Original function: FUN_004db4a0
+	SEventQueue* AppendEventQueueCopy(SEventQueue* destination, const SEventQueue* source)
+	{
+		destination->changed = source->changed;
+
+		for (const SEventNode* node = source->first; node != nullptr; node = node->next)
+		{
+			const auto* bytes = reinterpret_cast<const std::byte*>(node);
+
+			DPNID playerId;
+			std::uint32_t timestamp;
+			std::int32_t eventType;
+
+			std::memcpy(&playerId, bytes, sizeof(playerId));
+			std::memcpy(&timestamp, bytes + 0x204, sizeof(timestamp));
+			std::memcpy(&eventType, bytes + 0x208, sizeof(eventType));
+
+			const auto* playerName = reinterpret_cast<const wchar_t*>(bytes + 4);
+
+			AddEventQueueEntry(destination, playerId, timestamp, playerName, eventType);
+		}
+
+		return destination;
+	}
+
+	// Original function: FUN_004db4dd
+	SEventQueue* ReplaceEventQueueAndClearSource(SEventQueue* destination, SEventQueue* source)
+	{
+		ClearEventQueue(destination);
+		AppendEventQueueCopy(destination, source);
+		ClearEventQueue(source);
+
+		return destination;
+	}
+
+	// Original function: FUN_004ddb3e
+	void CDPNet::GetEvents(SEventQueue* destination)
+	{
+		if (destination == nullptr)
+			return;
+
+		EnterCriticalSection(&criticalA4);
+
+		ReplaceEventQueueAndClearSource(destination, &events18);
+
+		LeaveCriticalSection(&criticalA4);
+
+		// Preserve the additional clear after releasing the first lock.
+		ClearEvents();
+	}
+
+	// Original function: FUN_004ddb76
+	void CDPNet::ClearEvents()
+	{
+		EnterCriticalSection(&criticalA4);
+
+		if (events18.count != 0)
+			ClearEventQueue(&events18);
+
+		LeaveCriticalSection(&criticalA4);
+	}
+
+	// Original function: FUN_004df227
+	void ClearDynamicNetworkEvents(SDynamicNetworkData* data)
+	{
+		GetNetworkInstance()->ClearEvents();
+		ClearEventQueue(&data->events);
+	}
+
 	// Original function: FUN_004db8a5
 	NNetwork::SNetLog* InitializeNetworkLog(NNetwork::SNetLog* object)
 	{
@@ -347,8 +796,8 @@ namespace
 	}
 
 	// Original storage starts at 0056965c.
-// Reserve the address span up to the next referenced buffer at 0056976c;
-// the original declared array size is not recoverable from these accesses.
+	// Reserve the address span up to the next referenced buffer at 0056976c;
+	// the original declared array size is not recoverable from these accesses.
 	char gNetworkWindowsVersion[0x110] = {};
 
 	// Original storage: 0056976c; copied with a limit of 0x40 bytes.
@@ -540,6 +989,57 @@ namespace
 
 		::RegCloseKey(key);
 		return result;
+	}
+
+	// Original function: FUN_004def63
+	void UpdateDynamicCommandBuffers(SDynamicNetworkData* data)
+	{
+		std::uint32_t bufferIndex = 0;
+		std::memcpy(&bufferIndex, data->unknown70, sizeof(bufferIndex));
+
+		if (data->arrays[bufferIndex].slots == nullptr)
+			return;
+
+		WriteNetworkLog(GetNetworkLog(), "Updating command message buffers...", 0);
+
+		DPNID* playerIds = nullptr;
+		DWORD playerCount = 0;
+
+		if (!GetNetworkInstance()->GetPlayerIds(&playerIds, &playerCount))
+		{
+			ReportDirectPlayError("CDPLogic::UpdateCmdBuffers(): CDPNet::GetPlayerIds()", 0);
+			return;
+		}
+
+		char text[100] = {};
+
+		NXBasics::Runtime_PrintString(text, "%u player(s) left in session", static_cast<unsigned int>(playerCount));
+		WriteNetworkLog(GetNetworkLog(), text, 0);
+
+		for (std::uint32_t index = 0; index < 3; ++index)
+		{
+			std::memcpy(&bufferIndex, data->unknown70 + index * sizeof(bufferIndex), sizeof(bufferIndex));
+			UpdateCommandBufferPlayers(&data->arrays[bufferIndex], playerIds, playerCount);
+		}
+
+		if (playerIds != nullptr)
+			NXBasics::Runtime_Free(playerIds);
+
+		data->unknown0C = 0;
+
+		if (data->allocation10 != nullptr)
+		{
+			NXBasics::Runtime_Free(data->allocation10);
+			data->allocation10 = nullptr;
+		}
+
+		SPlayerInfo* playerInfo = nullptr;
+		const bool success = GetNetworkInstance()->GetPlayerInfo(&playerInfo, &data->unknown0C);
+
+		data->allocation10 = playerInfo;
+
+		if (!success)
+			ReportDirectPlayError("CDPLogic::PrepareCmdBuffers(): CDPNet::GetPlayerInfo()\n", 0);
 	}
 }
 
@@ -830,6 +1330,522 @@ void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t ind
 
 namespace NNetwork
 {
+	// Original function: FUN_004db788
+	void ConvertNetworkAnsiToWide(wchar_t* destination, const char* source, std::int32_t length)
+	{
+		if (destination == nullptr || source == nullptr)
+			return;
+
+		if (length == -1)
+			length = static_cast<std::int32_t>(std::strlen(source)) + 1;
+
+		// Preserve the original capacity and explicit terminator placement.
+		::MultiByteToWideChar(CP_ACP, 0, source, -1, destination, length - 1);
+		destination[length - 1] = L'\0';
+	}
+
+	// Original function: FUN_004db7cc
+	void ConvertNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length)
+	{
+		if (destination == nullptr || source == nullptr)
+			return;
+
+		if (length == -1)
+			length = static_cast<std::int32_t>(std::wcslen(source)) + 1;
+
+		// Preserve the original capacity and explicit terminator placement.
+		::WideCharToMultiByte(CP_ACP, 0, source, -1, destination, length - 1, nullptr, nullptr);
+		destination[length - 1] = '\0';
+	}
+
+	// Original function: FUN_004db811
+	void CopyNetworkAnsiToWide(wchar_t* destination, const char* source, std::int32_t length)
+	{
+		if (destination == nullptr || source == nullptr)
+			return;
+
+		ConvertNetworkAnsiToWide(destination, source, length);
+	}
+
+	// Original function: FUN_004db833
+	void CopyNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length)
+	{
+		if (destination == nullptr || source == nullptr)
+			return;
+
+		ConvertNetworkWideToAnsi(destination, source, length);
+	}
+
+	// Original function: FUN_004df240
+	void UpdateDynamicNetwork(SDynamicNetworkData* data, bool reset)
+	{
+		CDPNet* network = GetNetworkInstance();
+
+		if (!PrepareDynamicNetworkUpdate(data, reset))
+			return;
+
+		const auto readDword = [] (const void* source) -> std::uint32_t
+		{
+			std::uint32_t value = 0;
+			std::memcpy(&value, source, sizeof(value));
+			return value;
+		};
+
+		const auto getBuffer = [&] (std::uint32_t selector) -> SDynamicSlotArray*
+		{
+			const std::uint32_t index = readDword(data->unknown70 + selector * 4u);
+			return &data->arrays[index];
+		};
+
+		const auto log = [] (const char* text)
+		{
+			WriteNetworkLog(GetNetworkLog(), text, 0);
+		};
+
+		SReceivedMessage* messages = nullptr;
+		std::uint32_t messageCount = 0;
+
+		GetNetworkInstance()->GetReceivedMessages(&messages, &messageCount);
+
+		if (messageCount != 0)
+		{
+			std::uint32_t incomingChatCount = 0;
+
+			// Process game-start packets before dispatching command packets.
+			for (std::uint32_t index = 0; index < messageCount; ++index)
+			{
+				const auto* packet = static_cast<const std::uint8_t*>(messages[index].data);
+
+				if (packet[0] == 3)
+					++incomingChatCount;
+
+				if (packet[0] == 8)
+				{
+					if (getBuffer(0)->slots == nullptr)
+					{
+						log("Update(): Game start message received");
+						PrepareDynamicCommandBuffers(data);
+					}
+					else
+					{
+						log("Update(): Game start message received but buffer is already created (warning)");
+					}
+				}
+			}
+
+			if (data->allocation28 != nullptr && data->receivedRecordCount != 0)
+			{
+				log("Update(): Chat buffer contains messages that were not yet received");
+
+				const std::uint32_t allocationBytes = (data->receivedRecordCount + incomingChatCount) * 0x104u;
+				void* replacement = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
+
+				ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x340, replacement != nullptr, "Memory allocation failed.");
+
+				std::memset(replacement, 0, allocationBytes);
+				std::memcpy(replacement, data->allocation28, data->receivedRecordCount * 0x104u);
+
+				NXBasics::Runtime_Free(data->allocation28);
+				data->allocation28 = replacement;
+			}
+			else
+			{
+				if (data->allocation28 != nullptr)
+				{
+					NXBasics::Runtime_Free(data->allocation28);
+					data->allocation28 = nullptr;
+				}
+
+				const std::uint32_t allocationBytes = incomingChatCount * 0x104u;
+
+				data->receivedRecordCount = 0;
+				data->allocation28 = NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1);
+
+				ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x351, data->allocation28 != nullptr, "Memory allocation failed.");
+
+				std::memset(data->allocation28, 0, allocationBytes);
+			}
+
+			for (std::uint32_t index = 0; index < messageCount; ++index)
+			{
+				const SReceivedMessage& message = messages[index];
+				const auto* packet = static_cast<const std::uint8_t*>(message.data);
+
+				switch (packet[0])
+				{
+					case 3:
+						{
+							log("Update(): Incoming chat message");
+
+							auto* destination = static_cast<std::byte*>(data->allocation28) + data->receivedRecordCount * 0x104u;
+
+							std::memcpy(destination, &message.sender, sizeof(message.sender));
+							std::wcscpy(reinterpret_cast<wchar_t*>(destination + 4), reinterpret_cast<const wchar_t*>(packet + 2));
+
+							++data->receivedRecordCount;
+							break;
+						}
+
+					case 4:
+						StoreDynamicDataMessage(data, message);
+						break;
+
+					case 5:
+						{
+							const std::uint32_t tick = readDword(packet + 4);
+							SDynamicSlotArray* buffer = nullptr;
+
+							// Command packets search the current, next, then previous buffer.
+							for (std::uint32_t selector = 0; selector < 3; ++selector)
+							{
+								SDynamicSlotArray* candidate = getBuffer(selector);
+
+								if (candidate->unknown0C == tick)
+								{
+									buffer = candidate;
+									break;
+								}
+							}
+
+							if (buffer == nullptr)
+							{
+								log("Update(): Cannot assign incoming command message to the correct buffer because of an invalid network tick number. Message ignored.");
+								break;
+							}
+
+							const std::uint32_t length = packet[8];
+
+							if (!SetCommandMessageLength(buffer, message.sender, static_cast<std::uint8_t>(length)))
+							{
+								log("Update(): Cannot set message length");
+								break;
+							}
+
+							if (!StoreCommandMessageData(buffer, message.sender, packet + 9, length))
+								log("Update(): Cannot save message data");
+
+							break;
+						}
+
+					case 9:
+						{
+							log("Update(): Message request detected");
+
+							const std::uint32_t tick = readDword(packet + 4);
+							const DPNID requestedPlayer = readDword(packet + 8);
+							const DPNID recipient = readDword(packet + 12);
+
+							SDynamicSlotArray* buffer = nullptr;
+
+							// Requests use a different search order: current, previous, next.
+							const std::uint32_t selectors[3] = { 0, 2, 1 };
+
+							for (std::uint32_t selector : selectors)
+							{
+								SDynamicSlotArray* candidate = getBuffer(selector);
+
+								if (candidate->unknown0C == tick)
+								{
+									buffer = candidate;
+									break;
+								}
+							}
+
+							if (buffer == nullptr)
+							{
+								log("Update(): Could not find requested message");
+								break;
+							}
+
+							struct SCommandReply
+							{
+								std::uint8_t type;
+								std::byte padding01[3];
+								std::uint32_t tick;
+								std::uint8_t length;
+								std::uint8_t payload[200];
+								std::byte paddingD1[3];
+							};
+
+							static_assert(offsetof(SCommandReply, payload) == 9);
+							static_assert(sizeof(SCommandReply) == 0xD4);
+
+							SCommandReply reply;
+
+							// Original constructor: FUN_004dd864, followed by type = 10.
+							reply.type = 10;
+							reply.tick = 0;
+							reply.length = 0;
+							std::memset(reply.payload, 0, sizeof(reply.payload));
+
+							if (buffer->slots == nullptr || GetCommandMessageLength(buffer, requestedPlayer) == 0)
+							{
+								log("Update(): Unable to re-send requested message - don't have it... ");
+								ReportDirectPlayError("CDLogic::Update(): Unable to re-send requested message\n", 0);
+								break;
+							}
+
+							reply.tick = buffer->unknown0C;
+							reply.length = GetCommandMessageLength(buffer, requestedPlayer);
+
+							CopyCommandMessageData(buffer, requestedPlayer, reply.payload, reply.length);
+
+							if (!GetNetworkInstance()->SendPacket(recipient, &reply))
+							{
+								log("Update(): Unable to re-send requested message");
+								ReportDirectPlayError("CDLogic::Update(): Unable to re-send requested message\n", 0);
+								break;
+							}
+
+							char text[256] = {};
+							const std::uint32_t replyTick = buffer->unknown0C;
+							const auto checksum = NCRC16::Calculate(reply.payload, reply.length);
+							const auto length = GetCommandMessageLength(buffer, requestedPlayer);
+
+							NXBasics::Runtime_PrintString(text, "Update(): Network tick #%u, peer: 0x%x length %i byte(s), crc-16 0x%x (info)", replyTick, requestedPlayer, static_cast<int>(length), static_cast<unsigned int>(checksum));
+
+							log("Update(): Re-sent requested message");
+							log(text);
+							break;
+						}
+
+					default:
+						break;
+				}
+			}
+		}
+
+		if (DAT_005697b4 != 0)
+		{
+			if (messageCount != 0)
+				log("Update(): Message buffer lost (warning)");
+
+			// Original branch bypasses ReleaseReceivedMessages.
+			return;
+		}
+
+		const auto copyPlayerName = [&] (wchar_t* destination, DPNID playerId, bool localPlayer)
+		{
+			const auto* players = static_cast<const std::byte*>(data->allocation10);
+
+			if (players == nullptr)
+				return;
+
+			for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+			{
+				const std::byte* player = players + index * 0x98u;
+				const bool matches = localPlayer ? player[0x85] != std::byte{ 0 } : readDword(player) == playerId;
+
+				if (matches)
+					std::wcscpy(destination, reinterpret_cast<const wchar_t*>(player + 4));
+			}
+		};
+
+		// False preserves an original early return without receive-buffer release.
+		const auto updateTimeout = [&] () -> bool
+		{
+			SDynamicSlotArray* currentBuffer = getBuffer(0);
+
+			if (currentBuffer->slots == nullptr)
+				return true;
+
+			if (IsCommandBufferComplete(currentBuffer))
+			{
+				DAT_005697b8 = 0;
+				return true;
+			}
+
+			if (data->unknown08 == 0)
+				return true;
+
+			const std::uint32_t elapsed = ::timeGetTime() - data->unknown08;
+			const std::uint32_t timeout = data->unknown04 > 1u ? 9000u : 90000u;
+
+			if (elapsed >= timeout)
+			{
+				log("Update(): Timeout!");
+
+				const DPNID localPlayerId = GetNetworkInstance()->GetLocalPlayerId();
+
+				if (localPlayerId == 0)
+				{
+					wchar_t name[64] = L"Local peer";
+					copyPlayerName(name, 0, true);
+
+					log("Update(): Network is down");
+
+					const DWORD initializationTick = network->initializationTick;
+					AddEventQueueEntry(&data->events, 0, ::timeGetTime() - initializationTick, name, 5);
+
+					DAT_005697b0 = 1;
+					return true;
+				}
+
+				wchar_t missingName[64] = L"n/a";
+				const DPNID missingPlayerId = GetFirstMissingCommandPlayerId(getBuffer(0));
+
+				if (missingPlayerId == 0)
+				{
+					log("Update(): dpnidMissing not found");
+
+					const DWORD initializationTick = network->initializationTick;
+					AddEventQueueEntry(&data->events, 0, ::timeGetTime() - initializationTick, L"Local peer", 5);
+
+					DAT_005697b0 = 1;
+					return true;
+				}
+
+				copyPlayerName(missingName, missingPlayerId, false);
+
+				const DPNID hostPlayerId = GetNetworkInstance()->GetHostPlayerId();
+
+				if (hostPlayerId == 0)
+				{
+					wchar_t name[64] = L"Local peer";
+					copyPlayerName(name, 0, true);
+
+					const DWORD initializationTick = network->initializationTick;
+					AddEventQueueEntry(&data->events, 0, ::timeGetTime() - initializationTick, name, 10);
+
+					DAT_005697b0 = 1;
+					return true;
+				}
+
+				if (hostPlayerId == localPlayerId)
+				{
+					log("Update(): Local peer is host! Trying to solve connection problem.");
+
+					CDPNet* hostNetwork = GetNetworkInstance();
+
+					// This probe returns true when the guaranteed send fails.
+					if (!hostNetwork->HasPlayerConnectionFailed(missingPlayerId))
+					{
+						log("Update(): At least one player stopped responding but we got no DirectPlay information yet.");
+						log("          Attempting to kick this remote peer...");
+
+						if (hostNetwork->KickPlayer(missingPlayerId))
+							log("Update(): ...done. Player kicked. Waiting for DirectPlay to acknowledge.");
+						else
+							log("Update(): ...failed. Unable to kick player. Maybe the peer is already disconnected.");
+					}
+
+					if (DAT_005697b4 == 0)
+					{
+						const DWORD initializationTick = hostNetwork->initializationTick;
+						AddEventQueueEntry(&data->events, missingPlayerId, ::timeGetTime() - initializationTick, missingName, 13);
+					}
+				}
+				else if (DAT_005697b4 == 0)
+				{
+					const DWORD initializationTick = network->initializationTick;
+					AddEventQueueEntry(&data->events, missingPlayerId, ::timeGetTime() - initializationTick, missingName, 9);
+				}
+
+				DAT_005697b4 = missingPlayerId;
+				return true;
+			}
+
+			// The original reads the clock again for the recovery threshold.
+			if (::timeGetTime() - data->unknown08 < 4500u)
+				return true;
+
+			const DPNID missingPlayerId = FUN_004e12a6(getBuffer(0));
+
+			if (missingPlayerId == 0)
+				return true;
+
+			if (missingPlayerId == DAT_005697b8)
+				return false;
+
+			log("Update(): Timeout. Searching non-responding player...");
+
+			wchar_t missingName[64] = L"n/a";
+			copyPlayerName(missingName, missingPlayerId, false);
+
+			const DWORD initializationTick = network->initializationTick;
+			AddEventQueueEntry(&data->events, missingPlayerId, ::timeGetTime() - initializationTick, missingName, 11);
+
+			if (GetNetworkInstance()->HasPlayerConnectionFailed(missingPlayerId))
+			{
+				log("Update(): ...done. Player lost connection!");
+				return false;
+			}
+
+			log("...done. Player is still connected.");
+
+			char text[100] = {};
+			char name[100] = {};
+			wchar_t* allocatedName = nullptr;
+
+			if (network->GetPlayerName(missingPlayerId, &allocatedName))
+			{
+				CopyNetworkWideToAnsi(name, allocatedName, -1);
+
+				if (allocatedName != nullptr)
+				{
+					NXBasics::Runtime_Free(allocatedName);
+					allocatedName = nullptr;
+				}
+			}
+			else
+			{
+				std::strcpy(name, "unknown");
+			}
+
+			NXBasics::Runtime_PrintString(text, "Update(): Missing player is %s (0x%x), network tick %u", name, missingPlayerId, data->unknown04);
+
+			log(text);
+			log("Trying to recover lost message...");
+
+			if (GetDynamicNetworkLocalPlayerId(data) == missingPlayerId)
+			{
+				log("Update(): Missing player seems to be local peer. Message buffer must be damaged.");
+				return true;
+			}
+
+			log("Update(): Attempt to request message...");
+
+			struct SCommandRequest
+			{
+				std::uint8_t type;
+				std::byte padding01[3];
+				std::uint32_t tick;
+				DPNID missingPlayer;
+				DPNID requester;
+			};
+
+			static_assert(sizeof(SCommandRequest) == 0x10);
+
+			SCommandRequest request;
+
+			request.type = 9;
+			request.tick = 0;
+			request.missingPlayer = missingPlayerId;
+			request.requester = 0;
+
+			request.requester = GetDynamicNetworkLocalPlayerId(data);
+			request.tick = data->unknown04;
+
+			if (!network->SendPacket(missingPlayerId, &request))
+			{
+				log("Update(): ...failed. Could not request missing message.");
+			}
+			else
+			{
+				DAT_005697b8 = missingPlayerId;
+				log("Update(): ...done. Message requested - await reply.");
+			}
+
+			return true;
+		};
+
+		if (!updateTimeout())
+			return;
+
+		if (messageCount != 0)
+			network->ReleaseReceivedMessages(messages, messageCount);
+	}
+
 	// Original function: FUN_004dc45f
 	bool CDPNet::Initialize(void* context, bool option)
 	{
@@ -1149,6 +2165,48 @@ namespace NNetwork
 
 		NXBasics::Runtime_Free(information);
 		return true;
+	}
+
+	// Original function: FUN_004dcfe9
+	bool CDPNet::GetPlayerIds(DPNID** playerIds, DWORD* playerCount)
+	{
+		*playerCount = 0;
+
+		HRESULT result = peer->EnumPlayersAndGroups(nullptr, playerCount, DPNENUM_PLAYERS);
+
+		if (result != DPNERR_BUFFERTOOSMALL)
+		{
+			*playerIds = nullptr;
+			*playerCount = 0;
+
+			ReportDirectPlayError("CDPNet::GetPlayerIds(): IDirectPlay8Peer::EnumPlayersAndGroups 1", result);
+			return false;
+		}
+
+		const std::uint32_t allocationBytes = *playerCount * 4u;
+		auto* ids = static_cast<DPNID*>(NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1));
+
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x5B3, ids != nullptr, "Memory allocation failed.");
+
+		std::memset(ids, 0, allocationBytes);
+
+		result = peer->EnumPlayersAndGroups(ids, playerCount, DPNENUM_PLAYERS);
+
+		if (SUCCEEDED(result))
+		{
+			*playerIds = ids;
+			return true;
+		}
+
+		ReportDirectPlayError("CDPNet::GetPlayerIds(): IDirectPlay8Peer::EnumPlayersAndGroups 2", result);
+
+		*playerIds = nullptr;
+		*playerCount = 0;
+
+		if (ids != nullptr)
+			NXBasics::Runtime_Free(ids);
+
+		return false;
 	}
 
 	// Original function: FUN_004ddadb
@@ -1485,6 +2543,172 @@ namespace NNetwork
 		static_assert(sizeof(SFileTransferMetadataPacket) == 0x1C);
 		static_assert(offsetof(SFileTransferMetadataPacket, checksum) == 0x14);
 		static_assert(offsetof(SFileTransferMetadataPacket, fileSize) == 0x18);
+
+		// Original function: FUN_004dff82
+		char* TransformNetworkEasterEggText(const char* source, char* destination)
+		{
+			while (*source != '\0')
+			{
+				const auto value = static_cast<unsigned char>(*source++);
+				*destination++ = static_cast<char>(value ^ 0xEFu);
+			}
+
+			*destination = '\0';
+			return destination;
+		}
+	}
+
+	// Original function: FUN_004dd948
+	void CDPNet::GetReceivedMessages(SReceivedMessage** messages, std::uint32_t* count)
+	{
+		static_assert(sizeof(SReceivedMessage) == 0x10);
+
+		// Preserve the original check outside the critical section.
+		if (receivedMessageCount == 0)
+		{
+			*messages = nullptr;
+			*count = 0;
+			return;
+		}
+
+		EnterCriticalSection(&criticalEC);
+
+		*messages = receivedMessages;
+		*count = receivedMessageCount;
+
+		receivedMessageCount = 0;
+
+		auto* replacement = static_cast<SReceivedMessage*>(NXBasics::Runtime_AllocateWithNewHandler(0x400u, 1));
+
+		if (replacement != nullptr)
+			std::memset(replacement, 0, 0x400u);
+
+		receivedMessages = replacement;
+
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x7F8, receivedMessages != nullptr, "Memory allocation failed.");
+
+		std::memset(receivedMessages, 0, 0x400u);
+
+		LeaveCriticalSection(&criticalEC);
+	}
+
+	// Original function: FUN_004df240
+	// Extracted type-4 receive branch: 004df77a through 004df80a.
+	void StoreDynamicDataMessage(SDynamicNetworkData* data, const SReceivedMessage& received)
+	{
+		if (data->unknown2C >= 64u)
+		{
+			WriteNetworkLog(GetNetworkLog(), "Update(): Data message buffer overflow - message ignored", 0);
+			ReportDirectPlayError("CDPLogic::Update(): Data message buffer overflow. Message ignored.\n", 0);
+			return;
+		}
+
+		const auto* packet = static_cast<const std::uint8_t*>(received.data);
+
+		std::uint32_t payloadSize;
+		std::uint32_t expectedChecksum;
+
+		std::memcpy(&payloadSize, packet + 4, sizeof(payloadSize));
+		std::memcpy(&expectedChecksum, packet + 8, sizeof(expectedChecksum));
+
+		auto* messages = static_cast<SDynamicDataMessage*>(data->allocation30);
+		SDynamicDataMessage& message = messages[data->unknown2C];
+
+		message.sender = received.sender;
+		message.payloadSize = payloadSize;
+
+		// The original copies the payload before checking its checksum.
+		std::memcpy(message.payload, packet + 0x0C, payloadSize);
+
+		const std::uint32_t checksum = NCRC32::Calculate(packet + 0x0C, NXBasics::Runtime_TimeSigned32(payloadSize));
+
+		message.checksumMismatch = checksum != expectedChecksum ? 1u : 0u;
+
+		++data->unknown2C;
+	}
+
+	// Original function: FUN_004dfdce
+	void HandleSpecialPlayerDepartureEvent(const SEventNode* event)
+	{
+		const auto* eventBytes = reinterpret_cast<const std::byte*>(event);
+		const auto* playerName = reinterpret_cast<const wchar_t*>(eventBytes + 0x04);
+
+		if (*playerName == L'\0')
+			return;
+
+		std::uint32_t eventType = 0;
+		std::memcpy(&eventType, eventBytes + 0x208, sizeof(eventType));
+
+		if (eventType != 3)
+			return;
+
+		char name[64] = {};
+
+		CopyNetworkWideToAnsi(name, playerName, -1);
+
+		const char encodedPrefix[] = "\xAA\x83\x99\x86\x9C";
+		const char encodedMessage[] = "\xAA\x83\x99\x86\x9C\xCF\x87\x8E\x9C\xCF\x83\x8A\x89\x9B\xCF\x9B\x87\x8A\xCF\x8D\x9A\x86\x83\x8B\x86\x81\x88\xCE";
+
+		char encodedName[64] = {};
+
+		TransformNetworkEasterEggText(name, encodedName);
+
+		// The original compares only the first five encoded bytes.
+		if (std::strncmp(encodedPrefix, encodedName, 5) != 0)
+			return;
+
+		char message[128] = {};
+		wchar_t wideMessage[128] = {};
+
+		TransformNetworkEasterEggText(encodedMessage, message);
+		CopyNetworkAnsiToWide(wideMessage, message, -1);
+
+		CDPNet* network = GetNetworkInstance();
+
+		struct SSpecialChatPacket
+		{
+			std::uint8_t type;
+			std::uint8_t characterCount;
+			wchar_t text[128];
+			std::byte trailingPadding[2];
+		};
+
+		static_assert(sizeof(wchar_t) == 2);
+		static_assert(offsetof(SSpecialChatPacket, text) == 0x02);
+		static_assert(sizeof(SSpecialChatPacket) == 0x104);
+
+		SSpecialChatPacket packet;
+
+		// Original packet constructor: FUN_004dee2d.
+		packet.type = 3;
+		packet.characterCount = 0;
+		std::memset(packet.text, 0, sizeof(packet.text));
+
+		packet.characterCount = static_cast<std::uint8_t>(std::wcslen(wideMessage) + 1u);
+		std::wcsncpy(packet.text, wideMessage, 127);
+
+		network->SendPacket(0, &packet);
+	}
+
+	// Original function: FUN_004decf5
+	void GetDynamicNetworkMessages(SDynamicNetworkData* data, SDynamicDataMessage** messages, std::uint32_t* count)
+	{
+		*messages = nullptr;
+		*count = 0;
+
+		if (data->unknown2C == 0)
+			return;
+
+		*messages = static_cast<SDynamicDataMessage*>(data->allocation30);
+		*count = data->unknown2C;
+
+		data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300u, 1);
+
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x153, data->allocation30 != nullptr, "Memory allocation failed.");
+
+		std::memset(data->allocation30, 0, 0x10300u);
+
+		data->unknown2C = 0;
 	}
 
 	// Original function: FUN_004dffe5
@@ -1826,6 +3050,60 @@ namespace NNetwork
 			default:
 				OutputDebugStringA("CFileTransferManager::DispatchMessage(): Unknown message type (skipped).\n");
 				return;
+		}
+	}
+
+	// Original function: FUN_004e1122
+	void UpdateCommandBufferPlayers(SDynamicSlotArray* buffer, const DPNID* playerIds, std::uint32_t playerCount)
+	{
+		if (buffer->slots == nullptr)
+		{
+			const std::uint32_t allocationBytes = playerCount * 0xD0u;
+
+			buffer->slots = static_cast<SDynamicSlot*>(NXBasics::Runtime_AllocateWithNewHandler(allocationBytes, 1));
+
+			ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\cmdbuffer.cpp", 0xA5, buffer->slots != nullptr, "Memory allocation failed.");
+
+			buffer->unknown0C = 0;
+			++buffer->unknown00;
+			buffer->count = playerCount;
+
+			for (std::uint32_t index = 0; index < playerCount; ++index)
+			{
+				SDynamicSlot& slot = buffer->slots[index];
+
+				slot.unknown00 = playerIds[index];
+				slot.used = 0;
+
+				std::memset(slot.data, 0, sizeof(slot.data));
+			}
+
+			return;
+		}
+
+		ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\cmdbuffer.cpp", 0xB5, buffer->count >= playerCount, "Cannot enlarge command buffer at runtime.");
+
+		for (std::uint32_t slotIndex = 0; slotIndex < buffer->count; ++slotIndex)
+		{
+			SDynamicSlot& slot = buffer->slots[slotIndex];
+			bool playerStillPresent = false;
+
+			for (std::uint32_t playerIndex = 0; playerIndex < playerCount; ++playerIndex)
+			{
+				if (slot.unknown00 == playerIds[playerIndex])
+				{
+					playerStillPresent = true;
+					break;
+				}
+			}
+
+			if (!playerStillPresent)
+			{
+				slot.unknown00 = 0xFFFFFFFFu;
+				slot.used = 0;
+
+				std::memset(slot.data, 0, sizeof(slot.data));
+			}
 		}
 	}
 
