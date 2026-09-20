@@ -66,16 +66,16 @@ namespace NNetwork
 		std::uint32_t writtenEntries;               // +0x014
 		std::uint32_t sequenceNumber;               // +0x018
 		std::int32_t level;                         // +0x01C
-		std::byte unknown020[0x100];
-		void* stream;                              // +0x120
+		char fileName[0x100];                       // +0x020
+		void* stream;                               // +0x120
 	};
 
 	// Only the prefix accessed during destruction is described here.
 	struct STimerPrefix
 	{
-		std::uint8_t stopRequested;                // +0x00
+		std::uint8_t stopRequested;                 // +0x00
 		std::byte unknown01[3];
-		HANDLE thread;                            // +0x04
+		HANDLE thread;                              // +0x04
 	};
 
 	struct SDynamicSlot
@@ -151,6 +151,12 @@ namespace NNetwork
 		// Original function: FUN_004dd9fe
 		void ReleaseReceivedMessages(SReceivedMessage* messages, std::uint32_t count);
 
+		// Original function: FUN_004dc3f3
+		void SetApplicationGuid(const GUID* applicationGuid);
+
+		// Original function: FUN_004dc45f
+		bool Initialize(void* context, bool option);
+
 		// Original function: FUN_004dc700.
 		bool InitializePeer(void* context, bool option);
 
@@ -161,7 +167,7 @@ namespace NNetwork
 		std::byte unknown00A[2];
 		STimerPrefix* searchTimer;                 // +0x00C
 		SSessionList* sessions;                    // +0x010
-		std::byte unknown014[4];
+		DWORD initializationTick;                  // +0x014
 		SEventQueue events18;                      // +0x018
 		SEventQueue events28;                      // +0x028
 		std::uint32_t receivedMessageCount;        // +0x038
@@ -179,8 +185,14 @@ namespace NNetwork
 		CRITICAL_SECTION criticalBC;               // +0x0BC
 		CRITICAL_SECTION criticalD4;               // +0x0D4
 		CRITICAL_SECTION criticalEC;               // +0x0EC
-		SNetLog log;                              // +0x104
+		SNetLog log;                               // +0x104
 	};
+
+	// Original data: 005097a8.
+	extern GUID gNetworkApplicationGuid;
+
+	// Original function: FUN_004058fd
+	bool Network_StartUp();
 
 	// Original function: FUN_00405949
 	void Network_ShutDown();
@@ -225,8 +237,14 @@ namespace NNetwork
 // Original function: FUN_004db855
 NNetwork::SNetLog* GetNetworkLog();
 
+// Original function: FUN_004db8ea
+NNetwork::SNetLog* OpenNetworkLog(NNetwork::SNetLog* object, const char* fileName, std::int32_t level, std::uint32_t entryLimit);
+
 // Original function: FUN_004dc409
 NNetwork::CDPNet* GetNetworkInstance();
+
+// Original function: FUN_004db9f6
+NNetwork::SNetLog* WriteNetworkLogHeader(NNetwork::SNetLog* object);
 
 // Original function: FUN_004dbc6d
 void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t indentation);
@@ -245,3 +263,9 @@ extern NNetwork::CDPNet* gNetworkInstance;
 
 // Original data: 0050f6a8.
 extern NNetwork::SDynamicNetworkData DAT_0050f6a8;
+
+namespace NC2MainMenuGuiManager
+{
+	// Original function: FUN_004d7092
+	bool StartNetworkForMenu(void* guiManager);
+}

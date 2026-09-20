@@ -10,12 +10,6 @@
 
 extern char* FUN_004e3252(std::int32_t result);
 
-
-extern int FUN_004e8cc7(void* stream);
-extern int FUN_004e8c4a(void* stream);
-extern int FUN_004e5d8b(char* destination, const char* format, ...);
-extern char* FUN_004e907b(std::uint32_t value, char* destination, int radix);
-
 // Original data: DAT_0050f6a8.
 NNetwork::SDynamicNetworkData DAT_0050f6a8{};
 
@@ -141,12 +135,12 @@ namespace NNetwork
 				OutputDebugStringA(OriginalStrings::TimerNotRespondingWarning);
 				OutputDebugStringA(OriginalStrings::TimerThreadLabel);
 
-				FUN_004e5d8b(buffer, OriginalStrings::TimerThreadFormat, timer->thread);
+				NXBasics::Runtime_PrintString(buffer, OriginalStrings::TimerThreadFormat, timer->thread);
 				OutputDebugStringA(buffer);
 
 				OutputDebugStringA(OriginalStrings::TimerTimeoutLabel);
 
-				FUN_004e907b(0xFFFFFFFFu, buffer, 10);
+				NXBasics::Runtime_LongToString(-1, buffer, 10);
 				OutputDebugStringA(buffer);
 
 				OutputDebugStringA(OriginalStrings::NewLine);
@@ -161,8 +155,9 @@ namespace NNetwork
 		{
 			if (log->stream != nullptr)
 			{
-				FUN_004e8cc7(log->stream);
-				FUN_004e8c4a(log->stream);
+				auto* stream = static_cast<NXBasics::RuntimeFormatStream*>(log->stream);
+				NXBasics::Runtime_FlushStream(stream);
+				NXBasics::Runtime_CloseStream(stream);
 			}
 		}
 

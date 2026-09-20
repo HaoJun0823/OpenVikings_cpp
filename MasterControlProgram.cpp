@@ -419,7 +419,11 @@ namespace NMasterControlProgram
 			backgroundColor = NXBasics::SColorRGB(108, 100, 83);
 
 			// Original callback at 0x0040272B contains only RET.
-			NXBasics::Runtime_AtExit(+[]() {});
+			// Adapt to the reconstructed onexit signature; the result is ignored.
+			NXBasics::Runtime_AtExit(+[] () -> int
+			{
+				return 0;
+			});
 		}
 
 		temporaryBitmap->Fill(backgroundColor);

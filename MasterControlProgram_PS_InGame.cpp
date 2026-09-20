@@ -246,7 +246,7 @@ namespace NMasterControlProgram
 			}
 			else
 			{
-				FUN_004e5d8b(playerName, "?");
+				NXBasics::Runtime_PrintString(playerName, "?");
 			}
 
 			char outputText[328]{};
@@ -255,13 +255,13 @@ namespace NMasterControlProgram
 			if (stringId != 0)
 			{
 				const char* messageText = FUN_004e1e35(stringId);
-				FUN_004e5d8b(outputText, ">> %s %s!", playerName, messageText);
+				NXBasics::Runtime_PrintString(outputText, ">> %s %s!", playerName, messageText);
 			}
 			else
 			{
 				char networkEventText[200]{};
 				FUN_004db635(currentMessage, networkEventText, sizeof(networkEventText));
-				FUN_004e5d8b(outputText, ">> NET: '%s'", networkEventText);
+				NXBasics::Runtime_PrintString(outputText, ">> NET: '%s'", networkEventText);
 			}
 
 			if (outputText[0] != '\0')
