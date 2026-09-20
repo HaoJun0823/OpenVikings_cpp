@@ -1,6 +1,6 @@
 # OpenVikings — Intentionally Preserved Original Bugs
 
-Register updated: 2026-09-19. Original register created: 2026-09-13.
+Register updated: 2026-09-20. Original register created: 2026-09-13.
 
 This register applies project-wide to the C++ reconstruction of *Cultures: Das Achte Weltwunder*: game logic, engine, file access, CRT, graphics, input, audio, networking and other reconstructed components.
 
@@ -43,9 +43,23 @@ CRT findings concern the runtime embedded in the game; they do not attribute aut
 
 ## Current reconstruction status
 
-The supplied project contains the reconstructed file-search, time-zone and environment helpers. The current source review found no calls from project `.cpp` files to the reconstructed heap, threading, descriptor, environment or CRT startup routines. Those routines are not automatically initialized merely because the header is included. The native compiler CRT is a separate runtime and does not initialize these globals.
+The formerly missing reconstructed CRT startup/exit wiring is present.
+WinMain calls Runtime_RunApplication with the application initializer table.
+The reconstructed heap, threading, descriptor, argument, environment and CRT
+initialization stages are connected.
 
-**The startup integration remains open; this chapter is not yet certified complete.** See `CrtReview.md` for this review's scope and findings. No build or runtime tests were performed in this pass. This organization pass preserves original defects and does not claim a complete standalone CRT implementation.
+This is a hosted adaptation: the compiler CRT remains responsible for native
+C++ initialization, and normal reconstructed cleanup returns to the host.
+It does not replace the native PE entry point.
+
+The specific startup-wiring task is complete at source level. The INI reader
+and the newly reconstructed logging helpers are present. Remaining network
+dependencies include FUN_004dbd68 and FUN_004e3252. The original callers of
+StartNetworkForMenu are not yet reconstructed.
+
+No complete Windows build or game execution was performed in this review.
+This status does not certify the entire game or a standalone CRT as complete.
+See CrtReview.md for scope and outstanding reconstruction work.
 
 ## Original defects and retained limitations
 
@@ -85,6 +99,13 @@ The supplied project contains the reconstructed file-search, time-zone and envir
 | OB032 | Environment copying ignores individual string-allocation failures | 004f173e |
 | OB033 | Environment update can succeed without updating Windows | 004f155f |
 | OB034 | Startup environment acquisition failure is not checked | 004ec337 and 004ec031 |
+| OB035 | System-error output selects the wrong filename argument | 004de237 |
+| OB036 | Network diagnostics use unsafe path shortening and fixed buffers | 004de237 and 004de569 |
+| OB037 | Failed second DirectX registry query leaks its buffer | 004de6d8 |
+| OB038 | Network allocation diagnostics return before unchecked writes | 004de6d8 and 004dc45f |
+| OB039 | Failed log reopening retains a closed stream pointer | 004db8ea |
+| OB040 | Network log filenames exceed unchecked fixed buffers | 004db8ea |
+| OB041 | DirectX version copy can omit the terminating NUL | 004de6d8 and 004db9f6 |
 
 ### OB-001 — Negative indices before the character-type table
 
@@ -426,6 +447,76 @@ The supplied project contains the reconstructed file-search, time-zone and envir
 - **Renewed task:** Handle acquisition failure before parsing.
 - **Status:** Preserved / original defect; Renewed: open.
 
+### OB035 — System-error output selects the wrong filename argument
+
+- **Original reference:** 004de237 — ReportNetworkSystemError.
+- **Evidence:** For source filenames of at most 0x100 bytes, 004de2c7 clears the shortened name. At 004de2db the formatter then receives argument 3 instead of sourceFile.
+- **Behavior and trigger:** The filename field contains additionalInformation, which can also be null.
+- **Assessment / reconstruction limits:** The argument-selection error is established; the rendered result depends on the formatter and supplied pointer.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Select sourceFile for the unshortened case.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB036 — Network diagnostics use unsafe path shortening and fixed buffers
+
+- **Original reference:** 004de237 — ReportNetworkSystemError; 004de569 — ReportNetworkConditionFailure.
+- **Evidence:** The shortening branch at 004de286..004de2c4 selects sourceFile + length - 3 - 0x100 and appends without a capacity check. The condition diagnostic copies 0x104 bytes without forcing termination, then splits and concatenates into fixed buffers.
+- **Behavior and trigger:** Long source paths can cause reads before or beyond the input and writes beyond local buffers. Long diagnostic text can also overflow the assembled message.
+- **Assessment / reconstruction limits:** Preserving these operations does not reproduce a particular stack overwrite or crash under a different compiler.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Validate input termination and use capacity-aware shortening and message assembly.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB037 — Failed second DirectX registry query leaks its buffer
+
+- **Original reference:** 004de6d8 — GetNetworkDirectXVersion.
+- **Evidence:** The failure branch at 004de79a/004de7c8 reaches registry-key cleanup without the release at 004de7ae..004de7b1.
+- **Behavior and trigger:** An allocation made after the successful size query leaks if the subsequent value query fails.
+- **Assessment / reconstruction limits:** The first query and allocation must already have succeeded.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Release the temporary allocation on both query outcomes.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB038 — Network allocation diagnostics return before unchecked writes
+
+- **Original reference:** 004de6d8 — GetNetworkDirectXVersion; 004dc45f — CDPNet::Initialize; diagnostic helper 004de569.
+- **Evidence:** Allocation failures are passed to 004de569, which displays a message and returns. Both callers subsequently clear the allocation without a terminating failure branch.
+- **Behavior and trigger:** A null allocation can be passed to the following memory operation; the DirectPlay path writes 0x400 bytes.
+- **Assessment / reconstruction limits:** Requires an allocation failure. Invalid-memory outcomes are not portable C++ behavior.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Stop initialization and unwind acquired resources after allocation failure.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB039 — Failed log reopening retains a closed stream pointer
+
+- **Original reference:** 004db8ea — OpenNetworkLog.
+- **Evidence:** An existing stream is closed at 004db924..004db930. If temporary-name creation subsequently fails, the error return does not clear or replace object->stream.
+- **Behavior and trigger:** Reopening an existing log with no explicit filename can leave a stale stream reference after temporary-name failure.
+- **Assessment / reconstruction limits:** Later effects depend on stream-slot reuse and subsequent logging or closing.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Clear the stream reference after close and establish a consistent failure state.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB040 — Network log filenames exceed unchecked fixed buffers
+
+- **Original reference:** 004db8ea — OpenNetworkLog.
+- **Evidence:** Explicit filenames are copied without a length check into the 0x100-byte field at object offset 0x20. The temporary-name output buffer is also only 0x100 bytes.
+- **Behavior and trigger:** A sufficiently long explicit or generated filename can overwrite adjacent storage.
+- **Assessment / reconstruction limits:** Overflow outcomes depend on memory layout; no particular oversized input was executed during this review.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Size the WinAPI output buffer appropriately and validate the destination field capacity.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB041 — DirectX version copy can omit the terminating NUL
+
+- **Original reference:** 004de6d8 — GetNetworkDirectXVersion; consumer 004db9f6 — WriteNetworkLogHeader.
+- **Evidence:** The successful query copies at most 0x40 bytes into shared storage with strncpy and does not append a terminator. The caller consumes the returned pointer through %s.
+- **Behavior and trigger:** A registry value with no NUL in the first 0x40 bytes leaves the destination unterminated and permits reads beyond it.
+- **Assessment / reconstruction limits:** Normal short version values do not trigger this path.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Validate the registry value type and length and guarantee terminated output.
+- **Status:** Preserved / original defect; Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -540,6 +631,36 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Evaluate absolute-date rules against their specified year.
 - **Status:** Preserved / original observation; Renewed: open.
 
+### OA012 — Network system information uses legacy version descriptions
+
+- **Original reference:** 004de352 — GetNetworkWindowsVersion; 004de6d8 — GetNetworkDirectXVersion.
+- **Evidence:** Every NT major version 5 selects the Windows 2000 label. DirectX information is read from Software\Microsoft\DirectX, value Version.
+- **Behavior and trigger:** These are historical display rules, not comprehensive operating-system or graphics-capability detection.
+- **Assessment / reconstruction limits:** Preserve the original labels and query source; no modern capability guarantee is implied.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Define which version or capability information the log should report.
+- **Status:** Preserved / original observation; Renewed: open.
+
+### OA013 — Initial DirectPlay setup continues after CoInitialize failure
+
+- **Original reference:** 004dc45f — CDPNet::Initialize.
+- **Evidence:** A failed CoInitialize result is logged, then execution continues to CoCreateInstance. Several later failure paths call CoUninitialize; the first creation-failure path does not.
+- **Behavior and trigger:** COM ownership and cleanup differ between failure paths.
+- **Assessment / reconstruction limits:** The practical consequences require the calling thread's prior COM state and complete lifecycle to be considered.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Track successful COM initialization and balance cleanup accordingly.
+- **Status:** Preserved / original observation; Renewed: open.
+
+### OA014 — System-error reporting reads LastError after diagnostic work
+
+- **Original reference:** 004de237 — ReportNetworkSystemError.
+- **Evidence:** GetLastError at 004de310 occurs after string processing and the first OutputDebugStringA call. FormatMessageA success is not checked before its output pointer is used.
+- **Behavior and trigger:** The reported error may differ from the caller's original error; failed message formatting can leave a null output pointer.
+- **Assessment / reconstruction limits:** The call order is established, but a specific observed misreport or crash is not claimed.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Capture the error at the failure site and check message-formatting success.
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reconstruction errors are not original bugs
 
 Bug compatibility does not waive the following corrections. Historical inclusion in this table alone does not prove that each correction was applied in every project revision.
@@ -551,7 +672,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Initializer loop uses only `begin != end` | `004ea218` stops when the start address is greater than or equal to the end | Preserve the unsigned address comparison |
 | Missing semicolons after `Runtime_ClassifyCharacter(...)` | Transcription/syntax issue | Correct them; the user already reported doing so |
 | Incorrect or orphaned original-address comments | Reconstruction documentation issue | Repair ownership of the source references |
-| No project startup calls initialize reconstructed CRT state | Implemented helpers are not an integrated startup path | Reconstruct and connect the actual startup boundary; do not label it an original defect |
+| Formerly missing reconstructed CRT startup calls | Reconstruction integration issue, not an original defect | Resolved at source level through WinMain and Runtime_RunApplication; build/runtime verification remains separate |
 
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
 

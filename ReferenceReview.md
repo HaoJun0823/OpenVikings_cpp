@@ -1,7 +1,14 @@
-# Prüfung austauschbarer Referenzen
+# Historical Reference Replacement Review
 
-Geprüfte Basis: das in diesem Auftrag angehängte `OpenVikings_cpp.zip` (67 Dateien).
-Windows-ASM/EXE bestimmen Adressen und Verhalten; Mac-Quellen stützen insbesondere die Namen von PropertyManager, CApplication und CXBSystemManager. Private Windows-CRT-Namen sind semantische Rekonstruktionsnamen.
+> Historical snapshot: the counts, line numbers, changed-file lists and open
+> dependencies below refer exclusively to the archive reviewed at that time.
+> They are not a current project inventory.
+>
+> Later work implemented several functions listed below as unresolved,
+> including path construction, error-text retrieval and stream wrappers.
+> Current integration status is documented in CrtReview.md.
+>
+> This historical report retains its original language and findings.
 
 ## Ergebnis und Grenzen
 
