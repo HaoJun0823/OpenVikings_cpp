@@ -179,7 +179,7 @@ namespace NMasterControlProgram
             NC2Logic::LanguageTool_SetCurrentLanguage(language);
         }
 
-        FUN_00405a04();
+        NNetwork::Network_InitializeCallsign();
 
         if (!NXSys2DApp::CApplication::sTheObjectPtr->StartUp())
         {

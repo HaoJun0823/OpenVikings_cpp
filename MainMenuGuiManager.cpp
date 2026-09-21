@@ -7,6 +7,7 @@
 #include "XMMouseManager.h"
 #include "XMKeyManager.h"
 #include "FileTransferManager.h"
+#include "FileCompressor.h"
 #include "NetworkShutdown.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
@@ -27,8 +28,7 @@ extern const float DAT_004f5254;
 // Keep unresolved until the Windows format string is recovered.
 extern const char DAT_00500818[];
 
-// Original data: DAT_004ff054.
-// Preserve the original path fragment until its bytes are recovered.
+// Original data: 004ff054; shared root-path string.
 extern const char DAT_004ff054[];
 
 // Original data: DAT_004fe238.
@@ -161,7 +161,7 @@ namespace NC2MainMenuGuiManager
             }
         }
 
-        if (FUN_004059a1() && currentScreen == 14)
+        if (NNetwork::Network_IsHost() && currentScreen == 14)
         {
             const std::uint32_t currentTime = timeGetTime();
 
@@ -259,13 +259,13 @@ namespace NC2MainMenuGuiManager
                 else
                 {
                     auto* configuration = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
-                    const auto callsign = FUN_004d7389(this);
+                    const auto callsign = Network_GetCallsign();
 
                     configuration->Property_Add("multiplayer_callsign", false, 0, callsign);
                     FUN_004e1816(NMasterPropertyManager::CPropertyManager::sTheObjectPtr);
                 }
 
-                FUN_004a3ae8(screenTimer);
+                textInput.Exit();
                 break;
 
             case 10:
@@ -279,7 +279,7 @@ namespace NC2MainMenuGuiManager
                 if (shutDownNetwork)
                     NNetwork::Network_ShutDown();
 
-                FUN_004a3ae8(screenTimer);
+                textInput.Exit();
                 break;
 
             case 16:
@@ -330,8 +330,8 @@ namespace NC2MainMenuGuiManager
 
                 FUN_004d7b06(this);
                 FUN_004d7c95(this);
-                FUN_004a3a8e(screenTimer, FUN_00405a87() - 2, false, true, false, false);
-                FUN_004a3cf6(screenTimer, FUN_004059e3());
+                textInput.Init(NNetwork::Network_GetCallsignBufferSize() - 2, false, true, 0u, 0u);
+                textInput.SetString(NNetwork::Network_GetCallsign());
                 break;
 
             case 10:
@@ -345,12 +345,12 @@ namespace NC2MainMenuGuiManager
 
             case 12:
                 std::memset(sessionSearchData, 0, sizeof(sessionSearchData));
-                FUN_004a3a8e(screenTimer, 100, false, true, false, false);
+                textInput.Init(100u, false, true, 0u, 0u);
                 break;
 
             case 14:
                 {
-                    FUN_004a3a8e(screenTimer, 60, true, true, false, false);
+                    textInput.Init(60u, true, true, 0u, 0u);
 
                     std::memset(lobbyData, 0, sizeof(lobbyData));
                     lobbyValue = 0;
@@ -437,13 +437,8 @@ namespace NC2MainMenuGuiManager
                             FUN_004161a2(DAT_005114ac, "sys_continue", transferFileName);
                         }
 
-                        // Keep compressor storage separate from the completed CMemory lifetime.
-                        std::uint32_t compressor[3];
-                        static_assert(sizeof(compressor) == 0x0C);
-
-                        FUN_004e0b3a(compressor);
-
-                        const std::int32_t compressionResult = FUN_004e0b4e(compressor, transferFileName);
+                        NNetwork::CFileCompressor compressor;
+                        const std::int32_t compressionResult = compressor.CompressFile(transferFileName);
 
                         if (compressionResult > 0 && compressionResult <= 2)
                         {
@@ -567,6 +562,17 @@ namespace NC2MainMenuGuiManager
         return true;
     }
 
+    // Original function: FUN_004d7389
+    char* CGuiManager::Network_GetCallsign()
+    {
+        if (currentScreen == 9)
+        {
+            NNetwork::Network_SetCallsign(textInput.GetString());
+        }
+
+        return NNetwork::Network_GetCallsign();
+    }
+
     // Original function: FUN_004d85cf
     void CGuiManager::l_Network_Update()
     {
@@ -598,7 +604,7 @@ namespace NC2MainMenuGuiManager
                 void* chatBuffer = nullptr;
                 std::uint32_t chatCount = 0;
 
-                FUN_004dec60(&DAT_0050f6a8, &chatBuffer, &chatCount);
+                NNetwork::TakeDynamicNetworkTextRecords(&DAT_0050f6a8, &chatBuffer, &chatCount);
 
                 const auto* records = static_cast<const std::byte*>(chatBuffer);
 
@@ -673,7 +679,7 @@ namespace NC2MainMenuGuiManager
             }
         }
 
-        const std::uint32_t networkFlags = FUN_00405999();
+        const std::uint32_t networkFlags = NNetwork::Network_GetFlags();
 
         switch (currentScreen)
         {
@@ -943,7 +949,7 @@ namespace NC2MainMenuGuiManager
                             if (gameMode == 1u)
                                 std::memcpy(startupData + 0x18, lobbyData + 4, 0x10);
 
-                            const std::uint32_t localPlayerId = FUN_004059cb();
+                            const std::uint32_t localPlayerId = NNetwork::Network_GetLocalPlayerId();
                             std::memcpy(startupData + 0x28, &localPlayerId, sizeof(localPlayerId));
 
                             for (std::uint32_t playerIndex = 0; playerIndex < 20; ++playerIndex)
@@ -1115,16 +1121,14 @@ namespace NC2MainMenuGuiManager
 
         char compressedFileName[0x104];
 
-        // Original function: FUN_004e0b3a.
-        // The compressor constructor clears exactly twelve bytes.
-        std::uint32_t compressor[3] = {};
+        NNetwork::CFileCompressor compressor;
 
         if (!userMap)
         {
             FUN_004161a2(DAT_005114ac, "sys_continue", compressedFileName);
             std::strcat(compressedFileName, ".c2p");
 
-            const std::int32_t result = FUN_004e0d5c(compressor, compressedFileName);
+            const std::int32_t result = compressor.DecompressFile(compressedFileName);
 
             if (result != 0)
                 reportFailure("Savegame decompression failed! File I/O error!");

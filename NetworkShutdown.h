@@ -144,95 +144,69 @@ namespace NNetwork
         std::uint32_t unknown7C;                   // +0x7C
     };
 
-    // Original function: FUN_004db4a0
     SEventQueue* AppendEventQueueCopy(SEventQueue* destination, const SEventQueue* source);
 
-    // Original function: FUN_004db4dd
     SEventQueue* ReplaceEventQueueAndClearSource(SEventQueue* destination, SEventQueue* source);
 
-    // Original function: FUN_004deac6
     DPNID GetDynamicNetworkHostPlayerId(const SDynamicNetworkData* data);
 
-    // Original function: FUN_004deafc
     DPNID GetDynamicNetworkLocalPlayerId(const SDynamicNetworkData* data);
 
-    // Original function: FUN_004dec8a
+    bool TakeDynamicNetworkTextRecords(SDynamicNetworkData* data, void** records, std::uint32_t* recordCount);
+
     bool SendDynamicNetworkMessage(SDynamicNetworkData* data, DPNID recipient, const void* payload, std::uint32_t byteCount);
 
-    // Original function: FUN_004dee72
     void PrepareDynamicCommandBuffers(SDynamicNetworkData* data);
 
-    // Original function: FUN_004df227
     void ClearDynamicNetworkEvents(SDynamicNetworkData* data);
 
     // Extracted initialization and event processing from FUN_004df240.
     // Returns true only when the remaining update stages should execute.
     bool PrepareDynamicNetworkUpdate(SDynamicNetworkData* data, bool reset);
 
-    // Original function: FUN_004df207
     bool BroadcastControlMessage8(SDynamicNetworkData* data);
 
     // Extracted type-4 receive branch from FUN_004df240.
     void StoreDynamicDataMessage(SDynamicNetworkData* data, const SReceivedMessage& received);
 
-    // Original function: FUN_004decf5
     void GetDynamicNetworkMessages(SDynamicNetworkData* data, SDynamicDataMessage** messages, std::uint32_t* count);
 
-    // Original data: DAT_005697e8.
     inline std::uint32_t gDynamicSlotArrayConstructionCount = 0;
 
-    // Original function: FUN_004058dd
     void InitializeGlobalDynamicNetworkData();
 
-    // Original function: FUN_004db788
     void ConvertNetworkAnsiToWide(wchar_t* destination, const char* source, std::int32_t length);
 
-    // Original function: FUN_004db7cc
     void ConvertNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length);
 
-    // Original function: FUN_004db811
     void CopyNetworkAnsiToWide(wchar_t* destination, const char* source, std::int32_t length);
 
-    // Original function: FUN_004db833
     void CopyNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length);
 
-    // Original function: FUN_004de956
     SDynamicNetworkData* ConstructDynamicNetworkData(SDynamicNetworkData* data);
 
-    // Original function: FUN_004de9b1
     void DestroyDynamicNetworkData(SDynamicNetworkData* data);
 
-    // Original function: FUN_004def63
     void UpdateDynamicCommandBuffers(SDynamicNetworkData* data);
 
-    // Original function: FUN_004df240
     void UpdateDynamicNetwork(SDynamicNetworkData* data, bool reset);
 
-    // Original function: FUN_004dfdce
     void HandleSpecialPlayerDepartureEvent(const SEventNode* event);
 
-    // Original function: FUN_004e1122
     void UpdateCommandBufferPlayers(SDynamicSlotArray* buffer, const DPNID* playerIds, std::uint32_t playerCount);
 
-    // Original function: FUN_004e1249
     bool IsCommandBufferComplete(const SDynamicSlotArray* buffer);
 
-    // Original function: FUN_004e127b
     std::uint32_t FindCommandBufferPlayerIndex(const SDynamicSlotArray* buffer, DPNID playerId);
 
-    // Original function: FUN_004e12a6
     DPNID GetFirstMissingCommandPlayerId(const SDynamicSlotArray* buffer);
 
-    // Original function: FUN_004e12de
     bool SetCommandMessageLength(SDynamicSlotArray* buffer, DPNID playerId, std::uint8_t length);
 
-    // Original function: FUN_004e1310
     bool StoreCommandMessageData(SDynamicSlotArray* buffer, DPNID playerId, const void* source, std::uint32_t length);
 
-    // Original function: FUN_004e1375
     std::uint8_t GetCommandMessageLength(const SDynamicSlotArray* buffer, DPNID playerId);
 
-    // Original function: FUN_004e13a1
     bool CopyCommandMessageData(const SDynamicSlotArray* buffer, DPNID playerId, void* destination, std::uint32_t destinationSize);
 
     static_assert(sizeof(SDynamicNetworkData) == 0x80);
@@ -377,16 +351,21 @@ namespace NNetwork
         SNetLog log;                               // +0x104
     };
 
-    // Original data: 005097a8.
     extern GUID gNetworkApplicationGuid;
 
-    // Original function: FUN_004058fd
     bool Network_StartUp();
-
-    // Original function: FUN_00405949
     void Network_ShutDown();
+    std::uint32_t Network_GetFlags();
+    bool Network_IsHost();
+    bool Network_IsInSession();
+    DPNID Network_GetLocalPlayerId();
+    DPNID Network_GetHostPlayerId();
 
-    // Original function: FUN_004dc438
+    char* Network_GetCallsign();
+    void Network_SetCallsign(const char* callsign);
+    void Network_InitializeCallsign();
+    std::int32_t Network_GetCallsignBufferSize();
+    bool Network_GetPlayerName(DPNID playerId, char* destination);
     void DestroyNetworkSingleton();
 
     static_assert(sizeof(void*) == 4, "This reconstruction requires an x86 build");

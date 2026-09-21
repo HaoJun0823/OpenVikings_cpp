@@ -4,6 +4,7 @@
 #include "XCrtFileAccess.h"
 #include "NetworkShutdown.h"
 #include "FileTransferManager.h"
+#include "MasterPropertyManager.h"
 
 #include <cstring>
 
@@ -13,6 +14,15 @@ extern const char DAT_00509910[];
 
 // Original data: DAT_0050f6a8.
 NNetwork::SDynamicNetworkData DAT_0050f6a8{};
+
+// Original data: 0050f728..0050f74f; initially zero.
+char DAT_0050f728[0x28]{};
+
+// Original data: 0050f750; initially zero.
+std::uint8_t DAT_0050f750 = 0;
+
+// Original data: 0050f750; initial value remains unresolved.
+extern std::uint8_t DAT_0050f750;
 
 namespace NNetwork
 {
@@ -254,6 +264,113 @@ namespace NNetwork
         network->Uninitialize();
 
         DestroyNetworkSingleton();
+    }
+
+    // Original function: FUN_00405999
+    std::uint32_t Network_GetFlags()
+    {
+        return GetNetworkInstance()->flags;
+    }
+
+    // Original function: FUN_004059a1
+    bool Network_IsHost()
+    {
+        return (GetNetworkInstance()->flags & 0x02u) != 0;
+    }
+
+    // Original function: FUN_004059b3
+    bool Network_IsInSession()
+    {
+        // Original helper 004dc432 returns the existing singleton without creating it.
+        if (gNetworkInstance == nullptr)
+        {
+            return false;
+        }
+
+        return (GetNetworkInstance()->flags & 0x0Au) != 0;
+    }
+
+    // Original function: FUN_004059cb
+    DPNID Network_GetLocalPlayerId()
+    {
+        return GetNetworkInstance()->GetLocalPlayerId();
+    }
+
+    // Original function: FUN_004059d7
+    DPNID Network_GetHostPlayerId()
+    {
+        return GetNetworkInstance()->GetHostPlayerId();
+    }
+
+    // Original function: FUN_004059e3
+    char* Network_GetCallsign()
+    {
+        return DAT_0050f728;
+    }
+
+    // Original function: FUN_004059e9
+    void Network_SetCallsign(const char* callsign)
+    {
+        std::strncpy(DAT_0050f728, callsign, 0x27);
+        DAT_0050f728[0x27] = '\0';
+    }
+
+    // Original function: FUN_00405a04
+    void Network_InitializeCallsign()
+    {
+        if (DAT_0050f750 == 0)
+        {
+            DAT_0050f728[0] = '\0';
+            DAT_0050f750 = 1;
+        }
+
+        if (std::strlen(DAT_0050f728) != 0)
+        {
+            return;
+        }
+
+        auto* properties = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
+
+        if (properties->Property_DoesExists("multiplayer_callsign"))
+        {
+            // Reload the singleton as in the original.
+            properties = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
+
+            std::strncpy(DAT_0050f728, properties->Property_GetStringValuePtr("multiplayer_callsign"), 0x27);
+        }
+        else
+        {
+            // Preserve the original unchecked API result and uninitialized buffer.
+            char userName[100];
+            DWORD userNameSize = 100;
+
+            ::GetUserNameA(userName, &userNameSize);
+            std::strncpy(DAT_0050f728, userName, 0x27);
+        }
+
+        DAT_0050f728[0x27] = '\0';
+    }
+
+    // Original function: FUN_00405a87
+    std::int32_t Network_GetCallsignBufferSize()
+    {
+        return 0x28;
+    }
+
+    // Original function: FUN_00405a8b
+    bool Network_GetPlayerName(DPNID playerId, char* destination)
+    {
+        wchar_t* playerName = nullptr;
+
+        if (!GetNetworkInstance()->GetPlayerName(playerId, &playerName))
+        {
+            return false;
+        }
+
+        ConvertNetworkWideToAnsi(destination, playerName, -1);
+        NXBasics::Runtime_Free(playerName);
+
+        return true;
     }
 
     // Original function: FUN_004dbd68

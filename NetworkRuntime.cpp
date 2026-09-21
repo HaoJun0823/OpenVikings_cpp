@@ -1443,6 +1443,23 @@ namespace NNetwork
         return 0;
     }
 
+    // Original function: FUN_004dec60
+    bool TakeDynamicNetworkTextRecords(SDynamicNetworkData* data, void** records, std::uint32_t* recordCount)
+    {
+        if (data->receivedRecordCount == 0)
+        {
+            return false;
+        }
+
+        *records = data->allocation28;
+        *recordCount = data->receivedRecordCount;
+
+        data->allocation28 = nullptr;
+        data->receivedRecordCount = 0;
+
+        return true;
+    }
+
     // Original function: FUN_004dec8a
     bool SendDynamicNetworkMessage(SDynamicNetworkData* /*data*/, DPNID recipient, const void* payload, std::uint32_t byteCount)
     {

@@ -1,5 +1,18 @@
 #include "XCrtFileAccess.h"
 
+// Original data: 004ff054; shared root-path string.
+extern const char DAT_004ff054[4] = "\\";
+
+// Original data: 004fe164; shared dot string.
+extern const char DAT_004fe164[4] = ".";
+
+// Original data: 005699e0; initially empty name buffer.
+char DAT_005699e0[16]{};
+
+// Original data: 005699f0; initially empty temporary-stream name buffer.
+// Reconstruction capacity covers the complete generated filename.
+char DAT_005699f0[16]{};
+
 namespace NXBasics
 {
     // Global data (original order and initializers preserved)
@@ -3595,6 +3608,44 @@ namespace NXBasics
         return elementCount;
     }
 
+    // Original function: FUN_004e9437
+    std::int32_t Runtime_WriteStreamCharacter(std::int32_t character, RuntimeFormatStream* stream)
+    {
+        Runtime_LockStream(stream);
+
+        --stream->remainingBytes;
+
+        std::int32_t result;
+
+        if (Runtime_TimeSigned32(stream->remainingBytes) >= 0)
+        {
+            const auto value = static_cast<unsigned char>(character);
+
+            *reinterpret_cast<unsigned char*>(stream->position) = value;
+            ++stream->position;
+
+            result = value;
+        }
+        else
+        {
+            result = Runtime_TimeSigned32(Runtime_FlushAndWriteCharacter(static_cast<std::uint32_t>(character), stream));
+        }
+
+        Runtime_UnlockStream(stream);
+        return result;
+    }
+
+    // Original function: FUN_004e9472
+    std::int32_t Runtime_TellStream(RuntimeFormatStream* stream)
+    {
+        Runtime_LockStream(stream);
+
+        const std::int32_t result = Runtime_TellStreamNoLock(stream);
+
+        Runtime_UnlockStream(stream);
+        return result;
+    }
+
     // Original function: FUN_004e9494
     std::int32_t Runtime_TellStreamNoLock(RuntimeFormatStream* stream)
     {
@@ -3686,6 +3737,120 @@ namespace NXBasics
         }
 
         return Runtime_TimeSigned32(filePosition + logicalOffset);
+    }
+
+    // Original function: FUN_004e95f5
+    RuntimeFormatStream* Runtime_CreateTemporaryStream()
+    {
+        Runtime_Lock(3);
+
+        char* fileName = DAT_005699f0;
+
+        if (fileName[0] == '\0')
+        {
+            Runtime_InitializeTemporaryFileName(1);
+        }
+        else if (Runtime_AdvanceTemporaryFileName(fileName) != 0)
+        {
+            Runtime_Unlock(3);
+            return nullptr;
+        }
+
+        RuntimeFormatStream* stream = Runtime_AcquireUnusedStream();
+
+        if (stream == nullptr)
+        {
+            Runtime_Unlock(3);
+            return nullptr;
+        }
+
+        std::int32_t descriptor = Runtime_OpenShared(fileName, 0x8542u, 0x40u, 0x180u);
+
+        while (descriptor == -1)
+        {
+            if (*Runtime_GetErrnoPointer() != 0x11)
+            {
+                break;
+            }
+
+            if (Runtime_AdvanceTemporaryFileName(fileName) != 0)
+            {
+                break;
+            }
+
+            descriptor = Runtime_OpenShared(fileName, 0x8542u, 0x40u, 0x180u);
+        }
+
+        if (descriptor == -1)
+        {
+            Runtime_UnlockStream(stream);
+            Runtime_Unlock(3);
+            return nullptr;
+        }
+
+        stream->temporaryFileName = Runtime_DuplicateString(fileName);
+
+        if (stream->temporaryFileName == nullptr)
+        {
+            Runtime_Close(static_cast<std::uint32_t>(descriptor));
+            Runtime_UnlockStream(stream);
+            Runtime_Unlock(3);
+            return nullptr;
+        }
+
+        stream->remainingBytes = 0;
+        stream->position = nullptr;
+        stream->buffer = nullptr;
+        stream->flags = gRuntimeDefaultStreamFlags | 0x80u;
+        stream->descriptor = static_cast<std::uint32_t>(descriptor);
+
+        Runtime_UnlockStream(stream);
+        Runtime_Unlock(3);
+
+        return stream;
+    }
+
+    // Original function: FUN_004e96cb
+    void Runtime_InitializeTemporaryFileName(std::int32_t temporaryStream)
+    {
+        char* fileName = temporaryStream != 0 ? DAT_005699f0 : DAT_005699e0;
+
+        std::strcpy(fileName, DAT_004ff054);
+
+        // Preserve the original fixed offset instead of searching for the terminator.
+        char* destination = fileName + 1;
+
+        if (destination[-1] != '\\' && destination[-1] != '/')
+        {
+            *destination++ = '\\';
+        }
+
+        *destination++ = temporaryStream != 0 ? 't' : 's';
+
+        // At radix 32, the existing converter preserves all unsigned input bits.
+        Runtime_LongToString(Runtime_TimeSigned32(static_cast<std::uint32_t>(GetCurrentProcessId())), destination, 32);
+        std::strcat(fileName, DAT_004fe164);
+    }
+
+    // Original function: FUN_004e972c
+    std::int32_t Runtime_AdvanceTemporaryFileName(char* fileName)
+    {
+        const char* separator = Runtime_FindLastMultibyteCharacter(fileName, '.');
+        char* suffix = const_cast<char*>(separator) + 1;
+
+        const std::uint32_t nextValue = Runtime_ParseInteger32(suffix, nullptr, 32, 1u) + 1u;
+
+        if (nextValue >= 0x7FFFu)
+        {
+            return -1;
+        }
+
+        char convertedValue[4];
+
+        Runtime_LongToString(static_cast<std::int32_t>(nextValue), convertedValue, 32);
+        std::strcpy(suffix, convertedValue);
+
+        return 0;
     }
 
     // Original function: FUN_004e9772
@@ -9322,6 +9487,78 @@ namespace NXBasics
         }
 
         return value;
+    }
+
+    // Original function: FUN_004ef055
+    const char* Runtime_FindLastMultibyteCharacter(const char* text, std::uint32_t character)
+    {
+        const char* result = nullptr;
+
+        if (gRuntimeIsMultibyteCodePage == 0)
+        {
+            const auto target = static_cast<std::uint8_t>(character);
+
+            for (const char* current = text; ; ++current)
+            {
+                const auto value = static_cast<std::uint8_t>(*current);
+
+                if (value == target)
+                {
+                    result = current;
+                }
+
+                if (value == 0)
+                {
+                    return result;
+                }
+            }
+        }
+
+        Runtime_Lock(0x19);
+
+        const char* current = text;
+
+        for (;;)
+        {
+            const auto firstByte = static_cast<std::uint8_t>(*current);
+            std::uint8_t lastByte = firstByte;
+            std::uint32_t value = firstByte;
+
+            if ((gRuntimeMultibyteTypes[static_cast<std::uint32_t>(firstByte) + 1u] & 0x04u) != 0)
+            {
+                ++current;
+                lastByte = static_cast<std::uint8_t>(*current);
+
+                if (lastByte != 0)
+                {
+                    value = (value << 8) | lastByte;
+
+                    if (value == character)
+                    {
+                        result = current - 1;
+                    }
+                }
+                else if (result == nullptr)
+                {
+                    // Preserve the original handling of an incomplete final character.
+                    result = current;
+                }
+            }
+            else if (value == character)
+            {
+                result = current;
+            }
+
+            ++current;
+
+            if (lastByte == 0)
+            {
+                break;
+            }
+        }
+
+        Runtime_Unlock(0x19);
+        return result;
     }
 
     // Original function: FUN_004ef0c7

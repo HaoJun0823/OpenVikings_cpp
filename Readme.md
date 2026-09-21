@@ -18,8 +18,6 @@ This register applies project-wide to the C++ reconstruction of *Cultures: Das A
 
 Keep existing identifiers stable. Their historical spellings are retained: `OB-001` through `OB-011`, `OB012` through `OB034`, `OA-001` through `OA-008`, and `OA009` through `OA011`. Heading and field formatting is otherwise uniform. Do not create duplicate entries under alternate ID spellings.
 
-The next available identifiers are **OB045** and **OA018**. Update existing entries instead of duplicating them. Retain disproved findings with their reason. After a Renewed fix, record its version/commit and behavioral change.
-
 For later discoveries, provide explicit README additions in chat for the user to insert. Do not silently modify project files without authorization. This translation and formatting pass was explicitly requested.
 
 ## Status definitions
@@ -60,9 +58,6 @@ The application remains an x86 hosted reconstruction: the compiler CRT owns
 native C++ initialization. No full Windows build or game execution was possible
 in this review. Portable C++ CRC tests and extracted command-buffer helper
 tests passed; these do not validate DirectPlay or the full application.
-
-See `CrtReview.md` for integration status and `ReferenceReview.md` for the
-current residual-reference inventory and review limitations.
 
 ## Original defects and retained limitations
 
@@ -109,6 +104,14 @@ current residual-reference inventory and review limitations.
 | OB039 | Failed log reopening retains a closed stream pointer | 004db8ea |
 | OB040 | Network log filenames exceed unchecked fixed buffers | 004db8ea |
 | OB041 | DirectX version copy can omit the terminating NUL | 004de6d8 and 004db9f6 |
+| OB042 | Player-name query leaks its temporary allocation on failure | 004dcf42 |
+| OB043 | Command-message copy does not validate destination capacity | 004e13a1 |
+| OB044 | Event queue eviction does not reduce its count | 004db558 |
+| OB045 | Final short RLE marker run is not escaped | 004e0e57 |
+| OB046 | Compressed input validation accepts truncated headers and RLE tokens | 004e0d5c and 004e0f99 |
+| OB047 | Compression ignores stream errors and decompression removes its input | 004e0b4e, 004e0d5c, 004e0e57 and 004e0f99 |
+| OB048 | Compressor filenames exceed unchecked fixed buffers | 004e0b4e and 004e0d5c |
+| OB049 | Callsign initialization ignores GetUserNameA failure | 00405a04 |
 
 ### OB-001 — Negative indices before the character-type table
 
@@ -540,6 +543,49 @@ current residual-reference inventory and review limitations.
 - **Evidence:** At count 0x100 the first node is released without decrementing count; insertion later increments count.
 - **Behavior and trigger:** The count no longer matches the linked list; subsequent exact-equality checks no longer enforce the intended limit.
 - **Status:** Preserved / original defect. Renewed: open.
+
+### OB045 — Final short RLE marker run is not escaped
+
+- **Original reference:** 004e0e57; final-run handling at 004e0f33–004e0f79.
+- **Evidence:** Intermediate marker runs are escaped, but the final run of one to three bytes is written literally even when its value equals the marker.
+- **Behavior and trigger:** The decoder interprets those bytes as a token. The marker can occur when all 256 byte values are present. A compressible test input reproduces the defect in an ASM-derived algorithm model: 810 input bytes, 544 packed bytes including the header, and 1063 decoded bytes.
+- **Assessment / reconstruction limits:** The model is not execution of the original Windows binary.
+- **Renewed task:** Apply marker escaping to the final run as well.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB046 — Compressed input validation accepts truncated headers and RLE tokens
+
+- **Original reference:** 004e0d5c and 004e0f99.
+- **Evidence:** The header read result is ignored and only the signature is checked. The decoder does not reject EOF while reading the value or count of a marker token; an EOF count becomes 255.
+- **Behavior and trigger:** Truncated input can be accepted and expanded into incorrect output. Stored sizes, version and method do not constrain decoding.
+- **Renewed task:** Validate the complete header and every token, enforce supported format fields, and verify output size.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB047 — Compression ignores stream errors and decompression removes its input
+
+- **Original reference:** 004e0b4e, 004e0d5c, 004e0e57 and 004e0f99.
+- **Evidence:** The RLE routines ignore character-write and seek results and always return zero. Payload copying also ignores write failures. Close results are ignored. After decoding, 004e0d5c closes both streams and removes the compressed input.
+- **Behavior and trigger:** Read, write or final flush failures can produce incomplete output without a reported codec failure. Decompression can then remove the compressed source.
+- **Renewed task:** Propagate stream errors, verify final output, and remove the source only after confirmed success.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB048 — Compressor filenames exceed unchecked fixed buffers
+
+- **Original reference:** 004e0b4e and 004e0d5c.
+- **Evidence:** Compression uses unchecked strcpy/strcat into 0x104 bytes. Decompression copies at most 0x104 bytes but writes a terminator at the original filename length minus four without checking its range or suffix.
+- **Behavior and trigger:** Long filenames can write beyond the buffer. Names shorter than four bytes can write before it; other suffixes are removed unconditionally.
+- **Assessment / reconstruction limits:** The reconstruction preserves the missing checks, not deterministic effects of out-of-bounds accesses.
+- **Renewed task:** Validate filename lengths and the suffix before constructing output paths.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB049 — Callsign initialization ignores GetUserNameA failure
+
+- **Original reference:** 00405a04, particularly 00405a58–00405a7c.
+- **Evidence:** A 100-byte local buffer is not initialized. The return value of GetUserNameA is ignored, and strncpy subsequently reads up to 39 bytes from that buffer.
+- **Behavior and trigger:** When the API fails without supplying a valid name, callsign initialization can consume indeterminate buffer contents. The destination's final byte is explicitly terminated, but this does not validate the copied name.
+- **Assessment / reconstruction limits:** No specific resulting name or observed game failure is claimed. Stack contents are not reproduced deterministically.
+- **Renewed task:** Check the API result and use a defined fallback on failure.
+- **Status:** Preserved / original defect; Renewed: open.
 
 ## Original observations and unresolved defect assessments
 

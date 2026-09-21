@@ -5,6 +5,7 @@
 #include "InGameGuiManager.h"
 #include "NetworkShutdown.h"
 
+#include <cstddef>
 #include <cstring>
 #include <cstdint>
 #include <new>
@@ -13,9 +14,11 @@ struct SReceivedNetworkRecord
 {
     std::byte unknown00[4];
     std::uint16_t type;
-    char text[0xFE];
+    wchar_t text[0x7F];
 };
 
+static_assert(sizeof(wchar_t) == 2);
+static_assert(offsetof(SReceivedNetworkRecord, text) == 0x06);
 static_assert(sizeof(SReceivedNetworkRecord) == 0x104);
 
 struct SQueuedNetworkMessage
@@ -141,10 +144,12 @@ namespace NMasterControlProgram
         {
             if (DAT_0050f6a8.receivedRecordCount > 0)
             {
-                SReceivedNetworkRecord* receivedRecords = nullptr;
+                void* receivedBuffer = nullptr;
                 std::uint32_t receivedRecordCount = 0;
 
-                FUN_004dec60(&DAT_0050f6a8, reinterpret_cast<void**>(&receivedRecords), &receivedRecordCount);
+                NNetwork::TakeDynamicNetworkTextRecords(&DAT_0050f6a8, &receivedBuffer, &receivedRecordCount);
+
+                auto* receivedRecords = static_cast<SReceivedNetworkRecord*>(receivedBuffer);
 
                 for (std::uint32_t index = 0; index < receivedRecordCount; ++index)
                 {
@@ -237,7 +242,7 @@ namespace NMasterControlProgram
             case 7:
             {
                 const std::uint32_t playerId = currentMessage->playerId;
-                const std::uint32_t currentPlayerId = FUN_004059cb();
+                const std::uint32_t currentPlayerId = NNetwork::Network_GetLocalPlayerId();
 
                 if (playerId == currentPlayerId || currentPlayerId == 0)
                 {

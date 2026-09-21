@@ -545,6 +545,7 @@ namespace NXBasics
 
     void Runtime_ScaleExtended12(std::uint32_t* value, std::int32_t exponent, std::int32_t preserveLowWord);
 
+    const char* Runtime_FindLastMultibyteCharacter(const char* text, std::uint32_t character);
     const char* Runtime_FindMultibyteCharacter(const char* text, std::uint32_t character);
 
     void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source);
@@ -572,7 +573,12 @@ namespace NXBasics
     std::int32_t Runtime_RenameFile(const char* oldFileName, const char* newFileName);
     std::int32_t Runtime_SeekStream(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin);
     std::int32_t Runtime_SeekStreamNoLock(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin);
+    std::int32_t Runtime_WriteStreamCharacter(std::int32_t character, RuntimeFormatStream* stream);
+    std::int32_t Runtime_TellStream(RuntimeFormatStream* stream);
     std::int32_t Runtime_TellStreamNoLock(RuntimeFormatStream* stream);
+    RuntimeFormatStream* Runtime_CreateTemporaryStream();
+    void Runtime_InitializeTemporaryFileName(std::int32_t temporaryStream);
+    std::int32_t Runtime_AdvanceTemporaryFileName(char* fileName);
     std::int32_t Runtime_ReadStreamCharacter(RuntimeFormatStream* stream);
     std::int32_t Runtime_FillStreamBufferAndReadCharacter(RuntimeFormatStream* stream);
     std::uint32_t Runtime_WriteStream(const void* data, std::uint32_t elementSize, std::uint32_t elementCount, RuntimeFormatStream* stream);
