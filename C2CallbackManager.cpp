@@ -2,149 +2,149 @@
 
 namespace NC2Logic
 {
-	// Original data: DAT_00510a2c
-	CCallbackManager* CCallbackManager::sTheObjectPtr = nullptr;
+    // Original data: DAT_00510a2c
+    CCallbackManager* CCallbackManager::sTheObjectPtr = nullptr;
 
-	// Reference: Mac CCallbackManager::CCallbackManager()
-	CCallbackManager::CCallbackManager() : mFirst{}, mLast{}
-	{
-		sTheObjectPtr = this;
-	}
+    // Reference: Mac CCallbackManager::CCallbackManager()
+    CCallbackManager::CCallbackManager() : mFirst{}, mLast{}
+    {
+        sTheObjectPtr = this;
+    }
 
-	// Reference: Mac CCallbackManager::~CCallbackManager()
-	CCallbackManager::~CCallbackManager()
-	{
-		for (std::size_t type = 0; type < CallbackTypeCount; ++type)
-		{
-			while (mFirst[type] != nullptr)
-			{
-				SCallbackElement* element = mFirst[type];
+    // Reference: Mac CCallbackManager::~CCallbackManager()
+    CCallbackManager::~CCallbackManager()
+    {
+        for (std::size_t type = 0; type < CallbackTypeCount; ++type)
+        {
+            while (mFirst[type] != nullptr)
+            {
+                SCallbackElement* element = mFirst[type];
 
-				UnRegisterCallback(static_cast<TCallbackTypes>(type), element->callback, element->userData);
-			}
-		}
+                UnRegisterCallback(static_cast<TCallbackTypes>(type), element->callback, element->userData);
+            }
+        }
 
-		sTheObjectPtr = nullptr;
-	}
+        sTheObjectPtr = nullptr;
+    }
 
-	// Reference: Mac CCallbackManager::l_FindCallbackElement()
-	CCallbackManager::SCallbackElement* CCallbackManager::l_FindCallbackElement(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData)
-	{
-		SCallbackElement* element = mFirst[type];
+    // Reference: Mac CCallbackManager::l_FindCallbackElement()
+    CCallbackManager::SCallbackElement* CCallbackManager::l_FindCallbackElement(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData)
+    {
+        SCallbackElement* element = mFirst[type];
 
-		while (element != nullptr)
-		{
-			if (element->callback == callback && element->userData == userData)
-			{
-				return element;
-			}
+        while (element != nullptr)
+        {
+            if (element->callback == callback && element->userData == userData)
+            {
+                return element;
+            }
 
-			element = element->next;
-		}
+            element = element->next;
+        }
 
-		return nullptr;
-	}
+        return nullptr;
+    }
 
-	// Original function: FUN_00411db3
-	bool CCallbackManager::UnRegisterCallback(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData)
-	{
-		SCallbackElement* element = l_FindCallbackElement(type, callback, userData);
+    // Reference: Mac CCallbackManager::RegisterCallback()
+    void CCallbackManager::RegisterCallback(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData, std::int32_t priority)
+    {
+        if (l_FindCallbackElement(type, callback, userData) != nullptr)
+        {
+            UnRegisterCallback(type, callback, userData);
+        }
 
-		if (element == nullptr)
-		{
-			return false;
-		}
+        SCallbackElement* element = new SCallbackElement{};
 
-		if (element->previous == nullptr)
-		{
-			mFirst[type] = element->next;
-		}
-		else
-		{
-			element->previous->next = element->next;
-		}
+        element->priority = priority;
+        element->callback = callback;
+        element->userData = userData;
 
-		if (element->next == nullptr)
-		{
-			mLast[type] = element->previous;
-		}
-		else
-		{
-			element->next->previous = element->previous;
-		}
+        SCallbackElement* first = mFirst[type];
 
-		delete element;
-		return true;
-	}
+        if (first == nullptr)
+        {
+            mFirst[type] = element;
+            mLast[type] = element;
+            return;
+        }
 
-	// Reference: Mac CCallbackManager::RegisterCallback()
-	void CCallbackManager::RegisterCallback(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData, std::int32_t priority)
-	{
-		if (l_FindCallbackElement(type, callback, userData) != nullptr)
-		{
-			UnRegisterCallback(type, callback, userData);
-		}
+        if (first->priority < priority)
+        {
+            element->next = first;
+            first->previous = element;
+            mFirst[type] = element;
+            return;
+        }
 
-		SCallbackElement* element = new SCallbackElement{};
+        SCallbackElement* previous = first;
 
-		element->priority = priority;
-		element->callback = callback;
-		element->userData = userData;
+        // Equal priorities retain registration order.
+        while (previous->next != nullptr && previous->next->priority >= priority)
+        {
+            previous = previous->next;
+        }
 
-		SCallbackElement* first = mFirst[type];
+        element->previous = previous;
+        element->next = previous->next;
+        previous->next = element;
 
-		if (first == nullptr)
-		{
-			mFirst[type] = element;
-			mLast[type] = element;
-			return;
-		}
+        if (element->next == nullptr)
+        {
+            mLast[type] = element;
+        }
+        else
+        {
+            element->next->previous = element;
+        }
+    }
 
-		if (first->priority < priority)
-		{
-			element->next = first;
-			first->previous = element;
-			mFirst[type] = element;
-			return;
-		}
+    // Reference: Mac CCallbackManager::ExecuteCallback()
+    bool CCallbackManager::ExecuteCallback(TCallbackTypes type, bool forward, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
+    {
+        SCallbackElement* element = forward ? mFirst[type] : mLast[type];
 
-		SCallbackElement* previous = first;
+        while (element != nullptr)
+        {
+            if (!element->callback(type, element->userData, param1, param2, param3))
+            {
+                return false;
+            }
 
-		// Equal priorities retain registration order.
-		while (previous->next != nullptr && previous->next->priority >= priority)
-		{
-			previous = previous->next;
-		}
+            element = forward ? element->next : element->previous;
+        }
 
-		element->previous = previous;
-		element->next = previous->next;
-		previous->next = element;
+        return true;
+    }
 
-		if (element->next == nullptr)
-		{
-			mLast[type] = element;
-		}
-		else
-		{
-			element->next->previous = element;
-		}
-	}
+    // Original function: FUN_00411db3
+    bool CCallbackManager::UnRegisterCallback(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData)
+    {
+        SCallbackElement* element = l_FindCallbackElement(type, callback, userData);
 
-	// Reference: Mac CCallbackManager::ExecuteCallback()
-	bool CCallbackManager::ExecuteCallback(TCallbackTypes type, bool forward, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
-	{
-		SCallbackElement* element = forward ? mFirst[type] : mLast[type];
+        if (element == nullptr)
+        {
+            return false;
+        }
 
-		while (element != nullptr)
-		{
-			if (!element->callback(type, element->userData, param1, param2, param3))
-			{
-				return false;
-			}
+        if (element->previous == nullptr)
+        {
+            mFirst[type] = element->next;
+        }
+        else
+        {
+            element->previous->next = element->next;
+        }
 
-			element = forward ? element->next : element->previous;
-		}
+        if (element->next == nullptr)
+        {
+            mLast[type] = element->previous;
+        }
+        else
+        {
+            element->next->previous = element->previous;
+        }
 
-		return true;
-	}
+        delete element;
+        return true;
+    }
 }

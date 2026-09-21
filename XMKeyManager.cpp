@@ -9,328 +9,328 @@
 
 namespace NXSysKeyManager
 {
-	CKeyManager* CKeyManager::sTheObjectPtr = nullptr;
+    CKeyManager* CKeyManager::sTheObjectPtr = nullptr;
 
-	// Original function: FUN_00479cf9
-	CKeyManager::CKeyManager() : mEntries(1)
-	{
-		sTheObjectPtr = this;
-		mModifierFlags = 0;
-		mLastKeyTime = 0;
-	}
+    // Original function: FUN_00439da8
+    void* CKeyEntryListBase::Remove(void* value)
+    {
+        if (mCount == 0)
+        {
+            return value;
+        }
 
-	// Original function: FUN_00479d42
-	void CKeyManager::PushKey(std::uint8_t keyCode, std::uint8_t auxiliaryCode, bool state)
-	{
-		SKeyMessage* message = new SKeyMessage;
+        if (mFirst->value == value)
+        {
+            return PopFront();
+        }
 
-		message->keyCode = keyCode;
-		message->auxiliaryCode = auxiliaryCode;
-		message->state = static_cast<std::uint8_t>(state);
+        if (mLast->value == value)
+        {
+            return PopBack();
+        }
 
-		mModifierFlags = 0;
+        SKeyEntryNode* previous = mFirst;
 
-		if ((GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
-		{
-			mModifierFlags |= 0x01;
-		}
+        while (previous->next != nullptr)
+        {
+            SKeyEntryNode* node = previous->next;
 
-		if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0)
-		{
-			mModifierFlags |= 0x02;
-		}
+            if (node->value == value)
+            {
+                previous->next = node->next;
 
-		message->modifierFlags = mModifierFlags;
-		mEntries.PushBack(message);
-		mLastKeyTime = timeGetTime();
-	}
+                // Nodes are allocated by the existing native PushBack().
+                ::operator delete(static_cast<void*>(node));
+                --mCount;
+                return value;
+            }
 
-	// Original function: FUN_00479dea
-	void CKeyManager::Init()
-	{
-		mEntries.ClearOwnedEntries();
-		mModifierFlags = 0;
-	}
+            previous = node;
+        }
 
-	// Original function: FUN_00479da2
-	bool CKeyManager::GetKey(SKeyMessage& message)
-	{
-		return GetKeyboardMessage(message) == 1;
-	}
+        return value;
+    }
 
-	// Original function: FUN_00479db4
-	char CKeyManager::GetKeyboardMessage(SKeyMessage& message)
-	{
-		if (mEntries.IsEmpty())
-		{
-			return 0;
-		}
+    // Original function: FUN_00439e41
+    void* CKeyEntryListBase::GetStartElement() const
+    {
+        if (mCount == 0)
+        {
+            return nullptr;
+        }
 
-		void* value = mEntries.PopFront();
+        return mFirst->value;
+    }
 
-		// Copy all 12 bytes, including padding, as in the original.
-		std::memcpy(&message, value, sizeof(message));
+    // Original function: FUN_00479cf9
+    CKeyManager::CKeyManager() : mEntries(1)
+    {
+        sTheObjectPtr = this;
+        mModifierFlags = 0;
+        mLastKeyTime = 0;
+    }
 
-		// Original: FUN_004e5e48(value).
-		::operator delete(value);
+    // Original function: FUN_00479d42
+    void CKeyManager::PushKey(std::uint8_t keyCode, std::uint8_t auxiliaryCode, bool state)
+    {
+        SKeyMessage* message = new SKeyMessage;
 
-		return message.state != 0 ? 1 : 2;
-	}
+        message->keyCode = keyCode;
+        message->auxiliaryCode = auxiliaryCode;
+        message->state = static_cast<std::uint8_t>(state);
 
-	// Original function: FUN_00439da8
-	void* CKeyEntryListBase::Remove(void* value)
-	{
-		if (mCount == 0)
-		{
-			return value;
-		}
+        mModifierFlags = 0;
 
-		if (mFirst->value == value)
-		{
-			return PopFront();
-		}
+        if ((GetAsyncKeyState(VK_SHIFT) & 0x8000) != 0)
+        {
+            mModifierFlags |= 0x01;
+        }
 
-		if (mLast->value == value)
-		{
-			return PopBack();
-		}
+        if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0)
+        {
+            mModifierFlags |= 0x02;
+        }
 
-		SKeyEntryNode* previous = mFirst;
+        message->modifierFlags = mModifierFlags;
+        mEntries.PushBack(message);
+        mLastKeyTime = timeGetTime();
+    }
 
-		while (previous->next != nullptr)
-		{
-			SKeyEntryNode* node = previous->next;
+    // Original function: FUN_00479da2
+    bool CKeyManager::GetKey(SKeyMessage& message)
+    {
+        return GetKeyboardMessage(message) == 1;
+    }
 
-			if (node->value == value)
-			{
-				previous->next = node->next;
+    // Original function: FUN_00479db4
+    char CKeyManager::GetKeyboardMessage(SKeyMessage& message)
+    {
+        if (mEntries.IsEmpty())
+        {
+            return 0;
+        }
 
-				// Nodes are allocated by the existing native PushBack().
-				::operator delete(static_cast<void*>(node));
-				--mCount;
-				return value;
-			}
+        void* value = mEntries.PopFront();
 
-			previous = node;
-		}
+        // Copy all 12 bytes, including padding, as in the original.
+        std::memcpy(&message, value, sizeof(message));
 
-		return value;
-	}
+        // Original: FUN_004e5e48(value).
+        ::operator delete(value);
 
-	// Original function: FUN_00439e41
-	void* CKeyEntryListBase::GetStartElement() const
-	{
-		if (mCount == 0)
-		{
-			return nullptr;
-		}
+        return message.state != 0 ? 1 : 2;
+    }
 
-		return mFirst->value;
-	}
+    // Original function: FUN_00479dea
+    void CKeyManager::Init()
+    {
+        mEntries.ClearOwnedEntries();
+        mModifierFlags = 0;
+    }
 
-	// Original function: FUN_00439bed
-	CKeyEntryListBase::CKeyEntryListBase(std::uint8_t destroyValues) : mCount(0), mFirst(nullptr), mLast(nullptr), mDestroyValues(destroyValues), mPadding11{} {}
+    // Original function: FUN_00439bed
+    CKeyEntryListBase::CKeyEntryListBase(std::uint8_t destroyValues) : mCount(0), mFirst(nullptr), mLast(nullptr), mDestroyValues(destroyValues), mPadding11{} {}
 
-	// Original function: FUN_00439c3f
-	CKeyEntryListBase::~CKeyEntryListBase()
-	{
-		while (mFirst != nullptr)
-		{
-			PopFront();
-		}
-	}
+    CKeyEntryList::CKeyEntryList(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
+    {}
 
-	// Original function: FUN_00439c8b
-	void CKeyEntryListBase::PushBack(void* value)
-	{
-		SKeyEntryNode* node = new (std::nothrow) SKeyEntryNode;
+    // Original: FUN_004e5e48(value).
+    void CKeyEntryList::DestroyValue(void* value)
+    {
+        // Original code: LAB_00479e17
+        // No destructor is called for the stored object.
+        ::operator delete(value);
+    }
 
-		if (node != nullptr)
-		{
-			node->next = nullptr;
-			node->value = value;
-		}
+    CKeyEntryListBase::Iterator::Iterator(CKeyEntryListBase& list) : mList(&list), mPosition(nullptr), mStarted(0)
+    {}
 
-		if (mCount == 0)
-		{
-			mFirst = node;
-		}
-		else
-		{
-			mLast->next = node;
-		}
+    // Original function: FUN_004259f3
+    void* CKeyEntryListBase::Iterator::Next()
+    {
+        if (mStarted == 0)
+        {
+            return First();
+        }
 
-		++mCount;
-		mLast = node;
-	}
+        if (mPosition != nullptr)
+        {
+            mPosition = mPosition->next;
 
-	// Original function: FUN_00439d1e
-	void* CKeyEntryListBase::PopFront()
-	{
-		if (mCount == 0)
-		{
-			return nullptr;
-		}
+            if (mPosition != nullptr)
+            {
+                return mPosition->value;
+            }
+        }
 
-		SKeyEntryNode* removedNode = mFirst;
-		SKeyEntryNode* nextNode = removedNode->next;
-		void* value = removedNode->value;
+        mStarted = 0;
+        return nullptr;
+    }
 
-		if (removedNode == mLast)
-		{
-			mLast = nullptr;
-			mFirst = nullptr;
-		}
-		else
-		{
-			mFirst = nextNode;
-		}
+    // Original function: FUN_00439c3f
+    CKeyEntryListBase::~CKeyEntryListBase()
+    {
+        while (mFirst != nullptr)
+        {
+            PopFront();
+        }
+    }
 
-		// Original: FUN_004e5e48(removedNode).
-		::operator delete(static_cast<void*>(removedNode));
+    // Original function: FUN_00439c8b
+    void CKeyEntryListBase::PushBack(void* value)
+    {
+        SKeyEntryNode* node = new (std::nothrow) SKeyEntryNode;
 
-		--mCount;
+        if (node != nullptr)
+        {
+            node->next = nullptr;
+            node->value = value;
+        }
 
-		return value;
-	}
+        if (mCount == 0)
+        {
+            mFirst = node;
+        }
+        else
+        {
+            mLast->next = node;
+        }
 
-	// Original function: FUN_00439d54
-	void* CKeyEntryListBase::PopBack()
-	{
-		if (mCount == 0)
-		{
-			return nullptr;
-		}
+        ++mCount;
+        mLast = node;
+    }
 
-		void* value = mLast->value;
-		SKeyEntryNode* current = mFirst;
-		SKeyEntryNode* previous = nullptr;
+    // Original function: FUN_00439d1e
+    void* CKeyEntryListBase::PopFront()
+    {
+        if (mCount == 0)
+        {
+            return nullptr;
+        }
 
-		// The original compares stored values, not node addresses.
-		while (current->next != nullptr)
-		{
-			if (current->next->value == value)
-			{
-				previous = current;
-				break;
-			}
+        SKeyEntryNode* removedNode = mFirst;
+        SKeyEntryNode* nextNode = removedNode->next;
+        void* value = removedNode->value;
 
-			current = current->next;
-		}
+        if (removedNode == mLast)
+        {
+            mLast = nullptr;
+            mFirst = nullptr;
+        }
+        else
+        {
+            mFirst = nextNode;
+        }
 
-		if (previous != nullptr)
-		{
-			previous->next = nullptr;
-		}
+        // Original: FUN_004e5e48(removedNode).
+        ::operator delete(static_cast<void*>(removedNode));
 
-		::operator delete(static_cast<void*>(mLast));
+        --mCount;
 
-		const std::uint32_t count = mCount;
-		mLast = previous;
+        return value;
+    }
 
-		// Preserve the original check before decrementing the count.
-		if (count == 0)
-		{
-			mFirst = nullptr;
-		}
+    // Original function: FUN_00439d54
+    void* CKeyEntryListBase::PopBack()
+    {
+        if (mCount == 0)
+        {
+            return nullptr;
+        }
 
-		mCount = count - 1u;
-		return value;
-	}
+        void* value = mLast->value;
+        SKeyEntryNode* current = mFirst;
+        SKeyEntryNode* previous = nullptr;
 
-	// Original function: FUN_00439e0e
-	void CKeyEntryListBase::DeleteFront()
-	{
-		void* value = PopFront();
+        // The original compares stored values, not node addresses.
+        while (current->next != nullptr)
+        {
+            if (current->next->value == value)
+            {
+                previous = current;
+                break;
+            }
 
-		if (value != nullptr)
-		{
-			DestroyValue(value);
-		}
-	}
+            current = current->next;
+        }
 
-	// Original function: FUN_00439e24
-	void CKeyEntryListBase::ClearOwnedEntries()
-	{
-		while (mCount != 0)
-		{
-			// The original stops when the first entry contains a null value.
-			if (mFirst->value == nullptr)
-			{
-				break;
-			}
+        if (previous != nullptr)
+        {
+            previous->next = nullptr;
+        }
 
-			DeleteFront();
-		}
-	}
+        ::operator delete(static_cast<void*>(mLast));
 
-	CKeyEntryList::CKeyEntryList(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
-	{}
+        const std::uint32_t count = mCount;
+        mLast = previous;
 
-	// Original function: FUN_00479dfa
-	CKeyEntryList::~CKeyEntryList()
-	{
-		if (mDestroyValues != 0)
-		{
-			ClearOwnedEntries();
-		}
+        // Preserve the original check before decrementing the count.
+        if (count == 0)
+        {
+            mFirst = nullptr;
+        }
 
-		// The base destructor runs automatically afterward.
-	}
+        mCount = count - 1u;
+        return value;
+    }
 
-	// Original: FUN_004e5e48(value).
-	void CKeyEntryList::DestroyValue(void* value)
-	{
-		// Original code: LAB_00479e17
-		// No destructor is called for the stored object.
-		::operator delete(value);
-	}
+    // Original function: FUN_00439e0e
+    void CKeyEntryListBase::DeleteFront()
+    {
+        void* value = PopFront();
 
-	// Original function: FUN_00479d27
-	CKeyManager::~CKeyManager()
-	{
-		mEntries.ClearOwnedEntries();
-		sTheObjectPtr = nullptr;
+        if (value != nullptr)
+        {
+            DestroyValue(value);
+        }
+    }
 
-		// mEntries is destroyed automatically afterward.
-	}
+    // Original function: FUN_00439e24
+    void CKeyEntryListBase::ClearOwnedEntries()
+    {
+        while (mCount != 0)
+        {
+            // The original stops when the first entry contains a null value.
+            if (mFirst->value == nullptr)
+            {
+                break;
+            }
 
-	CKeyEntryListBase::Iterator::Iterator(CKeyEntryListBase& list) : mList(&list), mPosition(nullptr), mStarted(0)
-	{}
+            DeleteFront();
+        }
+    }
 
-	// Original function: FUN_0048d143
-	void* CKeyEntryListBase::Iterator::First()
-	{
-		if (mList->mCount == 0)
-		{
-			// The original leaves the iterator state unchanged here.
-			return nullptr;
-		}
+    // Original function: FUN_00479d27
+    CKeyManager::~CKeyManager()
+    {
+        mEntries.ClearOwnedEntries();
+        sTheObjectPtr = nullptr;
 
-		mStarted = 1;
-		mPosition = mList->mFirst;
-		return mPosition->value;
-	}
+        // mEntries is destroyed automatically afterward.
+    }
 
-	// Original function: FUN_004259f3
-	void* CKeyEntryListBase::Iterator::Next()
-	{
-		if (mStarted == 0)
-		{
-			return First();
-		}
+    // Original function: FUN_00479dfa
+    CKeyEntryList::~CKeyEntryList()
+    {
+        if (mDestroyValues != 0)
+        {
+            ClearOwnedEntries();
+        }
 
-		if (mPosition != nullptr)
-		{
-			mPosition = mPosition->next;
+        // The base destructor runs automatically afterward.
+    }
 
-			if (mPosition != nullptr)
-			{
-				return mPosition->value;
-			}
-		}
+    // Original function: FUN_0048d143
+    void* CKeyEntryListBase::Iterator::First()
+    {
+        if (mList->mCount == 0)
+        {
+            // The original leaves the iterator state unchanged here.
+            return nullptr;
+        }
 
-		mStarted = 0;
-		return nullptr;
-	}
+        mStarted = 1;
+        mPosition = mList->mFirst;
+        return mPosition->value;
+    }
 }

@@ -18,7 +18,7 @@ This register applies project-wide to the C++ reconstruction of *Cultures: Das A
 
 Keep existing identifiers stable. Their historical spellings are retained: `OB-001` through `OB-011`, `OB012` through `OB034`, `OA-001` through `OA-008`, and `OA009` through `OA011`. Heading and field formatting is otherwise uniform. Do not create duplicate entries under alternate ID spellings.
 
-The next available identifiers are **OB035** and **OA012**. Update existing entries instead of duplicating them. Retain disproved findings with their reason. After a Renewed fix, record its version/commit and behavioral change.
+The next available identifiers are **OB045** and **OA018**. Update existing entries instead of duplicating them. Retain disproved findings with their reason. After a Renewed fix, record its version/commit and behavioral change.
 
 For later discoveries, provide explicit README additions in chat for the user to insert. Do not silently modify project files without authorization. This translation and formatting pass was explicitly requested.
 
@@ -33,7 +33,7 @@ For later discoveries, provide explicit README additions in chat for the user to
 
 - `assembly_weltwunder_win.asm`: Windows disassembly, using image base `00400000`.
 - `Game.exe`: supplementary verification of constants, tables and initial data.
-- `XCrtFileAccess.h`: reconstructed implementation and documented compatibility decisions.
+- `XCrtFileAccess.h` / `XCrtFileAccess.cpp`: reconstructed declarations, implementation and documented compatibility decisions.
 - `x86-64-mac.h` and `x86-64-mac.c`: naming references, not substitutes for private Windows CRT details.
 - Available project discussions, including the CRT review of 2026-09-13 and subsequent documented findings.
 
@@ -43,23 +43,26 @@ CRT findings concern the runtime embedded in the game; they do not attribute aut
 
 ## Current reconstruction status
 
-The formerly missing reconstructed CRT startup/exit wiring is present.
-WinMain calls Runtime_RunApplication with the application initializer table.
-The reconstructed heap, threading, descriptor, argument, environment and CRT
-initialization stages are connected.
+Reviewed archive: 2026-09-21. The CRT startup/exit wiring, INI reader,
+DirectPlay callback (`004dbd68`), DirectX error-text mapping (`004e3252`),
+command-buffer update (`004df240`), file-transfer manager and CRC16/CRC32
+implementations are present at source level. CRT declarations are in
+`XCrtFileAccess.h`; implementation and storage are in `XCrtFileAccess.cpp`.
 
-This is a hosted adaptation: the compiler CRT remains responsible for native
-C++ initialization, and normal reconstructed cleanup returns to the host.
-It does not replace the native PE entry point.
+The menu screen-initialization path now calls `StartNetworkForMenu` by name.
+The main-menu update calls the reconstructed network update. This does not
+complete all remaining menu, lobby, game-state and compression dependencies.
+Open original functions remain explicit `FUN_` references; they are not stubs.
+The original initial value of `DAT_0050aa2c` and other external data still
+require evidence. No guessed zero-valued definitions were added.
 
-The specific startup-wiring task is complete at source level. The INI reader
-and the newly reconstructed logging helpers are present. Remaining network
-dependencies include FUN_004dbd68 and FUN_004e3252. The original callers of
-StartNetworkForMenu are not yet reconstructed.
+The application remains an x86 hosted reconstruction: the compiler CRT owns
+native C++ initialization. No full Windows build or game execution was possible
+in this review. Portable C++ CRC tests and extracted command-buffer helper
+tests passed; these do not validate DirectPlay or the full application.
 
-No complete Windows build or game execution was performed in this review.
-This status does not certify the entire game or a standalone CRT as complete.
-See CrtReview.md for scope and outstanding reconstruction work.
+See `CrtReview.md` for integration status and `ReferenceReview.md` for the
+current residual-reference inventory and review limitations.
 
 ## Original defects and retained limitations
 
@@ -517,6 +520,27 @@ See CrtReview.md for scope and outstanding reconstruction work.
 - **Renewed task:** Validate the registry value type and length and guarantee terminated output.
 - **Status:** Preserved / original defect; Renewed: open.
 
+### OB042 — Player-name query leaks its temporary allocation on failure
+
+- **Original reference:** 004dcf42 — CDPNet::GetPlayerName.
+- **Evidence:** The second GetPeerInfo failure branches directly to the false return without freeing the allocated information buffer.
+- **Behavior and trigger:** That failure leaves the caller's output untouched and leaks the temporary buffer.
+- **Status:** Preserved / original defect. Renewed: open.
+
+### OB043 — Command-message copy does not validate destination capacity
+
+- **Original reference:** 004e13a1 — CopyCommandMessageData.
+- **Evidence:** The diagnostic checks destinationSize <= 200; the subsequent memmove uses the stored one-byte message length instead of destinationSize.
+- **Behavior and trigger:** A destination shorter than the stored message may be overrun. The diagnostic helper returns and is not a bounds guard.
+- **Status:** Preserved / original defect. Renewed: open.
+
+### OB044 — Event queue eviction does not reduce its count
+
+- **Original reference:** 004db558 — AddEventQueueEntry.
+- **Evidence:** At count 0x100 the first node is released without decrementing count; insertion later increments count.
+- **Behavior and trigger:** The count no longer matches the linked list; subsequent exact-equality checks no longer enforce the intended limit.
+- **Status:** Preserved / original defect. Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -661,6 +685,27 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Capture the error at the failure site and check message-formatting success.
 - **Status:** Preserved / original observation; Renewed: open.
 
+### OA015 — Network conversions reserve the terminator outside the API capacity
+
+- **Original reference:** 004db788 and 004db7cc.
+- **Evidence:** The Windows conversion receives source length -1 and destination capacity length - 1; the last destination element is then explicitly cleared. The API result is ignored.
+- **Assessment / reconstruction limits:** With inferred length this can give insufficient capacity for a conversion including the terminator. The reconstruction preserves the calls; successful conversion and the Elvis message are not certified by source inspection alone.
+- **Status:** Preserved / original observation. Renewed: open.
+
+### OA016 — Some network-update returns bypass receive-buffer release
+
+- **Original reference:** 004df240, especially 004df86f, 004dfba5 and 004dfc4c.
+- **Evidence:** These branches jump to 004dfdc7 rather than the ReleaseReceivedMessages path at 004dfdb4.
+- **Assessment / reconstruction limits:** Detached receive buffers can remain unreleased when messages are present. Runtime reachability and impact have not been tested.
+- **Status:** Preserved / original observation. Renewed: open.
+
+### OA017 — GetEvents clears the source again after releasing its lock
+
+- **Original reference:** 004ddb3e and 004ddb76.
+- **Evidence:** GetEvents transfers and clears the source under criticalA4, releases the lock, then calls ClearEvents, which acquires the lock again.
+- **Assessment / reconstruction limits:** An event arriving between the two locked sections could be removed by the second clear. No concurrent runtime test was performed.
+- **Status:** Preserved / original observation. Renewed: open.
+
 ## Reconstruction errors are not original bugs
 
 Bug compatibility does not waive the following corrections. Historical inclusion in this table alone does not prove that each correction was applied in every project revision.
@@ -679,7 +724,7 @@ Pentium FDIV detection is a hardware compatibility measure, not a newly discover
 ## Template for future additions
 
 ```markdown
-### OB035 — Short title
+### OB045 — Short title
 
 - **Original reference:** Stable C++ name, file and original function address.
 - **Evidence:** Instruction/data addresses and demonstrated control flow.

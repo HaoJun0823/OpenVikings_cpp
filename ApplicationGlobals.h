@@ -7,22 +7,22 @@
 
 namespace NC2Logic
 {
-	// Original data: DAT_005106f8.
-	// Mac reference: NC2Logic::gGameControlStartupData.
-	alignas(4) inline std::byte gGameControlStartupData[0x120]{};
+    // Original data: DAT_005106f8.
+    // Mac reference: NC2Logic::gGameControlStartupData.
+    alignas(4) inline std::byte gGameControlStartupData[0x120]{};
 
-	// Original data: DAT_005108ac.
-	// Windows CRandom layout used by FUN_00410c3f.
-	// The Mac reference confirms the CRandom constructor and startup seed.
-	struct SGameRandomState
-	{
-		std::uint32_t currentState; // +0x00
-		std::uint32_t seed;         // +0x04
-	};
+    // Original data: DAT_005108ac.
+    // Windows CRandom layout used by FUN_00410c3f.
+    // The Mac reference confirms the CRandom constructor and startup seed.
+    struct SGameRandomState
+    {
+        std::uint32_t currentState; // +0x00
+        std::uint32_t seed;         // +0x04
+    };
 
-	inline SGameRandomState gGameRandomState{};
+    inline SGameRandomState gGameRandomState{};
 
-	static_assert(sizeof(SGameRandomState) == 8);
+    static_assert(sizeof(SGameRandomState) == 8);
 }
 
 // These byte ranges cover the storage addressed by the startup routines.
@@ -75,13 +75,13 @@ inline double DAT_005690a0 = 0.0;
 
 namespace NC2InGameGuiMiscWindows
 {
-	// Original data: DAT_00569200.
-	// Mac reference: NC2InGameGuiMiscWindows::cTabClientButtonRectangle.
-	inline NXBasics::SRectangle cTabClientButtonRectangle(0, 0, 0, 0);
+    // Original data: DAT_00569200.
+    // Mac reference: NC2InGameGuiMiscWindows::cTabClientButtonRectangle.
+    inline NXBasics::SRectangle cTabClientButtonRectangle(0, 0, 0, 0);
 
-	// Original data: DAT_00569210.
-	// Mac reference: NC2InGameGuiMiscWindows::cTimeButtonElementRectangle.
-	inline NXBasics::SRectangle cTimeButtonElementRectangle(0, 0, 0, 0);
+    // Original data: DAT_00569210.
+    // Mac reference: NC2InGameGuiMiscWindows::cTimeButtonElementRectangle.
+    inline NXBasics::SRectangle cTimeButtonElementRectangle(0, 0, 0, 0);
 }
 
 // Original data: DAT_00569418.

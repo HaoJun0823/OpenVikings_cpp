@@ -9,288 +9,288 @@
 
 namespace NMasterPropertyManager
 {
-	// Original global: DAT_005697ec
-	CPropertyManager* CPropertyManager::sTheObjectPtr = nullptr;
+    // Original global: DAT_005697ec
+    CPropertyManager* CPropertyManager::sTheObjectPtr = nullptr;
 
-	// Original function: FUN_004e1408
-	CPropertyManager::CPropertyManager() : mProperties(false)
-	{
-		sTheObjectPtr = this;
-		mState = 0;
-	}
+    // List construction within FUN_004e1408.
+    CPropertyManager::SObjectVars::SObjectVars(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
+    {}
 
-	// Original function: FUN_004e1436
-	CPropertyManager::~CPropertyManager()
-	{
-		while (true)
-		{
-			auto* property = static_cast<SProperty*>(mProperties.GetStartElement());
+    // Original function: LAB_00479e17
+    void CPropertyManager::SObjectVars::DestroyValue(void* value)
+    {
+        // Release storage only; nested string allocations are not released here.
+        ::operator delete(value);
+    }
 
-			if (property == nullptr)
-			{
-				break;
-			}
+    // Original function: FUN_004e1408
+    CPropertyManager::CPropertyManager() : mProperties(false)
+    {
+        sTheObjectPtr = this;
+        mState = 0;
+    }
 
-			l_Property_RemoveAndDelete(property);
-		}
+    // Original function: FUN_004e1436
+    CPropertyManager::~CPropertyManager()
+    {
+        while (true)
+        {
+            auto* property = static_cast<SProperty*>(mProperties.GetStartElement());
 
-		sTheObjectPtr = nullptr;
+            if (property == nullptr)
+            {
+                break;
+            }
 
-		// mProperties is destroyed automatically after the destructor body.
-	}
+            l_Property_RemoveAndDelete(property);
+        }
 
-	// Original function: FUN_004e1463
-	void CPropertyManager::Property_WorkOnCommandLine(const char* commandLine)
-	{
-		if (commandLine == nullptr)
-		{
-			return;
-		}
+        sTheObjectPtr = nullptr;
 
-		const char* cursor = commandLine;
-		char propertyName[200];
-		char stringValue[200];
+        // mProperties is destroyed automatically after the destructor body.
+    }
 
-		const auto isNameCharacter = [](char character) -> bool
-			{
-				return NXBasics::Runtime_IsPropertyNameCharacter(character);
-			};
+    // Original function: FUN_004e1463
+    void CPropertyManager::Property_WorkOnCommandLine(const char* commandLine)
+    {
+        if (commandLine == nullptr)
+        {
+            return;
+        }
 
-		for (;;)
-		{
-			while (*cursor != '\0' && !isNameCharacter(*cursor))
-			{
-				++cursor;
-			}
+        const char* cursor = commandLine;
+        char propertyName[200];
+        char stringValue[200];
 
-			if (*cursor == '\0')
-			{
-				return;
-			}
+        const auto isNameCharacter = [](char character) -> bool
+            {
+                return NXBasics::Runtime_IsPropertyNameCharacter(character);
+            };
 
-			char* nameOutput = propertyName;
+        for (;;)
+        {
+            while (*cursor != '\0' && !isNameCharacter(*cursor))
+            {
+                ++cursor;
+            }
 
-			do
-			{
-				if (!isNameCharacter(*cursor))
-				{
-					break;
-				}
+            if (*cursor == '\0')
+            {
+                return;
+            }
 
-				*nameOutput++ = *cursor++;
-			} while (*cursor != '\0');
+            char* nameOutput = propertyName;
 
-			*nameOutput = '\0';
+            do
+            {
+                if (!isNameCharacter(*cursor))
+                {
+                    break;
+                }
 
-			bool isInteger = false;
-			std::int32_t integerValue = 0;
-			const char* textValue = nullptr;
+                *nameOutput++ = *cursor++;
+            } while (*cursor != '\0');
 
-			if (*cursor == ':')
-			{
-				++cursor;
+            *nameOutput = '\0';
 
-				if (*cursor != '\0')
-				{
-					if (*cursor == '"')
-					{
-						++cursor;
-						char* textOutput = stringValue;
+            bool isInteger = false;
+            std::int32_t integerValue = 0;
+            const char* textValue = nullptr;
 
-						while (*cursor != '\0' && *cursor != '"')
-						{
-							*textOutput++ = *cursor++;
-						}
+            if (*cursor == ':')
+            {
+                ++cursor;
 
-						*textOutput = '\0';
-						textValue = stringValue;
+                if (*cursor != '\0')
+                {
+                    if (*cursor == '"')
+                    {
+                        ++cursor;
+                        char* textOutput = stringValue;
 
-						if (*cursor == '"')
-						{
-							++cursor;
-						}
-					}
-					else
-					{
-						isInteger = true;
-						integerValue = NXBasics::Runtime_StringToInteger(cursor);
+                        while (*cursor != '\0' && *cursor != '"')
+                        {
+                            *textOutput++ = *cursor++;
+                        }
 
-						// Only a literal space terminates this input segment.
-						const char* separator = std::strchr(cursor, ' ');
+                        *textOutput = '\0';
+                        textValue = stringValue;
 
-						if (separator != nullptr)
-						{
-							cursor = separator;
-						}
-						else
-						{
-							cursor += std::strlen(cursor);
-						}
-					}
-				}
-			}
+                        if (*cursor == '"')
+                        {
+                            ++cursor;
+                        }
+                    }
+                    else
+                    {
+                        isInteger = true;
+                        integerValue = NXBasics::Runtime_StringToInteger(cursor);
 
-			Property_Add(propertyName, isInteger, integerValue, textValue);
-		}
-	}
+                        // Only a literal space terminates this input segment.
+                        const char* separator = std::strchr(cursor, ' ');
 
-	// Original function: FUN_004e1551
-	void CPropertyManager::Property_WorkOnIniFile(const char* fileName)
-	{
-		if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, false))
-		{
-			return;
-		}
+                        if (separator != nullptr)
+                        {
+                            cursor = separator;
+                        }
+                        else
+                        {
+                            cursor += std::strlen(cursor);
+                        }
+                    }
+                }
+            }
 
-		NXBasics::CIniFileReader reader(fileName, nullptr, false, nullptr, nullptr);
+            Property_Add(propertyName, isInteger, integerValue, textValue);
+        }
+    }
 
-		if (reader.IsLoaded())
-		{
-			if (reader.GetFirstLine() != nullptr)
-			{
-				do
-				{
-					if (reader.GetCurrentLineType() != 1)
-					{
-						bool isInteger = false;
-						std::int32_t integerValue = 0;
-						const char* stringValue = nullptr;
+    // Original function: FUN_004e1551
+    void CPropertyManager::Property_WorkOnIniFile(const char* fileName)
+    {
+        if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, false))
+        {
+            return;
+        }
 
-						if (reader.GetTypeOfNextParameter() == 3)
-						{
-							isInteger = true;
-							integerValue = reader.GetInt();
-						}
-						else if (reader.GetTypeOfNextParameter() == 2)
-						{
-							stringValue = reader.GetString();
-						}
+        NXBasics::CIniFileReader reader(fileName, nullptr, false, nullptr, nullptr);
 
-						// Read the name after the parameter-access calls.
-						const char* propertyName = reader.GetCurrentName();
-						Property_Add(propertyName, isInteger, integerValue, stringValue);
-					}
-				} while (reader.GetNextLine() != nullptr);
-			}
-		}
-	}
+        if (reader.IsLoaded())
+        {
+            if (reader.GetFirstLine() != nullptr)
+            {
+                do
+                {
+                    if (reader.GetCurrentLineType() != 1)
+                    {
+                        bool isInteger = false;
+                        std::int32_t integerValue = 0;
+                        const char* stringValue = nullptr;
 
-	// Original function: FUN_004e171d
-	SProperty* CPropertyManager::l_Property_GetPtr(const char* propertyName)
-	{
-		NXSysKeyManager::CKeyEntryListBase::Iterator iterator(mProperties);
-		auto* property = static_cast<SProperty*>(iterator.First());
+                        if (reader.GetTypeOfNextParameter() == 3)
+                        {
+                            isInteger = true;
+                            integerValue = reader.GetInt();
+                        }
+                        else if (reader.GetTypeOfNextParameter() == 2)
+                        {
+                            stringValue = reader.GetString();
+                        }
 
-		while (property != nullptr)
-		{
-			if (NXBasics::Runtime_CompareStringsIgnoreCase(propertyName, property->name) == 0)
-			{
-				return property;
-			}
+                        // Read the name after the parameter-access calls.
+                        const char* propertyName = reader.GetCurrentName();
+                        Property_Add(propertyName, isInteger, integerValue, stringValue);
+                    }
+                } while (reader.GetNextLine() != nullptr);
+            }
+        }
+    }
 
-			property = static_cast<SProperty*>(iterator.Next());
-		}
+    // Original function: FUN_004e163b
+    std::int32_t CPropertyManager::Property_GetIntegerValue(const char* propertyName)
+    {
+        const SProperty* property = l_Property_GetPtr(propertyName);
 
-		return nullptr;
-	}
+        if (property == nullptr || property->isInteger == 0)
+        {
+            return 0;
+        }
 
-	// Original function: FUN_004e1765
-	void CPropertyManager::l_Property_RemoveAndDelete(SProperty* property)
-	{
-		mProperties.Remove(property);
+        return property->integerValue;
+    }
 
-		::operator delete(static_cast<void*>(property->name));
-		::operator delete(static_cast<void*>(property->stringValue));
+    // Original function: FUN_004e1658
+    const char* CPropertyManager::Property_GetStringValuePtr(const char* propertyName)
+    {
+        const SProperty* property = l_Property_GetPtr(propertyName);
+        return property != nullptr ? property->stringValue : nullptr;
+    }
 
-		delete property;
-	}
+    // Original function: FUN_004e166b
+    bool CPropertyManager::Property_DoesExists(const char* propertyName)
+    {
+        return l_Property_GetPtr(propertyName) != nullptr;
+    }
 
-	// List construction within FUN_004e1408.
-	CPropertyManager::SObjectVars::SObjectVars(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
-	{}
+    // Original function: FUN_004e167d
+    void CPropertyManager::Property_Add(const char* propertyName, bool isInteger, std::int32_t integerValue, const char* stringValue)
+    {
+        SProperty* property = l_Property_GetPtr(propertyName);
 
-	// Original function: FUN_004e163b
-	std::int32_t CPropertyManager::Property_GetIntegerValue(const char* propertyName)
-	{
-		const SProperty* property = l_Property_GetPtr(propertyName);
+        if (property != nullptr)
+        {
+            // Preserve the original order: release before duplicating.
+            ::operator delete(static_cast<void*>(property->stringValue));
 
-		if (property == nullptr || property->isInteger == 0)
-		{
-			return 0;
-		}
+            property->isInteger = static_cast<std::uint8_t>(isInteger);
+            property->integerValue = integerValue;
+            property->stringValue = NXBasics::StringDuplicate(stringValue);
+            return;
+        }
 
-		return property->integerValue;
-	}
+        property = new (std::nothrow) SProperty;
+        std::memset(property, 0, sizeof(*property));
 
-	// Original function: FUN_004e1658
-	const char* CPropertyManager::Property_GetStringValuePtr(const char* propertyName)
-	{
-		const SProperty* property = l_Property_GetPtr(propertyName);
-		return property != nullptr ? property->stringValue : nullptr;
-	}
+        property->name = NXBasics::StringDuplicate(propertyName);
+        property->isInteger = static_cast<std::uint8_t>(isInteger);
+        property->integerValue = integerValue;
+        property->stringValue = NXBasics::StringDuplicate(stringValue);
 
-	// Original function: FUN_004e166b
-	bool CPropertyManager::Property_DoesExists(const char* propertyName)
-	{
-		return l_Property_GetPtr(propertyName) != nullptr;
-	}
+        mProperties.PushBack(property);
+    }
 
-	// Original function: FUN_004e167d
-	void CPropertyManager::Property_Add(const char* propertyName, bool isInteger, std::int32_t integerValue, const char* stringValue)
-	{
-		SProperty* property = l_Property_GetPtr(propertyName);
+    // Original function: FUN_004e16fb
+    bool CPropertyManager::Property_Remove(const char* propertyName)
+    {
+        SProperty* property = l_Property_GetPtr(propertyName);
 
-		if (property != nullptr)
-		{
-			// Preserve the original order: release before duplicating.
-			::operator delete(static_cast<void*>(property->stringValue));
+        if (property == nullptr)
+        {
+            return false;
+        }
 
-			property->isInteger = static_cast<std::uint8_t>(isInteger);
-			property->integerValue = integerValue;
-			property->stringValue = NXBasics::StringDuplicate(stringValue);
-			return;
-		}
+        l_Property_RemoveAndDelete(property);
+        return true;
+    }
 
-		property = new (std::nothrow) SProperty;
-		std::memset(property, 0, sizeof(*property));
+    // Original function: FUN_004e171d
+    SProperty* CPropertyManager::l_Property_GetPtr(const char* propertyName)
+    {
+        NXSysKeyManager::CKeyEntryListBase::Iterator iterator(mProperties);
+        auto* property = static_cast<SProperty*>(iterator.First());
 
-		property->name = NXBasics::StringDuplicate(propertyName);
-		property->isInteger = static_cast<std::uint8_t>(isInteger);
-		property->integerValue = integerValue;
-		property->stringValue = NXBasics::StringDuplicate(stringValue);
+        while (property != nullptr)
+        {
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(propertyName, property->name) == 0)
+            {
+                return property;
+            }
 
-		mProperties.PushBack(property);
-	}
+            property = static_cast<SProperty*>(iterator.Next());
+        }
 
-	// Original function: FUN_004e16fb
-	bool CPropertyManager::Property_Remove(const char* propertyName)
-	{
-		SProperty* property = l_Property_GetPtr(propertyName);
+        return nullptr;
+    }
 
-		if (property == nullptr)
-		{
-			return false;
-		}
+    // Original function: FUN_004e1765
+    void CPropertyManager::l_Property_RemoveAndDelete(SProperty* property)
+    {
+        mProperties.Remove(property);
 
-		l_Property_RemoveAndDelete(property);
-		return true;
-	}
+        ::operator delete(static_cast<void*>(property->name));
+        ::operator delete(static_cast<void*>(property->stringValue));
 
-	// Original function: FUN_004e1d00
-	CPropertyManager::SObjectVars::~SObjectVars()
-	{
-		if (mDestroyValues != 0)
-		{
-			ClearOwnedEntries();
-		}
+        delete property;
+    }
 
-		// The base destructor runs automatically afterward.
-	}
+    // Original function: FUN_004e1d00
+    CPropertyManager::SObjectVars::~SObjectVars()
+    {
+        if (mDestroyValues != 0)
+        {
+            ClearOwnedEntries();
+        }
 
-	// Original function: LAB_00479e17
-	void CPropertyManager::SObjectVars::DestroyValue(void* value)
-	{
-		// Release storage only; nested string allocations are not released here.
-		::operator delete(value);
-	}
+        // The base destructor runs automatically afterward.
+    }
 }

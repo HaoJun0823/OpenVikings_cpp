@@ -9,42 +9,43 @@ extern void __fastcall FUN_0040313f(int* object);
 
 namespace NMasterControlProgram
 {
-	// Original function: FUN_004022f0
-	bool CMasterControlProgram::System_ProgramState_PreIngameFmv_StartUp()
-	{
-		mProgramState = 14;
 
-		auto* object = static_cast<char*>(::operator new(0xD0, std::nothrow));
+    // Original function: FUN_004022f0
+    bool CMasterControlProgram::System_ProgramState_PreIngameFmv_StartUp()
+    {
+        mProgramState = 14;
 
-		if (object != nullptr)
-		{
-			FUN_00403029(object);
-		}
+        auto* object = static_cast<char*>(::operator new(0xD0, std::nothrow));
 
-		mProgramState = static_cast<std::int32_t>(TProgramState::PreIngameFmv);
+        if (object != nullptr)
+        {
+            FUN_00403029(object);
+        }
 
-		return true;
-	}
+        mProgramState = static_cast<std::int32_t>(TProgramState::PreIngameFmv);
 
-	// Original function: FUN_00402344
-	void CMasterControlProgram::System_ProgramState_PreIngameFmv_Update()
-	{
-		FUN_00403182(DAT_0050f63c);
-	}
+        return true;
+    }
 
-	// Original function: FUN_00402319
-	void CMasterControlProgram::System_ProgramState_PreIngameFmv_ShutDown()
-	{
-		mProgramState = 16;
+    // Original function: FUN_00402319
+    void CMasterControlProgram::System_ProgramState_PreIngameFmv_ShutDown()
+    {
+        mProgramState = 16;
 
-		int* preIngameFmvManager = DAT_0050f63c;
+        int* preIngameFmvManager = DAT_0050f63c;
 
-		if (preIngameFmvManager != nullptr)
-		{
-			FUN_0040313f(preIngameFmvManager);
-			::operator delete(preIngameFmvManager);
-		}
+        if (preIngameFmvManager != nullptr)
+        {
+            FUN_0040313f(preIngameFmvManager);
+            ::operator delete(preIngameFmvManager);
+        }
 
-		mProgramState = static_cast<std::int32_t>(TProgramState::None);
-	}
+        mProgramState = static_cast<std::int32_t>(TProgramState::None);
+    }
+
+    // Original function: FUN_00402344
+    void CMasterControlProgram::System_ProgramState_PreIngameFmv_Update()
+    {
+        FUN_00403182(DAT_0050f63c);
+    }
 }

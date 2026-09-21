@@ -10,42 +10,43 @@ extern void __fastcall FUN_00402a15(int* object);
 
 namespace NMasterControlProgram
 {
-	// Original function: FUN_00402773
-	bool CMasterControlProgram::System_ProgramState_TitleScreen_StartUp()
-	{
-		mProgramState = 4;
 
-		auto* object = static_cast<int*>(::operator new(0xE8, std::nothrow));
+    // Original function: FUN_00402773
+    bool CMasterControlProgram::System_ProgramState_TitleScreen_StartUp()
+    {
+        mProgramState = 4;
 
-		if (object != nullptr)
-		{
-			FUN_004027d2(object);
-		}
+        auto* object = static_cast<int*>(::operator new(0xE8, std::nothrow));
 
-		mProgramState = static_cast<std::int32_t>(TProgramState::TitleScreen);
+        if (object != nullptr)
+        {
+            FUN_004027d2(object);
+        }
 
-		return true;
-	}
+        mProgramState = static_cast<std::int32_t>(TProgramState::TitleScreen);
 
-	// Original function: FUN_004027c7
-	void CMasterControlProgram::System_ProgramState_TitleScreen_Update()
-	{
-		FUN_00402a58(DAT_0050f634);
-	}
+        return true;
+    }
 
-	// Original function: FUN_0040279c
-	void CMasterControlProgram::System_ProgramState_TitleScreen_ShutDown()
-	{
-		mProgramState = 6;
+    // Original function: FUN_0040279c
+    void CMasterControlProgram::System_ProgramState_TitleScreen_ShutDown()
+    {
+        mProgramState = 6;
 
-		int* titleScreenManager = DAT_0050f634;
+        int* titleScreenManager = DAT_0050f634;
 
-		if (titleScreenManager != nullptr)
-		{
-			FUN_00402a15(titleScreenManager);
-			::operator delete(static_cast<void*>(titleScreenManager));
-		}
+        if (titleScreenManager != nullptr)
+        {
+            FUN_00402a15(titleScreenManager);
+            ::operator delete(static_cast<void*>(titleScreenManager));
+        }
 
-		mProgramState = static_cast<std::int32_t>(TProgramState::None);
-	}
+        mProgramState = static_cast<std::int32_t>(TProgramState::None);
+    }
+
+    // Original function: FUN_004027c7
+    void CMasterControlProgram::System_ProgramState_TitleScreen_Update()
+    {
+        FUN_00402a58(DAT_0050f634);
+    }
 }

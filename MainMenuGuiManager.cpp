@@ -3,12 +3,16 @@
 #include "dplay8.h"
 #include "MainMenuGuiManager.h"
 #include "MasterControlProgram.h"
+#include "MasterPropertyManager.h"
+#include "XMMouseManager.h"
+#include "XMKeyManager.h"
 #include "FileTransferManager.h"
 #include "NetworkShutdown.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XFileAccess.h"
 #include "XIniFileReader.h"
+#include "XMemory.h"
 
 #include <cstring>
 #include <cstdint>
@@ -46,6 +50,7 @@ std::uint32_t DAT_005694e4 = 0;
 
 namespace NC2MainMenuGuiManager
 {
+
     // Original function: FUN_004d2bf2
     void CGuiManager::System_UpdateGui()
     {
@@ -74,8 +79,8 @@ namespace NC2MainMenuGuiManager
         if (readWord(this, 0x58) == 0)
             writeWord(this, 0x58, timeGetTime());
 
-        const std::uint32_t mouseActivity = readWord(DAT_00554d78, 0x24);
-        const std::uint32_t keyboardActivity = readWord(DAT_00554d7c, 4);
+        const std::uint32_t mouseActivity = readWord(NXSysMouseManager::CMouseManager::sTheObjectPtr, 0x24);
+        const std::uint32_t keyboardActivity = readWord(NXSysKeyManager::CKeyManager::sTheObjectPtr, 4);
         const std::uint32_t latestInput = mouseActivity > keyboardActivity ? mouseActivity : keyboardActivity;
         const std::uint32_t previousActivity = readWord(this, 0x58);
 
@@ -253,11 +258,11 @@ namespace NC2MainMenuGuiManager
                 }
                 else
                 {
-                    auto* configuration = DAT_005697ec;
+                    auto* configuration = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
                     const auto callsign = FUN_004d7389(this);
 
-                    FUN_004e167d(configuration, "multiplayer_callsign", 0, 0, callsign);
-                    FUN_004e1816(DAT_005697ec);
+                    configuration->Property_Add("multiplayer_callsign", false, 0, callsign);
+                    FUN_004e1816(NMasterPropertyManager::CPropertyManager::sTheObjectPtr);
                 }
 
                 FUN_004a3ae8(screenTimer);
@@ -313,20 +318,10 @@ namespace NC2MainMenuGuiManager
 
         currentScreen = screen;
 
-        // Original stack storage reused by the file loader and compressor.
-        struct STemporaryFileData
-        {
-            std::uint32_t unknown00;
-            std::uint32_t byteCount;
-            void* data;
-        };
-
-        static_assert(sizeof(STemporaryFileData) == 0x0C);
-
         switch (screen)
         {
             case 9:
-                if (!FUN_004d7092(this))
+                if (!StartNetworkForMenu(this))
                 {
                     currentScreen = 18;
                     Debug_ErrorString_Add("Could not init multi player module");
@@ -397,8 +392,6 @@ namespace NC2MainMenuGuiManager
 
                     if (FUN_004059a1())
                     {
-                        STemporaryFileData temporaryFileData;
-
                         if (screen == 17)
                         {
                             const auto* mapInformation = reinterpret_cast<const std::byte*>(FUN_00416418(DAT_005114b4, lobbyData + 4));
@@ -406,16 +399,13 @@ namespace NC2MainMenuGuiManager
                             std::strcpy(sourceFileName, reinterpret_cast<const char*>(mapInformation + 0x386));
                             NXBasics::Runtime_PrintString(transferFileName, DAT_00500818, FUN_0044029d(), "transdat");
 
-                            FUN_0042f88a(&temporaryFileData, sourceFileName);
-
                             {
+                                NXBasics::CMemory temporaryFileData(sourceFileName);
                                 NXBasics::CFile outputFile(transferFileName, false);
 
                                 outputFile.OpenForWriting(true);
-                                outputFile.Write(temporaryFileData.data, temporaryFileData.byteCount);
+                                outputFile.Write(temporaryFileData.mData, temporaryFileData.mSize);
                             }
-
-                            FUN_0042f8f4(&temporaryFileData);
 
                             transferFlags[4] = 1;
 
@@ -447,9 +437,13 @@ namespace NC2MainMenuGuiManager
                             FUN_004161a2(DAT_005114ac, "sys_continue", transferFileName);
                         }
 
-                        FUN_004e0b3a(&temporaryFileData);
+                        // Keep compressor storage separate from the completed CMemory lifetime.
+                        std::uint32_t compressor[3];
+                        static_assert(sizeof(compressor) == 0x0C);
 
-                        const std::int32_t compressionResult = FUN_004e0b4e(&temporaryFileData, transferFileName);
+                        FUN_004e0b3a(compressor);
+
+                        const std::int32_t compressionResult = FUN_004e0b4e(compressor, transferFileName);
 
                         if (compressionResult > 0 && compressionResult <= 2)
                         {
@@ -527,7 +521,7 @@ namespace NC2MainMenuGuiManager
 
             case 20:
                 {
-                    const auto session = FUN_004e1658(DAT_005697ec, "multiplayer_auto_join");
+                    const auto session = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr("multiplayer_auto_join");
 
                     if (!FUN_004d7ba7(this, session))
                     {
@@ -554,6 +548,23 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Screen_IsMultiPlayerScreen() const
     {
         return currentScreen >= 9 && currentScreen <= 20;
+    }
+
+    // Original function: FUN_004d7092
+    bool StartNetworkForMenu(void* guiManager)
+    {
+        auto* objectBytes = static_cast<std::byte*>(guiManager);
+
+        // Original helper FUN_00410b46 forwards to memset with a zero value.
+        std::memset(objectBytes + 0x68, 0, 0x4B8);
+
+        if (!NNetwork::Network_StartUp())
+        {
+            NNetwork::Network_ShutDown();
+            return false;
+        }
+
+        return true;
     }
 
     // Original function: FUN_004d85cf
@@ -602,7 +613,7 @@ namespace NC2MainMenuGuiManager
                     {
                         char text[0x80] = {};
 
-                        FUN_004db7cc(text, reinterpret_cast<const wchar_t*>(record + 6), -1);
+                        NNetwork::ConvertNetworkWideToAnsi(text, reinterpret_cast<const wchar_t*>(record + 6), -1);
                         FUN_004d7ca9(this, 0, text);
                         FUN_004e2bcf();
                     }
@@ -626,7 +637,7 @@ namespace NC2MainMenuGuiManager
                     const auto* name = reinterpret_cast<const wchar_t*>(reinterpret_cast<const std::byte*>(event) + 4);
 
                     if (*name != L'\0')
-                        FUN_004db833(playerName, name, -1);
+                        NNetwork::CopyNetworkWideToAnsi(playerName, name, -1);
                     else
                         NXBasics::Runtime_PrintString(playerName, DAT_004fe238);
 
@@ -884,113 +895,131 @@ namespace NC2MainMenuGuiManager
     }
 
     // Original function: FUN_004d85cf
-    // Extracted host blocks: 004d8d98 through 004d8f13 and 004d908b through 004d924e.
-    void CGuiManager::l_Transfer_UpdateUpload(bool userMap)
+    // Extracted block: 004d86a7 through 004d8917.
+    void CGuiManager::l_Network_ProcessDataMessages()
     {
-        const std::uint32_t uploadFlag = userMap ? 4u : 1u;
+        NNetwork::SDynamicDataMessage* messages = nullptr;
+        std::uint32_t messageCount = 0;
 
-        if (transferFlags[uploadFlag] == 0 || transferFlags[0] != 0 || fileTransferManager == nullptr)
-            return;
+        NNetwork::GetDynamicNetworkMessages(&DAT_0050f6a8, &messages, &messageCount);
 
-        const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
-
-        std::uint32_t playerCount;
-        std::memcpy(&playerCount, objectBytes + 0xAA4, sizeof(playerCount));
-
-        std::uint32_t expectedTransfers = 0;
-
-        // Preserve the original player-record accesses without guessing their types.
-        const std::byte* playerFields = objectBytes + 0xB0E;
-
-        for (std::uint32_t index = 0; index < playerCount; ++index)
+        for (std::uint32_t index = 0; index < messageCount; ++index)
         {
-            std::uint32_t playerId;
-            std::memcpy(&playerId, playerFields + 2, sizeof(playerId));
+            const NNetwork::SDynamicDataMessage& message = messages[index];
 
-            if (playerId != 0 && playerFields[0] == std::byte{ 0 })
-                ++expectedTransfers;
+            if (message.checksumMismatch != 0)
+                Debug_ErrorString_Add("CRC-32 check failed - message data is damaged");
 
-            playerFields += 0x6C;
-        }
+            std::uint32_t messageType;
+            std::memcpy(&messageType, message.payload, sizeof(messageType));
 
-        NNetwork::SFileTransferNode jobs[20];
-        std::uint32_t jobCount = 20;
-
-        fileTransferManager->GetTransferList(jobs, &jobCount);
-
-        std::uint32_t completedTransfers = 0;
-
-        for (std::uint32_t index = 0; index < jobCount; ++index)
-        {
-            if (jobs[index].state == 1)
+            switch (messageType)
             {
-                ++completedTransfers;
-            }
-            else if (jobs[index].state == 14)
-            {
-                reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(18, true);
-                Debug_ErrorString_Add(userMap ? "Clean map transfer failed!" : "Savegame transfer failed!");
+                case 1:
+                    {
+                        if (!FUN_004059a1())
+                            std::memcpy(lobbyData, message.payload + 8, sizeof(lobbyData));
 
-                // The original continues evaluating the copied job list.
+                        // Pending: CGuiManager::Screen_UpdateGui.
+                        FUN_004d3a6d(this);
+
+                        if (message.payload[4] == 0)
+                            break;
+
+                        std::uint32_t gameMode;
+                        std::memcpy(&gameMode, lobbyData, sizeof(gameMode));
+
+                        if (gameMode == 1u || gameMode == 2u)
+                        {
+                            auto* master = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
+                            auto* startupData = reinterpret_cast<std::byte*>(master) + 0x2C;
+
+                            // Pending: NC2Logic::SGameControlStartupData::Reset.
+                            FUN_00406b4a(startupData);
+
+                            const std::uint32_t startupType = gameMode == 1u ? 3u : 4u;
+                            std::memcpy(startupData, &startupType, sizeof(startupType));
+
+                            if (gameMode == 1u)
+                                std::memcpy(startupData + 0x18, lobbyData + 4, 0x10);
+
+                            const std::uint32_t localPlayerId = FUN_004059cb();
+                            std::memcpy(startupData + 0x28, &localPlayerId, sizeof(localPlayerId));
+
+                            for (std::uint32_t playerIndex = 0; playerIndex < 20; ++playerIndex)
+                            {
+                                const std::byte* source = lobbyData + 0x18 + playerIndex * 0x10u;
+                                std::byte* destination = startupData + 0x2C + playerIndex * 0x0Cu;
+
+                                std::uint32_t firstValue;
+                                std::uint32_t secondValue;
+                                std::uint32_t thirdValue;
+
+                                std::memcpy(&firstValue, source + 4, sizeof(firstValue));
+                                std::memcpy(&thirdValue, source, sizeof(thirdValue));
+
+                                if (lobbyData[0x158] != std::byte{ 0 })
+                                    secondValue = playerIndex < 10u ? playerIndex : 9u;
+                                else
+                                    std::memcpy(&secondValue, source + 0x0C, sizeof(secondValue));
+
+                                std::memcpy(destination, &firstValue, sizeof(firstValue));
+                                std::memcpy(destination + 4, &secondValue, sizeof(secondValue));
+                                std::memcpy(destination + 8, &thirdValue, sizeof(thirdValue));
+                            }
+
+                            if (gameMode == 1u)
+                                std::memcpy(startupData + 0x11C, lobbyData + 0x15C, 4);
+
+                            NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->System_ProgramState_ChangeNextTimePossible(NMasterControlProgram::TProgramState::Game, false);
+                        }
+
+                        // The original checks the music setting even for other game modes.
+                        if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") == 2)
+                            NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("music_mode", true, DAT_0050f69c != nullptr ? 3 : 1, nullptr);
+
+                        break;
+                    }
+
+                case 2:
+                    {
+                        std::uint32_t response[0x168 / sizeof(std::uint32_t)] = {};
+                        auto* responseBytes = reinterpret_cast<std::byte*>(response);
+
+                        response[0] = 1;
+
+                        const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
+                        std::memcpy(responseBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
+
+                        responseBytes[4] = std::byte{ 0 };
+
+                        NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, message.sender, response, sizeof(response));
+                        break;
+                    }
+
+                case 3:
+                    Screen_ChangeTo(0x15, true);
+                    break;
+
+                case 4:
+                    if (!FUN_004059a1())
+                        Screen_ChangeTo(0x10, false);
+
+                    break;
+
+                case 5:
+                    if (!FUN_004059a1())
+                        Screen_ChangeTo(0x11, false);
+
+                    break;
+
+                default:
+                    break;
             }
         }
 
-        // The original destroys all twenty copied payloads in reverse order.
-        for (std::uint32_t index = 20; index != 0;)
-        {
-            NNetwork::SFileTransferNode& job = jobs[--index];
-
-            if (job.fileName != nullptr)
-            {
-                NXBasics::Runtime_Free(job.fileName);
-                job.fileName = nullptr;
-            }
-
-            if (job.path24 != nullptr)
-            {
-                NXBasics::Runtime_Free(job.path24);
-                job.path24 = nullptr;
-            }
-        }
-
-        if (completedTransfers != expectedTransfers)
-            return;
-
-        if (fileTransferManager != nullptr)
-        {
-            fileTransferManager->~CFileTransferManager();
-            NXBasics::Runtime_Free(fileTransferManager);
-            fileTransferManager = nullptr;
-        }
-
-        if (transferFlags[0] != 0)
-            return;
-
-        transferFlags[0] = 1;
-
-        NNetwork::BroadcastControlMessage8(&DAT_0050f6a8);
-
-        std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
-        auto* messageBytes = reinterpret_cast<std::byte*>(message);
-
-        message[0] = 1;
-        messageBytes[4] = std::byte{ 1 };
-
-        const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
-        std::memcpy(messageBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
-
-        NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
-
-        if (userMap)
-        {
-            char fileName[0x104];
-
-            NXBasics::Runtime_PrintString(fileName, DAT_00500818, FUN_0044029d(), "transdat");
-            NXBasics::Runtime_RemoveFile(fileName);
-
-            std::strcat(fileName, ".c2p");
-            NXBasics::Runtime_RemoveFile(fileName);
-        }
+        if (messages != nullptr)
+            NXBasics::Runtime_Free(messages);
     }
 
     // Original function: FUN_004d85cf
@@ -1160,130 +1189,112 @@ namespace NC2MainMenuGuiManager
     }
 
     // Original function: FUN_004d85cf
-// Extracted block: 004d86a7 through 004d8917.
-    void CGuiManager::l_Network_ProcessDataMessages()
+    // Extracted host blocks: 004d8d98 through 004d8f13 and 004d908b through 004d924e.
+    void CGuiManager::l_Transfer_UpdateUpload(bool userMap)
     {
-        NNetwork::SDynamicDataMessage* messages = nullptr;
-        std::uint32_t messageCount = 0;
+        const std::uint32_t uploadFlag = userMap ? 4u : 1u;
 
-        NNetwork::GetDynamicNetworkMessages(&DAT_0050f6a8, &messages, &messageCount);
+        if (transferFlags[uploadFlag] == 0 || transferFlags[0] != 0 || fileTransferManager == nullptr)
+            return;
 
-        for (std::uint32_t index = 0; index < messageCount; ++index)
+        const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
+
+        std::uint32_t playerCount;
+        std::memcpy(&playerCount, objectBytes + 0xAA4, sizeof(playerCount));
+
+        std::uint32_t expectedTransfers = 0;
+
+        // Preserve the original player-record accesses without guessing their types.
+        const std::byte* playerFields = objectBytes + 0xB0E;
+
+        for (std::uint32_t index = 0; index < playerCount; ++index)
         {
-            const NNetwork::SDynamicDataMessage& message = messages[index];
+            std::uint32_t playerId;
+            std::memcpy(&playerId, playerFields + 2, sizeof(playerId));
 
-            if (message.checksumMismatch != 0)
-                Debug_ErrorString_Add("CRC-32 check failed - message data is damaged");
+            if (playerId != 0 && playerFields[0] == std::byte{ 0 })
+                ++expectedTransfers;
 
-            std::uint32_t messageType;
-            std::memcpy(&messageType, message.payload, sizeof(messageType));
+            playerFields += 0x6C;
+        }
 
-            switch (messageType)
+        NNetwork::SFileTransferNode jobs[20];
+        std::uint32_t jobCount = 20;
+
+        fileTransferManager->GetTransferList(jobs, &jobCount);
+
+        std::uint32_t completedTransfers = 0;
+
+        for (std::uint32_t index = 0; index < jobCount; ++index)
+        {
+            if (jobs[index].state == 1)
             {
-                case 1:
-                    {
-                        if (!FUN_004059a1())
-                            std::memcpy(lobbyData, message.payload + 8, sizeof(lobbyData));
+                ++completedTransfers;
+            }
+            else if (jobs[index].state == 14)
+            {
+                reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(18, true);
+                Debug_ErrorString_Add(userMap ? "Clean map transfer failed!" : "Savegame transfer failed!");
 
-                        // Pending: CGuiManager::Screen_UpdateGui.
-                        FUN_004d3a6d(this);
-
-                        if (message.payload[4] == 0)
-                            break;
-
-                        std::uint32_t gameMode;
-                        std::memcpy(&gameMode, lobbyData, sizeof(gameMode));
-
-                        if (gameMode == 1u || gameMode == 2u)
-                        {
-                            auto* master = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
-                            auto* startupData = reinterpret_cast<std::byte*>(master) + 0x2C;
-
-                            // Pending: NC2Logic::SGameControlStartupData::Reset.
-                            FUN_00406b4a(startupData);
-
-                            const std::uint32_t startupType = gameMode == 1u ? 3u : 4u;
-                            std::memcpy(startupData, &startupType, sizeof(startupType));
-
-                            if (gameMode == 1u)
-                                std::memcpy(startupData + 0x18, lobbyData + 4, 0x10);
-
-                            const std::uint32_t localPlayerId = FUN_004059cb();
-                            std::memcpy(startupData + 0x28, &localPlayerId, sizeof(localPlayerId));
-
-                            for (std::uint32_t playerIndex = 0; playerIndex < 20; ++playerIndex)
-                            {
-                                const std::byte* source = lobbyData + 0x18 + playerIndex * 0x10u;
-                                std::byte* destination = startupData + 0x2C + playerIndex * 0x0Cu;
-
-                                std::uint32_t firstValue;
-                                std::uint32_t secondValue;
-                                std::uint32_t thirdValue;
-
-                                std::memcpy(&firstValue, source + 4, sizeof(firstValue));
-                                std::memcpy(&thirdValue, source, sizeof(thirdValue));
-
-                                if (lobbyData[0x158] != std::byte{ 0 })
-                                    secondValue = playerIndex < 10u ? playerIndex : 9u;
-                                else
-                                    std::memcpy(&secondValue, source + 0x0C, sizeof(secondValue));
-
-                                std::memcpy(destination, &firstValue, sizeof(firstValue));
-                                std::memcpy(destination + 4, &secondValue, sizeof(secondValue));
-                                std::memcpy(destination + 8, &thirdValue, sizeof(thirdValue));
-                            }
-
-                            if (gameMode == 1u)
-                                std::memcpy(startupData + 0x11C, lobbyData + 0x15C, 4);
-
-                            NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->System_ProgramState_ChangeNextTimePossible(NMasterControlProgram::TProgramState::Game, false);
-                        }
-
-                        // The original checks the music setting even for other game modes.
-                        if (FUN_004e163b(DAT_005697ec, "music_mode") == 2)
-                            FUN_004e167d(DAT_005697ec, "music_mode", 1, DAT_0050f69c != nullptr ? 3 : 1, 0);
-
-                        break;
-                    }
-
-                case 2:
-                    {
-                        std::uint32_t response[0x168 / sizeof(std::uint32_t)] = {};
-                        auto* responseBytes = reinterpret_cast<std::byte*>(response);
-
-                        response[0] = 1;
-
-                        const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
-                        std::memcpy(responseBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
-
-                        responseBytes[4] = std::byte{ 0 };
-
-                        NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, message.sender, response, sizeof(response));
-                        break;
-                    }
-
-                case 3:
-                    Screen_ChangeTo(0x15, true);
-                    break;
-
-                case 4:
-                    if (!FUN_004059a1())
-                        Screen_ChangeTo(0x10, false);
-
-                    break;
-
-                case 5:
-                    if (!FUN_004059a1())
-                        Screen_ChangeTo(0x11, false);
-
-                    break;
-
-                default:
-                    break;
+                // The original continues evaluating the copied job list.
             }
         }
 
-        if (messages != nullptr)
-            NXBasics::Runtime_Free(messages);
+        // The original destroys all twenty copied payloads in reverse order.
+        for (std::uint32_t index = 20; index != 0;)
+        {
+            NNetwork::SFileTransferNode& job = jobs[--index];
+
+            if (job.fileName != nullptr)
+            {
+                NXBasics::Runtime_Free(job.fileName);
+                job.fileName = nullptr;
+            }
+
+            if (job.path24 != nullptr)
+            {
+                NXBasics::Runtime_Free(job.path24);
+                job.path24 = nullptr;
+            }
+        }
+
+        if (completedTransfers != expectedTransfers)
+            return;
+
+        if (fileTransferManager != nullptr)
+        {
+            fileTransferManager->~CFileTransferManager();
+            NXBasics::Runtime_Free(fileTransferManager);
+            fileTransferManager = nullptr;
+        }
+
+        if (transferFlags[0] != 0)
+            return;
+
+        transferFlags[0] = 1;
+
+        NNetwork::BroadcastControlMessage8(&DAT_0050f6a8);
+
+        std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
+        auto* messageBytes = reinterpret_cast<std::byte*>(message);
+
+        message[0] = 1;
+        messageBytes[4] = std::byte{ 1 };
+
+        const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
+        std::memcpy(messageBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
+
+        NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
+
+        if (userMap)
+        {
+            char fileName[0x104];
+
+            NXBasics::Runtime_PrintString(fileName, DAT_00500818, FUN_0044029d(), "transdat");
+            NXBasics::Runtime_RemoveFile(fileName);
+
+            std::strcat(fileName, ".c2p");
+            NXBasics::Runtime_RemoveFile(fileName);
+        }
     }
 }

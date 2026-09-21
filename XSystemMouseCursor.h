@@ -4,9 +4,6 @@
 
 namespace NXSysMisc
 {
-    // Original function: FUN_00478bc6
-    bool __stdcall XWS_SystemMouseCursor_IsShown();
-
     // Original function: FUN_00478b1b
     void __stdcall XWS_SystemMouseCursor_SetNormal();
 
@@ -18,6 +15,9 @@ namespace NXSysMisc
 
     // Original function: FUN_00478b94
     void __stdcall XWS_SystemMouseCursor_Reset();
+
+    // Original function: FUN_00478bc6
+    bool __stdcall XWS_SystemMouseCursor_IsShown();
 
     // Original function: FUN_00478bcc
     void __stdcall XWS_SystemMouseCursor_Hide();
