@@ -899,6 +899,15 @@ namespace NXBasics
         return (classificationTable[signedCharacter * 2] & 0x04) != 0;
     }
 
+    // Original function: FUN_00410bf0
+    bool Runtime_IsLetterOrNumber(char character)
+    {
+        const auto byteValue = static_cast<std::uint8_t>(character);
+        const std::int32_t signedCharacter = byteValue < 0x80u ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
+
+        return Runtime_ClassifyAlphanumeric(signedCharacter) != 0;
+    }
+
     // Original function: FUN_00410c03
     bool Runtime_IsPropertyNameCharacter(char character)
     {

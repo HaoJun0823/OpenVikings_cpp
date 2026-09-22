@@ -174,8 +174,8 @@ namespace NXBasics
     // Function declarations (original-address order; unaddressed helpers last)
 
     bool Runtime_IsLetter(char character);
-
     bool Runtime_IsDigit(char character);
+    bool Runtime_IsLetterOrNumber(char character);
 
     bool Runtime_IsPropertyNameCharacter(char character);
 

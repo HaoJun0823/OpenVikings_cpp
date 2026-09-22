@@ -3,12 +3,15 @@
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XBitmapTools.h"
+#include "XCrtFileAccess.h"
 #include "XDiagnostics.h"
 #include "XFileAccess.h"
+#include "XFontMetrics.h"
 #include "XPixelFormatConverter.h"
 #include "XPaletteAccess.h"
 #include "XMemory.h"
 
+#include <cstdarg>
 #include <cstring>
 #include <new>
 
@@ -901,6 +904,87 @@ namespace NXBasics
             break;
         }
         }
+    }
+
+    // Original function: FUN_0040ed72
+    void CBitmap::Text_Print(CFont* font, const SColorRGB* colour, std::int32_t x, std::int32_t y, const char* text)
+    {
+        if (text == nullptr)
+            return;
+
+        const std::uint32_t initialX = static_cast<std::uint32_t>(x);
+        std::uint32_t currentX = initialX;
+        std::uint32_t currentY = static_cast<std::uint32_t>(y);
+
+        for (;;)
+        {
+            const std::uint8_t character = static_cast<std::uint8_t>(*text++);
+
+            if (character == 0)
+                return;
+
+            if (character == 10 || character == 13)
+            {
+                // The original also folds two consecutive LF characters.
+                if (static_cast<std::uint8_t>(*text) == 10)
+                    ++text;
+
+                std::uint32_t lineHeight;
+                std::memcpy(&lineHeight, reinterpret_cast<const std::byte*>(font) + 8, sizeof(lineHeight));
+
+                currentX = initialX;
+                currentY += lineHeight + 2u;
+                continue;
+            }
+
+            if (character == 9 || character == 32 || character == 95)
+            {
+                // Underscore follows the same spacing branch as space and tab.
+                std::uint32_t distance = static_cast<std::uint32_t>(mFixedXDistance);
+
+                if (distance == 0)
+                    distance = static_cast<std::uint32_t>(Font_GetCharacterWidth(font, 0x69));
+
+                currentX += distance;
+                continue;
+            }
+
+            if (character < 32)
+                continue;
+
+            const std::uint32_t characterWidth = static_cast<std::uint32_t>(Font_GetCharacterWidth(font, character));
+            const std::uint32_t fixedDistance = static_cast<std::uint32_t>(mFixedXDistance);
+
+            if (fixedDistance != 0)
+            {
+                const std::int32_t difference = Runtime_TimeSigned32(fixedDistance - characterWidth);
+                const std::uint32_t characterX = currentX + static_cast<std::uint32_t>(difference / 2);
+
+                Font_PrintCharacter(font, colour, this, character, Runtime_TimeSigned32(characterX), Runtime_TimeSigned32(currentY));
+
+                // Reload the field after drawing, as the original does.
+                currentX += static_cast<std::uint32_t>(mFixedXDistance);
+            }
+            else
+            {
+                Font_PrintCharacter(font, colour, this, character, Runtime_TimeSigned32(currentX), Runtime_TimeSigned32(currentY));
+                currentX += characterWidth;
+            }
+        }
+    }
+
+    // Original function: FUN_0040ee47
+    void __cdecl CBitmap::Text_PrintV(CFont* font, const SColorRGB* colour, std::int32_t x, std::int32_t y, const char* format, ...)
+    {
+        char text[1000];
+
+        va_list arguments;
+        va_start(arguments, format);
+        Runtime_FormatString(text, 999, format, arguments);
+        va_end(arguments);
+
+        text[999] = '\0';
+        Text_Print(font, colour, x, y, text);
     }
 
     // Original function: FUN_0040ee96

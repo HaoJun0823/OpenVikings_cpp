@@ -29,9 +29,12 @@ namespace NC2MainMenuGuiManager
         void l_Network_Update();
         void l_Network_Update();
         void l_Network_ProcessDataMessages();
+        void l_Network_Draw();
         void l_Transfer_Update();
         void l_Transfer_UpdateDownload(bool userMap);
         void l_Transfer_UpdateUpload(bool userMap);
+        bool StringInput_HandleKeys(std::uint32_t key, char character);
+        char* Network_GetSessionName();
 
         // Unresolved fields retain their original address spans.
         std::int32_t currentScreen;                         // +0x0000

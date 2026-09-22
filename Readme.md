@@ -63,17 +63,17 @@ tests passed; these do not validate DirectPlay or the full application.
 
 | ID | Finding | Original reference |
 | --- | --- | --- |
-| OB-001 | Negative indices before the character-type table | 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12 |
-| OB-002 | Unchecked multibyte conversions | 004ece0f — Runtime_UpdateMultibyteCaseTables |
-| OB-003 | Size multiplication overflow in calloc | 004ef3ac — Runtime_AllocateZeroed |
-| OB-004 | Excessive copy bound in heap-mode-3 realloc | 004ea229 — Runtime_Reallocate; 004ea558 — Runtime_GetAllocationSize |
-| OB-005 | Extra read at the bounded string-length limit | 004f1534 — Runtime_BoundedStringLength |
-| OB-006 | Global heap selector compares the terminating NUL | 004ec496 — Runtime_SelectHeapMode |
-| OB-007 | Insufficiently checked text queries during heap selection | 004ec496 — Runtime_SelectHeapMode |
-| OB-008 | Heap bookkeeping changes after failed decommit | 004ed4cd — Runtime_FreeSmallBlock |
-| OB-009 | String copy after allocation failure | 00410b59 — NXBasics::StringDuplicate in XStringMemory.h |
-| OB-010 | Log text is interpreted as a format string | 004dbc6d — WriteNetworkLog in NetworkRuntime.cpp |
-| OB-011 | Shared error-text fallback after allocation failure | 004e7525 — Runtime_GetErrorText in XCrtFileAccess.h |
+| OB001 | Negative indices before the character-type table | 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12 |
+| OB002 | Unchecked multibyte conversions | 004ece0f — Runtime_UpdateMultibyteCaseTables |
+| OB003 | Size multiplication overflow in calloc | 004ef3ac — Runtime_AllocateZeroed |
+| OB004 | Excessive copy bound in heap-mode-3 realloc | 004ea229 — Runtime_Reallocate; 004ea558 — Runtime_GetAllocationSize |
+| OB005 | Extra read at the bounded string-length limit | 004f1534 — Runtime_BoundedStringLength |
+| OB006 | Global heap selector compares the terminating NUL | 004ec496 — Runtime_SelectHeapMode |
+| OB007 | Insufficiently checked text queries during heap selection | 004ec496 — Runtime_SelectHeapMode |
+| OB008 | Heap bookkeeping changes after failed decommit | 004ed4cd — Runtime_FreeSmallBlock |
+| OB009 | String copy after allocation failure | 00410b59 — NXBasics::StringDuplicate in XStringMemory.h |
+| OB010 | Log text is interpreted as a format string | 004dbc6d — WriteNetworkLog in NetworkRuntime.cpp |
+| OB011 | Shared error-text fallback after allocation failure | 004e7525 — Runtime_GetErrorText in XCrtFileAccess.h |
 | OB012 | Unchecked system-path and prefix-replacement lengths | 004063f9 and 00405d8b |
 | OB013 | Archive fallback uses the search-path index as the archive index | 00405ee5 |
 | OB014 | Unchecked archive-constructor allocations | 0040665d |
@@ -112,8 +112,11 @@ tests passed; these do not validate DirectPlay or the full application.
 | OB047 | Compression ignores stream errors and decompression removes its input | 004e0b4e, 004e0d5c, 004e0e57 and 004e0f99 |
 | OB048 | Compressor filenames exceed unchecked fixed buffers | 004e0b4e and 004e0d5c |
 | OB049 | Callsign initialization ignores GetUserNameA failure | 00405a04 |
+| OB050 | Zero text-input limit bypasses the insertion bound | 004a3a8e and 004a3b10 |
+| OB051 | Unguarded division in host transfer progress | 004d9605 |
+| OB052 | Unsigned transfer countdown underflow | 004d9605 |
 
-### OB-001 — Negative indices before the character-type table
+### OB001 — Negative indices before the character-type table
 
 - **Original reference:** 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12.
 - **Evidence:** MOVSX sign-extends the input byte. Direct table accesses occur at 004e7ce0, 004e7d0b and 004e7d36 without range checks. Pointer 0050c3f8 originally targets 0050c402; the EOF entry is at 0050c400.
@@ -123,7 +126,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Define byte/EOF contracts, fix callers and table accesses together, and distinguish high bytes from EOF.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-002 — Unchecked multibyte conversions
+### OB002 — Unchecked multibyte conversions
 
 - **Original reference:** 004ece0f — Runtime_UpdateMultibyteCaseTables.
 - **Evidence:** Results of calls at 004ecea9, 004ececd and 004ecef5 are not checked before classification and converted outputs are consumed.
@@ -133,7 +136,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Check all three results and publish replacement tables only after complete success; define a failure path.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-003 — Size multiplication overflow in calloc
+### OB003 — Size multiplication overflow in calloc
 
 - **Original reference:** 004ef3ac — Runtime_AllocateZeroed.
 - **Evidence:** 004ef3d2 multiplies two 32-bit arguments; 004ef3dc checks the already truncated product.
@@ -143,7 +146,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Validate representability and allowed size before multiplication and define the allocation failure contract.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-004 — Excessive copy bound in heap-mode-3 realloc
+### OB004 — Excessive copy bound in heap-mode-3 realloc
 
 - **Original reference:** 004ea229 — Runtime_Reallocate; 004ea558 — Runtime_GetAllocationSize.
 - **Evidence:** 004ea2d7..004ea2de and 004ea32e..004ea335 subtract only 1 from the block header. The size query subtracts 9, accounting for the allocation bit and two four-byte boundary tags.
@@ -153,7 +156,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Compute the copy bound from the actual old payload size and constrain it by the destination size.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-005 — Extra read at the bounded string-length limit
+### OB005 — Extra read at the bounded string-length limit
 
 - **Original reference:** 004f1534 — Runtime_BoundedStringLength.
 - **Evidence:** The final byte comparison at 004f1551 also runs after the counter is exhausted.
@@ -163,7 +166,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Return immediately at the limit and read no memory when the limit is zero.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-006 — Global heap selector compares the terminating NUL
+### OB006 — Global heap selector compares the terminating NUL
 
 - **Original reference:** 004ec496 — Runtime_SelectHeapMode.
 - **Evidence:** 004ec521 passes comparison length 0x16. The literal __GLOBAL_HEAP_SELECTED at 004fbb58 contains 21 characters, so 22 compared bytes include its NUL.
@@ -173,7 +176,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Parse the selector and delimiter explicitly without accepting arbitrary similar prefixes.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-007 — Insufficiently checked text queries during heap selection
+### OB007 — Insufficiently checked text queries during heap selection
 
 - **Original reference:** 004ec496 — Runtime_SelectHeapMode.
 - **Evidence:** GetEnvironmentVariableA at 004ec4ea is followed only by a zero check. The path returned by GetModuleFileNameA at 004ec54a is processed without checking its return value.
@@ -183,7 +186,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Handle success and required-size cases separately and ensure termination.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-008 — Heap bookkeeping changes after failed decommit
+### OB008 — Heap bookkeeping changes after failed decommit
 
 - **Original reference:** 004ed4cd — Runtime_FreeSmallBlock.
 - **Evidence:** The VirtualFree result at 004ed725 is ignored. Starting at 004ed727, bookkeeping marks the group decommitted and updates class information.
@@ -193,7 +196,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Update bookkeeping only after success and define a consistent failure path.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-009 — String copy after allocation failure
+### OB009 — String copy after allocation failure
 
 - **Original reference:** 00410b59 — NXBasics::StringDuplicate in XStringMemory.h.
 - **Evidence:** The allocation at 00410b6f is passed as the destination at 00410b77 to the copy at 00410b78 without a null check.
@@ -203,7 +206,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Check allocation and coordinate the failure contract with callers.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-010 — Log text is interpreted as a format string
+### OB010 — Log text is interpreted as a format string
 
 - **Original reference:** 004dbc6d — WriteNetworkLog in NetworkRuntime.cpp.
 - **Evidence:** 004dbd3a passes the text, 004dbd3d passes the stream, and 004dbd43 calls 004e8f88 without additional format arguments.
@@ -585,6 +588,35 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Behavior and trigger:** When the API fails without supplying a valid name, callsign initialization can consume indeterminate buffer contents. The destination's final byte is explicitly terminated, but this does not validate the copied name.
 - **Assessment / reconstruction limits:** No specific resulting name or observed game failure is claimed. Stack contents are not reproduced deterministically.
 - **Renewed task:** Check the API result and use a defined fallback on failure.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB050 — Zero text-input limit bypasses the insertion bound
+
+- **Original reference:** 004a3a8e and 004a3b10, particularly 004a3c0d–004a3c13.
+- **Evidence:** Init allocates maximumLength + 2 bytes. WorkOnKey compares the current length against maximumLength - 1 using unsigned arithmetic. A zero limit produces 0xFFFFFFFF instead of rejecting input.
+- **Behavior and trigger:** With an active, initialized editor and a zero limit, accepted characters can exceed the two-byte allocation. The second appended character already writes its terminator beyond that allocation.
+- **Assessment / reconstruction limits:** The reviewed menu calls use nonzero limits. Reachability through another caller has not been established, and no observed game crash is claimed.
+- **Renewed task:** Reject insertion when the current length is greater than or equal to the configured maximum, without subtracting one.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB-051 — Unguarded division in host transfer progress
+
+- **Original reference:** 004d9605 — multiplayer drawing.
+- **Evidence:** Unsigned divisions at 004d9d82 and 004da0eb use the transfer file size without checking for zero.
+- **Behavior and trigger:** A displayed host transfer with a zero file size causes division by zero before its state-specific text is selected.
+- **Assessment / reconstruction limits:** The client display checks for zero; the host display does not. Runtime reachability has not been tested.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Define progress text for zero-sized host transfers.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB-052 — Unsigned transfer countdown underflow
+
+- **Original reference:** 004d9605 — multiplayer drawing.
+- **Evidence:** The estimated total duration is capped at 3600 seconds before elapsed time is subtracted using unsigned arithmetic.
+- **Behavior and trigger:** When elapsed time exceeds the capped estimate, the remaining duration wraps to a large positive value.
+- **Assessment / reconstruction limits:** Percentage and duration multiplications also retain their original 32-bit wraparound.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Validate progress arithmetic and clamp the remaining duration to zero.
 - **Status:** Preserved / original defect; Renewed: open.
 
 ## Original observations and unresolved defect assessments

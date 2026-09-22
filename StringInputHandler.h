@@ -3,6 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NXBasics
+{
+    class CFont;
+}
+
 namespace NC2InGameGuiBaseTextInputElement
 {
     class CStringInputHandler
@@ -13,6 +18,8 @@ namespace NC2InGameGuiBaseTextInputElement
         void Init(std::uint32_t maximumLength, bool continuousEditing, bool startEditing, std::uint32_t activationKey, std::uint8_t activationCharacter);
         void Exit();
         void StartEditing();
+        std::uint32_t WorkOnKey(std::uint32_t key, char character);
+        std::uint32_t GetCursorPixelPosition(const NXBasics::CFont* font);
         void SetString(const char* text);
 
         char* GetString() const

@@ -9,11 +9,13 @@
 #include "FileTransferManager.h"
 #include "FileCompressor.h"
 #include "NetworkShutdown.h"
+#include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XFileAccess.h"
 #include "XIniFileReader.h"
 #include "XMemory.h"
+#include "XFontMetrics.h"
 
 #include <cstring>
 #include <cstdint>
@@ -34,6 +36,9 @@ extern const char DAT_004ff054[];
 // Original data: DAT_004fe238.
 // Format used when a session event has no player name.
 extern const char DAT_004fe238[];
+
+// Original data: DAT_0050716c.
+extern const char DAT_0050716c[];
 
 // Original data: DAT_004f7e48.
 // Service-provider GUID compared by the original code.
@@ -180,7 +185,7 @@ namespace NC2MainMenuGuiManager
         FUN_00477104(DAT_00554d5c, false, DAT_005694c0);
         DAT_005694c0 = 0;
 
-        FUN_004d9605(this);
+        l_Network_Draw();
 
         const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
 
@@ -199,14 +204,58 @@ namespace NC2MainMenuGuiManager
             auto* font = DAT_005698f8;
             const auto* colour = reinterpret_cast<const std::byte*>(DAT_00569908) + 0x400;
 
-            const std::uint32_t textHeight = FUN_004397a6(font, text);
+            const std::uint32_t textHeight = static_cast<std::uint32_t>(NXBasics::Font_GetPixelHeight(font, text));
             const std::uint32_t y = readWord(bitmap, 0x14) - textHeight - 1u;
 
-            const std::uint32_t textWidth = FUN_0043976c(font, text);
+            const std::uint32_t textWidth = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, text));
             const std::uint32_t x = readWord(bitmap, 0x10) - textWidth - 1u;
 
-            FUN_0040ed72(bitmap, font, colour, NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y), text);
+            reinterpret_cast<NXBasics::CBitmap*>(bitmap)->Text_Print(font, reinterpret_cast<const NXBasics::SColorRGB*>(colour), NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y), text);
         }
+    }
+
+    // Original function: FUN_004d31bc
+    bool CGuiManager::StringInput_HandleKeys(std::uint32_t key, char character)
+    {
+        if (textInput.mEditing == 0)
+            return false;
+
+        if (textInput.WorkOnKey(key, character) != 3)
+            return true;
+
+        if (currentScreen == 9 || currentScreen == 12)
+        {
+            using MessageHandler = std::uint32_t(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+
+            const std::byte* vtable;
+            std::memcpy(&vtable, unknown216C, sizeof(vtable));
+
+            MessageHandler handleMessage;
+            std::memcpy(&handleMessage, vtable + 8, sizeof(handleMessage));
+
+            handleMessage(unknown216C, 0x800u, currentScreen == 9 ? 0x13A1u : 0x13A5u, 0, 0, 0);
+        }
+        else if (currentScreen == 14 || currentScreen == 16 || currentScreen == 17)
+        {
+            if (std::strlen(textInput.GetString()) != 0)
+            {
+                char formattedText[128];
+
+                FUN_004e81c4(formattedText, 127, "%s> %s", NNetwork::Network_GetCallsign(), textInput.GetString());
+
+                wchar_t message[128]{};
+                formattedText[127] = '\0';
+
+                NNetwork::CopyNetworkAnsiToWide(message + 1, formattedText, -1);
+
+                message[0] = 1;
+                FUN_004dec0a(&DAT_0050f6a8, 0, message);
+            }
+
+            textInput.SetString("");
+        }
+
+        return true;
     }
 
     // Original function: FUN_004d3308
@@ -571,6 +620,17 @@ namespace NC2MainMenuGuiManager
         }
 
         return NNetwork::Network_GetCallsign();
+    }
+
+    // Original function: FUN_004d73b0
+    char* CGuiManager::Network_GetSessionName()
+    {
+        char* sessionName = reinterpret_cast<char*>(sessionSearchData);
+
+        if (currentScreen == 12)
+            std::strcpy(sessionName, textInput.GetString());
+
+        return sessionName;
     }
 
     // Original function: FUN_004d85cf
@@ -1026,6 +1086,405 @@ namespace NC2MainMenuGuiManager
 
         if (messages != nullptr)
             NXBasics::Runtime_Free(messages);
+    }
+
+    // Original function: FUN_004d9605
+    void CGuiManager::l_Network_Draw()
+    {
+        if (!Screen_IsMultiPlayerScreen())
+            return;
+
+        const auto readWord = [] (const void* object, std::size_t offset) -> std::uint32_t
+        {
+            std::uint32_t value;
+            std::memcpy(&value, static_cast<const std::byte*>(object) + offset, sizeof(value));
+            return value;
+        };
+
+        const auto signedWord = [] (std::uint32_t value) -> std::int32_t
+        {
+            return NXBasics::Runtime_TimeSigned32(value);
+        };
+
+        const auto desktop = [this] () -> NXBasics::CBitmap*
+        {
+            return reinterpret_cast<NXBasics::CBitmap*>(FUN_004d32ff(this));
+        };
+
+        const auto defaultColour = [] () -> const NXBasics::SColorRGB*
+        {
+            return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(DAT_00569908) + 0x400);
+        };
+
+        const auto drawText = [&] (NXBasics::CBitmap* bitmap, auto* font, std::int32_t x, std::int32_t y, const char* text)
+        {
+            bitmap->Text_Print(font, defaultColour(), x, y, text);
+        };
+
+        const auto drawFormatted = [&] (NXBasics::CBitmap* bitmap, auto* font, std::int32_t x, std::int32_t y, const char* format, auto... arguments)
+        {
+            bitmap->Text_PrintV(font, defaultColour(), x, y, format, arguments...);
+        };
+
+        const auto drawCursor = [&] (auto* font, std::uint32_t x, std::uint32_t y, std::int32_t length, NXBasics::CBitmap* bitmap)
+        {
+            const std::uint8_t intensity = ((::timeGetTime() / 200u) & 1u) != 0 ? 255 : 100;
+            const NXBasics::SColorRGB colour(intensity, intensity, intensity);
+            const std::uint32_t cursorX = x + textInput.GetCursorPixelPosition(font);
+
+            if (bitmap == nullptr)
+                bitmap = desktop();
+
+            bitmap->Draw_VerticalLine(signedWord(cursorX), y, length, colour);
+        };
+
+        auto* inputFont = DAT_005698fc;
+
+        if (currentScreen == 9)
+        {
+            std::int32_t y = signedWord(static_cast<std::uint32_t>(DAT_005694b8)) / 2 - 50;
+            const auto* colour = defaultColour();
+            const char* text = FUN_004e1e19(0xD1);
+
+            desktop()->Text_Print(inputFont, colour, 56, y, text);
+
+            y += 30;
+            colour = defaultColour();
+            text = Network_GetCallsign();
+
+            desktop()->Text_Print(inputFont, colour, 66, y, text);
+            drawCursor(inputFont, 66, static_cast<std::uint32_t>(y), 16, nullptr);
+        }
+
+        if (currentScreen == 12)
+        {
+            std::int32_t y = signedWord(static_cast<std::uint32_t>(DAT_005694b8)) / 2 - 50;
+            const auto* colour = defaultColour();
+            const char* text = FUN_004e1e19(0xD2);
+
+            desktop()->Text_Print(inputFont, colour, 56, y, text);
+
+            y += 16;
+            colour = defaultColour();
+            text = FUN_004e1e19(0xD3);
+
+            desktop()->Text_Print(inputFont, colour, 56, y, text);
+
+            y += 30;
+            colour = defaultColour();
+            text = Network_GetSessionName();
+
+            desktop()->Text_Print(inputFont, colour, 66, y, text);
+            drawCursor(inputFont, 66, static_cast<std::uint32_t>(y), 16, nullptr);
+        }
+
+        const std::int32_t chatY = signedWord(readWord(desktop(), 0x14)) / 2 + 80;
+        const std::int32_t informationY = signedWord(readWord(desktop(), 0x14)) / 2 + 210;
+        auto* informationFont = DAT_005698f8;
+
+        const auto drawTransferProgress = [&] (bool userMap)
+        {
+            std::int32_t y = signedWord(static_cast<std::uint32_t>(DAT_005694b8)) / 2 - 70;
+            NXBasics::CBitmap* bitmap = desktop();
+            auto* font = DAT_005698f8;
+
+            if (NNetwork::Network_IsHost())
+            {
+                const std::size_t startedFlag = userMap ? 4 : 1;
+
+                if (transferFlags[startedFlag] != 0 && fileTransferManager != nullptr)
+                {
+                    NNetwork::SFileTransferNode transfers[20];
+
+                    for (auto& transfer : transfers)
+                        std::memset(&transfer.fileName, 0, sizeof(NNetwork::SFileTransferInfo));
+
+                    std::uint32_t count = 20;
+                    fileTransferManager->GetTransferList(transfers, &count);
+
+                    const std::uint32_t now = ::timeGetTime();
+
+                    for (std::uint32_t index = 0; index < count; ++index)
+                    {
+                        char text[100];
+                        std::strcpy(text, FUN_004e1e19(0xC9));
+
+                        const auto& transfer = transfers[index];
+                        const char* playerName = FUN_004d7d56(this, transfer.peerId);
+                        const std::uint32_t transferred = transfer.transferredBytes;
+                        const std::uint32_t size = transfer.fileSize;
+
+                        // Preserve the original unsigned arithmetic and unguarded division.
+                        const std::uint32_t percent = (transferred * 100u) / size;
+                        const std::uint32_t elapsed = (now - transferStartTick) / 1000u;
+                        std::uint32_t estimatedTotal = percent != 0 ? (elapsed * 100u) / percent : 3600u;
+
+                        if (estimatedTotal >= 3600u)
+                            estimatedTotal = 3600u;
+
+                        if (transfer.state == 1)
+                        {
+                            NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCC), playerName);
+                        }
+                        else if (transfer.state == 13)
+                        {
+                            const std::uint32_t remaining = estimatedTotal - elapsed;
+
+                            NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCA), playerName, percent, transferred >> 10, size >> 10, elapsed / 60u, elapsed % 60u, remaining / 60u, remaining % 60u);
+                        }
+                        else if (transfer.state == 14)
+                        {
+                            NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCB), playerName);
+                        }
+
+                        drawText(bitmap, font, 56, y, text);
+                        y = signedWord(static_cast<std::uint32_t>(y) + 20u);
+                    }
+
+                    // Release all twenty copied subobjects in reverse construction order.
+                    for (std::uint32_t index = 20; index != 0; --index)
+                    {
+                        auto& transfer = transfers[index - 1];
+
+                        if (transfer.fileName != nullptr)
+                        {
+                            NXBasics::Runtime_Free(transfer.fileName);
+                            transfer.fileName = nullptr;
+                        }
+
+                        if (transfer.path24 != nullptr)
+                        {
+                            NXBasics::Runtime_Free(transfer.path24);
+                            transfer.path24 = nullptr;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                char text[100];
+                std::strcpy(text, FUN_004e1e19(0xCD));
+
+                const std::size_t receivingFlag = userMap ? 5 : 2;
+                const std::size_t finishedFlag = userMap ? 6 : 3;
+
+                if (transferFlags[receivingFlag] != 0 && transferFlags[finishedFlag] == 0 && fileTransferManager != nullptr && fileTransferManager->serviceState == 1)
+                {
+                    NNetwork::SFileTransferInfo* info = fileTransferManager->GetTransferInfo(&transferId);
+
+                    if (info != nullptr)
+                    {
+                        if (info->fileSize == 0)
+                        {
+                            std::strcpy(text, FUN_004e1e19(0xCE));
+                        }
+                        else
+                        {
+                            const std::uint32_t percent = (info->transferredBytes * 100u) / info->fileSize;
+                            const std::uint32_t elapsed = (::timeGetTime() - transferStartTick) / 1000u;
+                            std::uint32_t estimatedTotal = percent != 0 ? (elapsed * 100u) / percent : 3600u;
+
+                            if (estimatedTotal >= 3600u)
+                                estimatedTotal = 3600u;
+
+                            const std::uint32_t remaining = estimatedTotal - elapsed;
+
+                            NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCF), percent, info->transferredBytes >> 10, info->fileSize >> 10, elapsed / 60u, elapsed % 60u, remaining / 60u, remaining % 60u);
+                        }
+                    }
+                }
+
+                if (transferFlags[finishedFlag] != 0)
+                    std::strcpy(text, FUN_004e1e19(0xD0));
+
+                drawText(bitmap, font, 56, y, text);
+            }
+
+            ::Sleep(50);
+        };
+
+        {
+            const std::int32_t width = signedWord(readWord(desktop(), 0x10) - 370u);
+            const NXBasics::SRectangle rectangle(360, informationY, width, 80);
+            NXBasics::CBitmap informationBitmap(desktop(), rectangle);
+
+            FUN_0040f56f(&informationBitmap);
+            FUN_004e25ba(&informationBitmap, reinterpret_cast<std::byte*>(&informationBitmap) + 8, 2);
+
+            NNetwork::GetNetworkInstance();
+
+            char statusText[100];
+            statusText[0] = '\0';
+
+            const std::uint32_t flags = NNetwork::Network_GetFlags();
+
+            const auto appendStatus = [&] (std::uint32_t flag, std::uint32_t textId)
+            {
+                if ((flags & flag) == 0)
+                    return;
+
+                if (statusText[0] != '\0')
+                    std::strcat(statusText, ", ");
+
+                std::strcat(statusText, FUN_004e1e19(textId));
+            };
+
+            appendStatus(1, 0xD6);
+            appendStatus(4, 0xD7);
+            appendStatus(8, 0xD8);
+            appendStatus(2, 0xD9);
+
+            if (statusText[0] == '\0')
+                std::strcat(statusText, FUN_004e1e19(0xDA));
+
+            drawFormatted(&informationBitmap, informationFont, 4, 2, "%s: <%s>", FUN_004e1e19(0xBB), statusText);
+
+            std::uint32_t y = 14;
+
+            for (std::uint32_t index = 0; index < errorCount; ++index)
+            {
+                drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s %d: <%s>", FUN_004e1e19(0xBC), index, errorTexts[index]);
+                y += 12;
+            }
+
+            if (currentScreen == 13 && FUN_004d7849(this))
+            {
+                const char* sessionName = Network_GetSessionName();
+
+                drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: <%s>", FUN_004e1e19(0xBD), sessionName);
+                y += 12;
+            }
+
+            std::strcpy(statusText, FUN_004e1e19(0xBE));
+            std::strcat(statusText, ": ");
+
+            char address[32];
+            std::uint32_t addressCount = 0;
+
+            while (NNetwork::GetNetworkIPAddress(addressCount, address, 30))
+            {
+                if (addressCount != 0)
+                    std::strcat(statusText, ", ");
+
+                std::strcat(statusText, address);
+                ++addressCount;
+            }
+
+            if (addressCount != 0)
+            {
+                drawText(&informationBitmap, informationFont, 4, signedWord(y), statusText);
+                y += 12;
+            }
+
+            if (currentScreen == 14)
+            {
+                void* mapId = lobbyData + 4;
+
+                if (FUN_00416b63(mapId))
+                {
+                    auto* map = FUN_00416418(DAT_005114b4, mapId);
+
+                    if (map != nullptr)
+                    {
+                        char mapName[100];
+                        FUN_00416b98(map, mapName);
+
+                        drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", FUN_004e1e19(0xC2), mapName);
+                    }
+                    else
+                    {
+                        drawText(&informationBitmap, informationFont, 4, signedWord(y), FUN_004e1e19(0xC3));
+                    }
+                }
+                else
+                {
+                    const std::uint32_t mapIdValue = readWord(lobbyData, 0x14);
+
+                    if (mapIdValue != 0)
+                    {
+                        auto* map = FUN_00415e8d(DAT_005114ac, mapIdValue);
+
+                        if (map != nullptr)
+                        {
+                            const char* mapName = reinterpret_cast<const char*>(map) + 0x136;
+
+                            drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", FUN_004e1e19(0xC4), mapName);
+                        }
+                        else
+                        {
+                            drawText(&informationBitmap, informationFont, 4, signedWord(y), FUN_004e1e19(0xC5));
+                        }
+                    }
+                    else
+                    {
+                        // The original passes this localized text as a format string.
+                        drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), FUN_004e1e19(0xC6));
+                    }
+                }
+
+                y += 12;
+
+                if (FUN_00416b63(mapId))
+                {
+                    const std::uint32_t mode = readWord(lobbyData, 0x15C);
+
+                    if (mode <= 2)
+                    {
+                        const char* modeText = FUN_004e1ea5(0x1B + mode * 2u);
+
+                        if (modeText != nullptr)
+                            drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", FUN_004e1ea5(0x1A), modeText);
+                    }
+                }
+            }
+
+            if (currentScreen == 16)
+                drawTransferProgress(false);
+
+            if (currentScreen == 17)
+                drawTransferProgress(true);
+        }
+
+        if (currentScreen == 14 || currentScreen == 16 || currentScreen == 17)
+        {
+            const std::int32_t width = signedWord(readWord(desktop(), 0x10) - 370u);
+            const NXBasics::SRectangle rectangle(360, chatY, width, 120);
+            NXBasics::CBitmap chatBitmap(desktop(), rectangle);
+
+            FUN_0040f56f(&chatBitmap);
+            FUN_004e25ba(&chatBitmap, reinterpret_cast<std::byte*>(&chatBitmap) + 8, 2);
+
+            auto* font = DAT_005698f8;
+
+            drawText(&chatBitmap, font, 4, 2, DAT_0050716c);
+            drawText(&chatBitmap, font, 14, 2, textInput.GetString());
+            drawCursor(font, 14, 4, 12, &chatBitmap);
+
+            font = DAT_005698f8;
+            std::uint32_t y = 14;
+            const std::byte* recordText = unknown1070 + 8;
+
+            for (std::uint32_t index = 0; index < readWord(unknown1070, 0); ++index)
+            {
+                NXBasics::SColorRGB colour(0, 0, 0);
+                std::memcpy(&colour, defaultColour(), sizeof(colour));
+
+                const std::uint32_t count = readWord(unknown1070, 0);
+                const std::uint32_t type = index < count ? readWord(recordText - 4, 0) : 0;
+
+                if (type == 1)
+                    std::memcpy(&colour, reinterpret_cast<const std::byte*>(DAT_0056990c) + 0x400, sizeof(colour));
+                else if (type == 2)
+                    std::memcpy(&colour, reinterpret_cast<const std::byte*>(DAT_00569910) + 0x400, sizeof(colour));
+
+                const char* text = index < count ? reinterpret_cast<const char*>(recordText) : nullptr;
+
+                chatBitmap.Text_Print(font, &colour, 4, signedWord(y), text);
+
+                y += 10;
+                recordText += 0x74;
+            }
+        }
     }
 
     // Original function: FUN_004d85cf

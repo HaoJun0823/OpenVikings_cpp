@@ -15,6 +15,7 @@
     <ClCompile Include="CRC16.cpp" />
     <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="DirectXErrorText.cpp" />
+    <ClCompile Include="FileCompressor.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
     <ClCompile Include="MainMenuGuiManager.cpp" />
     <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="MasterPropertyManager.cpp" />
     <ClCompile Include="NetworkRuntime.cpp" />
     <ClCompile Include="NetworkShutdown.cpp" />
+    <ClCompile Include="StringInputHandler.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="MasterControlProgram.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
@@ -34,9 +36,11 @@
     <ClCompile Include="X2DDisplay.cpp" />
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XBitmap.cpp" />
+    <ClCompile Include="XBobRendering.cpp" />
     <ClCompile Include="XCrtFileAccess.cpp" />
     <ClCompile Include="XDiagnostics.cpp" />
     <ClCompile Include="XFile.cpp" />
+    <ClCompile Include="XFontMetrics.cpp" />
     <ClCompile Include="XIniFileReader.cpp" />
     <ClCompile Include="XMDirectInputMouse.cpp" />
     <ClCompile Include="XMemory.cpp" />
@@ -58,6 +62,7 @@
     <ClInclude Include="DirectXErrorText.h" />
     <ClInclude Include="dpaddr.h" />
     <ClInclude Include="dplay8.h" />
+    <ClInclude Include="FileCompressor.h" />
     <ClInclude Include="FileTransferManager.h" />
     <ClInclude Include="InGameGuiManager.h" />
     <ClInclude Include="MainMenuGuiManager.h" />
@@ -65,16 +70,19 @@
     <ClInclude Include="MasterPropertyManager.h" />
     <ClInclude Include="NetworkShutdown.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="StringInputHandler.h" />
     <ClInclude Include="X2DApplication.h" />
     <ClInclude Include="X2DDisplay.h" />
     <ClInclude Include="X2DWindow.h" />
     <ClInclude Include="XBasicTypes.h" />
     <ClInclude Include="XBitmap.h" />
     <ClInclude Include="XBitmapTools.h" />
+    <ClInclude Include="XBobRendering.h" />
     <ClInclude Include="XCrtFileAccess.h" />
     <ClInclude Include="OriginalStrings.h" />
     <ClInclude Include="XCrtStartup.h" />
     <ClInclude Include="XDirectoryScanner.h" />
+    <ClInclude Include="XFontMetrics.h" />
     <ClInclude Include="XSystemManager.h" />
     <ClInclude Include="XDiagnostics.h" />
     <ClInclude Include="XFile.h" />
