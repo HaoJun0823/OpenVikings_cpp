@@ -51,6 +51,29 @@ namespace NXBasics
         std::uint32_t GetTrueColorWord(std::uint8_t colorIndex) const;
         const std::uint32_t* GetTrueColorTablePtr() const;
 
+        void Tool_Darken();
+        void Tool_Darken(SRectangle rectangle);
+
+        const SRectangle& GetRectangle() const noexcept
+        {
+            return mRectangle;
+        }
+
+        CBitmap* GetSourceBitmap() const noexcept
+        {
+            return mSourceBitmap;
+        }
+
+        std::int32_t GetSourceX() const noexcept
+        {
+            return mSourceX;
+        }
+
+        std::int32_t GetSourceY() const noexcept
+        {
+            return mSourceY;
+        }
+
         static void operator delete(void* allocation) noexcept;
 
     private:

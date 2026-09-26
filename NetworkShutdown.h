@@ -152,6 +152,8 @@ namespace NNetwork
 
     DPNID GetDynamicNetworkLocalPlayerId(const SDynamicNetworkData* data);
 
+    bool SendDynamicNetworkChatMessage(SDynamicNetworkData* data, DPNID recipient, const wchar_t* text);
+
     bool TakeDynamicNetworkTextRecords(SDynamicNetworkData* data, void** records, std::uint32_t* recordCount);
 
     bool SendDynamicNetworkMessage(SDynamicNetworkData* data, DPNID recipient, const void* payload, std::uint32_t byteCount);

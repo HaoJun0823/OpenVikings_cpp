@@ -20,21 +20,22 @@ namespace NC2MainMenuGuiManager
     {
     public:
         void System_UpdateGui();
+        bool StringInput_HandleKeys(std::uint32_t key, char character);
         void Debug_ErrorString_Add(const char* text);
         void Screen_ChangeTo(std::int32_t screen, bool shutDownNetwork);
         void l_ScreenData_Exit(bool shutDownNetwork);
         void l_ScreenData_Init(std::int32_t screen);
         bool Screen_IsMultiPlayerScreen() const;
         char* Network_GetCallsign();
-        void l_Network_Update();
+        char* Network_GetSessionName();
+        void Chat_AddText(std::uint32_t type, const char* text);
+
         void l_Network_Update();
         void l_Network_ProcessDataMessages();
-        void l_Network_Draw();
         void l_Transfer_Update();
         void l_Transfer_UpdateDownload(bool userMap);
         void l_Transfer_UpdateUpload(bool userMap);
-        bool StringInput_HandleKeys(std::uint32_t key, char character);
-        char* Network_GetSessionName();
+        void l_Network_Draw();
 
         // Unresolved fields retain their original address spans.
         std::int32_t currentScreen;                         // +0x0000

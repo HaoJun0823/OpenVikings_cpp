@@ -558,6 +558,7 @@ namespace NXBasics
     std::int32_t Runtime_CloseStream(RuntimeFormatStream* stream);
     std::int32_t Runtime_FlushStream(RuntimeFormatStream* stream);
     std::int32_t Runtime_PrintString(char* destination, const char* format, ...);
+    std::int32_t Runtime_PrintStringN(char* destination, std::uint32_t capacity, const char* format, ...);
     char* Runtime_GetLocalTimeString(char* destination);
     char* Runtime_LongToString(std::int32_t value, char* destination, std::int32_t radix);
     std::int32_t Runtime_BeginTemporaryStreamBuffer(RuntimeFormatStream* stream);

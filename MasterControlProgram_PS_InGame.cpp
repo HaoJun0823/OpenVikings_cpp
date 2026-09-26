@@ -3,6 +3,7 @@
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "InGameGuiManager.h"
+#include "GuiToolsBase.h"
 #include "NetworkShutdown.h"
 
 #include <cstddef>
@@ -162,7 +163,7 @@ namespace NMasterControlProgram
                     {
                     case 1:
                         FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, receivedText);
-                        FUN_004e2bcf();
+                        NC2GuiToolsBase::FXTool_Chat();
                         break;
 
                     case 2:

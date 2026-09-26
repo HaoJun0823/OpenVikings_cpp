@@ -1,5 +1,6 @@
 #include "XDiagnostics.h"
 #include "XFile.h"
+#include "XFileAccess.h"
 #include "XStorableIO.h"
 #include "XStringArray.h"
 

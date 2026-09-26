@@ -1,6 +1,9 @@
+#include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
+
+extern NDSManager::CManager* DAT_0050f6a4;
 
 namespace NMasterControlProgram
 {
@@ -112,7 +115,7 @@ namespace NMasterControlProgram
 
         if (DAT_0050f6a4 != nullptr)
         {
-            FUN_00404797(DAT_0050f6a4);
+            DAT_0050f6a4->System_Update();
         }
 
         if (DAT_0050f698 != nullptr)

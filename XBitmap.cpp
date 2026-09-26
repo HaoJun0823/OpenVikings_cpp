@@ -1041,6 +1041,78 @@ namespace NXBasics
         return Palette_GetTrueColorTablePtr(palette);
     }
 
+    // Original function: FUN_0040f56f
+    void CBitmap::Tool_Darken()
+    {
+        Tool_Darken(mRectangle);
+    }
+
+    // Original function: FUN_0040f589
+    void CBitmap::Tool_Darken(SRectangle rectangle)
+    {
+        if (mRawMemory == nullptr)
+            return;
+
+        rectangle.Validate();
+
+        if (!rectangle.IsTouching(mRectangle))
+            return;
+
+        rectangle.CutInside(mRectangle);
+
+        if (mDepth == 2)
+        {
+            const std::uint32_t pixelOffset = mRowPixelCount * static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.x);
+            std::uintptr_t rowAddress = reinterpret_cast<std::uintptr_t>(mTrueColorMemory) + pixelOffset * 4u;
+            const std::uint32_t mask = g32BitPixelConverter->PackColor(127, 127, 127);
+
+            for (std::int32_t row = 0; row < rectangle.height; ++row)
+            {
+                std::uintptr_t pixelAddress = rowAddress;
+
+                for (std::int32_t column = 0; column < rectangle.width; ++column)
+                {
+                    std::uint32_t pixel;
+                    std::memcpy(&pixel, reinterpret_cast<const void*>(pixelAddress), sizeof(pixel));
+
+                    pixel = (pixel >> 1) & mask;
+
+                    std::memcpy(reinterpret_cast<void*>(pixelAddress), &pixel, sizeof(pixel));
+                    pixelAddress += 4u;
+                }
+
+                rowAddress += mRowPixelCount * 4u;
+            }
+        }
+        else if (mDepth == 1)
+        {
+            if (g16BitPixelConverter == nullptr)
+                return;
+
+            const std::uint16_t mask = g16BitPixelConverter->PackColor(127, 127, 127);
+            const std::uint32_t pixelOffset = mRowPixelCount * static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.x);
+            std::uintptr_t rowAddress = reinterpret_cast<std::uintptr_t>(mHighColorMemory) + pixelOffset * 2u;
+
+            for (std::int32_t row = 0; row < rectangle.height; ++row)
+            {
+                std::uintptr_t pixelAddress = rowAddress;
+
+                for (std::int32_t column = 0; column < rectangle.width; ++column)
+                {
+                    std::uint16_t pixel;
+                    std::memcpy(&pixel, reinterpret_cast<const void*>(pixelAddress), sizeof(pixel));
+
+                    pixel = static_cast<std::uint16_t>((pixel >> 1) & mask);
+
+                    std::memcpy(reinterpret_cast<void*>(pixelAddress), &pixel, sizeof(pixel));
+                    pixelAddress += 2u;
+                }
+
+                rowAddress += mRowPixelCount * 2u;
+            }
+        }
+    }
+
     // Original function: FUN_004e5e48
     void CBitmap::operator delete(void* allocation) noexcept
     {

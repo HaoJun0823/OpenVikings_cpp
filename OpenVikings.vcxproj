@@ -16,6 +16,7 @@
     <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="DirectXErrorText.cpp" />
     <ClCompile Include="FileCompressor.cpp" />
+    <ClCompile Include="GuiToolsBase.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
     <ClCompile Include="MainMenuGuiManager.cpp" />
     <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XBitmap.cpp" />
     <ClCompile Include="XBobRendering.cpp" />
+    <ClCompile Include="XCPU.cpp" />
     <ClCompile Include="XCrtFileAccess.cpp" />
     <ClCompile Include="XDiagnostics.cpp" />
     <ClCompile Include="XFile.cpp" />
@@ -64,6 +66,7 @@
     <ClInclude Include="dplay8.h" />
     <ClInclude Include="FileCompressor.h" />
     <ClInclude Include="FileTransferManager.h" />
+    <ClInclude Include="GuiToolsBase.h" />
     <ClInclude Include="InGameGuiManager.h" />
     <ClInclude Include="MainMenuGuiManager.h" />
     <ClInclude Include="MasterControlProgram.h" />
@@ -78,6 +81,7 @@
     <ClInclude Include="XBitmap.h" />
     <ClInclude Include="XBitmapTools.h" />
     <ClInclude Include="XBobRendering.h" />
+    <ClInclude Include="XCPU.h" />
     <ClInclude Include="XCrtFileAccess.h" />
     <ClInclude Include="OriginalStrings.h" />
     <ClInclude Include="XCrtStartup.h" />

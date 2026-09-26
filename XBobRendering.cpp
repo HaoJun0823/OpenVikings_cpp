@@ -1,9 +1,12 @@
 #include "XBobRendering.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "XCPU.h"
 #include "XCrtFileAccess.h"
+#include "XPaletteAccess.h"
 #include "XPixelFormatConverter.h"
 
+#include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -11,273 +14,772 @@
 
 namespace NXBasics
 {
-    // Original function: FUN_004660c6
-    void BobManager_PrintBobUsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour)
-    {
-        static_assert(sizeof(void*) == 4);
+	// Original function: FUN_00463aee
+	void BobManager_PrintBob(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette)
+	{
+		static_assert(sizeof(void*) == 4);
 
-        const auto readWord = [] (const void* address) -> std::uint32_t
-        {
-            std::uint32_t value;
-            std::memcpy(&value, address, sizeof(value));
-            return value;
-        };
+		const auto readWord = [] (const void* address) -> std::uint32_t
+		{
+			std::uint32_t value;
+			std::memcpy(&value, address, sizeof(value));
+			return value;
+		};
 
-        const auto offsetAddress = [] (const void* address, std::uint32_t offset) -> const std::byte*
-        {
-            const std::uintptr_t result = reinterpret_cast<std::uintptr_t>(address) + offset;
-            return reinterpret_cast<const std::byte*>(result);
-        };
+		const auto offsetAddress = [] (const void* address, std::uint32_t offset) -> const std::byte*
+		{
+			const std::uintptr_t result = reinterpret_cast<std::uintptr_t>(address) + offset;
+			return reinterpret_cast<const std::byte*>(result);
+		};
 
-        const auto readPointer = [&] (const void* object, std::uint32_t offset) -> const std::byte*
-        {
-            const std::byte* value;
-            std::memcpy(&value, offsetAddress(object, offset), sizeof(value));
-            return value;
-        };
+		const auto readPointer = [&] (const void* object, std::uint32_t offset) -> const std::byte*
+		{
+			const std::byte* value;
+			std::memcpy(&value, offsetAddress(object, offset), sizeof(value));
+			return value;
+		};
 
-        const auto signedValue = [] (std::uint32_t value) -> std::int32_t
-        {
-            return Runtime_TimeSigned32(value);
-        };
+		const auto signedValue = [] (std::uint32_t value) -> std::int32_t
+		{
+			return Runtime_TimeSigned32(value);
+		};
 
-        const auto blendChannel = [] (std::uint32_t destination, std::uint32_t source, std::uint32_t alpha) -> std::uint32_t
-        {
-            return (destination * (256u - alpha) + source * alpha) >> 8;
-        };
+		const std::uint32_t index = bobId - readWord(offsetAddress(bobManager, 4));
 
-        const std::uint32_t index = bobId - readWord(offsetAddress(bobManager, 4));
+		if (index >= readWord(offsetAddress(bobManager, 8)))
+			return;
 
-        if (index >= readWord(offsetAddress(bobManager, 8)))
-            return;
+		const std::byte* entry = offsetAddress(readPointer(bobManager, 0x24), index * 24u);
 
-        const std::byte* entry = offsetAddress(readPointer(bobManager, 0x24), index * 24u);
+		if (readWord(entry) == 0)
+			return;
 
-        if (readWord(entry) == 0)
-            return;
+		SRectangle placed(0, 0, 0, 0);
+		std::memcpy(&placed, entry + 4, sizeof(placed));
 
-        SRectangle placed(0, 0, 0, 0);
-        std::memcpy(&placed, entry + 4, sizeof(placed));
+		placed.x = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(x));
+		placed.y = signedValue(static_cast<std::uint32_t>(placed.y) + static_cast<std::uint32_t>(y));
 
-        placed.x = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(x));
-        placed.y = signedValue(static_cast<std::uint32_t>(placed.y) + static_cast<std::uint32_t>(y));
+		SRectangle bounds(0, 0, 0, 0);
+		std::memcpy(&bounds, offsetAddress(bitmap, 8), sizeof(bounds));
 
-        SRectangle bounds(0, 0, 0, 0);
-        std::memcpy(&bounds, offsetAddress(bitmap, 8), sizeof(bounds));
+		if (!placed.IsTouching(bounds))
+			return;
 
-        if (!placed.IsTouching(bounds))
-            return;
+		SRectangle clipped = placed;
+		clipped.CutInside(bounds);
 
-        SRectangle clipped = placed;
-        clipped.CutInside(bounds);
+		const bool wasClipped = clipped.x != placed.x || clipped.y != placed.y || clipped.width != placed.width || clipped.height != placed.height;
+		const std::byte* rowTable = offsetAddress(readPointer(bobManager, 0x2C), readWord(entry + 0x14) * 4u);
 
-        const bool wasClipped = clipped.x != placed.x || clipped.y != placed.y || clipped.width != placed.width || clipped.height != placed.height;
+		if (placed.y < 0)
+			rowTable = offsetAddress(rowTable, (0u - static_cast<std::uint32_t>(placed.y)) * 4u);
 
-        const std::byte* rowTable = offsetAddress(readPointer(bobManager, 0x2C), readWord(entry + 0x14) * 4u);
+		const std::int32_t placedRight = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(placed.width) - 1u);
+		const bool clipRight = placedRight >= signedValue(readWord(offsetAddress(bitmap, 0x10)));
 
-        if (placed.y < 0)
-            rowTable = offsetAddress(rowTable, (0u - static_cast<std::uint32_t>(placed.y)) * 4u);
+		if (readWord(entry) != 1)
+			return;
 
-        const std::int32_t placedRight = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(placed.width) - 1u);
-        const bool clipRight = placedRight >= signedValue(readWord(offsetAddress(bitmap, 0x10)));
+		if (palette == nullptr)
+			return;
 
-        if (readWord(entry) != 1)
-            return;
+		const std::uint32_t depth = readWord(offsetAddress(bitmap, 4));
+		const std::uint16_t* highColorTable = nullptr;
+		const std::uint32_t* trueColorTable = nullptr;
+		std::uint32_t pixelBytes;
+		std::uint32_t pixelPointerOffset;
 
-        const std::uint32_t depth = readWord(offsetAddress(bitmap, 4));
+		if (depth == 0)
+		{
+			pixelBytes = 1;
+			pixelPointerOffset = 0x24;
+		}
+		else if (depth == 1)
+		{
+			highColorTable = Palette_GetHighColorTablePtr(palette);
 
-        if (depth == 0)
-            return;
+			if (highColorTable == nullptr)
+				return;
 
-        if (depth != 1 && depth != 2)
-        {
-            _mm_empty();
-            return;
-        }
+			pixelBytes = 2;
+			pixelPointerOffset = 0x28;
+		}
+		else if (depth == 2)
+		{
+			trueColorTable = Palette_GetTrueColorTablePtr(palette);
 
-        std::uint32_t sourceColour = 0;
-        std::uint32_t fastSourceColour = 0;
-        std::uint32_t greenMask = 0;
-        bool useMmx;
+			if (trueColorTable == nullptr)
+				return;
 
-        if (depth == 2)
-        {
-            sourceColour = static_cast<std::uint32_t>(colour->blue);
-            sourceColour |= static_cast<std::uint32_t>(colour->green) << 8;
-            sourceColour |= static_cast<std::uint32_t>(colour->red) << 16;
+			pixelBytes = 4;
+			pixelPointerOffset = 0x2C;
+		}
+		else
+		{
+			return;
+		}
 
-            useMmx = FUN_00473abf();
-        }
-        else
-        {
-            const std::byte* converterBytes = reinterpret_cast<const std::byte*>(g16BitPixelConverter);
-            greenMask = converterBytes[0x3A] != std::byte{ 0 } ? 0x07E0u : 0x03E0u;
-            sourceColour = g16BitPixelConverter->PackColor(*colour);
+		const auto writePixel = [&] (const std::byte* address, std::uint8_t colourIndex)
+		{
+			if (depth == 0)
+			{
+				*const_cast<std::byte*>(address) = static_cast<std::byte>(colourIndex);
+			}
+			else if (depth == 1)
+			{
+				const std::uint16_t pixel = highColorTable[colourIndex];
+				std::memcpy(const_cast<std::byte*>(address), &pixel, sizeof(pixel));
+			}
+			else
+			{
+				const std::uint32_t pixel = trueColorTable[colourIndex];
+				std::memcpy(const_cast<std::byte*>(address), &pixel, sizeof(pixel));
+			}
+		};
 
-            useMmx = FUN_00473abf();
+		const std::int32_t clippedRight = signedValue(static_cast<std::uint32_t>(clipped.x) + static_cast<std::uint32_t>(clipped.width) - 1u);
+		std::uint32_t destinationY = static_cast<std::uint32_t>(clipped.y);
 
-            if (useMmx)
-                fastSourceColour = g16BitPixelConverter->PackColor(*colour);
-        }
+		for (std::int32_t row = 0; row < clipped.height; ++row, ++destinationY)
+		{
+			const std::uint32_t descriptor = readWord(rowTable);
+			rowTable = offsetAddress(rowTable, 4);
 
-        // The original reuses the colour argument slot in clipped pixel loops.
-        const std::byte* fastColourAddress = reinterpret_cast<const std::byte*>(colour);
+			if (descriptor == 0xFFFFFFFFu)
+				continue;
 
-        const auto blendPixel = [&] (const std::byte* address, std::uint32_t alpha, bool fast)
-        {
-            if (depth == 2)
-            {
-                const std::uint32_t destination = readWord(address);
-                const bool mmxPixel = useMmx && fast;
-                const std::uint32_t source = mmxPixel ? fastSourceColour : sourceColour;
-                const std::uint32_t channelCount = mmxPixel ? 4u : 3u;
-                std::uint32_t result = 0;
+			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
+			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
 
-                for (std::uint32_t channel = 0; channel < channelCount; ++channel)
-                {
-                    const std::uint32_t shift = channel * 8u;
-                    const std::uint32_t destinationChannel = (destination >> shift) & 0xFFu;
-                    const std::uint32_t sourceChannel = (source >> shift) & 0xFFu;
+			bool fast = depth == 1 && !wasClipped;
+			bool fastPrepared = false;
+			const std::byte* output = nullptr;
 
-                    result |= blendChannel(destinationChannel, sourceChannel, alpha) << shift;
-                }
+			for (;;)
+			{
+				if (!fast && signedValue(currentX) >= 0 && !clipRight)
+					fast = true;
 
-                std::memcpy(const_cast<std::byte*>(address), &result, sizeof(result));
-            }
-            else
-            {
-                std::uint16_t destinationWord;
-                std::memcpy(&destinationWord, address, sizeof(destinationWord));
+				if (fast && !fastPrepared)
+				{
+					const std::uint32_t pixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY + currentX;
+					output = offsetAddress(readPointer(bitmap, pixelPointerOffset), pixelIndex * pixelBytes);
+					fastPrepared = true;
+				}
 
-                const std::uint32_t destination = destinationWord;
-                const std::uint32_t inverseAlpha = 256u - alpha;
-                std::uint32_t result;
+				const std::uint8_t token = static_cast<std::uint8_t>(*input);
+				input = offsetAddress(input, 1);
 
-                if (useMmx && fast)
-                {
-                    // Reproduce the independent MMX byte lanes without changing rounding.
-                    const std::uint32_t otherMask = (~greenMask) & 0xFFFFu;
-                    const std::uint32_t destinationOther = destination & otherMask;
-                    const std::uint32_t sourceOther = fastSourceColour & otherMask;
+				if (token == 0)
+					break;
 
-                    const std::uint32_t lowByte = blendChannel(destinationOther & 0xFFu, sourceOther & 0xFFu, alpha);
-                    const std::uint32_t highByte = blendChannel(destinationOther >> 8, sourceOther >> 8, alpha);
-                    const std::uint32_t other = (lowByte | (highByte << 8)) & otherMask;
+				const std::uint32_t count = token & 0x7Fu;
 
-                    const std::uint32_t destinationGreen = (destination & greenMask) >> 4;
-                    const std::uint32_t sourceGreen = (fastSourceColour & greenMask) >> 4;
-                    const std::uint32_t green = ((destinationGreen * inverseAlpha + sourceGreen * alpha) >> 4) & greenMask;
+				if ((token & 0x80u) != 0)
+				{
+					if (fast)
+						output = offsetAddress(output, count * pixelBytes);
+					else
+						currentX += count;
 
-                    result = other + green;
-                }
-                else
-                {
-                    // The scalar path uses 0xF800 even with the RGB555 green mask.
-                    const std::uint32_t red = (((destination & 0xF800u) * inverseAlpha + (sourceColour & 0xF800u) * alpha) >> 8) & 0xF800u;
-                    const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (sourceColour & greenMask) * alpha) >> 8) & greenMask;
-                    const std::uint32_t blue = ((destination & 0x1Fu) * inverseAlpha + (sourceColour & 0x1Fu) * alpha) >> 8;
+					continue;
+				}
 
-                    result = red + green + blue;
-                }
+				if (fast)
+				{
+					for (std::uint32_t pixel = 0; pixel < count; ++pixel)
+					{
+						const std::uint8_t colourIndex = static_cast<std::uint8_t>(*input);
 
-                const std::uint16_t resultWord = static_cast<std::uint16_t>(result);
-                std::memcpy(const_cast<std::byte*>(address), &resultWord, sizeof(resultWord));
-            }
-        };
+						writePixel(output, colourIndex);
 
-        std::uint32_t destinationY = static_cast<std::uint32_t>(clipped.y);
-        const std::uint32_t pixelBytes = depth == 2 ? 4u : 2u;
-        const std::uint32_t pixelPointerOffset = depth == 2 ? 0x2Cu : 0x28u;
-        const std::int32_t clippedRight = signedValue(static_cast<std::uint32_t>(clipped.x) + static_cast<std::uint32_t>(clipped.width) - 1u);
+						input = offsetAddress(input, 1);
+						output = offsetAddress(output, pixelBytes);
+					}
+				}
+				else
+				{
+					const std::uint32_t rowPixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY;
+					const std::byte* rowPixels = offsetAddress(readPointer(bitmap, pixelPointerOffset), rowPixelIndex * pixelBytes);
+					const std::byte* pixelAddress = offsetAddress(rowPixels, currentX * pixelBytes);
 
-        for (std::int32_t row = 0; row < clipped.height; ++row, ++destinationY)
-        {
-            const std::uint32_t descriptor = readWord(rowTable);
-            rowTable = offsetAddress(rowTable, 4);
+					for (std::uint32_t pixel = 0; pixel < count; ++pixel)
+					{
+						if (signedValue(currentX) >= 0 && signedValue(currentX) <= clippedRight)
+						{
+							const std::uint8_t colourIndex = static_cast<std::uint8_t>(*input);
+							writePixel(pixelAddress, colourIndex);
+						}
 
-            if (descriptor == 0xFFFFFFFFu)
-                continue;
+						++currentX;
+						input = offsetAddress(input, 1);
+						pixelAddress = offsetAddress(pixelAddress, pixelBytes);
+					}
+				}
+			}
+		}
+	}
 
-            std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
-            const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+	// Original function: FUN_0046534f
+	void BobManager_PrintBobUsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette)
+	{
+		static_assert(sizeof(void*) == 4);
 
-            bool fast = depth == 1 && !wasClipped;
-            bool fastPrepared = false;
-            const std::byte* output = nullptr;
+		const auto readWord = [] (const void* address) -> std::uint32_t
+		{
+			std::uint32_t value;
+			std::memcpy(&value, address, sizeof(value));
+			return value;
+		};
 
-            for (;;)
-            {
-                if (!fast && signedValue(currentX) >= 0 && !clipRight)
-                    fast = true;
+		const auto readHalfWord = [] (const void* address) -> std::uint16_t
+		{
+			std::uint16_t value;
+			std::memcpy(&value, address, sizeof(value));
+			return value;
+		};
 
-                if (fast && !fastPrepared)
-                {
-                    const std::uint32_t pixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY + currentX;
-                    output = offsetAddress(readPointer(bitmap, pixelPointerOffset), pixelIndex * pixelBytes);
+		const auto offsetAddress = [] (const void* address, std::uint32_t offset) -> const std::byte*
+		{
+			const std::uintptr_t result = reinterpret_cast<std::uintptr_t>(address) + offset;
+			return reinterpret_cast<const std::byte*>(result);
+		};
 
-                    if (depth == 2 && useMmx)
-                    {
-                        // Preserve the original read from the reused argument slot.
-                        fastSourceColour = readWord(fastColourAddress);
-                    }
+		const auto readPointer = [&] (const void* object, std::uint32_t offset) -> const std::byte*
+		{
+			const std::byte* value;
+			std::memcpy(&value, offsetAddress(object, offset), sizeof(value));
+			return value;
+		};
 
-                    fastPrepared = true;
-                }
+		const auto signedValue = [] (std::uint32_t value) -> std::int32_t
+		{
+			return Runtime_TimeSigned32(value);
+		};
 
-                const std::uint8_t token = static_cast<std::uint8_t>(*input);
-                input = offsetAddress(input, 1);
+		const std::uint32_t index = bobId - readWord(offsetAddress(bobManager, 4));
 
-                if (token == 0)
-                    break;
+		if (index >= readWord(offsetAddress(bobManager, 8)))
+			return;
 
-                const std::uint32_t count = token & 0x7Fu;
+		const std::byte* entry = offsetAddress(readPointer(bobManager, 0x24), index * 24u);
 
-                if ((token & 0x80u) != 0)
-                {
-                    if (fast)
-                        output = offsetAddress(output, count * pixelBytes);
-                    else
-                        currentX += count;
+		if (readWord(entry) == 0)
+			return;
 
-                    continue;
-                }
+		SRectangle placed(0, 0, 0, 0);
+		std::memcpy(&placed, entry + 4, sizeof(placed));
 
-                if (fast)
-                {
-                    for (std::uint32_t pixel = 0; pixel < count; ++pixel)
-                    {
-                        const std::uint32_t alpha = static_cast<std::uint8_t>(*input);
-                        input = offsetAddress(input, 1);
+		placed.x = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(x));
+		placed.y = signedValue(static_cast<std::uint32_t>(placed.y) + static_cast<std::uint32_t>(y));
 
-                        blendPixel(output, alpha, true);
-                        output = offsetAddress(output, pixelBytes);
-                    }
-                }
-                else
-                {
-                    const std::uint32_t rowPixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY;
-                    const std::byte* rowPixels = offsetAddress(readPointer(bitmap, pixelPointerOffset), rowPixelIndex * pixelBytes);
-                    const std::byte* pixelAddress = offsetAddress(rowPixels, currentX * pixelBytes);
+		SRectangle bounds(0, 0, 0, 0);
+		std::memcpy(&bounds, offsetAddress(bitmap, 8), sizeof(bounds));
 
-                    for (std::uint32_t pixel = 0; pixel < count; ++pixel)
-                    {
-                        if (signedValue(currentX) >= 0 && signedValue(currentX) <= clippedRight)
-                        {
-                            const std::uint32_t alpha = static_cast<std::uint8_t>(*input);
-                            blendPixel(pixelAddress, alpha, false);
-                        }
+		if (!placed.IsTouching(bounds))
+			return;
 
-                        ++currentX;
-                        input = offsetAddress(input, 1);
-                        pixelAddress = offsetAddress(pixelAddress, pixelBytes);
+		SRectangle clipped = placed;
+		clipped.CutInside(bounds);
 
-                        if (depth == 2)
-                            fastColourAddress = pixelAddress;
-                    }
-                }
-            }
-        }
+		const bool wasClipped = clipped.x != placed.x || clipped.y != placed.y || clipped.width != placed.width || clipped.height != placed.height;
+		const std::byte* rowTable = offsetAddress(readPointer(bobManager, 0x2C), readWord(entry + 0x14) * 4u);
 
-        _mm_empty();
-    }
+		if (placed.y < 0)
+			rowTable = offsetAddress(rowTable, (0u - static_cast<std::uint32_t>(placed.y)) * 4u);
+
+		const std::int32_t placedRight = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(placed.width) - 1u);
+		const bool clipRight = placedRight >= signedValue(readWord(offsetAddress(bitmap, 0x10)));
+
+		if (readWord(entry) != 4)
+			return;
+
+		const std::uint32_t depth = readWord(offsetAddress(bitmap, 4));
+
+		if (depth == 0)
+			return;
+
+		if (depth != 1 && depth != 2)
+		{
+			_mm_empty();
+			return;
+		}
+
+		const std::uint16_t* highColorTable = nullptr;
+		const std::uint32_t* trueColorTable = nullptr;
+		std::uint32_t greenMask = 0;
+		bool useMmx;
+
+		if (depth == 2)
+		{
+			trueColorTable = Palette_GetTrueColorTablePtr(palette);
+
+			if (trueColorTable == nullptr)
+				return;
+
+			useMmx = CPU_HasMMX();
+		}
+		else
+		{
+			highColorTable = Palette_GetHighColorTablePtr(palette);
+
+			if (highColorTable == nullptr)
+				return;
+
+			const auto* converterBytes = reinterpret_cast<const std::byte*>(g16BitPixelConverter);
+			greenMask = converterBytes[0x3A] != std::byte{ 0 } ? 0x07E0u : 0x03E0u;
+
+			useMmx = CPU_HasMMX();
+
+			if (useMmx)
+			{
+				// The original requests this table but does not consume the result.
+				Palette_GetTrueColorTablePtr(palette);
+			}
+		}
+
+		const auto blend = [&] (std::uint32_t destination, std::uint32_t source, std::uint32_t alpha, bool fast) -> std::uint32_t
+		{
+			const std::uint32_t inverseAlpha = 256u - alpha;
+
+			if (depth == 2)
+			{
+				const std::uint32_t channelCount = useMmx && fast ? 4u : 3u;
+				std::uint32_t result = 0;
+
+				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
+				{
+					const std::uint32_t shift = channel * 8u;
+					const std::uint32_t destinationChannel = (destination >> shift) & 0xFFu;
+					const std::uint32_t sourceChannel = (source >> shift) & 0xFFu;
+					const std::uint32_t blendedChannel = (destinationChannel * inverseAlpha + sourceChannel * alpha) >> 8;
+
+					result |= blendedChannel << shift;
+				}
+
+				return result;
+			}
+
+			if (useMmx && fast)
+			{
+				const std::uint32_t otherMask = (~greenMask) & 0xFFFFu;
+				const std::uint32_t destinationOther = destination & otherMask;
+				const std::uint32_t sourceOther = source & otherMask;
+
+				const std::uint32_t lowByte = ((destinationOther & 0xFFu) * inverseAlpha + (sourceOther & 0xFFu) * alpha) >> 8;
+				const std::uint32_t highByte = ((destinationOther >> 8) * inverseAlpha + (sourceOther >> 8) * alpha) >> 8;
+				const std::uint32_t other = (lowByte | (highByte << 8)) & otherMask;
+
+				const std::uint32_t destinationGreen = (destination & greenMask) >> 4;
+				const std::uint32_t sourceGreen = (source & greenMask) >> 4;
+				const std::uint32_t green = ((destinationGreen * inverseAlpha + sourceGreen * alpha) >> 4) & greenMask;
+
+				return other + green;
+			}
+
+			// Preserve the scalar RGB555 red-mask defect.
+			const std::uint32_t red = (((destination & 0xF800u) * inverseAlpha + (source & 0xF800u) * alpha) >> 8) & 0xF800u;
+			const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (source & greenMask) * alpha) >> 8) & greenMask;
+			const std::uint32_t blue = ((destination & 0x1Fu) * inverseAlpha + (source & 0x1Fu) * alpha) >> 8;
+
+			return red + green + blue;
+		};
+
+		const auto drawPixel = [&] (const std::byte* output, const std::byte* input, bool fast)
+		{
+			const std::uint8_t colourIndex = static_cast<std::uint8_t>(input[0]);
+			const std::uint32_t alpha = static_cast<std::uint8_t>(input[1]);
+
+			if (depth == 2)
+			{
+				const std::uint32_t destination = readWord(output);
+				const std::uint32_t source = trueColorTable[colourIndex];
+				const std::uint32_t result = blend(destination, source, alpha, fast);
+
+				std::memcpy(const_cast<std::byte*>(output), &result, sizeof(result));
+			}
+			else
+			{
+				const std::uint16_t destination = readHalfWord(output);
+				const std::uint16_t source = highColorTable[colourIndex];
+				const std::uint16_t result = static_cast<std::uint16_t>(blend(destination, source, alpha, fast));
+
+				std::memcpy(const_cast<std::byte*>(output), &result, sizeof(result));
+			}
+		};
+
+		const std::uint32_t pixelBytes = depth == 2 ? 4u : 2u;
+		const std::uint32_t pixelPointerOffset = depth == 2 ? 0x2Cu : 0x28u;
+		const std::int32_t clippedRight = signedValue(static_cast<std::uint32_t>(clipped.x) + static_cast<std::uint32_t>(clipped.width) - 1u);
+		std::uint32_t destinationY = static_cast<std::uint32_t>(clipped.y);
+
+		for (std::int32_t row = 0; row < clipped.height; ++row, ++destinationY)
+		{
+			const std::uint32_t descriptor = readWord(rowTable);
+			rowTable = offsetAddress(rowTable, 4);
+
+			if (descriptor == 0xFFFFFFFFu)
+				continue;
+
+			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
+			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+
+			bool fast = depth == 1 && !wasClipped;
+			bool fastPrepared = false;
+			const std::byte* output = nullptr;
+
+			for (;;)
+			{
+				if (!fast && signedValue(currentX) >= 0 && !clipRight)
+					fast = true;
+
+				if (fast && !fastPrepared)
+				{
+					const std::uint32_t pixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY + currentX;
+					output = offsetAddress(readPointer(bitmap, pixelPointerOffset), pixelIndex * pixelBytes);
+					fastPrepared = true;
+				}
+
+				const std::uint8_t token = static_cast<std::uint8_t>(*input);
+				input = offsetAddress(input, 1);
+
+				if (token == 0)
+					break;
+
+				std::uint32_t count = token & 0x7Fu;
+
+				if ((token & 0x80u) != 0)
+				{
+					if (fast)
+						output = offsetAddress(output, count * pixelBytes);
+					else
+						currentX += count;
+
+					continue;
+				}
+
+				if (fast)
+				{
+					if (depth == 1 && useMmx)
+					{
+						// Preserve the paired destination read and write of the MMX loop.
+						while (count >= 2)
+						{
+							const std::uint32_t destinationPair = readWord(output);
+
+							const std::uint8_t firstIndex = static_cast<std::uint8_t>(input[0]);
+							const std::uint16_t firstSource = highColorTable[firstIndex];
+							const std::uint32_t firstAlpha = static_cast<std::uint8_t>(input[1]);
+
+							const std::uint8_t secondIndex = static_cast<std::uint8_t>(input[2]);
+							const std::uint16_t secondSource = highColorTable[secondIndex];
+							const std::uint32_t secondAlpha = static_cast<std::uint8_t>(input[3]);
+
+							const std::uint32_t firstResult = blend(destinationPair & 0xFFFFu, firstSource, firstAlpha, true);
+							const std::uint32_t secondResult = blend(destinationPair >> 16, secondSource, secondAlpha, true);
+							const std::uint32_t resultPair = firstResult | (secondResult << 16);
+
+							std::memcpy(const_cast<std::byte*>(output), &resultPair, sizeof(resultPair));
+
+							input = offsetAddress(input, 4);
+							output = offsetAddress(output, 4);
+							count -= 2;
+						}
+					}
+
+					while (count != 0)
+					{
+						drawPixel(output, input, true);
+
+						input = offsetAddress(input, 2);
+						output = offsetAddress(output, pixelBytes);
+						--count;
+					}
+				}
+				else
+				{
+					const std::uint32_t rowPixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY;
+					const std::byte* rowPixels = offsetAddress(readPointer(bitmap, pixelPointerOffset), rowPixelIndex * pixelBytes);
+					const std::byte* pixelAddress = offsetAddress(rowPixels, currentX * pixelBytes);
+
+					while (count != 0)
+					{
+						if (signedValue(currentX) >= 0 && signedValue(currentX) <= clippedRight)
+							drawPixel(pixelAddress, input, false);
+
+						++currentX;
+						input = offsetAddress(input, 2);
+						pixelAddress = offsetAddress(pixelAddress, pixelBytes);
+						--count;
+					}
+				}
+			}
+		}
+
+		_mm_empty();
+	}
+
+	// Original function: FUN_004660c6
+	void BobManager_PrintBobUsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour)
+	{
+		static_assert(sizeof(void*) == 4);
+
+		const auto readWord = [] (const void* address) -> std::uint32_t
+		{
+			std::uint32_t value;
+			std::memcpy(&value, address, sizeof(value));
+			return value;
+		};
+
+		const auto offsetAddress = [] (const void* address, std::uint32_t offset) -> const std::byte*
+		{
+			const std::uintptr_t result = reinterpret_cast<std::uintptr_t>(address) + offset;
+			return reinterpret_cast<const std::byte*>(result);
+		};
+
+		const auto readPointer = [&] (const void* object, std::uint32_t offset) -> const std::byte*
+		{
+			const std::byte* value;
+			std::memcpy(&value, offsetAddress(object, offset), sizeof(value));
+			return value;
+		};
+
+		const auto signedValue = [] (std::uint32_t value) -> std::int32_t
+		{
+			return Runtime_TimeSigned32(value);
+		};
+
+		const auto blendChannel = [] (std::uint32_t destination, std::uint32_t source, std::uint32_t alpha) -> std::uint32_t
+		{
+			return (destination * (256u - alpha) + source * alpha) >> 8;
+		};
+
+		const std::uint32_t index = bobId - readWord(offsetAddress(bobManager, 4));
+
+		if (index >= readWord(offsetAddress(bobManager, 8)))
+			return;
+
+		const std::byte* entry = offsetAddress(readPointer(bobManager, 0x24), index * 24u);
+
+		if (readWord(entry) == 0)
+			return;
+
+		SRectangle placed(0, 0, 0, 0);
+		std::memcpy(&placed, entry + 4, sizeof(placed));
+
+		placed.x = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(x));
+		placed.y = signedValue(static_cast<std::uint32_t>(placed.y) + static_cast<std::uint32_t>(y));
+
+		SRectangle bounds(0, 0, 0, 0);
+		std::memcpy(&bounds, offsetAddress(bitmap, 8), sizeof(bounds));
+
+		if (!placed.IsTouching(bounds))
+			return;
+
+		SRectangle clipped = placed;
+		clipped.CutInside(bounds);
+
+		const bool wasClipped = clipped.x != placed.x || clipped.y != placed.y || clipped.width != placed.width || clipped.height != placed.height;
+
+		const std::byte* rowTable = offsetAddress(readPointer(bobManager, 0x2C), readWord(entry + 0x14) * 4u);
+
+		if (placed.y < 0)
+			rowTable = offsetAddress(rowTable, (0u - static_cast<std::uint32_t>(placed.y)) * 4u);
+
+		const std::int32_t placedRight = signedValue(static_cast<std::uint32_t>(placed.x) + static_cast<std::uint32_t>(placed.width) - 1u);
+		const bool clipRight = placedRight >= signedValue(readWord(offsetAddress(bitmap, 0x10)));
+
+		if (readWord(entry) != 1)
+			return;
+
+		const std::uint32_t depth = readWord(offsetAddress(bitmap, 4));
+
+		if (depth == 0)
+			return;
+
+		if (depth != 1 && depth != 2)
+		{
+			_mm_empty();
+			return;
+		}
+
+		std::uint32_t sourceColour = 0;
+		std::uint32_t fastSourceColour = 0;
+		std::uint32_t greenMask = 0;
+		bool useMmx;
+
+		if (depth == 2)
+		{
+			sourceColour = static_cast<std::uint32_t>(colour->blue);
+			sourceColour |= static_cast<std::uint32_t>(colour->green) << 8;
+			sourceColour |= static_cast<std::uint32_t>(colour->red) << 16;
+
+			useMmx = CPU_HasMMX();
+		}
+		else
+		{
+			const std::byte* converterBytes = reinterpret_cast<const std::byte*>(g16BitPixelConverter);
+			greenMask = converterBytes[0x3A] != std::byte{ 0 } ? 0x07E0u : 0x03E0u;
+			sourceColour = g16BitPixelConverter->PackColor(*colour);
+
+			useMmx = CPU_HasMMX();
+
+			if (useMmx)
+				fastSourceColour = g16BitPixelConverter->PackColor(*colour);
+		}
+
+		const auto blendPixel = [&] (const std::byte* address, std::uint32_t alpha, bool fast)
+		{
+			if (depth == 2)
+			{
+				const std::uint32_t destination = readWord(address);
+				const bool mmxPixel = useMmx && fast;
+				const std::uint32_t source = mmxPixel ? fastSourceColour : sourceColour;
+				const std::uint32_t channelCount = mmxPixel ? 4u : 3u;
+				std::uint32_t result = 0;
+
+				for (std::uint32_t channel = 0; channel < channelCount; ++channel)
+				{
+					const std::uint32_t shift = channel * 8u;
+					const std::uint32_t destinationChannel = (destination >> shift) & 0xFFu;
+					const std::uint32_t sourceChannel = (source >> shift) & 0xFFu;
+
+					result |= blendChannel(destinationChannel, sourceChannel, alpha) << shift;
+				}
+
+				std::memcpy(const_cast<std::byte*>(address), &result, sizeof(result));
+			}
+			else
+			{
+				std::uint16_t destinationWord;
+				std::memcpy(&destinationWord, address, sizeof(destinationWord));
+
+				const std::uint32_t destination = destinationWord;
+				const std::uint32_t inverseAlpha = 256u - alpha;
+				std::uint32_t result;
+
+				if (useMmx && fast)
+				{
+					// Reproduce the independent MMX byte lanes without changing rounding.
+					const std::uint32_t otherMask = (~greenMask) & 0xFFFFu;
+					const std::uint32_t destinationOther = destination & otherMask;
+					const std::uint32_t sourceOther = fastSourceColour & otherMask;
+
+					const std::uint32_t lowByte = blendChannel(destinationOther & 0xFFu, sourceOther & 0xFFu, alpha);
+					const std::uint32_t highByte = blendChannel(destinationOther >> 8, sourceOther >> 8, alpha);
+					const std::uint32_t other = (lowByte | (highByte << 8)) & otherMask;
+
+					const std::uint32_t destinationGreen = (destination & greenMask) >> 4;
+					const std::uint32_t sourceGreen = (fastSourceColour & greenMask) >> 4;
+					const std::uint32_t green = ((destinationGreen * inverseAlpha + sourceGreen * alpha) >> 4) & greenMask;
+
+					result = other + green;
+				}
+				else
+				{
+					// The scalar path uses 0xF800 even with the RGB555 green mask.
+					const std::uint32_t red = (((destination & 0xF800u) * inverseAlpha + (sourceColour & 0xF800u) * alpha) >> 8) & 0xF800u;
+					const std::uint32_t green = (((destination & greenMask) * inverseAlpha + (sourceColour & greenMask) * alpha) >> 8) & greenMask;
+					const std::uint32_t blue = ((destination & 0x1Fu) * inverseAlpha + (sourceColour & 0x1Fu) * alpha) >> 8;
+
+					result = red + green + blue;
+				}
+
+				const std::uint16_t resultWord = static_cast<std::uint16_t>(result);
+				std::memcpy(const_cast<std::byte*>(address), &resultWord, sizeof(resultWord));
+			}
+		};
+
+		std::uint32_t destinationY = static_cast<std::uint32_t>(clipped.y);
+		const std::uint32_t pixelBytes = depth == 2 ? 4u : 2u;
+		const std::uint32_t pixelPointerOffset = depth == 2 ? 0x2Cu : 0x28u;
+		const std::int32_t clippedRight = signedValue(static_cast<std::uint32_t>(clipped.x) + static_cast<std::uint32_t>(clipped.width) - 1u);
+
+		for (std::int32_t row = 0; row < clipped.height; ++row, ++destinationY)
+		{
+			const std::uint32_t descriptor = readWord(rowTable);
+			rowTable = offsetAddress(rowTable, 4);
+
+			if (descriptor == 0xFFFFFFFFu)
+				continue;
+
+			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
+			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
+
+			bool fast = depth == 1 && !wasClipped;
+			bool fastPrepared = false;
+			const std::byte* output = nullptr;
+
+			for (;;)
+			{
+				if (!fast && signedValue(currentX) >= 0 && !clipRight)
+					fast = true;
+
+				if (fast && !fastPrepared)
+				{
+					const std::uint32_t pixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY + currentX;
+					output = offsetAddress(readPointer(bitmap, pixelPointerOffset), pixelIndex * pixelBytes);
+
+					if (depth == 2 && useMmx)
+					{
+						fastSourceColour = readWord(colour);
+					}
+
+					fastPrepared = true;
+				}
+
+				const std::uint8_t token = static_cast<std::uint8_t>(*input);
+				input = offsetAddress(input, 1);
+
+				if (token == 0)
+					break;
+
+				const std::uint32_t count = token & 0x7Fu;
+
+				if ((token & 0x80u) != 0)
+				{
+					if (fast)
+						output = offsetAddress(output, count * pixelBytes);
+					else
+						currentX += count;
+
+					continue;
+				}
+
+				if (fast)
+				{
+					for (std::uint32_t pixel = 0; pixel < count; ++pixel)
+					{
+						const std::uint32_t alpha = static_cast<std::uint8_t>(*input);
+						input = offsetAddress(input, 1);
+
+						blendPixel(output, alpha, true);
+						output = offsetAddress(output, pixelBytes);
+					}
+				}
+				else
+				{
+					const std::uint32_t rowPixelIndex = readWord(offsetAddress(bitmap, 0x30)) * destinationY;
+					const std::byte* rowPixels = offsetAddress(readPointer(bitmap, pixelPointerOffset), rowPixelIndex * pixelBytes);
+					const std::byte* pixelAddress = offsetAddress(rowPixels, currentX * pixelBytes);
+
+					for (std::uint32_t pixel = 0; pixel < count; ++pixel)
+					{
+						if (signedValue(currentX) >= 0 && signedValue(currentX) <= clippedRight)
+						{
+							const std::uint32_t alpha = static_cast<std::uint8_t>(*input);
+							blendPixel(pixelAddress, alpha, false);
+						}
+
+						++currentX;
+						input = offsetAddress(input, 1);
+						pixelAddress = offsetAddress(pixelAddress, pixelBytes);
+					}
+				}
+			}
+		}
+
+		_mm_empty();
+	}
 }

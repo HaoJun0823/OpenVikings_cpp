@@ -1443,6 +1443,37 @@ namespace NNetwork
         return 0;
     }
 
+    // Original function: FUN_004dec0a
+    bool SendDynamicNetworkChatMessage(SDynamicNetworkData* /*data*/, DPNID recipient, const wchar_t* text)
+    {
+        CDPNet* network = GetNetworkInstance();
+
+        struct SChatPacket
+        {
+            std::uint8_t type;
+            std::uint8_t characterCount;
+            wchar_t text[128];
+            std::byte trailingPadding[2];
+        };
+
+        static_assert(sizeof(wchar_t) == 2);
+        static_assert(offsetof(SChatPacket, text) == 0x02);
+        static_assert(sizeof(SChatPacket) == 0x104);
+
+        SChatPacket packet;
+
+        // Original packet constructor: FUN_004dee2d.
+        packet.type = 3;
+        packet.characterCount = 0;
+        std::memset(packet.text, 0, sizeof(packet.text));
+
+        // Preserve the original length byte before truncating the copied text.
+        packet.characterCount = static_cast<std::uint8_t>(std::wcslen(text) + 1u);
+        std::wcsncpy(packet.text, text, 127);
+
+        return network->SendPacket(recipient, &packet);
+    }
+
     // Original function: FUN_004dec60
     bool TakeDynamicNetworkTextRecords(SDynamicNetworkData* data, void** records, std::uint32_t* recordCount)
     {

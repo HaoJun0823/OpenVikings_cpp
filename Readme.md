@@ -115,6 +115,7 @@ tests passed; these do not validate DirectPlay or the full application.
 | OB050 | Zero text-input limit bypasses the insertion bound | 004a3a8e and 004a3b10 |
 | OB051 | Unguarded division in host transfer progress | 004d9605 |
 | OB052 | Unsigned transfer countdown underflow | 004d9605 |
+| OB053 | Scalar RGB555 transparency loses a red bit| 004660c6 |
 
 ### OB001 — Negative indices before the character-type table
 
@@ -617,6 +618,146 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Assessment / reconstruction limits:** Percentage and duration multiplications also retain their original 32-bit wraparound.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Validate progress arithmetic and clamp the remaining duration to zero.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB-053 — Scalar RGB555 transparency loses a red bit
+
+- **Original reference:** 0046534f and 004660c6 — palette-based and RGB-colour transparency rendering.
+- **Evidence:** Both renderers select the RGB555 green mask while retaining 0xF800 for scalar red blending. Examples are 0046588a / 0046598b and 0046659d / 004665b9. RGB555 requires 0x7C00.
+- **Behavior and trigger:** Scalar RGB555 blending discards red bit 10. A destination pixel of 0x0400 becomes 0x0000 even with an alpha byte of zero. The fast MMX path preserves that pixel.
+- **Assessment / reconstruction limits:** Clipped pixels can use scalar arithmetic even when MMX is available. The arithmetic difference is confirmed; its visibility in the game has not been tested.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Use the actual pixel-format masks consistently across scalar and MMX paths.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB054 — Fire-and-forget slot selection uses a restricted initial counter limit
+
+- **Original reference:** `NDSManager::CManager::l_FireAndForget_GetFreeSlot`, `DSManager.cpp`, `004051a3`.
+- **Evidence:** `004051aa` initializes the candidate counter to `0x7FFFFFFF`; `004051bf` / `004051c1` compare counters unsigned. The fallback slot index starts at zero.
+- **Behavior and trigger:** When all 40 slots are active and every counter is at least `0x7FFFFFFF`, slot zero is selected even if another slot has a smaller counter. The playback counter is incremented at `0040510d`.
+- **Assessment / reconstruction limits:** Confirmed selection behavior from Windows ASM. Reaching this counter range during normal gameplay has not been demonstrated.
+- **Decision:** Preserve the original limit, comparison and fallback index.
+- **Renewed task:** Define counter-wrap handling and correct oldest-slot selection.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB055 — WAV loading assumes a fixed sample-data offset
+
+- **Original reference:** `NDSManager::ls_WaveFile_Load`, `DSManager.cpp`, `0040499b`.
+- **Evidence:** `004049fa` requires a file size greater than `0x38`. The loader checks RIFF, WAVE, the initial fmt tag and PCM format. `00404a6f` / `00404a73` pass all bytes from offset `0x38` to the end of the file as sample data.
+- **Behavior and trigger:** Files whose sample data starts elsewhere are rejected by the size check or passed with the wrong sample range. The loader does not locate a data chunk or use its declared length; trailing chunks may be included as samples.
+- **Assessment / reconstruction limits:** Confirmed fixed-layout behavior from Windows ASM. Compatibility of individual shipped assets has not been tested.
+- **Decision:** Preserve the fixed offsets and existing checks.
+- **Renewed task:** Parse RIFF chunks and validate the actual sample-data range.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB056 — Sound creation leaks resources on failure paths
+
+- **Original reference:** `NDSManager::Sound_CreateFromMemory`, `DSManager.cpp`, `00405358`.
+- **Evidence:** The failure branch at `00405419` returns without freeing the context allocated at `0040538a`. If the wrapper allocation at `0040541f` returns null, `0040544e` through `00405455` stores a null output and returns zero without releasing the context or DirectSound buffer.
+- **Behavior and trigger:** DirectSound buffer creation failure leaks the wave context. Wrapper allocation failure leaks both the context and the successfully created COM buffer while reporting success.
+- **Assessment / reconstruction limits:** Confirmed from Windows control flow. The allocation-failure path applies when the runtime allocator returns null.
+- **Decision:** Preserve both failure paths during faithful reconstruction.
+- **Renewed task:** Release acquired resources on failure and report wrapper allocation failure accurately.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB057 — Sound-buffer read failure bypasses Unlock
+
+- **Original reference:** `NDSManager::Sound_FillBuffer`, `DSManager.cpp`, `004054b4`.
+- **Evidence:** After a successful Lock, the negative-result branch at `00405525` jumps directly to the return path at `0040558a`, bypassing Unlock at `00405585`.
+- **Behavior and trigger:** A wave-read failure returns while the DirectSound buffer remains locked.
+- **Assessment / reconstruction limits:** Confirmed from Windows control flow. Subsequent DirectSound behavior has not been tested.
+- **Decision:** Preserve the original failure path.
+- **Renewed task:** Unlock the buffer on every exit after a successful Lock.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB058 — Sound-buffer restoration retries every nonzero result indefinitely
+
+- **Original reference:** `NDSManager::Sound_RestoreBuffer`, `DSManager.cpp`, `00405591`.
+- **Evidence:** `004055cb` compares against `0x88780096` and sleeps for 10 ms only for that result. `004055db` / `004055dd` retry every nonzero result.
+- **Behavior and trigger:** Persistent restoration failure prevents the function from returning. Errors other than DSERR_BUFFERLOST are retried without a delay.
+- **Assessment / reconstruction limits:** Confirmed from Windows control flow; no retry limit or cancellation path exists in this function.
+- **Decision:** Preserve the original loop and delay condition.
+- **Renewed task:** Propagate nonrecoverable errors and define a bounded recovery policy.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB059 — Memory-backed wave reads do not advance the cursor
+
+- **Original reference:** `NDSManager::Wave_Read`, `DSManager.cpp`, `004057d4`.
+- **Evidence:** The memory branch reads the cursor at context offset `0x4C`, copies the selected range at `0040581f`, and returns without updating the cursor.
+- **Behavior and trigger:** Repeated reads return data from the same position unless another operation changes the cursor.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. The current sound-buffer fill path resets the cursor and performs one read, so this path alone does not demonstrate an audible defect.
+- **Decision:** Preserve the unchanged cursor.
+- **Renewed task:** Advance the cursor after successful reads and review affected callers.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB060 — MMIO read failures retain an early chunk-size decrement
+
+- **Original reference:** `NDSManager::Wave_Read`, `DSManager.cpp`, `004057d4`.
+- **Evidence:** `00405877` / `0040587b` subtract the entire selected read size from the remaining chunk size before copying. Later failure branches do not restore it.
+- **Behavior and trigger:** An MMIO advance failure, an empty refilled buffer or an mmioSetInfo failure leaves the remaining size reduced. The destination may already contain partial data while the reported byte count remains zero.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM; subsequent recovery behavior has not been tested.
+- **Decision:** Preserve the state changes and error reporting.
+- **Renewed task:** Track actual consumption and define consistent state and byte-count handling on failure.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB061 — New volume transitions retain the previous rate
+
+- **Original reference:** `NDSManager::CManager::PreloadWave_ChangeVolume`, `DSManager.cpp`, `00404e5c`.
+- **Evidence:** The free-entry branch at `00404eea` through `00404f13` writes the timestamp, target, active flag, identifier and current volume. It does not write the rate at entry offset `0x10`.
+- **Behavior and trigger:** A newly assigned transition starts with its current volume already equal to the requested target and retains the previous rate. With a zero rate, System_Update performs no volume update for this entry; a retained nonzero rate takes the target-application path.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. The requested duration is used only when modifying an already active transition for the same sound.
+- **Decision:** Preserve the original initialization.
+- **Renewed task:** Initialize new transitions from the actual current volume and calculate their rate explicitly.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB062 — Preload lookup stops at the first inactive slot
+
+- **Original reference:** `NDSManager::CManager::PreloadWave_Load`, `DSManager.cpp`, `00404bff`.
+- **Evidence:** `00404c37` / `00404c3b` leave the lookup loop immediately when an inactive entry is encountered. Later entries are not compared.
+- **Behavior and trigger:** After unloading an earlier slot, loading a name already present in a later slot can allocate another entry for the same name.
+- **Assessment / reconstruction limits:** Confirmed from Windows control flow. The duplicate consumes another preload slot and loads separate sound resources.
+- **Decision:** Preserve the original lookup order and early exit.
+- **Renewed task:** Search all active entries for a matching name while separately remembering the first free slot.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB063 — Volume-transition rate calculation accepts a zero duration
+
+- **Original reference:** `NDSManager::CManager::PreloadWave_Play`, `00404ced`, and `PreloadWave_ChangeVolume`, `00404e5c`, in `DSManager.cpp`.
+- **Evidence:** `00404da5` and `00404edf` divide by the supplied duration without checking for zero.
+- **Behavior and trigger:** A zero duration reaches the x87 division when creating a playback transition or updating an existing volume transition. With masked floating-point exceptions, a nonzero numerator produces infinity and a zero numerator produces NaN.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. Exception delivery depends on the active x87 control word.
+- **Decision:** Preserve the original division and floating-point behavior.
+- **Renewed task:** Define zero-duration transitions as an explicit immediate operation.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB064 — Failed sound-device initialization leaves resources outside normal teardown
+
+- **Original reference:** `NDSManager::CManager::l_Device_Init`, `00404b62`, `Quality_Set`, `004048d7`, and the manager destructor, `00404762`.
+- **Evidence:** The device wrapper is stored before initialization at `00404bc0`. Initialization failure returns without freeing it. The manager destructor skips resource teardown when the initialized flag is zero.
+- **Behavior and trigger:** Failed initialization can leave the wrapper and an acquired DirectSound interface allocated. A later initialization overwrites the wrapper pointer. After failed reinitialization, retained preload names are also skipped by the destructor.
+- **Assessment / reconstruction limits:** Confirmed from Windows control flow. The exact retained resources depend on the failing initialization stage.
+- **Decision:** Preserve the original failure paths.
+- **Renewed task:** Clean up partial initialization independently of the initialized flag.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB065 — Primary-buffer format failure leaks the buffer reference
+
+- **Original reference:** `NDSManager::SoundDevice_SetPrimaryFormat`, `DSManager.cpp`, `004052a0`.
+- **Evidence:** The negative-result branch at `00405341` bypasses Release at `0040534d`.
+- **Behavior and trigger:** If primary-buffer creation succeeds but SetFormat fails, the acquired buffer reference is not released.
+- **Assessment / reconstruction limits:** Confirmed from Windows control flow.
+- **Decision:** Preserve the original failure path.
+- **Renewed task:** Release the primary buffer after both successful and failed format changes.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB066 — Master-volume updates overwrite per-sound volume and pan
+
+- **Original reference:** `NDSManager::CManager::MainVolume_Set`, `DSManager.cpp`, `00404aac`.
+- **Evidence:** Calls at `00404b14` and `00404b4e` derive attenuation solely from the master volume and pass zero for pan.
+- **Behavior and trigger:** Updating master volume overwrites individual volume settings and centers pan for affected sounds. Active preload transitions are skipped; active fire-and-forget entries are not.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. No previous per-sound volume or pan is incorporated into these calls.
+- **Decision:** Preserve the original update behavior.
+- **Renewed task:** Retain individual sound settings when applying master-volume changes.
 - **Status:** Preserved / original defect; Renewed: open.
 
 ## Original observations and unresolved defect assessments

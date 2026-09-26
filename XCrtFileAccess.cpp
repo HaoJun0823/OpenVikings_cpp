@@ -936,6 +936,18 @@ namespace NXBasics
         return result;
     }
 
+    // Original function: FUN_004e81c4
+    std::int32_t Runtime_PrintStringN(char* destination, std::uint32_t capacity, const char* format, ...)
+    {
+        va_list arguments;
+        va_start(arguments, format);
+
+        const std::int32_t result = Runtime_FormatString(destination, Runtime_TimeSigned32(capacity), format, arguments);
+
+        va_end(arguments);
+        return result;
+    }
+
     // Original function: FUN_004e5fc2
     RuntimeOnExitCallback Runtime_RegisterOnExit(RuntimeOnExitCallback callback)
     {

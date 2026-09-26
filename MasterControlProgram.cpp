@@ -1,3 +1,4 @@
+#include "DSManager.h"
 #include "XSystemManager.h"
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
@@ -14,6 +15,9 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
+#include <windows.h>
+
+extern NDSManager::CManager* DAT_0050f6a4;
 
 namespace NC2LogicExternals
 {
@@ -212,17 +216,20 @@ namespace NMasterControlProgram
 
         if (!NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_off"))
         {
-            new (std::nothrow) NDSManager::CManager(window, true);
+            void* soundManagerStorage = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NDSManager::CManager), 1);
+
+            if (soundManagerStorage != nullptr)
+                ::new (soundManagerStorage) NDSManager::CManager(window, true);
 
             const int quality = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_quality") ? NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("fx_quality") : 1;
 
-            NDSManager::CManager::sTheObjectPtr->Quality_Set(quality);
+            DAT_0050f6a4->Quality_Set(quality);
 
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_volume"))
             {
                 const int volume = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("fx_volume");
 
-                NDSManager::CManager::sTheObjectPtr->MainVolume_Set(volume);
+                DAT_0050f6a4->MainVolume_Set(volume);
             }
         }
 
@@ -314,7 +321,7 @@ namespace NMasterControlProgram
 
         if (soundManager != nullptr)
         {
-            FUN_00404762(soundManager);
+            soundManager->~CManager();
             NXBasics::Runtime_Free(soundManager);
         }
 

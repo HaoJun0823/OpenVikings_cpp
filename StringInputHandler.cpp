@@ -1,5 +1,6 @@
 #include "StringInputHandler.h"
 #include "XCrtFileAccess.h"
+#include "XFontMetrics.h"
 
 #include <cstring>
 
@@ -225,7 +226,7 @@ namespace NC2InGameGuiBaseTextInputElement
         const char savedCharacter = mText[mCursorPosition];
         mText[mCursorPosition] = '\0';
 
-        const std::uint32_t width = FUN_0043976c(font, mText);
+        const std::uint32_t width = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, mText));
 
         mText[mCursorPosition] = savedCharacter;
 
