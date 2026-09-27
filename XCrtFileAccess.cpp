@@ -3043,6 +3043,20 @@ namespace NXBasics
         return HeapAlloc(gRuntimeHeap, 0, allocationBytes);
     }
 
+    // Original function: FUN_004e8736
+    std::int32_t Runtime_Rand()
+    {
+        auto* threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
+
+        std::uint32_t state;
+        std::memcpy(&state, threadBytes + 0x14, sizeof(state));
+
+        state = state * 0x343FDu + 0x269EC3u;
+        std::memcpy(threadBytes + 0x14, &state, sizeof(state));
+
+        return static_cast<std::int32_t>((state >> 16) & 0x7FFFu);
+    }
+
     // Original function: FUN_004e89e4
     std::int32_t Runtime_RenameFile(const char* oldFileName, const char* newFileName)
     {

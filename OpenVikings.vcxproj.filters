@@ -94,6 +94,21 @@
     <Filter Include="Runtime">
       <UniqueIdentifier>{B3DD3604-4C5E-584D-B140-C16A44C1D30A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Iterators">
+      <UniqueIdentifier>{95f9bd14-8ff8-476c-961c-aefac43ad5cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Geometry">
+      <UniqueIdentifier>{e658b9a4-1450-416d-b352-d644f6604d77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Animals">
+      <UniqueIdentifier>{cdc56b02-0c3c-4446-a5be-a5072803719b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Map">
+      <UniqueIdentifier>{48cb348d-d7bc-4954-9499-e62281ac9750}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Display">
+      <UniqueIdentifier>{9b83bff4-4049-40ea-bc79-fb437df5c0b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MasterControlProgram.cpp">
@@ -242,6 +257,24 @@
     </ClCompile>
     <ClCompile Include="XCrtFileAccess.cpp">
       <Filter>Runtime</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AnimalIterator.cpp">
+      <Filter>Engine\Iterators</Filter>
+    </ClCompile>
+    <ClCompile Include="C2MapSectorGridCursor.cpp">
+      <Filter>Engine\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="C2MapGeometry.cpp">
+      <Filter>Engine\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AnimalAccess.cpp">
+      <Filter>Engine\Animals</Filter>
+    </ClCompile>
+    <ClCompile Include="C2GameMapAccess.cpp">
+      <Filter>Engine\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="C2EngineDisplayAccess.cpp">
+      <Filter>Engine\Display</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -406,6 +439,24 @@
     </ClInclude>
     <ClInclude Include="XCrtStartup.h">
       <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AnimalIterator.h">
+      <Filter>Engine\Iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="C2MapSectorGridCursor.h">
+      <Filter>Engine\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="C2MapGeometry.h">
+      <Filter>Engine\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AnimalAccess.h">
+      <Filter>Engine\Animals</Filter>
+    </ClInclude>
+    <ClInclude Include="C2GameMapAccess.h">
+      <Filter>Engine\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="C2EngineDisplayAccess.h">
+      <Filter>Engine\Display</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

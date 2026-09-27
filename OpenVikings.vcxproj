@@ -11,11 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C2AnimalAccess.cpp" />
+    <ClCompile Include="C2AnimalIterator.cpp" />
     <ClCompile Include="C2CallbackManager.cpp" />
     <ClCompile Include="C2E2AnimalSoundManager.cpp" />
     <ClCompile Include="C2E2StaticDataAnimalSounds.cpp" />
     <ClCompile Include="C2E2StaticDataGroups.cpp" />
     <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
+    <ClCompile Include="C2EngineDisplayAccess.cpp" />
+    <ClCompile Include="C2GameMapAccess.cpp" />
+    <ClCompile Include="C2MapGeometry.cpp" />
+    <ClCompile Include="C2MapSectorGridCursor.cpp" />
     <ClCompile Include="CRC16.cpp" />
     <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="DirectXErrorText.cpp" />
@@ -64,11 +70,17 @@
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
+    <ClInclude Include="C2AnimalAccess.h" />
+    <ClInclude Include="C2AnimalIterator.h" />
     <ClInclude Include="C2CallbackManager.h" />
     <ClInclude Include="C2E2AnimalSoundManager.h" />
     <ClInclude Include="C2E2StaticDataAnimalSounds.h" />
     <ClInclude Include="C2E2StaticDataGroups.h" />
     <ClInclude Include="C2E2StaticDataSoundFX.h" />
+    <ClInclude Include="C2EngineDisplayAccess.h" />
+    <ClInclude Include="C2GameMapAccess.h" />
+    <ClInclude Include="C2MapGeometry.h" />
+    <ClInclude Include="C2MapSectorGridCursor.h" />
     <ClInclude Include="CRC16.h" />
     <ClInclude Include="CRC32.h" />
     <ClInclude Include="DirectXErrorText.h" />

@@ -571,6 +571,7 @@ namespace NXBasics
     char* Runtime_GetEnvironmentVariableLocked(const char* name);
 
     std::int32_t Runtime_RemoveFile(const char* fileName);
+    std::int32_t Runtime_Rand();
     std::int32_t Runtime_RenameFile(const char* oldFileName, const char* newFileName);
     std::int32_t Runtime_SeekStream(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin);
     std::int32_t Runtime_SeekStreamNoLock(RuntimeFormatStream* stream, std::int32_t offset, std::uint32_t origin);

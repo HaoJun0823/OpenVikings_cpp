@@ -67,9 +67,6 @@ namespace NDSManager
             }
         }
 
-        const double zero = 0.0;
-        const double one = 1.0;
-
         for (SVolumeTransition& transition : mVolumeTransitions)
         {
             if (transition.active == 0)
@@ -81,61 +78,25 @@ namespace NDSManager
                 continue;
             }
 
-            SVolumeTransition* entry = &transition;
             const std::int32_t targetVolume = transition.targetVolume;
+            const double target = static_cast<double>(targetVolume);
+            const double current = transition.currentVolume;
+            const double rate = transition.changePerMillisecond;
 
-            // 0: unchanged, 1: apply target, 2: advance by elapsed time.
-            std::uint32_t action = 0;
+            // The negated comparison also advances an unordered current value.
+            const bool advance = !(current + 1.0 > target) || current - 1.0 >= target;
 
-            // Preserve x87 precision and unordered comparison behavior.
-            __asm
+            if (!advance)
             {
-                mov edx, entry
-                fild dword ptr[edx + 04h]
-                fld qword ptr[edx + 08h]
-                fadd qword ptr one
-                fcomp st(1)
-                fnstsw ax
-                sahf
-                jbe volume_update_advance_pop
+                // Both comparisons are false for zero and NaN.
+                if (rate > 0.0 || rate < 0.0)
+                {
+                    PreloadWave_ChangeVolume(transition.identifier, static_cast<std::uint32_t>(targetVolume), false, 0u);
+                    transition.changePerMillisecond = 0.0;
 
-                fld qword ptr[edx + 08h]
-                fsub qword ptr one
-                fcomp st(1)
-                fnstsw ax
-                fstp st(0)
-                sahf
-                jae volume_update_advance
-
-                fld qword ptr[edx + 10h]
-                fcomp qword ptr zero
-                fnstsw ax
-                sahf
-                je volume_update_classified
-
-                mov action, 1
-                jmp volume_update_classified
-
-                volume_update_advance_pop :
-                fstp st(0)
-
-                    volume_update_advance :
-                    mov action, 2
-
-                    volume_update_classified :
-            }
-
-            if (action == 0)
-                continue;
-
-            if (action == 1)
-            {
-                PreloadWave_ChangeVolume(transition.identifier, static_cast<std::uint32_t>(targetVolume), false, 0u);
-
-                transition.changePerMillisecond = 0.0;
-
-                if (transition.targetVolume == 0)
-                    transition.active = 0;
+                    if (transition.targetVolume == 0)
+                        transition.active = 0;
+                }
 
                 continue;
             }
@@ -147,75 +108,29 @@ namespace NDSManager
             if (elapsed == 0)
                 continue;
 
-            const std::uint64_t elapsed64 = elapsed;
-            double temporary;
-            std::uint16_t savedControl;
-            std::uint16_t truncateControl;
-            std::uint64_t convertedBits;
-            std::uint32_t applyVolume = 0;
+            const double next = static_cast<double>(elapsed) * rate + current;
+            transition.currentVolume = next;
 
-            // Keep the extended result alive across the double store.
-            __asm
+            if (rate > 0.0)
             {
-                mov edx, entry
-                fild qword ptr elapsed64
-                fmul qword ptr[edx + 10h]
-                fadd qword ptr[edx + 08h]
-                fst qword ptr temporary
-                fld qword ptr temporary
-                fstp qword ptr[edx + 08h]
-
-                fld qword ptr[edx + 10h]
-                fcomp qword ptr zero
-                fild dword ptr[edx + 04h]
-                fnstsw ax
-                fstp qword ptr temporary
-                fcomp qword ptr temporary
-
-                sahf
-                fnstsw ax
-                jbe volume_update_nonpositive
-
-                sahf
-                jbe volume_update_clamped
-                jmp volume_update_clamp
-
-                volume_update_nonpositive :
-                sahf
-                    jae volume_update_clamped
-
-                    volume_update_clamp :
-                fld qword ptr temporary
-                    fstp qword ptr[edx + 08h]
-
-                    volume_update_clamped :
-                    fld qword ptr[edx + 08h]
-                    fcomp qword ptr one
-                    fnstsw ax
-                    sahf
-                    jbe volume_update_calculated
-
-                    fld qword ptr[edx + 08h]
-
-                    // Inline the conversion performed by FUN_004e6f4c.
-                    fwait
-                    fnstcw word ptr savedControl
-                    fwait
-                    mov ax, savedControl
-                    or ax, 0C00h
-                    mov truncateControl, ax
-                    fldcw word ptr truncateControl
-                    fistp qword ptr convertedBits
-                    fldcw word ptr savedControl
-
-                    mov applyVolume, 1
-
-                    volume_update_calculated:
+                if (next > target)
+                    transition.currentVolume = target;
+            }
+            else
+            {
+                if (!(next >= target))
+                    transition.currentVolume = target;
             }
 
-            if (applyVolume != 0)
+            if (transition.currentVolume > 1.0)
             {
-                const std::uint32_t volume = static_cast<std::uint32_t>(convertedBits);
+                std::uint32_t volume = 0;
+
+                // Avoid an out-of-range floating-to-integer conversion.
+                // The original invalid conversion supplies a zero low DWORD.
+                if (transition.currentVolume < 9223372036854775808.0)
+                    volume = static_cast<std::uint32_t>(static_cast<std::int64_t>(transition.currentVolume));
+
                 PreloadWave_ChangeVolume(transition.identifier, volume, false, 0u);
             }
         }
@@ -559,21 +474,11 @@ namespace NDSManager
                 transition->currentVolume = 0.0;
                 transition->lastUpdate = now;
                 transition->identifier = identifier;
-
-                const std::uint64_t target64 = volume;
-                const std::uint64_t duration64 = durationMilliseconds;
                 transition->targetVolume = NXBasics::Runtime_TimeSigned32(volume);
+                transition->active = 1;
 
-                // Preserve unsigned inputs and the original unchecked x87 division.
-                __asm
-                {
-                    mov edx, transition
-                    fild qword ptr target64
-                    fild qword ptr duration64
-                    mov byte ptr[edx + 1Ch], 1
-                    fdivp st(1), st(0)
-                    fstp qword ptr[edx + 10h]
-                }
+                // The original does not reject a zero duration.
+                transition->changePerMillisecond = static_cast<double>(volume) / static_cast<double>(durationMilliseconds);
 
                 transitionCreated = true;
             }
@@ -657,21 +562,10 @@ namespace NDSManager
             {
                 SVolumeTransition* entry = &mVolumeTransitions[index];
                 entry->lastUpdate = ::timeGetTime();
-
-                const std::uint64_t target64 = volume;
-                const std::uint64_t duration64 = durationMilliseconds;
                 entry->targetVolume = NXBasics::Runtime_TimeSigned32(volume);
 
-                // Preserve unsigned inputs, x87 intermediate precision and division by zero.
-                __asm
-                {
-                    mov edx, entry
-                    fild qword ptr target64
-                    fsub qword ptr[edx + 08h]
-                    fild qword ptr duration64
-                    fdivp st(1), st(0)
-                    fstp qword ptr[edx + 10h]
-                }
+                // The original does not reject a zero duration.
+                entry->changePerMillisecond = (static_cast<double>(volume) - entry->currentVolume) / static_cast<double>(durationMilliseconds);
 
                 return true;
             }

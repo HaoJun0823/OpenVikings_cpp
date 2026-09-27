@@ -1,0 +1,180 @@
+#include "C2AnimalIterator.h"
+#include "C2AnimalAccess.h"
+#include "C2MapGeometry.h"
+
+#include <cstring>
+
+extern void* DAT_00550e68;
+extern void* DAT_00511554;
+extern void* DAT_00510d4c;
+
+namespace NC2Logic
+{
+    // Original function: FUN_004402a3
+    CAnimalIterator::CAnimalIterator()
+    {
+        // Inline initialization performed by 00440cad.
+        packedCenter = 0;
+        firstSector = {};
+        lastSector = {};
+        currentSector = {};
+        currentAnimalId = -1;
+    }
+
+    // Original function: FUN_00440329
+    std::int32_t CAnimalIterator::GetFirstSectorAnimalId(std::uint32_t selectionValue, std::uint32_t centerValue, std::int32_t radiusValue, bool flag1, bool flag2)
+    {
+        selection = selectionValue;
+        packedCenter = centerValue;
+        radius = radiusValue;
+
+        const std::uint32_t radiusBits = static_cast<std::uint32_t>(radiusValue);
+        const std::uint16_t lowerX = static_cast<std::uint16_t>((centerValue & 0xFFFFu) - radiusBits);
+        const std::uint16_t lowerY = static_cast<std::uint16_t>((centerValue >> 16) - radiusBits);
+        std::uint32_t corner = static_cast<std::uint32_t>(lowerX) | (static_cast<std::uint32_t>(lowerY) << 16);
+
+        firstSector = SSectorGridCursor(corner);
+
+        const std::uint32_t diameterBits = radiusBits * 2u;
+        const std::uint16_t upperX = static_cast<std::uint16_t>((corner & 0xFFFFu) + diameterBits);
+        const std::uint16_t upperY = static_cast<std::uint16_t>((corner >> 16) + diameterBits);
+        corner = static_cast<std::uint32_t>(upperX) | (static_cast<std::uint32_t>(upperY) << 16);
+
+        lastSector = SSectorGridCursor(corner);
+
+        firstSector.CutInsideMap();
+        lastSector.CutInsideMap();
+
+        currentSector = firstSector;
+
+        flags = flag1 ? 1u : 0u;
+
+        if (flag2)
+            flags += 2u;
+
+        const std::int32_t animalId = l_GetNextSectorAnimalId(-1);
+        currentAnimalId = animalId;
+        return animalId;
+    }
+
+    // Original function: FUN_004403d0
+    std::int32_t CAnimalIterator::GetNextSectorAnimalId()
+    {
+        const std::int32_t previousAnimalId = currentAnimalId;
+
+        if (previousAnimalId == -1)
+            return -1;
+
+        const std::int32_t animalId = l_GetNextSectorAnimalId(previousAnimalId);
+        currentAnimalId = animalId;
+        return animalId;
+    }
+
+    // Original function: FUN_0044048d
+    std::int32_t CAnimalIterator::l_GetNextSectorAnimalId(std::int32_t previousAnimalId)
+    {
+        const auto addressAt = [] (const void* base, std::uint32_t offset) -> const std::byte*
+        {
+            const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(base)) + offset;
+            return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
+        };
+
+        const auto readWord = [] (const void* source) -> std::uint32_t
+        {
+            std::uint32_t value;
+            std::memcpy(&value, source, sizeof(value));
+            return value;
+        };
+
+        const auto readId = [] (const void* source) -> std::int32_t
+        {
+            std::int32_t value;
+            std::memcpy(&value, source, sizeof(value));
+            return value;
+        };
+
+        const auto incrementCoordinate = [] (std::int32_t& coordinate)
+        {
+            std::uint32_t bits;
+            std::memcpy(&bits, &coordinate, sizeof(bits));
+            ++bits;
+            std::memcpy(&coordinate, &bits, sizeof(coordinate));
+        };
+
+        std::int32_t animalId = previousAnimalId;
+
+        for (;;)
+        {
+            if (animalId == -1)
+            {
+                const void* grid = DAT_00550e68;
+                const std::uint32_t gridWidth = readWord(addressAt(grid, 4));
+
+                const void* sectorData;
+                std::memcpy(&sectorData, addressAt(grid, 8), sizeof(sectorData));
+
+                const std::uint32_t sectorIndex = gridWidth * static_cast<std::uint32_t>(currentSector.y) + static_cast<std::uint32_t>(currentSector.x);
+                const std::uint32_t recordOffset = (sectorIndex * 21u + selection) << 6;
+                const std::uint32_t headOffset = (flags & 1u) != 0 ? 0x38u : 0x30u;
+
+                animalId = readId(addressAt(sectorData, recordOffset + headOffset));
+            }
+            else
+            {
+                const std::uint32_t animalOffset = static_cast<std::uint32_t>(animalId) * 0x98u;
+                animalId = readId(addressAt(DAT_00511554, animalOffset + 0x88u));
+            }
+
+            if (animalId == -1)
+            {
+                incrementCoordinate(currentSector.x);
+
+                if (currentSector.x <= lastSector.x)
+                    continue;
+
+                incrementCoordinate(currentSector.y);
+                currentSector.x = firstSector.x;
+
+                if (currentSector.y > lastSector.y)
+                    return -1;
+
+                continue;
+            }
+
+            const std::uint32_t animalOffset = static_cast<std::uint32_t>(animalId) * 0x98u;
+            const std::byte* animal = addressAt(DAT_00511554, animalOffset);
+
+            if ((flags & 2u) != 0)
+            {
+                const std::uint32_t animalType = readWord(addressAt(animal, 0x14));
+                const std::uint32_t typeFlagOffset = (animalType << 6) - 0x1F8u;
+
+                std::uint8_t typeFlag;
+                std::memcpy(&typeFlag, addressAt(DAT_00510d4c, typeFlagOffset), sizeof(typeFlag));
+
+                if (typeFlag == 0)
+                    continue;
+            }
+
+            const void* position = Animal_GetMapPositionRef(animal);
+
+            std::int16_t animalX;
+            std::int16_t animalY;
+            std::memcpy(&animalX, position, sizeof(animalX));
+            std::memcpy(&animalY, addressAt(position, 2), sizeof(animalY));
+
+            const std::uint16_t centerXBits = static_cast<std::uint16_t>(packedCenter);
+            const std::uint16_t centerYBits = static_cast<std::uint16_t>(packedCenter >> 16);
+
+            std::int16_t centerX;
+            std::int16_t centerY;
+            std::memcpy(&centerX, &centerXBits, sizeof(centerX));
+            std::memcpy(&centerY, &centerYBits, sizeof(centerY));
+
+            const std::uint32_t distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(animalX, animalY, centerX, centerY));
+
+            if (distance <= static_cast<std::uint32_t>(radius))
+                return animalId;
+        }
+    }
+}

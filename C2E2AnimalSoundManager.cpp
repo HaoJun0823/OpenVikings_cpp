@@ -1,7 +1,12 @@
 #include "C2E2AnimalSoundManager.h"
+#include "C2AnimalAccess.h"
+#include "C2GameMapAccess.h"
+#include "C2EngineDisplayAccess.h"
+#include "C2AnimalIterator.h"
 #include "C2E2StaticDataAnimalSounds.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "DSManager.h"
+#include "XCrtFileAccess.h"
 
 #include <cstring>
 
@@ -71,7 +76,7 @@ namespace NC2E2
         // Inline initialization performed by 0042ae54.
         alignas(4) std::int16_t rectangle[4]{};
 
-        FUN_004821c7(display, readWord(display, 0x954), readWord(display, 0x958), readWord(display, 0x964), readWord(display, 0x968), rectangle);
+        DisplayDescription_GetMapRectangle(display, readWord(display, 0x954), readWord(display, 0x958), readWord(display, 0x964), readWord(display, 0x968), rectangle);
 
         // Preserve the signed 16-bit shifts and the final 16-bit stores.
         const std::uint16_t centerXBits = static_cast<std::uint16_t>(static_cast<std::int32_t>(rectangle[0]) + (static_cast<std::int32_t>(rectangle[2]) >> 1));
@@ -101,7 +106,7 @@ namespace NC2E2
             if (animalCounts[countIndex] < soundData->minimumCount)
                 continue;
 
-            const std::int32_t chance = FUN_004e8736() % 1000;
+            const std::int32_t chance = NXBasics::Runtime_Rand() % 1000;
 
             if (static_cast<std::uint32_t>(chance) > soundData->probabilityThreshold)
                 continue;
@@ -110,10 +115,8 @@ namespace NC2E2
 
             for (std::uint32_t searchPass = 0; searchPass < 21u; ++searchPass)
             {
-                alignas(4) std::byte iterator[0x2C];
-                FUN_004402a3(iterator);
-
-                std::int32_t animalIndex = FUN_00440329(iterator, searchPass, centerPoint, searchWidth, 0, 0);
+                NC2Logic::CAnimalIterator iterator;
+                std::int32_t animalIndex = iterator.GetFirstSectorAnimalId(searchPass, centerPoint, searchWidth, false, false);
 
                 while (animalIndex != -1)
                 {
@@ -127,8 +130,8 @@ namespace NC2E2
 
                         if ((displayFlags & 4u) != 0)
                         {
-                            const void* position = FUN_0042ea17(animal);
-                            const void* visibilityData = FUN_004237d2(position);
+                            const void* position = NC2Logic::Animal_GetMapPositionRef(animal);
+                            const void* visibilityData = NC2Logic::GameMap_GetConstMapMicroPointPtr(position);
 
                             if (playerId < 16u)
                             {
@@ -145,7 +148,7 @@ namespace NC2E2
                         break;
                     }
 
-                    animalIndex = FUN_004403d0(iterator);
+                    animalIndex = iterator.GetNextSectorAnimalId();
                 }
 
                 if (selectedAnimal != nullptr)
@@ -161,14 +164,14 @@ namespace NC2E2
             if (readWord(staticRecord, 0x28) == 0)
                 continue;
 
-            const std::uint32_t randomValue = static_cast<std::uint32_t>(FUN_004e8736());
+            const std::uint32_t randomValue = static_cast<std::uint32_t>(NXBasics::Runtime_Rand());
             const std::uint32_t variant = randomValue % readWord(staticRecord, 0x28);
             std::byte* soundEntry = addressAt(staticRecord, 0x2Cu + variant * 8u);
 
-            const void* position = FUN_0042ea17(selectedAnimal);
+            const void* position = NC2Logic::Animal_GetMapPositionRef(selectedAnimal);
             const std::int32_t horizontal = ((static_cast<std::int32_t>(readShort(position, 0)) - centerX) * 128) / rectangle[2];
 
-            position = FUN_0042ea17(selectedAnimal);
+            position = NC2Logic::Animal_GetMapPositionRef(selectedAnimal);
             const std::int32_t vertical = ((static_cast<std::int32_t>(readShort(position, 2)) - centerY) * 128) / rectangle[3];
 
             const std::int32_t absoluteHorizontal = horizontal < 0 ? -horizontal : horizontal;
