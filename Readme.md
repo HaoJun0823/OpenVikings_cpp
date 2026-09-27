@@ -1,6 +1,6 @@
 # OpenVikings — Intentionally Preserved Original Bugs
 
-Register updated: 2026-09-20. Original register created: 2026-09-13.
+Register updated: 2026-09-27. Original register created: 2026-09-13.
 
 This register applies project-wide to the C++ reconstruction of *Cultures: Das Achte Weltwunder*: game logic, engine, file access, CRT, graphics, input, audio, networking and other reconstructed components.
 
@@ -9,16 +9,15 @@ This register applies project-wide to the C++ reconstruction of *Cultures: Das A
 1. **Preserve confirmed original bugs during the faithful reconstruction phase.** A documented original defect is not an instruction to change behavior now and does not prevent an otherwise complete function chain from being closed.
 2. **Fix original bugs only after the faithful project is finished, in the Renewed version.** Proposed fixes below are future tasks, not completed changes.
 3. Record every new finding, including rediscovered older findings and defects outside the CRT.
-4. Windows disassembly and the investigated Windows executable are authoritative. Mac sources provide symbol hints and comparison material; a platform difference alone does not establish a bug.
+4. Windows disassembly is authoritative. User-supplied Windows data dumps establish constants and initial data. Mac files are naming references only; a platform difference alone does not establish a bug.
 5. **Correct reconstruction, transcription and integration errors promptly.** They must never be relabeled as intentionally preserved original bugs.
 6. Distinguish demonstrated original behavior, inferred consequences and observed consequences. A surprising return value alone is not sufficient proof of a defect.
 7. Preserving undefined or memory-layout-dependent behavior does not guarantee identical crashes, incidental values or binary behavior. Document that limitation.
 
 ## Maintenance and identifiers
 
-Keep existing identifiers stable. Their historical spellings are retained: `OB-001` through `OB-011`, `OB012` through `OB034`, `OA-001` through `OA-008`, and `OA009` through `OA011`. Heading and field formatting is otherwise uniform. Do not create duplicate entries under alternate ID spellings.
-
-For later discoveries, provide explicit README additions in chat for the user to insert. Do not silently modify project files without authorization. This translation and formatting pass was explicitly requested.
+Keep existing identifiers stable. Hyphenated and unhyphenated spellings of the same number refer to the same finding; do not create duplicate entries under alternate spellings.
+Provide additions and corrections in chat unless direct file changes are requested.
 
 ## Status definitions
 
@@ -27,37 +26,27 @@ For later discoveries, provide explicit README additions in chat for the user to
 - **Renewed: open:** no corrective change has been made for the Renewed version.
 - **Reconstruction error:** a separate implementation problem to correct during reconstruction.
 
-## Sources and coverage limits
-
-- `assembly_weltwunder_win.asm`: Windows disassembly, using image base `00400000`.
-- `Game.exe`: supplementary verification of constants, tables and initial data.
-- `XCrtFileAccess.h` / `XCrtFileAccess.cpp`: reconstructed declarations, implementation and documented compatibility decisions.
-- `x86-64-mac.h` and `x86-64-mac.c`: naming references, not substitutes for private Windows CRT details.
-- Available project discussions, including the CRT review of 2026-09-13 and subsequent documented findings.
-
-This register contains the currently supported findings. It is **not evidence that every earlier conversation or the entire game has been audited**. The initial historical search did not establish additional non-CRT bugs; later documented game findings are included below. Add older findings when their evidence becomes available. Music-start delays, missing semicolons and size-assertion failures are not original bugs without original-code evidence.
-
-CRT findings concern the runtime embedded in the game; they do not attribute authorship of that runtime.
-
 ## Current reconstruction status
 
-Reviewed archive: 2026-09-21. The CRT startup/exit wiring, INI reader,
-DirectPlay callback (`004dbd68`), DirectX error-text mapping (`004e3252`),
-command-buffer update (`004df240`), file-transfer manager and CRC16/CRC32
-implementations are present at source level. CRT declarations are in
-`XCrtFileAccess.h`; implementation and storage are in `XCrtFileAccess.cpp`.
+Latest source review: 2026-09-27, based on the supplied OpenVikings_cpp.zip.
 
-The menu screen-initialization path now calls `StartNetworkForMenu` by name.
-The main-menu update calls the reconstructed network update. This does not
-complete all remaining menu, lobby, game-state and compression dependencies.
-Open original functions remain explicit `FUN_` references; they are not stubs.
-The original initial value of `DAT_0050aa2c` and other external data still
-require evidence. No guessed zero-valued definitions were added.
+The reviewed sound implementation includes manager construction and teardown,
+device initialization, preload loading and playback, volume transitions,
+fire-and-forget playback and cleanup, and the chat-sound call chain.
+The manager uses runtime allocation, placement construction, explicit
+destruction and runtime deallocation. This does not establish completion
+of every original sound function or caller.
 
-The application remains an x86 hosted reconstruction: the compiler CRT owns
-native C++ initialization. No full Windows build or game execution was possible
-in this review. Portable C++ CRC tests and extracted command-buffer helper
-tests passed; these do not validate DirectPlay or the full application.
+Both menu file-copy paths use scoped CMemory objects before compressor use.
+CMemory retains its internally consistent host allocation and deallocation.
+
+The sound review found one header declaration-order correction, supplied
+in chat. Remaining unresolved original functions elsewhere in the project
+remain explicit FUN_ calls.
+
+No full Windows build, MSVC inline-assembly compilation test or audio test
+was performed. Earlier portable CRC and command-buffer tests, and the
+reported layout and arithmetic models, do not validate the full application.
 
 ## Original defects and retained limitations
 
@@ -115,13 +104,33 @@ tests passed; these do not validate DirectPlay or the full application.
 | OB050 | Zero text-input limit bypasses the insertion bound | 004a3a8e and 004a3b10 |
 | OB051 | Unguarded division in host transfer progress | 004d9605 |
 | OB052 | Unsigned transfer countdown underflow | 004d9605 |
-| OB053 | Scalar RGB555 transparency loses a red bit| 004660c6 |
+| OB053 | Scalar RGB555 transparency loses a red bit | 0046534f and 004660c6 |
+| OB054 | Restricted initial counter limit in sound-slot selection | 004051a3 |
+| OB055 | Fixed WAV sample-data offset | 0040499b |
+| OB056 | Sound creation leaks resources on failure | 00405358 |
+| OB057 | Sound-buffer read failure bypasses Unlock | 004054b4 |
+| OB058 | Unbounded sound-buffer restoration retries | 00405591 |
+| OB059 | Memory-backed wave reads do not advance the cursor | 004057d4 |
+| OB060 | MMIO read failure retains an early size decrement | 004057d4 |
+| OB061 | New volume transitions retain the previous rate | 00404e5c |
+| OB062 | Preload lookup stops at the first inactive slot | 00404bff |
+| OB063 | Volume transitions accept a zero duration | 00404ced and 00404e5c |
+| OB064 | Failed sound-device initialization escapes normal teardown | 00404b62, 004048d7 and 00404762 |
+| OB065 | Primary-buffer format failure leaks its reference | 004052a0 |
+| OB066 | Master-volume updates overwrite individual volume and pan | 00404aac |
+| OB067 | `0048e1e1`, `00485fdd` | Missing jingle events select the first table entry. |
+| OB068 | `0048dd23` | Sound-data loading uses unchecked destination indices. |
+| OB069 | `0048dd23` | Reloading retains counters and replaces owned table pointers. |
+| OB070 | `0048e5f8` | Truncated group names are not matched against their original input. |
+| OB071 | `0048e5f8`, `0047f610`, `0047f659`, `0047f80c` | Ambient consumers index mappings with failed group IDs. |
+| OB072 | `0048e19a` | Static sound lookup conflates failure with the first entry. |
+
 
 ### OB001 — Negative indices before the character-type table
 
 - **Original reference:** 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12.
 - **Evidence:** MOVSX sign-extends the input byte. Direct table accesses occur at 004e7ce0, 004e7d0b and 004e7d36 without range checks. Pointer 0050c3f8 originally targets 0050c402; the EOF entry is at 0050c400.
-- **Behavior and trigger:** Runtime_IsLetter, Runtime_IsDigit, Runtime_IsPropertyNameCharacter and Runtime_ClassifyAlphanumeric can index before the table when bytes 0x80..0xFE become -128..-2 on the direct-table path. For example, 0xE4 becomes -28. The value -1 has its own EOF entry. Adjacent executable data can affect classification.
+- **Behavior and trigger:** A newly assigned transition starts with its current volume already equal to the requested unsigned target and retains the previous rate. For target volumes in the normal 0–100 range, a zero rate causes System_Update to perform no volume update; a finite nonzero rate takes the target-application path. NaN rates and targets outside the signed 32-bit range require separate consideration because the update uses x87 comparisons and a signed target field.
 - **Assessment / reconstruction limits:** A separate C++ array does not reproduce that preceding memory. Preserving signed indexing does not guarantee identical incidental values or crashes. Related direct case-conversion accesses require the same care. No observed game crash is claimed.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define byte/EOF contracts, fix callers and table accesses together, and distinguish high bytes from EOF.
@@ -217,7 +226,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Use a fixed %s format or a plain-text output operation.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-011 — Shared error-text fallback after allocation failure
+### OB011 — Shared error-text fallback after allocation failure
 
 - **Original reference:** 004e7525 — Runtime_GetErrorText in XCrtFileAccess.h.
 - **Evidence:** 004e7538 allocates a thread buffer. On failure, 004e7545 selects shared storage 005699a0; the copy at 004e756a is not locked.
@@ -600,7 +609,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Reject insertion when the current length is greater than or equal to the configured maximum, without subtracting one.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-051 — Unguarded division in host transfer progress
+### OB051 — Unguarded division in host transfer progress
 
 - **Original reference:** 004d9605 — multiplayer drawing.
 - **Evidence:** Unsigned divisions at 004d9d82 and 004da0eb use the transfer file size without checking for zero.
@@ -610,7 +619,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Define progress text for zero-sized host transfers.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-052 — Unsigned transfer countdown underflow
+### OB052 — Unsigned transfer countdown underflow
 
 - **Original reference:** 004d9605 — multiplayer drawing.
 - **Evidence:** The estimated total duration is capped at 3600 seconds before elapsed time is subtracted using unsigned arithmetic.
@@ -620,7 +629,7 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Renewed task:** Validate progress arithmetic and clamp the remaining duration to zero.
 - **Status:** Preserved / original defect; Renewed: open.
 
-### OB-053 — Scalar RGB555 transparency loses a red bit
+### OB053 — Scalar RGB555 transparency loses a red bit
 
 - **Original reference:** 0046534f and 004660c6 — palette-based and RGB-colour transparency rendering.
 - **Evidence:** Both renderers select the RGB555 green mask while retaining 0xF800 for scalar red blending. Examples are 0046588a / 0046598b and 0046659d / 004665b9. RGB555 requires 0x7C00.
@@ -759,6 +768,64 @@ tests passed; these do not validate DirectPlay or the full application.
 - **Decision:** Preserve the original update behavior.
 - **Renewed task:** Retain individual sound settings when applying master-volume changes.
 - **Status:** Preserved / original defect; Renewed: open.
+
+### OB067 — Missing jingle events select the first table entry
+
+- **Original reference:** Jingle lookup `0048e1e1` and caller `00485fdd`.
+- **Evidence:** The lookup returns zero on failure at `0048e216`. The caller uses that value as a table index without checking whether a match was found.
+- **Behavior and trigger:** With an initialized sound manager and a nonempty jingle table, an unknown event selects the first entry. Playback remains subject to the caller's other guards and duplicate suppression.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. Index zero represents both a successful first-entry match and a failed lookup.
+- **Decision:** Preserve the original return value and caller behavior.
+- **Renewed task:** Distinguish lookup failure from a valid index and skip playback when the event is absent.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB068 — Sound-data loading uses unchecked destination indices
+
+- **Original reference:** `0048dd23`, static sound and ambient mapping writes.
+- **Evidence:** Static sound entries are appended at `0048de62` / `0048de66` without a capacity check. Mapping writes at `0048de93`, `0048e122`, and `0048e165` use parsed or returned indices without range validation.
+- **Behavior and trigger:** Excessive static sound entries or invalid mapping indices can overwrite adjacent fields or memory outside the manager. Group lookup `0048e5c5` returns -1 when no name matches. An unknown PatternGroup therefore makes the loader overwrite the ambient table pointer at +0x1F4; an unknown LandscapeGroup overwrites the final pattern mapping at +0x384.
+- **Decision:** Preserve the unchecked writes.
+- **Renewed task:** Validate entry capacity and mapping indices before writing.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB069 — Reloading sound data retains counters and replaces owned pointers
+
+- **Original reference:** `0048dd23`.
+- **Evidence:** New tables replace existing pointers without freeing them, and existing entry counters are used without being reset.
+- **Behavior and trigger:** Calling the loader again with populated groups can leak previous tables and write beyond the newly allocated tables.
+- **Assessment / reconstruction limits:** The behavior is confirmed; the reviewed constructor calls the loader only once.
+- **Decision:** Preserve the original loading behavior.
+- **Renewed task:** Define and implement an explicit reload lifecycle.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB070 — Truncated group names are not matched against their original input
+
+- **Original reference:** `0048e5f8`.
+- **Evidence:** Existing names are compared against the complete input string. New names are stored using strncpy with a count of 39; byte 39 remains unchanged. Both constructors zero the complete 0xFA4-byte group table before insertion: pattern initialization at 0048e26e and landscape initialization at 0048f7bf.
+- **Behavior and trigger:** During normal construction, stored names remain null-terminated. Inputs longer than 39 bytes are truncated, so repeating the original input does not match the stored name and can consume additional group slots.
+- **Decision:** Preserve the original comparison and copy behavior.
+- **Renewed task:** Apply a consistent name-length policy before lookup and insertion.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB071 — Ambient consumers index mappings with failed group IDs
+
+- **Original reference:** Group insertion `0048e5f8`; callers `0048e4ec` and `0048fa59`; consumers `0047f610`, `0047f659`, and `0047f80c`.
+- **Evidence:** Failed insertion returns -1, which the loaders store without checking. Ambient consumers index the mapping first and only compare the resulting value against 0xFFFFFFFF.
+- **Behavior and trigger:** When a stored group ID is -1, pattern processing reads the ambient table pointer at manager offset +0x1F4; landscape processing reads the final pattern mapping at +0x384. If that value is not 0xFFFFFFFF, the consumer increments memory immediately before its group counter array, at 00554f40 or 00554db0 respectively.
+- **Decision:** Preserve the original accesses.
+- **Renewed task:** Reject failed group insertion and validate group IDs before mapping or counter access.
+- **Status:** Preserved / original defect; Renewed: open.
+
+### OB072 — Static sound lookup conflates failure with the first entry
+
+- **Original reference:** `0048e19a`.
+- **Evidence:** An unsuccessful name search returns zero, which is also the valid index of the first static sound entry. Missing or uninitialized sound support and an empty table also return zero.
+- **Behavior and trigger:** Unknown names cannot be distinguished from a successful first-entry match. Callers at 004855e5, 00485628, and 00485679 store the result without distinguishing these cases. The animal sound loader also stores it unchanged at record offset +0x0C after the call at 0048aad5.
+- **Decision:** Preserve the original return values.
+- **Renewed task:** Introduce a distinct failure result and handle it at each caller.
+- **Status:** Preserved / original defect; Renewed: open.
+
+
 
 ## Original observations and unresolved defect assessments
 
@@ -940,25 +1007,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
 
-## Template for future additions
-
-```markdown
-### OB045 — Short title
-
-- **Original reference:** Stable C++ name, file and original function address.
-- **Evidence:** Instruction/data addresses and demonstrated control flow.
-- **Behavior and trigger:** Distinguish observed effects from inferred possibilities.
-- **Assessment / reconstruction limits:** Memory layout, undefined values and platform limitations, if relevant.
-- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
-- **Renewed task:** Proposed future correction.
-- **Status:** Preserved / original defect; Renewed: open.
-- **Later fix:** Add version/commit and behavioral change only after implementation.
-```
-
-Use the next available `OA` identifier for unresolved defect assessments instead of a confirmed-bug identifier.
-
 ## Completion rule
 
 A chapter may close with intentionally preserved, documented original defects once its required functions are resolved and correctly reconstructed. Translation errors, missing implementations and relevant integration dependencies remain separate unfinished work.
-
 After the faithful project is complete, use this register to plan Renewed. Until then, all Renewed tasks remain open.

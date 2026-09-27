@@ -90,14 +90,17 @@ namespace NDSManager
         bool PreloadWave_ChangeVolume(std::uint32_t identifier, std::uint32_t volume, bool transitionRequested, std::uint32_t durationMilliseconds);
         bool PreloadWave_Stop(std::uint32_t identifier);
         bool PreloadWave_Unload(std::uint32_t identifier);
+        bool FireAndForget_LoadAndPlay(const char* fileName, std::uint32_t volume, std::uint32_t identifier, std::uint32_t repeatCount, bool deferPlayback, bool useVolumeOverride, std::uint32_t volumeOverride);
+        bool FireAndForget_IsRunning(std::uint32_t identifier);
         bool FireAndForget_StopAll();
         bool FireAndForget_Stop(std::uint32_t identifier);
         std::uint32_t l_FireAndForget_GetFreeSlot();
-        bool FireAndForget_LoadAndPlay(const char* fileName, std::uint32_t volume, std::uint32_t identifier, std::uint32_t repeatCount, bool deferPlayback, bool useVolumeOverride, std::uint32_t volumeOverride);
+        static void Jingle_Play(std::uint32_t event);
 
     private:
         bool l_Device_Init();
         void l_Device_Exit();
+        static std::uint32_t l_Jingle_FindIndex(const void* staticSoundData, std::uint32_t event);
 
         void* mWindow;
         std::uint8_t mInitialized;

@@ -1,6 +1,8 @@
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
+#include "MasterControlProgram.h"
+#include "MasterPropertyManager.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -8,6 +10,9 @@
 #include <windows.h>
 #include <mmsystem.h>
 #include <dsound.h>
+
+extern void* DAT_0050f698;
+extern void* DAT_00568a28;
 
 // Original data: DAT_0050f6a4
 NDSManager::CManager* DAT_0050f6a4 = nullptr;
@@ -866,6 +871,18 @@ namespace NDSManager
         return true;
     }
 
+    // Original function: FUN_00405119
+    bool CManager::FireAndForget_IsRunning(std::uint32_t identifier)
+    {
+        for (const SFireAndForgetWave& slot : mFireAndForgetWaves)
+        {
+            if (slot.active != 0 && slot.identifier == identifier)
+                return true;
+        }
+
+        return false;
+    }
+
     // Original function: FUN_00405141
     bool CManager::FireAndForget_StopAll()
     {
@@ -1599,6 +1616,80 @@ namespace NDSManager
             return NXBasics::Runtime_TimeSigned32(0x80004005u);
 
         *bytesRead = copiedBytes;
+        return 0;
+    }
+
+    // Original function: FUN_00485fdd
+    void CManager::Jingle_Play(std::uint32_t event)
+    {
+        std::int32_t programState;
+        std::memcpy(&programState, NMasterControlProgram::CMasterControlProgram::sTheObjectPtr, sizeof(programState));
+
+        if (programState == 7 || programState == 8 || programState == 9)
+            return;
+
+        if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("fx_jingles_off") != 0)
+            return;
+
+        const std::uint32_t jingleEvent = event + 0x15u;
+
+        if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") == 2)
+        {
+            if (DAT_0050f698 != nullptr)
+                FUN_004038bd(DAT_0050f698, jingleEvent, 0, 2);
+        }
+
+        if (DAT_0050f6a4 == nullptr || DAT_0050f6a4->mInitialized == 0)
+            return;
+
+        const std::uint32_t index = l_Jingle_FindIndex(DAT_00568a28, jingleEvent);
+        const std::uint32_t identifier = index + 0x87E85u;
+
+        if (DAT_0050f6a4->FireAndForget_IsRunning(identifier))
+            return;
+
+        std::uint32_t recordsAddress;
+        std::memcpy(&recordsAddress, static_cast<const std::byte*>(DAT_00568a28) + 0x1EC, sizeof(recordsAddress));
+
+        const std::uint32_t recordAddress = recordsAddress + (index << 7);
+
+        if (recordAddress == 0)
+            return;
+
+        const auto* record = reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(recordAddress));
+        std::uint32_t volume;
+        std::memcpy(&volume, record + 0x7C, sizeof(volume));
+
+        DAT_0050f6a4->FireAndForget_LoadAndPlay(reinterpret_cast<const char*>(record + 4), volume, identifier, 1, false, false, 100);
+    }
+
+    // Original function: FUN_0048e1e1
+    std::uint32_t CManager::l_Jingle_FindIndex(const void* staticSoundData, std::uint32_t event)
+    {
+        if (DAT_0050f6a4 == nullptr || DAT_0050f6a4->mInitialized == 0)
+            return 0;
+
+        const auto* storage = static_cast<const std::byte*>(staticSoundData);
+        std::uint32_t count;
+        std::memcpy(&count, storage + 0x1E8, sizeof(count));
+
+        if (count == 0)
+            return 0;
+
+        std::uint32_t recordAddress;
+        std::memcpy(&recordAddress, storage + 0x1EC, sizeof(recordAddress));
+
+        for (std::uint32_t index = 0; index < count; ++index)
+        {
+            std::uint32_t recordEvent;
+            std::memcpy(&recordEvent, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(recordAddress)), sizeof(recordEvent));
+
+            if (recordEvent == event)
+                return index;
+
+            recordAddress += 0x80u;
+        }
+
         return 0;
     }
 }

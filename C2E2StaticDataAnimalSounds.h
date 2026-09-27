@@ -1,0 +1,34 @@
+#pragma once
+
+#include <cstddef>
+#include <cstdint>
+
+namespace NC2E2
+{
+    struct SStaticAnimalSoundData
+    {
+        std::int32_t logicTribeType;
+        std::uint32_t minimumCount;
+        std::uint32_t probabilityThreshold;
+        std::uint32_t staticSoundId;
+    };
+
+    static_assert(sizeof(SStaticAnimalSoundData) == 0x10);
+    static_assert(offsetof(SStaticAnimalSoundData, staticSoundId) == 0x0C);
+
+    class CE2StaticDataAnimalSoundManager
+    {
+    public:
+        CE2StaticDataAnimalSoundManager();
+        ~CE2StaticDataAnimalSoundManager();
+
+        SStaticAnimalSoundData* GetStaticAnimalSoundDataPtrByTribeType(std::int32_t tribeType);
+
+        std::uint32_t count;
+        SStaticAnimalSoundData* entries;
+    };
+
+    static_assert(sizeof(void*) == 4, "Animal sound data requires an x86 build");
+    static_assert(sizeof(CE2StaticDataAnimalSoundManager) == 8);
+    static_assert(offsetof(CE2StaticDataAnimalSoundManager, entries) == 4);
+}

@@ -12,9 +12,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C2CallbackManager.cpp" />
+    <ClCompile Include="C2E2AnimalSoundManager.cpp" />
+    <ClCompile Include="C2E2StaticDataAnimalSounds.cpp" />
+    <ClCompile Include="C2E2StaticDataGroups.cpp" />
+    <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
     <ClCompile Include="CRC16.cpp" />
     <ClCompile Include="CRC32.cpp" />
     <ClCompile Include="DirectXErrorText.cpp" />
+    <ClCompile Include="DSManager.cpp" />
     <ClCompile Include="FileCompressor.cpp" />
     <ClCompile Include="GuiToolsBase.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
@@ -38,6 +43,7 @@
     <ClCompile Include="X2DWindow.cpp" />
     <ClCompile Include="XBitmap.cpp" />
     <ClCompile Include="XBobRendering.cpp" />
+    <ClCompile Include="XBTokenList.cpp" />
     <ClCompile Include="XCPU.cpp" />
     <ClCompile Include="XCrtFileAccess.cpp" />
     <ClCompile Include="XDiagnostics.cpp" />
@@ -59,11 +65,16 @@
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
     <ClInclude Include="C2CallbackManager.h" />
+    <ClInclude Include="C2E2AnimalSoundManager.h" />
+    <ClInclude Include="C2E2StaticDataAnimalSounds.h" />
+    <ClInclude Include="C2E2StaticDataGroups.h" />
+    <ClInclude Include="C2E2StaticDataSoundFX.h" />
     <ClInclude Include="CRC16.h" />
     <ClInclude Include="CRC32.h" />
     <ClInclude Include="DirectXErrorText.h" />
     <ClInclude Include="dpaddr.h" />
     <ClInclude Include="dplay8.h" />
+    <ClInclude Include="DSManager.h" />
     <ClInclude Include="FileCompressor.h" />
     <ClInclude Include="FileTransferManager.h" />
     <ClInclude Include="GuiToolsBase.h" />
@@ -81,6 +92,7 @@
     <ClInclude Include="XBitmap.h" />
     <ClInclude Include="XBitmapTools.h" />
     <ClInclude Include="XBobRendering.h" />
+    <ClInclude Include="XBTokenList.h" />
     <ClInclude Include="XCPU.h" />
     <ClInclude Include="XCrtFileAccess.h" />
     <ClInclude Include="OriginalStrings.h" />
