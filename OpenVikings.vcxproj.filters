@@ -276,6 +276,9 @@
     <ClCompile Include="C2EngineDisplayAccess.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
+    <ClCompile Include="WorldDisplayElementAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h">
@@ -457,6 +460,9 @@
     </ClInclude>
     <ClInclude Include="C2EngineDisplayAccess.h">
       <Filter>Engine\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldDisplayElementAccess.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

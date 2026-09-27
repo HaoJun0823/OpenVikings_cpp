@@ -43,6 +43,7 @@
     <ClCompile Include="StringInputHandler.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="MasterControlProgram.cpp" />
+    <ClCompile Include="WorldDisplayElementAccess.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
     <ClCompile Include="X2DApplicationMessages.cpp" />
     <ClCompile Include="X2DDisplay.cpp" />
@@ -97,6 +98,7 @@
     <ClInclude Include="NetworkShutdown.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StringInputHandler.h" />
+    <ClInclude Include="WorldDisplayElementAccess.h" />
     <ClInclude Include="X2DApplication.h" />
     <ClInclude Include="X2DDisplay.h" />
     <ClInclude Include="X2DWindow.h" />
