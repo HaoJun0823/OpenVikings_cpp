@@ -1,340 +1,421 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
-    <Filter Include="Quelldateien">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Application">
+      <UniqueIdentifier>{6398F3A7-1BFA-532E-AB68-902CA4BCB78C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headerdateien">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="Application\Display">
+      <UniqueIdentifier>{5AA0EE82-3619-5C85-AAFC-FF2E7B92E313}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Ressourcendateien">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Application\States">
+      <UniqueIdentifier>{EB338414-7527-57C8-9F3C-324D1AE5347F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{40DA6E62-8A03-5F3B-A12D-759F02FEF207}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{8735E350-29F4-5519-A840-2224055427E7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Checksums">
+      <UniqueIdentifier>{EB9F6EF1-72B3-5E4C-B41C-176A01FB049D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Compression">
+      <UniqueIdentifier>{764C1061-824D-5B4C-BF1E-573774D7BF0E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Files">
+      <UniqueIdentifier>{DD63D501-5FEE-54AB-B226-3AB28CD77D20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Memory">
+      <UniqueIdentifier>{6A940089-8280-5244-8DAC-DD90EE66FCCA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Serialization">
+      <UniqueIdentifier>{1F7DE6E5-74F4-5DD5-A325-9E884B359F93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Strings">
+      <UniqueIdentifier>{7A2BFA8A-AAE4-50A6-824E-8F7BC7F2DFB6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Types">
+      <UniqueIdentifier>{458DC0E6-501D-5BFB-8575-10BEEE2CAABE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Diagnostics">
+      <UniqueIdentifier>{9B36329A-C6B2-52B7-AF83-5581F443560C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{B9A90BBC-6F14-5FCC-AD80-38FB36DA312F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Audio">
+      <UniqueIdentifier>{EBD78C75-1953-5CA8-8127-04A88B536126}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Callbacks">
+      <UniqueIdentifier>{56B0E8FC-47D1-551A-8CEA-87D0F6FBE836}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\StaticData">
+      <UniqueIdentifier>{23C1703E-EB81-5C04-B09B-3EB4C9475364}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External">
+      <UniqueIdentifier>{87C2A4A2-1E7D-5F2D-9EFC-6186C3220FF0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\DirectPlay">
+      <UniqueIdentifier>{A8C78DDC-DF87-5528-B8F7-09C6C70E93C6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{6D552710-7022-5504-B08A-C3A7BEF2DF63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Display">
+      <UniqueIdentifier>{970BD2F2-BBEA-5215-91F5-F3FE45C5BAD5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Fonts">
+      <UniqueIdentifier>{E53BBBDA-B092-5E39-8CC7-B2CC0B1FCA65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Images">
+      <UniqueIdentifier>{56476A31-7D79-55CA-8B8D-0967218F72B0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{3A1AD1E8-420F-5A65-9A2C-F2BDC264C468}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{F45B4A82-7AC4-5FBD-B793-3F2541C6FEED}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{D341CB46-CA1B-5306-AF70-AB350DC8463F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Input">
+      <UniqueIdentifier>{305F9AD6-4780-5511-BD81-8CE16F13A639}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\System">
+      <UniqueIdentifier>{E5A98A54-E5FB-51FC-BCC2-A0270875EA93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Window">
+      <UniqueIdentifier>{81594E0C-8335-5885-ADB7-22F0E953E1B7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{E6C1F245-26DB-5034-AEBF-6BE80490E52B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Runtime">
+      <UniqueIdentifier>{B3DD3604-4C5E-584D-B140-C16A44C1D30A}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MasterControlProgram_PS_PreIngameFmv.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_System.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="WinMain.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
     <ClCompile Include="MasterControlProgram.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="X2DApplication.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="X2DApplicationMessages.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XMMouseManager.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_TitleScreen.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_MainMenu.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterControlProgram_PS_InGame.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="MasterControlProgram_DisplayResolution.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XMDirectInputMouse.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="X2DWindow.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XPixelFormatConverter.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="X2DDisplay.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="InGameGuiManager.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XMKeyManager.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XSystemMouseCursor.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XMMessageDialogs.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="CRC32.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="C2CallbackManager.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="NetworkShutdown.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="NetworkRuntime.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XBitmap.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XMemory.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XFile.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>Application</Filter>
     </ClCompile>
     <ClCompile Include="MasterPropertyManager.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="XStringArray.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="WinMain.cpp">
+      <Filter>Application</Filter>
     </ClCompile>
-    <ClCompile Include="XStorableIO.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_DisplayResolution.cpp">
+      <Filter>Application\Display</Filter>
     </ClCompile>
-    <ClCompile Include="XStorable.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_HardwareMouseCursor.cpp">
+      <Filter>Application\Display</Filter>
     </ClCompile>
-    <ClCompile Include="XIniFileReader.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_PS_InGame.cpp">
+      <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="XDiagnostics.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_PS_MainMenu.cpp">
+      <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="XCrtFileAccess.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_PS_PreIngameFmv.cpp">
+      <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="DirectXErrorText.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_PS_System.cpp">
+      <Filter>Application\States</Filter>
     </ClCompile>
-    <ClCompile Include="MainMenuGuiManager.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="CRC16.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="FileCompressor.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="StringInputHandler.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XFontMetrics.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XBobRendering.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="XCPU.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="GuiToolsBase.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="MasterControlProgram_PS_TitleScreen.cpp">
+      <Filter>Application\States</Filter>
     </ClCompile>
     <ClCompile Include="DSManager.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataSoundFX.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="CRC16.cpp">
+      <Filter>Core\Checksums</Filter>
+    </ClCompile>
+    <ClCompile Include="CRC32.cpp">
+      <Filter>Core\Checksums</Filter>
+    </ClCompile>
+    <ClCompile Include="FileCompressor.cpp">
+      <Filter>Core\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="XFile.cpp">
+      <Filter>Core\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XIniFileReader.cpp">
+      <Filter>Core\Files</Filter>
+    </ClCompile>
+    <ClCompile Include="XMemory.cpp">
+      <Filter>Core\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="XStorable.cpp">
+      <Filter>Core\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="XStorableIO.cpp">
+      <Filter>Core\Serialization</Filter>
     </ClCompile>
     <ClCompile Include="XBTokenList.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>Core\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataGroups.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="XStringArray.cpp">
+      <Filter>Core\Strings</Filter>
     </ClCompile>
-    <ClCompile Include="C2E2StaticDataAnimalSounds.cpp">
-      <Filter>Quelldateien</Filter>
+    <ClCompile Include="DirectXErrorText.cpp">
+      <Filter>Diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="XDiagnostics.cpp">
+      <Filter>Diagnostics</Filter>
+    </ClCompile>
+    <ClCompile Include="XMMessageDialogs.cpp">
+      <Filter>Diagnostics</Filter>
     </ClCompile>
     <ClCompile Include="C2E2AnimalSoundManager.cpp">
-      <Filter>Quelldateien</Filter>
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="C2CallbackManager.cpp">
+      <Filter>Engine\Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="C2E2StaticDataAnimalSounds.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
+    <ClCompile Include="C2E2StaticDataGroups.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
+    <ClCompile Include="C2E2StaticDataSoundFX.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
+    <ClCompile Include="X2DDisplay.cpp">
+      <Filter>Graphics\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="XPixelFormatConverter.cpp">
+      <Filter>Graphics\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="XFontMetrics.cpp">
+      <Filter>Graphics\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="XBitmap.cpp">
+      <Filter>Graphics\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="XBobRendering.cpp">
+      <Filter>Graphics\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiToolsBase.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiManager.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuGuiManager.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="StringInputHandler.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkRuntime.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="NetworkShutdown.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="XMDirectInputMouse.cpp">
+      <Filter>Platform\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="XMKeyManager.cpp">
+      <Filter>Platform\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="XMMouseManager.cpp">
+      <Filter>Platform\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="XSystemMouseCursor.cpp">
+      <Filter>Platform\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="XCPU.cpp">
+      <Filter>Platform\System</Filter>
+    </ClCompile>
+    <ClCompile Include="X2DApplication.cpp">
+      <Filter>Platform\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="X2DApplicationMessages.cpp">
+      <Filter>Platform\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="X2DWindow.cpp">
+      <Filter>Platform\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="XCrtFileAccess.cpp">
+      <Filter>Runtime</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MasterControlProgram.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="X2DApplication.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XMMouseManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XMDirectInputMouse.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="X2DDisplay.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="X2DWindow.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XPixelFormatConverter.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XMKeyManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="InGameGuiManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XSystemMouseCursor.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XMMessageDialogs.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="CRC32.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="C2CallbackManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkShutdown.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="dplay8.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="dpaddr.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XBasicTypes.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XBitmap.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XBitmapTools.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XPaletteAccess.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XMemory.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XStorable.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XFileAccess.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XCrtFileAccess.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XFile.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="MasterPropertyManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XStringMemory.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XStringArray.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XStorableIO.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XIniFileReader.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XDiagnostics.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="OriginalStrings.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XSystemManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XDirectoryScanner.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XCrtStartup.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="ApplicationGlobals.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="ApplicationStartup.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="DirectXErrorText.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="MasterControlProgram.h">
+      <Filter>Application</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="FileTransferManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="MainMenuGuiManager.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="CRC16.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="FileCompressor.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="StringInputHandler.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XFontMetrics.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XBobRendering.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="XCPU.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="GuiToolsBase.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="MasterPropertyManager.h">
+      <Filter>Application</Filter>
     </ClInclude>
     <ClInclude Include="DSManager.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataSoundFX.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="CRC16.h">
+      <Filter>Core\Checksums</Filter>
+    </ClInclude>
+    <ClInclude Include="CRC32.h">
+      <Filter>Core\Checksums</Filter>
+    </ClInclude>
+    <ClInclude Include="FileCompressor.h">
+      <Filter>Core\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="XDirectoryScanner.h">
+      <Filter>Core\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XFile.h">
+      <Filter>Core\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XFileAccess.h">
+      <Filter>Core\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XIniFileReader.h">
+      <Filter>Core\Files</Filter>
+    </ClInclude>
+    <ClInclude Include="XMemory.h">
+      <Filter>Core\Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="XStorable.h">
+      <Filter>Core\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="XStorableIO.h">
+      <Filter>Core\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="XBTokenList.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>Core\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataGroups.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="XStringArray.h">
+      <Filter>Core\Strings</Filter>
     </ClInclude>
-    <ClInclude Include="C2E2StaticDataAnimalSounds.h">
-      <Filter>Headerdateien</Filter>
+    <ClInclude Include="XStringMemory.h">
+      <Filter>Core\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="XBasicTypes.h">
+      <Filter>Core\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectXErrorText.h">
+      <Filter>Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="XDiagnostics.h">
+      <Filter>Diagnostics</Filter>
+    </ClInclude>
+    <ClInclude Include="XMMessageDialogs.h">
+      <Filter>Diagnostics</Filter>
     </ClInclude>
     <ClInclude Include="C2E2AnimalSoundManager.h">
-      <Filter>Headerdateien</Filter>
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="C2CallbackManager.h">
+      <Filter>Engine\Callbacks</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2StaticDataAnimalSounds.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2StaticDataGroups.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2StaticDataSoundFX.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="dpaddr.h">
+      <Filter>External\DirectPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="dplay8.h">
+      <Filter>External\DirectPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="X2DDisplay.h">
+      <Filter>Graphics\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="XPixelFormatConverter.h">
+      <Filter>Graphics\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="XFontMetrics.h">
+      <Filter>Graphics\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="XBitmap.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="XBitmapTools.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="XBobRendering.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="XPaletteAccess.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiToolsBase.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiManager.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="MainMenuGuiManager.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="StringInputHandler.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="FileTransferManager.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkShutdown.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="XMDirectInputMouse.h">
+      <Filter>Platform\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="XMKeyManager.h">
+      <Filter>Platform\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="XMMouseManager.h">
+      <Filter>Platform\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="XSystemMouseCursor.h">
+      <Filter>Platform\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="XCPU.h">
+      <Filter>Platform\System</Filter>
+    </ClInclude>
+    <ClInclude Include="XSystemManager.h">
+      <Filter>Platform\System</Filter>
+    </ClInclude>
+    <ClInclude Include="X2DApplication.h">
+      <Filter>Platform\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="X2DWindow.h">
+      <Filter>Platform\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="OriginalStrings.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="XCrtFileAccess.h">
+      <Filter>Runtime</Filter>
+    </ClInclude>
+    <ClInclude Include="XCrtStartup.h">
+      <Filter>Runtime</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenVikings.rc">
-      <Filter>Ressourcendateien</Filter>
+      <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="icon.png">
-      <Filter>Ressourcendateien</Filter>
+      <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
 </Project>
