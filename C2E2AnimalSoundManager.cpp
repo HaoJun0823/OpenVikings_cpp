@@ -8,30 +8,27 @@
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
-extern NDSManager::CManager* DAT_0050f6a4;
-extern NC2E2::CE2StaticDataAnimalSoundManager* DAT_00568570;
-extern void* DAT_00568a28;
 extern void* DAT_00511554;
 extern std::uint32_t DAT_00510838;
-
-// Original data: DAT_0056841c
-NC2E2::CE2AnimalSoundManager* DAT_0056841c = nullptr;
 
 namespace NC2E2
 {
     // Original function: FUN_004860ab
     CE2AnimalSoundManager::CE2AnimalSoundManager()
     {
-        DAT_0056841c = this;
+        sTheObjectPtr = this;
         std::memset(this, 0, sizeof(*this));
     }
 
     // Original function: FUN_004860c8
     CE2AnimalSoundManager::~CE2AnimalSoundManager()
     {
-        DAT_0056841c = nullptr;
+        sTheObjectPtr = nullptr;
     }
 
     // Original function: FUN_004860d0
@@ -57,11 +54,11 @@ namespace NC2E2
             return reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(address));
         };
 
-        if (DAT_0050f6a4 == nullptr)
+        if (NDSManager::CManager::sTheObjectPtr == nullptr)
             return;
 
         std::uint8_t initialized;
-        std::memcpy(&initialized, reinterpret_cast<const std::byte*>(DAT_0050f6a4) + 4, sizeof(initialized));
+        std::memcpy(&initialized, reinterpret_cast<const std::byte*>(NDSManager::CManager::sTheObjectPtr) + 4, sizeof(initialized));
 
         if (initialized == 0)
             return;
@@ -98,7 +95,7 @@ namespace NC2E2
                 continue;
 
             const std::int32_t tribeType = static_cast<std::int32_t>(countIndex + 8u);
-            SStaticAnimalSoundData* soundData = DAT_00568570->GetStaticAnimalSoundDataPtrByTribeType(tribeType);
+            SStaticAnimalSoundData* soundData = CE2StaticDataAnimalSoundManager::sTheObjectPtr->GetStaticAnimalSoundDataPtrByTribeType(tribeType);
 
             if (soundData == nullptr)
                 continue;
@@ -158,7 +155,7 @@ namespace NC2E2
             if (selectedAnimal == nullptr)
                 continue;
 
-            auto* staticManager = static_cast<CE2StaticDataSoundFXManager*>(DAT_00568a28);
+            auto* staticManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
             std::byte* staticRecord = addressAt(staticManager->staticSounds, soundData->staticSoundId * 0x43Cu);
 
             if (readWord(staticRecord, 0x28) == 0)
@@ -183,13 +180,13 @@ namespace NC2E2
 
             const std::uint32_t baseVolume = readWord(soundEntry, 4);
 
-            if (DAT_0050f6a4->PreloadWave_IsRunning(readWord(soundEntry, 0)))
+            if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(readWord(soundEntry, 0)))
                 continue;
 
             const std::uint32_t pan = static_cast<std::uint32_t>(horizontal + 64);
             const std::uint32_t volume = ((64u - static_cast<std::uint32_t>(distance)) * baseVolume) >> 6;
 
-            DAT_0050f6a4->PreloadWave_Play(readWord(soundEntry, 0), volume, 1, pan, false, 0);
+            NDSManager::CManager::sTheObjectPtr->PreloadWave_Play(readWord(soundEntry, 0), volume, 1, pan, false, 0);
         }
     }
 }

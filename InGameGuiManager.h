@@ -39,7 +39,7 @@ namespace NInGameGuiManager
         std::int32_t GetLocalPlayerId() const;
         bool AreCheatsAllowed() const;
 
-        static CInGameGuiManager* sTheObjectPtr;
+        inline static CInGameGuiManager* sTheObjectPtr = nullptr;
 
     private:
         std::byte mLegacyState[0x1A8];              // +0x000

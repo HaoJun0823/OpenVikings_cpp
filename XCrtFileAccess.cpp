@@ -1,17 +1,14 @@
 #include "XCrtFileAccess.h"
+#include "OriginalStrings.h"
 
-// Original data: 004ff054; shared root-path string.
-extern const char DAT_004ff054[4] = "\\";
-
-// Original data: 004fe164; shared dot string.
-extern const char DAT_004fe164[4] = ".";
+#include <cstring>
 
 // Original data: 005699e0; initially empty name buffer.
-char DAT_005699e0[16]{};
+char gRuntimeTemporaryFileName[16]{};
 
 // Original data: 005699f0; initially empty temporary-stream name buffer.
 // Reconstruction capacity covers the complete generated filename.
-char DAT_005699f0[16]{};
+char gRuntimeTemporaryStreamFileName[16]{};
 
 namespace NXBasics
 {
@@ -2092,6 +2089,25 @@ namespace NXBasics
         return result;
     }
 
+    // Original function: FUN_004e764a
+    std::int32_t Runtime_CreateDirectory(const char* path)
+    {
+        std::uint32_t error = 0;
+
+        if (::CreateDirectoryA(path, nullptr) == FALSE)
+        {
+            error = ::GetLastError();
+        }
+
+        if (error != 0)
+        {
+            Runtime_MapOsError(error);
+            return -1;
+        }
+
+        return 0;
+    }
+
     // Original function: FUN_004e7676
     std::int32_t Runtime_FindFirst(const char* pattern, void* result)
     {
@@ -3779,7 +3795,7 @@ namespace NXBasics
     {
         Runtime_Lock(3);
 
-        char* fileName = DAT_005699f0;
+        char* fileName = gRuntimeTemporaryStreamFileName;
 
         if (fileName[0] == '\0')
         {
@@ -3848,9 +3864,9 @@ namespace NXBasics
     // Original function: FUN_004e96cb
     void Runtime_InitializeTemporaryFileName(std::int32_t temporaryStream)
     {
-        char* fileName = temporaryStream != 0 ? DAT_005699f0 : DAT_005699e0;
+        char* fileName = temporaryStream != 0 ? gRuntimeTemporaryStreamFileName : gRuntimeTemporaryFileName;
 
-        std::strcpy(fileName, DAT_004ff054);
+        std::strcpy(fileName, OriginalStrings::WindowsRootPath);
 
         // Preserve the original fixed offset instead of searching for the terminator.
         char* destination = fileName + 1;
@@ -3864,7 +3880,7 @@ namespace NXBasics
 
         // At radix 32, the existing converter preserves all unsigned input bits.
         Runtime_LongToString(Runtime_TimeSigned32(static_cast<std::uint32_t>(GetCurrentProcessId())), destination, 32);
-        std::strcat(fileName, DAT_004fe164);
+        std::strcat(fileName, OriginalStrings::Dot);
     }
 
     // Original function: FUN_004e972c

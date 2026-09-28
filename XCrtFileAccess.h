@@ -5,10 +5,6 @@
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
-#include <malloc.h>
-
-#include <new>
 
 // Reconstructed Win32/x86 CRT subset; requires C++17 or later.
 // Static initializers in XCrtFileAccess.cpp were verified against Game.exe (image base 00400000).
@@ -228,6 +224,8 @@ namespace NXBasics
     DWORD* Runtime_GetDosErrnoPointer();
 
     std::int32_t Runtime_FormatString(char* destination, std::int32_t capacity, const char* format, va_list arguments);
+
+    std::int32_t Runtime_CreateDirectory(const char* path);
 
     std::int32_t Runtime_FindFirst(const char* pattern, void* result);
 

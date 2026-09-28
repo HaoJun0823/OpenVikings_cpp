@@ -25,6 +25,10 @@ namespace NXBasics
         // Original function: FUN_00410117
         std::uint16_t PackColor(const SColorRGB& color) const;
 
+        std::uint16_t ApplyShadowMode1(std::uint16_t pixel) const;
+        std::uint16_t ApplyShadowMode2(std::uint16_t pixel) const;
+        std::uint16_t ApplyShadowMode3(std::uint16_t pixel) const;
+
         bool IsInitialized() const noexcept
         {
             return mInitialized;

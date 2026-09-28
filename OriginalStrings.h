@@ -3,6 +3,12 @@
 // Exact NUL-terminated bytes recovered from Game.exe; sorted by original address.
 namespace OriginalStrings
 {
+    // Original data: 004fe164.
+    inline constexpr char Dot[4] = ".";
+
+    // Original data: 004ff054.
+    inline constexpr char WindowsRootPath[4] = "\\";
+
     // Original data: 004ff058
     inline constexpr char FileOpenForReadingError[] = "NXBasics::CFile::OpenForReading\n\nfile %s - errno %d: %s";
 

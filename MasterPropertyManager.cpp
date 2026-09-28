@@ -1,9 +1,16 @@
+#include "ApplicationGlobals.h"
+#include "C2E2LevelOfDetailManager.h"
+#include "DSManager.h"
+#include "InGameGuiManager.h"
 #include "MasterPropertyManager.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XIniFileReader.h"
 #include "XStringMemory.h"
+#include "XMKeyManager.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <new>
 
@@ -251,6 +258,74 @@ namespace NMasterPropertyManager
 
         l_Property_RemoveAndDelete(property);
         return true;
+    }
+
+    // Original function: FUN_004e19aa
+    void CPropertyManager::Options_Save_InGame()
+    {
+        NXBasics::CFile::FileSystem_Tool_CreateDirectory("Saves");
+
+        char fileName[0x104];
+        NXBasics::Runtime_PrintString(fileName, "%s\\opt_game.ini", "Saves");
+
+        NXBasics::CFile file(fileName, false);
+        file.OpenForWriting(true);
+
+        const auto readInteger = [] (const void* object, std::uint32_t offset) -> std::int32_t
+        {
+            std::int32_t value;
+            std::memcpy(&value, static_cast<const std::byte*>(object) + offset, sizeof(value));
+            return value;
+        };
+
+        const auto readByte = [] (const void* object, std::uint32_t offset) -> std::int32_t
+        {
+            std::uint8_t value;
+            std::memcpy(&value, static_cast<const std::byte*>(object) + offset, sizeof(value));
+            return value;
+        };
+
+        const auto writeInteger = [&file] (const char* format, std::int32_t value)
+        {
+            // Preserve the formatting buffer and limit used by FUN_00406216.
+            char text[1000];
+            NXBasics::Runtime_PrintStringN(text, 999u, format, value);
+            text[999] = '\0';
+            file.Write(text, static_cast<std::uint32_t>(std::strlen(text)));
+        };
+
+        const auto saveInteger = [this, &writeInteger] (const char* name, const char* format, std::int32_t value)
+        {
+            Property_Add(name, true, value, nullptr);
+            writeInteger(format, value);
+        };
+
+        saveInteger("engine_lod", "engine_lod %d\r\n", NC2E2::CLevelOfDetailManager::sLevelOfDetail);
+
+        writeInteger("music_mode %d\r\n", Property_GetIntegerValue("music_mode"));
+
+        if (NDSManager::CManager::sTheObjectPtr != nullptr)
+        {
+            saveInteger("fx_volume", "fx_volume %d\r\n", readInteger(NDSManager::CManager::sTheObjectPtr, 0x10u));
+            saveInteger("fx_quality", "fx_quality %d\r\n", readInteger(NDSManager::CManager::sTheObjectPtr, 0x0cu));
+        }
+
+        writeInteger("fx_jingles_off %d\r\n", Property_GetIntegerValue("fx_jingles_off"));
+
+        if (gDirectMusicManager != nullptr)
+        {
+            // Original getter: FUN_0040392e.
+            saveInteger("dm_volume", "dm_volume %d\r\n", readInteger(gDirectMusicManager, 0x1cu));
+        }
+
+        // Original getter: FUN_004a2b18.
+        saveInteger("gui_scroll_speed", "gui_scroll_speed %d\r\n", readInteger(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xd8u));
+        saveInteger("gui_main_mode", "gui_main_mode %d\r\n", readInteger(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xdcu));
+        saveInteger("gui_expert_flag", "gui_expert_flag %d\r\n", 1);
+        saveInteger("gui_tooltipsoff_flag", "gui_tooltipsoff_flag %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe1u));
+        saveInteger("gui_scroll_on_third_button", "gui_scroll_on_third_button %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe2u));
+        saveInteger("gui_scroll_on_border", "gui_scroll_on_border %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe3u));
+        saveInteger("gui_mouse_software", "gui_mouse_software %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe4u));
     }
 
     // Original function: FUN_004e171d

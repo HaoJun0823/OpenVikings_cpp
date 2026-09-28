@@ -19,6 +19,9 @@ namespace NC2E2
     class CE2StaticDataSoundFXManager
     {
     public:
+        // Original global: DAT_00568a28.
+        inline static CE2StaticDataSoundFXManager* sTheObjectPtr = nullptr;
+
         CE2StaticDataSoundFXManager();
         ~CE2StaticDataSoundFXManager();
 

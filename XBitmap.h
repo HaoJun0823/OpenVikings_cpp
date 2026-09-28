@@ -38,6 +38,15 @@ namespace NXBasics
         void Draw_Box(SRectangle rectangle, std::uint16_t color);
         void Draw_Box(SRectangle rectangle, std::uint32_t color);
 
+        void Draw_Rectangle(SRectangle rectangle, std::uint8_t colorIndex);
+        void Draw_Rectangle(SRectangle rectangle, std::uint16_t color);
+        void Draw_Rectangle(SRectangle rectangle, std::uint32_t color);
+        void Draw_Rectangle(const SRectangle& rectangle, const SColorRGB& color);
+
+        void Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, std::uint8_t colorIndex);
+        void Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, std::uint16_t color);
+        void Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, std::uint32_t color);
+
         void Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, std::uint8_t colorIndex);
         void Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, std::uint16_t color);
         void Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, std::uint32_t color);

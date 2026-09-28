@@ -108,8 +108,6 @@ namespace
 
 namespace NInGameGuiManager
 {
-    CInGameGuiManager* CInGameGuiManager::sTheObjectPtr = nullptr;
-
     void SLegacyDynamicBufferState::Initialize()
     {
         std::memset(this, 0, sizeof(*this));

@@ -1,10 +1,14 @@
 #include "GuiToolsBase.h"
+#include "C2EngineDrawingAccess.h"
 #include "DSManager.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XBobRendering.h"
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
+
+#include <windows.h>
+#include <mmsystem.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -16,11 +20,11 @@ namespace NXBasics
     class CPalette;
 }
 
-extern NDSManager::CManager* DAT_0050f6a4;
-
 extern NXBasics::CBobManager* DAT_00569918;
 extern NXBasics::CPalette* DAT_0056991c;
 extern NXBasics::CPalette* DAT_00569920;
+
+extern void* DAT_00511240;
 
 namespace NC2GuiToolsBase
 {
@@ -121,10 +125,172 @@ namespace NC2GuiToolsBase
         DrawTool_DrawFrame(nullptr, &frameBitmap, &rectangle, mode);
     }
 
+    // Original function: FUN_004e2661
+    void DrawTool_PrintStringX(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* font, const NXBasics::SColorRGB* color, const char* text)
+    {
+        if (text == nullptr)
+            return;
+
+        NXBasics::SColorRGB currentColor = *color;
+        std::uint32_t currentX = static_cast<std::uint32_t>(x);
+        std::uint32_t currentY = static_cast<std::uint32_t>(y);
+        const char* cursor = text;
+
+        const auto signedValue = [] (std::uint32_t bits) -> std::int32_t
+        {
+            return NXBasics::Runtime_TimeSigned32(bits);
+        };
+
+        for (;;)
+        {
+            const std::uint8_t character = static_cast<std::uint8_t>(*cursor++);
+
+            if (character == 0)
+                return;
+
+            if (character == '\t' || character == ' ')
+            {
+                currentX += static_cast<std::uint32_t>(NXBasics::Font_GetCharacterWidth(font, 'i'));
+                continue;
+            }
+
+            if (character == '\n' || character == '\r')
+            {
+                // The original consumes a following LF after either newline byte.
+                if (*cursor == '\n')
+                    ++cursor;
+
+                std::uint32_t fontHeight;
+                std::memcpy(&fontHeight, static_cast<const std::byte*>(font) + 8, sizeof(fontHeight));
+
+                currentY += fontHeight + 2u;
+                currentX = static_cast<std::uint32_t>(x);
+                continue;
+            }
+
+            if (character == '{')
+            {
+                const char* end = std::strchr(cursor, '}');
+
+                // Without a closing brace, only the opening brace is discarded.
+                if (end == nullptr)
+                    continue;
+
+                const auto matches = [cursor] (const char* name, std::uint32_t length) -> bool
+                {
+                    return NXBasics::Runtime_CompareStringsIgnoreCaseN(cursor, name, length) == 0;
+                };
+
+                const auto argumentAfter = [end] (const char* start, char delimiter) -> const char*
+                {
+                    const char* separator = std::strchr(start, delimiter);
+
+                    if (separator == nullptr || separator >= end)
+                        return nullptr;
+
+                    return separator + 1;
+                };
+
+                if (matches("gfxgood", 7))
+                {
+                    const char* first = argumentAfter(cursor, ':');
+
+                    if (first != nullptr)
+                    {
+                        const std::int32_t goodId = NXBasics::Runtime_StringToInteger(first);
+                        const char* second = argumentAfter(first, ',');
+
+                        if (second != nullptr)
+                        {
+                            const std::int32_t variant = NXBasics::Runtime_StringToInteger(second);
+                            const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(DAT_00511240));
+                            const std::uint32_t address = baseAddress + static_cast<std::uint32_t>(goodId) * 0xD0u;
+                            const auto* good = reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
+
+                            std::uint32_t graphicId;
+                            std::memcpy(&graphicId, good + 0x24, sizeof(graphicId));
+
+                            if (graphicId != 0xFFFFFFFFu)
+                            {
+                                const std::uint32_t frame = ::timeGetTime() / 83u;
+                                NC2E2::EngineGraphic_Draw(graphicId, static_cast<std::uint32_t>(variant), bitmap, signedValue(currentX + 12u), signedValue(currentY + 8u), frame, 256, -1, true);
+                                currentX += 24u;
+                            }
+                        }
+                    }
+                }
+                else if (matches("gfxhouse", 8))
+                {
+                    const char* first = argumentAfter(cursor, ':');
+
+                    if (first != nullptr)
+                    {
+                        const std::int32_t houseId = NXBasics::Runtime_StringToInteger(first);
+                        const char* second = argumentAfter(first, ',');
+
+                        if (second != nullptr)
+                        {
+                            const std::int32_t variant = NXBasics::Runtime_StringToInteger(second);
+                            NC2E2::DrawAtom_House_Tool_DoDrawEngineHouseType(houseId, static_cast<std::uint32_t>(variant), bitmap, signedValue(currentX), signedValue(currentY), -1, true, false);
+                        }
+                    }
+                }
+                else if (matches("setx", 4))
+                {
+                    const char* argument = argumentAfter(cursor, ':');
+
+                    if (argument != nullptr)
+                        currentX = static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(NXBasics::Runtime_StringToInteger(argument));
+                }
+                else if (matches("sety", 4))
+                {
+                    const char* argument = argumentAfter(cursor, ':');
+
+                    if (argument != nullptr)
+                        currentY = static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(NXBasics::Runtime_StringToInteger(argument));
+                }
+                else if (matches("setfontcolor", 12))
+                {
+                    const char* first = argumentAfter(cursor, ':');
+
+                    if (first != nullptr)
+                    {
+                        const std::int32_t red = NXBasics::Runtime_StringToInteger(first);
+                        const char* second = argumentAfter(first, ',');
+
+                        if (second != nullptr)
+                        {
+                            const std::int32_t green = NXBasics::Runtime_StringToInteger(second);
+                            const char* third = argumentAfter(second, ',');
+
+                            if (third != nullptr)
+                            {
+                                const std::int32_t blue = NXBasics::Runtime_StringToInteger(third);
+                                currentColor.red = static_cast<std::uint8_t>(red);
+                                currentColor.green = static_cast<std::uint8_t>(green);
+                                currentColor.blue = static_cast<std::uint8_t>(blue);
+                            }
+                        }
+                    }
+                }
+
+                cursor = end + 1;
+                continue;
+            }
+
+            if (character < 0x20u)
+                continue;
+
+            const std::int32_t width = NXBasics::Font_GetCharacterWidth(font, character);
+            NXBasics::Font_PrintCharacter(font, &currentColor, bitmap, character, signedValue(currentX), signedValue(currentY));
+            currentX += static_cast<std::uint32_t>(width);
+        }
+    }
+
     // Original function: FUN_004e2bcf
     void FXTool_Chat()
     {
-        auto* manager = DAT_0050f6a4;
+        auto* manager = NDSManager::CManager::sTheObjectPtr;
 
         if (manager != nullptr)
         {

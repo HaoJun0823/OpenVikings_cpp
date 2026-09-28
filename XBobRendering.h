@@ -8,7 +8,12 @@ namespace NXBasics
     struct SColorRGB;
     class CPalette;
 
+    std::uint32_t BobManager_GetBobType(const void* bobManager, std::uint32_t bobId);
     void BobManager_PrintBob(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
+    void BobManager_PrintBob_DoubleByteBobNormal(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
+    void BobManager_PrintBob_Shadow(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y);
+    void BobManager_PrintBob_Shadow16(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t mode);
+    void BobManager_PrintBob_Shadow32(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t mode);
     void BobManager_PrintBobUsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
     void BobManager_PrintBobUsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour);
 }

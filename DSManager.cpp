@@ -1,3 +1,5 @@
+#include "ApplicationGlobals.h"
+#include "C2E2StaticDataSoundFX.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
@@ -8,14 +10,7 @@
 #include <cstdint>
 #include <cstring>
 #include <windows.h>
-#include <mmsystem.h>
 #include <dsound.h>
-
-extern void* DAT_0050f698;
-extern void* DAT_00568a28;
-
-// Original data: DAT_0050f6a4
-NDSManager::CManager* DAT_0050f6a4 = nullptr;
 
 namespace NDSManager
 {
@@ -24,7 +19,7 @@ namespace NDSManager
     {
         std::memset(this, 0, sizeof(*this));
 
-        DAT_0050f6a4 = this;
+        sTheObjectPtr = this;
         mWindow = window;
         mMainVolume = 100;
         mNextSequence = 1;
@@ -46,7 +41,7 @@ namespace NDSManager
             l_Device_Exit();
         }
 
-        DAT_0050f6a4 = nullptr;
+        sTheObjectPtr = nullptr;
     }
 
     // Original function: FUN_00404797
@@ -1529,21 +1524,20 @@ namespace NDSManager
 
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") == 2)
         {
-            if (DAT_0050f698 != nullptr)
-                FUN_004038bd(DAT_0050f698, jingleEvent, 0, 2);
+            if (gDirectMusicManager != nullptr)
+                FUN_004038bd(gDirectMusicManager, jingleEvent, 0, 2);
         }
 
-        if (DAT_0050f6a4 == nullptr || DAT_0050f6a4->mInitialized == 0)
+        if (sTheObjectPtr == nullptr || sTheObjectPtr->mInitialized == 0)
             return;
 
-        const std::uint32_t index = l_Jingle_FindIndex(DAT_00568a28, jingleEvent);
+        const std::uint32_t index = l_Jingle_FindIndex(NC2E2::CE2StaticDataSoundFXManager::sTheObjectPtr, jingleEvent);
         const std::uint32_t identifier = index + 0x87E85u;
 
-        if (DAT_0050f6a4->FireAndForget_IsRunning(identifier))
+        if (sTheObjectPtr->FireAndForget_IsRunning(identifier))
             return;
 
-        std::uint32_t recordsAddress;
-        std::memcpy(&recordsAddress, static_cast<const std::byte*>(DAT_00568a28) + 0x1EC, sizeof(recordsAddress));
+        const std::uint32_t recordsAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(NC2E2::CE2StaticDataSoundFXManager::sTheObjectPtr->jingles));
 
         const std::uint32_t recordAddress = recordsAddress + (index << 7);
 
@@ -1554,13 +1548,13 @@ namespace NDSManager
         std::uint32_t volume;
         std::memcpy(&volume, record + 0x7C, sizeof(volume));
 
-        DAT_0050f6a4->FireAndForget_LoadAndPlay(reinterpret_cast<const char*>(record + 4), volume, identifier, 1, false, false, 100);
+        sTheObjectPtr->FireAndForget_LoadAndPlay(reinterpret_cast<const char*>(record + 4), volume, identifier, 1, false, false, 100);
     }
 
     // Original function: FUN_0048e1e1
     std::uint32_t CManager::l_Jingle_FindIndex(const void* staticSoundData, std::uint32_t event)
     {
-        if (DAT_0050f6a4 == nullptr || DAT_0050f6a4->mInitialized == 0)
+        if (sTheObjectPtr == nullptr || sTheObjectPtr->mInitialized == 0)
             return 0;
 
         const auto* storage = static_cast<const std::byte*>(staticSoundData);

@@ -1,0 +1,383 @@
+#include "ApplicationGlobals.h"
+#include "C2EngineDrawingAccess.h"
+#include "C2E2LevelOfDetailManager.h"
+#include "XBobRendering.h"
+#include "XCrtFileAccess.h"
+#include "XBasicTypes.h"
+#include "XFontMetrics.h"
+
+#include <windows.h>
+#include <mmsystem.h>
+
+#include <cstddef>
+#include <cstring>
+
+extern void* DAT_005109ec;
+extern void* DAT_005550e4;
+extern void* DAT_00568a64;
+extern void* DAT_00568a7c;
+extern std::uint32_t DAT_00510838;
+extern NXBasics::CPalette* DAT_005550f8;
+extern std::uint8_t DAT_00568b44;
+
+namespace NC2E2
+{
+    // Original function: FUN_00486f3c
+    NXBasics::CPalette* EnginePalette_GetBrightnessPalette(const void* colorData, std::int32_t brightness)
+    {
+        const std::uint32_t differenceBits = static_cast<std::uint32_t>(brightness) - 128u;
+        std::int32_t index = NXBasics::Runtime_TimeSigned32(differenceBits) / 8 + 15;
+
+        if (index < 0)
+            index = 0;
+        else if (index > 31)
+            index = 30;
+
+        // The original permits index 31 despite allocating only 31 palettes.
+        std::uint32_t baseAddress;
+        std::memcpy(&baseAddress, static_cast<const std::byte*>(colorData) + 0x24, sizeof(baseAddress));
+
+        const std::uint32_t address = baseAddress + static_cast<std::uint32_t>(index) * 0x40Cu;
+        return reinterpret_cast<NXBasics::CPalette*>(static_cast<std::uintptr_t>(address));
+    }
+
+    // Original function: FUN_0048b49a
+    NXBasics::CPalette* EnginePalette_GetPlayerPalette(std::int32_t playerId)
+    {
+        if (playerId < 0 || playerId >= 20)
+        {
+            return nullptr;
+        }
+
+        const auto addressAt = [] (const void* base, std::uint32_t offset) -> const std::byte*
+        {
+            const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(base)) + offset;
+            return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
+        };
+
+        const std::byte* player = addressAt(DAT_005109ec, static_cast<std::uint32_t>(playerId) * 0x4a80u);
+
+        std::uint8_t active;
+        std::memcpy(&active, player, sizeof(active));
+
+        if (active == 0)
+        {
+            return nullptr;
+        }
+
+        std::int32_t colorId;
+        std::memcpy(&colorId, addressAt(player, 0x10u), sizeof(colorId));
+
+        if (colorId < 0 || colorId >= 10)
+        {
+            colorId = 9;
+        }
+
+        std::uint32_t paletteId;
+        std::memcpy(&paletteId, DAT_005685e8 + static_cast<std::uint32_t>(colorId) * 0x58u + 0x50u, sizeof(paletteId));
+
+        std::uint32_t paletteAddress;
+        std::memcpy(&paletteAddress, addressAt(DAT_005550e4, paletteId * 0x30u + 0x20u), sizeof(paletteAddress));
+
+        return reinterpret_cast<NXBasics::CPalette*>(static_cast<std::uintptr_t>(paletteAddress));
+    }
+
+    // Original function: FUN_00496594
+    static void ls_DrawAtom_House_DoDraw_PrintImageBob(const void* bobManager, std::uint32_t bobId, std::uint32_t colorTableIndex, std::int32_t brightness, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, bool /*drawFlag*/)
+    {
+        if (bobManager == nullptr)
+            return;
+
+        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(DAT_005550e4));
+        const std::uint32_t address = baseAddress + colorTableIndex * 0x30u;
+        auto* colorData = reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(address));
+
+        std::uint32_t paletteDataAddress;
+        std::memcpy(&paletteDataAddress, colorData + 0x24, sizeof(paletteDataAddress));
+
+        if (paletteDataAddress == 0)
+            return;
+
+        auto* palette = EnginePalette_GetBrightnessPalette(colorData, brightness / 2);
+
+        if (NXBasics::BobManager_GetBobType(bobManager, bobId) == 1u)
+        {
+            NXBasics::BobManager_PrintBob(bobManager, bobId, bitmap, x, y, palette);
+        }
+        else if (NXBasics::BobManager_GetBobType(bobManager, bobId) == 4u)
+        {
+            NXBasics::BobManager_PrintBob_DoubleByteBobNormal(bobManager, bobId, bitmap, x, y, palette);
+        }
+    }
+
+    // Original function: FUN_00496c8b
+    void DrawAtom_House_Tool_DoDrawEngineHouseType(std::int32_t houseType, std::uint32_t variant, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t colorTableIndex, bool drawShadow, bool drawFlag)
+    {
+        const auto addressAt = [] (const void* base, std::uint32_t offset) -> const std::byte*
+        {
+            const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(base)) + offset;
+            return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
+        };
+
+        const auto readWord = [&addressAt] (const void* base, std::uint32_t offset) -> std::uint32_t
+        {
+            std::uint32_t value;
+            std::memcpy(&value, addressAt(base, offset), sizeof(value));
+            return value;
+        };
+
+        const std::byte* house = addressAt(DAT_00568a64, static_cast<std::uint32_t>(houseType) * 0x8BCu);
+
+        if (colorTableIndex == -1)
+        {
+            const std::uint32_t defaultIndex = readWord(house, 0x220);
+            std::memcpy(&colorTableIndex, &defaultIndex, sizeof(colorTableIndex));
+        }
+
+        const std::uint32_t bobId = readWord(house, 0x238u + variant * 4u);
+
+        if (drawShadow)
+        {
+            const std::uint32_t shadowManagerAddress = readWord(house, 0x218);
+
+            if (shadowManagerAddress != 0)
+            {
+                auto* shadowManager = reinterpret_cast<void*>(static_cast<std::uintptr_t>(shadowManagerAddress));
+                NXBasics::BobManager_PrintBob_Shadow(shadowManager, bobId, bitmap, x, y);
+            }
+        }
+
+        const std::uint32_t bobManagerAddress = readWord(house, 0x214);
+        auto* bobManager = reinterpret_cast<void*>(static_cast<std::uintptr_t>(bobManagerAddress));
+
+        ls_DrawAtom_House_DoDraw_PrintImageBob(bobManager, bobId, static_cast<std::uint32_t>(colorTableIndex), 256, bitmap, x, y, drawFlag);
+    }
+
+    // Original function: FUN_00496cfd
+    void EngineGraphic_Draw(std::uint32_t graphicId, std::uint32_t variant, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t animationValue, std::int32_t brightness, std::int32_t parameter24, bool centered)
+    {
+        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(DAT_00568a7c));
+        const std::uint32_t address = baseAddress + graphicId * 0x8Cu;
+        auto* graphic = reinterpret_cast<void*>(static_cast<std::uintptr_t>(address));
+
+        EngineGraphic_DrawData(graphic, variant, bitmap, x, y, animationValue, brightness, parameter24, centered);
+    }
+
+    // Original function: FUN_00496d32
+    void EngineGraphic_DrawData(const void* graphic, std::uint32_t variant, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t animationValue, std::int32_t brightness, std::int32_t parameter24, bool centered)
+    {
+        const auto addressAt = [] (const void* base, std::uint32_t offset) -> const std::byte*
+        {
+            const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(base)) + offset;
+            return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
+        };
+
+        const auto readWord = [&addressAt] (const void* base, std::uint32_t offset) -> std::uint32_t
+        {
+            std::uint32_t value;
+            std::memcpy(&value, addressAt(base, offset), sizeof(value));
+            return value;
+        };
+
+        const auto readByte = [&addressAt] (const void* base, std::uint32_t offset) -> std::uint8_t
+        {
+            std::uint8_t value;
+            std::memcpy(&value, addressAt(base, offset), sizeof(value));
+            return value;
+        };
+
+        const auto readPointer = [&readWord] (const void* base, std::uint32_t offset) -> void*
+        {
+            return reinterpret_cast<void*>(static_cast<std::uintptr_t>(readWord(base, offset)));
+        };
+
+        const auto signedValue = [] (std::uint32_t bits) -> std::int32_t
+        {
+            return NXBasics::Runtime_TimeSigned32(bits);
+        };
+
+        const std::uint32_t variantCount = readWord(graphic, 0x84);
+
+        if (variantCount == 0)
+            return;
+
+        std::uint32_t variantIndex = variantCount - 1u;
+        const std::byte* selected = addressAt(readPointer(graphic, 0x88), variantIndex * 12u);
+
+        while (signedValue(variantIndex) >= 0)
+        {
+            if (readWord(selected, 0) <= variant)
+                break;
+
+            --variantIndex;
+            selected = addressAt(selected, 0u - 12u);
+        }
+
+        if (variantIndex == 0xFFFFFFFFu)
+            return;
+
+        const std::uint32_t frameCount = readWord(selected, 4);
+        std::uint32_t frameValue = 0;
+
+        if (readByte(graphic, 0x7C) != 0)
+        {
+            frameValue = (frameCount * animationValue) / 100u;
+
+            if (frameValue >= frameCount)
+                frameValue = frameCount - 1u;
+        }
+        else if (readByte(graphic, 0x7B) != 0)
+        {
+            frameValue = DAT_00510838 + animationValue;
+
+            if (DAT_00568b44 != 0)
+                frameValue = ::timeGetTime() / 83u + animationValue;
+        }
+
+        const std::uint32_t frameIndex = frameValue % frameCount;
+        const std::uint32_t bobId = readWord(readPointer(selected, 8), frameIndex * 4u);
+
+        if (centered)
+        {
+            const void* bobManager = readPointer(graphic, 0x6C);
+
+            if (bobManager != nullptr)
+            {
+                const void* area = NXBasics::BobManager_GetBobAreaRectanglePtr(bobManager, bobId);
+                const std::int32_t halfWidth = signedValue(readWord(area, 8)) / 2;
+                const std::int32_t halfHeight = signedValue(readWord(area, 12)) / 2;
+
+                x = signedValue(static_cast<std::uint32_t>(x) - readWord(area, 0) - static_cast<std::uint32_t>(halfWidth));
+                y = signedValue(static_cast<std::uint32_t>(y) - readWord(area, 4) - static_cast<std::uint32_t>(halfHeight));
+            }
+        }
+
+        const void* shadowManager = readPointer(graphic, 0x70);
+
+        if (shadowManager != nullptr && brightness != 0)
+            NXBasics::BobManager_PrintBob_Shadow(shadowManager, bobId, bitmap, x, y);
+
+        if (readPointer(graphic, 0x6C) == nullptr)
+            return;
+
+        if (readByte(graphic, 0x7D) != 0)
+        {
+            if (brightness == 0)
+                return;
+
+            if (!CLevelOfDetailManager::GetUseMatrixFXBobsFlag() && readByte(graphic, 0x7E) == 0)
+                return;
+
+            FUN_00498128(readPointer(graphic, 0x6C), bobId, bitmap, x, y);
+            return;
+        }
+
+        const auto drawWithoutBrightnessAdjustment = [&] (NXBasics::CPalette* palette)
+        {
+            if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 1u)
+            {
+                NXBasics::BobManager_PrintBob(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+            }
+            else if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 4u)
+            {
+                if (CLevelOfDetailManager::GetUseLandscapeAlphaBobsFlag())
+                    NXBasics::BobManager_PrintBobUsingTransparency(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+                else
+                    NXBasics::BobManager_PrintBob_DoubleByteBobNormal(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+            }
+        };
+
+        if (brightness == 0)
+        {
+            drawWithoutBrightnessAdjustment(DAT_005550f8);
+            return;
+        }
+
+        const std::int32_t graphicType = signedValue(readWord(graphic, 0x38));
+
+        if (graphicType >= 73 && graphicType <= 78)
+        {
+            NXBasics::SColorRGB glowColor(0, 0, 128);
+
+            constexpr std::int32_t offsetsX[8] = { -4, 4, 0, 0, -2, -2, 2, 2 };
+            constexpr std::int32_t offsetsY[8] = { 0, 0, -4, 4, -2, 2, -2, 2 };
+            constexpr std::uint32_t strengths[8] = { 40, 40, 40, 40, 64, 64, 64, 64 };
+
+            for (std::uint32_t index = 0; index < 8u; ++index)
+            {
+                const std::int32_t glowX = signedValue(static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(offsetsX[index]));
+                const std::int32_t glowY = signedValue(static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(offsetsY[index]));
+
+                FUN_0049c80f(readPointer(graphic, 0x6C), bobId, bitmap, glowX, glowY, &glowColor, strengths[index]);
+            }
+        }
+
+        const std::uint32_t brightnessProduct = (static_cast<std::uint32_t>(brightness) - 256u) * readWord(graphic, 0x80);
+        brightness = signedValue(brightnessProduct) / 256 + 256;
+
+        const std::byte* colorData = addressAt(DAT_005550e4, readWord(graphic, 0x74) * 0x30u);
+        NXBasics::CPalette* palette;
+
+        if (parameter24 != -1)
+        {
+            palette = EnginePalette_GetPlayerPalette(parameter24);
+
+            if (palette == nullptr)
+                palette = DAT_005550f8;
+        }
+        else if (readWord(colorData, 0x24) != 0)
+        {
+            palette = EnginePalette_GetBrightnessPalette(colorData, brightness / 2);
+            drawWithoutBrightnessAdjustment(palette);
+            return;
+        }
+        else if (readWord(colorData, 0x28) != 0)
+        {
+            if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 1u)
+            {
+                const void* remap = readPointer(colorData, 0x28);
+                NXBasics::CPalette* remapPalette = EnginePalette_GetBrightnessPalette(readPointer(colorData, 0x2C), brightness / 2);
+
+                FUN_00463f7c(readPointer(graphic, 0x6C), bobId, bitmap, x, y, remapPalette, addressAt(remap, 4));
+            }
+            else if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 4u)
+            {
+                palette = reinterpret_cast<NXBasics::CPalette*>(readPointer(colorData, 0x20));
+
+                if (CLevelOfDetailManager::GetUseLandscapeAlphaBobsFlag())
+                    FUN_00466d39(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+                else
+                    NXBasics::BobManager_PrintBob_DoubleByteBobNormal(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+            }
+
+            return;
+        }
+        else
+        {
+            palette = reinterpret_cast<NXBasics::CPalette*>(readPointer(colorData, 0x20));
+        }
+
+        if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 1u)
+        {
+            if (brightness >= 254 && brightness <= 258)
+                NXBasics::BobManager_PrintBob(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+            else
+                FUN_0049bf5a(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+        }
+        else if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 4u)
+        {
+            if (!CLevelOfDetailManager::GetUseLandscapeAlphaBobsFlag())
+            {
+                NXBasics::BobManager_PrintBob_DoubleByteBobNormal(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+            }
+            else if (brightness >= 254 && brightness <= 258)
+            {
+                NXBasics::BobManager_PrintBobUsingTransparency(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
+            }
+            else
+            {
+                FUN_00466d39(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+            }
+        }
+    }
+}

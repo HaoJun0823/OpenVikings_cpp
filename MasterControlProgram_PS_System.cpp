@@ -1,9 +1,12 @@
+#include "ApplicationGlobals.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "X2DApplication.h"
 
-extern NDSManager::CManager* DAT_0050f6a4;
+#include <cstddef>
+#include <cstdint>
+#include <Windows.h>
 
 namespace NMasterControlProgram
 {
@@ -113,16 +116,16 @@ namespace NMasterControlProgram
             break;
         }
 
-        if (DAT_0050f6a4 != nullptr)
+        if (NDSManager::CManager::sTheObjectPtr != nullptr)
         {
-            DAT_0050f6a4->System_Update();
+            NDSManager::CManager::sTheObjectPtr->System_Update();
         }
 
-        if (DAT_0050f698 != nullptr)
+        if (gDirectMusicManager != nullptr)
         {
-            FUN_00403858(DAT_0050f698);
+            FUN_00403858(gDirectMusicManager);
 
-            auto** errorMessage = reinterpret_cast<char**>(reinterpret_cast<std::byte*>(DAT_0050f698) + 0x220);
+            auto** errorMessage = reinterpret_cast<char**>(reinterpret_cast<std::byte*>(gDirectMusicManager) + 0x220);
 
             if (*errorMessage != nullptr)
             {

@@ -1,3 +1,4 @@
+#include "ApplicationGlobals.h"
 #include "X2DApplication.h"
 #include "MasterPropertyManager.h"
 #include "XCrtFileAccess.h"
@@ -123,9 +124,9 @@ namespace NMasterControlProgram
 
         FUN_004800c8(DAT_005550d4);
 
-        if (DAT_0050f698 != nullptr)
+        if (gDirectMusicManager != nullptr)
         {
-            FUN_004038bd(DAT_0050f698, 0, 0, 1);
+            FUN_004038bd(gDirectMusicManager, 0, 0, 1);
         }
 
         NNetwork::Network_ShutDown();
@@ -141,14 +142,14 @@ namespace NMasterControlProgram
     // Original function: FUN_00401d38
     void CMasterControlProgram::System_ProgramState_Game_Update()
     {
-        if (DAT_0050f6a8.active != 0)
+        if (gDynamicNetworkData.active != 0)
         {
-            if (DAT_0050f6a8.receivedRecordCount > 0)
+            if (gDynamicNetworkData.receivedRecordCount > 0)
             {
                 void* receivedBuffer = nullptr;
                 std::uint32_t receivedRecordCount = 0;
 
-                NNetwork::TakeDynamicNetworkTextRecords(&DAT_0050f6a8, &receivedBuffer, &receivedRecordCount);
+                NNetwork::TakeDynamicNetworkTextRecords(&gDynamicNetworkData, &receivedBuffer, &receivedRecordCount);
 
                 auto* receivedRecords = static_cast<SReceivedNetworkRecord*>(receivedBuffer);
 
@@ -224,7 +225,7 @@ namespace NMasterControlProgram
         }
 
         alignas(4) std::byte messageCollection[0x10]{};
-        FUN_004db43a(messageCollection, &DAT_0050f6bc);
+        FUN_004db43a(messageCollection, &gDynamicNetworkData.events);
 
         auto* currentMessage = *reinterpret_cast<SQueuedNetworkMessage**>(messageCollection + 0x08);
 

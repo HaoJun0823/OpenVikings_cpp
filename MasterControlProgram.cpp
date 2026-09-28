@@ -1,3 +1,4 @@
+#include "ApplicationGlobals.h"
 #include "DSManager.h"
 #include "XSystemManager.h"
 #include "XCrtFileAccess.h"
@@ -16,8 +17,6 @@
 #include <cstring>
 #include <new>
 #include <windows.h>
-
-extern NDSManager::CManager* DAT_0050f6a4;
 
 namespace NC2LogicExternals
 {
@@ -47,7 +46,7 @@ namespace NMasterControlProgram
 
         new (std::nothrow) NXBasics::CXBSystemManager();
 
-        FUN_004065e2(reinterpret_cast<std::uint32_t*>(&DAT_004fe208));
+        NXBasics::CFile::FileSystem_Tool_CreateDirectory("logs");
 
         new (std::nothrow) NMasterPropertyManager::CPropertyManager();
 
@@ -223,13 +222,13 @@ namespace NMasterControlProgram
 
             const int quality = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_quality") ? NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("fx_quality") : 1;
 
-            DAT_0050f6a4->Quality_Set(quality);
+            NDSManager::CManager::sTheObjectPtr->Quality_Set(quality);
 
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("fx_volume"))
             {
                 const int volume = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("fx_volume");
 
-                DAT_0050f6a4->MainVolume_Set(volume);
+                NDSManager::CManager::sTheObjectPtr->MainVolume_Set(volume);
             }
         }
 
@@ -256,13 +255,13 @@ namespace NMasterControlProgram
             GetCurrentDirectoryA(MAX_PATH - 1, directMusicPath);
             DexterString::StringAttach(directMusicPath, "\\datax\\dm2\\");
 
-            FUN_004035b6(DAT_0050f698, 0, directMusicPath);
+            FUN_004035b6(gDirectMusicManager, 0, directMusicPath);
 
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("dm_volume"))
             {
                 const int volume = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("dm_volume");
 
-                FUN_00403932(DAT_0050f698, volume);
+                FUN_00403932(gDirectMusicManager, volume);
             }
         }
 
@@ -306,7 +305,7 @@ namespace NMasterControlProgram
             NXBasics::Runtime_Free(cdAudioManager);
         }
 
-        void* directMusicManager = DAT_0050f698;
+        void* directMusicManager = gDirectMusicManager;
 
         if (directMusicManager != nullptr)
         {
@@ -317,7 +316,7 @@ namespace NMasterControlProgram
             vtable[0](directMusicManager, 1);
         }
 
-        auto* soundManager = DAT_0050f6a4;
+        auto* soundManager = NDSManager::CManager::sTheObjectPtr;
 
         if (soundManager != nullptr)
         {

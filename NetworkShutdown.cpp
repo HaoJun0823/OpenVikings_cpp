@@ -6,23 +6,25 @@
 #include "FileTransferManager.h"
 #include "MasterPropertyManager.h"
 
+#include "dplay8.h"
+
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <Windows.h>
 
 // Original data: DAT_00509910.
 // The diagnostic string contents are not present in the supplied ASM export.
 extern const char DAT_00509910[];
 
 // Original data: DAT_0050f6a8.
-NNetwork::SDynamicNetworkData DAT_0050f6a8{};
+NNetwork::SDynamicNetworkData gDynamicNetworkData{};
 
-// Original data: 0050f728..0050f74f; initially zero.
-char DAT_0050f728[0x28]{};
+// Original data: 0050f728..0050f74f.
+char gNetworkCallsign[0x28]{};
 
-// Original data: 0050f750; initially zero.
-std::uint8_t DAT_0050f750 = 0;
-
-// Original data: 0050f750; initial value remains unresolved.
-extern std::uint8_t DAT_0050f750;
+// Original data: 0050f750.
+std::uint8_t gNetworkCallsignInitialized = 0;
 
 namespace NNetwork
 {
@@ -227,13 +229,13 @@ namespace NNetwork
     // Original function: FUN_004058dd
     void InitializeGlobalDynamicNetworkData()
     {
-        ConstructDynamicNetworkData(&DAT_0050f6a8);
+        ConstructDynamicNetworkData(&gDynamicNetworkData);
 
         // Original function: FUN_004058f3
         // The existing reconstructed onexit interface expects an int return value.
         NXBasics::Runtime_AtExit(+[] () -> int
         {
-            DestroyDynamicNetworkData(&DAT_0050f6a8);
+            DestroyDynamicNetworkData(&gDynamicNetworkData);
             return 0;
         });
     }
@@ -241,7 +243,7 @@ namespace NNetwork
     // Original function: FUN_00405949
     void Network_ShutDown()
     {
-        ShutDownDynamicNetworkData(&DAT_0050f6a8);
+        ShutDownDynamicNetworkData(&gDynamicNetworkData);
 
         CDPNet* network = GetNetworkInstance();
 
@@ -305,26 +307,26 @@ namespace NNetwork
     // Original function: FUN_004059e3
     char* Network_GetCallsign()
     {
-        return DAT_0050f728;
+        return gNetworkCallsign;
     }
 
     // Original function: FUN_004059e9
     void Network_SetCallsign(const char* callsign)
     {
-        std::strncpy(DAT_0050f728, callsign, 0x27);
-        DAT_0050f728[0x27] = '\0';
+        std::strncpy(gNetworkCallsign, callsign, 0x27);
+        gNetworkCallsign[0x27] = '\0';
     }
 
     // Original function: FUN_00405a04
     void Network_InitializeCallsign()
     {
-        if (DAT_0050f750 == 0)
+        if (gNetworkCallsignInitialized == 0)
         {
-            DAT_0050f728[0] = '\0';
-            DAT_0050f750 = 1;
+            gNetworkCallsign[0] = '\0';
+            gNetworkCallsignInitialized = 1;
         }
 
-        if (std::strlen(DAT_0050f728) != 0)
+        if (std::strlen(gNetworkCallsign) != 0)
         {
             return;
         }
@@ -336,7 +338,7 @@ namespace NNetwork
             // Reload the singleton as in the original.
             properties = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
 
-            std::strncpy(DAT_0050f728, properties->Property_GetStringValuePtr("multiplayer_callsign"), 0x27);
+            std::strncpy(gNetworkCallsign, properties->Property_GetStringValuePtr("multiplayer_callsign"), 0x27);
         }
         else
         {
@@ -345,10 +347,10 @@ namespace NNetwork
             DWORD userNameSize = 100;
 
             ::GetUserNameA(userName, &userNameSize);
-            std::strncpy(DAT_0050f728, userName, 0x27);
+            std::strncpy(gNetworkCallsign, userName, 0x27);
         }
 
-        DAT_0050f728[0x27] = '\0';
+        gNetworkCallsign[0x27] = '\0';
     }
 
     // Original function: FUN_00405a87

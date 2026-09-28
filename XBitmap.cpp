@@ -835,6 +835,119 @@ namespace NXBasics
         XB_Tool_Long_FillBlock(pixels, rectangle.width, rectangle.height, rowPixelCount, color);
     }
 
+    // Original function: FUN_0040dcb5
+    void CBitmap::Draw_Rectangle(SRectangle rectangle, std::uint8_t colorIndex)
+    {
+        rectangle.Validate();
+
+        if (mRawMemory == nullptr)
+            return;
+
+        if (!rectangle.IsTouching(mRectangle))
+            return;
+
+        Draw_HorizontalLine(rectangle.x, rectangle.y, rectangle.width, colorIndex);
+        Draw_VerticalLine(rectangle.x, static_cast<std::uint32_t>(rectangle.y), rectangle.height, colorIndex);
+
+        const std::uint32_t bottomBits = static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.height) - 1u;
+        Draw_HorizontalLine(rectangle.x, Runtime_TimeSigned32(bottomBits), rectangle.width, colorIndex);
+
+        const std::uint32_t rightBits = static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(rectangle.width) - 1u;
+        Draw_VerticalLine(Runtime_TimeSigned32(rightBits), static_cast<std::uint32_t>(rectangle.y), rectangle.height, colorIndex);
+    }
+
+    // Original function: FUN_0040dd37
+    void CBitmap::Draw_Rectangle(SRectangle rectangle, std::uint16_t color)
+    {
+        rectangle.Validate();
+
+        if (mRawMemory == nullptr)
+            return;
+
+        if (!rectangle.IsTouching(mRectangle))
+            return;
+
+        Draw_HorizontalLine(rectangle.x, rectangle.y, rectangle.width, color);
+        Draw_VerticalLine(rectangle.x, static_cast<std::uint32_t>(rectangle.y), rectangle.height, color);
+
+        const std::uint32_t bottomBits = static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.height) - 1u;
+        Draw_HorizontalLine(rectangle.x, Runtime_TimeSigned32(bottomBits), rectangle.width, color);
+
+        const std::uint32_t rightBits = static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(rectangle.width) - 1u;
+        Draw_VerticalLine(Runtime_TimeSigned32(rightBits), static_cast<std::uint32_t>(rectangle.y), rectangle.height, color);
+    }
+
+    // Original function: FUN_0040ddb9
+    void CBitmap::Draw_Rectangle(SRectangle rectangle, std::uint32_t color)
+    {
+        rectangle.Validate();
+
+        if (mRawMemory == nullptr)
+            return;
+
+        if (!rectangle.IsTouching(mRectangle))
+            return;
+
+        Draw_HorizontalLine(rectangle.x, rectangle.y, rectangle.width, color);
+        Draw_VerticalLine(rectangle.x, static_cast<std::uint32_t>(rectangle.y), rectangle.height, color);
+
+        const std::uint32_t bottomBits = static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.height) - 1u;
+        Draw_HorizontalLine(rectangle.x, Runtime_TimeSigned32(bottomBits), rectangle.width, color);
+
+        const std::uint32_t rightBits = static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(rectangle.width) - 1u;
+        Draw_VerticalLine(Runtime_TimeSigned32(rightBits), static_cast<std::uint32_t>(rectangle.y), rectangle.height, color);
+    }
+
+    // Original function: FUN_0040de3b
+    void CBitmap::Draw_Rectangle(const SRectangle& rectangle, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0:
+                {
+                    const void* palette = mPalette != nullptr ? mPalette : CXBSystemManager::sPalettePtr;
+                    const std::uint8_t colorIndex = Palette_FindMatchingColor(palette, color);
+                    Draw_Rectangle(rectangle, colorIndex);
+                    break;
+                }
+
+            case 1:
+                {
+                    const std::uint16_t packedColor = g16BitPixelConverter->PackColor(color);
+                    Draw_Rectangle(rectangle, packedColor);
+                    break;
+                }
+
+            case 2:
+                {
+                    const std::uint32_t packedColor = g32BitPixelConverter->PackColor(color);
+                    Draw_Rectangle(rectangle, packedColor);
+                    break;
+                }
+        }
+    }
+
+    // Original function: FUN_0040decd
+    void CBitmap::Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, std::uint8_t colorIndex)
+    {
+        SRectangle rectangle(x, y, length, 1);
+        Draw_Box(rectangle, colorIndex);
+    }
+
+    // Original function: FUN_0040df06
+    void CBitmap::Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, std::uint16_t color)
+    {
+        SRectangle rectangle(x, y, length, 1);
+        Draw_Box(rectangle, color);
+    }
+
+    // Original function: FUN_0040df3f
+    void CBitmap::Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, std::uint32_t color)
+    {
+        SRectangle rectangle(x, y, length, 1);
+        Draw_Box(rectangle, color);
+    }
+
     // Original function: FUN_0040dffe
     void CBitmap::Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, std::uint8_t colorIndex)
     {

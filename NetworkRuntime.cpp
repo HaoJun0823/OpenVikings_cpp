@@ -1,8 +1,4 @@
-#include <winsock2.h>
-#include <Windows.h>
-
 #include "DirectXErrorText.h"
-#include "dplay8.h"
 #include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
 #include "NetworkShutdown.h"
@@ -11,15 +7,19 @@
 #include "CRC16.h"
 #include "CRC32.h"
 
+#include "dplay8.h"
+
 #include <cstring>
 #include <cstdint>
 #include <cstddef>
 #include <cwchar>
 #include <new>
+#include <winsock2.h>
+#include <Windows.h>
 
 // Original data: DAT_00569650.
 // Enabled at 004db9c7 after successfully opening the network log.
-std::uint8_t DAT_00569650 = 0;
+std::uint8_t gNetworkLogEnabled = 0;
 
 // Original data: DAT_00569658
 NNetwork::CDPNet* gNetworkInstance = nullptr;
@@ -28,16 +28,16 @@ NNetwork::CDPNet* gNetworkInstance = nullptr;
 NNetwork::SNetLog* gNetworkLog = nullptr;
 
 // Original data: DAT_005697b0.
-std::uint8_t DAT_005697b0 = 0;
+std::uint8_t gDynamicNetworkUpdateStopped = 0;
 
 // Original data: DAT_005697b4.
-std::uint32_t DAT_005697b4 = 0;
+DPNID gPendingMissingPlayerId = 0;
 
 // Original data: DAT_005697b8.
-std::uint32_t DAT_005697b8 = 0;
+DPNID gLastRecoveryPlayerId = 0;
 
 // Original data: DAT_005697bc.
-std::uint32_t DAT_005697bc = 0;
+std::uint32_t gProcessedPlayerChangeCount = 0;
 
 // Original data: DAT_0050aa2c.
 // Initial file-backed value still requires verification.
@@ -1676,10 +1676,10 @@ namespace NNetwork
 
         if (reset)
         {
-            DAT_005697b0 = 0;
-            DAT_005697b8 = 0;
-            DAT_005697b4 = 0;
-            DAT_005697bc = 0;
+            gDynamicNetworkUpdateStopped = 0;
+            gLastRecoveryPlayerId = 0;
+            gPendingMissingPlayerId = 0;
+            gProcessedPlayerChangeCount = 0;
             DAT_0050aa2c = 1;
             return false;
         }
@@ -1691,12 +1691,12 @@ namespace NNetwork
             DAT_0050aa2c = 0;
         }
 
-        if (DAT_005697b0 != 0)
+        if (gDynamicNetworkUpdateStopped != 0)
             return false;
 
         const std::uint32_t playerChangeCount = network->playerChangeCount;
 
-        if (playerChangeCount > DAT_005697bc)
+        if (playerChangeCount > gProcessedPlayerChangeCount)
         {
             SEventQueue events;
 
@@ -1730,8 +1730,8 @@ namespace NNetwork
                 if (eventType < 3 || eventType > 7)
                     continue;
 
-                if (DAT_005697b4 == playerId)
-                    DAT_005697b4 = 0;
+                if (gPendingMissingPlayerId == playerId)
+                    gPendingMissingPlayerId = 0;
 
                 const auto* players = static_cast<const std::byte*>(data->allocation10);
 
@@ -1753,7 +1753,7 @@ namespace NNetwork
             ClearEventQueue(&events);
         }
 
-        DAT_005697bc = playerChangeCount;
+        gProcessedPlayerChangeCount = playerChangeCount;
         return true;
     }
 
@@ -2031,7 +2031,7 @@ namespace NNetwork
             }
         }
 
-        if (DAT_005697b4 != 0)
+        if (gPendingMissingPlayerId != 0)
         {
             if (messageCount != 0)
                 log("Update(): Message buffer lost (warning)");
@@ -2067,7 +2067,7 @@ namespace NNetwork
 
             if (IsCommandBufferComplete(currentBuffer))
             {
-                DAT_005697b8 = 0;
+                gLastRecoveryPlayerId = 0;
                 return true;
             }
 
@@ -2093,7 +2093,7 @@ namespace NNetwork
                     const DWORD initializationTick = network->initializationTick;
                     AddEventQueueEntry(&data->events, 0, ::timeGetTime() - initializationTick, name, 5);
 
-                    DAT_005697b0 = 1;
+                    gDynamicNetworkUpdateStopped = 1;
                     return true;
                 }
 
@@ -2107,7 +2107,7 @@ namespace NNetwork
                     const DWORD initializationTick = network->initializationTick;
                     AddEventQueueEntry(&data->events, 0, ::timeGetTime() - initializationTick, L"Local peer", 5);
 
-                    DAT_005697b0 = 1;
+                    gDynamicNetworkUpdateStopped = 1;
                     return true;
                 }
 
@@ -2123,7 +2123,7 @@ namespace NNetwork
                     const DWORD initializationTick = network->initializationTick;
                     AddEventQueueEntry(&data->events, 0, ::timeGetTime() - initializationTick, name, 10);
 
-                    DAT_005697b0 = 1;
+                    gDynamicNetworkUpdateStopped = 1;
                     return true;
                 }
 
@@ -2145,19 +2145,19 @@ namespace NNetwork
                             log("Update(): ...failed. Unable to kick player. Maybe the peer is already disconnected.");
                     }
 
-                    if (DAT_005697b4 == 0)
+                    if (gPendingMissingPlayerId == 0)
                     {
                         const DWORD initializationTick = hostNetwork->initializationTick;
                         AddEventQueueEntry(&data->events, missingPlayerId, ::timeGetTime() - initializationTick, missingName, 13);
                     }
                 }
-                else if (DAT_005697b4 == 0)
+                else if (gPendingMissingPlayerId == 0)
                 {
                     const DWORD initializationTick = network->initializationTick;
                     AddEventQueueEntry(&data->events, missingPlayerId, ::timeGetTime() - initializationTick, missingName, 9);
                 }
 
-                DAT_005697b4 = missingPlayerId;
+                gPendingMissingPlayerId = missingPlayerId;
                 return true;
             }
 
@@ -2170,7 +2170,7 @@ namespace NNetwork
             if (missingPlayerId == 0)
                 return true;
 
-            if (missingPlayerId == DAT_005697b8)
+            if (missingPlayerId == gLastRecoveryPlayerId)
                 return false;
 
             log("Update(): Timeout. Searching non-responding player...");
@@ -2248,7 +2248,7 @@ namespace NNetwork
             }
             else
             {
-                DAT_005697b8 = missingPlayerId;
+                gLastRecoveryPlayerId = missingPlayerId;
                 log("Update(): ...done. Message requested - await reply.");
             }
 
@@ -3240,7 +3240,7 @@ NNetwork::SNetLog* OpenNetworkLog(NNetwork::SNetLog* object, const char* fileNam
     NXBasics::Runtime_FlushStream(static_cast<NXBasics::RuntimeFormatStream*>(object->stream));
 
     object->formatFlags = 3;
-    DAT_00569650 = 1;
+    gNetworkLogEnabled = 1;
 
     WriteNetworkLogHeader(object);
 
@@ -3251,7 +3251,7 @@ NNetwork::SNetLog* OpenNetworkLog(NNetwork::SNetLog* object, const char* fileNam
 // Original function: FUN_004db9f6
 NNetwork::SNetLog* WriteNetworkLogHeader(NNetwork::SNetLog* object)
 {
-    if (DAT_00569650 == 0)
+    if (gNetworkLogEnabled == 0)
         return object;
 
     char userName[0x101] = {};
@@ -3333,7 +3333,7 @@ NNetwork::SNetLog* WriteNetworkLogHeader(NNetwork::SNetLog* object)
 // Original function: FUN_004dbc6d
 void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t indentation)
 {
-    if (DAT_00569650 == 0)
+    if (gNetworkLogEnabled == 0)
     {
         return object;
     }

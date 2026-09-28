@@ -1,6 +1,8 @@
 #include "WorldDisplayElementAccess.h"
 #include "C2E2AnimalSoundManager.h"
+#include "C2EngineDisplayAccess.h"
 #include "GuiToolsBase.h"
+#include "InGameGuiManager.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
@@ -10,14 +12,10 @@
 #include <cstdint>
 #include <cstring>
 
-extern const double DAT_004f3408;
-
 extern double DAT_00510848;
 extern std::uint8_t DAT_0051089d;
 extern std::uint8_t DAT_005109c5;
 extern void* DAT_005550d4;
-extern NC2E2::CE2AnimalSoundManager* DAT_0056841c;
-extern void* DAT_005690cc;
 extern void* DAT_005698fc;
 extern void* DAT_00569908;
 
@@ -48,7 +46,7 @@ namespace NC2InGameGuiWorldElement
             return reinterpret_cast<void*>(static_cast<std::uintptr_t>(readWord(object, offset)));
         };
 
-        FUN_004baf71(element);
+        WorldDisplayElement_ValidateObjectUnderMouse(element);
         FUN_0048162f(readPointer(element, 0x30));
         FUN_004b8b33(element, bitmap, rectangle);
         FUN_004bb6a6(element, bitmap);
@@ -59,7 +57,7 @@ namespace NC2InGameGuiWorldElement
 
             if (readWord(element, 0x78) == readWord(display, 0x7C))
             {
-                const bool enabled = readByte(DAT_005690cc, 0xE1) == 0;
+                const bool enabled = readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xE1) == 0;
                 FUN_00498d54(display, readWord(element, 0x60), bitmap, enabled);
             }
         }
@@ -70,16 +68,16 @@ namespace NC2InGameGuiWorldElement
 
             if (readWord(element, 0x78) == readWord(display, 0x7C))
             {
-                const bool enabled = readByte(DAT_005690cc, 0xE1) == 0;
+                const bool enabled = readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xE1) == 0;
                 FUN_00498d98(display, readWord(element, 0x50), bitmap, enabled);
             }
         }
 
         // The original branch also accepts an unordered comparison.
-        if (!(DAT_00510848 >= DAT_004f3408) || DAT_005109c5 != 0)
+        if (!(DAT_00510848 >= 0.01) || DAT_005109c5 != 0)
             bitmap->Tool_Darken();
 
-        if (FUN_004bafc2(element))
+        if (WorldDisplayElement_MouseSelectingArea_IsAreaValid(element))
         {
             // Inline the two SPoint copies performed by 00439842.
             std::int32_t firstPoint[2];
@@ -88,8 +86,8 @@ namespace NC2InGameGuiWorldElement
             std::memcpy(firstPoint, static_cast<const std::byte*>(element) + 0x1F8, sizeof(firstPoint));
             std::memcpy(lastPoint, static_cast<const std::byte*>(element) + 0x200, sizeof(lastPoint));
 
-            FUN_0047cb4d(readPointer(element, 0x30), firstPoint, true);
-            FUN_0047cb4d(readPointer(element, 0x30), lastPoint, true);
+            NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, 0x30), firstPoint, true);
+            NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, 0x30), lastPoint, true);
 
             const std::uint32_t widthBits = static_cast<std::uint32_t>(lastPoint[0]) - static_cast<std::uint32_t>(firstPoint[0]);
             const std::uint32_t heightBits = static_cast<std::uint32_t>(lastPoint[1]) - static_cast<std::uint32_t>(firstPoint[1]);
@@ -97,7 +95,7 @@ namespace NC2InGameGuiWorldElement
             NXBasics::SRectangle selection(firstPoint[0], firstPoint[1], NXBasics::Runtime_TimeSigned32(widthBits), NXBasics::Runtime_TimeSigned32(heightBits));
             NXBasics::SColorRGB white(255, 255, 255);
 
-            FUN_0040de3b(bitmap, &selection, &white);
+            bitmap->Draw_Rectangle(selection, white);
         }
 
         void* display = readPointer(element, 0x30);
@@ -106,13 +104,13 @@ namespace NC2InGameGuiWorldElement
         if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 120.0) && DAT_0051089d == 0)
         {
             FUN_0047fae2(DAT_005550d4, display);
-            DAT_0056841c->PlayAnimalSounds(readPointer(element, 0x30));
+            NC2E2::CE2AnimalSoundManager::sTheObjectPtr->PlayAnimalSounds(readPointer(element, 0x30));
             FUN_00485bf0(readPointer(element, 0x30));
         }
 
         display = readPointer(element, 0x30);
 
-        if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= DAT_004f3408))
+        if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 0.01))
         {
             char text[200];
             NXBasics::Runtime_PrintString(text, "* %s *", FUN_004e1e97(20));
@@ -126,12 +124,66 @@ namespace NC2InGameGuiWorldElement
             const std::uint32_t remainingWidth = static_cast<std::uint32_t>(bitmap->GetRectangle().width) - static_cast<std::uint32_t>(textWidth);
             const std::int32_t x = NXBasics::Runtime_TimeSigned32(remainingWidth) / 2;
 
-            FUN_004e2661(bitmap, x, y, font, colour, text);
+            NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, x, y, font, colour, text);
         }
 
         const std::uint32_t frameMode = readWord(element, 0x208);
 
         if (frameMode != 0)
             NC2GuiToolsBase::DrawTool_DrawFrame(nullptr, bitmap, rectangle, NXBasics::Runtime_TimeSigned32(frameMode));
+    }
+
+    // Original function: FUN_004baf71
+    void WorldDisplayElement_ValidateObjectUnderMouse(void* element)
+    {
+        auto* data = static_cast<std::byte*>(element);
+
+        if (!NC2E2::DisplaySearchObject_Validate(data + 0x38))
+            return;
+
+        std::uint32_t displayAddress;
+        std::memcpy(&displayAddress, data + 0x30, sizeof(displayAddress));
+
+        auto* display = reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(displayAddress));
+        const std::uint32_t zero = 0;
+
+        std::memcpy(display + 0xAC, &zero, sizeof(zero));
+        std::memcpy(data + 0x1C4, &zero, sizeof(zero));
+        std::memcpy(data + 0x1C8, &zero, sizeof(zero));
+
+        std::memset(data + 0x1CC, 0, 0x14);
+        std::memset(data + 0x1E0, 0, 0x14);
+    }
+
+    // Original function: FUN_004bafc2
+    bool WorldDisplayElement_MouseSelectingArea_IsAreaValid(const void* element)
+    {
+        const auto* data = static_cast<const std::byte*>(element);
+
+        std::uint8_t active;
+        std::memcpy(&active, data + 0x1F4, sizeof(active));
+
+        if (active == 0)
+            return false;
+
+        const auto hasMinimumDistance = [data] (std::size_t firstOffset, std::size_t lastOffset) -> bool
+        {
+            std::uint32_t first;
+            std::uint32_t last;
+
+            std::memcpy(&first, data + firstOffset, sizeof(first));
+            std::memcpy(&last, data + lastOffset, sizeof(last));
+
+            const std::uint32_t difference = first - last;
+            const std::uint32_t magnitude = (difference & 0x80000000u) != 0 ? 0u - difference : difference;
+
+            // Preserve wrapped subtraction and the signed comparison after NEG.
+            return magnitude >= 5u && magnitude <= 0x7FFFFFFFu;
+        };
+
+        if (!hasMinimumDistance(0x1F8, 0x200))
+            return false;
+
+        return hasMinimumDistance(0x1FC, 0x204);
     }
 }

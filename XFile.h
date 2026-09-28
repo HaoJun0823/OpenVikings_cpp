@@ -138,6 +138,8 @@ namespace NXBasics
         // Original function: FUN_0040659c
         static bool FileSystem_Tool_FileExists(const char* fileName, bool searchPaths);
 
+        static void FileSystem_Tool_CreateDirectory(const char* path);
+
     private:
         std::int32_t mDescriptor;    // +0x004
         char mFileName[0x104];       // +0x008

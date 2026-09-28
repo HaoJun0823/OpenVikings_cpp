@@ -8,6 +8,9 @@ namespace NC2E2
     class CE2AnimalSoundManager
     {
     public:
+        // Original global: DAT_0056841c.
+        inline static CE2AnimalSoundManager* sTheObjectPtr = nullptr;
+
         CE2AnimalSoundManager();
         ~CE2AnimalSoundManager();
 

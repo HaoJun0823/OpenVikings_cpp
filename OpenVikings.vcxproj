@@ -15,10 +15,13 @@
     <ClCompile Include="C2AnimalIterator.cpp" />
     <ClCompile Include="C2CallbackManager.cpp" />
     <ClCompile Include="C2E2AnimalSoundManager.cpp" />
+    <ClCompile Include="C2E2LevelOfDetailManager.cpp" />
     <ClCompile Include="C2E2StaticDataAnimalSounds.cpp" />
     <ClCompile Include="C2E2StaticDataGroups.cpp" />
     <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
     <ClCompile Include="C2EngineDisplayAccess.cpp" />
+    <ClCompile Include="C2EngineDisplayManager.cpp" />
+    <ClCompile Include="C2EngineDrawingAccess.cpp" />
     <ClCompile Include="C2GameMapAccess.cpp" />
     <ClCompile Include="C2MapGeometry.cpp" />
     <ClCompile Include="C2MapSectorGridCursor.cpp" />
@@ -75,10 +78,13 @@
     <ClInclude Include="C2AnimalIterator.h" />
     <ClInclude Include="C2CallbackManager.h" />
     <ClInclude Include="C2E2AnimalSoundManager.h" />
+    <ClInclude Include="C2E2LevelOfDetailManager.h" />
     <ClInclude Include="C2E2StaticDataAnimalSounds.h" />
     <ClInclude Include="C2E2StaticDataGroups.h" />
     <ClInclude Include="C2E2StaticDataSoundFX.h" />
     <ClInclude Include="C2EngineDisplayAccess.h" />
+    <ClInclude Include="C2EngineDisplayManager.h" />
+    <ClInclude Include="C2EngineDrawingAccess.h" />
     <ClInclude Include="C2GameMapAccess.h" />
     <ClInclude Include="C2MapGeometry.h" />
     <ClInclude Include="C2MapSectorGridCursor.h" />

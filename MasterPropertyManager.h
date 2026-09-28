@@ -7,82 +7,84 @@
 
 namespace NMasterPropertyManager
 {
-    struct SProperty
-    {
-        char* name;                  // +0x00
-        std::uint8_t isInteger;       // +0x04
-        std::byte padding05[3];       // +0x05
-        std::int32_t integerValue;    // +0x08
-        char* stringValue;            // +0x0C
-    };
+	struct SProperty
+	{
+		char* name;                  // +0x00
+		std::uint8_t isInteger;       // +0x04
+		std::byte padding05[3];       // +0x05
+		std::int32_t integerValue;    // +0x08
+		char* stringValue;            // +0x0C
+	};
 
-    static_assert(sizeof(SProperty) == 0x10, "SProperty must be 16 bytes");
-    static_assert(offsetof(SProperty, name) == 0x00);
-    static_assert(offsetof(SProperty, isInteger) == 0x04);
-    static_assert(offsetof(SProperty, integerValue) == 0x08);
-    static_assert(offsetof(SProperty, stringValue) == 0x0C);
+	static_assert(sizeof(SProperty) == 0x10, "SProperty must be 16 bytes");
+	static_assert(offsetof(SProperty, name) == 0x00);
+	static_assert(offsetof(SProperty, isInteger) == 0x04);
+	static_assert(offsetof(SProperty, integerValue) == 0x08);
+	static_assert(offsetof(SProperty, stringValue) == 0x0C);
 
-    class CPropertyManager
-    {
-    public:
-        // Original function: FUN_004e1408
-        CPropertyManager();
+	class CPropertyManager
+	{
+	public:
+		// Original function: FUN_004e1408
+		CPropertyManager();
 
-        // Original function: FUN_004e1436
-        ~CPropertyManager();
+		// Original function: FUN_004e1436
+		~CPropertyManager();
 
-        // Original function: FUN_004e1463
-        void Property_WorkOnCommandLine(const char* commandLine);
+		// Original function: FUN_004e1463
+		void Property_WorkOnCommandLine(const char* commandLine);
 
-        // Original function: FUN_004e1551
-        void Property_WorkOnIniFile(const char* fileName);
+		// Original function: FUN_004e1551
+		void Property_WorkOnIniFile(const char* fileName);
 
-        // Original function: FUN_004e163b
-        std::int32_t Property_GetIntegerValue(const char* propertyName);
+		// Original function: FUN_004e163b
+		std::int32_t Property_GetIntegerValue(const char* propertyName);
 
-        // Original function: FUN_004e1658
-        const char* Property_GetStringValuePtr(const char* propertyName);
+		// Original function: FUN_004e1658
+		const char* Property_GetStringValuePtr(const char* propertyName);
 
-        // Original function: FUN_004e166b
-        bool Property_DoesExists(const char* propertyName);
+		// Original function: FUN_004e166b
+		bool Property_DoesExists(const char* propertyName);
 
-        // Original function: FUN_004e167d
-        void Property_Add(const char* propertyName, bool isInteger, std::int32_t integerValue, const char* stringValue);
+		// Original function: FUN_004e167d
+		void Property_Add(const char* propertyName, bool isInteger, std::int32_t integerValue, const char* stringValue);
 
-        // Original function: FUN_004e16fb
-        bool Property_Remove(const char* propertyName);
+		// Original function: FUN_004e16fb
+		bool Property_Remove(const char* propertyName);
 
-        // Original global: DAT_005697ec
-        static CPropertyManager* sTheObjectPtr;
+		void Options_Save_InGame();
 
-    private:
-        // Internal specialization of the shared list implementation.
-        class SObjectVars final : public NXSysKeyManager::CKeyEntryListBase
-        {
-        public:
-            explicit SObjectVars(std::uint8_t destroyValues);
+		// Original global: DAT_005697ec
+		static CPropertyManager* sTheObjectPtr;
 
-            // Original function: FUN_004e1d00
-            ~SObjectVars() override;
+	private:
+		// Internal specialization of the shared list implementation.
+		class SObjectVars final : public NXSysKeyManager::CKeyEntryListBase
+		{
+		public:
+			explicit SObjectVars(std::uint8_t destroyValues);
 
-        protected:
-            // Original function: LAB_00479e17
-            void DestroyValue(void* value) override;
-        };
+			// Original function: FUN_004e1d00
+			~SObjectVars() override;
 
-        static_assert(sizeof(SObjectVars) == 0x14, "Property list must be 20 bytes");
+		protected:
+			// Original function: LAB_00479e17
+			void DestroyValue(void* value) override;
+		};
 
-        // Original function: FUN_004e171d
-        SProperty* l_Property_GetPtr(const char* propertyName);
+		static_assert(sizeof(SObjectVars) == 0x14, "Property list must be 20 bytes");
 
-        // Original function: FUN_004e1765
-        void l_Property_RemoveAndDelete(SProperty* property);
+		// Original function: FUN_004e171d
+		SProperty* l_Property_GetPtr(const char* propertyName);
 
-        std::uint8_t mState;       // +0x00; meaning not yet identified.
-        std::byte mPadding01[3];   // +0x01; not initialized by the constructor.
-        SObjectVars mProperties;   // +0x04
-    };
+		// Original function: FUN_004e1765
+		void l_Property_RemoveAndDelete(SProperty* property);
 
-    static_assert(sizeof(void*) == 4, "CPropertyManager requires an x86 build");
-    static_assert(sizeof(CPropertyManager) == 0x18, "CPropertyManager must be 24 bytes");
+		std::uint8_t mState;       // +0x00; meaning not yet identified.
+		std::byte mPadding01[3];   // +0x01; not initialized by the constructor.
+		SObjectVars mProperties;   // +0x04
+	};
+
+	static_assert(sizeof(void*) == 4, "CPropertyManager requires an x86 build");
+	static_assert(sizeof(CPropertyManager) == 0x18, "CPropertyManager must be 24 bytes");
 }

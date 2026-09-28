@@ -1,10 +1,3 @@
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <new>
-#include <windows.h>
-
-#include "dplay8.h"
 #include "FileCompressor.h"
 #include "FileTransferManager.h"
 #include "GuiToolsBase.h"
@@ -12,6 +5,7 @@
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
+#include "OriginalStrings.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
@@ -22,6 +16,14 @@
 #include "XMKeyManager.h"
 #include "XMMouseManager.h"
 
+#include "dplay8.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <new>
+#include <windows.h>
+
 // Original data: DAT_004f5254.
 // Keep unresolved until the Windows constant is recovered.
 extern const float DAT_004f5254;
@@ -29,9 +31,6 @@ extern const float DAT_004f5254;
 // Original data: DAT_00500818.
 // Keep unresolved until the Windows format string is recovered.
 extern const char DAT_00500818[];
-
-// Original data: 004ff054; shared root-path string.
-extern const char DAT_004ff054[];
 
 // Original data: DAT_004fe238.
 // Format used when a session event has no player name.
@@ -48,10 +47,10 @@ extern const GUID DAT_004f7e48;
 std::uint8_t DAT_005694c0 = 0;
 
 // Original data: DAT_005694e0.
-std::uint32_t DAT_005694e0 = 0;
+std::uint32_t gLastPlayerListUpdateTick = 0;
 
 // Original data: DAT_005694e4.
-std::uint32_t DAT_005694e4 = 0;
+std::uint32_t gLastHostMessage6Tick = 0;
 
 namespace NC2MainMenuGuiManager
 {
@@ -147,9 +146,9 @@ namespace NC2MainMenuGuiManager
 			const std::uint32_t currentTime = timeGetTime();
 
 			// Preserve the original unsigned comparison and addition.
-			if (currentTime >= DAT_005694e0 + 500u)
+			if (currentTime >= gLastPlayerListUpdateTick + 500u)
 			{
-				DAT_005694e0 = currentTime;
+				gLastPlayerListUpdateTick = currentTime;
 
 				GetNetworkInstance();
 
@@ -170,14 +169,14 @@ namespace NC2MainMenuGuiManager
 		{
 			const std::uint32_t currentTime = timeGetTime();
 
-			if (currentTime >= DAT_005694e4 + 1000u)
+			if (currentTime >= gLastHostMessage6Tick + 1000u)
 			{
-				DAT_005694e4 = currentTime;
+				gLastHostMessage6Tick = currentTime;
 
 				std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 				message[0] = 6;
 
-				NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
+				NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
 			}
 		}
 
@@ -249,7 +248,7 @@ namespace NC2MainMenuGuiManager
 				NNetwork::CopyNetworkAnsiToWide(message + 1, formattedText, -1);
 
 				message[0] = 1;
-				NNetwork::SendDynamicNetworkChatMessage(&DAT_0050f6a8, 0, message);
+				NNetwork::SendDynamicNetworkChatMessage(&gDynamicNetworkData, 0, message);
 			}
 
 			textInput.SetString("");
@@ -409,8 +408,8 @@ namespace NC2MainMenuGuiManager
 						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 						message[0] = 2;
 
-						const DPNID hostPlayerId = NNetwork::GetDynamicNetworkHostPlayerId(&DAT_0050f6a8);
-						NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, hostPlayerId, message, sizeof(message));
+						const DPNID hostPlayerId = NNetwork::GetDynamicNetworkHostPlayerId(&gDynamicNetworkData);
+						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, hostPlayerId, message, sizeof(message));
 					}
 
 					if (!FUN_004d76cc(this))
@@ -522,7 +521,7 @@ namespace NC2MainMenuGuiManager
 
 						if (screen == 17)
 						{
-							FUN_004065e2(FUN_0044029d());
+							NXBasics::CFile::FileSystem_Tool_CreateDirectory(FUN_0044029d());
 
 							NXBasics::Runtime_PrintString(requestedFileName, DAT_00500818, FUN_0044029d(), "transdat");
 							std::strcat(requestedFileName, ".c2p");
@@ -531,7 +530,7 @@ namespace NC2MainMenuGuiManager
 						{
 							FUN_00415e64(DAT_005114ac, 2, false);
 							FUN_004161a2(DAT_005114ac, "sys_continue", requestedFileName);
-							FUN_004065e2(FUN_004161c5(DAT_005114ac));
+							NXBasics::CFile::FileSystem_Tool_CreateDirectory(FUN_004161c5(DAT_005114ac));
 
 							std::strcat(requestedFileName, ".c2p");
 						}
@@ -681,16 +680,16 @@ namespace NC2MainMenuGuiManager
 			Debug_ErrorString_Add(text);
 		};
 
-		if (Screen_IsMultiPlayerScreen() && DAT_0050f6a8.active != 0)
+		if (Screen_IsMultiPlayerScreen() && gDynamicNetworkData.active != 0)
 		{
-			NNetwork::UpdateDynamicNetwork(&DAT_0050f6a8, false);
+			NNetwork::UpdateDynamicNetwork(&gDynamicNetworkData, false);
 
-			if (DAT_0050f6a8.receivedRecordCount != 0)
+			if (gDynamicNetworkData.receivedRecordCount != 0)
 			{
 				void* chatBuffer = nullptr;
 				std::uint32_t chatCount = 0;
 
-				NNetwork::TakeDynamicNetworkTextRecords(&DAT_0050f6a8, &chatBuffer, &chatCount);
+				NNetwork::TakeDynamicNetworkTextRecords(&gDynamicNetworkData, &chatBuffer, &chatCount);
 
 				const auto* records = static_cast<const std::byte*>(chatBuffer);
 
@@ -718,9 +717,9 @@ namespace NC2MainMenuGuiManager
 			l_Network_ProcessDataMessages();
 
 			// Processing a data message can shut down the network.
-			if (DAT_0050f6a8.active != 0)
+			if (gDynamicNetworkData.active != 0)
 			{
-				for (NNetwork::SEventNode* event = DAT_0050f6a8.events.first; event != nullptr; event = event->next)
+				for (NNetwork::SEventNode* event = gDynamicNetworkData.events.first; event != nullptr; event = event->next)
 				{
 					char playerName[100] = {};
 					char text[0x12C];
@@ -753,7 +752,7 @@ namespace NC2MainMenuGuiManager
 					{
 						char description[0xC8] = {};
 
-						FUN_004db635(&DAT_0050f6a8.events, event, description, sizeof(description));
+						FUN_004db635(&gDynamicNetworkData.events, event, description, sizeof(description));
 						NXBasics::Runtime_PrintString(text, ">> NET: '%s'", description);
 					}
 
@@ -761,7 +760,7 @@ namespace NC2MainMenuGuiManager
 						Chat_AddText(1, text);
 				}
 
-				NNetwork::ClearDynamicNetworkEvents(&DAT_0050f6a8);
+				NNetwork::ClearDynamicNetworkEvents(&gDynamicNetworkData);
 			}
 		}
 
@@ -942,7 +941,7 @@ namespace NC2MainMenuGuiManager
 					std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 					message[0] = 4;
 
-					NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
+					NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
 				}
 				else
 				{
@@ -958,13 +957,13 @@ namespace NC2MainMenuGuiManager
 						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 						message[0] = 5;
 
-						NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
+						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
 					}
 					else if (transferFlags[0] == 0)
 					{
 						transferFlags[0] = 1;
 
-						NNetwork::BroadcastControlMessage8(&DAT_0050f6a8);
+						NNetwork::BroadcastControlMessage8(&gDynamicNetworkData);
 
 						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 						auto* messageBytes = reinterpret_cast<std::byte*>(message);
@@ -976,7 +975,7 @@ namespace NC2MainMenuGuiManager
 
 						messageBytes[4] = std::byte{ 1 };
 
-						NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
+						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
 					}
 				}
 			}
@@ -993,7 +992,7 @@ namespace NC2MainMenuGuiManager
 		NNetwork::SDynamicDataMessage* messages = nullptr;
 		std::uint32_t messageCount = 0;
 
-		NNetwork::GetDynamicNetworkMessages(&DAT_0050f6a8, &messages, &messageCount);
+		NNetwork::GetDynamicNetworkMessages(&gDynamicNetworkData, &messages, &messageCount);
 
 		for (std::uint32_t index = 0; index < messageCount; ++index)
 		{
@@ -1085,7 +1084,7 @@ namespace NC2MainMenuGuiManager
 
 						responseBytes[4] = std::byte{ 0 };
 
-						NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, message.sender, response, sizeof(response));
+						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, message.sender, response, sizeof(response));
 						break;
 					}
 
@@ -1225,7 +1224,7 @@ namespace NC2MainMenuGuiManager
 		}
 
 		std::strcpy(compressedFileName, FUN_0044029d());
-		std::strcat(compressedFileName, DAT_004ff054);
+		std::strcat(compressedFileName, OriginalStrings::WindowsRootPath);
 		std::strcat(compressedFileName, "transdat");
 		std::strcat(compressedFileName, ".c2p");
 
@@ -1363,7 +1362,7 @@ namespace NC2MainMenuGuiManager
 
 		transferFlags[0] = 1;
 
-		NNetwork::BroadcastControlMessage8(&DAT_0050f6a8);
+		NNetwork::BroadcastControlMessage8(&gDynamicNetworkData);
 
 		std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 		auto* messageBytes = reinterpret_cast<std::byte*>(message);
@@ -1374,7 +1373,7 @@ namespace NC2MainMenuGuiManager
 		const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
 		std::memcpy(messageBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
 
-		NNetwork::SendDynamicNetworkMessage(&DAT_0050f6a8, 0, message, sizeof(message));
+		NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
 
 		if (userMap)
 		{

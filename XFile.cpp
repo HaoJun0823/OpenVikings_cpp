@@ -5,6 +5,7 @@
 #include "XFileAccess.h"
 
 #include <new>
+#include <cstring>
 
 namespace NXBasics
 {
@@ -234,6 +235,44 @@ namespace NXBasics
         CFile file(fileName, false);
 
         return File_OpenForReading(&file, false, searchPaths);
+    }
+
+    // Original function: FUN_004065e2
+    void CFile::FileSystem_Tool_CreateDirectory(const char* path)
+    {
+        if (std::strchr(path, '\\') != nullptr)
+        {
+            std::uint32_t separatorNumber = 1;
+
+            for (;;)
+            {
+                char partialPath[0x104];
+                std::strcpy(partialPath, path);
+
+                char* separator = partialPath;
+
+                for (std::uint32_t index = 0; index < separatorNumber; ++index)
+                {
+                    separator = std::strchr(separator + 1, '\\');
+
+                    if (separator == nullptr)
+                    {
+                        break;
+                    }
+                }
+
+                if (separator == nullptr)
+                {
+                    break;
+                }
+
+                *separator = '\0';
+                Runtime_CreateDirectory(partialPath);
+                ++separatorNumber;
+            }
+        }
+
+        Runtime_CreateDirectory(path);
     }
 
     // Original function: FUN_004e5e48

@@ -81,6 +81,8 @@ namespace NDSManager
         CManager(void* window, bool initialize);
         ~CManager();
 
+        inline static CManager* sTheObjectPtr = nullptr;
+
         void System_Update();
         bool Quality_Set(std::int32_t quality);
         void MainVolume_Set(std::int32_t volume);

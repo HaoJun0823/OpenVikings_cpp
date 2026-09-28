@@ -432,4 +432,4 @@ extern NNetwork::SNetLog* gNetworkLog;
 extern NNetwork::CDPNet* gNetworkInstance;
 
 // Original data: 0050f6a8.
-extern NNetwork::SDynamicNetworkData DAT_0050f6a8;
+extern NNetwork::SDynamicNetworkData gDynamicNetworkData;

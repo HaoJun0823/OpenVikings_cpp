@@ -7,14 +7,9 @@
 
 #include <cstring>
 
-extern NDSManager::CManager* DAT_0050f6a4;
-extern void* DAT_00568a28;
 extern const NXBasics::SToken DAT_004f4780[];
 extern std::uint8_t DAT_00568568;
 extern const NXBasics::SToken* DAT_0056856c;
-
-// Original data: DAT_00568570
-NC2E2::CE2StaticDataAnimalSoundManager* DAT_00568570 = nullptr;
 
 namespace NC2E2
 {
@@ -23,14 +18,14 @@ namespace NC2E2
     // Original function: FUN_0048a969
     CE2StaticDataAnimalSoundManager::CE2StaticDataAnimalSoundManager()
     {
-        DAT_00568570 = this;
+        sTheObjectPtr = this;
         std::memset(this, 0, sizeof(*this));
 
-        if (DAT_0050f6a4 == nullptr)
+        if (NDSManager::CManager::sTheObjectPtr == nullptr)
             return;
 
         std::uint8_t initialized;
-        std::memcpy(&initialized, reinterpret_cast<const std::byte*>(DAT_0050f6a4) + 4, sizeof(initialized));
+        std::memcpy(&initialized, reinterpret_cast<const std::byte*>(NDSManager::CManager::sTheObjectPtr) + 4, sizeof(initialized));
 
         if (initialized == 0)
             return;
@@ -68,7 +63,7 @@ namespace NC2E2
                 {
                     case 0x656E6773u:
                         {
-                            auto* soundManager = static_cast<CE2StaticDataSoundFXManager*>(DAT_00568a28);
+                            auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
                             const char* soundName = reader.GetString();
                             entry->staticSoundId = soundManager->GetStaticSoundFxIdByNamePtr(soundName);
                             break;
@@ -108,7 +103,7 @@ namespace NC2E2
             entries = nullptr;
         }
 
-        DAT_00568570 = nullptr;
+        sTheObjectPtr = nullptr;
     }
 
     // Original function: FUN_0048ab2f

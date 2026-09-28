@@ -825,6 +825,16 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Introduce a distinct failure result and handle it at each caller.
 - **Status:** Preserved / original defect; Renewed: open.
 
+### OB073 — Brightness-palette lookup permits an out-of-range index
+
+- **Original reference:** 00486f3c; palette allocation and initialization at 00480bc4–00480c55.
+- **Evidence:** The loader allocates 31 palettes of 0x40C bytes, with valid indices 0–30. The lookup accepts index 31 and clamps only larger indices back to 30.
+- **Behavior and trigger:** Brightness arguments 256–263 select index 31, returning an address immediately beyond the palette array.
+- **Assessment / reconstruction limits:** Allocation size and lookup arithmetic are confirmed from Windows ASM. Runtime reachability through all callers has not been tested.
+- **Decision:** Intentionally preserved until the faithful reconstruction is complete.
+- **Renewed task:** Clamp the index to the actual palette-array bounds.
+- **Status:** Preserved / original defect; Renewed: open.
+
 
 
 ## Original observations and unresolved defect assessments
@@ -992,6 +1002,14 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Assessment / reconstruction limits:** An event arriving between the two locked sections could be removed by the second clear. No concurrent runtime test was performed.
 - **Status:** Preserved / original observation. Renewed: open.
 
+### OA018 — Display-manager constructor clears its vtable pointer
+
+- **Original reference:** FUN_004811ae, especially 004811bc–004811c9.
+- **Evidence:** After installing the derived vtable pointer, the Windows constructor clears 0x18 bytes starting at the object address. This also clears the vtable pointer.
+- **Assessment / reconstruction limits:** The overwrite is established by the ASM. Its runtime consequences have not been verified.
+- **Decision:** Preserve the compiler-managed C++ vtable pointer and initialize all remaining object fields to the original values. Do not reproduce the corrupted object representation.
+- **Status:** Intentional reconstruction deviation; no Windows build or runtime verification performed.
+
 ## Reconstruction errors are not original bugs
 
 Bug compatibility does not waive the following corrections. Historical inclusion in this table alone does not prove that each correction was applied in every project revision.
@@ -1006,6 +1024,29 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Formerly missing reconstructed CRT startup calls | Reconstruction integration issue, not an original defect | Resolved at source level through WinMain and Runtime_RunApplication; build/runtime verification remains separate |
 
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
+
+## Global data review — 2026-09-28
+
+The reviewed baseline contains 104 active DAT symbols and 370 code occurrences across 123 header/source files. Another 39 DAT addresses occur only in comments. Of the active symbols, 36 have definitions; 68 lack definitions, including 14 without declarations.
+The proposed source changes consolidate the DirectMusic references onto the existing gDirectMusicManager, use the existing InGame GUI singleton, and move the three implemented sound-manager singleton pointers to inline static header members.
+Original address 0050f6bc is the events member at offset 0x14 of the dynamic network object at 0050f6a8. It must not receive an independent definition.
+The current LOD source contains two SetLevelOfDetail definitions and no constructor definition. Restore the constructor from 00489f75, including the singleton assignment, state initialization, and engine_lod property/default handling. Keep one setter using the implemented display-manager method.
+The additional InGame GUI singleton definition and the redundant external declarations of the inline DirectSound singleton must be removed.
+These findings are reconstruction issues, not additional original-bug observations. OA018 remains unchanged.
+
+### Remaining dependencies
+
+- The DirectMusic constructor and destructor must write and clear the consolidated singleton when those routines are translated.
+- Missing manager and data-table definitions require their original allocation, reset, loading, and destruction paths.
+- The GUI resource pointers belong to the static block cleared at 004e2d30. Reconstruct that block and its lifecycle together.
+- The micro-map dimensions at 005125f8 and 005125fa are separate stored copies of the dimensions at 00511570 and 00511572.
+- The complete Windows token tables at 004f4780 and 004f4a20 remain unresolved.
+- Unresolved constant/string/GUID contents must not be inferred solely from call-site usage or debugger annotations.
+- The initial-update byte at 0050aa2c and the MMX cache bytes still require initial-data verification.
+- Unresolved static storage ranges retain their address-based names until their fields and ownership are established.
+- Matrix-FX path 00498128 remains deferred.
+
+The source proposals have not been verified by a Windows build or runtime test.
 
 ## Completion rule
 

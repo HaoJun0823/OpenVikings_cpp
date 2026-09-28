@@ -77,6 +77,59 @@ namespace NXBasics
         return PackColor(red, green, blue);
     }
 
+    static std::uint32_t ExtractShadowChannel(std::uint16_t pixel, std::uint16_t mask, std::int32_t adjustment)
+    {
+        const std::uint32_t shift = static_cast<std::uint32_t>(adjustment) & 31u;
+        return static_cast<std::uint32_t>(pixel & mask) >> shift;
+    }
+
+    // Original function: FUN_0049b7a5
+    std::uint16_t C16BitPixelConverter::ApplyShadowMode1(std::uint16_t pixel) const
+    {
+        const std::uint32_t red = static_cast<std::uint16_t>(ExtractShadowChannel(pixel, mRedMask, mRedAdjustment) << 3);
+        const std::uint32_t green = static_cast<std::uint16_t>(ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment) << 3);
+        const std::uint32_t blue = static_cast<std::uint16_t>(ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment) << 3);
+
+        // The original compares and forwards only the low WORD.
+        std::uint32_t intensity = static_cast<std::uint16_t>(((red + green + blue) * 2u + 240u) / 4u);
+
+        if (intensity > 255u)
+            intensity = 255u;
+
+        return PackColor(intensity, intensity, intensity);
+    }
+
+    // Original function: FUN_0049b818
+    std::uint16_t C16BitPixelConverter::ApplyShadowMode2(std::uint16_t pixel) const
+    {
+        const std::uint32_t red = (ExtractShadowChannel(pixel, mRedMask, mRedAdjustment) & 0x1FFFu) * 4u + 128u;
+        const std::uint32_t green = (ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment) & 0x1FFFu) * 4u + 128u;
+        const std::uint32_t blue = (ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment) & 0x1FFFu) * 4u + 128u;
+
+        // No additional saturation is performed before packing.
+        return PackColor(static_cast<std::uint16_t>(red), static_cast<std::uint16_t>(green), static_cast<std::uint16_t>(blue));
+    }
+
+    // Original function: FUN_0049b88d
+    std::uint16_t C16BitPixelConverter::ApplyShadowMode3(std::uint16_t pixel) const
+    {
+        const auto brighten = [] (std::uint32_t channel) -> std::uint32_t
+        {
+            const std::uint32_t expanded = static_cast<std::uint16_t>(channel << 3);
+
+            if (expanded >= 170u)
+                return 255u;
+
+            return expanded + (expanded >> 1);
+        };
+
+        const std::uint32_t red = brighten(ExtractShadowChannel(pixel, mRedMask, mRedAdjustment));
+        const std::uint32_t green = brighten(ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment));
+        const std::uint32_t blue = brighten(ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment));
+
+        return PackColor(red, green, blue);
+    }
+
     C16BitPixelConverter* g16BitPixelConverter = nullptr;
     C32BitPixelConverter* g32BitPixelConverter = nullptr;
 

@@ -6,20 +6,21 @@
 #include "XIniFileReader.h"
 #include "XBTokenList.h"
 
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
-extern NDSManager::CManager* DAT_0050f6a4;
 extern void* DAT_00568a50;
 extern void* DAT_00568aec;
 extern const std::byte DAT_004f4a20[];
 extern const void* DAT_00568a20;
 extern std::uint8_t DAT_00568a24;
 
-// Original data: DAT_00568a28
-void* DAT_00568a28 = nullptr;
-
 namespace NC2E2
 {
+    static int __cdecl DestroySoundTokenList();
+
     // Original functions: FUN_0042b679, FUN_0042b689
     std::uint32_t CE2StaticDataSoundFXManager::l_GetSoundCommand(const char* name)
     {
@@ -30,7 +31,7 @@ namespace NC2E2
     // Original function: FUN_0048dc74
     CE2StaticDataSoundFXManager::CE2StaticDataSoundFXManager()
     {
-        DAT_00568a28 = this;
+        sTheObjectPtr = this;
 
         std::memset(this, 0, sizeof(*this));
 
@@ -43,10 +44,10 @@ namespace NC2E2
         for (std::uint32_t& value : unknown008)
             value = 0xFFFFFFFFu;
 
-        if (DAT_0050f6a4 != nullptr)
+        if (NDSManager::CManager::sTheObjectPtr != nullptr)
         {
             std::uint8_t initialized;
-            std::memcpy(&initialized, reinterpret_cast<const std::byte*>(DAT_0050f6a4) + 4, sizeof(initialized));
+            std::memcpy(&initialized, reinterpret_cast<const std::byte*>(NDSManager::CManager::sTheObjectPtr) + 4, sizeof(initialized));
 
             if (initialized != 0)
                 l_LoadSoundFxFromIniFile("data\\engine2d\\inis\\soundfx\\soundfx.ini");
@@ -74,7 +75,7 @@ namespace NC2E2
             ambientSounds = nullptr;
         }
 
-        DAT_00568a28 = nullptr;
+        sTheObjectPtr = nullptr;
     }
 
     // Original function: FUN_0048dd23
@@ -152,7 +153,7 @@ namespace NC2E2
 
                                 std::uint32_t identifier;
 
-                                if (!DAT_0050f6a4->PreloadWave_Load(soundFileName, &identifier))
+                                if (!NDSManager::CManager::sTheObjectPtr->PreloadWave_Load(soundFileName, &identifier))
                                     break;
 
                                 const std::uint32_t value = static_cast<std::uint32_t>(reader.GetInt());
@@ -261,7 +262,7 @@ namespace NC2E2
 
                                 std::uint32_t identifier;
 
-                                if (!DAT_0050f6a4->PreloadWave_Load(soundFileName, &identifier))
+                                if (!NDSManager::CManager::sTheObjectPtr->PreloadWave_Load(soundFileName, &identifier))
                                     break;
 
                                 writeWord(soundData + 0x78, identifier);
@@ -316,11 +317,11 @@ namespace NC2E2
     // Original function: FUN_0048e19a
     std::uint32_t CE2StaticDataSoundFXManager::GetStaticSoundFxIdByNamePtr(const char* name)
     {
-        if (DAT_0050f6a4 == nullptr)
+        if (NDSManager::CManager::sTheObjectPtr == nullptr)
             return 0;
 
         std::uint8_t initialized;
-        std::memcpy(&initialized, reinterpret_cast<const std::byte*>(DAT_0050f6a4) + 4, sizeof(initialized));
+        std::memcpy(&initialized, reinterpret_cast<const std::byte*>(NDSManager::CManager::sTheObjectPtr) + 4, sizeof(initialized));
 
         if (initialized == 0 || staticSoundCount == 0)
             return 0;
