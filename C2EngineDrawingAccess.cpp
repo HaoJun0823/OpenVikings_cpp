@@ -9,7 +9,9 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+#include <cstdarg>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 extern void* DAT_005109ec;

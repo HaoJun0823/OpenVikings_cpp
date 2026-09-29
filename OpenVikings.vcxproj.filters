@@ -342,6 +342,12 @@
     <ClCompile Include="XPicture.cpp">
       <Filter>Core\Graphics\Pictures</Filter>
     </ClCompile>
+    <ClCompile Include="DMManager.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="C2LogicObjectArrays.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h">
@@ -568,6 +574,12 @@
     </ClInclude>
     <ClInclude Include="XPicture.h">
       <Filter>Core\Graphics\Pictures</Filter>
+    </ClInclude>
+    <ClInclude Include="DMManager.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="C2LogicObjectArrays.h">
+      <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

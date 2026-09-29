@@ -49,6 +49,13 @@ namespace NXBasics
         return 0x3F3;
     }
 
+    // Original function: FUN_0040c601
+    CBitmap::CBitmap(const SRectangle& rectangle, std::int32_t depth) : mRectangle(0, 0, 0, 0)
+    {
+        l_InitObject();
+        l_ConstructNonVirtual(rectangle, depth);
+    }
+
     // Original function: FUN_0040c624
     CBitmap::CBitmap(std::int32_t width, std::int32_t height, std::int32_t depth) : mRectangle(0, 0, 0, 0)
     {

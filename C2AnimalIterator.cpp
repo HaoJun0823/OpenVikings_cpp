@@ -1,11 +1,15 @@
 #include "C2AnimalIterator.h"
 #include "C2AnimalAccess.h"
+#include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MapSectorGridCursor.h"
 
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 
 extern void* DAT_00550e68;
-extern void* DAT_00511554;
 extern void* DAT_00510d4c;
 
 namespace NC2Logic
@@ -122,7 +126,7 @@ namespace NC2Logic
             else
             {
                 const std::uint32_t animalOffset = static_cast<std::uint32_t>(animalId) * 0x98u;
-                animalId = readId(addressAt(DAT_00511554, animalOffset + 0x88u));
+                animalId = readId(addressAt(NC2Logic::CAnimalArray::mStaticVars, animalOffset + 0x88u));
             }
 
             if (animalId == -1)
@@ -142,7 +146,7 @@ namespace NC2Logic
             }
 
             const std::uint32_t animalOffset = static_cast<std::uint32_t>(animalId) * 0x98u;
-            const std::byte* animal = addressAt(DAT_00511554, animalOffset);
+            const std::byte* animal = addressAt(NC2Logic::CAnimalArray::mStaticVars, animalOffset);
 
             if ((flags & 2u) != 0)
             {

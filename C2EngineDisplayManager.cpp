@@ -85,7 +85,7 @@ namespace NC2E2
             return;
         }
 
-        FUN_0047c713(value);
+        Display_Destruct(value);
         NXBasics::Runtime_Free(value);
     }
 }

@@ -35,6 +35,21 @@ namespace NXBasics
         // Original function: FUN_0040c054
         void l_UnPackBMP(CMemory* memory);
 
+        // Original function: FUN_0040c1b8
+        CBitmap* l_DecodeUnpacked8(const std::byte* header, const std::uint8_t* pixelData);
+
+        // Original function: FUN_0040c247
+        CBitmap* l_DecodeUnpacked16(const std::byte* header, const std::uint8_t* pixelData);
+
+        // Original function: FUN_0040c310
+        CBitmap* l_DecodeUnpacked24(const std::byte* header, const std::uint8_t* pixelData);
+
+        // Original function: FUN_0040c3fc
+        CBitmap* l_DecodeUnpacked32(const std::byte* header, const std::uint8_t* pixelData);
+
+        // Original function: FUN_0040c4c1
+        CBitmap* l_DecodeRLE8(const std::byte* header, const std::uint8_t* pixelData);
+
         CBitmap* mBitmap;                         // +0x00
         CPalette* mPalette;                       // +0x04
         std::uint8_t mOwnsResources;              // +0x08; controls deletion of both objects.

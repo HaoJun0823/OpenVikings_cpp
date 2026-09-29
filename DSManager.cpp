@@ -1,11 +1,13 @@
 #include "ApplicationGlobals.h"
 #include "C2E2StaticDataSoundFX.h"
+#include "DMManager.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 
+#include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -1525,7 +1527,7 @@ namespace NDSManager
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") == 2)
         {
             if (gDirectMusicManager != nullptr)
-                FUN_004038bd(gDirectMusicManager, jingleEvent, 0, 2);
+                NDMManager::ProcessEvent(gDirectMusicManager, NXBasics::Runtime_TimeSigned32(jingleEvent), 0, 2);
         }
 
         if (sTheObjectPtr == nullptr || sTheObjectPtr->mInitialized == 0)

@@ -14,6 +14,9 @@ namespace NXBasics
     class CBitmap : public CStorable
     {
     public:
+        // Original function: FUN_0040c601
+        CBitmap(const SRectangle& rectangle, std::int32_t depth);
+
         CBitmap(std::int32_t width, std::int32_t height, std::int32_t depth);
         CBitmap(CBitmap* sourceBitmap, const SRectangle& rectangle);
 

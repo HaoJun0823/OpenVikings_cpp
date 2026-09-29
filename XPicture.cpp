@@ -4,16 +4,33 @@
 #include "XDiagnostics.h"
 #include "XMemory.h"
 #include "XPalette.h"
+#include "XPixelFormatConverter.h"
 
 #include <cstring>
 #include <cstddef>
+#include <cstdint>
 #include <new>
 
 namespace NXBasics
 {
-    // Original format table: 12-byte records, format value at +0x08.
-    // The original table contents have not been supplied yet.
-    extern const std::byte DAT_004f3668[];
+    struct SPictureFormatEntry
+    {
+        char extension[8];                       // +0x00; null-terminated extension.
+        std::uint32_t format;                    // +0x08; 0 = PCX, 1 = BMP, 2 = terminator.
+    };
+
+    static_assert(sizeof(SPictureFormatEntry) == 0x0C);
+    static_assert(offsetof(SPictureFormatEntry, format) == 0x08);
+
+    // Original data: 004f3668–004f368b.
+    static constexpr SPictureFormatEntry kPictureFormats[] =
+    {
+        { ".pcx", 0 },
+        { ".bmp", 1 },
+        { "", 2 }
+    };
+
+    static_assert(sizeof(kPictureFormats) == 0x24);
 
     // Original function: FUN_0040bd76
     CPicture::CPicture(const char* fileName) : mBitmap(nullptr), mPalette(nullptr), mOwnsResources(0), mReserved09{}
@@ -31,19 +48,12 @@ namespace NXBasics
 
         std::uint32_t format = 2;
 
-        for (const std::byte* entry = DAT_004f3668; ; entry += 0x0C)
+        for (const SPictureFormatEntry* entry = kPictureFormats; entry->format != 2; ++entry)
         {
-            std::uint32_t entryFormat;
-            std::memcpy(&entryFormat, entry + 0x08, sizeof(entryFormat));
-
-            if (entryFormat == 2)
+            // Preserve the original three-character comparison and continued search.
+            if (std::strncmp(extension, entry->extension, 3) == 0)
             {
-                break;
-            }
-
-            if (std::strncmp(extension, reinterpret_cast<const char*>(entry), 3) == 0)
-            {
-                format = entryFormat;
+                format = entry->format;
             }
         }
 
@@ -85,6 +95,34 @@ namespace NXBasics
                 mPalette = nullptr;
             }
         }
+    }
+
+    // Read an unaligned field from the reconstructed x86 BMP header.
+    static std::uint32_t Picture_ReadBmpDword(const std::byte* header, std::uint32_t offset)
+    {
+        std::uint32_t value;
+        std::memcpy(&value, header + offset, sizeof(value));
+        return value;
+    }
+
+    // Source-level representation of the original row-loop variables.
+    struct SPictureBmpRows
+    {
+        std::uint32_t heightBits;
+        std::uint32_t firstRow;
+        std::uint32_t endRow;
+        std::uint32_t rowStep;
+    };
+
+    static SPictureBmpRows Picture_GetBmpRows(std::uint32_t heightBits)
+    {
+        if ((heightBits & 0x80000000u) != 0)
+        {
+            const std::uint32_t positiveHeightBits = 0u - heightBits;
+            return { positiveHeightBits, 0u, positiveHeightBits, 1u };
+        }
+
+        return { heightBits, heightBits - 1u, 0xFFFFFFFFu, 0xFFFFFFFFu };
     }
 
     // Original function: FUN_0040bebd
@@ -245,7 +283,7 @@ namespace NXBasics
 
         if (compression == 1)
         {
-            mBitmap = static_cast<CBitmap*>(FUN_0040c4c1(this, header, pixelData));
+            mBitmap = l_DecodeRLE8(header, pixelData);
             return;
         }
 
@@ -254,23 +292,199 @@ namespace NXBasics
             switch (bitsPerPixel)
             {
                 case 8:
-                    mBitmap = static_cast<CBitmap*>(FUN_0040c1b8(this, header, pixelData));
+                    mBitmap = l_DecodeUnpacked8(header, pixelData);
                     return;
 
                 case 16:
-                    mBitmap = static_cast<CBitmap*>(FUN_0040c247(this, header, pixelData));
+                    mBitmap = l_DecodeUnpacked16(header, pixelData);
                     return;
 
                 case 24:
-                    mBitmap = static_cast<CBitmap*>(FUN_0040c310(this, header, pixelData));
+                    mBitmap = l_DecodeUnpacked24(header, pixelData);
                     return;
 
                 case 32:
-                    mBitmap = static_cast<CBitmap*>(FUN_0040c3fc(this, header, pixelData));
+                    mBitmap = l_DecodeUnpacked32(header, pixelData);
                     return;
             }
         }
 
         ReportFatalError("NXBasics::CPicture::l_UnPackBMP\n\nThe bitmap to load was compressed");
+    }
+
+    // Original function: FUN_0040c1b8
+    CBitmap* CPicture::l_DecodeUnpacked8(const std::byte* header, const std::uint8_t* pixelData)
+    {
+        const std::uint32_t widthBits = Picture_ReadBmpDword(header, 0x12);
+        const SPictureBmpRows rows = Picture_GetBmpRows(Picture_ReadBmpDword(header, 0x16));
+
+        CBitmap* bitmap = new (std::nothrow) CBitmap(Runtime_TimeSigned32(widthBits), Runtime_TimeSigned32(rows.heightBits), 0);
+        std::uint8_t* output = bitmap->mRawMemory;
+        const std::uint8_t* source = pixelData;
+
+        for (std::uint32_t row = rows.firstRow; row != rows.endRow; row += rows.rowStep)
+        {
+            for (std::uint32_t x = 0; x < widthBits; ++x)
+            {
+                output[row * widthBits + x] = *source++;
+            }
+
+            // The original does not skip source-row padding here.
+        }
+
+        return bitmap;
+    }
+
+    // Original function: FUN_0040c247
+    CBitmap* CPicture::l_DecodeUnpacked16(const std::byte* header, const std::uint8_t* pixelData)
+    {
+        const std::uint32_t widthBits = Picture_ReadBmpDword(header, 0x12);
+        const SPictureBmpRows rows = Picture_GetBmpRows(Picture_ReadBmpDword(header, 0x16));
+
+        CBitmap* bitmap = new (std::nothrow) CBitmap(Runtime_TimeSigned32(widthBits), Runtime_TimeSigned32(rows.heightBits), 2);
+        std::uint32_t* output = bitmap->mTrueColorMemory;
+        const std::uint8_t* source = pixelData;
+
+        for (std::uint32_t row = rows.firstRow; row != rows.endRow; row += rows.rowStep)
+        {
+            for (std::uint32_t x = 0; x < widthBits; ++x)
+            {
+                const std::uint32_t pixel = static_cast<std::uint32_t>(source[0]) | (static_cast<std::uint32_t>(source[1]) << 8u);
+                source += 2;
+
+                const std::uint32_t blue = (pixel & 0x1Fu) << 3u;
+                const std::uint32_t green = (pixel >> 2u) & 0xF8u;
+                const std::uint32_t red = (pixel >> 7u) & 0xF8u;
+
+                output[row * widthBits + x] = g32BitPixelConverter->PackColor(red, green, blue);
+            }
+
+            // The original does not skip source-row padding here.
+        }
+
+        return bitmap;
+    }
+
+    // Original function: FUN_0040c310
+    CBitmap* CPicture::l_DecodeUnpacked24(const std::byte* header, const std::uint8_t* pixelData)
+    {
+        const std::uint32_t widthBits = Picture_ReadBmpDword(header, 0x12);
+        const SPictureBmpRows rows = Picture_GetBmpRows(Picture_ReadBmpDword(header, 0x16));
+
+        CBitmap* bitmap = new (std::nothrow) CBitmap(Runtime_TimeSigned32(widthBits), Runtime_TimeSigned32(rows.heightBits), 2);
+        std::uint32_t* output = bitmap->mTrueColorMemory;
+        const std::uint32_t rowPixelCount = bitmap->mRowPixelCount;
+        const std::uint8_t* source = pixelData;
+
+        for (std::uint32_t row = rows.firstRow; row != rows.endRow; row += rows.rowStep)
+        {
+            for (std::uint32_t x = 0; x < widthBits; ++x)
+            {
+                const std::uint32_t blue = source[0];
+                const std::uint32_t green = source[1];
+                const std::uint32_t red = source[2];
+                source += 3;
+
+                output[row * rowPixelCount + x] = g32BitPixelConverter->PackColor(red, green, blue);
+            }
+
+            const std::uint32_t sourceRowBytes = widthBits * 3u;
+            source += (0u - sourceRowBytes) & 3u;
+        }
+
+        return bitmap;
+    }
+
+    // Original function: FUN_0040c3fc
+    CBitmap* CPicture::l_DecodeUnpacked32(const std::byte* header, const std::uint8_t* pixelData)
+    {
+        const std::uint32_t widthBits = Picture_ReadBmpDword(header, 0x12);
+        const SPictureBmpRows rows = Picture_GetBmpRows(Picture_ReadBmpDword(header, 0x16));
+
+        CBitmap* bitmap = new (std::nothrow) CBitmap(Runtime_TimeSigned32(widthBits), Runtime_TimeSigned32(rows.heightBits), 2);
+        std::uint32_t* output = bitmap->mTrueColorMemory;
+        const std::uint8_t* source = pixelData;
+
+        for (std::uint32_t row = rows.firstRow; row != rows.endRow; row += rows.rowStep)
+        {
+            for (std::uint32_t x = 0; x < widthBits; ++x)
+            {
+                const std::uint32_t blue = source[0];
+                const std::uint32_t green = source[1];
+                const std::uint32_t red = source[2];
+                source += 4;
+
+                output[row * widthBits + x] = g32BitPixelConverter->PackColor(red, green, blue);
+            }
+        }
+
+        return bitmap;
+    }
+
+    // Original function: FUN_0040c4c1
+    CBitmap* CPicture::l_DecodeRLE8(const std::byte* header, const std::uint8_t* pixelData)
+    {
+        const std::uint32_t widthBits = Picture_ReadBmpDword(header, 0x12);
+        const std::uint32_t heightBits = Picture_ReadBmpDword(header, 0x16);
+
+        CBitmap* bitmap = new (std::nothrow) CBitmap(Runtime_TimeSigned32(widthBits), Runtime_TimeSigned32(heightBits), 0);
+        std::uint8_t* output = bitmap->mRawMemory;
+
+        std::uint32_t x = 0;
+        std::uint32_t row = heightBits - 1u;
+        std::uint32_t sourceOffset = 0;
+
+        for (;;)
+        {
+            const std::uint8_t count = pixelData[sourceOffset++];
+            const std::uint8_t value = pixelData[sourceOffset++];
+
+            if (count != 0)
+            {
+                for (std::uint32_t index = 0; index < count; ++index)
+                {
+                    output[row * widthBits + x] = value;
+                    ++x;
+                }
+
+                continue;
+            }
+
+            switch (value)
+            {
+                case 0:
+                    --row;
+                    x = 0;
+                    break;
+
+                case 1:
+                    return bitmap;
+
+                case 2:
+                    {
+                        const std::uint32_t deltaX = pixelData[sourceOffset++];
+                        const std::uint32_t deltaY = pixelData[sourceOffset++];
+
+                        x += deltaX;
+                        row -= deltaY;
+                        break;
+                    }
+
+                default:
+                    for (std::uint32_t index = 0; index < value; ++index)
+                    {
+                        output[row * widthBits + x] = pixelData[sourceOffset++];
+                        ++x;
+                    }
+
+                    // Align the consumed byte count relative to the RLE stream.
+                    if ((sourceOffset & 1u) != 0)
+                    {
+                        ++sourceOffset;
+                    }
+
+                    break;
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 #include "C2CallbackManager.h"
 #include "C2LanguageTools.h"
+#include "C2LogicObjectArrays.h"
 #include "FileCompressor.h"
 #include "FileTransferManager.h"
 #include "GuiToolsBase.h"
@@ -164,7 +165,7 @@ namespace NC2MainMenuGuiManager
 			{
 				const std::uint32_t humanOffset = static_cast<std::uint32_t>(humanId) * 0xC58u;
 
-				if (readWord(DAT_00510a00, humanOffset + 0xB80u) == 10000u)
+				if (readWord(NC2Logic::CHumanArray::mStaticVars, humanOffset + 0xB80u) == 10000u)
 				{
 					candidates[candidateCount++] = humanId;
 

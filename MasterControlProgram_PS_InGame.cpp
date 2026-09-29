@@ -1,4 +1,6 @@
 #include "ApplicationGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "DMManager.h"
 #include "GuiToolsBase.h"
 #include "InGameGuiManager.h"
 #include "MasterControlProgram.h"
@@ -120,7 +122,7 @@ namespace NMasterControlProgram
 
         if (gDirectMusicManager != nullptr)
         {
-            FUN_004038bd(gDirectMusicManager, 0, 0, 1);
+            NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
         }
 
         NNetwork::Network_ShutDown();
@@ -192,12 +194,12 @@ namespace NMasterControlProgram
                             }
                         }
 
-                        auto* playerStateBytes = reinterpret_cast<std::byte*>(DAT_00510a00) + playerIndex * 0xC58;
-                        const bool playerStateActive = playerStateBytes[0] != std::byte{ 0 };
-                        const int storedValidationValue = *reinterpret_cast<const int*>(playerStateBytes + 0x08);
+                        auto* humanBytes = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(playerIndex) * NC2Logic::CHumanArray::ElementSize;
+                        const bool humanActive = humanBytes[0] != std::byte{ 0 };
+                        const int storedValidationValue = *reinterpret_cast<const int*>(humanBytes + 0x08);
                         const int localPlayerId = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
 
-                        if (playerStateActive &&
+                        if (humanActive &&
                             storedValidationValue == validationValue &&
                             senderPlayerId != localPlayerId &&
                             commandText != nullptr)

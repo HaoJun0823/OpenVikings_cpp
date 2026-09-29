@@ -1,10 +1,11 @@
-#include "C2E2AnimalSoundManager.h"
 #include "C2AnimalAccess.h"
-#include "C2GameMapAccess.h"
-#include "C2EngineDisplayAccess.h"
 #include "C2AnimalIterator.h"
+#include "C2E2AnimalSoundManager.h"
 #include "C2E2StaticDataAnimalSounds.h"
 #include "C2E2StaticDataSoundFX.h"
+#include "C2EngineDisplayAccess.h"
+#include "C2GameMapAccess.h"
+#include "C2LogicObjectArrays.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 
@@ -13,7 +14,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_00511554;
 extern std::uint32_t DAT_00510838;
 
 namespace NC2E2
@@ -117,7 +117,7 @@ namespace NC2E2
 
                 while (animalIndex != -1)
                 {
-                    std::byte* animal = addressAt(DAT_00511554, static_cast<std::uint32_t>(animalIndex) * 0x98u);
+                    std::byte* animal = addressAt(NC2Logic::CAnimalArray::mStaticVars, static_cast<std::uint32_t>(animalIndex) * NC2Logic::CAnimalArray::ElementSize);
                     bool accepted = readWord(animal, 0x14) == static_cast<std::uint32_t>(tribeType);
 
                     if (accepted)
