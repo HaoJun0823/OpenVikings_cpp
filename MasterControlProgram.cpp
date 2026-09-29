@@ -1,4 +1,5 @@
 #include "ApplicationGlobals.h"
+#include "C2LanguageTools.h"
 #include "DSManager.h"
 #include "XSystemManager.h"
 #include "XCrtFileAccess.h"
@@ -403,7 +404,7 @@ namespace NMasterControlProgram
         const char* fileNamePattern = useTitleScreen ? "data\\gui\\lang\\%s\\pictures\\titlescreen.bmp" : "data\\gui\\lang\\%s\\pictures\\loadscreen.bmp";
 
         char fileName[0x104];
-        FUN_00405adb(fileNamePattern, fileName, false);
+        NC2Logic::LanguageTool_GetFilename(fileNamePattern, fileName, false);
 
         // Temporary x86 object storage until the corresponding classes are implemented.
         alignas(4) std::byte pictureStorage[0x0C];

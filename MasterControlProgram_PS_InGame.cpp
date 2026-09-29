@@ -1,11 +1,12 @@
 #include "ApplicationGlobals.h"
-#include "X2DApplication.h"
-#include "MasterPropertyManager.h"
-#include "XCrtFileAccess.h"
-#include "MasterControlProgram.h"
-#include "InGameGuiManager.h"
 #include "GuiToolsBase.h"
+#include "InGameGuiManager.h"
+#include "MasterControlProgram.h"
+#include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
+#include "X2DApplication.h"
+#include "XCrtFileAccess.h"
+#include "XGuiDesktop.h"
 
 #include <cstddef>
 #include <cstring>
@@ -104,7 +105,7 @@ namespace NMasterControlProgram
 
         if (NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->AreCheatsAllowed())
         {
-            auto* message = FUN_004e1e35(0x56);
+            auto* message = NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x56);
 
             FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, message);
         }
@@ -281,7 +282,7 @@ namespace NMasterControlProgram
 
             if (stringId != 0)
             {
-                const char* messageText = FUN_004e1e35(stringId);
+                const char* messageText = NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(stringId);
                 NXBasics::Runtime_PrintString(outputText, ">> %s %s!", playerName, messageText);
             }
             else
@@ -312,8 +313,7 @@ namespace NMasterControlProgram
         thunk_FUN_004077b8();
         FUN_004a0184(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
-        const auto* desktopBytes = reinterpret_cast<const std::byte*>(DAT_00554d5c);
-        const std::uint32_t displayBitmap = *reinterpret_cast<const std::uint32_t*>(desktopBytes + 0x10);
+        auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 
         FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, displayBitmap, nullptr, 0);
     }

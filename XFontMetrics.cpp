@@ -130,6 +130,12 @@ namespace NXBasics
         return height;
     }
 
+    // Original function: FUN_004397e0.
+    void Font_SetPalettePtr(void* font, CPalette* palette)
+    {
+        std::memcpy(static_cast<std::byte*>(font) + 0x14, &palette, sizeof(palette));
+    }
+
     // Original function: FUN_00439a8e
     const void* BobManager_GetBobAreaRectanglePtr(const void* bobManager, std::uint32_t bobId)
     {

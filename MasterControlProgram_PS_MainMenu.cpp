@@ -1,8 +1,12 @@
-#include "X2DApplication.h"
 #include "MainMenuGuiManager.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
+#include "X2DApplication.h"
+
+#include <cstddef>
+#include <cstdint>
 #include <new>
+#include <Windows.h>
 
 namespace NMasterControlProgram
 {
@@ -14,12 +18,7 @@ namespace NMasterControlProgram
 
         ProgressBar_Init(mEngineInitialized == 0);
 
-        void* guiManagerMemory = ::operator new(0x21B4, std::nothrow);
-
-        if (guiManagerMemory != nullptr)
-        {
-            FUN_004d2b2d(guiManagerMemory);
-        }
+        new (std::nothrow) NC2MainMenuGuiManager::CGuiManager();
 
         FUN_00401985(this);
 
@@ -29,7 +28,7 @@ namespace NMasterControlProgram
 
         const int displayWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
 
-        FUN_004d2e77(DAT_005694dc, displayWidth, displayHeight, displayDepth);
+        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Open(displayWidth, displayHeight, static_cast<std::uint32_t>(displayDepth));
 
         FUN_00402298(this);
         ProgressBar_Exit();
@@ -45,7 +44,7 @@ namespace NMasterControlProgram
 
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists(propertyName))
         {
-            reinterpret_cast<NC2MainMenuGuiManager::CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(5, false);
+            NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Screen_ChangeTo(5, false);
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove(propertyName);
         }
 
@@ -66,15 +65,14 @@ namespace NMasterControlProgram
         }
 
         FUN_004800c8(DAT_005550d4);
-        FUN_004d2fdc(DAT_005694dc);
+        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
         FUN_00401bd5(this);
 
-        auto* mainMenuGuiManager = DAT_005694dc;
+        auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
 
         if (mainMenuGuiManager != nullptr)
         {
-            FUN_004d2ba8(mainMenuGuiManager);
-            ::operator delete(mainMenuGuiManager);
+            delete mainMenuGuiManager;
         }
 
         mProgramState = static_cast<std::int32_t>(TProgramState::None);
@@ -93,10 +91,9 @@ namespace NMasterControlProgram
         }
 
         thunk_FUN_004077b8();
-        reinterpret_cast<NC2MainMenuGuiManager::CGuiManager*>(DAT_005694dc)->System_UpdateGui();
+        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->System_UpdateGui();
 
-        const auto* desktopBytes = reinterpret_cast<const std::byte*>(DAT_00554d5c);
-        const std::uint32_t displayBitmap = *reinterpret_cast<const std::uint32_t*>(desktopBytes + 0x10);
+        auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 
         FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, displayBitmap, nullptr, 0);
     }

@@ -109,6 +109,30 @@
     <Filter Include="Engine\Display">
       <UniqueIdentifier>{9b83bff4-4049-40ea-bc79-fb437df5c0b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{37317c68-a4e7-4a70-9016-f17b5a7b8897}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\Strings">
+      <UniqueIdentifier>{4b4056fb-1fa5-4148-967a-6ce7941fe77f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\Language">
+      <UniqueIdentifier>{6b35aef9-bda9-4cb6-a249-d9f86ef5c739}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Graphics">
+      <UniqueIdentifier>{1337dd8c-550a-44c3-88a5-357c1a7b9987}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Graphics\Pictures">
+      <UniqueIdentifier>{f97ef503-7438-4cc1-8eec-2b3f71072d88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\GUI">
+      <UniqueIdentifier>{8385a988-a35e-450c-a2c0-fe72c29bb955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\GUI\Desktop">
+      <UniqueIdentifier>{e14a4282-f268-44fc-a8f9-ada24f981038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Containers">
+      <UniqueIdentifier>{fd5e7722-682a-48db-9d97-d3c25948ce71}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MasterControlProgram.cpp">
@@ -287,6 +311,21 @@
     </ClCompile>
     <ClCompile Include="C2EngineDisplayManager.cpp">
       <Filter>Engine\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="C2StringIO.cpp">
+      <Filter>Logic\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="C2LanguageTools.cpp">
+      <Filter>Logic\Language</Filter>
+    </ClCompile>
+    <ClCompile Include="XPictureAccess.cpp">
+      <Filter>Core\Graphics\Pictures</Filter>
+    </ClCompile>
+    <ClCompile Include="XGuiDesktop.cpp">
+      <Filter>Core\GUI\Desktop</Filter>
+    </ClCompile>
+    <ClCompile Include="XList.cpp">
+      <Filter>Core\Containers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -481,6 +520,24 @@
     </ClInclude>
     <ClInclude Include="C2EngineDisplayManager.h">
       <Filter>Engine\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="C2StringIO.h">
+      <Filter>Logic\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="C2LanguageTools.h">
+      <Filter>Logic\Language</Filter>
+    </ClInclude>
+    <ClInclude Include="XPictureAccess.h">
+      <Filter>Core\Graphics\Pictures</Filter>
+    </ClInclude>
+    <ClInclude Include="XGuiDesktop.h">
+      <Filter>Core\GUI\Desktop</Filter>
+    </ClInclude>
+    <ClInclude Include="XList.h">
+      <Filter>Core\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="XGuiLists.h">
+      <Filter>Core\Containers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

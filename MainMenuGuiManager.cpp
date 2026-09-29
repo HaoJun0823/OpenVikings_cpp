@@ -1,3 +1,5 @@
+#include "C2CallbackManager.h"
+#include "C2LanguageTools.h"
 #include "FileCompressor.h"
 #include "FileTransferManager.h"
 #include "GuiToolsBase.h"
@@ -6,12 +8,17 @@
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
 #include "OriginalStrings.h"
+#include "StringInputHandler.h"
+#include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XFileAccess.h"
 #include "XFontMetrics.h"
+#include "XGuiDesktop.h"
 #include "XIniFileReader.h"
+#include "XPictureAccess.h"
+#include "XStorableIO.h"
 #include "XMemory.h"
 #include "XMKeyManager.h"
 #include "XMMouseManager.h"
@@ -43,21 +50,61 @@ extern const char DAT_0050716c[];
 // Service-provider GUID compared by the original code.
 extern const GUID DAT_004f7e48;
 
-// Original data: DAT_005694c0.
-std::uint8_t DAT_005694c0 = 0;
-
 // Original data: DAT_005694e0.
 std::uint32_t gLastPlayerListUpdateTick = 0;
 
 // Original data: DAT_005694e4.
 std::uint32_t gLastHostMessage6Tick = 0;
 
+namespace
+{
+	void DestroyMainMenuStorableResource(void* object)
+	{
+		if (object == nullptr)
+			return;
+
+		using TDeletingDestructor = void* (__thiscall*)(void*, unsigned int);
+
+		TDeletingDestructor* methods;
+		std::memcpy(&methods, object, sizeof(methods));
+		methods[3](object, 1u);
+	}
+}
+
 namespace NC2MainMenuGuiManager
 {
+	// Original callback target: 0042c8fd
+	bool __cdecl CGuiManager::ls_Logic_CallbackFunction(std::uint32_t /*type*/, std::uint32_t /*userData*/, std::uint32_t /*param1*/, std::uint32_t /*param2*/, std::uint32_t /*param3*/)
+	{
+		return true;
+	}
+
+	// Original function: FUN_004d2b2d
+	CGuiManager::CGuiManager() : textInput((FUN_004d2b7c(reinterpret_cast<std::byte*>(this) + 0x04), FUN_004d6b8f(unknown216C), NC2InGameGuiBaseTextInputElement::CStringInputHandler()))
+	{
+		sTheObjectPtr = this;
+
+		std::memset(static_cast<void*>(this), 0, offsetof(CGuiManager, unknown216C));
+		mStaticVars = {};
+
+		ls_GraphicData_Load();
+	}
+
+	// Original function: FUN_004d2ba8
+	CGuiManager::~CGuiManager()
+	{
+		ls_GraphicData_Free();
+		sTheObjectPtr = nullptr;
+
+		textInput.Exit();
+		FUN_00478917(unknown216C);
+		FUN_004d2bdd(this);
+	}
 
 	// Original function: FUN_004d2bf2
 	void CGuiManager::System_UpdateGui()
 	{
+		const auto& guiResources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
 		const auto readWord = [] (const void* object, std::size_t offset) -> std::uint32_t
 		{
 			std::uint32_t value;
@@ -181,8 +228,8 @@ namespace NC2MainMenuGuiManager
 		}
 
 		// Pending: CDesktop::Desktop_DoWork.
-		FUN_00477104(DAT_00554d5c, false, DAT_005694c0);
-		DAT_005694c0 = 0;
+		FUN_00477104(NXBaseGui::CDesktop::sTheObjectPtr, false, mStaticVars.desktopUpdateFlag);
+		mStaticVars.desktopUpdateFlag = 0;
 
 		l_Network_Draw();
 
@@ -193,15 +240,15 @@ namespace NC2MainMenuGuiManager
 			char text[0x15C];
 
 			// Preserve the original localization lookup order.
-			const char* suffix = FUN_004e1e19(0x1B);
-			const char* versionLabel = FUN_004e1e19(0x1A);
-			const char* title = FUN_004e1e19(0x19);
+			const char* suffix = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0x1B);
+			const char* versionLabel = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0x1A);
+			const char* title = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0x19);
 
 			NXBasics::Runtime_PrintString(text, "%s - %s %d.%2.2d - %s Nov 29 2003 17:37:45", title, versionLabel, 1, 0, suffix);
 
-			void* bitmap = readPointer(DAT_00554d5c, 0x10);
-			auto* font = DAT_005698f8;
-			const auto* colour = reinterpret_cast<const std::byte*>(DAT_00569908) + 0x400;
+			auto* bitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
+			auto* font = guiResources.font08;
+			const auto* colour = reinterpret_cast<const std::byte*>(guiResources.fontWhitePalette) + 0x400;
 
 			const std::uint32_t textHeight = static_cast<std::uint32_t>(NXBasics::Font_GetPixelHeight(font, text));
 			const std::uint32_t y = readWord(bitmap, 0x14) - textHeight - 1u;
@@ -211,6 +258,140 @@ namespace NC2MainMenuGuiManager
 
 			reinterpret_cast<NXBasics::CBitmap*>(bitmap)->Text_Print(font, reinterpret_cast<const NXBasics::SColorRGB*>(colour), NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y), text);
 		}
+	}
+
+	// Original function: FUN_004d2e77
+	void CGuiManager::Desktop_Open(std::int32_t width, std::int32_t height, std::uint32_t depth)
+	{
+		if (mStaticVars.displayInitialized != 0)
+			return;
+
+		mStaticVars.displayWidth = width;
+		mStaticVars.displayHeight = height;
+		mStaticVars.displayDepth = depth;
+
+		const std::int32_t bitmapDepth = NXBasics::ConvertBitsToTDepth(NXBasics::Runtime_TimeSigned32(depth));
+		new (std::nothrow) NXBaseGui::CDesktop(width, height, bitmapDepth);
+
+		NC2GuiToolsBase::CGuiBaseDataManager::DynamicData_Load();
+
+		void* primaryMessageHandler = NXBasics::Runtime_AllocateWithNewHandler(0x2C, 1);
+
+		if (primaryMessageHandler != nullptr)
+			primaryMessageHandler = FUN_004db0a0(primaryMessageHandler);
+
+		NXBaseGui::CDesktop::sTheObjectPtr->PrimaryMessageHandler_Set(static_cast<NXBaseGui::CBaseElement*>(primaryMessageHandler));
+
+		void* mousePointer = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
+
+		if (mousePointer != nullptr)
+			mousePointer = FUN_004dae2f(mousePointer);
+
+		NXBaseGui::CDesktop::sTheObjectPtr->SetMousePointerStorage(mousePointer);
+
+		NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(1u, &CGuiManager::ls_Logic_CallbackFunction, 0u, 10);
+
+		FUN_0047e5f4(width, height, depth);
+
+		void* worldElement = NXBasics::Runtime_AllocateWithNewHandler(0x58, 1);
+
+		if (worldElement != nullptr)
+		{
+			NXBasics::SRectangle rectangle(0, 0, width, height);
+			worldElement = FUN_004da53a(worldElement, &rectangle, true);
+		}
+
+		// Original member offset: +0x04.
+		std::memcpy(unknown0004, &worldElement, sizeof(worldElement));
+
+		FUN_00477163(NXBaseGui::CDesktop::sTheObjectPtr, worldElement, true);
+
+		mStaticVars.displayInitialized = 1;
+		mStaticVars.desktopUpdateFlag = 1;
+
+		if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("multiplayer_auto_host"))
+		{
+			Screen_ChangeTo(19, false);
+			NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("multiplayer_auto_host");
+		}
+		else if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("multiplayer_auto_join"))
+		{
+			Screen_ChangeTo(20, false);
+			NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("multiplayer_auto_join");
+		}
+		else
+		{
+			Screen_ChangeTo(1, false);
+		}
+	}
+
+	// Original function: FUN_004d2fdc
+	void CGuiManager::Desktop_Close()
+	{
+		if (mStaticVars.displayInitialized == 0)
+			return;
+
+		FUN_004d6aa5(this);
+
+		auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
+
+		if (desktop != nullptr)
+		{
+			delete desktop;
+		}
+
+		// Clear only the original desktop-related instance range.
+		std::memset(unknown0004, 0, 0x54);
+
+		FUN_0047e5f4(0, 0, 0);
+
+		NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(1u, &CGuiManager::ls_Logic_CallbackFunction, 0u);
+
+		mStaticVars.displayInitialized = 0;
+	}
+
+	// Original function: FUN_004d303c
+	void CGuiManager::ls_GraphicData_Load()
+	{
+		new (std::nothrow) NC2GuiToolsBase::CGuiBaseStringsManager();
+		new (std::nothrow) NC2GuiToolsBase::CGuiBaseDataManager();
+
+		auto& resources = mStaticVars.resources;
+		char fileName[0x104];
+
+		NC2Logic::LanguageTool_GetFilename("data\\gui\\lang\\%s\\bobs\\LS_menu_logos.bmd", fileName, false);
+		resources.menuLogos = reinterpret_cast<NXBasics::CBobManager*>(NXBasics::XB_Storable_LoadObject(fileName));
+
+		NC2Logic::LanguageTool_GetFilename("data\\gui\\lang\\%s\\bobs\\LS_menu_logos_s.bmd", fileName, false);
+		resources.smallMenuLogos = reinterpret_cast<NXBasics::CBobManager*>(NXBasics::XB_Storable_LoadObject(fileName));
+
+		resources.funaticsPalette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\engine2d\\bin\\palettes\\gui\\menu_funatics.pcx");
+		resources.campaignMapPalette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\gui\\palettes\\campaignmap.pcx");
+		resources.campaignButtonsPalette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture("data\\gui\\palettes\\campaignbuttons.pcx");
+	}
+
+	// Original function: FUN_004d30e5
+	void CGuiManager::ls_GraphicData_Free()
+	{
+		auto& resources = mStaticVars.resources;
+
+		DestroyMainMenuStorableResource(resources.campaignButtonsPalette);
+		DestroyMainMenuStorableResource(resources.campaignMapPalette);
+		DestroyMainMenuStorableResource(resources.funaticsPalette);
+		DestroyMainMenuStorableResource(resources.menuLogos);
+		DestroyMainMenuStorableResource(resources.smallMenuLogos);
+
+		resources = {};
+
+		auto* guiResourceManager = NC2GuiToolsBase::CGuiBaseDataManager::sTheObjectPtr;
+
+		if (guiResourceManager != nullptr)
+			delete guiResourceManager;
+
+		auto* textResourceManager = NC2GuiToolsBase::CGuiBaseStringsManager::sTheObjectPtr;
+
+		if (textResourceManager != nullptr)
+			delete textResourceManager;
 	}
 
 	// Original function: FUN_004d31bc
@@ -743,7 +924,7 @@ namespace NC2MainMenuGuiManager
 							0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F
 						};
 
-						const char* description = FUN_004e1e35(textIds[eventType - 1u]);
+						const char* description = NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(textIds[eventType - 1u]);
 						const char* format = eventType >= 2u && eventType <= 7u ? "%s %s!" : ">> %s %s!";
 
 						NXBasics::Runtime_PrintString(text, format, playerName, description);
@@ -794,7 +975,7 @@ namespace NC2MainMenuGuiManager
 
 					writeWord(0x51C, providerIndex);
 
-					reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(11, false);
+					sTheObjectPtr->Screen_ChangeTo(11, false);
 					return;
 				}
 
@@ -936,7 +1117,7 @@ namespace NC2MainMenuGuiManager
 			{
 				if (readWord(0xF10) == 2u)
 				{
-					reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(16, false);
+					sTheObjectPtr->Screen_ChangeTo(16, false);
 
 					std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 					message[0] = 4;
@@ -952,7 +1133,7 @@ namespace NC2MainMenuGuiManager
 
 					if (mapInformation != nullptr && (std::to_integer<std::uint8_t>(mapInformation[0x120]) & 0x40u) != 0 && mapInformation[0x385] != std::byte{ 0 })
 					{
-						reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(17, false);
+						sTheObjectPtr->Screen_ChangeTo(17, false);
 
 						std::uint32_t message[0x168 / sizeof(std::uint32_t)] = {};
 						message[0] = 5;
@@ -970,7 +1151,7 @@ namespace NC2MainMenuGuiManager
 
 						message[0] = 1;
 
-						const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
+						const auto* menu = sTheObjectPtr;
 						std::memcpy(messageBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
 
 						messageBytes[4] = std::byte{ 1 };
@@ -1079,7 +1260,7 @@ namespace NC2MainMenuGuiManager
 
 						response[0] = 1;
 
-						const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
+						const auto* menu = sTheObjectPtr;
 						std::memcpy(responseBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
 
 						responseBytes[4] = std::byte{ 0 };
@@ -1167,7 +1348,7 @@ namespace NC2MainMenuGuiManager
 		const auto reportFailure = [this] (const char* text)
 		{
 			// The original changes the singleton's screen and logs on this object.
-			reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(18, true);
+			sTheObjectPtr->Screen_ChangeTo(18, true);
 			Debug_ErrorString_Add(text);
 		};
 
@@ -1322,7 +1503,7 @@ namespace NC2MainMenuGuiManager
 			}
 			else if (jobs[index].state == 14)
 			{
-				reinterpret_cast<CGuiManager*>(DAT_005694dc)->Screen_ChangeTo(18, true);
+				sTheObjectPtr->Screen_ChangeTo(18, true);
 				Debug_ErrorString_Add(userMap ? "Clean map transfer failed!" : "Savegame transfer failed!");
 
 				// The original continues evaluating the copied job list.
@@ -1370,7 +1551,7 @@ namespace NC2MainMenuGuiManager
 		message[0] = 1;
 		messageBytes[4] = std::byte{ 1 };
 
-		const auto* menu = reinterpret_cast<const CGuiManager*>(DAT_005694dc);
+		const auto* menu = sTheObjectPtr;
 		std::memcpy(messageBytes + 8, menu->lobbyData, sizeof(menu->lobbyData));
 
 		NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, 0, message, sizeof(message));
@@ -1393,6 +1574,8 @@ namespace NC2MainMenuGuiManager
 		if (!Screen_IsMultiPlayerScreen())
 			return;
 
+		const auto& guiResources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+
 		const auto readWord = [] (const void* object, std::size_t offset) -> std::uint32_t
 		{
 			std::uint32_t value;
@@ -1410,9 +1593,9 @@ namespace NC2MainMenuGuiManager
 			return reinterpret_cast<NXBasics::CBitmap*>(FUN_004d32ff(this));
 		};
 
-		const auto defaultColour = [] () -> const NXBasics::SColorRGB*
+		const auto defaultColour = [&guiResources] () -> const NXBasics::SColorRGB*
 		{
-			return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(DAT_00569908) + 0x400);
+			return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(guiResources.fontWhitePalette) + 0x400);
 		};
 
 		const auto drawText = [&] (NXBasics::CBitmap* bitmap, auto* font, std::int32_t x, std::int32_t y, const char* text)
@@ -1437,13 +1620,13 @@ namespace NC2MainMenuGuiManager
 			bitmap->Draw_VerticalLine(signedWord(cursorX), y, length, colour);
 		};
 
-		auto* inputFont = DAT_005698fc;
+		auto* inputFont = guiResources.font10;
 
 		if (currentScreen == 9)
 		{
-			std::int32_t y = signedWord(static_cast<std::uint32_t>(DAT_005694b8)) / 2 - 50;
+			std::int32_t y = signedWord(static_cast<std::uint32_t>(mStaticVars.displayHeight)) / 2 - 50;
 			const auto* colour = defaultColour();
-			const char* text = FUN_004e1e19(0xD1);
+			const char* text = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xD1);
 
 			desktop()->Text_Print(inputFont, colour, 56, y, text);
 
@@ -1457,15 +1640,15 @@ namespace NC2MainMenuGuiManager
 
 		if (currentScreen == 12)
 		{
-			std::int32_t y = signedWord(static_cast<std::uint32_t>(DAT_005694b8)) / 2 - 50;
+			std::int32_t y = signedWord(static_cast<std::uint32_t>(mStaticVars.displayHeight)) / 2 - 50;
 			const auto* colour = defaultColour();
-			const char* text = FUN_004e1e19(0xD2);
+			const char* text = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xD2);
 
 			desktop()->Text_Print(inputFont, colour, 56, y, text);
 
 			y += 16;
 			colour = defaultColour();
-			text = FUN_004e1e19(0xD3);
+			text = NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xD3);
 
 			desktop()->Text_Print(inputFont, colour, 56, y, text);
 
@@ -1479,13 +1662,13 @@ namespace NC2MainMenuGuiManager
 
 		const std::int32_t chatY = signedWord(readWord(desktop(), 0x14)) / 2 + 80;
 		const std::int32_t informationY = signedWord(readWord(desktop(), 0x14)) / 2 + 210;
-		auto* informationFont = DAT_005698f8;
+		auto* informationFont = guiResources.font08;
 
 		const auto drawTransferProgress = [&] (bool userMap)
 		{
-			std::int32_t y = signedWord(static_cast<std::uint32_t>(DAT_005694b8)) / 2 - 70;
+			std::int32_t y = signedWord(static_cast<std::uint32_t>(mStaticVars.displayHeight)) / 2 - 70;
 			NXBasics::CBitmap* bitmap = desktop();
-			auto* font = DAT_005698f8;
+			auto* font = guiResources.font08;
 
 			if (NNetwork::Network_IsHost())
 			{
@@ -1506,7 +1689,7 @@ namespace NC2MainMenuGuiManager
 					for (std::uint32_t index = 0; index < count; ++index)
 					{
 						char text[100];
-						std::strcpy(text, FUN_004e1e19(0xC9));
+						std::strcpy(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC9));
 
 						const auto& transfer = transfers[index];
 						const char* playerName = FUN_004d7d56(this, transfer.peerId);
@@ -1523,17 +1706,17 @@ namespace NC2MainMenuGuiManager
 
 						if (transfer.state == 1)
 						{
-							NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCC), playerName);
+							NXBasics::Runtime_PrintString(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xCC), playerName);
 						}
 						else if (transfer.state == 13)
 						{
 							const std::uint32_t remaining = estimatedTotal - elapsed;
 
-							NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCA), playerName, percent, transferred >> 10, size >> 10, elapsed / 60u, elapsed % 60u, remaining / 60u, remaining % 60u);
+							NXBasics::Runtime_PrintString(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xCA), playerName, percent, transferred >> 10, size >> 10, elapsed / 60u, elapsed % 60u, remaining / 60u, remaining % 60u);
 						}
 						else if (transfer.state == 14)
 						{
-							NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCB), playerName);
+							NXBasics::Runtime_PrintString(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xCB), playerName);
 						}
 
 						drawText(bitmap, font, 56, y, text);
@@ -1562,7 +1745,7 @@ namespace NC2MainMenuGuiManager
 			else
 			{
 				char text[100];
-				std::strcpy(text, FUN_004e1e19(0xCD));
+				std::strcpy(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xCD));
 
 				const std::size_t receivingFlag = userMap ? 5 : 2;
 				const std::size_t finishedFlag = userMap ? 6 : 3;
@@ -1575,7 +1758,7 @@ namespace NC2MainMenuGuiManager
 					{
 						if (info->fileSize == 0)
 						{
-							std::strcpy(text, FUN_004e1e19(0xCE));
+							std::strcpy(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xCE));
 						}
 						else
 						{
@@ -1588,13 +1771,13 @@ namespace NC2MainMenuGuiManager
 
 							const std::uint32_t remaining = estimatedTotal - elapsed;
 
-							NXBasics::Runtime_PrintString(text, FUN_004e1e19(0xCF), percent, info->transferredBytes >> 10, info->fileSize >> 10, elapsed / 60u, elapsed % 60u, remaining / 60u, remaining % 60u);
+							NXBasics::Runtime_PrintString(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xCF), percent, info->transferredBytes >> 10, info->fileSize >> 10, elapsed / 60u, elapsed % 60u, remaining / 60u, remaining % 60u);
 						}
 					}
 				}
 
 				if (transferFlags[finishedFlag] != 0)
-					std::strcpy(text, FUN_004e1e19(0xD0));
+					std::strcpy(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xD0));
 
 				drawText(bitmap, font, 56, y, text);
 			}
@@ -1625,7 +1808,7 @@ namespace NC2MainMenuGuiManager
 				if (statusText[0] != '\0')
 					std::strcat(statusText, ", ");
 
-				std::strcat(statusText, FUN_004e1e19(textId));
+				std::strcat(statusText, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(textId));
 			};
 
 			appendStatus(1, 0xD6);
@@ -1634,15 +1817,15 @@ namespace NC2MainMenuGuiManager
 			appendStatus(2, 0xD9);
 
 			if (statusText[0] == '\0')
-				std::strcat(statusText, FUN_004e1e19(0xDA));
+				std::strcat(statusText, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xDA));
 
-			drawFormatted(&informationBitmap, informationFont, 4, 2, "%s: <%s>", FUN_004e1e19(0xBB), statusText);
+			drawFormatted(&informationBitmap, informationFont, 4, 2, "%s: <%s>", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xBB), statusText);
 
 			std::uint32_t y = 14;
 
 			for (std::uint32_t index = 0; index < errorCount; ++index)
 			{
-				drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s %d: <%s>", FUN_004e1e19(0xBC), index, errorTexts[index]);
+				drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s %d: <%s>", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xBC), index, errorTexts[index]);
 				y += 12;
 			}
 
@@ -1650,11 +1833,11 @@ namespace NC2MainMenuGuiManager
 			{
 				const char* sessionName = Network_GetSessionName();
 
-				drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: <%s>", FUN_004e1e19(0xBD), sessionName);
+				drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: <%s>", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xBD), sessionName);
 				y += 12;
 			}
 
-			std::strcpy(statusText, FUN_004e1e19(0xBE));
+			std::strcpy(statusText, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xBE));
 			std::strcat(statusText, ": ");
 
 			char address[32];
@@ -1688,11 +1871,11 @@ namespace NC2MainMenuGuiManager
 						char mapName[100];
 						FUN_00416b98(map, mapName);
 
-						drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", FUN_004e1e19(0xC2), mapName);
+						drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC2), mapName);
 					}
 					else
 					{
-						drawText(&informationBitmap, informationFont, 4, signedWord(y), FUN_004e1e19(0xC3));
+						drawText(&informationBitmap, informationFont, 4, signedWord(y), NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC3));
 					}
 				}
 				else
@@ -1707,17 +1890,17 @@ namespace NC2MainMenuGuiManager
 						{
 							const char* mapName = reinterpret_cast<const char*>(map) + 0x136;
 
-							drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", FUN_004e1e19(0xC4), mapName);
+							drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC4), mapName);
 						}
 						else
 						{
-							drawText(&informationBitmap, informationFont, 4, signedWord(y), FUN_004e1e19(0xC5));
+							drawText(&informationBitmap, informationFont, 4, signedWord(y), NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC5));
 						}
 					}
 					else
 					{
 						// The original passes this localized text as a format string.
-						drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), FUN_004e1e19(0xC6));
+						drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC6));
 					}
 				}
 
@@ -1729,10 +1912,10 @@ namespace NC2MainMenuGuiManager
 
 					if (mode <= 2)
 					{
-						const char* modeText = FUN_004e1ea5(0x1B + mode * 2u);
+						const char* modeText = NC2GuiToolsBase::StringTool_GetOdin001StringPtr(0x1B + mode * 2u);
 
 						if (modeText != nullptr)
-							drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", FUN_004e1ea5(0x1A), modeText);
+							drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(0x1A), modeText);
 					}
 				}
 			}
@@ -1753,13 +1936,13 @@ namespace NC2MainMenuGuiManager
 			chatBitmap.Tool_Darken();
 			NC2GuiToolsBase::DrawTool_DrawFrame(&chatBitmap, chatBitmap.GetRectangle(), 2);
 
-			auto* font = DAT_005698f8;
+			auto* font = guiResources.font08;
 
 			drawText(&chatBitmap, font, 4, 2, DAT_0050716c);
 			drawText(&chatBitmap, font, 14, 2, textInput.GetString());
 			drawCursor(font, 14, 4, 12, &chatBitmap);
 
-			font = DAT_005698f8;
+			font = guiResources.font08;
 			std::uint32_t y = 14;
 			const std::byte* recordText = unknown1070 + 8;
 
@@ -1772,9 +1955,9 @@ namespace NC2MainMenuGuiManager
 				const std::uint32_t type = index < count ? readWord(recordText - 4, 0) : 0;
 
 				if (type == 1)
-					std::memcpy(&colour, reinterpret_cast<const std::byte*>(DAT_0056990c) + 0x400, sizeof(colour));
+					std::memcpy(&colour, reinterpret_cast<const std::byte*>(guiResources.fontDimmedPalette) + 0x400, sizeof(colour));
 				else if (type == 2)
-					std::memcpy(&colour, reinterpret_cast<const std::byte*>(DAT_00569910) + 0x400, sizeof(colour));
+					std::memcpy(&colour, reinterpret_cast<const std::byte*>(guiResources.fontRedPalette) + 0x400, sizeof(colour));
 
 				const char* text = index < count ? reinterpret_cast<const char*>(recordText) : nullptr;
 

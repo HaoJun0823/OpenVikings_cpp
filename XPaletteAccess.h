@@ -1,5 +1,6 @@
 #pragma once
 
+#include "XCrtFileAccess.h"
 #include "XPixelFormatConverter.h"
 
 #include <cstddef>
@@ -219,6 +220,33 @@ namespace NXBasics
         std::uint32_t result;
         std::memcpy(&result, reinterpret_cast<const void*>(address), sizeof(result));
         return result;
+    }
+
+    // Original function: FUN_0040fd45.
+    inline void Palette_PaletteChanged(void* palette)
+    {
+        auto* paletteBytes = static_cast<std::byte*>(palette);
+
+        void* table;
+        std::memcpy(&table, paletteBytes + 0x404, sizeof(table));
+
+        if (table != nullptr)
+        {
+            Runtime_Free(table);
+
+            table = nullptr;
+            std::memcpy(paletteBytes + 0x404, &table, sizeof(table));
+        }
+
+        std::memcpy(&table, paletteBytes + 0x408, sizeof(table));
+
+        if (table != nullptr)
+        {
+            Runtime_Free(table);
+
+            table = nullptr;
+            std::memcpy(paletteBytes + 0x408, &table, sizeof(table));
+        }
     }
 
     static_assert(sizeof(void*) == 4, "These palette accesses require an x86 build");

@@ -1,21 +1,17 @@
-#include "MasterPropertyManager.h"
+#include "GuiToolsBase.h"
 #include "InGameGuiManager.h"
+#include "MasterPropertyManager.h"
 
+#include <cstddef>
 #include <cstring>
 #include <new>
 
 extern void* DAT_005690dc;
 extern std::byte DAT_005690b8[0x14];
-extern void* DAT_00569888;
-extern void* DAT_00569954;
 
 extern int __fastcall FUN_004a002d(void* object);
 extern void* __fastcall FUN_004a3eab(void* object);
-extern void* __fastcall FUN_004e1d39(void* object);
-extern void* __fastcall FUN_004e2d10(void* object);
 extern void* __fastcall FUN_004a3d47(void* object);
-extern void __stdcall FUN_004e1da1();
-extern void __stdcall FUN_004e2edf();
 
 namespace
 {
@@ -166,19 +162,8 @@ namespace NInGameGuiManager
         std::memset(mLegacyState, 0, sizeof(mLegacyState));
         std::memset(DAT_005690b8, 0, 0x14);
 
-        void* textResourceManager = ::operator new(0x01, std::nothrow);
-
-        if (textResourceManager != nullptr)
-        {
-            FUN_004e1d39(textResourceManager);
-        }
-
-        void* guiResourceManager = ::operator new(0x01, std::nothrow);
-
-        if (guiResourceManager != nullptr)
-        {
-            FUN_004e2d10(guiResourceManager);
-        }
+        new (std::nothrow) NC2GuiToolsBase::CGuiBaseStringsManager();
+        new (std::nothrow) NC2GuiToolsBase::CGuiBaseDataManager();
 
         void* guiDefinitionTable = ::operator new(0xA08, std::nothrow);
 
@@ -214,20 +199,18 @@ namespace NInGameGuiManager
             ::operator delete(guiDefinitionTable);
         }
 
-        void* guiResourceManager = DAT_00569954;
+        auto* guiResourceManager = NC2GuiToolsBase::CGuiBaseDataManager::sTheObjectPtr;
 
         if (guiResourceManager != nullptr)
         {
-            FUN_004e2edf();
-            ::operator delete(guiResourceManager);
+            delete guiResourceManager;
         }
 
-        void* textResourceManager = DAT_00569888;
+        auto* textResourceManager = NC2GuiToolsBase::CGuiBaseStringsManager::sTheObjectPtr;
 
         if (textResourceManager != nullptr)
         {
-            FUN_004e1da1();
-            ::operator delete(textResourceManager);
+            delete textResourceManager;
         }
 
         sTheObjectPtr = nullptr;

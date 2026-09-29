@@ -2,6 +2,11 @@
 #include "OriginalStrings.h"
 
 #include <cstring>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
+#include <excpt.h>
+#include <Windows.h>
 
 // Original data: 005699e0; initially empty name buffer.
 char gRuntimeTemporaryFileName[16]{};

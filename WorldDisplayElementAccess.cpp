@@ -8,6 +8,7 @@
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
 
+#include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -16,8 +17,6 @@ extern double DAT_00510848;
 extern std::uint8_t DAT_0051089d;
 extern std::uint8_t DAT_005109c5;
 extern void* DAT_005550d4;
-extern void* DAT_005698fc;
-extern void* DAT_00569908;
 
 namespace NC2InGameGuiWorldElement
 {
@@ -113,10 +112,12 @@ namespace NC2InGameGuiWorldElement
         if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 0.01))
         {
             char text[200];
-            NXBasics::Runtime_PrintString(text, "* %s *", FUN_004e1e97(20));
+            NXBasics::Runtime_PrintString(text, "* %s *", NC2GuiToolsBase::StringTool_GetUpdate103StringPtr(20));
 
-            void* font = DAT_005698fc;
-            const auto* colour = reinterpret_cast<const NXBasics::SColorRGB*>(static_cast<const std::byte*>(DAT_00569908) + 0x400);
+            const auto& guiResources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+
+            auto* font = guiResources.font10;
+            const auto* colour = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(guiResources.fontWhitePalette) + 0x400);
 
             const std::int32_t halfHeight = bitmap->GetRectangle().height / 2;
             const std::int32_t y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(halfHeight) + 180u);

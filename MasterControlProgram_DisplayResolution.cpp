@@ -1,6 +1,7 @@
+#include "InGameGuiManager.h"
+#include "MainMenuGuiManager.h"
 #include "MasterPropertyManager.h"
 #include "MasterControlProgram.h"
-#include "InGameGuiManager.h"
 #include "X2DApplication.h"
 
 #include <cstddef>
@@ -63,7 +64,7 @@ namespace NMasterControlProgram
         {
             std::uint32_t displayedMapPosition = 0;
 
-            auto* mainMenuGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005694dc);
+            auto* mainMenuGuiManagerBytes = reinterpret_cast<std::byte*>(NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr);
 
             auto* mainMenuDesktop = *reinterpret_cast<std::byte**>(mainMenuGuiManagerBytes + 0x04);
 
@@ -71,7 +72,7 @@ namespace NMasterControlProgram
 
             FUN_0047cf89(mainMenuDisplay, &displayedMapPosition);
 
-            FUN_004d2fdc(DAT_005694dc);
+            NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
 
             NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, applicationFlag);
 
@@ -81,9 +82,9 @@ namespace NMasterControlProgram
 
             const std::uint32_t actualDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
 
-            FUN_004d2e77(DAT_005694dc, actualWidth, actualHeight, actualDepth);
+            NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Open(actualWidth, actualHeight, actualDepth);
 
-            mainMenuGuiManagerBytes = reinterpret_cast<std::byte*>(DAT_005694dc);
+            mainMenuGuiManagerBytes = reinterpret_cast<std::byte*>(NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr);
 
             mainMenuDesktop = *reinterpret_cast<std::byte**>(mainMenuGuiManagerBytes + 0x04);
 

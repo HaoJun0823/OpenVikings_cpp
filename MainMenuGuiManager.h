@@ -7,6 +7,12 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NXBasics
+{
+    class CBobManager;
+    class CPalette;
+}
+
 namespace NNetwork
 {
     class CFileTransferManager;
@@ -16,9 +22,50 @@ namespace NC2MainMenuGuiManager
 {
     bool StartNetworkForMenu(void* guiManager);
 
+    struct SMenuGraphicResources
+    {
+        NXBasics::CBobManager* menuLogos;        // Original address: 005694c4
+        NXBasics::CBobManager* smallMenuLogos;   // Original address: 005694c8
+        NXBasics::CPalette* funaticsPalette;     // Original address: 005694cc
+        NXBasics::CPalette* campaignMapPalette;  // Original address: 005694d0
+        NXBasics::CPalette* campaignButtonsPalette; // Original address: 005694d4
+    };
+
+    struct SGuiManagerStaticVars
+    {
+        std::uint8_t displayInitialized;        // Original address: 005694b0
+        std::byte padding01[3];
+        std::int32_t displayWidth;              // Original address: 005694b4
+        std::int32_t displayHeight;             // Original address: 005694b8
+        std::uint32_t displayDepth;             // Original address: 005694bc
+        std::uint8_t desktopUpdateFlag;         // Original address: 005694c0
+        std::byte padding11[3];
+        SMenuGraphicResources resources;
+        std::byte unknown005694d8[4];
+    };
+
+    static_assert(sizeof(SMenuGraphicResources) == 0x14);
+    static_assert(offsetof(SGuiManagerStaticVars, displayHeight) == 0x08);
+    static_assert(offsetof(SGuiManagerStaticVars, desktopUpdateFlag) == 0x10);
+    static_assert(offsetof(SGuiManagerStaticVars, resources) == 0x14);
+    static_assert(offsetof(SGuiManagerStaticVars, unknown005694d8) == 0x28);
+    static_assert(sizeof(SGuiManagerStaticVars) == 0x2C);
+
     class CGuiManager
     {
     public:
+        CGuiManager();
+        ~CGuiManager();
+
+        void Desktop_Open(std::int32_t width, std::int32_t height, std::uint32_t depth);
+        void Desktop_Close();
+
+        static void ls_GraphicData_Load();
+        static void ls_GraphicData_Free();
+
+        inline static CGuiManager* sTheObjectPtr = nullptr;
+        inline static SGuiManagerStaticVars mStaticVars{};
+
         void System_UpdateGui();
         bool StringInput_HandleKeys(std::uint32_t key, char character);
         void Debug_ErrorString_Add(const char* text);
@@ -55,6 +102,9 @@ namespace NC2MainMenuGuiManager
         char errorTexts[10][0xCA];                         // +0x1988
         std::byte unknown216C[0x2C];                       // +0x216C
         NC2InGameGuiBaseTextInputElement::CStringInputHandler textInput; // +0x2198
+
+    private:
+        static bool __cdecl ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     };
 
     static_assert(sizeof(void*) == 4);
@@ -68,5 +118,6 @@ namespace NC2MainMenuGuiManager
     static_assert(offsetof(CGuiManager, lobbyData) == 0xF10);
     static_assert(offsetof(CGuiManager, errorCount) == 0x1984);
     static_assert(offsetof(CGuiManager, errorTexts) == 0x1988);
+    static_assert(offsetof(CGuiManager, unknown216C) == 0x216C);
     static_assert(offsetof(CGuiManager, textInput) == 0x2198);
 }

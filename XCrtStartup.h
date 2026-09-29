@@ -2,6 +2,12 @@
 
 #include "XCrtFileAccess.h"
 
+#include <cstdarg>
+#include <cstdint>
+#include <cstring>
+#include <excpt.h>
+#include <Windows.h>
+
 namespace NXBasics
 {
     using RuntimeApplicationEntry = int(__cdecl*)(HINSTANCE, HINSTANCE, LPSTR, int);

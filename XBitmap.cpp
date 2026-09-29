@@ -74,6 +74,12 @@ namespace NXBasics
         }
     }
 
+    // Original function: FUN_0040ee8c
+    void CBitmap::SetPalettePtr(CPalette* palette)
+    {
+        mPalette = palette;
+    }
+
     // Original function: FUN_0040c734
     void CBitmap::Storable_SaveData(void* file)
     {

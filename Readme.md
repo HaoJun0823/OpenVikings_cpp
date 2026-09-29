@@ -1034,20 +1034,6 @@ The current LOD source contains two SetLevelOfDetail definitions and no construc
 The additional InGame GUI singleton definition and the redundant external declarations of the inline DirectSound singleton must be removed.
 These findings are reconstruction issues, not additional original-bug observations. OA018 remains unchanged.
 
-### Remaining dependencies
-
-- The DirectMusic constructor and destructor must write and clear the consolidated singleton when those routines are translated.
-- Missing manager and data-table definitions require their original allocation, reset, loading, and destruction paths.
-- The GUI resource pointers belong to the static block cleared at 004e2d30. Reconstruct that block and its lifecycle together.
-- The micro-map dimensions at 005125f8 and 005125fa are separate stored copies of the dimensions at 00511570 and 00511572.
-- The complete Windows token tables at 004f4780 and 004f4a20 remain unresolved.
-- Unresolved constant/string/GUID contents must not be inferred solely from call-site usage or debugger annotations.
-- The initial-update byte at 0050aa2c and the MMX cache bytes still require initial-data verification.
-- Unresolved static storage ranges retain their address-based names until their fields and ownership are established.
-- Matrix-FX path 00498128 remains deferred.
-
-The source proposals have not been verified by a Windows build or runtime test.
-
 ## Completion rule
 
 A chapter may close with intentionally preserved, documented original defects once its required functions are resolved and correctly reconstructed. Translation errors, missing implementations and relevant integration dependencies remain separate unfinished work.
