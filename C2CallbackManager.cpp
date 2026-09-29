@@ -2,9 +2,6 @@
 
 namespace NC2Logic
 {
-    // Original data: DAT_00510a2c
-    CCallbackManager* CCallbackManager::sTheObjectPtr = nullptr;
-
     // Reference: Mac CCallbackManager::CCallbackManager()
     CCallbackManager::CCallbackManager() : mFirst{}, mLast{}
     {

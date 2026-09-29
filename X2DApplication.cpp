@@ -8,8 +8,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <ddraw.h>
 #include <new>
 #include <vector>
+#include <Windows.h>
 
 #pragma comment(lib, "Ole32.lib")
 #pragma comment(lib, "Version.lib")

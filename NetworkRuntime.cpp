@@ -41,7 +41,7 @@ std::uint32_t gProcessedPlayerChangeCount = 0;
 
 // Original data: DAT_0050aa2c.
 // Initial file-backed value still requires verification.
-extern std::uint8_t DAT_0050aa2c;
+extern std::uint8_t gDynamicNetworkInitialUpdatePending;
 
 namespace
 {
@@ -1405,7 +1405,7 @@ namespace NNetwork
         if (players == nullptr)
             return 0;
 
-        for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+        for (std::uint32_t index = 0; index < data->playerCount; ++index)
         {
             const std::byte* player = players + index * 0x98u;
 
@@ -1428,7 +1428,7 @@ namespace NNetwork
         if (players == nullptr)
             return 0;
 
-        for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+        for (std::uint32_t index = 0; index < data->playerCount; ++index)
         {
             const std::byte* player = players + index * 0x98u;
 
@@ -1536,11 +1536,11 @@ namespace NNetwork
         *messages = nullptr;
         *count = 0;
 
-        if (data->unknown2C == 0)
+        if (data->pendingDataMessageCount == 0)
             return;
 
         *messages = static_cast<SDynamicDataMessage*>(data->allocation30);
-        *count = data->unknown2C;
+        *count = data->pendingDataMessageCount;
 
         data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300u, 1);
 
@@ -1548,14 +1548,14 @@ namespace NNetwork
 
         std::memset(data->allocation30, 0, 0x10300u);
 
-        data->unknown2C = 0;
+        data->pendingDataMessageCount = 0;
     }
 
     // Original function: FUN_004dee72
     void PrepareDynamicCommandBuffers(SDynamicNetworkData* data)
     {
         std::uint32_t bufferIndex = 0;
-        std::memcpy(&bufferIndex, data->unknown70, sizeof(bufferIndex));
+        bufferIndex = data->commandBufferIndices[0];
 
         if (data->arrays[bufferIndex].slots != nullptr)
             return;
@@ -1570,20 +1570,20 @@ namespace NNetwork
         }
 
         const std::uint32_t initialIndices[3] = { 0, 1, 2 };
-        std::memcpy(data->unknown70, initialIndices, sizeof(initialIndices));
+        std::memcpy(data->commandBufferIndices, initialIndices, sizeof(initialIndices));
 
         UpdateCommandBufferPlayers(&data->arrays[0], playerIds, playerCount);
 
         for (std::uint32_t selector = 1; selector < 3; ++selector)
         {
-            std::memcpy(&bufferIndex, data->unknown70 + selector * sizeof(bufferIndex), sizeof(bufferIndex));
+            bufferIndex = data->commandBufferIndices[selector];
             UpdateCommandBufferPlayers(&data->arrays[bufferIndex], playerIds, playerCount);
         }
 
         if (playerIds != nullptr)
             NXBasics::Runtime_Free(playerIds);
 
-        data->unknown0C = 0;
+        data->playerCount = 0;
 
         if (data->allocation10 != nullptr)
         {
@@ -1592,7 +1592,7 @@ namespace NNetwork
         }
 
         SPlayerInfo* playerInfo = nullptr;
-        const bool success = GetNetworkInstance()->GetPlayerInfo(&playerInfo, &data->unknown0C);
+        const bool success = GetNetworkInstance()->GetPlayerInfo(&playerInfo, &data->playerCount);
 
         data->allocation10 = playerInfo;
 
@@ -1604,7 +1604,7 @@ namespace NNetwork
     void UpdateDynamicCommandBuffers(SDynamicNetworkData* data)
     {
         std::uint32_t bufferIndex = 0;
-        std::memcpy(&bufferIndex, data->unknown70, sizeof(bufferIndex));
+        bufferIndex = data->commandBufferIndices[0];
 
         if (data->arrays[bufferIndex].slots == nullptr)
             return;
@@ -1627,14 +1627,14 @@ namespace NNetwork
 
         for (std::uint32_t index = 0; index < 3; ++index)
         {
-            std::memcpy(&bufferIndex, data->unknown70 + index * sizeof(bufferIndex), sizeof(bufferIndex));
+            bufferIndex = data->commandBufferIndices[index];
             UpdateCommandBufferPlayers(&data->arrays[bufferIndex], playerIds, playerCount);
         }
 
         if (playerIds != nullptr)
             NXBasics::Runtime_Free(playerIds);
 
-        data->unknown0C = 0;
+        data->playerCount = 0;
 
         if (data->allocation10 != nullptr)
         {
@@ -1643,7 +1643,7 @@ namespace NNetwork
         }
 
         SPlayerInfo* playerInfo = nullptr;
-        const bool success = GetNetworkInstance()->GetPlayerInfo(&playerInfo, &data->unknown0C);
+        const bool success = GetNetworkInstance()->GetPlayerInfo(&playerInfo, &data->playerCount);
 
         data->allocation10 = playerInfo;
 
@@ -1680,15 +1680,15 @@ namespace NNetwork
             gLastRecoveryPlayerId = 0;
             gPendingMissingPlayerId = 0;
             gProcessedPlayerChangeCount = 0;
-            DAT_0050aa2c = 1;
+            gDynamicNetworkInitialUpdatePending = 1;
             return false;
         }
 
-        if (DAT_0050aa2c != 0)
+        if (gDynamicNetworkInitialUpdatePending != 0)
         {
             WriteNetworkLog(GetNetworkLog(), "Update(): Initial call", 0);
             ClearEventQueue(&data->events);
-            DAT_0050aa2c = 0;
+            gDynamicNetworkInitialUpdatePending = 0;
         }
 
         if (gDynamicNetworkUpdateStopped != 0)
@@ -1735,7 +1735,7 @@ namespace NNetwork
 
                 const auto* players = static_cast<const std::byte*>(data->allocation10);
 
-                for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+                for (std::uint32_t index = 0; index < data->playerCount; ++index)
                 {
                     DPNID existingPlayerId;
                     std::memcpy(&existingPlayerId, players + index * 0x98u, sizeof(existingPlayerId));
@@ -1761,7 +1761,7 @@ namespace NNetwork
     // Extracted type-4 receive branch: 004df77a through 004df80a.
     void StoreDynamicDataMessage(SDynamicNetworkData* data, const SReceivedMessage& received)
     {
-        if (data->unknown2C >= 64u)
+        if (data->pendingDataMessageCount >= 64u)
         {
             WriteNetworkLog(GetNetworkLog(), "Update(): Data message buffer overflow - message ignored", 0);
             ReportDirectPlayError("CDPLogic::Update(): Data message buffer overflow. Message ignored.\n", 0);
@@ -1777,7 +1777,7 @@ namespace NNetwork
         std::memcpy(&expectedChecksum, packet + 8, sizeof(expectedChecksum));
 
         auto* messages = static_cast<SDynamicDataMessage*>(data->allocation30);
-        SDynamicDataMessage& message = messages[data->unknown2C];
+        SDynamicDataMessage& message = messages[data->pendingDataMessageCount];
 
         message.sender = received.sender;
         message.payloadSize = payloadSize;
@@ -1789,7 +1789,7 @@ namespace NNetwork
 
         message.checksumMismatch = checksum != expectedChecksum ? 1u : 0u;
 
-        ++data->unknown2C;
+        ++data->pendingDataMessageCount;
     }
 
     // Original function: FUN_004df240
@@ -1809,7 +1809,7 @@ namespace NNetwork
 
         const auto getBuffer = [&] (std::uint32_t selector) -> SDynamicSlotArray*
         {
-            const std::uint32_t index = readDword(data->unknown70 + selector * 4u);
+            const std::uint32_t index = data->commandBufferIndices[selector];
             return &data->arrays[index];
         };
 
@@ -1916,7 +1916,7 @@ namespace NNetwork
                             {
                                 SDynamicSlotArray* candidate = getBuffer(selector);
 
-                                if (candidate->unknown0C == tick)
+                                if (candidate->networkTick == tick)
                                 {
                                     buffer = candidate;
                                     break;
@@ -1960,7 +1960,7 @@ namespace NNetwork
                             {
                                 SDynamicSlotArray* candidate = getBuffer(selector);
 
-                                if (candidate->unknown0C == tick)
+                                if (candidate->networkTick == tick)
                                 {
                                     buffer = candidate;
                                     break;
@@ -2001,7 +2001,7 @@ namespace NNetwork
                                 break;
                             }
 
-                            reply.tick = buffer->unknown0C;
+                            reply.tick = buffer->networkTick;
                             reply.length = GetCommandMessageLength(buffer, requestedPlayer);
 
                             CopyCommandMessageData(buffer, requestedPlayer, reply.payload, reply.length);
@@ -2014,7 +2014,7 @@ namespace NNetwork
                             }
 
                             char text[256] = {};
-                            const std::uint32_t replyTick = buffer->unknown0C;
+                            const std::uint32_t replyTick = buffer->networkTick;
                             const auto checksum = NCRC16::Calculate(reply.payload, reply.length);
                             const auto length = GetCommandMessageLength(buffer, requestedPlayer);
 
@@ -2047,7 +2047,7 @@ namespace NNetwork
             if (players == nullptr)
                 return;
 
-            for (std::uint32_t index = 0; index < data->unknown0C; ++index)
+            for (std::uint32_t index = 0; index < data->playerCount; ++index)
             {
                 const std::byte* player = players + index * 0x98u;
                 const bool matches = localPlayer ? player[0x85] != std::byte{ 0 } : readDword(player) == playerId;
@@ -2071,11 +2071,11 @@ namespace NNetwork
                 return true;
             }
 
-            if (data->unknown08 == 0)
+            if (data->waitStartTick == 0)
                 return true;
 
-            const std::uint32_t elapsed = ::timeGetTime() - data->unknown08;
-            const std::uint32_t timeout = data->unknown04 > 1u ? 9000u : 90000u;
+            const std::uint32_t elapsed = ::timeGetTime() - data->waitStartTick;
+            const std::uint32_t timeout = data->networkTick > 1u ? 9000u : 90000u;
 
             if (elapsed >= timeout)
             {
@@ -2162,7 +2162,7 @@ namespace NNetwork
             }
 
             // The original reads the clock again for the recovery threshold.
-            if (::timeGetTime() - data->unknown08 < 4500u)
+            if (::timeGetTime() - data->waitStartTick < 4500u)
                 return true;
 
             const DPNID missingPlayerId = GetFirstMissingCommandPlayerId(getBuffer(0));
@@ -2208,7 +2208,7 @@ namespace NNetwork
                 std::strcpy(name, "unknown");
             }
 
-            NXBasics::Runtime_PrintString(text, "Update(): Missing player is %s (0x%x), network tick %u", name, missingPlayerId, data->unknown04);
+            NXBasics::Runtime_PrintString(text, "Update(): Missing player is %s (0x%x), network tick %u", name, missingPlayerId, data->networkTick);
 
             log(text);
             log("Trying to recover lost message...");
@@ -2240,7 +2240,7 @@ namespace NNetwork
             request.requester = 0;
 
             request.requester = GetDynamicNetworkLocalPlayerId(data);
-            request.tick = data->unknown04;
+            request.tick = data->networkTick;
 
             if (!network->SendPacket(missingPlayerId, &request))
             {
@@ -2529,7 +2529,7 @@ namespace NNetwork
         CoCreateGuid(reinterpret_cast<GUID*>(node->transferId));
 
         node->state = 0;
-        node->unknown1C = timeGetTime();
+        node->startTick = timeGetTime();
         node->peerId = GetNetworkInstance()->GetLocalPlayerId();
         node->fileName = NXBasics::Runtime_DuplicateString(fileName);
 
@@ -2985,7 +2985,7 @@ namespace NNetwork
 
             ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\cmdbuffer.cpp", 0xA5, buffer->slots != nullptr, "Memory allocation failed.");
 
-            buffer->unknown0C = 0;
+            buffer->networkTick = 0;
             ++buffer->unknown00;
             buffer->count = playerCount;
 
@@ -2993,7 +2993,7 @@ namespace NNetwork
             {
                 SDynamicSlot& slot = buffer->slots[index];
 
-                slot.unknown00 = playerIds[index];
+                slot.playerId = playerIds[index];
                 slot.used = 0;
 
                 std::memset(slot.data, 0, sizeof(slot.data));
@@ -3011,7 +3011,7 @@ namespace NNetwork
 
             for (std::uint32_t playerIndex = 0; playerIndex < playerCount; ++playerIndex)
             {
-                if (slot.unknown00 == playerIds[playerIndex])
+                if (slot.playerId == playerIds[playerIndex])
                 {
                     playerStillPresent = true;
                     break;
@@ -3020,7 +3020,7 @@ namespace NNetwork
 
             if (!playerStillPresent)
             {
-                slot.unknown00 = 0xFFFFFFFFu;
+                slot.playerId = 0xFFFFFFFFu;
                 slot.used = 0;
 
                 std::memset(slot.data, 0, sizeof(slot.data));
@@ -3038,7 +3038,7 @@ namespace NNetwork
         {
             const SDynamicSlot& slot = buffer->slots[index];
 
-            if (slot.used == 0 && slot.unknown00 != 0xFFFFFFFFu)
+            if (slot.used == 0 && slot.playerId != 0xFFFFFFFFu)
                 return false;
         }
 
@@ -3053,7 +3053,7 @@ namespace NNetwork
 
         for (std::uint32_t index = 0; index < buffer->count; ++index)
         {
-            if (buffer->slots[index].unknown00 == playerId)
+            if (buffer->slots[index].playerId == playerId)
                 return index;
         }
 
@@ -3070,8 +3070,8 @@ namespace NNetwork
         {
             const SDynamicSlot& slot = buffer->slots[index];
 
-            if (slot.unknown00 != 0xFFFFFFFFu && slot.used == 0)
-                return slot.unknown00;
+            if (slot.playerId != 0xFFFFFFFFu && slot.used == 0)
+                return slot.playerId;
         }
 
         return 0;

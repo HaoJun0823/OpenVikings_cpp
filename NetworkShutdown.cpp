@@ -916,19 +916,19 @@ namespace NNetwork
 
             array.revision = 0;
             array.unknown00 = 0;
-            array.unknown0C = 0;
+            array.networkTick = 0;
             array.count = 0;
             array.slots = nullptr;
         }
 
         data->active = 0;
-        data->unknown04 = 0;
+        data->networkTick = 0;
         data->allocation10 = nullptr;
         data->allocation28 = nullptr;
         data->receivedRecordCount = 0;
-        data->unknown2C = 0;
+        data->pendingDataMessageCount = 0;
         data->allocation30 = nullptr;
-        data->unknown08 = 0;
+        data->waitStartTick = 0;
         data->unknown7C = 0;
 
         // Original allocation: FUN_004e5ddd -> FUN_004e860e(size, 1).

@@ -9193,8 +9193,6 @@ namespace NXBasics
             result->buffer = nullptr;
             result->position = nullptr;
             result->temporaryFileName = nullptr;
-
-            // bufferSize and unknown14 remain untouched.
         }
 
         Runtime_Unlock(2);
@@ -9284,7 +9282,7 @@ namespace NXBasics
 
         if (cachedBuffer == nullptr)
         {
-            stream->buffer = reinterpret_cast<char*>(stream->unknown14);
+            stream->buffer = reinterpret_cast<char*>(stream->fallbackBuffer);
             stream->position = stream->buffer;
             stream->bufferSize = 2;
             stream->remainingBytes = 2;
@@ -9667,7 +9665,7 @@ namespace NXBasics
         else
         {
             stream->flags |= 0x04u;
-            stream->buffer = reinterpret_cast<char*>(stream->unknown14);
+            stream->buffer = reinterpret_cast<char*>(stream->fallbackBuffer);
             stream->bufferSize = 2;
         }
 

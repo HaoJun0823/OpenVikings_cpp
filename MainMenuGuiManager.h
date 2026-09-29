@@ -85,23 +85,23 @@ namespace NC2MainMenuGuiManager
         void l_Network_Draw();
 
         // Unresolved fields retain their original address spans.
-        std::int32_t currentScreen;                         // +0x0000
-        std::byte unknown0004[0x51C];                       // +0x0004
-        std::byte sessionSearchData[0x66];                  // +0x0520
-        std::byte unknown0586[0x962];                       // +0x0586
-        std::uint32_t lobbyValue;                          // +0x0EE8
-        std::uint8_t transferFlags[8];                     // +0x0EEC
-        NNetwork::CFileTransferManager* fileTransferManager; // +0x0EF4
-        GUID transferId;                                  // +0x0EF8
-        DWORD transferStartTick;                          // +0x0F08
-        std::uint8_t transferIsHost;                       // +0x0F0C
-        std::byte padding0F0D[3];                          // +0x0F0D
-        std::byte lobbyData[0x160];                        // +0x0F10
-        std::byte unknown1070[0x914];                      // +0x1070
-        std::uint32_t errorCount;                          // +0x1984
-        char errorTexts[10][0xCA];                         // +0x1988
-        std::byte unknown216C[0x2C];                       // +0x216C
-        NC2InGameGuiBaseTextInputElement::CStringInputHandler textInput; // +0x2198
+        std::int32_t currentScreen;                                         // +0x0000
+        std::byte unknown0004[0x51C];                                       // +0x0004
+        std::byte sessionSearchData[0x66];                                  // +0x0520
+        std::byte unknown0586[0x962];                                       // +0x0586
+        std::uint32_t lobbyValue;                                           // +0x0EE8
+        std::uint8_t transferFlags[8];                                      // +0x0EEC
+        NNetwork::CFileTransferManager* fileTransferManager;                // +0x0EF4
+        GUID transferId;                                                    // +0x0EF8
+        DWORD transferStartTick;                                            // +0x0F08
+        std::uint8_t transferIsHost;                                        // +0x0F0C
+        std::byte padding0F0D[3];                                           // +0x0F0D
+        std::byte lobbyData[0x160];                                         // +0x0F10
+        std::byte chatHistoryStorage[0x914];                                // +0x1070; count followed by 20 records of 0x74 bytes.
+        std::uint32_t errorCount;                                           // +0x1984
+        char errorTexts[10][0xCA];                                          // +0x1988
+        std::byte unknown216C[0x2C];                                        // +0x216C
+        NC2InGameGuiBaseTextInputElement::CStringInputHandler textInput;    // +0x2198
 
     private:
         static bool __cdecl ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);

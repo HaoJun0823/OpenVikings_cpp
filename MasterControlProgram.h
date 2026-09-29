@@ -126,7 +126,7 @@ namespace NMasterControlProgram
         // Original function: FUN_004027c7
         void System_ProgramState_TitleScreen_Update();
 
-        static CMasterControlProgram* sTheObjectPtr;
+        inline static CMasterControlProgram* sTheObjectPtr = nullptr;
 
     private:
         std::int32_t mProgramState;        // +0x00

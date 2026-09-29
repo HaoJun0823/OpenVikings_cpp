@@ -15,26 +15,19 @@
 
 struct SReceivedNetworkRecord
 {
-    std::byte unknown00[4];
-    std::uint16_t type;
-    wchar_t text[0x7F];
+    std::uint32_t senderPlayerId; // +0x000
+    std::uint16_t type;           // +0x004
+    wchar_t text[0x7F];           // +0x006
 };
 
 static_assert(sizeof(wchar_t) == 2);
 static_assert(offsetof(SReceivedNetworkRecord, text) == 0x06);
 static_assert(sizeof(SReceivedNetworkRecord) == 0x104);
 
-struct SQueuedNetworkMessage
-{
-    std::uint32_t playerId;
-    wchar_t playerName[256];
-    std::uint32_t unknown204;
-    std::uint32_t type;
-    SQueuedNetworkMessage* next;
-};
+using SQueuedNetworkMessage = NNetwork::SEventNode;
 
 static_assert(sizeof(SQueuedNetworkMessage) == 0x210);
-static_assert(offsetof(SQueuedNetworkMessage, type) == 0x208);
+static_assert(offsetof(SQueuedNetworkMessage, eventType) == 0x208);
 static_assert(offsetof(SQueuedNetworkMessage, next) == 0x20C);
 
 std::uint32_t GetNetworkMessageStringId(std::uint32_t messageType)
@@ -232,7 +225,7 @@ namespace NMasterControlProgram
 
         while (currentMessage != nullptr)
         {
-            switch (currentMessage->type)
+            switch (currentMessage->eventType)
             {
             case 1:
                 System_ProgramState_ChangeNextTimePossible(TProgramState::MainMenu, false);
@@ -278,7 +271,7 @@ namespace NMasterControlProgram
             }
 
             char outputText[328]{};
-            const std::uint32_t stringId = GetNetworkMessageStringId(currentMessage->type);
+            const std::uint32_t stringId = GetNetworkMessageStringId(currentMessage->eventType);
 
             if (stringId != 0)
             {
@@ -288,7 +281,7 @@ namespace NMasterControlProgram
             else
             {
                 char networkEventText[200]{};
-                FUN_004db635(currentMessage, networkEventText, sizeof(networkEventText));
+                FUN_004db635(reinterpret_cast<NNetwork::SEventQueue*>(messageCollection), currentMessage, networkEventText, sizeof(networkEventText));
                 NXBasics::Runtime_PrintString(outputText, ">> NET: '%s'", networkEventText);
             }
 
@@ -298,7 +291,7 @@ namespace NMasterControlProgram
             }
 
             char diagnosticText[200]{};
-            FUN_004db635(currentMessage, diagnosticText, sizeof(diagnosticText));
+            FUN_004db635(reinterpret_cast<NNetwork::SEventQueue*>(messageCollection), currentMessage, diagnosticText, sizeof(diagnosticText));
 
             currentMessage = currentMessage->next;
         }

@@ -29,7 +29,7 @@ namespace NC2E2
 
         std::uint32_t staticSoundCount;
         void* staticSounds;
-        std::uint32_t unknown008[120];
+        std::uint32_t staticSoundIdsByType[120];        // +0x008; 0xFFFFFFFF means unassigned.
         std::uint32_t jingleCount;
         SJingleSoundData* jingles;
         std::uint32_t ambientSoundCount;
@@ -46,7 +46,7 @@ namespace NC2E2
     static_assert(sizeof(void*) == 4, "Static sound data requires an x86 build");
     static_assert(sizeof(CE2StaticDataSoundFXManager) == 0x518);
     static_assert(offsetof(CE2StaticDataSoundFXManager, staticSounds) == 0x04);
-    static_assert(offsetof(CE2StaticDataSoundFXManager, unknown008) == 0x08);
+    static_assert(offsetof(CE2StaticDataSoundFXManager, staticSoundIdsByType) == 0x08);
     static_assert(offsetof(CE2StaticDataSoundFXManager, jingleCount) == 0x1E8);
     static_assert(offsetof(CE2StaticDataSoundFXManager, jingles) == 0x1EC);
     static_assert(offsetof(CE2StaticDataSoundFXManager, ambientSoundCount) == 0x1F0);

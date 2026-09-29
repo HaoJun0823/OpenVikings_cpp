@@ -14,6 +14,9 @@ namespace NC2E2
         void UnregisterDisplayObject(void* display);
         void InformThatStaticMapChanged();
 
+        // Original global: 00555114.
+        inline static C2DEngineDisplayManager* sTheObjectPtr = nullptr;
+
     protected:
         void DestroyValue(void* value) override;
 

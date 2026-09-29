@@ -9,8 +9,6 @@
 
 namespace NXSysKeyManager
 {
-    CKeyManager* CKeyManager::sTheObjectPtr = nullptr;
-
     // Original function: FUN_00439da8
     void* CKeyEntryListBase::Remove(void* value)
     {

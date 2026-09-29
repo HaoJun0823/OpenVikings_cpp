@@ -13,9 +13,16 @@
 
 extern void* DAT_00568a50;
 extern void* DAT_00568aec;
-extern const std::byte DAT_004f4a20[];
-extern const void* DAT_00568a20;
-extern std::uint8_t DAT_00568a24;
+
+
+// Original data: DAT_004f4a20.
+extern const NXBasics::SToken gSoundFxTokens[];
+
+// Original data: DAT_00568a20.
+extern const NXBasics::SToken* gSoundFxTokenTable;
+
+// Original data: DAT_00568a24.
+extern std::uint8_t gSoundFxTokenInitFlags;
 
 namespace NC2E2
 {
@@ -24,7 +31,7 @@ namespace NC2E2
     // Original functions: FUN_0042b679, FUN_0042b689
     std::uint32_t CE2StaticDataSoundFXManager::l_GetSoundCommand(const char* name)
     {
-        NXBasics::CTokenList tokens(static_cast<const NXBasics::SToken*>(DAT_00568a20));
+        NXBasics::CTokenList tokens(gSoundFxTokenTable);
         return tokens.FindToken(name);
     }
 
@@ -41,7 +48,7 @@ namespace NC2E2
         for (std::uint32_t& value : landscapeGroupAmbientIds)
             value = 0xFFFFFFFFu;
 
-        for (std::uint32_t& value : unknown008)
+        for (std::uint32_t& value : staticSoundIdsByType)
             value = 0xFFFFFFFFu;
 
         if (NDSManager::CManager::sTheObjectPtr != nullptr)
@@ -86,12 +93,10 @@ namespace NC2E2
         if (!reader.IsLoaded())
             return;
 
-        if ((DAT_00568a24 & 1u) == 0)
+        if ((gSoundFxTokenInitFlags & 1u) == 0)
         {
-            DAT_00568a24 |= 1u;
-
-            // Original constructor 0042b66e stores only the table pointer.
-            DAT_00568a20 = DAT_004f4a20;
+            gSoundFxTokenInitFlags |= 1u;
+            gSoundFxTokenTable = gSoundFxTokens;
             NXBasics::Runtime_AtExit(DestroySoundTokenList);
         }
 
@@ -136,6 +141,8 @@ namespace NC2E2
                             {
                                 const std::uint32_t recordIndex = staticSoundCount - 1u;
                                 const std::uint32_t type = static_cast<std::uint32_t>(reader.GetInt());
+
+                                // Writes staticSoundIdsByType using the original unchecked byte offset.
                                 writeWord(addressAt(this, 0x08u + type * 4u), recordIndex);
                                 break;
                             }

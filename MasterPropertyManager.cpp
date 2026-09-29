@@ -16,9 +16,6 @@
 
 namespace NMasterPropertyManager
 {
-    // Original global: DAT_005697ec
-    CPropertyManager* CPropertyManager::sTheObjectPtr = nullptr;
-
     // List construction within FUN_004e1408.
     CPropertyManager::SObjectVars::SObjectVars(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
     {}

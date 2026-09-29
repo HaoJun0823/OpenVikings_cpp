@@ -11,6 +11,4 @@ namespace NC2E2
     bool DisplaySearchObject_Validate(void* searchObject);
 
     class C2DEngineDisplayManager;
-
-    inline C2DEngineDisplayManager* gDisplayManager = nullptr;
 }

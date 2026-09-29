@@ -13,8 +13,6 @@
 
 namespace NXSysMouseManager
 {
-    CMouseManager* CMouseManager::sTheObjectPtr = nullptr;
-
     // Original function: FUN_004792ec
     CMouseManager::CMouseManager()
     {

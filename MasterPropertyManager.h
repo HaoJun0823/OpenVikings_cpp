@@ -55,7 +55,7 @@ namespace NMasterPropertyManager
 		void Options_Save_InGame();
 
 		// Original global: DAT_005697ec
-		static CPropertyManager* sTheObjectPtr;
+		inline static CPropertyManager* sTheObjectPtr = nullptr;
 
 	private:
 		// Internal specialization of the shared list implementation.

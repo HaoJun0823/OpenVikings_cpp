@@ -30,8 +30,6 @@ namespace NC2LogicExternals
 
 namespace NMasterControlProgram
 {
-    CMasterControlProgram* CMasterControlProgram::sTheObjectPtr = nullptr;
-
     // Original function: FUN_00401000
     CMasterControlProgram::CMasterControlProgram(HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand)
     {

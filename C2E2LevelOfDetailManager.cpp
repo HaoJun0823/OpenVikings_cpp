@@ -81,7 +81,7 @@ namespace NC2E2
             return;
         }
 
-        C2DEngineDisplayManager* displayManager = gDisplayManager;
+        C2DEngineDisplayManager* displayManager = C2DEngineDisplayManager::sTheObjectPtr;
         sLevelOfDetail = levelOfDetail;
 
         displayManager->InformThatStaticMapChanged();

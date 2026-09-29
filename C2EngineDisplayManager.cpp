@@ -15,7 +15,7 @@ namespace NC2E2
     // Original function: FUN_004811ae
     C2DEngineDisplayManager::C2DEngineDisplayManager() : CKeyEntryListBase(0), mActiveDisplay(nullptr)
     {
-        gDisplayManager = this;
+        sTheObjectPtr = this;
 
         // Preserve the initialized data fields without overwriting the C++ vtable pointer.
         mCount = 0;
@@ -31,7 +31,7 @@ namespace NC2E2
     // Original function: FUN_004811e3; list teardown: FUN_004813e8.
     C2DEngineDisplayManager::~C2DEngineDisplayManager()
     {
-        gDisplayManager = nullptr;
+        sTheObjectPtr = nullptr;
 
         if (mDestroyValues != 0)
         {

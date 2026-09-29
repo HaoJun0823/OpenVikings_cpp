@@ -4,6 +4,7 @@
 #include "dplay8.h"
 #include "dpaddr.h"
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 
@@ -12,7 +13,7 @@ namespace NNetwork
     struct SEventNode
     {
         DPNID playerId;                           // +0x000
-        wchar_t playerName[0x100];                 // +0x004
+        wchar_t playerName[0x100];                // +0x004
         std::uint32_t timestamp;                  // +0x204
         std::uint32_t eventType;                  // +0x208
         SEventNode* next;                         // +0x20C
@@ -96,7 +97,7 @@ namespace NNetwork
 
     struct SDynamicSlot
     {
-        std::uint32_t unknown00;                   // +0x00
+        std::uint32_t playerId;                    // +0x00
         std::uint8_t used;                         // +0x04: message length; zero means missing
         std::byte data[200];                       // +0x05
         std::byte unknownCD[3];
@@ -107,7 +108,7 @@ namespace NNetwork
         std::uint32_t unknown00;                   // +0x00
         std::uint32_t revision;                    // +0x04
         std::uint32_t count;                       // +0x08
-        std::uint32_t unknown0C;                   // +0x0C
+        std::uint32_t networkTick;                 // +0x0C
         SDynamicSlot* slots;                       // +0x10
     };
 
@@ -130,19 +131,24 @@ namespace NNetwork
     {
         std::uint8_t active;                       // +0x00
         std::byte unknown01[3];
-        std::uint32_t unknown04;                   // +0x04
-        std::uint32_t unknown08;                   // +0x08
-        DWORD unknown0C;                   // +0x0C
-        void* allocation10;                       // +0x10
+        std::uint32_t networkTick;                 // +0x04
+        std::uint32_t waitStartTick;               // +0x08; timeGetTime-based timeout reference.
+        DWORD playerCount;                         // +0x0C
+        void* allocation10;                        // +0x10
         SEventQueue events;                        // +0x14
         std::uint32_t receivedRecordCount;         // +0x24
-        void* allocation28;                       // +0x28
-        std::uint32_t unknown2C;                   // +0x2C
-        void* allocation30;                       // +0x30
+        void* allocation28;                        // +0x28
+        std::uint32_t pendingDataMessageCount;     // +0x2C
+        void* allocation30;                        // +0x30
         SDynamicSlotArray arrays[3];               // +0x34, +0x48, +0x5C
-        std::byte unknown70[0x0C];
+        std::uint32_t commandBufferIndices[3];     // +0x70
         std::uint32_t unknown7C;                   // +0x7C
     };
+
+    static_assert(sizeof(SDynamicNetworkData) == 0x80);
+    static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
+    static_assert(offsetof(SDynamicNetworkData, commandBufferIndices) == 0x70);
+    static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
 
     SEventQueue* AppendEventQueueCopy(SEventQueue* destination, const SEventQueue* source);
 
@@ -210,10 +216,6 @@ namespace NNetwork
     std::uint8_t GetCommandMessageLength(const SDynamicSlotArray* buffer, DPNID playerId);
 
     bool CopyCommandMessageData(const SDynamicSlotArray* buffer, DPNID playerId, void* destination, std::uint32_t destinationSize);
-
-    static_assert(sizeof(SDynamicNetworkData) == 0x80);
-    static_assert(offsetof(SDynamicNetworkData, receivedRecordCount) == 0x24);
-    static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
 
     // Reconstructed player record populated by FUN_004dd0de.
     struct SPlayerInfo

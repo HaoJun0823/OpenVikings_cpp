@@ -814,28 +814,28 @@ namespace NC2MainMenuGuiManager
 	void CGuiManager::Chat_AddText(std::uint32_t type, const char* text)
 	{
 		std::uint32_t count;
-		std::memcpy(&count, unknown1070, sizeof(count));
+		std::memcpy(&count, chatHistoryStorage, sizeof(count));
 
 		if (count != 0)
 		{
 			const std::uint32_t movedCount = count == 20u ? 19u : count;
 
-			std::memmove(unknown1070 + 4 + 0x74, unknown1070 + 4, movedCount * 0x74u);
+			std::memmove(chatHistoryStorage + 4 + 0x74, chatHistoryStorage + 4, movedCount * 0x74u);
 		}
 
 		// Each record contains a four-byte type followed by its text storage.
-		std::memset(unknown1070 + 4, 0, 0x74);
-		std::strncpy(reinterpret_cast<char*>(unknown1070 + 8), text, 0x6D);
+		std::memset(chatHistoryStorage + 4, 0, 0x74);
+		std::strncpy(reinterpret_cast<char*>(chatHistoryStorage + 8), text, 0x6D);
 
-		std::memcpy(unknown1070 + 4, &type, sizeof(type));
+		std::memcpy(chatHistoryStorage + 4, &type, sizeof(type));
 
 		// Reload the count after inserting the record, as the original does.
-		std::memcpy(&count, unknown1070, sizeof(count));
+		std::memcpy(&count, chatHistoryStorage, sizeof(count));
 
 		if (count != 20u)
 		{
 			++count;
-			std::memcpy(unknown1070, &count, sizeof(count));
+			std::memcpy(chatHistoryStorage, &count, sizeof(count));
 		}
 	}
 
@@ -1944,14 +1944,14 @@ namespace NC2MainMenuGuiManager
 
 			font = guiResources.font08;
 			std::uint32_t y = 14;
-			const std::byte* recordText = unknown1070 + 8;
+			const std::byte* recordText = chatHistoryStorage + 8;
 
-			for (std::uint32_t index = 0; index < readWord(unknown1070, 0); ++index)
+			for (std::uint32_t index = 0; index < readWord(chatHistoryStorage, 0); ++index)
 			{
 				NXBasics::SColorRGB colour(0, 0, 0);
 				std::memcpy(&colour, defaultColour(), sizeof(colour));
 
-				const std::uint32_t count = readWord(unknown1070, 0);
+				const std::uint32_t count = readWord(chatHistoryStorage, 0);
 				const std::uint32_t type = index < count ? readWord(recordText - 4, 0) : 0;
 
 				if (type == 1)

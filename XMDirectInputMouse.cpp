@@ -10,8 +10,6 @@
 
 namespace NXSysMouseManager
 {
-    CDirectInputMouse* CDirectInputMouse::sTheObjectPtr = nullptr;
-
     bool CDirectInputMouse::IsInitialised() const
     {
         return mInitialised;

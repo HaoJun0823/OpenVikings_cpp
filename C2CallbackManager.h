@@ -12,7 +12,7 @@ namespace NC2Logic
     class CCallbackManager
     {
     public:
-        static CCallbackManager* sTheObjectPtr;
+        inline static CCallbackManager* sTheObjectPtr = nullptr;
 
         CCallbackManager();
         ~CCallbackManager();

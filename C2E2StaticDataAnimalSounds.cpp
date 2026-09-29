@@ -7,9 +7,9 @@
 
 #include <cstring>
 
-extern const NXBasics::SToken DAT_004f4780[];
-extern std::uint8_t DAT_00568568;
-extern const NXBasics::SToken* DAT_0056856c;
+extern const NXBasics::SToken gAnimalSoundTokens[];
+extern std::uint8_t gAnimalSoundTokenInitFlags;
+extern const NXBasics::SToken* gAnimalSoundTokenTable;
 
 namespace NC2E2
 {
@@ -49,14 +49,14 @@ namespace NC2E2
         {
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
-                if ((DAT_00568568 & 1u) == 0)
+                if ((gAnimalSoundTokenInitFlags & 1u) == 0)
                 {
-                    DAT_00568568 |= 1u;
-                    DAT_0056856c = DAT_004f4780;
+                    gAnimalSoundTokenInitFlags |= 1u;
+                    gAnimalSoundTokenTable = gAnimalSoundTokens;
                     NXBasics::Runtime_AtExit(DestroyAnimalSoundTokenList);
                 }
 
-                NXBasics::CTokenList tokens(DAT_0056856c);
+                NXBasics::CTokenList tokens(gAnimalSoundTokenTable);
                 const std::uint32_t command = tokens.FindToken(reader.GetCurrentName());
 
                 switch (command)

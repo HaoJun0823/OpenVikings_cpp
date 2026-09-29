@@ -91,14 +91,14 @@ namespace NXBasics
 
     struct RuntimeFormatStream
     {
-        char* position;				  // +0x00
-        std::uint32_t remainingBytes; // +0x04
-        char* buffer;				  // +0x08
-        std::uint32_t flags;		  // +0x0C
-        std::uint32_t descriptor;	  // +0x10
-        std::byte unknown14[4];		  // +0x14
-        std::uint32_t bufferSize;	  // +0x18
-        char* temporaryFileName;	  // +0x1C
+        char* position;		            // +0x00
+        std::uint32_t remainingBytes;   // +0x04
+        char* buffer;			        // +0x08
+        std::uint32_t flags;	        // +0x0C
+        std::uint32_t descriptor;       // +0x10
+        std::byte fallbackBuffer[4];    // +0x14; fallback paths use the first two bytes.
+        std::uint32_t bufferSize;       // +0x18
+        char* temporaryFileName;        // +0x1C
     };
 
     struct RuntimeFloatConversionState
@@ -135,7 +135,12 @@ namespace NXBasics
 
     struct RuntimeBinaryFormat
     {
-        int maximumExponent, minimumExponent, precision, exponentBits, totalBits, bias;
+        int maximumExponent; // +0x00
+        int minimumExponent; // +0x04
+        int precision;       // +0x08
+        int exponentBits;    // +0x0C
+        int totalBits;       // +0x10
+        int bias;            // +0x14
     };
 
     using RuntimeVoidCallback = void(__cdecl*)();

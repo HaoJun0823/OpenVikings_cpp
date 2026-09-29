@@ -18,7 +18,7 @@ namespace NNetwork
         std::uint32_t state;                      // +0x10
         std::uint32_t replyCode;                  // +0x14
         std::uint32_t peerId;                     // +0x18
-        std::uint32_t unknown1C;                  // +0x1C
+        std::uint32_t startTick;                  // +0x1C
         char* fileName;                           // +0x20
         char* path24;                             // +0x24
         std::uint32_t checksum;                   // +0x28

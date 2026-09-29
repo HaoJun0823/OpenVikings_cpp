@@ -139,7 +139,7 @@ namespace NXSysKeyManager
         // Original function: FUN_00479dea
         void Init();
 
-        static CKeyManager* sTheObjectPtr;
+        inline static CKeyManager* sTheObjectPtr = nullptr;
 
     private:
         std::uint32_t mModifierFlags;  // +0x00
