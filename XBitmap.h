@@ -16,7 +16,11 @@ namespace NXBasics
     public:
         CBitmap(std::int32_t width, std::int32_t height, std::int32_t depth);
         CBitmap(CBitmap* sourceBitmap, const SRectangle& rectangle);
-        ~CBitmap() override;
+
+        // Original function: FUN_0040c6dc
+        CBitmap(void* file, std::uint32_t version);
+
+        virtual ~CBitmap();
 
         // Original function: FUN_0040ee8c
         void SetPalettePtr(CPalette* palette);
@@ -90,6 +94,8 @@ namespace NXBasics
         static void operator delete(void* allocation) noexcept;
 
     private:
+        friend class CPicture;
+
         void l_ConstructNonVirtual(const SRectangle& rectangle, std::int32_t depth);
         void l_ConstructVirtual(CBitmap* sourceBitmap, const SRectangle& rectangle);
         void l_InitObject();

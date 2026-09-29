@@ -12,6 +12,7 @@
 #include "XFontMetrics.h"
 #include "XGuiDesktop.h"
 #include "XPaletteAccess.h"
+#include "XPicture.h"
 #include "XPictureAccess.h"
 #include "XStorableIO.h"
 #include "XStringArray.h"
@@ -490,7 +491,6 @@ namespace NC2GuiToolsBase
     {
         DynamicData_Free();
 
-        NXBasics::CBitmap* desktopBitmap;
         auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 
         std::int32_t depth;
@@ -498,17 +498,13 @@ namespace NC2GuiToolsBase
 
         const auto loadBitmap = [depth] (const char* fileName, NXBasics::CBitmap*& destination)
         {
-            // Original CPicture storage: 0x0C bytes.
-            alignas(4) std::byte pictureStorage[0x0C];
-            FUN_0040bd76(pictureStorage, fileName);
+            NXBasics::CPicture picture(fileName);
 
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(sizeof(NXBasics::CBitmap)), 1);
 
             if (allocation != nullptr)
             {
-                NXBasics::CBitmap* sourceBitmap;
-                std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
-
+                NXBasics::CBitmap* sourceBitmap = picture.GetBitmap();
                 destination = ::new (allocation) NXBasics::CBitmap(sourceBitmap->GetRectangle().width, sourceBitmap->GetRectangle().height, depth);
             }
             else
@@ -517,11 +513,8 @@ namespace NC2GuiToolsBase
             }
 
             // Reload the picture's bitmap after allocation and construction.
-            NXBasics::CBitmap* sourceBitmap;
-            std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
-
+            NXBasics::CBitmap* sourceBitmap = picture.GetBitmap();
             sourceBitmap->CopyIntoBitmap(destination, 0, 0);
-            FUN_0040be7d(pictureStorage);
         };
 
         auto& dynamic = mStaticVars.dynamic;

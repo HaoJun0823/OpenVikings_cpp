@@ -33,8 +33,9 @@ namespace NXBasics
         // Original virtual slot: +0x08
         virtual void Storable_SaveData(void* file) = 0;
 
-        // Original deleting-destructor slot: +0x0C
-        virtual ~CStorable() = default;
+    protected:
+        // Derived classes add a virtual destructor only where present in the original vtable.
+        ~CStorable() = default;
     };
 
     static_assert(sizeof(void*) == 4, "CStorable requires an x86 build");

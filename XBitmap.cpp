@@ -10,8 +10,10 @@
 #include "XPixelFormatConverter.h"
 #include "XPaletteAccess.h"
 #include "XMemory.h"
+#include "XStorableIO.h"
 
 #include <cstdarg>
+#include <cstddef>
 #include <cstring>
 #include <new>
 
@@ -60,6 +62,22 @@ namespace NXBasics
     {
         l_InitObject();
         l_ConstructVirtual(sourceBitmap, rectangle);
+    }
+
+    // Original function: FUN_0040c6dc
+    CBitmap::CBitmap(void* file, std::uint32_t /*version*/) : mRectangle(0, 0, 0, 0)
+    {
+        l_InitObject();
+
+        File_Read(file, &mDepth, 0x04);
+        File_Read(file, &mRectangle, 0x10);
+
+        mMemory = XB_Storable_LoadObject(file);
+        l_SetRawMemoryPtr();
+
+        mIsVirtual = 0;
+        mRowPixelCount = static_cast<std::uint32_t>(mRectangle.width);
+        mRowByteCount = mRowPixelCount * mBytesPerPixel;
     }
 
     // Original function: FUN_0040c6bf

@@ -1,0 +1,105 @@
+#include "XBobManager.h"
+#include "XFileAccess.h"
+#include "XMemory.h"
+#include "XStorableIO.h"
+
+#include <cstring>
+#include <new>
+
+namespace NXBasics
+{
+    // Original function: FUN_00439905; deleting wrapper: FUN_004398e9.
+    CBobManager::~CBobManager()
+    {
+        if (mBobDataMemory != nullptr)
+        {
+            delete mBobDataMemory;
+            mBobDataMemory = nullptr;
+        }
+
+        if (mPackedLineDataMemory != nullptr)
+        {
+            delete mPackedLineDataMemory;
+            mPackedLineDataMemory = nullptr;
+        }
+
+        if (mLineControlMemory != nullptr)
+        {
+            delete mLineControlMemory;
+            mLineControlMemory = nullptr;
+        }
+
+        l_System_InitObject();
+    }
+
+    // Original function: FUN_0043994d
+    void CBobManager::l_System_InitObject()
+    {
+        std::memset(&mSerialized, 0, sizeof(mSerialized));
+
+        mUnknown20 = 0;
+        mBobData = nullptr;
+        mPackedLineData = nullptr;
+        mLineControlData = nullptr;
+        mBobDataMemory = nullptr;
+        mPackedLineDataMemory = nullptr;
+        mLineControlMemory = nullptr;
+
+        DAT_0051261c = nullptr;
+    }
+
+    // Original function: FUN_0043997d
+    CBobManager::CBobManager(void* file, std::uint32_t /*version*/)
+    {
+        l_System_InitObject();
+
+        File_Read(file, &mSerialized, sizeof(mSerialized));
+
+        if (mSerialized.bobCount != 0)
+        {
+            mBobDataMemory = static_cast<CMemory*>(XB_Storable_LoadObject(file));
+            mPackedLineDataMemory = static_cast<CMemory*>(XB_Storable_LoadObject(file));
+            mLineControlMemory = static_cast<CMemory*>(XB_Storable_LoadObject(file));
+        }
+
+        l_System_SetRawPointer();
+    }
+
+    // Original function: FUN_004399cf
+    void CBobManager::Storable_SaveData(void* file)
+    {
+        l_Generate_ResizePackedLineDataBuffer(mSerialized.packedLineDataSize);
+
+        File_Write(file, &mSerialized, sizeof(mSerialized));
+
+        if (mSerialized.bobCount != 0)
+        {
+            mBobDataMemory->Storable_Save(file);
+            mPackedLineDataMemory->Storable_Save(file);
+            mLineControlMemory->Storable_Save(file);
+        }
+    }
+
+    // Original function: FUN_00439a12
+    void CBobManager::l_Generate_ResizePackedLineDataBuffer(std::uint32_t size)
+    {
+        if (mPackedLineDataMemory != nullptr)
+        {
+            mPackedLineDataMemory->ChangeBufferSize(size, true, 0);
+        }
+        else
+        {
+            mPackedLineDataMemory = new (std::nothrow) CMemory(size, static_cast<std::uint8_t>(0));
+        }
+
+        l_System_SetRawPointer();
+    }
+
+    // Original function: FUN_00439a56
+    void CBobManager::l_System_SetRawPointer()
+    {
+        mBobData = mBobDataMemory != nullptr ? mBobDataMemory->mData : nullptr;
+        mPackedLineData = mPackedLineDataMemory != nullptr ? mPackedLineDataMemory->mData : nullptr;
+        mLineControlData = mLineControlMemory != nullptr ? mLineControlMemory->mData : nullptr;
+    }
+}

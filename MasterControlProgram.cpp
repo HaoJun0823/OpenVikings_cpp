@@ -11,6 +11,7 @@
 #include "XBitmap.h"
 #include "XFile.h"
 #include "XFileAccess.h"
+#include "XPicture.h"
 #include "XSystemMouseCursor.h"
 
 #include <cstddef>
@@ -404,29 +405,24 @@ namespace NMasterControlProgram
         char fileName[0x104];
         NC2Logic::LanguageTool_GetFilename(fileNamePattern, fileName, false);
 
-        // Temporary x86 object storage until the corresponding classes are implemented.
-        alignas(4) std::byte pictureStorage[0x0C];
-        alignas(4) std::byte bitmapStorage[0x54];
+        // Explicit lifetimes preserve destruction before ProgressBar_PrintToScreen().
+        alignas(NXBasics::CPicture) std::byte pictureStorage[sizeof(NXBasics::CPicture)];
+        alignas(NXBasics::CBitmap) std::byte bitmapStorage[sizeof(NXBasics::CBitmap)];
 
-        FUN_0040bd76(pictureStorage, fileName);
-
-        void* sourceBitmap;
-        std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
+        auto* picture = ::new (static_cast<void*>(pictureStorage)) NXBasics::CPicture(fileName);
+        NXBasics::CBitmap* sourceBitmap = picture->GetBitmap();
 
         const auto sourceDisplayDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
         const auto sourceBitmapFormat = NXBasics::ConvertBitsToTDepth(sourceDisplayDepth);
 
-        std::uint32_t sourceHeight;
-        std::uint32_t sourceWidth;
-
-        std::memcpy(&sourceHeight, static_cast<const std::byte*>(sourceBitmap) + 0x14, sizeof(sourceHeight));
-        std::memcpy(&sourceWidth, static_cast<const std::byte*>(sourceBitmap) + 0x10, sizeof(sourceWidth));
+        const std::int32_t sourceHeight = sourceBitmap->GetRectangle().height;
+        const std::int32_t sourceWidth = sourceBitmap->GetRectangle().width;
 
         auto* temporaryBitmap = ::new (static_cast<void*>(bitmapStorage)) NXBasics::CBitmap(sourceWidth, sourceHeight, sourceBitmapFormat);
 
         // Reload the picture's bitmap pointer at the original call site.
-        std::memcpy(&sourceBitmap, pictureStorage, sizeof(sourceBitmap));
-        static_cast<NXBasics::CBitmap*>(sourceBitmap)->CopyIntoBitmap(temporaryBitmap, 0, 0);
+        sourceBitmap = picture->GetBitmap();
+        sourceBitmap->CopyIntoBitmap(temporaryBitmap, 0, 0);
 
         void* progressBarMemory = ::operator new(0x54, std::nothrow);
         void* progressBar = nullptr;
@@ -447,7 +443,7 @@ namespace NMasterControlProgram
 
         temporaryBitmap->CopyIntoBitmap_FitIn(static_cast<NXBasics::CBitmap*>(progressBar));
         temporaryBitmap->~CBitmap();
-        FUN_0040be7d(pictureStorage);
+        picture->~CPicture();
 
         ProgressBar_PrintToScreen();
 

@@ -291,8 +291,6 @@ namespace
 
 namespace NXSys2DApp
 {
-    CApplication* CApplication::sTheObjectPtr = nullptr;
-
     // Original function: FUN_00479076
     SApplicationControl::SApplicationControl()
     {

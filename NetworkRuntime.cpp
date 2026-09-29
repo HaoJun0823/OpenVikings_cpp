@@ -1,3 +1,6 @@
+#include <winsock2.h>
+#include <Windows.h>
+
 #include "DirectXErrorText.h"
 #include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
@@ -14,8 +17,6 @@
 #include <cstddef>
 #include <cwchar>
 #include <new>
-#include <winsock2.h>
-#include <Windows.h>
 
 // Original data: DAT_00569650.
 // Enabled at 004db9c7 after successfully opening the network log.

@@ -1,7 +1,12 @@
+#include "XBitmap.h"
+#include "XBobManager.h"
 #include "XDiagnostics.h"
 #include "XFile.h"
 #include "XFileAccess.h"
+#include "XFont.h"
 #include "XMemory.h"
+#include "XPalette.h"
+#include "XRemapTable.h"
 #include "XStorableIO.h"
 #include "XStringArray.h"
 
@@ -26,64 +31,19 @@ namespace NXBasics
             return new (std::nothrow) CMemory(file, version);
 
         case 0x3F3:
-        {
-            void* allocation = ::operator new(0x54, std::nothrow);
-
-            if (allocation == nullptr)
-            {
-                return nullptr;
-            }
-
-            return FUN_0040c6dc(allocation, file, version);
-        }
+            return new (std::nothrow) CBitmap(file, version);
 
         case 0x3F4:
-        {
-            void* allocation = ::operator new(0x3C, std::nothrow);
-
-            if (allocation == nullptr)
-            {
-                return nullptr;
-            }
-
-            return FUN_0043997d(allocation, file, version);
-        }
+            return new (std::nothrow) CBobManager(file, version);
 
         case 0x3F5:
-        {
-            void* allocation = ::operator new(0x18, std::nothrow);
-
-            if (allocation == nullptr)
-            {
-                return nullptr;
-            }
-
-            return FUN_004397ea(allocation, file, version);
-        }
+            return new (std::nothrow) CFont(file, version);
 
         case 0x3F6:
-        {
-            void* allocation = ::operator new(0x40C, std::nothrow);
-
-            if (allocation == nullptr)
-            {
-                return nullptr;
-            }
-
-            return FUN_0040fa43(allocation, file, version);
-        }
+            return new (std::nothrow) CPalette(file, version);
 
         case 0x3F7:
-        {
-            void* allocation = ::operator new(0x104, std::nothrow);
-
-            if (allocation == nullptr)
-            {
-                return nullptr;
-            }
-
-            return FUN_0040fde0(allocation, file, version);
-        }
+            return new (std::nothrow) CRemapTable(file, version);
 
         case 0x3FD:
             return new (std::nothrow) CStringArray(file, version);

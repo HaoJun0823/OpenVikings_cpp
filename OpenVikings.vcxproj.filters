@@ -327,6 +327,21 @@
     <ClCompile Include="XList.cpp">
       <Filter>Core\Containers</Filter>
     </ClCompile>
+    <ClCompile Include="XBobManager.cpp">
+      <Filter>Graphics\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="XFont.cpp">
+      <Filter>Graphics\Fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="XPalette.cpp">
+      <Filter>Graphics\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="XRemapTable.cpp">
+      <Filter>Graphics\Images</Filter>
+    </ClCompile>
+    <ClCompile Include="XPicture.cpp">
+      <Filter>Core\Graphics\Pictures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h">
@@ -538,6 +553,21 @@
     </ClInclude>
     <ClInclude Include="XGuiLists.h">
       <Filter>Core\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="XBobManager.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="XFont.h">
+      <Filter>Graphics\Fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="XPalette.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="XRemapTable.h">
+      <Filter>Graphics\Images</Filter>
+    </ClInclude>
+    <ClInclude Include="XPicture.h">
+      <Filter>Core\Graphics\Pictures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

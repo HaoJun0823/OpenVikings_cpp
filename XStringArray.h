@@ -16,7 +16,7 @@ namespace NXBasics
 
         // Original function: FUN_0042bad3
         // Original deleting destructor: FUN_0042bab7
-        ~CStringArray() override;
+        virtual ~CStringArray();
 
         CStringArray(const CStringArray&) = delete;
         CStringArray& operator=(const CStringArray&) = delete;

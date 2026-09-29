@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <excpt.h>
+#include <malloc.h>
+#include <new>
 #include <Windows.h>
 
 // Original data: 005699e0; initially empty name buffer.

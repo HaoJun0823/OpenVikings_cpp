@@ -1,46 +1,35 @@
 #include "XPictureAccess.h"
-#include "XBitmap.h"
 #include "XCrtFileAccess.h"
+#include "XPicture.h"
 
-#include <cstddef>
-#include <cstring>
+#include <cstdint>
+#include <new>
 
 namespace NXBasics
 {
-    // Original function: FUN_0040bebd
+    // Compatibility entry point for the existing callers.
     CPalette* Picture_ExtractPalette(void* picture)
     {
-        auto* pictureBytes = static_cast<std::byte*>(picture);
-
-        CBitmap* bitmap;
-        std::memcpy(&bitmap, pictureBytes, sizeof(bitmap));
-
-        if (bitmap != nullptr)
-            bitmap->SetPalettePtr(nullptr);
-
-        CPalette* palette;
-        std::memcpy(&palette, pictureBytes + 0x04, sizeof(palette));
-
-        CPalette* emptyPalette = nullptr;
-        std::memcpy(pictureBytes + 0x04, &emptyPalette, sizeof(emptyPalette));
-
-        return palette;
+        return static_cast<CPicture*>(picture)->ExtractPalette();
     }
 
     // Original function: FUN_0040c5a6
     CPalette* XB_PictureTool_LoadPaletteOutOfPicture(const char* fileName)
     {
-        void* picture = Runtime_AllocateWithNewHandler(0x0C, 1);
+        void* allocation = Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(sizeof(CPicture)), 1);
+        CPicture* picture = nullptr;
 
-        if (picture != nullptr)
-            picture = FUN_0040bd76(picture, fileName);
+        if (allocation != nullptr)
+        {
+            picture = ::new (allocation) CPicture(fileName);
+        }
 
-        CPalette* palette = Picture_ExtractPalette(picture);
+        CPalette* palette = picture->ExtractPalette();
 
         if (picture != nullptr)
         {
-            FUN_0040be7d(picture);
-            Runtime_Free(picture);
+            picture->~CPicture();
+            Runtime_Free(allocation);
         }
 
         return palette;

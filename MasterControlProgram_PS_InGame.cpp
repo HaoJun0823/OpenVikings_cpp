@@ -202,8 +202,8 @@ namespace NMasterControlProgram
                             senderPlayerId != localPlayerId &&
                             commandText != nullptr)
                         {
-                            auto* playerObject = reinterpret_cast<std::byte*>(DAT_005550d8) + playerIndex * 0x8C8;
-                            FUN_004806c5(playerObject, commandText);
+                            auto* humanDisplayData = reinterpret_cast<std::byte*>(DAT_005550d8) + playerIndex * 0x8C8;
+                            FUN_004806c5(humanDisplayData, commandText);
                         }
 
                         break;

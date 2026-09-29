@@ -27,7 +27,7 @@ namespace NXBasics
         explicit CMemory(const char* fileName);
 
         // Original function: FUN_0042f8f4; deleting wrapper: FUN_0042f82f.
-        ~CMemory() override;
+        virtual ~CMemory();
 
         // Original function: FUN_0042f91a
         CMemory(void* file, std::uint32_t version);
@@ -56,6 +56,8 @@ namespace NXBasics
     private:
         friend class CStringArray;
         friend class CIniFileReader;
+        friend class CBobManager;
+        friend class CPicture;
         friend class NC2MainMenuGuiManager::CGuiManager;
 
         // Original function: FUN_0042f984
