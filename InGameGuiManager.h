@@ -59,6 +59,11 @@ namespace NInGameGuiManager
         void Desktop_Open(std::int32_t width, std::int32_t height, std::uint32_t depth);
         void Desktop_Close();
         void MiscWindows_OverviewWindow_Open();
+        void EngineWorldDisplayGuiElement_Register(void* element);
+        void EngineWorldDisplayGuiElement_UnRegister(void* element);
+        bool Exploration_GetFlag() const;
+        void FrameCall_Register(void* element);
+        void FrameCall_UnRegister(void* element);
 
         inline static CInGameGuiManager* sTheObjectPtr = nullptr;
         inline static SInGameGuiStaticVars mStaticVars{};

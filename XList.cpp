@@ -5,6 +5,34 @@
 
 namespace NXBasics
 {
+    CListBase::Iterator::Iterator(CListBase& list) : mList(&list), mPosition(nullptr), mStarted(false), mPadding09{}
+    {}
+
+    // Original function: FUN_0048d143.
+    void* CListBase::Iterator::First()
+    {
+        if (mList->mCount == 0)
+            return nullptr;
+        mStarted = true;
+        mPosition = mList->mFirst;
+        return mPosition->data;
+    }
+
+    // Original function: FUN_004259f3.
+    void* CListBase::Iterator::Next()
+    {
+        if (!mStarted)
+            return First();
+        if (mPosition != nullptr)
+        {
+            mPosition = mPosition->next;
+            if (mPosition != nullptr)
+                return mPosition->data;
+        }
+        mStarted = false;
+        return nullptr;
+    }
+
     // Original function: FUN_00439bed
     CListBase::CListBase(bool deleteObjects) : mCount(0), mFirst(nullptr), mLast(nullptr), mDeleteObjects(static_cast<std::uint8_t>(deleteObjects)), mPadding11{}
     {}
@@ -15,6 +43,23 @@ namespace NXBasics
     {
         while (mFirst != nullptr)
             l_Base_RemoveFromStart();
+    }
+
+    // Original function: FUN_00439c8b.
+    void CListBase::InsertAtEnd(void* data)
+    {
+        auto* node = static_cast<SNode*>(Runtime_AllocateWithNewHandler(0x08, 1));
+        if (node != nullptr)
+        {
+            node->next = nullptr;
+            node->data = data;
+        }
+        if (mCount == 0)
+            mFirst = node;
+        else
+            mLast->next = node;
+        ++mCount;
+        mLast = node;
     }
 
     // Original function: FUN_00439d1e

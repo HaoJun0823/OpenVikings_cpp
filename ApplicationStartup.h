@@ -196,7 +196,7 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_004b7f9c.
-        std::memset(DAT_00569418, 0, sizeof(DAT_00569418));
+        NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::InitializeStaticChangedArea();
     }
     };
 

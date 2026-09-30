@@ -2,6 +2,8 @@
 
 **State snapshot:** 2026-09-30
 
+**Follow-up:** World-display construction/destruction, overview-handler ownership/callbacks and its complete 28-byte static region are now reconstructed in [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md). The initial boundary descriptions below record the earlier desktop pass; those particular boundaries are closed by the follow-up. Current coverage is 74 of 79 passing syntax units, five incomplete units with 129 diagnostics, and 43 live `DAT_` symbols.
+
 Windows x86 assembly is authoritative for every behavior below. The Mac reference supplies method/class identities and parameter names only. Current source and Git history were checked before reconstruction.
 
 ## Reconstructed routines
@@ -62,4 +64,4 @@ Explicit untranslated boundaries remain: widget/primary-handler/mouse-pointer/wi
 
 MSVC static analysis also completes for all six compilable implementation units. It reports the previously audited `XFileAccess.h` filename warnings C6053/C6385 through included file helpers; no diagnostic points to the new desktop/position implementations. Logs, objects and analysis XML are kept outside the checkout under the temporary `OpenVikings-gui-desktop-20260930` directory.
 
-Next connected GUI block: reconstruct the world-display widget constructor `004BA042` and its event/lifetime interfaces, then the overview-handler owner at `004B7FB7/004B8054` with the complete `00569418..00569433` static region and callback chain. Preserve the existing input-manager boundary until its full owner is analyzed.
+Next connected GUI block: overview bitmap construction/destruction `004CE418/004CE5D8`, drawing/full redraw `004CE60E/004CE918`, and texture/zoom/marker drawing. The world-input dispatcher `004BA3BE` remains a later connected block. Preserve the existing input-manager boundary until its full owner is analyzed.

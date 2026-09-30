@@ -8,6 +8,7 @@
 #include "XGuiDesktop.h"
 #include "XList.h"
 #include "XMMouseManager.h"
+#include "WorldDisplayElementAccess.h"
 
 #include <cstddef>
 #include <cstring>
@@ -19,9 +20,6 @@ extern void* DAT_005690dc;
 // on the original __thiscall stack; constructors retain their original vtables.
 extern void* __fastcall FUN_004bc31c(void* object);
 extern void* __fastcall FUN_004bb78a(void* object);
-extern void* __fastcall FUN_004b7fb7(void* object);
-extern void __fastcall FUN_004b8054(void* object);
-extern void* __fastcall FUN_004ba042(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, bool firstFlag, bool secondFlag);
 extern void* __fastcall FUN_004b93ad(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId);
 extern void* __fastcall FUN_004b9520(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, const char* text, std::uint32_t tooltipId, void* formatObject);
 extern void* __fastcall FUN_004b94b7(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, std::uint32_t tooltipId, void* formatObject);
@@ -31,7 +29,6 @@ extern void __fastcall FUN_004a299b(void* object, void* unusedEdx, bool update);
 extern void __fastcall FUN_004a2a55(void* object, void* unusedEdx, bool update);
 extern void __fastcall FUN_004a0d01(void* object);
 extern void __fastcall FUN_004a0e9d(void* object);
-extern void __fastcall FUN_004b83a6(void* object, void* unusedEdx, std::int32_t playerId);
 extern void __fastcall FUN_004b4187(void* object, void* unusedEdx, std::int32_t mode);
 extern void __cdecl FUN_004b8518(void* element);
 extern void __cdecl FUN_004b8543(void* window, bool showWhileHidden);
@@ -308,14 +305,14 @@ namespace NInGameGuiManager
         NC2E2::Inform_DesktopXTructed(width, height, depth);
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
         if (allocation != nullptr)
-            FUN_004b7fb7(allocation);
+            ::new (allocation) NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler();
 
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0x244, 1);
         void* worldElement = nullptr;
         if (allocation != nullptr)
         {
             const NXBasics::SRectangle rectangle(0, 0, width, height);
-            worldElement = FUN_004ba042(allocation, nullptr, &rectangle, true, true);
+            worldElement = NC2InGameGuiWorldElement::WorldDisplayElement_Construct(allocation, &rectangle, true, true);
         }
         std::memcpy(mLegacyState + 0x04, &worldElement, sizeof(worldElement));
         FUN_004b8518(worldElement);
@@ -404,7 +401,7 @@ namespace NInGameGuiManager
         std::memcpy(mLegacyState + 0x88, &zero, sizeof(zero));
         FUN_004a0e9d(this);
         NC2E2::Inform_ControllingPlayerChanged(GetLocalPlayerId());
-        FUN_004b83a6(NC2InGameGuiOverviewDisplay::gWorldOverviewElementHandler, nullptr, GetLocalPlayerId());
+        NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_ControllingPlayerChanged(GetLocalPlayerId());
         FUN_004b4187(NC2InGameGuiInputManager::gInputManager, nullptr, 0);
     }
 
@@ -421,10 +418,10 @@ namespace NInGameGuiManager
             NXBasics::Runtime_Free(desktop);
         }
         std::memset(mLegacyState + 0x04, 0, 0x84);
-        void* overviewHandler = NC2InGameGuiOverviewDisplay::gWorldOverviewElementHandler;
+        auto* overviewHandler = NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr;
         if (overviewHandler != nullptr)
         {
-            FUN_004b8054(overviewHandler);
+            overviewHandler->~CWorldOverviewElementHandler();
             NXBasics::Runtime_Free(overviewHandler);
         }
         NC2E2::Inform_DesktopXTructed(0, 0, 0);
@@ -434,6 +431,40 @@ namespace NInGameGuiManager
         if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
             NXSysMouseManager::CMouseManager::sTheObjectPtr->SetPositionOverrideCallback(nullptr);
         mStaticVars.desktopInitialized = false;
+    }
+
+    // Original function: FUN_004a0bd4.
+    void CInGameGuiManager::EngineWorldDisplayGuiElement_Register(void* element)
+    {
+        std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x60))->InsertAtEnd(element);
+    }
+
+    // Original function: FUN_004a0be3.
+    void CInGameGuiManager::EngineWorldDisplayGuiElement_UnRegister(void* element)
+    {
+        std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x60))->l_Base_RemoveElement(element);
+    }
+
+    // Original function: FUN_004a0cf2.
+    bool CInGameGuiManager::Exploration_GetFlag() const
+    {
+        void* display;
+        std::memcpy(&display, static_cast<const std::byte*>(GetDesktop()) + 0x30, sizeof(display));
+        std::uint32_t flags;
+        std::memcpy(&flags, static_cast<const std::byte*>(display) + 0x70, sizeof(flags));
+        return (flags & 4u) != 0;
+    }
+
+    // Original function: FUN_004a2d62.
+    void CInGameGuiManager::FrameCall_Register(void* element)
+    {
+        std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x4C))->InsertAtEnd(element);
+    }
+
+    // Original function: FUN_004a2d71.
+    void CInGameGuiManager::FrameCall_UnRegister(void* element)
+    {
+        std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x4C))->l_Base_RemoveElement(element);
     }
 
     // Original function: FUN_004a1996; entry bytes recovered from Game.exe.

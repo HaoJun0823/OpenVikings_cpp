@@ -11,12 +11,17 @@ namespace NXBaseGui
     class CBaseWindow;
 }
 
+namespace NC2InGameGuiOverviewDisplay
+{
+    class CWorldOverviewBitmapGuiElement;
+}
+
 namespace NXBasics
 {
     template<typename T>
     class CList final : public CListBase
     {
-        static_assert(std::is_same_v<T, NXBaseGui::CBaseElement> || std::is_same_v<T, NXBaseGui::CBaseWindow>, "Only the verified GUI list specializations are implemented");
+        static_assert(std::is_same_v<T, NXBaseGui::CBaseElement> || std::is_same_v<T, NXBaseGui::CBaseWindow> || std::is_same_v<T, NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>, "Only the verified GUI list specializations are implemented");
 
     public:
         explicit CList(bool deleteObjects) : CListBase(deleteObjects)

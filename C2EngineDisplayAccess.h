@@ -30,6 +30,7 @@ namespace NC2E2
     void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId);
     void Inform_DesktopXTructed(std::int32_t width, std::int32_t height, std::uint32_t depth);
     void Inform_ControllingPlayerChanged(std::int32_t playerId);
+    void DE_ToDraw_SetState(void* display, std::uint32_t flags, bool enabled);
 
     // Original function: FUN_0047d335
     void Display_ExitSpecialOverlays(void* display);

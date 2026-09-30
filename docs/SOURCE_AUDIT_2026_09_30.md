@@ -65,7 +65,7 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The current 78-unit syntax pass has 73 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview follow-up adds a passing implementation unit. The current 79-unit syntax pass has 74 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |
@@ -79,7 +79,7 @@ Examples include DirectMusic methods, save/map managers and GUI startup/shutdown
 
 ## Remaining live DAT inventory
 
-There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolved `0050F69C`, and the desktop block resolved `005690B8` and `0051261C`, leaving 44. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
+There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolved `0050F69C`, and the desktop block resolved `005690B8` and `0051261C`, and the overview-handler follow-up resolved the complete `00569418` region, leaving 43. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
 
 | Live symbol | Files |
 | --- | --- |
@@ -126,4 +126,3 @@ There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio 
 | `DAT_005690a0` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
 | `DAT_005690d8` | `C2EngineTooltipAccess.cpp` |
 | `DAT_005690dc` | `InGameGuiManager.cpp` |
-| `DAT_00569418` | `ApplicationGlobals.h`, `ApplicationStartup.h` |

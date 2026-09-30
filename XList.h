@@ -7,13 +7,32 @@ namespace NXBasics
 {
     class CListBase
     {
+    protected:
+        struct SNode;
+
     public:
+        class Iterator
+        {
+        public:
+            explicit Iterator(CListBase& list);
+            void* First();
+            void* Next();
+
+        private:
+            CListBase* mList;
+            SNode* mPosition;
+            bool mStarted;
+            std::byte mPadding09[3];
+        };
+
         // Original function: FUN_00439bed
         explicit CListBase(bool deleteObjects);
 
         // Original function: FUN_00439c3f
         // Original deleting destructor: FUN_00439c13
         virtual ~CListBase();
+
+        void InsertAtEnd(void* data);
 
         CListBase(const CListBase&) = delete;
         CListBase& operator=(const CListBase&) = delete;
@@ -59,4 +78,5 @@ namespace NXBasics
 
     static_assert(sizeof(void*) == 4, "CListBase requires an x86 build");
     static_assert(sizeof(CListBase) == 0x14, "Unexpected CListBase size");
+    static_assert(sizeof(CListBase::Iterator) == 0x0C);
 }

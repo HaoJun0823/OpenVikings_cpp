@@ -549,6 +549,14 @@ namespace NC2E2
             Display_WriteField(display, 0x950, maxY);
     }
 
+    // Original function: FUN_0047cc2b.
+    void DE_ToDraw_SetState(void* display, std::uint32_t flags, bool enabled)
+    {
+        const std::uint32_t current = Display_ReadField<std::uint32_t>(display, 0x70);
+        Display_WriteField(display, 0x70, enabled ? current | flags : current & ~flags);
+        Display_WriteField<std::uint8_t>(display, 0x978, 1);
+    }
+
     // Original function: FUN_0047cf73.
     void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId)
     {

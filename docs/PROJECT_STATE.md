@@ -34,6 +34,12 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### World-display lifetime and overview handler
+
+- Reconstructed world-display and bitmap-tool construction/destruction, complete 15-slot virtual table bindings, manager registration, Darken cleanup and draw-state control.
+- Reconstructed overview-handler ownership, six-type callbacks, area updates, player/exploration/scan/redraw notifications and info-marker insertion. Named the full 28-byte static region and typed singleton; 43 live `DAT_` symbols remain.
+- Win32 `/Od` and `/O2` object generation passes for all five implementations. Of 79 production syntax units, 74 pass; five incomplete units retain 129 diagnostics. See [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md) for evidence, representation choices and remaining bitmap/input/base-GUI boundaries.
+
 ### GUI desktop lifecycle and display resolution
 
 - Reconstructed 19 connected desktop, display-position, selection-cleanup, mouse callback, bitmap ownership and player-notification routines from Windows ASM. The in-game startup/shutdown and both resolution-change paths now use the established interfaces.

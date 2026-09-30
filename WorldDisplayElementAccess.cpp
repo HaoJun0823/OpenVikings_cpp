@@ -9,16 +9,37 @@
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
 #include "XPaletteAccess.h"
+#include "XGuiDesktop.h"
 
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <new>
 
 extern double DAT_00510848;
 extern std::uint8_t DAT_0051089d;
 extern std::uint8_t DAT_005109c5;
 extern void* DAT_005550d4;
+
+// Untranslated original base/widget interfaces. EDX is unused so the stack
+// parameters and callee cleanup match Windows __thiscall dispatch.
+extern void* __fastcall FUN_004788c6(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId);
+extern void __fastcall FUN_00478917(void* object);
+extern bool __fastcall FUN_00478a36(void* object, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
+extern std::uint32_t __fastcall FUN_004ba3be(void* object, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
+extern bool __fastcall FUN_004788a7(void* object);
+extern void __fastcall FUN_00478986(void* object, void* unusedEdx, const std::int32_t* point);
+extern void __fastcall FUN_00478994(void* object);
+extern bool __fastcall FUN_0047899f(void* object, void* unusedEdx, const std::int32_t* point);
+extern bool __fastcall FUN_004789af(void* object);
+extern bool __fastcall FUN_004788b1(void* object, void* unusedEdx, const std::int32_t* point);
+extern void* __fastcall FUN_0048e569(void* object);
+extern void* __fastcall FUN_00478ad8(void* object, void* unusedEdx, const std::int32_t* point, bool flag);
+extern void __fastcall FUN_00478a65(void* object, void* unusedEdx, std::int32_t* point);
+extern void __fastcall FUN_004788be(void* object);
+extern bool __fastcall FUN_004b8659(void* object, void* unusedEdx, std::uint32_t argument);
+extern bool __fastcall FUN_004788b6(void* object);
 
 namespace NC2InGameGuiWorldElement
 {
@@ -27,6 +48,196 @@ namespace NC2InGameGuiWorldElement
         T value;
         std::memcpy(&value, static_cast<const std::byte*>(object) + offset, sizeof(value));
         return value;
+    }
+
+    template<typename T> static void WorldDisplayElement_WriteField(void* object, std::size_t offset, T value)
+    {
+        std::memcpy(static_cast<std::byte*>(object) + offset, &value, sizeof(value));
+    }
+
+    static void WorldDisplayElement_DrawBaseBitmap(const void* element, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle);
+    static void BaseBitmapToolElement_Destruct(void* element);
+
+    // Original virtual entry: FUN_004b8af7.
+    static void* __fastcall BaseBitmapToolElement_DeletingDestructor(void* element, void* unusedEdx, std::uint32_t flags)
+    {
+        (void)unusedEdx;
+        BaseBitmapToolElement_Destruct(element);
+        if ((flags & 1u) != 0)
+            NXBasics::Runtime_Free(element);
+        return element;
+    }
+
+    // ABI adapter for FUN_004b8b33.
+    static void __fastcall BaseBitmapToolElement_VirtualDraw(void* element, void* unusedEdx, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle)
+    {
+        (void)unusedEdx;
+        WorldDisplayElement_DrawBaseBitmap(element, bitmap, rectangle);
+    }
+
+    // Complete original base table: 004F6D58..004F6D93.
+    static const std::uintptr_t gBaseBitmapToolElementVirtualTable[] =
+    {
+        reinterpret_cast<std::uintptr_t>(&BaseBitmapToolElement_DeletingDestructor),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478a36),
+        reinterpret_cast<std::uintptr_t>(&BaseBitmapToolElement_VirtualDraw),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478986),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478994),
+        reinterpret_cast<std::uintptr_t>(&FUN_0047899f),
+        reinterpret_cast<std::uintptr_t>(&FUN_004789af),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
+        reinterpret_cast<std::uintptr_t>(&FUN_0048e569),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
+        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788b6)
+    };
+    static_assert(sizeof(gBaseBitmapToolElementVirtualTable) == 0x3C);
+
+    // Original function: FUN_004b8aa0; CBaseBitmapToolElement constructor.
+    static void* BaseBitmapToolElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId, std::int32_t depth)
+    {
+        FUN_004788c6(element, nullptr, rectangle, flags, elementId);
+        WorldDisplayElement_WriteField(element, 0x00, gBaseBitmapToolElementVirtualTable + 0);
+        WorldDisplayElement_WriteField<void*>(element, 0x2C, nullptr);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        NXBasics::CBitmap* bitmap = allocation == nullptr ? nullptr : ::new (allocation) NXBasics::CBitmap(rectangle->width, rectangle->height, depth);
+        WorldDisplayElement_WriteField(element, 0x2C, bitmap);
+        return element;
+    }
+
+    // Original function: FUN_004b8b13; CBaseBitmapToolElement destructor.
+    static void BaseBitmapToolElement_Destruct(void* element)
+    {
+        auto* bitmap = WorldDisplayElement_ReadField<NXBasics::CBitmap*>(element, 0x2C);
+        WorldDisplayElement_WriteField(element, 0x00, gBaseBitmapToolElementVirtualTable + 0);
+        if (bitmap != nullptr)
+            delete bitmap;
+        FUN_00478917(element);
+    }
+
+    // Original virtual entry: FUN_004ba124.
+    static void* __fastcall WorldDisplayElement_DeletingDestructor(void* element, void* unusedEdx, std::uint32_t flags)
+    {
+        (void)unusedEdx;
+        WorldDisplayElement_Destruct(element);
+        if ((flags & 1u) != 0)
+            NXBasics::Runtime_Free(element);
+        return element;
+    }
+
+    // ABI adapter for the reconstructed virtual draw method, FUN_004ba1ba.
+    static void __fastcall WorldDisplayElement_VirtualDraw(void* element, void* unusedEdx, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle)
+    {
+        (void)unusedEdx;
+        WorldDisplayElement_Draw(element, bitmap, rectangle);
+    }
+
+    // Complete 15-slot table recovered from Game.exe at 004F6FAC..004F6FE7.
+    // Only destruction and drawing are replaced here; other entries retain
+    // their verified original interfaces, including the input dispatcher.
+    static const std::uintptr_t gWorldDisplayElementVirtualTable[] =
+    {
+        reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_DeletingDestructor),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
+        reinterpret_cast<std::uintptr_t>(&FUN_004ba3be),
+        reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_VirtualDraw),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478986),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478994),
+        reinterpret_cast<std::uintptr_t>(&FUN_0047899f),
+        reinterpret_cast<std::uintptr_t>(&FUN_004789af),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
+        reinterpret_cast<std::uintptr_t>(&FUN_0048e569),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
+        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
+        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788b6)
+    };
+    static_assert(sizeof(gWorldDisplayElementVirtualTable) == 0x3C);
+
+    // Original function: FUN_004ba140; initializes the state subobjects at +0x30.
+    static void* WorldDisplayElement_ConstructState(void* state)
+    {
+        WorldDisplayElement_WriteField<std::uint16_t>(state, 0x0E, 0);
+        WorldDisplayElement_WriteField<std::uint16_t>(state, 0x0C, 0);
+        std::memset(static_cast<std::byte*>(state) + 0x19C, 0, 0x14);
+        std::memset(static_cast<std::byte*>(state) + 0x1B0, 0, 0x14);
+        return state;
+    }
+
+    // Original function: FUN_004ba042.
+    void* WorldDisplayElement_Construct(void* element, const NXBasics::SRectangle* rectangle, bool active, bool inputEnabled)
+    {
+        auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
+        const std::int32_t depth = WorldDisplayElement_ReadField<std::int32_t>(desktopBitmap, 0x04);
+        BaseBitmapToolElement_Construct(element, rectangle, 1, 0x1A7, depth);
+        auto* state = static_cast<std::byte*>(element) + 0x30;
+        WorldDisplayElement_ConstructState(state);
+        WorldDisplayElement_WriteField(element, 0x00, gWorldDisplayElementVirtualTable + 0);
+        std::memset(state, 0, 0x214);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x994, 1);
+        void* display = nullptr;
+        if (allocation != nullptr)
+        {
+            auto* font = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.font08;
+            auto* bitmap = WorldDisplayElement_ReadField<NXBasics::CBitmap*>(element, 0x2C);
+            display = NC2E2::Display_Construct(allocation, bitmap, static_cast<std::uint8_t>(active), font);
+        }
+        WorldDisplayElement_WriteField(element, 0x30, display);
+        WorldDisplayElement_WriteField<std::uint8_t>(element, 0x34, static_cast<std::uint8_t>(inputEnabled));
+        auto* interactionTarget = static_cast<std::byte*>(element) + 0x38;
+        std::memset(interactionTarget, 0, 0x18C);
+        NC2E2::DisplayObjectReference_Reset(interactionTarget);
+        if (active)
+        {
+            WorldDisplayElement_WriteField<std::uint8_t>(display, 0xA4, interactionTarget != nullptr ? 1 : 0);
+            WorldDisplayElement_WriteField(display, 0xA8, interactionTarget);
+        }
+        else
+        {
+            const bool explored = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Exploration_GetFlag();
+            NC2E2::DE_ToDraw_SetState(display, 4, explored);
+        }
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_Register(element);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(element);
+        WorldDisplayElement_WriteField<std::uint32_t>(element, 0x208, 0);
+        return element;
+    }
+
+    // Original function: FUN_004ba174.
+    void WorldDisplayElement_Destruct(void* element)
+    {
+        WorldDisplayElement_WriteField(element, 0x00, gWorldDisplayElementVirtualTable + 0);
+        WorldDisplayElement_DarkenBitmap_Exit(element);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(element);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_UnRegister(element);
+        void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
+        if (display != nullptr)
+        {
+            NC2E2::Display_Destruct(display);
+            NXBasics::Runtime_Free(display);
+        }
+        BaseBitmapToolElement_Destruct(element);
+    }
+
+    // Original function: FUN_004bb669.
+    void WorldDisplayElement_DarkenBitmap_Exit(void* element)
+    {
+        void* palette = WorldDisplayElement_ReadField<void*>(element, 0x23C);
+        WorldDisplayElement_WriteField<std::uint32_t>(element, 0x238, 0);
+        if (palette != nullptr)
+        {
+            using TDeletingDestructor = void*(__thiscall*)(void*, std::uint32_t);
+            auto* methods = *static_cast<TDeletingDestructor**>(palette);
+            methods[3](palette, 1);
+        }
+        void* lookupTable = WorldDisplayElement_ReadField<void*>(element, 0x240);
+        WorldDisplayElement_WriteField<void*>(element, 0x23C, nullptr);
+        NXBasics::Runtime_Free(lookupTable);
+        WorldDisplayElement_WriteField<void*>(element, 0x240, nullptr);
     }
 
     // Original function: FUN_004b8b33.
