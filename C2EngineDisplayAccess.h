@@ -44,6 +44,8 @@ namespace NC2E2
     void Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(const void* display, std::int32_t* point, bool applyZoom);
     void Display_MapMigToLocalDisplayPixelCoordinates(const void* display, const void* packedMapPoint, std::int32_t* point, bool applyZoom);
     void Display_UpdateDisplay(void* display);
+    std::int32_t DE_GetDisplayedCenterWorldXPosition(const void* display);
+    std::int32_t DE_GetDisplayedCenterWorldYPosition(const void* display);
     void Display_DrawTooltipOverlay_External_House(void* display, std::uint32_t houseId, NXBasics::CBitmap* bitmap, bool showGoods);
     void Display_DrawTooltipOverlay_External_Vehicle(void* display, std::uint32_t vehicleId, NXBasics::CBitmap* bitmap, bool showGoods);
     void WorldMusic_UpdateVisiblePlayerSelection();

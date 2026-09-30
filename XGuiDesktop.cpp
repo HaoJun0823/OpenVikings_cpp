@@ -193,6 +193,18 @@ namespace NXBaseGui
         destroyElementList(0x014);
     }
 
+    // Original function: FUN_00477811; deletion is deferred until the desktop
+    // processes its close list. Ignore null and already queued windows.
+    void CDesktop::Window_AddToCloseList(CBaseWindow* window)
+    {
+        if (window == nullptr) return;
+        auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(mWindowListStorage0118));
+        NXBasics::CListBase::Iterator iterator(*list);
+        for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next())
+            if (entry == window) return;
+        list->InsertAtEnd(window);
+    }
+
     // Original function: FUN_0047795d
     void CDesktop::PrimaryMessageHandler_Set(CBaseElement* handler)
     {

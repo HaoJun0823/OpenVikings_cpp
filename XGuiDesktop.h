@@ -30,6 +30,8 @@ namespace NXBaseGui
         // Original function: FUN_004773bc
         void Window_CloseAll();
 
+        void Window_AddToCloseList(CBaseWindow* window);
+
         // Original function: FUN_0047772f
         void Element_Activate(CBaseElement* element);
 

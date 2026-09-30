@@ -65,7 +65,7 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview follow-up adds a passing implementation unit. The current 79-unit syntax pass has 74 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview-handler and [overview rendering-control follow-ups](OVERVIEW_BITMAP_RENDERING.md) add four passing implementation units. The current 82-unit syntax pass has 77 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |

@@ -248,6 +248,20 @@ namespace NC2E2
         return dividend / divisor;
     }
 
+    // Original function: FUN_0047cfc6.
+    std::int32_t DE_GetDisplayedCenterWorldXPosition(const void* display)
+    {
+        const std::uint32_t halfWidth = DisplayDescription_HalveSigned(DisplayDescription_ReadDword(display, 0x964));
+        return DisplayDescription_SignedDword(halfWidth + DisplayDescription_ReadDword(display, 0x954));
+    }
+
+    // Original function: FUN_0047cfd8.
+    std::int32_t DE_GetDisplayedCenterWorldYPosition(const void* display)
+    {
+        const std::uint32_t halfHeight = DisplayDescription_HalveSigned(DisplayDescription_ReadDword(display, 0x968));
+        return DisplayDescription_SignedDword(halfHeight + DisplayDescription_ReadDword(display, 0x958));
+    }
+
     // Original function: FUN_0048201b
     void DisplayDescription_MakeValidWorldPixelPosition(const void* description, std::int32_t* point)
     {

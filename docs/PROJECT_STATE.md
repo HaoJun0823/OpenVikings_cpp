@@ -34,6 +34,12 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### Overview bitmap lifecycle and rendering control
+
+- Committed the preceding lifetime/handler block as `d39a232`. Reconstructed overview bitmap initialization/destruction, complete dispatch bindings, draw orchestration, full rebuild, fixed-point transforms, scrolling strips, timed markers and zoom control.
+- Connected the static overview-window constructor, five buttons, display modes and deferred closure to the desktop entry point. Shared the existing bitmap-tool implementations between world and overview callers, retaining original function boundaries and allocation ownership.
+- Seven affected units generate Win32 `/Od` and `/O2` objects without warnings. Of 82 production syntax units, 77 pass; five incomplete units retain 129 diagnostics. The live DAT count remains 43. Terrain sampling, object overlays, input and base/window lifetime boundaries are recorded in [OVERVIEW_BITMAP_RENDERING.md](OVERVIEW_BITMAP_RENDERING.md).
+
 ### World-display lifetime and overview handler
 
 - Reconstructed world-display and bitmap-tool construction/destruction, complete 15-slot virtual table bindings, manager registration, Darken cleanup and draw-state control.

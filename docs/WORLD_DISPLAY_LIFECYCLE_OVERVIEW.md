@@ -4,6 +4,8 @@
 
 Windows instructions, Game.exe bytes, existing source and Git history establish the behavior. The Mac reference supplies class/method identities only. The previous desktop entry-point block is documented in [GUI_DESKTOP_RESOLUTION.md](GUI_DESKTOP_RESOLUTION.md).
 
+**Follow-up:** this block was committed as `d39a232`. Overview bitmap lifecycle, rendering control, zoom/scroll/marker drawing and the static overview-window entry path are now recorded in [OVERVIEW_BITMAP_RENDERING.md](OVERVIEW_BITMAP_RENDERING.md), superseding the corresponding next-block notes below. Bitmap-tool implementations now reside in the shared `GuiBitmapToolElementAccess` unit.
+
 ## Windows entry-point mappings
 
 | Address | Implementation or verified specialization |

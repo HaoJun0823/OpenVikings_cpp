@@ -9,6 +9,7 @@
 #include "XList.h"
 #include "XMMouseManager.h"
 #include "WorldDisplayElementAccess.h"
+#include "InGameGuiOverviewWindowAccess.h"
 
 #include <cstddef>
 #include <cstring>
@@ -24,7 +25,6 @@ extern void* __fastcall FUN_004b93ad(void* object, void* unusedEdx, const NXBasi
 extern void* __fastcall FUN_004b9520(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, const char* text, std::uint32_t tooltipId, void* formatObject);
 extern void* __fastcall FUN_004b94b7(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, std::uint32_t tooltipId, void* formatObject);
 extern void* __fastcall FUN_004b8607(void* object);
-extern void* __fastcall FUN_004c9708(void* object);
 extern void __fastcall FUN_004a299b(void* object, void* unusedEdx, bool update);
 extern void __fastcall FUN_004a2a55(void* object, void* unusedEdx, bool update);
 extern void __fastcall FUN_004a0d01(void* object);
@@ -505,7 +505,7 @@ namespace NInGameGuiManager
         if (window != nullptr)
             return;
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x7C, 1);
-        window = allocation == nullptr ? nullptr : FUN_004c9708(allocation);
+        window = allocation == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewStaticWindow_Construct(allocation);
         std::memcpy(mLegacyState + 0x44, &window, sizeof(window));
         FUN_004b8543(window, false);
         NXBaseGui::CBaseElement* button;
