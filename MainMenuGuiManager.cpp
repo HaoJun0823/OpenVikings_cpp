@@ -32,24 +32,11 @@
 #include <new>
 #include <windows.h>
 
-// Original data: DAT_004f5254.
-// Keep unresolved until the Windows constant is recovered.
-extern const float DAT_004f5254;
+// Original constant: 004f5254; bytes 00 00 40 41 in Game.exe.
+static constexpr float cMenuGameSpeed = 12.0f;
 
-// Original data: DAT_00500818.
-// Keep unresolved until the Windows format string is recovered.
-extern const char DAT_00500818[];
-
-// Original data: DAT_004fe238.
-// Format used when a session event has no player name.
-extern const char DAT_004fe238[];
-
-// Original data: DAT_0050716c.
-extern const char DAT_0050716c[];
-
-// Original data: DAT_004f7e48.
-// Service-provider GUID compared by the original code.
-extern const GUID DAT_004f7e48;
+// Original constant: 004f7e48; matches CLSID_DP8SP_TCPIP.
+static constexpr GUID cTcpIpServiceProviderGuid = { 0xEBFE7BA0u, 0x628Du, 0x11D2u, { 0xAE, 0x0F, 0x00, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
 
 // Original data: DAT_005694e0.
 std::uint32_t gLastPlayerListUpdateTick = 0;
@@ -627,7 +614,7 @@ namespace NC2MainMenuGuiManager
 							const auto* mapInformation = reinterpret_cast<const std::byte*>(FUN_00416418(DAT_005114b4, lobbyData + 4));
 
 							std::strcpy(sourceFileName, reinterpret_cast<const char*>(mapInformation + 0x386));
-							NXBasics::Runtime_PrintString(transferFileName, DAT_00500818, FUN_0044029d(), "transdat");
+							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
 
 							{
 								NXBasics::CMemory temporaryFileData(sourceFileName);
@@ -639,7 +626,7 @@ namespace NC2MainMenuGuiManager
 
 							transferFlags[4] = 1;
 
-							NXBasics::Runtime_PrintString(transferFileName, DAT_00500818, FUN_0044029d(), "transdat");
+							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
 						}
 						else
 						{
@@ -705,7 +692,7 @@ namespace NC2MainMenuGuiManager
 						{
 							NXBasics::CFile::FileSystem_Tool_CreateDirectory(FUN_0044029d());
 
-							NXBasics::Runtime_PrintString(requestedFileName, DAT_00500818, FUN_0044029d(), "transdat");
+							NXBasics::Runtime_PrintString(requestedFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
 							std::strcat(requestedFileName, ".c2p");
 						}
 						else
@@ -763,7 +750,7 @@ namespace NC2MainMenuGuiManager
 				break;
 		}
 
-		FUN_0040aebd(DAT_004f5254);
+		FUN_0040aebd(cMenuGameSpeed);
 	}
 
 	// Original function: FUN_004d6b4a
@@ -912,7 +899,7 @@ namespace NC2MainMenuGuiManager
 					if (*name != L'\0')
 						NNetwork::CopyNetworkWideToAnsi(playerName, name, -1);
 					else
-						NXBasics::Runtime_PrintString(playerName, DAT_004fe238);
+						NXBasics::Runtime_PrintString(playerName, OriginalStrings::UnknownPlayerName);
 
 					std::uint32_t eventType;
 					std::memcpy(&eventType, reinterpret_cast<const std::byte*>(event) + 0x208, sizeof(eventType));
@@ -964,7 +951,7 @@ namespace NC2MainMenuGuiManager
 					{
 						const std::byte* providerGuid = reinterpret_cast<const std::byte*>(this) + 0xD4 + providerIndex * 0x78u;
 
-						if (std::memcmp(providerGuid, &DAT_004f7e48, sizeof(GUID)) == 0)
+						if (std::memcmp(providerGuid, &cTcpIpServiceProviderGuid, sizeof(GUID)) == 0)
 							break;
 					}
 
@@ -1421,7 +1408,7 @@ namespace NC2MainMenuGuiManager
 			char archiveFileName[0x104];
 			char destinationFileName[0x104];
 
-			NXBasics::Runtime_PrintString(archiveFileName, DAT_00500818, FUN_0044029d(), "transdat");
+			NXBasics::Runtime_PrintString(archiveFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
 
 			NXBasics::SArchiveState archive;
 			NXBasics::Archive_Initialize(&archive, archiveFileName);
@@ -1561,7 +1548,7 @@ namespace NC2MainMenuGuiManager
 		{
 			char fileName[0x104];
 
-			NXBasics::Runtime_PrintString(fileName, DAT_00500818, FUN_0044029d(), "transdat");
+			NXBasics::Runtime_PrintString(fileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
 			NXBasics::Runtime_RemoveFile(fileName);
 
 			std::strcat(fileName, ".c2p");
@@ -1794,7 +1781,7 @@ namespace NC2MainMenuGuiManager
 			informationBitmap.Tool_Darken();
 			NC2GuiToolsBase::DrawTool_DrawFrame(&informationBitmap, informationBitmap.GetRectangle(), 2);
 
-			NNetwork::GetNetworkInstance();
+			::GetNetworkInstance();
 
 			char statusText[100];
 			statusText[0] = '\0';
@@ -1939,7 +1926,7 @@ namespace NC2MainMenuGuiManager
 
 			auto* font = guiResources.font08;
 
-			drawText(&chatBitmap, font, 4, 2, DAT_0050716c);
+			drawText(&chatBitmap, font, 4, 2, OriginalStrings::RightArrow);
 			drawText(&chatBitmap, font, 14, 2, textInput.GetString());
 			drawCursor(font, 14, 4, 12, &chatBitmap);
 

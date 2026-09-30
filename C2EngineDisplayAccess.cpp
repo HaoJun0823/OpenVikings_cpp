@@ -1,5 +1,7 @@
 #include "C2EngineDisplayAccess.h"
+#include "ApplicationGlobals.h"
 #include "C2EngineDisplayManager.h"
+#include "C2E2LevelOfDetailManager.h"
 #include "C2GameMapAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
@@ -12,6 +14,29 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
+#include <windows.h>
+#include <mmsystem.h>
+
+extern std::uint32_t DAT_005683b0;
+extern std::uint32_t DAT_005683c0;
+extern std::uint32_t DAT_005683c4[20];
+
+// Untranslated original routines. The unused EDX parameter preserves the
+// ECX receiver and callee-popped stack of their Windows __thiscall interfaces.
+extern bool __cdecl FUN_004a2f54(const std::int16_t* rectangle);
+extern void __cdecl FUN_00499ad5(void* display);
+extern void* DAT_00568428;
+extern void __fastcall FUN_0048688e(void* manager, void* unusedEdx, void* display);
+extern void __fastcall FUN_004911d5(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point, bool firstFlag, bool secondFlag);
+extern void __fastcall FUN_0047d37b(void* display);
+extern void __fastcall FUN_0047d64a(void* display);
+extern void __fastcall FUN_0047d918(void* display);
+extern void __fastcall FUN_004986c5(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point);
+extern void __fastcall FUN_004990e4(void* display);
+extern void __fastcall FUN_0049938d(void* display);
+extern void __fastcall FUN_004995d8(void* display);
+extern void __fastcall FUN_004986ab(void* display);
+extern void __fastcall FUN_0040eefa(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
@@ -181,18 +206,11 @@ namespace NC2E2
 
     static std::int32_t DisplayDescription_DivideSigned(std::uint32_t numerator, std::uint32_t denominator)
     {
-        std::int32_t quotient;
-
-        // Preserve signed IDIV, including its original exceptional cases.
-        __asm
-        {
-            mov eax, dword ptr numerator
-            cdq
-            idiv dword ptr denominator
-            mov dword ptr quotient, eax
-        }
-
-        return quotient;
+        // Keep runtime operands so the Win32 compiler emits the original signed IDIV.
+        // Zero and INT_MIN / -1 retain the processor's division exception.
+        const volatile std::int32_t dividend = DisplayDescription_SignedDword(numerator);
+        const volatile std::int32_t divisor = DisplayDescription_SignedDword(denominator);
+        return dividend / divisor;
     }
 
     // Original function: FUN_0048201b
@@ -384,19 +402,8 @@ namespace NC2E2
 
     static bool Display_FloatComparisonBranchesOnDifference(float requested, float current)
     {
-        std::uint8_t different;
-
-        // Preserve FCOMP; FNSTSW; SAHF; JNE, including unordered comparisons.
-        __asm
-        {
-            fld dword ptr requested
-            fcomp dword ptr current
-            fnstsw ax
-            sahf
-            setne byte ptr different
-        }
-
-        return different != 0;
+        // FCOMP; FNSTSW; SAHF; JNE skips both equal and unordered operands.
+        return requested < current || requested > current;
     }
 
     // Original function: FUN_0047c73c
@@ -794,6 +801,308 @@ namespace NC2E2
         // True reports that an invalid reference was cleared.
         DisplayObjectReference_Reset(reference);
         return true;
+    }
+
+    // Original function: FUN_0047dbf3; l_DE_SpecialFX_Earthquake_Update.
+    static void Display_UpdateEarthquake(void* display)
+    {
+        const std::uint32_t endTime = Display_ReadField<std::uint32_t>(display, 0x940);
+        if (endTime == 0)
+            return;
+        if (::timeGetTime() > endTime)
+        {
+            Display_WriteField(display, 0x94C, Display_ReadField<std::uint32_t>(display, 0x94C) - Display_ReadField<std::uint32_t>(display, 0x944));
+            Display_WriteField(display, 0x940, 0u);
+            Display_WriteField(display, 0x950, Display_ReadField<std::uint32_t>(display, 0x950) - Display_ReadField<std::uint32_t>(display, 0x948));
+            return;
+        }
+
+        // Original lazy CRandom at 00554d90, guarded by 00554d88.
+        // 00410c3f leaves this fixed seed unchanged (its bit count is in [8,24]).
+        static NC2Logic::SGameRandomState random{ 0x5432ACE0u, 0x5432ACE0u };
+        const auto nextRandom = [] () -> std::uint32_t
+        {
+            // Original recurrence: 00410ccd/00410cd2; retain both reductions.
+            const std::uint32_t high = (random.currentState >> 16) * 0x41A7u;
+            std::uint32_t value = (random.currentState & 0xFFFFu) * 0x41A7u + ((high & 0x7FFFu) << 16);
+            if (value > 0x7FFFFFFFu)
+                value = (value & 0x7FFFFFFFu) + 1u;
+            value += high >> 15;
+            if (value > 0x7FFFFFFFu)
+                value = (value & 0x7FFFFFFFu) + 1u;
+            random.currentState = value;
+            return value;
+        };
+        const std::uint32_t dx = nextRandom() % 41u - 20u;
+        const std::uint32_t dy = nextRandom() % 21u - 10u;
+        Display_WriteField(display, 0x94C, Display_ReadField<std::uint32_t>(display, 0x94C) + dx);
+        Display_WriteField(display, 0x944, Display_ReadField<std::uint32_t>(display, 0x944) + dx);
+        Display_WriteField(display, 0x950, Display_ReadField<std::uint32_t>(display, 0x950) + dy);
+        Display_WriteField(display, 0x948, Display_ReadField<std::uint32_t>(display, 0x948) + dy);
+    }
+
+    // Original function: FUN_0047cc71; l_DE_Hightlighting_CheckUpdate.
+    static void Display_Highlighting_CheckUpdate(void* display)
+    {
+        if (Display_ReadField<std::uint8_t>(display, 0x74) == 0)
+            return;
+        std::uint16_t bits[4];
+        std::memcpy(bits, static_cast<const std::byte*>(display) + 0x97A, sizeof(bits));
+        bits[0] = static_cast<std::uint16_t>(bits[0] - 8u);
+        bits[1] = static_cast<std::uint16_t>(bits[1] - 16u);
+        bits[2] = static_cast<std::uint16_t>(bits[2] + 16u);
+        bits[3] = static_cast<std::uint16_t>(bits[3] + 40u);
+        std::int16_t rectangle[4];
+        std::memcpy(rectangle, bits, sizeof(rectangle));
+        NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
+        if (FUN_004a2f54(rectangle))
+            Display_WriteField(display, 0x978, std::uint8_t{1});
+    }
+
+    // Original function: FUN_0047c9ab.
+    void Display_MapMigToLocalDisplayPixelCoordinates(const void* display, const void* packedMapPoint, std::int32_t* point, bool applyZoom)
+    {
+        const std::uint32_t position = Display_ReadField<std::uint32_t>(packedMapPoint, 0);
+        DisplayDescription_MapMigToWorldPixelCoordinates(display, position, point, true);
+        Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, point, applyZoom);
+    }
+
+    // Original function: FUN_00481544; l_DE_SetMapRectangle.
+    static void Display_SetMapRectangle(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
+    {
+        auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, 0x68);
+        std::int16_t rectangle[4];
+        DisplayDescription_GetMapRectangle(display, pixelX, pixelY, static_cast<std::uint32_t>(bitmap->GetRectangle().width), static_cast<std::uint32_t>(bitmap->GetRectangle().height), rectangle);
+
+        const auto addShort = [](std::int16_t& field, std::int32_t increment)
+        {
+            const std::uint16_t bits = static_cast<std::uint16_t>(static_cast<std::int32_t>(field) + increment);
+            std::memcpy(&field, &bits, sizeof(field));
+        };
+        addShort(rectangle[0], -14);
+        addShort(rectangle[2], 28);
+        addShort(rectangle[1], -10);
+        addShort(rectangle[3], 46);
+        NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
+        std::memcpy(static_cast<std::byte*>(display) + 0x97A, rectangle, sizeof(rectangle));
+
+        const std::int32_t right = static_cast<std::int32_t>(rectangle[0]) + rectangle[2];
+        const std::int32_t bottom = static_cast<std::int32_t>(rectangle[1]) + rectangle[3];
+        const std::int32_t widthLimit = static_cast<std::uint16_t>(static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) - 1u);
+        const std::int32_t heightLimit = static_cast<std::uint16_t>(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeight()) - 1u);
+        Display_WriteField(display, 0x982, static_cast<std::uint16_t>(rectangle[0] > 0 ? rectangle[0] : 0));
+        Display_WriteField(display, 0x984, static_cast<std::uint16_t>(right < widthLimit ? right : widthLimit));
+        Display_WriteField(display, 0x986, static_cast<std::uint16_t>(rectangle[1] > 0 ? rectangle[1] : 0));
+        Display_WriteField(display, 0x988, static_cast<std::uint16_t>(bottom < heightLimit ? bottom : heightLimit));
+
+        const std::uint32_t x = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, 0x10) * static_cast<std::uint32_t>(rectangle[0])) - pixelX;
+        const std::uint32_t y = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, 0x0C) * static_cast<std::uint32_t>(rectangle[1])) - pixelY;
+        Display_WriteField(display, 0x98C, x);
+        Display_WriteField(display, 0x990, y);
+    }
+
+    // Original function: FUN_0048168c.
+    static void Display_CopyStaticBitmap(void* display)
+    {
+        auto* source = Display_ReadField<NXBasics::CBitmap*>(display, 0x96C);
+        const std::int32_t x = Display_ReadField<std::int32_t>(display, 0x970);
+        const std::int32_t y = Display_ReadField<std::int32_t>(display, 0x974);
+        const std::int32_t remainingWidth = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, 0x964) - static_cast<std::uint32_t>(x));
+        const std::int32_t remainingHeight = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, 0x968) - static_cast<std::uint32_t>(y));
+
+        NXBasics::CBitmap bottomRight(source, NXBasics::SRectangle(x, y, remainingWidth, remainingHeight));
+        bottomRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, 0x68), 0, 0);
+        if (x != 0)
+        {
+            NXBasics::CBitmap bottomLeft(source, NXBasics::SRectangle(0, y, x, remainingHeight));
+            bottomLeft.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, 0x68), remainingWidth, 0);
+        }
+        if (y != 0)
+        {
+            NXBasics::CBitmap topRight(source, NXBasics::SRectangle(x, 0, remainingWidth, y));
+            topRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, 0x68), 0, remainingHeight);
+            if (x != 0)
+            {
+                NXBasics::CBitmap topLeft(source, NXBasics::SRectangle(0, 0, x, y));
+                topLeft.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, 0x68), remainingWidth, remainingHeight);
+            }
+        }
+    }
+
+    struct S2DEngineDisplayRectangle
+    {
+        std::uint32_t worldX;
+        std::uint32_t worldY;
+        std::uint32_t bitmapX;
+        std::uint32_t bitmapY;
+        std::uint32_t width;
+        std::uint32_t height;
+    };
+    static_assert(sizeof(S2DEngineDisplayRectangle) == 0x18);
+
+    // The original drawing stage takes a copied 24-byte rectangle on the stack.
+    extern void __fastcall FUN_00481ae2(void* display, void* unusedEdx, S2DEngineDisplayRectangle rectangle);
+
+    static std::uint32_t Display_WrapBitmapCoordinate(std::uint32_t coordinate, std::uint32_t size)
+    {
+        if (coordinate == 0)
+            return 0;
+        const std::int32_t divisor = NXBasics::Runtime_TimeSigned32(size);
+        if ((coordinate & 0x80000000u) != 0)
+        {
+            const std::int32_t remainder = NXBasics::Runtime_TimeSigned32(0u - coordinate) % divisor;
+            coordinate = size - static_cast<std::uint32_t>(remainder);
+        }
+        return static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(coordinate) % divisor);
+    }
+
+    // Original function: FUN_00481dd1; l_DE_WrapStaticBitmapPosition.
+    static void Display_WrapStaticBitmapPosition(const void* display, S2DEngineDisplayRectangle& rectangle)
+    {
+        rectangle.bitmapX = Display_WrapBitmapCoordinate(rectangle.bitmapX, Display_ReadField<std::uint32_t>(display, 0x964));
+        rectangle.bitmapY = Display_WrapBitmapCoordinate(rectangle.bitmapY, Display_ReadField<std::uint32_t>(display, 0x968));
+    }
+
+    // Original function: FUN_00481a74; l_DE_RebuildStaticCompletly.
+    static void Display_RebuildStaticCompletly(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
+    {
+        const S2DEngineDisplayRectangle rectangle{ pixelX, pixelY, 0, 0, Display_ReadField<std::uint32_t>(display, 0x964), Display_ReadField<std::uint32_t>(display, 0x968) };
+        FUN_00481ae2(display, nullptr, rectangle);
+        Display_WriteField(display, 0x970, 0u);
+        Display_WriteField(display, 0x974, 0u);
+        Display_WriteField(display, 0x978, std::uint8_t{0});
+        Display_WriteField(display, 0x954, pixelX);
+        Display_WriteField(display, 0x958, pixelY);
+    }
+
+    // Original function: FUN_004817dc; l_DE_DoUpdateStatic.
+    static void Display_DoUpdateStatic(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
+    {
+        const std::uint32_t oldX = Display_ReadField<std::uint32_t>(display, 0x954);
+        const std::uint32_t oldY = Display_ReadField<std::uint32_t>(display, 0x958);
+        const std::uint32_t dx = pixelX - oldX;
+        const std::uint32_t dy = pixelY - oldY;
+        const std::uint32_t absoluteX = (dx & 0x80000000u) != 0 ? 0u - dx : dx;
+        const std::uint32_t absoluteY = (dy & 0x80000000u) != 0 ? 0u - dy : dy;
+        const std::uint32_t width = Display_ReadField<std::uint32_t>(display, 0x964);
+        const std::uint32_t height = Display_ReadField<std::uint32_t>(display, 0x968);
+        if (NXBasics::Runtime_TimeSigned32(absoluteX) >= NXBasics::Runtime_TimeSigned32(width) || NXBasics::Runtime_TimeSigned32(absoluteY) >= NXBasics::Runtime_TimeSigned32(height) || Display_ReadField<std::uint8_t>(display, 0x978) != 0)
+        {
+            Display_RebuildStaticCompletly(display, pixelX, pixelY);
+            return;
+        }
+        if (dx == 0 && dy == 0)
+            return;
+
+        const std::uint32_t product = dx * dy;
+        const std::uint32_t area = (product & 0x80000000u) != 0 ? 0u - product : product;
+        if ((area * 100u) / (height * width) >= 75u)
+        {
+            Display_RebuildStaticCompletly(display, pixelX, pixelY);
+            return;
+        }
+
+        if (dx != 0)
+        {
+            const bool movesRight = NXBasics::Runtime_TimeSigned32(dx) > 0;
+            S2DEngineDisplayRectangle rectangle{ oldX + (movesRight ? width : dx), oldY + dy, Display_ReadField<std::uint32_t>(display, 0x970) + (movesRight ? width : dx), Display_ReadField<std::uint32_t>(display, 0x974) + dy, absoluteX, height };
+            Display_WrapStaticBitmapPosition(display, rectangle);
+            FUN_00481ae2(display, nullptr, rectangle);
+        }
+        if (dy != 0)
+        {
+            const bool movesRight = NXBasics::Runtime_TimeSigned32(dx) > 0;
+            const bool movesDown = NXBasics::Runtime_TimeSigned32(dy) > 0;
+            const std::uint32_t updatedHeight = Display_ReadField<std::uint32_t>(display, 0x968);
+            S2DEngineDisplayRectangle rectangle{ Display_ReadField<std::uint32_t>(display, 0x954) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, 0x958) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, 0x970) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, 0x974) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, 0x964) - absoluteX, absoluteY };
+            Display_WrapStaticBitmapPosition(display, rectangle);
+            FUN_00481ae2(display, nullptr, rectangle);
+        }
+        Display_WriteField(display, 0x970, Display_ReadField<std::uint32_t>(display, 0x970) + dx);
+        Display_WriteField(display, 0x974, Display_ReadField<std::uint32_t>(display, 0x974) + dy);
+        Display_WriteField(display, 0x970, Display_WrapBitmapCoordinate(Display_ReadField<std::uint32_t>(display, 0x970), Display_ReadField<std::uint32_t>(display, 0x964)));
+        const std::uint32_t bitmapY = Display_WrapBitmapCoordinate(Display_ReadField<std::uint32_t>(display, 0x974), Display_ReadField<std::uint32_t>(display, 0x968));
+        Display_WriteField(display, 0x954, pixelX);
+        Display_WriteField(display, 0x974, bitmapY);
+        Display_WriteField(display, 0x958, pixelY);
+    }
+
+    // Original function: FUN_004910c5; l_DE_DrawForeground.
+    static void Display_DrawForeground(void* display)
+    {
+        FUN_00499ad5(display);
+        if ((Display_ReadField<std::uint8_t>(display, 0x70) & 2u) != 0)
+            FUN_0048688e(DAT_00568428, nullptr, display);
+        const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
+        const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + 0x98C);
+        if ((Display_ReadField<std::uint8_t>(display, 0x70) & 1u) != 0)
+        {
+            FUN_004911d5(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, true);
+            FUN_004911d5(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, false);
+        }
+        if (CLevelOfDetailManager::sLevelOfDetail == 2 && Display_ReadField<std::int32_t>(display, 0x78) >= 0)
+        {
+            FUN_0047d37b(display);
+            FUN_0047d64a(display);
+            FUN_0047d918(display);
+        }
+        if (Display_ReadField<std::uint8_t>(display, 0x920) != 0)
+            FUN_004986c5(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point);
+        if ((Display_ReadField<std::uint8_t>(display, 0x71) & 0x20u) != 0)
+        {
+            FUN_004990e4(display);
+            FUN_0049938d(display);
+        }
+        if ((Display_ReadField<std::uint8_t>(display, 0x71) & 0xC0u) != 0)
+            FUN_004995d8(display);
+        FUN_004986ab(display);
+
+        if (Display_ReadField<std::int32_t>(display, 0x78) > 0)
+        {
+            auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, 0x64);
+            NXBasics::SRectangle area = bitmap->GetRectangle();
+            // Original 00410654 masks each dimension with 0000fffch.
+            area.width = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.width) & 0xFFFCu);
+            area.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.height) & 0xFFFCu);
+            NXBasics::CBitmap window(bitmap, area);
+            for (std::int32_t step = 0; step < Display_ReadField<std::int32_t>(display, 0x78); ++step)
+                FUN_0040eefa(&window);
+        }
+    }
+
+    // Original function: FUN_0048162f; C2DEngineDisplay::DE_UpdateDisplay.
+    void Display_UpdateDisplay(void* display)
+    {
+        Display_UpdateEarthquake(display);
+        Display_SetMapRectangle(display, Display_ReadField<std::uint32_t>(display, 0x94C), Display_ReadField<std::uint32_t>(display, 0x950));
+        Display_Highlighting_CheckUpdate(display);
+        Display_DoUpdateStatic(display, Display_ReadField<std::uint32_t>(display, 0x94C), Display_ReadField<std::uint32_t>(display, 0x950));
+        Display_CopyStaticBitmap(display);
+        Display_DrawForeground(display);
+        auto* workBitmap = Display_ReadField<NXBasics::CBitmap*>(display, 0x68);
+        auto* outputBitmap = Display_ReadField<NXBasics::CBitmap*>(display, 0x64);
+        if (workBitmap != outputBitmap)
+            workBitmap->CopyIntoBitmap_FitIn(outputBitmap);
+    }
+
+    // Original function: FUN_00485bf0; semantic name derived from Windows xrefs.
+    void WorldMusic_UpdateVisiblePlayerSelection()
+    {
+        if (gDirectMusicManager == nullptr)
+            return;
+
+        std::uint32_t selected = 0xFFFFFFFFu;
+        DAT_005683b0 = selected;
+        for (std::uint32_t player = 0; player < 20u; ++player)
+        {
+            if (player == DAT_005683c0 || DAT_005683c4[player] == 0)
+                continue;
+            if (selected == 0xFFFFFFFFu || DAT_005683c4[selected] < DAT_005683c4[player])
+            {
+                selected = player;
+                DAT_005683b0 = selected;
+            }
+        }
     }
 
     // Original function: FUN_00484b6c

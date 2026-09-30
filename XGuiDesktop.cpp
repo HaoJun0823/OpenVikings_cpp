@@ -164,7 +164,7 @@ namespace NXBaseGui
             auto* list = std::launder(reinterpret_cast<TList*>(objectBytes + offset));
 
             // Qualified destruction bypasses the cleared virtual-table pointer.
-            list->TList::~TList();
+            list->NXBasics::CList<CBaseElement>::~CList();
         };
 
         const auto destroyWindowList = [objectBytes] (std::size_t offset)
@@ -174,7 +174,7 @@ namespace NXBaseGui
             auto* list = std::launder(reinterpret_cast<TList*>(objectBytes + offset));
 
             // Qualified destruction bypasses the cleared virtual-table pointer.
-            list->TList::~TList();
+            list->NXBasics::CList<CBaseWindow>::~CList();
         };
 
         destroyWindowList(0x118);

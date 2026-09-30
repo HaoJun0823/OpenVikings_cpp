@@ -1,5 +1,6 @@
 #include "WorldDisplayElementAccess.h"
 #include "C2E2AnimalSoundManager.h"
+#include "C2E2AmbientSoundManagerAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "GuiToolsBase.h"
 #include "InGameGuiManager.h"
@@ -7,6 +8,7 @@
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
+#include "XPaletteAccess.h"
 
 #include <cstdarg>
 #include <cstddef>
@@ -20,6 +22,80 @@ extern void* DAT_005550d4;
 
 namespace NC2InGameGuiWorldElement
 {
+    template<class T> static T WorldDisplayElement_ReadField(const void* object, std::size_t offset)
+    {
+        T value;
+        std::memcpy(&value, static_cast<const std::byte*>(object) + offset, sizeof(value));
+        return value;
+    }
+
+    // Original function: FUN_004b8b33.
+    // Original method: NC2InGameGuiBase::CBaseBitmapToolElement::XGui_BE_Element_Draw.
+    static void WorldDisplayElement_DrawBaseBitmap(const void* element, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        auto* source = WorldDisplayElement_ReadField<NXBasics::CBitmap*>(element, 0x2C);
+        const std::int32_t x = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->x));
+        const std::int32_t y = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->y));
+        source->CopyIntoBitmap(bitmap, x, y);
+    }
+
+    // Original function: FUN_004bb6a6; CWorldDisplayElement::l_DarkenBitmap_Do.
+    void WorldDisplayElement_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap)
+    {
+        // +0x238 is the palette variant selected by DarkenBitmap_Init (004bb57b).
+        if (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x238) == 0)
+            return;
+
+        const std::uint32_t depth = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 4);
+        if (depth != 1u && depth != 2u)
+            return;
+
+        const std::uint32_t width = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 0x10);
+        const std::uint32_t height = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 0x14);
+        const std::uint32_t rowPixels = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 0x30);
+
+        if (depth == 2u)
+        {
+            auto* pixels = WorldDisplayElement_ReadField<std::uint32_t*>(bitmap, 0x2C);
+            void* palette = WorldDisplayElement_ReadField<void*>(element, 0x23C);
+            const std::uint32_t* table = NXBasics::Palette_GetTrueColorTablePtr(palette);
+
+            for (std::uint32_t y = 0; y < height; ++y)
+            {
+                for (std::uint32_t x = 0; x < width; ++x)
+                {
+                    const std::uint32_t pixel = *pixels;
+                    std::uint32_t brightness = (pixel >> 16) & 255u;
+                    const std::uint32_t green = (pixel >> 8) & 255u;
+                    const std::uint32_t blue = pixel & 255u;
+                    if (brightness < green)
+                        brightness = green;
+                    if (brightness < blue)
+                        brightness = blue;
+                    *pixels++ = table[brightness];
+                }
+                const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pixels)) + (rowPixels - width) * 4u;
+                pixels = reinterpret_cast<std::uint32_t*>(static_cast<std::uintptr_t>(address));
+            }
+        }
+        else
+        {
+            auto* pixels = WorldDisplayElement_ReadField<std::uint16_t*>(bitmap, 0x28);
+            const auto* table = WorldDisplayElement_ReadField<const std::uint16_t*>(element, 0x240);
+
+            for (std::uint32_t y = 0; y < height; ++y)
+            {
+                for (std::uint32_t x = 0; x < width; ++x)
+                {
+                    *pixels = table[*pixels];
+                    ++pixels;
+                }
+                const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pixels)) + (rowPixels - width) * 2u;
+                pixels = reinterpret_cast<std::uint16_t*>(static_cast<std::uintptr_t>(address));
+            }
+        }
+    }
+
     // Original function: FUN_004ba1ba
     // Original method: CWorldDisplayElement::XGui_BE_Element_Draw.
     void WorldDisplayElement_Draw(void* element, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle)
@@ -46,9 +122,9 @@ namespace NC2InGameGuiWorldElement
         };
 
         WorldDisplayElement_ValidateObjectUnderMouse(element);
-        FUN_0048162f(readPointer(element, 0x30));
-        FUN_004b8b33(element, bitmap, rectangle);
-        FUN_004bb6a6(element, bitmap);
+        NC2E2::Display_UpdateDisplay(readPointer(element, 0x30));
+        WorldDisplayElement_DrawBaseBitmap(element, bitmap, rectangle);
+        WorldDisplayElement_DarkenBitmap_Do(element, bitmap);
 
         if (readWord(element, 0x38) == 4u)
         {
@@ -57,7 +133,7 @@ namespace NC2InGameGuiWorldElement
             if (readWord(element, 0x78) == readWord(display, 0x7C))
             {
                 const bool enabled = readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xE1) == 0;
-                FUN_00498d54(display, readWord(element, 0x60), bitmap, enabled);
+                NC2E2::Display_DrawTooltipOverlay_External_House(display, readWord(element, 0x60), bitmap, enabled);
             }
         }
 
@@ -68,7 +144,7 @@ namespace NC2InGameGuiWorldElement
             if (readWord(element, 0x78) == readWord(display, 0x7C))
             {
                 const bool enabled = readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xE1) == 0;
-                FUN_00498d98(display, readWord(element, 0x50), bitmap, enabled);
+                NC2E2::Display_DrawTooltipOverlay_External_Vehicle(display, readWord(element, 0x50), bitmap, enabled);
             }
         }
 
@@ -102,9 +178,9 @@ namespace NC2InGameGuiWorldElement
         // Original double at 004f6ff8: 120.0.
         if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 120.0) && DAT_0051089d == 0)
         {
-            FUN_0047fae2(DAT_005550d4, display);
+            NC2E2::AmbientSoundManager_UpdateAmbientSounds(DAT_005550d4, display);
             NC2E2::CE2AnimalSoundManager::sTheObjectPtr->PlayAnimalSounds(readPointer(element, 0x30));
-            FUN_00485bf0(readPointer(element, 0x30));
+            NC2E2::WorldMusic_UpdateVisiblePlayerSelection();
         }
 
         display = readPointer(element, 0x30);

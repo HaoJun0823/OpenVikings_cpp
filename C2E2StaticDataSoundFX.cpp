@@ -11,9 +11,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_00568a50;
-extern void* DAT_00568aec;
-
 
 // Original data: DAT_004f4a20.
 extern const NXBasics::SToken gSoundFxTokens[];
@@ -239,7 +236,7 @@ namespace NC2E2
                             {
                                 const char* groupName = reader.GetString();
                                 const std::uint32_t recordIndex = ambientSoundCount - 1u;
-                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(DAT_00568aec, groupName));
+                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gStaticDataLandscapesManager, groupName));
 
                                 writeWord(addressAt(this, 0x388u + groupIndex * 4u), recordIndex);
                                 break;
@@ -253,7 +250,7 @@ namespace NC2E2
                             {
                                 const char* groupName = reader.GetString();
                                 const std::uint32_t recordIndex = ambientSoundCount - 1u;
-                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(DAT_00568a50, groupName));
+                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gStaticDataPatternManager, groupName));
 
                                 writeWord(addressAt(this, 0x1F8u + groupIndex * 4u), recordIndex);
                                 break;

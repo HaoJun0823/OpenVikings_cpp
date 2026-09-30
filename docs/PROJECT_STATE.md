@@ -34,6 +34,21 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### Repository-wide production source audit
+
+- Replaced three of nine inline-assembly blocks and resolved eight of 55 live `DAT_` references. Six hardware/conversion assembly blocks and 47 live data symbols remain explicitly tracked.
+- Corrected the MSVC desktop destructor syntax and established stale runtime/file/network interface references. Win32 syntax checking covers all 77 production units; 71 pass, while six still contain unreconstructed dependencies.
+- Ran static analysis over all 71 compilable units and checked selected bounds, allocation, callback and error-path findings against Windows ASM. Original hazards were distinguished from translation errors; no tests were added.
+- See [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md) for evidence, coverage limits, the complete remaining data inventory and the six incomplete compilation units.
+
+### World display element drawing
+
+- All seven unresolved call sites in `WorldDisplayElementAccess.cpp` now have named C++ implementations, including connected display-control, tooltip and ambient-sound helpers.
+- Scroll/rebuild order, earthquake state, bitmap-window lifetimes, tooltip goods/owner rules, sound transitions and visible-player music selection were checked against Windows ASM. The misdecoded `0044DA5D` entry was recovered directly from `Game.exe` bytes.
+- Win32 production syntax checks and object generation passed for all five affected compilation units; no tests were added. New source inclusion is managed separately as instructed.
+- Renderer and game-logic boundaries remain explicit original calls. Next graphics block: `00481AE2` and `004911D5` with their directly related split/rasterization and object-traversal helpers.
+- See [WORLD_DISPLAY_ELEMENT_DRAW.md](WORLD_DISPLAY_ELEMENT_DRAW.md) for mappings, static-region evidence and remaining dependencies.
+
 ### CMapWalkSectorManager
 
 Latest completed theme block before this handoff:

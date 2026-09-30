@@ -13,10 +13,6 @@
 #include <cstring>
 #include <Windows.h>
 
-// Original data: DAT_00509910.
-// The diagnostic string contents are not present in the supplied ASM export.
-extern const char DAT_00509910[];
-
 // Original data: DAT_0050f6a8.
 NNetwork::SDynamicNetworkData gDynamicNetworkData{};
 
@@ -567,7 +563,7 @@ namespace NNetwork
                                 }
                                 else
                                 {
-                                    OutputDebugStringA(DAT_00509910);
+                                    OutputDebugStringA(OriginalStrings::FileTransferServiceUnavailable);
                                 }
 
                                 return S_OK;

@@ -6,6 +6,9 @@ namespace OriginalStrings
     // Original data: 004fe164.
     inline constexpr char Dot[4] = ".";
 
+    // Original data: 004fe238.
+    inline constexpr char UnknownPlayerName[] = "?";
+
     // Original data: 004ff054.
     inline constexpr char WindowsRootPath[4] = "\\";
 
@@ -24,6 +27,12 @@ namespace OriginalStrings
     // Original data: 0050071c
     inline constexpr char DirectPlayErrorSeparator[] = " - ";
 
+    // Original data: 00500818.
+    inline constexpr char DirectoryAndFileNameFormat[] = "%s\\%s";
+
+    // Original data: 0050716c.
+    inline constexpr char RightArrow[] = ">";
+
     // Original data: 005087fc
     inline constexpr char NetworkLogTimeFormat[] = "%s ";
 
@@ -32,6 +41,9 @@ namespace OriginalStrings
 
     // Original data: 0050978c
     inline constexpr char NetworkLogIndentation[] = "\t";
+
+    // Original data: 00509910.
+    inline constexpr char FileTransferServiceUnavailable[] = "No file transfer service - message ignored\n";
 
     // Original data: 00509dec
     inline constexpr char NetworkPeerDestroyedLog[] = "DirectPlay peer object destroyed. Cannot re-initialize DirectPlay";

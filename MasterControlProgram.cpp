@@ -60,7 +60,7 @@ namespace NMasterControlProgram
 
         for (int index = 9; index >= 0; --index)
         {
-            DexterString::StringPrint(fileName, "use_data_file_%d", index);
+            NXBasics::Runtime_PrintString(fileName, "use_data_file_%d", index);
 
             const char* configuredFile = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr(fileName);
 
@@ -89,7 +89,7 @@ namespace NMasterControlProgram
         {
             for (int index = 10; index >= 1; --index)
             {
-                DexterString::StringPrint(fileName, "datax\\libs\\data%4.4d.lib", index);
+                NXBasics::Runtime_PrintString(fileName, "datax\\libs\\data%4.4d.lib", index);
 
                 if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, false))
                 {
@@ -160,17 +160,17 @@ namespace NMasterControlProgram
 
         char resolvedPath[MAX_PATH];
 
-        if (NXBasics::CFile::FileSystem_PathName_Resolve("datax\\mouse\\mousenormal.cur", resolvedPath))
+        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("datax\\mouse\\mousenormal.cur", resolvedPath))
         {
             mMouseCursors[0] = LoadCursorFromFileA(resolvedPath);
         }
 
-        if (NXBasics::CFile::FileSystem_PathName_Resolve("datax\\mouse\\mousepressed.cur", resolvedPath))
+        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("datax\\mouse\\mousepressed.cur", resolvedPath))
         {
             mMouseCursors[1] = LoadCursorFromFileA(resolvedPath);
         }
 
-        if (NXBasics::CFile::FileSystem_PathName_Resolve("datax\\mouse\\mouseright.cur", resolvedPath))
+        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("datax\\mouse\\mouseright.cur", resolvedPath))
         {
             mMouseCursors[2] = LoadCursorFromFileA(resolvedPath);
         }
@@ -253,7 +253,8 @@ namespace NMasterControlProgram
             char directMusicPath[MAX_PATH]{};
 
             GetCurrentDirectoryA(MAX_PATH - 1, directMusicPath);
-            DexterString::StringAttach(directMusicPath, "\\datax\\dm2\\");
+            // Original append routine 004e5c30 is strcat.
+            std::strcat(directMusicPath, "\\datax\\dm2\\");
 
             FUN_004035b6(gDirectMusicManager, 0, directMusicPath);
 

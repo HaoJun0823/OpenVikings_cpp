@@ -55,7 +55,6 @@ namespace
     NNetwork::SNetLog* InitializeNetworkLog(NNetwork::SNetLog* object);
     void ReportDirectPlayError(const char* operation, HRESULT result);
     const char* GetNetworkWindowsVersion();
-    bool GetNetworkIPAddress(std::uint32_t index, char* destination, std::uint32_t capacity);
     void ReportNetworkConditionFailure(const char* sourceFile, std::int32_t line, std::int32_t condition, const char* message);
     const char* GetNetworkDirectXVersion();
 
@@ -193,6 +192,10 @@ namespace
         return gNetworkWindowsVersion;
     }
 
+}
+
+namespace NNetwork
+{
     // Original function: FUN_004de4c4
     bool GetNetworkIPAddress(std::uint32_t index, char* destination, std::uint32_t capacity)
     {
@@ -235,6 +238,10 @@ namespace
         return success;
     }
 
+}
+
+namespace
+{
     // Original function: FUN_004de569
     void ReportNetworkConditionFailure(const char* sourceFile, std::int32_t line, std::int32_t condition, const char* message)
     {
@@ -3307,7 +3314,7 @@ NNetwork::SNetLog* WriteNetworkLogHeader(NNetwork::SNetLog* object)
     char address[0x40] = {};
     std::uint32_t addressIndex = 0;
 
-    while (GetNetworkIPAddress(addressIndex, address, 0x40u))
+    while (NNetwork::GetNetworkIPAddress(addressIndex, address, 0x40u))
     {
         // Original string: 005096a0.
         NXBasics::Runtime_PrintString(message, "IP:    %s\n", address);

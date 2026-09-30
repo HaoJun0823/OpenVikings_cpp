@@ -133,7 +133,7 @@ namespace NMasterControlProgram
                 {
                     char buffer[300];
 
-                    DexterString::StringPrint(buffer, "DMManager reports error: %s\r\n", *errorMessage);
+                    NXBasics::Runtime_PrintString(buffer, "DMManager reports error: %s\r\n", *errorMessage);
 
                     OutputDebugStringA(buffer);
                 }

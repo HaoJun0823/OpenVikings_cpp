@@ -10,6 +10,8 @@
 
 namespace NNetwork
 {
+    bool GetNetworkIPAddress(std::uint32_t index, char* destination, std::uint32_t capacity);
+
     struct SEventNode
     {
         DPNID playerId;                           // +0x000
