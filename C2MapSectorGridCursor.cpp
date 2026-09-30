@@ -48,4 +48,28 @@ namespace NC2Logic
             y = 0;
         }
     }
+
+    // Original function: FUN_00458505; the eight entries were recovered from the Windows jump table.
+    void SSectorGridCursor::MoveCursorUnwrapped(std::uint32_t direction)
+    {
+        if (direction > 7u)
+            return;
+
+        static constexpr std::int32_t deltaX[8] = { 1, 1, 0, -1, -1, -1, 0, 0 };
+        static constexpr std::int32_t deltaY[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+        const std::uint32_t xBits = static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(deltaX[direction]);
+        const std::uint32_t yBits = static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(deltaY[direction]);
+        std::memcpy(&x, &xBits, sizeof(x));
+        std::memcpy(&y, &yBits, sizeof(y));
+    }
+
+    // Original function: FUN_00458553.
+    void SSectorGridCursor::MoveCursorUnwrapped(std::uint32_t direction, std::uint32_t distance)
+    {
+        while (distance != 0)
+        {
+            MoveCursorUnwrapped(direction);
+            --distance;
+        }
+    }
 }

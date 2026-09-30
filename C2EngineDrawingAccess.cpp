@@ -270,7 +270,7 @@ namespace NC2E2
             if (!CLevelOfDetailManager::GetUseMatrixFXBobsFlag() && readByte(graphic, 0x7E) == 0)
                 return;
 
-            FUN_00498128(readPointer(graphic, 0x6C), bobId, bitmap, x, y);
+            NXBasics::BobManager_PrintBob_UsingEffectMatrix(readPointer(graphic, 0x6C), bobId, bitmap, x, y);
             return;
         }
 
@@ -310,7 +310,7 @@ namespace NC2E2
                 const std::int32_t glowX = signedValue(static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(offsetsX[index]));
                 const std::int32_t glowY = signedValue(static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(offsetsY[index]));
 
-                FUN_0049c80f(readPointer(graphic, 0x6C), bobId, bitmap, glowX, glowY, &glowColor, strengths[index]);
+                NXBasics::BobManager_PrintBob_FX_DrawArea(readPointer(graphic, 0x6C), bobId, bitmap, glowX, glowY, &glowColor, strengths[index]);
             }
         }
 
@@ -340,14 +340,14 @@ namespace NC2E2
                 const void* remap = readPointer(colorData, 0x28);
                 NXBasics::CPalette* remapPalette = EnginePalette_GetBrightnessPalette(readPointer(colorData, 0x2C), brightness / 2);
 
-                FUN_00463f7c(readPointer(graphic, 0x6C), bobId, bitmap, x, y, remapPalette, addressAt(remap, 4));
+                NXBasics::BobManager_PrintBob_Remapped(readPointer(graphic, 0x6C), bobId, bitmap, x, y, remapPalette, addressAt(remap, 4));
             }
             else if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 4u)
             {
                 palette = reinterpret_cast<NXBasics::CPalette*>(readPointer(colorData, 0x20));
 
                 if (CLevelOfDetailManager::GetUseLandscapeAlphaBobsFlag())
-                    FUN_00466d39(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+                    NXBasics::BobManager_PrintBob_UsingShadedAlpha(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
                 else
                     NXBasics::BobManager_PrintBob_DoubleByteBobNormal(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
             }
@@ -364,7 +364,7 @@ namespace NC2E2
             if (brightness >= 254 && brightness <= 258)
                 NXBasics::BobManager_PrintBob(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette);
             else
-                FUN_0049bf5a(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+                NXBasics::BobManager_PrintBob_Shade_MMX(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
         }
         else if (NXBasics::BobManager_GetBobType(readPointer(graphic, 0x6C), bobId) == 4u)
         {
@@ -378,7 +378,7 @@ namespace NC2E2
             }
             else
             {
-                FUN_00466d39(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
+                NXBasics::BobManager_PrintBob_UsingShadedAlpha(readPointer(graphic, 0x6C), bobId, bitmap, x, y, palette, brightness / 2);
             }
         }
     }

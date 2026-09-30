@@ -26,7 +26,7 @@ $output += ''; ^
 $output += '--------------------'; ^
 $output += ('Total files:      {0}' -f $totalFiles); ^
 $output += ('Total lines:      {0}' -f $totalLines); ^
-$output ^| Set-Content -LiteralPath 'cound.txt' -Encoding UTF8"
+$output ^| Set-Content -LiteralPath 'count.txt' -Encoding UTF8"
 
 echo Done. Results written to cound.txt
 pause

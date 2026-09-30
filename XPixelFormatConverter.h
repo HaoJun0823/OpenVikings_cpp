@@ -25,6 +25,8 @@ namespace NXBasics
         // Original function: FUN_00410117
         std::uint16_t PackColor(const SColorRGB& color) const;
 
+        const std::uint32_t* GetTrueColorConvertTablePtr();
+
         std::uint16_t ApplyShadowMode1(std::uint16_t pixel) const;
         std::uint16_t ApplyShadowMode2(std::uint16_t pixel) const;
         std::uint16_t ApplyShadowMode3(std::uint16_t pixel) const;
@@ -39,7 +41,7 @@ namespace NXBasics
 
         bool mInitialized;                       // +0x00
         std::byte mPadding01[3];                 // +0x01
-        void* mUnknownBuffer;                    // +0x04
+        std::uint32_t* mTrueColorConvertTable;   // +0x04
         std::uint16_t* mDarkenedColorTable;      // +0x08
 
         std::uint16_t mRedMask;                  // +0x0C

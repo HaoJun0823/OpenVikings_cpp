@@ -1,5 +1,6 @@
 #include "ApplicationGlobals.h"
 #include "C2GameMapAccess.h"
+#include "C2MapGeometry.h"
 #include "XBasicTypes.h"
 #include "XCrtFileAccess.h"
 
@@ -155,6 +156,79 @@ namespace NC2Logic
 
         const std::uint32_t address = baseAddress + offset;
         return reinterpret_cast<const void*>(static_cast<std::uintptr_t>(address));
+    }
+
+    // Original function: FUN_0042385b.
+    void* GameMap_GetMapMicroPointPtr(const void* packedMigPoint)
+    {
+        if (!MapMigPoint_IsInsideMap(packedMigPoint))
+            return nullptr;
+
+        return const_cast<void*>(GameMap_GetConstMapMicroPointPtr(packedMigPoint));
+    }
+
+    // Original function: FUN_00424cc1.
+    std::int16_t GameMap_CalculationMap_GetValue(const void* packedMigPoint)
+    {
+        std::int16_t x;
+        std::int16_t y;
+        std::memcpy(&x, packedMigPoint, sizeof(x));
+        std::memcpy(&y, static_cast<const std::byte*>(packedMigPoint) + 2, sizeof(y));
+        const std::uint32_t index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(GameMap_GetWidth())) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
+        std::uint32_t baseAddress;
+        std::memcpy(&baseAddress, DAT_00511570 + 0x38, sizeof(baseAddress));
+        std::int16_t value;
+        std::memcpy(&value, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(baseAddress + index * 2u)), sizeof(value));
+        return value;
+    }
+
+    // Original function: FUN_00424ce2.
+    void GameMap_CalculationMap_SetValue(const void* packedMigPoint, std::int16_t value)
+    {
+        std::int16_t x;
+        std::int16_t y;
+        std::memcpy(&x, packedMigPoint, sizeof(x));
+        std::memcpy(&y, static_cast<const std::byte*>(packedMigPoint) + 2, sizeof(y));
+        const std::uint32_t index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(GameMap_GetWidth())) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
+        std::uint32_t baseAddress;
+        std::memcpy(&baseAddress, DAT_00511570 + 0x38, sizeof(baseAddress));
+        std::memcpy(reinterpret_cast<void*>(static_cast<std::uintptr_t>(baseAddress + index * 2u)), &value, sizeof(value));
+    }
+
+    // Original function: FUN_00424d09; zero-fill branch of FUN_0041095a.
+    void GameMap_CalculationMap_Clear(const void* packedMigPoint, std::int32_t radius)
+    {
+        std::int16_t x;
+        std::int16_t y;
+        std::memcpy(&x, packedMigPoint, sizeof(x));
+        std::memcpy(&y, static_cast<const std::byte*>(packedMigPoint) + 2, sizeof(y));
+        const std::int32_t diameter = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(radius) * 2u);
+        NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(static_cast<std::int32_t>(x)) - static_cast<std::uint32_t>(radius)), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) - static_cast<std::uint32_t>(radius)), diameter, diameter);
+        NXBasics::SRectangle bounds(0, 0, 0, 0);
+        std::memcpy(&bounds, DAT_00511570 + 0x10, sizeof(bounds));
+        rectangle.CutInside(bounds);
+        std::uint32_t baseAddress;
+        std::memcpy(&baseAddress, DAT_00511570 + 0x38, sizeof(baseAddress));
+        const std::uint32_t stride = static_cast<std::uint32_t>(static_cast<std::int32_t>(GameMap_GetWidth())) * 2u;
+        std::uint32_t address = baseAddress + static_cast<std::uint32_t>(rectangle.y) * stride + static_cast<std::uint32_t>(rectangle.x) * 2u;
+        for (std::int32_t row = 0; row < rectangle.height; ++row)
+        {
+            std::memset(reinterpret_cast<void*>(static_cast<std::uintptr_t>(address)), 0, static_cast<std::uint32_t>(rectangle.width) * 2u);
+            address += stride;
+        }
+    }
+
+    // Original function: FUN_00452aec.
+    std::uint32_t GameMap_Continent_GetContinentTyp(std::uint32_t continentId)
+    {
+        std::uint32_t count;
+        std::memcpy(&count, DAT_00511570 + 0x3C, sizeof(count));
+        if (continentId >= count)
+            return 0;
+
+        std::uint32_t type;
+        std::memcpy(&type, DAT_00511570 + 0x40 + continentId * 0x10u, sizeof(type));
+        return type;
     }
 
     // Original function: FUN_00423fb0

@@ -1,21 +1,51 @@
 #pragma once
 
+#include "C2CallbackManager.h"
+
 #include <cstddef>
 #include <cstdint>
 
 namespace NC2Logic
 {
+    class CIoHelper;
+    struct SSectorGridCursor;
+
+    struct SMapWalkSectorData
+    {
+        std::uint8_t calculated;
+        std::uint8_t connectionFlags;
+        std::uint8_t continentId;
+        std::byte unknown03;
+        std::uint32_t connectionValues[8];
+        std::uint32_t basePoints[3];
+        std::uint8_t basePointCount;
+        std::byte unknown31[3];
+    };
+
     class CMapWalkSectorManager
     {
     public:
+        struct SBasePointCandidate
+        {
+            std::int32_t selectionCount;
+            std::uint32_t packedBasePoint;
+            std::uint32_t lowBitsValue;
+        };
+
         struct SStaticData
         {
             std::int32_t gridWidth;          // +0x0000: number of sector columns.
             std::int32_t gridHeight;         // +0x0004: number of sector rows.
-            std::byte* sectorData08;         // +0x0008: first array; 0x34 bytes per sector.
-            std::byte* sectorData0C;         // +0x000C: second array; 0x34 bytes per sector.
+            SMapWalkSectorData* landSectors; // +0x0008
+            SMapWalkSectorData* waterSectors; // +0x000C
             std::uint32_t* calculationMap;   // +0x0010: one DWORD per sector.
-            std::byte workspace[0x3E5C];     // +0x0014: internal layout only partially resolved.
+            std::byte specialSectorSearchWorkspace[0x60]; // +0x0014: pathfinder object; internal fields unresolved.
+            SBasePointCandidate basePointCandidates[250]; // +0x0074
+            std::uint32_t floodFillPoints[8][400];         // +0x0C2C
+            std::int32_t floodFillPointCounts[8];          // +0x3E2C
+            std::int32_t nextFloodFillPointIndices[8];     // +0x3E4C
+            std::uint8_t requiresSectorRecalculation;      // +0x3E6C: incompatible loaded sector data.
+            std::byte unknown3E6D[3];
         };
 
         // Original data: DAT_00554ce0.
@@ -41,14 +71,40 @@ namespace NC2Logic
 
         // Original function: FUN_0044f3ea.
         static void l_Sectors_ClearAll();
+
+        static void l_Sectors_RecalculateAll();
+        static void l_Sectors_UpdateSector(const SSectorGridCursor& cursor);
+        static void l_Sectors_SpecialSectorFloodFill(SMapWalkSectorData& sector, const SSectorGridCursor& cursor);
+        static void l_Sectors_GetNextBasePoint(std::uint32_t* points, std::int32_t& count, std::int32_t& nextIndex, std::uint32_t& point);
+        static bool __cdecl l_Sectors_Callback(TCallbackTypes type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
+        static SMapWalkSectorData* GetLandSectorDataPtr(const SSectorGridCursor& cursor);
+        static SMapWalkSectorData* GetWaterSectorDataPtr(const SSectorGridCursor& cursor);
+        static void IO_Savegame_DoSave(CIoHelper& io);
+        explicit CMapWalkSectorManager(CIoHelper& io);
+        static bool IO_Cleanmap_Load(CIoHelper& io);
     };
 
     static_assert(sizeof(void*) == 4);
     static_assert(sizeof(CMapWalkSectorManager) == 1);
     static_assert(sizeof(CMapWalkSectorManager::SStaticData) == 0x3E70);
     static_assert(offsetof(CMapWalkSectorManager::SStaticData, gridHeight) == 0x04);
-    static_assert(offsetof(CMapWalkSectorManager::SStaticData, sectorData08) == 0x08);
-    static_assert(offsetof(CMapWalkSectorManager::SStaticData, sectorData0C) == 0x0C);
+    static_assert(sizeof(SMapWalkSectorData) == 0x34);
+    static_assert(offsetof(SMapWalkSectorData, calculated) == 0x00);
+    static_assert(offsetof(SMapWalkSectorData, connectionFlags) == 0x01);
+    static_assert(offsetof(SMapWalkSectorData, continentId) == 0x02);
+    static_assert(offsetof(SMapWalkSectorData, connectionValues) == 0x04);
+    static_assert(offsetof(SMapWalkSectorData, basePoints) == 0x24);
+    static_assert(offsetof(SMapWalkSectorData, basePointCount) == 0x30);
+    static_assert(sizeof(CMapWalkSectorManager::SBasePointCandidate) == 0x0C);
+    static_assert(offsetof(CMapWalkSectorManager::SBasePointCandidate, packedBasePoint) == 0x04);
+    static_assert(offsetof(CMapWalkSectorManager::SBasePointCandidate, lowBitsValue) == 0x08);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, landSectors) == 0x08);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, waterSectors) == 0x0C);
     static_assert(offsetof(CMapWalkSectorManager::SStaticData, calculationMap) == 0x10);
-    static_assert(offsetof(CMapWalkSectorManager::SStaticData, workspace) == 0x14);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, specialSectorSearchWorkspace) == 0x14);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, basePointCandidates) == 0x74);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, floodFillPoints) == 0xC2C);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, floodFillPointCounts) == 0x3E2C);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, nextFloodFillPointIndices) == 0x3E4C);
+    static_assert(offsetof(CMapWalkSectorManager::SStaticData, requiresSectorRecalculation) == 0x3E6C);
 }

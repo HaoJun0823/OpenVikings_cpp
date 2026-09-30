@@ -6,6 +6,21 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042abdd; distinct jump tables for odd and even rows.
+    void MapMigPoint_MoveCursorUnwrapped(std::uint32_t& packedMigPoint, std::uint32_t direction)
+    {
+        if (direction > 7u)
+            return;
+
+        const bool oddRow = (packedMigPoint & 0x10000u) != 0;
+        static constexpr std::int32_t oddDeltaX[8] = { 1, 1, 0, -1, 0, 1, 0, 0 };
+        static constexpr std::int32_t evenDeltaX[8] = { 1, 0, -1, -1, -1, 0, 0, 0 };
+        static constexpr std::int32_t deltaY[8] = { 0, 1, 1, 0, -1, -1, -2, 2 };
+        const std::uint16_t x = static_cast<std::uint16_t>(packedMigPoint + static_cast<std::uint32_t>(oddRow ? oddDeltaX[direction] : evenDeltaX[direction]));
+        const std::uint16_t y = static_cast<std::uint16_t>((packedMigPoint >> 16) + static_cast<std::uint32_t>(deltaY[direction]));
+        packedMigPoint = static_cast<std::uint32_t>(x) | (static_cast<std::uint32_t>(y) << 16);
+    }
+
     // Original function: FUN_0042a935
     std::int32_t VE_HexagonDirection_GetDistance(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY)
     {

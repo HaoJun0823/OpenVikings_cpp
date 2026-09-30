@@ -1,4 +1,5 @@
 #include "XPixelFormatConverter.h"
+#include "XCrtFileAccess.h"
 
 #include <cstdint>
 #include <new>
@@ -49,6 +50,39 @@ namespace NXBasics
         const std::uint32_t red = color.red;
 
         return PackColor(red, green, blue);
+    }
+
+    // Original function: FUN_00410131
+    const std::uint32_t* C16BitPixelConverter::GetTrueColorConvertTablePtr()
+    {
+        if (mTrueColorConvertTable == nullptr)
+        {
+            mTrueColorConvertTable = static_cast<std::uint32_t*>(Runtime_AllocateWithNewHandler(0x40000, 1));
+
+            if (mUsesRgb565 || mUsesRgb555)
+            {
+                const std::uint32_t greenCount = mUsesRgb565 ? 64u : 32u;
+                std::uint32_t index = 0;
+
+                // RGB555 initializes only the lower half of the allocation.
+                for (std::uint32_t red = 0; red < 32; ++red)
+                    for (std::uint32_t green = 0; green < greenCount; ++green)
+                        for (std::uint32_t blue = 0; blue < 32; ++blue)
+                            mTrueColorConvertTable[index++] = red * 0x80000u + green * (mUsesRgb565 ? 0x400u : 0x800u) + blue * 8u;
+            }
+            else
+            {
+                for (std::uint32_t pixel = 0; pixel < 0x10000; ++pixel)
+                {
+                    const std::uint32_t red = (pixel & mRedMask) >> (static_cast<std::uint32_t>(mRedAdjustment) & 31u);
+                    const std::uint32_t green = (pixel & mGreenMask) >> (static_cast<std::uint32_t>(mGreenAdjustment) & 31u);
+                    const std::uint32_t blue = (pixel & mBlueMask) >> (static_cast<std::uint32_t>(mBlueAdjustment) & 31u);
+                    mTrueColorConvertTable[pixel] = (((red << 8) | green) << 8 | blue) << 3;
+                }
+            }
+        }
+
+        return mTrueColorConvertTable;
     }
 
     // Original function: FUN_004102e8
@@ -137,7 +171,7 @@ namespace NXBasics
     C16BitPixelConverter::C16BitPixelConverter() :
         mInitialized(false),
         mPadding01{},
-        mUnknownBuffer(nullptr),
+        mTrueColorConvertTable(nullptr),
         mDarkenedColorTable(nullptr),
         mRedMask(0),
         mGreenMask(0),
@@ -161,8 +195,11 @@ namespace NXBasics
     // Original function: FUN_0040fe34
     C16BitPixelConverter::~C16BitPixelConverter()
     {
-        ::operator delete(mUnknownBuffer);
-        mUnknownBuffer = nullptr;
+        if (mTrueColorConvertTable != nullptr)
+        {
+            Runtime_Free(mTrueColorConvertTable);
+            mTrueColorConvertTable = nullptr;
+        }
 
         delete[] mDarkenedColorTable;
         mDarkenedColorTable = nullptr;
@@ -202,8 +239,11 @@ namespace NXBasics
         mUsesRgb565 = redMask == 0xF800 && greenMask == 0x07E0 && blueMask == 0x001F;
         mUsesRgb555 = redMask == 0x7C00 && greenMask == 0x03E0 && blueMask == 0x001F;
 
-        ::operator delete(mUnknownBuffer);
-        mUnknownBuffer = nullptr;
+        if (mTrueColorConvertTable != nullptr)
+        {
+            Runtime_Free(mTrueColorConvertTable);
+            mTrueColorConvertTable = nullptr;
+        }
 
         delete[] mDarkenedColorTable;
         mDarkenedColorTable = new (std::nothrow) std::uint16_t[0x10000];

@@ -61,6 +61,7 @@
     <ClCompile Include="XBitmap.cpp" />
     <ClCompile Include="XBobManager.cpp" />
     <ClCompile Include="XBobRendering.cpp" />
+    <ClCompile Include="XBobRenderingEffects.cpp" />
     <ClCompile Include="XBTokenList.cpp" />
     <ClCompile Include="XCPU.cpp" />
     <ClCompile Include="XCrtFileAccess.cpp" />

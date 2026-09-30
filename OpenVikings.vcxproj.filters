@@ -237,6 +237,9 @@
     <ClCompile Include="XBobRendering.cpp">
       <Filter>Graphics\Images</Filter>
     </ClCompile>
+    <ClCompile Include="XBobRenderingEffects.cpp">
+      <Filter>Graphics\Images</Filter>
+    </ClCompile>
     <ClCompile Include="GuiToolsBase.cpp">
       <Filter>GUI</Filter>
     </ClCompile>

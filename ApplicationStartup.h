@@ -82,15 +82,16 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructors: FUN_0044f111, FUN_0044f14c and FUN_0042ae54.
-        auto* workspace = NC2Logic::CMapWalkSectorManager::mStaticVars.workspace;
+        auto& staticVars = NC2Logic::CMapWalkSectorManager::mStaticVars;
+        auto* workspace = staticVars.specialSectorSearchWorkspace;
         std::memset(workspace + 0x20, 0, 0x10);
 
         for (std::size_t index = 0; index < 250; ++index)
         {
-            std::memset(workspace + 0x64 + index * 0x0C, 0, 4);
+            staticVars.basePointCandidates[index].packedBasePoint = 0;
         }
 
-        std::memset(workspace + 0xC18, 0, 0x3200);
+        std::memset(staticVars.floodFillPoints, 0, sizeof(staticVars.floodFillPoints));
     },
 
         // Original function: FUN_00471615

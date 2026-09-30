@@ -1,4 +1,190 @@
-# OpenVikings — Intentionally Preserved Original Bugs
+# OpenVikings
+
+OpenVikings is a source-level C++ reconstruction of **Cultures: Das Achte Weltwunder** / **Cultures 2 AddOn**.
+
+The primary goal of the current project phase is **faithful functional reconstruction** of the original Windows x86 game. The reconstruction does not need to be binary-identical, but observable game behavior, state transitions, ownership rules, data layout assumptions and subsystem interactions should follow the original as closely as practical.
+
+A later **Renewed** phase may intentionally correct original defects, modernize behavior and improve safety. Until the faithful reconstruction is complete, confirmed original bugs are preserved and documented rather than silently fixed.
+
+Last handoff update: **2026-09-30**.
+
+## Source authority and reverse-engineering references
+
+The following evidence hierarchy applies project-wide:
+
+1. **Windows x86 disassembly is authoritative for behavior.**
+2. **User-supplied Windows memory/data dumps are authoritative for constants and original initialized data.**
+3. **The macOS x86-64 build is a naming, structure and semantic reference.**
+4. **Current OpenVikings source and Git history document the reconstruction and its evolution.**
+5. Inference is allowed only when the evidence is insufficient and must remain clearly identified as inference.
+
+Primary reverse-engineering reference files currently used with this project include:
+
+- `assembly_weltwunder_win.asm` — Windows x86 instruction-level reference.
+- `x86-64-mac.c` — macOS decompilation used primarily for semantic and naming correlation.
+- `x86-64-mac.h` — macOS type and structure reference.
+
+The macOS implementation must **not** override contradictory Windows behavior. A difference between platforms is not by itself evidence that the Windows implementation contains a bug.
+
+## Core reconstruction rules
+
+These rules apply to every reconstructed subsystem:
+
+- Preserve Windows behavior first; target **functional equivalence**, not binary equivalence.
+- Always try to correlate unresolved `DAT_`, `PTR_`, `UNK_`, anonymous data regions and unknown functions with the macOS code before assigning permanent names.
+- Use surrounding Windows callers, callees, offsets, data access patterns and initialization paths together when identifying globals or members.
+- Do not invent helper implementations merely to eliminate unresolved `FUN_XXXXXXXX` calls.
+- An unresolved original `FUN_XXXXXXXX` call may remain in reconstructed code until its behavior is understood.
+- Prefer completing a coherent functional subsystem or call chain rather than translating isolated functions indefinitely.
+- Preserve confirmed original defects during the faithful reconstruction phase.
+- Correct reconstruction, transcription, declaration, ownership and integration mistakes immediately; they are **not** compatibility behavior.
+- Comments in source code must always be **English**.
+- Function declarations and definitions must keep their parameter list on **one line** rather than formatting each parameter on separate lines.
+- Do not add unnecessary linker pragmas such as `#pragma comment(lib, "winmm.lib")` or `#pragma comment(lib, "dinput.lib")`.
+- Changes to `OpenVikings.vcxproj` do not need to be documented as reconstruction work; project-file integration is handled separately.
+- ZIP archives are never treated as the editable source of truth. When only a ZIP is supplied, proposed changes are described in chat as **filename + Before + After** unless direct file editing was explicitly requested.
+- Keep functions ordered by original Windows address where that improves traceability; within address groups, preserve sensible subsystem organization.
+
+## Naming policy
+
+Original addresses are valuable evidence and should remain traceable even after meaningful names are assigned.
+
+For reconstructed functions:
+
+```cpp
+// Original function: FUN_004e19aa
+void CPropertyManager::Options_Save_InGame()
+```
+
+For unknown symbols:
+
+- Keep `DAT_XXXXXXXX`, `PTR_XXXXXXXX`, `UNK_XXXXXXXX` or `FUN_XXXXXXXX` while meaning is unresolved.
+- Rename only when callers, data flow, layout, Mac correspondence or other evidence supports the new meaning.
+- Do not rename merely because a convenient name would make the code compile.
+- Prefer names describing semantic ownership rather than temporary usage in a single caller.
+- Distinguish object pointers, singleton pointers, inline static members, tables, flags, counters, callbacks and actual embedded object fields.
+- Do not create an independent global for an address that is actually an interior field of another object.
+
+When an identification is useful but not yet certain, document the uncertainty instead of encoding a speculative permanent symbol name.
+
+## Repository and Git workflow
+
+The local repository, including its `.git` directory, is part of the reverse-engineering context.
+
+Before revisiting an apparently unresolved or suspicious area, inspect the current source and Git history where useful. Typical commands include:
+
+```text
+git status
+git log -- <file>
+git log -p -- <file>
+git log -S "<symbol>" --all
+git blame <file>
+```
+
+Git history can explain when a raw address was renamed, when an implementation was replaced, or whether an apparent open task was already resolved in a later revision.
+
+Do not assume that an old task list is still current without checking the present `HEAD`.
+
+## Codex / new-session onboarding
+
+A new Codex session should begin by:
+
+1. Reading this README and `AGENTS.md` if present.
+2. Inspecting the current repository `HEAD` and `git status`.
+3. Reading the relevant subsystem source before relying on historical notes.
+4. Using the Windows ASM as the behavioral authority.
+5. Checking the macOS code for naming and semantic correspondence, especially for unknown globals and pointer regions.
+6. Continuing the **currently active functional block** instead of reopening already completed chapters without evidence.
+
+Historical notes describe knowledge accumulated during reconstruction, but the repository itself is the current implementation truth.
+
+## Current reconstruction state
+
+The project has already reconstructed or substantially analyzed several major areas, including:
+
+- custom CRT/runtime helpers and startup integration;
+- `XCrtFileAccess` and file/runtime compatibility paths;
+- `CFile`, archive access, path handling and directory scanning;
+- `CIniFileReader` and related INI handling;
+- `CMemory` and runtime-backed memory ownership;
+- property/options save paths;
+- master-control-program startup/shutdown related functions;
+- network initialization, diagnostics, logging, events and shutdown paths;
+- DirectSound manager construction, device handling, preload playback, fire-and-forget playback, volume transitions and cleanup;
+- portions of GUI/display systems;
+- numerous singleton/global mappings and removal of incorrect standalone `DAT_` definitions;
+- DirectMusic/`gedx8musicdrv` interface investigation and playback-chain semantics.
+
+The current cleanup phase is focused on replacing remaining raw `DAT_`, `PTR_` and related symbols only where their ownership and meaning can be established reliably.
+
+The most recent source review before this handoff identified that the `CMapWalkSectorManager` area had just been worked through and that the next nearby Windows function block to inspect is around **`FUN_004507f2`**, together with its sector globals/change-state data. This is a handoff marker, not a guarantee that the task remains open: always verify against the current Git `HEAD` first.
+
+## DirectMusic reverse-engineering notes
+
+The original game uses `gedx8musicdrv.dll` and DirectMusic. Important confirmed driver-interface information from the Windows implementation includes:
+
+| Interface offset | Known behavior |
+| --- | --- |
+| `+0x08` | Create driver instance |
+| `+0x10` | Initialize synthesizer |
+| `+0x18` | Set master volume |
+| `+0x20` | Load cached object |
+| `+0x34` | Create audiopath |
+| `+0x38` | Activate audiopath |
+| `+0x3C` | Audiopath-related volume/configuration operation; exact signature must be verified before changing |
+| `+0x40` | Audiopath/configuration-related operation; exact signature must be verified before changing |
+| `+0x54` | Start segment playback |
+| `+0x58` | Reset segment playback/state |
+| `+0x5C` | Get segment playback state |
+
+Known reconstruction observations:
+
+- `GetInterface2` exposes the original driver interface/method table.
+- Synth modes observed correspond to 44100 Hz / `0x40`, 22050 Hz / `0x10`, and 11025 Hz / `0x08`.
+- Cached segment loading uses a small descriptor structure plus a base search path.
+- The game creates and activates an audiopath before starting playback.
+- Harness testing showed that playback could depend on a reset/state call immediately after start.
+- The game start path was observed using flags `0x2000`, start time `0`, repeat count `-1`, and an additional value `1`.
+- A short delay between audiopath activation and segment start was required in harness testing to avoid missed sound.
+- Some deeper composite-object construction and descriptor-query semantics remained historical open research areas; verify current source before treating them as unfinished.
+
+These notes document reverse-engineering evidence and should not override newer source-level findings.
+
+## Build and verification expectations
+
+Source-level reconstruction, successful compilation and runtime equivalence are separate milestones.
+
+When reviewing a subsystem, distinguish:
+
+- reconstructed from Windows ASM;
+- correlated with macOS names/semantics;
+- integrated into current C++;
+- successfully compiled under the intended MSVC/x86 configuration;
+- runtime-tested in the reconstructed game;
+- behaviorally compared against the original game.
+
+Do not claim full validation from source inspection alone.
+
+The original Windows runtime is 32-bit and many reconstructed behaviors depend on 32-bit arithmetic, pointer sizes, signedness and x86 calling conventions. Avoid accidentally "fixing" those semantics through host-width types.
+
+## Documentation policy
+
+This README is both the project entry point and the register for confirmed original defects and unresolved original-behavior observations.
+
+When new reverse-engineering findings are added:
+
+- preserve existing IDs;
+- separate original bugs from reconstruction mistakes;
+- record the Windows address/function;
+- state the evidence;
+- describe trigger and behavior separately from inferred consequences;
+- state reconstruction limits;
+- keep future Renewed fixes clearly separate from faithful reconstruction work.
+
+The sections below retain the existing original-bug register and its reconstruction notes.
+
+
+## Intentionally Preserved Original Bugs
 
 Register updated: 2026-09-27. Original register created: 2026-09-13.
 

@@ -17,6 +17,8 @@ namespace NC2Logic
         explicit SSectorGridCursor(std::uint32_t packedMigPoint);
 
         void CutInsideMap();
+        void MoveCursorUnwrapped(std::uint32_t direction);
+        void MoveCursorUnwrapped(std::uint32_t direction, std::uint32_t distance);
 
         std::int32_t x;   // +0x00: sector column.
         std::int32_t y;   // +0x04: sector row.

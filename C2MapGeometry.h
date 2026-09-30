@@ -12,4 +12,5 @@ namespace NC2Logic
 
     // Original function: FUN_0042ad18
     void MapMigPoint_ValidatePosition(void* packedMigPoint);
+    void MapMigPoint_MoveCursorUnwrapped(std::uint32_t& packedMigPoint, std::uint32_t direction);
 }

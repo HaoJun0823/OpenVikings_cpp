@@ -306,7 +306,8 @@ namespace NXBasics
 			if (descriptor == 0xFFFFFFFFu)
 				continue;
 
-			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
+			// The disassembly's shift count 16 is hexadecimal (22 bits).
+			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
 			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
 
 			bool fast = depth == 1 && !wasClipped;
