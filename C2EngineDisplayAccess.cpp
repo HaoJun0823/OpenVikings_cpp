@@ -1,5 +1,6 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
+#include "C2GameMapAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
 #include "XBasicTypes.h"
@@ -14,6 +15,294 @@
 
 namespace NC2E2
 {
+    static void DisplayDescription_WriteDword(void* description, std::size_t offset, std::uint32_t bits)
+    {
+        std::memcpy(static_cast<std::byte*>(description) + offset, &bits, sizeof(bits));
+    }
+
+    static std::uint32_t DisplayDescription_ShiftRightSigned(std::uint32_t bits, std::uint32_t shift)
+    {
+        shift &= 31u;
+
+        if (shift == 0)
+            return bits;
+
+        const std::uint32_t shifted = bits >> shift;
+
+        if ((bits & 0x80000000u) != 0)
+            return shifted | (0xFFFFFFFFu << (32u - shift));
+
+        return shifted;
+    }
+
+    static std::uint32_t DisplayDescription_HalveSigned(std::uint32_t bits)
+    {
+        // CDQ; SUB EAX, EDX; SAR EAX, 1.
+        return DisplayDescription_ShiftRightSigned(bits + (bits >> 31), 1);
+    }
+
+    static std::uint32_t DisplayDescription_FixedToPixels(std::uint32_t bits)
+    {
+        // Preserve the original 32-bit addition and arithmetic right shift.
+        return DisplayDescription_ShiftRightSigned(bits + 127u, 8);
+    }
+
+    static std::uint32_t DisplayDescription_ConvertScaledFloat(float value, float scale)
+    {
+        std::uint16_t savedControl;
+        std::uint16_t truncateControl;
+        std::uint64_t converted;
+
+        // Preserve the x87 conversion used by FUN_004e6f4c.
+        // The caller consumes only the low DWORD of the signed 64-bit result.
+        __asm
+        {
+            fld dword ptr value
+            fmul dword ptr scale
+
+            fwait
+            fnstcw word ptr savedControl
+            fwait
+
+            mov ax, word ptr savedControl
+            or ax, 0C00h
+            mov word ptr truncateControl, ax
+
+            fldcw word ptr truncateControl
+            fistp qword ptr converted
+            fldcw word ptr savedControl
+        }
+
+        return static_cast<std::uint32_t>(converted);
+    }
+
+    // Original function: FUN_00481e72
+    void* DisplayDescription_Construct(void* description)
+    {
+        DisplayDescription_AssignNewTriangleValues(description, 19.0f, 34.0f, 1.2f);
+        return description;
+    }
+
+    // Original function: FUN_00481e9c
+    void DisplayDescription_AssignNewTriangleValues(void* description, float verticalSpacing, float horizontalSpacing, float heightScale)
+    {
+        // The original also replaces unordered values with the lower bound.
+        if (!(verticalSpacing > 1.0f))
+            verticalSpacing = 1.0f;
+
+        if (!(horizontalSpacing > 2.0f))
+            horizontalSpacing = 2.0f;
+
+        if (!(heightScale > 0.0f))
+            heightScale = 0.0f;
+
+        auto* bytes = static_cast<std::byte*>(description);
+
+        std::memcpy(bytes + 0x08, &heightScale, sizeof(heightScale));
+        std::memcpy(bytes + 0x00, &verticalSpacing, sizeof(verticalSpacing));
+        std::memcpy(bytes + 0x04, &horizontalSpacing, sizeof(horizontalSpacing));
+
+        DisplayDescription_CalculateResultingVars(description);
+    }
+
+    // Original function: FUN_00481efa
+    void DisplayDescription_CalculateResultingVars(void* description)
+    {
+        float values[3];
+        std::memcpy(values, description, sizeof(values));
+
+        const float verticalSpacing = values[0];
+        const float horizontalSpacing = values[1];
+        const float heightScale = values[2];
+
+        // Integer values below retain their original two's-complement bit patterns.
+        const std::uint32_t horizontal256 = DisplayDescription_ConvertScaledFloat(horizontalSpacing, 256.0f);
+        DisplayDescription_WriteDword(description, 0x10, horizontal256);
+
+        const std::uint32_t vertical256 = DisplayDescription_ConvertScaledFloat(verticalSpacing, 256.0f);
+        DisplayDescription_WriteDword(description, 0x0C, vertical256);
+
+        const std::uint32_t height256 = DisplayDescription_ConvertScaledFloat(heightScale, 256.0f);
+
+        const std::uint32_t halfHorizontal256 = DisplayDescription_HalveSigned(horizontal256);
+        const std::uint32_t halfVertical256 = DisplayDescription_HalveSigned(vertical256);
+        const std::uint32_t heightPixels = DisplayDescription_FixedToPixels(height256);
+
+        DisplayDescription_WriteDword(description, 0x18, halfHorizontal256);
+        DisplayDescription_WriteDword(description, 0x1C, halfVertical256);
+        DisplayDescription_WriteDword(description, 0x24, DisplayDescription_FixedToPixels(horizontal256));
+
+        DisplayDescription_WriteDword(description, 0x14, height256);
+        DisplayDescription_WriteDword(description, 0x20, DisplayDescription_FixedToPixels(vertical256));
+        DisplayDescription_WriteDword(description, 0x28, heightPixels);
+        DisplayDescription_WriteDword(description, 0x2C, DisplayDescription_FixedToPixels(halfHorizontal256));
+        DisplayDescription_WriteDword(description, 0x30, DisplayDescription_FixedToPixels(halfVertical256));
+
+        const std::uint32_t horizontal512 = DisplayDescription_ConvertScaledFloat(horizontalSpacing, 512.0f);
+        DisplayDescription_WriteDword(description, 0x38, horizontal512);
+
+        const std::uint32_t vertical512 = DisplayDescription_ConvertScaledFloat(verticalSpacing, 512.0f);
+        const std::uint32_t halfHorizontal512 = DisplayDescription_HalveSigned(horizontal512);
+        const std::uint32_t halfVertical512 = DisplayDescription_HalveSigned(vertical512);
+
+        // The doubled-spacing block retains the original height scale.
+        DisplayDescription_WriteDword(description, 0x3C, height256);
+        DisplayDescription_WriteDword(description, 0x34, vertical512);
+        DisplayDescription_WriteDword(description, 0x40, halfHorizontal512);
+        DisplayDescription_WriteDword(description, 0x44, halfVertical512);
+        DisplayDescription_WriteDword(description, 0x4C, DisplayDescription_FixedToPixels(horizontal512));
+        DisplayDescription_WriteDword(description, 0x48, DisplayDescription_FixedToPixels(vertical512));
+        DisplayDescription_WriteDword(description, 0x50, heightPixels);
+        DisplayDescription_WriteDword(description, 0x58, DisplayDescription_FixedToPixels(halfVertical512));
+        DisplayDescription_WriteDword(description, 0x54, DisplayDescription_FixedToPixels(halfHorizontal512));
+
+        const std::int32_t mapWidth = NC2Logic::GameMap_GetWidth();
+        const std::uint32_t worldWidthFixed = static_cast<std::uint32_t>(mapWidth) * horizontal256;
+        DisplayDescription_WriteDword(description, 0x5C, DisplayDescription_FixedToPixels(worldWidthFixed));
+
+        const std::int32_t mapHeight = NC2Logic::GameMap_GetHeight();
+        const std::uint32_t worldHeightFixed = static_cast<std::uint32_t>(mapHeight) * vertical256;
+        DisplayDescription_WriteDword(description, 0x60, DisplayDescription_FixedToPixels(worldHeightFixed));
+    }
+
+    static std::uint32_t DisplayDescription_ReadDword(const void* description, std::size_t offset)
+    {
+        std::uint32_t bits;
+        std::memcpy(&bits, static_cast<const std::byte*>(description) + offset, sizeof(bits));
+        return bits;
+    }
+
+    static std::int32_t DisplayDescription_SignedDword(std::uint32_t bits)
+    {
+        std::int32_t value;
+        std::memcpy(&value, &bits, sizeof(value));
+        return value;
+    }
+
+    static std::int32_t DisplayDescription_DivideSigned(std::uint32_t numerator, std::uint32_t denominator)
+    {
+        std::int32_t quotient;
+
+        // Preserve signed IDIV, including its original exceptional cases.
+        __asm
+        {
+            mov eax, dword ptr numerator
+            cdq
+            idiv dword ptr denominator
+            mov dword ptr quotient, eax
+        }
+
+        return quotient;
+    }
+
+    // Original function: FUN_0048201b
+    void DisplayDescription_MakeValidWorldPixelPosition(const void* description, std::int32_t* point)
+    {
+        if (point[0] < 0)
+            point[0] = 0;
+
+        const std::uint32_t widthBits = DisplayDescription_ReadDword(description, 0x5C);
+
+        if (point[0] >= DisplayDescription_SignedDword(widthBits))
+            point[0] = DisplayDescription_SignedDword(widthBits - 1u);
+
+        if (point[1] < 0)
+            point[1] = 0;
+
+        const std::uint32_t heightBits = DisplayDescription_ReadDword(description, 0x60);
+
+        if (point[1] >= DisplayDescription_SignedDword(heightBits))
+            point[1] = DisplayDescription_SignedDword(heightBits - 1u);
+    }
+
+    // Original function: FUN_00482049
+    bool DisplayDescription_WorldPixelToMapMigCoordinates(const void* description, const std::int32_t* worldPoint, std::uint32_t* packedMapPoint)
+    {
+        const std::uint32_t adjustedX = static_cast<std::uint32_t>(worldPoint[0]) - DisplayDescription_ReadDword(description, 0x2C);
+        const std::uint32_t adjustedY = static_cast<std::uint32_t>(worldPoint[1]) - DisplayDescription_ReadDword(description, 0x20);
+
+        std::int32_t projectedPoint[2] =
+        {
+            DisplayDescription_SignedDword(adjustedX),
+            DisplayDescription_SignedDword(adjustedY)
+        };
+
+        DisplayDescription_MakeValidWorldPixelPosition(description, projectedPoint);
+
+        const std::int32_t estimatedX = DisplayDescription_DivideSigned(static_cast<std::uint32_t>(projectedPoint[0]) << 8, DisplayDescription_ReadDword(description, 0x10));
+        const std::int32_t estimatedY = DisplayDescription_DivideSigned(static_cast<std::uint32_t>(projectedPoint[1]) << 8, DisplayDescription_ReadDword(description, 0x0C));
+
+        std::int32_t bestDistance = 100000000;
+
+        for (std::int32_t offsetY = -2; offsetY <= 15; ++offsetY)
+        {
+            const std::uint32_t candidateY = static_cast<std::uint32_t>(estimatedY) + static_cast<std::uint32_t>(offsetY);
+
+            for (std::int32_t offsetX = -2; offsetX <= 4; ++offsetX)
+            {
+                const std::uint32_t candidateX = static_cast<std::uint32_t>(estimatedX) + static_cast<std::uint32_t>(offsetX);
+                const std::uint32_t candidate = (candidateX & 0xFFFFu) | ((candidateY & 0xFFFFu) << 16);
+
+                if (!NC2Logic::MapMigPoint_IsInsideMap(&candidate))
+                    continue;
+
+                DisplayDescription_MapMigToWorldPixelCoordinates(description, candidate, projectedPoint, true);
+
+                const std::uint32_t deltaX = static_cast<std::uint32_t>(worldPoint[0]) - static_cast<std::uint32_t>(projectedPoint[0]);
+                const std::uint32_t deltaY = static_cast<std::uint32_t>(worldPoint[1]) - static_cast<std::uint32_t>(projectedPoint[1]);
+                const std::uint32_t distanceBits = deltaY * deltaY + deltaX * deltaX;
+                const std::int32_t distance = DisplayDescription_SignedDword(distanceBits);
+
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    *packedMapPoint = candidate;
+                }
+            }
+        }
+
+        return bestDistance != 100000000;
+    }
+
+    // Original function: FUN_0048213c
+    void DisplayDescription_MapMigToWorldPixelCoordinates(const void* description, std::uint32_t packedMapPoint, std::int32_t* worldPoint, bool validatePosition)
+    {
+        // Only the local by-value copy is modified.
+        NC2Logic::MapMigPoint_ValidatePosition(&packedMapPoint);
+
+        std::int16_t coordinates[2];
+        std::memcpy(coordinates, &packedMapPoint, sizeof(coordinates));
+
+        const std::uint32_t mapX = static_cast<std::uint32_t>(static_cast<std::int32_t>(coordinates[0]));
+        const std::uint32_t mapY = static_cast<std::uint32_t>(static_cast<std::int32_t>(coordinates[1]));
+
+        const std::uint32_t horizontalFixed = DisplayDescription_ReadDword(description, 0x10) * mapX;
+        const std::uint32_t halfHorizontalPixels = DisplayDescription_ReadDword(description, 0x2C);
+
+        std::uint32_t worldX = DisplayDescription_FixedToPixels(horizontalFixed) + halfHorizontalPixels;
+        worldPoint[0] = DisplayDescription_SignedDword(worldX);
+
+        if ((static_cast<std::uint16_t>(coordinates[1]) & 1u) != 0)
+        {
+            worldX += halfHorizontalPixels;
+            worldPoint[0] = DisplayDescription_SignedDword(worldX);
+        }
+
+        const std::uint32_t verticalFixed = DisplayDescription_ReadDword(description, 0x0C) * mapY;
+        std::uint32_t worldY = DisplayDescription_FixedToPixels(verticalFixed);
+
+        worldPoint[1] = DisplayDescription_SignedDword(worldY);
+
+        const std::uint32_t mapHeight = NC2Logic::GameMap_GetHeightAtMapMigPoint(&packedMapPoint);
+        const std::uint32_t heightFixed = DisplayDescription_ReadDword(description, 0x14) * mapHeight;
+
+        worldY -= DisplayDescription_FixedToPixels(heightFixed);
+        worldPoint[1] = DisplayDescription_SignedDword(worldY);
+
+        if (validatePosition)
+            DisplayDescription_MakeValidWorldPixelPosition(description, worldPoint);
+    }
+
     template<typename T>
     static T Display_ReadField(const void* display, std::size_t offset)
     {
@@ -33,8 +322,7 @@ namespace NC2E2
     {
         auto* displayBytes = static_cast<std::byte*>(display);
 
-        // Original display-description constructor; constants remain unresolved.
-        FUN_00481e72(display);
+        DisplayDescription_Construct(display);
 
         // Original function: FUN_0047c6fb, applied to the subobject at +0xA4.
         for (std::uint32_t index = 0; index < 30; ++index)
@@ -94,6 +382,114 @@ namespace NC2E2
         NXBasics::Runtime_Free(buffer);
     }
 
+    static bool Display_FloatComparisonBranchesOnDifference(float requested, float current)
+    {
+        std::uint8_t different;
+
+        // Preserve FCOMP; FNSTSW; SAHF; JNE, including unordered comparisons.
+        __asm
+        {
+            fld dword ptr requested
+            fcomp dword ptr current
+            fnstsw ax
+            sahf
+            setne byte ptr different
+        }
+
+        return different != 0;
+    }
+
+    // Original function: FUN_0047c73c
+    bool Display_AssignNewDisplayDefinitionValues(void* display, float verticalSpacing, float horizontalSpacing, float heightScale, bool preservePosition)
+    {
+        auto* bytes = static_cast<std::byte*>(display);
+
+        float currentValues[3];
+        std::memcpy(currentValues, bytes, sizeof(currentValues));
+
+        if (!Display_FloatComparisonBranchesOnDifference(verticalSpacing, currentValues[0]) && !Display_FloatComparisonBranchesOnDifference(horizontalSpacing, currentValues[1]) && !Display_FloatComparisonBranchesOnDifference(heightScale, currentValues[2]))
+            return false;
+
+        if (preservePosition)
+        {
+            const auto readDword = [bytes] (std::size_t offset) -> std::uint32_t
+            {
+                std::uint32_t value;
+                std::memcpy(&value, bytes + offset, sizeof(value));
+                return value;
+            };
+
+            const std::uint32_t centerX = DisplayDescription_HalveSigned(readDword(0x964)) + readDword(0x954);
+            const std::uint32_t centerY = DisplayDescription_HalveSigned(readDword(0x968)) + readDword(0x958);
+
+            std::int32_t oldWorldPoint[2];
+            std::memcpy(&oldWorldPoint[0], &centerX, sizeof(centerX));
+            std::memcpy(&oldWorldPoint[1], &centerY, sizeof(centerY));
+
+            std::uint32_t packedMapPoint = 0;
+
+            // Original return value is intentionally ignored.
+            DisplayDescription_WorldPixelToMapMigCoordinates(display, oldWorldPoint, &packedMapPoint);
+
+            DisplayDescription_AssignNewTriangleValues(display, verticalSpacing, horizontalSpacing, heightScale);
+            Display_ReInit(display);
+
+            std::int32_t newWorldPoint[2];
+
+            // The packed map point is passed by value; the final argument enables position validation.
+            DisplayDescription_MapMigToWorldPixelCoordinates(display, packedMapPoint, newWorldPoint, true);
+
+            const std::uint32_t deltaX = static_cast<std::uint32_t>(newWorldPoint[0]) - static_cast<std::uint32_t>(oldWorldPoint[0]);
+            const std::uint32_t wantedX = readDword(0x94C) + deltaX;
+            std::memcpy(bytes + 0x94C, &wantedX, sizeof(wantedX));
+
+            const std::uint32_t deltaY = static_cast<std::uint32_t>(newWorldPoint[1]) - static_cast<std::uint32_t>(oldWorldPoint[1]);
+            const std::uint32_t wantedY = readDword(0x950) + deltaY;
+            std::memcpy(bytes + 0x950, &wantedY, sizeof(wantedY));
+        }
+        else
+        {
+            DisplayDescription_AssignNewTriangleValues(display, verticalSpacing, horizontalSpacing, heightScale);
+            Display_ReInit(display);
+        }
+
+        return true;
+    }
+
+    // Original function: FUN_0047c836
+    void Display_ReInit(void* display)
+    {
+        DisplayDescription_CalculateResultingVars(display);
+
+        auto* bytes = static_cast<std::byte*>(display);
+
+        std::int32_t horizontalSpacingPixels;
+        std::memcpy(&horizontalSpacingPixels, bytes + 0x24, sizeof(horizontalSpacingPixels));
+
+        std::uint32_t drawFlags;
+        std::memcpy(&drawFlags, bytes + 0x70, sizeof(drawFlags));
+
+        bytes[0x978] = std::byte{ 1 };
+
+        if (horizontalSpacingPixels > 10)
+            drawFlags |= 0x01u;
+        else
+            drawFlags &= ~0x01u;
+
+        std::memcpy(bytes + 0x70, &drawFlags, sizeof(drawFlags));
+
+        bytes[0x978] = std::byte{ 1 };
+
+        if (horizontalSpacingPixels > 5)
+            drawFlags |= 0x02u;
+        else
+            drawFlags &= ~0x02u;
+
+        std::memcpy(bytes + 0x70, &drawFlags, sizeof(drawFlags));
+
+        bytes[0x978] = std::byte{ 1 };
+    }
+
     // Original function: FUN_0047d335
     void Display_ExitSpecialOverlays(void* display)
     {
@@ -113,37 +509,6 @@ namespace NC2E2
         releaseBuffer(0x92C);
         releaseBuffer(0x934);
         releaseBuffer(0x93C);
-    }
-
-    // Original function: FUN_0048150e
-    void Display_ExitScrollVariables(void* display)
-    {
-        auto* displayBytes = static_cast<std::byte*>(display);
-
-        NXBasics::CBitmap* displayBitmap;
-        NXBasics::CBitmap* scrollBitmap;
-
-        std::memcpy(&displayBitmap, displayBytes + 0x64, sizeof(displayBitmap));
-        std::memcpy(&scrollBitmap, displayBytes + 0x68, sizeof(scrollBitmap));
-
-        if (scrollBitmap != displayBitmap && scrollBitmap != nullptr)
-        {
-            delete scrollBitmap;
-        }
-
-        scrollBitmap = nullptr;
-        std::memcpy(displayBytes + 0x68, &scrollBitmap, sizeof(scrollBitmap));
-
-        NXBasics::CBitmap* auxiliaryBitmap;
-        std::memcpy(&auxiliaryBitmap, displayBytes + 0x96C, sizeof(auxiliaryBitmap));
-
-        if (auxiliaryBitmap != nullptr)
-        {
-            delete auxiliaryBitmap;
-        }
-
-        auxiliaryBitmap = nullptr;
-        std::memcpy(displayBytes + 0x96C, &auxiliaryBitmap, sizeof(auxiliaryBitmap));
     }
 
     // Original function: FUN_0047cb4d
@@ -258,6 +623,37 @@ namespace NC2E2
 
         Display_WriteField<NXBasics::CBitmap*>(display, 0x96C, auxiliaryBitmap);
         Display_WriteField<std::uint8_t>(display, 0x978, 1);
+    }
+
+    // Original function: FUN_0048150e
+    void Display_ExitScrollVariables(void* display)
+    {
+        auto* displayBytes = static_cast<std::byte*>(display);
+
+        NXBasics::CBitmap* displayBitmap;
+        NXBasics::CBitmap* scrollBitmap;
+
+        std::memcpy(&displayBitmap, displayBytes + 0x64, sizeof(displayBitmap));
+        std::memcpy(&scrollBitmap, displayBytes + 0x68, sizeof(scrollBitmap));
+
+        if (scrollBitmap != displayBitmap && scrollBitmap != nullptr)
+        {
+            delete scrollBitmap;
+        }
+
+        scrollBitmap = nullptr;
+        std::memcpy(displayBytes + 0x68, &scrollBitmap, sizeof(scrollBitmap));
+
+        NXBasics::CBitmap* auxiliaryBitmap;
+        std::memcpy(&auxiliaryBitmap, displayBytes + 0x96C, sizeof(auxiliaryBitmap));
+
+        if (auxiliaryBitmap != nullptr)
+        {
+            delete auxiliaryBitmap;
+        }
+
+        auxiliaryBitmap = nullptr;
+        std::memcpy(displayBytes + 0x96C, &auxiliaryBitmap, sizeof(auxiliaryBitmap));
     }
 
     // Original function: FUN_004821c7

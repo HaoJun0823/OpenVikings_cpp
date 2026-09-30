@@ -1,11 +1,10 @@
 #pragma once
 
 #include "ApplicationGlobals.h"
+#include "C2MapWalkSectorManager.h"
 #include "NetworkShutdown.h"
 #include "XCrtFileAccess.h"
 
-#include <cstddef>
-#include <cstdint>
 #include <cstring>
 
 namespace NApplicationStartup
@@ -83,14 +82,15 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructors: FUN_0044f111, FUN_0044f14c and FUN_0042ae54.
-        std::memset(DAT_00550e84 + 0x20, 0, 0x10);
+        auto* workspace = NC2Logic::CMapWalkSectorManager::mStaticVars.workspace;
+        std::memset(workspace + 0x20, 0, 0x10);
 
         for (std::size_t index = 0; index < 250; ++index)
         {
-            std::memset(DAT_00550e84 + 0x64 + index * 0x0C, 0, 4);
+            std::memset(workspace + 0x64 + index * 0x0C, 0, 4);
         }
 
-        std::memset(DAT_00550e84 + 0xC18, 0, 0x3200);
+        std::memset(workspace + 0xC18, 0, 0x3200);
     },
 
         // Original function: FUN_00471615

@@ -4,6 +4,11 @@
 
 #include <cstdint>
 
+namespace NC2Logic
+{
+    class CIoHelper;
+}
+
 namespace NC2MainMenuGuiManager
 {
     class CGuiManager;
@@ -59,6 +64,7 @@ namespace NXBasics
         friend class CBobManager;
         friend class CPicture;
         friend class NC2MainMenuGuiManager::CGuiManager;
+        friend class NC2Logic::CIoHelper;
 
         // Original function: FUN_0042f984
         void l_AllocateMemory(std::uint32_t size);

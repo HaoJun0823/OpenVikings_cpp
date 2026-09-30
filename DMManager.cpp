@@ -229,6 +229,51 @@ namespace NDMManager
         WriteField<char*>(manager, 0x220, NXBasics::StringDuplicate(message));
     }
 
+    // Original function: FUN_004038bd
+    std::uint8_t ProcessEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter, std::int32_t mode)
+    {
+        auto* managerBytes = static_cast<std::byte*>(manager);
+
+        std::uint8_t stateFlag;
+        std::memcpy(&stateFlag, managerBytes + 0x04, sizeof(stateFlag));
+
+        if (stateFlag == 0)
+        {
+            return 1;
+        }
+
+        std::int32_t resolvedEventId = eventId;
+
+        if ((eventId >= 10 && eventId < 22) || (eventId >= 31 && eventId < 39))
+        {
+            std::memcpy(managerBytes + 0x0C, &eventId, sizeof(eventId));
+        }
+        else if (eventId == 1)
+        {
+            std::memcpy(&resolvedEventId, managerBytes + 0x0C, sizeof(resolvedEventId));
+        }
+
+        std::uint8_t result = PrepareEvent(manager, resolvedEventId, eventParameter);
+
+        if (mode == 1)
+        {
+            ResetAllSegments(manager);
+        }
+        else if (mode == 2)
+        {
+            // Read the current volume after the first helper call.
+            std::int32_t volume;
+            std::memcpy(&volume, managerBytes + 0x1C, sizeof(volume));
+
+            if (volume > 0)
+            {
+                result = StartEvent(manager, resolvedEventId, eventParameter);
+            }
+        }
+
+        return result;
+    }
+
     // Original function: FUN_004039d8
     void ResetAllSegments(void* manager)
     {
@@ -489,50 +534,5 @@ namespace NDMManager
         }
 
         return nullptr;
-    }
-
-    // Original function: FUN_004038bd
-    std::uint8_t ProcessEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter, std::int32_t mode)
-    {
-        auto* managerBytes = static_cast<std::byte*>(manager);
-
-        std::uint8_t stateFlag;
-        std::memcpy(&stateFlag, managerBytes + 0x04, sizeof(stateFlag));
-
-        if (stateFlag == 0)
-        {
-            return 1;
-        }
-
-        std::int32_t resolvedEventId = eventId;
-
-        if ((eventId >= 10 && eventId < 22) || (eventId >= 31 && eventId < 39))
-        {
-            std::memcpy(managerBytes + 0x0C, &eventId, sizeof(eventId));
-        }
-        else if (eventId == 1)
-        {
-            std::memcpy(&resolvedEventId, managerBytes + 0x0C, sizeof(resolvedEventId));
-        }
-
-        std::uint8_t result = PrepareEvent(manager, resolvedEventId, eventParameter);
-
-        if (mode == 1)
-        {
-            ResetAllSegments(manager);
-        }
-        else if (mode == 2)
-        {
-            // Read the current volume after the first helper call.
-            std::int32_t volume;
-            std::memcpy(&volume, managerBytes + 0x1C, sizeof(volume));
-
-            if (volume > 0)
-            {
-                result = StartEvent(manager, resolvedEventId, eventParameter);
-            }
-        }
-
-        return result;
     }
 }

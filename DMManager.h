@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 namespace NDMManager
@@ -18,4 +19,7 @@ namespace NDMManager
 
     // Original function: FUN_00403d6c; does not access the manager object.
     const char* GetEventFileName(std::int32_t eventId, std::uint32_t variant);
+
+    // Original function: FUN_00403e10
+    static std::byte* FindSegmentEntry(void* manager, std::int32_t eventId, std::uint32_t eventParameter);
 }

@@ -2,6 +2,7 @@
 #include "C2AnimalAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MapSectorAttachment.h"
 #include "C2MapSectorGridCursor.h"
 
 #include <cstdarg>
@@ -9,7 +10,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_00550e68;
 extern void* DAT_00510d4c;
 
 namespace NC2Logic
@@ -111,11 +111,9 @@ namespace NC2Logic
         {
             if (animalId == -1)
             {
-                const void* grid = DAT_00550e68;
-                const std::uint32_t gridWidth = readWord(addressAt(grid, 4));
-
-                const void* sectorData;
-                std::memcpy(&sectorData, addressAt(grid, 8), sizeof(sectorData));
+                const auto* grid = CGameMapSectorAttachmentManager::sTheObjectPtr;
+                const std::uint32_t gridWidth = static_cast<std::uint32_t>(grid->GetGridWidth());
+                const std::byte* sectorData = grid->GetSectorData();
 
                 const std::uint32_t sectorIndex = gridWidth * static_cast<std::uint32_t>(currentSector.y) + static_cast<std::uint32_t>(currentSector.x);
                 const std::uint32_t recordOffset = (sectorIndex * 21u + selection) << 6;

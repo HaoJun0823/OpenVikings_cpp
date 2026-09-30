@@ -133,6 +133,9 @@
     <Filter Include="Core\Containers">
       <UniqueIdentifier>{fd5e7722-682a-48db-9d97-d3c25948ce71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Logic\Serialization">
+      <UniqueIdentifier>{e64a1454-766f-4573-8dab-f97ee79fd54d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MasterControlProgram.cpp">
@@ -347,6 +350,15 @@
     </ClCompile>
     <ClCompile Include="C2LogicObjectArrays.cpp">
       <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2IoHelper.cpp">
+      <Filter>Logic\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="C2MapSectorAttachment.cpp">
+      <Filter>Engine\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="C2MapWalkSectorManager.cpp">
+      <Filter>Engine\Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -580,6 +592,18 @@
     </ClInclude>
     <ClInclude Include="C2LogicObjectArrays.h">
       <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="XMemoryChecksum.h">
+      <Filter>Core\Checksums</Filter>
+    </ClInclude>
+    <ClInclude Include="C2IoHelper.h">
+      <Filter>Logic\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="C2MapSectorAttachment.h">
+      <Filter>Engine\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="C2MapWalkSectorManager.h">
+      <Filter>Engine\Map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,3 +1,4 @@
+#include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
 #include "XCrtFileAccess.h"
 #include "XMKeyManager.h"

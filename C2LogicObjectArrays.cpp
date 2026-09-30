@@ -1,5 +1,6 @@
 #include "C2LogicObjectArrays.h"
 #include "C2CallbackManager.h"
+#include "C2IoHelper.h"
 #include "XCrtFileAccess.h"
 
 #include <cstdarg>
@@ -60,7 +61,7 @@ namespace NC2Logic
     template<typename T>
     static void Array_LoadStorage(T* array, CIoHelper* io)
     {
-        const std::uint32_t capacity = FUN_0042a02d(io);
+        const std::uint32_t capacity = io->IO_File_ReadLong();
         const std::uint32_t allocationSize = capacity * T::ElementSize;
 
         T::mStaticVars = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(allocationSize, 1));
@@ -78,12 +79,9 @@ namespace NC2Logic
     {
         Array_PrepareLoad(array);
 
-        std::uint32_t version;
-        std::memcpy(&version, reinterpret_cast<const std::byte*>(io) + 0x10, sizeof(version));
-
-        if (version != T::SaveVersion)
+        if (io->mReadHeader.version != T::SaveVersion)
         {
-            FUN_0042a1ce(io);
+            io->IO_File_Chunk_Skip();
             return;
         }
 
@@ -93,12 +91,12 @@ namespace NC2Logic
     template<typename T>
     static void Array_Save(T* array, CIoHelper* io)
     {
-        FUN_0042a3c6(io, T::SaveChunkId, T::SaveVersion);
-        FUN_0042a244(io, array->mCapacity);
+        io->IO_Tool_Chunk_StartCreation(T::SaveChunkId, T::SaveVersion);
+        io->IO_Memory_WriteLong(static_cast<std::uint32_t>(array->mCapacity));
 
         array->IO_SaveArray(io);
 
-        FUN_0042a431(io);
+        io->IO_Tool_Chunk_FinishAndWrite();
     }
 
     // Original function: FUN_00430c90
@@ -145,24 +143,24 @@ namespace NC2Logic
 
         std::uint32_t version = 0;
 
-        if (!FUN_0042a13e(io, 0x78616861u, &version, 0))
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(0x78616861u, &version, nullptr))
             return;
 
         // The original reads all six serialized state fields without validating the version.
-        FUN_00429f88(io, &mCapacity, 0x18u);
+        io->IO_File_ReadBinary(&mCapacity, 0x18u);
 
         for (std::int32_t index = 0; index < mCapacity; ++index)
             l_Element_Clear(index);
 
         for (std::int32_t ordinal = 0; ordinal < mAllocatedCount; ++ordinal)
         {
-            const std::uint32_t index = FUN_0042a02d(io);
+            const std::uint32_t index = io->IO_File_ReadLong();
             std::byte* element = l_Element_GetPtr(index);
 
             if (mElementIO != nullptr)
                 mElementIO(element, true, io);
             else
-                FUN_00429f88(io, element, mElementSize);
+                io->IO_File_ReadBinary(element, mElementSize);
         }
 
         mInitialized = 1;
@@ -171,8 +169,8 @@ namespace NC2Logic
     // Original function: FUN_00430db7
     void CArrayHandler::IO_SaveArray(CIoHelper* io)
     {
-        FUN_0042a3c6(io, 0x78616861u, 1u);
-        FUN_0042a2e4(io, &mCapacity, 0x18u);
+        io->IO_Tool_Chunk_StartCreation(0x78616861u, 1u);
+        io->IO_Memory_WriteBinary(&mCapacity, 0x18u);
 
         for (std::int32_t index = 0; index < mCapacity; ++index)
         {
@@ -181,15 +179,15 @@ namespace NC2Logic
             if (!mIsAllocated(element))
                 continue;
 
-            FUN_0042a244(io, index);
+            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(index));
 
             if (mElementIO != nullptr)
                 mElementIO(element, false, io);
             else
-                FUN_0042a2e4(io, element, mElementSize);
+                io->IO_Memory_WriteBinary(element, mElementSize);
         }
 
-        FUN_0042a431(io);
+        io->IO_Tool_Chunk_FinishAndWrite();
     }
 
     // Original function: FUN_00430f23
@@ -332,12 +330,12 @@ namespace NC2Logic
 
         std::uint32_t version = 0;
 
-        if (!FUN_0042a13e(io, SaveChunkId, &version, 0))
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(SaveChunkId, &version, nullptr))
             return;
 
         if (version != SaveVersion)
         {
-            FUN_0042a1ce(io);
+            io->IO_File_Chunk_Skip();
             return;
         }
 

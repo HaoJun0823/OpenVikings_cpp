@@ -1,9 +1,8 @@
 #include "C2MapSectorGridCursor.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
-
-extern std::int32_t DAT_00554cf0;
-extern std::int32_t DAT_00554cec;
 
 namespace NC2Logic
 {
@@ -25,7 +24,7 @@ namespace NC2Logic
     // Original function: FUN_00458572
     void SSectorGridCursor::CutInsideMap()
     {
-        const std::int32_t width = DAT_00554cf0;
+        const std::int32_t width = sGridWidth;
 
         if (x >= width)
         {
@@ -37,7 +36,7 @@ namespace NC2Logic
             x = 0;
         }
 
-        const std::int32_t height = DAT_00554cec;
+        const std::int32_t height = sGridHeight;
 
         if (y >= height)
         {
