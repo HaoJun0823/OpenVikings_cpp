@@ -4,6 +4,7 @@
 #include "C2E2LevelOfDetailManager.h"
 #include "C2GameMapAccess.h"
 #include "C2LogicObjectArrays.h"
+#include "CDAudioManager.h"
 #include "C2MapGeometry.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
@@ -1025,6 +1026,12 @@ namespace NC2E2
         Display_WriteField(display, 0x954, pixelX);
         Display_WriteField(display, 0x974, bitmapY);
         Display_WriteField(display, 0x958, pixelY);
+    }
+
+    // Original function: FUN_004910ba; Mac name: NC2E2::Tool_Sound_IsCDAUsable.
+    bool Tool_Sound_IsCDAUsable()
+    {
+        return NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr;
     }
 
     // Original function: FUN_004910c5; l_DE_DrawForeground.

@@ -2,6 +2,7 @@
 #include "C2LanguageTools.h"
 #include "C2LogicIOAccess.h"
 #include "C2LogicObjectArrays.h"
+#include "CDAudioManager.h"
 #include "FileCompressor.h"
 #include "FileTransferManager.h"
 #include "GuiToolsBase.h"
@@ -1237,7 +1238,7 @@ namespace NC2MainMenuGuiManager
 
 						// The original checks the music setting even for other game modes.
 						if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") == 2)
-							NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("music_mode", true, DAT_0050f69c != nullptr ? 3 : 1, nullptr);
+							NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("music_mode", true, NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr ? 3 : 1, nullptr);
 
 						break;
 					}

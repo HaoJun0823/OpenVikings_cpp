@@ -34,6 +34,12 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### Windows CD-audio manager
+
+- Reconstructed all 14 functions in `00403E45–00404451`, the two game-disc lookup helpers and `Tool_Sound_IsCDAUsable`, including MCI control, mixer volume, looping, errors and singleton ownership.
+- Connected startup, menu transitions and system update. Restored the original runtime allocation/free family and replaced live `DAT_0050F69C` references with `CCDAudioManager::sTheObjectPtr`; 46 live `DAT_` symbols remain.
+- Win32 `/Od` and `/O2` object generation succeeds. The full syntax pass covers 78 units: 72 pass and six incomplete units retain 139 diagnostics. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for preserved Windows quirks, evidence and boundaries.
+
 ### Property options and directory integration
 
 - Reconstructed `Options_Load`, `Options_Save_Global`, `System_AddDefaultProperties`, the variadic `CFile::WriteString` routine and the two player/user-map directory accessors from Windows ASM.

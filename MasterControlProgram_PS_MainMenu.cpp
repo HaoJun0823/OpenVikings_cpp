@@ -1,4 +1,5 @@
 #include "MainMenuGuiManager.h"
+#include "CDAudioManager.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "X2DApplication.h"
@@ -33,9 +34,9 @@ namespace NMasterControlProgram
         FUN_00402298(this);
         ProgressBar_Exit();
 
-        if (DAT_0050f69c != nullptr)
+        if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
         {
-            FUN_00403f85(DAT_0050f69c, 2);
+            NCDAudioManager::CCDAudioManager::sTheObjectPtr->StartTrack(2);
         }
 
         mProgramState = static_cast<std::int32_t>(TProgramState::MainMenu);
@@ -56,11 +57,11 @@ namespace NMasterControlProgram
     {
         mProgramState = 9;
 
-        if (DAT_0050f69c != nullptr)
+        if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
         {
-            if (FUN_00404070(DAT_0050f69c))
+            if (NCDAudioManager::CCDAudioManager::sTheObjectPtr->IsStillPlaying())
             {
-                FUN_0040401e(DAT_0050f69c);
+                NCDAudioManager::CCDAudioManager::sTheObjectPtr->StopTrack();
             }
         }
 

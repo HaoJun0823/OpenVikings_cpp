@@ -1,4 +1,5 @@
 #include "ApplicationGlobals.h"
+#include "CDAudioManager.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
@@ -143,9 +144,9 @@ namespace NMasterControlProgram
             }
         }
 
-        if (DAT_0050f69c != nullptr)
+        if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
         {
-            FUN_004040eb(DAT_0050f69c);
+            NCDAudioManager::CCDAudioManager::sTheObjectPtr->CheckLoopTrack();
         }
 
         NXSys2DApp::CApplication::sTheObjectPtr->UpdateDisplay();

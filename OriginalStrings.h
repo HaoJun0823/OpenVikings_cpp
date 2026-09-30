@@ -9,6 +9,14 @@ namespace OriginalStrings
     // Original data: 004fe238.
     inline constexpr char UnknownPlayerName[] = "?";
 
+    // Original data: 004fe2f4 and 004fe300; game-disc identification pair.
+    inline constexpr char GameCDVolumeName[] = "weltwunder";
+    inline constexpr char GameCDMarkerFile[] = "autorun.exe";
+
+    // Original data: 004fefb0 and 004fefb4; adjacent CD-audio string region.
+    inline constexpr char CDAudioDriveNameFormat[] = "%c:";
+    inline constexpr char CDAudioErrorPrefix[] = "CCDAudioManager error: ";
+
     // Original data: 004ff054.
     inline constexpr char WindowsRootPath[4] = "\\";
 
@@ -35,6 +43,10 @@ namespace OriginalStrings
 
     // Original data: 00501064.
     inline constexpr char UserMapDirectory[] = "UserMaps";
+
+    // Original data: 00504f68 and 00504f70; adjacent CD-drive path formats.
+    inline constexpr char CDDriveFileNameFormat[] = "%c:\\%s";
+    inline constexpr char CDDriveRootNameFormat[] = "%c:\\";
 
     // Original data: 0050716c.
     inline constexpr char RightArrow[] = ">";

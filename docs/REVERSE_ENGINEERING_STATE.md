@@ -4,7 +4,7 @@
 
 This document records the accumulated technical state that is useful to a new Codex session. It deliberately distinguishes confirmed behavior from unfinished work.
 
-The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Six hardware/conversion assembly blocks and 47 live `DAT_` symbols remain. Static-analysis coverage and the remaining incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
+The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio follow-ups leave six hardware/conversion assembly blocks and 46 live `DAT_` symbols. Static-analysis coverage and the remaining incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
 
 ## 1. Core methodology
 
@@ -129,6 +129,8 @@ The 2026-09-30 options follow-up reconstructs `004E178F` (`Options_Load`), `004E
 The reconstructed C++ should use project runtime/file helpers rather than introducing unnecessary new CRT dependencies.
 
 ## 6. CMasterControlProgram / application lifecycle
+
+The complete Windows CD-audio block `00403E45–00404451` and game-disc lookup `00402761`/`00479C09` are reconstructed and connected to MCP startup, menu transitions and system update. Singleton `0050F69C` now has its original class name, and CD allocation/destruction uses the established runtime allocation/free family. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for object layout, Windows behavior and compilation limits. DirectMusic dependencies remain open.
 
 Substantial startup/shutdown work has been completed.
 

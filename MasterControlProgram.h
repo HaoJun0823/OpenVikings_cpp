@@ -13,6 +13,8 @@ namespace NC2LogicExternals
 
 namespace NMasterControlProgram
 {
+    char FindGameCDDrive();
+
     enum class TProgramState : std::int32_t
     {
         None = 2,

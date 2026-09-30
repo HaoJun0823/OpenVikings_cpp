@@ -9,6 +9,8 @@
 
 namespace NXSys2DApp
 {
+    char FindCDDrive(const char* volumeName, const char* markerFileName);
+
     using TApplicationCallback = void(__cdecl*)();
     using TWindowMessageCallback = int(__cdecl*)(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 

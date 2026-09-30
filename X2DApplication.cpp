@@ -1,4 +1,6 @@
 #include "XSystemManager.h"
+#include "OriginalStrings.h"
+#include "XCrtFileAccess.h"
 #include "X2DApplication.h"
 #include "X2DDisplay.h"
 #include "XMMouseManager.h"
@@ -789,5 +791,42 @@ namespace NXSys2DApp
         {
             mWindow->Update();
         }
+    }
+
+    // Original function: FUN_00479c09; Windows-only tool name inferred from its callers.
+    char FindCDDrive(const char* volumeName, const char* markerFileName)
+    {
+        static_assert(sizeof(WIN32_FIND_DATAA) == 0x140);
+        char path[0x104];
+        char actualVolumeName[0x104];
+        WIN32_FIND_DATAA foundFile;
+
+        for (char drive = 'c'; drive <= 'z'; ++drive)
+        {
+            NXBasics::Runtime_PrintString(path, OriginalStrings::CDDriveRootNameFormat, static_cast<int>(drive));
+            if (::GetDriveTypeA(path) != DRIVE_CDROM)
+                continue;
+
+            NXBasics::Runtime_PrintString(path, OriginalStrings::CDDriveRootNameFormat, static_cast<int>(drive));
+            ::GetVolumeInformationA(path, actualVolumeName, 100, nullptr, nullptr, nullptr, nullptr, 0);
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(actualVolumeName, volumeName) != 0)
+                continue;
+
+            DWORD bytesPerSector;
+            DWORD freeClusters;
+            ::GetDiskFreeSpaceA(path, nullptr, &bytesPerSector, &freeClusters, nullptr);
+            // A matching volume with free clusters terminates the entire original scan.
+            if (freeClusters != 0)
+                return 0;
+
+            NXBasics::Runtime_PrintString(path, OriginalStrings::CDDriveFileNameFormat, static_cast<int>(drive), markerFileName);
+            const HANDLE search = ::FindFirstFileA(path, &foundFile);
+            if (search != INVALID_HANDLE_VALUE)
+            {
+                ::FindClose(search);
+                return drive;
+            }
+        }
+        return 0;
     }
 }

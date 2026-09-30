@@ -65,29 +65,28 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the initial interface repairs, these six units reported 173 compiler diagnostics. The subsequent [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, these six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it further to 139. The current 78-unit syntax pass has 72 passing units and these six incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |
-| `MainMenuGuiManager.cpp` | 83 |
-| `MasterControlProgram.cpp` | 22 |
+| `MainMenuGuiManager.cpp` | 81 |
+| `MasterControlProgram.cpp` | 14 |
 | `MasterControlProgram_PS_InGame.cpp` | 26 |
-| `MasterControlProgram_PS_MainMenu.cpp` | 19 |
-| `MasterControlProgram_PS_System.cpp` | 4 |
+| `MasterControlProgram_PS_MainMenu.cpp` | 11 |
+| `MasterControlProgram_PS_System.cpp` | 1 |
 | `MasterControlProgram_DisplayResolution.cpp` | 6 |
 
-Examples include the CD-audio manager, save/map managers and GUI startup/shutdown helpers. The global-options load/save/default paths are now reconstructed. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
+Examples include DirectMusic methods, save/map managers and GUI startup/shutdown helpers. The global-options load/save/default paths and Windows CD-audio manager are now reconstructed. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
 
 ## Remaining live DAT inventory
 
-There are 47 distinct live `DAT_` symbols after this pass; no live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The exact per-file inventory follows.
+There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolves `0050F69C`, leaving 46. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
 
 | Live symbol | Files |
 | --- | --- |
 | `DAT_0050f620` | `MasterControlProgram.cpp` |
 | `DAT_0050f634` | `MasterControlProgram_PS_TitleScreen.cpp` |
 | `DAT_0050f63c` | `MasterControlProgram_PS_PreIngameFmv.cpp` |
-| `DAT_0050f69c` | `MainMenuGuiManager.cpp`, `MasterControlProgram_PS_MainMenu.cpp`, `MasterControlProgram_PS_System.cpp`, `MasterControlProgram.cpp` |
 | `DAT_00510838` | `C2E2AmbientSoundManagerAccess.cpp`, `C2E2AnimalSoundManager.cpp`, `C2EngineDrawingAccess.cpp` |
 | `DAT_00510848` | `WorldDisplayElementAccess.cpp` |
 | `DAT_0051089d` | `WorldDisplayElementAccess.cpp` |

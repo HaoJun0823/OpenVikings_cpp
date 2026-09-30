@@ -1,11 +1,13 @@
 #include "ApplicationGlobals.h"
 #include "C2LanguageTools.h"
+#include "CDAudioManager.h"
 #include "DSManager.h"
 #include "XSystemManager.h"
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
+#include "OriginalStrings.h"
 #include "X2DApplication.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
@@ -31,6 +33,12 @@ namespace NC2LogicExternals
 
 namespace NMasterControlProgram
 {
+    // Original function: FUN_00402761; CD identification wrapper.
+    char FindGameCDDrive()
+    {
+        return NXSys2DApp::FindCDDrive(OriginalStrings::GameCDVolumeName, OriginalStrings::GameCDMarkerFile);
+    }
+
     // Original function: FUN_00401000
     CMasterControlProgram::CMasterControlProgram(HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand)
     {
@@ -277,9 +285,12 @@ namespace NMasterControlProgram
         }
         else
         {
-            new (std::nothrow) NCDAudioManager::CCDAudioManager();
+            // Original FUN_004e5ddd allocates through FUN_004e860e(size, 1).
+            void* cdAudioMemory = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NCDAudioManager::CCDAudioManager), 1);
+            if (cdAudioMemory != nullptr)
+                ::new (cdAudioMemory) NCDAudioManager::CCDAudioManager();
 
-            const char initializationValue = FUN_00402761();
+            const char initializationValue = FindGameCDDrive();
             NCDAudioManager::CCDAudioManager::sTheObjectPtr->Init(initializationValue);
         }
 
@@ -298,11 +309,11 @@ namespace NMasterControlProgram
 
         NXSys2DApp::CApplication::sTheObjectPtr->ShutDown();
 
-        auto* cdAudioManager = DAT_0050f69c;
+        auto* cdAudioManager = NCDAudioManager::CCDAudioManager::sTheObjectPtr;
 
         if (cdAudioManager != nullptr)
         {
-            FUN_00403e62(cdAudioManager);
+            cdAudioManager->~CCDAudioManager();
             NXBasics::Runtime_Free(cdAudioManager);
         }
 
