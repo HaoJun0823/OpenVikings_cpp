@@ -1,5 +1,6 @@
 #include "C2CallbackManager.h"
 #include "C2LanguageTools.h"
+#include "C2LogicIOAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "FileCompressor.h"
 #include "FileTransferManager.h"
@@ -479,7 +480,7 @@ namespace NC2MainMenuGuiManager
 					const auto callsign = Network_GetCallsign();
 
 					configuration->Property_Add("multiplayer_callsign", false, 0, callsign);
-					FUN_004e1816(NMasterPropertyManager::CPropertyManager::sTheObjectPtr);
+					NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_Global();
 				}
 
 				textInput.Exit();
@@ -614,7 +615,7 @@ namespace NC2MainMenuGuiManager
 							const auto* mapInformation = reinterpret_cast<const std::byte*>(FUN_00416418(DAT_005114b4, lobbyData + 4));
 
 							std::strcpy(sourceFileName, reinterpret_cast<const char*>(mapInformation + 0x386));
-							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
+							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 
 							{
 								NXBasics::CMemory temporaryFileData(sourceFileName);
@@ -626,7 +627,7 @@ namespace NC2MainMenuGuiManager
 
 							transferFlags[4] = 1;
 
-							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
+							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 						}
 						else
 						{
@@ -690,9 +691,9 @@ namespace NC2MainMenuGuiManager
 
 						if (screen == 17)
 						{
-							NXBasics::CFile::FileSystem_Tool_CreateDirectory(FUN_0044029d());
+							NXBasics::CFile::FileSystem_Tool_CreateDirectory(NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr());
 
-							NXBasics::Runtime_PrintString(requestedFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
+							NXBasics::Runtime_PrintString(requestedFileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 							std::strcat(requestedFileName, ".c2p");
 						}
 						else
@@ -1392,7 +1393,7 @@ namespace NC2MainMenuGuiManager
 			return;
 		}
 
-		std::strcpy(compressedFileName, FUN_0044029d());
+		std::strcpy(compressedFileName, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr());
 		std::strcat(compressedFileName, OriginalStrings::WindowsRootPath);
 		std::strcat(compressedFileName, "transdat");
 		std::strcat(compressedFileName, ".c2p");
@@ -1408,7 +1409,7 @@ namespace NC2MainMenuGuiManager
 			char archiveFileName[0x104];
 			char destinationFileName[0x104];
 
-			NXBasics::Runtime_PrintString(archiveFileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
+			NXBasics::Runtime_PrintString(archiveFileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 
 			NXBasics::SArchiveState archive;
 			NXBasics::Archive_Initialize(&archive, archiveFileName);
@@ -1428,11 +1429,11 @@ namespace NC2MainMenuGuiManager
 					for (std::uint32_t index = 0; index < 16; ++index)
 						mapGuid[index] = static_cast<std::uint8_t>(reader.GetInt());
 
-					NXBasics::Runtime_PrintString(destinationFileName, "%s\\usermap_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d.c2m", FUN_0044029d(), static_cast<int>(mapGuid[0]), static_cast<int>(mapGuid[1]), static_cast<int>(mapGuid[2]), static_cast<int>(mapGuid[3]), static_cast<int>(mapGuid[4]), static_cast<int>(mapGuid[5]), static_cast<int>(mapGuid[6]), static_cast<int>(mapGuid[7]), static_cast<int>(mapGuid[8]), static_cast<int>(mapGuid[9]), static_cast<int>(mapGuid[10]), static_cast<int>(mapGuid[11]), static_cast<int>(mapGuid[12]), static_cast<int>(mapGuid[13]), static_cast<int>(mapGuid[14]), static_cast<int>(mapGuid[15]));
+					NXBasics::Runtime_PrintString(destinationFileName, "%s\\usermap_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d_%d.c2m", NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), static_cast<int>(mapGuid[0]), static_cast<int>(mapGuid[1]), static_cast<int>(mapGuid[2]), static_cast<int>(mapGuid[3]), static_cast<int>(mapGuid[4]), static_cast<int>(mapGuid[5]), static_cast<int>(mapGuid[6]), static_cast<int>(mapGuid[7]), static_cast<int>(mapGuid[8]), static_cast<int>(mapGuid[9]), static_cast<int>(mapGuid[10]), static_cast<int>(mapGuid[11]), static_cast<int>(mapGuid[12]), static_cast<int>(mapGuid[13]), static_cast<int>(mapGuid[14]), static_cast<int>(mapGuid[15]));
 				}
 				else
 				{
-					NXBasics::Runtime_PrintString(destinationFileName, "%s\\transfered.c2m", FUN_0044029d());
+					NXBasics::Runtime_PrintString(destinationFileName, "%s\\transfered.c2m", NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr());
 				}
 			}
 
@@ -1548,7 +1549,7 @@ namespace NC2MainMenuGuiManager
 		{
 			char fileName[0x104];
 
-			NXBasics::Runtime_PrintString(fileName, OriginalStrings::DirectoryAndFileNameFormat, FUN_0044029d(), "transdat");
+			NXBasics::Runtime_PrintString(fileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 			NXBasics::Runtime_RemoveFile(fileName);
 
 			std::strcat(fileName, ".c2p");

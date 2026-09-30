@@ -65,18 +65,18 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the known interface repairs, the six units still report 173 compiler diagnostics, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, these six units reported 173 compiler diagnostics. The subsequent [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |
-| `MainMenuGuiManager.cpp` | 93 |
-| `MasterControlProgram.cpp` | 24 |
+| `MainMenuGuiManager.cpp` | 83 |
+| `MasterControlProgram.cpp` | 22 |
 | `MasterControlProgram_PS_InGame.cpp` | 26 |
 | `MasterControlProgram_PS_MainMenu.cpp` | 19 |
 | `MasterControlProgram_PS_System.cpp` | 4 |
-| `MasterControlProgram_DisplayResolution.cpp` | 7 |
+| `MasterControlProgram_DisplayResolution.cpp` | 6 |
 
-Examples include the CD-audio manager, global-options load/save/default paths, save/map managers and GUI startup/shutdown helpers. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
+Examples include the CD-audio manager, save/map managers and GUI startup/shutdown helpers. The global-options load/save/default paths are now reconstructed. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
 
 ## Remaining live DAT inventory
 

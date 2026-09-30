@@ -52,7 +52,10 @@ namespace NMasterPropertyManager
 		// Original function: FUN_004e16fb
 		bool Property_Remove(const char* propertyName);
 
+		void Options_Load();
+		void Options_Save_Global();
 		void Options_Save_InGame();
+		void System_AddDefaultProperties();
 
 		// Original global: DAT_005697ec
 		inline static CPropertyManager* sTheObjectPtr = nullptr;

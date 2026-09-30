@@ -27,6 +27,8 @@ The seven unknown call sites in `WorldDisplayElementAccess.cpp` are now reconstr
 
 The repository-wide audit found 47 remaining live `DAT_` symbols and six retained hardware/conversion `__asm` blocks after its supported replacements. The full per-file inventory, static-analysis findings and six incomplete production compilation units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md). Next integration block: the main-menu/master-control owning dependencies and their established interfaces; retain original error paths while resolving them.
 
+The property-options and directory block is now reconstructed and connected, including global options load/save/defaults and `CFile::WriteString`. See [PROPERTY_OPTIONS_IO.md](PROPERTY_OPTIONS_IO.md). Next concrete integration block: CD-audio manager ownership/startup/shutdown/update callers, then the GUI desktop and display-position restoration paths. Six incomplete production units currently retain 160 error diagnostics.
+
 Systematically scan all C++ sources for remaining:
 
 - `DAT_...`,

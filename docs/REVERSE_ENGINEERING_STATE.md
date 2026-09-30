@@ -124,6 +124,8 @@ Do not restart CMemory reconstruction from an older handoff unless `HEAD` shows 
 - Mac symbols expose `Options_Load`, `Options_Save_Global`, `Options_Save_InGame`, `System_AddDefaultProperties`, and the property lookup/add/remove functions.
 - `music_mode` is a known property with special handling in the options path.
 
+The 2026-09-30 options follow-up reconstructs `004E178F` (`Options_Load`), `004E1816` (`Options_Save_Global`) and `004E1CA0` (`System_AddDefaultProperties`) from Windows ASM. It also implements `00406216` (`CFile::WriteString`) and the adjacent `00440297`/`0044029D` directory accessors, and connects their production callers. Exact strings, default branching, file lifetimes and Win32 verification are recorded in [PROPERTY_OPTIONS_IO.md](PROPERTY_OPTIONS_IO.md).
+
 The reconstructed C++ should use project runtime/file helpers rather than introducing unnecessary new CRT dependencies.
 
 ## 6. CMasterControlProgram / application lifecycle

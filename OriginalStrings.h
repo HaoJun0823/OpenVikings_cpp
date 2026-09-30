@@ -30,6 +30,12 @@ namespace OriginalStrings
     // Original data: 00500818.
     inline constexpr char DirectoryAndFileNameFormat[] = "%s\\%s";
 
+    // Original data: 0050105c.
+    inline constexpr char SaveDirectory[] = "Saves";
+
+    // Original data: 00501064.
+    inline constexpr char UserMapDirectory[] = "UserMaps";
+
     // Original data: 0050716c.
     inline constexpr char RightArrow[] = ">";
 
@@ -71,5 +77,14 @@ namespace OriginalStrings
 
     // Original data: 0050a9ec
     inline constexpr char TimerNotRespondingWarning[] = "CDPTimer::~CDPTimer() - Warning: Thread stopped responding.\n";
+
+    // Original data: 0050b9f8.
+    inline constexpr char GameOptionsFileNameFormat[] = "%s\\opt_game.ini";
+
+    // Original data: 0050ba08.
+    inline constexpr char CallsignOptionsFileNameFormat[] = "%s\\opt_callsign.ini";
+
+    // Original data: 0050ba1c.
+    inline constexpr char GlobalOptionsFileNameFormat[] = "%s\\opt_glob.ini";
 
 }

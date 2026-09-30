@@ -5,6 +5,7 @@
 #include "XFileAccess.h"
 
 #include <new>
+#include <cstdarg>
 #include <cstring>
 
 namespace NXBasics
@@ -70,6 +71,18 @@ namespace NXBasics
     void CFile::Write(const void* data, std::uint32_t byteCount)
     {
         File_Write(this, data, byteCount);
+    }
+
+    // Original function: FUN_00406216; variadic member uses the x86 cdecl convention.
+    void __cdecl CFile::WriteString(const char* format, ...)
+    {
+        char text[1000];
+        va_list arguments;
+        va_start(arguments, format);
+        Runtime_FormatString(text, 999, format, arguments);
+        va_end(arguments);
+        text[999] = '\0';
+        Write(text, static_cast<std::uint32_t>(std::strlen(text)));
     }
 
     // Original function: FUN_00406286

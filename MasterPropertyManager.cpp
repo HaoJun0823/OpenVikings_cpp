@@ -1,8 +1,11 @@
 #include "ApplicationGlobals.h"
 #include "C2E2LevelOfDetailManager.h"
+#include "C2LogicIOAccess.h"
 #include "DSManager.h"
 #include "InGameGuiManager.h"
 #include "MasterPropertyManager.h"
+#include "OriginalStrings.h"
+#include "X2DApplication.h"
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XIniFileReader.h"
@@ -257,13 +260,64 @@ namespace NMasterPropertyManager
         return true;
     }
 
+    // Original function: FUN_004e178f
+    void CPropertyManager::Options_Load()
+    {
+        char fileName[0x104];
+        NXBasics::Runtime_PrintString(fileName, OriginalStrings::GlobalOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
+        Property_WorkOnIniFile(fileName);
+        NXBasics::Runtime_PrintString(fileName, OriginalStrings::CallsignOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
+        Property_WorkOnIniFile(fileName);
+        NXBasics::Runtime_PrintString(fileName, OriginalStrings::GameOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
+        Property_WorkOnIniFile(fileName);
+    }
+
+    // Original function: FUN_004e1816
+    void CPropertyManager::Options_Save_Global()
+    {
+        NXBasics::CFile::FileSystem_Tool_CreateDirectory(NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
+
+        char fileName[0x104];
+        NXBasics::Runtime_PrintString(fileName, OriginalStrings::GlobalOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
+
+        {
+            NXBasics::CFile file(fileName, false);
+            file.OpenForWriting(true);
+
+            const std::int32_t width = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
+            Property_Add("gfx_screen_width", true, width, nullptr);
+            file.WriteString("gfx_screen_width %d\r\n", width);
+
+            const std::int32_t height = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
+            Property_Add("gfx_screen_height", true, height, nullptr);
+            file.WriteString("gfx_screen_height %d\r\n", height);
+
+            const std::int32_t depth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+            Property_Add("gfx_screen_depth", true, depth, nullptr);
+            file.WriteString("gfx_screen_depth %d\r\n", depth);
+        }
+
+        // The first file is closed before the callsign file is constructed.
+        NXBasics::Runtime_PrintString(fileName, OriginalStrings::CallsignOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
+        NXBasics::CFile file(fileName, false);
+        file.OpenForWriting(true);
+        file.WriteString("[player data]\r\n");
+
+        if (l_Property_GetPtr("multiplayer_callsign") != nullptr)
+        {
+            // Preserve the second lookup and the nullable stored string.
+            const SProperty* property = l_Property_GetPtr("multiplayer_callsign");
+            file.WriteString("multiplayer_callsign = \"%s\"\r\n", property != nullptr ? property->stringValue : nullptr);
+        }
+    }
+
     // Original function: FUN_004e19aa
     void CPropertyManager::Options_Save_InGame()
     {
-        NXBasics::CFile::FileSystem_Tool_CreateDirectory("Saves");
+        NXBasics::CFile::FileSystem_Tool_CreateDirectory(NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
 
         char fileName[0x104];
-        NXBasics::Runtime_PrintString(fileName, "%s\\opt_game.ini", "Saves");
+        NXBasics::Runtime_PrintString(fileName, OriginalStrings::GameOptionsFileNameFormat, NC2Logic::IO_Tool_GetPlayerDataDirectoryNamePtr());
 
         NXBasics::CFile file(fileName, false);
         file.OpenForWriting(true);
@@ -284,11 +338,7 @@ namespace NMasterPropertyManager
 
         const auto writeInteger = [&file] (const char* format, std::int32_t value)
         {
-            // Preserve the formatting buffer and limit used by FUN_00406216.
-            char text[1000];
-            NXBasics::Runtime_PrintStringN(text, 999u, format, value);
-            text[999] = '\0';
-            file.Write(text, static_cast<std::uint32_t>(std::strlen(text)));
+            file.WriteString(format, value);
         };
 
         const auto saveInteger = [this, &writeInteger] (const char* name, const char* format, std::int32_t value)
@@ -323,6 +373,24 @@ namespace NMasterPropertyManager
         saveInteger("gui_scroll_on_third_button", "gui_scroll_on_third_button %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe2u));
         saveInteger("gui_scroll_on_border", "gui_scroll_on_border %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe3u));
         saveInteger("gui_mouse_software", "gui_mouse_software %d\r\n", readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xe4u));
+    }
+
+    // Original function: FUN_004e1ca0
+    void CPropertyManager::System_AddDefaultProperties()
+    {
+        if (l_Property_GetPtr("music_mode") == nullptr)
+        {
+            Property_Add("music_mode", true, 2, nullptr);
+        }
+
+        if (l_Property_GetPtr("tincat") != nullptr || l_Property_GetPtr("game_pre_stuff_skip") != nullptr)
+        {
+            Property_Add("intro_skip", false, 0, nullptr);
+        }
+        else
+        {
+            Property_Add("game_start_pre_picture_sequence", false, 0, nullptr);
+        }
     }
 
     // Original function: FUN_004e171d

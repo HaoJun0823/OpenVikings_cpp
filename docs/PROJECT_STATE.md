@@ -34,6 +34,12 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### Property options and directory integration
+
+- Reconstructed `Options_Load`, `Options_Save_Global`, `System_AddDefaultProperties`, the variadic `CFile::WriteString` routine and the two player/user-map directory accessors from Windows ASM.
+- Connected the existing startup, callsign, resolution-change and nine user-map menu callers. Win32 `/Od` and `/O2` object generation passes for both implementation units; the full production syntax pass retains 71 passing units and six incomplete units with 160 diagnostics, down from 173.
+- See [PROPERTY_OPTIONS_IO.md](PROPERTY_OPTIONS_IO.md) for order, lifetime, exact strings, default branching and remaining integration boundaries.
+
 ### Repository-wide production source audit
 
 - Replaced three of nine inline-assembly blocks and resolved eight of 55 live `DAT_` references. Six hardware/conversion assembly blocks and 47 live data symbols remain explicitly tracked.

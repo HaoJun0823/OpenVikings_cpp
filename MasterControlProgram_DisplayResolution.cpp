@@ -99,7 +99,7 @@ namespace NMasterControlProgram
 
         if (saveOptions)
         {
-            FUN_004e1816(NMasterPropertyManager::CPropertyManager::sTheObjectPtr);
+            NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_Global();
         }
 
         HardwareMouseCursor_ReSet();

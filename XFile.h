@@ -99,6 +99,8 @@ namespace NXBasics
         // Original function: FUN_004061bc
         void Write(const void* data, std::uint32_t byteCount);
 
+        void __cdecl WriteString(const char* format, ...);
+
         // Original function: FUN_00406286
         void SeekToPosition(std::uint32_t position);
 
