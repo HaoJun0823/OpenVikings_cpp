@@ -2,6 +2,8 @@
 
 **State snapshot:** 2026-09-30
 
+The rendering-control changes described here are committed as `5cefe73`. The subsequent [terrain sampling and rasterization block](OVERVIEW_TERRAIN_SAMPLING.md) implements the terrain calls listed below and supersedes that part of the historical remaining-work list.
+
 The preceding world-display/overview-handler block was committed as `d39a232` (`Reconstruct world display overview lifecycle`). This follow-up derives behavior from Windows instructions and virtual-table bytes in `Game.exe`. Mac declarations establish method and parameter identities only.
 
 ## Reconstructed entry points

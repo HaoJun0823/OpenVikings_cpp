@@ -25,6 +25,20 @@ namespace NC2Logic
         return height;
     }
 
+    std::uint16_t GameMap_GetMacroWidth()
+    {
+        std::uint16_t width;
+        std::memcpy(&width, DAT_00511570 + 0x04, sizeof(width));
+        return width;
+    }
+
+    std::uint16_t GameMap_GetMacroHeight()
+    {
+        std::uint16_t height;
+        std::memcpy(&height, DAT_00511570 + 0x06, sizeof(height));
+        return height;
+    }
+
     // Original instruction range: 004233AE-004233E6 in FUN_0042329f.
     void GameMap_ReleaseMapBuffers()
     {

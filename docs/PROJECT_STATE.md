@@ -34,6 +34,12 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### Overview terrain sampling and rasterization
+
+- Committed the preceding rendering-control block as `5cefe73`. Reconstructed the terrain area update, texture scanning, sample averaging, brightness and three cache accessors, and connected partial/full/scroll redraw callers.
+- Analyzed the complete 28-byte overview-color region and the external texture-array, vertex-palette and triangle-type owners. Original engine-map/pixel helpers and owning loaders remain explicit dependencies; see [OVERVIEW_TERRAIN_SAMPLING.md](OVERVIEW_TERRAIN_SAMPLING.md).
+- Both modified units generate Win32 `/Od` and `/O2` objects without warnings. The full 82-unit syntax pass still has 77 passing units and five incomplete units with 129 diagnostics. No tests were added. Next GUI block: object/chest/sight overlays, then bitmap input.
+
 ### Overview bitmap lifecycle and rendering control
 
 - Committed the preceding lifetime/handler block as `d39a232`. Reconstructed overview bitmap initialization/destruction, complete dispatch bindings, draw orchestration, full rebuild, fixed-point transforms, scrolling strips, timed markers and zoom control.

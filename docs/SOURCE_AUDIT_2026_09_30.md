@@ -34,6 +34,8 @@ The two named static-data manager pointers remain external dependencies; their m
 
 ## Remaining inline assembly
 
+The [overview terrain follow-up](OVERVIEW_TERRAIN_SAMPLING.md) retains 43 live DAT symbols and six assembly blocks. Its two modified units pass Win32 `/Od` and `/O2` object generation without warnings; the repeated 82-unit syntax pass remains 77 passing units and five incomplete units with 129 diagnostics. Its static analysis repeats only the existing filename findings below.
+
 Three of nine initial blocks were replaced. Six remain deliberately visible:
 
 | File / routine | Reason retained |

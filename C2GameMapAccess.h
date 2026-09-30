@@ -9,6 +9,8 @@ namespace NC2Logic
 
     // Original storage: signed word at DAT_00511570 + 0x02.
     std::int16_t GameMap_GetHeight();
+    std::uint16_t GameMap_GetMacroWidth();
+    std::uint16_t GameMap_GetMacroHeight();
 
     // Extracted from FUN_0042329f: releases the three map buffers only.
     void GameMap_ReleaseMapBuffers();
