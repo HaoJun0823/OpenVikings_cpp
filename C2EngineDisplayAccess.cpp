@@ -8,6 +8,7 @@
 #include "C2MapGeometry.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "XBobManager.h"
 #include "XCrtFileAccess.h"
 
 #include <cstdarg>
@@ -41,6 +42,39 @@ extern void __fastcall FUN_0040eefa(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
+    // Original owning pointer: 00554DA0. Windows establishes the ownership;
+    // the exact original symbol name is unavailable in the Mac reference.
+    static NXBasics::CBitmap* gDesktopOwnedBobBitmap = nullptr;
+
+    // Original function: FUN_0047e5f4; height is unused by the Windows routine.
+    void Inform_DesktopXTructed(std::int32_t width, std::int32_t height, std::uint32_t depth)
+    {
+        (void)height;
+        if (width != 0)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+            NXBasics::CBitmap* bitmap = allocation == nullptr ? nullptr : ::new (allocation) NXBasics::CBitmap(100, 100, NXBasics::ConvertBitsToTDepth(static_cast<std::int32_t>(depth)));
+            // Repeated startup overwrites both pointers without releasing the old bitmap.
+            gDesktopOwnedBobBitmap = bitmap;
+            NXBasics::CBobManager::mStaticVars = bitmap;
+        }
+        else
+        {
+            NXBasics::CBitmap* bitmap = gDesktopOwnedBobBitmap;
+            NXBasics::CBobManager::mStaticVars = nullptr;
+            if (bitmap != nullptr)
+                delete bitmap;
+            gDesktopOwnedBobBitmap = nullptr;
+        }
+    }
+
+    // Original function: FUN_0047e650.
+    void Inform_ControllingPlayerChanged(std::int32_t playerId)
+    {
+        C2DEngineDisplayManager::sTheObjectPtr->InformThatControllingPlayerChanged(playerId);
+        DAT_005683c0 = static_cast<std::uint32_t>(playerId);
+    }
+
     static void DisplayDescription_WriteDword(void* description, std::size_t offset, std::uint32_t bits)
     {
         std::memcpy(static_cast<std::byte*>(description) + offset, &bits, sizeof(bits));
@@ -462,6 +496,76 @@ namespace NC2E2
         }
 
         return true;
+    }
+
+    // Original function: FUN_0047c876
+    void DE_SetWantedPositionToMapPoint(void* display, const std::uint32_t* packedMapPoint)
+    {
+        std::uint32_t mapPoint;
+        std::memcpy(&mapPoint, packedMapPoint, sizeof(mapPoint));
+        auto* wantedPoint = reinterpret_cast<std::int32_t*>(static_cast<std::byte*>(display) + 0x94C);
+        DisplayDescription_MapMigToWorldPixelCoordinates(display, mapPoint, wantedPoint, true);
+        DE_SetWantedPositionToPixelPoint(display, wantedPoint);
+    }
+
+    // Original function: FUN_0047c8c6
+    void DE_SetWantedPositionToPixelPoint(void* display, const std::int32_t* point)
+    {
+        const std::uint32_t y = static_cast<std::uint32_t>(point[1]) - DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x968));
+        const std::uint32_t x = static_cast<std::uint32_t>(point[0]) - DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x964));
+        DE_SetWantedPositionToPixelPosition(display, DisplayDescription_SignedDword(x), DisplayDescription_SignedDword(y));
+    }
+
+    // Original function: FUN_0047c8f5
+    void DE_SetWantedPositionAddDeltaPixelPoint(void* display, std::int32_t deltaX, std::int32_t deltaY)
+    {
+        const std::uint32_t y = Display_ReadField<std::uint32_t>(display, 0x950) + static_cast<std::uint32_t>(deltaY);
+        const std::uint32_t x = Display_ReadField<std::uint32_t>(display, 0x94C) + static_cast<std::uint32_t>(deltaX);
+        DE_SetWantedPositionToPixelPosition(display, DisplayDescription_SignedDword(x), DisplayDescription_SignedDword(y));
+    }
+
+    // Original function: FUN_0047c913
+    void DE_SetWantedPositionToPixelPosition(void* display, std::int32_t pixelX, std::int32_t pixelY)
+    {
+        Display_WriteField(display, 0x94C, pixelX);
+        Display_WriteField(display, 0x950, pixelY);
+        if (pixelX < -100)
+            Display_WriteField<std::int32_t>(display, 0x94C, -100);
+        if (pixelY < -200)
+            Display_WriteField<std::int32_t>(display, 0x950, -200);
+
+        const std::int32_t mapWidth = NC2Logic::GameMap_GetWidth();
+        const std::uint32_t worldWidth = DisplayDescription_ConvertScaledFloat(Display_ReadField<float>(display, 0x04), static_cast<float>(mapWidth));
+        const float verticalSpacing = Display_ReadField<float>(display, 0x00);
+        const std::int32_t mapHeight = NC2Logic::GameMap_GetHeight();
+        const std::uint32_t maxX = worldWidth - Display_ReadField<std::uint32_t>(display, 0x964) + 100u;
+        const std::uint32_t worldHeight = DisplayDescription_ConvertScaledFloat(verticalSpacing, static_cast<float>(mapHeight));
+        const std::uint32_t maxY = worldHeight - Display_ReadField<std::uint32_t>(display, 0x968) + 100u;
+
+        // The upper bounds are applied after both lower bounds, even for a small map.
+        if (Display_ReadField<std::int32_t>(display, 0x94C) > DisplayDescription_SignedDword(maxX))
+            Display_WriteField(display, 0x94C, maxX);
+        if (Display_ReadField<std::int32_t>(display, 0x950) > DisplayDescription_SignedDword(maxY))
+            Display_WriteField(display, 0x950, maxY);
+    }
+
+    // Original function: FUN_0047cf73.
+    void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId)
+    {
+        if (Display_ReadField<std::int32_t>(display, 0x7C) != playerId)
+        {
+            Display_WriteField(display, 0x7C, playerId);
+            Display_WriteField<std::uint8_t>(display, 0x978, 1);
+        }
+    }
+
+    // Original function: FUN_0047cf89; retains the converter's AL result.
+    bool DE_Misc_GetDisplayedCenterMapPosition(const void* display, std::uint32_t* packedMapPoint)
+    {
+        const std::uint32_t x = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x964)) + Display_ReadField<std::uint32_t>(display, 0x954);
+        const std::uint32_t y = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x968)) + Display_ReadField<std::uint32_t>(display, 0x958);
+        const std::int32_t center[2] = { DisplayDescription_SignedDword(x), DisplayDescription_SignedDword(y) };
+        return DisplayDescription_WorldPixelToMapMigCoordinates(display, center, packedMapPoint);
     }
 
     // Original function: FUN_0047c836

@@ -10,12 +10,13 @@ namespace NXBasics
     class CBitmap;
     class CMemory;
 
-    // Original address: 0051261c; shared bitmap pointer, exact role unresolved.
-    inline CBitmap* DAT_0051261c = nullptr;
-
     class CBobManager : public CStorable
     {
     public:
+        // Original address: 0051261C; Mac symbol: CBobManager::mStaticVars.
+        // Non-owning alias of the bitmap managed by Inform_DesktopXTructed.
+        inline static CBitmap* mStaticVars = nullptr;
+
         // Original function: FUN_0043997d
         CBobManager(void* file, std::uint32_t version);
 

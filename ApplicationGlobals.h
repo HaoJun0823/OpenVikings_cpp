@@ -88,3 +88,16 @@ namespace NC2InGameGuiMiscWindows
 
 // Original data: DAT_00569418.
 alignas(4) inline std::byte DAT_00569418[8]{};
+
+namespace NC2InGameGuiInputManager
+{
+    // Original singleton: 00569408; class identity recovered from InputMode_Set.
+    inline void* gInputManager = nullptr;
+}
+
+namespace NC2InGameGuiOverviewDisplay
+{
+    // Original singleton: 00569434. The handler class and the separate static
+    // region at 00569418 remain untranslated; this pointer is an opaque interface.
+    inline void* gWorldOverviewElementHandler = nullptr;
+}

@@ -39,6 +39,9 @@ namespace NXBaseGui
         // Original function: FUN_0047769c
         void Element_DeleteAll();
 
+        void Element_Remove(CBaseElement* element);
+        void Element_Delete(CBaseElement* element);
+
         // Original function: FUN_0047795d
         void PrimaryMessageHandler_Set(CBaseElement* handler);
 

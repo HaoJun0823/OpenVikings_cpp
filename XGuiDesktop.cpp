@@ -91,7 +91,8 @@ namespace NXBaseGui
         std::memset(static_cast<void*>(this), 0, sizeof(*this));
         mRectangle.SetVariables(0, 0, width, height);
 
-        mDisplayBitmap = new (std::nothrow) NXBasics::CBitmap(width, height, bitmapDepth);
+        void* bitmapAllocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        mDisplayBitmap = bitmapAllocation == nullptr ? nullptr : ::new (bitmapAllocation) NXBasics::CBitmap(width, height, bitmapDepth);
         mDisplayBitmap->Fill(std::uint8_t{ 0 });
 
         sTheObjectPtr = this;
@@ -345,6 +346,25 @@ namespace NXBaseGui
 
         if (mOwnedObject0114 == element)
             mOwnedObject0114 = nullptr;
+    }
+
+    // Original function: FUN_00477646
+    void CDesktop::Element_Remove(CBaseElement* element)
+    {
+        auto* elementBytes = reinterpret_cast<unsigned char*>(element);
+        elementBytes[0x19] &= 0xF7u;
+        Element_Deactivate(element);
+        auto* objectBytes = reinterpret_cast<std::byte*>(this);
+        constexpr std::size_t listOffsets[] = { 0x14, 0x28, 0x3C, 0x50 };
+        for (const std::size_t offset : listOffsets)
+            std::launder(reinterpret_cast<NXBasics::CList<CBaseElement>*>(objectBytes + offset))->l_Base_RemoveElement(element);
+    }
+
+    // Original function: FUN_00477681
+    void CDesktop::Element_Delete(CBaseElement* element)
+    {
+        Element_Remove(element);
+        DestroyDesktopOwnedElement(element);
     }
 
     // Original function: FUN_0047769c

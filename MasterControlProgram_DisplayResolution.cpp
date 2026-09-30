@@ -1,4 +1,5 @@
 #include "InGameGuiManager.h"
+#include "C2EngineDisplayAccess.h"
 #include "MainMenuGuiManager.h"
 #include "MasterPropertyManager.h"
 #include "MasterControlProgram.h"
@@ -44,8 +45,8 @@ namespace NMasterControlProgram
             auto* inGameDesktop = static_cast<std::byte*>(inGameGuiManager->GetDesktop());
             void* inGameDisplay = *reinterpret_cast<void**>(inGameDesktop + 0x30);
 
-            FUN_0047cf89(inGameDisplay, &displayedMapPosition);
-            FUN_004a0aaf(inGameGuiManager);
+            NC2E2::DE_Misc_GetDisplayedCenterMapPosition(inGameDisplay, &displayedMapPosition);
+            inGameGuiManager->Desktop_Close();
 
             NXSys2DApp::CApplication::sTheObjectPtr->SetDisplayMode(width, height, depth, applicationFlag);
 
@@ -53,12 +54,12 @@ namespace NMasterControlProgram
             const int actualHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
             const std::uint32_t actualDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
 
-            FUN_004a030c(inGameGuiManager, actualWidth, actualHeight, actualDepth);
+            inGameGuiManager->Desktop_Open(actualWidth, actualHeight, actualDepth);
 
             inGameDesktop = static_cast<std::byte*>(inGameGuiManager->GetDesktop());
             inGameDisplay = *reinterpret_cast<void**>(inGameDesktop + 0x30);
 
-            FUN_0047c876(inGameDisplay, &displayedMapPosition);
+            NC2E2::DE_SetWantedPositionToMapPoint(inGameDisplay, &displayedMapPosition);
         }
         else if (mProgramState == static_cast<std::int32_t>(TProgramState::MainMenu))
         {
@@ -70,7 +71,7 @@ namespace NMasterControlProgram
 
             void* mainMenuDisplay = *reinterpret_cast<void**>(mainMenuDesktop + 0x30);
 
-            FUN_0047cf89(mainMenuDisplay, &displayedMapPosition);
+            NC2E2::DE_Misc_GetDisplayedCenterMapPosition(mainMenuDisplay, &displayedMapPosition);
 
             NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
 
@@ -90,7 +91,7 @@ namespace NMasterControlProgram
 
             mainMenuDisplay = *reinterpret_cast<void**>(mainMenuDesktop + 0x30);
 
-            FUN_0047c876(mainMenuDisplay, &displayedMapPosition);
+            NC2E2::DE_SetWantedPositionToMapPoint(mainMenuDisplay, &displayedMapPosition);
         }
         else
         {

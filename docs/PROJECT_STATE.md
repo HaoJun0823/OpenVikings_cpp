@@ -34,6 +34,12 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### GUI desktop lifecycle and display resolution
+
+- Reconstructed 19 connected desktop, display-position, selection-cleanup, mouse callback, bitmap ownership and player-notification routines from Windows ASM. The in-game startup/shutdown and both resolution-change paths now use the established interfaces.
+- Recovered the misdecoded `004A1996` entry from `Game.exe`, named the complete 20-byte GUI desktop static region, resolved the Bob bitmap alias, and corrected the desktop bitmap's allocation family. There are now 44 live `DAT_` symbols.
+- Win32 `/Od` and `/O2` object generation passes for all six implementation units. Of 78 production syntax units, 73 pass; five incomplete units retain 129 diagnostics. The resolution-change unit now passes. See [GUI_DESKTOP_RESOLUTION.md](GUI_DESKTOP_RESOLUTION.md) for evidence and retained widget/input/overview boundaries.
+
 ### Windows CD-audio manager
 
 - Reconstructed all 14 functions in `00403E45–00404451`, the two game-disc lookup helpers and `Tool_Sound_IsCDAUsable`, including MCI control, mixer volume, looping, errors and singleton ownership.

@@ -78,6 +78,14 @@ namespace NC2E2
         }
     }
 
+    // Original function: FUN_00481319.
+    void C2DEngineDisplayManager::InformThatControllingPlayerChanged(std::int32_t playerId)
+    {
+        Iterator iterator(*this);
+        for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
+            DE_ControllingPlayer_SetId(display, playerId);
+    }
+
     // Original function: FUN_00481405
     void C2DEngineDisplayManager::DestroyValue(void* value)
     {

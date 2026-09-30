@@ -94,7 +94,7 @@ namespace NMasterControlProgram
 
         const int displayWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
 
-        FUN_004a030c(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, displayWidth, displayHeight, displayDepth);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Desktop_Open(displayWidth, displayHeight, displayDepth);
 
         FUN_004a2653(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
@@ -126,7 +126,7 @@ namespace NMasterControlProgram
         }
 
         NNetwork::Network_ShutDown();
-        FUN_004a0aaf(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Desktop_Close();
         FUN_004a0295(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
         FUN_00401bd5(this);
 

@@ -22,6 +22,15 @@ namespace NC2E2
     // Original function: FUN_0047c836
     void Display_ReInit(void* display);
 
+    void DE_SetWantedPositionToMapPoint(void* display, const std::uint32_t* packedMapPoint);
+    void DE_SetWantedPositionToPixelPoint(void* display, const std::int32_t* point);
+    void DE_SetWantedPositionAddDeltaPixelPoint(void* display, std::int32_t deltaX, std::int32_t deltaY);
+    void DE_SetWantedPositionToPixelPosition(void* display, std::int32_t pixelX, std::int32_t pixelY);
+    bool DE_Misc_GetDisplayedCenterMapPosition(const void* display, std::uint32_t* packedMapPoint);
+    void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId);
+    void Inform_DesktopXTructed(std::int32_t width, std::int32_t height, std::uint32_t depth);
+    void Inform_ControllingPlayerChanged(std::int32_t playerId);
+
     // Original function: FUN_0047d335
     void Display_ExitSpecialOverlays(void* display);
 

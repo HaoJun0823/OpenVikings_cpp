@@ -65,22 +65,21 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the initial interface repairs, these six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it further to 139. The current 78-unit syntax pass has 72 passing units and these six incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The current 78-unit syntax pass has 73 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |
-| `MainMenuGuiManager.cpp` | 81 |
+| `MainMenuGuiManager.cpp` | 79 |
 | `MasterControlProgram.cpp` | 14 |
-| `MasterControlProgram_PS_InGame.cpp` | 26 |
+| `MasterControlProgram_PS_InGame.cpp` | 24 |
 | `MasterControlProgram_PS_MainMenu.cpp` | 11 |
 | `MasterControlProgram_PS_System.cpp` | 1 |
-| `MasterControlProgram_DisplayResolution.cpp` | 6 |
 
 Examples include DirectMusic methods, save/map managers and GUI startup/shutdown helpers. The global-options load/save/default paths and Windows CD-audio manager are now reconstructed. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
 
 ## Remaining live DAT inventory
 
-There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolves `0050F69C`, leaving 46. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
+There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolved `0050F69C`, and the desktop block resolved `005690B8` and `0051261C`, leaving 44. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
 
 | Live symbol | Files |
 | --- | --- |
@@ -100,7 +99,6 @@ There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio 
 | `DAT_005114b4` | `MainMenuGuiManager.cpp` |
 | `DAT_00511540` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
 | `DAT_00511570` | `ApplicationGlobals.h`, `ApplicationStartup.h`, `C2GameMapAccess.cpp`, `C2MapSectorAttachment.cpp`, `C2MapWalkSectorManager.cpp` |
-| `DAT_0051261c` | `XBobManager.cpp`, `XBobManager.h` |
 | `DAT_00512620` | `ApplicationGlobals.h`, `ApplicationStartup.h`, `C2MapWalkSectorManager.cpp` |
 | `DAT_00554d20` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
 | `DAT_00554d98` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
@@ -126,7 +124,6 @@ There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio 
 | `DAT_00569090` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
 | `DAT_00569098` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
 | `DAT_005690a0` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
-| `DAT_005690b8` | `InGameGuiManager.cpp` |
 | `DAT_005690d8` | `C2EngineTooltipAccess.cpp` |
 | `DAT_005690dc` | `InGameGuiManager.cpp` |
 | `DAT_00569418` | `ApplicationGlobals.h`, `ApplicationStartup.h` |

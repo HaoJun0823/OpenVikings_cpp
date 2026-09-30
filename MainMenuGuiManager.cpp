@@ -1,4 +1,5 @@
 #include "C2CallbackManager.h"
+#include "C2EngineDisplayAccess.h"
 #include "C2LanguageTools.h"
 #include "C2LogicIOAccess.h"
 #include "C2LogicObjectArrays.h"
@@ -281,7 +282,7 @@ namespace NC2MainMenuGuiManager
 
 		NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(1u, &CGuiManager::ls_Logic_CallbackFunction, 0u, 10);
 
-		FUN_0047e5f4(width, height, depth);
+		NC2E2::Inform_DesktopXTructed(width, height, depth);
 
 		void* worldElement = NXBasics::Runtime_AllocateWithNewHandler(0x58, 1);
 
@@ -333,7 +334,7 @@ namespace NC2MainMenuGuiManager
 		// Clear only the original desktop-related instance range.
 		std::memset(unknown0004, 0, 0x54);
 
-		FUN_0047e5f4(0, 0, 0);
+		NC2E2::Inform_DesktopXTructed(0, 0, 0);
 
 		NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(1u, &CGuiManager::ls_Logic_CallbackFunction, 0u);
 

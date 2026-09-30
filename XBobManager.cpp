@@ -45,7 +45,7 @@ namespace NXBasics
         mPackedLineDataMemory = nullptr;
         mLineControlMemory = nullptr;
 
-        DAT_0051261c = nullptr;
+        mStaticVars = nullptr;
     }
 
     // Original function: FUN_0043997d

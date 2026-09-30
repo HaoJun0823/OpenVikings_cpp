@@ -4,7 +4,7 @@
 
 This document records the accumulated technical state that is useful to a new Codex session. It deliberately distinguishes confirmed behavior from unfinished work.
 
-The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio follow-ups leave six hardware/conversion assembly blocks and 46 live `DAT_` symbols. Static-analysis coverage and the remaining incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
+The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio/desktop follow-ups leave six hardware/conversion assembly blocks and 44 live `DAT_` symbols. Static-analysis coverage and the remaining incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
 
 ## 1. Core methodology
 
@@ -170,7 +170,7 @@ A historical branch had open `StartUp`, `GetInstance`, and `GetWindowHandle` wor
 
 ### CInGameGuiManager
 
-The outer manager lifecycle/state structure was reconstructed in dedicated `InGameGuiManager` source files. Some internal GUI subsystem calls historically remained raw `FUN_...` calls and are suitable for later theme-block translation if still present in `HEAD`.
+The outer manager lifecycle/state structure and desktop startup/shutdown are reconstructed in `InGameGuiManager`. The desktop theme also covers selection cleanup, overview-window opening, middle-button mouse stopping, element removal/deletion, display-position restoration, Bob bitmap ownership and controlling-player notification. The complete `005690B8..005690CB` region is named and `0051261C` is mapped to the original `CBobManager::mStaticVars`. See [GUI_DESKTOP_RESOLUTION.md](GUI_DESKTOP_RESOLUTION.md). Widget construction, the GUI callback/input dispatcher and overview-handler owner remain explicit original interfaces; analyze their full functional blocks next.
 
 ### CGuiBaseDataManager
 

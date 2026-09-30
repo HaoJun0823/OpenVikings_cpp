@@ -13,6 +13,7 @@ namespace NC2E2
         void RegisterDisplayObject(void* display);
         void UnregisterDisplayObject(void* display);
         void InformThatStaticMapChanged();
+        void InformThatControllingPlayerChanged(std::int32_t playerId);
 
         // Original global: 00555114.
         inline static C2DEngineDisplayManager* sTheObjectPtr = nullptr;
