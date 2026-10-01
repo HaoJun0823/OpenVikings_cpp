@@ -321,6 +321,9 @@ reported layout and arithmetic models, do not validate the full application.
 | [OB079](#ob079) | MCI error formatting appends an unchecked output buffer | 00404283 |
 | [OB080](#ob080) | Repeated desktop startup replaces an owned bitmap without deletion | 0047E5F4, 00554DA0, 0051261C |
 | [OB081](#ob081) | Overview sampling divides by a zero pixel count | 004CF5C9 |
+| [OB082](#ob082) | House stock good ID 66 overwrites production count | 00414E49-00414E75 |
+| [OB083](#ob083) | Negative house stock/production IDs write before reverse-index arrays | 00414E49-00414E6E, 00414EC3-00414EDF |
+| [OB084](#ob084) | Unchecked vehicle passenger IDs overwrite adjacent record fields | 004147AD-004147C0 |
 
 <a id="ob001"></a>
 
@@ -1275,6 +1278,42 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate sample rectangles/counts and define the empty-sample result.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob082"></a>
+
+### OB082 — House stock good ID 66 overwrites production count
+
+- **Original reference:** `00414E49-00414E75`, inside static-house loader `004149B2`.
+- **Evidence:** The signed branch rejects only good IDs greater than 0x42. Reverse index has 66 DWORD entries at record +37C; the write is +37C + goodId*4. ID 66 therefore writes at +484, the production-count field.
+- **Behavior and trigger:** A logicstock row for good 66 stores its stock-slot index as production count. One production followed by the first such stock row changes production count from one to zero; later parsing/getters use the overwritten value.
+- **Assessment / reconstruction limits:** The alias and accepted boundary are confirmed from Windows ASM/layout. In-game reproduction and valid resource reachability remain unverified. See [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md).
+- **Decision:** Preserve the original signed comparison and wrapped offset write until faithful reconstruction is complete.
+- **Renewed task:** Reject IDs outside the actual good-index domain before reverse-index updates; review existing malformed records.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob083"></a>
+
+### OB083 — Negative house stock/production IDs write before reverse-index arrays
+
+- **Original reference:** `00414E49-00414E6E`, `00414EC3-00414EDF`.
+- **Evidence:** Stock rejects only signed IDs >66; production rejects only signed IDs >=66. Neither has a lower bound. Both use the accepted ID as a scaled reverse-index write.
+- **Behavior and trigger:** A negative ID writes before the intended reverse-index array. Depending on the value, it changes earlier stock/production fields, earlier records or memory outside the allocation. Counts then advance in original order.
+- **Assessment / reconstruction limits:** Missing lower bounds and address arithmetic are confirmed from Windows ASM. The target depends on supplied INI data; no gameplay reproduction is claimed. Native code preserves wrapped byte offsets rather than silently sanitizing IDs. See [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md).
+- **Decision:** Preserve original indexing behavior during faithful reconstruction.
+- **Renewed task:** Validate signed IDs before writing either reverse-index array, together with OB082.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob084"></a>
+
+### OB084 — Unchecked vehicle passenger IDs overwrite adjacent record fields
+
+- **Original reference:** `004147AD-004147C0`, inside static-vehicle loader `00414462`.
+- **Evidence:** The logicpassenger command writes byte 1 at record +184 + the signed parameter, with no lower or upper bound. Store `004147B8` therefore aliases the commander field at +1BC for parameter 56 and the passenger-slot high byte at +183 for parameter -1.
+- **Behavior and trigger:** Supplied out-of-range IDs can change other fields, neighboring records or memory outside the seven-record allocation.
+- **Assessment / reconstruction limits:** The unchecked write and field aliases are confirmed from Windows ASM. Runtime reachability with supplied resources remains unverified; the 56-byte storage span alone does not establish the legal passenger-ID domain. See [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md).
+- **Decision:** Preserve original wrapped byte-offset writes during faithful reconstruction.
+- **Renewed task:** Establish the passenger-ID domain from consumers/resources and validate the signed parameter before record writes.
+- **Status:** Preserved / original defect; Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -1341,6 +1380,10 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA058](#oa058) | Static-good load retains unchecked allocation, duplicate-group state and returning warning | 00414FEE, 0041550D, 0043FDF0 |
 | [OA059](#oa059) | Production-input aggregation retains raw IDs and both ten-entry caps | 00415385-004153F0 |
 | [OA060](#oa060) | Engine landscape binding visits 56 of 66 good records and retains failed lookup IDs | 00415565, 004807C8 |
+| [OA061](#oa061) | House loading retains unchecked allocation and partial duplicate-group reset | 004149B2, 00414AD3-00414AED |
+| [OA062](#oa062) | House commands retain order-sensitive consumption and zero-fallback lookup | 00414CD1-00414CED, 00414E7F-00414EA6, 00414F36, 00414FA7 |
+| [OA063](#oa063) | Vehicle loading retains unchecked allocation and persistent lazy tokens | 00414462, 00414996, 00414997 |
+| [OA064](#oa064) | Vehicle good commands accumulate duplicates while groups reset only reverse indices | 0041459B-004145A6, 004147C5-004147F1 |
 
 <a id="oa001"></a>
 
@@ -1985,6 +2028,46 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve the bound and -1 handling until consumer contracts are established. See [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa061"></a>
+
+### OA061 — House loading retains unchecked allocation and partial duplicate-group reset
+
+- **Original reference:** `004149B2`, `00414AD3-00414AED`.
+- **Evidence and retained behavior:** Embedded colors are constructed only after nonnull allocation; full clear/default writes are unconditional. Unloaded INI input leaves defaults. Invalid group selectors are skipped. Each accepted group resets only all stock reverse indices to -1; rows/counts, production reverse indices and other fields persist. Token flags precede lazy initialization, exit registration is unchecked and token state survives owner destruction.
+- **Assessment / reconstruction limits:** Confirmed continuation/lifetime/duplicate behavior. Repeated groups can retain stock rows while discarding their earlier reverse mappings. Actual resource invariants and effects on consumers remain unresolved.
+- **Decision / Renewed task:** Preserve order and partial reset; review resource validation after faithful reconstruction. See [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa062"></a>
+
+### OA062 — House commands retain order-sensitive consumption and zero-fallback lookup
+
+- **Original reference:** `00414CD1-00414CED`, `00414E7F-00414EA6`, `00414F36`, `00414FA7`.
+- **Evidence and retained behavior:** Home size is read only when the current main type is 2; school size only for main type 4 and IDs 0x26/0x27. Worker/stock/production caps test equality against 10/66/20 before parameter reads. Stock consumes three values before ID rejection, clamps amounts only above 1000 and preserves negative amounts. Search methods scan 55 records, reject nonzero stock flags and return the first match or zero. GetHouseType requires a matching worker; GetHouseType_NoStock skips main type 1 without a worker requirement.
+- **Assessment / reconstruction limits:** Confirmed consumption, cap and lookup behavior. Zero is the original fallback, not a new success/failure distinction. Worker +04 and stock +08 semantic names remain unresolved. Original record/count invariants are not strengthened.
+- **Decision / Renewed task:** Preserve command order and search predicates; identify unknown fields from further consumer analysis. See [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa063"></a>
+
+### OA063 — Vehicle loading retains unchecked allocation and persistent lazy tokens
+
+- **Original reference:** `00414462`, `00414996`, `00414997`.
+- **Evidence and retained behavior:** Allocation of seven 0x1DC-byte records conditionally constructs embedded colors, then continues with unconditional full clearing and record-zero defaults. Unloaded INI input leaves defaults; missing selectors, zero and unsigned IDs >=7 skip groups. Token flags precede lazy initialization, exit registration is unchecked and token state persists after record/owner destruction. The exit callback has no side effects.
+- **Assessment / reconstruction limits:** Confirmed allocation, selection and lifetime order. No rollback or strengthened allocation/input handling is introduced; runtime failure reproduction remains unverified.
+- **Decision / Renewed task:** Preserve original continuation/lifetime behavior; review resource and allocation validation after faithful reconstruction. See [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa064"></a>
+
+### OA064 — Vehicle good commands accumulate duplicates while groups reset only reverse indices
+
+- **Original reference:** `0041459B-004145A6`, `004147C5-004147F1`.
+- **Evidence and retained behavior:** Each valid group resets all 66 good reverse indices to -1 but retains flags, count and other fields. logicgood accepts signed IDs 1..55, sets the flag, overwrites that ID's index with the current count and increments the count without duplicate normalization or a count cap. Repeated groups can leave enabled goods with index -1. Other slot/vector/type commands retain raw integers without new validation or clamping.
+- **Assessment / reconstruction limits:** Confirmed partial reset and command accumulation. The counter is accepted-command count rather than proven unique-good count. Effects under actual resource invariants and remaining consumer contracts are unresolved.
+- **Decision / Renewed task:** Preserve command order and duplicate behavior; review resources and downstream use before assessing a gameplay defect. See [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2023,6 +2106,11 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP030 | Static-good allocation, group selection, missing landscape and token lifetime | Preserve unchecked clearing, skipped groups, partial duplicate reset, returning warning side effects and persistent lazy state after ignored registration failure | [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md), `00414FEE`, `0041550D`; OA058 |
 | FP031 | Production-input type/cap/duplicate handling | Retain raw IDs, count-before-aggregation order, repeated-group accumulation and both unsigned ten-entry caps | [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md), `00415385-004153F0`; OA059 |
 | FP032 | Good-to-engine landscape lookup | Retain 56-record bound, first eligible match, -1 on lookup failure and unchecked positive-count array access | [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md), `00415565`, `004807C8`; OA060 |
+| FP033 | House allocation, resource/group selection and repeated lifetime | Preserve unchecked clearing/defaults, skipped selectors, partial stock-index reset and persistent lazy token state after unchecked registration | [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md), `004149B2`; OA061 |
+| FP034 | House stock/production identifiers and record writes | Preserve accepted stock ID 66, missing lower bounds, upper-only amount clamp and original wrapped reverse-index writes | [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md), `00414E49-00414E75`, `00414EC3-00414EDF`; OB082, OB083, OA062 |
+| FP035 | House conditional parameters, row caps and lookup failure | Retain order-sensitive consumption, equality caps, first eligible match and zero fallback, without added availability/identifier checks | [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md), `00414CD1-00414CED`, `00414E7F-00414EA6`, `00414F36`, `00414FA7`; OA062 |
+| FP036 | Vehicle allocation, resource/group selection and duplicate lifetime | Preserve unchecked clearing/defaults, skipped groups, duplicate-good count accumulation, reverse-index-only resets and persistent lazy token state | [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md), `00414462`, `00414997`; OA063, OA064 |
+| FP037 | Vehicle passenger identifiers and record writes | Retain unconditional byte writes with signed/wrapped offsets and no added index bounds | [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md), `004147AD-004147C0`; OB084 |
 
 ## Reconstruction errors are not original bugs
 

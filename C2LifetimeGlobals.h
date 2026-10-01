@@ -16,6 +16,10 @@ namespace NC2Logic
     class CStaticTrianglePatternTypeDataManager;
     class CStaticLandscapeTypeDataManager;
     class CStaticGoodTypeDataManager;
+    class CStaticHouseTypeDataManager;
+    class CStaticVehicleTypeDataManager;
+    struct SStaticVehicleTypeData;
+    struct SStaticHouseTypeData;
     struct SStaticGoodTypeData;
     struct SStaticLandscapeTypeData;
     // Original global: 005109D0.
@@ -49,9 +53,9 @@ namespace NC2Logic
     // Original global: 00511120.
     inline void* gStaticAtomicAnimationDataManager = nullptr;
     // Original global: 00511134.
-    inline void* gStaticVehicleTypeDataManager = nullptr;
+    extern CStaticVehicleTypeDataManager*& gStaticVehicleTypeDataManager;
     // Original global: 005111C4.
-    inline void* gStaticHouseTypeDataManager = nullptr;
+    extern CStaticHouseTypeDataManager*& gStaticHouseTypeDataManager;
     // Original global: 00511244.
     extern CStaticGoodTypeDataManager*& gStaticGoodTypeDataManager;
     // Original global: 005112E4.
@@ -119,9 +123,9 @@ namespace NC2Logic
     // Original global: 0051111C.
     inline void* gStaticAtomicAnimationData = nullptr;
     // Original global: 00511130.
-    inline void* gStaticVehicleTypeData = nullptr;
+    extern SStaticVehicleTypeData*& gStaticVehicleTypeData;
     // Original global: 005111C0.
-    inline void* gStaticHouseTypeData = nullptr;
+    extern SStaticHouseTypeData*& gStaticHouseTypeData;
     // Original global: 00511240.
     extern SStaticGoodTypeData*& gStaticGoodTypeData;
     // Original global: 00511348.

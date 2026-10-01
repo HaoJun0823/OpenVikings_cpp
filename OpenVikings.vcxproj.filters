@@ -792,4 +792,20 @@
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticHouseTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticHouseTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticVehicleTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticVehicleTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

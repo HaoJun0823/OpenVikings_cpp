@@ -296,4 +296,12 @@
     <ClCompile Include="C2EngineLandscapeAccess.cpp" />
     <ClInclude Include="C2EngineLandscapeAccess.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticHouseTypeData.cpp" />
+    <ClInclude Include="C2StaticHouseTypeData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticVehicleTypeData.cpp" />
+    <ClInclude Include="C2StaticVehicleTypeData.h" />
+  </ItemGroup>
 </Project>

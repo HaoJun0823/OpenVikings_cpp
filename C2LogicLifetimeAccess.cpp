@@ -18,6 +18,8 @@
 #include "C2StaticTrianglePatternTypeData.h"
 #include "C2StaticLandscapeTypeData.h"
 #include "C2StaticGoodTypeData.h"
+#include "C2StaticHouseTypeData.h"
+#include "C2StaticVehicleTypeData.h"
 
 namespace NC2Logic
 {
@@ -123,22 +125,6 @@ namespace NC2Logic
         NXBasics::Runtime_Free(gStaticAtomicAnimationData);
         gStaticAtomicAnimationData = nullptr;
         gStaticAtomicAnimationDataManager = nullptr;
-    }
-
-    // Original function: FUN_00414997.
-    static void StaticVehicleTypeDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticVehicleTypeData);
-        gStaticVehicleTypeData = nullptr;
-        gStaticVehicleTypeDataManager = nullptr;
-    }
-
-    // Original function: FUN_00414f1b.
-    static void StaticHouseTypeDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticHouseTypeData);
-        gStaticHouseTypeData = nullptr;
-        gStaticHouseTypeDataManager = nullptr;
     }
 
     // Original function: FUN_00412fe0.
@@ -429,8 +415,8 @@ namespace NC2Logic
         DestroyOwned(gStaticJobTypeDataManager, StaticJobTypeDataManager_Destruct);
         DestroyOwned(gStaticTribeTypeDataManager, StaticTribeTypeDataManager_Destruct);
         DestroyOwned(gStaticAtomicAnimationDataManager, StaticAtomicAnimationDataManager_Destruct);
-        DestroyOwned(gStaticVehicleTypeDataManager, StaticVehicleTypeDataManager_Destruct);
-        DestroyOwned(gStaticHouseTypeDataManager, StaticHouseTypeDataManager_Destruct);
+        DestroyOwned(gStaticVehicleTypeDataManager, [](CStaticVehicleTypeDataManager* manager) { manager->~CStaticVehicleTypeDataManager(); });
+        DestroyOwned(gStaticHouseTypeDataManager, [](CStaticHouseTypeDataManager* manager) { manager->~CStaticHouseTypeDataManager(); });
         DestroyOwned(gStaticGoodTypeDataManager, [](CStaticGoodTypeDataManager* manager) { manager->~CStaticGoodTypeDataManager(); });
         DestroyOwned(gStaticTrianglePatternTypeDataManager, [](CStaticTrianglePatternTypeDataManager* manager) { manager->~CStaticTrianglePatternTypeDataManager(); });
         DestroyOwned(gStaticLandscapeTypeDataManager, [](CStaticLandscapeTypeDataManager* manager) { manager->~CStaticLandscapeTypeDataManager(); });
