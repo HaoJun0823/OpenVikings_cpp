@@ -1,11 +1,16 @@
 #include "DMManager.h"
-#include "XStringMemory.h"
+#include "ApplicationGlobals.h"
+#include "XCrtFileAccess.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <new>
 #include <Windows.h>
+#include <mmsystem.h>
+
+// Original CRT log10 entry; its existing runtime implementation remains external.
+extern double __cdecl FUN_004e6e44(double value);
 
 namespace NDMManager
 {
@@ -216,17 +221,189 @@ namespace NDMManager
     using GetPlaybackStateFn = std::uint8_t(__stdcall*)(void*, void*, std::uint8_t*);
     using DriverSlot6CFn = void(__stdcall*)(void*, void*);
 
+    using DestroySegmentFn = std::uint8_t(__stdcall*)(void*, void*);
+    using DriverGlobalFn = void(__cdecl*)();
+    using DriverCreateInstanceFn = void*(__cdecl*)();
+    using DriverDestroyInstanceFn = void(__cdecl*)(void*);
+    using DriverInstanceFn = void(__stdcall*)(void*);
+    using InitSynthesizerFn = std::uint8_t(__stdcall*)(void*, const std::uint32_t*);
+    using DestroyAudiopathFn = std::uint8_t(__stdcall*)(void*, void*);
+    using SetMasterVolumeFn = std::uint8_t(__stdcall*)(void*, std::int32_t);
+    static std::byte* FindSegmentEntry(void* manager, std::int32_t eventId, std::uint32_t eventParameter);
+
+    static char* DuplicateString(const char* source)
+    {
+        // FUN_00410b59 uses FUN_004e5ddd, including its original new-handler mode.
+        if (source == nullptr) return nullptr;
+        const std::size_t bytes = std::strlen(source) + 1;
+        auto* copy = static_cast<char*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+        std::memcpy(copy, source, bytes);
+        return copy;
+    }
+
     static void SetErrorMessage(void* manager, const char* message)
     {
         char* previous = ReadField<char*>(manager, 0x220);
 
         if (previous != nullptr)
         {
-            // Match the allocation used by the reconstructed StringDuplicate().
-            ::operator delete(previous);
+            NXBasics::Runtime_Free(previous);
         }
 
-        WriteField<char*>(manager, 0x220, NXBasics::StringDuplicate(message));
+        WriteField<char*>(manager, 0x220, DuplicateString(message));
+    }
+
+    // Original deleting destructor: FUN_00403561; native slot at 004F3330.
+    static void* __fastcall DeletingDestructor(void* manager, void* unusedEdx, std::uint32_t flags)
+    {
+        (void)unusedEdx;
+        Destruct(manager);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(manager);
+        return manager;
+    }
+    static const std::uintptr_t gManagerVirtualTable[] = { reinterpret_cast<std::uintptr_t>(&DeletingDestructor) };
+
+    // Original function: FUN_00403524.
+    void* Construct(void* manager)
+    {
+        WriteField(manager, 0, gManagerVirtualTable + 0);
+        gDirectMusicManager = manager;
+        std::memset(static_cast<std::byte*>(manager) + 4, 0, 0x218);
+        std::memset(static_cast<std::byte*>(manager) + 0x21C, 0, 8);
+        WriteField<std::int32_t>(manager, 0x1C, 70);
+        return manager;
+    }
+
+    // Original function: FUN_0040357d; Exit intentionally retains partial-init failures.
+    void Destruct(void* manager)
+    {
+        WriteField(manager, 0, gManagerVirtualTable + 0);
+        Exit(manager);
+        if (char* directory = ReadField<char*>(manager, 0x21C)) NXBasics::Runtime_Free(directory);
+        if (char* error = ReadField<char*>(manager, 0x220)) NXBasics::Runtime_Free(error);
+        gDirectMusicManager = nullptr;
+    }
+
+    // Original function: FUN_004035b6; driver failures do not unwind acquired resources.
+    std::uint8_t Init(void* manager, std::int32_t mode, const char* directory)
+    {
+        if (char* previous = ReadField<char*>(manager, 0x21C)) NXBasics::Runtime_Free(previous);
+        WriteField<char*>(manager, 0x21C, DuplicateString(directory));
+        WriteField(manager, 0x10, mode);
+        if (ReadField<std::uint8_t>(manager, 4) != 0) return ReadField<std::uint8_t>(manager, 4);
+        const HMODULE module = LoadLibraryA("gedx8musicdrv.dll");
+        WriteField(manager, 0x20, module);
+        if (module == nullptr)
+        {
+            SetErrorMessage(manager, "DMManager: LoadLibrary failed.");
+            return ReadField<std::uint8_t>(manager, 4);
+        }
+        const FARPROC entry = GetProcAddress(module, "GetInterface2");
+        WriteField(manager, 0x2C, entry);
+        if (entry == nullptr)
+        {
+            SetErrorMessage(manager, "DMManager: GetProcAddress failed.");
+            return ReadField<std::uint8_t>(manager, 4);
+        }
+        using GetInterfaceFn = void(__cdecl*)(void*);
+        reinterpret_cast<GetInterfaceFn>(entry)(static_cast<std::byte*>(manager) + 0x28);
+        const void* interfaceData = ReadField<void*>(manager, 0x28);
+        WriteField(manager, 0x24, ReadField<void*>(interfaceData, 4));
+        DriverFunction<DriverGlobalFn>(manager, 0)();
+        void* instance = DriverFunction<DriverCreateInstanceFn>(manager, 8)();
+        WriteField(manager, 0x30, instance);
+        if (instance == nullptr)
+        {
+            SetErrorMessage(manager, "DMManager: geCreateInstance failed.");
+            return ReadField<std::uint8_t>(manager, 4);
+        }
+        std::uint32_t configuration[3] = { 0, 0, 0 };
+        const std::int32_t selectedMode = ReadField<std::int32_t>(manager, 0x10);
+        configuration[1] = selectedMode == 1 ? 16u : selectedMode == 2 ? 8u : 64u;
+        configuration[2] = selectedMode == 1 ? 22050u : selectedMode == 2 ? 11025u : 44100u;
+        if (DriverFunction<InitSynthesizerFn>(manager, 0x10)(ReadField<void*>(manager, 0x30), configuration) == 0)
+        {
+            SetErrorMessage(manager, "DMManager: geInitSynthesizer failed.");
+            return ReadField<std::uint8_t>(manager, 4);
+        }
+        WriteField(manager, 0x34, configuration[1]);
+        WriteField<std::uint32_t>(manager, 0x14, 0);
+        WriteField<std::uint32_t>(manager, 0x18, 0);
+        WriteField<std::uint8_t>(manager, 4, 1);
+        return ReadField<std::uint8_t>(manager, 4);
+    }
+
+    // Original function: FUN_0040372f; error messages are replaced without stopping cleanup.
+    std::uint8_t Exit(void* manager)
+    {
+        if (ReadField<std::uint8_t>(manager, 4) == 0) return 0;
+        ResetAllSegments(manager);
+        WriteField<std::uint8_t>(manager, 4, 0);
+        auto* entries = static_cast<std::byte*>(manager) + 0x3C;
+        for (std::uint32_t index = 0; index < 20; ++index)
+        {
+            const void* entry = entries + index * 0x18u;
+            if (ReadField<std::uint8_t>(entry, 0) != 0 && DriverFunction<DestroySegmentFn>(manager, 0x6C)(ReadField<void*>(manager, 0x30), ReadField<void*>(entry, 4)) == 0)
+                SetErrorMessage(manager, "DMManager: geDestroySegment failed.");
+        }
+        void* audiopath = ReadField<void*>(manager, 0x38);
+        if (audiopath != nullptr && DriverFunction<ActivateAudiopathFn>(manager, 0x38)(ReadField<void*>(manager, 0x30), audiopath, 0) == 0)
+            SetErrorMessage(manager, "DMManager: geActivateAudiopath failed.");
+        audiopath = ReadField<void*>(manager, 0x38);
+        if (audiopath != nullptr && DriverFunction<DestroyAudiopathFn>(manager, 0x50)(ReadField<void*>(manager, 0x30), audiopath) == 0)
+            SetErrorMessage(manager, "DMManager: geDestroyAudiopath failed.");
+        DriverFunction<DriverInstanceFn>(manager, 0x30)(ReadField<void*>(manager, 0x30));
+        DriverFunction<DriverInstanceFn>(manager, 0x14)(ReadField<void*>(manager, 0x30));
+        DriverFunction<DriverDestroyInstanceFn>(manager, 0x0C)(ReadField<void*>(manager, 0x30));
+        DriverFunction<DriverGlobalFn>(manager, 4)();
+        FreeLibrary(ReadField<HMODULE>(manager, 0x20));
+        std::memset(static_cast<std::byte*>(manager) + 4, 0, 0x218);
+        return 1;
+    }
+
+    // Original function: FUN_00403858; the timer is read even for an inactive manager.
+    std::uint8_t Update(void* manager)
+    {
+        const std::uint32_t now = timeGetTime();
+        if (ReadField<std::uint8_t>(manager, 4) == 0 || ReadField<std::uint8_t>(manager, 5) == 0 || now < ReadField<std::uint32_t>(manager, 8)) return 1;
+        void* audiopath = ReadField<void*>(manager, 0x38);
+        if (audiopath != nullptr && DriverFunction<SetAudiopathVolumeFn>(manager, 0x3C)(ReadField<void*>(manager, 0x30), audiopath, 0, 300) == 0)
+        {
+            SetErrorMessage(manager, "DMManager: geSetVolumeOfAudiopath failed.");
+            return 0;
+        }
+        WriteField<std::uint8_t>(manager, 5, 0);
+        return 1;
+    }
+
+    // Original function: FUN_0040392e.
+    std::int32_t MainVolume_Get(const void* manager)
+    {
+        return ReadField<std::int32_t>(manager, 0x1C);
+    }
+
+    // Original function: FUN_00403932; exact PE constants at 004F3338/004F3340.
+    std::uint8_t MainVolume_Set(void* manager, std::int32_t volume)
+    {
+        WriteField(manager, 0x1C, volume);
+        if (volume > 100) WriteField<std::int32_t>(manager, 0x1C, 100);
+        else if (volume < 0) WriteField<std::int32_t>(manager, 0x1C, 0);
+        if (ReadField<std::uint8_t>(manager, 4) == 0) return 0;
+        if (ReadField<std::int32_t>(manager, 0x1C) == 0) ResetAllSegments(manager);
+        const std::int32_t currentVolume = ReadField<std::int32_t>(manager, 0x1C);
+        std::int32_t attenuation = -10000;
+        if (currentVolume != 0)
+        {
+            const double logarithm = FUN_004e6e44(static_cast<double>(currentVolume) * static_cast<double>(0.01f));
+            // Bounded finite result; the original converts toward zero with FUN_004e6f4c.
+            attenuation = -500 - static_cast<std::int32_t>(logarithm * -2000.0);
+        }
+        if (DriverFunction<SetMasterVolumeFn>(manager, 0x18)(ReadField<void*>(manager, 0x30), attenuation) == 0)
+        {
+            SetErrorMessage(manager, "DMManager: geSetMasterVolume failed.");
+            return 0;
+        }
+        return 1;
     }
 
     // Original function: FUN_004038bd

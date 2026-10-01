@@ -4,7 +4,7 @@
 
 This document records the accumulated technical state that is useful to a new Codex session. It deliberately distinguishes confirmed behavior from unfinished work.
 
-The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio/desktop/overview follow-ups leave six hardware/conversion assembly blocks and 43 live `DAT_` symbols. Static-analysis coverage and the remaining incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
+The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio/desktop/overview/DirectMusic follow-ups leave six hardware/conversion assembly blocks and 41 live `DAT_` symbols. Static-analysis coverage and the remaining four incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
 
 ## 1. Core methodology
 
@@ -130,7 +130,7 @@ The reconstructed C++ should use project runtime/file helpers rather than introd
 
 ## 6. CMasterControlProgram / application lifecycle
 
-The complete Windows CD-audio block `00403E45–00404451` and game-disc lookup `00402761`/`00479C09` are reconstructed and connected to MCP startup, menu transitions and system update. Singleton `0050F69C` now has its original class name, and CD allocation/destruction uses the established runtime allocation/free family. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for object layout, Windows behavior and compilation limits. DirectMusic dependencies remain open.
+The complete Windows CD-audio block `00403E45–00404451` and game-disc lookup `00402761`/`00479C09` are reconstructed and connected to MCP startup, menu transitions and system update. Singleton `0050F69C` now has its original class name, and CD allocation/destruction uses the established runtime allocation/free family. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for object layout, Windows behavior and compilation limits. All 14 game-side DirectMusic manager entries are now reconstructed and connected; the driver DLL and original CRT logarithm remain external dependencies. See [DIRECT_MUSIC_MANAGER.md](DIRECT_MUSIC_MANAGER.md).
 
 Substantial startup/shutdown work has been completed.
 
@@ -170,7 +170,7 @@ A historical branch had open `StartUp`, `GetInstance`, and `GetWindowHandle` wor
 
 ### CInGameGuiManager
 
-The outer manager lifecycle/state structure and desktop startup/shutdown are reconstructed in `InGameGuiManager`. The desktop theme also covers selection cleanup, overview-window opening, middle-button mouse stopping, element removal/deletion, display-position restoration, Bob bitmap ownership and controlling-player notification. The complete `005690B8..005690CB` region is named and `0051261C` is mapped to the original `CBobManager::mStaticVars`. See [GUI_DESKTOP_RESOLUTION.md](GUI_DESKTOP_RESOLUTION.md). World-display lifetime and the overview-handler owner/callbacks include complete dispatch tables, the typed singleton and the full `00569418..00569433` static region; see [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md). Overview bitmap lifetime, rendering control, scrolling, zoom and timed markers now connect through the static-window constructor/buttons to desktop startup; see [OVERVIEW_BITMAP_RENDERING.md](OVERVIEW_BITMAP_RENDERING.md). Overview terrain rasterization, texture scanning, sample averaging, brightness/cache helpers and the complete 28-byte color region are reconstructed; see [OVERVIEW_TERRAIN_SAMPLING.md](OVERVIEW_TERRAIN_SAMPLING.md). All five object/chest/sight overlays and their guide/house/moveable iterator chains are reconstructed and connected; complete moveable and dynamic-object storage pairs are named external bindings. See [OVERVIEW_OBJECT_OVERLAYS.md](OVERVIEW_OBJECT_OVERLAYS.md). Engine map/pattern/bitmap primitives and data-owner implementations remain original dependencies. Bitmap input, base/window lifetime and world-input dispatcher remain explicit original boundaries.
+The outer manager lifecycle/state structure and desktop startup/shutdown are reconstructed in `InGameGuiManager`. The desktop theme also covers selection cleanup, overview-window opening, middle-button mouse stopping, element removal/deletion, display-position restoration, Bob bitmap ownership and controlling-player notification. The complete `005690B8..005690CB` region is named and `0051261C` is mapped to the original `CBobManager::mStaticVars`. See [GUI_DESKTOP_RESOLUTION.md](GUI_DESKTOP_RESOLUTION.md). World-display lifetime and the overview-handler owner/callbacks include complete dispatch tables, the typed singleton and the full `00569418..00569433` static region; see [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md). Overview bitmap lifetime, rendering control, scrolling, zoom and timed markers now connect through the static-window constructor/buttons to desktop startup; see [OVERVIEW_BITMAP_RENDERING.md](OVERVIEW_BITMAP_RENDERING.md). Overview terrain rasterization, texture scanning, sample averaging, brightness/cache helpers and the complete 28-byte color region are reconstructed; see [OVERVIEW_TERRAIN_SAMPLING.md](OVERVIEW_TERRAIN_SAMPLING.md). All five object/chest/sight overlays and their guide/house/moveable iterator chains are reconstructed and connected; complete moveable and dynamic-object storage pairs are named external bindings. See [OVERVIEW_OBJECT_OVERLAYS.md](OVERVIEW_OBJECT_OVERLAYS.md). Engine map/pattern/bitmap primitives and data-owner implementations remain original dependencies. Overview bitmap input and its coordinate/selection/vehicle-command helpers are reconstructed and connected; see [OVERVIEW_INPUT.md](OVERVIEW_INPUT.md). Base/window lifetime, broader input/network owners and world-input dispatcher remain explicit original boundaries.
 
 ### CGuiBaseDataManager
 
@@ -249,6 +249,8 @@ Next function: `FUN_0044FD3E` and the special-sector pathfinder search chain at 
 
 ## 12. DirectMusic / gedx8musicdrv research
 
+The game-side manager is now complete through all entries in `00403524..00403E10`, including startup, shutdown, timer update and volume control; see [DIRECT_MUSIC_MANAGER.md](DIRECT_MUSIC_MANAGER.md). The driver research below is separate from that reconstruction. Windows game-side initialization fixes the three DWORD fields to reserved/configuration value/sample rate; it uses 64/44100 for mode 0 and does not substitute the current system rate.
+
 This is related reverse-engineering work and may be partly outside the main OpenVikings executable tree, but it contains important validated behavior for the game's music subsystem.
 
 ### Confirmed interface layout
@@ -277,8 +279,8 @@ This is related reverse-engineering work and may be partly outside the main Open
 `+0x10` takes the driver instance and a 12-byte config-like structure:
 
 - reserved/zero,
-- sample rate,
-- config flags.
+- configuration value at +4,
+- sample rate at +8.
 
 Observed mode mapping:
 
@@ -330,6 +332,6 @@ Do not assign stronger names to these without checking current code and the exac
 
 The seven previously unknown call sites in `WorldDisplayElementAccess.cpp` are now implemented. Display control includes earthquake, map rectangle, highlight invalidation dispatch, scroll/rebuild decisions, static-to-work bitmap windows and foreground-stage dispatch. House/vehicle tooltip drawing and ambient loop/landscape playback are translated through their owning logic/data boundaries.
 
-Windows ASM and `Game.exe` bytes establish behavior; Mac names/parameter identity are the only Mac input. New source units are `C2EngineTooltipAccess.cpp` and `C2E2AmbientSoundManagerAccess.cpp`; project inclusion is managed separately. The five affected production compilation units passed MSVC x86 syntax checking and object generation. No new tests were created, and full game link/runtime equivalence is not claimed.
+Windows ASM and `Game.exe` bytes establish behavior; Mac names/parameter identity are the only Mac input. New source units are `C2EngineTooltipAccess.cpp` and `C2E2AmbientSoundManagerAccess.cpp`; these and all other production files are now included in the synchronized project/filter files. The five affected production compilation units passed MSVC x86 syntax checking and object generation. No new tests were created, and full game link/runtime equivalence is not claimed.
 
 The next connected rendering routines are `00481AE2` and `004911D5`. Original rasterization, logic, sorting and GUI-selection calls remain explicit. The complete music region `005683B0..00568418` was inspected but retains raw symbols pending controller/callback ownership reconstruction. Address mappings and exact remaining boundaries are in [WORLD_DISPLAY_ELEMENT_DRAW.md](WORLD_DISPLAY_ELEMENT_DRAW.md).

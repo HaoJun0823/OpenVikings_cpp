@@ -2,6 +2,7 @@
 #include "C2E2LevelOfDetailManager.h"
 #include "C2LogicIOAccess.h"
 #include "DSManager.h"
+#include "DMManager.h"
 #include "InGameGuiManager.h"
 #include "MasterPropertyManager.h"
 #include "OriginalStrings.h"
@@ -361,8 +362,7 @@ namespace NMasterPropertyManager
 
         if (gDirectMusicManager != nullptr)
         {
-            // Original getter: FUN_0040392e.
-            saveInteger("dm_volume", "dm_volume %d\r\n", readInteger(gDirectMusicManager, 0x1cu));
+            saveInteger("dm_volume", "dm_volume %d\r\n", NDMManager::MainVolume_Get(gDirectMusicManager));
         }
 
         // Original getter: FUN_004a2b18.

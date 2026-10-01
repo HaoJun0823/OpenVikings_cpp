@@ -9,9 +9,11 @@
 #include "C2LogicObjectArrays.h"
 #include "C2OverviewObjectIterators.h"
 #include "InGameGuiManager.h"
+#include "InGameGuiInputAccess.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
+#include "XMMouseManager.h"
 
 #include <cstring>
 #include <new>
@@ -29,7 +31,7 @@ extern void __fastcall FUN_0040d96f(NXBasics::CBitmap* bitmap, void* unusedEdx, 
 extern void __fastcall FUN_0040d8f2(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, const NXBasics::SColorRGB* color);
 extern void __fastcall FUN_0040df78(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, std::int32_t length, const NXBasics::SColorRGB* color);
 extern void __fastcall FUN_0040e4d1(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, const NXBasics::SColorRGB* color);
-extern bool __fastcall FUN_004cf81a(void* element, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
+extern void __fastcall FUN_004b7b62(void* manager, void* unusedEdx, const void* mapPoint);
 extern void __fastcall FUN_0040e8bd(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, std::uint32_t radius, const NXBasics::SColorRGB* color);
 extern bool __fastcall FUN_004788a7(void* object);
 extern void __fastcall FUN_00478986(void* object, void* unusedEdx, const std::int32_t* point);
@@ -241,12 +243,19 @@ namespace NC2InGameGuiOverviewDisplay
         WorldOverviewElement_Draw(element, bitmap, rectangle);
     }
 
+    // ABI adapter for FUN_004cf81a; preserves ECX and ret 20.
+    static bool __fastcall WorldOverviewElement_VirtualMessage(void* element, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
+    {
+        (void)unusedEdx;
+        return WorldOverviewElement_MessageHandle(element, message, param1, param2, param3, param4);
+    }
+
     // Complete 15-slot Windows table at 004F7AF8..004F7B33.
     static const std::uintptr_t gWorldOverviewElementVirtualTable[] =
     {
         reinterpret_cast<std::uintptr_t>(&WorldOverviewElement_DeletingDestructor),
         reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
-        reinterpret_cast<std::uintptr_t>(&FUN_004cf81a),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewElement_VirtualMessage),
         reinterpret_cast<std::uintptr_t>(&WorldOverviewElement_VirtualDraw),
         reinterpret_cast<std::uintptr_t>(&FUN_00478986),
         reinterpret_cast<std::uintptr_t>(&FUN_00478994),
@@ -853,6 +862,84 @@ namespace NC2InGameGuiOverviewDisplay
         point[0] = xResult;
         point[1] = yResult;
         return point;
+    }
+
+    // Original function: FUN_004cf81a; XGui_BE_Message_Handle.
+    bool WorldOverviewElement_MessageHandle(void* element, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
+    {
+        (void)param4;
+        if (message == 0x800)
+        {
+            if (param1 == 12000)
+            {
+                auto* bitmap = OverviewDisplay_Read<NXBasics::CBitmap*>(element, 0x2C);
+                const std::int32_t maximum[2] = { bitmap->GetRectangle().width, bitmap->GetRectangle().height };
+                const std::int32_t minimum[2] = { 0, 0 };
+                WorldOverviewElement_UpdateArea(element, minimum, maximum);
+            }
+            return true;
+        }
+        if (message == 0x100)
+        {
+            if (OverviewDisplay_Read<std::uint8_t>(element, 0x807B) != 0)
+            {
+                const std::int32_t wheel = OverviewDisplay_Signed(param3);
+                WorldOverviewElement_ModifyZoom(element, wheel < 0 ? -1 : wheel > 0 ? 1 : 0);
+            }
+            return true;
+        }
+        if (message != 1 && message != 0x20 && message != 0x80) return false;
+        if (message == 0x80 && !NXSysMouseManager::CMouseManager::sTheObjectPtr->IsLeftButtonDown()) return true;
+        std::int32_t point[2] = { param1, OverviewDisplay_Signed(param2) };
+        NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
+        std::int16_t mapPoint[2] = { 0, 0 };
+        WorldOverviewElement_TransformToMapCoord(element, point, mapPoint);
+        NC2Logic::MapMigPoint_ValidatePosition(mapPoint);
+        if (message == 0x20)
+        {
+            void* input = NC2InGameGuiInputManager::gInputManager;
+            if (OverviewDisplay_Read<std::int32_t>(input, 0) != 0) return true;
+            const std::int32_t selection = OverviewDisplay_Read<std::int32_t>(input, 4);
+            if (selection <= 0) return true;
+            if (selection <= 2)
+            {
+                FUN_004b7b62(input, nullptr, mapPoint);
+                return true;
+            }
+            if (selection == 4)
+            {
+                std::byte command[0x14]{};
+                command[0] = std::byte{ 0x65 };
+                const std::int32_t id = NC2InGameGuiInputManager::Selection_GetSelectedSingleVehicleId(NC2InGameGuiInputManager::gInputManager);
+                const std::uint32_t position = NC2Logic::MapMigPoint_GetLong(mapPoint);
+                std::memcpy(command + 4, &id, sizeof(id));
+                std::memcpy(command + 0x0C, &position, sizeof(position));
+                NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+            }
+            else if (selection == 5)
+            {
+                std::uint32_t index = 0;
+                if (NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehiclesNumber(input) == 0) return true;
+                do
+                {
+                    std::byte command[0x14]{};
+                    command[0] = std::byte{ 0x65 };
+                    const std::int32_t id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehicleId(NC2InGameGuiInputManager::gInputManager, index);
+                    const std::uint32_t position = NC2Logic::MapMigPoint_GetLong(mapPoint);
+                    std::memcpy(command + 4, &id, sizeof(id));
+                    std::memcpy(command + 0x0C, &position, sizeof(position));
+                    NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+                    ++index;
+                } while (index < NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehiclesNumber(NC2InGameGuiInputManager::gInputManager));
+            }
+            return true;
+        }
+        void* desktop = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop();
+        using MessageFn = bool(__thiscall*)(void*, std::int32_t, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+        const auto* table = OverviewDisplay_Read<MessageFn*>(desktop, 0);
+        const std::uint32_t position = NC2Logic::MapMigPoint_GetLong(mapPoint);
+        table[2](desktop, 0x1000, 2004, position, 0, 0);
+        return true;
     }
 
     // Original function: FUN_004cfa85; l_CheckForScrolling.

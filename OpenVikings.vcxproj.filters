@@ -387,6 +387,9 @@
     <ClCompile Include="InGameGuiOverviewWindowAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="InGameGuiInputAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h">
@@ -660,6 +663,9 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="InGameGuiOverviewWindowAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiInputAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>

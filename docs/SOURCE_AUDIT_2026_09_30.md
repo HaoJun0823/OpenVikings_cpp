@@ -36,7 +36,7 @@ The two named static-data manager pointers remain external dependencies; their m
 
 The [overview terrain follow-up](OVERVIEW_TERRAIN_SAMPLING.md) retains 43 live DAT symbols and six assembly blocks. Its two modified units pass Win32 `/Od` and `/O2` object generation without warnings; the repeated 82-unit syntax pass remains 77 passing units and five incomplete units with 129 diagnostics. Its static analysis repeats only the existing filename findings below.
 
-The [overview overlay follow-up](OVERVIEW_OBJECT_OVERLAYS.md) resolves two more live DAT identities, leaving 41 and the same six assembly blocks. Five affected units pass Win32 `/Od` and `/O2` object generation with the existing array-module C4100 warning. The current 83-unit syntax pass has 78 passing units and five incomplete units with 127 diagnostics.
+The [overview overlay follow-up](OVERVIEW_OBJECT_OVERLAYS.md) resolves two more live DAT identities, leaving 41 and the same six assembly blocks. Five affected units pass Win32 `/Od` and `/O2` object generation with the existing array-module C4100 warning. Its 83-unit syntax pass has 78 passing units and five incomplete units with 127 diagnostics. The [overview-input](OVERVIEW_INPUT.md) and [DirectMusic manager](DIRECT_MUSIC_MANAGER.md) follow-up now has seven affected units passing `/Od` and `/O2` without warnings; the current 84-unit syntax pass has 80 passing units and four incomplete units with 123 diagnostics.
 
 Three of nine initial blocks were replaced. Six remain deliberately visible:
 
@@ -69,17 +69,16 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview-handler and [overview rendering-control follow-ups](OVERVIEW_BITMAP_RENDERING.md) add four passing implementation units. The [overview overlays](OVERVIEW_OBJECT_OVERLAYS.md) add another passing iterator unit and connect the in-game human dynamic storage, removing two diagnostics. The current 83-unit syntax pass has 78 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview-handler and [overview rendering-control follow-ups](OVERVIEW_BITMAP_RENDERING.md) add four passing implementation units. The [overview overlays](OVERVIEW_OBJECT_OVERLAYS.md) add another passing iterator unit and connect the in-game human dynamic storage, removing two diagnostics. The [DirectMusic manager](DIRECT_MUSIC_MANAGER.md) completes the system-update unit and removes three startup diagnostics; the new input-access unit also passes. The current 84-unit syntax pass has 80 passing units and these four incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |
 | `MainMenuGuiManager.cpp` | 79 |
-| `MasterControlProgram.cpp` | 14 |
+| `MasterControlProgram.cpp` | 11 |
 | `MasterControlProgram_PS_InGame.cpp` | 22 |
 | `MasterControlProgram_PS_MainMenu.cpp` | 11 |
-| `MasterControlProgram_PS_System.cpp` | 1 |
 
-Examples include DirectMusic methods, save/map managers and GUI startup/shutdown helpers. The global-options load/save/default paths and Windows CD-audio manager are now reconstructed. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
+Examples include save/map managers and GUI startup/shutdown helpers. The global-options load/save/default paths and Windows CD-audio/DirectMusic game-side managers are now reconstructed. A full build/link is not verified. Translate those owning blocks and connect established methods; do not fabricate declarations or placeholder bodies solely to remove compiler errors.
 
 ## Remaining live DAT inventory
 

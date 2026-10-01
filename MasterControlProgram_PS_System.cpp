@@ -1,5 +1,6 @@
 #include "ApplicationGlobals.h"
 #include "CDAudioManager.h"
+#include "DMManager.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
 #include "MasterControlProgram.h"
@@ -124,7 +125,7 @@ namespace NMasterControlProgram
 
         if (gDirectMusicManager != nullptr)
         {
-            FUN_00403858(gDirectMusicManager);
+            NDMManager::Update(gDirectMusicManager);
 
             auto** errorMessage = reinterpret_cast<char**>(reinterpret_cast<std::byte*>(gDirectMusicManager) + 0x220);
 

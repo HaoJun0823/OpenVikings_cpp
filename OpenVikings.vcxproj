@@ -44,6 +44,7 @@
     <ClCompile Include="GuiBitmapToolElementAccess.cpp" />
     <ClCompile Include="GuiToolsBase.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
+    <ClCompile Include="InGameGuiInputAccess.cpp" />
     <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp" />
     <ClCompile Include="InGameGuiOverviewHandler.cpp" />
     <ClCompile Include="InGameGuiOverviewWindowAccess.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="GuiBitmapToolElementAccess.h" />
     <ClInclude Include="GuiToolsBase.h" />
     <ClInclude Include="InGameGuiManager.h" />
+    <ClInclude Include="InGameGuiInputAccess.h" />
     <ClInclude Include="InGameGuiOverviewDisplayAccess.h" />
     <ClInclude Include="InGameGuiOverviewHandler.h" />
     <ClInclude Include="InGameGuiOverviewWindowAccess.h" />

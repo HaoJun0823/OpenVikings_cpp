@@ -5,21 +5,17 @@
 
 namespace NDMManager
 {
-    // Original function: FUN_004038bd
+    inline constexpr std::size_t ManagerSize = 0x224;
+    void* Construct(void* manager);
+    void Destruct(void* manager);
+    std::uint8_t Init(void* manager, std::int32_t mode, const char* directory);
+    std::uint8_t Exit(void* manager);
+    std::uint8_t Update(void* manager);
+    std::int32_t MainVolume_Get(const void* manager);
+    std::uint8_t MainVolume_Set(void* manager, std::int32_t volume);
     std::uint8_t ProcessEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter, std::int32_t mode);
-
-    // Original function: FUN_004039d8
     void ResetAllSegments(void* manager);
-
-    // Original function: FUN_00403a08
     std::uint8_t PrepareEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter);
-
-    // Original function: FUN_00403c0e
     std::uint8_t StartEvent(void* manager, std::int32_t eventId, std::uint32_t eventParameter);
-
-    // Original function: FUN_00403d6c; does not access the manager object.
     const char* GetEventFileName(std::int32_t eventId, std::uint32_t variant);
-
-    // Original function: FUN_00403e10
-    static std::byte* FindSegmentEntry(void* manager, std::int32_t eventId, std::uint32_t eventParameter);
 }

@@ -1,6 +1,7 @@
 #include "ApplicationGlobals.h"
 #include "C2LanguageTools.h"
 #include "CDAudioManager.h"
+#include "DMManager.h"
 #include "DSManager.h"
 #include "XSystemManager.h"
 #include "XCrtFileAccess.h"
@@ -251,11 +252,11 @@ namespace NMasterControlProgram
         }
         else
         {
-            void* directMusicManagerMemory = ::operator new(0x224, std::nothrow);
+            void* directMusicManagerMemory = NXBasics::Runtime_AllocateWithNewHandler(NDMManager::ManagerSize, 1);
 
             if (directMusicManagerMemory != nullptr)
             {
-                FUN_00403524(directMusicManagerMemory);
+                NDMManager::Construct(directMusicManagerMemory);
             }
 
             char directMusicPath[MAX_PATH]{};
@@ -264,13 +265,13 @@ namespace NMasterControlProgram
             // Original append routine 004e5c30 is strcat.
             std::strcat(directMusicPath, "\\datax\\dm2\\");
 
-            FUN_004035b6(gDirectMusicManager, 0, directMusicPath);
+            NDMManager::Init(gDirectMusicManager, 0, directMusicPath);
 
             if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("dm_volume"))
             {
                 const int volume = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("dm_volume");
 
-                FUN_00403932(gDirectMusicManager, volume);
+                NDMManager::MainVolume_Set(gDirectMusicManager, volume);
             }
         }
 

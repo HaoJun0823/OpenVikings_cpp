@@ -52,3 +52,5 @@ All five affected compilable implementations generate Win32 C++17 objects under 
 Confirmed from Windows: filters, shapes, call order, field widths, iterator behavior, ownership boundaries and arithmetic. Supported by Mac: iterator/overview method names, parameter identities and data-manager identities. Unresolved: complete owner implementations, player-color accessor `00490EDF`, clipped RGB pixel `0040D8F2`, horizontal line `0040DF78`, line `0040E4D1`, circle `0040E8BD`, and the previously documented terrain boundaries. Full linking and game execution remain unverified.
 
 Next connected GUI block: bitmap input dispatcher `004CF81A`, followed by static-window/base-tool lifetime and world input `004BA3BE`.
+
+Follow-up, 2026-10-01: this overlay block is committed as `d2cb794`. Bitmap input and its immediate coordinate/selection/vehicle-command helpers are reconstructed and connected; see [OVERVIEW_INPUT.md](OVERVIEW_INPUT.md). Static-window/base-tool lifetime remains next.

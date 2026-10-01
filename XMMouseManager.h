@@ -69,6 +69,7 @@ namespace NXSysMouseManager
         inline static CMouseManager* sTheObjectPtr = nullptr;
 
         bool IsMiddleButtonDown() const noexcept { return mMiddleButton; }
+        bool IsLeftButtonDown() const noexcept { return mLeftButton; }
         void SetPositionOverrideCallback(bool(__cdecl* callback)()) noexcept { mPositionCallback = callback; }
 
     private:

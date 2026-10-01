@@ -64,6 +64,8 @@ The Mac reference independently starts the water scan at the highest group. Wind
 
 Also retained: `0044FCEB` leaves its output and read index unchanged when an entry is invalid. No fallback point is invented. The byte-sized continent loop, unchecked continent indexing, saved-dimension allocation assumptions and original allocation failure behavior are unchanged.
 
+Register follow-up, 2026-10-01: the water-list scan is now recorded as [OA019](../Readme.md#oa019). Its defect classification and original-game consequences remain unresolved.
+
 ## Remaining functional boundary
 
 `FUN_0044fd3e` remains an explicit `__cdecl` external taking an eight-byte sector cursor by value followed by a direction. Windows and Mac identify it as `l_Sectors_CheckAndSetConnection`. Its special-sector pathfinder dependencies include `004703AE`, `004703CA` and `0047041B` (`Init`, `StartPathfinder`, `GetNextDirection`). Only the previously reconstructed initialization at `004703AE` is currently implemented here. Do not mark the complete connected-sector/pathfinding subsystem closed before this boundary is reconstructed.

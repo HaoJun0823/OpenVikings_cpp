@@ -28,5 +28,6 @@ namespace NC2InGameGuiOverviewDisplay
     void WorldOverviewElement_TransformToMapCoord(const void* element, const std::int32_t* point, std::int16_t* mapPoint);
     std::int32_t* WorldOverviewElement_TransformToOverViewDisplayCoord(const void* element, std::int32_t* point, const std::int16_t* mapPoint);
     void WorldOverviewElement_DrawMarker(void* element);
+    bool WorldOverviewElement_MessageHandle(void* element, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
     void WorldOverviewElement_ModifyZoom(void* element, std::int32_t delta);
 }

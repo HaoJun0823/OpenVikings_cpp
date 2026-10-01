@@ -34,6 +34,17 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### README failure-path register synchronization
+
+- Reconciled the completed subsystem documents and retained Windows failure behavior with the README register. Added OB074–OB081 and OA019–OA034, plus the separate FP001–FP012 failure-handling index; the register now contains 81 defect/limitation entries and 34 observations/assessments.
+- Added working links for both finding indexes, restored the missing OB073 index row, corrected OB001's unrelated trigger text, and recorded the recent reconstruction/integration corrections separately. The README now reflects the current project-inclusion policy. This documentation pass changes no production behavior and claims no game runtime validation.
+
+### Overview input and Windows DirectMusic manager
+
+- Committed overview overlays/project synchronization as `d2cb794`. Reconstructed overview message dispatch `004CF81A`, immediate coordinate/selection/vehicle-command helpers and their original virtual binding; see [OVERVIEW_INPUT.md](OVERVIEW_INPUT.md). The new input source/header are included in the project and GUI filters.
+- Completed all 14 game-side DirectMusic manager entries, including construction, DLL initialization, shutdown, timer update and volume control. Startup/system-update/property callers now use the named interfaces, and manager object/string allocation uses the original runtime family. See [DIRECT_MUSIC_MANAGER.md](DIRECT_MUSIC_MANAGER.md) for preserved Windows failure behavior and external DLL/logarithm boundaries.
+- Seven affected implementations generate Win32 `/Od` and `/O2` objects without warnings. The system-update unit now passes; of 84 production syntax units, 80 pass and four incomplete units retain 123 diagnostics. The live DAT count remains 41. No tests were added. Next GUI block: static-window/base-tool lifetime, then world input `004BA3BE`.
+
 ### Visual Studio project synchronization
 
 - Added all 18 missing production files (eight implementations and ten headers) to `OpenVikings.vcxproj` and `OpenVikings.vcxproj.filters`, including previous audio/GUI work and the current overview iterators/data declarations. Existing Visual Studio filters group the files by subsystem.

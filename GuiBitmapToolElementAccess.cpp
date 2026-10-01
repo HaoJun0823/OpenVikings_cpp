@@ -37,6 +37,23 @@ namespace NC2InGameGuiBase
         std::memcpy(static_cast<std::byte*>(object) + offset, &value, sizeof(value));
     }
 
+    // Original function: FUN_00478a79; l_BE_GlobalToLocalCoordinates.
+    void BaseElement_GlobalToLocalCoordinates(const void* element, std::int32_t* point)
+    {
+        const auto subtract = [](std::int32_t value, std::int32_t offset) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(value) - static_cast<std::uint32_t>(offset)); };
+        if (const void* parent = BitmapTool_Read<void*>(element, 0x20))
+        {
+            const std::int32_t y = BitmapTool_Read<std::int32_t>(parent, 8);
+            const std::int32_t x = BitmapTool_Read<std::int32_t>(parent, 4);
+            point[0] = subtract(point[0], x);
+            point[1] = subtract(point[1], y);
+        }
+        const std::int32_t y = BitmapTool_Read<std::int32_t>(element, 8);
+        const std::int32_t x = BitmapTool_Read<std::int32_t>(element, 4);
+        point[0] = subtract(point[0], x);
+        point[1] = subtract(point[1], y);
+    }
+
     // Original virtual entry: FUN_004b8af7.
     static void* __fastcall BaseBitmapToolElement_DeletingDestructor(void* element, void* unusedEdx, std::uint32_t flags)
     {

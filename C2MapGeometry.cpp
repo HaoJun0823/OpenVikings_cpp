@@ -6,6 +6,14 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042adff; sign-extended X participates in the OR.
+    std::uint32_t MapMigPoint_GetLong(const void* packedMigPoint)
+    {
+        std::int16_t coordinates[2];
+        std::memcpy(coordinates, packedMigPoint, sizeof(coordinates));
+        return static_cast<std::uint32_t>(coordinates[0]) | (static_cast<std::uint32_t>(coordinates[1]) << 16);
+    }
+
     // Original function: FUN_0042abdd; distinct jump tables for odd and even rows.
     void MapMigPoint_MoveCursorUnwrapped(std::uint32_t& packedMigPoint, std::uint32_t direction)
     {
