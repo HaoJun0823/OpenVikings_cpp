@@ -6,7 +6,7 @@ The primary goal of the current project phase is **faithful functional reconstru
 
 A later **Renewed** phase may intentionally correct original defects, modernize behavior and improve safety. Until the faithful reconstruction is complete, confirmed original bugs are preserved and documented rather than silently fixed.
 
-Last handoff update: **2026-09-30**.
+Last handoff update: **2026-10-01**.
 
 ## Source authority and reverse-engineering references
 
@@ -14,15 +14,15 @@ The following evidence hierarchy applies project-wide:
 
 1. **Windows x86 disassembly is authoritative for behavior.**
 2. **User-supplied Windows memory/data dumps are authoritative for constants and original initialized data.**
-3. **The macOS x86-64 build is a naming, structure and semantic reference.**
+3. **The macOS x86-64 build supplies names and parameter identities only.**
 4. **Current OpenVikings source and Git history document the reconstruction and its evolution.**
 5. Inference is allowed only when the evidence is insufficient and must remain clearly identified as inference.
 
 Primary reverse-engineering reference files currently used with this project include:
 
 - `assembly_weltwunder_win.asm` — Windows x86 instruction-level reference.
-- `x86-64-mac.c` — macOS decompilation used primarily for semantic and naming correlation.
-- `x86-64-mac.h` — macOS type and structure reference.
+- `x86-64-mac.c` — macOS decompilation used to recover names and parameter identities.
+- `x86-64-mac.h` — macOS declarations used to recover names and parameter identities.
 
 The macOS implementation must **not** override contradictory Windows behavior. A difference between platforms is not by itself evidence that the Windows implementation contains a bug.
 
@@ -41,7 +41,7 @@ These rules apply to every reconstructed subsystem:
 - Comments in source code must always be **English**.
 - Function declarations and definitions must keep their parameter list on **one line** rather than formatting each parameter on separate lines.
 - Do not add unnecessary linker pragmas such as `#pragma comment(lib, "winmm.lib")` or `#pragma comment(lib, "dinput.lib")`.
-- Changes to `OpenVikings.vcxproj` do not need to be documented as reconstruction work; project-file integration is handled separately.
+- Keep `OpenVikings.vcxproj` and `OpenVikings.vcxproj.filters` synchronized with all production source/header additions, renames and removals.
 - ZIP archives are never treated as the editable source of truth. When only a ZIP is supplied, proposed changes are described in chat as **filename + Before + After** unless direct file editing was explicitly requested.
 - Keep functions ordered by original Windows address where that improves traceability; within address groups, preserve sensible subsystem organization.
 
@@ -93,7 +93,7 @@ A new Codex session should begin by:
 2. Inspecting the current repository `HEAD` and `git status`.
 3. Reading the relevant subsystem source before relying on historical notes.
 4. Using the Windows ASM as the behavioral authority.
-5. Checking the macOS code for naming and semantic correspondence, especially for unknown globals and pointer regions.
+5. Checking the macOS code for names and parameter identities, especially for unknown globals and pointer regions.
 6. Continuing the **currently active functional block** instead of reopening already completed chapters without evidence.
 
 Historical notes describe knowledge accumulated during reconstruction, but the repository itself is the current implementation truth.
@@ -117,7 +117,7 @@ The project has already reconstructed or substantially analyzed several major ar
 
 The current cleanup phase is focused on replacing remaining raw `DAT_`, `PTR_` and related symbols only where their ownership and meaning can be established reliably.
 
-The most recent source review before this handoff identified that the `CMapWalkSectorManager` area had just been worked through and that the next nearby Windows function block to inspect is around **`FUN_004507f2`**, together with its sector globals/change-state data. This is a handoff marker, not a guarantee that the task remains open: always verify against the current Git `HEAD` first.
+The map walk-sector callback `004507F2` is reconstructed; the connection/pathfinder chain beginning at `0044FD3E` remains open. The latest completed blocks cover CD-audio, desktop/world-display lifetime, overview rendering/input and all 14 game-side DirectMusic manager entries. Current priorities and verification limits are maintained in [PROJECT_STATE.md](docs/PROJECT_STATE.md) and [OPEN_TASKS.md](docs/OPEN_TASKS.md).
 
 ## DirectMusic reverse-engineering notes
 
@@ -131,7 +131,7 @@ The original game uses `gedx8musicdrv.dll` and DirectMusic. Important confirmed 
 | `+0x20` | Load cached object |
 | `+0x34` | Create audiopath |
 | `+0x38` | Activate audiopath |
-| `+0x3C` | Audiopath-related volume/configuration operation; exact signature must be verified before changing |
+| `+0x3C` | Set audiopath volume: instance, audiopath, signed attenuation, duration |
 | `+0x40` | Audiopath/configuration-related operation; exact signature must be verified before changing |
 | `+0x54` | Start segment playback |
 | `+0x58` | Reset segment playback/state |
@@ -186,7 +186,7 @@ The sections below retain the existing original-bug register and its reconstruct
 
 ## Intentionally Preserved Original Bugs
 
-Register updated: 2026-09-27. Original register created: 2026-09-13.
+Register updated: 2026-10-01. Original register created: 2026-09-13.
 
 This register applies project-wide to the C++ reconstruction of *Cultures: Das Achte Weltwunder*: game logic, engine, file access, CRT, graphics, input, audio, networking and other reconstructed components.
 
@@ -203,7 +203,7 @@ This register applies project-wide to the C++ reconstruction of *Cultures: Das A
 ## Maintenance and identifiers
 
 Keep existing identifiers stable. Hyphenated and unhyphenated spellings of the same number refer to the same finding; do not create duplicate entries under alternate spellings.
-Provide additions and corrections in chat unless direct file changes are requested.
+Keep this register and its indexes synchronized with findings recorded in subsystem documents. Record normal failure handling separately from defects and unresolved assessments.
 
 ## Status definitions
 
@@ -214,7 +214,9 @@ Provide additions and corrections in chat unless direct file changes are request
 
 ## Current reconstruction status
 
-Latest source review: 2026-09-27, based on the supplied OpenVikings_cpp.zip.
+Current checkout review: 2026-10-01. The production Win32 syntax pass covers 84 units: 80 pass; four incomplete units retain 123 diagnostics. Seven units affected by overview input and DirectMusic generate `/Od` and `/O2` objects without warnings. This establishes compilation of those units, not a full link or game runtime validation. See [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md).
+
+Historical source review below: 2026-09-27, based on the supplied OpenVikings_cpp.zip.
 
 The reviewed sound implementation includes manager construction and teardown,
 device initialization, preload loading and playback, volume transitions,
@@ -238,89 +240,101 @@ reported layout and arithmetic models, do not validate the full application.
 
 | ID | Finding | Original reference |
 | --- | --- | --- |
-| OB001 | Negative indices before the character-type table | 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12 |
-| OB002 | Unchecked multibyte conversions | 004ece0f — Runtime_UpdateMultibyteCaseTables |
-| OB003 | Size multiplication overflow in calloc | 004ef3ac — Runtime_AllocateZeroed |
-| OB004 | Excessive copy bound in heap-mode-3 realloc | 004ea229 — Runtime_Reallocate; 004ea558 — Runtime_GetAllocationSize |
-| OB005 | Extra read at the bounded string-length limit | 004f1534 — Runtime_BoundedStringLength |
-| OB006 | Global heap selector compares the terminating NUL | 004ec496 — Runtime_SelectHeapMode |
-| OB007 | Insufficiently checked text queries during heap selection | 004ec496 — Runtime_SelectHeapMode |
-| OB008 | Heap bookkeeping changes after failed decommit | 004ed4cd — Runtime_FreeSmallBlock |
-| OB009 | String copy after allocation failure | 00410b59 — NXBasics::StringDuplicate in XStringMemory.h |
-| OB010 | Log text is interpreted as a format string | 004dbc6d — WriteNetworkLog in NetworkRuntime.cpp |
-| OB011 | Shared error-text fallback after allocation failure | 004e7525 — Runtime_GetErrorText in XCrtFileAccess.h |
-| OB012 | Unchecked system-path and prefix-replacement lengths | 004063f9 and 00405d8b |
-| OB013 | Archive fallback uses the search-path index as the archive index | 00405ee5 |
-| OB014 | Unchecked archive-constructor allocations | 0040665d |
-| OB015 | Size overflows while loading archives | 0040665d |
-| OB016 | Directory scanner always appends a backslash | 00440008 |
-| OB017 | Scanner dereferences an invalid archive entry | 00440008 |
-| OB018 | Path splitting skips a terminator after a multibyte lead byte | 004e7aa8 |
-| OB019 | Scanner discards its handle after a failed close | 0043ffde |
-| OB020 | Native search handle is lost when switching to archive search | 0043fefc; close helper 004e7743; Stop 0043ffde |
-| OB021 | GetNextMatchingFile loops forever for an inactive scanner | 0043fefc |
-| OB022 | Unchecked path lengths when starting a scanner | 0043fe62 and 0043fefc |
-| OB023 | File search retains only the low 32 size bits | 004e7676 and 004e7743 |
-| OB024 | Uninitialized fields during daylight-saving checks | 004eb0a5 |
-| OB025 | Time conversion accepts 2038 without checking overflow | 004eb0a5 |
-| OB026 | TZ parser assumes a three-byte standard name | 004eab11 |
-| OB027 | TZ parsing retains the previous daylight bias | 004eab11 |
-| OB028 | TZ parsing continues after releasing the environment lock | 004eab11 |
-| OB029 | Replacing an environment entry leaks the previous string | 004f155f |
-| OB030 | Wide environment conversion ignores insertion failures | 004eeb03 |
-| OB031 | Failed second conversion leaks its destination buffer | 004eeb03 |
-| OB032 | Environment copying ignores individual string-allocation failures | 004f173e |
-| OB033 | Environment update can succeed without updating Windows | 004f155f |
-| OB034 | Startup environment acquisition failure is not checked | 004ec337 and 004ec031 |
-| OB035 | System-error output selects the wrong filename argument | 004de237 |
-| OB036 | Network diagnostics use unsafe path shortening and fixed buffers | 004de237 and 004de569 |
-| OB037 | Failed second DirectX registry query leaks its buffer | 004de6d8 |
-| OB038 | Network allocation diagnostics return before unchecked writes | 004de6d8 and 004dc45f |
-| OB039 | Failed log reopening retains a closed stream pointer | 004db8ea |
-| OB040 | Network log filenames exceed unchecked fixed buffers | 004db8ea |
-| OB041 | DirectX version copy can omit the terminating NUL | 004de6d8 and 004db9f6 |
-| OB042 | Player-name query leaks its temporary allocation on failure | 004dcf42 |
-| OB043 | Command-message copy does not validate destination capacity | 004e13a1 |
-| OB044 | Event queue eviction does not reduce its count | 004db558 |
-| OB045 | Final short RLE marker run is not escaped | 004e0e57 |
-| OB046 | Compressed input validation accepts truncated headers and RLE tokens | 004e0d5c and 004e0f99 |
-| OB047 | Compression ignores stream errors and decompression removes its input | 004e0b4e, 004e0d5c, 004e0e57 and 004e0f99 |
-| OB048 | Compressor filenames exceed unchecked fixed buffers | 004e0b4e and 004e0d5c |
-| OB049 | Callsign initialization ignores GetUserNameA failure | 00405a04 |
-| OB050 | Zero text-input limit bypasses the insertion bound | 004a3a8e and 004a3b10 |
-| OB051 | Unguarded division in host transfer progress | 004d9605 |
-| OB052 | Unsigned transfer countdown underflow | 004d9605 |
-| OB053 | Scalar RGB555 transparency loses a red bit | 0046534f and 004660c6 |
-| OB054 | Restricted initial counter limit in sound-slot selection | 004051a3 |
-| OB055 | Fixed WAV sample-data offset | 0040499b |
-| OB056 | Sound creation leaks resources on failure | 00405358 |
-| OB057 | Sound-buffer read failure bypasses Unlock | 004054b4 |
-| OB058 | Unbounded sound-buffer restoration retries | 00405591 |
-| OB059 | Memory-backed wave reads do not advance the cursor | 004057d4 |
-| OB060 | MMIO read failure retains an early size decrement | 004057d4 |
-| OB061 | New volume transitions retain the previous rate | 00404e5c |
-| OB062 | Preload lookup stops at the first inactive slot | 00404bff |
-| OB063 | Volume transitions accept a zero duration | 00404ced and 00404e5c |
-| OB064 | Failed sound-device initialization escapes normal teardown | 00404b62, 004048d7 and 00404762 |
-| OB065 | Primary-buffer format failure leaks its reference | 004052a0 |
-| OB066 | Master-volume updates overwrite individual volume and pan | 00404aac |
-| OB067 | `0048e1e1`, `00485fdd` | Missing jingle events select the first table entry. |
-| OB068 | `0048dd23` | Sound-data loading uses unchecked destination indices. |
-| OB069 | `0048dd23` | Reloading retains counters and replaces owned table pointers. |
-| OB070 | `0048e5f8` | Truncated group names are not matched against their original input. |
-| OB071 | `0048e5f8`, `0047f610`, `0047f659`, `0047f80c` | Ambient consumers index mappings with failed group IDs. |
-| OB072 | `0048e19a` | Static sound lookup conflates failure with the first entry. |
+| [OB001](#ob001) | Negative indices before the character-type table | 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12 |
+| [OB002](#ob002) | Unchecked multibyte conversions | 004ece0f — Runtime_UpdateMultibyteCaseTables |
+| [OB003](#ob003) | Size multiplication overflow in calloc | 004ef3ac — Runtime_AllocateZeroed |
+| [OB004](#ob004) | Excessive copy bound in heap-mode-3 realloc | 004ea229 — Runtime_Reallocate; 004ea558 — Runtime_GetAllocationSize |
+| [OB005](#ob005) | Extra read at the bounded string-length limit | 004f1534 — Runtime_BoundedStringLength |
+| [OB006](#ob006) | Global heap selector compares the terminating NUL | 004ec496 — Runtime_SelectHeapMode |
+| [OB007](#ob007) | Insufficiently checked text queries during heap selection | 004ec496 — Runtime_SelectHeapMode |
+| [OB008](#ob008) | Heap bookkeeping changes after failed decommit | 004ed4cd — Runtime_FreeSmallBlock |
+| [OB009](#ob009) | String copy after allocation failure | 00410b59 — NXBasics::StringDuplicate in XStringMemory.h |
+| [OB010](#ob010) | Log text is interpreted as a format string | 004dbc6d — WriteNetworkLog in NetworkRuntime.cpp |
+| [OB011](#ob011) | Shared error-text fallback after allocation failure | 004e7525 — Runtime_GetErrorText in XCrtFileAccess.h |
+| [OB012](#ob012) | Unchecked system-path and prefix-replacement lengths | 004063f9 and 00405d8b |
+| [OB013](#ob013) | Archive fallback uses the search-path index as the archive index | 00405ee5 |
+| [OB014](#ob014) | Unchecked archive-constructor allocations | 0040665d |
+| [OB015](#ob015) | Size overflows while loading archives | 0040665d |
+| [OB016](#ob016) | Directory scanner always appends a backslash | 00440008 |
+| [OB017](#ob017) | Scanner dereferences an invalid archive entry | 00440008 |
+| [OB018](#ob018) | Path splitting skips a terminator after a multibyte lead byte | 004e7aa8 |
+| [OB019](#ob019) | Scanner discards its handle after a failed close | 0043ffde |
+| [OB020](#ob020) | Native search handle is lost when switching to archive search | 0043fefc; close helper 004e7743; Stop 0043ffde |
+| [OB021](#ob021) | GetNextMatchingFile loops forever for an inactive scanner | 0043fefc |
+| [OB022](#ob022) | Unchecked path lengths when starting a scanner | 0043fe62 and 0043fefc |
+| [OB023](#ob023) | File search retains only the low 32 size bits | 004e7676 and 004e7743 |
+| [OB024](#ob024) | Uninitialized fields during daylight-saving checks | 004eb0a5 |
+| [OB025](#ob025) | Time conversion accepts 2038 without checking overflow | 004eb0a5 |
+| [OB026](#ob026) | TZ parser assumes a three-byte standard name | 004eab11 |
+| [OB027](#ob027) | TZ parsing retains the previous daylight bias | 004eab11 |
+| [OB028](#ob028) | TZ parsing continues after releasing the environment lock | 004eab11 |
+| [OB029](#ob029) | Replacing an environment entry leaks the previous string | 004f155f |
+| [OB030](#ob030) | Wide environment conversion ignores insertion failures | 004eeb03 |
+| [OB031](#ob031) | Failed second conversion leaks its destination buffer | 004eeb03 |
+| [OB032](#ob032) | Environment copying ignores individual string-allocation failures | 004f173e |
+| [OB033](#ob033) | Environment update can succeed without updating Windows | 004f155f |
+| [OB034](#ob034) | Startup environment acquisition failure is not checked | 004ec337 and 004ec031 |
+| [OB035](#ob035) | System-error output selects the wrong filename argument | 004de237 |
+| [OB036](#ob036) | Network diagnostics use unsafe path shortening and fixed buffers | 004de237 and 004de569 |
+| [OB037](#ob037) | Failed second DirectX registry query leaks its buffer | 004de6d8 |
+| [OB038](#ob038) | Network allocation diagnostics return before unchecked writes | 004de6d8 and 004dc45f |
+| [OB039](#ob039) | Failed log reopening retains a closed stream pointer | 004db8ea |
+| [OB040](#ob040) | Network log filenames exceed unchecked fixed buffers | 004db8ea |
+| [OB041](#ob041) | DirectX version copy can omit the terminating NUL | 004de6d8 and 004db9f6 |
+| [OB042](#ob042) | Player-name query leaks its temporary allocation on failure | 004dcf42 |
+| [OB043](#ob043) | Command-message copy does not validate destination capacity | 004e13a1 |
+| [OB044](#ob044) | Event queue eviction does not reduce its count | 004db558 |
+| [OB045](#ob045) | Final short RLE marker run is not escaped | 004e0e57 |
+| [OB046](#ob046) | Compressed input validation accepts truncated headers and RLE tokens | 004e0d5c and 004e0f99 |
+| [OB047](#ob047) | Compression ignores stream errors and decompression removes its input | 004e0b4e, 004e0d5c, 004e0e57 and 004e0f99 |
+| [OB048](#ob048) | Compressor filenames exceed unchecked fixed buffers | 004e0b4e and 004e0d5c |
+| [OB049](#ob049) | Callsign initialization ignores GetUserNameA failure | 00405a04 |
+| [OB050](#ob050) | Zero text-input limit bypasses the insertion bound | 004a3a8e and 004a3b10 |
+| [OB051](#ob051) | Unguarded division in host transfer progress | 004d9605 |
+| [OB052](#ob052) | Unsigned transfer countdown underflow | 004d9605 |
+| [OB053](#ob053) | Scalar RGB555 transparency loses a red bit | 0046534f and 004660c6 |
+| [OB054](#ob054) | Fire-and-forget slot selection uses a restricted initial counter limit | 004051a3 |
+| [OB055](#ob055) | WAV loading assumes a fixed sample-data offset | 0040499b |
+| [OB056](#ob056) | Sound creation leaks resources on failure paths | 00405358 |
+| [OB057](#ob057) | Sound-buffer read failure bypasses Unlock | 004054b4 |
+| [OB058](#ob058) | Sound-buffer restoration retries every nonzero result indefinitely | 00405591 |
+| [OB059](#ob059) | Memory-backed wave reads do not advance the cursor | 004057d4 |
+| [OB060](#ob060) | MMIO read failures retain an early chunk-size decrement | 004057d4 |
+| [OB061](#ob061) | New volume transitions retain the previous rate | 00404e5c |
+| [OB062](#ob062) | Preload lookup stops at the first inactive slot | 00404bff |
+| [OB063](#ob063) | Volume-transition rate calculation accepts a zero duration | 00404ced and 00404e5c |
+| [OB064](#ob064) | Failed sound-device initialization leaves resources outside normal teardown | 00404b62, 004048d7 and 00404762 |
+| [OB065](#ob065) | Primary-buffer format failure leaks the buffer reference | 004052a0 |
+| [OB066](#ob066) | Master-volume updates overwrite per-sound volume and pan | 00404aac |
+| [OB067](#ob067) | Missing jingle events select the first table entry | `0048e1e1`, `00485fdd` |
+| [OB068](#ob068) | Sound-data loading uses unchecked destination indices | `0048dd23` |
+| [OB069](#ob069) | Reloading sound data retains counters and replaces owned pointers | `0048dd23` |
+| [OB070](#ob070) | Truncated group names are not matched against their original input | `0048e5f8` |
+| [OB071](#ob071) | Ambient consumers index mappings with failed group IDs | `0048e5f8`, `0047f610`, `0047f659`, `0047f80c` |
+| [OB072](#ob072) | Static sound lookup conflates failure with the first entry | `0048e19a` |
+| [OB073](#ob073) | Brightness-palette lookup permits an out-of-range index | 00486F3C, 00480BC4, 00480C55 |
+| [OB074](#ob074) | Command-message storage continues after an overflow diagnostic | 004E1310, 004DE569, 004E71F0 |
+| [OB075](#ob075) | Failed DirectMusic initialization bypasses resource teardown | 004035B6, 0040372F, 0040357D |
+| [OB076](#ob076) | DirectMusic recovery compares absolute wrapping timer values | 00403C0E, 00403858 |
+| [OB077](#ob077) | CD mixer enumeration loses opened handles | 004042C7, 00403F19 |
+| [OB078](#ob078) | CD-drive search consumes unchecked API outputs | 00479C09, 00402761 |
+| [OB079](#ob079) | MCI error formatting appends an unchecked output buffer | 00404283 |
+| [OB080](#ob080) | Repeated desktop startup replaces an owned bitmap without deletion | 0047E5F4, 00554DA0, 0051261C |
+| [OB081](#ob081) | Overview sampling divides by a zero pixel count | 004CF5C9 |
 
+<a id="ob001"></a>
 
 ### OB001 — Negative indices before the character-type table
 
 - **Original reference:** 00410bca, 00410bdd, 00410c03; CRT helpers 004e7cbc, 004e7cea, 004e7d12.
 - **Evidence:** MOVSX sign-extends the input byte. Direct table accesses occur at 004e7ce0, 004e7d0b and 004e7d36 without range checks. Pointer 0050c3f8 originally targets 0050c402; the EOF entry is at 0050c400.
-- **Behavior and trigger:** A newly assigned transition starts with its current volume already equal to the requested unsigned target and retains the previous rate. For target volumes in the normal 0–100 range, a zero rate causes System_Update to perform no volume update; a finite nonzero rate takes the target-application path. NaN rates and targets outside the signed 32-bit range require separate consideration because the update uses x87 comparisons and a signed target field.
+- **Behavior and trigger:** Input bytes 0x80–0xFE become negative character indices after sign extension. On the direct table paths, these indices read before the character table's EOF entry rather than selecting the corresponding unsigned-byte entry. Byte 0xFF becomes -1 and is conflated with EOF.
 - **Assessment / reconstruction limits:** A separate C++ array does not reproduce that preceding memory. Preserving signed indexing does not guarantee identical incidental values or crashes. Related direct case-conversion accesses require the same care. No observed game crash is claimed.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define byte/EOF contracts, fix callers and table accesses together, and distinguish high bytes from EOF.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob002"></a>
 
 ### OB002 — Unchecked multibyte conversions
 
@@ -332,6 +346,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Check all three results and publish replacement tables only after complete success; define a failure path.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob003"></a>
+
 ### OB003 — Size multiplication overflow in calloc
 
 - **Original reference:** 004ef3ac — Runtime_AllocateZeroed.
@@ -341,6 +357,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Validate representability and allowed size before multiplication and define the allocation failure contract.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob004"></a>
 
 ### OB004 — Excessive copy bound in heap-mode-3 realloc
 
@@ -352,6 +370,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Compute the copy bound from the actual old payload size and constrain it by the destination size.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob005"></a>
+
 ### OB005 — Extra read at the bounded string-length limit
 
 - **Original reference:** 004f1534 — Runtime_BoundedStringLength.
@@ -361,6 +381,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Return immediately at the limit and read no memory when the limit is zero.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob006"></a>
 
 ### OB006 — Global heap selector compares the terminating NUL
 
@@ -372,6 +394,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Parse the selector and delimiter explicitly without accepting arbitrary similar prefixes.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob007"></a>
+
 ### OB007 — Insufficiently checked text queries during heap selection
 
 - **Original reference:** 004ec496 — Runtime_SelectHeapMode.
@@ -381,6 +405,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Handle success and required-size cases separately and ensure termination.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob008"></a>
 
 ### OB008 — Heap bookkeeping changes after failed decommit
 
@@ -392,6 +418,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Update bookkeeping only after success and define a consistent failure path.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob009"></a>
+
 ### OB009 — String copy after allocation failure
 
 - **Original reference:** 00410b59 — NXBasics::StringDuplicate in XStringMemory.h.
@@ -401,6 +429,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Check allocation and coordinate the failure contract with callers.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob010"></a>
 
 ### OB010 — Log text is interpreted as a format string
 
@@ -412,6 +442,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Use a fixed %s format or a plain-text output operation.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob011"></a>
+
 ### OB011 — Shared error-text fallback after allocation failure
 
 - **Original reference:** 004e7525 — Runtime_GetErrorText in XCrtFileAccess.h.
@@ -421,6 +453,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Provide a thread-safe error-text contract that also works under memory pressure.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob012"></a>
 
 ### OB012 — Unchecked system-path and prefix-replacement lengths
 
@@ -432,6 +466,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Check input and combined output lengths and define an error path.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob013"></a>
+
 ### OB013 — Archive fallback uses the search-path index as the archive index
 
 - **Original reference:** 00405ee5.
@@ -441,6 +477,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Use the selected archive consistently and define the intended searchPaths behavior.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob014"></a>
 
 ### OB014 — Unchecked archive-constructor allocations
 
@@ -452,6 +490,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Handle allocation failures and release partially constructed resources in order.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob015"></a>
+
 ### OB015 — Size overflows while loading archives
 
 - **Original reference:** 0040665d.
@@ -461,6 +501,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Validate counts, lengths, arithmetic and remaining file size before allocation and access.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob016"></a>
 
 ### OB016 — Directory scanner always appends a backslash
 
@@ -472,6 +514,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Check correctly for an existing trailing backslash before appending.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob017"></a>
+
 ### OB017 — Scanner dereferences an invalid archive entry
 
 - **Original reference:** 00440008.
@@ -481,6 +525,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define a result for an invalid or completed search state.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob018"></a>
 
 ### OB018 — Path splitting skips a terminator after a multibyte lead byte
 
@@ -492,6 +538,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Check the following byte and handle incomplete input explicitly.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob019"></a>
+
 ### OB019 — Scanner discards its handle after a failed close
 
 - **Original reference:** 0043ffde.
@@ -501,6 +549,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Handle close failure and define ownership of any remaining search state.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob020"></a>
 
 ### OB020 — Native search handle is lost when switching to archive search
 
@@ -512,6 +562,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Close and clear the native handle before switching modes.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob021"></a>
+
 ### OB021 — GetNextMatchingFile loops forever for an inactive scanner
 
 - **Original reference:** 0043fefc.
@@ -521,6 +573,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Return false for an inactive scanner and handle invalid modes explicitly.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob022"></a>
 
 ### OB022 — Unchecked path lengths when starting a scanner
 
@@ -532,6 +586,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Check individual and combined lengths before writing.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob023"></a>
+
 ### OB023 — File search retains only the low 32 size bits
 
 - **Original reference:** 004e7676 and 004e7743.
@@ -541,6 +597,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Move both the search-result structure and its consumers to 64-bit file sizes.
 - **Status:** Preserved / original defect / retained limitation; Renewed: open.
+
+<a id="ob024"></a>
 
 ### OB024 — Uninitialized fields during daylight-saving checks
 
@@ -552,6 +610,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Populate seconds and minutes from the arguments and initialize the entire calendar structure.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob025"></a>
+
 ### OB025 — Time conversion accepts 2038 without checking overflow
 
 - **Original reference:** 004eb0a5.
@@ -561,6 +621,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Use 64-bit times or check the complete permitted range.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob026"></a>
 
 ### OB026 — TZ parser assumes a three-byte standard name
 
@@ -572,6 +634,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate input before advancing the pointer.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob027"></a>
+
 ### OB027 — TZ parsing retains the previous daylight bias
 
 - **Original reference:** 004eab11.
@@ -581,6 +645,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define and consistently apply the daylight offset when parsing TZ.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob028"></a>
 
 ### OB028 — TZ parsing continues after releasing the environment lock
 
@@ -592,6 +658,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Parse a stable owned snapshot.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob029"></a>
+
 ### OB029 — Replacing an environment entry leaks the previous string
 
 - **Original reference:** 004f155f.
@@ -601,6 +669,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Establish ownership and release the replaced allocation.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob030"></a>
 
 ### OB030 — Wide environment conversion ignores insertion failures
 
@@ -612,6 +682,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Propagate insertion failures and clean up transferred and untransferred buffers appropriately.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob031"></a>
+
 ### OB031 — Failed second conversion leaks its destination buffer
 
 - **Original reference:** 004eeb03.
@@ -621,6 +693,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Release the allocation before returning.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob032"></a>
 
 ### OB032 — Environment copying ignores individual string-allocation failures
 
@@ -632,6 +706,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Unwind a failed copy and leave the original table intact.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob033"></a>
+
 ### OB033 — Environment update can succeed without updating Windows
 
 - **Original reference:** 004f155f.
@@ -641,6 +717,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define consistent reporting and update semantics.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob034"></a>
 
 ### OB034 — Startup environment acquisition failure is not checked
 
@@ -652,6 +730,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Handle acquisition failure before parsing.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob035"></a>
+
 ### OB035 — System-error output selects the wrong filename argument
 
 - **Original reference:** 004de237 — ReportNetworkSystemError.
@@ -661,6 +741,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Select sourceFile for the unshortened case.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob036"></a>
 
 ### OB036 — Network diagnostics use unsafe path shortening and fixed buffers
 
@@ -672,6 +754,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate input termination and use capacity-aware shortening and message assembly.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob037"></a>
+
 ### OB037 — Failed second DirectX registry query leaks its buffer
 
 - **Original reference:** 004de6d8 — GetNetworkDirectXVersion.
@@ -681,6 +765,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Release the temporary allocation on both query outcomes.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob038"></a>
 
 ### OB038 — Network allocation diagnostics return before unchecked writes
 
@@ -692,6 +778,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Stop initialization and unwind acquired resources after allocation failure.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob039"></a>
+
 ### OB039 — Failed log reopening retains a closed stream pointer
 
 - **Original reference:** 004db8ea — OpenNetworkLog.
@@ -701,6 +789,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Clear the stream reference after close and establish a consistent failure state.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob040"></a>
 
 ### OB040 — Network log filenames exceed unchecked fixed buffers
 
@@ -712,6 +802,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Size the WinAPI output buffer appropriately and validate the destination field capacity.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob041"></a>
+
 ### OB041 — DirectX version copy can omit the terminating NUL
 
 - **Original reference:** 004de6d8 — GetNetworkDirectXVersion; consumer 004db9f6 — WriteNetworkLogHeader.
@@ -722,12 +814,16 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate the registry value type and length and guarantee terminated output.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob042"></a>
+
 ### OB042 — Player-name query leaks its temporary allocation on failure
 
 - **Original reference:** 004dcf42 — CDPNet::GetPlayerName.
 - **Evidence:** The second GetPeerInfo failure branches directly to the false return without freeing the allocated information buffer.
 - **Behavior and trigger:** That failure leaves the caller's output untouched and leaks the temporary buffer.
 - **Status:** Preserved / original defect. Renewed: open.
+
+<a id="ob043"></a>
 
 ### OB043 — Command-message copy does not validate destination capacity
 
@@ -736,12 +832,16 @@ reported layout and arithmetic models, do not validate the full application.
 - **Behavior and trigger:** A destination shorter than the stored message may be overrun. The diagnostic helper returns and is not a bounds guard.
 - **Status:** Preserved / original defect. Renewed: open.
 
+<a id="ob044"></a>
+
 ### OB044 — Event queue eviction does not reduce its count
 
 - **Original reference:** 004db558 — AddEventQueueEntry.
 - **Evidence:** At count 0x100 the first node is released without decrementing count; insertion later increments count.
 - **Behavior and trigger:** The count no longer matches the linked list; subsequent exact-equality checks no longer enforce the intended limit.
 - **Status:** Preserved / original defect. Renewed: open.
+
+<a id="ob045"></a>
 
 ### OB045 — Final short RLE marker run is not escaped
 
@@ -752,6 +852,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Apply marker escaping to the final run as well.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob046"></a>
+
 ### OB046 — Compressed input validation accepts truncated headers and RLE tokens
 
 - **Original reference:** 004e0d5c and 004e0f99.
@@ -760,6 +862,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate the complete header and every token, enforce supported format fields, and verify output size.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob047"></a>
+
 ### OB047 — Compression ignores stream errors and decompression removes its input
 
 - **Original reference:** 004e0b4e, 004e0d5c, 004e0e57 and 004e0f99.
@@ -767,6 +871,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Behavior and trigger:** Read, write or final flush failures can produce incomplete output without a reported codec failure. Decompression can then remove the compressed source.
 - **Renewed task:** Propagate stream errors, verify final output, and remove the source only after confirmed success.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob048"></a>
 
 ### OB048 — Compressor filenames exceed unchecked fixed buffers
 
@@ -777,6 +883,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate filename lengths and the suffix before constructing output paths.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob049"></a>
+
 ### OB049 — Callsign initialization ignores GetUserNameA failure
 
 - **Original reference:** 00405a04, particularly 00405a58–00405a7c.
@@ -786,6 +894,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Check the API result and use a defined fallback on failure.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob050"></a>
+
 ### OB050 — Zero text-input limit bypasses the insertion bound
 
 - **Original reference:** 004a3a8e and 004a3b10, particularly 004a3c0d–004a3c13.
@@ -794,6 +904,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Assessment / reconstruction limits:** The reviewed menu calls use nonzero limits. Reachability through another caller has not been established, and no observed game crash is claimed.
 - **Renewed task:** Reject insertion when the current length is greater than or equal to the configured maximum, without subtracting one.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob051"></a>
 
 ### OB051 — Unguarded division in host transfer progress
 
@@ -805,6 +917,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Define progress text for zero-sized host transfers.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob052"></a>
+
 ### OB052 — Unsigned transfer countdown underflow
 
 - **Original reference:** 004d9605 — multiplayer drawing.
@@ -814,6 +928,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Validate progress arithmetic and clamp the remaining duration to zero.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob053"></a>
 
 ### OB053 — Scalar RGB555 transparency loses a red bit
 
@@ -825,6 +941,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Use the actual pixel-format masks consistently across scalar and MMX paths.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob054"></a>
+
 ### OB054 — Fire-and-forget slot selection uses a restricted initial counter limit
 
 - **Original reference:** `NDSManager::CManager::l_FireAndForget_GetFreeSlot`, `DSManager.cpp`, `004051a3`.
@@ -834,6 +952,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original limit, comparison and fallback index.
 - **Renewed task:** Define counter-wrap handling and correct oldest-slot selection.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob055"></a>
 
 ### OB055 — WAV loading assumes a fixed sample-data offset
 
@@ -845,6 +965,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Parse RIFF chunks and validate the actual sample-data range.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob056"></a>
+
 ### OB056 — Sound creation leaks resources on failure paths
 
 - **Original reference:** `NDSManager::Sound_CreateFromMemory`, `DSManager.cpp`, `00405358`.
@@ -854,6 +976,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve both failure paths during faithful reconstruction.
 - **Renewed task:** Release acquired resources on failure and report wrapper allocation failure accurately.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob057"></a>
 
 ### OB057 — Sound-buffer read failure bypasses Unlock
 
@@ -865,6 +989,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Unlock the buffer on every exit after a successful Lock.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob058"></a>
+
 ### OB058 — Sound-buffer restoration retries every nonzero result indefinitely
 
 - **Original reference:** `NDSManager::Sound_RestoreBuffer`, `DSManager.cpp`, `00405591`.
@@ -874,6 +1000,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original loop and delay condition.
 - **Renewed task:** Propagate nonrecoverable errors and define a bounded recovery policy.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob059"></a>
 
 ### OB059 — Memory-backed wave reads do not advance the cursor
 
@@ -885,6 +1013,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Advance the cursor after successful reads and review affected callers.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob060"></a>
+
 ### OB060 — MMIO read failures retain an early chunk-size decrement
 
 - **Original reference:** `NDSManager::Wave_Read`, `DSManager.cpp`, `004057d4`.
@@ -894,6 +1024,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the state changes and error reporting.
 - **Renewed task:** Track actual consumption and define consistent state and byte-count handling on failure.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob061"></a>
 
 ### OB061 — New volume transitions retain the previous rate
 
@@ -905,6 +1037,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Initialize new transitions from the actual current volume and calculate their rate explicitly.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob062"></a>
+
 ### OB062 — Preload lookup stops at the first inactive slot
 
 - **Original reference:** `NDSManager::CManager::PreloadWave_Load`, `DSManager.cpp`, `00404bff`.
@@ -914,6 +1048,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original lookup order and early exit.
 - **Renewed task:** Search all active entries for a matching name while separately remembering the first free slot.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob063"></a>
 
 ### OB063 — Volume-transition rate calculation accepts a zero duration
 
@@ -925,6 +1061,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Define zero-duration transitions as an explicit immediate operation.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob064"></a>
+
 ### OB064 — Failed sound-device initialization leaves resources outside normal teardown
 
 - **Original reference:** `NDSManager::CManager::l_Device_Init`, `00404b62`, `Quality_Set`, `004048d7`, and the manager destructor, `00404762`.
@@ -934,6 +1072,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original failure paths.
 - **Renewed task:** Clean up partial initialization independently of the initialized flag.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob065"></a>
 
 ### OB065 — Primary-buffer format failure leaks the buffer reference
 
@@ -945,6 +1085,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Release the primary buffer after both successful and failed format changes.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob066"></a>
+
 ### OB066 — Master-volume updates overwrite per-sound volume and pan
 
 - **Original reference:** `NDSManager::CManager::MainVolume_Set`, `DSManager.cpp`, `00404aac`.
@@ -954,6 +1096,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original update behavior.
 - **Renewed task:** Retain individual sound settings when applying master-volume changes.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob067"></a>
 
 ### OB067 — Missing jingle events select the first table entry
 
@@ -965,6 +1109,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Distinguish lookup failure from a valid index and skip playback when the event is absent.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob068"></a>
+
 ### OB068 — Sound-data loading uses unchecked destination indices
 
 - **Original reference:** `0048dd23`, static sound and ambient mapping writes.
@@ -973,6 +1119,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the unchecked writes.
 - **Renewed task:** Validate entry capacity and mapping indices before writing.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob069"></a>
 
 ### OB069 — Reloading sound data retains counters and replaces owned pointers
 
@@ -984,6 +1132,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Define and implement an explicit reload lifecycle.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob070"></a>
+
 ### OB070 — Truncated group names are not matched against their original input
 
 - **Original reference:** `0048e5f8`.
@@ -992,6 +1142,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original comparison and copy behavior.
 - **Renewed task:** Apply a consistent name-length policy before lookup and insertion.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob071"></a>
 
 ### OB071 — Ambient consumers index mappings with failed group IDs
 
@@ -1002,6 +1154,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Reject failed group insertion and validate group IDs before mapping or counter access.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob072"></a>
+
 ### OB072 — Static sound lookup conflates failure with the first entry
 
 - **Original reference:** `0048e19a`.
@@ -1010,6 +1164,8 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision:** Preserve the original return values.
 - **Renewed task:** Introduce a distinct failure result and handle it at each caller.
 - **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob073"></a>
 
 ### OB073 — Brightness-palette lookup permits an out-of-range index
 
@@ -1023,9 +1179,144 @@ reported layout and arithmetic models, do not validate the full application.
 
 
 
+<a id="ob074"></a>
+
+### OB074 — Command-message storage continues after an overflow diagnostic
+
+- **Original reference:** `004E1310` — `StoreCommandMessageData`; diagnostic `004DE569`, copy `004E71F0`.
+- **Evidence:** The length comparison against 200 only feeds the diagnostic. Once a player slot is found, the original supplied length is passed unchanged to the copy at `004E1363`.
+- **Behavior and trigger:** A length greater than 200 overruns the slot's 200-byte data region when the diagnostic returns. This is the storage-side defect, distinct from the destination-capacity defect in OB043.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM and current `NetworkRuntime.cpp`. A diagnostic callback that terminates execution prevents the subsequent copy; actual malformed-packet reachability has not been exercised.
+- **Decision:** Preserve the diagnostic and subsequent copy during faithful reconstruction.
+- **Renewed task:** Reject oversized messages before writing the slot and audit incoming lengths together with OB043.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob075"></a>
+
+### OB075 — Failed DirectMusic initialization bypasses resource teardown
+
+- **Original reference:** `004035B6`, `0040372F`, `0040357D` — DirectMusic initialization, shutdown and destruction.
+- **Evidence:** Initialization failure after DLL loading, interface acquisition or instance creation leaves acquired resources assigned. The initialized byte is set only after synthesizer success; `Exit` returns immediately while that byte is zero.
+- **Behavior and trigger:** A failed `GetProcAddress`, instance creation or synthesizer initialization leaves the loaded DLL and any acquired driver resources outside normal manager teardown. Retrying can overwrite their stored handles.
+- **Assessment / reconstruction limits:** The missing unwind and shutdown gate are confirmed from Windows ASM. Exact driver-internal allocations remain outside the game-side manager reconstruction. See [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md).
+- **Decision:** Preserve partial initialization and its original cleanup gate.
+- **Renewed task:** Track acquired resources independently of successful initialization and unwind failed stages in reverse order.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob076"></a>
+
+### OB076 — DirectMusic recovery compares absolute wrapping timer values
+
+- **Original reference:** `00403C0E`, `00403858` — volume-event scheduling and manager update.
+- **Evidence:** Scheduling stores DWORD `timeGetTime() + delay`; `0040386C–0040386F` compares the current DWORD against that deadline with unsigned `JB`.
+- **Behavior and trigger:** A recovery deadline that wraps below the current timer can expire immediately before rollover. If a high pre-wrap deadline is missed, a post-wrap timer remains below it and can postpone recovery for nearly another timer cycle.
+- **Assessment / reconstruction limits:** Arithmetic and branch order are confirmed from Windows ASM. These consequences require an active volume dip near timer rollover; no long-running playback reproduction is claimed.
+- **Decision:** Preserve the absolute unsigned comparison.
+- **Renewed task:** Use a rollover-safe elapsed-time comparison with an explicit supported interval.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob077"></a>
+
+### OB077 — CD mixer enumeration loses opened handles
+
+- **Original reference:** `004042C7` — CD-audio mixer initialization; shutdown `00403F19`.
+- **Evidence:** Every mixer is opened into the same object field. Failed line/control/details queries continue enumeration without closing the opened handle; successful setup also continues. If no setup succeeds, the field is cleared.
+- **Behavior and trigger:** An opened handle can be overwritten by a later successful open or discarded after unsuccessful setup. Shutdown can close only the final retained handle.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. The number of lost handles depends on installed mixer devices and their API results. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md).
+- **Decision:** Preserve enumeration order, continued scanning and original ownership behavior.
+- **Renewed task:** Close unsuccessful candidates and explicitly select/retain one successful device.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob078"></a>
+
+### OB078 — CD-drive search consumes unchecked API outputs
+
+- **Original reference:** `00479C09` — `FindCDDrive`; caller `00402761`.
+- **Evidence:** `GetVolumeInformationA` and `GetDiskFreeSpaceA` results are ignored. Their output buffer/free-cluster value are not initialized before subsequent comparison and branching.
+- **Behavior and trigger:** Failed volume queries can feed uninitialized or stale bytes into the label comparison. A failed free-space query after a matching label can make the scan depend on an uninitialized or stale free-cluster count.
+- **Assessment / reconstruction limits:** Confirmed unchecked Windows reads; incidental values and resulting drive selection cannot be guaranteed by source reconstruction. No observed device-specific failure is claimed. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md).
+- **Decision:** Retain the original calls and output consumption.
+- **Renewed task:** Check each API result before consuming its outputs and continue or report failure explicitly.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob079"></a>
+
+### OB079 — MCI error formatting appends an unchecked output buffer
+
+- **Original reference:** `00404283` — CD-audio error recording.
+- **Evidence:** `mciGetErrorStringA` writes into an uninitialized 200-byte stack buffer. Its return at `0040429E` is ignored before the buffer is appended at `004042BA`.
+- **Behavior and trigger:** If error-text conversion fails without writing a terminated string, concatenation can read past the buffer and overflow the manager's 300-byte error field.
+- **Assessment / reconstruction limits:** The missing result check and subsequent append are confirmed from Windows ASM. Failure contents and crash/output details depend on the API and stack state; no particular MCI device reproduction is claimed.
+- **Decision:** Preserve the original formatting path.
+- **Renewed task:** Initialize the temporary text, check conversion success and bound the final copy.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob080"></a>
+
+### OB080 — Repeated desktop startup replaces an owned bitmap without deletion
+
+- **Original reference:** `0047E5F4` — `Inform_DesktopXTructed`; owner `00554DA0`, non-owning alias `0051261C`.
+- **Evidence:** The nonzero-width branch allocates a new 100-by-100 bitmap and overwrites both pointers. Only the zero-width shutdown branch deletes the current owner.
+- **Behavior and trigger:** Two startup notifications without an intervening shutdown lose the first bitmap. A failed replacement allocation also overwrites an existing owner with null.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. Normal resolution changes close before reopening; repeated-startup reachability from all original callers remains unverified. See [GUI_DESKTOP_RESOLUTION.md](docs/GUI_DESKTOP_RESOLUTION.md).
+- **Decision:** Preserve the original publication and shutdown order.
+- **Renewed task:** Define repeated-startup behavior and release or reuse the existing bitmap safely.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob081"></a>
+
+### OB081 — Overview sampling divides by a zero pixel count
+
+- **Original reference:** `004CF5C9` — overview sample-color averaging.
+- **Evidence:** The pixel counter starts at zero and wraps as a DWORD. Unsigned divisions at `004CF681`, `004CF68B` and `004CF695` use it without a zero check on cache misses.
+- **Behavior and trigger:** A non-null pattern with an empty sampled rectangle reaches integer division by zero. A wrapped zero count has the same fault, if such a rectangle can be traversed.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM; `/Od` and `/O2` listings retain unsigned DIV. Valid texture-asset invariants and practical reachability of empty rectangles have not been established. See [OVERVIEW_TERRAIN_SAMPLING.md](docs/OVERVIEW_TERRAIN_SAMPLING.md).
+- **Decision:** Preserve the original fault path. A null pattern remains a separate successful black-color path.
+- **Renewed task:** Validate sample rectangles/counts and define the empty-sample result.
+- **Status:** Preserved / original defect; Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
+
+| ID | Finding | Original reference |
+| --- | --- | --- |
+| [OA-001](#oa001) | Equal size returns null in heap mode 2 | 004EE5C5 |
+| [OA-002](#oa002) | Zero-length memset call | 004EE299 |
+| [OA-003](#oa003) | No progress check while extending a file | 004EB235 |
+| [OA-004](#oa004) | Duplicate operating-system error mapping | 0050C250, 0050C3B7 |
+| [OA-005](#oa005) | Flush failure with zero LastError becomes success | 004EE7F9 |
+| [OA-006](#oa006) | Missing local cleanup on some startup failures | 004EB167, 004EB1CE |
+| [OA-007](#oa007) | Signal handler is read before locking | 004E8354 |
+| [OA-008](#oa008) | CRT thread-data cleanup has not been identified | 004EB1CE, 004E7525, 004DE7D1, 004E00E4 |
+| [OA009](#oa009) | Upper register bits persist in the bounded locale comparison | 004E6F80, 004E7024, 004E7048 |
+| [OA010](#oa010) | Historical fallback daylight rules | 004EADB9, 004EAF65 |
+| [OA011](#oa011) | Absolute Windows transition year is not checked | 004EADB9 |
+| [OA012](#oa012) | Network system information uses legacy version descriptions | 004DE352, 004DE6D8 |
+| [OA013](#oa013) | Initial DirectPlay setup continues after CoInitialize failure | 004DC45F |
+| [OA014](#oa014) | System-error reporting reads LastError after diagnostic work | 004DE237 |
+| [OA015](#oa015) | Network conversions reserve the terminator outside the API capacity | 004DB788, 004DB7CC |
+| [OA016](#oa016) | Some network-update returns bypass receive-buffer release | 004DF240, 004DF86F, 004DFBA5, 004DFC4C |
+| [OA017](#oa017) | GetEvents clears the source again after releasing its lock | 004DDB3E, 004DDB76 |
+| [OA018](#oa018) | Display-manager constructor clears its vtable pointer | 004811AE, 004811BC, 004811C9; related list 004B7FB7 |
+| [OA019](#oa019) | Water-sector scanning retains the land-scan count pointer | 0044F5A0, 0044F872, 0044F93A |
+| [OA020](#oa020) | Moveable iteration stops when the first scan slot is unused | 00434D3A, 00434D8F |
+| [OA021](#oa021) | Overview selection pulses brighten at phase 511 | 004CE7CA, 004CEBF5 |
+| [OA022](#oa022) | Packed map points retain sign-extended negative X | 0042ADFF, 004CF81A |
+| [OA023](#oa023) | Overview geometry assumes nonzero divisors and valid view indexes | 004CE918, 004CF7CA, 004CFF03 |
+| [OA024](#oa024) | Overview texture-cache bounds and invalidation rely on external invariants | 004CF4E9, 004CF5C9, 004CF6DB, 004CF709, 004CF741 |
+| [OA025](#oa025) | Overview scans use wrapping signed WORD counters | 004CF4E9, 004CFDB7 |
+| [OA026](#oa026) | CD initialization and shutdown do not propagate all failures | 00403E6F, 00403F19, 0040401E, 004041DE, 00404216 |
+| [OA027](#oa027) | CD status queries clear playlist state and failures can trigger replay | 00404070, 004040EB, 00404256 |
+| [OA028](#oa028) | CD track requests narrow to bytes without validation | 00403F85 |
+| [OA029](#oa029) | A matching writable CD volume terminates the entire drive scan | 00479C09 |
+| [OA030](#oa030) | Overview marker storage uses zero timestamps and absolute ordering | 004CFC94, 004CFCF2 |
+| [OA031](#oa031) | Audio and GUI startup retain accesses after nullable allocations | 004A030C, 004BA042, 004CE418, 004C9860 |
+| [OA032](#oa032) | Bob effect paths retain different clipping and pixel arithmetic | 00463F7C, 00466D39, 00498128, 0049BF5A, 0049C80F |
+| [OA033](#oa033) | RGB555 conversion initializes only half the allocated lookup table | 00410131 |
+| [OA034](#oa034) | DirectMusic preparation retains an allocated entry after driver destruction | 00403A08, 00403C0E, 0040372F |
+
+<a id="oa001"></a>
 
 ### OA-001 — Equal size returns null in heap mode 2
 
@@ -1037,6 +1328,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Consider success for equal sizes after checking callers.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa002"></a>
+
 ### OA-002 — Zero-length memset call
 
 - **Original reference:** 004ee299 — Runtime_AllocateSmallBlockMode2.
@@ -1046,6 +1339,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Clarify intended initialization and reachability with old contents.
 - **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa003"></a>
 
 ### OA-003 — No progress check while extending a file
 
@@ -1057,6 +1352,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Check reachable write results and define handling for zero progress.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa004"></a>
+
 ### OA-004 — Duplicate operating-system error mapping
 
 - **Original reference:** Runtime_MapOsError; gRuntimeErrorMappings at 0050c250..0050c3b7.
@@ -1066,6 +1363,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Resolve the intended mapping before removing the contradictory entry.
 - **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa005"></a>
 
 ### OA-005 — Flush failure with zero LastError becomes success
 
@@ -1077,6 +1376,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Evaluate the BOOL result independently of the error code.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa006"></a>
+
 ### OA-006 — Missing local cleanup on some startup failures
 
 - **Original reference:** 004eb167 — Runtime_InitializeThreading; 004eb1ce — Runtime_GetThreadData.
@@ -1086,6 +1387,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define ownership and failure cleanup explicitly.
 - **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa007"></a>
 
 ### OA-007 — Signal handler is read before locking
 
@@ -1097,6 +1400,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Review registration and signal dispatch together for synchronization.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa008"></a>
+
 ### OA-008 — CRT thread-data cleanup has not been identified
 
 - **Original reference:** 004eb1ce; 004e7525; thread entries 004de7d1 and 004e00e4.
@@ -1106,6 +1411,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Review complete thread lifecycles and ownership, then add targeted cleanup if justified.
 - **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa009"></a>
 
 ### OA009 — Upper register bits persist in the bounded locale comparison
 
@@ -1117,6 +1424,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Zero-extend each new input and define the intended multibyte behavior.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa010"></a>
+
 ### OA010 — Historical fallback daylight rules
 
 - **Original reference:** 004eadb9 and 004eaf65.
@@ -1126,6 +1435,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Choose historical rules, current rules or an explicit time-zone database.
 - **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa011"></a>
 
 ### OA011 — Absolute Windows transition year is not checked
 
@@ -1137,6 +1448,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Evaluate absolute-date rules against their specified year.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa012"></a>
+
 ### OA012 — Network system information uses legacy version descriptions
 
 - **Original reference:** 004de352 — GetNetworkWindowsVersion; 004de6d8 — GetNetworkDirectXVersion.
@@ -1146,6 +1459,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Decision:** Intentionally preserved until the faithful reconstruction is complete.
 - **Renewed task:** Define which version or capability information the log should report.
 - **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa013"></a>
 
 ### OA013 — Initial DirectPlay setup continues after CoInitialize failure
 
@@ -1157,6 +1472,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Track successful COM initialization and balance cleanup accordingly.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa014"></a>
+
 ### OA014 — System-error reporting reads LastError after diagnostic work
 
 - **Original reference:** 004de237 — ReportNetworkSystemError.
@@ -1167,12 +1484,16 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Renewed task:** Capture the error at the failure site and check message-formatting success.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa015"></a>
+
 ### OA015 — Network conversions reserve the terminator outside the API capacity
 
 - **Original reference:** 004db788 and 004db7cc.
 - **Evidence:** The Windows conversion receives source length -1 and destination capacity length - 1; the last destination element is then explicitly cleared. The API result is ignored.
 - **Assessment / reconstruction limits:** With inferred length this can give insufficient capacity for a conversion including the terminator. The reconstruction preserves the calls; successful conversion and the Elvis message are not certified by source inspection alone.
 - **Status:** Preserved / original observation. Renewed: open.
+
+<a id="oa016"></a>
 
 ### OA016 — Some network-update returns bypass receive-buffer release
 
@@ -1181,12 +1502,16 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Assessment / reconstruction limits:** Detached receive buffers can remain unreleased when messages are present. Runtime reachability and impact have not been tested.
 - **Status:** Preserved / original observation. Renewed: open.
 
+<a id="oa017"></a>
+
 ### OA017 — GetEvents clears the source again after releasing its lock
 
 - **Original reference:** 004ddb3e and 004ddb76.
 - **Evidence:** GetEvents transfers and clears the source under criticalA4, releases the lock, then calls ClearEvents, which acquires the lock again.
 - **Assessment / reconstruction limits:** An event arriving between the two locked sections could be removed by the second clear. No concurrent runtime test was performed.
 - **Status:** Preserved / original observation. Renewed: open.
+
+<a id="oa018"></a>
 
 ### OA018 — Display-manager constructor clears its vtable pointer
 
@@ -1195,6 +1520,203 @@ These findings are retained without promoting uncertain effects to confirmed gam
 - **Assessment / reconstruction limits:** The overwrite is established by the ASM. Its runtime consequences have not been verified.
 - **Decision:** Preserve the compiler-managed C++ vtable pointer and initialize all remaining object fields to the original values. Do not reproduce the corrupted object representation.
 - **Status:** Intentional reconstruction deviation; no Windows build or runtime verification performed.
+
+Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-element list's 0x14-byte representation after installing its table (`004B7FC7–004B7FD4`). Inspected Windows paths use direct list calls and restore the table for destruction. Native C++ keeps that list's compiler-managed vptr and clears its data fields; see [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](docs/WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md). Production object generation verifies the current translation's compilation, while original-game runtime effects remain unverified.
+
+<a id="oa019"></a>
+
+### OA019 — Water-sector scanning retains the land-scan count pointer
+
+- **Original reference:** `0044F5A0`, particularly `0044F872–0044F93A`.
+- **Evidence:** The land scan decrements EBX from count index seven. The water scan resets its group index to seven without resetting EBX; an exhausted land scan leaves EBX one DWORD before the count array.
+- **Behavior and trigger:** The tested count and selected point-list group can differ; the first water count read can come from preceding point-list storage.
+- **Assessment / reconstruction limits:** Confirmed Windows control flow. The isolated layout fixture described in [MAP_WALK_SECTOR_CALLBACK.md](docs/MAP_WALK_SECTOR_CALLBACK.md) establishes the translation, not an observed original-game defect. Actual map consequences remain open.
+- **Decision / Renewed task:** Preserve the two indexes separately; review generated sectors and intended water-list selection before changing it.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa020"></a>
+
+### OA020 — Moveable iteration stops when the first scan slot is unused
+
+- **Original reference:** `00434D3A`, `00434D8F` — moveable iterator first/next.
+- **Evidence:** The first routine checks only the initial scan slot and returns -1 when it is unallocated. The next routine can scan forward through later records.
+- **Behavior and trigger:** An unused initial slot terminates first lookup despite any later allocated records.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. The array-manager invariant governing the first scan index is not yet established, so skipped game objects are not claimed. See [OVERVIEW_OBJECT_OVERLAYS.md](docs/OVERVIEW_OBJECT_OVERLAYS.md).
+- **Decision / Renewed task:** Preserve the distinct first/next functions; establish the manager invariant before extending first lookup.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa021"></a>
+
+### OA021 — Overview selection pulses brighten at phase 511
+
+- **Original reference:** `004CE7CA`, `004CEBF5` — house and moveable overlays.
+- **Evidence:** Phase is `timeGetTime() & 0x1FF`; the descending half subtracts phase from `0x1FE`. Phase 511 produces -1, narrowed to byte intensity 255.
+- **Behavior and trigger:** The last timer phase produces a bright ring before phase zero returns to zero intensity, if drawing samples that phase.
+- **Assessment / reconstruction limits:** Arithmetic is confirmed from Windows ASM. Whether the discontinuity is intended is unresolved; no rendering run was performed. See [OVERVIEW_OBJECT_OVERLAYS.md](docs/OVERVIEW_OBJECT_OVERLAYS.md).
+- **Decision / Renewed task:** Preserve the narrow result; review the intended pulse endpoints before adjusting them.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa022"></a>
+
+### OA022 — Packed map points retain sign-extended negative X
+
+- **Original reference:** `0042ADFF` — `MapMigPoint_GetLong`; overview input `004CF81A`.
+- **Evidence:** Both WORD coordinates are sign-extended before `(Y << 16) | X` is formed.
+- **Behavior and trigger:** Negative X forces the packed upper WORD to 0xFFFF, regardless of Y.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. Overview input clamps the point before packing; negative-X reachability through other callers remains unresolved. See [OVERVIEW_INPUT.md](docs/OVERVIEW_INPUT.md).
+- **Decision / Renewed task:** Preserve the original packing; establish the coordinate contract before masking X to 16 bits.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa023"></a>
+
+### OA023 — Overview geometry assumes nonzero divisors and valid view indexes
+
+- **Original reference:** `004CE918`, `004CF7CA`, `004CFF03` — rebuild, map-to-overview transform and zoom.
+- **Evidence:** Bitmap dimensions, saved zoom and coordinate scales feed signed IDIV without new validity checks. Saved per-view zoom uses the supplied view index directly.
+- **Behavior and trigger:** Zero dimensions/zoom/scales can fault; invalid view indexes access outside their intended storage. Signed division overflow also retains the processor fault path.
+- **Assessment / reconstruction limits:** The unchecked operations are confirmed from Windows ASM. Construction and ordinary zoom changes provide valid values; whether other game paths violate those invariants is unresolved. See [OVERVIEW_BITMAP_RENDERING.md](docs/OVERVIEW_BITMAP_RENDERING.md).
+- **Decision / Renewed task:** Preserve original arithmetic and direct indexing; establish all input/lifetime invariants before adding guards.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa024"></a>
+
+### OA024 — Overview texture-cache bounds and invalidation rely on external invariants
+
+- **Original reference:** `004CF4E9`, `004CF5C9`, `004CF6DB`, `004CF709`, `004CF741`.
+- **Evidence:** The 256-by-16 cache uses `(textureId * 16 + (y / 64) * 4 + x / 64) * 8` without clamps. Texture scanning does not invalidate existing samples.
+- **Behavior and trigger:** Out-of-contract IDs/coordinates can access outside the cache. Replacing bitmap/palette contents while retaining a valid entry can reuse an earlier sample.
+- **Assessment / reconstruction limits:** Layout and accesses are confirmed from Windows ASM; texture-owner bounds, reload notifications and cache lifetime remain unresolved. No reachable stale-color or out-of-bounds game execution is claimed. See [OVERVIEW_TERRAIN_SAMPLING.md](docs/OVERVIEW_TERRAIN_SAMPLING.md).
+- **Decision / Renewed task:** Preserve cache layout and validity ordering; review the texture owners and reload chain before changing bounds or invalidation.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa025"></a>
+
+### OA025 — Overview scans use wrapping signed WORD counters
+
+- **Original reference:** `004CF4E9`, `004CFDB7` — texture scanning and chest traversal.
+- **Evidence:** Texture dimensions are zero-extended WORDs while scan coordinates increment/narrow as signed WORDs. Chest traversal also retains signed WORD bounds and increments.
+- **Behavior and trigger:** Texture dimensions at or above 32768 can carry a counter through signed rollover while its comparison against the positive dimension remains true. Chest traversal retains analogous range assumptions.
+- **Assessment / reconstruction limits:** Widths and comparisons are confirmed from Windows ASM. Supported game-map dimensions and asset constraints have not been established for these extreme inputs.
+- **Decision / Renewed task:** Preserve original widths; define supported coordinate ranges before widening counters. See [OVERVIEW_TERRAIN_SAMPLING.md](docs/OVERVIEW_TERRAIN_SAMPLING.md) and [OVERVIEW_OBJECT_OVERLAYS.md](docs/OVERVIEW_OBJECT_OVERLAYS.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa026"></a>
+
+### OA026 — CD initialization and shutdown do not propagate all failures
+
+- **Original reference:** `00403E6F`, `00403F19`, `0040401E`, `004041DE`, `00404216`.
+- **Evidence:** Successful MCI open is followed by ignored mixer-setup and initial-stop results. Shutdown ignores stop/volume-restore/mixer-close/MCI-close results, clears the object and returns true.
+- **Behavior and trigger:** Initialization can succeed without mixer control or a successful initial stop. Shutdown reports success even when restoration or close operations fail.
+- **Assessment / reconstruction limits:** Confirmed Windows call/return order. The public success contract may concern only device opening/lifecycle completion; ignoring a subordinate result alone does not prove a game bug. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md).
+- **Decision / Renewed task:** Preserve return semantics; define which subordinate failures should be reported and which resources require retry.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa027"></a>
+
+### OA027 — CD status queries clear playlist state and failures can trigger replay
+
+- **Original reference:** `00404070`, `004040EB`, `00404256`.
+- **Evidence:** Every successful mode query clears playlist enable/index and all 30 tracks. A failed query returns false without clearing the playing flag; loop checking treats false as its callback/replay branch. Playlist candidates exclude track 1 and the final track, and that branch ignores `StartTrack`'s result.
+- **Behavior and trigger:** A normal playback poll can discard an existing playlist. A status-query failure can invoke the track-ended callback/replay logic even without confirmed playback completion.
+- **Assessment / reconstruction limits:** Confirmed from Windows ASM. Callback-driven playlist population, intended exclusions and original caller expectations remain unresolved; an observed playlist malfunction is not claimed. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md).
+- **Decision / Renewed task:** Preserve state clearing, callback-before-replay order and return values; review playlist ownership and distinguish query failure from track completion.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa028"></a>
+
+### OA028 — CD track requests narrow to bytes without validation
+
+- **Original reference:** `00403F85` — `StartTrack`.
+- **Evidence:** The full DWORD track is compared against `NumberOfTracks`, but MCI from/to values use the low byte of track and track + 1.
+- **Behavior and trigger:** Zero or out-of-range requests reach MCI unchanged in the original narrow representation; values above 255 wrap. A failed track-count query returns zero and still affects selection of the MCI_TO flag.
+- **Assessment / reconstruction limits:** Confirmed Windows arithmetic. Valid caller ranges and device error responses determine practical consequences. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md).
+- **Decision / Renewed task:** Preserve the original request construction; establish valid track/count contracts before adding rejection.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa029"></a>
+
+### OA029 — A matching writable CD volume terminates the entire drive scan
+
+- **Original reference:** `00479C09` — `FindCDDrive`.
+- **Evidence:** After matching a volume label, a nonzero free-cluster count returns zero instead of continuing with later drive letters.
+- **Behavior and trigger:** A matching writable volume can prevent detection of a valid later game CD.
+- **Assessment / reconstruction limits:** Confirmed Windows branch. The intended writable-volume exclusion and real device arrangements remain unresolved; API failure hazards are separately recorded in OB078.
+- **Decision / Renewed task:** Preserve the early return; establish whether rejected matching volumes should allow continued search. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa030"></a>
+
+### OA030 — Overview marker storage uses zero timestamps and absolute ordering
+
+- **Original reference:** `004CFC94`, `004CFCF2` — marker insertion and drawing.
+- **Evidence:** Timestamp zero marks a free record; a full array evicts the smallest unsigned timestamp. Insertion stores the direct `timeGetTime` result; drawing uses wrapped unsigned elapsed time.
+- **Behavior and trigger:** An insertion at timer zero remains indistinguishable from a free marker. With live records spanning rollover, unsigned timestamp order can prefer a newer record for replacement.
+- **Assessment / reconstruction limits:** Confirmed field use and arithmetic. The 1000-ms marker lifetime narrows the rollover window; original gameplay consequences have not been exercised. See [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](docs/WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md) and [OVERVIEW_BITMAP_RENDERING.md](docs/OVERVIEW_BITMAP_RENDERING.md).
+- **Decision / Renewed task:** Preserve timestamp storage; separate occupancy from time and review eviction by elapsed age.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa031"></a>
+
+### OA031 — Audio and GUI startup retain accesses after nullable allocations
+
+- **Original reference:** MCP audio startup; `004A030C`, `004BA042`, `004CE418`, `004C9860` and their bitmap/widget construction paths.
+- **Evidence:** Original allocation checks conditionally construct objects, but later singleton, widget, engine-display or bitmap accesses do not consistently check the resulting null pointer.
+- **Behavior and trigger:** If the runtime allocation/new-handler path returns null, later startup code can dereference it instead of completing a recoverable failure path.
+- **Assessment / reconstruction limits:** Windows accesses are established. Reachability depends on the original runtime's new-handler/termination behavior, so ordinary recoverable out-of-memory operation is not assumed. See [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md), [GUI_DESKTOP_RESOLUTION.md](docs/GUI_DESKTOP_RESOLUTION.md), [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](docs/WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md) and [OVERVIEW_BITMAP_RENDERING.md](docs/OVERVIEW_BITMAP_RENDERING.md). Unchecked string duplication is already OB009.
+- **Decision / Renewed task:** Preserve original allocation and subsequent access order; analyze allocator failure contracts and owning startup cleanup together.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa032"></a>
+
+### OA032 — Bob effect paths retain different clipping and pixel arithmetic
+
+- **Original reference:** `00463F7C`, `00466D39`, `00498128`, `0049BF5A`, `0049C80F`.
+- **Evidence:** Scalar clipping uses lower X bound zero even for a nonzero bitmap rectangle origin. In 16-bit constant-color blending, clipped placement uses inverse factor 255 - strength while unclipped placement uses 256 - strength. Paired 16-bit plain-shading MMX pixels lose bit zero; the trailing scalar pixel retains it.
+- **Behavior and trigger:** Nonzero-origin views and placement/alignment changes can select different pixel bounds or arithmetic for otherwise related effects.
+- **Assessment / reconstruction limits:** Confirmed Windows instructions. Supported bitmap-rectangle contracts and intended clipping/MMX rounding remain unresolved; visual defects are not asserted from branch differences alone. See [ENGINE_DRAWING_BOB_EFFECTS.md](docs/ENGINE_DRAWING_BOB_EFFECTS.md). OB053 remains the separate confirmed RGB555 transparency defect.
+- **Decision / Renewed task:** Preserve distinct original paths; inspect real rectangle/alignment use before normalizing clipping or pixel math.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa033"></a>
+
+### OA033 — RGB555 conversion initializes only half the allocated lookup table
+
+- **Original reference:** `00410131` and `CHighColorCreator` table initialization.
+- **Evidence:** The converter owns a 0x40000-byte table; RGB565 initializes 65536 entries, while RGB555 initializes only 32768.
+- **Behavior and trigger:** A lookup using bit 15 in RGB555 can read an entry not initialized by that setup.
+- **Assessment / reconstruction limits:** Allocation and initialization extents are confirmed from Windows ASM. Whether all callers mask/clear bit 15 is unresolved; the unused half is not itself proof of a defect. See [ENGINE_DRAWING_BOB_EFFECTS.md](docs/ENGINE_DRAWING_BOB_EFFECTS.md).
+- **Decision / Renewed task:** Preserve original initialization; establish the pixel-index contract before filling or masking additional entries.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa034"></a>
+
+### OA034 — DirectMusic preparation retains an allocated entry after driver destruction
+
+- **Original reference:** `00403A08`, `00403C0E`, `0040372F` — prepare, playback and shutdown.
+- **Evidence:** A loaded segment entry is marked allocated before audiopath creation/activation. Failure of either operation calls driver slot +0x6C for that segment without clearing the allocated byte or stored wrapper. A repeated prepare can return success from the existing-entry lookup.
+- **Behavior and trigger:** Failed audiopath setup leaves an entry visible to later lookup, playback/reset and shutdown despite the intervening driver destruction call. The initial `StartEvent` result on successful setup is also ignored before reset and a successful prepare return.
+- **Assessment / reconstruction limits:** Confirmed game-side Windows ordering. Driver slot +0x6C's wrapper lifetime determines whether later use is invalid; a use-after-free or double destruction is not certified without the DLL ownership contract.
+- **Decision / Renewed task:** Preserve the entry and calls; analyze the driver lifetime contract before clearing/retrying failed entries or propagating the initial start result. See [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+## Reviewed failure handling
+
+This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
+
+| ID | Original path | Retained response / related finding | Detailed evidence |
+| --- | --- | --- | --- |
+| FP001 | Global options/callsign output opens | Request error reporting, ignore the open result and continue original serialization/destruction order | [PROPERTY_OPTIONS_IO.md](docs/PROPERTY_OPTIONS_IO.md), `004E1816`, `004E19AA` |
+| FP002 | CD MCI open, set-format and play | Open failure records error/returns false; set/play failure records error then calls Exit, whose object clear also clears the error field | [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md), `00403E6F`, `00403F85`; OB079 |
+| FP003 | CD status, stop and track-count queries | Record MCI errors; status returns false retaining the playing flag, stop clears current track before checking, track count returns zero | [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md), `0040401E–00404196`; OA027–OA028 |
+| FP004 | CD mixer setup, volume and shutdown | Setup continues to later devices; get returns zero/set returns false on failure; Init/Exit do not propagate every subordinate result | [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md), `004041DE–00404451`; OB077, OA026 |
+| FP005 | CD drive/marker-file detection | Skip non-CD drives/unmatched labels; failed marker-file lookup continues; successful search handle is closed; writable matching volume ends scan | [CD_AUDIO_MANAGER.md](docs/CD_AUDIO_MANAGER.md), `00479C09`; OB078, OA029 |
+| FP006 | DirectMusic DLL/interface/instance/synth initialization | Store a stage-specific error and return initialized byte; acquired resources are not unwound | [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md), `004035B6`; OB075 |
+| FP007 | DirectMusic event validation and segment preparation | Invalid/missing events return false; table exhaustion/load/audiopath errors store diagnostics; setup failure retains the allocated-entry state | `DMManager.cpp`, `00403A08`; [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md), OA034 |
+| FP008 | DirectMusic playback and volume dip | Failed playback-state query records an error then examines output; start/attenuation failures return false; absent audiopath follows original success branches | `DMManager.cpp`, `00403C0E`; [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md) |
+| FP009 | DirectMusic volume recovery and master volume | Failed recovery retains the dip flag for retry; success/null audiopath clears it. Main volume clamps/stores before the init gate; driver failure stores error/returns false | [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md), `00403858`, `00403932`; OB076 |
+| FP010 | DirectMusic shutdown | Segment/audiopath failures replace the error string and cleanup continues; normal initialized path unloads the DLL and clears runtime fields | [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md), `0040372F`; OB075 |
+| FP011 | Overview terrain and bitmap input | Null pattern produces black; an outside area returns before clearing update flags; recognized input messages return true even when no action runs, unknown messages return false | [OVERVIEW_TERRAIN_SAMPLING.md](docs/OVERVIEW_TERRAIN_SAMPLING.md), [OVERVIEW_INPUT.md](docs/OVERVIEW_INPUT.md); OB081, OA022–OA025 |
+| FP012 | GUI allocation, repeated startup and teardown | Keep original conditional construction, subsequent accesses, ownership and destruction order | [GUI_DESKTOP_RESOLUTION.md](docs/GUI_DESKTOP_RESOLUTION.md), [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](docs/WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md), [OVERVIEW_BITMAP_RENDERING.md](docs/OVERVIEW_BITMAP_RENDERING.md); OB080, OA031 |
 
 ## Reconstruction errors are not original bugs
 
@@ -1208,6 +1730,13 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Missing semicolons after `Runtime_ClassifyCharacter(...)` | Transcription/syntax issue | Correct them; the user already reported doing so |
 | Incorrect or orphaned original-address comments | Reconstruction documentation issue | Repair ownership of the source references |
 | Formerly missing reconstructed CRT startup calls | Reconstruction integration issue, not an original defect | Resolved at source level through WinMain and Runtime_RunApplication; build/runtime verification remains separate |
+| Bob fallback decodes row-descriptor displacement with a 16-bit shift | Original `00463D32`/`00463E3B` use a hexadecimal shift count of 0x16, meaning 22 decimal bits | Corrected to 22 bits; see [ENGINE_DRAWING_BOB_EFFECTS.md](docs/ENGINE_DRAWING_BOB_EFFECTS.md) |
+| Desktop list destruction uses invalid destructor-alias syntax | MSVC declaration/syntax problem; the original cleared list vtables require qualified destruction | Corrected qualified `CList` destructor calls; see [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md) |
+| Audio manager, DirectMusic strings and desktop bitmap allocations use the host allocator with project-runtime deletion | Windows uses `004E5DDD` allocation paired with `004E5E48` free; the mismatched allocator family was introduced by reconstruction | Corrected to runtime allocation/free in the owning paths; shared property-string code remains a separate boundary |
+| Translated floating-point branches treat unordered operands as ordinary inequality | Original x87 condition excludes both equal and unordered operands | Corrected ordered comparisons; documented in [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md) |
+| Callers retain stale runtime/file/network/music names or declarations | Existing original implementations were not connected through their established interfaces | Connected the audited callers; unresolved owning routines remain explicit dependencies |
+| Production sources/headers are missing from Visual Studio project or filters | Project integration issue, not original game behavior | Added the missing entries and synchronized subsequent additions; see [PROJECT_STATE.md](docs/PROJECT_STATE.md) |
+| README OB001 contains unrelated sound-transition text; OB073 is absent from its index | Documentation transcription/maintenance errors | Restored signed-character trigger text, repaired table columns and synchronized both finding indexes |
 
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
 
@@ -1218,7 +1747,7 @@ The proposed source changes consolidate the DirectMusic references onto the exis
 Original address 0050f6bc is the events member at offset 0x14 of the dynamic network object at 0050f6a8. It must not receive an independent definition.
 The current LOD source contains two SetLevelOfDetail definitions and no constructor definition. Restore the constructor from 00489f75, including the singleton assignment, state initialization, and engine_lod property/default handling. Keep one setter using the implemented display-manager method.
 The additional InGame GUI singleton definition and the redundant external declarations of the inline DirectSound singleton must be removed.
-These findings are reconstruction issues, not additional original-bug observations. OA018 remains unchanged.
+These findings are reconstruction issues, not additional original-bug observations.
 
 ## Completion rule
 
