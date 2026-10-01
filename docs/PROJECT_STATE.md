@@ -1,6 +1,6 @@
 # OpenVikings Project State
 
-**State snapshot:** 2026-09-30
+**State snapshot:** 2026-10-01
 
 This file is a compact handoff for a new Codex session. Always reconcile it with repository `HEAD` and recent Git history before changing code.
 
@@ -33,6 +33,17 @@ Main targets:
 The user explicitly wants unknown data regions cross-checked against the Mac binary/code to recover original names whenever possible.
 
 ## Most recent work
+
+### Visual Studio project synchronization
+
+- Added all 18 missing production files (eight implementations and ten headers) to `OpenVikings.vcxproj` and `OpenVikings.vcxproj.filters`, including previous audio/GUI work and the current overview iterators/data declarations. Existing Visual Studio filters group the files by subsystem.
+- The user revoked the former separate-inclusion policy. `AGENTS.md` now requires project and filter entries to accompany production source/header additions, renames and removals. Win32 configurations remain in place.
+
+### Overview object overlays and iterators
+
+- Committed the terrain block as `7393e8a`. Reconstructed and connected all five overview overlays: guides, houses, moveables, chest markers and the visible map rectangle, including their guide/house/moveable iterator chains and original human/animal accessors and job predicates.
+- Analyzed the complete moveable-array and three dynamic-object storage regions. Replaced the live `00510A18` and `005550D8` aliases in animal, tooltip and in-game callers; 41 live `DAT_` symbols remain. Owning managers remain external dependencies, with no fabricated allocations or helper bodies.
+- Five affected implementations generate Win32 `/Od` and `/O2` objects; only the existing array-module C4100 warning remains. Of 83 production syntax units, 78 pass; five incomplete units retain 127 diagnostics. No tests were added. See [OVERVIEW_OBJECT_OVERLAYS.md](OVERVIEW_OBJECT_OVERLAYS.md). Next GUI block: bitmap input `004CF81A`.
 
 ### Overview terrain sampling and rasterization
 

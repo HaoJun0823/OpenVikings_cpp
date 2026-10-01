@@ -10,6 +10,34 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040211a; IDs are deliberately not range checked.
+    const void* GetHumanPtr(std::int32_t id)
+    {
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(CHumanArray::mStaticVars) + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize);
+    }
+
+    // Original function: FUN_004077a7.
+    const void* GetAnimalPtr(std::int32_t id)
+    {
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(CAnimalArray::mStaticVars) + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize);
+    }
+
+    // Original function: FUN_0042c62b.
+    bool Human_IsJobSoldier(const void* human)
+    {
+        std::int32_t job;
+        std::memcpy(&job, static_cast<const std::byte*>(human) + 0x18, sizeof(job));
+        return job >= 0x1F && job <= 0x29;
+    }
+
+    // Original function: FUN_0042c63e.
+    bool Human_IsJobHero(const void* human)
+    {
+        std::int32_t job;
+        std::memcpy(&job, static_cast<const std::byte*>(human) + 0x18, sizeof(job));
+        return job >= 0x2A && job <= 0x2F;
+    }
+
     // Original function: FUN_0040ad6c
     static bool __cdecl ArrayTool_IsObjectAllocated(void* object)
     {

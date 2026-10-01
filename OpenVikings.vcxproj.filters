@@ -363,6 +363,30 @@
     <ClCompile Include="C2MapWalkSectorManager.cpp">
       <Filter>Engine\Map</Filter>
     </ClCompile>
+    <ClCompile Include="C2E2AmbientSoundManagerAccess.cpp">
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="C2EngineTooltipAccess.cpp">
+      <Filter>Engine\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="C2OverviewObjectIterators.cpp">
+      <Filter>Engine\Iterators</Filter>
+    </ClCompile>
+    <ClCompile Include="CDAudioManager.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiBitmapToolElementAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiOverviewHandler.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiOverviewWindowAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h">
@@ -607,6 +631,36 @@
     </ClInclude>
     <ClInclude Include="C2MapWalkSectorManager.h">
       <Filter>Engine\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2AmbientSoundManagerAccess.h">
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="C2EngineObjectData.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2EngineTerrainData.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2LogicIOAccess.h">
+      <Filter>Logic\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="C2OverviewObjectIterators.h">
+      <Filter>Engine\Iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="CDAudioManager.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiBitmapToolElementAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiOverviewDisplayAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiOverviewHandler.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiOverviewWindowAccess.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 #include "ApplicationGlobals.h"
 #include "C2LogicObjectArrays.h"
+#include "C2EngineObjectData.h"
 #include "DMManager.h"
 #include "GuiToolsBase.h"
 #include "InGameGuiManager.h"
@@ -204,7 +205,7 @@ namespace NMasterControlProgram
                             senderPlayerId != localPlayerId &&
                             commandText != nullptr)
                         {
-                            auto* humanDisplayData = reinterpret_cast<std::byte*>(DAT_005550d8) + playerIndex * 0x8C8;
+                            auto* humanDisplayData = reinterpret_cast<std::byte*>(NC2E2::gDynamicDataHumans.entries) + playerIndex * 0x8C8;
                             FUN_004806c5(humanDisplayData, commandText);
                         }
 

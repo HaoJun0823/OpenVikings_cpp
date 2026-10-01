@@ -1,5 +1,6 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2LogicObjectArrays.h"
+#include "C2EngineObjectData.h"
 #include "C2MapGeometry.h"
 #include "GuiToolsBase.h"
 #include "XBitmap.h"
@@ -11,8 +12,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_00510a18;
-extern void* DAT_005550d8;
 extern void* DAT_005690d8;
 
 // Original logic/string routines remain explicit until their owning blocks are translated.
@@ -22,7 +21,6 @@ extern std::int32_t __fastcall FUN_00433064(const void* house);
 extern float __fastcall FUN_00431a88(const void* house, void* unusedEdx, std::uint32_t goodId, bool includeFutureStock);
 extern bool __fastcall FUN_0044bda9(const void* vehicle, void* unusedEdx, std::uint32_t goodId);
 extern std::uint32_t __fastcall FUN_0044ba1b(const void* vehicle, void* unusedEdx, std::uint32_t goodId);
-extern bool __fastcall FUN_0042c63e(const void* human);
 extern std::int32_t __fastcall FUN_0044cb4b(const void* carrier, void* unusedEdx, std::uint32_t vehicleId);
 extern std::int32_t __fastcall FUN_004a3909(void* manager, void* unusedEdx, std::uint32_t houseId);
 extern std::int32_t __fastcall FUN_004a38cb(void* manager, void* unusedEdx, std::uint32_t vehicleId);
@@ -68,7 +66,7 @@ namespace NC2E2
                 return Tooltip_AddressAt(carrier, 0x1CC); // 00437912.
             vehicle = carrier;
         }
-        const void* moveable = Tooltip_AddressAt(DAT_00510a18, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
+        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
         return Tooltip_AddressAt(moveable, 0x12);
     }
 
@@ -171,7 +169,7 @@ namespace NC2E2
     // Original function: FUN_0049883d; l_DE_DrawTooltipOverlay_MapMoveable.
     static void Display_DrawTooltipOverlay_MapMoveable(void* display, std::uint32_t moveableId, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
     {
-        const void* moveable = Tooltip_AddressAt(DAT_00510a18, moveableId * 0x58u);
+        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, moveableId * 0x58u);
         if (Tooltip_ReadField<std::uint8_t>(moveable, 0x2C) != 0 && Tooltip_ReadField<std::uint8_t>(moveable, 0x39) == 0)
         {
             std::uint32_t direction = Tooltip_ReadField<std::uint32_t>(moveable, 0x30);
@@ -248,11 +246,11 @@ namespace NC2E2
         {
             // Inline the indexed human lookup performed by 0040211a.
             const void* human = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CHumanArray::ElementSize);
-            const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(DAT_005550d8, Tooltip_ReadField<std::uint32_t>(human, 4) * 0x8C8u + 0x85Cu));
+            const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(gDynamicDataHumans.entries, Tooltip_ReadField<std::uint32_t>(human, 4) * 0x8C8u + 0x85Cu));
             Display_DrawTooltipOverlay_String(display, bitmap, x, y, name);
             if (Tooltip_ReadField<std::uint32_t>(human, 0x10) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
                 return;
-            if (!FUN_0042c63e(human))
+            if (!NC2Logic::Human_IsJobHero(human))
                 Display_DrawTooltipOverlay_String(display, bitmap, x, y, FUN_0042f725(Tooltip_ReadField<std::uint32_t>(human, 0x18), true));
             if (DAT_005690d8 != nullptr)
             {
@@ -279,7 +277,7 @@ namespace NC2E2
     void Display_DrawTooltipOverlay_External_Vehicle(void* display, std::uint32_t vehicleId, NXBasics::CBitmap* bitmap, bool /*showGoods*/)
     {
         const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, vehicleId * NC2Logic::CVehicleArray::ElementSize);
-        const void* moveable = Tooltip_AddressAt(DAT_00510a18, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
+        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
         if (Tooltip_ReadField<std::uint8_t>(moveable, 0x10) == 0)
             return;
         std::int32_t point[2];

@@ -64,7 +64,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 
 - The main target is **Win32/x86** unless a specific subproject explicitly says otherwise.
 - Do not enable or migrate the main reverse-engineered game target to x64 as part of unrelated work.
-- Changes to `OpenVikings.vcxproj` do not need to be handled; project inclusion is managed separately.
+- Keep `OpenVikings.vcxproj` and `OpenVikings.vcxproj.filters` synchronized with all production source/header additions, renames and removals. Assign files to the appropriate Visual Studio filters.
 - Do **not** add `#pragma comment(lib, "winmm.lib")`.
 - Do **not** add `#pragma comment(lib, "dinput.lib")` merely to solve imports; the project already handles the Windows imports appropriately.
 - Avoid introducing new CRT dependencies when the current reconstruction deliberately uses project runtime wrappers.

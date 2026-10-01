@@ -15,6 +15,11 @@ namespace NC2InGameGuiOverviewDisplay
     void WorldOverviewElement_Destruct(void* element);
     void WorldOverviewElement_Draw(void* element, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle);
     void WorldOverviewElement_RedrawAll(void* element);
+    void WorldOverviewElement_DrawGuides(void* element);
+    void WorldOverviewElement_DrawHouses(void* element);
+    void WorldOverviewElement_DrawSightRectangle(void* element);
+    void WorldOverviewElement_DrawMapMoveables(void* element);
+    void WorldOverviewElement_DrawChestMarker(void* element);
     void WorldOverviewElement_UpdateArea(void* element, const std::int32_t* minimum, const std::int32_t* maximum);
     void WorldOverviewElement_ScanTextures(void* element);
     void WorldOverviewElement_GetSampleColor(void* element, const void* pattern, NXBasics::SColorRGB* color);

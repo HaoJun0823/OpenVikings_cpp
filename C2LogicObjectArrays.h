@@ -60,6 +60,16 @@ namespace NC2Logic
     static_assert(offsetof(CArrayHandler, mIsAllocated) == 0x20);
     static_assert(offsetof(CArrayHandler, mElementChecksum) == 0x2C);
 
+    // Complete CMapMoveableArray static region at 00510A18..00510A1F.
+    // Its original constructors/destructor remain external ownership boundaries.
+    struct SMapMoveableArrayStorage
+    {
+        std::byte* entries;
+        CArrayHandler* manager;
+    };
+    extern SMapMoveableArrayStorage gMapMoveableArrayStorage;
+    static_assert(sizeof(SMapMoveableArrayStorage) == 8);
+
     class CHouseArray : public CArrayHandler
     {
     public:
@@ -155,4 +165,9 @@ namespace NC2Logic
     static_assert(sizeof(CVehicleArray) == 0x30);
     static_assert(sizeof(CAnimalArray) == 0x30);
     static_assert(sizeof(CGuideArray) == 0x30);
+
+    const void* GetHumanPtr(std::int32_t id);
+    const void* GetAnimalPtr(std::int32_t id);
+    bool Human_IsJobSoldier(const void* human);
+    bool Human_IsJobHero(const void* human);
 }

@@ -36,6 +36,8 @@ The two named static-data manager pointers remain external dependencies; their m
 
 The [overview terrain follow-up](OVERVIEW_TERRAIN_SAMPLING.md) retains 43 live DAT symbols and six assembly blocks. Its two modified units pass Win32 `/Od` and `/O2` object generation without warnings; the repeated 82-unit syntax pass remains 77 passing units and five incomplete units with 129 diagnostics. Its static analysis repeats only the existing filename findings below.
 
+The [overview overlay follow-up](OVERVIEW_OBJECT_OVERLAYS.md) resolves two more live DAT identities, leaving 41 and the same six assembly blocks. Five affected units pass Win32 `/Od` and `/O2` object generation with the existing array-module C4100 warning. The current 83-unit syntax pass has 78 passing units and five incomplete units with 127 diagnostics.
+
 Three of nine initial blocks were replaced. Six remain deliberately visible:
 
 | File / routine | Reason retained |
@@ -67,13 +69,13 @@ The `datax` startup paths were checked against actual `Game.exe` strings and ret
 
 ## Incomplete compilation units
 
-After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview-handler and [overview rendering-control follow-ups](OVERVIEW_BITMAP_RENDERING.md) add four passing implementation units. The current 82-unit syntax pass has 77 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
+After the initial interface repairs, six units reported 173 compiler diagnostics. The [property-options and directory block](PROPERTY_OPTIONS_IO.md) reduced that to 160; the [CD-audio manager block](CD_AUDIO_MANAGER.md) reduced it to 139; the [GUI desktop/resolution block](GUI_DESKTOP_RESOLUTION.md) reduced it to 129 and completed the resolution-change unit. The world-display/overview-handler and [overview rendering-control follow-ups](OVERVIEW_BITMAP_RENDERING.md) add four passing implementation units. The [overview overlays](OVERVIEW_OBJECT_OVERLAYS.md) add another passing iterator unit and connect the in-game human dynamic storage, removing two diagnostics. The current 83-unit syntax pass has 78 passing units and these five incomplete units, primarily undeclared original routines/globals and unreconstructed manager methods:
 
 | Unit | Diagnostics |
 | --- | ---: |
 | `MainMenuGuiManager.cpp` | 79 |
 | `MasterControlProgram.cpp` | 14 |
-| `MasterControlProgram_PS_InGame.cpp` | 24 |
+| `MasterControlProgram_PS_InGame.cpp` | 22 |
 | `MasterControlProgram_PS_MainMenu.cpp` | 11 |
 | `MasterControlProgram_PS_System.cpp` | 1 |
 
@@ -81,7 +83,7 @@ Examples include DirectMusic methods, save/map managers and GUI startup/shutdown
 
 ## Remaining live DAT inventory
 
-There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolved `0050F69C`, and the desktop block resolved `005690B8` and `0051261C`, and the overview-handler follow-up resolved the complete `00569418` region, leaving 43. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
+There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio follow-up resolved `0050F69C`, the desktop block resolved `005690B8` and `0051261C`, and the overview-handler follow-up resolved the complete `00569418` region, leaving 43. The overlay follow-up names the complete moveable-array region at `00510A18` and human dynamic-data region at `005550D8`, leaving 41. Their owner implementations remain external. No live `PTR_` or `UNK_` symbols were found. Address comments remain intentionally for traceability. The current per-file inventory follows.
 
 | Live symbol | Files |
 | --- | --- |
@@ -94,7 +96,6 @@ There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio 
 | `DAT_005109c5` | `WorldDisplayElementAccess.cpp` |
 | `DAT_005109d0` | `MasterControlProgram.cpp` |
 | `DAT_005109ec` | `C2EngineDrawingAccess.cpp`, `MasterControlProgram_PS_InGame.cpp` |
-| `DAT_00510a18` | `C2AnimalAccess.cpp`, `C2EngineTooltipAccess.cpp` |
 | `DAT_00510d4c` | `C2AnimalIterator.cpp` |
 | `DAT_00511240` | `GuiToolsBase.cpp` |
 | `DAT_005114ac` | `MainMenuGuiManager.cpp` |
@@ -107,7 +108,6 @@ There were 47 distinct live `DAT_` symbols after the initial pass; the CD-audio 
 | `DAT_00554da4` | `MasterControlProgram.cpp` |
 | `DAT_00554da8` | `ApplicationGlobals.h`, `ApplicationStartup.h` |
 | `DAT_005550d4` | `MasterControlProgram_PS_InGame.cpp`, `MasterControlProgram_PS_MainMenu.cpp`, `WorldDisplayElementAccess.cpp` |
-| `DAT_005550d8` | `C2EngineTooltipAccess.cpp`, `MasterControlProgram_PS_InGame.cpp` |
 | `DAT_005550e4` | `C2EngineDrawingAccess.cpp` |
 | `DAT_005550f8` | `C2EngineDrawingAccess.cpp` |
 | `DAT_00555110` | `C2EngineDisplayManager.cpp` |
