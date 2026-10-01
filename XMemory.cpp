@@ -1,6 +1,7 @@
 #include "XFile.h"
 #include "XFileAccess.h"
 #include "XMemory.h"
+#include "XCrtFileAccess.h"
 
 #include <cstring>
 #include <new>
@@ -51,8 +52,7 @@ namespace NXBasics
             std::memset(mData, 0xED, mSize);
         }
 
-        // Match the host allocation used by l_AllocateMemory() and ChangeBufferSize().
-        ::operator delete(mData);
+        Runtime_Free(mData);
     }
 
     // Original function: FUN_0042f91a
@@ -82,7 +82,7 @@ namespace NXBasics
 
         if (size != 0)
         {
-            auto* allocation = static_cast<std::uint8_t*>(::operator new(size, std::nothrow));
+            auto* allocation = static_cast<std::uint8_t*>(Runtime_Allocate(size));
             const std::uint32_t fillSize = mSize;
 
             mData = allocation;
@@ -106,7 +106,7 @@ namespace NXBasics
 
         std::uint8_t* oldData = mData;
 
-        mData = static_cast<std::uint8_t*>(::operator new(newSize, std::nothrow));
+        mData = static_cast<std::uint8_t*>(Runtime_Allocate(newSize));
 
         if (fillAdditionalBytes && newSize > mSize)
         {
@@ -116,7 +116,7 @@ namespace NXBasics
         const std::uint32_t copySize = mSize < newSize ? mSize : newSize;
 
         std::memcpy(mData, oldData, copySize);
-        ::operator delete(oldData);
+        Runtime_Free(oldData);
 
         mSize = newSize;
 
@@ -180,6 +180,8 @@ namespace NXBasics
     // Original function: FUN_004e5e48
     void CMemory::operator delete(void* allocation) noexcept
     {
-        ::operator delete(allocation);
+        Runtime_Free(allocation);
     }
+
+    void CMemory::operator delete(void* allocation, const std::nothrow_t&) noexcept { Runtime_Free(allocation); }
 }

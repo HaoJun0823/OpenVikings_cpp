@@ -1,0 +1,240 @@
+#pragma once
+
+#include <cstddef>
+#include <cstdint>
+
+// Original singleton/storage bindings. Complete owning class layouts remain unresolved.
+namespace NC2Logic
+{
+    // Original global: 005109D0.
+    inline void* gGame = nullptr;
+    // Original global: 005109D4.
+    inline void* gAIManager = nullptr;
+    // Original global: 005109EC.
+    inline void* gGameControl = nullptr;
+    // Original global: 00510A14.
+    inline void* gMarkerArray = nullptr;
+    // Original global: 00510A20.
+    inline void* gUserNetworkCommandManager = nullptr;
+    // Original global: 00510A28.
+    inline void* gGameMapModifyManager = nullptr;
+    // Original global: 00510A40.
+    inline void* gStaticHumanJobExperienceTypeDataManager = nullptr;
+    // Original global: 00510D40.
+    inline void* gStaticDependenciesManager = nullptr;
+    // Original global: 00510D50.
+    inline void* gStaticAnimalTypeDataManager = nullptr;
+    // Original global: 00510DFC.
+    inline void* gStaticArmorTypeDataManager = nullptr;
+    // Original global: 00510EF0.
+    inline void* gStaticWeaponTypeDataManager = nullptr;
+    // Original global: 00510FA4.
+    inline void* gStaticJobTypeDataManager = nullptr;
+    // Original global: 00511024.
+    inline void* gStaticTribeTypeDataManager = nullptr;
+    // Original global: 00511120.
+    inline void* gStaticAtomicAnimationDataManager = nullptr;
+    // Original global: 00511134.
+    inline void* gStaticVehicleTypeDataManager = nullptr;
+    // Original global: 005111C4.
+    inline void* gStaticHouseTypeDataManager = nullptr;
+    // Original global: 00511244.
+    inline void* gStaticGoodTypeDataManager = nullptr;
+    // Original global: 005112E4.
+    inline void* gStaticTrianglePatternTypeDataManager = nullptr;
+    // Original global: 00511354.
+    inline void* gStaticLandscapeTypeDataManager = nullptr;
+    // Original global: 005114AC.
+    inline void* gSavegamesManager = nullptr;
+    // Original global: 005114B4.
+    inline void* gCleanMapsManager = nullptr;
+    // Original global: 005114B8.
+    inline void* gCampaignStaticDataManager = nullptr;
+    // Original global: 005114EC.
+    inline void* gStaticStringsManager = nullptr;
+    // Original global: 005114F0.
+    inline void* gMissionOnscreenInfoManager = nullptr;
+    // Original global: 005114F4.
+    inline void* gGameAssistantManager = nullptr;
+    // Original global: 00511500.
+    inline void* gMultiPlayerGoalManager = nullptr;
+    // Original global: 00511504.
+    inline void* gHappinessManager = nullptr;
+    // Original global: 00511508.
+    inline void* gEmbeddedSavegameManager = nullptr;
+    // Original global: 0051150C.
+    inline void* gTributeManager = nullptr;
+    // Original global: 00511510.
+    inline void* gDelayedActionManager = nullptr;
+    // Original global: 00511514.
+    inline void* gPlayerStatisticManager = nullptr;
+    // Original global: 00511550.
+    inline void* gGuideManager = nullptr;
+    // Original global: 0051155C.
+    inline void* gHumanMerchantArray = nullptr;
+    // Original global: 00511564.
+    inline void* gMapPathfinderManager = nullptr;
+    // Original global: 00511568.
+    inline void* gMissionManager = nullptr;
+    // Original global: 0051257C.
+    inline void* gGameMap = nullptr;
+    // Original global: 00512590.
+    inline void* gMapBioRegrowManager = nullptr;
+    // Original global: 00512594.
+    inline void* gMapFishManager = nullptr;
+    // Original global: 00512598.
+    inline void* gWallBuildManager = nullptr;
+    // Original global: 0051259C.
+    inline void* gRoadBuildManager = nullptr;
+    // Original global: 00550E64.
+    inline void* gMapLandscapeAutoTransitionManager = nullptr;
+    // Original global: 00510A10.
+    inline void* gMarkerEntries = nullptr;
+    // Original global: 00510A38.
+    inline void* gStaticHumanJobExperienceData = nullptr;
+    // Original global: 00510A3C.
+    inline void* gStaticHumanJobExperienceTable00510A3C = nullptr;
+    // Original global: 00510D4C.
+    inline void* gStaticAnimalTypeData = nullptr;
+    // Original global: 00510DF8.
+    inline void* gStaticArmorTypeData = nullptr;
+    // Original global: 00510FA0.
+    inline void* gStaticJobTypeData = nullptr;
+    // Original global: 00511020.
+    inline void* gStaticTribeTypeData = nullptr;
+    // Original global: 0051111C.
+    inline void* gStaticAtomicAnimationData = nullptr;
+    // Original global: 00511130.
+    inline void* gStaticVehicleTypeData = nullptr;
+    // Original global: 005111C0.
+    inline void* gStaticHouseTypeData = nullptr;
+    // Original global: 00511240.
+    inline void* gStaticGoodTypeData = nullptr;
+    // Original global: 00511348.
+    inline void* gStaticLandscapeTypeData = nullptr;
+    // Original global: 00511560.
+    inline void* gMapPathfinderEntries = nullptr;
+    // CGame::mStaticVars, 00510818.
+    inline unsigned char gGameInitialized = 0;
+    // Complete CStaticWeaponTypeDataManager pointer array, 00510E48..00510EEF.
+    inline void* gStaticWeaponTypeArrays[42]{};
+    // Complete CStaticStringsManager pointer array, 005114C0..005114EB.
+    inline void* gStaticStrings[11]{};
+    // SMapMigPoint/SMapMagPoint dimension mirrors, complete 005125F8..005125FF.
+    struct SMapPointDimensions
+    {
+        std::int16_t microWidth;
+        std::int16_t microHeight;
+        std::int16_t macroWidth;
+        std::int16_t macroHeight;
+    };
+    inline SMapPointDimensions gMapPointDimensions{};
+    static_assert(sizeof(SMapPointDimensions) == 8);
+    static_assert(offsetof(SMapPointDimensions, macroWidth) == 4);
+}
+
+
+namespace NC2E2
+{
+    // Original global: 00554DA4.
+    inline void* gE2Manager = nullptr;
+    // Original global: 00568374.
+    inline void* gEngineMap = nullptr;
+    // Original global: 00568378.
+    inline void* gE2MapWeatherManagerSectorManager = nullptr;
+    // Original global: 00568384.
+    inline void* gE2HumanSoundManager = nullptr;
+    // Original global: 00568418.
+    inline void* gSingleton00568418 = nullptr;
+    // Original global: 005550D4.
+    inline void* gE2AmbientSoundManager = nullptr;
+    // Original global: 00568428.
+    inline void* gE2ParticelManager = nullptr;
+    // Original global: 005684C0.
+    inline void* gMacroMapManager = nullptr;
+    // Original global: 005684D8.
+    inline void* gE2StaticDataParticelEffectManager = nullptr;
+    // Original global: 00568564.
+    inline void* gE2StaticDataMiscLandscapeManager = nullptr;
+    // Original global: 00568580.
+    inline void* gE2StaticDataGoodManager = nullptr;
+    // Original global: 00568978.
+    inline void* gE2StaticDataHumanMiscManager = nullptr;
+    // Original global: 005689C8.
+    inline void* gE2StaticDataMapMoveablesManager = nullptr;
+    // Original global: 005689E8.
+    inline void* gE2StaticDataParticelManager = nullptr;
+    // Original global: 00568A1C.
+    inline void* gE2StaticDataTransitionsManager = nullptr;
+    // Original global: 00568A50.
+    inline void* gE2StaticDataPatternManager = nullptr;
+    // Original global: 00568A6C.
+    inline void* gE2StaticDataHousesManager = nullptr;
+    // Original global: 00568AEC.
+    inline void* gE2StaticDataLandscapesManager = nullptr;
+    // Original global: 0055510C.
+    inline void* gE2StaticDataPalettesManager = nullptr;
+    // Original global: 00568AF8.
+    inline void* gE2StaticDataTexturesManager = nullptr;
+    // Original global: 00568AFC.
+    inline void* gE2StaticDataBobManagersManager = nullptr;
+    // Original global: 00568B48.
+    inline void* gE2ParticelGeneratorManager = nullptr;
+    // Original global: 0056842C.
+    inline void* gE2ParticelWind = nullptr;
+    // Original global: 005684D0.
+    inline void* gStaticParticelEffects = nullptr;
+    // Original global: 0056854C.
+    inline void* gStaticMiscLandscapeEntries = nullptr;
+    // Original global: 00568554.
+    inline void* gStaticMiscLandscapeGroups = nullptr;
+    // Original global: 00568578.
+    inline void* gStaticGoodData = nullptr;
+    // Original global: 005689E4.
+    inline void* gStaticParticelData = nullptr;
+    // Original global: 00568A34.
+    inline void* gStaticPatternEntries = nullptr;
+    // Original global: 00568A64.
+    inline void* gStaticHouseEntries = nullptr;
+    // Original global: 00568A7C.
+    inline void* gStaticLandscapeEntries = nullptr;
+    // Original global: 005550E4.
+    inline void* gStaticPaletteEntries = nullptr;
+    // Original global: 005550EC.
+    inline void* gStaticPaletteNames = nullptr;
+    // Original global: 005550F8.
+    inline void* gStaticPalette005550F8 = nullptr;
+    // Complete regions cleared by their Windows destructors. Unidentified fields
+    // retain explicit offsets rather than speculative member names.
+    // 00568590..00568957; color records occupy +0x58..+0x3C7.
+    alignas(4) inline std::byte gStaticHumanMiscData[0x3C8]{};
+    inline std::byte* const gStaticHumanColors = gStaticHumanMiscData + 0x58;
+    // 00568998..005689BB; counts, record arrays and auxiliary allocations.
+    alignas(4) inline std::byte gStaticMapMoveableData[0x24]{};
+    // 005689F0..00568A0F; transition counts and tables.
+    alignas(4) inline std::byte gStaticTransitionData[0x20]{};
+    inline std::uint32_t gStaticMiscLandscapeGroupCount = 0; // 00568550
+    inline std::int32_t gStaticHouseCount = 0;               // 00568A60
+    inline std::int32_t gStaticLandscapeCount = 0;           // 00568A78
+    inline std::uint32_t gStaticPatternCount = 0;            // 00568A30
+    inline std::int32_t gStaticPaletteCount = 0;             // 005550E0
+    inline std::uint32_t gStaticPaletteNameCount = 0;        // 005550E8
+    // Complete Windows music selection region 005683B0..00568417. The owning
+    // Windows-only class name is unresolved; field roles follow its Windows xrefs.
+    struct SWorldMusicState
+    {
+        std::uint32_t selectedPlayer;
+        std::uint8_t changePending;
+        std::byte padding05[3];
+        std::uint32_t changeAtGameTime;
+        std::uint32_t eventVariant;
+        std::uint32_t controllingPlayer;
+        std::uint32_t visiblePlayerCounts[20];
+        std::uint32_t musicType;
+    };
+    inline SWorldMusicState gWorldMusicState{};
+    static_assert(sizeof(SWorldMusicState) == 0x68);
+    static_assert(offsetof(SWorldMusicState, changePending) == 4);
+    static_assert(offsetof(SWorldMusicState, visiblePlayerCounts) == 0x14);
+    static_assert(offsetof(SWorldMusicState, musicType) == 0x64);
+}

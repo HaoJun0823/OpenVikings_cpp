@@ -16,5 +16,7 @@ namespace NC2E2
     extern SDynamicObjectArrayStorage gDynamicDataHouses;
     // CE2DynamicDataVehicleManager: complete region 00568B08..00568B0F, stride 0x44.
     extern SDynamicObjectArrayStorage gDynamicDataVehicles;
+    // CE2DynamicDataAnimalManager: complete region 00568B10..00568B17.
+    extern SDynamicObjectArrayStorage gDynamicDataAnimals;
     static_assert(sizeof(SDynamicObjectArrayStorage) == 8);
 }

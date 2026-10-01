@@ -18,6 +18,8 @@ namespace NXBasics
         // Original function: FUN_0040fa02; deleting wrapper: LAB_00480e5c.
         virtual ~CPalette();
 
+        static void* DeleteOriginal(CPalette* palette, std::uint32_t flags);
+
         // Original function: LAB_0040fdd4
         std::uint32_t Storable_GetId() override
         {

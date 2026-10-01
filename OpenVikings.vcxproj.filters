@@ -679,4 +679,24 @@
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2LogicLifetimeAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2EngineLifetimeAccess.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClInclude Include="C2LogicLifetimeAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2EngineLifetimeAccess.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="C2LifetimeAccess.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="C2LifetimeGlobals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

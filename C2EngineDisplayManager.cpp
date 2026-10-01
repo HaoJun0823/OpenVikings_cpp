@@ -1,5 +1,6 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
+#include "C2GameMapAccess.h"
 #include "XCrtFileAccess.h"
 #include "XMKeyManager.h"
 
@@ -75,6 +76,18 @@ namespace NC2E2
         for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
         {
             static_cast<std::byte*>(display)[0x978] = std::byte{ 1 };
+        }
+    }
+
+    // Original function: FUN_004812b4.
+    void C2DEngineDisplayManager::InformThatMapXtructed()
+    {
+        const std::uint32_t center = static_cast<std::uint16_t>(NC2Logic::GameMap_GetWidth() / 2) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(NC2Logic::GameMap_GetHeight() / 2)) << 16);
+        Iterator iterator(*this);
+        for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
+        {
+            Display_ReInit(display);
+            DE_SetWantedPositionToMapPoint(display, &center);
         }
     }
 

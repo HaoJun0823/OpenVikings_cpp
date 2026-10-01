@@ -57,6 +57,7 @@ namespace NXBasics
 
         // Original function: FUN_004e5e48
         static void operator delete(void* allocation) noexcept;
+        static void operator delete(void* allocation, const std::nothrow_t&) noexcept;
 
     private:
         friend class CStringArray;

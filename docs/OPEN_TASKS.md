@@ -23,6 +23,10 @@ Required work:
 
 The seven unknown call sites in `WorldDisplayElementAccess.cpp` are now reconstructed, including their immediate display-control, tooltip and ambient-sound helpers. See [WORLD_DISPLAY_ELEMENT_DRAW.md](WORLD_DISPLAY_ELEMENT_DRAW.md). Next connected graphics block: `00481AE2` with the static split/rasterization chain, then `004911D5` foreground object traversal. Its retained original dependencies and music-region ownership work are listed in that document.
 
+## P1 — Game/engine constructor and load ownership
+
+The direct shutdown/destruction/clear/free tree around `00401B85` is reconstructed, including nested owning records and engine cleanup notifications. See [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md) for 109 added entries, canonical bindings and non-shutdown external boundaries. Continue with the CGame constructor `00406B70` / CE2Manager constructor `0047DCC4` and their owning initialization/load trees. Bind their storage to the established singletons, native list specializations, pattern/texture/dynamic-object storage and dimension mirrors; do not reintroduce copied process addresses or duplicate regions. The Windows-only music owner at `00568418`, extra job-experience table, AI embedded owner and unidentified record fields still require semantic/layout analysis. The current compiler inventory is 82/86 passing units, with four incomplete units retaining 113 diagnostics. No tests/test projects are requested.
+
 ## P1 — Continue global/static symbol cleanup
 
 The repository-wide audit found 47 remaining live `DAT_` symbols and six retained hardware/conversion `__asm` blocks after its supported replacements. The full per-file inventory, static-analysis findings and six incomplete production compilation units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md). Next integration block: the main-menu/master-control owning dependencies and their established interfaces; retain original error paths while resolving them.

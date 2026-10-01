@@ -101,7 +101,11 @@ namespace NC2Logic
         const NXBasics::SRectangle microRectangle(0, 0, microWidth, microHeight);
         std::memcpy(DAT_00511570 + 0x10, &microRectangle, sizeof(microRectangle));
 
-        // Map bounds are read from this block instead of duplicated globals.
+        // Original mirror writes at 0042354D..00423577, before buffer allocation.
+        gMapPointDimensions.macroWidth = static_cast<std::int16_t>(GameMap_GetMacroWidth());
+        gMapPointDimensions.macroHeight = static_cast<std::int16_t>(GameMap_GetMacroHeight());
+        gMapPointDimensions.microWidth = GameMap_GetWidth();
+        gMapPointDimensions.microHeight = GameMap_GetHeight();
         const std::uint32_t macroBytes = macroPointCount * 3u;
         void* macroPoints = NXBasics::Runtime_AllocateWithNewHandler(macroBytes, 1);
         std::memcpy(DAT_00511570 + 0x30, &macroPoints, sizeof(macroPoints));

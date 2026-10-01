@@ -1,5 +1,7 @@
 #include "ApplicationGlobals.h"
 #include "C2LanguageTools.h"
+#include "C2LogicLifetimeAccess.h"
+#include "C2EngineLifetimeAccess.h"
 #include "CDAudioManager.h"
 #include "DMManager.h"
 #include "DSManager.h"
@@ -385,27 +387,37 @@ namespace NMasterControlProgram
 
         if (mGameInitialized != 0)
         {
-            FUN_004071c3();
+            NC2Logic::Game_ShutDown();
             mGameInitialized = 0;
         }
 
-        auto* engineManager = DAT_00554da4;
+        auto* engineManager = NC2E2::gE2Manager;
 
         if (engineManager != nullptr)
         {
-            FUN_0047e181(engineManager);
+            NC2E2::E2Manager_Destruct(engineManager);
             NXBasics::Runtime_Free(engineManager);
         }
 
-        auto* game = DAT_005109d0;
+        auto* game = NC2Logic::gGame;
 
         if (game != nullptr)
         {
-            FUN_00406d85(game);
+            NC2Logic::Game_Destruct(game);
             NXBasics::Runtime_Free(game);
         }
 
         mEngineInitialized = 0;
+    }
+
+    // Original function: FUN_00401bd5.
+    void CMasterControlProgram::GameEngine_ShutDownGame()
+    {
+        if (mGameInitialized != 0)
+        {
+            NC2Logic::Game_ShutDown();
+            mGameInitialized = 0;
+        }
     }
 
     // Original function: FUN_00402530

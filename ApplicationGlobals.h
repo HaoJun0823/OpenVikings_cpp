@@ -1,6 +1,7 @@
 #pragma once
 
 #include "C2MapWalkSectorManager.h"
+#include "C2LifetimeGlobals.h"
 #include "InGameGuiOverviewHandler.h"
 #include "XBasicTypes.h"
 
@@ -55,8 +56,6 @@ alignas(4) inline std::byte DAT_00554da8[8]{};
 // Original data: DAT_00568358; startup writes offsets 0x08 through 0x17.
 alignas(4) inline std::byte DAT_00568358[0x18]{};
 
-// Original data: DAT_005685e8; ten entries of 0x58 bytes.
-alignas(4) inline std::byte DAT_005685e8[0x370]{};
 
 // Original data: DAT_00569078.
 inline double DAT_00569078 = 0.0;

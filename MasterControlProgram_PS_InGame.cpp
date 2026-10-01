@@ -129,7 +129,7 @@ namespace NMasterControlProgram
         NNetwork::Network_ShutDown();
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Desktop_Close();
         FUN_004a0295(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
-        FUN_00401bd5(this);
+        GameEngine_ShutDownGame();
 
         delete NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 

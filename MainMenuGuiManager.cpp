@@ -2,6 +2,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2LanguageTools.h"
 #include "C2LogicIOAccess.h"
+#include "C2LogicLifetimeAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "CDAudioManager.h"
 #include "FileCompressor.h"
@@ -1197,8 +1198,8 @@ namespace NC2MainMenuGuiManager
 							auto* master = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
 							auto* startupData = reinterpret_cast<std::byte*>(master) + 0x2C;
 
-							// Pending: NC2Logic::SGameControlStartupData::Reset.
-							FUN_00406b4a(startupData);
+							// Original startup-data reset.
+							NC2Logic::GameControlStartupData_Clear(startupData);
 
 							const std::uint32_t startupType = gameMode == 1u ? 3u : 4u;
 							std::memcpy(startupData, &startupType, sizeof(startupType));

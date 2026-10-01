@@ -1,14 +1,18 @@
 #include "C2CallbackManager.h"
+#include "XCrtFileAccess.h"
+
+#include <cstring>
 
 namespace NC2Logic
 {
-    // Reference: Mac CCallbackManager::CCallbackManager()
-    CCallbackManager::CCallbackManager() : mFirst{}, mLast{}
+    // Original function: FUN_00411ca8.
+    CCallbackManager::CCallbackManager()
     {
         sTheObjectPtr = this;
+        std::memset(this, 0, sizeof(*this));
     }
 
-    // Reference: Mac CCallbackManager::~CCallbackManager()
+    // Original function: FUN_00411cc5.
     CCallbackManager::~CCallbackManager()
     {
         for (std::size_t type = 0; type < CallbackTypeCount; ++type)
@@ -42,7 +46,7 @@ namespace NC2Logic
         return nullptr;
     }
 
-    // Reference: Mac CCallbackManager::RegisterCallback()
+    // Original function: FUN_00411cf8.
     void CCallbackManager::RegisterCallback(TCallbackTypes type, TCallbackFunction callback, std::uint32_t userData, std::int32_t priority)
     {
         if (l_FindCallbackElement(type, callback, userData) != nullptr)
@@ -50,7 +54,8 @@ namespace NC2Logic
             UnRegisterCallback(type, callback, userData);
         }
 
-        SCallbackElement* element = new SCallbackElement{};
+        auto* element = static_cast<SCallbackElement*>(NXBasics::Runtime_Allocate(sizeof(SCallbackElement)));
+        std::memset(element, 0, sizeof(SCallbackElement));
 
         element->priority = priority;
         element->callback = callback;
@@ -95,7 +100,7 @@ namespace NC2Logic
         }
     }
 
-    // Reference: Mac CCallbackManager::ExecuteCallback()
+    // Original function: FUN_00411e1d.
     bool CCallbackManager::ExecuteCallback(TCallbackTypes type, bool forward, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
     {
         SCallbackElement* element = forward ? mFirst[type] : mLast[type];
@@ -141,7 +146,7 @@ namespace NC2Logic
             element->next->previous = element->previous;
         }
 
-        delete element;
+        NXBasics::Runtime_Free(element);
         return true;
     }
 }

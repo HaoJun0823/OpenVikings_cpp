@@ -34,6 +34,13 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### Engine shutdown and owning cleanup
+
+- Reconstructed 109 previously missing Windows entries around `GameEngine_ShutDownEngine`, including game/runtime/static-manager destruction, nested map/list/vector cleanup and the five engine callbacks reached by shutdown notifications. Existing production destructors are reused. See [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md) for the complete address inventory and remaining creation/update/library boundaries.
+- Added canonical singleton/storage bindings, unified the static-human/color and Windows music regions, implemented original palette vector deletion and corrected callback/Storable/bitmap/palette allocator pairs. All six new production files are included in the Visual Studio project and existing filters.
+- Registered OA035–OA040 and FP013 in the README. Preserve the original null-list, conditional cleanup, retained-pointer, independent-gate and particle-reset behavior. The Windows-only owner at `00568418` and unspecified embedded record/member identities remain explicit.
+- Win32 syntax verification: 82/86 production units pass; the same four incomplete units retain 113 diagnostics. Sixteen affected/owned units generate `/Od` and `/O2` objects (existing array-module C4100 warning). No tests were added. Full linking/game runtime remains unverified. Next connected block: constructor/load ownership for game/engine managers and data owners, using the canonical bindings established here.
+
 ### README failure-path register synchronization
 
 - Reconciled the completed subsystem documents and retained Windows failure behavior with the README register. Added OB074–OB081 and OA019–OA034, plus the separate FP001–FP012 failure-handling index; the register now contains 81 defect/limitation entries and 34 observations/assessments.

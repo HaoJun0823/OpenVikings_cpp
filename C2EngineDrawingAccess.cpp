@@ -76,7 +76,7 @@ namespace NC2E2
         }
 
         std::uint32_t paletteId;
-        std::memcpy(&paletteId, DAT_005685e8 + static_cast<std::uint32_t>(colorId) * 0x58u + 0x50u, sizeof(paletteId));
+        std::memcpy(&paletteId, gStaticHumanColors + static_cast<std::uint32_t>(colorId) * 0x58u + 0x50u, sizeof(paletteId));
 
         std::uint32_t paletteAddress;
         std::memcpy(&paletteAddress, addressAt(DAT_005550e4, paletteId * 0x30u + 0x20u), sizeof(paletteAddress));

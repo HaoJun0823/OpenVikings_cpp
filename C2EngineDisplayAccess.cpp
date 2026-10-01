@@ -19,9 +19,6 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-extern std::uint32_t DAT_005683b0;
-extern std::uint32_t DAT_005683c0;
-extern std::uint32_t DAT_005683c4[20];
 
 // Untranslated original routines. The unused EDX parameter preserves the
 // ECX receiver and callee-popped stack of their Windows __thiscall interfaces.
@@ -72,7 +69,7 @@ namespace NC2E2
     void Inform_ControllingPlayerChanged(std::int32_t playerId)
     {
         C2DEngineDisplayManager::sTheObjectPtr->InformThatControllingPlayerChanged(playerId);
-        DAT_005683c0 = static_cast<std::uint32_t>(playerId);
+        gWorldMusicState.controllingPlayer = static_cast<std::uint32_t>(playerId);
     }
 
     static void DisplayDescription_WriteDword(void* description, std::size_t offset, std::uint32_t bits)
@@ -1225,15 +1222,15 @@ namespace NC2E2
             return;
 
         std::uint32_t selected = 0xFFFFFFFFu;
-        DAT_005683b0 = selected;
+        gWorldMusicState.selectedPlayer = selected;
         for (std::uint32_t player = 0; player < 20u; ++player)
         {
-            if (player == DAT_005683c0 || DAT_005683c4[player] == 0)
+            if (player == gWorldMusicState.controllingPlayer || gWorldMusicState.visiblePlayerCounts[player] == 0)
                 continue;
-            if (selected == 0xFFFFFFFFu || DAT_005683c4[selected] < DAT_005683c4[player])
+            if (selected == 0xFFFFFFFFu || gWorldMusicState.visiblePlayerCounts[selected] < gWorldMusicState.visiblePlayerCounts[player])
             {
                 selected = player;
-                DAT_005683b0 = selected;
+                gWorldMusicState.selectedPlayer = selected;
             }
         }
     }

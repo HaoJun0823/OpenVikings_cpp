@@ -96,6 +96,7 @@ namespace NXBasics
         }
 
         static void operator delete(void* allocation) noexcept;
+        static void operator delete(void* allocation, const std::nothrow_t&) noexcept;
 
     private:
         friend class CPicture;

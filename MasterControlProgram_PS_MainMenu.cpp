@@ -67,7 +67,7 @@ namespace NMasterControlProgram
 
         FUN_004800c8(DAT_005550d4);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
-        FUN_00401bd5(this);
+        GameEngine_ShutDownGame();
 
         auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
 

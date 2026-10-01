@@ -62,6 +62,8 @@ namespace NMasterControlProgram
         // Original function: FUN_00401b85
         void GameEngine_ShutDownEngine();
 
+        void GameEngine_ShutDownGame();
+
         // Original function: FUN_00401c1d
         bool System_ProgramState_Game_StartUp();
 

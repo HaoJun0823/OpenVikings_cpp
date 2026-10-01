@@ -218,6 +218,45 @@ namespace NC2Logic
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
+    // Original function: FUN_00430e90. The second argument is unused in Windows.
+    bool CArrayHandler::Element_Free(std::int32_t index, bool /*clearElement*/)
+    {
+        if (!mIsAllocated(l_Element_GetPtr(static_cast<std::uint32_t>(index))))
+        {
+            return false;
+        }
+
+        mAllocatedCount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(mAllocatedCount) - 1u);
+        if (mAllocatedCount == 0)
+        {
+            mLastScanIndex = 0;
+            mFirstScanIndex = 0;
+            mNextFreeIndex = 0;
+            return true;
+        }
+        if (index < mNextFreeIndex)
+        {
+            mNextFreeIndex = index;
+        }
+        if (index == mFirstScanIndex)
+        {
+            mFirstScanIndex = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u);
+            while (mFirstScanIndex <= mLastScanIndex && !mIsAllocated(l_Element_GetPtr(static_cast<std::uint32_t>(mFirstScanIndex))))
+            {
+                mFirstScanIndex = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(mFirstScanIndex) + 1u);
+            }
+        }
+        if (index == mLastScanIndex)
+        {
+            mLastScanIndex = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) - 1u);
+            while (mLastScanIndex >= mFirstScanIndex && !mIsAllocated(l_Element_GetPtr(static_cast<std::uint32_t>(mLastScanIndex))))
+            {
+                mLastScanIndex = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(mLastScanIndex) - 1u);
+            }
+        }
+        return true;
+    }
+
     // Original function: FUN_00430f23
     void CArrayHandler::l_Element_Clear(std::int32_t index)
     {

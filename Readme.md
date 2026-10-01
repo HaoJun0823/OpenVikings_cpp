@@ -1315,6 +1315,12 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA032](#oa032) | Bob effect paths retain different clipping and pixel arithmetic | 00463F7C, 00466D39, 00498128, 0049BF5A, 0049C80F |
 | [OA033](#oa033) | RGB555 conversion initializes only half the allocated lookup table | 00410131 |
 | [OA034](#oa034) | DirectMusic preparation retains an allocated entry after driver destruction | 00403A08, 00403C0E, 0040372F |
+| [OA035](#oa035) | AI companion teardown depends on the primary allocation | 00407F55 |
+| [OA036](#oa036) | Null payloads terminate owning list cleanup | 00410DA9, 00415F0C, 004165D1, 004903D3, 004905FE, 00439E24, 00439C3F |
+| [OA037](#oa037) | Shutdown retains selected data pointers and counts | 00480EBD, 0048A7FC, 00489F2F, 0041AAF1, 00416C8A |
+| [OA038](#oa038) | Master-control and game shutdown gates are independent | 00401B85, 00401BD5, 00406D85, 004071C3 |
+| [OA039](#oa039) | Teardown ignores callback veto and unregister results | 0042329F, 0040AAEC, 0040B3C8, 0040B740, 0041C16A, 00426747, 00411E1D |
+| [OA040](#oa040) | Map shutdown reinitializes particle state | 0042329F, 00486EB4, 00486464, 0048707E, 00486404 |
 
 <a id="oa001"></a>
 
@@ -1699,6 +1705,66 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve the entry and calls; analyze the driver lifetime contract before clearing/retrying failed entries or propagating the initial start result. See [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa035"></a>
+
+### OA035 — AI companion teardown depends on the primary allocation
+
+- **Original reference:** `00407F55`.
+- **Evidence and retained behavior:** The twenty-slot loop frees and clears the secondary player object at +0x50, including its +0xAA18 member, only inside the non-null primary-pointer branch. A non-null secondary allocation with a null primary is left untouched.
+- **Assessment / reconstruction limits:** The branch is confirmed from Windows ASM. Whether normal construction/load/error paths can produce that combination is unresolved; do not certify an in-game leak without that ownership proof.
+- **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa036"></a>
+
+### OA036 — Null payloads terminate owning list cleanup
+
+- **Original reference:** `00410DA9, 00415F0C, 004165D1, 004903D3, 004905FE, 00439E24, 00439C3F`.
+- **Evidence and retained behavior:** Owner drains stop when GetStartElement returns null. Optional payload destruction also stops on a null first payload. The subsequent base destructor removes remaining nodes without deleting their payloads.
+- **Assessment / reconstruction limits:** A non-null owned payload behind a null first payload can be lost during destruction. The corresponding list contracts and practical reachability remain unverified; retain the original stop conditions.
+- **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa037"></a>
+
+### OA037 — Shutdown retains selected data pointers and counts
+
+- **Original reference:** `00480EBD, 0048A7FC, 00489F2F, 0041AAF1, 00416C8A`.
+- **Evidence and retained behavior:** Palette destruction does not clear the global pointers at 005550F8 and 005550FC. Misc-landscape group count, macro-map count and several freed object member pointers are also retained, while their owning singleton or allocation pointers are cleared.
+- **Assessment / reconstruction limits:** These stores and omissions are confirmed. They are not evidence of a subsequent invalid access without an established reader after shutdown; do not add cleanup stores merely for tidiness.
+- **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa038"></a>
+
+### OA038 — Master-control and game shutdown gates are independent
+
+- **Original reference:** `00401B85, 00401BD5, 00406D85, 004071C3`.
+- **Evidence and retained behavior:** The master-control flags at +0x28/+0x29 and CGame byte at 00510818 are distinct. CGame destruction performs a fallback Game_ShutDown if its byte is still set, even after the engine-manager destruction step.
+- **Assessment / reconstruction limits:** Flag synchronization is an external startup/state-transition contract. Preserve the original gates and fallback call order; no crash from an inconsistent flag combination is certified.
+- **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa039"></a>
+
+### OA039 — Teardown ignores callback veto and unregister results
+
+- **Original reference:** `0042329F, 0040AAEC, 0040B3C8, 0040B740, 0041C16A, 00426747, 00411E1D`.
+- **Evidence and retained behavior:** ExecuteCallback stops at the first false return, but the array/map destructor ignores that result and continues freeing its own storage. Manager destructors likewise do not branch on UnRegisterCallback failure.
+- **Assessment / reconstruction limits:** A veto can prevent later cleanup notifications. The registered callback contract and practical false-return paths must be established before claiming a leak or dangling callback. Preserve callback order and the ignored results.
+- **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa040"></a>
+
+### OA040 — Map shutdown reinitializes particle state
+
+- **Original reference:** `0042329F, 00486EB4, 00486464, 0048707E, 00486404`.
+- **Evidence and retained behavior:** The map shutdown notification (type 2, param1 zero) still calls CE2ParticelManager::l_Initialize. It frees/recreates the 0x58-byte wind state, consumes three random draws, computes drift scales from the still-present map dimensions and clears particle arrays. Engine shutdown subsequently frees that recreated wind state.
+- **Assessment / reconstruction limits:** Confirmed from Windows call order. Preserve this allocation, random-state side effect and floating-point calculation during shutdown. Allocation failure and zero dimensions keep their original unchecked behavior; practical invalid-state reachability remains unresolved.
+- **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -1717,6 +1783,7 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP010 | DirectMusic shutdown | Segment/audiopath failures replace the error string and cleanup continues; normal initialized path unloads the DLL and clears runtime fields | [DIRECT_MUSIC_MANAGER.md](docs/DIRECT_MUSIC_MANAGER.md), `0040372F`; OB075 |
 | FP011 | Overview terrain and bitmap input | Null pattern produces black; an outside area returns before clearing update flags; recognized input messages return true even when no action runs, unknown messages return false | [OVERVIEW_TERRAIN_SAMPLING.md](docs/OVERVIEW_TERRAIN_SAMPLING.md), [OVERVIEW_INPUT.md](docs/OVERVIEW_INPUT.md); OB081, OA022–OA025 |
 | FP012 | GUI allocation, repeated startup and teardown | Keep original conditional construction, subsequent accesses, ownership and destruction order | [GUI_DESKTOP_RESOLUTION.md](docs/GUI_DESKTOP_RESOLUTION.md), [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](docs/WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md), [OVERVIEW_BITMAP_RENDERING.md](docs/OVERVIEW_BITMAP_RENDERING.md); OB080, OA031 |
+| FP013 | Engine/game shutdown and nested owning cleanup | Preserve initialization gates, callback order/ignored results, null-payload stop conditions, original vector cookies and runtime allocation/free, including particle reset during map teardown | [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md); OA035–OA040 |
 
 ## Reconstruction errors are not original bugs
 
@@ -1737,6 +1804,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Callers retain stale runtime/file/network/music names or declarations | Existing original implementations were not connected through their established interfaces | Connected the audited callers; unresolved owning routines remain explicit dependencies |
 | Production sources/headers are missing from Visual Studio project or filters | Project integration issue, not original game behavior | Added the missing entries and synchronized subsequent additions; see [PROJECT_STATE.md](docs/PROJECT_STATE.md) |
 | README OB001 contains unrelated sound-transition text; OB073 is absent from its index | Documentation transcription/maintenance errors | Restored signed-character trigger text, repaired table columns and synchronized both finding indexes |
+| Callback nodes, Storable objects, bitmap memory and palette caches use mixed host/project allocation | Reconstruction allocator mismatch, not original game behavior | Matched object/buffer allocation and deleting wrappers to the original runtime family; added original palette vector deletion. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md) |
 
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
 

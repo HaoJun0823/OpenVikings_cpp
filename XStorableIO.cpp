@@ -9,12 +9,18 @@
 #include "XRemapTable.h"
 #include "XStorableIO.h"
 #include "XStringArray.h"
+#include "XCrtFileAccess.h"
 
 #include <cstdint>
 #include <new>
 
 namespace NXBasics
 {
+    // Original allocation/free family used by the CStorable factory and deleting wrappers.
+    void* CStorable::operator new(std::size_t size) { return Runtime_Allocate(static_cast<std::uint32_t>(size)); }
+    void* CStorable::operator new(std::size_t size, const std::nothrow_t&) noexcept { return Runtime_Allocate(static_cast<std::uint32_t>(size)); }
+    void CStorable::operator delete(void* allocation) noexcept { Runtime_Free(allocation); }
+    void CStorable::operator delete(void* allocation, const std::nothrow_t&) noexcept { Runtime_Free(allocation); }
 
     // Original function: FUN_00410715
     void* XB_Storable_LoadObject(void* file)

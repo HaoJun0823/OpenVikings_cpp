@@ -62,7 +62,7 @@ namespace NXBasics
 
         if (table != nullptr)
         {
-            ::operator delete(table);
+            Runtime_Free(table);
 
             table = nullptr;
             std::memcpy(paletteBytes + 0x404, &table, sizeof(table));
@@ -73,7 +73,7 @@ namespace NXBasics
             return;
         }
 
-        table = static_cast<std::uint16_t*>(::operator new(0x200, std::nothrow));
+        table = static_cast<std::uint16_t*>(Runtime_Allocate(0x200));
         std::memcpy(paletteBytes + 0x404, &table, sizeof(table));
 
         for (std::uint32_t index = 0; index < 256; ++index)
@@ -147,7 +147,7 @@ namespace NXBasics
 
         if (table != nullptr)
         {
-            ::operator delete(table);
+            Runtime_Free(table);
 
             table = nullptr;
             std::memcpy(paletteBytes + 0x408, &table, sizeof(table));
@@ -158,7 +158,7 @@ namespace NXBasics
             return;
         }
 
-        table = static_cast<std::uint32_t*>(::operator new(0x400, std::nothrow));
+        table = static_cast<std::uint32_t*>(Runtime_Allocate(0x400));
         std::memcpy(paletteBytes + 0x408, &table, sizeof(table));
 
         for (std::uint32_t index = 0; index < 256; ++index)

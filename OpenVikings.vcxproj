@@ -253,4 +253,12 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <ItemGroup>
+    <ClCompile Include="C2LogicLifetimeAccess.cpp" />
+    <ClCompile Include="C2EngineLifetimeAccess.cpp" />
+    <ClInclude Include="C2LogicLifetimeAccess.h" />
+    <ClInclude Include="C2EngineLifetimeAccess.h" />
+    <ClInclude Include="C2LifetimeAccess.h" />
+    <ClInclude Include="C2LifetimeGlobals.h" />
+  </ItemGroup>
 </Project>

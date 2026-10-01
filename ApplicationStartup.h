@@ -128,7 +128,7 @@ namespace NApplicationStartup
         // Each SColorRGB constructor clears only the first four bytes.
         for (std::size_t index = 0; index < 10; ++index)
         {
-            std::memset(DAT_005685e8 + index * 0x58, 0, 4);
+            std::memset(NC2E2::gStaticHumanColors + index * 0x58, 0, 4);
         }
     },
 

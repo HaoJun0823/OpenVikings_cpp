@@ -27,6 +27,8 @@ namespace NC2Logic
         // Original function: FUN_00430db7
         void IO_SaveArray(CIoHelper* io);
 
+        bool Element_Free(std::int32_t index, bool clearElement);
+
         // Original function: FUN_00430f23
         void l_Element_Clear(std::int32_t index);
 

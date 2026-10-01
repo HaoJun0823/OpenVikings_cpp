@@ -3,12 +3,21 @@
 #include "XFileAccess.h"
 
 #include <cstdint>
+#include <cstddef>
+#include <new>
 
 namespace NXBasics
 {
     class CStorable
     {
     public:
+        static void* operator new(std::size_t size);
+        static void* operator new(std::size_t size, const std::nothrow_t&) noexcept;
+        static void* operator new(std::size_t, void* allocation) noexcept { return allocation; }
+        static void operator delete(void* allocation) noexcept;
+        static void operator delete(void* allocation, const std::nothrow_t&) noexcept;
+        static void operator delete(void*, void*) noexcept {}
+
         // Original function: FUN_0041067e
         void Storable_Save(void* file)
         {

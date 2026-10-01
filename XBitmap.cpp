@@ -141,7 +141,7 @@ namespace NXBasics
             allocationSize = pixelCount;
         }
 
-        void* memoryStorage = ::operator new(0x0C, std::nothrow);
+        void* memoryStorage = Runtime_Allocate(0x0C);
         void* memory = nullptr;
 
         if (memoryStorage != nullptr)
@@ -1326,6 +1326,8 @@ namespace NXBasics
     // Original function: FUN_004e5e48
     void CBitmap::operator delete(void* allocation) noexcept
     {
-        ::operator delete(allocation);
+        Runtime_Free(allocation);
     }
+
+    void CBitmap::operator delete(void* allocation, const std::nothrow_t&) noexcept { Runtime_Free(allocation); }
 }
