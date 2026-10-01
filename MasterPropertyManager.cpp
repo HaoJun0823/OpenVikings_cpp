@@ -11,7 +11,6 @@
 #include "XFile.h"
 #include "XIniFileReader.h"
 #include "XStringMemory.h"
-#include "XMKeyManager.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -21,15 +20,21 @@
 namespace NMasterPropertyManager
 {
     // List construction within FUN_004e1408.
-    CPropertyManager::SObjectVars::SObjectVars(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
+    CPropertyManager::SObjectVars::SObjectVars(std::uint8_t destroyValues) : CListBase(destroyValues != 0)
     {}
 
     // Original function: LAB_00479e17
-    void CPropertyManager::SObjectVars::DestroyValue(void* value)
+    void CPropertyManager::SObjectVars::l_DeleteData(void* value)
     {
         // Release storage only; nested string allocations are not released here.
-        ::operator delete(value);
+        NXBasics::Runtime_Free(value);
     }
+
+    // Original object allocation/free thunks: 004E5DDD / 004E5E48.
+    void* CPropertyManager::operator new(std::size_t size) { return NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(size), 1); }
+    void* CPropertyManager::operator new(std::size_t size, const std::nothrow_t&) noexcept { return NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(size), 1); }
+    void CPropertyManager::operator delete(void* allocation) noexcept { NXBasics::Runtime_Free(allocation); }
+    void CPropertyManager::operator delete(void* allocation, const std::nothrow_t&) noexcept { NXBasics::Runtime_Free(allocation); }
 
     // Original function: FUN_004e1408
     CPropertyManager::CPropertyManager() : mProperties(false)
@@ -43,7 +48,7 @@ namespace NMasterPropertyManager
     {
         while (true)
         {
-            auto* property = static_cast<SProperty*>(mProperties.GetStartElement());
+            auto* property = static_cast<SProperty*>(mProperties.l_Base_GetStartElement());
 
             if (property == nullptr)
             {
@@ -228,7 +233,7 @@ namespace NMasterPropertyManager
         if (property != nullptr)
         {
             // Preserve the original order: release before duplicating.
-            ::operator delete(static_cast<void*>(property->stringValue));
+            NXBasics::Runtime_Free(property->stringValue);
 
             property->isInteger = static_cast<std::uint8_t>(isInteger);
             property->integerValue = integerValue;
@@ -236,7 +241,7 @@ namespace NMasterPropertyManager
             return;
         }
 
-        property = new (std::nothrow) SProperty;
+        property = static_cast<SProperty*>(NXBasics::Runtime_AllocateWithNewHandler(sizeof(SProperty), 1));
         std::memset(property, 0, sizeof(*property));
 
         property->name = NXBasics::StringDuplicate(propertyName);
@@ -244,7 +249,7 @@ namespace NMasterPropertyManager
         property->integerValue = integerValue;
         property->stringValue = NXBasics::StringDuplicate(stringValue);
 
-        mProperties.PushBack(property);
+        mProperties.InsertAtEnd(property);
     }
 
     // Original function: FUN_004e16fb
@@ -396,7 +401,7 @@ namespace NMasterPropertyManager
     // Original function: FUN_004e171d
     SProperty* CPropertyManager::l_Property_GetPtr(const char* propertyName)
     {
-        NXSysKeyManager::CKeyEntryListBase::Iterator iterator(mProperties);
+        NXBasics::CListBase::Iterator iterator(mProperties);
         auto* property = static_cast<SProperty*>(iterator.First());
 
         while (property != nullptr)
@@ -415,20 +420,19 @@ namespace NMasterPropertyManager
     // Original function: FUN_004e1765
     void CPropertyManager::l_Property_RemoveAndDelete(SProperty* property)
     {
-        mProperties.Remove(property);
+        mProperties.l_Base_RemoveElement(property);
 
-        ::operator delete(static_cast<void*>(property->name));
-        ::operator delete(static_cast<void*>(property->stringValue));
-
-        delete property;
+        NXBasics::Runtime_Free(property->name);
+        NXBasics::Runtime_Free(property->stringValue);
+        NXBasics::Runtime_Free(property);
     }
 
     // Original function: FUN_004e1d00
     CPropertyManager::SObjectVars::~SObjectVars()
     {
-        if (mDestroyValues != 0)
+        if (mDeleteObjects != 0)
         {
-            ClearOwnedEntries();
+            DeleteAllElements();
         }
 
         // The base destructor runs automatically afterward.

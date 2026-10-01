@@ -23,6 +23,12 @@ Required work:
 
 The seven unknown call sites in `WorldDisplayElementAccess.cpp` are now reconstructed, including their immediate display-control, tooltip and ambient-sound helpers. See [WORLD_DISPLAY_ELEMENT_DRAW.md](WORLD_DISPLAY_ELEMENT_DRAW.md). Next connected graphics block: `00481AE2` with the static split/rasterization chain, then `004911D5` foreground object traversal. Its retained original dependencies and music-region ownership work are listed in that document.
 
+## P1 - Master-control initialization and allocation-thunk review
+
+The system-manager tree and the next master-control initialization block are reconstructed and connected. See [SYSTEM_MANAGER_LIFETIME.md](SYSTEM_MANAGER_LIFETIME.md) and [MASTER_CONTROL_INITIALIZATION.md](MASTER_CONTROL_INITIALIZATION.md). Startup-record construction/reset have their original names and type; property-manager ownership uses the explicit-handler runtime family. MasterControlProgram now compiles. Current production syntax coverage is 85/88 with 107 diagnostics in three incomplete menu/game-state units; no tests/test projects. Continue with engine/game startup `00401985` / `004019DA` and the CGame/CE2Manager constructor tree. `0050F620` remains an unresolved one-byte clear target, not property-manager storage; startup-record field identities also remain data-analysis targets.
+
+Separately review existing object/buffer allocation sites against Windows thunk `004E5DDD`, which always calls `Runtime_AllocateWithNewHandler(size, 1)`. Mode-dependent `Runtime_Allocate` has the same allocation/free family but can differ in handler invocation when global mode is zero. The completed system-manager, converter-shadow-table and property-manager paths use the explicit-handler interface.
+
 ## P1 - Display startup/palette/presentation follow-up
 
 `00479052` and the complete bitmap-to-screen copy/convert/lock/diagnostic tree are reconstructed and integrated. See [BITMAP_TO_SCREEN.md](BITMAP_TO_SCREEN.md). Continue with the existing display startup/palette/presentation paths and their original failure handling; then the separate static-window/base-tool lifetime and world-input blocks. The current production syntax inventory is 82/86 with 110 diagnostics in the same four incomplete units. No tests/test projects are requested.

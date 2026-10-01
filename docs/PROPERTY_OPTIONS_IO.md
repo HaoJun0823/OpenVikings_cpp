@@ -54,3 +54,7 @@ The existing MCP startup calls now resolve to `Options_Load` and `System_AddDefa
 - No tests, test projects, project-file changes, full link or game runtime verification were performed.
 
 At completion of this block, the 47 live `DAT_` symbols and six retained hardware/conversion assembly blocks were unchanged. The subsequent [CD-audio reconstruction](CD_AUDIO_MANAGER.md) resolves its singleton and owning routines, leaving 46 live data symbols. GUI desktop creation/destruction and display-position restoration remain open; unresolved routines remain explicit rather than receiving placeholder bodies to suppress compiler errors.
+
+## Ownership follow-up - 2026-10-01
+
+The subsequent startup-record/property-owner block corrects manager, record, duplicated-string and list-node allocation/free to the original runtime family while preserving unchecked failures and replacement order. See [MASTER_CONTROL_INITIALIZATION.md](MASTER_CONTROL_INITIALIZATION.md). MasterControlProgram and property manager now generate Win32 `/Od` and `/O2` objects. The prior note about separate shared string ownership is resolved for StringDuplicate and its property-manager callers; broader object-allocation review remains separate.

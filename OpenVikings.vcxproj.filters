@@ -294,6 +294,9 @@
     <ClCompile Include="C2MapGeometry.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
+    <ClCompile Include="C2ControlStartup.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="C2AnimalAccess.cpp">
       <Filter>Engine\Animals</Filter>
     </ClCompile>
@@ -308,6 +311,9 @@
     </ClCompile>
     <ClCompile Include="C2EngineDrawingAccess.cpp">
       <Filter>Engine\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="XSystemManager.cpp">
+      <Filter>Platform\System</Filter>
     </ClCompile>
     <ClCompile Include="XPixelFormatConverter.cpp">
       <Filter>Graphics\Images</Filter>
@@ -559,6 +565,9 @@
     </ClInclude>
     <ClInclude Include="C2MapGeometry.h">
       <Filter>Engine\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="C2ControlStartup.h">
+      <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2AnimalAccess.h">
       <Filter>Engine\Animals</Filter>

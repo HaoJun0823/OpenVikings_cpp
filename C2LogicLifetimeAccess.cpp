@@ -438,8 +438,8 @@ namespace NC2Logic
         gMapPointDimensions.microHeight = 0;
         gGameMap = nullptr;
     }
-    // Original function: FUN_00406b4a.
-    void GameControlStartupData_Clear(void* data) { std::memset(data, 0, 0x120); }
+    // Bridge for existing raw-record callers of SGameControlStartupData::Reset.
+    void GameControlStartupData_Clear(void* data) { static_cast<SGameControlStartupData*>(data)->Reset(); }
 
     // Original function: FUN_004071c3.
     void Game_ShutDown()
@@ -478,7 +478,7 @@ namespace NC2Logic
             DestroyOwned(DAT_005109c0, NXBasics::Archive_Destroy);
             DAT_005109c0 = nullptr;
         }
-        GameControlStartupData_Clear(gGameControlStartupData);
+        gGameControlStartupData.Reset();
         UserNetworkCommandManager_EmptyQueue(gUserNetworkCommandManager);
     }
 

@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C2AnimalAccess.cpp" />
+    <ClCompile Include="C2ControlStartup.cpp" />
     <ClCompile Include="C2AnimalIterator.cpp" />
     <ClCompile Include="C2CallbackManager.cpp" />
     <ClCompile Include="C2E2AmbientSoundManagerAccess.cpp" />
@@ -95,10 +96,12 @@
     <ClCompile Include="XStorableIO.cpp" />
     <ClCompile Include="XStringArray.cpp" />
     <ClCompile Include="XSystemMouseCursor.cpp" />
+    <ClCompile Include="XSystemManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
+    <ClInclude Include="C2ControlStartup.h" />
     <ClInclude Include="C2AnimalAccess.h" />
     <ClInclude Include="C2AnimalIterator.h" />
     <ClInclude Include="C2CallbackManager.h" />

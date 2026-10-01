@@ -2,7 +2,6 @@
 #include "XCrtFileAccess.h"
 
 #include <cstdint>
-#include <new>
 
 namespace
 {
@@ -168,29 +167,7 @@ namespace NXBasics
     C32BitPixelConverter* g32BitPixelConverter = nullptr;
 
     // Original function: FUN_0040fe27
-    C16BitPixelConverter::C16BitPixelConverter() :
-        mInitialized(false),
-        mPadding01{},
-        mTrueColorConvertTable(nullptr),
-        mDarkenedColorTable(nullptr),
-        mRedMask(0),
-        mGreenMask(0),
-        mBlueMask(0),
-        mPadding12{},
-
-        mRedRightShift(0),
-        mGreenRightShift(0),
-        mBlueRightShift(0),
-        mRedLeftShift(0),
-        mGreenLeftShift(0),
-        mBlueLeftShift(0),
-        mRedAdjustment(0),
-        mGreenAdjustment(0),
-        mBlueAdjustment(0),
-        mMiddleGrayColor(0),
-        mUsesRgb565(false),
-        mUsesRgb555(false)
-    {}
+    C16BitPixelConverter::C16BitPixelConverter() : mInitialized(false), mTrueColorConvertTable(nullptr), mDarkenedColorTable(nullptr) {}
 
     // Original function: FUN_0040fe34
     C16BitPixelConverter::~C16BitPixelConverter()
@@ -201,8 +178,11 @@ namespace NXBasics
             mTrueColorConvertTable = nullptr;
         }
 
-        delete[] mDarkenedColorTable;
-        mDarkenedColorTable = nullptr;
+        if (mDarkenedColorTable != nullptr)
+        {
+            Runtime_Free(mDarkenedColorTable);
+            mDarkenedColorTable = nullptr;
+        }
     }
 
     // Original function: FUN_0040fe5d
@@ -245,14 +225,14 @@ namespace NXBasics
             mTrueColorConvertTable = nullptr;
         }
 
-        delete[] mDarkenedColorTable;
-        mDarkenedColorTable = new (std::nothrow) std::uint16_t[0x10000];
-
-        if (mDarkenedColorTable == nullptr)
+        if (mDarkenedColorTable != nullptr)
         {
-            return;
+            Runtime_Free(mDarkenedColorTable);
+            mDarkenedColorTable = nullptr;
         }
 
+        mDarkenedColorTable = static_cast<std::uint16_t*>(Runtime_AllocateWithNewHandler(0x20000, 1));
+        // Windows fills the table without checking the allocation result.
         for (std::uint32_t color = 0; color < 0x10000; ++color)
         {
             const std::uint32_t red = ((color & mRedMask) >> mRedLeftShift) * 2 / 3;
@@ -289,7 +269,7 @@ namespace NXBasics
     }
 
     // Original function: FUN_0041022c
-    C32BitPixelConverter::C32BitPixelConverter() : mInitialized(false), mPadding01{}, mRedMask(0), mGreenMask(0), mBlueMask(0), mRedRightShift(0), mGreenRightShift(0), mBlueRightShift(0), mRedLeftShift(0), mGreenLeftShift(0), mBlueLeftShift(0) {}
+    C32BitPixelConverter::C32BitPixelConverter() : mInitialized(false) {}
 
     // Original function: FUN_00410232
     void C32BitPixelConverter::SetColorMasks(std::uint32_t redMask, std::uint32_t greenMask, std::uint32_t blueMask)

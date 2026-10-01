@@ -723,8 +723,8 @@ namespace NXSys2DApp
     {
         ShutDown();
 
-        NXBasics::CXBSystemManager::sAssertFunctionPtr = nullptr;
         NXBasics::CXBSystemManager::sWarningErrorFunctionPtr = nullptr;
+        NXBasics::CXBSystemManager::sFatalErrorFunctionPtr = nullptr;
 
         if (mOwnsSystemManager && NXBasics::CXBSystemManager::sTheObjectPtr != nullptr)
         {

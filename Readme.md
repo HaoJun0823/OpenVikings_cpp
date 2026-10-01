@@ -214,7 +214,7 @@ Keep this register and its indexes synchronized with findings recorded in subsys
 
 ## Current reconstruction status
 
-Current checkout review: 2026-10-01. The production Win32 syntax pass covers 86 units: 82 pass; four incomplete units retain 110 diagnostics. Four units affected by bitmap-to-screen copying generate `/Od` and `/O2` objects; existing application warnings remain. This establishes compilation of those units, not a full link or game runtime validation. See [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md) and [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+Current checkout review: 2026-10-01. The production Win32 syntax pass covers 88 units: 85 pass; three incomplete menu/game-state units retain 107 diagnostics. MasterControlProgram now compiles; six units checked for master-control initialization generate `/Od` and `/O2` objects. Existing warnings remain. This establishes compilation of those units, not a full link or game runtime validation. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md), [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md), [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md) and [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
 
 Historical source review below: 2026-09-27, based on the supplied OpenVikings_cpp.zip.
 
@@ -1323,6 +1323,9 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA040](#oa040) | Map shutdown reinitializes particle state | 0042329F, 00486EB4, 00486464, 0048707E, 00486404 |
 | [OA041](#oa041) | Failed color probing can leave the sampled surface pixel changed | 0047B8DB |
 | [OA042](#oa042) | DirectDraw diagnostics retain fixed buffers and a returning fatal-signal path | 00479E40, 0047A567, 0047AAA3, 0047B9CE |
+| [OA043](#oa043) | System-manager converter allocations remain unchecked | 004069F3, 0040FE5D |
+| [OA044](#oa044) | System-manager teardown retains handler mode and selected callbacks | 004069F3, 00406AB5, 00479169 |
+| [OA045](#oa045) | Property replacement frees the old string before copying its source | 004E167D, 00410B59 |
 
 <a id="oa001"></a>
 
@@ -1787,6 +1790,36 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve the original signal call, buffers, strings and continuation. See [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa043"></a>
+
+### OA043 — System-manager converter allocations remain unchecked
+
+- **Original reference:** `004069F3`, `00406AA2`, `0040FE5D`.
+- **Evidence and retained behavior:** Palette and converter allocation failures still allow later initialization. Construction unconditionally configures the 32-bit converter even if its allocation returned null. The 16-bit mask setter fills its newly allocated 0x20000-byte shadow table without a null check. The system new handler warns and returns zero, declining another allocation attempt.
+- **Assessment / reconstruction limits:** Confirmed unchecked accesses following null allocation results. Actual low-memory reachability and the installed warning callback's behavior remain external conditions; no new exception or allocation-failure return is supplied.
+- **Decision / Renewed task:** Preserve the original calls and continuation. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa044"></a>
+
+### OA044 — System-manager teardown retains handler mode and selected callbacks
+
+- **Original reference:** `004069F3`, `00406AB5`, `00479169`.
+- **Evidence and retained behavior:** Construction publishes the singleton before resource creation; a duplicate constructor skips initialization. The destructor operates on the global resources without an instance-identity guard, restores the saved new handler and clears the singleton, retaining handler mode and the saved-handler slot. Application teardown clears warning/fatal callbacks but retains assert; the system-manager destructor itself clears none of them.
+- **Assessment / reconstruction limits:** Confirmed global lifetime semantics. Duplicate-instance destruction or reentrant construction could affect the active owner, but valid original caller invariants and practical reachability must be established before classifying a runtime defect. No reference counting or additional callback reset is invented.
+- **Decision / Renewed task:** Preserve the original ownership gates and ordering. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa045"></a>
+
+### OA045 — Property replacement frees the old string before copying its source
+
+- **Original reference:** `004E167D`, `00410B59`.
+- **Evidence and retained behavior:** Replacing an existing property frees its stored string, updates type/integer fields, then duplicates the caller's supplied source. There is no temporary copy or alias check. Null sources remain allowed by StringDuplicate; a nonnull source is measured and copied after the old allocation has been released.
+- **Assessment / reconstruction limits:** Confirmed call order. A source that aliases the old stored string can refer to freed storage; actual original call sites capable of supplying that alias remain unresolved. Allocation failures retain the separately indexed OB009 behavior.
+- **Decision / Renewed task:** Preserve the original ownership sequence and analyze caller aliasing before adding protection. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -1808,6 +1841,8 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP013 | Engine/game shutdown and nested owning cleanup | Preserve initialization gates, callback order/ignored results, null-payload stop conditions, original vector cookies and runtime allocation/free, including particle reset during map teardown | [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md); OA035–OA040 |
 | FP014 | Bitmap conversion, clipping and surface locking | Missing window/display or conversion table skips copying; busy Lock repeats, lost surfaces restore then retry once, rejected areas unlock; original unsupported-depth handling is retained | [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md), `00479052`, `0047B9CE–0047C14C`; OA041 |
 | FP015 | DirectDraw and fatal diagnostic dialogs | Nonzero results format/debug/warn; fatal display errors show cursor/release clipping/flip to GDI, break on Cancel and raise signal 22, retaining possible return | [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md), `00479E40`, `0047A567`, `0047AAA3`; OA042 |
+| FP016 | System-manager allocation handler, initialization and teardown | Warn and return zero on allocation failure; retain conditional construction and unchecked converter/table accesses; restore previous handler under lock 9 without resetting mode | [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md), `004069F3–00406AB5`, `004E7A0A`, `004E7A27`; OA043–OA044 |
+| FP017 | Master-control property initialization and ownership | Preserve unchecked manager/record/string allocation continuation, explicit handler invocation, release-before-duplicate replacement and original list/record/string cleanup order | [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md), `00401000`, `004E1408–004E1765`, `00410B59`; OB009, OA036, OA045 |
 
 ## Reconstruction errors are not original bugs
 
@@ -1829,6 +1864,8 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Production sources/headers are missing from Visual Studio project or filters | Project integration issue, not original game behavior | Added the missing entries and synchronized subsequent additions; see [PROJECT_STATE.md](docs/PROJECT_STATE.md) |
 | README OB001 contains unrelated sound-transition text; OB073 is absent from its index | Documentation transcription/maintenance errors | Restored signed-character trigger text, repaired table columns and synchronized both finding indexes |
 | Callback nodes, Storable objects, bitmap memory and palette caches use mixed host/project allocation | Reconstruction allocator mismatch, not original game behavior | Matched object/buffer allocation and deleting wrappers to the original runtime family; added original palette vector deletion. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md) |
+| System-manager object and 16-bit shadow table use host allocation; application clears assert instead of fatal | Windows allocates through explicit-handler thunk `004E5DDD`, frees through `004E5E48`, and clears warning/fatal in `00479169` | Corrected the directly related allocation/free paths, minimal converter initialization and callback clearing; retained original unchecked allocation behavior. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md) |
+| Property manager, records and duplicated strings use host allocation; `0050F620` is described as property-manager storage | Windows uses the explicit-handler runtime allocator/free family; `0050F620` has only a one-byte clear and no established semantic identity | Corrected ownership and reused the canonical runtime list; retained the unknown byte under its original name. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md) |
 
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
 

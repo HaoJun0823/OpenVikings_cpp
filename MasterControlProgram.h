@@ -1,5 +1,7 @@
 #pragma once
 
+#include "C2ControlStartup.h"
+
 #include <Windows.h>
 
 #include <cstddef>
@@ -150,7 +152,8 @@ namespace NMasterControlProgram
         unsigned int mRequestedDisplayDepth;        // +0x24
         std::uint8_t mEngineInitialized;            // +0x28
         std::uint8_t mGameInitialized;              // +0x29
-        std::byte mUnknown2A[0x122];                // +0x2A
+        std::byte mPadding2A[2];                   // +0x2A
+        NC2Logic::SGameControlStartupData mGameControlStartupData; // +0x2C
 
         bool mHardwareMouseCursorEnabled;          // +0x14C
         std::byte mPadding14D[3];                  // +0x14D

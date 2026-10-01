@@ -246,6 +246,10 @@ namespace NXBasics
 
     void Runtime_Abort();
 
+    std::int32_t Runtime_SetNewHandlerMode(std::int32_t mode);
+
+    RuntimeNewHandler Runtime_SetNewHandler(RuntimeNewHandler handler);
+
     int Runtime_CallNewHandler(std::uint32_t allocationSize);
 
     void Runtime_SplitPath(const char* path, char* drive, char* directory, char* baseName, char* extension);

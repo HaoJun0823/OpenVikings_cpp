@@ -1,9 +1,10 @@
 #pragma once
 
-#include "XMKeyManager.h"
+#include "XList.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <new>
 
 namespace NMasterPropertyManager
 {
@@ -30,6 +31,11 @@ namespace NMasterPropertyManager
 
 		// Original function: FUN_004e1436
 		~CPropertyManager();
+
+		static void* operator new(std::size_t size);
+		static void* operator new(std::size_t size, const std::nothrow_t&) noexcept;
+		static void operator delete(void* allocation) noexcept;
+		static void operator delete(void* allocation, const std::nothrow_t&) noexcept;
 
 		// Original function: FUN_004e1463
 		void Property_WorkOnCommandLine(const char* commandLine);
@@ -62,7 +68,7 @@ namespace NMasterPropertyManager
 
 	private:
 		// Internal specialization of the shared list implementation.
-		class SObjectVars final : public NXSysKeyManager::CKeyEntryListBase
+		class SObjectVars final : public NXBasics::CListBase
 		{
 		public:
 			explicit SObjectVars(std::uint8_t destroyValues);
@@ -72,7 +78,7 @@ namespace NMasterPropertyManager
 
 		protected:
 			// Original function: LAB_00479e17
-			void DestroyValue(void* value) override;
+			void l_DeleteData(void* value) override;
 		};
 
 		static_assert(sizeof(SObjectVars) == 0x14, "Property list must be 20 bytes");

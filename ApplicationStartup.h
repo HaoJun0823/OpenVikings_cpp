@@ -35,7 +35,7 @@ namespace NApplicationStartup
         // Original function: FUN_00406b1e
         +[] ()
         {
-            std::memset(NC2Logic::gGameControlStartupData, 0, sizeof(NC2Logic::gGameControlStartupData));
+            std::memset(&NC2Logic::gGameControlStartupData, 0, sizeof(NC2Logic::gGameControlStartupData));
         },
 
         // Original function: FUN_00406b5b

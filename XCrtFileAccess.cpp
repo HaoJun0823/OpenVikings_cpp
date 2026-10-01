@@ -2372,6 +2372,29 @@ namespace NXBasics
         Runtime_QuickExit(3);
     }
 
+    // Original function: FUN_004e7a0a
+    std::int32_t Runtime_SetNewHandlerMode(std::int32_t mode)
+    {
+        if (mode != 0 && mode != 1)
+        {
+            return -1;
+        }
+
+        const std::int32_t previousMode = gRuntimeNewHandlerMode;
+        gRuntimeNewHandlerMode = mode;
+        return previousMode;
+    }
+
+    // Original function: FUN_004e7a27
+    RuntimeNewHandler Runtime_SetNewHandler(RuntimeNewHandler handler)
+    {
+        Runtime_Lock(9);
+        const RuntimeNewHandler previousHandler = gRuntimeNewHandler;
+        gRuntimeNewHandler = handler;
+        Runtime_Unlock(9);
+        return previousHandler;
+    }
+
     // Original function: FUN_004e7a4b
     int Runtime_CallNewHandler(std::uint32_t allocationSize)
     {

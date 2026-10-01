@@ -1,6 +1,7 @@
 #pragma once
 
 #include "C2MapWalkSectorManager.h"
+#include "C2ControlStartup.h"
 #include "C2LifetimeGlobals.h"
 #include "InGameGuiOverviewHandler.h"
 #include "XBasicTypes.h"
@@ -12,7 +13,7 @@ namespace NC2Logic
 {
     // Original data: DAT_005106f8.
     // Mac reference: NC2Logic::gGameControlStartupData.
-    alignas(4) inline std::byte gGameControlStartupData[0x120]{};
+    inline SGameControlStartupData gGameControlStartupData;
 
     // Original data: DAT_005108ac.
     // Windows CRandom layout used by FUN_00410c3f.
@@ -27,6 +28,10 @@ namespace NC2Logic
 
     static_assert(sizeof(SGameRandomState) == 8);
 }
+
+// Original data: 0050F620. Only the one-byte clear at 0040102D is established.
+// No additional Windows references or matching Mac identity were found.
+inline std::byte DAT_0050f620{};
 
 // Original global: DAT_0050f698.
 // Written by the original constructor at 00403538 and cleared at 004035ad.

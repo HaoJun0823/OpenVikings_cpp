@@ -45,8 +45,7 @@ namespace NMasterControlProgram
     // Original function: FUN_00401000
     CMasterControlProgram::CMasterControlProgram(HINSTANCE instance, HINSTANCE previousInstance, LPSTR commandLine, int showCommand)
     {
-        FUN_00406b33(reinterpret_cast<std::byte*>(this) + 0x2C);
-
+        // The embedded startup record is constructed before entering this body.
         sTheObjectPtr = this;
 
         std::memset(this, 0, 0x168);
@@ -369,8 +368,8 @@ namespace NMasterControlProgram
 
         if (systemManager != nullptr)
         {
-            FUN_00406ab5(systemManager);
-            ::operator delete(systemManager);
+            systemManager->~CXBSystemManager();
+            NXBasics::Runtime_Free(systemManager);
         }
 
         mProgramState = 0;

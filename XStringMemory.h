@@ -1,7 +1,8 @@
 #pragma once
 
+#include "XCrtFileAccess.h"
+
 #include <cstring>
-#include <new>
 
 namespace NXBasics
 {
@@ -14,7 +15,7 @@ namespace NXBasics
         }
 
         const std::size_t byteCount = std::strlen(source) + 1;
-        auto* copy = static_cast<char*>(::operator new(byteCount, std::nothrow));
+        auto* copy = static_cast<char*>(Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(byteCount), 1));
 
         // The original copies without checking allocation success.
         std::memcpy(copy, source, byteCount);
