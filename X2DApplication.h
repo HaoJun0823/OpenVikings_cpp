@@ -7,6 +7,8 @@
 #include <cstdint>
 #include "X2DWindow.h"
 
+namespace NXBasics { class CBitmap; }
+
 namespace NXSys2DApp
 {
     char FindCDDrive(const char* volumeName, const char* markerFileName);
@@ -113,6 +115,9 @@ namespace NXSys2DApp
         // Original function: FUN_00478efa
         bool CanDisplayModeBeActivated(bool fullscreen, std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
 
+        std::uint32_t GetDesktopDepth() const;
+        void BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+
         // Original function: FUN_004790cd
         explicit CApplication(const SApplicationControl& applicationControl);
 
@@ -140,6 +145,7 @@ namespace NXSys2DApp
         inline static CApplication* sTheObjectPtr = nullptr;
 
     private:
+        friend class CDDDisplay;
         // Original function: FUN_00478d8a
         void l_GetDesktopDisplayMode();
 

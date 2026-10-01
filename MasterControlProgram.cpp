@@ -566,7 +566,7 @@ namespace NMasterControlProgram
     {
         for (int iteration = 0; iteration < 4; ++iteration)
         {
-            FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, mProgressBar, nullptr, 0);
+            NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(static_cast<NXBasics::CBitmap*>(mProgressBar), 0, 0);
             NXSys2DApp::CApplication::sTheObjectPtr->UpdateDisplay();
             Sleep(10);
         }

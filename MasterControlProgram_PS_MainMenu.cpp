@@ -96,6 +96,6 @@ namespace NMasterControlProgram
 
         auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 
-        FUN_00479052(NXSys2DApp::CApplication::sTheObjectPtr, displayBitmap, nullptr, 0);
+        NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(static_cast<NXBasics::CBitmap*>(displayBitmap), 0, 0);
     }
 }

@@ -21,7 +21,6 @@
 
 namespace NXSysMisc
 {
-    void __cdecl XWS_AbortBox();
     void __cdecl XWS_AssertBox();
 }
 
@@ -293,6 +292,18 @@ namespace
 
 namespace NXSys2DApp
 {
+    // Original function: FUN_00478f4e.
+    std::uint32_t CApplication::GetDesktopDepth() const { return mDisplayModeData.desktopDepth; }
+
+    // Original function: FUN_00479052.
+    void CApplication::BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        if (mWindow != nullptr)
+        {
+            if (auto* display = mWindow->GetDisplay()) display->BitmapToScreen(bitmap, x, y);
+        }
+    }
+
     // Original function: FUN_00479076
     SApplicationControl::SApplicationControl()
     {

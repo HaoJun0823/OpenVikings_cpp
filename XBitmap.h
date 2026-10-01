@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NXSys2DApp { class CDDDisplay; }
+
 namespace NXBasics
 {
     class CFont;
@@ -100,6 +102,7 @@ namespace NXBasics
 
     private:
         friend class CPicture;
+        friend class NXSys2DApp::CDDDisplay;
 
         void l_ConstructNonVirtual(const SRectangle& rectangle, std::int32_t depth);
         void l_ConstructVirtual(CBitmap* sourceBitmap, const SRectangle& rectangle);

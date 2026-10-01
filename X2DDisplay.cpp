@@ -1,6 +1,9 @@
 #include "X2DDisplay.h"
 
 #include "X2DApplication.h"
+#include "XBitmap.h"
+#include "XCrtFileAccess.h"
+#include "XMMessageDialogs.h"
 #include "XMMouseManager.h"
 #include "XPixelFormatConverter.h"
 
@@ -460,73 +463,39 @@ namespace NXSys2DApp
     // Original function: FUN_0047b29d
     HRESULT CDDDisplay::l_RestoreSurfaces()
     {
-        if (mPrimarySurface == nullptr)
-        {
-            return DDERR_INVALIDOBJECT;
-        }
-
-        HRESULT result = mPrimarySurface->Restore();
-
-        if (result != DD_OK)
-        {
-            return result;
-        }
-
-        if (mBackSurface != nullptr)
-        {
-            result = mBackSurface->Restore();
-        }
-
-        return result;
+        const HRESULT result = mPrimarySurface->Restore();
+        return result == DD_OK ? mBackSurface->Restore() : result;
     }
 
     // Original function: FUN_0047b2b8
-    std::uint32_t CDDDisplay::l_GetSurfaceDepth(
-        IDirectDrawSurface7* surface)
+    std::uint32_t CDDDisplay::l_GetSurfaceDepth(IDirectDrawSurface7* surface)
     {
-        if (surface == nullptr)
+        constexpr const char* sourceFile = R"(D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\BaseLibs\\XSystem\\X2DApp\\X2DDDDisplay.cpp)";
+        DDSURFACEDESC2 description{};
+        description.dwSize = sizeof(description);
+        HRESULT result;
+        do { result = surface->Lock(nullptr, &description, DDLOCK_WAIT, nullptr); } while (result == DDERR_WASSTILLDRAWING);
+        if (result == DDERR_SURFACELOST)
         {
-            return 0;
-        }
-
-        DDSURFACEDESC2 surfaceDescription{};
-        surfaceDescription.dwSize = sizeof(surfaceDescription);
-
-        HRESULT result{};
-
-        for (;;)
-        {
-            result = surface->Lock(nullptr, &surfaceDescription, DDLOCK_WAIT, nullptr);
-
-            if (result == DDERR_WASSTILLDRAWING)
+            result = l_RestoreSurfaces();
+            if (result != DD_OK)
             {
-                continue;
+                NXSysMisc::XWS_DirectDrawErrorBox(result, sourceFile, 0x33A);
+                return 0;
             }
-
-            if (result == DDERR_SURFACELOST)
-            {
-                if (l_RestoreSurfaces() == DD_OK)
-                {
-                    continue;
-                }
-            }
-
-            break;
+            result = surface->Lock(nullptr, &description, DDLOCK_WAIT, nullptr);
         }
-
         if (result != DD_OK)
         {
-            OutputDebugStringA("CDDDisplay::l_GetSurfaceDepth: Lock failed.\r\n");
-
+            NXSysMisc::XWS_DirectDrawErrorBox(result, sourceFile, 0x33A);
             return 0;
         }
-
-        DDPIXELFORMAT pixelFormat{};
-        pixelFormat.dwSize = sizeof(pixelFormat);
-
-        const HRESULT pixelFormatResult = surface->GetPixelFormat(&pixelFormat);
-        const std::uint32_t depth = pixelFormatResult == DD_OK ? pixelFormat.dwRGBBitCount : 0;
-
+        DDPIXELFORMAT format{};
+        format.dwSize = sizeof(format);
+        result = surface->GetPixelFormat(&format);
+        std::uint32_t depth = 0;
+        if (result == DD_OK) depth = format.dwRGBBitCount;
+        else NXSysMisc::XWS_DirectDrawErrorBox(result, sourceFile, 0x353);
         surface->Unlock(nullptr);
         return depth;
     }
@@ -683,14 +652,14 @@ namespace NXSys2DApp
     // Original function: FUN_0047b8db
     std::uint32_t CDDDisplay::l_GetColorMask(IDirectDrawSurface7* surface, COLORREF color)
     {
-        if (surface == nullptr || color == CLR_INVALID)
+        if (color == CLR_INVALID)
         {
             return UINT32_MAX;
         }
 
         HDC deviceContext = nullptr;
 
-        if (surface->GetDC(&deviceContext) != DD_OK || deviceContext == nullptr)
+        if (surface->GetDC(&deviceContext) != DD_OK)
         {
             return UINT32_MAX;
         }
@@ -707,10 +676,10 @@ namespace NXSys2DApp
 
         do
         {
-            result = surface->Lock(nullptr, &surfaceDescription, DDLOCK_WAIT, nullptr);
+            result = surface->Lock(nullptr, &surfaceDescription, 0, nullptr);
         } while (result == DDERR_WASSTILLDRAWING);
 
-        if (result != DD_OK || surfaceDescription.lpSurface == nullptr)
+        if (result != DD_OK)
         {
             return UINT32_MAX;
         }
@@ -727,13 +696,299 @@ namespace NXSys2DApp
         surface->Unlock(nullptr);
         deviceContext = nullptr;
 
-        if (surface->GetDC(&deviceContext) == DD_OK && deviceContext != nullptr)
+        if (surface->GetDC(&deviceContext) == DD_OK)
         {
             SetPixel(deviceContext, 0, 0, previousColor);
             surface->ReleaseDC(deviceContext);
         }
 
         return colorMask;
+    }
+
+    struct CDDDisplay::SBitmapSurface
+    {
+        DDSURFACEDESC2 description;
+        IDirectDrawSurface7* surface;
+        NXBasics::SRectangle rectangle{0, 0, 0, 0};
+    };
+
+    // Original function: FUN_0047b9ce. Bitmap origin fields do not affect placement.
+    void CDDDisplay::BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        std::uint32_t depth;
+        if (mFullscreen)
+        {
+            if (!CApplication::sTheObjectPtr->IsWindowActive()) return;
+            depth = static_cast<std::uint32_t>(mDepth);
+            if (depth == 8)
+            {
+                if (bitmap->mBytesPerPixel != 1) NXSysMisc::XWS_AbortBox("NXSys2DApp::CDDDisplay::BitmapToScreen\n\nCan only work with 8 or 16 bit bitmaps in window mode when desktop bitdepth is 16 bit");
+                l_MemoryToScreen(bitmap->mRawMemory, static_cast<std::uint32_t>(bitmap->mRectangle.width), static_cast<std::uint32_t>(bitmap->mRectangle.height), bitmap->mRowPixelCount, static_cast<std::uint32_t>(x), static_cast<std::uint32_t>(y), bitmap->mBytesPerPixel);
+                return;
+            }
+            if (depth != 16 && depth != 32)
+            {
+                NXSysMisc::XWS_AbortBox("NXSys2DApp::CDDDisplay::BitmapToScreen\n\nunknown fullscreen display depth");
+                return;
+            }
+        }
+        else
+        {
+            depth = CApplication::sTheObjectPtr->GetDesktopDepth();
+            if (depth != 16 && depth != 32)
+            {
+                NXSysMisc::XWS_AbortBox("NXSys2DApp::CDDDisplay::BitmapToScreen\n\ncan only run in window mode when desktop bitdepth is 16 or 32 bit");
+                return;
+            }
+        }
+        if (depth == 16)
+        {
+            if (bitmap->mBytesPerPixel != 1 && bitmap->mBytesPerPixel != 2) NXSysMisc::XWS_AbortBox("NXSys2DApp::CDDDisplay::BitmapToScreen\n\ncan only work with 8 or 16 bit bitmaps in window mode when desktop bitdepth is 16 bit");
+            if (bitmap->mBytesPerPixel == 1) l_BitmapToScreen8To16(bitmap, x, y);
+            else if (bitmap->mBytesPerPixel == 2) l_BitmapToScreen16To16(bitmap, x, y);
+        }
+        else
+        {
+            if (bitmap->mBytesPerPixel == 1) l_BitmapToScreen8To32(bitmap, x, y);
+            else if (bitmap->mBytesPerPixel == 2) l_BitmapToScreen16To32(bitmap, x, y);
+            else if (bitmap->mBytesPerPixel == 4) l_BitmapToScreen32To32(bitmap, x, y);
+        }
+    }
+
+    // Original function: FUN_0047baf4. The indexed fullscreen path uses unsigned bounds.
+    void CDDDisplay::l_MemoryToScreen(const std::uint8_t* pixels, std::uint32_t width, std::uint32_t height, std::uint32_t rowPixelCount, std::uint32_t x, std::uint32_t y, std::uint32_t bytesPerPixel)
+    {
+        if (CApplication::sTheObjectPtr->mWindow == nullptr) return;
+        if (mFullscreen && !CApplication::sTheObjectPtr->IsWindowActive()) return;
+        IDirectDrawSurface7* surface = mBackSurface;
+        DDSURFACEDESC2 description{};
+        description.dwSize = sizeof(description);
+        HRESULT result;
+        do { result = surface->Lock(nullptr, &description, DDLOCK_WAIT, nullptr); } while (result == DDERR_WASSTILLDRAWING);
+        if (result == DDERR_SURFACELOST)
+        {
+            if (l_RestoreSurfaces() != DD_OK) return;
+            result = surface->Lock(nullptr, &description, DDLOCK_WAIT, nullptr);
+        }
+        if (result != DD_OK) return;
+        if (x < description.dwWidth && y < description.dwHeight)
+        {
+            if (width + x >= description.dwWidth) width = description.dwWidth - x;
+            if (height + y >= description.dwHeight) height = description.dwHeight - y;
+            auto destination = reinterpret_cast<std::uintptr_t>(description.lpSurface) + static_cast<std::uint32_t>(description.lPitch) * y + x;
+            auto source = reinterpret_cast<std::uintptr_t>(pixels);
+            for (std::uint32_t row = 0; row < height; ++row)
+            {
+                std::memmove(reinterpret_cast<void*>(destination), reinterpret_cast<const void*>(source), width * bytesPerPixel);
+                destination += static_cast<std::uint32_t>(description.lPitch);
+                source += rowPixelCount * bytesPerPixel;
+            }
+        }
+        surface->Unlock(nullptr);
+    }
+
+    // Original function: FUN_0047bc01. The restore retry is a single Lock call.
+    bool CDDDisplay::l_BitmapSurface_Lock(SBitmapSurface& target, IDirectDrawSurface7* surface, bool fullscreen)
+    {
+        static_assert(offsetof(SBitmapSurface, surface) == 0x7C);
+        static_assert(offsetof(SBitmapSurface, rectangle) == 0x80);
+        static_assert(sizeof(SBitmapSurface) == 0x90);
+        if (CApplication::sTheObjectPtr->mWindow == nullptr) return false;
+        if (fullscreen && !CApplication::sTheObjectPtr->IsWindowActive()) return false;
+        target.surface = surface;
+        std::memset(&target.description, 0, sizeof(target.description));
+        target.description.dwSize = sizeof(target.description);
+        HRESULT result;
+        do { result = target.surface->Lock(nullptr, &target.description, DDLOCK_WAIT, nullptr); } while (result == DDERR_WASSTILLDRAWING);
+        if (result == DDERR_SURFACELOST)
+        {
+            if (l_RestoreSurfaces() != DD_OK) return false;
+            result = target.surface->Lock(nullptr, &target.description, DDLOCK_WAIT, nullptr);
+        }
+        return result == DD_OK;
+    }
+
+    // Original function: FUN_0047bc80. Signed intersection precedes unsigned clipping.
+    bool CDDDisplay::l_BitmapSurface_SetRectangle(SBitmapSurface& target, std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height)
+    {
+        const NXBasics::SRectangle bounds(0, 0, NXBasics::Runtime_TimeSigned32(target.description.dwWidth), NXBasics::Runtime_TimeSigned32(target.description.dwHeight));
+        target.rectangle.SetVariables(x, y, width, height);
+        auto& rectangle = target.rectangle;
+        if (!rectangle.IsTouching(bounds)) return false;
+        if (rectangle.x < 0)
+        {
+            rectangle.width = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.width) + static_cast<std::uint32_t>(rectangle.x));
+            rectangle.x = 0;
+        }
+        if (static_cast<std::uint32_t>(rectangle.width) + static_cast<std::uint32_t>(rectangle.x) > target.description.dwWidth) rectangle.width = NXBasics::Runtime_TimeSigned32(target.description.dwWidth - static_cast<std::uint32_t>(rectangle.x));
+        if (rectangle.y < 0)
+        {
+            rectangle.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.height) + static_cast<std::uint32_t>(rectangle.y));
+            rectangle.y = 0;
+        }
+        if (static_cast<std::uint32_t>(rectangle.height) + static_cast<std::uint32_t>(rectangle.y) > target.description.dwHeight) rectangle.height = NXBasics::Runtime_TimeSigned32(target.description.dwHeight - static_cast<std::uint32_t>(rectangle.y));
+        return true;
+    }
+
+    // Original function: FUN_0047bd2a.
+    void CDDDisplay::l_BitmapToScreen8To16(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        if (!NXBasics::g16BitPixelConverter->IsInitialized()) l_Configure16BitColorMasks();
+        const auto* table = bitmap->GetHighColorTablePtr();
+        if (table == nullptr) return;
+        SBitmapSurface target;
+        if (!l_BitmapSurface_Lock(target, mBackSurface, mFullscreen)) return;
+        if (!l_BitmapSurface_SetRectangle(target, x, y, bitmap->mRectangle.width, bitmap->mRectangle.height))
+        {
+            target.surface->Unlock(nullptr);
+            return;
+        }
+        const auto& area = target.rectangle;
+        const std::uint32_t pitchPixels = static_cast<std::uint32_t>(target.description.lPitch >> 1);
+        const std::uint32_t lastRow = static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.height) - 1u;
+        std::uint32_t destinationRow = static_cast<std::uint32_t>(area.y) * pitchPixels;
+        for (std::uint32_t row = static_cast<std::uint32_t>(area.y); row <= lastRow; ++row)
+        {
+            const std::uint32_t sourceIndex = (row - static_cast<std::uint32_t>(y)) * bitmap->mRowPixelCount - static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(area.x);
+            auto source = reinterpret_cast<std::uintptr_t>(bitmap->mRawMemory) + sourceIndex * 1u;
+            auto destination = reinterpret_cast<std::uintptr_t>(target.description.lpSurface) + (destinationRow + static_cast<std::uint32_t>(area.x)) * 2u;
+            const std::uint32_t lastColumn = static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(area.width) - 1u;
+            for (std::uint32_t column = static_cast<std::uint32_t>(area.x); column <= lastColumn; ++column)
+            {
+                std::uint8_t pixel;
+                std::memcpy(&pixel, reinterpret_cast<const void*>(source), sizeof(pixel));
+                const std::uint16_t color = table[pixel];
+                std::memcpy(reinterpret_cast<void*>(destination), &color, sizeof(color));
+                source += 1;
+                destination += 2;
+            }
+            destinationRow += pitchPixels;
+        }
+        target.surface->Unlock(nullptr);
+    }
+
+    // Original function: FUN_0047be41.
+    void CDDDisplay::l_BitmapToScreen8To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        if (!NXBasics::g32BitPixelConverter->IsInitialized()) l_Configure32BitColorMasks();
+        const auto* table = bitmap->GetTrueColorTablePtr();
+        if (table == nullptr) return;
+        SBitmapSurface target;
+        if (!l_BitmapSurface_Lock(target, mBackSurface, mFullscreen)) return;
+        if (!l_BitmapSurface_SetRectangle(target, x, y, bitmap->mRectangle.width, bitmap->mRectangle.height))
+        {
+            target.surface->Unlock(nullptr);
+            return;
+        }
+        const auto& area = target.rectangle;
+        const std::uint32_t pitchPixels = static_cast<std::uint32_t>(target.description.lPitch >> 2);
+        const std::uint32_t lastRow = static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.height) - 1u;
+        std::uint32_t destinationRow = static_cast<std::uint32_t>(area.y) * pitchPixels;
+        for (std::uint32_t row = static_cast<std::uint32_t>(area.y); row <= lastRow; ++row)
+        {
+            const std::uint32_t sourceIndex = (row - static_cast<std::uint32_t>(y)) * bitmap->mRowPixelCount - static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(area.x);
+            auto source = reinterpret_cast<std::uintptr_t>(bitmap->mRawMemory) + sourceIndex * 1u;
+            auto destination = reinterpret_cast<std::uintptr_t>(target.description.lpSurface) + (destinationRow + static_cast<std::uint32_t>(area.x)) * 4u;
+            const std::uint32_t lastColumn = static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(area.width) - 1u;
+            for (std::uint32_t column = static_cast<std::uint32_t>(area.x); column <= lastColumn; ++column)
+            {
+                std::uint8_t pixel;
+                std::memcpy(&pixel, reinterpret_cast<const void*>(source), sizeof(pixel));
+                const std::uint32_t color = table[pixel];
+                std::memcpy(reinterpret_cast<void*>(destination), &color, sizeof(color));
+                source += 1;
+                destination += 4;
+            }
+            destinationRow += pitchPixels;
+        }
+        target.surface->Unlock(nullptr);
+    }
+
+    // Original function: FUN_0047bf58.
+    void CDDDisplay::l_BitmapToScreen16To16(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        SBitmapSurface target;
+        if (!l_BitmapSurface_Lock(target, mBackSurface, mFullscreen)) return;
+        if (!l_BitmapSurface_SetRectangle(target, x, y, bitmap->mRectangle.width, bitmap->mRectangle.height))
+        {
+            target.surface->Unlock(nullptr);
+            return;
+        }
+        const auto& area = target.rectangle;
+        const std::uint32_t pitchPixels = static_cast<std::uint32_t>(target.description.lPitch >> 1);
+        const std::uint32_t lastRow = static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.height) - 1u;
+        std::uint32_t destinationRow = static_cast<std::uint32_t>(area.y) * pitchPixels;
+        for (std::uint32_t row = static_cast<std::uint32_t>(area.y); row <= lastRow; ++row)
+        {
+            const std::uint32_t sourceIndex = (row - static_cast<std::uint32_t>(y)) * bitmap->mRowPixelCount - static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(area.x);
+            auto source = reinterpret_cast<std::uintptr_t>(bitmap->mHighColorMemory) + sourceIndex * 2u;
+            auto destination = reinterpret_cast<std::uintptr_t>(target.description.lpSurface) + (destinationRow + static_cast<std::uint32_t>(area.x)) * 2u;
+            std::memmove(reinterpret_cast<void*>(destination), reinterpret_cast<const void*>(source), static_cast<std::uint32_t>(area.width) * 2u);
+            destinationRow += pitchPixels;
+        }
+        target.surface->Unlock(nullptr);
+    }
+
+    // Original function: FUN_0047c029.
+    void CDDDisplay::l_BitmapToScreen16To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        if (!NXBasics::g16BitPixelConverter->IsInitialized()) l_Configure16BitColorMasks();
+        const auto* table = NXBasics::g16BitPixelConverter->GetTrueColorConvertTablePtr();
+        if (table == nullptr) return;
+        SBitmapSurface target;
+        if (!l_BitmapSurface_Lock(target, mBackSurface, mFullscreen)) return;
+        if (!l_BitmapSurface_SetRectangle(target, x, y, bitmap->mRectangle.width, bitmap->mRectangle.height))
+        {
+            target.surface->Unlock(nullptr);
+            return;
+        }
+        const auto& area = target.rectangle;
+        const std::uint32_t pitchPixels = static_cast<std::uint32_t>(target.description.lPitch >> 2);
+        const std::uint32_t lastRow = static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.height) - 1u;
+        std::uint32_t destinationRow = static_cast<std::uint32_t>(area.y) * pitchPixels;
+        for (std::uint32_t row = static_cast<std::uint32_t>(area.y); row <= lastRow; ++row)
+        {
+            const std::uint32_t sourceIndex = (row - static_cast<std::uint32_t>(y)) * bitmap->mRowPixelCount - static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(area.x);
+            auto source = reinterpret_cast<std::uintptr_t>(bitmap->mHighColorMemory) + sourceIndex * 2u;
+            auto destination = reinterpret_cast<std::uintptr_t>(target.description.lpSurface) + (destinationRow + static_cast<std::uint32_t>(area.x)) * 4u;
+            const std::uint32_t lastColumn = static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(area.width) - 1u;
+            for (std::uint32_t column = static_cast<std::uint32_t>(area.x); column <= lastColumn; ++column)
+            {
+                std::uint16_t pixel;
+                std::memcpy(&pixel, reinterpret_cast<const void*>(source), sizeof(pixel));
+                const std::uint32_t color = table[pixel];
+                std::memcpy(reinterpret_cast<void*>(destination), &color, sizeof(color));
+                source += 2;
+                destination += 4;
+            }
+            destinationRow += pitchPixels;
+        }
+        target.surface->Unlock(nullptr);
+    }
+
+    // Original function: FUN_0047c14c.
+    void CDDDisplay::l_BitmapToScreen32To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        SBitmapSurface target;
+        if (!l_BitmapSurface_Lock(target, mBackSurface, mFullscreen)) return;
+        if (!l_BitmapSurface_SetRectangle(target, x, y, bitmap->mRectangle.width, bitmap->mRectangle.height))
+        {
+            target.surface->Unlock(nullptr);
+            return;
+        }
+        const auto& area = target.rectangle;
+        const std::uint32_t pitchPixels = static_cast<std::uint32_t>(target.description.lPitch >> 2);
+        const std::uint32_t lastRow = static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.height) - 1u;
+        std::uint32_t destinationRow = static_cast<std::uint32_t>(area.y) * pitchPixels;
+        for (std::uint32_t row = static_cast<std::uint32_t>(area.y); row <= lastRow; ++row)
+        {
+            const std::uint32_t sourceIndex = (row - static_cast<std::uint32_t>(y)) * bitmap->mRowPixelCount - static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(area.x);
+            auto source = reinterpret_cast<std::uintptr_t>(bitmap->mTrueColorMemory) + sourceIndex * 4u;
+            auto destination = reinterpret_cast<std::uintptr_t>(target.description.lpSurface) + (destinationRow + static_cast<std::uint32_t>(area.x)) * 4u;
+            std::memmove(reinterpret_cast<void*>(destination), reinterpret_cast<const void*>(source), static_cast<std::uint32_t>(area.width) * 4u);
+            destinationRow += pitchPixels;
+        }
+        target.surface->Unlock(nullptr);
     }
 
     // Original function: FUN_0047c21f
@@ -817,39 +1072,32 @@ namespace NXSys2DApp
     // Original function: FUN_0047c588
     void CDDDisplay::l_Configure16BitColorMasks()
     {
-        if (NXBasics::g16BitPixelConverter == nullptr)
-        {
-            return;
-        }
-
         if (l_GetSurfaceDepth(mBackSurface) == 16)
         {
-            NXBasics::g16BitPixelConverter->SetColorMasks(
-                static_cast<std::uint16_t>(l_GetColorMask(mBackSurface, RGB(255, 0, 0))),
-                static_cast<std::uint16_t>(l_GetColorMask(mBackSurface, RGB(0, 255, 0))),
-                static_cast<std::uint16_t>(l_GetColorMask(mBackSurface, RGB(0, 0, 255))));
-
+            auto* converter = NXBasics::g16BitPixelConverter;
+            auto* surface = mBackSurface;
+            const auto blue = static_cast<std::uint16_t>(l_GetColorMask(surface, RGB(0, 0, 255)));
+            const auto green = static_cast<std::uint16_t>(l_GetColorMask(surface, RGB(0, 255, 0)));
+            const auto red = static_cast<std::uint16_t>(l_GetColorMask(surface, RGB(255, 0, 0)));
+            converter->SetColorMasks(red, green, blue);
             return;
         }
-
         NXBasics::g16BitPixelConverter->SetColorMasks(0xF800, 0x07E0, 0x001F);
     }
 
     // Original function: FUN_0047c5f1
     void CDDDisplay::l_Configure32BitColorMasks()
     {
-        if (NXBasics::g32BitPixelConverter == nullptr)
-        {
-            return;
-        }
-
         if (l_GetSurfaceDepth(mBackSurface) == 32)
         {
-            NXBasics::g32BitPixelConverter->SetColorMasks(l_GetColorMask(mBackSurface, RGB(255, 0, 0)), l_GetColorMask(mBackSurface, RGB(0, 255, 0)), l_GetColorMask(mBackSurface, RGB(0, 0, 255)));
-
+            auto* converter = NXBasics::g32BitPixelConverter;
+            auto* surface = mBackSurface;
+            const auto blue = l_GetColorMask(surface, RGB(0, 0, 255));
+            const auto green = l_GetColorMask(surface, RGB(0, 255, 0));
+            const auto red = l_GetColorMask(surface, RGB(255, 0, 0));
+            converter->SetColorMasks(red, green, blue);
             return;
         }
-
         NXBasics::g32BitPixelConverter->SetColorMasks(0x00FF0000, 0x0000FF00, 0x000000FF);
     }
 }

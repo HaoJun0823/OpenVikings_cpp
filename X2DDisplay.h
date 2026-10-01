@@ -6,6 +6,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NXBasics { class CBitmap; }
+
 namespace NXSys2DApp
 {
     class CDDDisplay
@@ -34,6 +36,8 @@ namespace NXSys2DApp
 
         // Original function: FUN_0047b44c
         void Update();
+
+        void BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
 
         std::int32_t GetWidth() const
         {
@@ -77,6 +81,16 @@ namespace NXSys2DApp
         }
 
     private:
+        struct SBitmapSurface;
+        bool l_BitmapSurface_Lock(SBitmapSurface& target, IDirectDrawSurface7* surface, bool fullscreen);
+        static bool l_BitmapSurface_SetRectangle(SBitmapSurface& target, std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height);
+        void l_MemoryToScreen(const std::uint8_t* pixels, std::uint32_t width, std::uint32_t height, std::uint32_t rowPixelCount, std::uint32_t x, std::uint32_t y, std::uint32_t bytesPerPixel);
+        void l_BitmapToScreen8To16(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+        void l_BitmapToScreen8To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+        void l_BitmapToScreen16To16(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+        void l_BitmapToScreen16To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+        void l_BitmapToScreen32To32(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
+
         // Original function: FUN_0047ac2d
         bool l_StartUp();
 

@@ -23,6 +23,10 @@ Required work:
 
 The seven unknown call sites in `WorldDisplayElementAccess.cpp` are now reconstructed, including their immediate display-control, tooltip and ambient-sound helpers. See [WORLD_DISPLAY_ELEMENT_DRAW.md](WORLD_DISPLAY_ELEMENT_DRAW.md). Next connected graphics block: `00481AE2` with the static split/rasterization chain, then `004911D5` foreground object traversal. Its retained original dependencies and music-region ownership work are listed in that document.
 
+## P1 - Display startup/palette/presentation follow-up
+
+`00479052` and the complete bitmap-to-screen copy/convert/lock/diagnostic tree are reconstructed and integrated. See [BITMAP_TO_SCREEN.md](BITMAP_TO_SCREEN.md). Continue with the existing display startup/palette/presentation paths and their original failure handling; then the separate static-window/base-tool lifetime and world-input blocks. The current production syntax inventory is 82/86 with 110 diagnostics in the same four incomplete units. No tests/test projects are requested.
+
 ## P1 — Game/engine constructor and load ownership
 
 The direct shutdown/destruction/clear/free tree around `00401B85` is reconstructed, including nested owning records and engine cleanup notifications. See [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md) for 109 added entries, canonical bindings and non-shutdown external boundaries. Continue with the CGame constructor `00406B70` / CE2Manager constructor `0047DCC4` and their owning initialization/load trees. Bind their storage to the established singletons, native list specializations, pattern/texture/dynamic-object storage and dimension mirrors; do not reintroduce copied process addresses or duplicate regions. The Windows-only music owner at `00568418`, extra job-experience table, AI embedded owner and unidentified record fields still require semantic/layout analysis. The current compiler inventory is 82/86 passing units, with four incomplete units retaining 113 diagnostics. No tests/test projects are requested.

@@ -214,7 +214,7 @@ Keep this register and its indexes synchronized with findings recorded in subsys
 
 ## Current reconstruction status
 
-Current checkout review: 2026-10-01. The production Win32 syntax pass covers 84 units: 80 pass; four incomplete units retain 123 diagnostics. Seven units affected by overview input and DirectMusic generate `/Od` and `/O2` objects without warnings. This establishes compilation of those units, not a full link or game runtime validation. See [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md).
+Current checkout review: 2026-10-01. The production Win32 syntax pass covers 86 units: 82 pass; four incomplete units retain 110 diagnostics. Four units affected by bitmap-to-screen copying generate `/Od` and `/O2` objects; existing application warnings remain. This establishes compilation of those units, not a full link or game runtime validation. See [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md) and [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
 
 Historical source review below: 2026-09-27, based on the supplied OpenVikings_cpp.zip.
 
@@ -1321,6 +1321,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA038](#oa038) | Master-control and game shutdown gates are independent | 00401B85, 00401BD5, 00406D85, 004071C3 |
 | [OA039](#oa039) | Teardown ignores callback veto and unregister results | 0042329F, 0040AAEC, 0040B3C8, 0040B740, 0041C16A, 00426747, 00411E1D |
 | [OA040](#oa040) | Map shutdown reinitializes particle state | 0042329F, 00486EB4, 00486464, 0048707E, 00486404 |
+| [OA041](#oa041) | Failed color probing can leave the sampled surface pixel changed | 0047B8DB |
+| [OA042](#oa042) | DirectDraw diagnostics retain fixed buffers and a returning fatal-signal path | 00479E40, 0047A567, 0047AAA3, 0047B9CE |
 
 <a id="oa001"></a>
 
@@ -1765,6 +1767,26 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve the Windows behavior; analyze the owning invariants before changing it. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa041"></a>
+
+### OA041 — Failed color probing can leave the sampled surface pixel changed
+
+- **Original reference:** `0047B8DB`.
+- **Evidence and retained behavior:** The probe saves pixel (0,0), changes it through GDI and releases the DC before locking the surface. Lock failure returns UINT32_MAX without restoring the pixel. After a successful lock, failure of the second GetDC also leaves it changed. The color-mask callers accept the returned value.
+- **Assessment / reconstruction limits:** Confirmed Windows branch order. Actual visible effects depend on surface-loss/DC failure timing and later redraw; no particular hardware failure was simulated.
+- **Decision / Renewed task:** Preserve the side effect and unchecked mask consumption. See [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa042"></a>
+
+### OA042 — DirectDraw diagnostics retain fixed buffers and a returning fatal-signal path
+
+- **Original reference:** `00479E40`, `0047A567`, `0047AAA3`, `0047B9CE`.
+- **Evidence and retained behavior:** The error formatter writes without a capacity into the caller's 200-byte buffer. AbortBox copies/appends into 1000 bytes without checking lengths, then raises signal 22. A returning signal action allows AbortBox to return; the indexed fullscreen branch then continues copying even after a bitmap-depth diagnostic.
+- **Assessment / reconstruction limits:** Buffer limits and continuation are confirmed. Oversized diagnostics and custom returning signal actions remain external triggers; the fixed bitmap-depth messages alone do not establish an overflow.
+- **Decision / Renewed task:** Preserve the original signal call, buffers, strings and continuation. See [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -1784,6 +1806,8 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP011 | Overview terrain and bitmap input | Null pattern produces black; an outside area returns before clearing update flags; recognized input messages return true even when no action runs, unknown messages return false | [OVERVIEW_TERRAIN_SAMPLING.md](docs/OVERVIEW_TERRAIN_SAMPLING.md), [OVERVIEW_INPUT.md](docs/OVERVIEW_INPUT.md); OB081, OA022–OA025 |
 | FP012 | GUI allocation, repeated startup and teardown | Keep original conditional construction, subsequent accesses, ownership and destruction order | [GUI_DESKTOP_RESOLUTION.md](docs/GUI_DESKTOP_RESOLUTION.md), [WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md](docs/WORLD_DISPLAY_LIFECYCLE_OVERVIEW.md), [OVERVIEW_BITMAP_RENDERING.md](docs/OVERVIEW_BITMAP_RENDERING.md); OB080, OA031 |
 | FP013 | Engine/game shutdown and nested owning cleanup | Preserve initialization gates, callback order/ignored results, null-payload stop conditions, original vector cookies and runtime allocation/free, including particle reset during map teardown | [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md); OA035–OA040 |
+| FP014 | Bitmap conversion, clipping and surface locking | Missing window/display or conversion table skips copying; busy Lock repeats, lost surfaces restore then retry once, rejected areas unlock; original unsupported-depth handling is retained | [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md), `00479052`, `0047B9CE–0047C14C`; OA041 |
+| FP015 | DirectDraw and fatal diagnostic dialogs | Nonzero results format/debug/warn; fatal display errors show cursor/release clipping/flip to GDI, break on Cancel and raise signal 22, retaining possible return | [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md), `00479E40`, `0047A567`, `0047AAA3`; OA042 |
 
 ## Reconstruction errors are not original bugs
 

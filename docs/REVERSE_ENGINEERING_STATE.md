@@ -6,9 +6,13 @@ This document records the accumulated technical state that is useful to a new Co
 
 The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio/desktop/overview/DirectMusic follow-ups leave six hardware/conversion assembly blocks and 41 live `DAT_` symbols. Static-analysis coverage and the remaining four incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
 
-## Engine shutdown follow-up — 2026-10-01
+## Bitmap-to-screen follow-up — 2026-10-01
 
-The game/runtime/static-manager and engine cleanup trees now contain 109 additional original bodies, including nested array/list/vector destruction and the engine callbacks invoked during shutdown. Canonical owner storage, native list dispatch and matched runtime allocation/free are recorded in [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md). The same four incomplete production units remain; syntax coverage is 82/86 with 113 diagnostics. Full link/runtime verification and constructor/load integration remain open. README OA035–OA040 and FP013 document original failure/cleanup observations; allocator mismatches were reconstruction corrections.
+`00479052` and its connected Windows bitmap dispatch/locking/clipping/conversion/diagnostic block have 14 additional original bodies. Three current C++ callers use the interface; the directly reached existing surface/mask helpers now match Windows retry/diagnostic/order semantics. [BITMAP_TO_SCREEN.md](BITMAP_TO_SCREEN.md) records all entry addresses, the 100-label Windows HRESULT mapping and PE-decoded diagnostic entry. README OA041/OA042 and FP014/FP015 preserve failure observations. Four units generate Win32 `/Od`/`/O2` objects; syntax inventory is 82/86 with 110 existing diagnostics. Full link/runtime remains open.
+
+## Engine shutdown follow-up â€” 2026-10-01
+
+The game/runtime/static-manager and engine cleanup trees now contain 109 additional original bodies, including nested array/list/vector destruction and the engine callbacks invoked during shutdown. Canonical owner storage, native list dispatch and matched runtime allocation/free are recorded in [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md). The same four incomplete production units remain; syntax coverage is 82/86 with 113 diagnostics. Full link/runtime verification and constructor/load integration remain open. README OA035â€“OA040 and FP013 document original failure/cleanup observations; allocator mismatches were reconstruction corrections.
 
 ## 1. Core methodology
 
@@ -134,16 +138,16 @@ The reconstructed C++ should use project runtime/file helpers rather than introd
 
 ## 6. CMasterControlProgram / application lifecycle
 
-The complete Windows CD-audio block `00403E45–00404451` and game-disc lookup `00402761`/`00479C09` are reconstructed and connected to MCP startup, menu transitions and system update. Singleton `0050F69C` now has its original class name, and CD allocation/destruction uses the established runtime allocation/free family. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for object layout, Windows behavior and compilation limits. All 14 game-side DirectMusic manager entries are now reconstructed and connected; the driver DLL and original CRT logarithm remain external dependencies. See [DIRECT_MUSIC_MANAGER.md](DIRECT_MUSIC_MANAGER.md).
+The complete Windows CD-audio block `00403E45â€“00404451` and game-disc lookup `00402761`/`00479C09` are reconstructed and connected to MCP startup, menu transitions and system update. Singleton `0050F69C` now has its original class name, and CD allocation/destruction uses the established runtime allocation/free family. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for object layout, Windows behavior and compilation limits. All 14 game-side DirectMusic manager entries are now reconstructed and connected; the driver DLL and original CRT logarithm remain external dependencies. See [DIRECT_MUSIC_MANAGER.md](DIRECT_MUSIC_MANAGER.md).
 
 Substantial startup/shutdown work has been completed.
 
 ### Known Windows-side functions/roles
 
-- `00401000` — major `CMasterControlProgram` construction/startup path.
-- `004015FB` — destructor/shutdown path.
-- `00401B85` — translated shutdown helper used by the MCP destructor; associated with game-engine shutdown state at offsets `+0x28/+0x29` and destruction of owned global subsystems.
-- `00402620` — progress-bar/resource exit/destruction helper around object pointer `+0x15C`.
+- `00401000` â€” major `CMasterControlProgram` construction/startup path.
+- `004015FB` â€” destructor/shutdown path.
+- `00401B85` â€” translated shutdown helper used by the MCP destructor; associated with game-engine shutdown state at offsets `+0x28/+0x29` and destruction of owned global subsystems.
+- `00402620` â€” progress-bar/resource exit/destruction helper around object pointer `+0x15C`.
 - `00402530`, `0040263D`, `0040272C` are part of the progress/loading-screen block and were analyzed together.
 - `00401C12` is a thin wrapper into the progress-update path using the global MCP pointer.
 
@@ -183,7 +187,7 @@ Latest pass treated this block as resolved:
 - `004E2D10` constructor,
 - `004E2EDF` destructor,
 - singleton `00569954`,
-- static/resource block `005698F8–00569953`.
+- static/resource block `005698F8â€“00569953`.
 
 ### CGuiBaseStringsManager
 
@@ -196,7 +200,7 @@ Latest pass identified:
 - 13 string-array entries beginning around `005697F0`,
 - fallback/static buffer beginning around `00569824`.
 
-The table around `0050BBBC–0050BBEF` was not available/fully identified, so exact filename meanings must not be invented.
+The table around `0050BBBCâ€“0050BBEF` was not available/fully identified, so exact filename meanings must not be invented.
 
 ## 9. Network/runtime block
 
@@ -240,7 +244,7 @@ The manager lifecycle and callback/update/flood-fill portion are reconstructed. 
 
 Known addresses/regions:
 
-- static/manager block: approximately `00550E70–00554CDF`,
+- static/manager block: approximately `00550E70â€“00554CDF`,
 - attachment-manager singleton at `00550E68`,
 - integrated former `DAT_00550E84`,
 - sector height `00554CEC`,
@@ -322,13 +326,13 @@ Historical open areas included deeper composite creation/resolve helpers around 
 
 The following addresses were explicitly examined/requested in prior sessions and are useful search anchors if they still exist in `HEAD`:
 
-- `0040C778` — allocation/format initialization helper block.
-- `0040C931` — memory/init helper block.
-- `00424F6C` — cross-system helper, exact semantic role required further work.
-- `0042BA56` — `CStringArray`-related construction path; initializes internal state/capacity and backing memory.
-- `0042BB02` — related copy/assignment construction path.
-- `004E75FA` — low-level I/O/format helper used by runtime formatting/error paths.
-- `004E9772` — stream/descriptor state-transition helper with flag manipulation and dependent runtime calls.
+- `0040C778` â€” allocation/format initialization helper block.
+- `0040C931` â€” memory/init helper block.
+- `00424F6C` â€” cross-system helper, exact semantic role required further work.
+- `0042BA56` â€” `CStringArray`-related construction path; initializes internal state/capacity and backing memory.
+- `0042BB02` â€” related copy/assignment construction path.
+- `004E75FA` â€” low-level I/O/format helper used by runtime formatting/error paths.
+- `004E9772` â€” stream/descriptor state-transition helper with flag manipulation and dependent runtime calls.
 
 Do not assign stronger names to these without checking current code and the exact call graph.
 
