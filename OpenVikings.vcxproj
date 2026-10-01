@@ -304,4 +304,12 @@
     <ClCompile Include="C2StaticVehicleTypeData.cpp" />
     <ClInclude Include="C2StaticVehicleTypeData.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticAtomicAnimationData.cpp" />
+    <ClInclude Include="C2StaticAtomicAnimationData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticTribeTypeData.cpp" />
+    <ClInclude Include="C2StaticTribeTypeData.h" />
+  </ItemGroup>
 </Project>

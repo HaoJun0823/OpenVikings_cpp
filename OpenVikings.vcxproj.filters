@@ -808,4 +808,20 @@
       <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticAtomicAnimationData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticAtomicAnimationData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticTribeTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticTribeTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

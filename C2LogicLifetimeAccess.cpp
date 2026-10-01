@@ -20,6 +20,8 @@
 #include "C2StaticGoodTypeData.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2StaticVehicleTypeData.h"
+#include "C2StaticAtomicAnimationData.h"
+#include "C2StaticTribeTypeData.h"
 
 namespace NC2Logic
 {
@@ -109,22 +111,6 @@ namespace NC2Logic
         NXBasics::Runtime_Free(gStaticJobTypeData);
         gStaticJobTypeData = nullptr;
         gStaticJobTypeDataManager = nullptr;
-    }
-
-    // Original function: FUN_00414173.
-    static void StaticTribeTypeDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticTribeTypeData);
-        gStaticTribeTypeData = nullptr;
-        gStaticTribeTypeDataManager = nullptr;
-    }
-
-    // Original function: FUN_00414409.
-    static void StaticAtomicAnimationDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticAtomicAnimationData);
-        gStaticAtomicAnimationData = nullptr;
-        gStaticAtomicAnimationDataManager = nullptr;
     }
 
     // Original function: FUN_00412fe0.
@@ -413,8 +399,8 @@ namespace NC2Logic
         DestroyOwned(gStaticWeaponTypeDataManager, StaticWeaponTypeDataManager_Destruct);
         DestroyOwned(gStaticArmorTypeDataManager, StaticArmorTypeDataManager_Destruct);
         DestroyOwned(gStaticJobTypeDataManager, StaticJobTypeDataManager_Destruct);
-        DestroyOwned(gStaticTribeTypeDataManager, StaticTribeTypeDataManager_Destruct);
-        DestroyOwned(gStaticAtomicAnimationDataManager, StaticAtomicAnimationDataManager_Destruct);
+        DestroyOwned(gStaticTribeTypeDataManager, [](CStaticTribeTypeDataManager* manager) { manager->~CStaticTribeTypeDataManager(); });
+        DestroyOwned(gStaticAtomicAnimationDataManager, [](CStaticAtomicAnimationDataManager* manager) { manager->~CStaticAtomicAnimationDataManager(); });
         DestroyOwned(gStaticVehicleTypeDataManager, [](CStaticVehicleTypeDataManager* manager) { manager->~CStaticVehicleTypeDataManager(); });
         DestroyOwned(gStaticHouseTypeDataManager, [](CStaticHouseTypeDataManager* manager) { manager->~CStaticHouseTypeDataManager(); });
         DestroyOwned(gStaticGoodTypeDataManager, [](CStaticGoodTypeDataManager* manager) { manager->~CStaticGoodTypeDataManager(); });

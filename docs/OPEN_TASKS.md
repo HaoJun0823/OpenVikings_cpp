@@ -1,6 +1,6 @@
 # Open Tasks
 
-**Priority snapshot:** 2026-10-01
+**Priority snapshot:** 2026-10-02
 
 This queue reflects the latest known project direction. Check `HEAD`/Git first in case a later local commit already resolved an item.
 
@@ -23,9 +23,9 @@ Required work:
 
 The seven unknown call sites in `WorldDisplayElementAccess.cpp` are now reconstructed, including their immediate display-control, tooltip and ambient-sound helpers. See [WORLD_DISPLAY_ELEMENT_DRAW.md](WORLD_DISPLAY_ELEMENT_DRAW.md). Next connected graphics block: `00481AE2` with the static split/rasterization chain, then `004911D5` foreground object traversal. Its retained original dependencies and music-region ownership work are listed in that document.
 
-## P1 - Static atomic-animation construction and loading
+## P1 - Static-job construction and loading
 
-The startup, campaign/string, map/savegame, terrain-type, good-type, house-type and vehicle-type blocks are reconstructed and connected. See [STATIC_VEHICLE_TYPE_DATA.md](STATIC_VEHICLE_TYPE_DATA.md) and the preceding subsystem documents. The startup tree retains 45 subordinate constructor bodies, four registered engine callbacks, startup executor `0040743A`, map loader `0040A68B` and scheduling helper `004079CF`. Next connected block: static atomic-animation constructor `0041418E`, its complete resource/static region and directly required helpers; reuse existing destructor `00414409` and parser/runtime infrastructure. Then continue remaining static managers. Production syntax coverage is 100/103 with 65 diagnostics in the same three incomplete menu/game-state units. Current provisional function-address coverage is 1,350/5,043; see [FUNCTION_PROGRESS.md](FUNCTION_PROGRESS.md). No tests/test projects. House worker +04/stock +08 and earlier unknown fields remain unresolved. Preserve the confirmed original stock/production and passenger indexing defects indexed as OB082-OB084.
+Startup, campaign/string, map/savegame, terrain, good, house, vehicle, atomic-animation and tribe blocks are reconstructed and connected. See [STATIC_TRIBE_TYPE_DATA.md](STATIC_TRIBE_TYPE_DATA.md) and preceding subsystem documents. Startup retains 43 original subordinate constructors, four registered engine callbacks, executor `0040743A`, map loader `0040A68B` and scheduling helper `004079CF`. Next connected block: static-job constructor `0041300A`, its complete resource/static/token regions and directly required helpers; reuse existing destruction `004134B6` and parser/runtime infrastructure. Then continue remaining static managers. Production syntax coverage is 102/105 with the same 65 diagnostics; provisional function-address coverage is 1,356/5,043. See [FUNCTION_PROGRESS.md](FUNCTION_PROGRESS.md). No tests/test projects. Existing unknown fields/regions remain explicitly unresolved; preserve indexed original defects OB082-OB087 during faithful reconstruction.
 
 Separately review existing object/buffer allocation sites against Windows thunk `004E5DDD`, which always calls `Runtime_AllocateWithNewHandler(size, 1)`. Mode-dependent `Runtime_Allocate` has the same allocation/free family but can differ in handler invocation when global mode is zero. The completed system-manager, converter-shadow-table and property-manager paths use the explicit-handler interface.
 

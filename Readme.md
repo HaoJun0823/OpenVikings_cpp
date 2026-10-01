@@ -324,6 +324,9 @@ reported layout and arithmetic models, do not validate the full application.
 | [OB082](#ob082) | House stock good ID 66 overwrites production count | 00414E49-00414E75 |
 | [OB083](#ob083) | Negative house stock/production IDs write before reverse-index arrays | 00414E49-00414E6E, 00414EC3-00414EDF |
 | [OB084](#ob084) | Unchecked vehicle passenger IDs overwrite adjacent record fields | 004147AD-004147C0 |
+| [OB085](#ob085) | Uncapped tribe experience job lists overwrite neighboring requirements | 0041411C-0041416D |
+| [OB086](#ob086) | Signed upper-only tribe relationship indices accept negative IDs | 004138D3-004138F5, 00413EDF-00413F2A |
+| [OB087](#ob087) | Unchecked tribe Atomic coordinates alias other job/state slots | 00414020-00414069 |
 
 <a id="ob001"></a>
 
@@ -1314,6 +1317,42 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Establish the passenger-ID domain from consumers/resources and validate the signed parameter before record writes.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob085"></a>
+
+### OB085 — Uncapped tribe experience job lists overwrite neighboring requirements
+
+- **Original reference:** `0041411C-0041416D`, inside static-tribe loader `004134D1`.
+- **Evidence:** Seven needfor command families append integer parameters without a three-entry cap or job-ID validation. Each 0x14-byte requirement has threshold +0, count +4 and three IDs at +8. The fourth ID therefore writes at +14, the next requirement threshold.
+- **Behavior and trigger:** Four integer job prerequisites for needforjob ID 0 overwrite job 1 required experience; longer or repeated lists can overwrite further rows/fields and memory. Counts advance after the raw write.
+- **Assessment / reconstruction limits:** Confirmed Windows instructions, layout and conditional effects. Valid-resource reachability and gameplay reproduction remain unverified. Native raw/wrapped accesses preserve the original path. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
+- **Decision:** Preserve original handling during faithful reconstruction.
+- **Renewed task:** Reject additions beyond the established job-list capacity and validate prerequisite job IDs.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob086"></a>
+
+### OB086 — Signed upper-only tribe relationship indices accept negative IDs
+
+- **Original reference:** `004138D3-004138F5, 00413EDF-00413F2A`, inside static-tribe loader `004134D1`.
+- **Evidence:** Job enablement, build lists, default-good and producing-house commands use signed upper bounds without lower bounds. Negative owner/value IDs pass those checks and enter scaled reads/writes. Unsigned allow/training/experience selectors reject negatives separately.
+- **Behavior and trigger:** Accepted negative parameters can access earlier fields, neighboring records or memory outside the allocation. For example jobEnablesJob with owner -1 reads its count 0x400 bytes before the intended job record and can append there when that count passes the original cap.
+- **Assessment / reconstruction limits:** Confirmed Windows instructions, layout and conditional effects. Valid-resource reachability and gameplay reproduction remain unverified. Native raw/wrapped accesses preserve the original path. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
+- **Decision:** Preserve original handling during faithful reconstruction.
+- **Renewed task:** Validate signed owner and relationship IDs before count access, array writes and reverse-map updates.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob087"></a>
+
+### OB087 — Unchecked tribe Atomic coordinates alias other job/state slots
+
+- **Original reference:** `00414020-00414069`, inside static-tribe loader `004134D1`.
+- **Evidence:** setatomic resolves the name then computes record +20 +4*(job*92+state), with no coordinate checks. The actual sentinel compare at 0041405A uses sign-extended imm8 FF (FFFFFFFF); the formatted operand is truncated in the export.
+- **Behavior and trigger:** When the name resolves and the aliased slot is FFFFFFFF, job 0/state 92 writes the job 1/state 0 binding. Other coordinates can read other fields or outside memory and conditionally write them; first-wins behavior then affects the aliased slot.
+- **Assessment / reconstruction limits:** Confirmed Windows instructions, layout and conditional effects. Valid-resource reachability and gameplay reproduction remain unverified. Native raw/wrapped accesses preserve the original path. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
+- **Decision:** Preserve original handling during faithful reconstruction.
+- **Renewed task:** Validate both Atomic coordinates against the established matrix dimensions before reads/writes.
+- **Status:** Preserved / original defect; Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -1384,6 +1423,12 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA062](#oa062) | House commands retain order-sensitive consumption and zero-fallback lookup | 00414CD1-00414CED, 00414E7F-00414EA6, 00414F36, 00414FA7 |
 | [OA063](#oa063) | Vehicle loading retains unchecked allocation and persistent lazy tokens | 00414462, 00414996, 00414997 |
 | [OA064](#oa064) | Vehicle good commands accumulate duplicates while groups reset only reverse indices | 0041459B-004145A6, 004147C5-004147F1 |
+| [OA065](#oa065) | Atomic-animation loading retains unchecked count-sized allocation and lazy state | 0041418E-0041429B |
+| [OA066](#oa066) | Atomic event parameters retain equality caps and wrapped unsigned percentage timing | 0041433E-004143B8 |
+| [OA067](#oa067) | Atomic lookup returns the first name match and retains count after teardown | 00414409, 00414424 |
+| [OA068](#oa068) | Tribe loading retains unchecked allocation and Atomic-only duplicate resets | 004134D1, 00414172, 00414173 |
+| [OA069](#oa069) | Tribe parameter loops retain consumption order, accumulation and asymmetric caps | 00413D6A-00413E6A, 00413A7F-00413AD5, 0041411C-0041416D |
+| [OA070](#oa070) | Tribe equipment bounds and reverse maps retain original asymmetry | 00413ADA-00413B70, 00414020-00414069 |
 
 <a id="oa001"></a>
 
@@ -2068,6 +2113,66 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve command order and duplicate behavior; review resources and downstream use before assessing a gameplay defect. See [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa065"></a>
+
+### OA065 — Atomic-animation loading retains unchecked count-sized allocation and lazy state
+
+- **Original reference:** `0041418E-0041429B`.
+- **Evidence and retained behavior:** Construction resets count/array, then returns without allocating for unloaded input or zero matching groups. Nonzero group count is multiplied by 0x138 as a DWORD for explicit-handler allocation; current count is reread for the unchecked clear. Groups populate sequential records without a separate count bound or duplicate-name validation. The single token flag precedes construction and unchecked exit registration, and token state persists after owner destruction.
+- **Assessment / reconstruction limits:** Confirmed count, allocation and lifetime behavior. Count-size overflow and allocation failure are unsanitized original paths; no actual resource/runtime reproduction is claimed. Adjacent unreferenced gaps retain unresolved identity.
+- **Decision / Renewed task:** Preserve original continuation/order; review resource/allocation validation after faithful reconstruction. See [STATIC_ATOMIC_ANIMATION_DATA.md](docs/STATIC_ATOMIC_ANIMATION_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa066"></a>
+
+### OA066 — Atomic event parameters retain equality caps and wrapped unsigned percentage timing
+
+- **Original reference:** `0041433E-004143B8`.
+- **Evidence and retained behavior:** Both event forms skip parameters only at count ==20; eventx additionally skips when current length is zero. Its first value uses the low DWORD product of length and percentage followed by unsigned division by 100. Time, type and parameter stores occur before subsequent reads, then count increments. No sorting, deduplication, signed normalization or range clamping is added.
+- **Assessment / reconstruction limits:** Confirmed arithmetic and consumption order. Negative inputs and wrapped products can yield large times; valid resource invariants and gameplay effects remain unverified. A later length command neither revives skipped events nor rescales earlier events.
+- **Decision / Renewed task:** Preserve original event semantics; review accepted resource values and consumer timing contracts. See [STATIC_ATOMIC_ANIMATION_DATA.md](docs/STATIC_ATOMIC_ANIMATION_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa067"></a>
+
+### OA067 — Atomic lookup returns the first name match and retains count after teardown
+
+- **Original reference:** `00414409`, `00414424`; caller `00414046-0041404F`.
+- **Evidence and retained behavior:** GetAtomicId uses a signed-positive count test and the original case-insensitive comparison, returning the first match or FFFFFFFF. It adds no null input/array check. Destruction frees/clears records and owner but retains count; a later lookup with positive count can access the cleared array. The tribe caller skips FFFFFFFF explicitly.
+- **Assessment / reconstruction limits:** Confirmed lookup/fallback and teardown state. Whether post-teardown calls are reachable under valid lifecycle contracts remains unresolved; this is not proof of a normal gameplay defect.
+- **Decision / Renewed task:** Preserve current lookup/destruction semantics; review remaining callers and lifecycle ordering. See [STATIC_ATOMIC_ANIMATION_DATA.md](docs/STATIC_ATOMIC_ANIMATION_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa068"></a>
+
+### OA068 — Tribe loading retains unchecked allocation and Atomic-only duplicate resets
+
+- **Original reference:** `004134D1, 00414172, 00414173`.
+- **Evidence and retained behavior:** Allocate/clear all 42 records without an allocation-failure return; unloaded input leaves defaults, missing/zero/out-of-range/disallowed selectors skip groups. Each accepted group resets only the 56-by-92 Atomic matrix to FFFFFFFF. Flags, lists, counts, thresholds and other record fields persist. Both lazy flags precede initialization, exit registration is ignored and token state survives destruction.
+- **Assessment / reconstruction limits:** Confirmed Windows handling. Resource invariants and remaining consumer contracts are unresolved; these observations alone do not establish valid-gameplay defects. OB085-OB087 separately index proven unsafe writes/coordinates.
+- **Decision / Renewed task:** Preserve original ordering and bounds; review resources/consumers after faithful reconstruction. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa069"></a>
+
+### OA069 — Tribe parameter loops retain consumption order, accumulation and asymmetric caps
+
+- **Original reference:** `00413D6A-00413E6A, 00413A7F-00413AD5, 0041411C-0041416D`.
+- **Evidence and retained behavior:** Experience commands validate only their unsigned selector before threshold/uncapped job-list reads. Build loops consume the next type-3 integer before value rejection or count >=50 rejection. Job-enable commands read both integers before bounds/cap checks. Duplicate commands/groups accumulate lists/counts; no sorting, normalization or deduplication is added.
+- **Assessment / reconstruction limits:** Confirmed Windows handling. Resource invariants and remaining consumer contracts are unresolved; these observations alone do not establish valid-gameplay defects. OB085-OB087 separately index proven unsafe writes/coordinates.
+- **Decision / Renewed task:** Preserve original ordering and bounds; review resources/consumers after faithful reconstruction. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa070"></a>
+
+### OA070 — Tribe equipment bounds and reverse maps retain original asymmetry
+
+- **Original reference:** `00413ADA-00413B70, 00414020-00414069`.
+- **Evidence and retained behavior:** JobEnablesEquipment accepts signed equipment IDs <=55 despite 66 equipment types. JobEnablesGood appends/increments before replacing the good producing-job map; JobDefaultGood writes its default before the same map. Producing-house commands change only the house half. Atomic name failure skips writes; found names write only FFFFFFFF slots, selecting the first coordinate assignment within a group.
+- **Assessment / reconstruction limits:** Confirmed Windows handling. Resource invariants and remaining consumer contracts are unresolved; these observations alone do not establish valid-gameplay defects. OB085-OB087 separately index proven unsafe writes/coordinates.
+- **Decision / Renewed task:** Preserve original ordering and bounds; review resources/consumers after faithful reconstruction. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2111,6 +2216,12 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP035 | House conditional parameters, row caps and lookup failure | Retain order-sensitive consumption, equality caps, first eligible match and zero fallback, without added availability/identifier checks | [STATIC_HOUSE_TYPE_DATA.md](docs/STATIC_HOUSE_TYPE_DATA.md), `00414CD1-00414CED`, `00414E7F-00414EA6`, `00414F36`, `00414FA7`; OA062 |
 | FP036 | Vehicle allocation, resource/group selection and duplicate lifetime | Preserve unchecked clearing/defaults, skipped groups, duplicate-good count accumulation, reverse-index-only resets and persistent lazy token state | [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md), `00414462`, `00414997`; OA063, OA064 |
 | FP037 | Vehicle passenger identifiers and record writes | Retain unconditional byte writes with signed/wrapped offsets and no added index bounds | [STATIC_VEHICLE_TYPE_DATA.md](docs/STATIC_VEHICLE_TYPE_DATA.md), `004147AD-004147C0`; OB084 |
+| FP038 | Atomic-animation input/count/allocation and lazy initialization | Unloaded/zero-group input returns without allocation; otherwise retain DWORD sizes, unchecked clearing/group iteration and persistent tokens after ignored exit registration | [STATIC_ATOMIC_ANIMATION_DATA.md](docs/STATIC_ATOMIC_ANIMATION_DATA.md), `0041418E`; OA065 |
+| FP039 | Atomic event cap, current length and percentage values | Retain count ==20 gate, zero-length eventx skip before parameter reads, wrapped unsigned timing and sequential event stores | [STATIC_ATOMIC_ANIMATION_DATA.md](docs/STATIC_ATOMIC_ANIMATION_DATA.md), `0041433E-004143B8`; OA066 |
+| FP040 | Atomic name lookup failure and teardown state | Return first case-insensitive match or FFFFFFFF; retain missing null checks and unchanged count after array/owner clear | [STATIC_ATOMIC_ANIMATION_DATA.md](docs/STATIC_ATOMIC_ANIMATION_DATA.md), `00414409`, `00414424`; OA067 |
+| FP041 | Tribe allocation, allowed selector, Atomic lookup and lazy lifetime | Retain unchecked full clear/defaults, skipped input/groups, Atomic-only resets, name-failure skips, first-slot assignments and persistent tokens | [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md), `004134D1`, `0042DB8E`; OA068, OA070 |
+| FP042 | Tribe experience and build/enable parameter lists | Retain uncapped three-entry experience storage, type-3 loops, value consumption before fifty-entry rejection and duplicate accumulation | [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md); OB085, OA069 |
+| FP043 | Tribe relationship IDs and Atomic coordinate addressing | Preserve signed upper-only relationship checks, unchecked coordinates, wrapped accesses, inclusive equipment bound and original reverse-map update order | [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md); OB086, OB087, OA070 |
 
 ## Reconstruction errors are not original bugs
 

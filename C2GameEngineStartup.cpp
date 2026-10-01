@@ -23,6 +23,8 @@
 #include "C2StaticGoodTypeData.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2StaticVehicleTypeData.h"
+#include "C2StaticAtomicAnimationData.h"
+#include "C2StaticTribeTypeData.h"
 
 #include <Windows.h>
 #include <mmsystem.h>
@@ -46,8 +48,6 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
-    extern void* __fastcall FUN_0041418e(void*, void* unusedEdx);
-    extern void* __fastcall FUN_004134d1(void*, void* unusedEdx);
     extern void* __fastcall FUN_0041300a(void*, void* unusedEdx);
     extern void* __fastcall FUN_00412a5d(void*, void* unusedEdx);
     extern void* __fastcall FUN_0041277c(void*, void* unusedEdx);
@@ -110,9 +110,9 @@ namespace NC2Logic
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructNative<CStaticVehicleTypeDataManager>(0x1);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_0041418e);
+        ConstructNative<CStaticAtomicAnimationDataManager>(0x1);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_004134d1);
+        ConstructNative<CStaticTribeTypeDataManager>(0x1);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(0x1, FUN_0041300a);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
