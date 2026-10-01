@@ -147,6 +147,9 @@ namespace NXBasics
         std::uint8_t red;       // +0x02
         std::uint8_t reserved;  // +0x03
 
+        SColorRGB() noexcept;
+        void SetColors(std::uint8_t redValue, std::uint8_t greenValue, std::uint8_t blueValue) noexcept;
+
         // Original function: FUN_0040f7d3
         constexpr SColorRGB(std::uint8_t redValue, std::uint8_t greenValue, std::uint8_t blueValue) noexcept : blue(blueValue), green(greenValue), red(redValue), reserved(0)
         {}

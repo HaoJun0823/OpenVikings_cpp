@@ -1,8 +1,11 @@
 #include "C2CallbackManager.h"
+#include "C2CleanMapsManager.h"
+#include "C2SavegamesManager.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2LanguageTools.h"
 #include "C2LogicIOAccess.h"
 #include "C2LogicLifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "CDAudioManager.h"
 #include "FileCompressor.h"
@@ -592,8 +595,8 @@ namespace NC2MainMenuGuiManager
 						break;
 					}
 
-					if (NNetwork::Network_IsHost() && DAT_005114b4 != nullptr)
-						FUN_00416413(DAT_005114b4);
+					if (NNetwork::Network_IsHost() && NC2Logic::gCleanMapsManager != nullptr)
+						NC2Logic::gCleanMapsManager->CleanMapList_Update();
 
 					break;
 				}
@@ -615,9 +618,9 @@ namespace NC2MainMenuGuiManager
 					{
 						if (screen == 17)
 						{
-							const auto* mapInformation = reinterpret_cast<const std::byte*>(FUN_00416418(DAT_005114b4, lobbyData + 4));
+							const auto* mapInformation = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(*static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4)));
 
-							std::strcpy(sourceFileName, reinterpret_cast<const char*>(mapInformation + 0x386));
+							std::strcpy(sourceFileName, mapInformation->archiveFilename);
 							NXBasics::Runtime_PrintString(transferFileName, OriginalStrings::DirectoryAndFileNameFormat, NC2Logic::IO_Tool_GetUserMapDirectoryNamePtr(), "transdat");
 
 							{
@@ -637,10 +640,10 @@ namespace NC2MainMenuGuiManager
 							std::uint32_t saveGameId;
 							std::memcpy(&saveGameId, lobbyData + 0x14, sizeof(saveGameId));
 
-							const auto saveGameName = FUN_00415e8d(DAT_005114ac, saveGameId);
+							const auto saveGameName = NC2Logic::gSavegamesManager->GetSavegameInfoPtrByUniqueId(saveGameId);
 
-							FUN_004161a2(DAT_005114ac, saveGameName, sourceFileName);
-							FUN_004161a2(DAT_005114ac, "sys_continue", transferFileName);
+							NC2Logic::gSavegamesManager->Tool_CreateFullSavegameFilename(reinterpret_cast<const char*>(saveGameName), sourceFileName);
+							NC2Logic::gSavegamesManager->Tool_CreateFullSavegameFilename("sys_continue", transferFileName);
 
 							{
 								NXBasics::CMemory temporaryFileData(sourceFileName);
@@ -652,7 +655,7 @@ namespace NC2MainMenuGuiManager
 
 							transferFlags[1] = 1;
 
-							FUN_004161a2(DAT_005114ac, "sys_continue", transferFileName);
+							NC2Logic::gSavegamesManager->Tool_CreateFullSavegameFilename("sys_continue", transferFileName);
 						}
 
 						NNetwork::CFileCompressor compressor;
@@ -701,9 +704,9 @@ namespace NC2MainMenuGuiManager
 						}
 						else
 						{
-							FUN_00415e64(DAT_005114ac, 2, false);
-							FUN_004161a2(DAT_005114ac, "sys_continue", requestedFileName);
-							NXBasics::CFile::FileSystem_Tool_CreateDirectory(FUN_004161c5(DAT_005114ac));
+							NC2Logic::gSavegamesManager->SavegameList_Update(2, false);
+							NC2Logic::gSavegamesManager->Tool_CreateFullSavegameFilename("sys_continue", requestedFileName);
+							NXBasics::CFile::FileSystem_Tool_CreateDirectory(NC2Logic::gSavegamesManager->Tool_GetCurrentPlayerSavegameDirectoryNamePtr());
 
 							std::strcat(requestedFileName, ".c2p");
 						}
@@ -1118,12 +1121,12 @@ namespace NC2MainMenuGuiManager
 				}
 				else
 				{
-					const std::byte* mapInformation = nullptr;
+					const NC2Logic::SCleanMapInfoData* mapInformation = nullptr;
 
-					if (FUN_00416b63(lobbyData + 4))
-						mapInformation = reinterpret_cast<const std::byte*>(FUN_00416418(DAT_005114b4, lobbyData + 4));
+					if (static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4))->IsValid())
+						mapInformation = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(*static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4)));
 
-					if (mapInformation != nullptr && (std::to_integer<std::uint8_t>(mapInformation[0x120]) & 0x40u) != 0 && mapInformation[0x385] != std::byte{ 0 })
+					if (mapInformation != nullptr && (mapInformation->mapTypes & 0x40u) != 0 && mapInformation->userMap != 0)
 					{
 						sTheObjectPtr->Screen_ChangeTo(17, false);
 
@@ -1383,7 +1386,7 @@ namespace NC2MainMenuGuiManager
 
 		if (!userMap)
 		{
-			FUN_004161a2(DAT_005114ac, "sys_continue", compressedFileName);
+			NC2Logic::gSavegamesManager->Tool_CreateFullSavegameFilename("sys_continue", compressedFileName);
 			std::strcat(compressedFileName, ".c2p");
 
 			const std::int32_t result = compressor.DecompressFile(compressedFileName);
@@ -1392,7 +1395,7 @@ namespace NC2MainMenuGuiManager
 				reportFailure("Savegame decompression failed! File I/O error!");
 
 			// The original performs this call even after decompression fails.
-			FUN_00415e64(DAT_005114ac, 2, true);
+			NC2Logic::gSavegamesManager->SavegameList_Update(2, true);
 			return;
 		}
 
@@ -1447,7 +1450,7 @@ namespace NC2MainMenuGuiManager
 		}
 
 		// The original refreshes the map list after either decompression outcome.
-		FUN_00416413(DAT_005114b4);
+		NC2Logic::gCleanMapsManager->CleanMapList_Update();
 	}
 
 	// Original function: FUN_004d85cf
@@ -1854,14 +1857,14 @@ namespace NC2MainMenuGuiManager
 			{
 				void* mapId = lobbyData + 4;
 
-				if (FUN_00416b63(mapId))
+				if (static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(mapId))->IsValid())
 				{
-					auto* map = FUN_00416418(DAT_005114b4, mapId);
+					auto* map = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(*static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(mapId)));
 
 					if (map != nullptr)
 					{
 						char mapName[100];
-						FUN_00416b98(map, mapName);
+						map->Tool_GetMapName(mapName);
 
 						drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC2), mapName);
 					}
@@ -1876,11 +1879,11 @@ namespace NC2MainMenuGuiManager
 
 					if (mapIdValue != 0)
 					{
-						auto* map = FUN_00415e8d(DAT_005114ac, mapIdValue);
+						auto* map = NC2Logic::gSavegamesManager->GetSavegameInfoPtrByUniqueId(mapIdValue);
 
 						if (map != nullptr)
 						{
-							const char* mapName = reinterpret_cast<const char*>(map) + 0x136;
+							const char* mapName = map->header.mapName;
 
 							drawFormatted(&informationBitmap, informationFont, 4, signedWord(y), "%s: %s", NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC4), mapName);
 						}
@@ -1898,7 +1901,7 @@ namespace NC2MainMenuGuiManager
 
 				y += 12;
 
-				if (FUN_00416b63(mapId))
+				if (static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(mapId))->IsValid())
 				{
 					const std::uint32_t mode = readWord(lobbyData, 0x15C);
 

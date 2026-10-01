@@ -2,10 +2,22 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "C2GameState.h"
+
+namespace NXBasics { class CStringArray; }
 
 // Original singleton/storage bindings. Complete owning class layouts remain unresolved.
 namespace NC2Logic
 {
+    class CCampaignStaticDataManager;
+    class CStaticStringsManager;
+    class CSavegamesManager;
+    class CCleanMapsManager;
+    class CStaticTrianglePatternTypeDataManager;
+    class CStaticLandscapeTypeDataManager;
+    class CStaticGoodTypeDataManager;
+    struct SStaticGoodTypeData;
+    struct SStaticLandscapeTypeData;
     // Original global: 005109D0.
     inline void* gGame = nullptr;
     // Original global: 005109D4.
@@ -18,6 +30,8 @@ namespace NC2Logic
     inline void* gUserNetworkCommandManager = nullptr;
     // Original global: 00510A28.
     inline void* gGameMapModifyManager = nullptr;
+    // Complete CGameMapModifyManager::mStaticVars at 00510A24; nesting depth.
+    inline std::uint32_t gGameMapModifyNestingDepth = 0;
     // Original global: 00510A40.
     inline void* gStaticHumanJobExperienceTypeDataManager = nullptr;
     // Original global: 00510D40.
@@ -39,19 +53,19 @@ namespace NC2Logic
     // Original global: 005111C4.
     inline void* gStaticHouseTypeDataManager = nullptr;
     // Original global: 00511244.
-    inline void* gStaticGoodTypeDataManager = nullptr;
+    extern CStaticGoodTypeDataManager*& gStaticGoodTypeDataManager;
     // Original global: 005112E4.
-    inline void* gStaticTrianglePatternTypeDataManager = nullptr;
+    extern CStaticTrianglePatternTypeDataManager*& gStaticTrianglePatternTypeDataManager;
     // Original global: 00511354.
-    inline void* gStaticLandscapeTypeDataManager = nullptr;
+    extern CStaticLandscapeTypeDataManager*& gStaticLandscapeTypeDataManager;
     // Original global: 005114AC.
-    inline void* gSavegamesManager = nullptr;
+    inline CSavegamesManager* gSavegamesManager = nullptr;
     // Original global: 005114B4.
-    inline void* gCleanMapsManager = nullptr;
+    inline CCleanMapsManager* gCleanMapsManager = nullptr;
     // Original global: 005114B8.
-    inline void* gCampaignStaticDataManager = nullptr;
+    inline CCampaignStaticDataManager* gCampaignStaticDataManager = nullptr;
     // Original global: 005114EC.
-    inline void* gStaticStringsManager = nullptr;
+    inline CStaticStringsManager* gStaticStringsManager = nullptr;
     // Original global: 005114F0.
     inline void* gMissionOnscreenInfoManager = nullptr;
     // Original global: 005114F4.
@@ -109,17 +123,15 @@ namespace NC2Logic
     // Original global: 005111C0.
     inline void* gStaticHouseTypeData = nullptr;
     // Original global: 00511240.
-    inline void* gStaticGoodTypeData = nullptr;
+    extern SStaticGoodTypeData*& gStaticGoodTypeData;
     // Original global: 00511348.
-    inline void* gStaticLandscapeTypeData = nullptr;
+    extern SStaticLandscapeTypeData*& gStaticLandscapeTypeData;
     // Original global: 00511560.
     inline void* gMapPathfinderEntries = nullptr;
-    // CGame::mStaticVars, 00510818.
-    inline unsigned char gGameInitialized = 0;
     // Complete CStaticWeaponTypeDataManager pointer array, 00510E48..00510EEF.
     inline void* gStaticWeaponTypeArrays[42]{};
     // Complete CStaticStringsManager pointer array, 005114C0..005114EB.
-    inline void* gStaticStrings[11]{};
+    inline NXBasics::CStringArray* gStaticStrings[11]{};
     // SMapMigPoint/SMapMagPoint dimension mirrors, complete 005125F8..005125FF.
     struct SMapPointDimensions
     {

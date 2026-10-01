@@ -14,19 +14,6 @@ namespace NC2Logic
     // Original data: DAT_005106f8.
     // Mac reference: NC2Logic::gGameControlStartupData.
     inline SGameControlStartupData gGameControlStartupData;
-
-    // Original data: DAT_005108ac.
-    // Windows CRandom layout used by FUN_00410c3f.
-    // The Mac reference confirms the CRandom constructor and startup seed.
-    struct SGameRandomState
-    {
-        std::uint32_t currentState; // +0x00
-        std::uint32_t seed;         // +0x04
-    };
-
-    inline SGameRandomState gGameRandomState{};
-
-    static_assert(sizeof(SGameRandomState) == 8);
 }
 
 // Original data: 0050F620. Only the one-byte clear at 0040102D is established.

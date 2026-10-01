@@ -10,6 +10,8 @@ namespace NXBasics
 
 namespace NC2E2
 {
+    extern NXBasics::CBitmap* gDesktopOwnedBobBitmap;
+
     // Original function: FUN_0047c65d; initializes caller-provided display storage.
     void* Display_Construct(void* display, NXBasics::CBitmap* bitmap, std::uint8_t active, NXBasics::CFont* font);
 

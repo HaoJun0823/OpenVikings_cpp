@@ -85,7 +85,7 @@ namespace NMasterControlProgram
 
         new (std::nothrow) NInGameGuiManager::CInGameGuiManager();
 
-        FUN_00401985(this);
+        GameEngine_StartUpEngine();
 
         FUN_004a0205(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
@@ -106,7 +106,7 @@ namespace NMasterControlProgram
             FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, message);
         }
 
-        FUN_004019da(this);
+        GameEngine_StartUpGame();
         ProgressBar_Exit();
 
         mProgramState = static_cast<std::int32_t>(TProgramState::Game);
@@ -249,7 +249,7 @@ namespace NMasterControlProgram
                 }
                 else
                 {
-                    FUN_0040a4fd(DAT_005109ec, playerId, true);
+                    FUN_0040a4fd(NC2Logic::gGameControl, playerId, true);
                     FUN_0040b246(false);
                 }
 

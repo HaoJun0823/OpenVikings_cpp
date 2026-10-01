@@ -35,8 +35,17 @@ namespace OriginalStrings
     // Original data: 0050071c
     inline constexpr char DirectPlayErrorSeparator[] = " - ";
 
+    // Original data: 00500808.
+    inline constexpr char CampaignFileName[] = "campaign.ini";
+
     // Original data: 00500818.
     inline constexpr char DirectoryAndFileNameFormat[] = "%s\\%s";
+
+    // Original data: 0050089c.
+    inline constexpr char CampaignWriteWarning[] = "CCampaignStaticDataManager::l_IO_Save\n\nCould not write campaign ini file!";
+
+    // Original data: 00501044.
+    inline constexpr char SystemPlayerFileSystemName[] = "singleplayer";
 
     // Original data: 0050105c.
     inline constexpr char SaveDirectory[] = "Saves";

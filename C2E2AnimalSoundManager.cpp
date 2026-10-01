@@ -1,3 +1,4 @@
+#include "C2GameState.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
 #include "C2E2AnimalSoundManager.h"
@@ -14,7 +15,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern std::uint32_t DAT_00510838;
 
 namespace NC2E2
 {

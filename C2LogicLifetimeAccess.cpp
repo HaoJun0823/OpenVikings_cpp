@@ -1,3 +1,4 @@
+#include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2LogicLifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -10,15 +11,18 @@
 #include "XIniFileReader.h"
 #include "XFile.h"
 #include "XFileAccess.h"
-
-extern NXBasics::CIniFileReader* DAT_005109bc;
-extern void* DAT_005109c0;
+#include "C2CampaignStaticDataManager.h"
+#include "C2StaticStringsManager.h"
+#include "C2CleanMapsManager.h"
+#include "C2SavegamesManager.h"
+#include "C2StaticTrianglePatternTypeData.h"
+#include "C2StaticLandscapeTypeData.h"
+#include "C2StaticGoodTypeData.h"
 
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
     SMapMoveableArrayStorage gMapMoveableArrayStorage{};
-    std::byte* gStaticTrianglePatternTypes = nullptr;
     extern bool __cdecl FUN_00408f7b(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl FUN_0040a612(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl FUN_00418d3b(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -35,15 +39,9 @@ namespace NC2Logic
     extern bool __cdecl FUN_0044eb1e(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     struct SUserCommandListTag {};
-    struct SSavegameListTag {};
-    struct SCleanMapListTag {};
 
     // Original function: FUN_00411b6d.
     static void UserCommandList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SUserCommandListTag>*>(list)->~CRuntimeOwnedList(); }
-    // Original function: FUN_0041637e.
-    static void SavegameList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SSavegameListTag>*>(list)->~CRuntimeOwnedList(); }
-    // Original function: FUN_00416be5.
-    static void CleanMapList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SCleanMapListTag>*>(list)->~CRuntimeOwnedList(); }
 
     // Original function: FUN_00410d8d. Destruction reverses the three member lists.
     static void UserCommandQueues_Destruct(void* queues)
@@ -143,30 +141,6 @@ namespace NC2Logic
         gStaticHouseTypeDataManager = nullptr;
     }
 
-    // Original function: FUN_0041554a.
-    static void StaticGoodTypeDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticGoodTypeData);
-        gStaticGoodTypeData = nullptr;
-        gStaticGoodTypeDataManager = nullptr;
-    }
-
-    // Original function: FUN_004159b5.
-    static void StaticTrianglePatternTypeDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticTrianglePatternTypes);
-        gStaticTrianglePatternTypes = nullptr;
-        gStaticTrianglePatternTypeDataManager = nullptr;
-    }
-
-    // Original function: FUN_00415ddb.
-    static void StaticLandscapeTypeDataManager_Destruct(void*)
-    {
-        NXBasics::Runtime_Free(gStaticLandscapeTypeData);
-        gStaticLandscapeTypeData = nullptr;
-        gStaticLandscapeTypeDataManager = nullptr;
-    }
-
     // Original function: FUN_00412fe0.
     static void StaticWeaponTypeDataManager_Destruct(void*)
     {
@@ -179,48 +153,6 @@ namespace NC2Logic
             }
         }
         gStaticWeaponTypeDataManager = nullptr;
-    }
-
-    // Original function: FUN_00415f0c.
-    static void SavegamesManager_Clear(void* manager) { DrainRuntimeList(static_cast<std::byte*>(manager) + 0x0C); }
-    // Original function: FUN_00415e4b.
-    static void SavegamesManager_Destruct(void* manager)
-    {
-        SavegamesManager_Clear(manager);
-        gSavegamesManager = nullptr;
-        SavegameList_Destruct(static_cast<std::byte*>(manager) + 0x0C);
-    }
-
-    // Original function: FUN_004165d1.
-    static void CleanMapsManager_Clear(void* manager)
-    {
-        DrainRuntimeList(static_cast<std::byte*>(manager) + 0x1C);
-        std::memset(manager, 0, 0x1C);
-    }
-    // Original function: FUN_004163fa.
-    static void CleanMapsManager_Destruct(void* manager)
-    {
-        CleanMapsManager_Clear(manager);
-        gCleanMapsManager = nullptr;
-        CleanMapList_Destruct(static_cast<std::byte*>(manager) + 0x1C);
-    }
-
-    // Original function: FUN_00416c8a.
-    static void CampaignStaticDataManager_Destruct(void* manager)
-    {
-        FreeField(manager, 0x20C);
-        FreeField(manager, 0x214);
-        gCampaignStaticDataManager = nullptr;
-    }
-    // Original function: FUN_00417121.
-    static void StaticStringsManager_Destruct(void*)
-    {
-        for (void*& strings : gStaticStrings)
-        {
-            DeleteStorable(strings);
-            strings = nullptr;
-        }
-        gStaticStringsManager = nullptr;
     }
 
     // Original function: FUN_00417168.
@@ -499,13 +431,13 @@ namespace NC2Logic
         DestroyOwned(gStaticAtomicAnimationDataManager, StaticAtomicAnimationDataManager_Destruct);
         DestroyOwned(gStaticVehicleTypeDataManager, StaticVehicleTypeDataManager_Destruct);
         DestroyOwned(gStaticHouseTypeDataManager, StaticHouseTypeDataManager_Destruct);
-        DestroyOwned(gStaticGoodTypeDataManager, StaticGoodTypeDataManager_Destruct);
-        DestroyOwned(gStaticTrianglePatternTypeDataManager, StaticTrianglePatternTypeDataManager_Destruct);
-        DestroyOwned(gStaticLandscapeTypeDataManager, StaticLandscapeTypeDataManager_Destruct);
-        DestroyOwned(gSavegamesManager, SavegamesManager_Destruct);
-        DestroyOwned(gCleanMapsManager, CleanMapsManager_Destruct);
-        DestroyOwned(gCampaignStaticDataManager, CampaignStaticDataManager_Destruct);
-        DestroyOwned(gStaticStringsManager, StaticStringsManager_Destruct);
+        DestroyOwned(gStaticGoodTypeDataManager, [](CStaticGoodTypeDataManager* manager) { manager->~CStaticGoodTypeDataManager(); });
+        DestroyOwned(gStaticTrianglePatternTypeDataManager, [](CStaticTrianglePatternTypeDataManager* manager) { manager->~CStaticTrianglePatternTypeDataManager(); });
+        DestroyOwned(gStaticLandscapeTypeDataManager, [](CStaticLandscapeTypeDataManager* manager) { manager->~CStaticLandscapeTypeDataManager(); });
+        DestroyOwned(gSavegamesManager, [](CSavegamesManager* manager) { manager->~CSavegamesManager(); });
+        DestroyOwned(gCleanMapsManager, [](CCleanMapsManager* manager) { manager->~CCleanMapsManager(); });
+        DestroyOwned(gCampaignStaticDataManager, [](CCampaignStaticDataManager* manager) { manager->~CCampaignStaticDataManager(); });
+        DestroyOwned(gStaticStringsManager, [](CStaticStringsManager* manager) { manager->~CStaticStringsManager(); });
         gGame = nullptr;
     }
 }

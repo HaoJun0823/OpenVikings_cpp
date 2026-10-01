@@ -32,7 +32,10 @@ namespace NXBasics
         // Original deleting destructor: FUN_00439c13
         virtual ~CListBase();
 
+        void InsertAtStart(void* data);
         void InsertAtEnd(void* data);
+        void InsertBefore(void* position, void* data);
+        std::uint32_t GetCount() const { return mCount; }
 
         CListBase(const CListBase&) = delete;
         CListBase& operator=(const CListBase&) = delete;

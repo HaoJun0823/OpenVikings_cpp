@@ -1,4 +1,4 @@
-# OpenVikings
+﻿# OpenVikings
 
 OpenVikings is a source-level C++ reconstruction of **Cultures: Das Achte Weltwunder** / **Cultures 2 AddOn**.
 
@@ -214,7 +214,7 @@ Keep this register and its indexes synchronized with findings recorded in subsys
 
 ## Current reconstruction status
 
-Current checkout review: 2026-10-01. The production Win32 syntax pass covers 88 units: 85 pass; three incomplete menu/game-state units retain 107 diagnostics. MasterControlProgram now compiles; six units checked for master-control initialization generate `/Od` and `/O2` objects. Existing warnings remain. This establishes compilation of those units, not a full link or game runtime validation. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md), [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md), [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md) and [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+Current checkout review: 2026-10-01. The production Win32 syntax pass covers 96 units: 93 pass; three incomplete menu/game-state units retain 65 diagnostics. Nine units checked for clean-map/savegame ownership, loading and header reading generate `/Od` and `/O2` objects; existing runtime warnings remain. This establishes compilation of those units, not a full link or game runtime validation. See [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md), [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md), [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md), [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md) and [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md).
 
 Historical source review below: 2026-09-27, based on the supplied OpenVikings_cpp.zip.
 
@@ -1326,6 +1326,21 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA043](#oa043) | System-manager converter allocations remain unchecked | 004069F3, 0040FE5D |
 | [OA044](#oa044) | System-manager teardown retains handler mode and selected callbacks | 004069F3, 00406AB5, 00479169 |
 | [OA045](#oa045) | Property replacement frees the old string before copying its source | 004E167D, 00410B59 |
+| [OA046](#oa046) | Startup continues and sets flags after skipped allocations | 00401985, 004019DA, 00406B70, 00406F7D, 0047DCC4 |
+| [OA047](#oa047) | Startup restores its snapshot and defaults unmatched player IDs to zero | 004019DA |
+| [OA048](#oa048) | Map-modification callbacks retain reentrant depth writes | 00411BCC, 00411BEF, 00411C18 |
+| [OA049](#oa049) | Campaign loading and submission growth retain unchecked allocation writes | 00416C1E, 00416CAE, 00416DA2 |
+| [OA050](#oa050) | Campaign save failure retains grants and warning state changes | 00416F66, 0043FDBA, 0043FDF0 |
+| [OA051](#oa051) | Static-string startup retains resolver failures and null arrays | 004170B5, 00405ADB, 0042BD6B |
+| [OA052](#oa052) | Savegame header parsing retains unchecked player indices and accepted-version continuation | 00425BFB, 004264A7, 0042A059, 0042A194 |
+| [OA053](#oa053) | Map refresh retains duplicate-GUID counter increments and temporary archive ordering | 00416608, 004167A1, 0042BEFE |
+| [OA054](#oa054) | Record/list sorting retains unchecked allocation, bounded-buffer assumptions and GUID failure | 00415F32, 00416473, 00416B2D, 00439C59, 00439CC2 |
+| [OA055](#oa055) | Terrain-type allocation and missing input retain unchecked continuation | 00415596, 004159D0 |
+| [OA056](#oa056) | Landscape transitions retain unchecked values, equality cap and masked shifts | 00415D10-00415D72 |
+| [OA057](#oa057) | Lazy terrain token state survives failed exit registration and owner teardown | 004156E6-00415805, 00415B1A-00415C15 |
+| [OA058](#oa058) | Static-good load retains unchecked allocation, duplicate-group state and returning warning | 00414FEE, 0041550D, 0043FDF0 |
+| [OA059](#oa059) | Production-input aggregation retains raw IDs and both ten-entry caps | 00415385-004153F0 |
+| [OA060](#oa060) | Engine landscape binding visits 56 of 66 good records and retains failed lookup IDs | 00415565, 004807C8 |
 
 <a id="oa001"></a>
 
@@ -1820,6 +1835,156 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve the original ownership sequence and analyze caller aliasing before adding protection. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa046"></a>
+
+### OA046 — Startup continues and sets flags after skipped allocations
+
+- **Original reference:** `00401985`, `004019DA`, `00406B70`, `00406F7D`, `0047DCC4`.
+- **Evidence and retained behavior:** Null owner/subowner allocations skip only their constructors. Progress calls, static-good resolution and callback registrations continue; engine/game initialization flags are still set. Failed allocations do not clear an existing owner slot and there is no rollback or returned success flag.
+- **Assessment / reconstruction limits:** Confirmed continuation and subsequent unchecked singleton accesses, including the callback manager. Original low-memory reachability depends on allocator/new-handler outcomes and earlier owners. Subordinate resource-loading failure handling remains open.
+- **Decision / Renewed task:** Preserve allocation gates, explicit handler invocation, call order and unconditional flag writes. See [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa047"></a>
+
+### OA047 — Startup restores its snapshot and defaults unmatched player IDs to zero
+
+- **Original reference:** `004019DA`.
+- **Evidence and retained behavior:** The startup executor is followed by restoration of all 0x120 saved bytes. Multiplayer identifier searches retain player zero when none of 20 entries match. Any nonnull start_map value enters map loading and proceeds to GUI centering/property removal without checking a result.
+- **Assessment / reconstruction limits:** Confirmed snapshot/default/continuation behavior. These are original observations, not proof that valid startup records cause an incorrect player assignment. Executor, loader and GUI bodies remain separate original boundaries.
+- **Decision / Renewed task:** Preserve restoration and defaults; establish caller/loader contracts before changing them. See [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa048"></a>
+
+### OA048 — Map-modification callbacks retain reentrant depth writes
+
+- **Original reference:** `00411BCC`, `00411BEF`, `00411C18`.
+- **Evidence and retained behavior:** Start increments the unsigned global before its depth-one callback. Stop ignores zero and decrements the actual global after the depth-one callback returns. ForceUpdate calls stop/start notifications without rechecking depth between them. Callback results are ignored and no overflow or reentrancy protection is added.
+- **Assessment / reconstruction limits:** Confirmed ordering and modulo depth arithmetic. Callback-driven depth changes affect the subsequent decrement; concrete defective caller sequences remain unresolved.
+- **Decision / Renewed task:** Preserve original callback order, results and global read/write timing. See [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa049"></a>
+
+### OA049 — Campaign loading and submission growth retain unchecked allocation writes
+
+- **Original reference:** `00416C1E`, `00416CAE`, `00416DA2`.
+- **Evidence and retained behavior:** Constructor ignores load failure and adds ten default grants. Load allocates count*8/count*12 and immediately clears/fills the result. Growth copies into a replacement without checking success, frees the old allocation, increments the count and publishes the pointer; the empty case sets count before allocation. Existing grants return without saving.
+- **Assessment / reconstruction limits:** Confirmed unchecked allocation continuation, unsigned size arithmetic and call/write order. Low-memory reachability depends on runtime handler outcomes; caller/input invariants are not repaired by reconstruction.
+- **Decision / Renewed task:** Preserve the original gates, defaults and count/pointer order. See [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa050"></a>
+
+### OA050 — Campaign save failure retains grants and warning state changes
+
+- **Original reference:** `00416F66`, `0043FDBA`, `0043FDF0`.
+- **Evidence and retained behavior:** Directory creation is unchecked. Failed write-open shows a warning, destroys the file and returns without undoing the appended grant or reporting status to the caller. The warning toggles out of fullscreen, releases clipping and sets speed to zero for an initialized non-network game; these entries do not restore the earlier display/speed state. Later writes use existing CFile diagnostics.
+- **Assessment / reconstruction limits:** Confirmed failure and warning side effects. Whether later game/UI paths resume speed or choose another display mode remains separate; no automatic restoration or transactional save is invented.
+- **Decision / Renewed task:** Preserve warning/cleanup order and in-memory continuation. See [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa051"></a>
+
+### OA051 — Static-string startup retains resolver failures and null arrays
+
+- **Original reference:** `004170B5`, `00405ADB`, `0042BD6B`, `0042BA56`, `0042BC30`, `0042F984`, `0042F9CD`.
+- **Evidence and retained behavior:** Each nonnull filename-table slot invokes language resolution and loading regardless of the resolver result, storing the returned array including null. Missing/unloaded or text-group-less INI input returns null. Parser insert results are ignored; failed array/memory allocations can reach unchecked Fill/copy/insertion calls. Original teardown deletes nonnull arrays and clears every slot.
+- **Assessment / reconstruction limits:** Confirmed original continuation/ownership behavior. Downstream use of missing arrays and concrete allocation failure reachability remain separate analysis targets.
+- **Decision / Renewed task:** Preserve fallback, null slots, parse outcomes and original deletion; do not synthesize empty arrays. See [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa052"></a>
+
+### OA052 — Savegame header parsing retains unchecked player indices and accepted-version continuation
+
+- **Original reference:** `00425BFB`, `004264A7`, `0042A059`, `0042A194`.
+- **Evidence and retained behavior:** Header loading ignores the explicit file-open result and uses existing CFile diagnostics. Missing initial xsgv/xsgi markers return -1. Older info versions produce default metadata; malformed later headers/end markers return the accepted game version and retain partial fields. Multiplayer entries stop only at a negative index, without a twenty-player bound. Fixed-size string copies do not add termination; short encoded strings rely on their input terminator, while length >=199 skips the string and returns one space.
+- **Assessment / reconstruction limits:** Confirmed input assumptions and continuation. Actual corrupt-input/overflow reachability and valid original encoding contracts remain separate; no invented validation or failure result is added.
+- **Decision / Renewed task:** Preserve parsing, defaults, original return values and reverse temporary destruction. See [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa053"></a>
+
+### OA053 — Map refresh retains duplicate-GUID counter increments and temporary archive ordering
+
+- **Original reference:** `00416608`, `004167A1`, `0042BEFE`.
+- **Evidence and retained behavior:** Missing readers/groups, reserved paths and zero GUIDs reject records. Every accepted maptype command increments its counter before duplicate-GUID lookup; overwriting a duplicate record does not undo counts or reposition the allocation. Mission language resolution results are ignored; a null array triggers the currentusermap fallback and may remain null. Archive registration/worker results are unchecked; removal and archive destruction/free precede INI-reader destruction. System-path clearing also precedes reader destruction.
+- **Assessment / reconstruction limits:** Confirmed ordering, null/fallback behavior and duplicate semantics. Counts describe accepted commands, not necessarily unique maps. Original invariants and downstream counter consumers remain separate analysis targets.
+- **Decision / Renewed task:** Preserve command ordering, overwrite semantics, null metadata and archive/path/reader lifetime. See [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa054"></a>
+
+### OA054 — Record/list sorting retains unchecked allocation, bounded-buffer assumptions and GUID failure
+
+- **Original reference:** `00415F32`, `00416473`, `004167A1`, `00416B2D`, `00416B98`, `00439C59`, `00439CC2`.
+- **Evidence and retained behavior:** New record/sort buffers are cleared/copied without a null check. List insertion retains count/link updates after a failed node allocation. Savegame IDs increment before header rejection and survive refresh; unsigned wrap is retained. Record-content sorting changes pointer identity without relinking nodes; original equal-key movement is retained. Directory/button/map-name formatting trusts caller buffer capacity. CoCreateGuid failure leaves the already cleared destination all zero, without retry or propagated status. Reused scanner failure/handle/buffer behavior remains indexed in OB016-OB022.
+- **Assessment / reconstruction limits:** Confirmed allocation and lifetime assumptions. Runtime handler outcomes, caller capacity and pointer-retention contracts determine practical failure reachability; these are not repaired as part of faithful reconstruction.
+- **Decision / Renewed task:** Preserve allocation family/handler invocation, insertion/sort/ID semantics and GUID failure. See [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa055"></a>
+
+### OA055 — Terrain-type allocation and missing input retain unchecked continuation
+
+- **Original reference:** `00415596`, `004159D0`.
+- **Evidence and retained behavior:** Owners publish their singleton, clear the array slot and allocate through the explicit-handler runtime. Color construction is conditional on a nonnull allocation; full-array clearing and record-zero defaults remain unconditional. Unloaded INI input leaves defaults; missing type commands, zero or out-of-range unsigned IDs skip groups. No initialization failure result or rollback is introduced.
+- **Assessment / reconstruction limits:** Confirmed Windows allocation/continuation and input handling. A returning allocation handler can expose the unchecked write path; missing resource files alone leave usable default storage. Full game behavior with absent type definitions remains unverified.
+- **Decision / Renewed task:** Preserve current behavior; consider allocation/resource diagnostics only after faithful reconstruction. See [STATIC_TERRAIN_TYPE_DATA.md](docs/STATIC_TERRAIN_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa056"></a>
+
+### OA056 — Landscape transitions retain unchecked values, equality cap and masked shifts
+
+- **Original reference:** `00415D10-00415D72`; related command paths in `00415596` / `004159D0`.
+- **Evidence and retained behavior:** Count equal to five skips the entire transition command before parameter reads. Otherwise all five raw integers are stored, the type shift uses its low five bits and count increments last. No duplicate/type/target/operation checks exist. Duplicate groups modify existing records and accumulate transitions. Booleans use full nonzero tests; debug colors truncate sequential reads to bytes; name copies preserve the original 29-byte limit.
+- **Assessment / reconstruction limits:** Confirmed parsing, shift and cap behavior. Malformed values are retained for downstream consumers; this does not establish which resource data is valid. The final transition word's semantic identity and several record bytes remain unresolved.
+- **Decision / Renewed task:** Preserve representation and ordering; review downstream contracts before imposing validation. See [STATIC_TERRAIN_TYPE_DATA.md](docs/STATIC_TERRAIN_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa057"></a>
+
+### OA057 — Lazy terrain token state survives failed exit registration and owner teardown
+
+- **Original reference:** `004156E6-00415805`, `00415B1A-00415C15`, `004159B4`, `00415DDA`.
+- **Evidence and retained behavior:** First valid-group command sets the table flag before writing the terminator/rows, then sets the list flag before constructing the list and calling Runtime_AtExit. Registration result is ignored. Owner destruction does not reset flags/list/tables; the original callbacks are empty ret entries.
+- **Assessment / reconstruction limits:** Confirmed persistent static state and ignored registration result. The list has no destructor side effects, so registration failure does not by itself demonstrate a resource leak in this block. Runtime callback allocation failure remains governed by its existing implementation.
+- **Decision / Renewed task:** Preserve lazy state and no-op callbacks. See [STATIC_TERRAIN_TYPE_DATA.md](docs/STATIC_TERRAIN_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa058"></a>
+
+### OA058 — Static-good load retains unchecked allocation, duplicate-group state and returning warning
+
+- **Original reference:** `00414FEE`, `0041550D`, `0043FDF0`.
+- **Evidence and retained behavior:** The owner publishes itself, allocates and unconditionally clears the good array. Missing INI input leaves defaults; missing type commands or signed IDs outside 1..65 skip groups. Every accepted group resets landscape type/engine ID but retains other record fields. Weapon/armor parameters are consumed only while the stored value is zero. Missing landscape type warns through C2Debug_WarningBox and may continue with its original fullscreen/cursor/game-speed side effects. Lazy token flags precede table/list initialization; exit-registration result is ignored and state persists after teardown.
+- **Assessment / reconstruction limits:** Confirmed allocation, warning and duplicate semantics. A missing file does not trigger per-good warnings. Returning allocation handlers can expose unchecked writes. Valid-resource contracts and downstream behavior remain separate verification work.
+- **Decision / Renewed task:** Preserve input/continuation behavior; review diagnostics only after faithful reconstruction. See [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa059"></a>
+
+### OA059 — Production-input aggregation retains raw IDs and both ten-entry caps
+
+- **Original reference:** `00415385-004153F0`.
+- **Evidence and retained behavior:** Read while the next parameter is type 3 and both unsigned counts are below ten. Append each raw ID to the ordered list, increment total count, then increment the first equal distinct ID's amount or append a new distinct ID. Counts/arrays survive duplicate groups. Either cap stops parameter consumption, including when a later value could match an existing distinct ID. Negative/out-of-range IDs are not validated.
+- **Assessment / reconstruction limits:** Confirmed cap, ordering and aggregation behavior. Input validity and downstream consumers determine the effects of malformed IDs; the loader does not establish a new domain restriction.
+- **Decision / Renewed task:** Preserve counts and representation. See [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa060"></a>
+
+### OA060 — Engine landscape binding visits 56 of 66 good records and retains failed lookup IDs
+
+- **Original reference:** `00415565`, `004807C8`.
+- **Evidence and retained behavior:** The original inclusive offset limit visits records 0..55 despite allocating/loading 66 records. Nonzero landscape types receive the first matching engine index with a nonzero map-landscape flag; missing matches/nonpositive count return -1, which is stored. Zero types retain their engine-ID field. The lookup trusts the existing engine array when count is positive and adds no null check or identifier clamp.
+- **Assessment / reconstruction limits:** Confirmed loop bound and lookup behavior. This is not proof that loadable types 56..65 need engine IDs: their intended use and remaining consumers are unresolved. The former pointer-shaped helper declaration was a reconstruction typing issue, now corrected to integer IDs.
+- **Decision / Renewed task:** Preserve the bound and -1 handling until consumer contracts are established. See [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md).
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -1843,6 +2008,21 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP015 | DirectDraw and fatal diagnostic dialogs | Nonzero results format/debug/warn; fatal display errors show cursor/release clipping/flip to GDI, break on Cancel and raise signal 22, retaining possible return | [BITMAP_TO_SCREEN.md](docs/BITMAP_TO_SCREEN.md), `00479E40`, `0047A567`, `0047AAA3`; OA042 |
 | FP016 | System-manager allocation handler, initialization and teardown | Warn and return zero on allocation failure; retain conditional construction and unchecked converter/table accesses; restore previous handler under lock 9 without resetting mode | [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md), `004069F3–00406AB5`, `004E7A0A`, `004E7A27`; OA043–OA044 |
 | FP017 | Master-control property initialization and ownership | Preserve unchecked manager/record/string allocation continuation, explicit handler invocation, release-before-duplicate replacement and original list/record/string cleanup order | [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md), `00401000`, `004E1408–004E1765`, `00410B59`; OB009, OA036, OA045 |
+| FP018 | Engine/game owner and subowner startup allocations | Skip only a failed constructor, retain progress/registration/static-good calls and initialization flags, with no rollback; ignore registration results | [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md), `00401985`, `00406B70`, `00406F7D`, `0047DCC4`; OA046 |
+| FP019 | Startup map/record/player routing and AI enable | Accept nonnull start_map without a checked load result; restore startup snapshot; default unmatched IDs to zero; retain upper-only AI index check and unchecked subobjects | [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md), `004019DA`, `00408F18`; OA047 |
+| FP020 | Map-modification nested callbacks | Ignore callback results; decrement current global after callback return; retain unsigned wrap and forced stop/start order without a second depth check | [GAME_ENGINE_STARTUP.md](docs/GAME_ENGINE_STARTUP.md), `00411BCC–00411C18`; OA048 |
+| FP021 | Campaign INI load and submission append | Ignore load result during construction; retain default grants, unchecked count-sized allocation/clearing/growth and duplicate no-save return | [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md), `00416C1E`, `00416CAE`, `00416DA2`; OA049 |
+| FP022 | Campaign save and game warning dialog | Ignore directory result; failed write-open warns and retains in-memory changes; preserve fullscreen/cursor/non-network-speed side effects and file destruction | [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md), `00416F66`, `0043FDBA`, `0043FDF0`; OA050 |
+| FP023 | Static-string language resolution, parsing and allocation | Load after false resolver result, retain null arrays, ignore insert results and preserve unchecked allocation continuation and original teardown | [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md), `004170B5`, `00405ADB`, `0042BD6B`, `0042BA56`, `0042BC30`, `0042F984`, `0042F9CD`; OA051 |
+| FP024 | Savegame file/header/string input | Ignore open result; reject only initial marker failure, retain old/default or partial metadata, unchecked nonnegative player indices and original string-length handling | [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md), `00425BFB`, `004264A7`, `0042A059`, `0042A194`; OA052 |
+| FP025 | Map metadata, language fallback and archive refresh | Reject unloaded/missing/reserved/zero-GUID input; retain counters before duplicate overwrite, null fallback arrays and removal/free-before-reader destruction | [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md), `00416608`, `004167A1`, `0042BEFE`; OA053 |
+| FP026 | Manager records/list nodes/sort buffers, GUID and directory scanner | Preserve unchecked record/sort allocations and node bookkeeping, persistent IDs, caller buffer assumptions, zero GUID after API failure and existing scanner failure behavior | [CLEAN_MAPS_AND_SAVEGAMES.md](docs/CLEAN_MAPS_AND_SAVEGAMES.md), `00415F32`, `00416473`, `00416B2D`, `00439C59`, `00439CC2`; OA054, OB016-OB022 |
+| FP027 | Terrain-type array allocation and INI group selection | Preserve conditional color construction followed by unchecked full clear; missing files leave defaults, invalid type groups are skipped | [STATIC_TERRAIN_TYPE_DATA.md](docs/STATIC_TERRAIN_TYPE_DATA.md), `00415596`, `004159D0`; OA055 |
+| FP028 | Terrain commands and landscape transitions | Retain nonzero booleans, byte colors, 29-byte names, duplicate-group updates, five-entry equality cap, raw transition values and masked shifts | [STATIC_TERRAIN_TYPE_DATA.md](docs/STATIC_TERRAIN_TYPE_DATA.md), `00415D10-00415D72`; OA056 |
+| FP029 | Terrain token-list exit registration and repeated owner lifetime | Ignore registration result; retain flags/list/tables after teardown and preserve no-op exit callbacks | [STATIC_TERRAIN_TYPE_DATA.md](docs/STATIC_TERRAIN_TYPE_DATA.md), `004156E6-00415805`, `00415B1A-00415C15`; OA057 |
+| FP030 | Static-good allocation, group selection, missing landscape and token lifetime | Preserve unchecked clearing, skipped groups, partial duplicate reset, returning warning side effects and persistent lazy state after ignored registration failure | [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md), `00414FEE`, `0041550D`; OA058 |
+| FP031 | Production-input type/cap/duplicate handling | Retain raw IDs, count-before-aggregation order, repeated-group accumulation and both unsigned ten-entry caps | [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md), `00415385-004153F0`; OA059 |
+| FP032 | Good-to-engine landscape lookup | Retain 56-record bound, first eligible match, -1 on lookup failure and unchecked positive-count array access | [STATIC_GOOD_TYPE_DATA.md](docs/STATIC_GOOD_TYPE_DATA.md), `00415565`, `004807C8`; OA060 |
 
 ## Reconstruction errors are not original bugs
 
@@ -1867,6 +2047,8 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | System-manager object and 16-bit shadow table use host allocation; application clears assert instead of fatal | Windows allocates through explicit-handler thunk `004E5DDD`, frees through `004E5E48`, and clears warning/fatal in `00479169` | Corrected the directly related allocation/free paths, minimal converter initialization and callback clearing; retained original unchecked allocation behavior. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md) |
 | Property manager, records and duplicated strings use host allocation; `0050F620` is described as property-manager storage | Windows uses the explicit-handler runtime allocator/free family; `0050F620` has only a one-byte clear and no established semantic identity | Corrected ownership and reused the canonical runtime list; retained the unknown byte under its original name. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md) |
 
+StringIO/CStringArray/CMemory handler invocation differed from the explicit-handler thunk on five directly reached allocation sites. Those reconstruction differences are corrected; the original unchecked continuation is retained. See [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md).
+
 Pentium FDIV detection is a hardware compatibility measure, not a newly discovered game-software defect.
 
 ## Global data review — 2026-09-28
@@ -1874,7 +2056,7 @@ Pentium FDIV detection is a hardware compatibility measure, not a newly discover
 The reviewed baseline contains 104 active DAT symbols and 370 code occurrences across 123 header/source files. Another 39 DAT addresses occur only in comments. Of the active symbols, 36 have definitions; 68 lack definitions, including 14 without declarations.
 The proposed source changes consolidate the DirectMusic references onto the existing gDirectMusicManager, use the existing InGame GUI singleton, and move the three implemented sound-manager singleton pointers to inline static header members.
 Original address 0050f6bc is the events member at offset 0x14 of the dynamic network object at 0050f6a8. It must not receive an independent definition.
-The current LOD source contains two SetLevelOfDetail definitions and no constructor definition. Restore the constructor from 00489f75, including the singleton assignment, state initialization, and engine_lod property/default handling. Keep one setter using the implemented display-manager method.
+The earlier duplicate LOD setter/missing constructor finding is resolved: CLevelOfDetailManager now has the 00489F75 constructor and one setter. Engine startup reuses that existing constructor, including singleton/state initialization and engine_lod property/default handling.
 The additional InGame GUI singleton definition and the redundant external declarations of the inline DirectSound singleton must be removed.
 These findings are reconstruction issues, not additional original-bug observations.
 

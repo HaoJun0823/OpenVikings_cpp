@@ -21,7 +21,7 @@ namespace NMasterControlProgram
 
         new (std::nothrow) NC2MainMenuGuiManager::CGuiManager();
 
-        FUN_00401985(this);
+        GameEngine_StartUpEngine();
 
         const int displayDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
 

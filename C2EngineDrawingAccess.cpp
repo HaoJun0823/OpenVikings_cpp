@@ -1,3 +1,4 @@
+#include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDrawingAccess.h"
 #include "C2E2LevelOfDetailManager.h"
@@ -14,11 +15,9 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_005109ec;
 extern void* DAT_005550e4;
 extern void* DAT_00568a64;
 extern void* DAT_00568a7c;
-extern std::uint32_t DAT_00510838;
 extern NXBasics::CPalette* DAT_005550f8;
 extern std::uint8_t DAT_00568b44;
 
@@ -57,7 +56,7 @@ namespace NC2E2
             return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
         };
 
-        const std::byte* player = addressAt(DAT_005109ec, static_cast<std::uint32_t>(playerId) * 0x4a80u);
+        const std::byte* player = addressAt(NC2Logic::gGameControl, static_cast<std::uint32_t>(playerId) * 0x4a80u);
 
         std::uint8_t active;
         std::memcpy(&active, player, sizeof(active));

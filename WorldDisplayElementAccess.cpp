@@ -1,3 +1,4 @@
+#include "C2GameState.h"
 #include "WorldDisplayElementAccess.h"
 #include "C2E2AnimalSoundManager.h"
 #include "C2E2AmbientSoundManagerAccess.h"
@@ -18,9 +19,6 @@
 #include <cstring>
 #include <new>
 
-extern double DAT_00510848;
-extern std::uint8_t DAT_0051089d;
-extern std::uint8_t DAT_005109c5;
 extern void* DAT_005550d4;
 
 // Untranslated original base/widget interfaces. EDX is unused so the stack

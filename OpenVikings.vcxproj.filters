@@ -297,6 +297,21 @@
     <ClCompile Include="C2ControlStartup.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2CampaignStaticDataManager.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2StaticStringsManager.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2Debug.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2GameEngineStartup.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="MasterControlProgram_GameStartup.cpp">
+      <Filter>Application\States</Filter>
+    </ClCompile>
     <ClCompile Include="C2AnimalAccess.cpp">
       <Filter>Engine\Animals</Filter>
     </ClCompile>
@@ -569,6 +584,21 @@
     <ClInclude Include="C2ControlStartup.h">
       <Filter>Logic</Filter>
     </ClInclude>
+    <ClInclude Include="C2CampaignStaticDataManager.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2StaticStringsManager.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2Debug.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2GameEngineStartup.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2GameState.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
     <ClInclude Include="C2AnimalAccess.h">
       <Filter>Engine\Animals</Filter>
     </ClInclude>
@@ -706,6 +736,60 @@
     </ClInclude>
     <ClInclude Include="C2LifetimeGlobals.h">
       <Filter>Core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2CleanMapsManager.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2CleanMapsManager.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="C2SavegamesManager.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2SavegamesManager.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="C2SavegameIO.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2SavegameIO.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2MapGuid.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticTrianglePatternTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticTrianglePatternTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="C2StaticLandscapeTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticLandscapeTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="XBasicTypes.cpp">
+      <Filter>Core\Types</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticGoodTypeData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2StaticGoodTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="C2EngineLandscapeAccess.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClInclude Include="C2EngineLandscapeAccess.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,7 +1,9 @@
 #include "C2StringIO.h"
+#include "C2LanguageTools.h"
 #include "XBTokenList.h"
 #include "XIniFileReader.h"
 #include "XStringArray.h"
+#include "XCrtFileAccess.h"
 
 #include <cstdint>
 #include <cstring>
@@ -9,6 +11,21 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042befe.
+    NXBasics::CStringArray* StringIO_GetMissionStringArrayPtr(const char* mapRoot)
+    {
+        char pattern[260];
+        char filename[260];
+        NXBasics::Runtime_PrintString(pattern, "%s\\text\\%%s\\strings.ini", mapRoot);
+        LanguageTool_GetFilename(pattern, filename, true);
+        NXBasics::CStringArray* strings = StringIO_CreateOutOfIniFile(filename);
+        if (strings != nullptr)
+            return strings;
+        NXBasics::Runtime_PrintString(filename, "%s\\text\\%%s\\strings.ini", "currentusermap");
+        LanguageTool_GetFilename(filename, pattern, true);
+        return StringIO_CreateOutOfIniFile(pattern);
+    }
+
     // Original function: FUN_0042bd6b
     NXBasics::CStringArray* StringIO_CreateOutOfIniFile(const char* fileName)
     {
@@ -54,7 +71,8 @@ namespace NC2Logic
         if (!reader.SearchGroup("text"))
             return nullptr;
 
-        auto* strings = new (std::nothrow) NXBasics::CStringArray(std::uint8_t{ 0 });
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x20, 1);
+        auto* strings = allocation != nullptr ? ::new (allocation) NXBasics::CStringArray(std::uint8_t{ 0 }) : nullptr;
         NXBasics::CTokenList textTokenList(textTokens);
         std::uint32_t stringId = 0u;
 

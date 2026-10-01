@@ -1,3 +1,4 @@
+#include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineLifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -20,8 +21,6 @@
 #include "MasterPropertyManager.h"
 #include "XIniFileReader.h"
 
-extern NXBasics::CIniFileReader* DAT_005109bc;
-extern std::uint32_t DAT_00510838;
 // Original CRT cosine/sine entries; known library boundaries.
 extern double __cdecl FUN_004e8824(double);
 extern double __cdecl FUN_004e8774(double);

@@ -41,7 +41,7 @@ namespace NC2E2
 {
     // Original owning pointer: 00554DA0. Windows establishes the ownership;
     // the exact original symbol name is unavailable in the Mac reference.
-    static NXBasics::CBitmap* gDesktopOwnedBobBitmap = nullptr;
+    NXBasics::CBitmap* gDesktopOwnedBobBitmap = nullptr;
 
     // Original function: FUN_0047e5f4; height is unused by the Windows routine.
     void Inform_DesktopXTructed(std::int32_t width, std::int32_t height, std::uint32_t depth)

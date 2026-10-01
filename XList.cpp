@@ -45,6 +45,21 @@ namespace NXBasics
             l_Base_RemoveFromStart();
     }
 
+    // Original function: FUN_00439c59.
+    void CListBase::InsertAtStart(void* data)
+    {
+        auto* node = static_cast<SNode*>(Runtime_AllocateWithNewHandler(0x08, 1));
+        if (node != nullptr)
+        {
+            node->next = mFirst;
+            node->data = data;
+        }
+        if (mFirst == nullptr)
+            mLast = node;
+        ++mCount;
+        mFirst = node;
+    }
+
     // Original function: FUN_00439c8b.
     void CListBase::InsertAtEnd(void* data)
     {
@@ -60,6 +75,36 @@ namespace NXBasics
             mLast->next = node;
         ++mCount;
         mLast = node;
+    }
+
+    // Original function: FUN_00439cc2.
+    void CListBase::InsertBefore(void* position, void* data)
+    {
+        SNode* previous = nullptr;
+        if (mCount != 0)
+        {
+            for (SNode* node = mFirst; node->next != nullptr; node = node->next)
+            {
+                if (node->next->data == position)
+                {
+                    previous = node;
+                    break;
+                }
+            }
+        }
+        if (previous == nullptr)
+        {
+            InsertAtStart(data);
+            return;
+        }
+        auto* node = static_cast<SNode*>(Runtime_AllocateWithNewHandler(0x08, 1));
+        if (node != nullptr)
+        {
+            node->next = previous->next;
+            node->data = data;
+        }
+        previous->next = node;
+        ++mCount;
     }
 
     // Original function: FUN_00439d1e

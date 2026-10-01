@@ -26,8 +26,7 @@ namespace NC2E2
 
 namespace NC2Logic
 {
-    // CStaticTrianglePatternTypeDataManager::mStaticVars at 005112E0.
-    // Eleven 0x30-byte records, with the overview color at record +0x2C.
-    // Allocation/loading/freeing remain in the original owning manager.
-    extern std::byte* gStaticTrianglePatternTypes;
+    struct SStaticTrianglePatternTypeData;
+    // Canonical array slot at 005112E0, owned by the native static-data manager.
+    extern SStaticTrianglePatternTypeData*& gStaticTrianglePatternTypes;
 }

@@ -11,7 +11,8 @@ namespace NXBasics
     // Original function: FUN_0042ba56
     CStringArray::CStringArray(std::uint8_t useCountForNextId) : mUseCountForNextId(useCountForNextId), mPadding05{}, mStringCount(0), mIdUpperBound(1), mOffsetCapacity(100), mUsedStringBytes(0), mOffsets(nullptr), mStrings(nullptr)
     {
-        mOffsets = new (std::nothrow) CMemory(mOffsetCapacity * std::uint32_t{ 4 });
+        void* allocation = Runtime_AllocateWithNewHandler(0x0C, 1);
+        mOffsets = allocation != nullptr ? ::new (allocation) CMemory(mOffsetCapacity * std::uint32_t{ 4 }) : nullptr;
         mOffsets->Fill(0xFF);
     }
 
@@ -147,7 +148,8 @@ namespace NXBasics
 
         if (mStrings == nullptr)
         {
-            mStrings = new (std::nothrow) CMemory(byteCount + std::uint32_t{ 10000 });
+            void* allocation = Runtime_AllocateWithNewHandler(0x0C, 1);
+            mStrings = allocation != nullptr ? ::new (allocation) CMemory(byteCount + std::uint32_t{ 10000 }) : nullptr;
         }
         else
         {

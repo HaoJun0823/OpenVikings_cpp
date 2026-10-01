@@ -5,6 +5,7 @@
 #include "C2GameMapAccess.h"
 #include "C2MapGeometry.h"
 #include "C2EngineTerrainData.h"
+#include "C2StaticTrianglePatternTypeData.h"
 #include "C2EngineObjectData.h"
 #include "C2LogicObjectArrays.h"
 #include "C2OverviewObjectIterators.h"
@@ -707,7 +708,7 @@ namespace NC2InGameGuiOverviewDisplay
                     const void* patterns[6];
                     FUN_00481188(mapPoint, patterns);
                     if (patterns[0] == nullptr) OverviewDisplay_SetColor(&color, 0, 0, 0);
-                    else color = OverviewDisplay_ReadColor(NC2Logic::gStaticTrianglePatternTypes, OverviewDisplay_Read<std::uint32_t>(patterns[0], 0x38) * 0x30u + 0x2Cu);
+                    else color = NC2Logic::gStaticTrianglePatternTypes[OverviewDisplay_Read<std::uint32_t>(patterns[0], 0x38)].debugColor;
                 }
                 else if (OverviewDisplay_Read<std::uint8_t>(element, 0x8076) != 0)
                     OverviewDisplay_SetColor(&color, 40, 40, 40);

@@ -1,3 +1,4 @@
+#include "C2GameState.h"
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2EngineDisplayAccess.h"
@@ -11,7 +12,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern std::uint32_t DAT_00510838;
 
 namespace NC2E2
 {

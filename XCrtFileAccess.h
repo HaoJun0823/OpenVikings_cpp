@@ -560,6 +560,8 @@ namespace NXBasics
     std::int32_t Runtime_TimeSigned32(std::uint32_t bits);
 
     char* Runtime_LowercaseString(char* text);
+    using RuntimeSortCompare = std::int32_t(__cdecl*)(const void*, const void*);
+    void Runtime_QuickSort(void* base, std::uint32_t count, std::uint32_t width, RuntimeSortCompare compare);
     void Runtime_LockStream(RuntimeFormatStream* stream);
     void Runtime_UnlockStream(RuntimeFormatStream* stream);
     std::int32_t Runtime_CloseStream(RuntimeFormatStream* stream);

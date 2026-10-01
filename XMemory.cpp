@@ -82,7 +82,7 @@ namespace NXBasics
 
         if (size != 0)
         {
-            auto* allocation = static_cast<std::uint8_t*>(Runtime_Allocate(size));
+            auto* allocation = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(size, 1));
             const std::uint32_t fillSize = mSize;
 
             mData = allocation;
@@ -106,7 +106,7 @@ namespace NXBasics
 
         std::uint8_t* oldData = mData;
 
-        mData = static_cast<std::uint8_t*>(Runtime_Allocate(newSize));
+        mData = static_cast<std::uint8_t*>(Runtime_AllocateWithNewHandler(newSize, 1));
 
         if (fillAdditionalBytes && newSize > mSize)
         {

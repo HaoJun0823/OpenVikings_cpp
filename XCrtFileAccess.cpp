@@ -19,6 +19,98 @@ char gRuntimeTemporaryStreamFileName[16]{};
 
 namespace NXBasics
 {
+    // Original function: FUN_004e7fe2.
+    static void Runtime_SortSwap(std::byte* first, std::byte* second, std::uint32_t width)
+    {
+        if (first == second)
+            return;
+        for (std::uint32_t index = 0; index < width; ++index)
+        {
+            const std::byte value = first[index];
+            first[index] = second[index];
+            second[index] = value;
+        }
+    }
+
+    // Original function: FUN_004e7f94.
+    static void Runtime_ShortSort(std::byte* low, std::byte* high, std::uint32_t width, RuntimeSortCompare compare)
+    {
+        while (high > low)
+        {
+            std::byte* maximum = low;
+            for (std::byte* current = low + width; current <= high; current += width)
+                if (compare(current, maximum) > 0)
+                    maximum = current;
+            Runtime_SortSwap(maximum, high, width);
+            high -= width;
+        }
+    }
+
+    // Original function: FUN_004e7e40. Keep pivot, equal-key and partition-stack order.
+    void Runtime_QuickSort(void* base, std::uint32_t count, std::uint32_t width, RuntimeSortCompare compare)
+    {
+        if (count < 2 || width == 0)
+            return;
+        std::byte* lowStack[30];
+        std::byte* highStack[30];
+        std::int32_t depth = 0;
+        auto* low = static_cast<std::byte*>(base);
+        auto* high = low + (count - 1u) * width;
+        for (;;)
+        {
+            const auto elements = static_cast<std::uint32_t>(high - low) / width + 1u;
+            if (elements <= 8)
+                Runtime_ShortSort(low, high, width, compare);
+            else
+            {
+                Runtime_SortSwap(low + (elements / 2u) * width, low, width);
+                std::byte* upper = low;
+                std::byte* lower = high + width;
+                for (;;)
+                {
+                    do { upper += width; } while (upper <= high && compare(upper, low) <= 0);
+                    do { lower -= width; } while (lower > low && compare(lower, low) >= 0);
+                    if (lower < upper)
+                        break;
+                    Runtime_SortSwap(upper, lower, width);
+                }
+                Runtime_SortSwap(low, lower, width);
+                const auto leftBytes = static_cast<std::int32_t>(lower - low) - 1;
+                const auto rightBytes = static_cast<std::int32_t>(high - upper);
+                if (leftBytes >= rightBytes)
+                {
+                    if (low + width < lower)
+                    {
+                        lowStack[depth] = low;
+                        highStack[depth++] = lower - width;
+                    }
+                    if (upper < high)
+                    {
+                        low = upper;
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (upper < high)
+                    {
+                        lowStack[depth] = upper;
+                        highStack[depth++] = high;
+                    }
+                    if (low + width < lower)
+                    {
+                        high = lower - width;
+                        continue;
+                    }
+                }
+            }
+            if (--depth < 0)
+                return;
+            low = lowStack[depth];
+            high = highStack[depth];
+        }
+    }
+
     // Global data (original order and initializers preserved)
 
     // Original range: 004fe070..004fe07c, end exclusive.

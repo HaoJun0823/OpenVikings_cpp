@@ -44,9 +44,11 @@ namespace NC2Logic
 
         // Original function: FUN_0042a02d
         std::uint32_t IO_File_ReadLong();
+        const char* IO_File_ReadString();
 
         // Original function: FUN_0042a13e
         bool IO_File_Chunk_CheckMarkerAndGetVersion(std::uint32_t marker, std::uint32_t* version, std::uint32_t* payloadSize);
+        bool IO_File_Chunk_ReadHeader();
 
         // Original function: FUN_0042a1ce
         void IO_File_Chunk_Skip();

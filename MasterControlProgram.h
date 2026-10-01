@@ -61,6 +61,9 @@ namespace NMasterControlProgram
         // Original function: FUN_00401967
         void DisplayResolution_CheckChangeRequest();
 
+        void GameEngine_StartUpEngine();
+        void GameEngine_StartUpGame();
+
         // Original function: FUN_00401b85
         void GameEngine_ShutDownEngine();
 

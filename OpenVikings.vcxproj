@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -13,6 +13,10 @@
   <ItemGroup>
     <ClCompile Include="C2AnimalAccess.cpp" />
     <ClCompile Include="C2ControlStartup.cpp" />
+    <ClCompile Include="C2CampaignStaticDataManager.cpp" />
+    <ClCompile Include="C2StaticStringsManager.cpp" />
+    <ClCompile Include="C2Debug.cpp" />
+    <ClCompile Include="C2GameEngineStartup.cpp" />
     <ClCompile Include="C2AnimalIterator.cpp" />
     <ClCompile Include="C2CallbackManager.cpp" />
     <ClCompile Include="C2E2AmbientSoundManagerAccess.cpp" />
@@ -63,6 +67,7 @@
     <ClCompile Include="StringInputHandler.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="MasterControlProgram.cpp" />
+    <ClCompile Include="MasterControlProgram_GameStartup.cpp" />
     <ClCompile Include="WorldDisplayElementAccess.cpp" />
     <ClCompile Include="X2DApplication.cpp" />
     <ClCompile Include="X2DApplicationMessages.cpp" />
@@ -102,6 +107,11 @@
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
     <ClInclude Include="C2ControlStartup.h" />
+    <ClInclude Include="C2CampaignStaticDataManager.h" />
+    <ClInclude Include="C2StaticStringsManager.h" />
+    <ClInclude Include="C2Debug.h" />
+    <ClInclude Include="C2GameEngineStartup.h" />
+    <ClInclude Include="C2GameState.h" />
     <ClInclude Include="C2AnimalAccess.h" />
     <ClInclude Include="C2AnimalIterator.h" />
     <ClInclude Include="C2CallbackManager.h" />
@@ -263,5 +273,27 @@
     <ClInclude Include="C2EngineLifetimeAccess.h" />
     <ClInclude Include="C2LifetimeAccess.h" />
     <ClInclude Include="C2LifetimeGlobals.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2CleanMapsManager.cpp" />
+    <ClInclude Include="C2CleanMapsManager.h" />
+    <ClCompile Include="C2SavegamesManager.cpp" />
+    <ClInclude Include="C2SavegamesManager.h" />
+    <ClCompile Include="C2SavegameIO.cpp" />
+    <ClInclude Include="C2SavegameIO.h" />
+    <ClInclude Include="C2MapGuid.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticTrianglePatternTypeData.cpp" />
+    <ClInclude Include="C2StaticTrianglePatternTypeData.h" />
+    <ClCompile Include="C2StaticLandscapeTypeData.cpp" />
+    <ClInclude Include="C2StaticLandscapeTypeData.h" />
+    <ClCompile Include="XBasicTypes.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2StaticGoodTypeData.cpp" />
+    <ClInclude Include="C2StaticGoodTypeData.h" />
+    <ClCompile Include="C2EngineLandscapeAccess.cpp" />
+    <ClInclude Include="C2EngineLandscapeAccess.h" />
   </ItemGroup>
 </Project>
