@@ -6,10 +6,16 @@ namespace NXBasics
 {
     class CBitmap;
     class CFont;
+    struct SColorRGB;
 }
 
 namespace NC2E2
 {
+    const void* EngineMap_GetConstMapMacroPointPtr(const void* point);
+    const void* EngineMap_GetConstMapMicroPointPtr(const void* point);
+    const void* Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(const void* point);
+    const void* Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(const void* point);
+    const void* Engine2d_EntryPoint_GetHouseDevelopNamePtr(std::uint32_t type);
     extern NXBasics::CBitmap* gDesktopOwnedBobBitmap;
 
     // Original function: FUN_0047c65d; initializes caller-provided display storage.
@@ -76,4 +82,7 @@ namespace NC2E2
     void DisplayDescription_MapMigToWorldPixelCoordinates(const void* description, std::uint32_t packedMapPoint, std::int32_t* worldPoint, bool validatePosition);
 
     class C2DEngineDisplayManager;
+    const void* StaticHumanMisc_ColorIds_GetColorRef(std::uint32_t playerColorId);
+    const NXBasics::SColorRGB* StaticHumanMisc_ColorIds_GetPlayerColorRef(std::int32_t playerId);
+    const NXBasics::SColorRGB* Tool_PlayerColors_GetColorRef(std::int32_t playerId);
 }

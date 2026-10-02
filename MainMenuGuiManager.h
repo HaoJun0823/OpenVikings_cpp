@@ -11,6 +11,7 @@ namespace NXBasics
 {
     class CBobManager;
     class CPalette;
+    class CBitmap;
 }
 
 namespace NNetwork
@@ -84,6 +85,33 @@ namespace NC2MainMenuGuiManager
         void l_Transfer_UpdateDownload(bool userMap);
         void l_Transfer_UpdateUpload(bool userMap);
         void l_Network_Draw();
+        NXBasics::CBitmap* Debug_GetDesktopBitmapPtr() const;
+        void Screen_UpdateGui();
+        void l_ScreenGuiElement_RemoveAll();
+        void l_ScreenGuiElement_Add(void* element);
+        void ScreenGuiElement_FrameCall_Register(void* element);
+        void ScreenGuiElement_FrameCall_UnRegister(void* element);
+        void l_ScreenGuiElement_FrameCall_Do();
+        bool Network_EnumerateServiceProviders();
+        bool Network_HostDefaultSession();
+        bool Network_HostSession(const char* sessionName, std::uint32_t maximumPlayers);
+        bool Network_StartSessionSearch(const char* address);
+        bool Network_JoinSession(std::uint32_t index);
+        bool Network_UpdateSessionList();
+        bool Network_UpdatePlayerList();
+        bool Network_PlayerListHasChanged() const;
+        bool Network_SelectedProviderIsTcpIp() const;
+        void Network_SendLobbyData();
+        void Network_InitializeCallsign();
+        bool Network_AutoHost();
+        bool Network_AutoJoin(const char* address);
+        void Chat_ClearAll();
+        const char* Network_GetPlayerName(std::uint32_t playerId) const;
+        void Network_FormatPlayerDescription(std::uint32_t index, char* destination) const;
+        void Network_ClearLobbyData();
+        bool Network_AllowsConnections() const;
+        bool Network_CanStartGame(char* errorText) const;
+        std::uint32_t Network_GetPlayerListIndex(std::uint32_t playerId) const;
 
         // Unresolved fields retain their original address spans.
         std::int32_t currentScreen;                                         // +0x0000

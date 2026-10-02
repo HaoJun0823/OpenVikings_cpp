@@ -12,6 +12,10 @@
 #include "FileTransferManager.h"
 #include "GuiToolsBase.h"
 #include "MainMenuGuiManager.h"
+#include "MainMenuGuiManager_Access.h"
+#include "C2HumanIterator.h"
+#include "C2GameEngineStartup.h"
+#include "XGuiElementAccess.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "NetworkShutdown.h"
@@ -75,7 +79,7 @@ namespace NC2MainMenuGuiManager
 	}
 
 	// Original function: FUN_004d2b2d
-	CGuiManager::CGuiManager() : textInput((FUN_004d2b7c(reinterpret_cast<std::byte*>(this) + 0x04), FUN_004d6b8f(unknown216C), NC2InGameGuiBaseTextInputElement::CStringInputHandler()))
+	CGuiManager::CGuiManager() : textInput((GuiObjectVars_Construct(reinterpret_cast<std::byte*>(this) + 0x04), DefaultMessageHandler_Construct(unknown216C), NC2InGameGuiBaseTextInputElement::CStringInputHandler()))
 	{
 		sTheObjectPtr = this;
 
@@ -92,8 +96,8 @@ namespace NC2MainMenuGuiManager
 		sTheObjectPtr = nullptr;
 
 		textInput.Exit();
-		FUN_00478917(unknown216C);
-		FUN_004d2bdd(this);
+		DefaultMessageHandler_Destruct(unknown216C);
+		GuiObjectVars_Destruct(this);
 	}
 
 	// Original function: FUN_004d2bf2
@@ -119,8 +123,8 @@ namespace NC2MainMenuGuiManager
 			return value;
 		};
 
-		// Pending: l_ScreenGuiElement_FrameCall_Do.
-		FUN_004d6b08(this);
+		// Dispatch registered elements before idle camera updates.
+		l_ScreenGuiElement_FrameCall_Do();
 
 		if (readWord(this, 0x58) == 0)
 			writeWord(this, 0x58, timeGetTime());
@@ -147,13 +151,12 @@ namespace NC2MainMenuGuiManager
 			timeGetTime();
 
 			// Storage covering the original CHumanIterator stack object.
-			alignas(4) std::byte iterator[0x30];
+			NC2Logic::CHumanIterator iterator;
 			std::int32_t candidates[40];
 			std::uint32_t candidateCount = 0;
 
-			FUN_004402a3(iterator);
 
-			std::int32_t humanId = FUN_0042c1d4(iterator);
+			std::int32_t humanId = iterator.GetFirstHumanId();
 
 			while (humanId != -1)
 			{
@@ -167,7 +170,7 @@ namespace NC2MainMenuGuiManager
 						break;
 				}
 
-				humanId = FUN_0042c392(iterator);
+				humanId = iterator.GetNextHumanId();
 			}
 
 			if (candidateCount != 0)
@@ -175,7 +178,7 @@ namespace NC2MainMenuGuiManager
 				const std::int32_t selectedHuman = candidates[timeGetTime() % candidateCount];
 
 				if (selectedHuman != -1)
-					FUN_004dad1b(readPointer(this, 4), selectedHuman);
+					NC2MainMenuGuiWorldElement::WorldDisplayElement_FollowHuman(readPointer(this, 4), selectedHuman);
 			}
 
 			writeWord(this, 0x64, readWord(this, 0x64) + 1u);
@@ -183,7 +186,7 @@ namespace NC2MainMenuGuiManager
 
 		l_Network_Update();
 
-		if (readPointer(this, 0x30) != nullptr && !FUN_004d782f(this))
+		if (readPointer(this, 0x30) != nullptr && !Network_PlayerListHasChanged())
 		{
 			const std::uint32_t currentTime = timeGetTime();
 
@@ -200,8 +203,8 @@ namespace NC2MainMenuGuiManager
 					{
 						char text[0xA8];
 
-						FUN_004d7db7(this, index, text);
-						FUN_004b8fd0(readPointer(this, 0x30 + index * 4u), text);
+						Network_FormatPlayerDescription(index, text);
+						NC2InGameGuiBase::BaseToolTextButton_SetCaptionString(readPointer(this, 0x30 + index * 4u), text);
 					}
 				}
 			}
@@ -222,8 +225,8 @@ namespace NC2MainMenuGuiManager
 			}
 		}
 
-		// Pending: CDesktop::Desktop_DoWork.
-		FUN_00477104(NXBaseGui::CDesktop::sTheObjectPtr, false, mStaticVars.desktopUpdateFlag);
+		// Complete desktop input, close-list and drawing before network overlays.
+		NXBaseGui::CDesktop::sTheObjectPtr->Desktop_DoWork(false, mStaticVars.desktopUpdateFlag != 0);
 		mStaticVars.desktopUpdateFlag = 0;
 
 		l_Network_Draw();
@@ -266,21 +269,22 @@ namespace NC2MainMenuGuiManager
 		mStaticVars.displayDepth = depth;
 
 		const std::int32_t bitmapDepth = NXBasics::ConvertBitsToTDepth(NXBasics::Runtime_TimeSigned32(depth));
-		new (std::nothrow) NXBaseGui::CDesktop(width, height, bitmapDepth);
+		void* desktopAllocation = NXBasics::Runtime_AllocateWithNewHandler(0x13C, 1);
+		if (desktopAllocation != nullptr) new (desktopAllocation) NXBaseGui::CDesktop(width, height, bitmapDepth);
 
 		NC2GuiToolsBase::CGuiBaseDataManager::DynamicData_Load();
 
 		void* primaryMessageHandler = NXBasics::Runtime_AllocateWithNewHandler(0x2C, 1);
 
 		if (primaryMessageHandler != nullptr)
-			primaryMessageHandler = FUN_004db0a0(primaryMessageHandler);
+			primaryMessageHandler = PrimaryMessageHandler_Construct(primaryMessageHandler);
 
 		NXBaseGui::CDesktop::sTheObjectPtr->PrimaryMessageHandler_Set(static_cast<NXBaseGui::CBaseElement*>(primaryMessageHandler));
 
 		void* mousePointer = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
 
 		if (mousePointer != nullptr)
-			mousePointer = FUN_004dae2f(mousePointer);
+			mousePointer = MousePointer_Construct(mousePointer);
 
 		NXBaseGui::CDesktop::sTheObjectPtr->SetMousePointerStorage(mousePointer);
 
@@ -293,7 +297,7 @@ namespace NC2MainMenuGuiManager
 		if (worldElement != nullptr)
 		{
 			NXBasics::SRectangle rectangle(0, 0, width, height);
-			worldElement = FUN_004da53a(worldElement, &rectangle, true);
+			worldElement = NC2MainMenuGuiWorldElement::WorldDisplayElement_Construct(worldElement, &rectangle, true);
 		}
 
 		// Original member offset: +0x04.
@@ -326,13 +330,14 @@ namespace NC2MainMenuGuiManager
 		if (mStaticVars.displayInitialized == 0)
 			return;
 
-		FUN_004d6aa5(this);
+		l_ScreenGuiElement_RemoveAll();
 
 		auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
 
 		if (desktop != nullptr)
 		{
-			delete desktop;
+			desktop->~CDesktop();
+			NXBasics::Runtime_Free(desktop);
 		}
 
 		// Clear only the original desktop-related instance range.
@@ -348,8 +353,10 @@ namespace NC2MainMenuGuiManager
 	// Original function: FUN_004d303c
 	void CGuiManager::ls_GraphicData_Load()
 	{
-		new (std::nothrow) NC2GuiToolsBase::CGuiBaseStringsManager();
-		new (std::nothrow) NC2GuiToolsBase::CGuiBaseDataManager();
+		void* allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NC2GuiToolsBase::CGuiBaseStringsManager), 1);
+		if (allocation != nullptr) new (allocation) NC2GuiToolsBase::CGuiBaseStringsManager();
+		allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NC2GuiToolsBase::CGuiBaseDataManager), 1);
+		if (allocation != nullptr) new (allocation) NC2GuiToolsBase::CGuiBaseDataManager();
 
 		auto& resources = mStaticVars.resources;
 		char fileName[0x104];
@@ -381,12 +388,12 @@ namespace NC2MainMenuGuiManager
 		auto* guiResourceManager = NC2GuiToolsBase::CGuiBaseDataManager::sTheObjectPtr;
 
 		if (guiResourceManager != nullptr)
-			delete guiResourceManager;
+			{ guiResourceManager->~CGuiBaseDataManager(); NXBasics::Runtime_Free(guiResourceManager); }
 
 		auto* textResourceManager = NC2GuiToolsBase::CGuiBaseStringsManager::sTheObjectPtr;
 
 		if (textResourceManager != nullptr)
-			delete textResourceManager;
+			{ textResourceManager->~CGuiBaseStringsManager(); NXBasics::Runtime_Free(textResourceManager); }
 	}
 
 	// Original function: FUN_004d31bc
@@ -464,14 +471,14 @@ namespace NC2MainMenuGuiManager
 		l_ScreenData_Exit(shutDownNetwork);
 		l_ScreenData_Init(screen);
 
-		// Pending: CGuiManager::Screen_UpdateGui.
-		FUN_004d3a6d(this);
+		// Rebuild elements for the newly initialized screen.
+		Screen_UpdateGui();
 	}
 
 	// Original function: FUN_004d33ef
 	void CGuiManager::l_ScreenData_Exit(bool shutDownNetwork)
 	{
-		FUN_0040aebd(0.0f);
+		NC2Logic::GameTime_SetSpeed(0.0f);
 
 		switch (currentScreen)
 		{
@@ -552,14 +559,14 @@ namespace NC2MainMenuGuiManager
 					break;
 				}
 
-				FUN_004d7b06(this);
-				FUN_004d7c95(this);
+				Network_InitializeCallsign();
+				Chat_ClearAll();
 				textInput.Init(NNetwork::Network_GetCallsignBufferSize() - 2, false, true, 0u, 0u);
 				textInput.SetString(NNetwork::Network_GetCallsign());
 				break;
 
 			case 10:
-				if (!FUN_004d70b6(this))
+				if (!Network_EnumerateServiceProviders())
 				{
 					currentScreen = 18;
 					Debug_ErrorString_Add("Could not enumerate service provider");
@@ -588,7 +595,7 @@ namespace NC2MainMenuGuiManager
 						NNetwork::SendDynamicNetworkMessage(&gDynamicNetworkData, hostPlayerId, message, sizeof(message));
 					}
 
-					if (!FUN_004d76cc(this))
+					if (!Network_UpdatePlayerList())
 					{
 						currentScreen = 18;
 						Debug_ErrorString_Add("Update player list failed");
@@ -717,12 +724,12 @@ namespace NC2MainMenuGuiManager
 					transferStartTick = timeGetTime();
 					transferIsHost = static_cast<std::uint8_t>(NNetwork::Network_IsHost());
 
-					FUN_0040aebd(0.0f);
+					NC2Logic::GameTime_SetSpeed(0.0f);
 					return;
 				}
 
 			case 19:
-				if (!FUN_004d7b0b(this))
+				if (!Network_AutoHost())
 				{
 					currentScreen = 18;
 					Debug_ErrorString_Add("Could not auto host session");
@@ -739,7 +746,7 @@ namespace NC2MainMenuGuiManager
 				{
 					const auto session = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr("multiplayer_auto_join");
 
-					if (!FUN_004d7ba7(this, session))
+					if (!Network_AutoJoin(session))
 					{
 						currentScreen = 18;
 						Debug_ErrorString_Add("Could not auto join session");
@@ -757,7 +764,7 @@ namespace NC2MainMenuGuiManager
 				break;
 		}
 
-		FUN_0040aebd(cMenuGameSpeed);
+		NC2Logic::GameTime_SetSpeed(cMenuGameSpeed);
 	}
 
 	// Original function: FUN_004d6b4a
@@ -928,7 +935,7 @@ namespace NC2MainMenuGuiManager
 					{
 						char description[0xC8] = {};
 
-						FUN_004db635(&gDynamicNetworkData.events, event, description, sizeof(description));
+						NNetwork::FormatNetworkEvent(&gDynamicNetworkData.events, event, description, sizeof(description));
 						NXBasics::Runtime_PrintString(text, ">> NET: '%s'", description);
 					}
 
@@ -987,8 +994,8 @@ namespace NC2MainMenuGuiManager
 					return;
 				}
 
-				if (FUN_004d74a4(this))
-					FUN_004d3a6d(this);
+				if (Network_UpdateSessionList())
+					Screen_UpdateGui();
 
 				return;
 
@@ -1024,13 +1031,13 @@ namespace NC2MainMenuGuiManager
 				return;
 			}
 
-			if (!FUN_004d76cc(this))
+			if (!Network_UpdatePlayerList())
 			{
 				fail("Update player list failed");
 				return;
 			}
 
-			FUN_004d3a6d(this);
+			Screen_UpdateGui();
 		}
 
 		const auto hasPlayer = [&readWord] (std::uint32_t playerId) -> bool
@@ -1067,8 +1074,8 @@ namespace NC2MainMenuGuiManager
 
 		if (assignmentsChanged)
 		{
-			FUN_004d3a6d(this);
-			FUN_004d7aa7(this);
+			Screen_UpdateGui();
+			Network_SendLobbyData();
 		}
 
 		if (currentScreen == 14)
@@ -1076,7 +1083,7 @@ namespace NC2MainMenuGuiManager
 			if (transferIsHost != static_cast<std::uint8_t>(NNetwork::Network_IsHost()))
 			{
 				if (NNetwork::Network_IsHost())
-					FUN_004d8169(this);
+					Network_ClearLobbyData();
 
 				transferIsHost = static_cast<std::uint8_t>(NNetwork::Network_IsHost());
 			}
@@ -1187,8 +1194,8 @@ namespace NC2MainMenuGuiManager
 						if (!NNetwork::Network_IsHost())
 							std::memcpy(lobbyData, message.payload + 8, sizeof(lobbyData));
 
-						// Pending: CGuiManager::Screen_UpdateGui.
-						FUN_004d3a6d(this);
+						// Rebuild elements for the newly initialized screen.
+						Screen_UpdateGui();
 
 						if (message.payload[4] == 0)
 							break;
@@ -1585,7 +1592,7 @@ namespace NC2MainMenuGuiManager
 
 		const auto desktop = [this] () -> NXBasics::CBitmap*
 		{
-			return reinterpret_cast<NXBasics::CBitmap*>(FUN_004d32ff(this));
+			return reinterpret_cast<NXBasics::CBitmap*>(Debug_GetDesktopBitmapPtr());
 		};
 
 		const auto defaultColour = [&guiResources] () -> const NXBasics::SColorRGB*
@@ -1687,7 +1694,7 @@ namespace NC2MainMenuGuiManager
 						std::strcpy(text, NC2GuiToolsBase::StringTool_GetMainMenuStringPtr(0xC9));
 
 						const auto& transfer = transfers[index];
-						const char* playerName = FUN_004d7d56(this, transfer.peerId);
+						const char* playerName = Network_GetPlayerName(transfer.peerId);
 						const std::uint32_t transferred = transfer.transferredBytes;
 						const std::uint32_t size = transfer.fileSize;
 
@@ -1824,7 +1831,7 @@ namespace NC2MainMenuGuiManager
 				y += 12;
 			}
 
-			if (currentScreen == 13 && FUN_004d7849(this))
+			if (currentScreen == 13 && Network_SelectedProviderIsTcpIp())
 			{
 				const char* sessionName = Network_GetSessionName();
 

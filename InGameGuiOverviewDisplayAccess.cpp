@@ -1,3 +1,4 @@
+#include "XGuiElementAccess.h"
 #include "InGameGuiOverviewDisplayAccess.h"
 #include "InGameGuiOverviewHandler.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -25,27 +26,7 @@
 // The unused EDX argument preserves original ECX receivers and stack cleanup.
 extern const void* __cdecl FUN_0048114e(const void* macroPoint, bool firstTriangle);
 extern void __cdecl FUN_00481188(const void* mapPoint, const void** patterns);
-extern const void* __cdecl FUN_004824ea(const void* macroPoint);
-extern void* __fastcall FUN_0042af98(void* macroPoint, void* unusedEdx, const void* mapPoint, bool validate);
-extern const NXBasics::SColorRGB* __cdecl FUN_00490edf(std::int32_t playerId);
-extern void __fastcall FUN_0040d96f(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, const NXBasics::SColorRGB* color);
-extern void __fastcall FUN_0040d8f2(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, const NXBasics::SColorRGB* color);
-extern void __fastcall FUN_0040df78(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, std::int32_t length, const NXBasics::SColorRGB* color);
-extern void __fastcall FUN_0040e4d1(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, const NXBasics::SColorRGB* color);
 extern void __fastcall FUN_004b7b62(void* manager, void* unusedEdx, const void* mapPoint);
-extern void __fastcall FUN_0040e8bd(NXBasics::CBitmap* bitmap, void* unusedEdx, std::int32_t x, std::int32_t y, std::uint32_t radius, const NXBasics::SColorRGB* color);
-extern bool __fastcall FUN_004788a7(void* object);
-extern void __fastcall FUN_00478986(void* object, void* unusedEdx, const std::int32_t* point);
-extern void __fastcall FUN_00478994(void* object);
-extern bool __fastcall FUN_0047899f(void* object, void* unusedEdx, const std::int32_t* point);
-extern bool __fastcall FUN_004789af(void* object);
-extern bool __fastcall FUN_004788b1(void* object, void* unusedEdx, const std::int32_t* point);
-extern void* __fastcall FUN_0048e569(void* object);
-extern void* __fastcall FUN_00478ad8(void* object, void* unusedEdx, const std::int32_t* point, bool flag);
-extern void __fastcall FUN_00478a65(void* object, void* unusedEdx, std::int32_t* point);
-extern void __fastcall FUN_004788be(void* object);
-extern bool __fastcall FUN_004b8659(void* object, void* unusedEdx, std::uint32_t argument);
-extern bool __fastcall FUN_004788b6(void* object);
 
 namespace NC2InGameGuiOverviewDisplay
 {
@@ -187,7 +168,7 @@ namespace NC2InGameGuiOverviewDisplay
     static std::uint32_t OverviewDisplay_GetMapBrightness(std::int32_t x, std::int32_t y)
     {
         const std::int16_t macroPoint[2] = { OverviewDisplay_Word(static_cast<std::uint32_t>(x)), OverviewDisplay_Word(static_cast<std::uint32_t>(y)) };
-        const void* data = FUN_004824ea(macroPoint);
+        const void* data = NC2E2::EngineMap_GetConstMapMacroPointPtr(macroPoint);
         return data == nullptr ? 0 : OverviewDisplay_Read<std::uint8_t>(data, 4);
     }
 
@@ -255,20 +236,20 @@ namespace NC2InGameGuiOverviewDisplay
     static const std::uintptr_t gWorldOverviewElementVirtualTable[] =
     {
         reinterpret_cast<std::uintptr_t>(&WorldOverviewElement_DeletingDestructor),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&WorldOverviewElement_VirtualMessage),
         reinterpret_cast<std::uintptr_t>(&WorldOverviewElement_VirtualDraw),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478986),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478994),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047899f),
-        reinterpret_cast<std::uintptr_t>(&FUN_004789af),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
-        reinterpret_cast<std::uintptr_t>(&FUN_0048e569),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b6)
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce)
     };
     static_assert(sizeof(gWorldOverviewElementVirtualTable) == 0x3C);
 
@@ -393,15 +374,15 @@ namespace NC2InGameGuiOverviewDisplay
             std::int32_t point[2];
             WorldOverviewElement_TransformToOverViewDisplayCoord(element, point, reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(guide) + 0x14));
             if (!OverviewDisplay_IsPointInsideBitmap(point, bitmap)) continue;
-            const NXBasics::SColorRGB* color = FUN_00490edf(OverviewDisplay_Read<std::int32_t>(guide, 4));
-            FUN_0040e8bd(bitmap, nullptr, point[0], point[1], 2, color);
+            const NXBasics::SColorRGB* color = NC2E2::Tool_PlayerColors_GetColorRef(OverviewDisplay_Read<std::int32_t>(guide, 4));
+            bitmap->Draw_Circle(point[0], point[1], 2, *color);
             for (std::int32_t connection = 0; connection < OverviewDisplay_Read<std::int32_t>(guide, 0x78); connection = OverviewDisplay_Add(connection, 1))
             {
                 const std::int32_t connectedId = OverviewDisplay_Read<std::int32_t>(guide, 0x3Cu + static_cast<std::uint32_t>(connection) * 8u);
                 const void* connected = OverviewDisplay_Entry(NC2Logic::CGuideArray::mStaticVars, connectedId, NC2Logic::CGuideArray::ElementSize);
                 std::int32_t connectedPoint[2];
                 WorldOverviewElement_TransformToOverViewDisplayCoord(element, connectedPoint, reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(connected) + 0x14));
-                FUN_0040e4d1(bitmap, nullptr, point[0], point[1], connectedPoint[0], connectedPoint[1], &white);
+                bitmap->Draw_Line(point[0], point[1], connectedPoint[0], connectedPoint[1], white);
             }
         }
     }
@@ -421,12 +402,12 @@ namespace NC2InGameGuiOverviewDisplay
             std::int32_t point[2];
             WorldOverviewElement_TransformToOverViewDisplayCoord(element, point, position);
             if (!OverviewDisplay_IsPointInsideBitmap(point, bitmap)) continue;
-            const NXBasics::SColorRGB* color = FUN_00490edf(OverviewDisplay_Read<std::int32_t>(house, 0x0C));
+            const NXBasics::SColorRGB* color = NC2E2::Tool_PlayerColors_GetColorRef(OverviewDisplay_Read<std::int32_t>(house, 0x0C));
             const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataHouses.entries, OverviewDisplay_Read<std::int32_t>(house, 4), 0xD0);
-            FUN_0040df78(bitmap, nullptr, OverviewDisplay_Subtract(point[0], 1), point[1], 3, color);
-            FUN_0040df78(bitmap, nullptr, OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Add(point[1], 1), 3, color);
-            FUN_0040d8f2(bitmap, nullptr, point[0], OverviewDisplay_Subtract(point[1], 1), color);
-            if (OverviewDisplay_Read<std::uint8_t>(displayData, 0xCC) != 0) FUN_0040e8bd(bitmap, nullptr, point[0], point[1], 3, &pulse);
+            bitmap->Draw_HorizontalLine(OverviewDisplay_Subtract(point[0], 1), point[1], 3, *color);
+            bitmap->Draw_HorizontalLine(OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Add(point[1], 1), 3, *color);
+            bitmap->Draw_SetPixel(point[0], OverviewDisplay_Subtract(point[1], 1), *color);
+            if (OverviewDisplay_Read<std::uint8_t>(displayData, 0xCC) != 0) bitmap->Draw_Circle(point[0], point[1], 3, pulse);
         }
     }
 
@@ -481,13 +462,13 @@ namespace NC2InGameGuiOverviewDisplay
             {
                 if (OverviewDisplay_Read<std::uint8_t>(element, 0x806F) == 0) continue;
                 const void* vehicle = OverviewDisplay_Entry(NC2Logic::CVehicleArray::mStaticVars, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), NC2Logic::CVehicleArray::ElementSize);
-                const NXBasics::SColorRGB* color = FUN_00490edf(OverviewDisplay_Read<std::int32_t>(vehicle, 0x1E0));
+                const NXBasics::SColorRGB* color = NC2E2::Tool_PlayerColors_GetColorRef(OverviewDisplay_Read<std::int32_t>(vehicle, 0x1E0));
                 const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataVehicles.entries, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), 0x44);
-                FUN_0040df78(bitmap, nullptr, OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Subtract(point[1], 1), 3, color);
-                FUN_0040df78(bitmap, nullptr, OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Add(point[1], 1), 3, color);
-                FUN_0040d8f2(bitmap, nullptr, OverviewDisplay_Subtract(point[0], 1), point[1], color);
-                FUN_0040d8f2(bitmap, nullptr, OverviewDisplay_Add(point[0], 1), point[1], color);
-                if (OverviewDisplay_Read<std::uint8_t>(displayData, 0x40) != 0) FUN_0040e8bd(bitmap, nullptr, point[0], point[1], 3, &pulse);
+                bitmap->Draw_HorizontalLine(OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Subtract(point[1], 1), 3, *color);
+                bitmap->Draw_HorizontalLine(OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Add(point[1], 1), 3, *color);
+                bitmap->Draw_SetPixel(OverviewDisplay_Subtract(point[0], 1), point[1], *color);
+                bitmap->Draw_SetPixel(OverviewDisplay_Add(point[0], 1), point[1], *color);
+                if (OverviewDisplay_Read<std::uint8_t>(displayData, 0x40) != 0) bitmap->Draw_Circle(point[0], point[1], 3, pulse);
             }
             else if (type == 2)
             {
@@ -496,9 +477,9 @@ namespace NC2InGameGuiOverviewDisplay
                     const void* animal = NC2Logic::GetAnimalPtr(OverviewDisplay_Read<std::int32_t>(moveable, 0x54));
                     const std::int32_t player = OverviewDisplay_Read<std::int32_t>(animal, 0x10);
                     const NXBasics::SColorRGB neutral(200, 200, 200);
-                    const NXBasics::SColorRGB color = player == 20 ? neutral : *FUN_00490edf(player);
-                    FUN_0040df78(bitmap, nullptr, point[0], OverviewDisplay_Add(point[1], 1), 2, &color);
-                    FUN_0040df78(bitmap, nullptr, point[0], point[1], 2, &color);
+                    const NXBasics::SColorRGB color = player == 20 ? neutral : *NC2E2::Tool_PlayerColors_GetColorRef(player);
+                    bitmap->Draw_HorizontalLine(point[0], OverviewDisplay_Add(point[1], 1), 2, color);
+                    bitmap->Draw_HorizontalLine(point[0], point[1], 2, color);
                 }
                 if (OverviewDisplay_Read<std::uint8_t>(element, 0x8078) != 0 && OverviewDisplay_Read<std::int32_t>(NC2Logic::GetAnimalPtr(OverviewDisplay_Read<std::int32_t>(moveable, 0x54)), 0x14) == 0x13)
                 {
@@ -508,7 +489,7 @@ namespace NC2InGameGuiOverviewDisplay
                         gOverviewColors.animalType19Color = NXBasics::SColorRGB(140, 255, 120);
                         NXBasics::Runtime_AtExit(&OverviewAnimalType19Color_Destruct);
                     }
-                    FUN_0040e8bd(bitmap, nullptr, point[0], point[1], 2, &gOverviewColors.animalType19Color);
+                    bitmap->Draw_Circle(point[0], point[1], 2, gOverviewColors.animalType19Color);
                 }
                 if (OverviewDisplay_Read<std::uint8_t>(element, 0x8079) != 0 && OverviewDisplay_Read<std::int32_t>(NC2Logic::GetAnimalPtr(OverviewDisplay_Read<std::int32_t>(moveable, 0x54)), 0x14) == 10)
                 {
@@ -518,7 +499,7 @@ namespace NC2InGameGuiOverviewDisplay
                         gOverviewColors.animalType10Color = NXBasics::SColorRGB(255, 207, 144);
                         NXBasics::Runtime_AtExit(&OverviewAnimalType10Color_Destruct);
                     }
-                    FUN_0040e8bd(bitmap, nullptr, point[0], point[1], 2, &gOverviewColors.animalType10Color);
+                    bitmap->Draw_Circle(point[0], point[1], 2, gOverviewColors.animalType10Color);
                 }
             }
             else if (type == 1)
@@ -530,13 +511,13 @@ namespace NC2InGameGuiOverviewDisplay
                     if (!NC2Logic::Human_IsJobSoldier(human) && !NC2Logic::Human_IsJobHero(NC2Logic::GetHumanPtr(OverviewDisplay_Read<std::int32_t>(moveable, 0x54)))) continue;
                 }
                 const void* human = NC2Logic::GetHumanPtr(OverviewDisplay_Read<std::int32_t>(moveable, 0x54));
-                const NXBasics::SColorRGB* color = FUN_00490edf(OverviewDisplay_Read<std::int32_t>(human, 0x10));
+                const NXBasics::SColorRGB* color = NC2E2::Tool_PlayerColors_GetColorRef(OverviewDisplay_Read<std::int32_t>(human, 0x10));
                 const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataHumans.entries, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), 0x8C8);
-                FUN_0040d8f2(bitmap, nullptr, point[0], OverviewDisplay_Subtract(point[1], 1), color);
-                FUN_0040d8f2(bitmap, nullptr, OverviewDisplay_Subtract(point[0], 1), point[1], color);
-                FUN_0040d8f2(bitmap, nullptr, OverviewDisplay_Add(point[0], 1), point[1], color);
-                FUN_0040d8f2(bitmap, nullptr, point[0], OverviewDisplay_Add(point[1], 1), color);
-                if (OverviewDisplay_Read<std::uint8_t>(displayData, 0x8C4) != 0) FUN_0040e8bd(bitmap, nullptr, point[0], point[1], 3, &pulse);
+                bitmap->Draw_SetPixel(point[0], OverviewDisplay_Subtract(point[1], 1), *color);
+                bitmap->Draw_SetPixel(OverviewDisplay_Subtract(point[0], 1), point[1], *color);
+                bitmap->Draw_SetPixel(OverviewDisplay_Add(point[0], 1), point[1], *color);
+                bitmap->Draw_SetPixel(point[0], OverviewDisplay_Add(point[1], 1), *color);
+                if (OverviewDisplay_Read<std::uint8_t>(displayData, 0x8C4) != 0) bitmap->Draw_Circle(point[0], point[1], 3, pulse);
             }
         }
     }
@@ -659,24 +640,24 @@ namespace NC2InGameGuiOverviewDisplay
                 else if (OverviewDisplay_Read<std::uint8_t>(element, 0x8074) != 0 && OverviewDisplay_Read<std::uint8_t>(microPoint, 0) == 1 && OverviewDisplay_Read<std::uint8_t>(microPoint, 2) == 0x52)
                 {
                     const std::int32_t player = OverviewDisplay_Read<std::int8_t>(microPoint, 4);
-                    directColor = player == -1 ? &gOverviewColors.cGreyColor : FUN_00490edf(player);
+                    directColor = player == -1 ? &gOverviewColors.cGreyColor : NC2E2::Tool_PlayerColors_GetColorRef(player);
                     // This branch draws even when the original color accessor returns null.
-                    FUN_0040d96f(background, nullptr, x, y, directColor);
+                    background->Draw_SetPixelUnclipped(x, y, *directColor);
                     continue;
                 }
                 if (directColor != nullptr)
                 {
-                    FUN_0040d96f(background, nullptr, x, y, directColor);
+                    background->Draw_SetPixelUnclipped(x, y, *directColor);
                     continue;
                 }
                 if (mapPoint[0] == previousPoint[0] && mapPoint[1] == previousPoint[1])
                 {
-                    FUN_0040d96f(background, nullptr, x, y, &color);
+                    background->Draw_SetPixelUnclipped(x, y, color);
                     continue;
                 }
                 std::memcpy(previousPoint, mapPoint, sizeof(previousPoint));
                 std::int16_t macroPoint[2];
-                FUN_0042af98(macroPoint, nullptr, mapPoint, false);
+                NC2Logic::MapMagPoint_ConstructFromMig(macroPoint, mapPoint, false);
                 const std::uint32_t brightness = OverviewDisplay_GetMapBrightness(macroPoint[0], macroPoint[1]);
                 std::uint32_t landscapeType = OverviewDisplay_Read<std::uint8_t>(microPoint, 0) == 1 ? OverviewDisplay_Read<std::uint8_t>(microPoint, 2) : 0;
                 while (landscapeType == 0 && searchDirection < 6)
@@ -721,8 +702,8 @@ namespace NC2InGameGuiOverviewDisplay
                     for (std::uint32_t direction = 0; direction < 6; ++direction)
                     {
                         WorldOverviewElement_GetSampleColor(element, patterns[direction], &color);
-                        FUN_0042af98(macroPoint, nullptr, mapPoint, false);
-                        const void* enginePoint = FUN_004824ea(macroPoint);
+                        NC2Logic::MapMagPoint_ConstructFromMig(macroPoint, mapPoint, false);
+                        const void* enginePoint = NC2E2::EngineMap_GetConstMapMacroPointPtr(macroPoint);
                         const std::uint32_t vertexColor = enginePoint == nullptr ? 0u : OverviewDisplay_Read<std::uint8_t>(enginePoint, 5);
                         if (vertexColor != 0)
                         {
@@ -745,14 +726,14 @@ namespace NC2InGameGuiOverviewDisplay
                             brightnessSum = OverviewDisplay_Subtract(brightnessSum, 128);
                         else
                         {
-                            FUN_0042af98(macroPoint, nullptr, &neighbor, false);
+                            NC2Logic::MapMagPoint_ConstructFromMig(macroPoint, &neighbor, false);
                             brightnessSum = OverviewDisplay_Add(brightnessSum, OverviewDisplay_Subtract(OverviewDisplay_Signed(OverviewDisplay_GetMapBrightness(macroPoint[0], macroPoint[1])), 128));
                         }
                     }
                     OverviewDisplay_SetColor(&color, red / 6u, green / 6u, blue / 6u);
                     WorldOverviewElement_BrightColor(&color, static_cast<std::uint32_t>(OverviewDisplay_Add(brightnessSum / 7, 128)));
                 }
-                FUN_0040d96f(background, nullptr, x, y, &color);
+                background->Draw_SetPixelUnclipped(x, y, color);
                 searchDirection = 0;
             }
         }
@@ -1034,7 +1015,7 @@ namespace NC2InGameGuiOverviewDisplay
             if (point[0] < bounds.x || point[0] > OverviewDisplay_Add(bounds.x, OverviewDisplay_Subtract(bounds.width, 1))) continue;
             if (point[1] < bounds.y || point[1] > OverviewDisplay_Add(bounds.y, OverviewDisplay_Subtract(bounds.height, 1))) continue;
             const auto& color = OverviewDisplay_Read<std::uint32_t>(element, offset + 4) == 1 ? red : white;
-            FUN_0040e8bd(bitmap, nullptr, point[0], point[1], (1000u - age) / 100u + 3u, &color);
+            bitmap->Draw_Circle(point[0], point[1], (1000u - age) / 100u + 3u, color);
         }
     }
 

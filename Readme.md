@@ -334,6 +334,9 @@ reported layout and arithmetic models, do not validate the full application.
 | [OB090](#ob090) | Event copy construction seeds and then increments the source count | 004DB43A, 004DB558 |
 | [OB091](#ob091) | Event formatting writes through a null output on its invalid-input branch | 004DB635, 004DB74A |
 | [OB092](#ob092) | Event formatting treats fragment limits as buffer capacity | 004DB635, 004DB7CC |
+| [OB095](#ob095) | Video Open failure leaks an unpublished multimedia stream | 00404484 |
+| [OB094](#ob094) | Text-button caption query trusts closing braces and destination capacity | 004B92A4 |
+| [OB093](#ob093) | Empty-address session search accepts failing HRESULTs | 004D73E5, 004DCCEE |
 
 <a id="ob001"></a>
 
@@ -1417,6 +1420,33 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision / Renewed task:** Preserve conversion and append order; validate both temporary and remaining output capacities after faithful reconstruction.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob093"></a>
+
+### OB093 — Empty-address session search accepts failing HRESULTs
+
+- **Original reference:** `004D73E5`, `004DCCEE`.
+- **Evidence:** The explicit-address branch accepts a signed nonnegative result. The null/empty-address branch instead accepts every nonzero result, including negative HRESULTs from failed SetSP or EnumHosts calls. The low-level search also returns zero when flags are not exactly one or some address objects are missing.
+- **Behavior and trigger:** A negative search failure can be returned to the menu as success when the address is empty, after low-level cleanup has already removed the search timer/list. Zero results produce different outcomes in the two menu branches.
+- **Assessment / reconstruction limits:** Confirmed contradictory success tests from Windows instructions; actual gameplay reproduction and subsequent accesses remain unverified. See [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md).
+- **Decision / Renewed task:** Preserve both original comparisons; later unify the HRESULT contract and verify failed-search state before GUI refresh.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob094"></a>
+### OB094 � Text-button caption query trusts closing braces and destination capacity
+
+- **Original reference:** `004B92A4`, message `800/7F1`.
+- **Evidence and retained behavior:** Leading caption tags advance until a closing brace without checking the terminator. Copying uses capacity minus one and writes a final terminator at that index without validating capacity. A malformed tag can read beyond the string; zero capacity underflows the copy count and terminator address.
+- **Decision / Renewed task:** Preserve the original query; Renewed must bound tag scanning and reject invalid output capacities.
+- **Status:** Preserved / original unchecked-input defect confirmed from instructions; no live trigger reproduced. See [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md).
+
+<a id="ob095"></a>
+### OB095 - Video Open failure leaks an unpublished multimedia stream
+
+- **Original reference:** `00404484`, stream publication at `0040456A`.
+- **Evidence and retained behavior:** CoCreateInstance acquires a local multimedia stream. Initialize, video-stream addition or OpenFile failure calls Close before the interface is assigned to object +4; Close therefore cannot release that local interface. The acquired reference leaks on these returning failure paths.
+- **Decision / Renewed task:** Preserve Windows behavior; Renewed must retain and release the unpublished interface on setup failure.
+- **Status:** Preserved / original failure-path leak confirmed from Windows ownership and instructions; no live COM failure reproduced. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -1500,6 +1530,22 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA075](#oa075) | In-game GUI allocation, callbacks and frame timing retain original continuation | 004A0205, 004B3997, 004B3759, 00479975 |
 | [OA076](#oa076) | String-output allocation and clear/reinitialize retain unchecked continuation | 004C7030, 004C712D, 004C733E, 004C735F |
 | [OA077](#oa077) | Desktop attachment/hiding retain virtual eligibility and repeated callbacks | 00477219, 004773F6, 00477532, 00478AA3 |
+| [OA078](#oa078) | Main-menu allocation retains conditional construction followed by unchecked access | 004D2B2D, 004D2E77, 004D3A6D |
+| [OA079](#oa079) | Provider/session enumeration retains partial clearing and count-based ownership | 004DC8E3, 004DDED2, 004D757E |
+| [OA080](#oa080) | Session-search timer retains polling, cleanup order and double traversal advance | 004DCCEE, 004DDE94, 004DE7D1, 004DE848 |
+| [OA081](#oa081) | Host/join failure handling retains stage-specific state and cleanup | 004DCB30, 004DD462, 004DE100, 004DEB32 |
+| [OA083](#oa083) | GUI lifetime and tiled rendering retain unchecked ownership/dimension assumptions | 0047841B, 00478627, 004E2376 |
+| [OA084](#oa084) | Word wrapping and assertion dialogs preserve unusual original edge behavior | 004E29D9, 0047AB1A |
+| [OA085](#oa085) | Video and fullscreen probing retain result and COM lifetime conventions | 004046DA, 00478F52 |
+| [OA086](#oa086) | Title/FMV input, sequences and bitmap ownership retain unchecked boundaries | 00402C90, 0040339B |
+| [OA087](#oa087) | Stock/position/color getters and manager construction retain unchecked fields | 00431A88, 0042CE24, 0040BB10 |
+| [OA088](#oa088) | Keyboard assignment and object-group callbacks retain original index/capacity rules | 004A3E5B, 004A37B1 |
+| [OA089](#oa089) | Static actor parsers retain unchecked indices, allocations and returning warnings | 00412299, 0041277C, 00412A5D, 0041300A, 00411E81 |
+| [OA090](#oa090) | Weather, music and clock preserve original dimension/timing assumptions | 0048520F, 00485C3A, 004B99F7 |
+| [OA091](#oa091) | Statistics and Bob cache retain unchecked storage and partial results | 0041AA59, 0041ACD6, 0049063F |
+| [OA092](#oa092) | Ambient and Human sounds preserve original index and sentinel assumptions | 0047F56E, 0047F760, 004854D9 |
+| [OA093](#oa093) | Command queues and checksum records retain original unchecked processing | 00410F00, 00410FCC, 00411829, 004118F6 |
+| [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
 
@@ -2314,6 +2360,146 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve callback order and original guards; reconstruct inherited virtual methods and document their reentrancy contract.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa078"></a>
+
+### OA078 — Main-menu allocation retains conditional construction followed by unchecked access
+
+- **Original reference:** `004D2B2D`, `004D2E77`, `004D303C`, `004D3A6D`, `004DA53A`.
+- **Evidence and retained behavior:** Embedded lists/handlers are constructed before the manager's large clear. Graphics owners use original runtime allocation sizes and qualified destruction/free. Screen titles, payloads, disabled/selected bytes and credits scrolling are accessed after nullable widget construction; failed allocations do not introduce new early returns.
+- **Assessment / reconstruction limits:** Confirmed Windows ordering and unchecked accesses; allocator-handler outcomes and deeper widget constructors remain separate dependencies. See [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md).
+- **Decision / Renewed task:** Preserve allocation family, table transitions and failure continuation; review recovery only after reconstructing the widget families.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa079"></a>
+
+### OA079 — Provider/session enumeration retains partial clearing and count-based ownership
+
+- **Original reference:** `004DC8E3`, `004DCABA`, `004DDED2`, `004D757E`, `004D70B6`, `004D74A4`, `004D76CC`.
+- **Evidence and retained behavior:** Provider allocation uses the API byte count, but initial clearing uses only the provider count in bytes. A failed second enumeration keeps caller ownership. Session summaries preserve a count cookie, nullable allocation followed by returning assertions/clearing, an inclusive index assertion and reverse name destruction. Menu lists cap copied rows at ten. Connection queries retain state gates and report failure without adding substitute data.
+- **Assessment / reconstruction limits:** Widths and ownership are confirmed; API output invariants, concurrent list mutation and capacity consequences remain unverified. Names retain original conversion/copy limits; OB002 and OB092 cover the shared capacity defect.
+- **Decision / Renewed task:** Preserve current behavior; audit buffer capacity and list synchronization when the remaining network consumers are reconstructed.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa080"></a>
+
+### OA080 — Session-search timer retains polling, cleanup order and double traversal advance
+
+- **Original reference:** `004DCCEE`, `004DC2C1`, `004DDD28`, `004DDE94`, `004DE7D1`, `004DE848`, `004D7BA7`.
+- **Evidence and retained behavior:** The search timer starts before address/API setup. Failure deletes its critical section before stopping the timer and destroying the session list. CreateThread failure has no local argument cleanup. Timer and automatic-join loops contain no sleep. Expired nodes remain linked, are marked invalid and decrement count; the pruning cursor advances twice on that branch.
+- **Assessment / reconstruction limits:** Confirmed control flow, ordering and polling; the timer callback can use the critical section, but a reproduced cleanup race or resource failure has not been established. Two-node pruning can leave the second expired node for a later callback. OB093 covers the separate HRESULT defect.
+- **Decision / Renewed task:** Preserve original behavior; later review timer lifetime, failed thread creation, polling budgets and expiration traversal together.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa081"></a>
+
+### OA081 — Host/join failure handling retains stage-specific state and cleanup
+
+- **Original reference:** `004D7286`, `004D75EB`, `004DCB30`, `004DD462`, `004DE100`, `004DEA48`, `004DEB32`.
+- **Evidence and retained behavior:** Host reports failed SetPeerInfo/SetSP/Host stages and resets playerChangeCount after Host even on failure. Join snapshots duplicate address +10 before +0C and free names/descriptions/address references on failed duplication. Failed Connect stops searching before reporting; failed stop-search after successful Connect is logged but does not reject joining. Menu snapshot cleanup occurs on both join outcomes. Dynamic attachment failure releases dynamic memory without a new disconnect.
+- **Assessment / reconstruction limits:** Confirmed Windows resource/state order and return values; returning allocation/address assertions remain unchecked continuation. No live DirectPlay session was exercised.
+- **Decision / Renewed task:** Preserve stage-specific errors, snapshot ownership and attachment behavior; verify recovery during later runtime integration.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa082"></a>
+
+### OA082 — Lobby reset and validation retain cleared-mode reads and first-match scans
+
+- **Original reference:** `004D8169`, `004D79A7`, `004D7D56`, `004D7D8D`, `004D3A6D`.
+- **Evidence and retained behavior:** Lobby reset clears its complete 160-byte region before the color loop reads the contained mode at +1068. Validation rejects absent mode/map/player assignments, scans twenty slots and repeatedly queries the local player ID. Optional error output stays optional. Player-name/index lookup returns the first match. Lobby controls preserve host gates, selected-player validation and disabled start-button tooltip replacement.
+- **Assessment / reconstruction limits:** Confirmed Windows behavior; broader lobby-mode and player-color-table identities remain unresolved. This ordering alone is not promoted to a gameplay defect.
+- **Decision / Renewed task:** Preserve layout and query order; follow the default-message handler and complete player-color region before assigning additional semantic names.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa083"></a>
+### OA083 � GUI lifetime and tiled rendering retain unchecked ownership/dimension assumptions
+
+- **Original reference:** `0047841B`, `004784C1`, `00478627`, `004B8DA2`, `004B8E2C`, `004B8EAC`, `004B8F1C`, `004B9520`, `004E2376`, `0040CABB`.
+- **Evidence and retained behavior:** Window state clearing follows construction of both list headers. Child removal precedes the deletion routine's null check. Widget captions/tooltips use runtime ownership with original unchecked accesses. Tile normalization assumes usable dimensions; raw-memory checks in FillWithBitmap do not guard the earlier normalization loops. Desktop callbacks can change active/handler pointers, so later reads follow Windows ordering.
+- **Assessment / reconstruction limits:** These are confirmed assumptions/orderings. A reachable zero-dimension rendering hang or failed-allocation crash has not been reproduced; no new gameplay defect is claimed from those paths alone.
+- **Decision / Renewed task:** Preserve the paths while reconstructing remaining callers; assess input validation and rollback separately for Renewed.
+- **Status:** Preserved / original observation. See [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md).
+
+<a id="oa084"></a>
+### OA084 � Word wrapping and assertion dialogs preserve unusual original edge behavior
+
+- **Original reference:** `004E29D9`, `0047AB1A`.
+- **Evidence and retained behavior:** Wrapping uses a shared 100-byte word plus terminator, decrements its cursor even at the word limit and recognizes the case-insensitive seven-byte newline prefix inside a tag. It wraps on equality with the width limit and consumes a following LF after either newline byte. The assertion dialog truncates at 999 bytes and terminates explicitly; Abort raises signal 22 and then breaks, Retry breaks, Ignore returns. It releases cursor clipping and switches to GDI before displaying.
+- **Assessment / reconstruction limits:** Confirmed Windows control flow; these conventions alone do not establish a gameplay defect. The assertion callback has three arguments despite its former no-argument declaration.
+- **Decision / Renewed task:** Retain parser and callback semantics; evaluate parser/documented UI expectations separately.
+- **Status:** Preserved / original observation. See [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md).
+
+<a id="oa085"></a>
+### OA085 - Video and fullscreen probing retain result and COM lifetime conventions
+
+- **Original reference:** `004046DA`, `00404484`, `00404635`, `0040467C`, `00478F52`.
+- **Evidence and retained behavior:** Every availability probe calls CoInitialize without a matching CoUninitialize in this tree. Probe/sample update accept exact S_OK while setup accepts all nonnegative HRESULTs. Audio-stream addition, conversion, Seek, SetState, Blt and display-mode enumeration results are ignored on their original paths. Start seeks before checking availability; Close leaves playing state unchanged. Missing DDRAW.DLL still reaches FreeLibrary with null.
+- **Assessment / Renewed task:** Preserve the observed API/lifetime rules. Assess balanced COM lifetime and status reporting separately; a gameplay effect has not been reproduced. The unpublished-stream failure leak is recorded separately as OB095.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa086"></a>
+### OA086 - Title/FMV input, sequences and bitmap ownership retain unchecked boundaries
+
+- **Original reference:** `004027D2`, `00402C90`, `00403029`, `0040339B`.
+- **Evidence and retained behavior:** Caption copies and stack-formatted video/picture paths are unchecked. Failed bitmap construction is followed by original unconditional use. Picture-sequence timeout uses unsigned tick > start + 20000 with wrapped addition. Video fallback/cursor/resolution transitions retain five-frame updates and original property consumption. Picture replacement deletes the old bitmap with flag one, releasing its object and pixel allocations.
+- **Assessment / Renewed task:** Preserve these boundaries; verify real oversized inputs and wrap-time reachability before claiming a reproduced defect.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa087"></a>
+### OA087 - Stock/position/color getters and manager construction retain unchecked fields
+
+- **Original reference:** `00431A88`, `00433064`, `0042CE24`, `004412F3`, `0048B3A1`, eleven native manager constructors.
+- **Evidence and retained behavior:** House stock always adds the unsigned future term to signed current stock outside special-counter paths, irrespective of its Boolean argument. Construction divides by an unchecked signed denominator. Mount/carrier position reads preserve missing-slot index wrap. Player/color/stock IDs retain upper-only or absent bounds. Manager allocations retain unconditional clears, embedded initialization before clearing and exact callback order.
+- **Assessment / Renewed task:** Preserve Windows behavior and ownership. Evaluate allocation/index validation separately. The packed-position argument is a reconstruction correction, not an original defect.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa088"></a>
+### OA088 - Keyboard assignment and object-group callbacks retain original index/capacity rules
+
+- **Original reference:** `004A3DA2`, `004A3E03`, `004A3E5B`, `004A37B1`, `004A3778`.
+- **Evidence and retained behavior:** Assignment indices use a signed upper bound without a lower check; insertion rejects count exactly four and reports success for an empty key without insertion. Direct checks require an active application and ignore modifiers. Group validation removes and revisits compacted slots; removal trusts index/count and wrapped memmove length. Removal events affect the first matching entry per group; nonzero load clears only the group region.
+- **Assessment / Renewed task:** Preserve unchecked indexing, capacity and callback conventions; malformed-state reachability remains unproved.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa089"></a>
+### OA089 - Static actor parsers retain unchecked indices, allocations and returning warnings
+
+- **Original reference:** `00412299`, `0041277C`, `00412A5D`, `0041300A`, `00411E81`, `004121A9`.
+- **Evidence and retained behavior:** Records and tables are published then cleared without allocation checks. Unloaded INI files return with initialized storage. Weapon damage/sound indices, job atomic indices, experience job indices and dependency landscape indices are unchecked. Experience lists reject count exactly ten. Repeated groups retain the original fields/defaults. Job validation warns for every unnamed definition after reader destruction and continues.
+- **Assessment / Renewed task:** Preserve these Windows assumptions; malformed input reachability remains unproved. Do not add guessed recovery or stricter parsing.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa090"></a>
+### OA090 - Weather, music and clock preserve original dimension/timing assumptions
+
+- **Original reference:** `00484C4F`, `004853D6`, `0048520F`, `0048508E`, `00485C3A`, `00485ED7`, `004B99F7`, `004B9C71`.
+- **Evidence and retained behavior:** Sector allocation and zero-size dimensions remain unchecked. Map wrapping retains unchecked signed divisors. Weather INI clamps density and rectangle endpoints in original order. Music preserves unchecked track/event indexing, signed upper-only player bounds and the nonzero modulo-120 variant update condition. Clock retains existing original CRT trigonometry dependencies and lazy-color registration behavior.
+- **Assessment / Renewed task:** Validate dimensions, indices and floating-point environment separately after faithful reconstruction. No runtime reproduction is claimed.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa091"></a>
+### OA091 - Statistics and Bob cache retain unchecked storage and partial results
+
+- **Original reference:** `0041AA59`, `0041ACD6`, `0041ADAF`, `00440A53`, `004905B9`, `0049063F`.
+- **Evidence and retained behavior:** Statistics allocation is followed by unconditional clear, and the history index wraps only at equality with 600. Sample/player/good indices remain unchecked. WORD human/house counts wrap; per-good counts saturate at FFFF after wrapped DWORD addition. Missing Bob files return null; loaded null pointers remain cached. Entry allocation is unchecked, names truncate at 79 bytes and filenames compare through the existing case-insensitive runtime.
+- **Assessment / Renewed task:** Preserve index/allocation/cache conventions; invalid-state reachability is not established. Resource ownership follows the existing destructor.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa092"></a>
+### OA092 - Ambient and Human sounds preserve original index and sentinel assumptions
+
+- **Original reference:** `0047F4D6`, `0047F56E`, `0047F760`, `00485453`, `004854D9`.
+- **Evidence and retained behavior:** Ambient sector allocation and group indices remain unchecked. Collectors compare against `00FFFFFF`, whereas the existing ambient-ID loader initializes `FFFFFFFF`; the original mismatch is preserved. Human sounds consume the first command line, retain unchecked tribe/sex-age/response indices, and resolve sound IDs before rejecting a response count of fifteen or more.
+- **Assessment / Renewed task:** Check malformed-data reachability after faithful reconstruction; no runtime reproduction is claimed.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa093"></a>
+### OA093 - Command queues and checksum records retain original unchecked processing
+
+- **Original reference:** `00410F00`, `00410FCC`, `00411829`, `004118F6`, `004DED59`, `004DF16F`, `0043BB4E`, `0043F3C4`.
+- **Evidence and retained behavior:** Queue/packet/slot allocation retains unconditional copying after allocation failure. Received command counts and dispatcher object indices remain unchecked. Checksum matching counts duplicate records independently, warns on mismatches, and clears confirmed/mismatched or stale records in original order. Human opcode slots and vehicle references retain their original validation boundaries. Network send asserts invalid sizes and returns false above 200 bytes; take returns false until its current buffer is complete.
+- **Assessment / Renewed task:** Preserve ownership, callback order and failure behavior. Remaining original callees are unresolved implementation work, not substituted runtime behavior.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2373,6 +2559,28 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP051 | GUI updates, string-window creation and callback mutation | Preserve list iterator behavior, ordered desktop searches, conditional deletion, redraw reset and retained widget/desktop dependencies | [IN_GAME_STATE.md](docs/IN_GAME_STATE.md), `004A0184`, `004A2598`, `004782FA`; OA075 |
 | FP052 | String-output child/array allocations and message clearing | Preserve nullable construction followed by unchecked access, exit/init replacement, runtime ownership and accepted unknown commands | [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md), `004C7030`, `004C712D`, `004C733E`; OA076 |
 | FP053 | Desktop attachment, hide rejection and callback mutation | Preserve membership guards, list/callback order, post-attachment input mode, CanBeHidden rejection and repeated deactivation | [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md), `00477219`, `004773F6`, `00477532`; OA077 |
+| FP054 | Menu graphics/widget allocation and screen rebuilding | Preserve runtime ownership, skipped construction, unconditional field accesses and all 23 Windows screen entries | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004D2E77`, `004D3A6D`; OA078 |
+| FP055 | Provider/session/player enumeration and connection queries | Preserve API error stages, caller allocation ownership, count cookies, returning assertions and ten-row limits | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004DC8E3`, `004DDED2`, `004D76CC`; OA079 |
+| FP056 | Session-search setup, timer creation and auto-join timeout | Preserve HRESULT branch differences, original cleanup order, failed-thread ownership, busy polling and 10000-ms timeout | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004D73E5`, `004DCCEE`, `004DE848`, `004D7BA7`; OB093, OA080 |
+| FP057 | Host/join, snapshot duplication and dynamic attachment | Preserve stage-specific reports, address-copy order, snapshot release, stop-search continuation and dynamic-memory cleanup | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004DCB30`, `004DD462`, `004DE100`, `004DEB32`; OA081 |
+| FP058 | Lobby reset, missing map/player and disabled controls | Preserve clear-before-mode-read, first-match scans, host/local-player query order and optional validation error output | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004D8169`, `004D79A7`; OA082 |
+| FP059 | Menu frame callbacks, deferred closes, following and caption replacement | Preserve mutable-list iteration, tail consumption, active/generation checks, unchecked source access and CR/LF counting | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004D6B08`, `00477859`, `004DAD5C`, `004B8FD0`; OA078 |
+
+| FP060 | GUI child/caption/tooltip ownership, hit rejection and callback mutation | Preserve unchecked construction/removal, rejected hidden/disabled hits, runtime frees, live field rereads and original text-query limits | [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md); OB094, OA083 |
+| FP061 | Assertion formatting, Abort/Retry/Ignore and cursor/GDI transition | Keep the Windows three-argument callback, explicit terminator, signal 22 followed by debug break on Abort and returning Ignore path | [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md), `0047AB1A`; OA084 |
+| FP062 | Animal-sound and SoundFX lazy token ownership | Retain complete terminators, initial zero state, bit-setting/AtExit ordering and existing load validation; no independent duplicate table owner | [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md), `0048AA38`, `0048DD23` |
+
+| FP063 | Video COM setup and unpublished stream failure | Retain stage-specific HRESULT checks, release order, availability/playing states and original unpublished reference leak | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OB095, OA085 |
+| FP064 | Video sample, audio and fullscreen probe results | Preserve exact S_OK sample gate, ignored API results, real DLL/interface ownership and null unload path | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA085 |
+| FP065 | Title/FMV missing paths, property consumption and transitions | Preserve fallback bitmap, cursor/resolution cleanup, five-frame updates, sequence ownership and timeout comparison | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA086 |
+| FP066 | String, stock, mounted-position and color lookup rejection | Preserve missing-array nulls, substitute stock slots, direct counters, generation tests, wrapped missing slots and original color fallbacks | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA087 |
+| FP067 | Manager allocation and embedded construction | Preserve allocation family/sizes, unconditional clears, owner publication and callback registration/teardown ordering | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA087 |
+| FP068 | Keyboard capacity and group invalidation/removal | Preserve complete default table, upper-only indices, count equality gate, modifier reads, first-match removal and compacted-slot revisit | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA088 |
+| FP069 | Static actor INI failure, unchecked command indices and missing job definitions | Preserve initialized storage, consumption order, original bounds/caps and post-reader returning warnings | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA089 |
+| FP070 | Weather dimensions, music event gates and clock arithmetic | Preserve unchecked allocation/division/indexing, density clamp, stop order, modulo condition and original math boundaries | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA090 |
+| FP071 | Statistics storage and missing/failed Bob resources | Preserve history/current allocation, equality-only wrap, count arithmetic, file rejection and cached null loads | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA091 |
+| FP072 | Ambient and Human sound allocation/indexing | Preserve sector allocation, original sentinel comparison, unchecked sound indices and response capacity handling | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA092 |
+| FP073 | Network command allocation, incomplete buffers and checksums | Preserve immediate/queued execution, original copies, send-size assertions, false on incomplete receive buffers, mismatch warnings and stale-record clearing | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA093 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2380,7 +2588,12 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 
 | Finding | Why it is not an original bug | Required reconstruction action |
 | --- | --- | --- |
+| Full build reports missing Windows/DirectX imports | Existing OS calls need explicit import libraries; this is project integration, not game behavior | Both configurations now link the SDK libraries and generated legacy DirectInput import library; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
+| Mapped originals and data owners remain referenced under disconnected names | Tooltip sorting, overview palette assignment and nine data consumers already have canonical native implementations/storage | Reconnected existing bodies/owners and verified MMX/network initial storage from Windows PE/xrefs; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
+| Syntax/object success is mistaken for a complete executable | Extern declarations compile without definitions; linking still requires every real function/data body | Full Win32 Debug/Release linking remains incomplete with 213 distinct symbols; the complete [inventory](docs/UNRESOLVED_LINK_SYMBOLS.csv) tracks genuine remaining reconstruction work |
 | Overview-window virtual table is truncated to fifteen entries | Windows 004F78FC..004F7947 contains nineteen entries; hide dispatch reads slot 15 | Restored slots 15..18 and the 4C size assertion; see [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md) |
+| Bitmap-tool virtual table is truncated to fifteen entries | Windows 004F6D58..004F6D9F contains eighteen entries | Restored slots 15..17 and the 48 size assertion; see [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md) |
+| Menu desktop and GUI resource owners use host allocation/free families | Windows allocates through the runtime and uses original object sizes, qualified destruction and Runtime_Free | Corrected menu graphics ownership; see [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md) |
 | Main-menu owner uses host new/delete and dimension getters reread singleton pointers | Windows allocates/frees through the project runtime and captures application/menu before depth/height/width queries | Corrected allocation/destruction and captured pointers; see [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md) |
 | `Runtime_ResizeSmallBlock` uses `& ~0x0u` | Original instruction at `004edcc8` uses `FFFFFFF0` | Use `0xFFFFFFF0u` |
 | FPU callback appears before its type/declaration | C++ header ordering issue | Declare the function and type before the initializer |

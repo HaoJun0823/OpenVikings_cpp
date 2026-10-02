@@ -42,8 +42,17 @@ inline std::uint32_t DAT_00554d20 = 0;
 // Original data: DAT_00554d98.
 alignas(4) inline std::byte DAT_00554d98[8]{};
 
-// Original data: DAT_00554da8.
-alignas(4) inline std::byte DAT_00554da8[8]{};
+namespace NC2E2
+{
+    // Complete ambient change region: 00554DA8..00554DB1.
+    struct SAmbientSoundChangeState
+    {
+        std::int16_t first[2], last[2];
+        std::uint8_t patternsChanged, landscapesChanged;
+    };
+    inline SAmbientSoundChangeState gAmbientSoundChangeState{};
+    static_assert(sizeof(SAmbientSoundChangeState) == 10);
+}
 
 // Original data: DAT_00568358; startup writes offsets 0x08 through 0x17.
 alignas(4) inline std::byte DAT_00568358[0x18]{};

@@ -147,6 +147,22 @@ namespace NXSysMisc
         NXBasics::Runtime_RaiseSignal(22);
     }
 
+    // Original function: FUN_0047ab1a. The Windows callback receives three arguments.
+    void __cdecl XWS_AssertBox(const char* message, const char* sourceFile, std::int32_t line)
+    {
+        XWS_SystemMouseCursor_Show();
+        ClipCursor(nullptr);
+        auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+        application->FlipToGDISurface();
+        const HWND windowHandle = application->GetWindowHandle();
+        char buffer[1000];
+        NXBasics::Runtime_PrintStringN(buffer, sizeof(buffer) - 1, "%s\n\nFile %s - Line %d\n\n(press retry to debug)", message, sourceFile, line);
+        buffer[sizeof(buffer) - 1] = '\0';
+        const int selection = MessageBoxA(windowHandle, buffer, "XWS assert", MB_ABORTRETRYIGNORE);
+        if (selection == IDABORT) NXBasics::Runtime_RaiseSignal(22);
+        if (selection == IDABORT || selection == IDRETRY) __debugbreak();
+    }
+
     // Original function: FUN_0047a9ea
     void __cdecl XWS_WarningBoxV(const char* format, ...)
     {

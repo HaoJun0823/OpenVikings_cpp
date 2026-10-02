@@ -171,6 +171,40 @@ namespace NXBasics
 		return ShadowRead<std::uint32_t>(entry);
 	}
 
+    // Original function: FUN_00439ab3; byte and alpha-word run streams share hit
+    // intervals, but skip one and two payload bytes per opaque pixel respectively.
+    bool BobManager_IsBobHit(const void* bobManager, std::uint32_t bobId, const std::int32_t* point)
+    {
+        const auto index = bobId - ShadowRead<std::uint32_t>(bobManager, 4);
+        if (index >= ShadowRead<std::uint32_t>(bobManager, 8)) return false;
+        const auto* entry = ShadowAddress(ShadowPointer(bobManager, 0x24), index * 0x18u);
+        const auto left = ShadowRead<std::int32_t>(entry, 4), top = ShadowRead<std::int32_t>(entry, 8);
+        const auto right = Runtime_TimeSigned32(ShadowRead<std::uint32_t>(entry, 4) + ShadowRead<std::uint32_t>(entry, 0xC) - 1u);
+        const auto bottom = Runtime_TimeSigned32(ShadowRead<std::uint32_t>(entry, 8) + ShadowRead<std::uint32_t>(entry, 0x10) - 1u);
+        if (point[0] < left || point[0] > right || point[1] < top || point[1] > bottom) return false;
+        const auto row = ShadowRead<std::uint32_t>(entry, 0x14) - static_cast<std::uint32_t>(top) + static_cast<std::uint32_t>(point[1]);
+        const auto descriptor = ShadowRead<std::uint32_t>(ShadowPointer(bobManager, 0x2C), row * 4u);
+        if (descriptor == 0xFFFFFFFFu) return false;
+        const auto x = Runtime_TimeSigned32(static_cast<std::uint32_t>(point[0]) - static_cast<std::uint32_t>(left));
+        std::uint32_t runX = descriptor >> 22;
+        if (x < static_cast<std::int32_t>(runX)) return false;
+        const auto type = ShadowRead<std::uint32_t>(entry);
+        if (type != 1 && type != 4) return false;
+        const auto* cursor = reinterpret_cast<const std::uint8_t*>(ShadowPointer(bobManager, 0x28)) + (descriptor & 0x3FFFFFu);
+        for (;;)
+        {
+            const auto control = *cursor++;
+            if (control == 0) return false;
+            const auto length = static_cast<std::uint32_t>(control & 0x7Fu);
+            if ((control & 0x80u) == 0)
+            {
+                if (x >= Runtime_TimeSigned32(runX) && x < Runtime_TimeSigned32(runX + length)) return true;
+                cursor += length * (type == 1 ? 1u : 2u);
+            }
+            runX += length;
+        }
+    }
+
 	// Original function: FUN_00463aee
 	void BobManager_PrintBob(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette)
 	{

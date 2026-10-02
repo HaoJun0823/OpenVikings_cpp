@@ -1,3 +1,4 @@
+#include "C2StaticGoodTypeData.h"
 #include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2LogicLifetimeAccess.h"
@@ -25,6 +26,45 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00418ae1; additions wrap before signed clamping to 0..20.
+    void GameAssistantManager_UserInput_Save(void* manager, std::int32_t player, std::int32_t command, std::int32_t value)
+    {
+        using namespace NC2Lifetime;
+        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) == 0) return;
+        const auto base = static_cast<std::uint32_t>(player) * 0x38u;
+        std::uint32_t offset;
+        switch (command)
+        {
+        case 10: offset = 0; break;
+        case 11: offset = 4; break;
+        case 20: offset = 8; break;
+        case 21: offset = 12; break;
+        case 22: offset = 16; break;
+        case 23: offset = 20; break;
+        case 30: Write<std::uint8_t>(manager, base + 0x18, value != 0); return;
+        case 31: Write<std::uint8_t>(manager, base + 0x19, value != 0); return;
+        case 32: Write<std::uint8_t>(manager, base + 0x1A, value != 0); return;
+        case 33: Write<std::uint8_t>(manager, base + 0x1B, value != 0); return;
+        case 40: Write<std::uint8_t>(manager, base + 0x1C, value != 0); return;
+        case 41: Write<std::uint8_t>(manager, base + 0x1D, value != 0); return;
+        default: return;
+        }
+        const auto previous = Read<std::uint32_t>(manager, base + offset);
+        auto adjusted = NXBasics::Runtime_TimeSigned32(previous + static_cast<std::uint32_t>(value));
+        if (adjusted <= 0) adjusted = 0;
+        if (adjusted >= 20) adjusted = 20;
+        const auto delta = static_cast<std::uint32_t>(adjusted) - previous;
+        Write(manager, base + offset, previous + delta);
+        if (command == 11)
+        {
+            Write(manager, base + 0x24, Read<std::uint32_t>(manager, base + 0x24) + delta);
+            return;
+        }
+        Write(manager, base + 0x20, Read<std::uint32_t>(manager, base + 0x20) + delta);
+        if (command == 10) return;
+        Write(manager, base + 0x28, Read<std::uint32_t>(manager, base + 0x28) + delta);
+        if (command >= 21) Write(manager, base + 0x2Cu + static_cast<std::uint32_t>(command - 21) * 4u, Read<std::uint32_t>(manager, base + 0x2Cu + static_cast<std::uint32_t>(command - 21) * 4u) + delta);
+    }
     using namespace NC2Lifetime;
     SMapMoveableArrayStorage gMapMoveableArrayStorage{};
     extern bool __cdecl FUN_00408f7b(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -43,6 +83,181 @@ namespace NC2Logic
     extern bool __cdecl FUN_0044eb1e(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     struct SUserCommandListTag {};
+
+    // Original function: FUN_004121a9; CStaticDependenciesManager constructor.
+    void* __fastcall StaticDependenciesManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gStaticDependenciesManager = manager;
+        std::memset(gStaticDependencyGoodByLandscape, 0, sizeof(gStaticDependencyGoodByLandscape));
+        for (std::uint32_t good = 0; good <= 55; ++good) gStaticDependencyGoodByLandscape[static_cast<std::uint32_t>(gStaticGoodTypeData[good].landscapeType)] = static_cast<std::int32_t>(good);
+        gStaticDependencyGoodByLandscape[0x5C] = 5;
+        gStaticDependencyGoodByLandscape[0x5E] = 5;
+        gStaticDependencyGoodByLandscape[0x64] = 2;
+        gStaticDependencyGoodByLandscape[0x65] = 2;
+        gStaticDependencyGoodByLandscape[0x67] = 3;
+        gStaticDependencyGoodByLandscape[0x68] = 3;
+        gStaticDependencyGoodByLandscape[0x6A] = 6;
+        gStaticDependencyGoodByLandscape[0x6B] = 6;
+        gStaticDependencyGoodByLandscape[0x6D] = 7;
+        gStaticDependencyGoodByLandscape[0x6E] = 7;
+        gStaticDependencyGoodByLandscape[0x79] = 13;
+        gStaticDependencyGoodByLandscape[0x7A] = 13;
+        gStaticDependencyGoodByLandscape[0x7C] = 14;
+        return manager;
+    }
+
+    // Original function: FUN_0040b94a.
+    void* __fastcall MarkerArray_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        auto* array = ::new (manager) CArrayHandler();
+        gMarkerArray = manager;
+        std::memset(manager, 0, 0x30);
+        gMarkerEntries = nullptr;
+        gMarkerEntries = NXBasics::Runtime_Allocate(0x5DC0);
+        std::memset(gMarkerEntries, 0, 0x5DC0);
+        array->System_InitArray(1000, static_cast<std::byte*>(gMarkerEntries), 0x18, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+        return manager;
+    }
+
+    // Original function: FUN_0040bbaa; embedded moveable state constructor.
+    static void MapMoveable_ConstructMembers(void* moveable)
+    {
+        Write<std::uint16_t>(moveable, 0x14, 0);
+        Write<std::uint16_t>(moveable, 0x12, 0);
+        Write<std::uint32_t>(moveable, 0x18, 0);
+        Write<std::uint32_t>(moveable, 0x1C, 0);
+    }
+
+    // Original function: FUN_0040bb10.
+    void* __fastcall MapMoveableArray_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        auto* array = ::new (manager) CArrayHandler();
+        gMapMoveableArrayStorage.manager = array;
+        std::memset(manager, 0, 0x30);
+        gMapMoveableArrayStorage.entries = nullptr;
+        auto* entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(0x2AF80));
+        if (entries != nullptr) for (std::uint32_t index = 0; index < 2000; ++index) MapMoveable_ConstructMembers(entries + index * 0x58u);
+        gMapMoveableArrayStorage.entries = entries;
+        std::memset(entries, 0, 0x2AF80);
+        array->System_InitArray(2000, entries, 0x58, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+        return manager;
+    }
+
+    // Original function: FUN_0041714b.
+    void* __fastcall MissionOnscreenInfoManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gMissionOnscreenInfoManager = manager;
+        std::memset(manager, 0, 0xFA0);
+        return manager;
+    }
+
+    // Original function: FUN_004175ec.
+    void* __fastcall GameAssistantManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gGameAssistantManager = manager;
+        std::memset(manager, 0, 0x460);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(1, FUN_00418d3b, 0x0C, 1);
+        return manager;
+    }
+
+    // Original function: FUN_00419032.
+    void* __fastcall MultiPlayerGoalManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gMultiPlayerGoalManager = manager;
+        std::memset(manager, 0, 0x740);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(1, FUN_004195a4, 0x6F, 0x32);
+        return manager;
+    }
+
+    // Original function: FUN_004196cd.
+    void* __fastcall HappinessManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gHappinessManager = manager;
+        std::memset(manager, 0, 0xAA0);
+        for (std::uint32_t type : {1u, 0x27u, 0x28u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, FUN_00419a7f, 0x0C, 1);
+        return manager;
+    }
+
+    // Original function: FUN_00419bc5.
+    void* __fastcall EmbeddedSavegameManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gEmbeddedSavegameManager = manager;
+        std::memset(manager, 0, 8);
+        return manager;
+    }
+
+    // Original function: FUN_00419ddb.
+    void* __fastcall TributeManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        for (std::uint32_t index = 0; index < 40; ++index) Write<std::uint8_t>(manager, index * 0x3Cu, 0);
+        gTributeManager = manager;
+        std::memset(manager, 0, 0x960);
+        return manager;
+    }
+
+    // Original function: FUN_00419f41.
+    void* __fastcall DelayedActionManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        auto* array = ::new (manager) CArrayHandler();
+        gDelayedActionManager = manager;
+        std::memset(manager, 0, 0x34);
+        void* entries = NXBasics::Runtime_Allocate(0x12C0);
+        Write<void*>(manager, 0x30, entries);
+        std::memset(entries, 0, 0x12C0);
+        array->System_InitArray(100, static_cast<std::byte*>(entries), 0x30, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+        return manager;
+    }
+
+    // Original function: FUN_0041c3aa.
+    void* __fastcall HumanMerchantArray_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        auto* array = ::new (manager) CArrayHandler();
+        gHumanMerchantArray = manager;
+        std::memset(manager, 0, 0x34);
+        void* entries = NXBasics::Runtime_Allocate(0x2FDA0);
+        Write<void*>(manager, 0x30, entries);
+        std::memset(entries, 0, 0x2FDA0);
+        std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 0x5A4);
+        array->System_InitArray(1000, static_cast<std::byte*>(entries), 0xC4, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, FUN_0041cbb8, 0xDE, 0x32);
+        return manager;
+    }
+
+    // Original function: FUN_0041cdcc.
+    static void MapPathfinderEntry_Construct(void* entry)
+    {
+        Write<std::uint16_t>(entry, 0x42, 0);
+        Write<std::uint16_t>(entry, 0x40, 0);
+        Write<std::uint16_t>(entry, 0x46, 0);
+        Write<std::uint16_t>(entry, 0x44, 0);
+    }
+
+    // Original function: FUN_0041cd2f.
+    void* __fastcall MapPathfinderManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        auto* array = ::new (manager) CArrayHandler();
+        gMapPathfinderManager = manager;
+        std::memset(manager, 0, 0x30);
+        gMapPathfinderEntries = nullptr;
+        void* entries = NXBasics::Runtime_Allocate(0x40740);
+        if (entries != nullptr) for (std::uint32_t index = 0; index < 2000; ++index) MapPathfinderEntry_Construct(static_cast<std::byte*>(entries) + index * 0x84u);
+        gMapPathfinderEntries = entries;
+        std::memset(entries, 0, 0x40740);
+        array->System_InitArray(2000, static_cast<std::byte*>(entries), 0x84, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
+        return manager;
+    }
+
+    // Original functions: FUN_00410d14 and FUN_00410d3c.
+    void* __fastcall UserNetworkCommandManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        for (std::uint32_t offset : {0x964u, 0x978u, 0x98Cu})
+        {
+            ::new (static_cast<std::byte*>(manager) + offset) CRuntimeOwnedList<SUserCommandListTag>(false);
+        }
+        gUserNetworkCommandManager = manager;
+        std::memset(manager, 0, 0x964);
+        return manager;
+    }
 
     // Original function: FUN_00411b6d.
     static void UserCommandList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SUserCommandListTag>*>(list)->~CRuntimeOwnedList(); }

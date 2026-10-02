@@ -2,6 +2,7 @@
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiStringOutputWindow.h"
 #include "InGameGuiSupportAccess.h"
+#include "InGameGuiWindowState.h"
 #include "ApplicationGlobals.h"
 #include "C2CallbackManager.h"
 #include "C2LifetimeAccess.h"
@@ -18,21 +19,9 @@
 
 // Original widget construction, desktop input/rendering and logic callback bodies.
 extern bool __cdecl FUN_004b3264(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern void FUN_004b1dde(); // CStatisticsWindow::Statics_Init
-extern void FUN_004b00da(); // CHumanListWindow::Statics_Init
-extern void FUN_004af057(); // CDiplomacyWindow::Statics_Init
-extern void FUN_004aba22(); // CSelectionSingleHumanWindow::Statics_Init
-extern void FUN_004a9946(); // CSelectionSingleVehicleWindow::Statics_Init
-extern void FUN_004a7142(); // CSelectionHouseWindow::Statics_Init
-extern void FUN_004a5ff5(); // CTechTreeWindow::Statics_Init
-extern void FUN_004a59ab(); // CMissionInfoWindow::MissionBriefingHistory_Init
-extern void __fastcall FUN_004a299b(void* object, void* unusedEdx, bool update);
-extern void __fastcall FUN_004a2a55(void* object, void* unusedEdx, bool update);
 extern std::uint32_t __fastcall FUN_004a1bf0(void* object);
 extern void __fastcall FUN_004a10cb(void* object);
 extern bool __fastcall FUN_004b4854(void* object, void* unusedEdx, std::int32_t mode);
-extern std::uint32_t __fastcall FUN_00477104(void* desktop, void* unusedEdx, bool clearBitmap, bool redraw);
-extern NXBaseGui::CBaseElement* __fastcall FUN_004780fc(void* desktop);
 
 namespace
 {
@@ -71,6 +60,55 @@ namespace
     }
 }
 
+namespace NC2InGameGuiMiscWindows
+{
+    // Original function: FUN_004a59ab.
+    void MissionInfoWindow_MissionBriefingHistory_Init()
+    {
+        gMissionBriefingHistory.count = 0;
+        for (auto& entry : gMissionBriefingHistory.entries) entry = -1;
+    }
+    // Original function: FUN_004a5ff5.
+    void TechTreeWindow_Statics_Init() { std::memset(gTechTreeWindowStatics, 0, sizeof(gTechTreeWindowStatics)); }
+    // Original function: FUN_004af057.
+    void DiplomacyWindow_Statics_Init()
+    {
+        std::memset(gDiplomacyWindowStatics, 0, sizeof(gDiplomacyWindowStatics));
+        NC2Lifetime::Write<std::uint32_t>(gDiplomacyWindowStatics, 0, 0);
+    }
+    // Original function: FUN_004b1093; CHumanListWindow::l_Statics_Reset.
+    static void HumanListWindow_Statics_Reset()
+    {
+        std::memset(gHumanListWindowStatics, 0, sizeof(gHumanListWindowStatics));
+        NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, 0x10, 0);
+        NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, 0x14, 0);
+    }
+    // Original function: FUN_004b00da.
+    void HumanListWindow_Statics_Init()
+    {
+        std::memset(gHumanListWindowStatics, 0, sizeof(gHumanListWindowStatics));
+        HumanListWindow_Statics_Reset();
+    }
+    // Original function: FUN_004b1dde.
+    void StatisticsWindow_Statics_Init()
+    {
+        std::memset(gStatisticsWindowStatics, 0, sizeof(gStatisticsWindowStatics));
+        NC2Lifetime::Write<std::uint32_t>(gStatisticsWindowStatics, 0, 0);
+        std::memset(gStatisticsWindowStatics + 8, 0, 4);
+        NC2Lifetime::Write<std::uint32_t>(gStatisticsWindowStatics, 8, 1);
+    }
+}
+
+namespace NC2InGameGuiSelection
+{
+    // Original function: FUN_004a7142.
+    void SelectionHouseWindow_Statics_Init() { std::memset(gSelectionHouseWindowStatics, 0, sizeof(gSelectionHouseWindowStatics)); }
+    // Original function: FUN_004a9946.
+    void SelectionSingleVehicleWindow_Statics_Init() { std::memset(gSelectionSingleVehicleWindowStatics, 0, sizeof(gSelectionSingleVehicleWindowStatics)); }
+    // Original function: FUN_004aba22.
+    void SelectionSingleHumanWindow_Statics_Init() { std::memset(gSelectionSingleHumanWindowStatics, 0, sizeof(gSelectionSingleHumanWindowStatics)); }
+}
+
 namespace NInGameGuiManager
 {
     using namespace NC2Lifetime;
@@ -81,13 +119,13 @@ namespace NInGameGuiManager
         FrameCall_Do();
         l_Selection_ActionButtons_CheckUpdate();
         CalculateFrameRate(reinterpret_cast<std::byte*>(this) + 0x110);
-        FUN_004a299b(sTheObjectPtr, nullptr, false);
-        FUN_004a2a55(sTheObjectPtr, nullptr, false);
+        sTheObjectPtr->MiscButtons_SpeedButton_Update(false);
+        sTheObjectPtr->MiscButtons_MessagePriorityButton_Update(false);
         sTheObjectPtr->l_UpdateElement0038();
-        FUN_00477104(NXBaseGui::CDesktop::sTheObjectPtr, nullptr, false, mStaticVars.redrawRequested);
+        NXBaseGui::CDesktop::sTheObjectPtr->Desktop_DoWork(false, mStaticVars.redrawRequested);
         auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
         mStaticVars.redrawRequested = false;
-        auto* underMouse = FUN_004780fc(desktop);
+        auto* underMouse = desktop->Element_GetUnderMousePtr();
         if (underMouse != nullptr && underMouse == Read<NXBaseGui::CBaseElement*>(this, 4))
             NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(Read<NXBaseGui::CBaseElement*>(this, 4));
     }
@@ -105,14 +143,14 @@ namespace NInGameGuiManager
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0xC, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager;
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x19, FUN_004b3264, 0, 10);
-        FUN_004b1dde();
-        FUN_004b00da();
-        FUN_004af057();
-        FUN_004aba22();
-        FUN_004a9946();
-        FUN_004a7142();
-        FUN_004a5ff5();
-        FUN_004a59ab();
+        NC2InGameGuiMiscWindows::StatisticsWindow_Statics_Init();
+        NC2InGameGuiMiscWindows::HumanListWindow_Statics_Init();
+        NC2InGameGuiMiscWindows::DiplomacyWindow_Statics_Init();
+        NC2InGameGuiSelection::SelectionSingleHumanWindow_Statics_Init();
+        NC2InGameGuiSelection::SelectionSingleVehicleWindow_Statics_Init();
+        NC2InGameGuiSelection::SelectionHouseWindow_Statics_Init();
+        NC2InGameGuiMiscWindows::TechTreeWindow_Statics_Init();
+        NC2InGameGuiMiscWindows::MissionInfoWindow_MissionBriefingHistory_Init();
     }
 
     // Original function: FUN_004a0295; reverse owner destruction order.

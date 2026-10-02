@@ -120,9 +120,13 @@ namespace NC2GuiToolsBase
     static_assert(offsetof(SGuiDynamicResources, headlineBackground) == 0x14);
 
     void DrawTool_DrawFrame(void* context, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle, std::int32_t mode);
+    void DrawTool_FillArea(void* context, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle, std::int32_t mode);
     void DrawTool_DrawFrame(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, std::int32_t mode);
     void DrawTool_PrintStringX(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* font, const NXBasics::SColorRGB* color, const char* text);
+    std::int32_t DrawTool_PrintStringWrapping(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t width, NXBasics::CFont* font, const NXBasics::SColorRGB* color, const char* text);
     void FXTool_Chat();
+    void FXTool_ClickConfirm();
+    std::int32_t StringToolMisc_StringSortCompare(const char* first, const char* second);
 
     char* StringTool_GetMainMenuStringPtr(std::uint32_t stringId);
     char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId);

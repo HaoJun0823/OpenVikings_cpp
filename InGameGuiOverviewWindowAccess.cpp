@@ -1,3 +1,5 @@
+#include "GuiBitmapToolElementAccess.h"
+#include "XGuiElementAccess.h"
 #include "InGameGuiOverviewWindowAccess.h"
 #include "InGameGuiBaseAccess.h"
 #include "XGuiWindowAccess.h"
@@ -9,27 +11,9 @@
 
 #include <cstring>
 
-extern void* __fastcall FUN_004b9520(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, const char* text, std::uint32_t tooltipId, void* formatObject);
-extern void __fastcall FUN_004b95a4(void* object, void* unusedEdx, NXBasics::CPalette* palette);
-extern void __fastcall FUN_004b959a(void* object, void* unusedEdx, std::uint32_t graphicsId);
 extern void __fastcall FUN_004a2322(void* manager);
 extern void* __fastcall FUN_004c9777(void* window, void* unusedEdx, std::uint32_t flags);
 extern void __fastcall FUN_004c9824(void* window, void* unusedEdx, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle);
-extern bool __fastcall FUN_004788a7(void* object);
-extern void __fastcall FUN_004786a7(void* object, void* unusedEdx, const std::int32_t* point);
-extern void __fastcall FUN_00478720(void* object);
-extern bool __fastcall FUN_0047873c(void* object, void* unusedEdx, const std::int32_t* point);
-extern bool __fastcall FUN_0047879d(void* object);
-extern bool __fastcall FUN_004788b1(void* object, void* unusedEdx, const std::int32_t* point);
-extern void* __fastcall FUN_004788c2(void* object);
-extern void* __fastcall FUN_00478ad8(void* object, void* unusedEdx, const std::int32_t* point, bool flag);
-extern void __fastcall FUN_00478a65(void* object, void* unusedEdx, std::int32_t* point);
-extern void __fastcall FUN_004788be(void* object);
-extern bool __fastcall FUN_004b8659(void* object, void* unusedEdx, std::uint32_t argument);
-extern bool __fastcall FUN_004788b6(void* object);
-extern bool __fastcall FUN_004bf2f4(void* object);
-extern std::uint32_t __fastcall FUN_004788b9(void* object, void* unusedEdx, std::uint32_t, std::uint32_t);
-extern void __fastcall FUN_004788bf(void* object, void* unusedEdx, std::uint32_t, std::uint32_t);
 
 namespace NC2InGameGuiOverviewDisplay
 {
@@ -89,24 +73,24 @@ namespace NC2InGameGuiOverviewDisplay
     static const std::uintptr_t gWorldOverviewStaticWindowVirtualTable[] =
     {
         reinterpret_cast<std::uintptr_t>(&FUN_004c9777),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticWindow_MessageHandle),
         reinterpret_cast<std::uintptr_t>(&FUN_004c9824),
-        reinterpret_cast<std::uintptr_t>(&FUN_004786a7),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478720),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047873c),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047879d),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788c2),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b6),
-        reinterpret_cast<std::uintptr_t>(&FUN_004bf2f4),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b9),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788bf)
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
     };
     static_assert(sizeof(gWorldOverviewStaticWindowVirtualTable) == 0x4C);
 
@@ -154,13 +138,13 @@ namespace NC2InGameGuiOverviewDisplay
             {
                 const char* text = NC2GuiToolsBase::CGuiBaseStringsManager::GetStringPtr(button.stringArray, button.stringId);
                 const NXBasics::SRectangle rectangle(115, button.y, button.width, button.height);
-                control = FUN_004b9520(allocation, nullptr, &rectangle, button.graphics, text, button.command, window);
+                control = NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, button.graphics, text, button.command, window);
             }
             if (index == 1) OverviewWindow_Write(window, 0x78, control);
             // FUN_004b9407 stores the center-graphics flag; the Windows path
             // still dereferences the result after a failed allocation.
             OverviewWindow_Write<std::uint8_t>(control, 0x34, 0);
-            FUN_004b95a4(control, nullptr, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
+            NC2InGameGuiBase::ToolGraphics_SetPalettePtr(control, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
             NXBaseGui::BaseWindow_Element_Add(window, control);
         }
         WorldOverviewStaticWindow_UpdateButtonGraphics(window);
@@ -174,7 +158,7 @@ namespace NC2InGameGuiOverviewDisplay
         if (mode == 1) graphics = 0x3D;
         if (mode == 2) graphics = 0x3E;
         if (mode == 3) graphics = 0x3E;
-        FUN_004b959a(OverviewWindow_Read<void*>(window, 0x78), nullptr, graphics);
+        NC2InGameGuiBase::BaseToolGfxButton_SetGraphicsId(OverviewWindow_Read<void*>(window, 0x78), nullptr, graphics);
     }
 
     // Original function: FUN_004c9aa8; l_Misc_UpdateDisplayFlag.

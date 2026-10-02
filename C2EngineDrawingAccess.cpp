@@ -15,12 +15,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_005550e4;
-extern void* DAT_00568a64;
-extern void* DAT_00568a7c;
-extern NXBasics::CPalette* DAT_005550f8;
-extern std::uint8_t DAT_00568b44;
-
 namespace NC2E2
 {
     // Original function: FUN_00486f3c
@@ -78,7 +72,7 @@ namespace NC2E2
         std::memcpy(&paletteId, gStaticHumanColors + static_cast<std::uint32_t>(colorId) * 0x58u + 0x50u, sizeof(paletteId));
 
         std::uint32_t paletteAddress;
-        std::memcpy(&paletteAddress, addressAt(DAT_005550e4, paletteId * 0x30u + 0x20u), sizeof(paletteAddress));
+        std::memcpy(&paletteAddress, addressAt(gStaticPaletteEntries, paletteId * 0x30u + 0x20u), sizeof(paletteAddress));
 
         return reinterpret_cast<NXBasics::CPalette*>(static_cast<std::uintptr_t>(paletteAddress));
     }
@@ -89,7 +83,7 @@ namespace NC2E2
         if (bobManager == nullptr)
             return;
 
-        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(DAT_005550e4));
+        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gStaticPaletteEntries));
         const std::uint32_t address = baseAddress + colorTableIndex * 0x30u;
         auto* colorData = reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(address));
 
@@ -127,7 +121,7 @@ namespace NC2E2
             return value;
         };
 
-        const std::byte* house = addressAt(DAT_00568a64, static_cast<std::uint32_t>(houseType) * 0x8BCu);
+        const std::byte* house = addressAt(gStaticHouseEntries, static_cast<std::uint32_t>(houseType) * 0x8BCu);
 
         if (colorTableIndex == -1)
         {
@@ -157,7 +151,7 @@ namespace NC2E2
     // Original function: FUN_00496cfd
     void EngineGraphic_Draw(std::uint32_t graphicId, std::uint32_t variant, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t animationValue, std::int32_t brightness, std::int32_t parameter24, bool centered)
     {
-        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(DAT_00568a7c));
+        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gStaticLandscapeEntries));
         const std::uint32_t address = baseAddress + graphicId * 0x8Cu;
         auto* graphic = reinterpret_cast<void*>(static_cast<std::uintptr_t>(address));
 
@@ -231,7 +225,7 @@ namespace NC2E2
         {
             frameValue = DAT_00510838 + animationValue;
 
-            if (DAT_00568b44 != 0)
+            if (gE2ParticelGeneratorStorage.unresolved00 != 0)
                 frameValue = ::timeGetTime() / 83u + animationValue;
         }
 
@@ -290,7 +284,7 @@ namespace NC2E2
 
         if (brightness == 0)
         {
-            drawWithoutBrightnessAdjustment(DAT_005550f8);
+            drawWithoutBrightnessAdjustment(static_cast<NXBasics::CPalette*>(gStaticPalette005550F8));
             return;
         }
 
@@ -316,7 +310,7 @@ namespace NC2E2
         const std::uint32_t brightnessProduct = (static_cast<std::uint32_t>(brightness) - 256u) * readWord(graphic, 0x80);
         brightness = signedValue(brightnessProduct) / 256 + 256;
 
-        const std::byte* colorData = addressAt(DAT_005550e4, readWord(graphic, 0x74) * 0x30u);
+        const std::byte* colorData = addressAt(gStaticPaletteEntries, readWord(graphic, 0x74) * 0x30u);
         NXBasics::CPalette* palette;
 
         if (parameter24 != -1)
@@ -324,7 +318,7 @@ namespace NC2E2
             palette = EnginePalette_GetPlayerPalette(parameter24);
 
             if (palette == nullptr)
-                palette = DAT_005550f8;
+                palette = static_cast<NXBasics::CPalette*>(gStaticPalette005550F8);
         }
         else if (readWord(colorData, 0x24) != 0)
         {

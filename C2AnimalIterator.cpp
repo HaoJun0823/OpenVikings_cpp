@@ -1,5 +1,6 @@
 #include "C2AnimalIterator.h"
 #include "C2AnimalAccess.h"
+#include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
 #include "C2MapSectorAttachment.h"
@@ -10,7 +11,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_00510d4c;
 
 namespace NC2Logic
 {
@@ -152,7 +152,7 @@ namespace NC2Logic
                 const std::uint32_t typeFlagOffset = (animalType << 6) - 0x1F8u;
 
                 std::uint8_t typeFlag;
-                std::memcpy(&typeFlag, addressAt(DAT_00510d4c, typeFlagOffset), sizeof(typeFlag));
+                std::memcpy(&typeFlag, addressAt(gStaticAnimalTypeData, typeFlagOffset), sizeof(typeFlag));
 
                 if (typeFlag == 0)
                     continue;

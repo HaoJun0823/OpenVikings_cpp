@@ -44,6 +44,8 @@ namespace NC2Logic
     inline void* gStaticHumanJobExperienceTypeDataManager = nullptr;
     // Original global: 00510D40.
     inline void* gStaticDependenciesManager = nullptr;
+    // Complete CStaticDependenciesManager array 00510A80..00510D3F.
+    inline std::int32_t gStaticDependencyGoodByLandscape[176]{};
     // Original global: 00510D50.
     inline void* gStaticAnimalTypeDataManager = nullptr;
     // Original global: 00510DFC.
@@ -199,7 +201,19 @@ namespace NC2E2
     // Original global: 00568AFC.
     inline void* gE2StaticDataBobManagersManager = nullptr;
     // Original global: 00568B48.
-    inline void* gE2ParticelGeneratorManager = nullptr;
+    // Complete generator storage at 00568B44..00568B4B, zero-filled in the PE.
+    // The byte selects the real-time animation clock; its original name and
+    // writer remain unresolved. Keep it explicit rather than inventing a mode.
+    struct SE2ParticelGeneratorStorage
+    {
+        std::uint8_t unresolved00;
+        std::byte padding01[3];
+        void* owner;
+    };
+    inline SE2ParticelGeneratorStorage gE2ParticelGeneratorStorage{};
+    inline void*& gE2ParticelGeneratorManager = gE2ParticelGeneratorStorage.owner;
+    static_assert(sizeof(SE2ParticelGeneratorStorage) == 8);
+    static_assert(offsetof(SE2ParticelGeneratorStorage, owner) == 4);
     // Original global: 0056842C.
     inline void* gE2ParticelWind = nullptr;
     // Original global: 005684D0.

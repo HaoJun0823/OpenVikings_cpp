@@ -1,4 +1,6 @@
+#include "C2HouseAccess.h"
 #include "C2GameState.h"
+#include "C2E2AmbientSoundManagerAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineLifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -8,6 +10,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2GameMapAccess.h"
 #include "C2MapSectorGridCursor.h"
 #include "XPalette.h"
 #include "C2EngineDisplayManager.h"
@@ -17,9 +20,15 @@
 #include "C2E2StaticDataSoundFX.h"
 #include "DSManager.h"
 #include "DMManager.h"
+#include "CDAudioManager.h"
+#include "C2GameControlNetwork.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "XIniFileReader.h"
+#include "XBTokenList.h"
+#include "XFile.h"
+#include "XStorableIO.h"
+#include <utility>
 
 // Original CRT cosine/sine entries; known library boundaries.
 extern double __cdecl FUN_004e8824(double);
@@ -40,6 +49,118 @@ namespace NC2E2
     struct SStaticTextureListTag {};
     struct SStaticBobManagerListTag {};
 
+    static NXBasics::SToken gHumanSoundTokens[5]{}; // Complete 00568388..005683AF.
+    static std::uint8_t gHumanSoundTokenFlags = 0; // 00568380.
+    // Original function: FUN_004854d9.
+    static void E2HumanSoundManager_Load(void* manager, NXBasics::CIniFileReader& reader)
+    {
+        if ((gHumanSoundTokenFlags & 1u) == 0)
+        {
+            gHumanSoundTokenFlags |= 1u;
+            static constexpr NXBasics::SToken tokens[5] = {{"logictribe", 0x74726962u}, {"scream", 0x73637265u}, {"generic", 0x67656E65u}, {"respond", 0x72657370u}, {nullptr, 0}};
+            std::memcpy(gHumanSoundTokens, tokens, sizeof(tokens));
+        }
+        for (char* group = reader.GetFirstGroup("sounds"); group != nullptr; group = reader.GetNextGroup("sounds"))
+        {
+            reader.GetNextCommandLineInGroup();
+            std::uint32_t tribe = 0;
+            if (NXBasics::Runtime_CompareStringsIgnoreCase("logictribe", reader.GetCurrentName()) == 0) tribe = static_cast<std::uint32_t>(reader.GetInt());
+            while (reader.GetNextCommandLineInGroup() != nullptr)
+            {
+                const auto token = NXBasics::XB_Token_FindTokenInArray(gHumanSoundTokens, reader.GetCurrentName());
+                if (token == 0x73637265u || token == 0x67656E65u)
+                {
+                    const auto sexAge = static_cast<std::uint32_t>(reader.GetInt());
+                    auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
+                    const char* name = reader.GetString();
+                    const auto id = soundManager->GetStaticSoundFxIdByNamePtr(name);
+                    Write<std::uint32_t>(manager, (tribe * 3u + sexAge) * 0x8Cu + (token == 0x73637265u ? 8u : 12u), id);
+                }
+                else if (token == 0x72657370u)
+                {
+                    const auto sexAge = static_cast<std::uint32_t>(reader.GetInt());
+                    const auto response = static_cast<std::uint32_t>(reader.GetInt());
+                    auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
+                    const char* name = reader.GetString();
+                    const auto id = soundManager->GetStaticSoundFxIdByNamePtr(name);
+                    const auto offset = (tribe * 3u + sexAge) * 0x8Cu + response * 0x40u + 0x10u;
+                    const auto count = Read<std::uint32_t>(manager, offset);
+                    if (count < 15u)
+                    {
+                        Write<std::uint32_t>(manager, offset + count * 4u + 4u, id);
+                        Write<std::uint32_t>(manager, offset, count + 1u);
+                    }
+                }
+            }
+        }
+    }
+    // Original function: FUN_00485453; CE2HumanSoundManager constructor.
+    void* __fastcall E2HumanSoundManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gE2HumanSoundManager = manager;
+        std::memset(manager, 0, 0xD24);
+        for (std::uint32_t record = 0; record < 24; ++record)
+        {
+            Write<std::uint32_t>(manager, 8u + record * 0x8Cu, 0xFFFFFFFFu);
+            Write<std::uint32_t>(manager, 12u + record * 0x8Cu, 0xFFFFFFFFu);
+        }
+        if (NDSManager::CManager::sTheObjectPtr != nullptr && Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) != 0)
+        {
+            NXBasics::CIniFileReader reader("data\\engine2d\\inis\\humans\\sounds.ini", nullptr, false, nullptr, nullptr);
+            E2HumanSoundManager_Load(manager, reader);
+        }
+        return manager;
+    }
+
+    // Original function: FUN_0049063f; CE2StaticDataBobManagersManager::GetBobManagerPtr.
+    void* __fastcall E2StaticDataBobManagersManager_GetBobManagerPtr(void* manager, void* /*unusedEdx*/, const char* fileName)
+    {
+        auto* list = static_cast<NXBasics::CListBase*>(manager);
+        NXBasics::CListBase::Iterator iterator(*list);
+        for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next())
+        {
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(entry), fileName) == 0) return Read<void*>(entry, 0x50);
+        }
+        if (!NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true)) return nullptr;
+        void* entry = NXBasics::Runtime_Allocate(0x54);
+        std::memset(entry, 0, 0x54);
+        std::strncpy(static_cast<char*>(entry), fileName, 0x4F);
+        Write<void*>(entry, 0x50, NXBasics::XB_Storable_LoadObject(fileName));
+        list->InsertAtEnd(entry);
+        return Read<void*>(entry, 0x50);
+    }
+
+    // Original function: FUN_004905b9; Windows clears the entire inherited list header.
+    void* __fastcall E2StaticDataBobManagersManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        ::new (manager) CRuntimeOwnedList<SStaticBobManagerListTag>(false);
+        gE2StaticDataBobManagersManager = manager;
+        std::memset(manager, 0, 0x1C);
+        Write<void*>(manager, 0x14, E2StaticDataBobManagersManager_GetBobManagerPtr(manager, nullptr, "data\\engine2d\\bin\\bobs\\LS_fishes.bmd"));
+        Write<void*>(manager, 0x18, E2StaticDataBobManagersManager_GetBobManagerPtr(manager, nullptr, "data\\engine2d\\bin\\bobs\\ls_gui_bubbles.bmd"));
+        return manager;
+    }
+
+    // Original function: FUN_00484bd1.
+    void* __fastcall E2MapWeatherManagerSectorManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gE2MapWeatherManagerSectorManager = manager;
+        std::memset(manager, 0, 12);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(2, E2MapWeatherManagerSectorManager_LogicCallback, 0x32, 0xC8);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x16, E2MapWeatherManagerSectorManager_LogicCallback, 0x32, 0xC8);
+        return manager;
+    }
+
+    // Original function: FUN_0049039e; the Windows constructor clears its list header.
+    void* __fastcall E2StaticDataTexturesManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        ::new (manager) CRuntimeOwnedList<SStaticTextureListTag>(false);
+        gE2StaticDataTexturesManager = manager;
+        std::memset(manager, 0, 0x14);
+        std::memset(&gStaticDataTextures, 0, 8);
+        return manager;
+    }
+
     // Original function: FUN_0048d109.
     static void StaticMoveableAnimationList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableAnimationListTag>*>(list)->~CRuntimeOwnedList(); }
     // Original function: FUN_0048d126.
@@ -55,6 +176,84 @@ namespace NC2E2
         if (Read<void*>(manager, 8) != nullptr) FreeAndClearField(manager, 8);
         Write<std::uint32_t>(manager, 4, 0);
         Write<std::uint32_t>(manager, 0, 0);
+    }
+    // Original function: FUN_00484c4f; l_SectorData_Create.
+    static void E2MapWeatherManagerSectorManager_CreateSectorData(void* manager)
+    {
+        E2MapWeatherManagerSectorManager_FreeSectorData(manager);
+        Write<std::int32_t>(manager, 0, (static_cast<std::int32_t>(NC2Logic::GameMap_GetWidth()) + 9) / 10);
+        Write<std::int32_t>(manager, 4, (static_cast<std::int32_t>(NC2Logic::GameMap_GetHeight()) + 9) / 10);
+        const std::uint32_t size = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u;
+        void* sectors = NXBasics::Runtime_Allocate(size);
+        Write<void*>(manager, 8, sectors);
+        const std::uint32_t clearSize = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u;
+        std::memset(sectors, 0, clearSize);
+    }
+    // Original function: FUN_004853d6; l_Sector_GetDataPtr.
+    static void* E2MapWeatherManagerSectorManager_GetDataPtr(void* manager, std::int32_t x, std::int32_t y)
+    {
+        if (x < 0) x = 0;
+        const auto width = Read<std::int32_t>(manager, 0);
+        if (x >= width) x = width - 1;
+        if (y < 0) y = 0;
+        const auto height = Read<std::int32_t>(manager, 4);
+        if (y >= height) y = height - 1;
+        const std::uint32_t offset = (static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u;
+        return static_cast<std::byte*>(Read<void*>(manager, 8)) + offset;
+    }
+    // Original function: FUN_0048520f; Weather_SetRectangle receives two points by value.
+    static void E2MapWeatherManagerSectorManager_WeatherSetRectangle(void* manager, std::uint32_t first, std::uint32_t second, std::int32_t type, std::int32_t density)
+    {
+        NC2Logic::MapMigPoint_ValidatePosition(&first);
+        NC2Logic::MapMigPoint_ValidatePosition(&second);
+        std::int16_t start[2], end[2];
+        std::memcpy(start, &first, 4);
+        std::memcpy(end, &second, 4);
+        if (start[0] > end[0]) std::swap(start[0], end[0]);
+        if (start[1] > end[1]) std::swap(start[1], end[1]);
+        if (density < 0) density = 0;
+        if (density > 10000) density = 10000;
+        const auto sectorCoordinate = [] (std::int16_t coordinate, std::int32_t dimension)
+        {
+            const std::int32_t sector = (static_cast<std::int32_t>(coordinate) - 5) / 10;
+            return sector < 0 ? 0 : sector >= dimension ? dimension - 1 : sector;
+        };
+        const auto startX = sectorCoordinate(start[0], Read<std::int32_t>(manager, 0));
+        const auto startY = sectorCoordinate(start[1], Read<std::int32_t>(manager, 4));
+        const auto endX = sectorCoordinate(end[0], Read<std::int32_t>(manager, 0));
+        const auto endY = sectorCoordinate(end[1], Read<std::int32_t>(manager, 4));
+        for (std::int32_t y = startY; y <= endY; ++y)
+        {
+            for (std::int32_t x = startX; x <= endX; ++x)
+            {
+                void* sector = E2MapWeatherManagerSectorManager_GetDataPtr(manager, x, y);
+                if (type >= 1 && type <= 3) Write<std::int32_t>(sector, static_cast<std::uint32_t>(type - 1) * 4u, density);
+            }
+        }
+    }
+    // Original function: FUN_0048508e; l_Init_DataFromMapIni.
+    static void E2MapWeatherManagerSectorManager_InitDataFromMapIni(void* manager, NXBasics::CIniFileReader* reader)
+    {
+        void* sectors = Read<void*>(manager, 8);
+        if (sectors == nullptr) return;
+        std::memset(sectors, 0, Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u);
+        if (!reader->SearchGroup("misc_weather")) return;
+        // Complete original command table 004F4660..004F467F, including its terminator.
+        static constexpr NXBasics::SToken tokens[] = {{"setsnowrectangle", 0x73737265u}, {"setrainrectangle", 0x73727265u}, {"setsandrectangle", 0x7373616Eu}, {nullptr, 0}};
+        while (reader->GetNextCommandLineInGroup() != nullptr)
+        {
+            const auto command = NXBasics::XB_Token_FindTokenInArray(tokens, reader->GetCurrentName());
+            const std::int32_t type = command == 0x73737265u ? 2 : command == 0x73727265u ? 1 : command == 0x7373616Eu ? 3 : 0;
+            if (type == 0) continue;
+            const auto x1 = reader->GetInt();
+            const auto y1 = reader->GetInt();
+            const auto x2 = reader->GetInt();
+            const auto y2 = reader->GetInt();
+            const auto density = reader->GetInt();
+            const std::uint32_t first = static_cast<std::uint16_t>(x1) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(y1)) << 16);
+            const std::uint32_t second = static_cast<std::uint16_t>(x2) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(y2)) << 16);
+            E2MapWeatherManagerSectorManager_WeatherSetRectangle(manager, first, second, type, density);
+        }
     }
     // Original function: FUN_00484c1b.
     static void E2MapWeatherManagerSectorManager_Destruct(void* manager)
@@ -446,19 +645,110 @@ namespace NC2E2
     SDynamicObjectArrayStorage gDynamicDataVehicles{};
     SDynamicObjectArrayStorage gDynamicDataAnimals{};
 
+    // Original function: FUN_0048d093; JobGraphics_Animals_GetDataPtr.
+    static void* StaticMapMoveables_JobGraphics_Animals_GetDataPtr(std::uint32_t tribe, std::uint32_t type)
+    {
+        auto* records = Read<std::byte*>(gStaticMapMoveableData, 0x14);
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, 0x10); ++index)
+        {
+            void* record = records + index * 0x28u;
+            if (Read<std::uint32_t>(record, 0) == tribe && Read<std::uint32_t>(record, 4) == type) return record;
+        }
+        return nullptr;
+    }
+    // Original function: FUN_0048d0ce; JobGraphics_Vehicles_GetDataPtr.
+    static void* StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(std::uint32_t tribe, std::uint32_t type)
+    {
+        auto* records = Read<std::byte*>(gStaticMapMoveableData, 0x1C);
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, 0x18); ++index)
+        {
+            void* record = records + index * 0x28u;
+            if (Read<std::uint32_t>(record, 0) == tribe && Read<std::uint32_t>(record, 4) == type) return record;
+        }
+        return nullptr;
+    }
+    // Original function: FUN_0049073b.
+    static void* E2DynamicDataHouseManager_Construct(void* manager)
+    {
+        gDynamicDataHouses.manager = manager;
+        gDynamicDataHouses.entries = nullptr;
+        const std::uint32_t size = NC2Logic::CHouseArray::sTheObjectPtr->mCapacity * 0xD0u;
+        gDynamicDataHouses.entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(size));
+        std::memset(gDynamicDataHouses.entries, 0, size);
+        return manager;
+    }
+    // Original function: FUN_0049088c; HouseXtructed.
+    static void E2DynamicDataHouseManager_HouseXtructed(std::uint32_t index, bool created)
+    {
+        if (created) std::memset(gDynamicDataHouses.entries + index * 0xD0u, 0, 0xD0);
+    }
+    // Original function: FUN_004908b4.
+    static void* E2DynamicDataVehicleManager_Construct(void* manager)
+    {
+        gDynamicDataVehicles.manager = manager;
+        std::memset(manager, 0, 1);
+        gDynamicDataVehicles.entries = nullptr;
+        const std::uint32_t size = NC2Logic::CVehicleArray::sTheObjectPtr->mCapacity * 0x44u;
+        gDynamicDataVehicles.entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(size));
+        std::memset(gDynamicDataVehicles.entries, 0, size);
+        return manager;
+    }
+    // Original function: FUN_00490a2c; VehicleXtructed.
+    static void E2DynamicDataVehicleManager_VehicleXtructed(std::uint32_t index, bool created)
+    {
+        if (!created) return;
+        void* entry = gDynamicDataVehicles.entries + index * 0x44u;
+        void* vehicle = NC2Logic::CVehicleArray::mStaticVars + index * 0x54Cu;
+        std::memset(entry, 0, 0x44);
+        if (void* graphics = StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(Read<std::uint32_t>(vehicle, 0x1E4), Read<std::uint32_t>(vehicle, 0x1E8)))
+        {
+            Write<std::uint32_t>(entry, 0x28, Read<std::uint32_t>(graphics, 8));
+            Write<std::uint32_t>(entry, 0x30, Read<std::uint32_t>(graphics, 12));
+            if (Read<std::uint32_t>(graphics, 0x10) != 0)
+            {
+                const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, 0x10);
+                Write<std::uint32_t>(entry, 0x3C, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
+            }
+        }
+        Write<std::uint32_t>(entry, 0, 0xFFFFFFFFu);
+        Write<std::uint32_t>(entry, 4, 0xFFFFFFFFu);
+    }
+    // Original function: FUN_00490aa5.
+    static void* E2DynamicDataAnimalManager_Construct(void* manager)
+    {
+        gDynamicDataAnimals.manager = manager;
+        std::memset(manager, 0, 1);
+        gDynamicDataAnimals.entries = nullptr;
+        const std::uint32_t size = NC2Logic::CAnimalArray::sTheObjectPtr->mCapacity * 0x44u;
+        gDynamicDataAnimals.entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(size));
+        std::memset(gDynamicDataAnimals.entries, 0, size);
+        return manager;
+    }
+    // Original function: FUN_00490c1d; AnimalXtructed.
+    static void E2DynamicDataAnimalManager_AnimalXtructed(std::uint32_t index, bool created)
+    {
+        if (!created) return;
+        void* entry = gDynamicDataAnimals.entries + index * 0x44u;
+        void* animal = NC2Logic::CAnimalArray::mStaticVars + index * 0x98u;
+        std::memset(entry, 0, 0x44);
+        if (void* graphics = StaticMapMoveables_JobGraphics_Animals_GetDataPtr(Read<std::uint32_t>(animal, 0x14), Read<std::uint32_t>(animal, 0x18)))
+        {
+            Write<std::uint32_t>(entry, 0x28, Read<std::uint32_t>(graphics, 8));
+            Write<std::uint32_t>(entry, 0x30, Read<std::uint32_t>(graphics, 12));
+            if (Read<std::uint32_t>(graphics, 0x10) != 0)
+            {
+                const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, 0x10);
+                Write<std::uint32_t>(entry, 0x3C, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
+            }
+        }
+        Write<std::uint32_t>(entry, 0, 0xFFFFFFFFu);
+        Write<std::uint32_t>(entry, 4, 0xFFFFFFFFu);
+    }
+
     // Remaining original dependencies are creation/update paths, not shutdown bodies.
     extern void* __fastcall FUN_00482241(void*, void* unusedEdx);
     extern void* __fastcall FUN_00480162(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00490aa5(void*, void* unusedEdx);
-    extern void* __fastcall FUN_004908b4(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0049073b(void*, void* unusedEdx);
     extern void FUN_004803d5(std::uint32_t, bool, bool);
-    extern void FUN_00490c1d(std::uint32_t, bool);
-    extern void FUN_00490a2c(std::uint32_t, bool);
-    extern void FUN_0049088c(std::uint32_t, bool);
-    extern std::uint32_t __fastcall FUN_004316dc(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00434345(void*, void* unusedEdx);
-    extern void __fastcall FUN_0042a9e7(void*, void* unusedEdx, const void*, std::uint32_t, std::uint32_t, bool);
     extern void FUN_00482dc0(const void*, bool);
     extern void __fastcall FUN_00481228(void*, void* unusedEdx, const void*, std::int32_t);
     extern bool __cdecl FUN_00482c00(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -556,41 +846,41 @@ namespace NC2E2
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
-                if (manager != nullptr) FUN_00490aa5(manager, nullptr);
+                if (manager != nullptr) E2DynamicDataAnimalManager_Construct(manager);
             }
             else DestroyOwned(gDynamicDataAnimals.manager, E2DynamicDataAnimalManager_Destruct);
             break;
-        case 6: FUN_00490c1d(param1, param2 != 0); break;
+        case 6: E2DynamicDataAnimalManager_AnimalXtructed(param1, param2 != 0); break;
         case 7:
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
-                if (manager != nullptr) FUN_004908b4(manager, nullptr);
+                if (manager != nullptr) E2DynamicDataVehicleManager_Construct(manager);
             }
             else DestroyOwned(gDynamicDataVehicles.manager, E2DynamicDataVehicleManager_Destruct);
             break;
-        case 8: FUN_00490a2c(param1, param2 != 0); break;
+        case 8: E2DynamicDataVehicleManager_VehicleXtructed(param1, param2 != 0); break;
         case 9:
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
-                if (manager != nullptr) FUN_0049073b(manager, nullptr);
+                if (manager != nullptr) E2DynamicDataHouseManager_Construct(manager);
             }
             else DestroyOwned(gDynamicDataHouses.manager, E2DynamicDataHouseManager_Destruct);
             break;
         case 10:
         {
             const bool created = param2 != 0;
-            FUN_0049088c(param1, created);
+            E2DynamicDataHouseManager_HouseXtructed(param1, created);
             void* house = NC2Logic::CHouseArray::mStaticVars + param1 * 0x7E0u;
-            if (FUN_004316dc(house, nullptr) == 6) break;
-            void* area = FUN_00434345(house, nullptr);
+            if (NC2Logic::House_GetHouseMainType(house) == 6) break;
+            void* area = NC2Logic::House_Misc_WalkBlockArea_GetPtr(house);
             const std::uint32_t position = Read<std::uint32_t>(house, 0x1C);
             for (std::uint32_t row = 0; row < Read<std::uint32_t>(area, 0); ++row)
             {
                 void* line = static_cast<std::byte*>(Read<void*>(area, 4)) + row * 8;
                 std::uint32_t point;
-                FUN_0042a9e7(&point, nullptr, &position, Read<std::uint16_t>(line, 0), Read<std::uint16_t>(line, 2), false);
+                NC2Logic::MapMigPoint_ConstructOffset(&point, &position, Read<std::uint16_t>(line, 0), Read<std::uint16_t>(line, 2), false);
                 for (std::uint32_t column = 0; column < Read<std::uint32_t>(line, 4); ++column)
                 {
                     if (NC2Logic::MapMigPoint_IsInsideMap(&point)) FUN_00482dc0(&point, created);
@@ -610,19 +900,17 @@ namespace NC2E2
         return true;
     }
 
-    extern void __fastcall FUN_00484c4f(void* manager, void* unusedEdx);
-    extern void __fastcall FUN_0048508e(void* manager, void* unusedEdx, NXBasics::CIniFileReader* reader);
     // Original function: FUN_00485412, l_Logic_Callback.
     bool __cdecl E2MapWeatherManagerSectorManager_LogicCallback(NC2Logic::TCallbackTypes type, std::uint32_t /*userData*/, std::uint32_t param1, std::uint32_t, std::uint32_t)
     {
         if (type == 2)
         {
-            if (static_cast<std::uint16_t>(param1) != 0) FUN_00484c4f(gE2MapWeatherManagerSectorManager, nullptr);
+            if (static_cast<std::uint16_t>(param1) != 0) E2MapWeatherManagerSectorManager_CreateSectorData(gE2MapWeatherManagerSectorManager);
             else E2MapWeatherManagerSectorManager_FreeSectorData(gE2MapWeatherManagerSectorManager);
         }
         else if (type == 0x16 && DAT_005109bc != nullptr)
         {
-            FUN_0048508e(gE2MapWeatherManagerSectorManager, nullptr, DAT_005109bc);
+            E2MapWeatherManagerSectorManager_InitDataFromMapIni(gE2MapWeatherManagerSectorManager, DAT_005109bc);
         }
         return true;
     }
@@ -676,9 +964,86 @@ namespace NC2E2
         return true;
     }
 
-    extern void FUN_00485c3a(std::uint32_t gameTime);
-    extern void FUN_00485f57();
-    extern void FUN_00485ed7();
+    // Original function: FUN_00485aa1; the owning Windows class name is unresolved.
+    void* __fastcall WorldMusic_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gSingleton00568418 = manager;
+        std::memset(&gWorldMusicState, 0, sizeof(gWorldMusicState));
+        gWorldMusicState.selectedPlayer = 0xFFFFFFFFu;
+        gWorldMusicState.eventVariant = 4;
+        for (std::uint32_t type : {0x13u, 2u, 0x16u}) NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, WorldMusic_Callback, 0xDE, 10);
+        if (gDirectMusicManager != nullptr)
+        {
+            NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(1, WorldMusic_Callback, 0xDE, 10);
+            NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x28, WorldMusic_Callback, 0xDE, 10);
+        }
+        return manager;
+    }
+    // Original function: FUN_00485ba6; thresholds include state-dependent hysteresis.
+    static std::uint32_t WorldMusic_GetEventVariant()
+    {
+        const auto value = Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.controllingPlayer * 0x4A80u + 0x4610u);
+        switch (gWorldMusicState.eventVariant)
+        {
+        case 4: if (value <= -50) return 6; if (value >= 50) return 5; break;
+        case 5: if (value > 0) return 5; break;
+        case 6: if (value < 0) return 6; break;
+        }
+        return 4;
+    }
+    // Original function: FUN_00485c3a.
+    static void WorldMusic_Update(std::uint32_t gameTime)
+    {
+        const auto mode = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode");
+        if (mode != 1 && mode != 2) return;
+        auto* cd = NCDAudioManager::CCDAudioManager::sTheObjectPtr;
+        if (cd != nullptr && cd->IsStillPlaying()) cd->StopTrack();
+        if (mode == 1)
+        {
+            if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, 0x14) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
+            return;
+        }
+        if (gameTime % 120u != 0) gWorldMusicState.eventVariant = WorldMusic_GetEventVariant();
+        if (gWorldMusicState.changePending != 0)
+        {
+            if (gameTime < gWorldMusicState.changeAtGameTime) return;
+            gWorldMusicState.changePending = 0;
+        }
+        if (gWorldMusicState.selectedPlayer == 0xFFFFFFFFu)
+        {
+            NDMManager::ProcessEvent(gDirectMusicManager, NXBasics::Runtime_TimeSigned32(gWorldMusicState.musicType), gWorldMusicState.eventVariant, 2);
+            return;
+        }
+        const auto selected = NXBasics::Runtime_TimeSigned32(gWorldMusicState.selectedPlayer);
+        const auto relationship = NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, NXBasics::Runtime_TimeSigned32(gWorldMusicState.controllingPlayer), selected);
+        const auto tribe = selected < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.selectedPlayer * 0x4A80u + 12u) : 1;
+        const auto event = tribe == 1 ? 2 : tribe == 2 ? 3 : tribe == 3 ? 4 : tribe == 4 ? 5 : tribe > 4 && tribe <= 6 ? 6 : 1;
+        NDMManager::ProcessEvent(gDirectMusicManager, event, event == 6 ? 0 : static_cast<std::uint32_t>(relationship), 2);
+    }
+    // Original function: FUN_00485ed7.
+    static void WorldMusic_UpdateCdTrack()
+    {
+        if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, 0x14) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
+        auto* cd = NCDAudioManager::CCDAudioManager::sTheObjectPtr;
+        if (cd == nullptr || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") != 3) return;
+        const auto current = cd->GetCurrentTrack();
+        // Complete contiguous DWORD region 00505FF4..0050608F. Only the base-indexed
+        // Windows xref is known; subdivision of the trailing values is unresolved.
+        static constexpr std::uint32_t tracks[39] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 5, 6, 7, 8, 9, 10};
+        const auto track = tracks[gWorldMusicState.musicType];
+        if (track != 0)
+        {
+            if (track != current) cd->StartTrack(track);
+        }
+        else if (cd->IsStillPlaying()) cd->StopTrack();
+    }
+    // Original function: FUN_00485f57.
+    static void WorldMusic_LoadMusicType()
+    {
+        gWorldMusicState.musicType = 0;
+        auto* reader = DAT_005109bc;
+        if (reader != nullptr && reader->SearchGroup("misc_music") && reader->SearchCommand("musictype")) gWorldMusicState.musicType = static_cast<std::uint32_t>(reader->GetInt());
+    }
     // Original function: FUN_00485d7a; Windows music callback.
     bool __cdecl WorldMusic_Callback(NC2Logic::TCallbackTypes type, std::uint32_t, std::uint32_t param1, std::uint32_t param2, std::uint32_t)
     {
@@ -690,7 +1055,7 @@ namespace NC2E2
         switch (type)
         {
         case 1:
-            if (!inTransition()) FUN_00485c3a(param1);
+            if (!inTransition()) WorldMusic_Update(param1);
             break;
         case 2:
             gWorldMusicState.selectedPlayer = 0xFFFFFFFFu;
@@ -699,10 +1064,10 @@ namespace NC2E2
             gWorldMusicState.changeAtGameTime = 0;
             break;
         case 0x13:
-            FUN_00485f57();
-            FUN_00485ed7();
+            WorldMusic_LoadMusicType();
+            WorldMusic_UpdateCdTrack();
             break;
-        case 0x16: FUN_00485ed7(); break;
+        case 0x16: WorldMusic_UpdateCdTrack(); break;
         case 0x28:
             if (inTransition() || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") != 2) break;
             if (param1 != gWorldMusicState.controllingPlayer && param2 != gWorldMusicState.controllingPlayer) break;
@@ -724,12 +1089,6 @@ namespace NC2E2
         return true;
     }
 
-    static std::uint8_t gAmbientChangeFlag0 = 0;
-    static std::uint8_t gAmbientChangeFlag1 = 0;
-    extern void __fastcall FUN_0042adec(void* point, void* unusedEdx, const void* source);
-    extern void __fastcall FUN_0047f533(void* manager, void* unusedEdx, const NC2Logic::SSectorGridCursor* sector, bool flag0, bool flag1);
-    extern void __fastcall FUN_0047f90b(void* manager, void* unusedEdx);
-    extern void __fastcall FUN_0047f4d6(void* manager, void* unusedEdx);
     // Original function: FUN_0047ff55. Flags at 00554DB0/1 retain numeric identity.
     bool __cdecl E2AmbientSoundManager_Callback(NC2Logic::TCallbackTypes type, std::uint32_t, std::uint32_t param1, std::uint32_t param2, std::uint32_t)
     {
@@ -738,24 +1097,24 @@ namespace NC2E2
         case 2:
             if (static_cast<std::uint16_t>(param1) != 0)
             {
-                FUN_0047f4d6(gE2AmbientSoundManager, nullptr);
+                AmbientSoundManager_AllocateMemory(gE2AmbientSoundManager);
                 Write<std::uint32_t>(gE2AmbientSoundManager, 0x60, 0);
             }
             break;
-        case 0x16: FUN_0047f90b(gE2AmbientSoundManager, nullptr); break;
+        case 0x16: AmbientSoundManager_RecalculateAllAmbientSoundSector(gE2AmbientSoundManager); break;
         case 0x31:
-            Write<std::int16_t>(DAT_00554da8, 6, 0);
-            Write<std::int16_t>(DAT_00554da8, 4, 0);
-            gAmbientChangeFlag1 = 0;
-            gAmbientChangeFlag0 = 0;
-            Write<std::int16_t>(DAT_00554da8, 2, 32000);
-            Write<std::int16_t>(DAT_00554da8, 0, 32000);
+            Write<std::int16_t>(&gAmbientSoundChangeState, 6, 0);
+            Write<std::int16_t>(&gAmbientSoundChangeState, 4, 0);
+            gAmbientSoundChangeState.landscapesChanged = 0;
+            gAmbientSoundChangeState.patternsChanged = 0;
+            Write<std::int16_t>(&gAmbientSoundChangeState, 2, 32000);
+            Write<std::int16_t>(&gAmbientSoundChangeState, 0, 32000);
             break;
         case 0x32:
-            if (Read<std::int16_t>(DAT_00554da8, 0) != 32000)
+            if (Read<std::int16_t>(&gAmbientSoundChangeState, 0) != 32000)
             {
-                const NC2Logic::SSectorGridCursor first(Read<std::uint32_t>(DAT_00554da8, 0));
-                const NC2Logic::SSectorGridCursor last(Read<std::uint32_t>(DAT_00554da8, 4));
+                const NC2Logic::SSectorGridCursor first(Read<std::uint32_t>(&gAmbientSoundChangeState, 0));
+                const NC2Logic::SSectorGridCursor last(Read<std::uint32_t>(&gAmbientSoundChangeState, 4));
                 for (std::int32_t y = first.y; y <= last.y; ++y)
                 {
                     for (std::int32_t x = first.x; x <= last.x; ++x)
@@ -763,24 +1122,24 @@ namespace NC2E2
                         NC2Logic::SSectorGridCursor sector;
                         sector.x = x;
                         sector.y = y;
-                        FUN_0047f533(gE2AmbientSoundManager, nullptr, &sector, gAmbientChangeFlag0 != 0, gAmbientChangeFlag1 != 0);
+                        AmbientSoundManager_RecalculateAmbientSoundSector(gE2AmbientSoundManager, &sector, gAmbientSoundChangeState.patternsChanged != 0, gAmbientSoundChangeState.landscapesChanged != 0);
                     }
                 }
             }
             break;
         case 0x33:
-            if (param1 == 0x0A) gAmbientChangeFlag1 = 1;
+            if (param1 == 0x0A) gAmbientSoundChangeState.landscapesChanged = 1;
             else if (param1 == 0x0B) break;
-            else gAmbientChangeFlag0 = 1;
+            else gAmbientSoundChangeState.patternsChanged = 1;
             {
                 std::uint32_t point = param1;
-                FUN_0042adec(&point, nullptr, &param2);
+                NC2Logic::MapMigPoint_AssignLong(&point, param2);
                 const std::int16_t x = Read<std::int16_t>(&point, 0);
                 const std::int16_t y = Read<std::int16_t>(&point, 2);
-                if (x < Read<std::int16_t>(DAT_00554da8, 0)) Write<std::int16_t>(DAT_00554da8, 0, x);
-                if (x > Read<std::int16_t>(DAT_00554da8, 4)) Write<std::int16_t>(DAT_00554da8, 4, x);
-                if (y < Read<std::int16_t>(DAT_00554da8, 2)) Write<std::int16_t>(DAT_00554da8, 2, y);
-                if (y > Read<std::int16_t>(DAT_00554da8, 6)) Write<std::int16_t>(DAT_00554da8, 6, y);
+                if (x < Read<std::int16_t>(&gAmbientSoundChangeState, 0)) Write<std::int16_t>(&gAmbientSoundChangeState, 0, x);
+                if (x > Read<std::int16_t>(&gAmbientSoundChangeState, 4)) Write<std::int16_t>(&gAmbientSoundChangeState, 4, x);
+                if (y < Read<std::int16_t>(&gAmbientSoundChangeState, 2)) Write<std::int16_t>(&gAmbientSoundChangeState, 2, y);
+                if (y > Read<std::int16_t>(&gAmbientSoundChangeState, 6)) Write<std::int16_t>(&gAmbientSoundChangeState, 6, y);
             }
             break;
         }

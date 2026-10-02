@@ -1,3 +1,5 @@
+#include "C2E2AmbientSoundManagerAccess.h"
+#include "C2PlayerStatisticAccess.h"
 #include "C2GameEngineStartup.h"
 #include "C2GameTime.h"
 #include "ApplicationGlobals.h"
@@ -26,6 +28,7 @@
 #include "C2StaticVehicleTypeData.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2StaticTribeTypeData.h"
+#include "C2StaticActorTypeDataAccess.h"
 
 #include <Windows.h>
 #include <mmsystem.h>
@@ -49,30 +52,11 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
-    extern void* __fastcall FUN_0041300a(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00412a5d(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0041277c(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00412299(void*, void* unusedEdx);
-    extern void* __fastcall FUN_004121a9(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00411e81(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00410d14(void*, void* unusedEdx);
     extern void* __fastcall FUN_00408fdd(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void* __fastcall FUN_004231d7(void*, void* unusedEdx, std::int16_t, std::int16_t);
     extern void* __fastcall FUN_0041cf58(void*, void* unusedEdx);
     extern void* __fastcall FUN_00407c8b(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0040bb10(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0041cd2f(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0041c3aa(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0040b94a(void*, void* unusedEdx);
     extern void* __fastcall FUN_0041ae53(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0041aa59(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00419f41(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00419ddb(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00419bc5(void*, void* unusedEdx);
-    extern void* __fastcall FUN_004196cd(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00419032(void*, void* unusedEdx);
-    extern void* __fastcall FUN_004175ec(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0041714b(void*, void* unusedEdx);
 
 
     // Original function: FUN_00411ba6
@@ -114,24 +98,24 @@ namespace NC2Logic
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructNative<CStaticTribeTypeDataManager>(0x1);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_0041300a);
+        ConstructOriginal(0x1, StaticJobTypeDataManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_00412a5d);
+        ConstructOriginal(0x1, StaticWeaponTypeDataManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_0041277c);
+        ConstructOriginal(0x1, StaticArmorTypeDataManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_00412299);
+        ConstructOriginal(0x1, StaticAnimalTypeDataManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_004121a9);
+        ConstructOriginal(0x1, StaticDependenciesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_00411e81);
+        ConstructOriginal(0x1, StaticHumanJobExperienceTypeDataManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         static_assert(sizeof(NC2Logic::CCallbackManager) == 0x1A0);
         ConstructNative<NC2Logic::CCallbackManager>(0x1A0);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, GameMapModifyManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x9A0, FUN_00410d14);
+        ConstructOriginal(0x9A0, UserNetworkCommandManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         return game;
     }
@@ -155,27 +139,27 @@ namespace NC2Logic
         ConstructOriginal(0x1, FUN_004231d7, width, height);
         ConstructOriginal(0x81CAC, FUN_0041cf58);
         ConstructOriginal(0xA0, FUN_00407c8b);
-        ConstructOriginal(0x30, FUN_0040bb10);
-        ConstructOriginal(0x30, FUN_0041cd2f);
+        ConstructOriginal(0x30, MapMoveableArray_Construct);
+        ConstructOriginal(0x30, MapPathfinderManager_Construct);
         static_assert(sizeof(NC2Logic::CHumanArray) == 0x30);
         ConstructNative<NC2Logic::CHumanArray>(0x30);
-        ConstructOriginal(0x5D8, FUN_0041c3aa);
+        ConstructOriginal(0x5D8, HumanMerchantArray_Construct);
         static_assert(sizeof(NC2Logic::CAnimalArray) == 0x30);
         ConstructNative<NC2Logic::CAnimalArray>(0x30);
         static_assert(sizeof(NC2Logic::CVehicleArray) == 0x30);
         ConstructNative<NC2Logic::CVehicleArray>(0x30);
-        ConstructOriginal(0x30, FUN_0040b94a);
+        ConstructOriginal(0x30, MarkerArray_Construct);
         static_assert(sizeof(NC2Logic::CHouseArray) == 0x30);
         ConstructNative<NC2Logic::CHouseArray>(0x30);
         ConstructOriginal(0x1368, FUN_0041ae53);
-        ConstructOriginal(0xA8, FUN_0041aa59);
-        ConstructOriginal(0x34, FUN_00419f41);
-        ConstructOriginal(0x960, FUN_00419ddb);
-        ConstructOriginal(0x8, FUN_00419bc5);
-        ConstructOriginal(0xAA0, FUN_004196cd);
-        ConstructOriginal(0x740, FUN_00419032);
-        ConstructOriginal(0x460, FUN_004175ec);
-        ConstructOriginal(0xFA0, FUN_0041714b);
+        ConstructOriginal(0xA8, PlayerStatisticManager_Construct);
+        ConstructOriginal(0x34, DelayedActionManager_Construct);
+        ConstructOriginal(0x960, TributeManager_Construct);
+        ConstructOriginal(0x8, EmbeddedSavegameManager_Construct);
+        ConstructOriginal(0xAA0, HappinessManager_Construct);
+        ConstructOriginal(0x740, MultiPlayerGoalManager_Construct);
+        ConstructOriginal(0x460, GameAssistantManager_Construct);
+        ConstructOriginal(0xFA0, MissionOnscreenInfoManager_Construct);
         CCleanMapsManager::Tool_GenerateNewGuid(&gGameStaticVars.mapGuid);
         Write<std::uint32_t>(&gGameStaticVars, 0x18, 2);
         GameTime_Reset(enableTime);
@@ -235,8 +219,6 @@ namespace NC2E2
 {
     using namespace NC2Lifetime;
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
-    extern void* __fastcall FUN_004905b9(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0049039e(void*, void* unusedEdx);
     extern void* __fastcall FUN_00480a20(void*, void* unusedEdx);
     extern void* __fastcall FUN_0048f79f(void*, void* unusedEdx);
     extern void* __fastcall FUN_0048e651(void*, void* unusedEdx);
@@ -250,10 +232,6 @@ namespace NC2E2
     extern void* __fastcall FUN_0048a028(void*, void* unusedEdx);
     extern void* __fastcall FUN_00489de0(void*, void* unusedEdx);
     extern void* __fastcall FUN_00486336(void*, void* unusedEdx);
-    extern void* __fastcall FUN_0047f3c7(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00485aa1(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00485453(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00484bd1(void*, void* unusedEdx);
 
     // Original callbacks remain unresolved; their verified signatures match the callback manager.
     extern bool __cdecl FUN_0047e936(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -268,9 +246,9 @@ namespace NC2E2
         std::memset(manager, 0, 1);
         std::memset(DAT_00554d98, 0, sizeof(DAT_00554d98));
         gDesktopOwnedBobBitmap = nullptr;
-        ConstructOriginal(0x1C, FUN_004905b9);
+        ConstructOriginal(0x1C, E2StaticDataBobManagersManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x14, FUN_0049039e);
+        ConstructOriginal(0x14, E2StaticDataTexturesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(0x1, FUN_00480a20);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
@@ -343,17 +321,26 @@ namespace NC2E2
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(0x2F7F80, FUN_00486336);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x64, FUN_0047f3c7);
+        ConstructOriginal(0x64, AmbientSoundManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         static_assert(sizeof(NC2E2::CE2AnimalSoundManager) == 0x8C);
         ConstructNative<NC2E2::CE2AnimalSoundManager>(0x8C);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0x1, FUN_00485aa1);
+        ConstructOriginal(0x1, WorldMusic_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0xD24, FUN_00485453);
+        ConstructOriginal(0xD24, E2HumanSoundManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(0xC, FUN_00484bd1);
+        ConstructOriginal(0xC, E2MapWeatherManagerSectorManager_Construct);
         return manager;
     }
 }
 
+
+namespace NC2Logic
+{
+    // Original function: FUN_0040aebd; distinct float-to-double forwarding entry.
+    void GameTime_SetSpeed(float speed)
+    {
+        GameTime_SetSpeed(static_cast<double>(speed));
+    }
+}

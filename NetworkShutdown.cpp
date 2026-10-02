@@ -83,112 +83,6 @@ namespace NNetwork
             }
         }
 
-        // Original function: FUN_004ddc86
-        void DestroySessionListContents(SSessionList* list)
-        {
-            SSessionNode* node = list->first;
-
-            if (node == nullptr)
-            {
-                return;
-            }
-
-            SSessionNode* last = node->previous;
-
-            if (last == node)
-            {
-                ReleaseSessionNodeResources(node);
-                NXBasics::Runtime_Free(node);
-                return;
-            }
-
-            bool finished;
-
-            do
-            {
-                node = list->first;
-                list->first = node->next;
-
-                // The original stops after destroying the captured last node.
-                finished = node == last;
-
-                ReleaseSessionNodeResources(node);
-                NXBasics::Runtime_Free(node);
-            } while (!finished);
-        }
-
-        // Original function: FUN_004de8b9
-        void ShutDownTimer(STimerPrefix* timer)
-        {
-            if (timer->thread == nullptr)
-            {
-                return;
-            }
-
-            const HANDLE thread = timer->thread;
-            timer->stopRequested = 1;
-
-            const DWORD result = WaitForSingleObject(thread, INFINITE);
-
-            if (result == WAIT_TIMEOUT)
-            {
-                char buffer[20] = {};
-
-                OutputDebugStringA(OriginalStrings::TimerNotRespondingWarning);
-                OutputDebugStringA(OriginalStrings::TimerThreadLabel);
-
-                NXBasics::Runtime_PrintString(buffer, OriginalStrings::TimerThreadFormat, timer->thread);
-                OutputDebugStringA(buffer);
-
-                OutputDebugStringA(OriginalStrings::TimerTimeoutLabel);
-
-                NXBasics::Runtime_LongToString(-1, buffer, 10);
-                OutputDebugStringA(buffer);
-
-                OutputDebugStringA(OriginalStrings::NewLine);
-            }
-
-            CloseHandle(timer->thread);
-            timer->thread = nullptr;
-        }
-
-        // Original function: FUN_004de9da
-        void ReleaseDynamicNetworkMemory(SDynamicNetworkData* data)
-        {
-            WriteNetworkLog(GetNetworkLog(), "Deleting dynamic memory", 0);
-
-            ClearEventQueue(&data->events);
-
-            if (data->allocation10 != nullptr)
-            {
-                NXBasics::Runtime_Free(data->allocation10);
-                data->allocation10 = nullptr;
-            }
-
-            if (data->allocation28 != nullptr)
-            {
-                NXBasics::Runtime_Free(data->allocation28);
-                data->allocation28 = nullptr;
-            }
-
-            if (data->allocation30 != nullptr)
-            {
-                NXBasics::Runtime_Free(data->allocation30);
-                data->allocation30 = nullptr;
-            }
-
-            ReleaseDynamicSlots(&data->arrays[0]);
-            ReleaseDynamicSlots(&data->arrays[1]);
-            ReleaseDynamicSlots(&data->arrays[2]);
-        }
-
-        // Original function: FUN_004debfd
-        void ShutDownDynamicNetworkData(SDynamicNetworkData* data)
-        {
-            ReleaseDynamicNetworkMemory(data);
-            data->active = 0;
-        }
-
         // Original function: FUN_004e10fb
         void ReleaseDynamicSlots(SDynamicSlotArray* array)
         {
@@ -950,4 +844,122 @@ namespace NNetwork
         // Original destructor: FUN_004db49b -> FUN_004db528.
         ClearEventQueue(&data->events);
     }
+}
+
+namespace NNetwork
+{
+        // Original function: FUN_004de9da
+        void ReleaseDynamicNetworkMemory(SDynamicNetworkData* data)
+        {
+            WriteNetworkLog(GetNetworkLog(), "Deleting dynamic memory", 0);
+
+            ClearEventQueue(&data->events);
+
+            if (data->allocation10 != nullptr)
+            {
+                NXBasics::Runtime_Free(data->allocation10);
+                data->allocation10 = nullptr;
+            }
+
+            if (data->allocation28 != nullptr)
+            {
+                NXBasics::Runtime_Free(data->allocation28);
+                data->allocation28 = nullptr;
+            }
+
+            if (data->allocation30 != nullptr)
+            {
+                NXBasics::Runtime_Free(data->allocation30);
+                data->allocation30 = nullptr;
+            }
+
+            ReleaseDynamicSlots(&data->arrays[0]);
+            ReleaseDynamicSlots(&data->arrays[1]);
+            ReleaseDynamicSlots(&data->arrays[2]);
+        }
+
+}
+
+namespace NNetwork
+{
+    // Original function: FUN_004debfd
+    void ShutDownDynamicNetworkData(SDynamicNetworkData* data)
+    {
+        ReleaseDynamicNetworkMemory(data);
+        data->active = 0;
+    }
+
+        // Original function: FUN_004ddc86
+        void DestroySessionListContents(SSessionList* list)
+        {
+            SSessionNode* node = list->first;
+
+            if (node == nullptr)
+            {
+                return;
+            }
+
+            SSessionNode* last = node->previous;
+
+            if (last == node)
+            {
+                ReleaseSessionNodeResources(node);
+                NXBasics::Runtime_Free(node);
+                return;
+            }
+
+            bool finished;
+
+            do
+            {
+                node = list->first;
+                list->first = node->next;
+
+                // The original stops after destroying the captured last node.
+                finished = node == last;
+
+                ReleaseSessionNodeResources(node);
+                NXBasics::Runtime_Free(node);
+            } while (!finished);
+        }
+
+}
+
+namespace NNetwork
+{
+        // Original function: FUN_004de8b9
+        void ShutDownTimer(STimerPrefix* timer)
+        {
+            if (timer->thread == nullptr)
+            {
+                return;
+            }
+
+            const HANDLE thread = timer->thread;
+            timer->stopRequested = 1;
+
+            const DWORD result = WaitForSingleObject(thread, INFINITE);
+
+            if (result == WAIT_TIMEOUT)
+            {
+                char buffer[20] = {};
+
+                OutputDebugStringA(OriginalStrings::TimerNotRespondingWarning);
+                OutputDebugStringA(OriginalStrings::TimerThreadLabel);
+
+                NXBasics::Runtime_PrintString(buffer, OriginalStrings::TimerThreadFormat, timer->thread);
+                OutputDebugStringA(buffer);
+
+                OutputDebugStringA(OriginalStrings::TimerTimeoutLabel);
+
+                NXBasics::Runtime_LongToString(-1, buffer, 10);
+                OutputDebugStringA(buffer);
+
+                OutputDebugStringA(OriginalStrings::NewLine);
+            }
+
+            CloseHandle(timer->thread);
+            timer->thread = nullptr;
+        }
+
 }

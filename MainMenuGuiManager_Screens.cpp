@@ -1,0 +1,520 @@
+#include "C2EngineDisplayAccess.h"
+#include "GuiBitmapToolElementAccess.h"
+#include "GuiTextToolElementAccess.h"
+#include "MainMenuGuiManager.h"
+#include "C2CampaignStaticDataManager.h"
+#include "C2CleanMapsManager.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LanguageTools.h"
+#include "C2SavegamesManager.h"
+#include "GuiToolsBase.h"
+#include "MainMenuGuiManager_Access.h"
+#include "MasterControlProgram.h"
+#include "NetworkShutdown.h"
+#include "XBasicTypes.h"
+
+#include <cstdio>
+#include <cstring>
+
+// Original widget interfaces; their constructors are separate reconstruction targets.
+extern void* __fastcall FUN_004cff78(void*, void* unusedEdx, const NXBasics::SRectangle*);
+extern void* __fastcall FUN_004cfff5(void*, void* unusedEdx, const NXBasics::SRectangle*, void*, bool, bool);
+extern void __fastcall FUN_004d01a3(void*, void* unusedEdx, void*);
+extern void __cdecl FUN_004c1a3f(void*, void*, std::uint32_t, bool, std::uint32_t, bool);
+extern void* __fastcall FUN_004cbcd6(void*, void* unusedEdx, const NXBasics::SRectangle*, std::uint32_t, std::uint32_t, const char*, const char*, void*, void*);
+extern void __fastcall FUN_004cbf6c(void*, void* unusedEdx, float, std::uint32_t);
+
+namespace NC2MainMenuGuiManager
+{
+    using namespace NC2Lifetime;
+    using NXBasics::SRectangle;
+    using NC2GuiToolsBase::StringTool_GetMainMenuStringPtr;
+    using NC2GuiToolsBase::StringTool_GetOdin001StringPtr;
+    using NC2GuiToolsBase::StringTool_GetUpdate103StringPtr;
+
+    // Complete original region: 00508960..005089CB, terminated by a zero mission.
+    struct SCampaignButtonPosition { std::uint32_t mission; std::int32_t x; std::int32_t y; };
+    static constexpr SCampaignButtonPosition cCampaignButtonPositions[] = {{10,489,349},{20,603,289},{30,496,281},{40,476,257},{50,475,224},{60,404,230},{70,523,364},{80,406,313},{0,0,0}};
+
+    static std::int32_t AddCoordinate(std::int32_t value, std::int32_t delta)
+    {
+        return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(value) + static_cast<std::uint32_t>(delta));
+    }
+
+    static void AdvanceRow(SRectangle& rectangle, std::int32_t gap)
+    {
+        rectangle.y = AddCoordinate(AddCoordinate(rectangle.y, rectangle.height), gap);
+    }
+
+    template<class T> static void* CreateText(const SRectangle& rectangle, T getText, bool headline)
+    {
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
+        void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, getText(), false, false);
+        // The Windows title paths write this even when allocation failed.
+        if (headline) Write<std::uint8_t>(element, 0xF8, 0);
+        return element;
+    }
+
+    template<class T> static void* CreateSimpleButton(const SRectangle& rectangle, T getText, std::uint32_t command, void* owner)
+    {
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        return allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(allocation, nullptr, &rectangle, getText(), command, owner);
+    }
+
+    using TStringGetter = char*(*)(std::uint32_t);
+    static void* CreateButton(const SRectangle& rectangle, std::uint32_t caption, std::uint32_t tooltip, std::uint32_t command, void* owner, TStringGetter getString, bool toggle = false, bool selected = false)
+    {
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+        if (allocation == nullptr) return nullptr;
+        const char* tooltipText = getString(tooltip);
+        const char* captionText = getString(caption);
+        return toggle ? NC2InGameGuiBase::BaseToolTextButton_ConstructToggleWithToolTip(allocation, nullptr, &rectangle, captionText, tooltipText, command, owner, selected) : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &rectangle, captionText, tooltipText, command, owner);
+    }
+
+    static void* CreateListBox(const SRectangle& rectangle)
+    {
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+        return allocation == nullptr ? nullptr : FUN_004cff78(allocation, nullptr, &rectangle);
+    }
+
+    static void* CreateListController(const SRectangle& rectangle, void* list)
+    {
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+        return allocation == nullptr ? nullptr : FUN_004cfff5(allocation, nullptr, &rectangle, list, false, true);
+    }
+
+    static void SetButtonValue(void* button, std::uint32_t value)
+    {
+        Write(button, 0x4C, value);
+        Write<std::uint32_t>(button, 0x50, 0);
+    }
+
+    // Original function: FUN_004d3a6d.
+    // Complete Windows screen jump table: 004D6A49..004D6AA4.
+    void CGuiManager::Screen_UpdateGui()
+    {
+        l_ScreenGuiElement_RemoveAll();
+        const auto halfHeight = mStaticVars.displayHeight / 2;
+        const SRectangle upperTitle{30, AddCoordinate(halfHeight, -245), 500, 20};
+        const SRectangle upperContent{56, AddCoordinate(halfHeight, -210), 280, 20};
+        const SRectangle title{30, AddCoordinate(halfHeight, -105), 500, 20};
+        const SRectangle content{56, AddCoordinate(halfHeight, -70), 280, 20};
+        const SRectangle back{30, AddCoordinate(halfHeight, 220), 100, 30};
+        void* owner = unknown216C;
+        auto add = [this](void* element) { l_ScreenGuiElement_Add(element); };
+        auto heading = [&](const SRectangle& rectangle, std::uint32_t id, TStringGetter getter = StringTool_GetMainMenuStringPtr) { add(CreateText(rectangle, [=] { return getter(id); }, true)); };
+        auto button = [&](const SRectangle& rectangle, std::uint32_t caption, std::uint32_t tooltip, std::uint32_t command, TStringGetter getter = StringTool_GetMainMenuStringPtr) { add(CreateButton(rectangle, caption, tooltip, command, owner, getter)); };
+        auto returnToMain = [&] { button(back, 0x2F, 0x30, 0x138B); };
+        auto networkBack = [&] { button(back, 0x46, 0x47, 0x13A0); };
+        auto attachList = [&](SRectangle rectangle, void* list)
+        {
+            add(list);
+            rectangle.x = AddCoordinate(AddCoordinate(rectangle.x, rectangle.width), 4);
+            rectangle.width = 20;
+            add(CreateListController(rectangle, list));
+        };
+        switch (currentScreen)
+        {
+        case 1:
+        {
+            auto rectangle = content;
+            void* element = CreateButton(rectangle, 0, 1, 0x138B, owner, StringTool_GetMainMenuStringPtr);
+            Write<std::uint8_t>(element, 0x56, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0]));
+            add(element);
+            AdvanceRow(rectangle, 20); button(rectangle, 2, 3, 0x138C);
+            AdvanceRow(rectangle, 30); button(rectangle, 6, 7, 0x138D);
+            AdvanceRow(rectangle, 10); button(rectangle, 8, 9, 0x138F);
+            button(back, 0xA, 0xB, 0x1388);
+            break;
+        }
+        case 2:
+            heading(title, 0x1E);
+            button(content, 0x1F, 0x20, 0x1389);
+            button(back, 0x14, 0x15, 0x138A);
+            break;
+        case 3:
+        {
+            heading(title, 0x28);
+            auto rectangle = content;
+            button(rectangle, 0x14, 0x15, 0x1394, StringTool_GetOdin001StringPtr);
+            AdvanceRow(rectangle, 10); button(rectangle, 0x29, 0x2A, 0x1392);
+            AdvanceRow(rectangle, 10); button(rectangle, 0x16, 0x17, 0x1393, StringTool_GetOdin001StringPtr);
+            AdvanceRow(rectangle, 10); button(rectangle, 0x2D, 0x2E, 0x1395);
+            button(back, 0x14, 0x15, 0x138A);
+            break;
+        }
+        case 4:
+        case 8:
+        {
+            heading(title, currentScreen == 4 ? 0x32 : 0x14, currentScreen == 4 ? StringTool_GetMainMenuStringPtr : StringTool_GetOdin001StringPtr);
+            if (NC2Logic::gCleanMapsManager != nullptr)
+            {
+                SRectangle rectangle = content;
+                rectangle.width = 350; rectangle.height = 280;
+                void* list = CreateListBox(rectangle);
+                SRectangle row{0, 0, Read<std::int32_t>(list, 0xC), 22};
+                NC2Logic::gCleanMapsManager->CleanMapList_Tool_SortByNames();
+                NXBasics::CListBase::Iterator iterator(NC2Logic::gCleanMapsManager->mMaps);
+                auto mapButton = [&](NC2Logic::SCleanMapInfoData* map, std::uint32_t command)
+                {
+                    char name[200]; map->Tool_GetMapName(name);
+                    char tooltip[1] = {0};
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                    void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &row, name, tooltip, command, owner);
+                    SetButtonValue(element, reinterpret_cast<std::uint32_t>(&map->guid));
+                    FUN_004d01a3(list, nullptr, element);
+                    AdvanceRow(row, 2);
+                };
+                if (currentScreen == 8)
+                {
+                    for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
+                        if (static_cast<std::uint8_t>(map->unknown384) == 0 && (map->mapTypes & 2) != 0 && map->campaignId == 100) mapButton(map, 0x1396);
+                }
+                else
+                {
+                    const std::uint32_t groups[] = {2, 5, 4, 6};
+                    const std::uint32_t captions[] = {0x33, 0x18, 0x34, 0x19};
+                    for (std::uint32_t group = 0; group < 4; ++group)
+                    {
+                        if (NC2Logic::gCleanMapsManager->mMapTypeCounts[groups[group]] == 0) continue;
+                        row.y = AddCoordinate(row.y, group == 0 ? 10 : (group == 2 ? 0 : 6));
+                        auto getter = (group == 1 || group == 3) ? StringTool_GetOdin001StringPtr : StringTool_GetMainMenuStringPtr;
+                        FUN_004d01a3(list, nullptr, CreateText(row, [=] { return getter(captions[group]); }, false));
+                        AdvanceRow(row, 2);
+                        for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
+                            if (static_cast<std::uint8_t>(map->unknown384) == 0 && (map->mapTypes & (1u << groups[group])) != 0 && (group < 2 || map->multiplayerOnly == 0)) mapButton(map, 0x1397);
+                        if (group != 3) row.y = AddCoordinate(row.y, 10);
+                    }
+                }
+                attachList(rectangle, list);
+            }
+            else add(CreateText(content, [] { return "CLEAN MAP MANAGER NOT CREATED!"; }, false));
+            returnToMain();
+            break;
+        }
+        case 5:
+        {
+            if (NC2Logic::gCleanMapsManager != nullptr)
+            {
+                NXBasics::CListBase::Iterator iterator(NC2Logic::gCleanMapsManager->mMaps);
+                for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
+                {
+                    if (static_cast<std::uint8_t>(map->unknown384) != 0 || (map->mapTypes & 2) == 0 || map->campaignId != 3 || map->campaignMapId == 0) continue;
+                    if (!NC2Logic::gCampaignStaticDataManager->CampaignSubMission_IsAllowed(map->campaignId, map->campaignMapId)) continue;
+                    const auto* position = cCampaignButtonPositions;
+                    while (position->mission != 0 && position->mission != map->campaignMapId) ++position;
+                    if (position->mission == 0 || position->x == -1) continue;
+                    const auto x = AddCoordinate(position->x, AddCoordinate(mStaticVars.displayWidth, -800) / 2);
+                    const auto y = AddCoordinate(position->y, AddCoordinate(mStaticVars.displayHeight, -600) / 2);
+                    char name[400]; map->Tool_GetMapName(name);
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+                    void* element = nullptr;
+                    if (allocation != nullptr)
+                    {
+                        SRectangle rectangle{AddCoordinate(x, -10), AddCoordinate(y, -10), 20, 20};
+                        element = NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, 0x29, name, 0x1397, owner);
+                    }
+                    Write(element, 0x48, &map->guid); Write<std::uint32_t>(element, 0x4C, 0); Write<std::uint8_t>(element, 0x44, 1);
+                    add(element);
+                }
+            }
+            returnToMain();
+            break;
+        }
+        case 6:
+        {
+            heading(title, 0x35);
+            if (NC2Logic::gSavegamesManager != nullptr)
+            {
+                auto rectangle = content; rectangle.width = 171; rectangle.height = 18;
+                const auto sort = NC2Logic::gSavegamesManager->mSortType;
+                const std::uint32_t values[] = {2, 1, 3};
+                for (std::uint32_t index = 0; index < 3; ++index)
+                {
+                    add(CreateButton(rectangle, 0x36 + index * 2, 0x37 + index * 2, 0x1399 + index, owner, StringTool_GetMainMenuStringPtr, true, sort == values[index]));
+                    if (index != 2) rectangle.x = AddCoordinate(AddCoordinate(rectangle.x, rectangle.width), 2);
+                }
+                rectangle.x = content.x; AdvanceRow(rectangle, 8); rectangle.width = 496; rectangle.height = 250;
+                void* list = CreateListBox(rectangle);
+                FUN_004c1a3f(list, owner, 0x1398, false, 0, false);
+                attachList(rectangle, list);
+            }
+            else add(CreateText(content, [] { return "SAVEGAME MANAGER NOT CREATED!"; }, false));
+            returnToMain();
+            break;
+        }
+        case 7:
+        {
+            heading(title, 0x1A, StringTool_GetOdin001StringPtr);
+            auto rectangle = content;
+            for (std::uint32_t index = 0; index < 3; ++index)
+            {
+                const auto selected = Read<std::uint32_t>(NMasterControlProgram::CMasterControlProgram::sTheObjectPtr, 0x148) == index;
+                add(CreateButton(rectangle, 0x1B + index * 2, 0x1C + index * 2, 0x139C + index, owner, StringTool_GetOdin001StringPtr, true, selected));
+                AdvanceRow(rectangle, 10);
+            }
+            AdvanceRow(rectangle, 20);
+            add(CreateButton(rectangle, 0x21, 0x22, 0x139F, owner, StringTool_GetOdin001StringPtr, true, false));
+            returnToMain();
+            break;
+        }
+        case 9:
+        case 12:
+        {
+            heading(title, currentScreen == 9 ? 0x48 : 0x50);
+            auto rectangle = content; rectangle.y = AddCoordinate(rectangle.y, 120);
+            const auto id = currentScreen == 9 ? 0x49u : 0x51u;
+            add(CreateSimpleButton(rectangle, [=] { return StringTool_GetMainMenuStringPtr(id); }, currentScreen == 9 ? 0x13A1 : 0x13A5, owner));
+            networkBack();
+            break;
+        }
+        case 10:
+        {
+            heading(title, 0x4A);
+            auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 100);
+            Write<std::uint32_t>(this, 0x51C, 0xFFFFFFFFu);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0x68); ++index)
+            {
+                auto* name = reinterpret_cast<const char*>(this) + 0x6C + index * 0x78u;
+                void* element = CreateSimpleButton(rectangle, [=] { return name; }, 0x13A2, owner);
+                SetButtonValue(element, index); add(element); AdvanceRow(rectangle, 10);
+            }
+            networkBack();
+            break;
+        }
+        case 11:
+        {
+            heading(title, 0x4B);
+            auto rectangle = content;
+            void* element = CreateButton(rectangle, 0x4C, 0x4D, 0x13A3, owner, StringTool_GetMainMenuStringPtr);
+            Write<std::uint8_t>(element, 0x56, static_cast<std::uint8_t>(mStaticVars.unknown005694d8[0])); add(element);
+            AdvanceRow(rectangle, 10); button(rectangle, 0x4E, 0x4F, 0x13A4);
+            networkBack();
+            break;
+        }
+        case 13:
+        {
+            heading(title, 0x52);
+            auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 200);
+            if (Read<std::uint32_t>(this, 0x588) != 0)
+            {
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0x588); ++index)
+                {
+                    auto* name = reinterpret_cast<const char*>(this) + 0x58C + index * 0x78u;
+                    void* element = CreateSimpleButton(rectangle, [=] { return name; }, 0x13A6, owner);
+                    SetButtonValue(element, index); add(element); AdvanceRow(rectangle, 10);
+                }
+            }
+            else { add(CreateText(rectangle, [] { return StringTool_GetMainMenuStringPtr(0x53); }, false)); AdvanceRow(rectangle, 10); }
+            rectangle.width = AddCoordinate(rectangle.width, 200); rectangle.y = AddCoordinate(rectangle.y, 20);
+            char text[100]; NXBasics::Runtime_PrintString(text, StringTool_GetUpdate103StringPtr(0x1E), 1, 0);
+            add(CreateText(rectangle, [&] { return text; }, true));
+            networkBack();
+            break;
+        }
+        case 14:
+        {
+            if (lobbyValue == 2)
+            {
+                heading(upperTitle, 0x78);
+                auto rectangle = upperContent; rectangle.width = 227;
+                const auto sort = NC2Logic::gSavegamesManager->mSortType;
+                const std::uint32_t values[] = {2, 1, 3};
+                for (std::uint32_t index = 0; index < 3; ++index)
+                {
+                    add(CreateButton(rectangle, 0x36 + index * 2, 0x37 + index * 2, 0x1399 + index, owner, StringTool_GetMainMenuStringPtr, true, sort == values[index]));
+                    if (index != 2) rectangle.x = AddCoordinate(AddCoordinate(rectangle.x, rectangle.width), 2);
+                }
+                rectangle = upperContent; rectangle.y = AddCoordinate(rectangle.y, 30); rectangle.width = 660; rectangle.height = 250;
+                void* list = CreateListBox(rectangle);
+                FUN_004c1a3f(list, owner, 0x13AE, true, Read<std::uint32_t>(this, 0xF24), false);
+                attachList(rectangle, list);
+                button(back, 0x79, 0x7A, 0x13A9);
+                break;
+            }
+            if (lobbyValue == 1)
+            {
+                heading(upperTitle, 0x77);
+                auto rectangle = upperContent; rectangle.width = 350; rectangle.height = 280;
+                void* list = CreateListBox(rectangle);
+                if (NC2Logic::gCleanMapsManager != nullptr)
+                {
+                    NC2Logic::gCleanMapsManager->CleanMapList_Tool_SortByNames();
+                    SRectangle row{0, 0, Read<std::int32_t>(list, 0xC), 22};
+                    NXBasics::CListBase::Iterator iterator(NC2Logic::gCleanMapsManager->mMaps);
+                    for (std::uint32_t group = 0; group < 2; ++group)
+                    {
+                        const auto type = group == 0 ? 4u : 6u;
+                        if (NC2Logic::gCleanMapsManager->mMapTypeCounts[type] == 0) continue;
+                        row.y = AddCoordinate(row.y, 6);
+                        FUN_004d01a3(list, nullptr, CreateText(row, [=] { return StringTool_GetOdin001StringPtr(0x24 + group); }, false));
+                        AdvanceRow(row, 2);
+                        for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
+                        {
+                            if (static_cast<std::uint8_t>(map->unknown384) != 0 || (map->mapTypes != 0 && (map->mapTypes & (1u << type)) == 0)) continue;
+                            char name[200]; map->Tool_GetMapName(name);
+                            void* element = CreateSimpleButton(row, [&] { return name; }, 0x13AA, owner);
+                            SetButtonValue(element, reinterpret_cast<std::uint32_t>(&map->guid));
+                            if (reinterpret_cast<const NC2Logic::SCleanMapGuid*>(lobbyData + 4)->IsEqualTo(map->guid)) Write<std::uint8_t>(element, 0x55, 1);
+                            FUN_004d01a3(list, nullptr, element); AdvanceRow(row, 2);
+                        }
+                    }
+                }
+                attachList(rectangle, list);
+                auto difficultyTitle = upperTitle; difficultyTitle.y = AddCoordinate(difficultyTitle.y, 324);
+                heading(difficultyTitle, 0x1A, StringTool_GetOdin001StringPtr);
+                rectangle = upperContent; rectangle.y = AddCoordinate(rectangle.y, 324);
+                for (std::uint32_t index = 0; index < 3; ++index)
+                {
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                    void* element = nullptr;
+                    if (allocation != nullptr)
+                    {
+                        const bool selected = Read<std::uint32_t>(this, 0x106C) == index;
+                        const char* tooltip = StringTool_GetOdin001StringPtr(0x1C + index * 2);
+                        const char* caption = StringTool_GetOdin001StringPtr(0x1B + index * 2);
+                        element = NC2InGameGuiBase::BaseToolTextButton_ConstructToggleWithToolTip(allocation, nullptr, &rectangle, caption, tooltip, 0x13AB + index, owner, selected);
+                    }
+                    add(element);
+                    if (index != 2) AdvanceRow(rectangle, 4);
+                }
+                button(back, 0x79, 0x7A, 0x13A9);
+                break;
+            }
+            if (lobbyValue != 0) break;
+            heading(upperTitle, 0x64);
+            auto players = upperContent;
+            const auto firstRowY = players.y;
+            heading(players, 0x65); players.y = AddCoordinate(players.y, players.height);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0xAA4); ++index)
+            {
+                char description[260]; Network_FormatPlayerDescription(index, description);
+                void* element = CreateSimpleButton(players, [&] { return description; }, 0x13B1, owner);
+                Write(this, 0x30 + index * 4, element);
+                const auto id = Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu);
+                SetButtonValue(element, id);
+                if (id == Read<std::uint32_t>(this, 0xEE4)) Write<std::uint8_t>(element, 0x55, 1);
+                Write<std::uint8_t>(element, 0x56, !NNetwork::Network_IsHost());
+                add(element); AdvanceRow(players, 5);
+            }
+            if (NNetwork::Network_IsHost())
+            {
+                players.y = AddCoordinate(players.y, 5);
+                void* element = CreateButton(players, 0x66, 0x67, 0x13B2, owner, StringTool_GetMainMenuStringPtr);
+                const auto index = Network_GetPlayerListIndex(Read<std::uint32_t>(this, 0xEE4));
+                if (index == 0xFFFFFFFFu || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, 0x56, 1);
+                add(element); AdvanceRow(players, 5);
+            }
+            auto slots = players;
+            slots.y = firstRowY; slots.x = AddCoordinate(AddCoordinate(slots.x, slots.width), 20);
+            heading(slots, 0x68); slots.y = AddCoordinate(slots.y, slots.height);
+            for (std::uint32_t index = 0; index < 20; ++index)
+            {
+                const auto offset = 0xF28 + index * 0x10u;
+                const auto flags = Read<std::uint32_t>(this, offset + 8);
+                if (flags == 0 || (flags & 0x80000000u) != 0) continue;
+                const auto kind = Read<std::uint32_t>(this, offset + 4);
+                void* element;
+                if (kind == 1)
+                {
+                    char label[260];
+                    const auto playerId = Read<std::uint32_t>(this, offset);
+                    const char* name = playerId == 0 ? nullptr : Network_GetPlayerName(playerId);
+                    if (name != nullptr) std::strcpy(label, name);
+                    else NXBasics::Runtime_PrintString(label, "<%s>", StringTool_GetMainMenuStringPtr(playerId == 0 ? 0x69 : 0x6A));
+                    element = CreateSimpleButton(slots, [&] { return label; }, 0x13B3, owner);
+                }
+                else element = CreateSimpleButton(slots, [=] { return StringTool_GetMainMenuStringPtr(kind == 2 ? 0x6B : 0x6C); }, 0x13B3, owner);
+                SetButtonValue(element, index); Write<std::uint8_t>(element, 0x56, !NNetwork::Network_IsHost()); add(element);
+                auto change = slots; change.x = AddCoordinate(AddCoordinate(change.x, change.width), 10); change.width = 50;
+                element = CreateSimpleButton(change, [] { return StringTool_GetMainMenuStringPtr(0x6D); }, 0x13B4, owner);
+                SetButtonValue(element, index); Write<std::uint8_t>(element, 0x56, !NNetwork::Network_IsHost()); add(element);
+                if (kind == 1 || kind == 2)
+                {
+                    auto color = slots; color.x = AddCoordinate(AddCoordinate(color.x, color.width), 70); color.width = 50;
+                    element = CreateSimpleButton(color, [] { return " "; }, 0x13B5, owner);
+                    SetButtonValue(element, index);
+                    NC2InGameGuiBase::BaseToolTextButton_SetBackgroundColor(element, NC2E2::StaticHumanMisc_ColorIds_GetColorRef(Read<std::uint32_t>(this, offset + 12)));
+                    bool disabled = true;
+                    if (Read<std::uint32_t>(this, 0xF24) == 0 && Read<std::uint8_t>(this, 0x1068) == 0 && NNetwork::Network_IsHost()) disabled = false;
+                    Write<std::uint8_t>(element, 0x56, disabled); add(element);
+                }
+                AdvanceRow(slots, 5);
+            }
+            if (NNetwork::Network_IsHost())
+            {
+                players.y = AddCoordinate(players.y, 15);
+                heading(players, 0x76); players.y = AddCoordinate(players.y, players.height);
+                auto selection = players; selection.width = AddCoordinate(selection.width / 2, -2);
+                auto choose = [&](std::uint32_t caption, std::uint32_t command)
+                {
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                    add(allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructToggle(allocation, nullptr, &selection, StringTool_GetMainMenuStringPtr(caption), command, owner, false));
+                };
+                choose(0x6E, 0x13A7); selection.x = AddCoordinate(AddCoordinate(selection.x, selection.width), 4); choose(0x6F, 0x13A8);
+                AdvanceRow(players, 15); heading(players, 0x70); players.y = AddCoordinate(players.y, players.height);
+                const auto allowed = Network_AllowsConnections();
+                void* element = CreateButton(players, allowed ? 0x73 : 0x71, allowed ? 0x74 : 0x72, 0x13AF, owner, StringTool_GetMainMenuStringPtr);
+                if (allowed) Write<std::uint8_t>(element, 0x55, 1);
+                add(element); AdvanceRow(players, 10);
+                element = CreateSimpleButton(players, [] { return StringTool_GetMainMenuStringPtr(0x75); }, 0x13B0, owner); add(element);
+                char error[200];
+                if (!sTheObjectPtr->Network_CanStartGame(error))
+                {
+                    Write<std::uint8_t>(element, 0x56, 1);
+                    NC2InGameGuiBase::BaseToolTextButton_SetToolTipString(element, error);
+                }
+            }
+            networkBack();
+            break;
+        }
+        case 15:
+        {
+            heading(title, 0x82); auto rectangle = content; heading(rectangle, 0x83);
+            rectangle.y = AddCoordinate(rectangle.y, rectangle.height);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0xAA4); ++index)
+            {
+                char description[260]; Network_FormatPlayerDescription(index, description);
+                void* element = CreateSimpleButton(rectangle, [&] { return description; }, 0x13B1, owner);
+                Write(this, 0x30 + index * 4, element);
+                SetButtonValue(element, Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu));
+                add(element); AdvanceRow(rectangle, 5);
+            }
+            break;
+        }
+        case 16: heading(title, 0x8C); break;
+        case 17: heading(title, 0x23, StringTool_GetOdin001StringPtr); break;
+        case 18: heading(title, 0xA0); networkBack(); break;
+        case 21: heading(title, 0x8D); networkBack(); break;
+        case 22:
+        {
+            SRectangle rectangle{AddCoordinate(AddCoordinate(mStaticVars.displayWidth, -800) / 2, 168), AddCoordinate(AddCoordinate(mStaticVars.displayHeight, -600) / 2, 115), 444, 357};
+            rectangle.Inflate(-3, -3);
+            char directory[260]; NC2Logic::LanguageTool_GetDirectoryName("data\\text\\%s\\hypertext\\credits", directory, "index.hlt");
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x48, 1);
+            void* element = allocation == nullptr ? nullptr : FUN_004cbcd6(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, nullptr);
+            Write<std::uint8_t>(element, 0x3A, 0); FUN_004cbf6c(element, nullptr, 20.0f, 1000); Write<std::uint8_t>(element, 0x38, 0); add(element);
+            button(back, 0x14, 0x15, 0x138A);
+            break;
+        }
+        case 23:
+        {
+            heading(title, 0xAF); auto rectangle = content; rectangle.y = AddCoordinate(rectangle.y, 100);
+            for (std::uint32_t index = 0; index < 2; ++index)
+            {
+                void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+                add(allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &rectangle, StringTool_GetMainMenuStringPtr(0xB0 + index), nullptr, 0x1390 + index, owner));
+                if (index == 0) AdvanceRow(rectangle, 30);
+            }
+            button(back, 0x1F, 0x20, 0x1389);
+            break;
+        }
+        default:
+            add(CreateText(title, [] { return "UNKNOWN OR UNIMPLEMENTED SCREEN!"; }, true));
+            add(CreateText(content, [] { return "NOT IMPLEMENTET YET!"; }, false));
+            button(back, 0x14, 0x15, 0x138A);
+            break;
+        }
+    }
+}

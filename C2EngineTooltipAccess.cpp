@@ -1,3 +1,6 @@
+#include "C2VehicleAccess.h"
+#include "C2StringAccess.h"
+#include "C2HouseAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2EngineObjectData.h"
@@ -13,24 +16,8 @@
 #include <cstdint>
 #include <cstring>
 
-// Original logic/string routines remain explicit until their owning blocks are translated.
+// Remaining original logic routines stay explicit until their owning blocks are translated.
 // An unused EDX argument retains the Windows ECX receiver and stack argument layout.
-extern const void* __fastcall FUN_004316cc(const void* house);
-extern std::int32_t __fastcall FUN_00433064(const void* house);
-extern float __fastcall FUN_00431a88(const void* house, void* unusedEdx, std::uint32_t goodId, bool includeFutureStock);
-extern bool __fastcall FUN_0044bda9(const void* vehicle, void* unusedEdx, std::uint32_t goodId);
-extern std::uint32_t __fastcall FUN_0044ba1b(const void* vehicle, void* unusedEdx, std::uint32_t goodId);
-extern std::int32_t __fastcall FUN_0044cb4b(const void* carrier, void* unusedEdx, std::uint32_t vehicleId);
-extern std::int32_t __fastcall FUN_004a3909(void* manager, void* unusedEdx, std::uint32_t houseId);
-extern std::int32_t __fastcall FUN_004a38cb(void* manager, void* unusedEdx, std::uint32_t vehicleId);
-extern std::int32_t __fastcall FUN_004a388d(void* manager, void* unusedEdx, std::uint32_t humanId);
-extern const char* __cdecl FUN_0042f6e1(std::uint32_t goodId, std::uint32_t nameVariant);
-extern const char* __cdecl FUN_0042f725(std::uint32_t jobId, bool localized);
-extern const char* __cdecl FUN_0042f747(std::uint32_t houseType, bool localized);
-extern const char* __cdecl FUN_0042f7a9(std::uint32_t vehicleState);
-extern std::uint32_t __cdecl FUN_0042a83e(std::uint32_t direction);
-extern std::int32_t __cdecl FUN_004cd2bb(const void* first, const void* second);
-extern void __cdecl FUN_004e7e40(void* entries, std::uint32_t count, std::uint32_t size, std::int32_t(__cdecl* compare)(const void*, const void*));
 
 namespace NC2E2
 {
@@ -45,28 +32,6 @@ namespace NC2E2
     {
         const std::uint32_t address = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(object)) + offset;
         return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
-    }
-
-    // Original function: FUN_004412f3; CVehicle::GetMapPositionRef.
-    static const void* Tooltip_VehicleGetMapPositionRef(const void* vehicle)
-    {
-        // 0044da5d is MOV AL,[ECX+548]; RET, confirmed from Game.exe.
-        // The disassembly export loses this entry by decoding adjacent data as code.
-        while (Tooltip_ReadField<std::uint8_t>(vehicle, 0x548) != 0)
-        {
-            const void* carrier = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(vehicle, 0x540) * NC2Logic::CVehicleArray::ElementSize);
-            if (Tooltip_ReadField<std::uint8_t>(carrier, 0) == 0 || Tooltip_ReadField<std::uint32_t>(carrier, 8) != Tooltip_ReadField<std::uint32_t>(vehicle, 0x544))
-                break;
-            const std::int32_t slot = FUN_0044cb4b(carrier, nullptr, Tooltip_ReadField<std::uint32_t>(vehicle, 4));
-            if (Tooltip_ReadField<std::uint8_t>(carrier, 0x304u + static_cast<std::uint32_t>(slot) * 12u) == 0)
-                break;
-            const std::uint32_t state = Tooltip_ReadField<std::uint32_t>(carrier, 0x1E8);
-            if ((state == 3u || state == 4u) && Tooltip_ReadField<std::uint8_t>(carrier, 0x1D0) != 0)
-                return Tooltip_AddressAt(carrier, 0x1CC); // 00437912.
-            vehicle = carrier;
-        }
-        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
-        return Tooltip_AddressAt(moveable, 0x12);
     }
 
     // Original function: FUN_00498df7; l_DE_DrawTooltipOverlay_String.
@@ -92,6 +57,12 @@ namespace NC2E2
         y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(y) + rowHeight);
     }
 
+    // Original function: FUN_004cd2bb; compare plural good names.
+    static std::int32_t __cdecl Tooltip_SortGoodsCompare(const void* first, const void* second)
+    {
+        return NC2GuiToolsBase::StringToolMisc_StringSortCompare(NC2Logic::StringAccess_GetGoodNamePtr(Tooltip_ReadField<std::uint32_t>(first, 0), 2), NC2Logic::StringAccess_GetGoodNamePtr(Tooltip_ReadField<std::uint32_t>(second, 0), 2));
+    }
+
     struct STooltipGood
     {
         std::uint32_t id;
@@ -106,7 +77,7 @@ namespace NC2E2
         // 00431a88 returns integer stock or integer stock plus unsigned stock * 0.1f.
         // These finite values cannot underflow or overflow a float, so storing the
         // amount before testing zero preserves the branch at 00498c49.
-        amount = FUN_00431a88(house, nullptr, goodId, includeFutureStock);
+        amount = NC2Logic::House_Stock_GetAmountOfGoodX(house, goodId, includeFutureStock);
         return amount < 0.0f || amount > 0.0f;
     }
 
@@ -116,14 +87,14 @@ namespace NC2E2
         const void* house = Tooltip_AddressAt(NC2Logic::CHouseArray::mStaticVars, houseId * NC2Logic::CHouseArray::ElementSize);
         if (Tooltip_ReadField<std::uint32_t>(house, 0x0C) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
             return;
-        const void* staticData = FUN_004316cc(house);
+        const void* staticData = NC2Logic::House_GetHouseTypeDataPtr(house);
         const std::uint32_t houseType = Tooltip_ReadField<std::uint32_t>(house, 0x14);
-        Display_DrawTooltipOverlay_String(display, bitmap, x, y, FUN_0042f747(houseType, true));
+        Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetHouseNamePtr(houseType, true));
         char text[100];
         const std::uint32_t buildState = Tooltip_ReadField<std::uint32_t>(house, 0x2C);
         if (buildState == 1u || buildState == 2u)
         {
-            const std::int32_t progress = FUN_00433064(house);
+            const std::int32_t progress = NC2Logic::House_Construction_GetPercentage(house);
             NXBasics::Runtime_PrintString(text, "%s (%d%%)", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(buildState == 1u ? 0x33u : 0x34u), progress);
             Display_DrawTooltipOverlay_String(display, bitmap, x, y, text);
         }
@@ -145,17 +116,17 @@ namespace NC2E2
                 ++count;
             }
             if (count > 1u)
-                FUN_004e7e40(goods, count, sizeof(STooltipGood), FUN_004cd2bb);
+                NXBasics::Runtime_QuickSort(goods, count, sizeof(STooltipGood), Tooltip_SortGoodsCompare);
             for (std::uint32_t index = 0; index < count; ++index)
             {
-                NXBasics::Runtime_PrintString(text, "%s %.1f %s", FUN_0042f6e1(goods[index].id, 1), static_cast<double>(goods[index].amount), goods[index].showLeftArrow != 0 ? "<" : ">");
+                NXBasics::Runtime_PrintString(text, "%s %.1f %s", NC2Logic::StringAccess_GetGoodNamePtr(goods[index].id, 1), static_cast<double>(goods[index].amount), goods[index].showLeftArrow != 0 ? "<" : ">");
                 Display_DrawTooltipOverlay_String(display, bitmap, x, y, text);
             }
         }
 
         if (Tooltip_ReadField<std::uint8_t>(display, 0x920) != 0 && NC2InGameGuiGroups::gObjectGroupManager != nullptr)
         {
-            const std::int32_t slot = FUN_004a3909(NC2InGameGuiGroups::gObjectGroupManager, nullptr, houseId);
+            const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHouse( houseId);
             if (slot != -1)
             {
                 const std::int32_t label = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u);
@@ -178,7 +149,7 @@ namespace NC2E2
                 if (Tooltip_ReadField<std::uint8_t>(moveable, 0x38) != 0)
                 {
                     progress = 10000u - progress;
-                    direction = FUN_0042a83e(direction);
+                    direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
                 }
                 std::int32_t start[2];
                 std::int32_t end[2];
@@ -201,39 +172,32 @@ namespace NC2E2
             const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CVehicleArray::ElementSize);
             if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E0) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
                 return;
-            Display_DrawTooltipOverlay_String(display, bitmap, x, y, FUN_0042f7a9(Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8)));
+            Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8)));
             if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8) != 5u)
             {
                 STooltipGood goods[66];
                 std::uint32_t count = 0;
                 for (std::uint32_t goodId = 0; goodId < 66u; ++goodId)
                 {
-                    if ((goodId >= 18u && goodId <= 23u) || !FUN_0044bda9(vehicle, nullptr, goodId) || FUN_0044ba1b(vehicle, nullptr, goodId) == 0)
+                    if ((goodId >= 18u && goodId <= 23u) || !NC2Logic::Vehicle_Stock_CanStoreGoodType(vehicle, goodId) || NC2Logic::Vehicle_Stock_GetAmountOfGoods(vehicle, goodId) == 0)
                         continue;
                     goods[count].id = goodId;
-                    const std::uint64_t amountBits = FUN_0044ba1b(vehicle, nullptr, goodId);
-                    float amount;
-                    // Original unsigned DWORD -> zero-extended QWORD -> x87 float.
-                    __asm
-                    {
-                        fild qword ptr amountBits
-                        fstp dword ptr amount
-                    }
-                    goods[count].amount = amount;
+                    // The stock getter returns a byte, exactly representable as float.
+                    goods[count].amount = static_cast<float>(NC2Logic::Vehicle_Stock_GetAmountOfGoods(vehicle, goodId));
                     goods[count].showLeftArrow = 0;
                     ++count;
                 }
                 if (count > 1u)
-                    FUN_004e7e40(goods, count, sizeof(STooltipGood), FUN_004cd2bb);
+                    NXBasics::Runtime_QuickSort(goods, count, sizeof(STooltipGood), Tooltip_SortGoodsCompare);
                 for (std::uint32_t index = 0; index < count; ++index)
                 {
-                    NXBasics::Runtime_PrintString(text, "%s %.1f", FUN_0042f6e1(goods[index].id, 1), static_cast<double>(goods[index].amount));
+                    NXBasics::Runtime_PrintString(text, "%s %.1f", NC2Logic::StringAccess_GetGoodNamePtr(goods[index].id, 1), static_cast<double>(goods[index].amount));
                     Display_DrawTooltipOverlay_String(display, bitmap, x, y, text);
                 }
             }
             if (NC2InGameGuiGroups::gObjectGroupManager != nullptr)
             {
-                const std::int32_t slot = FUN_004a38cb(NC2InGameGuiGroups::gObjectGroupManager, nullptr, Tooltip_ReadField<std::uint32_t>(vehicle, 4));
+                const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfVehicle( Tooltip_ReadField<std::uint32_t>(vehicle, 4));
                 if (slot != -1)
                 {
                     NXBasics::Runtime_PrintString(text, "%s: %d", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x32), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u));
@@ -250,10 +214,10 @@ namespace NC2E2
             if (Tooltip_ReadField<std::uint32_t>(human, 0x10) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
                 return;
             if (!NC2Logic::Human_IsJobHero(human))
-                Display_DrawTooltipOverlay_String(display, bitmap, x, y, FUN_0042f725(Tooltip_ReadField<std::uint32_t>(human, 0x18), true));
+                Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetJobNamePtr(Tooltip_ReadField<std::uint32_t>(human, 0x18), true));
             if (NC2InGameGuiGroups::gObjectGroupManager != nullptr)
             {
-                const std::int32_t slot = FUN_004a388d(NC2InGameGuiGroups::gObjectGroupManager, nullptr, Tooltip_ReadField<std::uint32_t>(human, 4));
+                const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman( Tooltip_ReadField<std::uint32_t>(human, 4));
                 if (slot != -1)
                 {
                     NXBasics::Runtime_PrintString(text, "%s: %d", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x32), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u));
@@ -280,7 +244,7 @@ namespace NC2E2
         if (Tooltip_ReadField<std::uint8_t>(moveable, 0x10) == 0)
             return;
         std::int32_t point[2];
-        Display_MapMigToLocalDisplayPixelCoordinates(display, Tooltip_VehicleGetMapPositionRef(vehicle), point, true);
+        Display_MapMigToLocalDisplayPixelCoordinates(display, NC2Logic::Vehicle_GetMapPositionRef(vehicle), point, true);
         Display_DrawTooltipOverlay_MapMoveable(display, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC), bitmap, point[0], point[1]);
     }
 }

@@ -1,3 +1,4 @@
+#include "C2LifetimeGlobals.h"
 #include "C2EngineDisplayAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayManager.h"
@@ -24,7 +25,6 @@
 // ECX receiver and callee-popped stack of their Windows __thiscall interfaces.
 extern bool __cdecl FUN_004a2f54(const std::int16_t* rectangle);
 extern void __cdecl FUN_00499ad5(void* display);
-extern void* DAT_00568428;
 extern void __fastcall FUN_0048688e(void* manager, void* unusedEdx, void* display);
 extern void __fastcall FUN_004911d5(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point, bool firstFlag, bool secondFlag);
 extern void __fastcall FUN_0047d37b(void* display);
@@ -34,11 +34,78 @@ extern void __fastcall FUN_004986c5(void* display, void* unusedEdx, const std::i
 extern void __fastcall FUN_004990e4(void* display);
 extern void __fastcall FUN_0049938d(void* display);
 extern void __fastcall FUN_004995d8(void* display);
-extern void __fastcall FUN_004986ab(void* display);
 extern void __fastcall FUN_0040eefa(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
+    // Original function: FUN_004824ea; C2DEngineMap::GetConstMapMacroPointPtr.
+    const void* EngineMap_GetConstMapMacroPointPtr(const void* point)
+    {
+        if (!NC2Logic::MapMagPoint_IsInsideMap(point)) return nullptr;
+        std::int16_t coordinates[2];
+        std::memcpy(coordinates, point, sizeof(coordinates));
+        const auto index = static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(coordinates[1]) + static_cast<std::uint32_t>(coordinates[0]);
+        void* entries;
+        std::memcpy(&entries, DAT_00568358, sizeof(entries));
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + index * 12u);
+    }
+    // Original function: FUN_0048251f; C2DEngineMap::GetConstMapMicroPointPtr.
+    const void* EngineMap_GetConstMapMicroPointPtr(const void* point)
+    {
+        if (!NC2Logic::MapMigPoint_IsInsideMap(point)) return nullptr;
+        std::int16_t coordinates[2];
+        std::memcpy(coordinates, point, sizeof(coordinates));
+        const auto index = static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(coordinates[1]) + static_cast<std::uint32_t>(coordinates[0]);
+        void* entries;
+        std::memcpy(&entries, DAT_00568358 + 4, sizeof(entries));
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + index * 4u);
+    }
+    // Original function: FUN_00481198.
+    const void* Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(const void* point) { return EngineMap_GetConstMapMacroPointPtr(point); }
+    // Original function: FUN_004811a3.
+    const void* Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(const void* point) { return EngineMap_GetConstMapMicroPointPtr(point); }
+
+    // Original function: FUN_004986ab.
+    static void Display_InformGuiRedraw(void* display)
+    {
+        std::uint8_t enabled;
+        std::memcpy(&enabled, static_cast<const std::byte*>(display) + 0x6C, sizeof(enabled));
+        if (enabled != 0) NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x19, true, 0, 0, 0);
+    }
+
+    // Original function: FUN_0048b442; existing complete human-misc storage.
+    const void* StaticHumanMisc_ColorIds_GetColorRef(std::uint32_t playerColorId)
+    {
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHumanMiscData) + 0x58u + playerColorId * 0x58u);
+    }
+
+    // Original function: FUN_0048b3a1; the two exit callbacks are empty.
+    const NXBasics::SColorRGB* StaticHumanMisc_ColorIds_GetPlayerColorRef(std::int32_t playerId)
+    {
+        // Four-byte colors at 00568964 and 00568974; lazy flag bits at 0056895C.
+        static const NXBasics::SColorRGB invalid(255, 0, 255);
+        static const NXBasics::SColorRGB neutral(80, 80, 80);
+        if (playerId == 20) return &neutral;
+        if (playerId >= 20) return &invalid;
+        const void* player = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u);
+        std::uint8_t active;
+        std::memcpy(&active, player, sizeof(active));
+        if (active == 0) return &invalid;
+        std::int32_t color;
+        std::memcpy(&color, static_cast<const std::byte*>(player) + 0x10, sizeof(color));
+        if (color < 0 || color >= 10) color = 9;
+        return static_cast<const NXBasics::SColorRGB*>(StaticHumanMisc_ColorIds_GetColorRef(static_cast<std::uint32_t>(color)));
+    }
+
+    // Original function: FUN_00490edf; a distinct original forwarding entry.
+    const NXBasics::SColorRGB* Tool_PlayerColors_GetColorRef(std::int32_t playerId) { return StaticHumanMisc_ColorIds_GetPlayerColorRef(playerId); }
+
+    // Original function: FUN_0048089e.
+    const void* Engine2d_EntryPoint_GetHouseDevelopNamePtr(std::uint32_t type)
+    {
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHouseEntries) + type * 0x8BCu + 0x3Cu);
+    }
+
     // Original owning pointer: 00554DA0. Windows establishes the ownership;
     // the exact original symbol name is unavailable in the Mac reference.
     NXBasics::CBitmap* gDesktopOwnedBobBitmap = nullptr;
@@ -944,21 +1011,8 @@ namespace NC2E2
         // Original lazy CRandom at 00554d90, guarded by 00554d88.
         // 00410c3f leaves this fixed seed unchanged (its bit count is in [8,24]).
         static NC2Logic::SGameRandomState random{ 0x5432ACE0u, 0x5432ACE0u };
-        const auto nextRandom = [] () -> std::uint32_t
-        {
-            // Original recurrence: 00410ccd/00410cd2; retain both reductions.
-            const std::uint32_t high = (random.currentState >> 16) * 0x41A7u;
-            std::uint32_t value = (random.currentState & 0xFFFFu) * 0x41A7u + ((high & 0x7FFFu) << 16);
-            if (value > 0x7FFFFFFFu)
-                value = (value & 0x7FFFFFFFu) + 1u;
-            value += high >> 15;
-            if (value > 0x7FFFFFFFu)
-                value = (value & 0x7FFFFFFFu) + 1u;
-            random.currentState = value;
-            return value;
-        };
-        const std::uint32_t dx = nextRandom() % 41u - 20u;
-        const std::uint32_t dy = nextRandom() % 21u - 10u;
+        const std::uint32_t dx = NC2Logic::Random_Get(random) % 41u - 20u;
+        const std::uint32_t dy = NC2Logic::Random_Get(random) % 21u - 10u;
         Display_WriteField(display, 0x94C, Display_ReadField<std::uint32_t>(display, 0x94C) + dx);
         Display_WriteField(display, 0x944, Display_ReadField<std::uint32_t>(display, 0x944) + dx);
         Display_WriteField(display, 0x950, Display_ReadField<std::uint32_t>(display, 0x950) + dy);
@@ -1162,7 +1216,7 @@ namespace NC2E2
     {
         FUN_00499ad5(display);
         if ((Display_ReadField<std::uint8_t>(display, 0x70) & 2u) != 0)
-            FUN_0048688e(DAT_00568428, nullptr, display);
+            FUN_0048688e(gE2ParticelManager, nullptr, display);
         const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
         const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + 0x98C);
         if ((Display_ReadField<std::uint8_t>(display, 0x70) & 1u) != 0)
@@ -1185,7 +1239,7 @@ namespace NC2E2
         }
         if ((Display_ReadField<std::uint8_t>(display, 0x71) & 0xC0u) != 0)
             FUN_004995d8(display);
-        FUN_004986ab(display);
+        Display_InformGuiRedraw(display);
 
         if (Display_ReadField<std::int32_t>(display, 0x78) > 0)
         {

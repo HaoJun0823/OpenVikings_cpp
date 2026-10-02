@@ -1,3 +1,5 @@
+#include "C2UserNetworkCommandAccess.h"
+#include "C2PlayerStatisticAccess.h"
 #include "C2GameTime.h"
 #include "C2CallbackManager.h"
 #include "C2GameState.h"
@@ -17,8 +19,7 @@ namespace NC2Logic
 
     // Original subsystem updates/command processing are separate unresolved bodies.
     extern std::uint32_t FUN_00428736();
-    extern void __fastcall FUN_00410f00(void*, void* unusedEdx, const void*, bool, bool);
-    extern void __fastcall FUN_0041acd6(void*, void* unusedEdx, std::uint32_t);
+
     extern void __fastcall FUN_0040bd33(void*, void* unusedEdx);
     extern void __fastcall FUN_0040ace5(void*, void* unusedEdx);
     extern void __fastcall FUN_0040ad1d(void*, void* unusedEdx);
@@ -31,8 +32,6 @@ namespace NC2Logic
     extern void __fastcall FUN_00409bcc(void*, void* unusedEdx, std::uint32_t);
     extern void FUN_00407505();
     extern std::uint32_t FUN_0040b183();
-    extern bool __fastcall FUN_004118f6(void*, void* unusedEdx);
-    extern void __fastcall FUN_00411829(void*, void* unusedEdx);
 
     static bool GameTime_IsATickToGo();
 
@@ -86,12 +85,12 @@ namespace NC2Logic
                 Write<std::uint32_t>(command, 4, FUN_00428736());
                 Write<std::uint32_t>(command, 8, gGameTime.tick);
                 Write<std::uint32_t>(command, 12, NNetwork::GetDynamicNetworkLocalPlayerId(&gDynamicNetworkData));
-                FUN_00410f00(gUserNetworkCommandManager, nullptr, command, true, false);
+                UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, command, true, false);
             }
         }
         ++gGameTime.tick;
         gGameTime.lastRealTime += gGameTime.tickDuration;
-        if (gGameTime.tick % 720u == 0) FUN_0041acd6(gPlayerStatisticManager, nullptr, gGameTime.tick / 12u);
+        if (gGameTime.tick % 720u == 0) PlayerStatisticManager_UpdateStatistics(gPlayerStatisticManager, nullptr, gGameTime.tick / 12u);
         FUN_0040bd33(gMapMoveableArrayStorage.manager, nullptr);
         FUN_0040ace5(CHouseArray::sTheObjectPtr, nullptr);
         if (gGameTime.tick % 12u == 0)
@@ -115,7 +114,7 @@ namespace NC2Logic
         if (gGameStaticVars.DAT_005109c4 != 0)
         {
             NNetwork::AdvanceDynamicNetworkTick(&gDynamicNetworkData);
-            FUN_00411829(gUserNetworkCommandManager, nullptr);
+            UserNetworkCommandManager_SendCommands(gUserNetworkCommandManager, nullptr);
             GameTime_SetNetworkWaitFlag(false);
         }
         gGameTime.networkBaseTick = 0;
@@ -158,7 +157,7 @@ namespace NC2Logic
                         std::byte command[20]{};
                         command[0] = std::byte{0x8B};
                         Write<std::uint32_t>(command, 4, frequency);
-                        FUN_00410f00(gUserNetworkCommandManager, nullptr, command, true, false);
+                        UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, command, true, false);
                     }
                 }
             }
@@ -173,7 +172,7 @@ namespace NC2Logic
             const std::uint32_t targetTick = gGameTime.networkBaseTick + integerSpeed / gGameTime.networkFrequency;
             if (!(gGameTime.tick < targetTick && speed >= 0.01))
             {
-                if (!FUN_004118f6(gUserNetworkCommandManager, nullptr))
+                if (!UserNetworkCommandManager_ReceiveCommands(gUserNetworkCommandManager, nullptr))
                 {
                     gGameTime.lastRealTime = static_cast<double>(now);
                     return false;
@@ -181,7 +180,7 @@ namespace NC2Logic
                 gGameTime.networkBaseTick = gGameTime.tick;
                 gGameTime.networkBaseRealTime = now;
                 NNetwork::AdvanceDynamicNetworkTick(&gDynamicNetworkData);
-                FUN_00411829(gUserNetworkCommandManager, nullptr);
+                UserNetworkCommandManager_SendCommands(gUserNetworkCommandManager, nullptr);
                 GameTime_SetNetworkWaitFlag(false);
             }
             else

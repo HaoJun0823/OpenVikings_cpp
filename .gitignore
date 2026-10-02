@@ -43,6 +43,10 @@
 build/
 Build/
 build-*/
+/OpenVikings/Debug/
+/OpenVikings/Release/
+/Debug/
+/Release/
 
 # CMake generated files
 CMakeFiles/

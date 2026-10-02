@@ -1,0 +1,305 @@
+#include "GuiTextToolElementAccess.h"
+#include "GuiClockToolElementAccess.h"
+#include "C2LifetimeAccess.h"
+#include "GuiToolsBase.h"
+#include "MainMenuGuiManager_Access.h"
+#include "XBitmap.h"
+#include "XFontMetrics.h"
+#include "XGuiElementAccess.h"
+#include "XStringMemory.h"
+#include <cstring>
+#include <new>
+
+namespace NC2InGameGuiBase
+{
+    using namespace NC2Lifetime;
+    using namespace NXBaseGui;
+    static void* __fastcall TextButton_Delete(void* element, void*, std::uint32_t flags);
+    static bool __fastcall TextButton_Message(void* element, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
+    static void __fastcall TextButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle);
+    static bool __fastcall TextButton_ToolTip(void* element, void*, const char** output);
+    static bool __fastcall TextButton_ToolTipAtOnce(void* element);
+    static void __fastcall TextButton_DoPressedAction(void* element);
+    // Complete eighteen-entry Windows table 004F6DE8..004F6E2F.
+    static const std::uintptr_t gTextButtonVirtualTable[18] = {
+        reinterpret_cast<std::uintptr_t>(&TextButton_Delete),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_HasSubElements),
+        reinterpret_cast<std::uintptr_t>(&TextButton_Message),
+        reinterpret_cast<std::uintptr_t>(&TextButton_Draw),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Activate),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&TextButton_ToolTip),
+        reinterpret_cast<std::uintptr_t>(&TextButton_ToolTipAtOnce),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&TextButton_DoPressedAction)
+    };
+
+    static void __fastcall TextElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle);
+    // Complete table 004F6DA0..004F6DE7.
+    static const std::uintptr_t gTextElementVirtualTable[18] = {
+        reinterpret_cast<std::uintptr_t>(&BaseToolElement_Delete),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_HasSubElements),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Message_Handle),
+        reinterpret_cast<std::uintptr_t>(&TextElement_Draw),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Activate),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_ToolTip_AtOnce),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&BaseElement_Notify)
+    };
+
+    // Original function: FUN_004b8b51.
+    void* __fastcall BaseToolTextElement_Construct(void* element, void*, const NXBasics::SRectangle* rectangle, const char* caption, bool fillBackground, bool wrapText)
+    {
+        BaseElement_Construct(element, rectangle, 0, 0);
+        Write<std::uint8_t>(element, 0x2C, 0);
+        Write(element, 0, gTextElementVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0xCE);
+        std::strncpy(static_cast<char*>(element) + 0x30, caption, 0xC7);
+        Write<std::uint8_t>(element, 0xF9, fillBackground);
+        Write<std::uint8_t>(element, 0xFC, wrapText);
+        Write<std::uint8_t>(element, 0xF7, 0);
+        Write<std::uint8_t>(element, 0xF8, 1);
+        return element;
+    }
+
+    // Original function: FUN_004b8be8.
+    static void __fastcall TextElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        if (Read<std::uint8_t>(element, 0xF9) != 0) NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, 2);
+        if (Read<std::uint8_t>(element, 0xFA) != 0) NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, 2);
+        const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+        auto* font = Read<std::uint8_t>(element, 0xFB) != 0 ? resources.font08 : resources.font10;
+        const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + (Read<std::uint8_t>(element, 0xFD) != 0 ? 0x194 : 0x400));
+        const char* caption = static_cast<const char*>(element) + 0x30;
+        if (Read<std::uint8_t>(element, 0xFC) != 0)
+        {
+            NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 2, 2, Read<std::int32_t>(element, 0xC), font, color, caption);
+        }
+        else if (Read<std::uint8_t>(element, 0xF8) != 0)
+        {
+            const auto textWidth = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, caption));
+            const auto fontHeight = Read<std::uint32_t>(font, 8);
+            const auto x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0xC) - textWidth) / 2) - static_cast<std::uint32_t>(rectangle->x));
+            const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0x10) - fontHeight) / 2) - static_cast<std::uint32_t>(rectangle->y) - 3u);
+            bitmap->Text_Print(font, color, x, y, caption);
+        }
+        else NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, NXBasics::Runtime_TimeSigned32(2u - static_cast<std::uint32_t>(rectangle->x)), NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->y)), font, color, caption);
+    }
+
+    // Shared constructor sequence established separately in all four Windows entries.
+    static void TextButton_ConstructMembers(void* element, const NXBasics::SRectangle* rectangle, const char* caption)
+    {
+        BaseElement_Construct(element, rectangle, 2, 0x140);
+        Write<std::uint8_t>(element, 0x2C, 0);
+        new (static_cast<std::byte*>(element) + 0x5C) NXBasics::SColorRGB();
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 0x30);
+        Write(element, 0, gTextButtonVirtualTable + 0);
+        BaseToolTextButton_SetCaptionString(element, caption);
+    }
+
+    // Original function: FUN_004b8da2.
+    void* __fastcall BaseToolTextButton_Construct(void* element, void*, const NXBasics::SRectangle* rectangle, const char* caption, std::uint32_t command, void* handler)
+    {
+        TextButton_ConstructMembers(element, rectangle, caption);
+        Write(element, 0x3C, command);
+        Write(element, 0x40, handler);
+        Write<std::uint8_t>(element, 0x55, 0);
+        Write<std::uint8_t>(element, 0x54, 1);
+        return element;
+    }
+
+    // Original function: FUN_004b8e2c.
+    void* __fastcall BaseToolTextButton_ConstructWithToolTip(void* element, void*, const NXBasics::SRectangle* rectangle, const char* caption, const char* tooltip, std::uint32_t command, void* handler)
+    {
+        TextButton_ConstructMembers(element, rectangle, caption);
+        Write(element, 0x3C, command);
+        Write(element, 0x40, handler);
+        if (tooltip != nullptr) Write(element, 0x44, NXBasics::StringDuplicate(tooltip));
+        Write<std::uint8_t>(element, 0x55, 0);
+        Write<std::uint8_t>(element, 0x54, 1);
+        return element;
+    }
+
+    // Original function: FUN_004b8eac.
+    void* __fastcall BaseToolTextButton_ConstructToggle(void* element, void*, const NXBasics::SRectangle* rectangle, const char* caption, std::uint32_t command, void* handler, bool selected)
+    {
+        TextButton_ConstructMembers(element, rectangle, caption);
+        Write(element, 0x3C, command);
+        Write(element, 0x40, handler);
+        Write<std::uint8_t>(element, 0x55, selected);
+        Write<std::uint8_t>(element, 0x54, 1);
+        return element;
+    }
+
+    // Original function: FUN_004b8f1c.
+    void* __fastcall BaseToolTextButton_ConstructToggleWithToolTip(void* element, void*, const NXBasics::SRectangle* rectangle, const char* caption, const char* tooltip, std::uint32_t command, void* handler, bool selected)
+    {
+        TextButton_ConstructMembers(element, rectangle, caption);
+        Write(element, 0x3C, command);
+        Write(element, 0x40, handler);
+        if (tooltip != nullptr) Write(element, 0x44, NXBasics::StringDuplicate(tooltip));
+        Write<std::uint8_t>(element, 0x55, selected);
+        Write<std::uint8_t>(element, 0x54, 1);
+        return element;
+    }
+
+    // Original function: FUN_004b8f9e.
+    static void TextButton_Destruct(void* element)
+    {
+        Write(element, 0, gTextButtonVirtualTable + 0);
+        FreeAndClearField(element, 0x30);
+        FreeAndClearField(element, 0x44);
+        BaseElement_Destruct(element);
+    }
+
+    // Original function: FUN_004b8e10.
+    static void* __fastcall TextButton_Delete(void* element, void*, std::uint32_t flags)
+    {
+        TextButton_Destruct(element);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
+        return element;
+    }
+
+    static std::int32_t Wrapped(std::uint32_t value) { return NXBasics::Runtime_TimeSigned32(value); }
+    static const NXBasics::SColorRGB* FontColor()
+    {
+        // Original getter 004E264B returns the last color entry of the white palette.
+        const auto* palette = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette;
+        return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(palette) + 0x400);
+    }
+
+    // Original function: FUN_004b907a.
+    static void __fastcall TextButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        const bool disabled = Read<std::uint8_t>(element, 0x56) != 0;
+        const auto mode = ((Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
+        if (Read<std::uint8_t>(element, 0x59) != 0) bitmap->Fill(Read<NXBasics::SColorRGB>(element, 0x5C));
+        else NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
+        NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
+        const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+        auto* font = Read<std::uint8_t>(element, 0x57) != 0 ? resources.font08 : resources.font10;
+        const auto fontHeight = Read<std::uint32_t>(font, 8);
+        const auto width = Read<std::uint32_t>(element, 0xC), height = Read<std::uint32_t>(element, 0x10);
+        char* caption = Read<char*>(element, 0x30);
+        const bool centered = Read<std::uint8_t>(element, 0x54) != 0;
+        if (Read<std::uint8_t>(element, 0x34) == 0)
+        {
+            if (Read<std::uint8_t>(element, 0x58) != 0 && NXBasics::Font_GetPixelWidth(font, caption) > Wrapped(width - 6u)) return;
+            const auto y = Wrapped(static_cast<std::uint32_t>(Wrapped(height - fontHeight) / 2) - static_cast<std::uint32_t>(rectangle->y) - 3u);
+            if (centered)
+            {
+                const auto textWidth = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, caption));
+                const auto x = Wrapped(static_cast<std::uint32_t>(Wrapped(width - textWidth) / 2) - static_cast<std::uint32_t>(rectangle->x));
+                bitmap->Text_Print(font, FontColor(), x, y, caption);
+            }
+            else NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, Wrapped(2u - static_cast<std::uint32_t>(rectangle->x)), y, font, FontColor(), caption);
+        }
+        else
+        {
+            const auto spacing = fontHeight + 4u;
+            const auto count = Read<std::uint32_t>(element, 0x38);
+            std::uint32_t y = static_cast<std::uint32_t>(Wrapped(height - spacing) / 2) - (count - 1u) * static_cast<std::uint32_t>(Wrapped(spacing) / 2) - static_cast<std::uint32_t>(rectangle->y) - 1u;
+            for (std::uint32_t index = 0; index < count; ++index)
+            {
+                char* end = std::strstr(caption, "\r\n");
+                if (end != nullptr) *end = '\0';
+                const auto x = centered ? Wrapped(width - static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, caption))) / 2 : 2;
+                bitmap->Text_Print(font, FontColor(), Wrapped(static_cast<std::uint32_t>(x) - static_cast<std::uint32_t>(rectangle->x)), Wrapped(y), caption);
+                y += spacing;
+                if (end != nullptr) *end = '\r';
+                caption = reinterpret_cast<char*>(reinterpret_cast<std::uintptr_t>(end) + 2u);
+            }
+        }
+        if (disabled)
+        {
+            NXBasics::SRectangle area = bitmap->GetRectangle();
+            area.Inflate(-1, -1);
+            bitmap->Tool_Darken(area, 0x7F, 0x7F, 0x7F);
+        }
+    }
+
+    // Original function: FUN_004b92a4.
+    static bool __fastcall TextButton_Message(void* element, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
+    {
+        if (message == 0x800)
+        {
+            if (command == 0x7F0)
+            {
+                if (param2 != 0) Write(reinterpret_cast<void*>(param2), 0, Read<std::uint32_t>(element, 0x3C));
+                if (param3 != 0) Write(reinterpret_cast<void*>(param3), 0, Read<std::uint32_t>(element, 0x4C));
+                if (param4 != 0) Write(reinterpret_cast<void*>(param4), 0, Read<std::uint32_t>(element, 0x50));
+                return true;
+            }
+            if (command == 0x7F1)
+            {
+                auto* output = reinterpret_cast<char*>(param2);
+                *output = '\0';
+                const char* caption = Read<char*>(element, 0x30);
+                while (*caption == '{')
+                {
+                    do { ++caption; } while (*caption != '}');
+                    ++caption;
+                }
+                std::strncpy(output, caption, param3 - 1u);
+                output[param3 - 1u] = '\0';
+                if (char* brace = std::strchr(output, '{')) *brace = '\0';
+                return true;
+            }
+        }
+        else if (message == 0x100)
+        {
+            void* handler = Read<void*>(element, 0x24);
+            if (handler != nullptr)
+            {
+                using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+                return Read<TMessage*>(handler, 0)[2](handler, message, command, param2, param3, param4);
+            }
+        }
+        else if (message == 0x40)
+        {
+            using TAction = void(__thiscall*)(void*);
+            Read<TAction*>(element, 0)[17](element);
+        }
+        return false;
+    }
+
+    // Original function: FUN_004b936e.
+    static void __fastcall TextButton_DoPressedAction(void* element)
+    {
+        void* handler = Read<void*>(element, 0x40);
+        if (handler == nullptr || Read<std::uint8_t>(element, 0x56) != 0) return;
+        using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+        Read<TMessage*>(handler, 0)[2](handler, 0x800, Read<std::uint32_t>(element, 0x3C), reinterpret_cast<std::uint32_t>(element), Read<std::uint32_t>(element, 0x4C), Read<std::uint32_t>(element, 0x50));
+        NC2GuiToolsBase::FXTool_ClickConfirm();
+    }
+
+    // Original function: FUN_004b9397.
+    static bool __fastcall TextButton_ToolTip(void* element, void*, const char** output)
+    {
+        const char* tooltip = Read<char*>(element, 0x44);
+        if (tooltip == nullptr) return false;
+        *output = tooltip;
+        return true;
+    }
+
+    // Original function: FUN_004a5ac6; shared tooltip-immediacy byte getter.
+    static bool __fastcall TextButton_ToolTipAtOnce(void* element) { return Read<std::uint8_t>(element, 0x48) != 0; }
+}

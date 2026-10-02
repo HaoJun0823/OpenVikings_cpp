@@ -50,6 +50,8 @@ namespace NInGameGuiManager
         static void System_EndGame();
         void System_UpdateGui();
         void FrameCall_Do();
+        void MiscButtons_SpeedButton_Update(bool update);
+        void MiscButtons_MessagePriorityButton_Update(bool update);
         void MiscWindows_CloseAllLargeOnes(bool resetInputMode);
         void MiscWindows_StringOutputWindow_Open();
         void MiscWindows_StringOutputWindow_PrintString(const char* text);

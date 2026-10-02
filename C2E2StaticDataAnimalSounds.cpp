@@ -7,9 +7,20 @@
 
 #include <cstring>
 
-extern const NXBasics::SToken gAnimalSoundTokens[];
-extern std::uint8_t gAnimalSoundTokenInitFlags;
-extern const NXBasics::SToken* gAnimalSoundTokenTable;
+namespace
+{
+    // Complete Windows token array 004F4780..004F47A7, including its terminator.
+    const NXBasics::SToken gAnimalSoundTokens[] = {
+        { "logictribetype", 0x6C747274u },
+        { "mincount", 0x6D696E63u },
+        { "probability", 0x70726F62u },
+        { "enginesoundgroup", 0x656E6773u },
+        { nullptr, 0 }
+    };
+    // Complete lazy token state 00568568..0056856F; both fields start in PE BSS.
+    std::uint8_t gAnimalSoundTokenInitFlags = 0;
+    const NXBasics::SToken* gAnimalSoundTokenTable = nullptr;
+}
 
 namespace NC2E2
 {

@@ -70,6 +70,7 @@ namespace NXSysMouseManager
 
         bool IsMiddleButtonDown() const noexcept { return mMiddleButton; }
         bool IsLeftButtonDown() const noexcept { return mLeftButton; }
+        bool IsAnyButtonDown() const;
         void SetPositionOverrideCallback(bool(__cdecl* callback)()) noexcept { mPositionCallback = callback; }
 
     private:

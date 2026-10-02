@@ -1,4 +1,5 @@
 #include "C2E2StaticDataSoundFX.h"
+#include "C2LifetimeGlobals.h"
 #include "C2E2StaticDataGroups.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
@@ -12,14 +13,22 @@
 #include <cstring>
 
 
-// Original data: DAT_004f4a20.
-extern const NXBasics::SToken gSoundFxTokens[];
-
-// Original data: DAT_00568a20.
-extern const NXBasics::SToken* gSoundFxTokenTable;
-
-// Original data: DAT_00568a24.
-extern std::uint8_t gSoundFxTokenInitFlags;
+namespace
+{
+    // Complete Windows token array 004F4A20..004F4A57, including its terminator.
+    const NXBasics::SToken gSoundFxTokens[] = {
+        { "Name", 0x6E616D65u },
+        { "SFX", 0x73667864u },
+        { "PatternGroup", 0x70677270u },
+        { "LandscapeGroup", 0x6C6E6467u },
+        { "LogicSoundType", 0x6C737479u },
+        { "MusicType", 0x6D747970u },
+        { nullptr, 0 }
+    };
+    // Complete lazy token state 00568A20..00568A27; both fields start in PE BSS.
+    const NXBasics::SToken* gSoundFxTokenTable = nullptr;
+    std::uint8_t gSoundFxTokenInitFlags = 0;
+}
 
 namespace NC2E2
 {
@@ -236,7 +245,7 @@ namespace NC2E2
                             {
                                 const char* groupName = reader.GetString();
                                 const std::uint32_t recordIndex = ambientSoundCount - 1u;
-                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gStaticDataLandscapesManager, groupName));
+                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gE2StaticDataLandscapesManager, groupName));
 
                                 writeWord(addressAt(this, 0x388u + groupIndex * 4u), recordIndex);
                                 break;
@@ -250,7 +259,7 @@ namespace NC2E2
                             {
                                 const char* groupName = reader.GetString();
                                 const std::uint32_t recordIndex = ambientSoundCount - 1u;
-                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gStaticDataPatternManager, groupName));
+                                const std::uint32_t groupIndex = static_cast<std::uint32_t>(StaticDataGroups_FindIndex(gE2StaticDataPatternManager, groupName));
 
                                 writeWord(addressAt(this, 0x1F8u + groupIndex * 4u), recordIndex);
                                 break;

@@ -19,15 +19,29 @@
 #pragma comment(lib, "Version.lib")
 #pragma comment(lib, "dxguid.lib")
 
-namespace NXSysMisc
-{
-    void __cdecl XWS_AssertBox();
-}
-
 namespace
 {
     using DirectDrawCreateFunction = HRESULT(WINAPI*)(GUID*, LPDIRECTDRAW*, IUnknown*);
     using DirectDrawCreateExFunction = HRESULT(WINAPI*)(GUID*, void**, REFIID, IUnknown*);
+
+    // Complete Windows probe region 00554D64..00554D73.
+    struct SFullscreenModeProbe { std::uint32_t width, height, depth; std::uint8_t found; std::byte padding[3]; };
+    static SFullscreenModeProbe gFullscreenModeProbe{};
+
+    // Original function: FUN_00478fe7; enumeration continues after a match.
+    static HRESULT CALLBACK CheckFullscreenDisplayModeCallback(LPDDSURFACEDESC2 description, LPVOID)
+    {
+        constexpr DWORD required = DDSD_WIDTH | DDSD_HEIGHT | DDSD_PIXELFORMAT;
+        if ((description->dwFlags & required) != required) return DDENUMRET_OK;
+        const auto& format = description->ddpfPixelFormat;
+        std::uint32_t depth;
+        if ((format.dwFlags & DDPF_PALETTEINDEXED8) != 0) depth = 8;
+        else if ((format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 16) depth = 16;
+        else if ((format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 32) depth = 32;
+        else return DDENUMRET_OK;
+        if (description->dwWidth == gFullscreenModeProbe.width && description->dwHeight == gFullscreenModeProbe.height && depth == gFullscreenModeProbe.depth) gFullscreenModeProbe.found = 1;
+        return DDENUMRET_OK;
+    }
 
     // Original function: FUN_0047a5aa
     void GetDXVersion(DWORD* directXVersion, DWORD* directXPlatform)
@@ -680,6 +694,32 @@ namespace NXSys2DApp
         ++displayModeData->fullscreenDisplayModeCount;
 
         return DDENUMRET_OK;
+    }
+
+    // Original function: FUN_00478f52; this probes DirectDraw rather than cached modes.
+    bool CApplication::CheckFullscreenDisplayMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth) const
+    {
+        IDirectDraw7* directDraw = nullptr;
+        HMODULE module = LoadLibraryA("DDRAW.DLL");
+        if (module == nullptr)
+        {
+            FreeLibrary(nullptr);
+            return false;
+        }
+        const auto create = reinterpret_cast<DirectDrawCreateExFunction>(GetProcAddress(module, "DirectDrawCreateEx"));
+        if (create == nullptr || FAILED(create(nullptr, reinterpret_cast<void**>(&directDraw), IID_IDirectDraw7, nullptr)))
+        {
+            FreeLibrary(module);
+            return false;
+        }
+        gFullscreenModeProbe.width = width;
+        gFullscreenModeProbe.height = height;
+        gFullscreenModeProbe.depth = depth;
+        gFullscreenModeProbe.found = 0;
+        directDraw->EnumDisplayModes(0, nullptr, nullptr, &CheckFullscreenDisplayModeCallback);
+        directDraw->Release();
+        FreeLibrary(module);
+        return gFullscreenModeProbe.found != 0;
     }
 
     // Original function: FUN_00478efa

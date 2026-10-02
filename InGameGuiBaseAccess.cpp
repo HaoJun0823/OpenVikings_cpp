@@ -1,5 +1,10 @@
+#include "XGuiWindowAccess.h"
+#include "XGuiElementAccess.h"
 #include "InGameGuiBaseAccess.h"
 #include "ApplicationGlobals.h"
+#include "GuiToolsBase.h"
+#include "XBitmap.h"
+#include "XBobRendering.h"
 #include "C2LifetimeAccess.h"
 #include "XGuiDesktop.h"
 
@@ -7,51 +12,66 @@
 
 // The shared base-window constructor, rendering and inherited virtual methods
 // retain their genuine Windows bodies until their GUI families are reconstructed.
-extern void* __fastcall FUN_0047841b(void*, void* unusedEdx, const NXBasics::SRectangle*, std::uint32_t, std::uint32_t);
-extern void* __fastcall FUN_004c9313(void*, void* unusedEdx, std::uint32_t);
-extern bool __fastcall FUN_004788a7(void*);
-extern bool __fastcall FUN_00478a36(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern void __fastcall FUN_004b8d42(void*, void* unusedEdx, NXBasics::CBitmap*, const NXBasics::SRectangle*);
-extern void __fastcall FUN_004786a7(void*, void* unusedEdx, const std::int32_t*);
-extern void __fastcall FUN_00478720(void*);
-extern bool __fastcall FUN_0047873c(void*, void* unusedEdx, const std::int32_t*);
-extern bool __fastcall FUN_0047879d(void*);
-extern bool __fastcall FUN_004788b1(void*, void* unusedEdx, const std::int32_t*);
-extern void* __fastcall FUN_004788c2(void*);
-extern void* __fastcall FUN_00478ad8(void*, void* unusedEdx, const std::int32_t*, bool);
-extern void __fastcall FUN_00478a65(void*, void* unusedEdx, std::int32_t*);
-extern void __fastcall FUN_004788be(void*);
-extern bool __fastcall FUN_004b8659(void*, void* unusedEdx, std::uint32_t);
-extern bool __fastcall FUN_004788b6(void*);
-extern bool __fastcall FUN_004bf2f4(void*);
-extern std::uint32_t __fastcall FUN_004788b9(void*, void* unusedEdx, std::uint32_t, std::uint32_t);
-extern void __fastcall FUN_004788bf(void*, void* unusedEdx, std::uint32_t, std::uint32_t);
 
 namespace NC2InGameGuiBase
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_004c9313; this shared wrapper destroys the base window.
+    void* __fastcall BaseToolWindow_Delete(void* window, void*, std::uint32_t flags)
+    {
+        NXBaseGui::BaseWindow_Destruct(window);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
+        return window;
+    }
+
+    // Original function: FUN_004b8d42.
+    void __fastcall BaseToolWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        if (Read<std::uint32_t>(window, 0x6C) != 1)
+        {
+            NC2GuiToolsBase::DrawTool_FillArea(window, bitmap, rectangle, 1);
+            NC2GuiToolsBase::DrawTool_DrawFrame(window, bitmap, rectangle, 1);
+            return;
+        }
+        std::uint32_t x = 0, y = 0;
+        while (bitmap->GetSourceBitmap() != nullptr)
+        {
+            x += static_cast<std::uint32_t>(bitmap->GetSourceX());
+            y += static_cast<std::uint32_t>(bitmap->GetSourceY());
+            bitmap = bitmap->GetSourceBitmap();
+        }
+        const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+        NXBasics::BobManager_PrintBob(resources.windowBobManager, 0x19, bitmap, NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y), resources.papyrusPalette);
+    }
+
+    // Original function: FUN_004b95a4.
+    void ToolGraphics_SetPalettePtr(void* object, NXBasics::CPalette* palette)
+    {
+        std::memcpy(static_cast<std::byte*>(object) + 0x30, &palette, sizeof(palette));
+    }
+
     // Complete nineteen-entry table at 004F52A4..004F52EF.
     const std::uintptr_t gBaseToolWindowVirtualTable[19] = {
-        reinterpret_cast<std::uintptr_t>(&FUN_004c9313),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478a36),
-        reinterpret_cast<std::uintptr_t>(&FUN_004b8d42),
-        reinterpret_cast<std::uintptr_t>(&FUN_004786a7),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478720),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047873c),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047879d),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788c2),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b6),
-        reinterpret_cast<std::uintptr_t>(&FUN_004bf2f4),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b9),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788bf)
+        reinterpret_cast<std::uintptr_t>(&NC2InGameGuiBase::BaseToolWindow_Delete),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Message_Handle),
+        reinterpret_cast<std::uintptr_t>(&NC2InGameGuiBase::BaseToolWindow_Draw),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
     };
 
     // Original function: FUN_004b8543.
@@ -73,7 +93,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b8d11; CBaseToolWindow constructor.
     void* BaseToolWindow_Construct(void* window, const NXBasics::SRectangle* rectangle)
     {
-        FUN_0047841b(window, nullptr, rectangle, 0, 0);
+        NXBaseGui::BaseWindow_Construct(window, nullptr, rectangle, 0, 0);
         Write(window, 0, gBaseToolWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 4);
         Write<std::uint32_t>(window, 0x6C, 0);

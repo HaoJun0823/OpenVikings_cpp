@@ -1,5 +1,6 @@
 #include "C2LogicObjectArrays.h"
 #include "C2CallbackManager.h"
+#include "C2LifetimeAccess.h"
 #include "C2IoHelper.h"
 #include "XCrtFileAccess.h"
 
@@ -10,6 +11,25 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_004417d2; a reference stores the ID and revision in DWORDs.
+    bool HumanReference_IsAllocated(const void* reference)
+    {
+        const auto id = NC2Lifetime::Read<std::uint32_t>(reference, 0);
+        if (id == 0xFFFFFFFFu) return false;
+        const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
+        return NC2Lifetime::Read<std::uint8_t>(human, 0) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 8) == NC2Lifetime::Read<std::uint32_t>(reference, 4);
+    }
+    // Original function: FUN_0042d2ee.
+    bool Human_HasEquippedShoes(const void* human)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(human, 0xAEC) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xADC) != 0;
+    }
+
+    // Original function: FUN_0042d304.
+    bool Human_HasEquippedTools(const void* human)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(human, 0xAF0) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xAE0) != 0;
+    }
     // Original function: FUN_0040211a; IDs are deliberately not range checked.
     const void* GetHumanPtr(std::int32_t id)
     {
@@ -39,7 +59,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0040ad6c
-    static bool __cdecl ArrayTool_IsObjectAllocated(void* object)
+    bool __cdecl ArrayTool_IsObjectAllocated(void* object)
     {
         return *static_cast<const std::uint8_t*>(object) != 0;
     }
@@ -408,4 +428,20 @@ namespace NC2Logic
 
         Array_LoadStorage(this, io);
     }
+    // Original function: FUN_0042c597.
+    bool Human_IsAgeAdult(const void* human)
+    {
+        const auto job = NC2Lifetime::Read<std::int32_t>(human, 0x18);
+        return job < 1 || job > 4;
+    }
+    // Original function: FUN_0042c522.
+    bool Human_IsSexMale(const void* human)
+    {
+        const auto job = NC2Lifetime::Read<std::uint32_t>(human, 0x18);
+        return !(job == 1 || job == 3 || job == 5 || (job == 47 && NC2Lifetime::Read<std::uint32_t>(human, 0x14) == 3));
+    }
+    // Original function: FUN_0042c652.
+    bool Human_IsAttachedToHomeHouse(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xB28) != 0xFFFFFFFFu; }
+    // Original function: FUN_0042c65f.
+    bool Human_IsAttachedToWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xB34) != 0xFFFFFFFFu; }
 }

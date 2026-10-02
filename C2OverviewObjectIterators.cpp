@@ -47,6 +47,15 @@ namespace NC2Logic
         return current;
     }
 
+    // Original function: FUN_0042b788.
+    std::int32_t CHouseIterator::GetFirstHouseId(std::uint32_t playerId)
+    {
+        player = playerId;
+        flags = 1;
+        current = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHouseArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return current;
+    }
+
     // Original function: FUN_0042b8dc.
     std::int32_t CHouseIterator::GetNextHouseId()
     {

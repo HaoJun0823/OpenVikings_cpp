@@ -11,6 +11,7 @@ namespace NC2Logic
     void Misc_EngineIsInitialised();
     void GameTime_Reset(bool enabled);
     void GameTime_SetSpeed(double speed);
+    void GameTime_SetSpeed(float speed);
     void GameMapModifyManager_StartGameMapModify();
     void GameMapModifyManager_StopGameMapModify();
     void GameMapModifyManager_ForceUpdate();

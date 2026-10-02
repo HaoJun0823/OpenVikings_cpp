@@ -42,6 +42,23 @@ namespace NXBasics
         void CopyIntoBitmap(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const;
         std::uint32_t Storable_GetId() override;
         void CopyIntoBitmap_FitIn(CBitmap* destination) const;
+        void FillWithBitmap(CBitmap* sourceBitmap, std::int32_t x, std::int32_t y);
+        void FillWithBitmap(const SRectangle& rectangle, CBitmap* sourceBitmap, std::int32_t x, std::int32_t y);
+
+        void Draw_SetPixel(std::int32_t x, std::int32_t y, std::uint8_t color);
+        void Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, std::uint8_t color);
+        void Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint8_t color);
+        void Draw_SetPixel(std::int32_t x, std::int32_t y, std::uint16_t color);
+        void Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, std::uint16_t color);
+        void Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint16_t color);
+        void Draw_SetPixel(std::int32_t x, std::int32_t y, std::uint32_t color);
+        void Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, std::uint32_t color);
+        void Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint32_t color);
+        void Draw_SetPixel(std::int32_t x, std::int32_t y, const SColorRGB& color);
+        void Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, const SColorRGB& color);
+        void Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, const SColorRGB& color);
+        void Draw_SetPixelUnclipped(std::int32_t x, std::int32_t y, const SColorRGB& color);
+        void Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, const SColorRGB& color);
 
         std::uint8_t Draw_GetPixel(std::int32_t x, std::int32_t y) const;
         std::uint16_t Draw_GetPixel_Word(std::int32_t x, std::int32_t y) const;

@@ -111,7 +111,7 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_0047f3ac.
-        std::memset(DAT_00554da8, 0, sizeof(DAT_00554da8));
+        std::memset(&NC2E2::gAmbientSoundChangeState, 0, 8);
     },
 
         // Original function: FUN_00482212

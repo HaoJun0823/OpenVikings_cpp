@@ -169,7 +169,15 @@ namespace NC2Logic
     static_assert(sizeof(CGuideArray) == 0x30);
 
     const void* GetHumanPtr(std::int32_t id);
+    bool HumanReference_IsAllocated(const void* reference);
+    bool __cdecl ArrayTool_IsObjectAllocated(void* object);
     const void* GetAnimalPtr(std::int32_t id);
     bool Human_IsJobSoldier(const void* human);
     bool Human_IsJobHero(const void* human);
+    bool Human_IsAgeAdult(const void* human);
+    bool Human_IsSexMale(const void* human);
+    bool Human_HasEquippedShoes(const void* human);
+    bool Human_HasEquippedTools(const void* human);
+    bool Human_IsAttachedToHomeHouse(const void* human);
+    bool Human_IsAttachedToWorkHouse(const void* human);
 }

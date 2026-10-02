@@ -1,3 +1,4 @@
+#include "XGuiElementAccess.h"
 #include "C2GameState.h"
 #include "C2LifetimeGlobals.h"
 #include "WorldDisplayElementAccess.h"
@@ -23,18 +24,6 @@
 // Untranslated original base/widget interfaces. EDX is unused so the stack
 // parameters and callee cleanup match Windows __thiscall dispatch.
 extern std::uint32_t __fastcall FUN_004ba3be(void* object, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
-extern bool __fastcall FUN_004788a7(void* object);
-extern void __fastcall FUN_00478986(void* object, void* unusedEdx, const std::int32_t* point);
-extern void __fastcall FUN_00478994(void* object);
-extern bool __fastcall FUN_0047899f(void* object, void* unusedEdx, const std::int32_t* point);
-extern bool __fastcall FUN_004789af(void* object);
-extern bool __fastcall FUN_004788b1(void* object, void* unusedEdx, const std::int32_t* point);
-extern void* __fastcall FUN_0048e569(void* object);
-extern void* __fastcall FUN_00478ad8(void* object, void* unusedEdx, const std::int32_t* point, bool flag);
-extern void __fastcall FUN_00478a65(void* object, void* unusedEdx, std::int32_t* point);
-extern void __fastcall FUN_004788be(void* object);
-extern bool __fastcall FUN_004b8659(void* object, void* unusedEdx, std::uint32_t argument);
-extern bool __fastcall FUN_004788b6(void* object);
 
 namespace NC2InGameGuiWorldElement
 {
@@ -73,20 +62,20 @@ namespace NC2InGameGuiWorldElement
     static const std::uintptr_t gWorldDisplayElementVirtualTable[] =
     {
         reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_DeletingDestructor),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&FUN_004ba3be),
         reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_VirtualDraw),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478986),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478994),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047899f),
-        reinterpret_cast<std::uintptr_t>(&FUN_004789af),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
-        reinterpret_cast<std::uintptr_t>(&FUN_0048e569),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b6)
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce)
     };
     static_assert(sizeof(gWorldDisplayElementVirtualTable) == 0x3C);
 

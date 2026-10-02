@@ -41,8 +41,8 @@ DPNID gLastRecoveryPlayerId = 0;
 std::uint32_t gProcessedPlayerChangeCount = 0;
 
 // Original data: DAT_0050aa2c.
-// Initial file-backed value still requires verification.
-extern std::uint8_t gDynamicNetworkInitialUpdatePending;
+// Windows PE bytes are 01 00 00 00; all three exported accesses use the first byte.
+std::uint8_t gDynamicNetworkInitialUpdatePending = 1;
 
 namespace
 {
@@ -192,6 +192,129 @@ namespace
         return gNetworkWindowsVersion;
     }
 
+}
+
+namespace NNetwork
+{
+    // Original function: FUN_004dc8e3; caller owns even a failed second-pass allocation.
+    bool CDPNet::GetServiceProviders(DPN_SERVICE_PROVIDER_INFO** providers, DWORD* count, bool allProviders)
+    {
+        if (peer == nullptr) return false;
+        *providers = nullptr; *count = 0;
+        DWORD bytes = 0;
+        const DWORD options = allProviders ? 1u : 0u;
+        HRESULT result = peer->EnumServiceProviders(nullptr, nullptr, *providers, &bytes, count, options);
+        if (result != static_cast<HRESULT>(0x80158100u))
+        {
+            ReportDirectPlayError("CDPNet::GetServiceProviders(): IDirectPlay8Peer::EnumServiceProviders 1", result);
+            return false;
+        }
+        *providers = static_cast<DPN_SERVICE_PROVIDER_INFO*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x31D, *providers != nullptr, "Memory allocation failed.");
+        // The original clears the provider count in bytes, not the buffer size.
+        std::memset(*providers, 0, *count);
+        result = peer->EnumServiceProviders(nullptr, nullptr, *providers, &bytes, count, options);
+        if (FAILED(result))
+        {
+            ReportDirectPlayError("CDPNet::GetServiceProviders(): IDirectPlay8Peer::EnumServiceProviders 2", result);
+            return false;
+        }
+        return true;
+    }
+
+    // Original function: FUN_004dcaba.
+    bool CDPNet::GetConnectionData(DPNID playerId, DPN_CONNECTION_INFO* connection)
+    {
+        if ((flags & 2u) != 2u && (flags & 8u) != 8u) return false;
+        std::memset(connection, 0, sizeof(*connection)); connection->dwSize = sizeof(*connection);
+        const HRESULT result = peer->GetConnectionInfo(playerId, connection, 0);
+        if (FAILED(result))
+        {
+            ReportDirectPlayError("CDPNet::GetConnectionData(): IDirectPlay8Peer::GetConnectionInfo", result);
+            return false;
+        }
+        return true;
+    }
+
+    // Original function: FUN_004dded2; circular list, original count cookie and holes.
+    void GetSessionSummaries(SSessionList* list, SSessionSummary** summaries, DWORD* count)
+    {
+        if (list->first == nullptr) { *summaries = nullptr; *count = 0; return; }
+        *count = list->count;
+        const auto records = list->count;
+        auto* allocation = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(records * 0x14u + 4u, 1));
+        SSessionSummary* array = nullptr;
+        if (allocation != nullptr)
+        {
+            std::memcpy(allocation, &records, 4); array = reinterpret_cast<SSessionSummary*>(allocation + 4);
+            if (static_cast<std::int32_t>(records - 1u) >= 0)
+                for (std::uint32_t index = 0; index < records; ++index) { array[index].name = nullptr; std::memset(&array[index].instance, 0, sizeof(GUID)); }
+        }
+        *summaries = array;
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x109, array != nullptr, "Memory allocation failed.");
+        std::memset(array, 0, list->count * 0x14u);
+        std::uint32_t index = 0;
+        SSessionNode* node = list->first;
+        do
+        {
+            ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x114, list->count >= index, "Array index overflow.");
+            if (node->invalid == 0)
+            {
+                char suffix[128]{}; wchar_t wideSuffix[128]{};
+                wchar_t* name = NXBasics::Runtime_DuplicateWideString(node->description->pwszSessionName);
+                if (node->description->dwMaxPlayers > 0) ::wsprintfA(suffix, " (%d/%d) (%d ms)", node->description->dwCurrentPlayers, node->description->dwMaxPlayers, node->responseTime);
+                else ::wsprintfA(suffix, " (%d) (%d ms)", node->description->dwCurrentPlayers, node->responseTime);
+                CopyNetworkAnsiToWide(wideSuffix, suffix, -1);
+                const auto length = static_cast<std::uint32_t>(std::wcslen(name)) + static_cast<std::uint32_t>(std::wcslen(wideSuffix));
+                auto* combined = static_cast<wchar_t*>(NXBasics::Runtime_AllocateWithNewHandler(length * 2u + 2u, 1));
+                combined[0] = 0; std::wcscat(combined, name); std::wcscat(combined, wideSuffix);
+                NXBasics::Runtime_Free(name);
+                array[index].name = NXBasics::Runtime_DuplicateWideString(combined);
+                array[index].instance = node->description->guidInstance;
+                NXBasics::Runtime_Free(combined); ++index;
+            }
+            node = node->next;
+        } while (node != list->first);
+    }
+
+    // Original function: FUN_004dea48; reset is followed by the original first update.
+    void ResetDynamicNetworkData(SDynamicNetworkData* data)
+    {
+        WriteNetworkLog(GetNetworkLog(), "Reset logic module", 0);
+        ReleaseDynamicNetworkMemory(data);
+        data->networkTick = 0; data->allocation10 = nullptr; data->allocation28 = nullptr;
+        data->receivedRecordCount = 0; data->pendingDataMessageCount = 0; data->allocation30 = nullptr;
+        data->waitStartTick = 0; data->unknown7C = 0;
+        data->allocation30 = NXBasics::Runtime_AllocateWithNewHandler(0x10300, 1);
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x8D, data->allocation30 != nullptr, "Memory allocation failed.");
+        std::memset(data->allocation30, 0, 0x10300);
+        UpdateDynamicNetwork(data, true);
+    }
+
+    // Original function: FUN_004deb32.
+    bool AttachDynamicNetwork(SDynamicNetworkData* data, CDPNet* network)
+    {
+        if ((network->flags & 8u) != 8u && (network->flags & 2u) != 2u)
+        {
+            ReleaseDynamicNetworkMemory(data); data->active = 0;
+            return false;
+        }
+        if (data->active != 0) ShutDownDynamicNetworkData(data);
+        ResetDynamicNetworkData(data);
+        data->playerCount = 0;
+        if (data->allocation10 != nullptr) { NXBasics::Runtime_Free(data->allocation10); data->allocation10 = nullptr; }
+        data->active = network->GetPlayerInfo(reinterpret_cast<SPlayerInfo**>(&data->allocation10), &data->playerCount);
+        if (data->active != 0)
+        {
+            char message[100]{};
+            const auto playerId = network->GetLocalPlayerId();
+            NXBasics::Runtime_PrintString(message, "Logic module is attached to the network. Local DPNID is 0x%x", playerId);
+            WriteNetworkLog(GetNetworkLog(), message, 0);
+        }
+        else WriteNetworkLog(GetNetworkLog(), "Cannot attach logic module to network because player data is unavailable.", 0);
+        if (data->active == 0) ReleaseDynamicNetworkMemory(data);
+        return data->active != 0;
+    }
 }
 
 namespace NNetwork
@@ -1593,6 +1716,43 @@ namespace NNetwork
         std::memcpy(packet.payload, payload, byteCount);
 
         return network->SendPacket(recipient, &packet);
+    }
+
+    // Original function: FUN_004ded59; CDPLogic command-packet send.
+    bool SendDynamicNetworkCommands(SDynamicNetworkData* data, const void* payload, std::uint32_t byteCount)
+    {
+        CDPNet* network = GetNetworkInstance();
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x16C, byteCount != 0, "Invalid message size (<= 0).");
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x16D, byteCount <= 200u, "Maximum message size exceeded.");
+        if (byteCount > 200u) return false;
+        // Original packet constructor 004DD864 leaves its padding uninitialized.
+        std::byte packet[0xD4];
+        packet[0] = std::byte{5};
+        std::memcpy(packet + 4, &data->networkTick, 4);
+        packet[8] = static_cast<std::byte>(byteCount);
+        std::memset(packet + 9, 0, 200);
+        std::memcpy(packet + 9, payload, byteCount);
+        const auto player = GetDynamicNetworkLocalPlayerId(data);
+        SetCommandMessageLength(&data->arrays[data->commandBufferIndices[0]], player, static_cast<std::uint8_t>(byteCount));
+        StoreCommandMessageData(&data->arrays[data->commandBufferIndices[0]], player, payload, byteCount);
+        return network->SendPacket(0, packet);
+    }
+
+    // Original function: FUN_004df16f; copies the complete current command buffer.
+    bool TakeDynamicNetworkCommands(SDynamicNetworkData* data, SDynamicSlot** slots, std::uint32_t* count)
+    {
+        auto& buffer = data->arrays[data->commandBufferIndices[0]];
+        if (buffer.slots == nullptr || !IsCommandBufferComplete(&buffer))
+        {
+            *slots = nullptr;
+            *count = 0;
+            return false;
+        }
+        *count = buffer.count;
+        *slots = static_cast<SDynamicSlot*>(NXBasics::Runtime_Allocate(*count * 0xD0u));
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x248, *slots != nullptr, "Memory allocation failed.");
+        std::memcpy(*slots, data->arrays[data->commandBufferIndices[0]].slots, *count * 0xD0u);
+        return true;
     }
 
     // Original function: FUN_004decf5
@@ -3523,4 +3683,215 @@ void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t ind
     }
 
     WriteNetworkLog(GetNetworkLog(), text, indentation);
+}
+
+namespace NNetwork
+{
+    // Original function: FUN_004dcb30.
+    bool CDPNet::HostSession(const GUID* provider, const wchar_t* callsign, const SHostSessionData* description, bool queryAddressing)
+    {
+        if (peer == nullptr || (flags & 1u) != 1u) return false;
+        DPN_PLAYER_INFO player{};
+        player.dwSize = sizeof(player); player.dwInfoFlags = callsign != nullptr; player.pwszName = const_cast<wchar_t*>(callsign); player.dwPlayerFlags = 6;
+        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, 0x80000000u);
+        if (FAILED(result)) { ReportDirectPlayError("CDPNet::HostSession(): IDirectPlay8Peer::SetPeerInfo", result); return false; }
+        if (interface70 == nullptr) return false;
+        auto* hostAddress = reinterpret_cast<IDirectPlay8Address*>(interface70);
+        result = hostAddress->SetSP(provider);
+        if (FAILED(result)) { ReportDirectPlayError("CDPNet::HostSession(): IDirectPlay8Address::SetSP 1", result); return false; }
+        result = reinterpret_cast<IDirectPlay8Address*>(interface6C)->SetSP(provider);
+        if (FAILED(result)) { ReportDirectPlayError("CDPNet::HostSession(): IDirectPlay8Address::SetSP 2", result); return false; }
+        if (description == nullptr) return false;
+        DPN_APPLICATION_DESC application{};
+        application.dwSize = sizeof(application);
+        application.dwFlags = (description->clientServer != 0 ? 4u : 0u) | (description->password != nullptr ? 0x80u : 0u);
+        application.guidApplication = description->application; application.dwMaxPlayers = description->maximumPlayers;
+        application.pwszSessionName = const_cast<wchar_t*>(description->sessionName); application.pwszPassword = const_cast<wchar_t*>(description->password);
+        result = peer->Host(&application, reinterpret_cast<IDirectPlay8Address**>(&interface70), 1, nullptr, nullptr, nullptr, queryAddressing ? 1u : 0u);
+        playerChangeCount = 0;
+        if (FAILED(result)) { ReportDirectPlayError("CDPNet::HostSession(): IDirectPlay8Peer::Host", result); return false; }
+        flags |= 2u;
+        return true;
+    }
+
+    // Original function: FUN_004dd462; a failed stop-search does not undo a successful join.
+    bool CDPNet::JoinSession(const wchar_t* callsign, const SSessionNode* session)
+    {
+        if ((flags & 4u) != 4u) return false;
+        DPN_PLAYER_INFO player{};
+        player.dwSize = sizeof(player); player.dwInfoFlags = 1; player.pwszName = const_cast<wchar_t*>(callsign);
+        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, 0x80000000u);
+        if (FAILED(result)) { ReportDirectPlayError("CDPNet::JoinSession(): IDirectPlay8Peer::SetPeerInfo", result); return false; }
+        if (session == nullptr) { ReportDirectPlayError("CDPNet::JoinSession(): Session information lost (pSession == null)", 0); return false; }
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x680, session->address0C != nullptr, "Could not create DirectPlay address.");
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x681, session->address10 != nullptr, "Could not create DirectPlay address.");
+        result = peer->Connect(session->description, session->address0C, session->address10, nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr, 0x80000000u);
+        if (FAILED(result))
+        {
+            StopSearchingSessions();
+            ReportDirectPlayError("CDPNet::JoinSession(): IDirectPlay8Peer::Connect", result);
+            return false;
+        }
+        if (!StopSearchingSessions()) ReportDirectPlayError("CDPNet::JoinSession(): StopSearchingSessions", 0);
+        flags |= 8u; playerChangeCount = 0;
+        return true;
+    }
+
+    // Original function: FUN_004de100; description and both address objects are copied.
+    SSessionNode* CopySessionNode(SSessionList* list, const GUID* instance)
+    {
+        if (instance == nullptr || list->first == nullptr) return nullptr;
+        SSessionNode* source = list->first;
+        while (std::memcmp(&source->description->guidInstance, instance, sizeof(GUID)) != 0)
+        {
+            source = source->next;
+            if (source == list->first) return nullptr;
+        }
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x20, 1);
+        SSessionNode* copy = allocation == nullptr ? nullptr : ConstructSessionNode(static_cast<SSessionNode*>(allocation));
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x171, copy != nullptr, "Memory allocation failed.");
+        copy->invalid = source->invalid; copy->lastResponseTime = source->lastResponseTime; copy->responseTime = source->responseTime;
+        copy->description = static_cast<DPN_APPLICATION_DESC*>(NXBasics::Runtime_AllocateWithNewHandler(0x48, 1));
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpsessionlist.cpp", 0x179, copy->description != nullptr, "Memory allocation failed.");
+        std::memcpy(copy->description, source->description, 0x48);
+        copy->description->pwszSessionName = NXBasics::Runtime_DuplicateWideString(source->description->pwszSessionName);
+        HRESULT result = source->address10->Duplicate(&copy->address10);
+        if (SUCCEEDED(result)) result = source->address0C->Duplicate(&copy->address0C);
+        if (FAILED(result))
+        {
+            if (auto* name = copy->description->pwszSessionName) { NXBasics::Runtime_Free(name); copy->description->pwszSessionName = nullptr; }
+            if (copy->description != nullptr) { NXBasics::Runtime_Free(copy->description); copy->description = nullptr; }
+            if (copy != nullptr) { ReleaseSessionNodeResources(copy); NXBasics::Runtime_Free(copy); }
+            return nullptr;
+        }
+        copy->previous = nullptr; copy->next = nullptr;
+        return copy;
+    }
+}
+
+namespace NNetwork
+{
+    // Original function: FUN_004ddd28; expired nodes stay linked and are marked invalid.
+    static void InvalidateSessionNode(SSessionList* list, SSessionNode* node)
+    {
+        if (node != nullptr) { node->invalid = 1; list->flags |= 1u; --list->count; }
+    }
+
+    // Original function: FUN_004dde94; marking a node advances the cursor twice.
+    static void PruneSessionList(SSessionList* list)
+    {
+        SSessionNode* node = list->first;
+        if (node == nullptr) return;
+        do
+        {
+            if (node->invalid == 0 && timeGetTime() - node->lastResponseTime > 2000u)
+            {
+                auto* expired = node; node = node->next;
+                InvalidateSessionNode(list, expired);
+            }
+            node = node->next;
+        } while (node != list->first && list->first != nullptr);
+    }
+
+    // Original function: FUN_004dc2c1; entry bytes overlap the preceding table export.
+    static void __cdecl SessionSearch_TimerProc()
+    {
+        if (GetNetworkInstance()->sessions == nullptr)
+        {
+            WriteNetworkLogLevel(3, "TimerProc triggered but session list is unavailable. Skipping...", 0);
+            return;
+        }
+        EnterCriticalSection(&GetNetworkInstance()->criticalD4);
+        if (GetNetworkInstance()->sessions != nullptr) PruneSessionList(GetNetworkInstance()->sessions);
+        LeaveCriticalSection(&GetNetworkInstance()->criticalD4);
+    }
+
+    struct STimerThreadArguments { DWORD interval; void(__cdecl* callback)(); STimerPrefix* timer; };
+    static_assert(sizeof(STimerThreadArguments) == 0x0C);
+
+    // Original function: FUN_004de7d1; preserves the original unslept timer loop.
+    static DWORD WINAPI Timer_ThreadProc(void* argument)
+    {
+        auto* parameters = static_cast<STimerThreadArguments*>(argument);
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dptimer.cpp", 0x2C, parameters != nullptr, "Invalid thread argument.");
+        DWORD accumulated = 0; DWORD lastTick = timeGetTime();
+        auto* timer = parameters->timer; const DWORD interval = parameters->interval; const auto callback = parameters->callback;
+        NXBasics::Runtime_Free(parameters);
+        while (timer->stopRequested == 0)
+        {
+            accumulated += timeGetTime() - lastTick;
+            if (accumulated >= interval) { callback(); accumulated = 0; }
+            lastTick = timeGetTime();
+        }
+        return 0;
+    }
+
+    // Original function: FUN_004de848; failed CreateThread retains its argument allocation.
+    static STimerPrefix* Timer_Construct(STimerPrefix* timer, DWORD interval, void(__cdecl* callback)())
+    {
+        timer->stopRequested = 0;
+        auto* arguments = static_cast<STimerThreadArguments*>(NXBasics::Runtime_AllocateWithNewHandler(0x0C, 1));
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dptimer.cpp", 0x5B, arguments != nullptr, "Memory allocation failed.");
+        arguments->interval = interval; arguments->callback = callback; arguments->timer = timer;
+        DWORD threadId = 0;
+        timer->thread = CreateThread(nullptr, 0x80, Timer_ThreadProc, arguments, 0, &threadId);
+        SetThreadPriority(timer->thread, THREAD_PRIORITY_BELOW_NORMAL);
+        return timer;
+    }
+
+    // Original function: FUN_004ddc75.
+    static SSessionList* ConstructSessionList(SSessionList* list)
+    {
+        list->first = nullptr; list->count = 0; list->flags = 1;
+        return list;
+    }
+
+    // Original function: FUN_004dccee; a refused initial state returns zero HRESULT.
+    HRESULT CDPNet::StartSearchingSessions(const GUID* provider, const GUID* application, const wchar_t* hostName)
+    {
+        HRESULT result = 0;
+        if (flags != 1) return result;
+        InitializeCriticalSection(&criticalD4);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x0C, 1);
+        sessions = allocation == nullptr ? nullptr : ConstructSessionList(static_cast<SSessionList*>(allocation));
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x4E8, sessions != nullptr, "Memory allocation failed.");
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(8, 1);
+        searchTimer = allocation == nullptr ? nullptr : Timer_Construct(static_cast<STimerPrefix*>(allocation), 2000, SessionSearch_TimerProc);
+        ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x4ED, searchTimer != nullptr, "Memory allocation failed.");
+        DPN_APPLICATION_DESC description{}; description.dwSize = sizeof(description); description.guidApplication = *application;
+        const char* error = nullptr;
+        bool missingAddress = false;
+        if (interface6C == nullptr) { error = "CDPNet::StartSearchingSessions(): host address"; missingAddress = true; }
+        else
+        {
+            result = reinterpret_cast<IDirectPlay8Address*>(interface6C)->SetSP(provider);
+            if (FAILED(result)) error = "CDPNet::StartSearchingSessions(): IDirectPlay8Address::SetSP (1)";
+            else if (interface70 == nullptr) { error = "CDPNet::StartSearchingSessions(): device address"; missingAddress = true; }
+            else
+            {
+                result = reinterpret_cast<IDirectPlay8Address*>(interface70)->SetSP(provider);
+                if (FAILED(result)) error = "CDPNet::StartSearchingSessions(): IDirectPlay8Address::SetSP (2)";
+                else
+                {
+                    if (hostName != nullptr)
+                    {
+                        const DWORD bytes = static_cast<DWORD>(std::wcslen(hostName)) * 2u + 2u;
+                        result = reinterpret_cast<IDirectPlay8Address*>(interface6C)->AddComponent(L"hostname", const_cast<wchar_t*>(hostName), bytes, 1);
+                        if (FAILED(result)) error = "CDPNet::StartSearchingSessions(): IDirectPlay8Address::AddComponent (DPNA_KEY_HOSTNAME)";
+                    }
+                    if (error == nullptr)
+                    {
+                        result = peer->EnumHosts(&description, reinterpret_cast<IDirectPlay8Address*>(interface6C), reinterpret_cast<IDirectPlay8Address*>(interface70), nullptr, 0, 0xFFFFFFFFu, 0, 0xFFFFFFFFu, nullptr, &searchOperation, 0);
+                        if (FAILED(result)) error = "CDPNet::StartSearchingSessions(): IDirectPlay8Peer::EnumHosts";
+                        else { flags |= 4u; return result; }
+                    }
+                }
+            }
+        }
+        ReportDirectPlayError(error, missingAddress ? 0 : result);
+        DeleteCriticalSection(&criticalD4);
+        if (searchTimer != nullptr) { ShutDownTimer(searchTimer); NXBasics::Runtime_Free(searchTimer); searchTimer = nullptr; }
+        if (sessions != nullptr) { DestroySessionListContents(sessions); NXBasics::Runtime_Free(sessions); sessions = nullptr; }
+        return result;
+    }
 }

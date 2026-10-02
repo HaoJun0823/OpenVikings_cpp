@@ -1,5 +1,6 @@
 
 #include "C2EngineDrawingAccess.h"
+#include "C2LifetimeGlobals.h"
 #include "C2LanguageTools.h"
 #include "C2StringIO.h"
 #include "DSManager.h"
@@ -24,7 +25,6 @@
 #include <cstdint>
 #include <cstring>
 
-extern void* DAT_00511240;
 
 namespace
 {
@@ -46,6 +46,67 @@ namespace
 
 namespace NC2GuiToolsBase
 {
+    // Original function: FUN_004e2bf0; complete seven-byte string at 0050bf48.
+    std::int32_t StringToolMisc_StringSortCompare(const char* first, const char* second)
+    {
+        static constexpr char umlauts[7] = { '\xC4', '\xD6', '\xDC', '\xE4', '\xF6', '\xFC', '\0' };
+        if (std::strchr(umlauts, static_cast<signed char>(*first)) == nullptr && std::strchr(umlauts, static_cast<signed char>(*second)) == nullptr) return NXBasics::Runtime_CompareStringsIgnoreCase(first, second);
+        char left[100];
+        char right[100];
+        std::strncpy(left, first, sizeof(left));
+        left[99] = '\0';
+        std::strncpy(right, second, sizeof(right));
+        right[99] = '\0';
+        const auto normalize = [](char& character)
+        {
+            switch (static_cast<unsigned char>(character))
+            {
+            case 0xC4: character = 'A'; break;
+            case 0xD6: character = 'O'; break;
+            case 0xDC: character = 'U'; break;
+            case 0xE4: character = 'a'; break;
+            case 0xF6: character = 'o'; break;
+            case 0xFC: character = 'u'; break;
+            }
+        };
+        normalize(left[0]);
+        normalize(right[0]);
+        return NXBasics::Runtime_CompareStringsIgnoreCase(left, right);
+    }
+
+    // Original function: FUN_004e2376.
+    void DrawTool_FillArea(void* context, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle, std::int32_t mode)
+    {
+        if (mode == 0) return;
+        const auto& resources = CGuiBaseDataManager::mStaticVars.dynamic;
+        NXBasics::CBitmap* tile = resources.buttonBackground;
+        if (mode == 1) tile = resources.background;
+        else if (mode == 3) tile = resources.selectedBackground;
+        else if (mode == 4) tile = resources.highlightedButton;
+        else if (mode == 5) tile = resources.headlineBackground;
+        NXBasics::SRectangle area = *rectangle;
+        if (context != nullptr)
+        {
+            std::memcpy(&area, static_cast<std::byte*>(context) + 4, sizeof(area));
+            area.x = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->x));
+            area.y = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->y));
+        }
+        std::uint32_t x = 0u - static_cast<std::uint32_t>(bitmap->GetSourceX());
+        std::uint32_t y = 0u - static_cast<std::uint32_t>(bitmap->GetSourceY());
+        NXBasics::CBitmap* source = bitmap->GetSourceBitmap();
+        while (source != nullptr && source->GetSourceBitmap() != nullptr)
+        {
+            x -= static_cast<std::uint32_t>(source->GetSourceX());
+            y -= static_cast<std::uint32_t>(source->GetSourceY());
+            source = source->GetSourceBitmap();
+        }
+        const auto width = static_cast<std::uint32_t>(tile->GetRectangle().width);
+        const auto height = static_cast<std::uint32_t>(tile->GetRectangle().height);
+        while (NXBasics::Runtime_TimeSigned32(x) < NXBasics::Runtime_TimeSigned32(0u - width)) x += width;
+        while (NXBasics::Runtime_TimeSigned32(y) < NXBasics::Runtime_TimeSigned32(0u - height)) y += height;
+        bitmap->FillWithBitmap(area, tile, NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y));
+    }
+
     // Original function: FUN_004e2445
     void DrawTool_DrawFrame(void* /*context*/, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* /*rectangle*/, std::int32_t mode)
     {
@@ -145,6 +206,72 @@ namespace NC2GuiToolsBase
         DrawTool_DrawFrame(nullptr, &frameBitmap, &rectangle, mode);
     }
 
+    // Original scratch region 0056988C..005698F7: 100-byte word and terminator;
+    // seven following padding bytes have no exported references.
+    static char gWrappingWordBuffer[0x6C]{};
+
+    // Original function: FUN_004e29d9.
+    std::int32_t DrawTool_PrintStringWrapping(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t width, NXBasics::CFont* font, const NXBasics::SColorRGB* color, const char* text)
+    {
+        if (text == nullptr) return 0;
+        std::uint32_t fontHeight;
+        std::memcpy(&fontHeight, reinterpret_cast<const std::byte*>(font) + 8, sizeof(fontHeight));
+        const std::uint32_t lineHeight = fontHeight + 2u;
+        std::uint32_t currentX = static_cast<std::uint32_t>(x), currentY = static_cast<std::uint32_t>(y);
+        std::uint32_t lastHeight = lineHeight;
+        const char* cursor = text;
+        for (;;)
+        {
+            const auto character = static_cast<std::uint8_t>(*cursor++);
+            if (character == 0) return NXBasics::Runtime_TimeSigned32(lastHeight - static_cast<std::uint32_t>(y) + currentY);
+            if (character == '\t' || character == ' ')
+            {
+                currentX += static_cast<std::uint32_t>(NXBasics::Font_GetCharacterWidth(font, 'i'));
+                continue;
+            }
+            if (character == '\n' || character == '\r')
+            {
+                if (*cursor == '\n') ++cursor;
+                currentY += lastHeight;
+                currentX = static_cast<std::uint32_t>(x);
+                continue;
+            }
+            if (character == '{')
+            {
+                const char* end = std::strchr(cursor, '}');
+                if (end == nullptr) continue;
+                if (NXBasics::Runtime_CompareStringsIgnoreCaseN(cursor, "newline", 7) == 0)
+                {
+                    currentY += fontHeight + 2u;
+                    currentX = static_cast<std::uint32_t>(x);
+                }
+                cursor = end + 1;
+                continue;
+            }
+            if (character < ' ') continue;
+            --cursor;
+            std::uint32_t length = 0;
+            for (;;)
+            {
+                const auto byte = static_cast<std::uint8_t>(*cursor++);
+                if (byte == 0 || byte <= ' ' || byte == '{') break;
+                gWrappingWordBuffer[length++] = static_cast<char>(byte);
+                if (length == 100) break;
+            }
+            gWrappingWordBuffer[length] = '\0';
+            --cursor;
+            lastHeight = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, gWrappingWordBuffer));
+            if (NXBasics::Runtime_TimeSigned32(lastHeight + currentX) >= width)
+            {
+                currentY += lineHeight;
+                currentX = static_cast<std::uint32_t>(x);
+            }
+            bitmap->Text_Print(font, color, NXBasics::Runtime_TimeSigned32(currentX), NXBasics::Runtime_TimeSigned32(currentY), gWrappingWordBuffer);
+            currentX += lastHeight;
+            lastHeight = lineHeight;
+        }
+    }
+
     // Original function: FUN_004e2661
     void DrawTool_PrintStringX(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* font, const NXBasics::SColorRGB* color, const char* text)
     {
@@ -223,7 +350,7 @@ namespace NC2GuiToolsBase
                         if (second != nullptr)
                         {
                             const std::int32_t variant = NXBasics::Runtime_StringToInteger(second);
-                            const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(DAT_00511240));
+                            const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(NC2Logic::gStaticGoodTypeData));
                             const std::uint32_t address = baseAddress + static_cast<std::uint32_t>(goodId) * 0xD0u;
                             const auto* good = reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
 
@@ -305,6 +432,13 @@ namespace NC2GuiToolsBase
             NXBasics::Font_PrintCharacter(font, &currentColor, bitmap, character, signedValue(currentX), signedValue(currentY));
             currentX += static_cast<std::uint32_t>(width);
         }
+    }
+
+    // Original function: FUN_004e2b8d.
+    void FXTool_ClickConfirm()
+    {
+        auto* manager = NDSManager::CManager::sTheObjectPtr;
+        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_confirm.wav", 100u, 0xFFFFFFFFu, 1u, false, false, 100u);
     }
 
     // Original function: FUN_004e2bcf

@@ -13,6 +13,9 @@
 
 namespace NXSysMouseManager
 {
+    // Original function: FUN_00403014.
+    bool CMouseManager::IsAnyButtonDown() const { return mLeftButton || mMiddleButton || mRightButton; }
+
     // Original function: FUN_004792ec
     CMouseManager::CMouseManager()
     {

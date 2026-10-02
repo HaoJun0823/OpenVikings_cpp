@@ -10,6 +10,7 @@
 
 namespace NNetwork
 {
+    class CDPNet;
     bool GetNetworkIPAddress(std::uint32_t index, char* destination, std::uint32_t capacity);
 
     struct SEventNode
@@ -66,6 +67,27 @@ namespace NNetwork
         std::uint32_t flags;                       // +0x04
         SSessionNode* first;                       // +0x08
     };
+    void DestroySessionListContents(SSessionList* list);
+
+    struct SSessionSummary
+    {
+        wchar_t* name;
+        GUID instance;
+    };
+    static_assert(sizeof(SSessionSummary) == 0x14);
+    void GetSessionSummaries(SSessionList* list, SSessionSummary** summaries, DWORD* count);
+    SSessionNode* CopySessionNode(SSessionList* list, const GUID* instance);
+
+    struct SHostSessionData
+    {
+        std::uint8_t clientServer;
+        std::byte padding01[3];
+        GUID application;
+        DWORD maximumPlayers;
+        const wchar_t* sessionName;
+        const wchar_t* password;
+    };
+    static_assert(sizeof(SHostSessionData) == 0x20);
 
     // Original function: FUN_004ddd3c
     void UpdateSessionList(SSessionList* list, const DPNMSG_ENUM_HOSTS_RESPONSE* response);
@@ -92,10 +114,11 @@ namespace NNetwork
     // Only the prefix accessed during destruction is described here.
     struct STimerPrefix
     {
-        std::uint8_t stopRequested;                 // +0x00
+        volatile std::uint8_t stopRequested;        // +0x00; polled by the timer thread.
         std::byte unknown01[3];
         HANDLE thread;                              // +0x04
     };
+    void ShutDownTimer(STimerPrefix* timer);
 
     struct SDynamicSlot
     {
@@ -169,6 +192,8 @@ namespace NNetwork
     bool SendDynamicNetworkMessage(SDynamicNetworkData* data, DPNID recipient, const void* payload, std::uint32_t byteCount);
 
     void PrepareDynamicCommandBuffers(SDynamicNetworkData* data);
+    bool SendDynamicNetworkCommands(SDynamicNetworkData* data, const void* payload, std::uint32_t byteCount);
+    bool TakeDynamicNetworkCommands(SDynamicNetworkData* data, SDynamicSlot** slots, std::uint32_t* count);
     void AdvanceDynamicNetworkTick(SDynamicNetworkData* data);
     void ResetDynamicSlots(SDynamicSlotArray* array);
 
@@ -198,6 +223,10 @@ namespace NNetwork
     void CopyNetworkWideToAnsi(char* destination, const wchar_t* source, std::int32_t length);
 
     SDynamicNetworkData* ConstructDynamicNetworkData(SDynamicNetworkData* data);
+    void ReleaseDynamicNetworkMemory(SDynamicNetworkData* data);
+    void ShutDownDynamicNetworkData(SDynamicNetworkData* data);
+    void ResetDynamicNetworkData(SDynamicNetworkData* data);
+    bool AttachDynamicNetwork(SDynamicNetworkData* data, CDPNet* network);
 
     void DestroyDynamicNetworkData(SDynamicNetworkData* data);
 
@@ -299,6 +328,11 @@ namespace NNetwork
         // Initialize *players to nullptr before calling.
         // Release a successful result with NXBasics::Runtime_Free.
         bool GetPlayerInfo(SPlayerInfo** players, DWORD* playerCount);
+        bool GetServiceProviders(DPN_SERVICE_PROVIDER_INFO** providers, DWORD* count, bool allProviders);
+        bool GetConnectionData(DPNID playerId, DPN_CONNECTION_INFO* connection);
+        bool HostSession(const GUID* provider, const wchar_t* callsign, const SHostSessionData* description, bool queryAddressing);
+        bool JoinSession(const wchar_t* callsign, const SSessionNode* session);
+        HRESULT StartSearchingSessions(const GUID* provider, const GUID* application, const wchar_t* hostName);
 
         // Original function: FUN_004dd5f2
         bool KickPlayer(DPNID playerId);

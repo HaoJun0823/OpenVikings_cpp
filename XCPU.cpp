@@ -3,26 +3,36 @@
 #include <cstdint>
 #include <intrin.h>
 
-// Original data; initial bytes remain unresolved.
-extern std::uint8_t gMmxDetectionComplete;
-extern std::uint8_t gMmxSupported;
+namespace
+{
+    // Complete cache region 00554D58..00554D5B: two flags and two unused bytes.
+    // The PE places it in zero-initialized virtual data; all flag xrefs are in CPU_HasMMX.
+    struct SMmxDetectionState
+    {
+        std::uint8_t complete;
+        std::uint8_t supported;
+        std::uint8_t unused[2];
+    };
+    SMmxDetectionState gMmxDetectionState{};
+    static_assert(sizeof(SMmxDetectionState) == 4);
+}
 
 namespace NXBasics
 {
     // Original function: FUN_00473abf
     bool CPU_HasMMX()
     {
-        if (gMmxDetectionComplete != 0)
-            return gMmxSupported != 0;
+        if (gMmxDetectionState.complete != 0)
+            return gMmxDetectionState.supported != 0;
 
-        gMmxDetectionComplete = 1;
+        gMmxDetectionState.complete = 1;
 
         int registers[4];
         __cpuid(registers, 1);
 
         if ((static_cast<std::uint32_t>(registers[3]) & 0x00800000u) != 0)
-            gMmxSupported = 1;
+            gMmxDetectionState.supported = 1;
 
-        return gMmxSupported != 0;
+        return gMmxDetectionState.supported != 0;
     }
 }

@@ -63,6 +63,9 @@ namespace NC2Logic
     inline SGameStaticVars gGameStaticVars{};
     inline unsigned char& gGameInitialized = gGameStaticVars.initialized;
     inline SGameRandomState& gGameRandomState = gGameStaticVars.random;
+    std::uint32_t Random_Get(SGameRandomState& random);
+    std::uint32_t Game_Random_GetNumber();
+    std::uint32_t Logic_EntryPoint_Random_GetNumber();
     inline SGameTimeState& gGameTime = gGameStaticVars.gameTime;
     static_assert(sizeof(SGameRandomState) == 8);
     static_assert(sizeof(SGameStaticVars) == 0x1B8);

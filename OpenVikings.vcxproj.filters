@@ -144,6 +144,9 @@
     <ClCompile Include="C2GameTime.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2GameState.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="C2GameControlNetwork.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
@@ -267,6 +270,18 @@
     <ClCompile Include="MainMenuGuiManager.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="MainMenuGuiManager_Access.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuGuiManager_Lists.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuGuiManager_Network.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuGuiManager_Screens.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
     <ClCompile Include="StringInputHandler.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
@@ -304,6 +319,9 @@
       <Filter>Runtime</Filter>
     </ClCompile>
     <ClCompile Include="C2AnimalIterator.cpp">
+      <Filter>Engine\Iterators</Filter>
+    </ClCompile>
+    <ClCompile Include="C2HumanIterator.cpp">
       <Filter>Engine\Iterators</Filter>
     </ClCompile>
     <ClCompile Include="C2MapSectorGridCursor.cpp">
@@ -415,6 +433,9 @@
       <Filter>Audio</Filter>
     </ClCompile>
     <ClCompile Include="GuiBitmapToolElementAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="XGuiElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp">
@@ -560,6 +581,9 @@
     <ClInclude Include="MainMenuGuiManager.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="MainMenuGuiManager_Access.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
     <ClInclude Include="StringInputHandler.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -606,6 +630,9 @@
       <Filter>Runtime</Filter>
     </ClInclude>
     <ClInclude Include="C2AnimalIterator.h">
+      <Filter>Engine\Iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="C2HumanIterator.h">
       <Filter>Engine\Iterators</Filter>
     </ClInclude>
     <ClInclude Include="C2MapSectorGridCursor.h">
@@ -666,6 +693,9 @@
       <Filter>Core\Graphics\Pictures</Filter>
     </ClInclude>
     <ClInclude Include="XGuiDesktop.h">
+      <Filter>Core\GUI\Desktop</Filter>
+    </ClInclude>
+    <ClInclude Include="XGuiElementAccess.h">
       <Filter>Core\GUI\Desktop</Filter>
     </ClInclude>
     <ClInclude Include="XList.h">
@@ -741,6 +771,9 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="InGameGuiSupportAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiWindowState.h">
       <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
@@ -859,7 +892,13 @@
     <ClCompile Include="C2StaticTribeTypeData.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2StaticActorTypeDataAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClInclude Include="C2StaticTribeTypeData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2StaticActorTypeDataAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
   </ItemGroup>
@@ -870,6 +909,27 @@
     <ClCompile Include="XGuiDesktop_Attachment.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="GuiTextToolElementAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiClockToolElementAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsVideoPlayer.cpp">
+      <Filter>Application\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="C2StringAccess.cpp">
+      <Filter>Logic\Strings</Filter>
+    </ClCompile>
+    <ClCompile Include="C2HouseAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiKeyAssignmentManager.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="C2VehicleAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="InGameGuiBaseAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
@@ -879,11 +939,49 @@
     <ClInclude Include="XGuiWindowAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="GuiTextToolElementAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiClockToolElementAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsVideoPlayer.h">
+      <Filter>Application\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="C2StringAccess.h">
+      <Filter>Logic\Strings</Filter>
+    </ClInclude>
+    <ClInclude Include="C2HouseAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiKeyAssignmentManager.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="C2VehicleAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
     <ClInclude Include="InGameGuiBaseAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="InGameGuiStringOutputWindow.h">
       <Filter>GUI</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LegacyDirectInput.def">
+      <Filter>Platform\Input</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2PlayerStatisticAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2PlayerStatisticAccess.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2UserNetworkCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2UserNetworkCommandAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanCommandAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2UserMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2UserMessageAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

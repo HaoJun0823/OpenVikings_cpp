@@ -1,10 +1,11 @@
+#include "C2UserNetworkCommandAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "C2LogicObjectArrays.h"
 
 #include <cstring>
 
 // Original command queue/execute routine; no replacement queue is fabricated.
-extern void __fastcall FUN_00410f00(void* manager, void* unusedEdx, const void* command, bool firstFlag, bool secondFlag);
+
 
 namespace
 {
@@ -52,6 +53,6 @@ namespace NC2Logic
         std::memcpy(static_cast<std::byte*>(command) + 1, &player, 1);
         const std::uint32_t value = Input_Read<std::uint32_t>(vehicle, 8);
         std::memcpy(static_cast<std::byte*>(command) + 8, &value, sizeof(value));
-        FUN_00410f00(manager, nullptr, command, false, false);
+        NC2Logic::UserNetworkCommandManager_AddCommand(manager, nullptr, command, false, false);
     }
 }

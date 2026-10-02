@@ -1,4 +1,9 @@
 #include "C2GameState.h"
+#include "ApplicationGlobals.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LifetimeAccess.h"
+#include "C2EngineLifetimeAccess.h"
+#include "C2MapGeometry.h"
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2EngineDisplayAccess.h"
@@ -11,6 +16,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <initializer_list>
 
 
 namespace NC2E2
@@ -50,6 +56,180 @@ namespace NC2E2
     static void* Ambient_GetStaticRecord(std::uint32_t ambientId)
     {
         return Ambient_AddressAt(CE2StaticDataSoundFXManager::sTheObjectPtr->ambientSounds, ambientId * 0x1570u);
+    }
+
+    static void* Ambient_GetSector(void* manager, std::int32_t x, std::int32_t y);
+
+    // Complete contiguous scratch region: 00554DB4..005550D3, two 100-DWORD arrays.
+    static std::uint32_t gLandscapeAmbientGroupCounts[100]{}; // 00554DB4..00554F43.
+    static std::uint32_t gPatternAmbientGroupCounts[100]{}; // 00554F44..005550D3.
+
+    // Original function: FUN_0047f3c7.
+    void* __fastcall AmbientSoundManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gE2AmbientSoundManager = manager;
+        std::memset(manager, 0, 0x64);
+        std::memset(&gAmbientSoundChangeState, 0, 10);
+        if (NDSManager::CManager::sTheObjectPtr != nullptr)
+        {
+            for (const auto type : {2u, 0x16u, 0x31u, 0x32u, 0x33u}) NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, E2AmbientSoundManager_Callback, 0x32, 0xC8);
+        }
+        return manager;
+    }
+
+    // Original function: FUN_0047f4d6; CE2AmbientSoundManager::l_AllocateMemory.
+    void AmbientSoundManager_AllocateMemory(void* manager)
+    {
+        using namespace NC2Lifetime;
+        if (Read<void*>(manager, 8) != nullptr)
+        {
+            NXBasics::Runtime_Free(Read<void*>(manager, 8));
+            Write<void*>(manager, 8, nullptr);
+        }
+        Write<std::int32_t>(manager, 0, (static_cast<std::int32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) + 9) / 10);
+        Write<std::int32_t>(manager, 4, (static_cast<std::int32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight())) + 9) / 10);
+        const auto size = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 0x38u;
+        void* sectors = NXBasics::Runtime_Allocate(size);
+        Write<void*>(manager, 8, sectors);
+        const auto clearSize = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 0x38u;
+        std::memset(sectors, 0, clearSize);
+    }
+
+    // Original function: FUN_0047f56e; l_RecalculatePatternAmbientSoundLoops.
+    static void AmbientSoundManager_RecalculatePatternAmbientSoundLoops(void* sectorData, const NC2Logic::SSectorGridCursor* sector)
+    {
+        using namespace NC2Lifetime;
+        Write<std::uint32_t>(sectorData, 0, 0);
+        std::memset(gPatternAmbientGroupCounts, 0, sizeof(gPatternAmbientGroupCounts));
+        const auto startX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->x) * 10u);
+        const auto startY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->y) * 10u);
+        const auto endX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startX) + 10u);
+        const auto endY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startY) + 10u);
+        for (auto y = startY; y < endY; ++y)
+        {
+            for (auto x = startX; x < endX; ++x)
+            {
+                const std::int16_t point[2] = {static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
+                if (NC2Logic::MapMagPoint_IsBorderPoint(point)) continue;
+                const auto* data = Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(point);
+                for (std::uint32_t triangle = 0; triangle < 2; ++triangle)
+                {
+                    const auto pattern = Read<std::uint16_t>(data, triangle * 2u);
+                    // Original lookup entry: FUN_00480fe3, 70-byte static pattern records.
+                    const auto* record = static_cast<const std::byte*>(gStaticPatternEntries) + static_cast<std::uint32_t>(pattern) * 0x70u;
+                    for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
+                    {
+                        const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
+                        if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != 0x00FFFFFFu) ++gPatternAmbientGroupCounts[group];
+                    }
+                }
+            }
+        }
+        for (std::uint32_t group = 0; group < 100; ++group)
+        {
+            const auto weight = gPatternAmbientGroupCounts[group];
+            if (weight == 0) continue;
+            std::int32_t position = 0;
+            auto count = Read<std::int32_t>(sectorData, 0);
+            while (position < count && weight <= gPatternAmbientGroupCounts[Read<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(position) * 8u)]) ++position;
+            if (position < count)
+            {
+                for (auto destination = 2; destination > position; --destination) Write<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(destination) * 8u, Read<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(destination - 1) * 8u));
+                Write<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(position) * 8u, group);
+                if (count < 3) Write<std::int32_t>(sectorData, 0, ++count);
+            }
+            if (position == count && count < 3)
+            {
+                Write<std::uint32_t>(sectorData, 4u + static_cast<std::uint32_t>(count) * 8u, group);
+                Write<std::int32_t>(sectorData, 0, count + 1);
+            }
+        }
+        for (std::int32_t index = 0; index < Read<std::int32_t>(sectorData, 0); ++index)
+        {
+            const auto offset = 4u + static_cast<std::uint32_t>(index) * 8u;
+            const auto group = Read<std::uint32_t>(sectorData, offset);
+            Write<std::uint32_t>(sectorData, offset + 4u, gPatternAmbientGroupCounts[group] * 100u / 200u);
+            Write<std::uint32_t>(sectorData, offset, CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group]);
+        }
+    }
+
+    // Original function: FUN_0047f760; l_RecalculateLandscapeAmbientSounds.
+    static void AmbientSoundManager_RecalculateLandscapeAmbientSounds(void* sectorData, const NC2Logic::SSectorGridCursor* sector)
+    {
+        using namespace NC2Lifetime;
+        Write<std::uint32_t>(sectorData, 0x1C, 0);
+        std::memset(gLandscapeAmbientGroupCounts, 0, sizeof(gLandscapeAmbientGroupCounts));
+        const auto startX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->x) * 20u);
+        const auto startY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(sector->y) * 20u);
+        const auto endX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startX) + 20u);
+        const auto endY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(startY) + 20u);
+        for (auto y = startY; y < endY; ++y)
+        {
+            for (auto x = startX; x < endX; ++x)
+            {
+                const std::int16_t point[2] = {static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
+                if (NC2Logic::MapMigPoint_IsBorderPoint(point)) continue;
+                const auto* data = Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(point);
+                const auto landscape = Read<std::uint16_t>(data, 0);
+                if (landscape == 0xFFFFu) continue;
+                // Original lookup entry: FUN_00480ff1, 8C-byte static landscape records.
+                const auto* record = static_cast<const std::byte*>(gStaticLandscapeEntries) + static_cast<std::uint32_t>(landscape) * 0x8Cu;
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
+                {
+                    const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
+                    if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != 0x00FFFFFFu) ++gLandscapeAmbientGroupCounts[group];
+                }
+            }
+        }
+        for (std::uint32_t group = 0; group < 100; ++group)
+        {
+            const auto weight = gLandscapeAmbientGroupCounts[group];
+            if (weight == 0) continue;
+            std::int32_t position = 0;
+            auto count = Read<std::int32_t>(sectorData, 0x1C);
+            while (position < count && weight <= gLandscapeAmbientGroupCounts[Read<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(position) * 8u)]) ++position;
+            if (position < count)
+            {
+                for (auto destination = 2; destination > position; --destination) Write<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(destination) * 8u, Read<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(destination - 1) * 8u));
+                Write<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(position) * 8u, group);
+                if (count < 3) Write<std::int32_t>(sectorData, 0x1C, ++count);
+            }
+            if (position == count && count < 3)
+            {
+                Write<std::uint32_t>(sectorData, 0x20u + static_cast<std::uint32_t>(count) * 8u, group);
+                Write<std::int32_t>(sectorData, 0x1C, count + 1);
+            }
+        }
+        for (std::int32_t index = 0; index < Read<std::int32_t>(sectorData, 0x1C); ++index)
+        {
+            const auto offset = 0x20u + static_cast<std::uint32_t>(index) * 8u;
+            const auto group = Read<std::uint32_t>(sectorData, offset);
+            Write<std::uint32_t>(sectorData, offset + 4u, gLandscapeAmbientGroupCounts[group]);
+            Write<std::uint32_t>(sectorData, offset, CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group]);
+        }
+    }
+
+    // Original function: FUN_0047f533.
+    void AmbientSoundManager_RecalculateAmbientSoundSector(void* manager, const NC2Logic::SSectorGridCursor* sector, bool patterns, bool landscapes)
+    {
+        void* data = Ambient_GetSector(manager, sector->x, sector->y);
+        if (patterns) AmbientSoundManager_RecalculatePatternAmbientSoundLoops(data, sector);
+        if (landscapes) AmbientSoundManager_RecalculateLandscapeAmbientSounds(data, sector);
+    }
+
+    // Original function: FUN_0047f90b.
+    void AmbientSoundManager_RecalculateAllAmbientSoundSector(void* manager)
+    {
+        for (std::uint32_t y = 0; y < Ambient_ReadField<std::uint32_t>(manager, 4); ++y)
+        {
+            for (std::uint32_t x = 0; x < Ambient_ReadField<std::uint32_t>(manager, 0); ++x)
+            {
+                NC2Logic::SSectorGridCursor sector;
+                sector.x = NXBasics::Runtime_TimeSigned32(x);
+                sector.y = NXBasics::Runtime_TimeSigned32(y);
+                AmbientSoundManager_RecalculateAmbientSoundSector(manager, &sector, true, true);
+            }
+        }
     }
 
     // Original function: FUN_0047f947; CE2AmbientSoundManager::l_UpdateLoopList.

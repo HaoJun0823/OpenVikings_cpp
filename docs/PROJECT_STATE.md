@@ -32,21 +32,44 @@ Main targets:
 
 The user explicitly wants unknown data regions cross-checked against the Mac binary/code to recover original names whenever possible.
 
-## Most recent work
+## Active link closure - 2026-10-03
+
+Both Debug|Win32 and Release|Win32 compile all 136 production implementations and fail at linking with identical inventories: 153 unresolved references, 147 decorated symbols for 147 original function addresses, and zero missing data/system-import symbols. All 136 cpp and 138 headers match the project and filters. Latest logs: OpenVikings-link-debug-command-actors.log and OpenVikings-link-release-command-actors.log in the user's Temp directory. See [NATIVE_LINK_SUPPORT.md](NATIVE_LINK_SUPPORT.md) and [UNRESOLVED_LINK_SYMBOLS.csv](UNRESOLVED_LINK_SYMBOLS.csv).
+
+Ambient sectors, Human-sound parsing, GUI speed/priority buttons, network command queue/send/receive/dispatch, Human command insertion/interruption, vehicle immediate commands/passenger notifications, house production controls and game-assistant input are reconstructed in addition to the earlier native link-support blocks. The dispatcher exposed previously hidden real dependencies: the intermediate inventory fell to 122 symbols, rose to 157 when its branches were connected, then fell to 147. No fake original bodies, tests or executable/runtime success are claimed.
+
+Provisional mapping: 1,819/5,049; 31 mapped entries retain direct original calls; 18 raw startup constructors remain. The user paused reconstruction at this checkpoint and requested a commit. Next connected block: GUI message insertion/history/filtering through 004B3DAA and callback 004B450D, then the remaining genuine command/tick, world and widget trees. Current snapshot is included in the checkpoint commit following d64247c.
+
+## Previous work
+
+### Full Win32 link audit and integration corrections
+
+- Reproduced the user's 425 Debug error-list entries as 424 unresolved references plus LNK1120 for 305 distinct symbols. Corrected Windows/DirectX link libraries, retained the original DirectInput-7 call through a generated legacy import library, connected two already implemented functions and nine existing data owners, and established MMX/network-flag initial storage from Windows PE/xrefs. See [LINK_BUILD_AUDIT.md](LINK_BUILD_AUDIT.md).
+- Debug|Win32 and Release|Win32 compile all 124 production implementations without compiler errors and fail at linking with 220 reference diagnostics / 213 decorated symbols: 209 FUN decorations for 208 original addresses and four data symbols. [UNRESOLVED_LINK_SYMBOLS.csv](UNRESOLVED_LINK_SYMBOLS.csv) records the current set. No executable/game-runtime validation is claimed.
+- Reconstructed inherited GUI virtuals, base windows, desktop input/drawing, text/gfx widgets and bitmap pixel/line/circle primitives. Closed both complete sound token/state regions, corrected the assertion callback's three-argument Windows signature and supplied the native user-command-manager constructor. See [GUI_LINK_CLOSURE.md](GUI_LINK_CLOSURE.md).
+- Project/filters include all 124 implementations and 126 headers, including GuiTextToolElementAccess. Main Win32 platform and output paths are retained. Provisional address coverage is 1,599/5,046, with no raw calls to already mapped entries. No tests or guessed original bodies were added.
+- Continue genuine missing owners and function trees until full linking succeeds. Current work is uncommitted on HEAD d64247c.
+
+### Main-menu GUI, lobby and DirectPlay host/join/search
+
+- Committed the prior in-game/string-output work as d64247c (Reconstruct ingame GUI and networking), then reconstructed all thirty-two distinct original call targets in MainMenuGuiManager.cpp or connected existing native entries. The full 23-entry Windows screen switch includes all three lobby modes; native list/handler lifecycles, Human iteration, camera following, desktop work and automatic host/join are connected. See [MAIN_MENU_GUI_MANAGER.md](MAIN_MENU_GUI_MANAGER.md).
+- Followed provider/session/player enumeration, host/join/search, snapshot copying, dynamic attachment and search-timer construction/pruning through the DirectPlay/Windows API boundaries. Restored three missing bitmap-tool virtual slots and corrected menu graphics allocation/free families. README OB093, OA078-OA082 and FP054-FP059 index the reviewed failure paths. Genuine shared widget, inherited virtual, menu message/world/mouse and deeper desktop bodies remain original dependencies.
+- Fourteen affected units generate Win32 /Od and /O2 objects; only established NetworkRuntime deprecated-API warnings remain. All 123 production implementations pass Win32 syntax compilation with zero errors. Project/filters cover all 123 implementations and 125 headers; main platform/output settings are unchanged. No tests, full link or game-runtime verification.
+- Provisional address coverage is 1,499/5,045 (29.71%), with 3,546 unmapped candidates and 57 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Next connected block: default/primary menu message handlers and shared text-button/list/hypertext families, then world/mouse drawing and desktop dispatch. Current main-menu work is uncommitted on HEAD d64247c.
 
 ### String-output widget and desktop attachment/hiding
 
 - Added twenty-one original bodies for the string-output widget, desktop attachment/hiding, base-tool adapters, window children, rectangle placement and two string getters. Existing CStringArray/input/font/bitmap/list/runtime bodies are shared. See [STRING_OUTPUT_WINDOW.md](STRING_OUTPUT_WINDOW.md).
 - Restored the overview window's four missing virtual slots; Windows tables for base-tool, string-output and overview windows each contain nineteen entries. Native helpers are connected to in-game/overview/menu callers. All four Windows xrefs establish the named networkWait byte 005109C5; time/display/widget callers now share it. README OA076/OA077 and FP052/FP053 index allocation, message and callback paths. Shared base/graphic-button/clock bodies and inherited virtual methods remain genuine original boundaries.
 - Eleven affected units generate Win32 /Od and /O2 objects without warnings. Production syntax is 116/117 with 39 diagnostics confined to MainMenuGuiManager.cpp. Project/filters match all 117 implementations and 122 headers; main platform/output settings are unchanged. No tests, full link or game-runtime verification.
-- Provisional address coverage is 1,431/5,044 (28.37%), with 3,613 unmapped candidates and 64 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Connected next blocks: shared widget/base GUI families, auxiliary logic callbacks and class-static regions. HEAD remains fb69f88 (Main Menu Code); in-game/widget work is uncommitted.
+- Provisional address coverage is 1,431/5,044 (28.37%), with 3,613 unmapped candidates and 64 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Connected next blocks: shared widget/base GUI families, auxiliary logic callbacks and class-static regions. This historical in-game/widget snapshot was subsequently committed as d64247c.
 
 ### In-game state, GUI auxiliary ownership and network event handling
 
 - All nine distinct original call targets in MasterControlProgram_PS_InGame.cpp now use native entries. Added thirty-two original bodies across GUI state helpers, four auxiliary owner lifecycles, embedded member construction, Human-name updates, event copy/formatting, departure commands and desktop message search. Existing CStringInputHandler and CListBase methods are shared; queue tail-jump destructor 004DB49B shares ClearEventQueue. See [IN_GAME_STATE.md](IN_GAME_STATE.md).
 - Corrected the active-network gate, ordered Human validation, captured startup singleton queries and runtime allocation/free families. Rebound input owner 00569410, message owner 00569408 and group owner 005690D8. Complete close-window/event tables and formatter strings were decoded from Windows PE. README OB090-OB092, OA074/OA075 and FP048-FP051 index reviewed failure paths. Deeper widget/desktop/callback/static-data and command-manager bodies remain explicit originals.
 - Twelve affected/reused units generate Win32 /Od and /O2 objects, with only established NetworkRuntime warnings. Production syntax is 112/113 with forty diagnostics confined to MainMenuGuiManager.cpp, down from 52 in two units. Project/filters match at 113 implementations and 119 headers. No tests, full link or game-runtime verification.
-- Provisional address coverage is 1,410/5,044 (27.95%), with 3,634 unmapped candidates and 63 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Next in-game block: string-output widget 004C7030 and BaseToolDesktop_AddWindow 004B8543, then auxiliary callbacks/class-static regions. Main-menu work is committed as fb69f88 (Main Menu Code); this in-game follow-up is uncommitted.
+- Provisional address coverage is 1,410/5,044 (27.95%), with 3,634 unmapped candidates and 63 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Next in-game block: string-output widget 004C7030 and BaseToolDesktop_AddWindow 004B8543, then auxiliary callbacks/class-static regions. Main-menu state work is committed as fb69f88 (Main Menu Code); this in-game follow-up was subsequently committed as d64247c.
 
 
 ### Main-menu state, clean-map loading and clock dispatch

@@ -25,6 +25,7 @@ namespace NC2Logic
     public:
         CHouseIterator();
         std::int32_t GetFirstHouseId();
+        std::int32_t GetFirstHouseId(std::uint32_t player);
         std::int32_t GetNextHouseId();
     private:
         void l_ConstructNonVirtual();

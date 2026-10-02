@@ -374,6 +374,30 @@ namespace NXBasics
         }
     }
 
+    // Original function: FUN_0040cabb; preserve the original tile loop and its
+    // unchecked source dimensions, including zero-size nontermination.
+    void CBitmap::FillWithBitmap(CBitmap* sourceBitmap, std::int32_t x, std::int32_t y)
+    {
+        if (mRawMemory == nullptr || sourceBitmap->mRawMemory == nullptr) return;
+        while (y < mRectangle.height)
+        {
+            std::int32_t tileX = x;
+            while (tileX < mRectangle.width)
+            {
+                sourceBitmap->CopyIntoBitmap(this, tileX, y);
+                tileX = Runtime_TimeSigned32(static_cast<std::uint32_t>(tileX) + static_cast<std::uint32_t>(sourceBitmap->mRectangle.width));
+            }
+            y = Runtime_TimeSigned32(static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(sourceBitmap->mRectangle.height));
+        }
+    }
+
+    // Original function: FUN_0040cb0a; temporary virtual bitmap owns no pixels.
+    void CBitmap::FillWithBitmap(const SRectangle& rectangle, CBitmap* sourceBitmap, std::int32_t x, std::int32_t y)
+    {
+        CBitmap area(this, rectangle);
+        area.FillWithBitmap(sourceBitmap, x, y);
+    }
+
     // Original function: FUN_0040cb4c
     void CBitmap::CopyIntoBitmap(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const
     {
@@ -656,6 +680,270 @@ namespace NXBasics
                 }
             }
         }
+    }
+
+    // Original function: FUN_0040d7f5.
+    void CBitmap::Draw_SetPixel(std::int32_t x, std::int32_t y, std::uint8_t color)
+    {
+        if (mRawMemory == nullptr || x < mRectangle.x || x > Runtime_TimeSigned32(mRightBits) || y < mRectangle.y || y > Runtime_TimeSigned32(mBottomBits)) return;
+        const auto index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
+        switch (mDepth)
+        {
+            case 0: *BitmapPixelAddress(mRawMemory, index) = color; break;
+            case 1: *BitmapPixelAddress(mHighColorMemory, index) = GetHighColorWord(color); break;
+            case 2: *BitmapPixelAddress(mTrueColorMemory, index) = GetTrueColorWord(color); break;
+        }
+    }
+
+    // Original function: FUN_0040d872.
+    void CBitmap::Draw_SetPixel(std::int32_t x, std::int32_t y, std::uint16_t color)
+    {
+        if (mRawMemory == nullptr || x < mRectangle.x || x > Runtime_TimeSigned32(mRightBits) || y < mRectangle.y || y > Runtime_TimeSigned32(mBottomBits)) return;
+        const auto index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
+        if (mDepth == 1) *BitmapPixelAddress(mHighColorMemory, index) = color;
+    }
+
+    // Original function: FUN_0040d8b3.
+    void CBitmap::Draw_SetPixel(std::int32_t x, std::int32_t y, std::uint32_t color)
+    {
+        if (mRawMemory == nullptr || x < mRectangle.x || x > Runtime_TimeSigned32(mRightBits) || y < mRectangle.y || y > Runtime_TimeSigned32(mBottomBits)) return;
+        const auto index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
+        if (mDepth == 2) *BitmapPixelAddress(mTrueColorMemory, index) = color;
+    }
+
+    // Original function: FUN_0040d8f2.
+    void CBitmap::Draw_SetPixel(std::int32_t x, std::int32_t y, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0: Draw_SetPixel(x, y, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case 1: Draw_SetPixel(x, y, g16BitPixelConverter->PackColor(color)); break;
+            case 2: Draw_SetPixel(x, y, g32BitPixelConverter->PackColor(color)); break;
+        }
+    }
+
+    // Original function: FUN_0040df78.
+    void CBitmap::Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0: Draw_HorizontalLine(x, y, length, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case 1: Draw_HorizontalLine(x, y, length, g16BitPixelConverter->PackColor(color)); break;
+            case 2: Draw_HorizontalLine(x, y, length, g32BitPixelConverter->PackColor(color)); break;
+        }
+    }
+
+    // Original function: FUN_0040e4d1.
+    void CBitmap::Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0: Draw_Line(x1, y1, x2, y2, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case 1: Draw_Line(x1, y1, x2, y2, g16BitPixelConverter->PackColor(color)); break;
+            case 2: Draw_Line(x1, y1, x2, y2, g32BitPixelConverter->PackColor(color)); break;
+        }
+    }
+
+    // Original function: FUN_0040e8bd.
+    void CBitmap::Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0: Draw_Circle(x, y, radius, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case 1: Draw_Circle(x, y, radius, g16BitPixelConverter->PackColor(color)); break;
+            case 2: Draw_Circle(x, y, radius, g32BitPixelConverter->PackColor(color)); break;
+        }
+    }
+
+    // Original function: FUN_0040d96f; deliberately skips memory and bounds checks.
+    void CBitmap::Draw_SetPixelUnclipped(std::int32_t x, std::int32_t y, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0: *BitmapPixelAddress(mRawMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color); break;
+            case 1: { const auto packed = g16BitPixelConverter->PackColor(color); *BitmapPixelAddress(mHighColorMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = packed; break; }
+            case 2: { const auto packed = g32BitPixelConverter->PackColor(color); *BitmapPixelAddress(mTrueColorMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = packed; break; }
+        }
+    }
+
+    // Original function: FUN_0040e12f.
+    void CBitmap::Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, std::uint8_t color)
+    {
+        if (mRawMemory == nullptr) return;
+        if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > Runtime_TimeSigned32(mRightBits) && x2 > Runtime_TimeSigned32(mRightBits)) || (y1 > Runtime_TimeSigned32(mBottomBits) && y2 > Runtime_TimeSigned32(mBottomBits))) return;
+        auto dx = static_cast<std::uint32_t>(x2) - static_cast<std::uint32_t>(x1);
+        auto dy = static_cast<std::uint32_t>(y2) - static_cast<std::uint32_t>(y1);
+        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : 0xFFFFFFFFu);
+        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : 0xFFFFFFFFu);
+        if (Runtime_TimeSigned32(dx) < 0) dx = 0u - dx;
+        if (Runtime_TimeSigned32(dy) < 0) dy = 0u - dy;
+        auto x = static_cast<std::uint32_t>(x1), y = static_cast<std::uint32_t>(y1);
+        if (Runtime_TimeSigned32(dy) <= Runtime_TimeSigned32(dx))
+        {
+            auto error = 2u * dy - dx;
+            Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            while (x != static_cast<std::uint32_t>(x2))
+            {
+                if (Runtime_TimeSigned32(error) >= 0) { error -= 2u * dx; y += stepY; }
+                x += stepX;
+                error += 2u * dy;
+                Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            }
+        }
+        else
+        {
+            auto error = 2u * dx - dy;
+            Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            while (y != static_cast<std::uint32_t>(y2))
+            {
+                if (Runtime_TimeSigned32(error) >= 0) { error -= 2u * dy; x += stepX; }
+                y += stepY;
+                error += 2u * dx;
+                Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            }
+        }
+    }
+
+    // Original function: FUN_0040e265.
+    void CBitmap::Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, std::uint16_t color)
+    {
+        if (mRawMemory == nullptr) return;
+        if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > Runtime_TimeSigned32(mRightBits) && x2 > Runtime_TimeSigned32(mRightBits)) || (y1 > Runtime_TimeSigned32(mBottomBits) && y2 > Runtime_TimeSigned32(mBottomBits))) return;
+        auto dx = static_cast<std::uint32_t>(x2) - static_cast<std::uint32_t>(x1);
+        auto dy = static_cast<std::uint32_t>(y2) - static_cast<std::uint32_t>(y1);
+        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : 0xFFFFFFFFu);
+        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : 0xFFFFFFFFu);
+        if (Runtime_TimeSigned32(dx) < 0) dx = 0u - dx;
+        if (Runtime_TimeSigned32(dy) < 0) dy = 0u - dy;
+        auto x = static_cast<std::uint32_t>(x1), y = static_cast<std::uint32_t>(y1);
+        if (Runtime_TimeSigned32(dy) <= Runtime_TimeSigned32(dx))
+        {
+            auto error = 2u * dy - dx;
+            Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            while (x != static_cast<std::uint32_t>(x2))
+            {
+                if (Runtime_TimeSigned32(error) >= 0) { error -= 2u * dx; y += stepY; }
+                x += stepX;
+                error += 2u * dy;
+                Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            }
+        }
+        else
+        {
+            auto error = 2u * dx - dy;
+            Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            while (y != static_cast<std::uint32_t>(y2))
+            {
+                if (Runtime_TimeSigned32(error) >= 0) { error -= 2u * dy; x += stepX; }
+                y += stepY;
+                error += 2u * dx;
+                Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            }
+        }
+    }
+
+    // Original function: FUN_0040e39b.
+    void CBitmap::Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, std::uint32_t color)
+    {
+        if (mRawMemory == nullptr) return;
+        if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > Runtime_TimeSigned32(mRightBits) && x2 > Runtime_TimeSigned32(mRightBits)) || (y1 > Runtime_TimeSigned32(mBottomBits) && y2 > Runtime_TimeSigned32(mBottomBits))) return;
+        auto dx = static_cast<std::uint32_t>(x2) - static_cast<std::uint32_t>(x1);
+        auto dy = static_cast<std::uint32_t>(y2) - static_cast<std::uint32_t>(y1);
+        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : 0xFFFFFFFFu);
+        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : 0xFFFFFFFFu);
+        if (Runtime_TimeSigned32(dx) < 0) dx = 0u - dx;
+        if (Runtime_TimeSigned32(dy) < 0) dy = 0u - dy;
+        auto x = static_cast<std::uint32_t>(x1), y = static_cast<std::uint32_t>(y1);
+        if (Runtime_TimeSigned32(dy) <= Runtime_TimeSigned32(dx))
+        {
+            auto error = 2u * dy - dx;
+            Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            while (x != static_cast<std::uint32_t>(x2))
+            {
+                if (Runtime_TimeSigned32(error) >= 0) { error -= 2u * dx; y += stepY; }
+                x += stepX;
+                error += 2u * dy;
+                Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            }
+        }
+        else
+        {
+            auto error = 2u * dx - dy;
+            Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            while (y != static_cast<std::uint32_t>(y2))
+            {
+                if (Runtime_TimeSigned32(error) >= 0) { error -= 2u * dy; x += stepX; }
+                y += stepY;
+                error += 2u * dx;
+                Draw_SetPixel(Runtime_TimeSigned32(x), Runtime_TimeSigned32(y), color);
+            }
+        }
+    }
+
+    // Original function: FUN_0040e560.
+    void CBitmap::Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint8_t color)
+    {
+        std::uint32_t offset = 0, error = 3u - 2u * radius, fourRadius = 4u * radius;
+        if (Runtime_TimeSigned32(radius) < 0) return;
+        const auto centerX = static_cast<std::uint32_t>(x), centerY = static_cast<std::uint32_t>(y);
+        do
+        {
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY + radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + offset), Runtime_TimeSigned32(centerY + radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY - radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + offset), Runtime_TimeSigned32(centerY - radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY + offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + radius), Runtime_TimeSigned32(centerY + offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY - offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + radius), Runtime_TimeSigned32(centerY - offset), color);
+            if (Runtime_TimeSigned32(error) >= 0) { error += 4u - fourRadius; --radius; fourRadius -= 4u; }
+            error += 4u * offset + 2u;
+            ++offset;
+        } while (Runtime_TimeSigned32(offset) <= Runtime_TimeSigned32(radius));
+    }
+
+    // Original function: FUN_0040e67f.
+    void CBitmap::Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint16_t color)
+    {
+        std::uint32_t offset = 0, error = 3u - 2u * radius, fourRadius = 4u * radius;
+        if (Runtime_TimeSigned32(radius) < 0) return;
+        const auto centerX = static_cast<std::uint32_t>(x), centerY = static_cast<std::uint32_t>(y);
+        do
+        {
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY + radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + offset), Runtime_TimeSigned32(centerY + radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY - radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + offset), Runtime_TimeSigned32(centerY - radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY + offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + radius), Runtime_TimeSigned32(centerY + offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY - offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + radius), Runtime_TimeSigned32(centerY - offset), color);
+            if (Runtime_TimeSigned32(error) >= 0) { error += 4u - fourRadius; --radius; fourRadius -= 4u; }
+            error += 4u * offset + 2u;
+            ++offset;
+        } while (Runtime_TimeSigned32(offset) <= Runtime_TimeSigned32(radius));
+    }
+
+    // Original function: FUN_0040e79e.
+    void CBitmap::Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint32_t color)
+    {
+        std::uint32_t offset = 0, error = 3u - 2u * radius, fourRadius = 4u * radius;
+        if (Runtime_TimeSigned32(radius) < 0) return;
+        const auto centerX = static_cast<std::uint32_t>(x), centerY = static_cast<std::uint32_t>(y);
+        do
+        {
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY + radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + offset), Runtime_TimeSigned32(centerY + radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY - radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + offset), Runtime_TimeSigned32(centerY - radius), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY + offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + radius), Runtime_TimeSigned32(centerY + offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY - offset), color);
+            Draw_SetPixel(Runtime_TimeSigned32(centerX + radius), Runtime_TimeSigned32(centerY - offset), color);
+            if (Runtime_TimeSigned32(error) >= 0) { error += 4u - fourRadius; --radius; fourRadius -= 4u; }
+            error += 4u * offset + 2u;
+            ++offset;
+        } while (Runtime_TimeSigned32(offset) <= Runtime_TimeSigned32(radius));
     }
 
     // Original function: FUN_0040d9ee

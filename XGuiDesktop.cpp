@@ -2,12 +2,17 @@
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
 #include "XGuiLists.h"
+#include "XMMouseManager.h"
+#include "XMKeyManager.h"
+#include "XGuiWindowAccess.h"
+#include "C2LifetimeAccess.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <new>
 #include <type_traits>
+
 
 namespace
 {
@@ -203,6 +208,20 @@ namespace NXBaseGui
         for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next())
             if (entry == window) return;
         list->InsertAtEnd(window);
+    }
+
+    // Original function: FUN_0047787b; four lists preserve drawing/input order.
+    void CDesktop::Window_BringToFront(CBaseWindow* window)
+    {
+        auto* bytes = reinterpret_cast<std::byte*>(this);
+        const bool foreground = (reinterpret_cast<const std::uint8_t*>(window)[0x68] & 1u) != 0;
+        const std::uint32_t firstOffset = foreground ? 0x64u : 0xB4u;
+        auto listAt = [bytes](std::uint32_t offset) { return std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(bytes + offset)); };
+        for (std::uint32_t index = 0; index < 4; ++index) listAt(firstOffset + index * 0x14)->l_Base_RemoveElement(window);
+        listAt(firstOffset)->InsertAtEnd(window);
+        listAt(firstOffset + 0x14)->InsertAtStart(window);
+        listAt(firstOffset + 0x28)->InsertAtEnd(window);
+        listAt(firstOffset + 0x3C)->InsertAtStart(window);
     }
 
     // Original function: FUN_0047795d
@@ -442,4 +461,286 @@ namespace NXBaseGui
             element = parent;
         }
     }
+}
+
+namespace NXBaseGui
+{
+    // Original function: FUN_00477104; input, deferred closes, desktop and cursor draw.
+    std::uint32_t CDesktop::Desktop_DoWork(bool clearBitmap, bool processInput)
+    {
+        std::uint32_t result = 0;
+        std::memcpy(mUnknown012C + 4, &result, sizeof(result));
+        l_Message_HandleMouse(processInput);
+        l_Message_HandleKeyBoard(processInput);
+        l_WindowCloseList_Do();
+        if (clearBitmap) mDisplayBitmap->Fill(std::uint8_t{0});
+        l_DrawDesktop(mRectangle);
+        if (mMousePointerStorage != nullptr)
+        {
+            using TDraw = void(__thiscall*)(void*, NXBasics::CBitmap*, const void*);
+            TDraw* methods;
+            std::memcpy(&methods, mMousePointerStorage, sizeof(methods));
+            methods[0](mMousePointerStorage, mDisplayBitmap, NXSysMouseManager::CMouseManager::sTheObjectPtr);
+        }
+        std::memcpy(&result, mUnknown012C + 4, sizeof(result));
+        return result;
+    }
+
+    // Original function: FUN_00477859; close processing consumes the list tail.
+    void CDesktop::l_WindowCloseList_Do()
+    {
+        auto& closeList = *std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(mWindowListStorage0118));
+        while (auto* window = static_cast<CBaseWindow*>(closeList.l_Base_RemoveFromEnd())) Window_Close(window);
+    }
+    using namespace NC2Lifetime;
+    static bool DesktopPointInside(const std::int32_t* point, void* element)
+    {
+        const auto area = BaseElement_GetRectangle(element);
+        const auto right = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(area.width) - 1u);
+        const auto bottom = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.height) - 1u);
+        return point[0] >= area.x && point[0] <= right && point[1] >= area.y && point[1] <= bottom;
+    }
+    using TDesktopMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    static bool SendDesktopElementMessage(void* element, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
+    {
+        return Read<TDesktopMessage*>(element, 0)[2](element, message, param1, param2, param3, param4);
+    }
+
+    // Original function: FUN_0047796a.
+    void CDesktop::l_DrawDesktop(const NXBasics::SRectangle& rectangle)
+    {
+        auto* bytes = reinterpret_cast<std::byte*>(this);
+        for (const auto offset : {0x14u, 0x8Cu, 0x3Cu, 0xDCu}) l_DrawElementList(*std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + offset)), rectangle);
+    }
+
+    // Original function: FUN_004779ab; clipped bitmap lifetime spans drawing,
+    // child traversal and overlays. Flags are reloaded after the draw callback.
+    void CDesktop::l_DrawElementList(NXBasics::CListBase& list, const NXBasics::SRectangle& rectangle)
+    {
+        NXBasics::CListBase::Iterator iterator(list);
+        for (void* element = iterator.First(); element != nullptr; element = iterator.Next())
+        {
+            if ((Read<std::uint32_t>(element, 0x18) & 0x200u) != 0) continue;
+            auto area = BaseElement_GetRectangle(element);
+            if (!rectangle.IsTouching(area)) continue;
+            area.CutInside(rectangle);
+            NXBasics::CBitmap clipped(mDisplayBitmap, area);
+            area.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) - Read<std::uint32_t>(element, 4));
+            area.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) - Read<std::uint32_t>(element, 8));
+            using TDraw = void(__thiscall*)(void*, NXBasics::CBitmap*, const NXBasics::SRectangle*);
+            Read<TDraw*>(element, 0)[3](element, &clipped, &area);
+            if ((Read<std::uint32_t>(element, 0x18) & 0x40u) != 0)
+            {
+                BaseWindow_DrawAllChildElements(element, &clipped, area);
+                Read<TDraw*>(element, 0)[18](element, &clipped, &area);
+            }
+        }
+    }
+
+    // Original function: FUN_00477ec4; the modal byte suppresses ordinary lists.
+    CBaseElement* CDesktop::l_Element_FindOnPosition(const std::int32_t* point, bool includeDisabled, std::uint32_t messageMask)
+    {
+        auto* bytes = reinterpret_cast<std::byte*>(this);
+        auto findAt = [this, bytes, point, includeDisabled, messageMask](std::uint32_t offset) { return l_Element_FindInList(*std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + offset)), point, includeDisabled, messageMask); };
+        if (auto* element = findAt(0xF0)) return element;
+        if (mUnknown0138[0] == std::byte{0}) if (auto* element = findAt(0x50)) return element;
+        if (auto* element = findAt(0xA0)) return element;
+        return mUnknown0138[0] == std::byte{0} ? findAt(0x28) : nullptr;
+    }
+
+    // Original function: FUN_00477f3d; BE_CanBeActivated precedes visibility,
+    // message-mask, bounding rectangle, virtual coordinate conversion and hit test.
+    CBaseElement* CDesktop::l_Element_FindInList(NXBasics::CListBase& list, const std::int32_t* point, bool includeDisabled, std::uint32_t messageMask)
+    {
+        NXBasics::CListBase::Iterator iterator(list);
+        for (void* element = iterator.First(); element != nullptr; element = iterator.Next())
+        {
+            const auto flags = Read<std::uint32_t>(element, 0x18);
+            if (!includeDisabled && ((flags & 0x400u) != 0 || (flags & 1u) == 0)) continue;
+            if ((flags & 0x200u) != 0 || (messageMask != 0 && (Read<std::uint32_t>(element, 0x1C) & messageMask) == 0)) continue;
+            if (!DesktopPointInside(point, element)) continue;
+            std::int32_t localPoint[2] = {point[0], point[1]};
+            using TConvert = void(__thiscall*)(void*, std::int32_t*);
+            Read<TConvert*>(element, 0)[11](element, localPoint);
+            using THit = bool(__thiscall*)(void*, const std::int32_t*);
+            if (Read<THit*>(element, 0)[8](element, localPoint)) return static_cast<CBaseElement*>(element);
+        }
+        return nullptr;
+    }
+
+    // Original function: FUN_00477fd7.
+    // Original function: FUN_004780fc.
+    CBaseElement* CDesktop::Element_GetUnderMousePtr()
+    {
+        std::int32_t point[2];
+        std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point));
+        return l_Element_FindOnPositionDeep(point, true);
+    }
+
+    CBaseElement* CDesktop::l_Element_FindOnPositionDeep(const std::int32_t* point, bool includeDisabled)
+    {
+        auto* element = l_Element_FindOnPosition(point, includeDisabled, 0);
+        if (element == nullptr) return nullptr;
+        if ((Read<std::uint32_t>(element, 0x18) & 0x40u) != 0)
+        {
+            std::int32_t localPoint[2] = {point[0], point[1]};
+            using TConvert = void(__thiscall*)(void*, std::int32_t*);
+            Read<TConvert*>(element, 0)[11](element, localPoint);
+            if (void* child = BaseWindow_FindElementOnPosition(element, localPoint, includeDisabled)) return static_cast<CBaseElement*>(child);
+        }
+        return element;
+    }
+
+    // Original function: FUN_00478029.
+    CBaseElement* CDesktop::l_Element_GetRealActivePtr() const
+    {
+        if (mActiveElement == nullptr) return nullptr;
+        using TActive = CBaseElement*(__thiscall*)(void*);
+        return Read<TActive*>(mActiveElement, 0)[9](mActiveElement);
+    }
+
+    // Original function: FUN_0047804d; callbacks can change active/handler fields,
+    // so each later target is read only after the previous dispatch returns.
+    void CDesktop::l_Message_Send(std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
+    {
+        if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x1C) & message) != 0)
+            if (SendDesktopElementMessage(mPrimaryMessageHandler, message, param1, param2, param3, param4)) return;
+        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, 0x18) & 0x40u) != 0)
+        {
+            void* child = Read<void*>(mActiveElement, 0x64);
+            if (child != nullptr && (Read<std::uint32_t>(child, 0x1C) & message) != 0)
+                if (SendDesktopElementMessage(child, message, param1, param2, param3, param4)) return;
+        }
+        if (mActiveElement != nullptr && (Read<std::uint32_t>(mActiveElement, 0x1C) & message) != 0)
+            if (SendDesktopElementMessage(mActiveElement, message, param1, param2, param3, param4)) return;
+        if (mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, 0x1C) & message) != 0)
+            SendDesktopElementMessage(mOwnedObject0114, message, param1, param2, param3, param4);
+    }
+
+    // Original function: FUN_00477d80.
+    void CDesktop::l_Message_HandleKeyBoard(bool suppressInput)
+    {
+        auto* keyboard = NXSysKeyManager::CKeyManager::sTheObjectPtr;
+        if (suppressInput) { keyboard->Init(); return; }
+        while (Read<std::uint32_t>(keyboard, 0xC) != 0)
+        {
+            NXSysKeyManager::SKeyMessage key;
+            const auto kind = keyboard->GetKeyboardMessage(key);
+            const std::uint32_t message = kind == 1 ? 0x200u : 0x400u;
+            bool handled = false;
+            if (mPrimaryMessageHandler != nullptr && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x18) & 4u) != 0 && (Read<std::uint32_t>(mPrimaryMessageHandler, 0x1C) & message) != 0)
+                handled = SendDesktopElementMessage(mPrimaryMessageHandler, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
+            if (!handled && mElement010C != nullptr && (Read<std::uint32_t>(mElement010C, 0x1C) & message) != 0)
+                handled = SendDesktopElementMessage(mElement010C, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
+            if (!handled && mOwnedObject0114 != nullptr && (Read<std::uint32_t>(mOwnedObject0114, 0x18) & 4u) != 0 && (Read<std::uint32_t>(mOwnedObject0114, 0x1C) & message) != 0)
+                SendDesktopElementMessage(mOwnedObject0114, message, key.keyCode, key.auxiliaryCode, key.modifierFlags, 0);
+            keyboard = NXSysKeyManager::CKeyManager::sTheObjectPtr;
+        }
+    }
+
+    // Original function: FUN_00477a82; mouse events are consumed before the
+    // suppress-input return. Preserve left/double, release, middle/right, move
+    // and wheel dispatch order, including callbacks that replace active elements.
+    void CDesktop::l_Message_HandleMouse(bool suppressInput)
+    {
+        auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
+        if (Read<std::uint8_t>(mouse, 0x20) == 0) return;
+        NXSysMouseManager::SMouseMessage event;
+        mouse->GetNewMouseMessage(event);
+        if (suppressInput) return;
+        const std::int32_t point[2] = {event.mouseX, event.mouseY};
+        using THasChildren = bool(__thiscall*)(void*);
+        using TActivate = void(__thiscall*)(void*, const std::int32_t*);
+        auto activateAtPoint = [this, &point]() {
+            auto* element = l_Element_FindOnPosition(point, false, 0);
+            if (element != nullptr)
+            {
+                Element_Activate(element);
+                if (Read<THasChildren*>(mActiveElement, 0)[1](mActiveElement)) Read<TActivate*>(mActiveElement, 0)[4](mActiveElement, point);
+            }
+            return element;
+        };
+        const auto x = static_cast<std::uint32_t>(event.mouseX), y = static_cast<std::uint32_t>(event.mouseY);
+        if ((event.flags & 0x104u) != 0)
+        {
+            mUnknown012C[0] = std::byte{1};
+            if (mPrimaryMessageHandler != nullptr)
+            {
+                if ((event.flags & 4u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 1u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 1, x, y, 0, 0);
+                if ((event.flags & 0x100u) != 0 && (Read<std::uint8_t>(mPrimaryMessageHandler, 0x1C) & 4u) != 0) SendDesktopElementMessage(mPrimaryMessageHandler, 4, x, y, 0, 0);
+            }
+            bool pressed = false;
+            if (activateAtPoint() != nullptr)
+            {
+                const auto flags = Read<std::uint32_t>(mActiveElement, 0x18);
+                if ((flags & 0x400u) == 0 && (flags & 2u) != 0)
+                {
+                    using TPress = bool(__thiscall*)(void*, const std::int32_t*);
+                    pressed = Read<TPress*>(mActiveElement, 0)[6](mActiveElement, point);
+                }
+            }
+            if (!pressed)
+            {
+                if ((event.flags & 4u) != 0) l_Message_Send(1, x, y, 0, 0);
+                if ((event.flags & 0x100u) != 0) l_Message_Send(4, x, y, 0, 0);
+            }
+        }
+        if ((event.flags & 8u) != 0)
+        {
+            mUnknown012C[0] = std::byte{0};
+            using TRelease = bool(__thiscall*)(void*);
+            if (mActiveElement == nullptr || !Read<TRelease*>(mActiveElement, 0)[7](mActiveElement)) l_Message_Send(2, x, y, 0, 0);
+        }
+        if ((event.flags & 0x50u) != 0)
+        {
+            activateAtPoint();
+            if ((event.flags & 0x40u) != 0) { mUnknown012C[1] = std::byte{1}; l_Message_Send(0x20, x, y, 0, 0); }
+            if ((event.flags & 0x10u) != 0) l_Message_Send(8, x, y, 0, 0);
+        }
+        if ((event.flags & 0x80u) != 0) { mUnknown012C[1] = std::byte{0}; l_Message_Send(0x40, x, y, 0, 0); }
+        if ((event.flags & 0x20u) != 0) l_Message_Send(0x10, x, y, 0, 0);
+        if ((event.flags & 1u) != 0)
+        {
+            void* active = l_Element_GetRealActivePtr();
+            if (active != nullptr && (Read<std::uint32_t>(active, 0x18) & 0x10u) != 0 && Read<std::uint32_t>(active, 0x14) == 2)
+            {
+                void* parent = Read<void*>(active, 0x20);
+                auto* areaOwner = parent != nullptr ? parent : active;
+                auto area = BaseElement_GetRectangle(areaOwner);
+                area.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.x) + static_cast<std::uint32_t>(event.deltaX));
+                area.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(event.deltaY));
+                Write(areaOwner, 4, area);
+                area.PlaceInside(mRectangle);
+                Write(areaOwner, 4, area);
+            }
+            else
+            {
+                auto* hit = l_Element_FindOnPositionDeep(point, false);
+                if (hit != nullptr)
+                {
+                    if ((Read<std::uint32_t>(hit, 0x18) & 0x100u) == 0)
+                    {
+                        if (mMouseOverElement != nullptr) BaseElement_MouseLeftArea(mMouseOverElement);
+                        mMouseOverElement = hit;
+                        // Original mouse-enter body 004789EB.
+                        Write<std::uint8_t>(hit, 0x19, Read<std::uint8_t>(hit, 0x19) | 1u);
+                        const auto flags = Read<std::uint32_t>(hit, 0x18);
+                        if ((flags & 0x400u) == 0 && (flags & 2u) != 0 && CDesktop::sTheObjectPtr->mUnknown012C[0] != std::byte{0} && Read<std::uint32_t>(hit, 0x14) == 1) Write<std::uint32_t>(hit, 0x14, 2);
+                    }
+                }
+                else if (mMouseOverElement != nullptr)
+                {
+                    BaseElement_MouseLeftArea(mMouseOverElement);
+                    mMouseOverElement = nullptr;
+                }
+            }
+            l_Message_Send(0x80, x, y, static_cast<std::uint32_t>(event.deltaX), static_cast<std::uint32_t>(event.deltaY));
+        }
+        if ((event.flags & 2u) != 0)
+        {
+            activateAtPoint();
+            l_Message_Send(0x100, 0, static_cast<std::uint32_t>(event.wheelDelta), 0, 0);
+        }
+    }
+
 }

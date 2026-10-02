@@ -1,3 +1,7 @@
+#include "C2GameState.h"
+#include "C2LifetimeAccess.h"
+#include "InGameGuiKeyAssignmentManager.h"
+#include "GuiBitmapToolElementAccess.h"
 #include "GuiToolsBase.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayAccess.h"
@@ -18,18 +22,12 @@
 #include <cstring>
 #include <new>
 
-extern void* DAT_005690dc;
 
 // Untranslated Windows routines. The unused EDX argument keeps stack parameters
 // on the original __thiscall stack; constructors retain their original vtables.
 extern void* __fastcall FUN_004bc31c(void* object);
 extern void* __fastcall FUN_004bb78a(void* object);
-extern void* __fastcall FUN_004b93ad(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId);
-extern void* __fastcall FUN_004b9520(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, const char* text, std::uint32_t tooltipId, void* formatObject);
-extern void* __fastcall FUN_004b94b7(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, std::uint32_t tooltipId, void* formatObject);
 extern void* __fastcall FUN_004b8607(void* object);
-extern void __fastcall FUN_004a299b(void* object, void* unusedEdx, bool update);
-extern void __fastcall FUN_004a2a55(void* object, void* unusedEdx, bool update);
 extern void __fastcall FUN_004a0d01(void* object);
 extern void __fastcall FUN_004a0e9d(void* object);
 extern void __fastcall FUN_004b4187(void* object, void* unusedEdx, std::int32_t mode);
@@ -37,27 +35,14 @@ extern bool __cdecl FUN_004a2c0b(std::uint32_t type, std::uint32_t userData, std
 
 extern int __fastcall FUN_004a002d(void* object);
 extern void* __fastcall FUN_004a3eab(void* object);
-extern void* __fastcall FUN_004a3d47(void* object);
 extern void* __fastcall FUN_004a0145(void* object, void* unusedEdx, std::uint32_t deletingFlags);
 
 namespace
 {
-    // Original function: FUN_004a3d9a; the table's class identity is unresolved.
-    void GuiDefinitionTable_ClearOwner()
-    {
-        DAT_005690dc = nullptr;
-    }
-
     // Original function: FUN_004b9407.
     void ToolGraphics_SetCenterGraphicsFlag(void* object, bool centered)
     {
         std::memcpy(static_cast<std::byte*>(object) + 0x34, &centered, sizeof(centered));
-    }
-
-    // Original function: FUN_004b95a4.
-    void ToolGraphics_SetPalettePtr(void* object, NXBasics::CPalette* palette)
-    {
-        std::memcpy(static_cast<std::byte*>(object) + 0x30, &palette, sizeof(palette));
     }
 
     // Original function: FUN_004a0a90; Mac name: sl_IsMouseStoppedCallback.
@@ -157,6 +142,48 @@ namespace
 
 namespace NInGameGuiManager
 {
+    // Complete contiguous cache pair 00507378..0050737F, initial PE values -2/-1.
+    struct SMiscButtonUpdateCache { std::uint32_t speed, priority; };
+    static SMiscButtonUpdateCache gMiscButtonUpdateCache{0xFFFFFFFEu, 0xFFFFFFFFu};
+
+    // Original function: FUN_004a299b.
+    void CInGameGuiManager::MiscButtons_SpeedButton_Update(bool update)
+    {
+        using namespace NC2Lifetime;
+        void* button = Read<void*>(this, 0x34);
+        if (button == nullptr) return;
+        const auto speed = NC2Logic::gGameTime.maximizeSpeed != 0 ? 0xFFFFFFFFu : static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed)) / 12u;
+        const auto graphicsId = speed == 2 ? 0x34u : speed == 3 ? 0x35u : speed == 0 ? 0x36u : 0x31u;
+        NC2InGameGuiBase::BaseToolGfxButton_SetGraphicsId(button, nullptr, graphicsId);
+        if (gMiscButtonUpdateCache.speed == speed && !update) return;
+        gMiscButtonUpdateCache.speed = speed;
+        char text[100];
+        if (speed == 0xFFFFFFFFu) std::strcpy(text, "MAX!");
+        else NXBasics::Runtime_PrintString(text, "%s (*%d)", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(13), speed);
+        button = Read<void*>(this, 0x34);
+        NC2InGameGuiBase::BaseToolGfxButton_SetToolTipString(button, text);
+        Write<std::uint8_t>(Read<void*>(this, 0x34), 0x44, 1);
+    }
+
+    // Original function: FUN_004a2a55.
+    void CInGameGuiManager::MiscButtons_MessagePriorityButton_Update(bool update)
+    {
+        using namespace NC2Lifetime;
+        void* button = Read<void*>(this, 0x40);
+        if (button == nullptr) return;
+        const auto priority = Read<std::uint32_t>(NC2InGameGuiMessages::gMessageManager, 8);
+        const auto graphicsId = priority == 1 ? 0x41u : priority == 2 ? 0x42u : 0x40u;
+        NC2InGameGuiBase::BaseToolGfxButton_SetGraphicsId(button, nullptr, graphicsId);
+        if (gMiscButtonUpdateCache.priority == priority && !update) return;
+        gMiscButtonUpdateCache.priority = priority;
+        const char* text = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(14);
+        if (priority == 1) text = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(15);
+        if (priority == 2) text = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(16);
+        button = Read<void*>(this, 0x40);
+        NC2InGameGuiBase::BaseToolGfxButton_SetToolTipString(button, text);
+        Write<std::uint8_t>(Read<void*>(this, 0x40), 0x44, 1);
+    }
+
     void* CInGameGuiManager::GetDesktop() const
     {
         return *reinterpret_cast<void* const*>(mLegacyState + 0x04);
@@ -198,7 +225,7 @@ namespace NInGameGuiManager
 
         if (guiDefinitionTable != nullptr)
         {
-            FUN_004a3d47(guiDefinitionTable);
+            ::new (guiDefinitionTable) NC2InGameGuiKeyAssignmentManager::CKeyAssignmentManager;
         }
 
         *reinterpret_cast<std::int32_t*>(mLegacyState + 0xD8) = ReadIntegerProperty("gui_scroll_speed", 2);
@@ -220,11 +247,11 @@ namespace NInGameGuiManager
     // Original function: FUN_004a00c1
     CInGameGuiManager::~CInGameGuiManager()
     {
-        void* guiDefinitionTable = DAT_005690dc;
+        auto* guiDefinitionTable = NC2InGameGuiKeyAssignmentManager::CKeyAssignmentManager::sTheObjectPtr;
 
         if (guiDefinitionTable != nullptr)
         {
-            GuiDefinitionTable_ClearOwner();
+            guiDefinitionTable->~CKeyAssignmentManager();
             NXBasics::Runtime_Free(guiDefinitionTable);
         }
 
@@ -312,10 +339,10 @@ namespace NInGameGuiManager
             if (memory != nullptr)
             {
                 const NXBasics::SRectangle rectangle(x, y, w, h);
-                element = FUN_004b93ad(memory, nullptr, &rectangle, graphicsId);
+                element = NC2InGameGuiBase::BaseToolGfxElement_Construct(memory, nullptr, &rectangle, graphicsId);
             }
             ToolGraphics_SetCenterGraphicsFlag(element, false);
-            ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
+            NC2InGameGuiBase::ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
             std::memcpy(mLegacyState + offset, &element, sizeof(element));
             NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(element));
         };
@@ -330,18 +357,18 @@ namespace NInGameGuiManager
                 {
                     const char* text = NC2GuiToolsBase::CGuiBaseStringsManager::GetStringPtr(1, static_cast<std::uint32_t>(stringId));
                     const NXBasics::SRectangle rectangle(x, y, w, h);
-                    element = FUN_004b9520(memory, nullptr, &rectangle, graphicsId, text, tooltipId, mDisplayObject);
+                    element = NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(memory, nullptr, &rectangle, graphicsId, text, tooltipId, mDisplayObject);
                 }
                 else
                 {
                     const NXBasics::SRectangle rectangle(x, y, w, h);
-                    element = FUN_004b94b7(memory, nullptr, &rectangle, graphicsId, tooltipId, mDisplayObject);
+                    element = NC2InGameGuiBase::BaseToolGfxButton_Construct(memory, nullptr, &rectangle, graphicsId, tooltipId, mDisplayObject);
                 }
             }
             if (clearCenterFlag)
             {
                 ToolGraphics_SetCenterGraphicsFlag(element, false);
-                ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
+                NC2InGameGuiBase::ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
                 std::memcpy(mLegacyState + offset, &element, sizeof(element));
                 NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(element));
             }
@@ -349,7 +376,7 @@ namespace NInGameGuiManager
             {
                 // The button at +0x38 is published before its palette is assigned.
                 std::memcpy(mLegacyState + offset, &element, sizeof(element));
-                ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
+                NC2InGameGuiBase::ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
                 std::memcpy(&element, mLegacyState + offset, sizeof(element));
                 NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(element));
             }
@@ -366,11 +393,11 @@ namespace NInGameGuiManager
         addButton(0x10, 0, 295, 40, 35, 0x2F, 1, 0xF3C, true);
         addButton(0x30, 0, 329, 40, 35, 0x30, 0, 0xF44, true);
         addButton(0x34, 0, 373, 40, 35, 0x31, -1, 0xF46, true);
-        FUN_004a299b(this, nullptr, true);
+        MiscButtons_SpeedButton_Update(true);
         addButton(0x38, 0, 420, 40, 35, 0xB3, 10, 0xF48, false);
         addGraphics(0x3C, 24, 0, 126, 41, 0x3F);
         addButton(0x40, 106, 3, 37, 31, 0x40, -1, 0xF47, true);
-        FUN_004a2a55(this, nullptr, true);
+        MiscButtons_MessagePriorityButton_Update(true);
         MiscWindows_OverviewWindow_Open();
 
         void* window;

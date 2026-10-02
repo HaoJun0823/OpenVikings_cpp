@@ -31,3 +31,15 @@ namespace NXBasics
         blue = blueValue;
     }
 }
+
+namespace NXBasics
+{
+    // Original function: FUN_004103e8.
+    void SRectangle::Inflate(std::int32_t horizontal, std::int32_t vertical) noexcept
+    {
+        x = SubtractWrapped(x, horizontal);
+        y = SubtractWrapped(y, vertical);
+        width = AddWrapped(width, AddWrapped(horizontal, horizontal));
+        height = AddWrapped(height, AddWrapped(vertical, vertical));
+    }
+}

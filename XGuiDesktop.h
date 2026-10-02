@@ -8,6 +8,7 @@
 namespace NXBasics
 {
     class CBitmap;
+    class CListBase;
 }
 
 namespace NXBaseGui
@@ -27,15 +28,19 @@ namespace NXBaseGui
         // Original function: FUN_0047728c
         void Window_Close(CBaseWindow* window);
 
+        std::uint32_t Desktop_DoWork(bool clearBitmap, bool processInput);
+
         // Original function: FUN_004773bc
         void Window_CloseAll();
 
         void Window_AddToCloseList(CBaseWindow* window);
         void Window_Add(CBaseWindow* window);
+        void Window_BringToFront(CBaseWindow* window);
         std::uint32_t Window_Hide(CBaseWindow* window);
         void Element_Add(CBaseElement* element, bool insertAtEnd);
         std::uint32_t Element_Hide(CBaseElement* element);
         CBaseElement* Window_GetActivePtr() const;
+        CBaseElement* Element_GetUnderMousePtr();
 
         // Original function: FUN_0047772f
         void Element_Activate(CBaseElement* element);
@@ -89,6 +94,16 @@ namespace NXBaseGui
         void l_DestroyLists();
 
         CBaseElement* l_Element_GetRootElementPtr(CBaseElement* element);
+        void l_WindowCloseList_Do();
+        void l_DrawDesktop(const NXBasics::SRectangle& rectangle);
+        void l_DrawElementList(NXBasics::CListBase& list, const NXBasics::SRectangle& rectangle);
+        void l_Message_HandleMouse(bool suppressInput);
+        void l_Message_HandleKeyBoard(bool suppressInput);
+        CBaseElement* l_Element_FindOnPosition(const std::int32_t* point, bool includeDisabled, std::uint32_t messageMask);
+        CBaseElement* l_Element_FindInList(NXBasics::CListBase& list, const std::int32_t* point, bool includeDisabled, std::uint32_t messageMask);
+        CBaseElement* l_Element_FindOnPositionDeep(const std::int32_t* point, bool includeDisabled);
+        CBaseElement* l_Element_GetRealActivePtr() const;
+        void l_Message_Send(std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
     };
 
     static_assert(sizeof(void*) == 4, "CDesktop requires an x86 build");

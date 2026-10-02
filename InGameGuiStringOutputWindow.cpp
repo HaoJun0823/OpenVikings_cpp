@@ -1,3 +1,6 @@
+#include "GuiBitmapToolElementAccess.h"
+#include "GuiClockToolElementAccess.h"
+#include "XGuiElementAccess.h"
 #include "InGameGuiStringOutputWindow.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiManager.h"
@@ -17,25 +20,6 @@
 #include <mmsystem.h>
 
 // Shared graphic-button/clock construction, base-window destruction and framing.
-extern void* __fastcall FUN_004b9961(void*, void* unusedEdx, const NXBasics::SRectangle*);
-extern void* __fastcall FUN_004b99b8(void*, void* unusedEdx, const NXBasics::SRectangle*);
-extern void __fastcall FUN_0047849a(void*);
-extern void __fastcall FUN_004b8d42(void*, void* unusedEdx, NXBasics::CBitmap*, const NXBasics::SRectangle*);
-extern bool __fastcall FUN_004788a7(void*);
-extern void __fastcall FUN_004786a7(void*, void* unusedEdx, const std::int32_t*);
-extern void __fastcall FUN_00478720(void*);
-extern bool __fastcall FUN_0047873c(void*, void* unusedEdx, const std::int32_t*);
-extern bool __fastcall FUN_0047879d(void*);
-extern bool __fastcall FUN_004788b1(void*, void* unusedEdx, const std::int32_t*);
-extern void* __fastcall FUN_004788c2(void*);
-extern void* __fastcall FUN_00478ad8(void*, void* unusedEdx, const std::int32_t*, bool);
-extern void __fastcall FUN_00478a65(void*, void* unusedEdx, std::int32_t*);
-extern void __fastcall FUN_004788be(void*);
-extern bool __fastcall FUN_004b8659(void*, void* unusedEdx, std::uint32_t);
-extern bool __fastcall FUN_004788b6(void*);
-extern bool __fastcall FUN_004bf2f4(void*);
-extern std::uint32_t __fastcall FUN_004788b9(void*, void* unusedEdx, std::uint32_t, std::uint32_t);
-extern void __fastcall FUN_004788bf(void*, void* unusedEdx, std::uint32_t, std::uint32_t);
 
 namespace NC2InGameGuiMiscWindows
 {
@@ -51,24 +35,24 @@ namespace NC2InGameGuiMiscWindows
     // preserve the base-tool-window methods, including slots 15..18.
     static const std::uintptr_t gStringOutputWindowVirtualTable[19] = {
         reinterpret_cast<std::uintptr_t>(&StringOutputWindow_Delete),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788a7),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&StringOutputWindow_MessageHandle),
         reinterpret_cast<std::uintptr_t>(&StringOutputWindow_Draw),
-        reinterpret_cast<std::uintptr_t>(&FUN_004786a7),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478720),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047873c),
-        reinterpret_cast<std::uintptr_t>(&FUN_0047879d),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b1),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788c2),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478ad8),
-        reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b6),
-        reinterpret_cast<std::uintptr_t>(&FUN_004bf2f4),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b9),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788bf)
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
     };
 
     static std::int32_t AddWrapped(std::int32_t value, std::uint32_t amount)
@@ -94,7 +78,7 @@ namespace NC2InGameGuiMiscWindows
         if (allocation != nullptr)
         {
             const NXBasics::SRectangle closeRectangle(AddWrapped(Read<std::int32_t>(window, 0xC), 0xFFFFFFEEu), 2, 16, 14);
-            closer = FUN_004b9961(allocation, nullptr, &closeRectangle);
+            closer = NC2InGameGuiBase::WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
         }
         NXBaseGui::BaseWindow_Element_Add(window, closer);
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0x50, 1);
@@ -102,7 +86,7 @@ namespace NC2InGameGuiMiscWindows
         if (allocation != nullptr)
         {
             const NXBasics::SRectangle clockRectangle(AddWrapped(Read<std::int32_t>(window, 0xC), 0xFFFFFFE8u), AddWrapped(Read<std::int32_t>(window, 0x10), 0xFFFFFFE8u), 20, 20);
-            clock = FUN_004b99b8(allocation, nullptr, &clockRectangle);
+            clock = NC2InGameGuiBase::ToolClockElement_Construct(allocation, &clockRectangle);
         }
         Write<std::uint8_t>(clock, 0x30, 1);
         NXBaseGui::BaseWindow_Element_Add(window, clock);
@@ -117,7 +101,7 @@ namespace NC2InGameGuiMiscWindows
         Write(window, 0, gStringOutputWindowVirtualTable + 0);
         StringOutputWindow_String_Exit(window);
         Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
-        FUN_0047849a(window);
+        NXBaseGui::BaseWindow_Destruct(window);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
         return window;
     }
@@ -144,7 +128,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall StringOutputWindow_Draw(void* window, void* unusedEdx, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         (void)unusedEdx;
-        FUN_004b8d42(window, nullptr, bitmap, rectangle);
+        NC2InGameGuiBase::BaseToolWindow_Draw(window, nullptr, bitmap, rectangle);
         auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
         if (NNetwork::Network_IsInSession())
         {
