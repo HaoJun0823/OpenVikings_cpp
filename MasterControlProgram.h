@@ -138,6 +138,8 @@ namespace NMasterControlProgram
         inline static CMasterControlProgram* sTheObjectPtr = nullptr;
 
     private:
+        void l_MainMenu_Misc_GameMap_LoadRandomMap();
+
         std::int32_t mProgramState;        // +0x00
         std::int32_t mWantedProgramState;  // +0x04
         bool mForceProgramStateChange;     // +0x08
@@ -165,7 +167,7 @@ namespace NMasterControlProgram
 
         void* mProgressBar;                        // +0x15C
         std::uint32_t mProgressBarValue;           // +0x160
-        std::byte mUnknown164[0x04];               // +0x164
+        std::uint32_t mMainMenuLastMapChangeTick;  // +0x164
     };
 
     static_assert(sizeof(CMasterControlProgram) == 0x168);

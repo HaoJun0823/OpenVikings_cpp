@@ -66,6 +66,19 @@ namespace NC2Logic
         return mStringBuffer;
     }
 
+    // Original function: FUN_0042a0f5.
+    bool CIoHelper::IO_File_Chunk_CheckMarkerAndVersion(std::uint32_t marker, std::uint32_t version)
+    {
+        mFile->Read(&mReadHeader, sizeof(mReadHeader));
+        mPayloadPosition = mFile->GetPosition();
+        if (mReadHeader.signature != 0x78696F68u)
+        {
+            mPayloadPosition = 0xFFFFFFFFu;
+            return false;
+        }
+        return mReadHeader.marker == marker && mReadHeader.version == version;
+    }
+
     // Original function: FUN_0042a13e
     bool CIoHelper::IO_File_Chunk_CheckMarkerAndGetVersion(std::uint32_t marker, std::uint32_t* version, std::uint32_t* payloadSize)
     {

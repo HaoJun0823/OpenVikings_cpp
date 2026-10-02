@@ -167,6 +167,8 @@ namespace NNetwork
     bool SendDynamicNetworkMessage(SDynamicNetworkData* data, DPNID recipient, const void* payload, std::uint32_t byteCount);
 
     void PrepareDynamicCommandBuffers(SDynamicNetworkData* data);
+    void AdvanceDynamicNetworkTick(SDynamicNetworkData* data);
+    void ResetDynamicSlots(SDynamicSlotArray* array);
 
     void ClearDynamicNetworkEvents(SDynamicNetworkData* data);
 

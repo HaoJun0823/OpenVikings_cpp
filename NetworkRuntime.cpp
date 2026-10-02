@@ -1608,6 +1608,45 @@ namespace NNetwork
             ReportDirectPlayError("CDPLogic::PrepareCmdBuffers(): CDPNet::GetPlayerInfo()\n", 0);
     }
 
+    // Original function: FUN_004e105e.
+    static void CopyDynamicCommandBuffer(SDynamicSlotArray* destination, const SDynamicSlotArray* source)
+    {
+        constexpr const char* sourceFile = "D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\cmdbuffer.cpp";
+        ReportNetworkConditionFailure(sourceFile, 0x73, source != nullptr, "Command buffer destroyed.");
+        ReportNetworkConditionFailure(sourceFile, 0x74, source->count == destination->count, "Command buffer destroyed (invalid size).");
+        destination->count = source->count;
+        destination->networkTick = source->networkTick;
+        for (std::uint32_t index = 0; index < destination->count; ++index)
+        {
+            destination->slots[index].playerId = source->slots[index].playerId;
+            destination->slots[index].used = source->slots[index].used;
+            // Windows passes player count, not message length, to memmove (OB089).
+            std::memmove(destination->slots[index].data, source->slots[index].data, destination->count);
+        }
+    }
+
+    // Original function: FUN_004df092.
+    void AdvanceDynamicNetworkTick(SDynamicNetworkData* data)
+    {
+        constexpr const char* sourceFile = "D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp";
+        ReportNetworkConditionFailure(sourceFile, 0x211, data->arrays[data->commandBufferIndices[0]].slots != nullptr, "Message buffer is invalid.");
+        ReportNetworkConditionFailure(sourceFile, 0x212, data->arrays[data->commandBufferIndices[1]].slots != nullptr, "Message buffer is invalid.");
+        ReportNetworkConditionFailure(sourceFile, 0x213, data->arrays[data->commandBufferIndices[2]].slots != nullptr, "Message buffer is invalid.");
+        if (++data->networkTick > 1)
+        {
+            CopyDynamicCommandBuffer(&data->arrays[data->commandBufferIndices[2]], &data->arrays[data->commandBufferIndices[0]]);
+            const std::uint32_t current = data->commandBufferIndices[0];
+            const std::uint32_t next = data->commandBufferIndices[1];
+            data->commandBufferIndices[1] = current;
+            data->commandBufferIndices[0] = next;
+            ResetDynamicSlots(&data->arrays[current]);
+        }
+        data->arrays[data->commandBufferIndices[0]].networkTick = data->networkTick;
+        data->arrays[data->commandBufferIndices[1]].networkTick = data->networkTick + 1u;
+        data->arrays[data->commandBufferIndices[2]].networkTick = data->networkTick - 1u;
+        data->waitStartTick = timeGetTime();
+    }
+
     // Original function: FUN_004def63
     void UpdateDynamicCommandBuffers(SDynamicNetworkData* data)
     {

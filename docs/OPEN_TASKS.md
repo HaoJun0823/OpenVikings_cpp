@@ -4,7 +4,22 @@
 
 This queue reflects the latest known project direction. Check `HEAD`/Git first in case a later local commit already resolved an item.
 
-## P0 — Current active theme block
+## P0 — Main-menu loading and directly related logic follow-up
+
+The menu-state file's three unknown targets now use reconstructed reload, ambient-stop and clock entry bodies. Loader/centering/network-clock helpers, complete clock/token regions and shared callers are connected; previous atomic/tribe work is committed as `acfcdb7`. See [MAIN_MENU_STATE.md](MAIN_MENU_STATE.md). This follow-up is uncommitted.
+
+Next connected work:
+
+- reconstruct binary map-chunk dispatcher `0042FBF4` and its complete compression/allocation/constructor tree; reuse the validated `0042FBCC` envelope and CIoHelper entries,
+- follow its mission/AI/merchant/goal script loaders `0041D09B`, `0040822E`, `0041CB1E`, `0041910B`,
+- close player-center fallback `00439E61`, its iterators and terrain/spiral branches,
+- reconstruct command processing `00410F00`, `00411829`, `004118F6` and latency collector `0040B183`; decode 00411829 directly from Windows PE bytes because the text export misdecodes that entry,
+- continue original per-tick manager and autosave bodies; preserve OB088/OB089, OA071-OA073 and FP044-FP047,
+- audit the remaining loader metadata and hardware FPU-environment behavior without inventing resource invariants or helper bodies.
+
+Production syntax is 107/109 with 52 diagnostics in MainMenuGuiManager.cpp (40) and MasterControlProgram_PS_InGame.cpp (12). Thirteen complete affected units generate Win32 `/Od` and `/O2` objects. Project/filters cover 109 implementations and 117 headers. Provisional mapping is 1,377/5,044, including 58 mapped entries with original calls. No tests/test projects or full link/game runtime verification.
+
+## P1 — Special-sector pathfinder theme block
 
 ### `0044FD3E` and special-sector pathfinder follow-up
 
@@ -25,7 +40,7 @@ The seven unknown call sites in `WorldDisplayElementAccess.cpp` are now reconstr
 
 ## P1 - Static-job construction and loading
 
-Startup, campaign/string, map/savegame, terrain, good, house, vehicle, atomic-animation and tribe blocks are reconstructed and connected. See [STATIC_TRIBE_TYPE_DATA.md](STATIC_TRIBE_TYPE_DATA.md) and preceding subsystem documents. Startup retains 43 original subordinate constructors, four registered engine callbacks, executor `0040743A`, map loader `0040A68B` and scheduling helper `004079CF`. Next connected block: static-job constructor `0041300A`, its complete resource/static/token regions and directly required helpers; reuse existing destruction `004134B6` and parser/runtime infrastructure. Then continue remaining static managers. Production syntax coverage is 102/105 with the same 65 diagnostics; provisional function-address coverage is 1,356/5,043. See [FUNCTION_PROGRESS.md](FUNCTION_PROGRESS.md). No tests/test projects. Existing unknown fields/regions remain explicitly unresolved; preserve indexed original defects OB082-OB087 during faithful reconstruction.
+Startup, campaign/string, map/savegame, terrain, good, house, vehicle, atomic-animation and tribe blocks are reconstructed and connected. See [STATIC_TRIBE_TYPE_DATA.md](STATIC_TRIBE_TYPE_DATA.md) and preceding subsystem documents. Startup retains 43 original subordinate constructors, four registered engine callbacks, executor `0040743A` and deeper map/tick/command boundaries. Map loader `0040A68B` and synchronization initialization `004079CF` now have native bodies in the main-menu follow-up. Next connected block: static-job constructor `0041300A`, its complete resource/static/token regions and directly required helpers; reuse existing destruction `004134B6` and parser/runtime infrastructure. Then continue remaining static managers. Current production syntax coverage is 107/109 with 52 diagnostics; provisional function-address coverage is 1,377/5,044. See [FUNCTION_PROGRESS.md](FUNCTION_PROGRESS.md). No tests/test projects. Existing unknown fields/regions remain explicitly unresolved; preserve indexed original defects OB082-OB087 during faithful reconstruction.
 
 Separately review existing object/buffer allocation sites against Windows thunk `004E5DDD`, which always calls `Runtime_AllocateWithNewHandler(size, 1)`. Mode-dependent `Runtime_Allocate` has the same allocation/free family but can differ in handler invocation when global mode is zero. The completed system-manager, converter-shadow-table and property-manager paths use the explicit-handler interface.
 

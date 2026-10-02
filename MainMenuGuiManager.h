@@ -67,6 +67,7 @@ namespace NC2MainMenuGuiManager
         inline static SGuiManagerStaticVars mStaticVars{};
 
         void System_UpdateGui();
+        void EngineWorldDisplayGuiElement_CenterDisplay() const;
         bool StringInput_HandleKeys(std::uint32_t key, char character);
         void Debug_ErrorString_Add(const char* text);
         void Screen_ChangeTo(std::int32_t screen, bool shutDownNetwork);

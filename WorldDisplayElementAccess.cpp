@@ -1,4 +1,5 @@
 #include "C2GameState.h"
+#include "C2LifetimeGlobals.h"
 #include "WorldDisplayElementAccess.h"
 #include "C2E2AnimalSoundManager.h"
 #include "C2E2AmbientSoundManagerAccess.h"
@@ -18,8 +19,6 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
-
-extern void* DAT_005550d4;
 
 // Untranslated original base/widget interfaces. EDX is unused so the stack
 // parameters and callee cleanup match Windows __thiscall dispatch.
@@ -312,7 +311,7 @@ namespace NC2InGameGuiWorldElement
         // Original double at 004f6ff8: 120.0.
         if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 120.0) && DAT_0051089d == 0)
         {
-            NC2E2::AmbientSoundManager_UpdateAmbientSounds(DAT_005550d4, display);
+            NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, display);
             NC2E2::CE2AnimalSoundManager::sTheObjectPtr->PlayAnimalSounds(readPointer(element, 0x30));
             NC2E2::WorldMusic_UpdateVisiblePlayerSelection();
         }

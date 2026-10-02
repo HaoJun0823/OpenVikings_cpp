@@ -165,6 +165,28 @@ namespace NC2E2
         AmbientSoundManager_UpdateLoopList(manager, requested);
     }
 
+    // Original function: FUN_004800c8; CE2AmbientSoundManager::StopAllAmbientSounds.
+    void AmbientSoundManager_StopAllAmbientSounds(void* manager)
+    {
+        auto* soundManager = NDSManager::CManager::sTheObjectPtr;
+        if (soundManager == nullptr || Ambient_ReadField<std::uint8_t>(soundManager, 4) == 0)
+            return;
+
+        auto* loops = reinterpret_cast<SSoundLoopIds*>(Ambient_AddressAt(manager, 0x0C));
+        for (std::int32_t index = 0; index < loops->count; ++index)
+        {
+            if (index != 0) soundManager = NDSManager::CManager::sTheObjectPtr;
+            auto& entry = loops->entries[index];
+            if (entry.ambientId == 0xFFFFFFFFu) continue;
+            const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(entry.ambientId), 0xA8);
+            if (soundManager->PreloadWave_IsRunning(waveId))
+            {
+                NDSManager::CManager::sTheObjectPtr->PreloadWave_Stop(waveId);
+                entry.ambientId = 0xFFFFFFFFu;
+            }
+        }
+    }
+
     // Original function: FUN_00480137; weighted selection within a static ambient record.
     static const void* Ambient_SelectLandscapeSound(const void* record)
     {

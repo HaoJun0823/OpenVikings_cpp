@@ -1,5 +1,8 @@
 #include "ApplicationGlobals.h"
 #include "C2LogicObjectArrays.h"
+#include "C2E2AmbientSoundManagerAccess.h"
+#include "C2GameTime.h"
+#include "C2LifetimeGlobals.h"
 #include "C2EngineObjectData.h"
 #include "DMManager.h"
 #include "GuiToolsBase.h"
@@ -119,7 +122,7 @@ namespace NMasterControlProgram
     {
         mProgramState = 13;
 
-        FUN_004800c8(DAT_005550d4);
+        NC2E2::AmbientSoundManager_StopAllAmbientSounds(NC2E2::gE2AmbientSoundManager);
 
         if (gDirectMusicManager != nullptr)
         {
@@ -250,7 +253,7 @@ namespace NMasterControlProgram
                 else
                 {
                     FUN_0040a4fd(NC2Logic::gGameControl, playerId, true);
-                    FUN_0040b246(false);
+                    NC2Logic::GameTime_SetNetworkWaitFlag(false);
                 }
 
                 break;
@@ -258,7 +261,7 @@ namespace NMasterControlProgram
 
             case 9:
             case 13:
-                FUN_0040b246(true);
+                NC2Logic::GameTime_SetNetworkWaitFlag(true);
                 break;
             }
 
@@ -306,7 +309,7 @@ namespace NMasterControlProgram
             System_ProgramState_ChangeNextTimePossible(TProgramState::TitleScreen, false);
         }
 
-        thunk_FUN_004077b8();
+        NC2Logic::Logic_EntryPoint_GameTime_Update();
         FUN_004a0184(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
 
         auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();

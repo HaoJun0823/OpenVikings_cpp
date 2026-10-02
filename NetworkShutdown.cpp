@@ -189,21 +189,6 @@ namespace NNetwork
             data->active = 0;
         }
 
-        // Original function: FUN_004e101b
-        void ResetDynamicSlots(SDynamicSlotArray* array)
-        {
-            if (array->slots == nullptr)
-            {
-                return;
-            }
-
-            for (std::uint32_t index = 0; index < array->count; ++index)
-            {
-                array->slots[index].used = 0;
-                std::memset(array->slots[index].data, 0, 200);
-            }
-        }
-
         // Original function: FUN_004e10fb
         void ReleaseDynamicSlots(SDynamicSlotArray* array)
         {
@@ -219,6 +204,21 @@ namespace NNetwork
                 NXBasics::Runtime_Free(array->slots);
                 array->slots = nullptr;
             }
+        }
+    }
+
+    // Original function: FUN_004e101b; shared by tick rotation and destruction.
+    void ResetDynamicSlots(SDynamicSlotArray* array)
+    {
+        if (array->slots == nullptr)
+        {
+            return;
+        }
+
+        for (std::uint32_t index = 0; index < array->count; ++index)
+        {
+            array->slots[index].used = 0;
+            std::memset(array->slots[index].data, 0, 200);
         }
     }
 

@@ -138,6 +138,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C2GameMapIO.cpp">
+      <Filter>Logic\Serialization</Filter>
+    </ClCompile>
+    <ClCompile Include="C2GameTime.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2PlayerCenterPosition.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="MainMenuGuiManager_WorldDisplay.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
     <ClCompile Include="MasterControlProgram.cpp">
       <Filter>Application</Filter>
     </ClCompile>
@@ -413,6 +425,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C2GameMapIO.h">
+      <Filter>Logic\Serialization</Filter>
+    </ClInclude>
+    <ClInclude Include="C2GameTime.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2PlayerCenterPosition.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
     <ClInclude Include="ApplicationGlobals.h">
       <Filter>Application</Filter>
     </ClInclude>

@@ -1,4 +1,5 @@
 #include "C2GameEngineStartup.h"
+#include "C2GameTime.h"
 #include "ApplicationGlobals.h"
 #include "C2LifetimeAccess.h"
 #include "C2LogicLifetimeAccess.h"
@@ -73,7 +74,6 @@ namespace NC2Logic
     extern void* __fastcall FUN_004175ec(void*, void* unusedEdx);
     extern void* __fastcall FUN_0041714b(void*, void* unusedEdx);
 
-    extern void FUN_004079cf();
 
     // Original function: FUN_00411ba6
     static void* __fastcall GameMapModifyManager_Construct(void* manager, void* /*unusedEdx*/)
@@ -189,23 +189,23 @@ namespace NC2Logic
     // Original function: FUN_0040796b; Mac l_GameTime_Reset.
     void GameTime_Reset(bool enabled)
     {
-        std::memset(reinterpret_cast<std::byte*>(&gGameStaticVars) + 0x20, 0, 0x68);
-        DAT_00510838 = 1;
-        Write<double>(&gGameStaticVars, 0x28, static_cast<double>(timeGetTime()));
-        Write<double>(&gGameStaticVars, 0x40, 12.0);
+        std::memset(&gGameTime, 0, sizeof(gGameTime));
+        gGameTime.tick = 1;
+        gGameTime.lastRealTime = static_cast<double>(timeGetTime());
+        gGameTime.retainedSpeed = 12.0;
         GameTime_SetSpeed(enabled ? 12.0 : 0.0);
-        if (enabled) FUN_004079cf();
+        if (enabled) GameTime_ResetNetworkSynchronization();
     }
 
     // Original function: FUN_00407be0
     void GameTime_SetSpeed(double speed)
     {
         // The original JAE branch treats an unordered old speed like a small speed.
-        if (!(DAT_00510848 >= 0.1)) Write<double>(&gGameStaticVars, 0x28, static_cast<double>(timeGetTime()));
-        if (DAT_00510848 > 1.0) Write<double>(&gGameStaticVars, 0x40, DAT_00510848);
-        DAT_00510848 = speed;
-        Write<double>(&gGameStaticVars, 0x38, speed > 0.1 ? 1000.0 / speed : 0.0);
-        DAT_0051089d = 0;
+        if (!(gGameTime.speed >= 0.1)) gGameTime.lastRealTime = static_cast<double>(timeGetTime());
+        if (gGameTime.speed > 1.0) gGameTime.retainedSpeed = gGameTime.speed;
+        gGameTime.speed = speed;
+        gGameTime.tickDuration = speed > 0.1 ? 1000.0 / speed : 0.0;
+        gGameTime.maximizeSpeed = 0;
     }
 
     // Original function: FUN_00411bcc

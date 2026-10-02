@@ -6,7 +6,7 @@ The primary goal of the current project phase is **faithful functional reconstru
 
 A later **Renewed** phase may intentionally correct original defects, modernize behavior and improve safety. Until the faithful reconstruction is complete, confirmed original bugs are preserved and documented rather than silently fixed.
 
-Last handoff update: **2026-10-01**.
+Last handoff update: **2026-10-02**.
 
 ## Source authority and reverse-engineering references
 
@@ -327,6 +327,8 @@ reported layout and arithmetic models, do not validate the full application.
 | [OB085](#ob085) | Uncapped tribe experience job lists overwrite neighboring requirements | 0041411C-0041416D |
 | [OB086](#ob086) | Signed upper-only tribe relationship indices accept negative IDs | 004138D3-004138F5, 00413EDF-00413F2A |
 | [OB087](#ob087) | Unchecked tribe Atomic coordinates alias other job/state slots | 00414020-00414069 |
+| [OB088](#ob088) | Absolute main-menu/maximize deadlines fail around DWORD timer wrap | 00402250, 004077B8 |
+| [OB089](#ob089) | Network command backup copies player count as payload byte count | 004E10CD-004E10E0 |
 
 <a id="ob001"></a>
 
@@ -1353,6 +1355,30 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Validate both Atomic coordinates against the established matrix dimensions before reads/writes.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob088"></a>
+
+### OB088 — Absolute main-menu/maximize deadlines fail around DWORD timer wrap
+
+- **Original reference:** `00402258-00402266`, `004077C7-004077D9`.
+- **Evidence:** Both paths add their interval to an unsigned DWORD timestamp and compare absolute clock values. Neither uses wrapped elapsed time for that deadline.
+- **Behavior and trigger:** A last-map-change time FFFFFF00 plus 300000 wraps to 000492E0; an immediate FFFFFF10 clock therefore reloads the map before five minutes have elapsed. A maximize start FFFFFF00 plus 500 wraps to 000000F4; the first pre-wrap clock skips the tick loop. Later timestamp handling retains original order.
+- **Assessment / reconstruction limits:** Confirmed arithmetic/control-flow defect. Uptime-edge gameplay reproduction has not been performed. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md).
+- **Decision:** Preserve both absolute comparisons during faithful reconstruction.
+- **Renewed task:** Replace the affected absolute deadlines with interval comparisons against unsigned elapsed time.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob089"></a>
+
+### OB089 — Network command backup copies player count as payload byte count
+
+- **Original reference:** `004E10CD-004E10E0`, copy body `004E105E`, called by network advance `004DF092`.
+- **Evidence:** Each copied slot receives player ID and message-length byte, but the memmove size is destination +08, the player count. Slot payload capacity is 200 bytes. The loop retains that same player count as its iteration bound.
+- **Behavior and trigger:** With two players and a longer message, each backup receives only two payload bytes while retaining the complete original length byte; remaining payload bytes retain previous contents. Counts exceeding capacity are also unchecked, though player-count invariants remain separate.
+- **Assessment / reconstruction limits:** Confirmed size-source mismatch and partial-copy effect. Replay/recovery gameplay impact has not been exercised. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md).
+- **Decision:** Preserve the original copy count and returning assertions during faithful reconstruction.
+- **Renewed task:** Establish the intended backup-message contract and copy the supported message length with capacity validation.
+- **Status:** Preserved / original defect; Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -1429,6 +1455,9 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA068](#oa068) | Tribe loading retains unchecked allocation and Atomic-only duplicate resets | 004134D1, 00414172, 00414173 |
 | [OA069](#oa069) | Tribe parameter loops retain consumption order, accumulation and asymmetric caps | 00413D6A-00413E6A, 00413A7F-00413AD5, 0041411C-0041416D |
 | [OA070](#oa070) | Tribe equipment bounds and reverse maps retain original asymmetry | 00413ADA-00413B70, 00414020-00414069 |
+| [OA071](#oa071) | Clean-map failures retain unchecked allocation and asymmetric cleanup | 0040A6A6 |
+| [OA072](#oa072) | Menu reload/centering and ambient stop retain original fallback/state | 00402298, 004A2FB7, 004800C8 |
+| [OA073](#oa073) | Clock readiness retains unchecked divisors and returning network assertions | 00407812, 00407A36, 004DF092 |
 
 <a id="oa001"></a>
 
@@ -2173,6 +2202,36 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve original ordering and bounds; review resources/consumers after faithful reconstruction. See [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md).
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa071"></a>
+
+### OA071 — Clean-map failures retain unchecked allocation and asymmetric cleanup
+
+- **Original reference:** `0040A6A6`; allocation/read failure `0040A6E1-0040A784`, missing mapsize `0040A9F5`, binary failure `0040A90E-0040A94F`.
+- **Evidence and retained behavior:** Reader allocation is conditional but its loaded byte is unconditionally read. Missing/unloaded INI destroys owned input/library without clearing the path alias or unregistering a library. Binary failure destroys reader, clears retained reader, destroys library, then destroys stack I/O/file objects; no rollback follows Game_StartUp. Success publishes retained input/library and performs callbacks/script loading in original order.
+- **Assessment / reconstruction limits:** Confirmed Windows handling; allocator/error-callback invariants and runtime reachability remain unresolved. Full map-chunk/script-loader bodies remain original externals. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md).
+- **Decision / Renewed task:** Preserve failure/order semantics; review resource, registry and rollback contracts after faithful reconstruction.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa072"></a>
+
+### OA072 — Menu reload/centering and ambient stop retain original fallback/state
+
+- **Original reference:** `0040212B`, `004021EA`, `00402298`, `004A2FB7`, `004800C8`.
+- **Evidence and retained behavior:** Menu allocation failure does not gain an early return. Reload clears time, loads the fixed demo map, centers and timestamps even a returning failure. Centering keeps persistent lazy token state and object/terrain fallback when retained startposition input cannot match. Ambient stop returns before loop access on missing/unready sound device; running entries are invalidated despite ignored stop failure, while non-running entries/count/volumes remain.
+- **Assessment / reconstruction limits:** Confirmed Windows handling. Fallback query and deeper menu constructor/destructor methods remain unfinished. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md).
+- **Decision / Renewed task:** Preserve state/order and original fallback; review failure propagation after faithful reconstruction.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa073"></a>
+
+### OA073 — Clock readiness retains unchecked divisors and returning network assertions
+
+- **Original reference:** `00407812`, `004079CF`, `00407A36`, `0040B206`, `004DF092`, `004E105E`.
+- **Evidence and retained behavior:** Converted-speed*30 and network-frequency divisions have no zero guards. Paused/waiting paths reset real time and return false; normal mode stops at fifty ticks. Host sampling retains absolute three-second checks, circular samples and wrapped latency+150 thresholds. Buffer validity/size assertions report and return to continuing code; network tick increment, backup copy, index swap/reset and sequence writes remain ordered.
+- **Assessment / reconstruction limits:** Confirmed Windows handling. Valid network/speed invariants and remaining command processing are unresolved. The reconstructed truncation helper preserves numerical results without emulating hardware x87 exception/status changes. OB088/OB089 separately index proven deadline/copy defects. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md).
+- **Decision / Renewed task:** Preserve original checks, divisions and continuation; review network and FPU-environment contracts after faithful reconstruction.
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2222,6 +2281,10 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP041 | Tribe allocation, allowed selector, Atomic lookup and lazy lifetime | Retain unchecked full clear/defaults, skipped input/groups, Atomic-only resets, name-failure skips, first-slot assignments and persistent tokens | [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md), `004134D1`, `0042DB8E`; OA068, OA070 |
 | FP042 | Tribe experience and build/enable parameter lists | Retain uncapped three-entry experience storage, type-3 loops, value consumption before fifty-entry rejection and duplicate accumulation | [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md); OB085, OA069 |
 | FP043 | Tribe relationship IDs and Atomic coordinate addressing | Preserve signed upper-only relationship checks, unchecked coordinates, wrapped accesses, inclusive equipment bound and original reverse-map update order | [STATIC_TRIBE_TYPE_DATA.md](docs/STATIC_TRIBE_TYPE_DATA.md); OB086, OB087, OA070 |
+| FP044 | Clean-map input, allocation, marker and script/callback lifetime | Preserve early returns, unchecked reader dereference, retained-state publication and reader/library cleanup before stack I/O cleanup; no invented rollback | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `0040A6A6`; OA071 |
+| FP045 | Menu allocation/reload, missing centering input and ambient device/stop handling | Use runtime allocation/free; timestamp returning map failures; retain original player fallback, persistent tokens, ignored stop failure and unchanged non-running entries | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `00402298`, `004A2FB7`, `004800C8`; OA072 |
+| FP046 | Paused/waiting clock, latency sampling and zero/invalid conversion/divisors | Preserve real-time reset, fifty-tick/500-ms budgets, 0.01 threshold, command queuing and unchecked unsigned divisions | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `00407812`, `00407A36`; OB088, OA073 |
+| FP047 | Network buffer assertions, backup copy and tick rotation | Keep returning assertions, sequence/count updates, player-count-sized payload copy and original swap/reset order | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `004DF092`, `004E105E`; OB089, OA073 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2229,6 +2292,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 
 | Finding | Why it is not an original bug | Required reconstruction action |
 | --- | --- | --- |
+| Main-menu owner uses host new/delete and dimension getters reread singleton pointers | Windows allocates/frees through the project runtime and captures application/menu before depth/height/width queries | Corrected allocation/destruction and captured pointers; see [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md) |
 | `Runtime_ResizeSmallBlock` uses `& ~0x0u` | Original instruction at `004edcc8` uses `FFFFFFF0` | Use `0xFFFFFFF0u` |
 | FPU callback appears before its type/declaration | C++ header ordering issue | Declare the function and type before the initializer |
 | Initializer loop uses only `begin != end` | `004ea218` stops when the start address is greater than or equal to the end | Preserve the unsigned address comparison |

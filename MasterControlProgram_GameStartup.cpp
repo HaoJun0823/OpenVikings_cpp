@@ -1,6 +1,8 @@
 #include "MasterControlProgram.h"
 #include "ApplicationGlobals.h"
 #include "C2GameEngineStartup.h"
+#include "C2GameMapIO.h"
+#include "C2GameTime.h"
 #include "C2LifetimeAccess.h"
 #include "InGameGuiManager.h"
 #include "MasterPropertyManager.h"
@@ -11,9 +13,7 @@
 namespace NC2Logic
 {
     // Unreconstructed original map/startup/network boundaries.
-    extern void FUN_0040a68b(const char*, bool, bool, bool);
     extern void FUN_0040743a();
-    extern void FUN_004079cf();
 
     // Original function: FUN_00408f18; Mac CAIManager::EnableAI.
     static void AIManager_EnableAI(void* manager, std::int32_t playerId)
@@ -64,7 +64,7 @@ namespace NMasterControlProgram
         const char* startMap = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr("start_map");
         if (startMap != nullptr)
         {
-            NC2Logic::FUN_0040a68b(startMap, true, true, false);
+            NC2Logic::GameIO_Cleanmap_Load(startMap, true, true, false);
             FUN_004a2f86();
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("start_map");
             return;
@@ -117,7 +117,7 @@ namespace NMasterControlProgram
                     NC2Logic::AIManager_EnableAI(NC2Logic::gAIManager, static_cast<std::int32_t>(player));
                 }
             }
-            NC2Logic::FUN_004079cf();
+            NC2Logic::GameTime_ResetNetworkSynchronization();
             for (std::uint32_t player = 0; player < 20; ++player)
             {
                 if (Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x34 + player * 0x0C) == Read<std::uint32_t>(&NC2Logic::gGameControlStartupData, 0x28))

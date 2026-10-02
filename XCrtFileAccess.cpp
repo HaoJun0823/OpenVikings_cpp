@@ -19,6 +19,23 @@ char gRuntimeTemporaryStreamFileName[16]{};
 
 namespace NXBasics
 {
+    // Original function: FUN_004e6f4c; numeric result of the x87 truncating conversion.
+    // Explicit IEEE-754 decoding avoids a new compiler CRT conversion dependency.
+    std::int64_t Runtime_TruncateDoubleToInt64(double value)
+    {
+        std::uint64_t bits;
+        std::memcpy(&bits, &value, sizeof(bits));
+        const std::int32_t exponent = static_cast<std::int32_t>((bits >> 52) & 0x7FFu) - 1023;
+        if (exponent < 0) return 0;
+        if (exponent >= 63) return INT64_MIN;
+        const std::uint64_t significand = (bits & UINT64_C(0x000FFFFFFFFFFFFF)) | UINT64_C(0x0010000000000000);
+        const std::uint64_t magnitude = exponent < 52 ? significand >> (52 - exponent) : significand << (exponent - 52);
+        const std::uint64_t integerBits = (bits >> 63) != 0 ? 0u - magnitude : magnitude;
+        std::int64_t result;
+        std::memcpy(&result, &integerBits, sizeof(result));
+        return result;
+    }
+
     // Original function: FUN_004e7fe2.
     static void Runtime_SortSwap(std::byte* first, std::byte* second, std::uint32_t width)
     {

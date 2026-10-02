@@ -27,6 +27,8 @@
 
 namespace NXBasics
 {
+    std::int64_t Runtime_TruncateDoubleToInt64(double value);
+
     // Types and callback signatures (dependency order; original field layout preserved)
 
     struct RuntimeErrorMapping

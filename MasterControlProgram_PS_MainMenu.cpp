@@ -1,8 +1,14 @@
 #include "MainMenuGuiManager.h"
+#include "C2E2AmbientSoundManagerAccess.h"
+#include "C2GameMapIO.h"
+#include "C2GameTime.h"
+#include "C2LifetimeGlobals.h"
 #include "CDAudioManager.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "X2DApplication.h"
+#include "XCrtFileAccess.h"
+#include "XGuiDesktop.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -19,19 +25,23 @@ namespace NMasterControlProgram
 
         ProgressBar_Init(mEngineInitialized == 0);
 
-        new (std::nothrow) NC2MainMenuGuiManager::CGuiManager();
+        static_assert(sizeof(NC2MainMenuGuiManager::CGuiManager) == 0x21B4);
+        if (void* storage = NXBasics::Runtime_AllocateWithNewHandler(0x21B4, 1))
+            ::new (storage) NC2MainMenuGuiManager::CGuiManager();
 
         GameEngine_StartUpEngine();
 
-        const int displayDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+        auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+        auto* mainMenuGuiManager = NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr;
+        const int displayDepth = application->GetDisplayDepth();
 
-        const int displayHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
+        const int displayHeight = application->GetDisplayHeight();
 
-        const int displayWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
+        const int displayWidth = application->GetDisplayWidth();
 
-        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Open(displayWidth, displayHeight, static_cast<std::uint32_t>(displayDepth));
+        mainMenuGuiManager->Desktop_Open(displayWidth, displayHeight, static_cast<std::uint32_t>(displayDepth));
 
-        FUN_00402298(this);
+        l_MainMenu_Misc_GameMap_LoadRandomMap();
         ProgressBar_Exit();
 
         if (NCDAudioManager::CCDAudioManager::sTheObjectPtr != nullptr)
@@ -65,7 +75,7 @@ namespace NMasterControlProgram
             }
         }
 
-        FUN_004800c8(DAT_005550d4);
+        NC2E2::AmbientSoundManager_StopAllAmbientSounds(NC2E2::gE2AmbientSoundManager);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Desktop_Close();
         GameEngine_ShutDownGame();
 
@@ -73,7 +83,8 @@ namespace NMasterControlProgram
 
         if (mainMenuGuiManager != nullptr)
         {
-            delete mainMenuGuiManager;
+            mainMenuGuiManager->~CGuiManager();
+            NXBasics::Runtime_Free(mainMenuGuiManager);
         }
 
         mProgramState = static_cast<std::int32_t>(TProgramState::None);
@@ -83,19 +94,27 @@ namespace NMasterControlProgram
     void CMasterControlProgram::System_ProgramState_MainMenu_Update()
     {
         const DWORD currentTime = timeGetTime();
-        const auto* objectBytes = reinterpret_cast<const std::byte*>(this);
-        const DWORD lastMapChangeTime = *reinterpret_cast<const DWORD*>(objectBytes + 0x164);
-
-        if (lastMapChangeTime + 300000U <= currentTime)
+        if (mMainMenuLastMapChangeTick + 300000U <= currentTime)
         {
-            FUN_00402298(this);
+            l_MainMenu_Misc_GameMap_LoadRandomMap();
         }
 
-        thunk_FUN_004077b8();
+        NC2Logic::Logic_EntryPoint_GameTime_Update();
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->System_UpdateGui();
 
         auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 
         NXSys2DApp::CApplication::sTheObjectPtr->BitmapToScreen(static_cast<NXBasics::CBitmap*>(displayBitmap), 0, 0);
+    }
+
+    // Original function: FUN_00402298. Windows always selects this one demo map.
+    void CMasterControlProgram::l_MainMenu_Misc_GameMap_LoadRandomMap()
+    {
+        mMainMenuLastMapChangeTick = 0;
+        char mapRoot[200];
+        NXBasics::Runtime_PrintString(mapRoot, "data\\maps\\demo_mainmenu_10");
+        NC2Logic::GameIO_Cleanmap_Load(mapRoot, true, true, false);
+        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_CenterDisplay();
+        mMainMenuLastMapChangeTick = timeGetTime();
     }
 }

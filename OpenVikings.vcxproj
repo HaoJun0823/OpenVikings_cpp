@@ -11,6 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C2GameMapIO.cpp" />
+    <ClCompile Include="C2GameTime.cpp" />
+    <ClCompile Include="C2PlayerCenterPosition.cpp" />
+    <ClCompile Include="MainMenuGuiManager_WorldDisplay.cpp" />
     <ClCompile Include="C2AnimalAccess.cpp" />
     <ClCompile Include="C2ControlStartup.cpp" />
     <ClCompile Include="C2CampaignStaticDataManager.cpp" />
@@ -104,6 +108,9 @@
     <ClCompile Include="XSystemManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C2GameMapIO.h" />
+    <ClInclude Include="C2GameTime.h" />
+    <ClInclude Include="C2PlayerCenterPosition.h" />
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
     <ClInclude Include="C2ControlStartup.h" />
