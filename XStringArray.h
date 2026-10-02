@@ -41,6 +41,7 @@ namespace NXBasics
 
         // Original function: FUN_0042bd12
         std::uint32_t InsertString(const char* text);
+        std::uint32_t GetNumberOfStrings() const noexcept { return mStringCount; }
 
     private:
         friend class CIniFileReader;

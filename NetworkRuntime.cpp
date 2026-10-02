@@ -543,6 +543,63 @@ namespace NNetwork
         return destination;
     }
 
+    // Original function: FUN_004db43a; distinct from replacement/assignment.
+    SEventQueue* ConstructEventQueueAndTakeSource(SEventQueue* destination, SEventQueue* source)
+    {
+        destination->count = 0;
+        destination->last = nullptr;
+        destination->first = nullptr;
+        destination->changed = 0;
+        ClearEventQueue(destination);
+        destination->count = source->count;
+        destination->changed = source->changed;
+        for (auto* event = source->first; event != nullptr; event = event->next)
+            AddEventQueueEntry(destination, event->playerId, event->timestamp, event->playerName, event->eventType);
+        ClearEventQueue(source);
+        return destination;
+    }
+
+    // Original function: FUN_004db635.
+    // Complete thirteen-entry jump table at 004DB754.
+    void FormatNetworkEvent(const SEventQueue* queue, const SEventNode* event, char* destination, std::int32_t appendLimit)
+    {
+        (void)queue;
+        if (event == nullptr || destination == nullptr || appendLimit <= 0)
+        {
+            // Original invalid-input branch still dereferences destination.
+            destination[0] = '\0';
+            return;
+        }
+        if (event->playerName[0] != L'\0')
+        {
+            char playerName[64]{};
+            CopyNetworkWideToAnsi(playerName, event->playerName, -1);
+            std::strcat(destination, playerName);
+        }
+        char playerIdText[16] = " (0x";
+        NXBasics::Runtime_LongToString(static_cast<std::int32_t>(event->playerId), playerIdText + 4, 16);
+        std::strncat(destination, playerIdText, static_cast<std::uint32_t>(appendLimit));
+        static constexpr const char* eventText[] = {
+            ") got an error.",
+            ") joined the session.",
+            ") disconnected normally.",
+            ") was kicked by the host.",
+            ") lost the connection.",
+            ") disconnected because the session was terminated.",
+            ") disconnected but I don't know why...",
+            ") is new host.",
+            ") stopped responding.",
+            ") stopped responding. Connection to server lost.",
+            ") did either not sent a message or the message could not be received.",
+            ") has reached a timeout.",
+            ") lost connection. Waiting for DirectPlay service to confirm."
+        };
+        const std::uint32_t index = event->eventType - 1u;
+        const char* text = index < 13 ? eventText[index] : ") generated an unknown event.";
+        // The original limit applies separately to each append, not to total size.
+        std::strncat(destination, text, static_cast<std::uint32_t>(appendLimit));
+    }
+
     // Original function: FUN_004db4dd
     SEventQueue* ReplaceEventQueueAndClearSource(SEventQueue* destination, SEventQueue* source)
     {

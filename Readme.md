@@ -1,4 +1,4 @@
-﻿# OpenVikings
+# OpenVikings
 
 OpenVikings is a source-level C++ reconstruction of **Cultures: Das Achte Weltwunder** / **Cultures 2 AddOn**.
 
@@ -114,6 +114,8 @@ The project has already reconstructed or substantially analyzed several major ar
 - portions of GUI/display systems;
 - numerous singleton/global mappings and removal of incorrect standalone `DAT_` definitions;
 - DirectMusic/`gedx8musicdrv` interface investigation and playback-chain semantics.
+
+The in-game program-state file now has native replacements for all nine original unknown targets, including auxiliary GUI ownership and network text/event processing. The string-output widget and desktop attachment/hide paths also use reconstructed bodies. See [IN_GAME_STATE.md](docs/IN_GAME_STATE.md) and [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md) for Windows evidence, retained dependencies and verification limits.
 
 The current cleanup phase is focused on replacing remaining raw `DAT_`, `PTR_` and related symbols only where their ownership and meaning can be established reliably.
 
@@ -329,6 +331,9 @@ reported layout and arithmetic models, do not validate the full application.
 | [OB087](#ob087) | Unchecked tribe Atomic coordinates alias other job/state slots | 00414020-00414069 |
 | [OB088](#ob088) | Absolute main-menu/maximize deadlines fail around DWORD timer wrap | 00402250, 004077B8 |
 | [OB089](#ob089) | Network command backup copies player count as payload byte count | 004E10CD-004E10E0 |
+| [OB090](#ob090) | Event copy construction seeds and then increments the source count | 004DB43A, 004DB558 |
+| [OB091](#ob091) | Event formatting writes through a null output on its invalid-input branch | 004DB635, 004DB74A |
+| [OB092](#ob092) | Event formatting treats fragment limits as buffer capacity | 004DB635, 004DB7CC |
 
 <a id="ob001"></a>
 
@@ -1379,6 +1384,39 @@ reported layout and arithmetic models, do not validate the full application.
 - **Renewed task:** Establish the intended backup-message contract and copy the supported message length with capacity validation.
 - **Status:** Preserved / original defect; Renewed: open.
 
+<a id="ob090"></a>
+
+### OB090 — Event copy construction seeds and then increments the source count
+
+- **Original reference:** `004DB454-004DB47F`, insertion `004DB558`.
+- **Evidence:** The copy constructor sets destination count to source count before inserting every copied node. Insertion increments that seeded count. Unknown queue byte +00 and padding are untouched.
+- **Behavior and trigger:** A one-node source produces a one-node copy with count two. A source count of 256 reaches insertion's equality-based eviction with a null destination head, before any copied node exists. The separate eviction-count defect is OB044.
+- **Assessment / reconstruction limits:** Confirmed arithmetic and null-dereference path from Windows instructions; in-game occurrence has not been exercised. See [IN_GAME_STATE.md](docs/IN_GAME_STATE.md).
+- **Decision / Renewed task:** Preserve original construction; correct count initialization and eviction handling after faithful reconstruction.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob091"></a>
+
+### OB091 — Event formatting writes through a null output on its invalid-input branch
+
+- **Original reference:** `004DB63F-004DB655`, `004DB74A-004DB74D`.
+- **Evidence:** Null event, null output and nonpositive append limit all enter the same branch, which writes output[0] without guarding the output pointer.
+- **Behavior and trigger:** Passing a null output causes the original invalid-input handler itself to dereference null. Other invalid inputs clear a valid output buffer.
+- **Assessment / reconstruction limits:** Confirmed control-flow defect. Current in-game callers pass valid stack buffers. See [IN_GAME_STATE.md](docs/IN_GAME_STATE.md).
+- **Decision / Renewed task:** Preserve the original branch; guard the output pointer after faithful reconstruction.
+- **Status:** Preserved / original defect; Renewed: open.
+
+<a id="ob092"></a>
+
+### OB092 — Event formatting treats fragment limits as buffer capacity
+
+- **Original reference:** `004DB666-004DB68C`, `004DB6B0-004DB740`, conversion `004DB7CC`.
+- **Evidence:** Player-name conversion uses source length rather than the 64-byte temporary's capacity, then appends without a bound. Both later strncat calls receive the complete caller limit independently, without subtracting the current output length.
+- **Behavior and trigger:** A 64-character source writes its explicit terminator beyond the temporary. Sufficiently long names or existing destination contents also exceed the output despite its nominal append limit. The update uses another 100-byte name temporary with the same source-sized conversion. See OB002 for the shared converter defect.
+- **Assessment / reconstruction limits:** Confirmed missing-capacity contracts; actual peer-name invariants and gameplay reproduction remain unresolved. See [IN_GAME_STATE.md](docs/IN_GAME_STATE.md).
+- **Decision / Renewed task:** Preserve conversion and append order; validate both temporary and remaining output capacities after faithful reconstruction.
+- **Status:** Preserved / original defect; Renewed: open.
+
 ## Original observations and unresolved defect assessments
 
 These findings are retained without promoting uncertain effects to confirmed game bugs.
@@ -1458,6 +1496,10 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA071](#oa071) | Clean-map failures retain unchecked allocation and asymmetric cleanup | 0040A6A6 |
 | [OA072](#oa072) | Menu reload/centering and ambient stop retain original fallback/state | 00402298, 004A2FB7, 004800C8 |
 | [OA073](#oa073) | Clock readiness retains unchecked divisors and returning network assertions | 00407812, 00407A36, 004DF092 |
+| [OA074](#oa074) | Human-name records retain unchecked indices and ordered validation | 00401DD4-00401E72, 004806C5 |
+| [OA075](#oa075) | In-game GUI allocation, callbacks and frame timing retain original continuation | 004A0205, 004B3997, 004B3759, 00479975 |
+| [OA076](#oa076) | String-output allocation and clear/reinitialize retain unchecked continuation | 004C7030, 004C712D, 004C733E, 004C735F |
+| [OA077](#oa077) | Desktop attachment/hiding retain virtual eligibility and repeated callbacks | 00477219, 004773F6, 00477532, 00478AA3 |
 
 <a id="oa001"></a>
 
@@ -2232,6 +2274,46 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Decision / Renewed task:** Preserve original checks, divisions and continuation; review network and FPU-environment contracts after faithful reconstruction.
 - **Status:** Preserved / original observation; Renewed: open.
 
+<a id="oa074"></a>
+
+### OA074 — Human-name records retain unchecked indices and ordered validation
+
+- **Original reference:** `00401DD4-00401E72`, `004806C5`.
+- **Evidence and retained behavior:** A type-2 record parses controlling player, human index, validation value and name through three colon separators. Missing separators leave index -1. Static-human address arithmetic wraps as DWORDs and occurs before checking the name pointer. Active byte, validation DWORD and local GUI player are read in short-circuit order; dynamic-human stride is 0x8C8. SetName pads/truncates 99 bytes and explicitly terminates byte +8BF.
+- **Assessment / reconstruction limits:** Confirmed Windows checks and lack of index bounds; accepted packet invariants and reachability of malformed input remain unresolved. This is a Human name update, not an invented chat/action-command handler. See [IN_GAME_STATE.md](docs/IN_GAME_STATE.md).
+- **Decision / Renewed task:** Preserve ordered checks and wrapped addressing; establish and validate the packet/index contract after faithful reconstruction.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa075"></a>
+
+### OA075 — In-game GUI allocation, callbacks and frame timing retain original continuation
+
+- **Original reference:** `00401C1D`, `004A0205`, `004A0295`, `004B3997`, `004B3759`, `00479975`.
+- **Evidence and retained behavior:** Failed owner allocations skip construction without gaining an early startup return. Message/dead-Human arrays remain subject to unconditional memset after nullable allocation. Callback registration and reverse unregistration/destruction retain order and ignored unregister results. Frame timing clamps backward ticks, accumulates thirty DWORD intervals with unsigned wrap and divides without a zero-sum guard; the exact Windows float constants are retained.
+- **Assessment / reconstruction limits:** Confirmed Windows continuation. Allocation/new-handler invariants and hardware x87 status/extended precision are unresolved; C++ computes numerical frame-rate state without emulating the FPU environment. Raw GUI definition-table and element +38 identities remain unresolved. See [IN_GAME_STATE.md](docs/IN_GAME_STATE.md), OA039 and OA046.
+- **Decision / Renewed task:** Preserve original sequencing and unchecked continuation; reconstruct remaining GUI data/logic callbacks and review the allocator/FPU contracts.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa076"></a>
+
+### OA076 — String-output allocation and clear/reinitialize retain unchecked continuation
+
+- **Original reference:** `004C7030`, `004C712D`, `004C733E`, `004C735F`, `004785B1`.
+- **Evidence and retained behavior:** Conditional closer/clock construction is followed by unconditional child attachment; the clock result is also written at +30. A nullable string-array allocation is stored at +70 without a later draw/message guard. ClearAll performs exit then init; exit leaves the old pointer unchanged until init overwrites it. Unknown message-800 commands still return true.
+- **Assessment / reconstruction limits:** Confirmed Windows continuation, not a newly asserted allocation-contract defect. Allocator/new-handler guarantees and interruption/reentrancy during replacement remain unresolved. Existing CStringArray/CStorable ownership and runtime free are shared. See [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md).
+- **Decision / Renewed task:** Preserve original call order, pointer lifetime and message results; establish allocation/reentrancy contracts after faithful reconstruction.
+- **Status:** Preserved / original observation; Renewed: open.
+
+<a id="oa077"></a>
+
+### OA077 — Desktop attachment/hiding retain virtual eligibility and repeated callbacks
+
+- **Original reference:** `00477163`, `00477219`, `004773F6`, `00477532`, `00478AA3`, `004B8518`, `004B8543`.
+- **Evidence and retained behavior:** Attachment skips already-added objects, then mutates lists before added/activation callbacks. The input-manager mode is read after attachment. Hide rejects null input or false slot-15 CanBeHidden and returns zero; accepted paths return +28. Window hiding calls the active element's deactivate and the window's deactivate separately, including when both pointers are the window. Element hiding retains both outer and internal canonical-desktop deactivation before setting the hidden flag.
+- **Assessment / reconstruction limits:** Confirmed Windows call order and callback repetition; mutation and raw +28 meaning beyond current callers remain unresolved. The active-window query climbs only one parent. See [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md).
+- **Decision / Renewed task:** Preserve callback order and original guards; reconstruct inherited virtual methods and document their reentrancy contract.
+- **Status:** Preserved / original observation; Renewed: open.
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2285,6 +2367,12 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP045 | Menu allocation/reload, missing centering input and ambient device/stop handling | Use runtime allocation/free; timestamp returning map failures; retain original player fallback, persistent tokens, ignored stop failure and unchanged non-running entries | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `00402298`, `004A2FB7`, `004800C8`; OA072 |
 | FP046 | Paused/waiting clock, latency sampling and zero/invalid conversion/divisors | Preserve real-time reset, fifty-tick/500-ms budgets, 0.01 threshold, command queuing and unchecked unsigned divisions | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `00407812`, `00407A36`; OB088, OA073 |
 | FP047 | Network buffer assertions, backup copy and tick rotation | Keep returning assertions, sequence/count updates, player-count-sized payload copy and original swap/reset order | [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md), `004DF092`, `004E105E`; OB089, OA073 |
+| FP048 | In-game startup/shutdown and auxiliary-owner allocation failures | Preserve skipped constructors, unconditional array clearing, callback ordering and Runtime allocation/free ownership | [IN_GAME_STATE.md](docs/IN_GAME_STATE.md), `00401C1D`, `00401CCB`; OA075 |
+| FP049 | Network text and Human-name validation | Preserve active-network gate, colon parsing, unchecked wrapped indices, short-circuit reads, 99-byte name copy and record freeing | [IN_GAME_STATE.md](docs/IN_GAME_STATE.md), `00401D38`, `004806C5`; OA074 |
+| FP050 | Network queue copying, departure commands and event formatting | Preserve seeded count, source draining, twenty-player first-match scan, wait flags, both format calls and original invalid/capacity paths | [IN_GAME_STATE.md](docs/IN_GAME_STATE.md), `004DB43A`, `0040A4FD`, `004DB635`; OB090-OB092 |
+| FP051 | GUI updates, string-window creation and callback mutation | Preserve list iterator behavior, ordered desktop searches, conditional deletion, redraw reset and retained widget/desktop dependencies | [IN_GAME_STATE.md](docs/IN_GAME_STATE.md), `004A0184`, `004A2598`, `004782FA`; OA075 |
+| FP052 | String-output child/array allocations and message clearing | Preserve nullable construction followed by unchecked access, exit/init replacement, runtime ownership and accepted unknown commands | [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md), `004C7030`, `004C712D`, `004C733E`; OA076 |
+| FP053 | Desktop attachment, hide rejection and callback mutation | Preserve membership guards, list/callback order, post-attachment input mode, CanBeHidden rejection and repeated deactivation | [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md), `00477219`, `004773F6`, `00477532`; OA077 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2292,6 +2380,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 
 | Finding | Why it is not an original bug | Required reconstruction action |
 | --- | --- | --- |
+| Overview-window virtual table is truncated to fifteen entries | Windows 004F78FC..004F7947 contains nineteen entries; hide dispatch reads slot 15 | Restored slots 15..18 and the 4C size assertion; see [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md) |
 | Main-menu owner uses host new/delete and dimension getters reread singleton pointers | Windows allocates/frees through the project runtime and captures application/menu before depth/height/width queries | Corrected allocation/destruction and captured pointers; see [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md) |
 | `Runtime_ResizeSmallBlock` uses `& ~0x0u` | Original instruction at `004edcc8` uses `FFFFFFF0` | Use `0xFFFFFFF0u` |
 | FPU callback appears before its type/declaration | C++ header ordering issue | Declare the function and type before the initializer |

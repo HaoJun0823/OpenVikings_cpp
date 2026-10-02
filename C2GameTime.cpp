@@ -199,5 +199,5 @@ namespace NC2Logic
     void Logic_EntryPoint_GameTime_Update() { GameTime_Update(); }
 
     // Original function: FUN_0040b246.
-    void GameTime_SetNetworkWaitFlag(bool waiting) { DAT_005109c5 = static_cast<std::uint8_t>(waiting); }
+    void GameTime_SetNetworkWaitFlag(bool waiting) { gGameStaticVars.networkWait = static_cast<std::uint8_t>(waiting); }
 }

@@ -1,4 +1,6 @@
 #include "InGameGuiOverviewWindowAccess.h"
+#include "InGameGuiBaseAccess.h"
+#include "XGuiWindowAccess.h"
 #include "InGameGuiOverviewDisplayAccess.h"
 #include "GuiToolsBase.h"
 #include "InGameGuiManager.h"
@@ -7,8 +9,6 @@
 
 #include <cstring>
 
-extern void* __fastcall FUN_004b8d11(void* window, void* unusedEdx, const NXBasics::SRectangle* rectangle);
-extern void __fastcall FUN_004785b1(void* window, void* unusedEdx, void* element);
 extern void* __fastcall FUN_004b9520(void* object, void* unusedEdx, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, const char* text, std::uint32_t tooltipId, void* formatObject);
 extern void __fastcall FUN_004b95a4(void* object, void* unusedEdx, NXBasics::CPalette* palette);
 extern void __fastcall FUN_004b959a(void* object, void* unusedEdx, std::uint32_t graphicsId);
@@ -27,6 +27,9 @@ extern void __fastcall FUN_00478a65(void* object, void* unusedEdx, std::int32_t*
 extern void __fastcall FUN_004788be(void* object);
 extern bool __fastcall FUN_004b8659(void* object, void* unusedEdx, std::uint32_t argument);
 extern bool __fastcall FUN_004788b6(void* object);
+extern bool __fastcall FUN_004bf2f4(void* object);
+extern std::uint32_t __fastcall FUN_004788b9(void* object, void* unusedEdx, std::uint32_t, std::uint32_t);
+extern void __fastcall FUN_004788bf(void* object, void* unusedEdx, std::uint32_t, std::uint32_t);
 
 namespace NC2InGameGuiOverviewDisplay
 {
@@ -81,7 +84,7 @@ namespace NC2InGameGuiOverviewDisplay
         return true;
     }
 
-    // Complete original table at 004F78FC..004F7937. Window/base destruction,
+    // Complete original table at 004F78FC..004F7947. Window/base destruction,
     // title drawing and inherited GUI virtual methods remain original boundaries.
     static const std::uintptr_t gWorldOverviewStaticWindowVirtualTable[] =
     {
@@ -99,16 +102,20 @@ namespace NC2InGameGuiOverviewDisplay
         reinterpret_cast<std::uintptr_t>(&FUN_00478a65),
         reinterpret_cast<std::uintptr_t>(&FUN_004788be),
         reinterpret_cast<std::uintptr_t>(&FUN_004b8659),
-        reinterpret_cast<std::uintptr_t>(&FUN_004788b6)
+        reinterpret_cast<std::uintptr_t>(&FUN_004788b6),
+        reinterpret_cast<std::uintptr_t>(&FUN_004bf2f4),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788b9),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788be),
+        reinterpret_cast<std::uintptr_t>(&FUN_004788bf)
     };
-    static_assert(sizeof(gWorldOverviewStaticWindowVirtualTable) == 0x3C);
+    static_assert(sizeof(gWorldOverviewStaticWindowVirtualTable) == 0x4C);
 
     // Original function: FUN_004c9708; CWorldOverviewStaticGuiWindow constructor.
     void* WorldOverviewStaticWindow_Construct(void* window)
     {
         const std::int32_t y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayHeight) - 120u);
         const NXBasics::SRectangle rectangle(0, y, 140, 120);
-        FUN_004b8d11(window, nullptr, &rectangle);
+        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         OverviewWindow_Write(window, 0, gWorldOverviewStaticWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x0C);
         OverviewWindow_Write<std::uint32_t>(window, 0x70, 0);
@@ -128,7 +135,7 @@ namespace NC2InGameGuiOverviewDisplay
         const NXBasics::SRectangle overviewRectangle(4, 4, 112, 112);
         void* element = allocation == nullptr ? nullptr : WorldOverviewElement_Construct(allocation, &overviewRectangle, 0);
         OverviewWindow_Write(window, 0x74, element);
-        FUN_004785b1(window, nullptr, element);
+        NXBaseGui::BaseWindow_Element_Add(window, element);
         struct SButtonParameters { std::int32_t y, width, height; std::uint32_t graphics, command, stringId; std::int32_t stringArray; };
         constexpr SButtonParameters buttons[] =
         {
@@ -154,7 +161,7 @@ namespace NC2InGameGuiOverviewDisplay
             // still dereferences the result after a failed allocation.
             OverviewWindow_Write<std::uint8_t>(control, 0x34, 0);
             FUN_004b95a4(control, nullptr, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
-            FUN_004785b1(window, nullptr, control);
+            NXBaseGui::BaseWindow_Element_Add(window, control);
         }
         WorldOverviewStaticWindow_UpdateButtonGraphics(window);
     }

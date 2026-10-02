@@ -55,7 +55,7 @@ namespace NC2Logic
         NXBasics::CIniFileReader* DAT_005109bc;
         void* DAT_005109c0;
         std::uint8_t DAT_005109c4;
-        std::uint8_t DAT_005109c5;
+        std::uint8_t networkWait;                    // +0x1AD; original 005109C5.
         std::byte unknown1AE[0x0A];
     };
 #pragma pack(pop)
@@ -73,7 +73,7 @@ namespace NC2Logic
     static_assert(offsetof(SGameStaticVars, DAT_005109bc) == 0x1A4);
     static_assert(offsetof(SGameStaticVars, DAT_005109c0) == 0x1A8);
     static_assert(offsetof(SGameStaticVars, DAT_005109c4) == 0x1AC);
-    static_assert(offsetof(SGameStaticVars, DAT_005109c5) == 0x1AD);
+    static_assert(offsetof(SGameStaticVars, networkWait) == 0x1AD);
 }
 
 // Compatibility aliases for existing callers; the clock fields now have named storage.
@@ -83,4 +83,3 @@ inline double& DAT_00510848 = NC2Logic::gGameTime.speed;
 inline std::uint8_t& DAT_0051089d = NC2Logic::gGameTime.maximizeSpeed;
 inline NXBasics::CIniFileReader*& DAT_005109bc = NC2Logic::gGameStaticVars.DAT_005109bc;
 inline void*& DAT_005109c0 = NC2Logic::gGameStaticVars.DAT_005109c0;
-inline std::uint8_t& DAT_005109c5 = NC2Logic::gGameStaticVars.DAT_005109c5;

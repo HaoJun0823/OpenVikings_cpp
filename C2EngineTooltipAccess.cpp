@@ -3,6 +3,7 @@
 #include "C2EngineObjectData.h"
 #include "C2MapGeometry.h"
 #include "GuiToolsBase.h"
+#include "InGameGuiSupportAccess.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
@@ -11,8 +12,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-
-extern void* DAT_005690d8;
 
 // Original logic/string routines remain explicit until their owning blocks are translated.
 // An unused EDX argument retains the Windows ECX receiver and stack argument layout.
@@ -154,9 +153,9 @@ namespace NC2E2
             }
         }
 
-        if (Tooltip_ReadField<std::uint8_t>(display, 0x920) != 0 && DAT_005690d8 != nullptr)
+        if (Tooltip_ReadField<std::uint8_t>(display, 0x920) != 0 && NC2InGameGuiGroups::gObjectGroupManager != nullptr)
         {
-            const std::int32_t slot = FUN_004a3909(DAT_005690d8, nullptr, houseId);
+            const std::int32_t slot = FUN_004a3909(NC2InGameGuiGroups::gObjectGroupManager, nullptr, houseId);
             if (slot != -1)
             {
                 const std::int32_t label = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u);
@@ -232,9 +231,9 @@ namespace NC2E2
                     Display_DrawTooltipOverlay_String(display, bitmap, x, y, text);
                 }
             }
-            if (DAT_005690d8 != nullptr)
+            if (NC2InGameGuiGroups::gObjectGroupManager != nullptr)
             {
-                const std::int32_t slot = FUN_004a38cb(DAT_005690d8, nullptr, Tooltip_ReadField<std::uint32_t>(vehicle, 4));
+                const std::int32_t slot = FUN_004a38cb(NC2InGameGuiGroups::gObjectGroupManager, nullptr, Tooltip_ReadField<std::uint32_t>(vehicle, 4));
                 if (slot != -1)
                 {
                     NXBasics::Runtime_PrintString(text, "%s: %d", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x32), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u));
@@ -252,9 +251,9 @@ namespace NC2E2
                 return;
             if (!NC2Logic::Human_IsJobHero(human))
                 Display_DrawTooltipOverlay_String(display, bitmap, x, y, FUN_0042f725(Tooltip_ReadField<std::uint32_t>(human, 0x18), true));
-            if (DAT_005690d8 != nullptr)
+            if (NC2InGameGuiGroups::gObjectGroupManager != nullptr)
             {
-                const std::int32_t slot = FUN_004a388d(DAT_005690d8, nullptr, Tooltip_ReadField<std::uint32_t>(human, 4));
+                const std::int32_t slot = FUN_004a388d(NC2InGameGuiGroups::gObjectGroupManager, nullptr, Tooltip_ReadField<std::uint32_t>(human, 4));
                 if (slot != -1)
                 {
                     NXBasics::Runtime_PrintString(text, "%s: %d", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x32), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u));

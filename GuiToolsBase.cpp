@@ -385,6 +385,18 @@ namespace NC2GuiToolsBase
         return CGuiBaseStringsManager::GetStringPtr(0, stringId);
     }
 
+    // Original function: FUN_004e1e27.
+    char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(1, stringId);
+    }
+
+    // Original function: FUN_004e1e51.
+    char* StringTool_GetGameGuiMiscWindowStringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(4, stringId);
+    }
+
     // Original function: FUN_004e1e35
     char* StringTool_GetMiscMenuStringPtr(std::uint32_t stringId)
     {

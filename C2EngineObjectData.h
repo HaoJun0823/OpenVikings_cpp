@@ -18,5 +18,6 @@ namespace NC2E2
     extern SDynamicObjectArrayStorage gDynamicDataVehicles;
     // CE2DynamicDataAnimalManager: complete region 00568B10..00568B17.
     extern SDynamicObjectArrayStorage gDynamicDataAnimals;
+    void DynamicHuman_SetName(void* human, const char* name);
     static_assert(sizeof(SDynamicObjectArrayStorage) == 8);
 }

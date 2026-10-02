@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="Application">
@@ -144,6 +144,9 @@
     <ClCompile Include="C2GameTime.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2GameControlNetwork.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="C2PlayerCenterPosition.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
@@ -256,6 +259,9 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="InGameGuiManager.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiManager_State.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="MainMenuGuiManager.cpp">
@@ -423,12 +429,18 @@
     <ClCompile Include="InGameGuiInputAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="InGameGuiSupportAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C2GameMapIO.h">
       <Filter>Logic\Serialization</Filter>
     </ClInclude>
     <ClInclude Include="C2GameTime.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2GameControlNetwork.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2PlayerCenterPosition.h">
@@ -728,6 +740,9 @@
     <ClInclude Include="InGameGuiInputAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
+    <ClInclude Include="InGameGuiSupportAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenVikings.rc">
@@ -744,6 +759,9 @@
       <Filter>Logic</Filter>
     </ClCompile>
     <ClCompile Include="C2EngineLifetimeAccess.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="C2EngineHumanName.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
     <ClInclude Include="C2LogicLifetimeAccess.h">
@@ -843,6 +861,29 @@
     </ClCompile>
     <ClInclude Include="C2StaticTribeTypeData.h">
       <Filter>Logic</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XGuiWindowAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="XGuiDesktop_Attachment.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiBaseAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiStringOutputWindow.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClInclude Include="XGuiWindowAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiBaseAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="InGameGuiStringOutputWindow.h">
+      <Filter>GUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

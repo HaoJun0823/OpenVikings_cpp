@@ -1,6 +1,6 @@
 # Main-menu state, clean-map loading and game-time dispatch
 
-Snapshot: 2026-10-02, HEAD `acfcdb7` plus this uncommitted follow-up.
+Snapshot: 2026-10-02. This block was subsequently committed as `fb69f88` (Main Menu Code); current in-game work is documented in [IN_GAME_STATE.md](IN_GAME_STATE.md).
 
 ## Evidence and scope
 

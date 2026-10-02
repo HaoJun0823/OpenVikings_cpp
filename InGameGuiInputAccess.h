@@ -4,7 +4,7 @@
 
 namespace NC2InGameGuiInputManager
 {
-    // Complete singleton binding at 00569410; its owning lifecycle remains original.
+    // Complete singleton binding at 00569410; lifecycle is in InGameGuiSupportAccess.cpp.
     extern void* gInputManager;
     std::int32_t Selection_GetSelectedSingleVehicleId(const void* manager);
     std::uint32_t Selection_GetSelectedMultipleVehiclesNumber(const void* manager);

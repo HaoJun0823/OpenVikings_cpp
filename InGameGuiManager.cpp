@@ -2,7 +2,10 @@
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayAccess.h"
 #include "InGameGuiManager.h"
+#include "InGameGuiBaseAccess.h"
+#include "InGameGuiSupportAccess.h"
 #include "MasterPropertyManager.h"
+#include "StringInputHandler.h"
 #include "C2CallbackManager.h"
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
@@ -30,16 +33,21 @@ extern void __fastcall FUN_004a2a55(void* object, void* unusedEdx, bool update);
 extern void __fastcall FUN_004a0d01(void* object);
 extern void __fastcall FUN_004a0e9d(void* object);
 extern void __fastcall FUN_004b4187(void* object, void* unusedEdx, std::int32_t mode);
-extern void __cdecl FUN_004b8518(void* element);
-extern void __cdecl FUN_004b8543(void* window, bool showWhileHidden);
 extern bool __cdecl FUN_004a2c0b(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
 extern int __fastcall FUN_004a002d(void* object);
 extern void* __fastcall FUN_004a3eab(void* object);
 extern void* __fastcall FUN_004a3d47(void* object);
+extern void* __fastcall FUN_004a0145(void* object, void* unusedEdx, std::uint32_t deletingFlags);
 
 namespace
 {
+    // Original function: FUN_004a3d9a; the table's class identity is unresolved.
+    void GuiDefinitionTable_ClearOwner()
+    {
+        DAT_005690dc = nullptr;
+    }
+
     // Original function: FUN_004b9407.
     void ToolGraphics_SetCenterGraphicsFlag(void* object, bool centered)
     {
@@ -92,7 +100,7 @@ namespace
             firstNode = removedNode->next;
         }
 
-        ::operator delete(static_cast<void*>(removedNode));
+        NXBasics::Runtime_Free(removedNode);
         --objectCount;
 
         return object;
@@ -149,37 +157,6 @@ namespace
 
 namespace NInGameGuiManager
 {
-    void SLegacyDynamicBufferState::Initialize()
-    {
-        std::memset(this, 0, sizeof(*this));
-    }
-
-    void SLegacyDynamicBufferState::Configure(std::int32_t newCapacity, bool newFlag08, bool initializeBuffer, std::int32_t newValue0C, bool newFlag10)
-    {
-        ::operator delete(static_cast<void*>(buffer));
-
-        active = true;
-        capacity = newCapacity;
-        flag08 = newFlag08;
-        value0C = newValue0C;
-        flag10 = newFlag10;
-        buffer = static_cast<char*>(::operator new(static_cast<std::size_t>(newCapacity + 2), std::nothrow));
-
-        if ((initializeBuffer || newFlag08) && buffer != nullptr)
-        {
-            bufferInitialized = true;
-            position = 0;
-            buffer[0] = '\0';
-        }
-    }
-
-    void SLegacyDynamicBufferState::ShutDown()
-    {
-        ::operator delete(static_cast<void*>(buffer));
-        buffer = nullptr;
-        active = false;
-    }
-
     void* CInGameGuiManager::GetDesktop() const
     {
         return *reinterpret_cast<void* const*>(mLegacyState + 0x04);
@@ -195,22 +172,29 @@ namespace NInGameGuiManager
         return mLegacyState[0xE5] != std::byte{ 0 };
     }
 
+    NC2InGameGuiBaseTextInputElement::CStringInputHandler* CInGameGuiManager::GetStringInputHandler()
+    {
+        return std::launder(reinterpret_cast<NC2InGameGuiBaseTextInputElement::CStringInputHandler*>(mStringInputStorage));
+    }
+
     // Original function: FUN_0049fd79
     CInGameGuiManager::CInGameGuiManager()
     {
         FUN_004a002d(this);
         FUN_004a3eab(mDisplayObject);
-        mBufferState.Initialize();
+        auto* stringInput = new (mStringInputStorage) NC2InGameGuiBaseTextInputElement::CStringInputHandler;
 
         sTheObjectPtr = this;
 
         std::memset(mLegacyState, 0, sizeof(mLegacyState));
         std::memset(&mStaticVars, 0, sizeof(mStaticVars));
 
-        new (std::nothrow) NC2GuiToolsBase::CGuiBaseStringsManager();
-        new (std::nothrow) NC2GuiToolsBase::CGuiBaseDataManager();
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(1, 1);
+        if (allocation != nullptr) new (allocation) NC2GuiToolsBase::CGuiBaseStringsManager;
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(1, 1);
+        if (allocation != nullptr) new (allocation) NC2GuiToolsBase::CGuiBaseDataManager;
 
-        void* guiDefinitionTable = ::operator new(0xA08, std::nothrow);
+        void* guiDefinitionTable = NXBasics::Runtime_AllocateWithNewHandler(0xA08, 1);
 
         if (guiDefinitionTable != nullptr)
         {
@@ -230,7 +214,7 @@ namespace NInGameGuiManager
             mLegacyState[0xE5] = std::byte{ 1 };
         }
 
-        mBufferState.Configure(60, false, false, 13, false);
+        stringInput->Init(60, false, false, 13, 0);
     }
 
     // Original function: FUN_004a00c1
@@ -240,29 +224,33 @@ namespace NInGameGuiManager
 
         if (guiDefinitionTable != nullptr)
         {
-            DAT_005690dc = nullptr;
-            ::operator delete(guiDefinitionTable);
+            GuiDefinitionTable_ClearOwner();
+            NXBasics::Runtime_Free(guiDefinitionTable);
         }
 
         auto* guiResourceManager = NC2GuiToolsBase::CGuiBaseDataManager::sTheObjectPtr;
 
         if (guiResourceManager != nullptr)
         {
-            delete guiResourceManager;
+            guiResourceManager->~CGuiBaseDataManager();
+            NXBasics::Runtime_Free(guiResourceManager);
         }
 
         auto* textResourceManager = NC2GuiToolsBase::CGuiBaseStringsManager::sTheObjectPtr;
 
         if (textResourceManager != nullptr)
         {
-            delete textResourceManager;
+            textResourceManager->~CGuiBaseStringsManager();
+            NXBasics::Runtime_Free(textResourceManager);
         }
 
         sTheObjectPtr = nullptr;
 
-        mBufferState.ShutDown();
+        std::launder(reinterpret_cast<NC2InGameGuiBaseTextInputElement::CStringInputHandler*>(mStringInputStorage))->Exit();
 
-        std::memset(mDisplayObject, 0, sizeof(mDisplayObject));
+        // Flags zero reproduce the original inline destructor without freeing
+        // the embedded element; its original base-element vtable is retained.
+        FUN_004a0145(mDisplayObject, nullptr, 0);
 
         DestroyDeferredDeletionQueue(mLegacyState + 0xB8);
         DestroyDeferredDeletionQueue(mLegacyState + 0x74);
@@ -315,7 +303,7 @@ namespace NInGameGuiManager
             worldElement = NC2InGameGuiWorldElement::WorldDisplayElement_Construct(allocation, &rectangle, true, true);
         }
         std::memcpy(mLegacyState + 0x04, &worldElement, sizeof(worldElement));
-        FUN_004b8518(worldElement);
+        NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(worldElement));
 
         const auto addGraphics = [this](std::size_t offset, std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint32_t graphicsId)
         {
@@ -329,7 +317,7 @@ namespace NInGameGuiManager
             ToolGraphics_SetCenterGraphicsFlag(element, false);
             ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
             std::memcpy(mLegacyState + offset, &element, sizeof(element));
-            FUN_004b8518(element);
+            NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(element));
         };
 
         const auto addButton = [this](std::size_t offset, std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, std::uint32_t graphicsId, std::int32_t stringId, std::uint32_t tooltipId, bool clearCenterFlag)
@@ -355,7 +343,7 @@ namespace NInGameGuiManager
                 ToolGraphics_SetCenterGraphicsFlag(element, false);
                 ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
                 std::memcpy(mLegacyState + offset, &element, sizeof(element));
-                FUN_004b8518(element);
+                NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(element));
             }
             else
             {
@@ -363,7 +351,7 @@ namespace NInGameGuiManager
                 std::memcpy(mLegacyState + offset, &element, sizeof(element));
                 ToolGraphics_SetPalettePtr(element, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
                 std::memcpy(&element, mLegacyState + offset, sizeof(element));
-                FUN_004b8518(element);
+                NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(element));
             }
         };
 
@@ -392,7 +380,7 @@ namespace NInGameGuiManager
             allocation = NXBasics::Runtime_AllocateWithNewHandler(0x27B0, 1);
             window = allocation == nullptr ? nullptr : FUN_004b8607(allocation);
             std::memcpy(mLegacyState + 0x08, &window, sizeof(window));
-            FUN_004b8543(window, false);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
         }
         mStaticVars.desktopInitialized = true;
         mStaticVars.redrawRequested = true;
@@ -402,7 +390,7 @@ namespace NInGameGuiManager
         FUN_004a0e9d(this);
         NC2E2::Inform_ControllingPlayerChanged(GetLocalPlayerId());
         NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_ControllingPlayerChanged(GetLocalPlayerId());
-        FUN_004b4187(NC2InGameGuiInputManager::gInputManager, nullptr, 0);
+        FUN_004b4187(NC2InGameGuiMessages::gMessageManager, nullptr, 0);
     }
 
     // Original function: FUN_004a0aaf.
@@ -507,7 +495,7 @@ namespace NInGameGuiManager
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x7C, 1);
         window = allocation == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewStaticWindow_Construct(allocation);
         std::memcpy(mLegacyState + 0x44, &window, sizeof(window));
-        FUN_004b8543(window, false);
+        NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
         NXBaseGui::CBaseElement* button;
         std::memcpy(&button, mLegacyState + 0x48, sizeof(button));
         if (button != nullptr)

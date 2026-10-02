@@ -282,7 +282,7 @@ namespace NC2InGameGuiWorldElement
         }
 
         // The original branch also accepts an unordered comparison.
-        if (!(DAT_00510848 >= 0.01) || DAT_005109c5 != 0)
+        if (!(DAT_00510848 >= 0.01) || NC2Logic::gGameStaticVars.networkWait != 0)
             bitmap->Tool_Darken();
 
         if (WorldDisplayElement_MouseSelectingArea_IsAreaValid(element))

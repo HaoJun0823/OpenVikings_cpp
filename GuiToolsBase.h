@@ -125,6 +125,8 @@ namespace NC2GuiToolsBase
     void FXTool_Chat();
 
     char* StringTool_GetMainMenuStringPtr(std::uint32_t stringId);
+    char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId);
+    char* StringTool_GetGameGuiMiscWindowStringPtr(std::uint32_t stringId);
     char* StringTool_GetMiscMenuStringPtr(std::uint32_t stringId);
     char* StringTool_GetUpdate103StringPtr(std::uint32_t stringId);
     char* StringTool_GetOdin001StringPtr(std::uint32_t stringId);

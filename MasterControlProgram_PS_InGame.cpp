@@ -2,6 +2,8 @@
 #include "C2LogicObjectArrays.h"
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "C2GameTime.h"
+#include "C2GameControlNetwork.h"
+#include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2EngineObjectData.h"
 #include "DMManager.h"
@@ -86,27 +88,33 @@ namespace NMasterControlProgram
 
         ProgressBar_Init(false);
 
-        new (std::nothrow) NInGameGuiManager::CInGameGuiManager();
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x1F0, 1);
+        if (allocation != nullptr) new (allocation) NInGameGuiManager::CInGameGuiManager;
 
         GameEngine_StartUpEngine();
 
-        FUN_004a0205(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        NInGameGuiManager::CInGameGuiManager::System_StartGame();
 
-        const int displayDepth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayDepth();
+        auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+        auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
 
-        const int displayHeight = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayHeight();
+        const int displayDepth = application->GetDisplayDepth();
 
-        const int displayWidth = NXSys2DApp::CApplication::sTheObjectPtr->GetDisplayWidth();
+        const int displayHeight = application->GetDisplayHeight();
 
-        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Desktop_Open(displayWidth, displayHeight, displayDepth);
+        const int displayWidth = application->GetDisplayWidth();
 
-        FUN_004a2653(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        gui->Desktop_Open(displayWidth, displayHeight, displayDepth);
 
-        if (NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->AreCheatsAllowed())
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_StringOutputWindow_ClearAll();
+
+        gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+
+        if (gui->AreCheatsAllowed())
         {
             auto* message = NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x56);
 
-            FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, message);
+            gui->MiscWindows_StringOutputWindow_PrintString(message);
         }
 
         GameEngine_StartUpGame();
@@ -131,10 +139,15 @@ namespace NMasterControlProgram
 
         NNetwork::Network_ShutDown();
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Desktop_Close();
-        FUN_004a0295(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        NInGameGuiManager::CInGameGuiManager::System_EndGame();
         GameEngine_ShutDownGame();
 
-        delete NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (gui != nullptr)
+        {
+            gui->~CInGameGuiManager();
+            NXBasics::Runtime_Free(gui);
+        }
 
         mProgramState = static_cast<std::int32_t>(TProgramState::None);
     }
@@ -163,15 +176,15 @@ namespace NMasterControlProgram
                     switch (record.type)
                     {
                     case 1:
-                        FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, receivedText);
+                        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_StringOutputWindow_PrintString(receivedText);
                         NC2GuiToolsBase::FXTool_Chat();
                         break;
 
                     case 2:
                     {
-                        const int senderPlayerId = NXBasics::Runtime_StringToInteger(receivedText);
+                        const int controllingPlayerId = NXBasics::Runtime_StringToInteger(receivedText);
 
-                        int playerIndex = -1;
+                        int humanIndex = -1;
                         int validationValue = 0;
                         char* commandText = nullptr;
 
@@ -180,7 +193,7 @@ namespace NMasterControlProgram
                         if (firstSeparator != nullptr)
                         {
                             ++firstSeparator;
-                            playerIndex = NXBasics::Runtime_StringToInteger(firstSeparator);
+                            humanIndex = NXBasics::Runtime_StringToInteger(firstSeparator);
 
                             char* secondSeparator = std::strchr(firstSeparator, ':');
 
@@ -198,18 +211,13 @@ namespace NMasterControlProgram
                             }
                         }
 
-                        auto* humanBytes = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(playerIndex) * NC2Logic::CHumanArray::ElementSize;
-                        const bool humanActive = humanBytes[0] != std::byte{ 0 };
-                        const int storedValidationValue = *reinterpret_cast<const int*>(humanBytes + 0x08);
-                        const int localPlayerId = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-
-                        if (humanActive &&
-                            storedValidationValue == validationValue &&
-                            senderPlayerId != localPlayerId &&
-                            commandText != nullptr)
+                        // Both products and address additions wrap as Windows DWORDs.
+                        const auto humanAddress = reinterpret_cast<std::uintptr_t>(NC2Logic::CHumanArray::mStaticVars) + static_cast<std::uint32_t>(humanIndex) * NC2Logic::CHumanArray::ElementSize;
+                        auto* human = reinterpret_cast<const void*>(humanAddress);
+                        if (NC2Lifetime::Read<std::uint8_t>(human, 0) != 0 && NC2Lifetime::Read<std::int32_t>(human, 8) == validationValue && controllingPlayerId != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId() && commandText != nullptr)
                         {
-                            auto* humanDisplayData = reinterpret_cast<std::byte*>(NC2E2::gDynamicDataHumans.entries) + playerIndex * 0x8C8;
-                            FUN_004806c5(humanDisplayData, commandText);
+                            const auto displayAddress = reinterpret_cast<std::uintptr_t>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::uint32_t>(humanIndex) * 0x8C8u;
+                            NC2E2::DynamicHuman_SetName(reinterpret_cast<void*>(displayAddress), commandText);
                         }
 
                         break;
@@ -219,90 +227,90 @@ namespace NMasterControlProgram
 
                 if (receivedRecords != nullptr)
                 {
-                    ::operator delete(static_cast<void*>(receivedRecords));
+                    NXBasics::Runtime_Free(receivedRecords);
                 }
             }
-        }
 
-        alignas(4) std::byte messageCollection[0x10]{};
-        FUN_004db43a(messageCollection, &gDynamicNetworkData.events);
+            NNetwork::SEventQueue messageCollection;
+            NNetwork::ConstructEventQueueAndTakeSource(&messageCollection, &gDynamicNetworkData.events);
 
-        auto* currentMessage = *reinterpret_cast<SQueuedNetworkMessage**>(messageCollection + 0x08);
+            auto* currentMessage = messageCollection.first;
 
-        while (currentMessage != nullptr)
-        {
-            switch (currentMessage->eventType)
+            while (currentMessage != nullptr)
             {
-            case 1:
-                System_ProgramState_ChangeNextTimePossible(TProgramState::MainMenu, false);
-                break;
-
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-            {
-                const std::uint32_t playerId = currentMessage->playerId;
-                const std::uint32_t currentPlayerId = NNetwork::Network_GetLocalPlayerId();
-
-                if (playerId == currentPlayerId || currentPlayerId == 0)
+                switch (currentMessage->eventType)
                 {
+                case 1:
                     System_ProgramState_ChangeNextTimePossible(TProgramState::MainMenu, false);
+                    break;
+
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                {
+                    const std::uint32_t playerId = currentMessage->playerId;
+                    const std::uint32_t currentPlayerId = NNetwork::Network_GetLocalPlayerId();
+
+                    if (playerId == currentPlayerId || currentPlayerId == 0)
+                    {
+                        System_ProgramState_ChangeNextTimePossible(TProgramState::MainMenu, false);
+                    }
+                    else
+                    {
+                        NC2Logic::GameControl_QueueNetworkPlayerDeparture(NC2Logic::gGameControl, playerId, true);
+                        NC2Logic::GameTime_SetNetworkWaitFlag(false);
+                    }
+
+                    break;
+                }
+
+                case 9:
+                case 13:
+                    NC2Logic::GameTime_SetNetworkWaitFlag(true);
+                    break;
+                }
+
+                char playerName[100]{};
+
+                if (currentMessage->playerName[0] != L'\0')
+                {
+                    NNetwork::CopyNetworkWideToAnsi(playerName, currentMessage->playerName, -1);
                 }
                 else
                 {
-                    FUN_0040a4fd(NC2Logic::gGameControl, playerId, true);
-                    NC2Logic::GameTime_SetNetworkWaitFlag(false);
+                    NXBasics::Runtime_PrintString(playerName, "?");
                 }
 
-                break;
+                char outputText[328]{};
+                const std::uint32_t stringId = GetNetworkMessageStringId(currentMessage->eventType);
+
+                if (stringId != 0)
+                {
+                    const char* messageText = NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(stringId);
+                    NXBasics::Runtime_PrintString(outputText, ">> %s %s!", playerName, messageText);
+                }
+                else
+                {
+                    char networkEventText[200]{};
+                    NNetwork::FormatNetworkEvent(&messageCollection, currentMessage, networkEventText, sizeof(networkEventText));
+                    NXBasics::Runtime_PrintString(outputText, ">> NET: '%s'", networkEventText);
+                }
+
+                if (outputText[0] != '\0')
+                {
+                    NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_StringOutputWindow_PrintString(outputText);
+                }
+
+                char diagnosticText[200]{};
+                NNetwork::FormatNetworkEvent(&messageCollection, currentMessage, diagnosticText, sizeof(diagnosticText));
+
+                currentMessage = currentMessage->next;
             }
 
-            case 9:
-            case 13:
-                NC2Logic::GameTime_SetNetworkWaitFlag(true);
-                break;
-            }
-
-            char playerName[100]{};
-
-            if (currentMessage->playerName[0] != L'\0')
-            {
-                NNetwork::CopyNetworkWideToAnsi(playerName, currentMessage->playerName, -1);
-            }
-            else
-            {
-                NXBasics::Runtime_PrintString(playerName, "?");
-            }
-
-            char outputText[328]{};
-            const std::uint32_t stringId = GetNetworkMessageStringId(currentMessage->eventType);
-
-            if (stringId != 0)
-            {
-                const char* messageText = NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(stringId);
-                NXBasics::Runtime_PrintString(outputText, ">> %s %s!", playerName, messageText);
-            }
-            else
-            {
-                char networkEventText[200]{};
-                FUN_004db635(reinterpret_cast<NNetwork::SEventQueue*>(messageCollection), currentMessage, networkEventText, sizeof(networkEventText));
-                NXBasics::Runtime_PrintString(outputText, ">> NET: '%s'", networkEventText);
-            }
-
-            if (outputText[0] != '\0')
-            {
-                FUN_004a25e0(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, outputText);
-            }
-
-            char diagnosticText[200]{};
-            FUN_004db635(reinterpret_cast<NNetwork::SEventQueue*>(messageCollection), currentMessage, diagnosticText, sizeof(diagnosticText));
-
-            currentMessage = currentMessage->next;
+            NNetwork::ClearEventQueue(&messageCollection);
         }
-
-        NNetwork::ClearEventQueue(reinterpret_cast<NNetwork::SEventQueue*>(messageCollection));
 
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("start_fmv"))
         {
@@ -310,7 +318,7 @@ namespace NMasterControlProgram
         }
 
         NC2Logic::Logic_EntryPoint_GameTime_Update();
-        FUN_004a0184(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->System_UpdateGui();
 
         auto* displayBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
 

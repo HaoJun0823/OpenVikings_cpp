@@ -24,7 +24,7 @@ std::uint8_t gNetworkCallsignInitialized = 0;
 
 namespace NNetwork
 {
-    // Original function: FUN_004db528
+    // Original functions: FUN_004db528 and its tail-jump alias FUN_004db49b.
     SEventQueue* ClearEventQueue(SEventQueue* queue)
     {
         while (queue->first != nullptr)

@@ -153,6 +153,8 @@ namespace NNetwork
     static_assert(offsetof(SDynamicNetworkData, unknown7C) == 0x7C);
 
     SEventQueue* AppendEventQueueCopy(SEventQueue* destination, const SEventQueue* source);
+    SEventQueue* ConstructEventQueueAndTakeSource(SEventQueue* destination, SEventQueue* source);
+    void FormatNetworkEvent(const SEventQueue* queue, const SEventNode* event, char* destination, std::int32_t appendLimit);
 
     SEventQueue* ReplaceEventQueueAndClearSource(SEventQueue* destination, SEventQueue* source);
 

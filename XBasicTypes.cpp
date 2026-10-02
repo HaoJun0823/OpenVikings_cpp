@@ -2,6 +2,17 @@
 
 namespace NXBasics
 {
+    // Original function: FUN_00410403.
+    void SRectangle::PlaceInside(const SRectangle& other) noexcept
+    {
+        if (width > other.width) width = other.width;
+        if (height > other.height) height = other.height;
+        if (x < other.x) x = other.x;
+        if (y < other.y) y = other.y;
+        if (AddWrapped(x, width) > AddWrapped(other.x, other.width)) x = AddWrapped(SubtractWrapped(other.x, width), other.width);
+        if (AddWrapped(y, height) > AddWrapped(other.y, other.height)) y = AddWrapped(SubtractWrapped(other.y, height), other.height);
+    }
+
     // Original function: FUN_0040f7b4.
     SColorRGB::SColorRGB() noexcept
     {

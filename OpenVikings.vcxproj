@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="C2GameMapIO.cpp" />
     <ClCompile Include="C2GameTime.cpp" />
+    <ClCompile Include="C2GameControlNetwork.cpp" />
     <ClCompile Include="C2PlayerCenterPosition.cpp" />
     <ClCompile Include="MainMenuGuiManager_WorldDisplay.cpp" />
     <ClCompile Include="C2AnimalAccess.cpp" />
@@ -53,7 +54,9 @@
     <ClCompile Include="GuiBitmapToolElementAccess.cpp" />
     <ClCompile Include="GuiToolsBase.cpp" />
     <ClCompile Include="InGameGuiManager.cpp" />
+    <ClCompile Include="InGameGuiManager_State.cpp" />
     <ClCompile Include="InGameGuiInputAccess.cpp" />
+    <ClCompile Include="InGameGuiSupportAccess.cpp" />
     <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp" />
     <ClCompile Include="InGameGuiOverviewHandler.cpp" />
     <ClCompile Include="InGameGuiOverviewWindowAccess.cpp" />
@@ -110,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="C2GameMapIO.h" />
     <ClInclude Include="C2GameTime.h" />
+    <ClInclude Include="C2GameControlNetwork.h" />
     <ClInclude Include="C2PlayerCenterPosition.h" />
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
@@ -158,6 +162,7 @@
     <ClInclude Include="GuiToolsBase.h" />
     <ClInclude Include="InGameGuiManager.h" />
     <ClInclude Include="InGameGuiInputAccess.h" />
+    <ClInclude Include="InGameGuiSupportAccess.h" />
     <ClInclude Include="InGameGuiOverviewDisplayAccess.h" />
     <ClInclude Include="InGameGuiOverviewHandler.h" />
     <ClInclude Include="InGameGuiOverviewWindowAccess.h" />
@@ -276,6 +281,7 @@
   <ItemGroup>
     <ClCompile Include="C2LogicLifetimeAccess.cpp" />
     <ClCompile Include="C2EngineLifetimeAccess.cpp" />
+    <ClCompile Include="C2EngineHumanName.cpp" />
     <ClInclude Include="C2LogicLifetimeAccess.h" />
     <ClInclude Include="C2EngineLifetimeAccess.h" />
     <ClInclude Include="C2LifetimeAccess.h" />
@@ -318,5 +324,14 @@
   <ItemGroup>
     <ClCompile Include="C2StaticTribeTypeData.cpp" />
     <ClInclude Include="C2StaticTribeTypeData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XGuiWindowAccess.cpp" />
+    <ClCompile Include="XGuiDesktop_Attachment.cpp" />
+    <ClCompile Include="InGameGuiBaseAccess.cpp" />
+    <ClCompile Include="InGameGuiStringOutputWindow.cpp" />
+    <ClInclude Include="XGuiWindowAccess.h" />
+    <ClInclude Include="InGameGuiBaseAccess.h" />
+    <ClInclude Include="InGameGuiStringOutputWindow.h" />
   </ItemGroup>
 </Project>

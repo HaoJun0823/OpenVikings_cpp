@@ -34,6 +34,21 @@ The user explicitly wants unknown data regions cross-checked against the Mac bin
 
 ## Most recent work
 
+### String-output widget and desktop attachment/hiding
+
+- Added twenty-one original bodies for the string-output widget, desktop attachment/hiding, base-tool adapters, window children, rectangle placement and two string getters. Existing CStringArray/input/font/bitmap/list/runtime bodies are shared. See [STRING_OUTPUT_WINDOW.md](STRING_OUTPUT_WINDOW.md).
+- Restored the overview window's four missing virtual slots; Windows tables for base-tool, string-output and overview windows each contain nineteen entries. Native helpers are connected to in-game/overview/menu callers. All four Windows xrefs establish the named networkWait byte 005109C5; time/display/widget callers now share it. README OA076/OA077 and FP052/FP053 index allocation, message and callback paths. Shared base/graphic-button/clock bodies and inherited virtual methods remain genuine original boundaries.
+- Eleven affected units generate Win32 /Od and /O2 objects without warnings. Production syntax is 116/117 with 39 diagnostics confined to MainMenuGuiManager.cpp. Project/filters match all 117 implementations and 122 headers; main platform/output settings are unchanged. No tests, full link or game-runtime verification.
+- Provisional address coverage is 1,431/5,044 (28.37%), with 3,613 unmapped candidates and 64 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Connected next blocks: shared widget/base GUI families, auxiliary logic callbacks and class-static regions. HEAD remains fb69f88 (Main Menu Code); in-game/widget work is uncommitted.
+
+### In-game state, GUI auxiliary ownership and network event handling
+
+- All nine distinct original call targets in MasterControlProgram_PS_InGame.cpp now use native entries. Added thirty-two original bodies across GUI state helpers, four auxiliary owner lifecycles, embedded member construction, Human-name updates, event copy/formatting, departure commands and desktop message search. Existing CStringInputHandler and CListBase methods are shared; queue tail-jump destructor 004DB49B shares ClearEventQueue. See [IN_GAME_STATE.md](IN_GAME_STATE.md).
+- Corrected the active-network gate, ordered Human validation, captured startup singleton queries and runtime allocation/free families. Rebound input owner 00569410, message owner 00569408 and group owner 005690D8. Complete close-window/event tables and formatter strings were decoded from Windows PE. README OB090-OB092, OA074/OA075 and FP048-FP051 index reviewed failure paths. Deeper widget/desktop/callback/static-data and command-manager bodies remain explicit originals.
+- Twelve affected/reused units generate Win32 /Od and /O2 objects, with only established NetworkRuntime warnings. Production syntax is 112/113 with forty diagnostics confined to MainMenuGuiManager.cpp, down from 52 in two units. Project/filters match at 113 implementations and 119 headers. No tests, full link or game-runtime verification.
+- Provisional address coverage is 1,410/5,044 (27.95%), with 3,634 unmapped candidates and 63 mapped entries retaining direct original calls. Forty-three startup subconstructors remain. Next in-game block: string-output widget 004C7030 and BaseToolDesktop_AddWindow 004B8543, then auxiliary callbacks/class-static regions. Main-menu work is committed as fb69f88 (Main Menu Code); this in-game follow-up is uncommitted.
+
+
 ### Main-menu state, clean-map loading and clock dispatch
 
 - Previous atomic-animation/tribe work is committed as `acfcdb7` (Reconstruct atomic and tribe managers). All three distinct original call targets in MasterControlProgram_PS_MainMenu.cpp now use reconstructed native entries: fixed demo-map reload, ambient stop and game-time update. Added twenty-one original bodies across loader/centering/clock/network-buffer/runtime helpers; shared existing ResetDynamicSlots rather than duplicating it. See [MAIN_MENU_STATE.md](MAIN_MENU_STATE.md).

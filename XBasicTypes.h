@@ -49,6 +49,8 @@ namespace NXBasics
             height = rectangleHeight;
         }
 
+        void PlaceInside(const SRectangle& other) noexcept;
+
         // Original function: FUN_0041046d
         void CutInside(const SRectangle& other) noexcept
         {

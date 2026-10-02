@@ -299,7 +299,7 @@ namespace NC2MainMenuGuiManager
 		// Original member offset: +0x04.
 		std::memcpy(unknown0004, &worldElement, sizeof(worldElement));
 
-		FUN_00477163(NXBaseGui::CDesktop::sTheObjectPtr, worldElement, true);
+		NXBaseGui::CDesktop::sTheObjectPtr->Element_Add(static_cast<NXBaseGui::CBaseElement*>(worldElement), true);
 
 		mStaticVars.displayInitialized = 1;
 		mStaticVars.desktopUpdateFlag = 1;

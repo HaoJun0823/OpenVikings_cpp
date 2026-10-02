@@ -31,6 +31,11 @@ namespace NXBaseGui
         void Window_CloseAll();
 
         void Window_AddToCloseList(CBaseWindow* window);
+        void Window_Add(CBaseWindow* window);
+        std::uint32_t Window_Hide(CBaseWindow* window);
+        void Element_Add(CBaseElement* element, bool insertAtEnd);
+        std::uint32_t Element_Hide(CBaseElement* element);
+        CBaseElement* Window_GetActivePtr() const;
 
         // Original function: FUN_0047772f
         void Element_Activate(CBaseElement* element);
@@ -43,6 +48,7 @@ namespace NXBaseGui
 
         void Element_Remove(CBaseElement* element);
         void Element_Delete(CBaseElement* element);
+        CBaseElement* Message_SendToAllWindows(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
         // Original function: FUN_0047795d
         void PrimaryMessageHandler_Set(CBaseElement* handler);

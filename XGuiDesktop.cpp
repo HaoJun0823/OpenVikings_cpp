@@ -408,6 +408,27 @@ namespace NXBaseGui
         deleteListElements(0x28, 0x14);
     }
 
+    // Original function: FUN_004782fa; searches both original window lists.
+    CBaseElement* CDesktop::Message_SendToAllWindows(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
+    {
+        using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+        auto* bytes = reinterpret_cast<std::byte*>(this);
+        constexpr std::size_t windowListOffsets[] = {0xC8, 0x78};
+        for (std::size_t offset : windowListOffsets)
+        {
+            auto* list = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + offset));
+            NXBasics::CListBase::Iterator iterator(*list);
+            for (void* window = iterator.First(); window != nullptr; window = iterator.Next())
+            {
+                TMessage* methods = nullptr;
+                std::memcpy(&methods, window, sizeof(methods));
+                if (methods[2](window, 0x1000, command, param1, param2, param3))
+                    return static_cast<CBaseElement*>(window);
+            }
+        }
+        return nullptr;
+    }
+
     // Original function: FUN_0047803b
     CBaseElement* CDesktop::l_Element_GetRootElementPtr(CBaseElement* element)
     {

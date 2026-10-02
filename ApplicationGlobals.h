@@ -80,6 +80,6 @@ namespace NC2InGameGuiMiscWindows
 
 namespace NC2InGameGuiInputManager
 {
-    // Original singleton: 00569408; class identity recovered from InputMode_Set.
+    // Original singleton: 00569410; CInputManager lifecycle and selection access.
     inline void* gInputManager = nullptr;
 }
