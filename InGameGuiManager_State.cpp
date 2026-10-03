@@ -18,10 +18,10 @@
 #include <mmsystem.h>
 
 // Original widget construction, desktop input/rendering and logic callback bodies.
-extern bool __cdecl FUN_004b3264(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern std::uint32_t __fastcall FUN_004a1bf0(void* object);
-extern void __fastcall FUN_004a10cb(void* object);
-extern bool __fastcall FUN_004b4854(void* object, void* unusedEdx, std::int32_t mode);
+extern bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+extern std::uint32_t __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(void* object);
+extern void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* object);
+extern bool __fastcall InputManager_InputMode_Set(void* object, void* unusedEdx, std::int32_t mode);
 
 namespace
 {
@@ -142,7 +142,7 @@ namespace NInGameGuiManager
         if (allocation != nullptr) new (allocation) NC2InGameGuiGroups::CObjectGroupManager;
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0xC, 1);
         if (allocation != nullptr) new (allocation) NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager;
-        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x19, FUN_004b3264, 0, 10);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x19, IGG_DrawWorldGameCursor_LogicCallback, 0, 10);
         NC2InGameGuiMiscWindows::StatisticsWindow_Statics_Init();
         NC2InGameGuiMiscWindows::HumanListWindow_Statics_Init();
         NC2InGameGuiMiscWindows::DiplomacyWindow_Statics_Init();
@@ -156,7 +156,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a0295; reverse owner destruction order.
     void CInGameGuiManager::System_EndGame()
     {
-        NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(0x19, FUN_004b3264, 0);
+        NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(0x19, IGG_DrawWorldGameCursor_LogicCallback, 0);
         auto* deadHumans = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager);
         if (deadHumans != nullptr)
         {
@@ -187,10 +187,10 @@ namespace NInGameGuiManager
     void CInGameGuiManager::l_Selection_ActionButtons_CheckUpdate()
     {
         if (Read<std::uint32_t>(this, 0xCC) == 0) return;
-        const auto checksum = FUN_004a1bf0(this);
+        const auto checksum = InGameGuiManager_l_Selection_ActionButtons_GetChecksum(this);
         if (checksum == Read<std::uint32_t>(this, 0xCC)) return;
         l_Selection_RemoveAllGuiElements();
-        FUN_004a10cb(this);
+        InGameGuiManager_l_Selection_ActionButtons_BringUp(this);
     }
 
     // Original function: FUN_004a2436; element role remains unresolved.
@@ -210,7 +210,7 @@ namespace NInGameGuiManager
             auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(command, 0, 0, 0);
             if (window != nullptr) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
         }
-        if (resetInputMode) FUN_004b4854(NC2InGameGuiInputManager::gInputManager, nullptr, 0);
+        if (resetInputMode) InputManager_InputMode_Set(NC2InGameGuiInputManager::gInputManager, nullptr, 0);
     }
 
     // Original function: FUN_004a2598.

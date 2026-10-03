@@ -67,20 +67,20 @@ namespace NC2Logic
     }
     using namespace NC2Lifetime;
     SMapMoveableArrayStorage gMapMoveableArrayStorage{};
-    extern bool __cdecl FUN_00408f7b(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0040a612(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_00418d3b(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_004195a4(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_00419a7f(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0041b936(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0041cbb8(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_004230ee(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_00424ae9(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_004513c1(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_004511c5(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_00450e8c(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_00450c1d(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0044eb1e(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl AIManager_l_AI_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameControl_ls_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameAssistantManager_ls_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl MultiPlayerGoalManager_l_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl HappinessManager_l_Happiness_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GuideManager_l_Guides_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl HumanMerchantArray_l_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl MissionManager_l_Mission_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameMap_l_ValidateLandscapes_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameMap_l_Continents_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameMap_l_ResistanceSet_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameMap_l_WalkFlagSet_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl GameMap_l_MaxMoveableSize_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl MapFishManager_l_FishManager_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     struct SUserCommandListTag {};
 
@@ -156,7 +156,7 @@ namespace NC2Logic
     {
         gGameAssistantManager = manager;
         std::memset(manager, 0, 0x460);
-        CCallbackManager::sTheObjectPtr->RegisterCallback(1, FUN_00418d3b, 0x0C, 1);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(1, GameAssistantManager_ls_LogicCallback, 0x0C, 1);
         return manager;
     }
 
@@ -165,7 +165,7 @@ namespace NC2Logic
     {
         gMultiPlayerGoalManager = manager;
         std::memset(manager, 0, 0x740);
-        CCallbackManager::sTheObjectPtr->RegisterCallback(1, FUN_004195a4, 0x6F, 0x32);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(1, MultiPlayerGoalManager_l_LogicCallback, 0x6F, 0x32);
         return manager;
     }
 
@@ -174,7 +174,7 @@ namespace NC2Logic
     {
         gHappinessManager = manager;
         std::memset(manager, 0, 0xAA0);
-        for (std::uint32_t type : {1u, 0x27u, 0x28u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, FUN_00419a7f, 0x0C, 1);
+        for (std::uint32_t type : {1u, 0x27u, 0x28u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, HappinessManager_l_Happiness_Callback, 0x0C, 1);
         return manager;
     }
 
@@ -219,7 +219,7 @@ namespace NC2Logic
         std::memset(entries, 0, 0x2FDA0);
         std::memset(static_cast<std::byte*>(manager) + 0x34, 0, 0x5A4);
         array->System_InitArray(1000, static_cast<std::byte*>(entries), 0xC4, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
-        CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, FUN_0041cbb8, 0xDE, 0x32);
+        CCallbackManager::sTheObjectPtr->RegisterCallback(0x1A, HumanMerchantArray_l_LogicCallback, 0xDE, 0x32);
         return manager;
     }
 
@@ -347,19 +347,19 @@ namespace NC2Logic
     // Original function: FUN_0041761f.
     static void GameAssistantManager_Destruct(void*)
     {
-        Unregister(FUN_00418d3b, 0x0C, {1});
+        Unregister(GameAssistantManager_ls_LogicCallback, 0x0C, {1});
         gGameAssistantManager = nullptr;
     }
     // Original function: FUN_00419065.
     static void MultiPlayerGoalManager_Destruct(void*)
     {
-        Unregister(FUN_004195a4, 0x6F, {1});
+        Unregister(MultiPlayerGoalManager_l_LogicCallback, 0x6F, {1});
         gMultiPlayerGoalManager = nullptr;
     }
     // Original function: FUN_00419727.
     static void HappinessManager_Destruct(void*)
     {
-        Unregister(FUN_00419a7f, 0x0C, {0x28, 0x27, 1});
+        Unregister(HappinessManager_l_Happiness_Callback, 0x0C, {0x28, 0x27, 1});
         gHappinessManager = nullptr;
     }
     // Original function: FUN_00419bdf.
@@ -414,7 +414,7 @@ namespace NC2Logic
     static void GuideManager_Destruct(void* manager)
     {
         FreeField(manager, 0x1364);
-        Unregister(FUN_0041b936, 0x64, {1, 0x33, 0x31, 0x32});
+        Unregister(GuideManager_l_Guides_Callback, 0x64, {1, 0x33, 0x31, 0x32});
         DestroyOwned(CGuideArray::sTheObjectPtr, [](CGuideArray* array) { array->~CGuideArray(); });
         gGuideManager = nullptr;
     }
@@ -429,7 +429,7 @@ namespace NC2Logic
     // Original function: FUN_0041c428.
     static void HumanMerchantArray_Destruct(void* array)
     {
-        Unregister(FUN_0041cbb8, 0xDE, {0x1A});
+        Unregister(HumanMerchantArray_l_LogicCallback, 0xDE, {0x1A});
         if (Read<void*>(array, 0x30) != nullptr) FreeAndClearField(array, 0x30);
         gHumanMerchantArray = nullptr;
         Write<std::uint8_t>(array, 0, 0);
@@ -458,7 +458,7 @@ namespace NC2Logic
     // Original function: FUN_00407f55.
     static void AIManager_Destruct(void* manager)
     {
-        Unregister(FUN_00408f7b, 0x0B, {0x2A, 1});
+        Unregister(AIManager_l_AI_Callback, 0x0B, {0x2A, 1});
         for (std::uint32_t index = 0; index < 20; ++index)
         {
             if (Read<void*>(manager, index * 4) != nullptr)
@@ -478,13 +478,13 @@ namespace NC2Logic
     // Original function: FUN_0041cff0.
     static void MissionManager_Destruct(void*)
     {
-        Unregister(FUN_004230ee, 0x0A, {1});
+        Unregister(MissionManager_l_Mission_Callback, 0x0A, {1});
         gMissionManager = nullptr;
     }
     // Original function: FUN_00409a9e.
     static void GameControl_Destruct(void*)
     {
-        Unregister(FUN_0040a612, 0, {0x28});
+        Unregister(GameControl_ls_LogicCallback, 0, {0x28});
         gGameControl = nullptr;
     }
 
@@ -531,14 +531,14 @@ namespace NC2Logic
     // Original function: FUN_0044e65b.
     static void MapLandscapeAutoTransitionManager_Destruct(void*)
     {
-        Unregister(FUN_0044eb1e, 0x65, {1, 0x33, 0x32, 0x31});
+        Unregister(MapFishManager_l_FishManager_Callback, 0x65, {1, 0x33, 0x32, 0x31});
         gMapLandscapeAutoTransitionManager = nullptr;
     }
     // Original function: FUN_0042329f.
     void GameMap_Destruct(void*)
     {
         CCallbackManager::sTheObjectPtr->ExecuteCallback(2, false, 0, 0, 0);
-        for (TCallbackFunction callback : {FUN_00424ae9, FUN_004513c1, FUN_004511c5, FUN_00450e8c, FUN_00450c1d})
+        for (TCallbackFunction callback : {GameMap_l_ValidateLandscapes_Callback, GameMap_l_Continents_Callback, GameMap_l_ResistanceSet_Callback, GameMap_l_WalkFlagSet_Callback, GameMap_l_MaxMoveableSize_Callback})
         {
             Unregister(callback, 0, {0x33, 0x32, 0x31});
         }

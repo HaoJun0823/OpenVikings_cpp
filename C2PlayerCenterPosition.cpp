@@ -10,7 +10,7 @@
 namespace NC2Logic
 {
     // Original object/terrain fallback; its separate query body remains unresolved.
-    extern bool FUN_00439e61(std::uint32_t playerId, std::uint32_t* mapPoint);
+    extern bool Tool_Misc_GetPlayerCenterPosition(std::uint32_t playerId, std::uint32_t* mapPoint);
 }
 
 namespace NC2InGameGuiEntryPoints
@@ -59,6 +59,6 @@ namespace NC2InGameGuiEntryPoints
                 }
             }
         }
-        return NC2Logic::FUN_00439e61(playerId, mapPoint);
+        return NC2Logic::Tool_Misc_GetPlayerCenterPosition(playerId, mapPoint);
     }
 }

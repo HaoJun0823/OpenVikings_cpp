@@ -25,16 +25,16 @@
 
 // Untranslated Windows routines. The unused EDX argument keeps stack parameters
 // on the original __thiscall stack; constructors retain their original vtables.
-extern void* __fastcall FUN_004bc31c(void* object);
-extern void* __fastcall FUN_004bb78a(void* object);
-extern void* __fastcall FUN_004b8607(void* object);
-extern void __fastcall FUN_004a0d01(void* object);
-extern void __fastcall FUN_004a0e9d(void* object);
-extern bool __cdecl FUN_004a2c0b(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
+extern void* __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Construct(void* object);
+extern void* __fastcall InGameGuiManagerMousePointer_Construct(void* object);
+extern void* __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void* object);
+extern void __fastcall InGameGuiManager_InputMode_Changed(void* object);
+extern void __fastcall InGameGuiManager_Selection_UpdateWindows(void* object);
+extern bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
-extern int __fastcall FUN_004a002d(void* object);
-extern void* __fastcall FUN_004a3eab(void* object);
-extern void* __fastcall FUN_004a0145(void* object, void* unusedEdx, std::uint32_t deletingFlags);
+extern int __fastcall InGameGuiManager_Vars_Construct(void* object);
+extern void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Construct(void* object);
+extern void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Delete(void* object, void* unusedEdx, std::uint32_t deletingFlags);
 
 namespace
 {
@@ -206,8 +206,8 @@ namespace NInGameGuiManager
     // Original function: FUN_0049fd79
     CInGameGuiManager::CInGameGuiManager()
     {
-        FUN_004a002d(this);
-        FUN_004a3eab(mDisplayObject);
+        InGameGuiManager_Vars_Construct(this);
+        InGameGuiManagerDefaultMessageHandlerElement_Construct(mDisplayObject);
         auto* stringInput = new (mStringInputStorage) NC2InGameGuiBaseTextInputElement::CStringInputHandler;
 
         sTheObjectPtr = this;
@@ -276,7 +276,7 @@ namespace NInGameGuiManager
 
         // Flags zero reproduce the original inline destructor without freeing
         // the embedded element; its original base-element vtable is retained.
-        FUN_004a0145(mDisplayObject, nullptr, 0);
+        InGameGuiManagerDefaultMessageHandlerElement_Delete(mDisplayObject, nullptr, 0);
 
         DestroyDeferredDeletionQueue(mLegacyState + 0xB8);
         DestroyDeferredDeletionQueue(mLegacyState + 0x74);
@@ -306,15 +306,15 @@ namespace NInGameGuiManager
         NXSysMouseManager::CMouseManager::sTheObjectPtr->SetPositionOverrideCallback(sl_IsMouseStoppedCallback);
 
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0x2C, 1);
-        void* primaryHandler = allocation == nullptr ? nullptr : FUN_004bc31c(allocation);
+        void* primaryHandler = allocation == nullptr ? nullptr : InGameGuiManagerPrimaryMessageHandlerElement_Construct(allocation);
         NXBaseGui::CDesktop::sTheObjectPtr->PrimaryMessageHandler_Set(static_cast<NXBaseGui::CBaseElement*>(primaryHandler));
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
-        void* mousePointer = allocation == nullptr ? nullptr : FUN_004bb78a(allocation);
+        void* mousePointer = allocation == nullptr ? nullptr : InGameGuiManagerMousePointer_Construct(allocation);
         NXBaseGui::CDesktop::sTheObjectPtr->SetMousePointerStorage(mousePointer);
 
         constexpr std::uint32_t callbackTypes[] = { 1, 0x14, 0x15, 0x16, 0x1B, 0x2B, 0x2C, 0x2D, 0x2F, 0x30 };
         for (const std::uint32_t type : callbackTypes)
-            NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, FUN_004a2c0b, 0, type == 1 ? 10 : 5);
+            NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, InGameGuiManager_ls_Logic_CallbackFunction, 0, type == 1 ? 10 : 5);
 
         NC2E2::Inform_DesktopXTructed(width, height, depth);
         allocation = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
@@ -404,16 +404,16 @@ namespace NInGameGuiManager
         if (window == nullptr)
         {
             allocation = NXBasics::Runtime_AllocateWithNewHandler(0x27B0, 1);
-            window = allocation == nullptr ? nullptr : FUN_004b8607(allocation);
+            window = allocation == nullptr ? nullptr : MissionOnscreenInfoStaticGuiWindow_Construct(allocation);
             std::memcpy(mLegacyState + 0x08, &window, sizeof(window));
             NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
         }
         mStaticVars.desktopInitialized = true;
         mStaticVars.redrawRequested = true;
-        FUN_004a0d01(this);
+        InGameGuiManager_InputMode_Changed(this);
         const std::uint32_t zero = 0;
         std::memcpy(mLegacyState + 0x88, &zero, sizeof(zero));
-        FUN_004a0e9d(this);
+        InGameGuiManager_Selection_UpdateWindows(this);
         NC2E2::Inform_ControllingPlayerChanged(GetLocalPlayerId());
         NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_ControllingPlayerChanged(GetLocalPlayerId());
         static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveAll(false);
@@ -441,7 +441,7 @@ namespace NInGameGuiManager
         NC2E2::Inform_DesktopXTructed(0, 0, 0);
         constexpr std::uint32_t callbackTypes[] = { 0x30, 0x2F, 0x2D, 0x2C, 0x2B, 0x1B, 0x16, 0x15, 0x14, 1 };
         for (const std::uint32_t type : callbackTypes)
-            NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(type, FUN_004a2c0b, 0);
+            NC2Logic::CCallbackManager::sTheObjectPtr->UnRegisterCallback(type, InGameGuiManager_ls_Logic_CallbackFunction, 0);
         if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
             NXSysMouseManager::CMouseManager::sTheObjectPtr->SetPositionOverrideCallback(nullptr);
         mStaticVars.desktopInitialized = false;

@@ -23,18 +23,18 @@
 
 // Untranslated original routines. The unused EDX parameter preserves the
 // ECX receiver and callee-popped stack of their Windows __thiscall interfaces.
-extern bool __cdecl FUN_004a2f54(const std::int16_t* rectangle);
-extern void __cdecl FUN_00499ad5(void* display);
-extern void __fastcall FUN_0048688e(void* manager, void* unusedEdx, void* display);
-extern void __fastcall FUN_004911d5(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point, bool firstFlag, bool secondFlag);
-extern void __fastcall FUN_0047d37b(void* display);
-extern void __fastcall FUN_0047d64a(void* display);
-extern void __fastcall FUN_0047d918(void* display);
-extern void __fastcall FUN_004986c5(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point);
-extern void __fastcall FUN_004990e4(void* display);
-extern void __fastcall FUN_0049938d(void* display);
-extern void __fastcall FUN_004995d8(void* display);
-extern void __fastcall FUN_0040eefa(NXBasics::CBitmap* bitmap);
+extern bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std::int16_t* rectangle);
+extern void __cdecl DrawAtom_FishManager_DoDraw(void* display);
+extern void __fastcall E2ParticelManager_SortParticelAndDrawBottom(void* manager, void* unusedEdx, void* display);
+extern void __fastcall Display_l_DE_DrawLandscapeAndCreaturesField(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point, bool firstFlag, bool secondFlag);
+extern void __fastcall Display_l_DE_SpecialOverlay_Rain_Draw(void* display);
+extern void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void* display);
+extern void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void* display);
+extern void __fastcall Display_l_DE_DrawTooltipOverlays(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point);
+extern void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display);
+extern void __fastcall Display_l_DE_Debug_DrawHousesDebugInfos(void* display);
+extern void __fastcall Display_l_DE_Debug_DrawGridLines(void* display);
+extern void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
@@ -1033,7 +1033,7 @@ namespace NC2E2
         std::int16_t rectangle[4];
         std::memcpy(rectangle, bits, sizeof(rectangle));
         NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
-        if (FUN_004a2f54(rectangle))
+        if (C2IGG_EntryPoint_InputManager_Highlighting_Update(rectangle))
             Display_WriteField(display, 0x978, std::uint8_t{1});
     }
 
@@ -1108,7 +1108,7 @@ namespace NC2E2
     }
 
     // The original drawing stage takes a copied 24-byte rectangle on the stack.
-    extern void __fastcall FUN_00481ae2(void* display, void* unusedEdx, S2DEngineDisplayRectangle rectangle);
+    extern void __fastcall Display_l_DE_DoUpdateStaticPart1(void* display, void* unusedEdx, S2DEngineDisplayRectangle rectangle);
 
     static std::uint32_t Display_WrapBitmapCoordinate(std::uint32_t coordinate, std::uint32_t size)
     {
@@ -1134,7 +1134,7 @@ namespace NC2E2
     static void Display_RebuildStaticCompletly(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
     {
         const S2DEngineDisplayRectangle rectangle{ pixelX, pixelY, 0, 0, Display_ReadField<std::uint32_t>(display, 0x964), Display_ReadField<std::uint32_t>(display, 0x968) };
-        FUN_00481ae2(display, nullptr, rectangle);
+        Display_l_DE_DoUpdateStaticPart1(display, nullptr, rectangle);
         Display_WriteField(display, 0x970, 0u);
         Display_WriteField(display, 0x974, 0u);
         Display_WriteField(display, 0x978, std::uint8_t{0});
@@ -1174,7 +1174,7 @@ namespace NC2E2
             const bool movesRight = NXBasics::Runtime_TimeSigned32(dx) > 0;
             S2DEngineDisplayRectangle rectangle{ oldX + (movesRight ? width : dx), oldY + dy, Display_ReadField<std::uint32_t>(display, 0x970) + (movesRight ? width : dx), Display_ReadField<std::uint32_t>(display, 0x974) + dy, absoluteX, height };
             Display_WrapStaticBitmapPosition(display, rectangle);
-            FUN_00481ae2(display, nullptr, rectangle);
+            Display_l_DE_DoUpdateStaticPart1(display, nullptr, rectangle);
         }
         if (dy != 0)
         {
@@ -1183,7 +1183,7 @@ namespace NC2E2
             const std::uint32_t updatedHeight = Display_ReadField<std::uint32_t>(display, 0x968);
             S2DEngineDisplayRectangle rectangle{ Display_ReadField<std::uint32_t>(display, 0x954) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, 0x958) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, 0x970) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, 0x974) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, 0x964) - absoluteX, absoluteY };
             Display_WrapStaticBitmapPosition(display, rectangle);
-            FUN_00481ae2(display, nullptr, rectangle);
+            Display_l_DE_DoUpdateStaticPart1(display, nullptr, rectangle);
         }
         Display_WriteField(display, 0x970, Display_ReadField<std::uint32_t>(display, 0x970) + dx);
         Display_WriteField(display, 0x974, Display_ReadField<std::uint32_t>(display, 0x974) + dy);
@@ -1203,31 +1203,31 @@ namespace NC2E2
     // Original function: FUN_004910c5; l_DE_DrawForeground.
     static void Display_DrawForeground(void* display)
     {
-        FUN_00499ad5(display);
+        DrawAtom_FishManager_DoDraw(display);
         if ((Display_ReadField<std::uint8_t>(display, 0x70) & 2u) != 0)
-            FUN_0048688e(gE2ParticelManager, nullptr, display);
+            E2ParticelManager_SortParticelAndDrawBottom(gE2ParticelManager, nullptr, display);
         const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
         const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + 0x98C);
         if ((Display_ReadField<std::uint8_t>(display, 0x70) & 1u) != 0)
         {
-            FUN_004911d5(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, true);
-            FUN_004911d5(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, false);
+            Display_l_DE_DrawLandscapeAndCreaturesField(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, true);
+            Display_l_DE_DrawLandscapeAndCreaturesField(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, false);
         }
         if (CLevelOfDetailManager::sLevelOfDetail == 2 && Display_ReadField<std::int32_t>(display, 0x78) >= 0)
         {
-            FUN_0047d37b(display);
-            FUN_0047d64a(display);
-            FUN_0047d918(display);
+            Display_l_DE_SpecialOverlay_Rain_Draw(display);
+            Display_l_DE_SpecialOverlay_Snow_Draw(display);
+            Display_l_DE_SpecialOverlay_Sand_Draw(display);
         }
         if (Display_ReadField<std::uint8_t>(display, 0x920) != 0)
-            FUN_004986c5(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point);
+            Display_l_DE_DrawTooltipOverlays(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point);
         if ((Display_ReadField<std::uint8_t>(display, 0x71) & 0x20u) != 0)
         {
-            FUN_004990e4(display);
-            FUN_0049938d(display);
+            Display_l_DE_Debug_DrawMapMoveablesDebugInfos(display);
+            Display_l_DE_Debug_DrawHousesDebugInfos(display);
         }
         if ((Display_ReadField<std::uint8_t>(display, 0x71) & 0xC0u) != 0)
-            FUN_004995d8(display);
+            Display_l_DE_Debug_DrawGridLines(display);
         Display_InformGuiRedraw(display);
 
         if (Display_ReadField<std::int32_t>(display, 0x78) > 0)
@@ -1239,7 +1239,7 @@ namespace NC2E2
             area.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.height) & 0xFFFCu);
             NXBasics::CBitmap window(bitmap, area);
             for (std::int32_t step = 0; step < Display_ReadField<std::int32_t>(display, 0x78); ++step)
-                FUN_0040eefa(&window);
+                Bitmap_ZoomIn(&window);
         }
     }
 

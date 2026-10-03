@@ -23,7 +23,7 @@
 
 // Untranslated original base/widget interfaces. EDX is unused so the stack
 // parameters and callee cleanup match Windows __thiscall dispatch.
-extern std::uint32_t __fastcall FUN_004ba3be(void* object, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
+extern std::uint32_t __fastcall WorldDisplayElement_XGui_BE_Message_Handle(void* object, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
 
 namespace NC2InGameGuiWorldElement
 {
@@ -63,7 +63,7 @@ namespace NC2InGameGuiWorldElement
     {
         reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_DeletingDestructor),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
-        reinterpret_cast<std::uintptr_t>(&FUN_004ba3be),
+        reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_XGui_BE_Message_Handle),
         reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_VirtualDraw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),

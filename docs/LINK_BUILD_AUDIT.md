@@ -29,11 +29,11 @@ Both Debug|Win32 and Release|Win32 now build and link successfully with the user
 
 ## Build-only checkpoint and subsequent replacement
 
-Extern declarations alone do not provide executable behavior. The previous build compiled 140 production units but failed at 146 original addresses. The user authorized temporary dummy bodies on 2026-10-03 to establish a compilable checkpoint; all such definitions are isolated and explicitly marked. Three recently introduced GUI calls now use the Mac names directly. Older legacy bindings retain their existing names until their owning blocks are reconstructed; no new raw FUN call sites were introduced for the checkpoint.
+Extern declarations alone do not provide executable behavior. The previous build compiled 140 production units but failed at 146 original addresses. The user authorized temporary dummy bodies on 2026-10-03 to establish a compilable checkpoint; all such definitions are isolated and explicitly marked. Three recently introduced GUI calls now use the Mac names directly. The subsequent naming pass replaces all 143 remaining legacy FUN identifiers consistently. See [FUNCTION_NAMES.md](FUNCTION_NAMES.md) for exact Mac correspondence and Windows-only naming provenance.
 
 Project and filters match 141 implementation files and 140 headers, including the temporary unit. Shared S2DEngineDisplayRectangle moved unchanged into its owning header so the by-value stub uses the same 24-byte type. Main target remains Win32/x86. Executables are emitted into OpenVikings/Debug and OpenVikings/Release, as requested. No tests/test projects were added.
 
-For each real replacement, preserve Windows ABI/behavior, remove its temporary definition and CSV row, and rebuild both configurations. Future new calls must use names established from the Mac source; uncertain correspondence must not be hidden by guessed naming. Zero linker errors must remain separate from the genuine reconstruction progress metric.
+For each real replacement, preserve Windows ABI/behavior, remove its temporary definition and CSV row, and keep declarations/definitions consistent. Run Debug/Release builds only when explicitly requested by the user. Future new calls must use names established from the Mac source; uncertain correspondence must not be hidden by guessed naming. Zero linker errors must remain separate from the genuine reconstruction progress metric.
 
 ## Reproduction and artifacts
 
@@ -42,3 +42,7 @@ MSBuild OpenVikings.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=Win32 
 MSBuild OpenVikings.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=Win32 /m
 
 Logs are saved outside the repository in C:/Users/ravo/AppData/Local/Temp/OpenVikings-rebuild-debug-temporary-stubs.log and OpenVikings-rebuild-release-temporary-stubs.log. Pre-dummy comparison logs are OpenVikings-link-debug-gui-reservations.log and OpenVikings-link-release-gui-reservations.log. The read-only progress script explicitly excludes TemporaryLinkStubs.cpp. No game launch/runtime success is claimed.
+
+## Subsequent semantic naming and output separation
+
+The checkpoint is committed as a77fd47. All active FUN identifiers have semantic names and their temporary bodies remain unfinished. Current output settings separate EXE, symbols and intermediate products; these changes have static verification only, with no new build. See [FUNCTION_NAMES.md](FUNCTION_NAMES.md).

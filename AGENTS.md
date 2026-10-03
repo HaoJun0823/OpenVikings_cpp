@@ -71,6 +71,8 @@ When a contiguous static region is discovered, analyze the whole region rather t
 - Do **not** add `#pragma comment(lib, "dinput.lib")` merely to solve imports; the project already handles the Windows imports appropriately.
 - Avoid introducing new CRT dependencies when the current reconstruction deliberately uses project runtime wrappers.
 - Prefer existing project runtime/file/string/memory wrappers when they represent the original behavior.
+- Do not automatically run Debug or Release builds; run them only when the user explicitly requests a build. Do not add tests or test projects.
+- Keep executable outputs in `OpenVikings\$(Configuration)\`, PDB symbols in its `symbols\` subdirectory, and intermediate build products in its `obj\` subdirectory.
 
 ## 6. ZIP-file rule
 

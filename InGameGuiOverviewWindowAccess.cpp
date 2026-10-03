@@ -11,9 +11,9 @@
 
 #include <cstring>
 
-extern void __fastcall FUN_004a2322(void* manager);
-extern void* __fastcall FUN_004c9777(void* window, void* unusedEdx, std::uint32_t flags);
-extern void __fastcall FUN_004c9824(void* window, void* unusedEdx, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle);
+extern void __fastcall InGameGuiManager_MiscWindows_LargeOverviewWindow_Toggle(void* manager);
+extern void* __fastcall WorldOverviewStaticGuiWindow_Delete(void* window, void* unusedEdx, std::uint32_t flags);
+extern void __fastcall WorldOverviewStaticGuiWindow_XGui_BE_Element_Draw(void* window, void* unusedEdx, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle);
 
 namespace NC2InGameGuiOverviewDisplay
 {
@@ -56,7 +56,7 @@ namespace NC2InGameGuiOverviewDisplay
             break;
         }
         case 10005:
-            FUN_004a2322(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+            InGameGuiManager_MiscWindows_LargeOverviewWindow_Toggle(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
             break;
         case 10010:
             WorldOverviewElement_ModifyZoom(OverviewWindow_Read<void*>(window, 0x74), -1);
@@ -72,10 +72,10 @@ namespace NC2InGameGuiOverviewDisplay
     // title drawing and inherited GUI virtual methods remain original boundaries.
     static const std::uintptr_t gWorldOverviewStaticWindowVirtualTable[] =
     {
-        reinterpret_cast<std::uintptr_t>(&FUN_004c9777),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticGuiWindow_Delete),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticWindow_MessageHandle),
-        reinterpret_cast<std::uintptr_t>(&FUN_004c9824),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticGuiWindow_XGui_BE_Element_Draw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DeActivate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonPressed),

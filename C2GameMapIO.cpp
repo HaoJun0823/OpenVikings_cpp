@@ -16,11 +16,11 @@ namespace NC2Logic
     using namespace NC2Lifetime;
 
     // Original map-chunk dispatcher and script-manager bodies remain unresolved.
-    extern bool FUN_0042fbf4(CIoHelper*);
-    extern void __fastcall FUN_0041d09b(void*, void* unusedEdx, NXBasics::CIniFileReader*);
-    extern void __fastcall FUN_0040822e(void*, void* unusedEdx, NXBasics::CIniFileReader*);
-    extern void __fastcall FUN_0041cb1e(void*, void* unusedEdx, NXBasics::CIniFileReader*);
-    extern void __fastcall FUN_0041910b(void*, void* unusedEdx, NXBasics::CIniFileReader*);
+    extern bool GameMap_l_GlobalIO_Load(CIoHelper*);
+    extern void __fastcall MissionManager_LoadMissionScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
+    extern void __fastcall AIManager_IO_InitFromScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
+    extern void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void*, void* unusedEdx, NXBasics::CIniFileReader*);
+    extern void __fastcall MultiPlayerGoalManager_IO_LoadGoals(void*, void* unusedEdx, NXBasics::CIniFileReader*);
 
     namespace
     {
@@ -137,10 +137,10 @@ namespace NC2Logic
 
         if (reader != nullptr)
         {
-            FUN_0041d09b(gMissionManager, nullptr, reader);
-            FUN_0040822e(gAIManager, nullptr, reader);
-            FUN_0041cb1e(gHumanMerchantArray, nullptr, reader);
-            FUN_0041910b(gMultiPlayerGoalManager, nullptr, reader);
+            MissionManager_LoadMissionScript(gMissionManager, nullptr, reader);
+            AIManager_IO_InitFromScript(gAIManager, nullptr, reader);
+            HumanMerchantArray_CleanMap_LoadTradeAgreements(gHumanMerchantArray, nullptr, reader);
+            MultiPlayerGoalManager_IO_LoadGoals(gMultiPlayerGoalManager, nullptr, reader);
         }
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x16, false, 1, 0, 0);
         if (rootMode) NXBasics::CFile::FileSystem_SystemPathName_Clear("$maproot$");
@@ -155,6 +155,6 @@ namespace NC2Logic
     {
         std::uint32_t version;
         if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(0x6C676D6D, &version, nullptr)) return false;
-        return FUN_0042fbf4(io);
+        return GameMap_l_GlobalIO_Load(io);
     }
 }

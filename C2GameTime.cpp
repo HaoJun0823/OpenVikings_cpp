@@ -18,20 +18,20 @@ namespace NC2Logic
     using namespace NC2Lifetime;
 
     // Original subsystem updates/command processing are separate unresolved bodies.
-    extern std::uint32_t FUN_00428736();
+    extern std::uint32_t Game_Checksum_Calculate();
 
-    extern void __fastcall FUN_0040bd33(void*, void* unusedEdx);
-    extern void __fastcall FUN_0040ace5(void*, void* unusedEdx);
-    extern void __fastcall FUN_0040ad1d(void*, void* unusedEdx);
-    extern void __fastcall FUN_004285e2(void*, void* unusedEdx);
-    extern void __fastcall FUN_0042795f(void*, void* unusedEdx);
-    extern void FUN_0042712c();
-    extern void __fastcall FUN_00426f84(void*, void* unusedEdx);
-    extern void __fastcall FUN_00426ac7(void*, void* unusedEdx);
-    extern void __fastcall FUN_0041a097(void*, void* unusedEdx);
-    extern void __fastcall FUN_00409bcc(void*, void* unusedEdx, std::uint32_t);
-    extern void FUN_00407505();
-    extern std::uint32_t FUN_0040b183();
+    extern void __fastcall MapMoveableArray_DoOneGameTick(void*, void* unusedEdx);
+    extern void __fastcall HouseArray_DoOneGameTick(void*, void* unusedEdx);
+    extern void __fastcall HouseArray_DoOneGameSecond(void*, void* unusedEdx);
+    extern void __fastcall RoadBuildManager_DoOneGameSecond(void*, void* unusedEdx);
+    extern void __fastcall WallBuildManager_DoOneGameSecond(void*, void* unusedEdx);
+    extern void Map_BioSystem_DoOneGameTick();
+    extern void __fastcall MapLandscapeAutoTransitionManager_System_DoOneGameTick(void*, void* unusedEdx);
+    extern void __fastcall MapBioRegrowManager_System_DoOneGameTick(void*, void* unusedEdx);
+    extern void __fastcall DelayedActionManager_System_DoOneGameTick(void*, void* unusedEdx);
+    extern void __fastcall GameControl_System_DoOneGameTick(void*, void* unusedEdx, std::uint32_t);
+    extern void Game_l_Autosave_Update();
+    extern std::uint32_t GameTime_Network_GetHighestPlayerLatency();
 
     static bool GameTime_IsATickToGo();
 
@@ -82,7 +82,7 @@ namespace NC2Logic
             {
                 std::byte command[20]{};
                 command[0] = std::byte{0x8A};
-                Write<std::uint32_t>(command, 4, FUN_00428736());
+                Write<std::uint32_t>(command, 4, Game_Checksum_Calculate());
                 Write<std::uint32_t>(command, 8, gGameTime.tick);
                 Write<std::uint32_t>(command, 12, NNetwork::GetDynamicNetworkLocalPlayerId(&gDynamicNetworkData));
                 UserNetworkCommandManager_AddCommand(gUserNetworkCommandManager, nullptr, command, true, false);
@@ -91,20 +91,20 @@ namespace NC2Logic
         ++gGameTime.tick;
         gGameTime.lastRealTime += gGameTime.tickDuration;
         if (gGameTime.tick % 720u == 0) PlayerStatisticManager_UpdateStatistics(gPlayerStatisticManager, nullptr, gGameTime.tick / 12u);
-        FUN_0040bd33(gMapMoveableArrayStorage.manager, nullptr);
-        FUN_0040ace5(CHouseArray::sTheObjectPtr, nullptr);
+        MapMoveableArray_DoOneGameTick(gMapMoveableArrayStorage.manager, nullptr);
+        HouseArray_DoOneGameTick(CHouseArray::sTheObjectPtr, nullptr);
         if (gGameTime.tick % 12u == 0)
         {
-            FUN_0040ad1d(CHouseArray::sTheObjectPtr, nullptr);
-            FUN_004285e2(gRoadBuildManager, nullptr);
-            FUN_0042795f(gWallBuildManager, nullptr);
+            HouseArray_DoOneGameSecond(CHouseArray::sTheObjectPtr, nullptr);
+            RoadBuildManager_DoOneGameSecond(gRoadBuildManager, nullptr);
+            WallBuildManager_DoOneGameSecond(gWallBuildManager, nullptr);
         }
-        FUN_0042712c();
-        FUN_00426f84(gMapFishManager, nullptr);
-        FUN_00426ac7(gMapBioRegrowManager, nullptr);
-        FUN_0041a097(gDelayedActionManager, nullptr);
-        FUN_00409bcc(gGameControl, nullptr, gGameTime.tick);
-        FUN_00407505();
+        Map_BioSystem_DoOneGameTick();
+        MapLandscapeAutoTransitionManager_System_DoOneGameTick(gMapFishManager, nullptr);
+        MapBioRegrowManager_System_DoOneGameTick(gMapBioRegrowManager, nullptr);
+        DelayedActionManager_System_DoOneGameTick(gDelayedActionManager, nullptr);
+        GameControl_System_DoOneGameTick(gGameControl, nullptr, gGameTime.tick);
+        Game_l_Autosave_Update();
         CCallbackManager::sTheObjectPtr->ExecuteCallback(1, true, gGameTime.tick, 0, 0);
     }
 
@@ -136,7 +136,7 @@ namespace NC2Logic
             {
                 if (now > gGameTime.latencySampleTime + 3000u)
                 {
-                    const std::uint32_t latency = FUN_0040b183();
+                    const std::uint32_t latency = GameTime_Network_GetHighestPlayerLatency();
                     if (latency == 0)
                     {
                         std::memset(gGameTime.latencySamples, 0, sizeof(gGameTime.latencySamples));

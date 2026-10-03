@@ -18,12 +18,12 @@
 #include <cstring>
 
 // Original widget interfaces; their constructors are separate reconstruction targets.
-extern void* __fastcall FUN_004cff78(void*, void* unusedEdx, const NXBasics::SRectangle*);
-extern void* __fastcall FUN_004cfff5(void*, void* unusedEdx, const NXBasics::SRectangle*, void*, bool, bool);
-extern void __fastcall FUN_004d01a3(void*, void* unusedEdx, void*);
-extern void __cdecl FUN_004c1a3f(void*, void*, std::uint32_t, bool, std::uint32_t, bool);
-extern void* __fastcall FUN_004cbcd6(void*, void* unusedEdx, const NXBasics::SRectangle*, std::uint32_t, std::uint32_t, const char*, const char*, void*, void*);
-extern void __fastcall FUN_004cbf6c(void*, void* unusedEdx, float, std::uint32_t);
+extern void* __fastcall ToolListBoxElement_Construct(void*, void* unusedEdx, const NXBasics::SRectangle*);
+extern void* __fastcall ToolListBoxControllerElement_Construct(void*, void* unusedEdx, const NXBasics::SRectangle*, void*, bool, bool);
+extern void __fastcall BaseListBoxElement_Element_Add(void*, void* unusedEdx, void*);
+extern void __cdecl Tool_Options_FillSavegameListboxForLoading(void*, void*, std::uint32_t, bool, std::uint32_t, bool);
+extern void* __fastcall HyperLinkTextGuiElementBase_Construct(void*, void* unusedEdx, const NXBasics::SRectangle*, std::uint32_t, std::uint32_t, const char*, const char*, void*, void*);
+extern void __fastcall HyperLinkTextGuiElementBase_SetAutoScrollSpeed(void*, void* unusedEdx, float, std::uint32_t);
 
 namespace NC2MainMenuGuiManager
 {
@@ -75,13 +75,13 @@ namespace NC2MainMenuGuiManager
     static void* CreateListBox(const SRectangle& rectangle)
     {
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
-        return allocation == nullptr ? nullptr : FUN_004cff78(allocation, nullptr, &rectangle);
+        return allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
     }
 
     static void* CreateListController(const SRectangle& rectangle, void* list)
     {
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
-        return allocation == nullptr ? nullptr : FUN_004cfff5(allocation, nullptr, &rectangle, list, false, true);
+        return allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &rectangle, list, false, true);
     }
 
     static void SetButtonValue(void* button, std::uint32_t value)
@@ -163,7 +163,7 @@ namespace NC2MainMenuGuiManager
                     void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
                     void* element = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &row, name, tooltip, command, owner);
                     SetButtonValue(element, reinterpret_cast<std::uint32_t>(&map->guid));
-                    FUN_004d01a3(list, nullptr, element);
+                    BaseListBoxElement_Element_Add(list, nullptr, element);
                     AdvanceRow(row, 2);
                 };
                 if (currentScreen == 8)
@@ -180,7 +180,7 @@ namespace NC2MainMenuGuiManager
                         if (NC2Logic::gCleanMapsManager->mMapTypeCounts[groups[group]] == 0) continue;
                         row.y = AddCoordinate(row.y, group == 0 ? 10 : (group == 2 ? 0 : 6));
                         auto getter = (group == 1 || group == 3) ? StringTool_GetOdin001StringPtr : StringTool_GetMainMenuStringPtr;
-                        FUN_004d01a3(list, nullptr, CreateText(row, [=] { return getter(captions[group]); }, false));
+                        BaseListBoxElement_Element_Add(list, nullptr, CreateText(row, [=] { return getter(captions[group]); }, false));
                         AdvanceRow(row, 2);
                         for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
                             if (static_cast<std::uint8_t>(map->unknown384) == 0 && (map->mapTypes & (1u << groups[group])) != 0 && (group < 2 || map->multiplayerOnly == 0)) mapButton(map, 0x1397);
@@ -237,7 +237,7 @@ namespace NC2MainMenuGuiManager
                 }
                 rectangle.x = content.x; AdvanceRow(rectangle, 8); rectangle.width = 496; rectangle.height = 250;
                 void* list = CreateListBox(rectangle);
-                FUN_004c1a3f(list, owner, 0x1398, false, 0, false);
+                Tool_Options_FillSavegameListboxForLoading(list, owner, 0x1398, false, 0, false);
                 attachList(rectangle, list);
             }
             else add(CreateText(content, [] { return "SAVEGAME MANAGER NOT CREATED!"; }, false));
@@ -328,7 +328,7 @@ namespace NC2MainMenuGuiManager
                 }
                 rectangle = upperContent; rectangle.y = AddCoordinate(rectangle.y, 30); rectangle.width = 660; rectangle.height = 250;
                 void* list = CreateListBox(rectangle);
-                FUN_004c1a3f(list, owner, 0x13AE, true, Read<std::uint32_t>(this, 0xF24), false);
+                Tool_Options_FillSavegameListboxForLoading(list, owner, 0x13AE, true, Read<std::uint32_t>(this, 0xF24), false);
                 attachList(rectangle, list);
                 button(back, 0x79, 0x7A, 0x13A9);
                 break;
@@ -348,7 +348,7 @@ namespace NC2MainMenuGuiManager
                         const auto type = group == 0 ? 4u : 6u;
                         if (NC2Logic::gCleanMapsManager->mMapTypeCounts[type] == 0) continue;
                         row.y = AddCoordinate(row.y, 6);
-                        FUN_004d01a3(list, nullptr, CreateText(row, [=] { return StringTool_GetOdin001StringPtr(0x24 + group); }, false));
+                        BaseListBoxElement_Element_Add(list, nullptr, CreateText(row, [=] { return StringTool_GetOdin001StringPtr(0x24 + group); }, false));
                         AdvanceRow(row, 2);
                         for (auto* map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.First()); map != nullptr; map = static_cast<NC2Logic::SCleanMapInfoData*>(iterator.Next()))
                         {
@@ -357,7 +357,7 @@ namespace NC2MainMenuGuiManager
                             void* element = CreateSimpleButton(row, [&] { return name; }, 0x13AA, owner);
                             SetButtonValue(element, reinterpret_cast<std::uint32_t>(&map->guid));
                             if (reinterpret_cast<const NC2Logic::SCleanMapGuid*>(lobbyData + 4)->IsEqualTo(map->guid)) Write<std::uint8_t>(element, 0x55, 1);
-                            FUN_004d01a3(list, nullptr, element); AdvanceRow(row, 2);
+                            BaseListBoxElement_Element_Add(list, nullptr, element); AdvanceRow(row, 2);
                         }
                     }
                 }
@@ -493,8 +493,8 @@ namespace NC2MainMenuGuiManager
             rectangle.Inflate(-3, -3);
             char directory[260]; NC2Logic::LanguageTool_GetDirectoryName("data\\text\\%s\\hypertext\\credits", directory, "index.hlt");
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x48, 1);
-            void* element = allocation == nullptr ? nullptr : FUN_004cbcd6(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, nullptr);
-            Write<std::uint8_t>(element, 0x3A, 0); FUN_004cbf6c(element, nullptr, 20.0f, 1000); Write<std::uint8_t>(element, 0x38, 0); add(element);
+            void* element = allocation == nullptr ? nullptr : HyperLinkTextGuiElementBase_Construct(allocation, nullptr, &rectangle, 3, 0x100, directory, "index.hlt", nullptr, nullptr);
+            Write<std::uint8_t>(element, 0x3A, 0); HyperLinkTextGuiElementBase_SetAutoScrollSpeed(element, nullptr, 20.0f, 1000); Write<std::uint8_t>(element, 0x38, 0); add(element);
             button(back, 0x14, 0x15, 0x138A);
             break;
         }

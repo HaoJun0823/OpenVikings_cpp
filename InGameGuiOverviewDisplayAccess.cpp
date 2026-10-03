@@ -24,9 +24,9 @@
 
 // Original boundaries: engine map/pattern data, object traversal, input and bitmap primitives.
 // The unused EDX argument preserves original ECX receivers and stack cleanup.
-extern const void* __cdecl FUN_0048114e(const void* macroPoint, bool firstTriangle);
-extern void __cdecl FUN_00481188(const void* mapPoint, const void** patterns);
-extern void __fastcall FUN_004b7b62(void* manager, void* unusedEdx, const void* mapPoint);
+extern const void* __cdecl Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr(const void* macroPoint, bool firstTriangle);
+extern void __cdecl Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(const void* mapPoint, const void** patterns);
+extern void __fastcall InputManager_Misc_Tool_SendSelectedHuman(void* manager, void* unusedEdx, const void* mapPoint);
 
 namespace NC2InGameGuiOverviewDisplay
 {
@@ -687,7 +687,7 @@ namespace NC2InGameGuiOverviewDisplay
                 else if (OverviewDisplay_Read<std::uint8_t>(element, 0x8075) != 0)
                 {
                     const void* patterns[6];
-                    FUN_00481188(mapPoint, patterns);
+                    Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(mapPoint, patterns);
                     if (patterns[0] == nullptr) OverviewDisplay_SetColor(&color, 0, 0, 0);
                     else color = NC2Logic::gStaticTrianglePatternTypes[OverviewDisplay_Read<std::uint32_t>(patterns[0], 0x38)].debugColor;
                 }
@@ -696,7 +696,7 @@ namespace NC2InGameGuiOverviewDisplay
                 else
                 {
                     const void* patterns[6];
-                    FUN_00481188(mapPoint, patterns);
+                    Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(mapPoint, patterns);
                     std::uint32_t red = 0, green = 0, blue = 0;
                     std::int32_t brightnessSum = OverviewDisplay_Subtract(OverviewDisplay_Signed(OverviewDisplay_GetMapBrightness(macroPoint[0], macroPoint[1])), 128);
                     for (std::uint32_t direction = 0; direction < 6; ++direction)
@@ -756,9 +756,9 @@ namespace NC2InGameGuiOverviewDisplay
             {
                 do
                 {
-                    const void* pattern = FUN_0048114e(macroPoint, true);
+                    const void* pattern = Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr(macroPoint, true);
                     WorldOverviewElement_GetSampleColor(element, pattern, &color);
-                    pattern = FUN_0048114e(macroPoint, false);
+                    pattern = Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr(macroPoint, false);
                     WorldOverviewElement_GetSampleColor(element, pattern, &color);
                     macroPoint[0] = OverviewDisplay_Word(static_cast<std::uint32_t>(macroPoint[0]) + 1u);
                 } while (macroPoint[0] < static_cast<std::int32_t>(width));
@@ -885,7 +885,7 @@ namespace NC2InGameGuiOverviewDisplay
             if (selection <= 0) return true;
             if (selection <= 2)
             {
-                FUN_004b7b62(input, nullptr, mapPoint);
+                InputManager_Misc_Tool_SendSelectedHuman(input, nullptr, mapPoint);
                 return true;
             }
             if (selection == 4)

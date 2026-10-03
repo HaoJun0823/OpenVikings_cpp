@@ -13,7 +13,7 @@
 namespace NC2Logic
 {
     // Unreconstructed original map/startup/network boundaries.
-    extern void FUN_0040743a();
+    extern void Game_WorkOnStartUpData();
 
     // Original function: FUN_00408f18; Mac CAIManager::EnableAI.
     static void AIManager_EnableAI(void* manager, std::int32_t playerId)
@@ -27,8 +27,8 @@ namespace NC2Logic
 }
 
 // Original GUI entry points and controlling-player setter remain separate boundaries.
-extern void FUN_004a2f86();
-extern void __fastcall FUN_004a0c6d(void*, void* unusedEdx, std::int32_t, bool);
+extern void C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
+extern void __fastcall InGameGuiManager_ControllingPlayer_Set(void*, void* unusedEdx, std::int32_t, bool);
 
 namespace NMasterControlProgram
 {
@@ -65,7 +65,7 @@ namespace NMasterControlProgram
         if (startMap != nullptr)
         {
             NC2Logic::GameIO_Cleanmap_Load(startMap, true, true, false);
-            FUN_004a2f86();
+            C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("start_map");
             return;
         }
@@ -80,7 +80,7 @@ namespace NMasterControlProgram
 
         std::byte savedStartupData[0x120];
         std::memcpy(savedStartupData, &NC2Logic::gGameControlStartupData, sizeof(savedStartupData));
-        NC2Logic::FUN_0040743a();
+        NC2Logic::Game_WorkOnStartUpData();
         std::memcpy(&NC2Logic::gGameControlStartupData, savedStartupData, sizeof(savedStartupData));
 
         std::int32_t controllingPlayer = 0;
@@ -128,7 +128,7 @@ namespace NMasterControlProgram
             }
         }
 
-        FUN_004a0c6d(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, nullptr, controllingPlayer, true);
-        if (!suppressCentering) FUN_004a2f86();
+        InGameGuiManager_ControllingPlayer_Set(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, nullptr, controllingPlayer, true);
+        if (!suppressCentering) C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
     }
 }

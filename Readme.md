@@ -2633,6 +2633,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Translated floating-point branches treat unordered operands as ordinary inequality | Original x87 condition excludes both equal and unordered operands | Corrected ordered comparisons; documented in [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md) |
 | Callers retain stale runtime/file/network/music names or declarations | Existing original implementations were not connected through their established interfaces | Connected the audited callers; unresolved owning routines remain explicit dependencies |
 | Production sources/headers are missing from Visual Studio project or filters | Project integration issue, not original game behavior | Added the missing entries and synchronized subsequent additions; see [PROJECT_STATE.md](docs/PROJECT_STATE.md) |
+| Fish and landscape-transition manager names/bindings disagree at 00426F84 and 0044EB1E | Reconstruction ownership inconsistency exposed by Windows/Mac naming evidence; not an original game defect | Names recovered; existing bindings retained for a complete lifecycle audit. See [FUNCTION_NAMES.md](docs/FUNCTION_NAMES.md) |
 | README OB001 contains unrelated sound-transition text; OB073 is absent from its index | Documentation transcription/maintenance errors | Restored signed-character trigger text, repaired table columns and synchronized both finding indexes |
 | Callback nodes, Storable objects, bitmap memory and palette caches use mixed host/project allocation | Reconstruction allocator mismatch, not original game behavior | Matched object/buffer allocation and deleting wrappers to the original runtime family; added original palette vector deletion. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md) |
 | System-manager object and 16-bit shadow table use host allocation; application clears assert instead of fatal | Windows allocates through explicit-handler thunk `004E5DDD`, frees through `004E5E48`, and clears warning/fatal in `00479169` | Corrected the directly related allocation/free paths, minimal converter initialization and callback clearing; retained original unchecked allocation behavior. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md) |
@@ -2655,3 +2656,9 @@ These findings are reconstruction issues, not additional original-bug observatio
 
 A chapter may close with intentionally preserved, documented original defects once its required functions are resolved and correctly reconstructed. Translation errors, missing implementations and relevant integration dependencies remain separate unfinished work.
 After the faithful project is complete, use this register to plan Renewed. Until then, all Renewed tasks remain open.
+
+## Semantic naming and build layout — 2026-10-03
+
+Checkpoint a77fd47 preserves the successful Win32 link state. All 143 remaining active FUN identifiers now use semantic names; [FUNCTION_NAME_MAP.csv](docs/FUNCTION_NAME_MAP.csv) records the Mac reference and explicit Windows-only exceptions. The 146 temporary bodies remain unfinished and do not increase reconstruction coverage. See [FUNCTION_NAMES.md](docs/FUNCTION_NAMES.md).
+
+Executables stay under OpenVikings/Debug or OpenVikings/Release, with PDB files in symbols/ and intermediate build products in obj/. Current naming/output changes have static verification only. No tests or automatic Debug/Release builds are run; builds require an explicit user request.

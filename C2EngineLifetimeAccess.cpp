@@ -31,18 +31,18 @@
 #include <utility>
 
 // Original CRT cosine/sine entries; known library boundaries.
-extern double __cdecl FUN_004e8824(double);
-extern double __cdecl FUN_004e8774(double);
+extern double __cdecl Runtime_Cos(double);
+extern double __cdecl Runtime_Sin(double);
 
 namespace NC2E2
 {
     using namespace NC2Lifetime;
     SStaticDataTextures gStaticDataTextures{};
     NXBasics::CPalette* gVertexColorsPalette = nullptr;
-    extern bool __cdecl FUN_0047ec5b(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0047eaf3(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0047ea9f(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_0047e936(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl E2Manager_sl_Callback_Misc(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl E2Manager_sl_Callback_MapEdited(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl E2Manager_sl_Callback_MapIO(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     struct SStaticMoveableAnimationListTag {};
     struct SStaticMoveableShadowListTag {};
@@ -746,13 +746,13 @@ namespace NC2E2
     }
 
     // Remaining original dependencies are creation/update paths, not shutdown bodies.
-    extern void* __fastcall FUN_00482241(void*, void* unusedEdx);
-    extern void* __fastcall FUN_00480162(void*, void* unusedEdx);
-    extern void FUN_004803d5(std::uint32_t, bool, bool);
-    extern void FUN_00482dc0(const void*, bool);
-    extern void __fastcall FUN_00481228(void*, void* unusedEdx, const void*, std::int32_t);
-    extern bool __cdecl FUN_00482c00(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl FUN_00482614(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern void* __fastcall EngineMap_Construct(void*, void* unusedEdx);
+    extern void* __fastcall E2DynamicDataHumanManager_Construct(void*, void* unusedEdx);
+    extern void E2DynamicDataHumanManager_HumanXtructed(std::uint32_t, bool, bool);
+    extern void EngineMap_OverlayPattern_HouseAreaChanged(const void*, bool);
+    extern void __fastcall DisplayManager_InformThatStaticMapChanged(void*, void* unusedEdx, const void*, std::int32_t);
+    extern bool __cdecl EngineMap_l_Transitions_Callback(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern bool __cdecl EngineMap_l_HeightChanged_Callback(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     // Original function: FUN_00480264; the two embedded CPalette members.
     static void DynamicHuman_Destruct(void* human)
@@ -807,8 +807,8 @@ namespace NC2E2
     // Original function: FUN_004823c8.
     static void EngineMap_Destruct(void*)
     {
-        Unregister(FUN_00482c00, 0, {0x33, 0x32, 0x31});
-        Unregister(FUN_00482614, 0, {0x33, 0x32, 0x31});
+        Unregister(EngineMap_l_Transitions_Callback, 0, {0x33, 0x32, 0x31});
+        Unregister(EngineMap_l_HeightChanged_Callback, 0, {0x33, 0x32, 0x31});
         FreeAndClearField(DAT_00568358, 0);
         FreeAndClearField(DAT_00568358, 4);
         gEngineMap = nullptr;
@@ -822,7 +822,7 @@ namespace NC2E2
             if (static_cast<std::uint16_t>(param1) != 0)
             {
                 void* map = NXBasics::Runtime_Allocate(1);
-                if (map != nullptr) FUN_00482241(map, nullptr);
+                if (map != nullptr) EngineMap_Construct(map, nullptr);
                 C2DEngineDisplayManager::sTheObjectPtr->InformThatMapXtructed();
                 Write<std::uint32_t>(gE2HumanSoundManager, 0, 0);
                 Write<std::uint32_t>(CE2AnimalSoundManager::sTheObjectPtr, 0, 0);
@@ -837,11 +837,11 @@ namespace NC2E2
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
-                if (manager != nullptr) FUN_00480162(manager, nullptr);
+                if (manager != nullptr) E2DynamicDataHumanManager_Construct(manager, nullptr);
             }
             else DestroyOwned(gDynamicDataHumans.manager, E2DynamicDataHumanManager_Destruct);
             break;
-        case 4: FUN_004803d5(param1, param2 != 0, param3 != 0); break;
+        case 4: E2DynamicDataHumanManager_HumanXtructed(param1, param2 != 0, param3 != 0); break;
         case 5:
             if (param1 != 0)
             {
@@ -883,7 +883,7 @@ namespace NC2E2
                 NC2Logic::MapMigPoint_ConstructOffset(&point, &position, Read<std::uint16_t>(line, 0), Read<std::uint16_t>(line, 2), false);
                 for (std::uint32_t column = 0; column < Read<std::uint32_t>(line, 4); ++column)
                 {
-                    if (NC2Logic::MapMigPoint_IsInsideMap(&point)) FUN_00482dc0(&point, created);
+                    if (NC2Logic::MapMigPoint_IsInsideMap(&point)) EngineMap_OverlayPattern_HouseAreaChanged(&point, created);
                     point = (point & 0xFFFF0000u) | static_cast<std::uint16_t>(point + 1u);
                 }
             }
@@ -893,7 +893,7 @@ namespace NC2E2
             const std::uint16_t rectangleBits[4] = {x, y, 40, 40};
             std::memcpy(rectangle, rectangleBits, sizeof(rectangle));
             NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
-            FUN_00481228(C2DEngineDisplayManager::sTheObjectPtr, nullptr, rectangle, -1);
+            DisplayManager_InformThatStaticMapChanged(C2DEngineDisplayManager::sTheObjectPtr, nullptr, rectangle, -1);
             break;
         }
         }
@@ -930,9 +930,9 @@ namespace NC2E2
         const std::int32_t angle = NXBasics::Runtime_Rand() % 361;
         Write<std::int32_t>(state, 0x50, angle);
         const double radians = (static_cast<double>(static_cast<std::uint32_t>(angle)) * 0.005555555555555556) * 3.1415927410125732;
-        const double cosine = FUN_004e8824(radians);
+        const double cosine = Runtime_Cos(radians);
         Write<double>(state, 0, cosine);
-        const double sine = FUN_004e8774(radians);
+        const double sine = Runtime_Sin(radians);
         Write<double>(state, 8, sine);
         Write<double>(state, 0x30, Read<double>(state, 0x18) * Read<double>(state, 0));
         Write<double>(state, 0x38, sine * Read<double>(state, 0x20));
@@ -955,11 +955,11 @@ namespace NC2E2
         Write<std::uint32_t>(manager, 0x2F0270, 0);
         Write<std::uint32_t>(manager, 0x2F7F78, 0);
     }
-    extern void __fastcall FUN_00486d61(void* manager, void* unusedEdx);
+    extern void __fastcall E2ParticelManager_DoOneGameTick(void* manager, void* unusedEdx);
     // Original function: FUN_00486eb4, l_ParticelManager_CallBack.
     bool __cdecl E2ParticelManager_Callback(NC2Logic::TCallbackTypes type, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
     {
-        if (type == 1) FUN_00486d61(gE2ParticelManager, nullptr);
+        if (type == 1) E2ParticelManager_DoOneGameTick(gE2ParticelManager, nullptr);
         else if (type == 2) E2ParticelManager_Initialize(gE2ParticelManager);
         return true;
     }
@@ -1156,10 +1156,10 @@ namespace NC2E2
         DestroyOwned(gE2AmbientSoundManager, E2AmbientSoundManager_Destruct);
         DestroyOwned(gE2ParticelManager, E2ParticelManager_Destruct);
         DestroyOwned(C2DEngineDisplayManager::sTheObjectPtr, [](C2DEngineDisplayManager* manager) { manager->~C2DEngineDisplayManager(); });
-        Unregister(FUN_0047ec5b, 0, {0x25, 0x26, 0x18, 0x1D, 0x24, 0x27, 0x23, 0x20, 0x1F, 0x22, 0x21, 0x1C, 0x17});
-        Unregister(FUN_0047eaf3, 0, {0x0D, 0x33, 0x32, 0x31});
-        Unregister(FUN_0047ea9f, 0, {0x16, 0x15, 0x14, 0x13, 0x12});
-        Unregister(FUN_0047e936, 0, {0x11, 0x10, 0x0F, 0x0E});
+        Unregister(E2Manager_sl_Callback_Misc, 0, {0x25, 0x26, 0x18, 0x1D, 0x24, 0x27, 0x23, 0x20, 0x1F, 0x22, 0x21, 0x1C, 0x17});
+        Unregister(E2Manager_sl_Callback_MapEdited, 0, {0x0D, 0x33, 0x32, 0x31});
+        Unregister(E2Manager_sl_Callback_MapIO, 0, {0x16, 0x15, 0x14, 0x13, 0x12});
+        Unregister(E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged, 0, {0x11, 0x10, 0x0F, 0x0E});
         Unregister(E2Manager_CallbackSomethingInLogicXtructed, 0, {0x0A, 9, 8, 7, 6, 5, 4, 3, 2});
         DestroyOwned(gMacroMapManager, MacroMapManager_Destruct);
         DestroyOwned(CLevelOfDetailManager::sTheObjectPtr, [](CLevelOfDetailManager* manager) { manager->~CLevelOfDetailManager(); });

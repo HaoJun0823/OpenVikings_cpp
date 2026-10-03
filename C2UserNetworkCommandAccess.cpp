@@ -22,30 +22,30 @@
 namespace NC2Logic
 {
     // These original callees remain separate reconstruction targets.
-    extern void __fastcall FUN_00431276(void*, void*);
-    extern bool __fastcall FUN_0043290f(void*, void*);
-    extern bool __fastcall FUN_0043293f(void*, void*);
-    extern void FUN_0040add6(std::uint32_t);
-    extern std::int32_t FUN_0040ae38(std::uint32_t, std::uint32_t, std::uint32_t, const void*, bool, std::uint32_t);
-    extern void __fastcall FUN_00431b42(void*, void*, std::uint32_t, std::uint32_t, bool);
-    extern void __fastcall FUN_004281b4(void*, void*, std::uint32_t, const void*);
-    extern std::int32_t __fastcall FUN_0043e8aa(void*, void*);
-    extern void FUN_0042871c(std::uint32_t, void*, const void*, const void*);
-    extern void __fastcall FUN_00428317(void*, void*, std::uint32_t, const void*, std::uint32_t);
-    extern void __fastcall FUN_0042750a(void*, void*, std::uint32_t, const void*);
-    extern void FUN_00427aea(std::uint32_t, void*, const void*, const void*);
-    extern void __fastcall FUN_0042765e(void*, void*, std::uint32_t, const void*, std::uint32_t);
-    extern void FUN_00427b04(std::uint32_t, std::uint32_t, std::uint32_t);
-    extern void FUN_00427d89(std::uint32_t, const void*);
-    extern void FUN_00427e27(std::uint32_t, const void*, bool);
-    extern void __fastcall FUN_0041b061(void*, void*, std::uint32_t, const void*, std::uint32_t);
-    extern void __fastcall FUN_0041b0a5(void*, void*, std::uint32_t);
-    extern void __fastcall FUN_0040a171(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern void __fastcall FUN_0043e72e(void*, void*);
-    extern void FUN_0043b8f9(std::uint32_t);
-    extern void FUN_0043ba13(std::uint32_t);
-    extern void __fastcall FUN_0040a295(void*, void*, std::uint32_t, bool, bool);
-    extern void __fastcall FUN_0040a2d4(void*, void*, std::uint32_t, bool, bool);
+    extern void __fastcall House_Misc_Destroy_House(void*, void*);
+    extern bool __fastcall House_Construction_UpgradeStart(void*, void*);
+    extern bool __fastcall House_Construction_UpgradeStop(void*, void*);
+    extern void Logic_EntryPoint_FreeMapMoveable(std::uint32_t);
+    extern std::int32_t Logic_EntryPoint_House_Set(std::uint32_t, std::uint32_t, std::uint32_t, const void*, bool, std::uint32_t);
+    extern void __fastcall House_Stock_ModifyAmount(void*, void*, std::uint32_t, std::uint32_t, bool);
+    extern void __fastcall RoadBuildManager_SetRoadBuildFlag(void*, void*, std::uint32_t, const void*);
+    extern std::int32_t __fastcall MapPathfinderSpecialWallRoadElement_GetNextDirection(void*, void*);
+    extern void Tool_RoadBuildManager_GetPossibleVectorList(std::uint32_t, void*, const void*, const void*);
+    extern void __fastcall RoadBuildManager_ClearRoadBuildFlagArea(void*, void*, std::uint32_t, const void*, std::uint32_t);
+    extern void __fastcall WallBuildManager_SetWallBuildFlag(void*, void*, std::uint32_t, const void*);
+    extern void MapTool_Wall_Build_GetPossibleVectorList(std::uint32_t, void*, const void*, const void*);
+    extern void __fastcall WallBuildManager_ClearWallBuildFlagArea(void*, void*, std::uint32_t, const void*, std::uint32_t);
+    extern void MapTool_WallGate_Remove(std::uint32_t, std::uint32_t, std::uint32_t);
+    extern void MapTool_WallGate_SetIntoWall(std::uint32_t, const void*);
+    extern void MapTool_WallGate_SetState(std::uint32_t, const void*, bool);
+    extern void __fastcall GuideManager_InsertGuideAtPosition(void*, void*, std::uint32_t, const void*, std::uint32_t);
+    extern void __fastcall GuideManager_RemoveGuide(void*, void*, std::uint32_t);
+    extern void __fastcall GameControl_Diplomacy_SetState(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t);
+    extern void __fastcall TributeData_Pay(void*, void*);
+    extern void Tool_GlobalDefendMode_Start(std::uint32_t);
+    extern void Tool_GlobalDefendMode_Stop(std::uint32_t);
+    extern void __fastcall GameControl_Player_LeavesGame(void*, void*, std::uint32_t, bool, bool);
+    extern void __fastcall GameControl_Player_LeftGameModifyObjects(void*, void*, std::uint32_t, bool, bool);
 
     static void PrintNetworkChecksumMessage(const char* text, std::uint32_t unused);
 
@@ -79,7 +79,7 @@ namespace NC2Logic
         {
             auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(command, 4) * CHumanArray::ElementSize;
             if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(command, 8)) return;
-            if (opcode == 2) FUN_0040add6(Read<std::uint32_t>(human, 0x0C));
+            if (opcode == 2) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(human, 0x0C));
             else Human_DoAddNewUserCommand(human, command);
             return;
         }
@@ -89,9 +89,9 @@ namespace NC2Logic
             if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(command, 8)) return;
             switch (opcode)
             {
-            case 0x5A: FUN_00431276(house, nullptr); break;
-            case 0x5B: FUN_0043290f(house, nullptr); break;
-            case 0x5C: FUN_0043293f(house, nullptr); break;
+            case 0x5A: House_Misc_Destroy_House(house, nullptr); break;
+            case 0x5B: House_Construction_UpgradeStart(house, nullptr); break;
+            case 0x5C: House_Construction_UpgradeStop(house, nullptr); break;
             case 0x5D: House_HomeQualityEnhancer_SetAllowedFlag(house, Read<std::uint32_t>(command, 12), Read<std::uint32_t>(command, 16) != 0); break;
             case 0x5E: House_Production_SetStoppedFlag(house, Read<std::uint32_t>(command, 12) != 0); break;
             case 0x5F:
@@ -111,7 +111,7 @@ namespace NC2Logic
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(command, 4) * CVehicleArray::ElementSize;
             if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(command, 8)) return;
-            if (opcode == 0x64) FUN_0040add6(Read<std::uint32_t>(vehicle, 0x1DC));
+            if (opcode == 0x64) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(vehicle, 0x1DC));
             else Vehicle_DoAddNewUserCommand(vehicle, command);
             return;
         }
@@ -130,7 +130,7 @@ namespace NC2Logic
                 if (!GameControl_SpecialItem_Use(gGameControl, player, itemType, item & 0xFFFFu)) return;
                 usedItem = true;
             }
-            const auto id = FUN_0040ae38(player, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), &point, usedItem, 0);
+            const auto id = Logic_EntryPoint_House_Set(player, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), &point, usedItem, 0);
             if (id == -1 || itemType != 4) return;
             auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             const auto* type = House_GetHouseTypeDataPtr(house);
@@ -139,7 +139,7 @@ namespace NC2Logic
                 if (type->stock[stock].unknown08 == 0) continue;
                 const auto good = static_cast<std::uint32_t>(type->stock[stock].goodType);
                 const auto maximum = House_Stock_GetMaximumAmountByStockId(house, stock);
-                FUN_00431b42(house, nullptr, good, maximum, false);
+                House_Stock_ModifyAmount(house, nullptr, good, maximum, false);
             }
             return;
         }
@@ -149,14 +149,14 @@ namespace NC2Logic
             std::uint32_t start, end;
             MapMigPoint_AssignLong(&start, Read<std::uint32_t>(command, 4));
             MapMigPoint_AssignLong(&end, Read<std::uint32_t>(command, 8));
-            FUN_004281b4(gRoadBuildManager, nullptr, player, &start);
+            RoadBuildManager_SetRoadBuildFlag(gRoadBuildManager, nullptr, player, &start);
             alignas(4) std::byte path[0x54];
             PathfinderWallRoadElement_Construct(path);
-            FUN_0042871c(player, path, &start, &end);
-            for (auto direction = FUN_0043e8aa(path, nullptr); direction >= 0; direction = FUN_0043e8aa(path, nullptr))
+            Tool_RoadBuildManager_GetPossibleVectorList(player, path, &start, &end);
+            for (auto direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr); direction >= 0; direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr))
             {
                 MapMigPoint_MoveCursorUnwrapped(start, static_cast<std::uint32_t>(direction));
-                FUN_004281b4(gRoadBuildManager, nullptr, player, &start);
+                RoadBuildManager_SetRoadBuildFlag(gRoadBuildManager, nullptr, player, &start);
             }
             return;
         }
@@ -164,7 +164,7 @@ namespace NC2Logic
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
-            FUN_00428317(gRoadBuildManager, nullptr, Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8));
+            RoadBuildManager_ClearRoadBuildFlagArea(gRoadBuildManager, nullptr, Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8));
             return;
         }
         case 0x78:
@@ -173,14 +173,14 @@ namespace NC2Logic
             std::uint32_t start, end;
             MapMigPoint_AssignLong(&start, Read<std::uint32_t>(command, 4));
             MapMigPoint_AssignLong(&end, Read<std::uint32_t>(command, 8));
-            FUN_0042750a(gWallBuildManager, nullptr, player, &start);
+            WallBuildManager_SetWallBuildFlag(gWallBuildManager, nullptr, player, &start);
             alignas(4) std::byte path[0x54];
             PathfinderWallRoadElement_Construct(path);
-            FUN_00427aea(player, path, &start, &end);
-            for (auto direction = FUN_0043e8aa(path, nullptr); direction >= 0; direction = FUN_0043e8aa(path, nullptr))
+            MapTool_Wall_Build_GetPossibleVectorList(player, path, &start, &end);
+            for (auto direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr); direction >= 0; direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr))
             {
                 MapMigPoint_MoveCursorUnwrapped(start, static_cast<std::uint32_t>(direction));
-                FUN_0042750a(gWallBuildManager, nullptr, player, &start);
+                WallBuildManager_SetWallBuildFlag(gWallBuildManager, nullptr, player, &start);
             }
             return;
         }
@@ -188,46 +188,46 @@ namespace NC2Logic
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
-            FUN_0042765e(gWallBuildManager, nullptr, Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8));
+            WallBuildManager_ClearWallBuildFlagArea(gWallBuildManager, nullptr, Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8));
             return;
         }
         case 0x7A:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
-            FUN_00427b04(Read<std::uint8_t>(command, 1), MapMigPoint_CopyValue(&point), Read<std::uint32_t>(command, 8));
+            MapTool_WallGate_Remove(Read<std::uint8_t>(command, 1), MapMigPoint_CopyValue(&point), Read<std::uint32_t>(command, 8));
             return;
         }
         case 0x7B:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
-            FUN_00427d89(Read<std::uint8_t>(command, 1), &point);
+            MapTool_WallGate_SetIntoWall(Read<std::uint8_t>(command, 1), &point);
             return;
         }
         case 0x7C:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
-            FUN_00427e27(Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8) != 0);
+            MapTool_WallGate_SetState(Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8) != 0);
             return;
         }
         case 0x7D:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
-            FUN_0041b061(gGuideManager, nullptr, Read<std::uint8_t>(command, 1), &point, 0);
+            GuideManager_InsertGuideAtPosition(gGuideManager, nullptr, Read<std::uint8_t>(command, 1), &point, 0);
             return;
         }
         case 0x7E:
         {
             const auto id = Read<std::uint32_t>(command, 4);
             const auto* guide = CGuideArray::mStaticVars + id * CGuideArray::ElementSize;
-            if (Read<std::uint8_t>(guide, 0) != 0 && Read<std::uint32_t>(guide, 0x10) == Read<std::uint32_t>(command, 8)) FUN_0041b0a5(gGuideManager, nullptr, id);
+            if (Read<std::uint8_t>(guide, 0) != 0 && Read<std::uint32_t>(guide, 0x10) == Read<std::uint32_t>(command, 8)) GuideManager_RemoveGuide(gGuideManager, nullptr, id);
             return;
         }
-        case 0x7F: FUN_0040a171(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), Read<std::uint32_t>(command, 12)); return;
-        case 0x80: FUN_0043e72e(static_cast<std::byte*>(gTributeManager) + Read<std::uint32_t>(command, 12) * 0x3Cu, nullptr); return;
+        case 0x7F: GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), Read<std::uint32_t>(command, 12)); return;
+        case 0x80: TributeData_Pay(static_cast<std::byte*>(gTributeManager) + Read<std::uint32_t>(command, 12) * 0x3Cu, nullptr); return;
         case 0x81:
         case 0x82:
         case 0x83:
@@ -257,12 +257,12 @@ namespace NC2Logic
             if (gGameAssistantManager != nullptr) GameAssistantManager_UserInput_Save(gGameAssistantManager, Read<std::uint8_t>(command, 1), Read<std::int32_t>(command, 4), Read<std::int32_t>(command, 8));
             return;
         case 0x86:
-            if (Read<std::uint32_t>(command, 4) != 0) FUN_0043b8f9(Read<std::uint8_t>(command, 1));
-            else FUN_0043ba13(Read<std::uint8_t>(command, 1));
+            if (Read<std::uint32_t>(command, 4) != 0) Tool_GlobalDefendMode_Start(Read<std::uint8_t>(command, 1));
+            else Tool_GlobalDefendMode_Stop(Read<std::uint8_t>(command, 1));
             return;
         case 0x87: GameTime_SetSpeed(static_cast<double>(Read<std::uint32_t>(command, 4))); return;
-        case 0x88: FUN_0040a295(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
-        case 0x89: FUN_0040a2d4(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
+        case 0x88: GameControl_Player_LeavesGame(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
+        case 0x89: GameControl_Player_LeftGameModifyObjects(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
         case 0x8A:
         {
             const auto player = GameTime_Network_GetPlayerByNetworkId(Read<std::uint32_t>(command, 12));

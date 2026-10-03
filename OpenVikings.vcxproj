@@ -269,19 +269,24 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(ProjectDir)OpenVikings\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\</IntDir>
     <NMakeOutput>OpenVikings.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)OpenVikings\$(Configuration)\</OutDir>
+    <IntDir>$(OutDir)obj\</IntDir>
     <NMakeOutput>OpenVikings.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ProgramDataBaseFileName>$(OutDir)symbols\$(TargetName).compiler.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
+      <ProgramDatabaseFile>$(OutDir)symbols\$(TargetName).pdb</ProgramDatabaseFile>
+      <IncrementalLinkDatabaseFile>$(IntDir)$(TargetName).ilk</IncrementalLinkDatabaseFile>
       <AdditionalDependencies>winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/alternatename:_DirectInputCreateA@16=_DirectInputCreateA %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -292,8 +297,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ProgramDataBaseFileName>$(OutDir)symbols\$(TargetName).compiler.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
+      <ProgramDatabaseFile>$(OutDir)symbols\$(TargetName).pdb</ProgramDatabaseFile>
+      <IncrementalLinkDatabaseFile>$(IntDir)$(TargetName).ilk</IncrementalLinkDatabaseFile>
       <AdditionalDependencies>winmm.lib;dsound.lib;dinput8.lib;dxguid.lib;ws2_32.lib;&quot;$(IntDir)LegacyDirectInput.lib&quot;;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/alternatename:_DirectInputCreateA@16=_DirectInputCreateA %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -302,6 +310,9 @@
     </Manifest>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CreateBuildSymbolsDirectory" BeforeTargets="ClCompile;Link">
+    <MakeDir Directories="$(OutDir)symbols" />
+  </Target>
   <Target Name="GenerateLegacyDirectInputImportLibrary" BeforeTargets="Link" Inputs="$(ProjectDir)LegacyDirectInput.def" Outputs="$(IntDir)LegacyDirectInput.lib">
     <Exec Command="&quot;$(VCToolsInstallDir)bin\Hostx86\x86\lib.exe&quot; /nologo /machine:x86 /def:&quot;$(ProjectDir)LegacyDirectInput.def&quot; /out:&quot;$(IntDir)LegacyDirectInput.lib&quot;" />
   </Target>

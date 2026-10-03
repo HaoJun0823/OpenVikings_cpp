@@ -14,15 +14,15 @@
 
 
 // Genuine message dispatch, world drawing and tooltip drawing remain separate families.
-extern bool __fastcall FUN_004d6bbb(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern bool __fastcall FUN_004db0d1(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern void __fastcall FUN_004dae69(void*, void* unusedEdx, NXBasics::CBitmap*, const std::int32_t*);
-extern void* __fastcall FUN_004da5bf(void*, void* unusedEdx, std::uint32_t);
-extern bool __fastcall FUN_004daac1(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern void __fastcall FUN_004da615(void*, void* unusedEdx, NXBasics::CBitmap*, const NXBasics::SRectangle*);
-extern void __fastcall FUN_004dab77(void*);
-extern void __cdecl FUN_0047e669(bool);
-extern void __fastcall FUN_0047c9da(void*, void* unusedEdx, std::uint32_t, std::int32_t*);
+extern bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+extern bool __fastcall MainMenuGuiManagerPrimaryMessageHandlerElement_XGui_BE_Message_Handle(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+extern void __fastcall MainMenuGuiManagerMousePointer_DrawMouse(void*, void* unusedEdx, NXBasics::CBitmap*, const std::int32_t*);
+extern void* __fastcall MainMenuWorldDisplayElement_Delete(void*, void* unusedEdx, std::uint32_t);
+extern bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+extern void __fastcall MainMenuWorldDisplayElement_XGui_BE_Element_Draw(void*, void* unusedEdx, NXBasics::CBitmap*, const NXBasics::SRectangle*);
+extern void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void*);
+extern void __cdecl E2Manager_Inform_SetExplorationState(bool);
+extern void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void*, void* unusedEdx, std::uint32_t, std::int32_t*);
 
 namespace NC2MainMenuGuiManager
 {
@@ -33,7 +33,7 @@ namespace NC2MainMenuGuiManager
     static const std::uintptr_t gDefaultMessageHandlerVirtualTable[18] = {
         reinterpret_cast<std::uintptr_t>(&DefaultMessageHandler_Delete),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
-        reinterpret_cast<std::uintptr_t>(&FUN_004d6bbb),
+        reinterpret_cast<std::uintptr_t>(&MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Draw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),
@@ -53,7 +53,7 @@ namespace NC2MainMenuGuiManager
     static const std::uintptr_t gPrimaryMessageHandlerVirtualTable[18] = {
         reinterpret_cast<std::uintptr_t>(&PrimaryMessageHandler_Delete),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
-        reinterpret_cast<std::uintptr_t>(&FUN_004db0d1),
+        reinterpret_cast<std::uintptr_t>(&MainMenuGuiManagerPrimaryMessageHandlerElement_XGui_BE_Message_Handle),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Draw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),
@@ -72,7 +72,7 @@ namespace NC2MainMenuGuiManager
     };
 
     static const std::uintptr_t gMousePointerVirtualTable[2] = {
-        reinterpret_cast<std::uintptr_t>(&FUN_004dae69),
+        reinterpret_cast<std::uintptr_t>(&MainMenuGuiManagerMousePointer_DrawMouse),
         reinterpret_cast<std::uintptr_t>(&MousePointer_Delete)
     };
 
@@ -142,10 +142,10 @@ namespace NC2MainMenuGuiWorldElement
 {
     using namespace NC2Lifetime;
     static const std::uintptr_t gWorldDisplayElementVirtualTable[18] = {
-        reinterpret_cast<std::uintptr_t>(&FUN_004da5bf),
+        reinterpret_cast<std::uintptr_t>(&MainMenuWorldDisplayElement_Delete),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
-        reinterpret_cast<std::uintptr_t>(&FUN_004daac1),
-        reinterpret_cast<std::uintptr_t>(&FUN_004da615),
+        reinterpret_cast<std::uintptr_t>(&MainMenuWorldDisplayElement_XGui_BE_Message_Handle),
+        reinterpret_cast<std::uintptr_t>(&MainMenuWorldDisplayElement_XGui_BE_Element_Draw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonPressed),
@@ -179,8 +179,8 @@ namespace NC2MainMenuGuiWorldElement
         }
         Write(element, 0x30, display);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->ScreenGuiElement_FrameCall_Register(element);
-        FUN_0047e669(false);
-        FUN_004dab77(element);
+        E2Manager_Inform_SetExplorationState(false);
+        MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(element);
         return element;
     }
 
@@ -219,7 +219,7 @@ namespace NC2MainMenuGuiWorldElement
             moveableId = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, 0x4C) * 0x54Cu + 0x1DC);
         else return;
         std::int32_t point[2];
-        FUN_0047c9da(Read<void*>(element, 0x30), nullptr, moveableId, point);
+        Display_DE_MapMoveableToGlobalWorldPixelCoordinates(Read<void*>(element, 0x30), nullptr, moveableId, point);
         point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) - 25u);
         NC2E2::DE_SetWantedPositionToPixelPoint(Read<void*>(element, 0x30), point);
     }

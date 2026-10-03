@@ -15,7 +15,7 @@
 #include <initializer_list>
 
 // Original logic callbacks remain separate reconstruction targets.
-extern bool __cdecl FUN_004b77e8(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+extern bool __cdecl InputManager_ls_Callback_Logic(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
 namespace
 {
@@ -331,14 +331,14 @@ namespace NC2InGameGuiInputManager
         gInputManager = this;
         std::memset(this, 0, 0xF7C);
         gInputManagerStaticVars = 0;
-        RegisterCallbacks(FUN_004b77e8, {1, 4, 6, 8, 0xA, 0xC, 0x16}, 20);
+        RegisterCallbacks(InputManager_ls_Callback_Logic, {1, 4, 6, 8, 0xA, 0xC, 0x16}, 20);
         Write<std::uint32_t>(this, 0xAB0, 1);
     }
 
     // Original function: FUN_004b47d9.
     CInputManager::~CInputManager()
     {
-        UnregisterCallbacks(FUN_004b77e8, {0x16, 0xC, 0xA, 8, 6, 4, 1});
+        UnregisterCallbacks(InputManager_ls_Callback_Logic, {0x16, 0xC, 0xA, 8, 6, 4, 1});
         gInputManager = nullptr;
     }
 }

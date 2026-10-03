@@ -14,7 +14,7 @@
 namespace NC2Logic
 {
     // Original connection search; requires the unreconstructed special-sector pathfinder.
-    extern void __cdecl FUN_0044fd3e(SSectorGridCursor cursor, std::uint32_t direction);
+    extern void __cdecl MapWalkSectorManager_l_Sectors_CheckAndSetConnection(SSectorGridCursor cursor, std::uint32_t direction);
 
     namespace
     {
@@ -366,10 +366,10 @@ namespace NC2Logic
             for (std::uint32_t direction = 0; direction < 8; ++direction)
                 water->connectionValues[direction] = MicroPointByte(GameMap_GetConstMapMicroPointPtr(water->basePoints), 0x0C) & 7u;
         }
-        FUN_0044fd3e(cursor, 0);
-        FUN_0044fd3e(cursor, 4);
-        FUN_0044fd3e(cursor, 6);
-        FUN_0044fd3e(cursor, 2);
+        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 0);
+        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 4);
+        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 6);
+        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 2);
         land->calculated = 1;
         water->calculated = 1;
         for (std::uint32_t index = 0; index < land->basePointCount; ++index)
