@@ -57,7 +57,6 @@ namespace NC2Logic
     extern void* __fastcall GameMap_Construct(void*, void* unusedEdx, std::int16_t, std::int16_t);
     extern void* __fastcall MissionManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall AIManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall GuideManager_Construct(void*, void* unusedEdx);
 
 
     // Original function: FUN_00411ba6

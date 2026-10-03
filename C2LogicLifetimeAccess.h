@@ -3,6 +3,7 @@
 
 namespace NC2Logic
 {
+    class CIoHelper;
     extern void* gGame;
     void Game_ShutDown();
     void Game_Destruct(void* game);
@@ -22,5 +23,8 @@ namespace NC2Logic
     void* __fastcall MarkerArray_Construct(void* manager, void* unusedEdx);
     void* __fastcall MapMoveableArray_Construct(void* manager, void* unusedEdx);
     void* __fastcall MapPathfinderManager_Construct(void* manager, void* unusedEdx);
+    void* __fastcall GuideManager_Construct(void* manager, void* unusedEdx);
+    void __fastcall GuideManager_IO_Savegame_DoSave(void* manager, void* unusedEdx, CIoHelper* io);
+    void* __fastcall GuideManager_ConstructFromSavegame(void* manager, void* unusedEdx, CIoHelper* io);
     void* __fastcall StaticDependenciesManager_Construct(void* manager, void* unusedEdx);
 }

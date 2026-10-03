@@ -16,6 +16,13 @@ namespace NXBasics
         // both caches, which are already zero after initialization.
     }
 
+    // Original function: FUN_0040f9b7.
+    CPalette::CPalette(const CPalette& source) : mColors{}, mHighColorTable(nullptr), mTrueColorTable(nullptr)
+    {
+        std::memmove(mColors, source.mColors, sizeof(mColors));
+        Palette_PaletteChanged(this);
+    }
+
     // Original function: FUN_0040fa02; deleting wrapper: LAB_00480e5c.
     CPalette::~CPalette()
     {

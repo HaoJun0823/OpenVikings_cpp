@@ -51,7 +51,10 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_0041ae3e.
-        std::memset(DAT_00511540 + 0x04, 0, 8);
+        NC2Logic::gGuideManagerStaticVars.modifiedAreaMinimum[1] = 0;
+        NC2Logic::gGuideManagerStaticVars.modifiedAreaMinimum[0] = 0;
+        NC2Logic::gGuideManagerStaticVars.modifiedAreaMaximum[1] = 0;
+        NC2Logic::gGuideManagerStaticVars.modifiedAreaMaximum[0] = 0;
     },
 
         // Original function: FUN_00423112

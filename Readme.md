@@ -340,6 +340,8 @@ reported layout and arithmetic models, do not validate the full application.
 | [OB090](#ob090) | Event copy construction seeds and then increments the source count | 004DB43A, 004DB558 |
 | [OB091](#ob091) | Event formatting writes through a null output on its invalid-input branch | 004DB635, 004DB74A |
 | [OB092](#ob092) | Event formatting treats fragment limits as buffer capacity | 004DB635, 004DB7CC |
+| [OB096](#ob096) | Missing named hypertext blocks leak the loaded text buffer | 004D1B00 |
+| [OB097](#ob097) | Global hypertext jumps parse the comma as their anchor | 004D13F3 |
 | [OB095](#ob095) | Video Open failure leaks an unpublished multimedia stream | 00404484 |
 | [OB094](#ob094) | Text-button caption query trusts closing braces and destination capacity | 004B92A4 |
 | [OB093](#ob093) | Empty-address session search accepts failing HRESULTs | 004D73E5, 004DCCEE |
@@ -1445,6 +1447,22 @@ reported layout and arithmetic models, do not validate the full application.
 - **Decision / Renewed task:** Preserve the original query; Renewed must bound tag scanning and reject invalid output capacities.
 - **Status:** Preserved / original unchecked-input defect confirmed from instructions; no live trigger reproduced. See [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md).
 
+<a id="ob096"></a>
+### OB096 - Missing named hypertext blocks leak the loaded text buffer
+
+- **Original reference:** `004D1B00`, returning branches at `004D1BAF` and `004D1BDD`.
+- **Evidence and retained behavior:** AddTextFile allocates file-size plus one and closes the file before searching named block markers. A missing start or end marker returns false without freeing the loaded text buffer.
+- **Decision / Renewed task:** Preserve Windows ownership behavior; add scoped cleanup separately for Renewed.
+- **Status:** Preserved / original bug confirmed by ASM. No runtime reproduction. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md).
+
+<a id="ob097"></a>
+### OB097 - Global hypertext jumps parse the comma as their anchor
+
+- **Original reference:** `004D13F3`, stores/call at `004D15FF` and `004D1602`.
+- **Evidence and retained behavior:** The globaljump tag splits the filename at a comma, obtains its file ID, restores the comma and calls atoi on that comma itself. Ordinary filename,number input therefore stores anchor zero.
+- **Decision / Renewed task:** Preserve the exact parser argument; advance past the separator only in a separate Renewed correction.
+- **Status:** Preserved / original bug confirmed by ASM. No runtime reproduction. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md).
+
 <a id="ob095"></a>
 ### OB095 - Video Open failure leaks an unpublished multimedia stream
 
@@ -1564,6 +1582,12 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA104](#oa104) | Saved map managers retain unchecked versions, dimensions and indices | 004269F9, 00426EF4, 004273DE, 00428053, 0044E6FA, 0044E762, 0044ED2F |
 | [OA105](#oa105) | Palette INI loading retains parameter order and unchecked allocations | 00480A20, 00480F6D, 00480FA8 |
 | [OA106](#oa106) | Color modification and remapping retain arithmetic and ownership rules | 0040F80A, 0040FA98, 0040FB90, 0040FD80, 00480EBD |
+| [OA107](#oa107) | Main-menu command dispatch retains payload and error ordering | 004D6BBB, 004D71BA, 004D71DC, 004D787B, 004DD5BD |
+| [OA109](#oa109) | Hypertext parser/layout retains original unchecked resources and callback state | 004CBCD6, 004CB8B6, 004CB4B8, 004D13F3, 004D1B00 |
+| [OA110](#oa110) | Menu keyboard/clipboard retains consumption, history and handle assumptions | 004DB0D1, 004DB3A5 |
+| [OA111](#oa111) | Listbox child lifetime, scroll/input and savegame allocation assumptions | 004C1A3F, 004CFF78, 004CFFF5, 004D01A3, 004D0471, 004D0670 |
+| [OA112](#oa112) | Guide-manager ownership retains allocation, callback and loading-version assumptions | 0041AE53, 0041AEDF, 0041AF52, 0041AF8A, 004266A9 |
+| [OA108](#oa108) | Lobby selection retains unchecked slots, parser bounds and color rules | 004D7E5D, 004D7F7E, 004D804F, 004D80A7, 004D81C7, 004D8455 |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -2616,6 +2640,54 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Assessment / Renewed task:** Preserve original arithmetic and ownership. Resource duplication, invalid ranges and retained fields remain observed boundaries; gameplay effects have not been reproduced.
 - **Status:** Preserved / original observation. See [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md).
 
+<a id="oa107"></a>
+### OA107 - Main-menu command dispatch retains payload and error ordering
+
+- **Original reference:** `004D6BBB`, `004D32F4`, `004D71BA`, `004D71DC`, `004D787B`, `004DD5BD`.
+- **Evidence and retained behavior:** Unknown commands/messages return true. Map/save IDs use the third parameter, with unchecked GUID pointers. Empty callsign enters editing. CD absence leaves the gated command unchanged. Provider index rejection logs the original error; its getter checks only -1. Host/search/join failures switch to screen 18 and shut down before logging. Start validation failure adds type-two chat text. Connection policy stores/broadcasts only in host mode; unchanged values succeed and send failure retains the stored byte. GUI ignores its result. Start passes true as the original does.
+- **Assessment / Renewed task:** Preserve return values, deferred state changes, payload identity and error/callback order. The former dummy handler explains working sound/animation without navigation; that is a reconstruction omission.
+- **Status:** Preserved / original observation. See [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md).
+
+<a id="oa109"></a>
+### OA109 - Hypertext parser/layout retains original unchecked resources and callback state
+
+- **Original reference:** `004CBCD6`, `004CB8B6`, `004CB4B8`, `004D13F3`, `004D1B00`, `004CBF6C`.
+- **Evidence and retained behavior:** Widget/subowner allocations, selected fonts/palettes, marker buffer capacity, include/callback comma separators and original marker rectangle fields remain unchecked. Missing cached files return null; a missing text-file ID returns zero, also the first valid ID. AddTextFile ignores AddString failure. Line layout retains DWORD arithmetic, the final empty line, signed font height, unsigned center/right spacing and fixed-point justification. Screen callbacks disable their entity once drawn. Auto-scroll retains ordered x87 speed comparisons and signed wrapped elapsed time.
+- **Assessment / Renewed task:** Preserve Windows parser/layout/ownership rules; validate malformed resources and report load/parse failures in a separate Renewed change. Named-block leaks and global-jump parsing are indexed as OB096/OB097.
+- **Status:** Preserved / original observation. ASM/PE/static verification only. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md).
+
+<a id="oa112"></a>
+### OA112 - Guide-manager ownership retains allocation, callback and loading-version assumptions
+
+- **Original reference:** `0041AE53`, `0041AEDF`, `0041AF52`, `0041AF8A`, `004266A9`, `004267B4`.
+- **Evidence and retained behavior:** Startup publishes the manager, clears its four-byte link counter, resets the guide scan cursor to -1, constructs the owned 400-slot guide array, registers callbacks 1/33/31/32 with user data 64 and priority zero, then allocates one scan byte per array slot. Loading publishes before version checking; version 1 loads the nested array/counter and allocates the buffer before registration. Unsupported versions skip and return without initializing the remaining owner fields. Allocation failure still reaches the original unchecked capacity access. The scan buffer is not cleared by construction. Destruction frees the buffer, unregisters callbacks, destroys/frees the array and clears the owner.
+- **Assessment / Renewed task:** The reported null array came from a reconstruction constructor dummy; its owner initialization is restored. The connection/goods callback and insertion/removal remain separately tracked dummies. The callback dummy now preserves the original unconditional true return, preventing a false-return abort of the remaining callback chain. Broader game-save dispatch and recovery from malformed input/allocation failure require their own follow-up.
+- **Status:** Preserved / original observation. Windows ASM/static verification only. See [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md).
+
+<a id="oa111"></a>
+### OA111 - Listbox child lifetime, scroll/input and savegame allocation assumptions
+
+- **Original reference:** `004C1A3F`, `004CFF78`, `004CFFF5`, `004D00E6`..`004D0850`.
+- **Evidence and retained behavior:** Listboxes own their GUI children through two borrowed lists in opposite order. Removal deactivates the active child, clears the window/desktop references, removes both nodes and validates bounds before destruction. Hidden children are excluded from bounds, drawing and hit testing. Scroll percentages are ignored when negative and clamped through the original rectangle helper; unsupported ranges return -1. Controller messages are consumed even when the mouse button is not held. Savegame construction retains unchecked null writes after failed allocations, the 200-byte caption buffer, network filtering, group spacing, selected state and exact unique-ID command payload.
+- **Assessment / Renewed task:** The observed null listbox came from a reconstruction dummy, not an original allocation failure. Its genuine constructor and connected helpers are restored. Allocation recovery and malformed savegame metadata remain separate original assumptions; no runtime validation is claimed.
+- **Status:** Preserved / original observation. ASM/PE/static verification only. See [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md).
+
+<a id="oa110"></a>
+### OA110 - Menu keyboard/clipboard retains consumption, history and handle assumptions
+
+- **Original reference:** `004DB0D1`, `004DB3A5`.
+- **Evidence and retained behavior:** Every message path returns true. Ctrl+V uses a 100-byte ANSI buffer, ignores editing-handler results and consumes failed clipboard acquisition. A successful OpenClipboard always reaches CloseClipboard. GetClipboardData's handle is used directly as a char pointer without locking; this may be unsafe for movable memory and is preserved rather than replaced silently. Nonediting characters update the complete newest-first history; case-sensitive campaign codes save each unlocked mission, play chat FX, rebuild and clear only byte zero.
+- **Assessment / Renewed task:** Review clipboard locking/encoding and paste reporting separately. No clipboard or campaign-code runtime reproduction is claimed.
+- **Status:** Preserved / original observation. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md).
+
+<a id="oa108"></a>
+### OA108 - Lobby selection retains unchecked slots, parser bounds and color rules
+
+- **Original reference:** `004D7E5D`, `004D7F7E`, `004D804F`, `004D80A7`, `004D81C7`, `004D8455`.
+- **Evidence and retained behavior:** Slot indices, selected map/save pointers and user-map allocations remain unchecked. Map player parsing has signed upper-only bounds; invalid options above two are consumed without setting bits. Temporary library removal precedes INI reader destruction; path mapping is cleared just after construction. Color allocation wraps exactly ten, ignores hidden slots and returns zero after a full cycle. Dual type flags retain original precedence. Saved-game IDs inhibit color replacement, and human names match the first current player. Kick messages retain type three, 0x168 bytes and client shutdown/screen-21 processing.
+- **Assessment / Renewed task:** Preserve Windows layout, ownership, arithmetic and parameter consumption. No malformed-input or network/runtime reproduction is claimed.
+- **Status:** Preserved / original observation. See [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md).
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2681,11 +2753,9 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP057 | Host/join, snapshot duplication and dynamic attachment | Preserve stage-specific reports, address-copy order, snapshot release, stop-search continuation and dynamic-memory cleanup | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004DCB30`, `004DD462`, `004DE100`, `004DEB32`; OA081 |
 | FP058 | Lobby reset, missing map/player and disabled controls | Preserve clear-before-mode-read, first-match scans, host/local-player query order and optional validation error output | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004D8169`, `004D79A7`; OA082 |
 | FP059 | Menu frame callbacks, deferred closes, following and caption replacement | Preserve mutable-list iteration, tail consumption, active/generation checks, unchecked source access and CR/LF counting | [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md), `004D6B08`, `00477859`, `004DAD5C`, `004B8FD0`; OA078 |
-
 | FP060 | GUI child/caption/tooltip ownership, hit rejection and callback mutation | Preserve unchecked construction/removal, rejected hidden/disabled hits, runtime frees, live field rereads and original text-query limits | [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md); OB094, OA083 |
 | FP061 | Assertion formatting, Abort/Retry/Ignore and cursor/GDI transition | Keep the Windows three-argument callback, explicit terminator, signal 22 followed by debug break on Abort and returning Ignore path | [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md), `0047AB1A`; OA084 |
 | FP062 | Animal-sound and SoundFX lazy token ownership | Retain complete terminators, initial zero state, bit-setting/AtExit ordering and existing load validation; no independent duplicate table owner | [GUI_LINK_CLOSURE.md](docs/GUI_LINK_CLOSURE.md), `0048AA38`, `0048DD23` |
-
 | FP063 | Video COM setup and unpublished stream failure | Retain stage-specific HRESULT checks, release order, availability/playing states and original unpublished reference leak | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OB095, OA085 |
 | FP064 | Video sample, audio and fullscreen probe results | Preserve exact S_OK sample gate, ignored API results, real DLL/interface ownership and null unload path | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA085 |
 | FP065 | Title/FMV missing paths, property consumption and transitions | Preserve fallback bitmap, cursor/resolution cleanup, five-frame updates, sequence ownership and timeout comparison | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA086 |
@@ -2714,6 +2784,17 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP088 | Palette missing/empty INI, token registration and duplicate commands | Preserve zero-vs-missing-ID storage, auxiliary loading, registration result and original resource overwrite/parameter order | [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md); OA105 |
 | FP089 | Preshade/remap allocation, missing source/target and invalid 16-color range | Preserve unchecked array use, skipped parameter consumption, null remap plus borrowed target, stored -1 and unsigned range rejection | [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md); OA105, OB073 |
 | FP090 | Color overflow/truncation, remap bounds and palette teardown | Preserve DWORD arithmetic, cache invalidation, inclusive unchecked ranges, cookie/reverse deletion and retained auxiliary fields | [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md); OA106 |
+| FP091 | Menu unknown commands, CD/callsign gates and startup payloads | Retain true return, original no-op entry, exact payload offsets, editing gate and deferred state updates | [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md); OA107 |
+| FP092 | Network provider/host/search/join/start and connection-policy failures | Preserve original shutdown-before-log, type-two chat rejection, stored policy after failed sends and host gates | [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md); OA107 |
+| FP093 | Lobby map/save lookup, allocation, parser and color/slot boundaries | Preserve unchecked accesses, temporary archive lifetime, upper-only indices, color wrap/full-cycle fallback and original kick messages | [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md); OA108 |
+| FP094 | Primary keyboard and clipboard acquisition/copy/consumption | Preserve message gate, Ctrl+V detection, close-after-open order, ANSI bounds, direct-handle assumption and editing-before-cheat order | [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md); OA110 |
+| FP095 | Missing hypertext files, named blocks, closing tags and delimiters | Preserve original false/null/zero returns, ignored parser results, named-block leak and global-jump anchor parsing | [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md); OB096, OB097, OA109 |
+| FP096 | Credits allocation, resource lifetime, scroll and display callbacks | Retain explicit runtime ownership, destruction order, original unchecked state, full virtual table and one-shot callbacks | [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md); OA109 |
+| FP097 | Listbox construction, allocation and child destruction | Preserve Win32 sizes, runtime ownership, two-list order and desktop/window detachment before child destruction | [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md); OA111 |
+| FP098 | List clipping, mouse hit tests, activation, wheel and controller input | Preserve borrowed bitmap lifetime, reversed hit order, state checks, mouse coordinate transforms and percentage bounds | [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md); OA111 |
+| FP099 | Savegame refresh, grouping, network filtering and selected-entry payload | Preserve type/force flags, original captions/spacing, unchecked row allocation and unique-ID dispatch | [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md); OA111 |
+| FP100 | Guide-manager startup, array publication, scan buffer and destruction | Preserve runtime ownership, singleton/callback order, buffer capacity and unchecked allocation assumptions | [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md); OA112 |
+| FP101 | Guide-manager save/load nesting and unsupported versions | Preserve array-before-counter serialization, early owner publication, version skip and load-specific allocation/registration order | [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md); OA112 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2724,6 +2805,11 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | SoundFX startup dereferences null Pattern group data | Pattern/Landscapes temporary constructor dummies never set their singleton or load groups; Windows publishes both owners first | Reconstructed both loaders and their texture/area dependencies, removed the two dummies and retained the original shared group lookup. Runtime confirmation awaits the user's build; see [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md) |
 | Full build reports missing Windows/DirectX imports | Existing OS calls need explicit import libraries; this is project integration, not game behavior | Both configurations now link the SDK libraries and generated legacy DirectInput import library; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
 | Mapped originals and data owners remain referenced under disconnected names | Tooltip sorting, overview palette assignment and nine data consumers already have canonical native implementations/storage | Reconnected existing bodies/owners and verified MMX/network initial storage from Windows PE/xrefs; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
+| Newly registered guide callback aborts the remaining callback chain | The retained 0041B936 dummy returned false; Windows 0041BB4D unconditionally returns true and CCallbackManager stops on false | Corrected the proven return only; the missing guide work stays a tracked dummy excluded from completion counts. See [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md) |
+| In-game overview reads address 0x14 through null CGuideArray | Guide-manager constructor 0041AE53 was a dummy and never created the owned array; its existing array constructor already publishes both globals | Connected genuine owner/array startup, scan buffer and callback registration; reconstructed save/load boundaries and verified destruction. Callback/insert/remove dummies remain tracked. See [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md) |
+| Load-menu creation dereferences address 0x18 | The listbox constructor 004CFF78 was a dummy returning null; Windows returns the initialized listbox | Reconstructed listbox/controller, child lifetime/rendering/input and savegame filling, removed four dummies and synchronized project/filters; static verification only. See [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md) |
+| Credits screen writes through null; menu typing reaches a no-op | Credits constructor 004CBCD6 and primary keyboard handler 004DB0D1 were temporary dummies | Reconstructed their full connected hypertext/input trees and removed three dummies; static verification only. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md) |
+| Main-menu buttons play sound/animation but do not navigate | Default handler 004D6BBB was a no-op dummy; button feedback runs independently | Reconstructed all 46 Windows commands and direct helpers; the follow-up connects credits and primary keyboard input. See [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md) |
 | Syntax/object success is mistaken for a complete executable | Extern declarations compile without definitions; linking still requires every real function/data body | The later a77fd47 checkpoint linked with temporary dummies; the current [dummy inventory](docs/TEMPORARY_LINK_STUBS.csv) tracks unfinished implementations. Current terrain changes remain unbuilt |
 | Overview-window virtual table is truncated to fifteen entries | Windows 004F78FC..004F7947 contains nineteen entries; hide dispatch reads slot 15 | Restored slots 15..18 and the 4C size assertion; see [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md) |
 | Bitmap-tool virtual table is truncated to fifteen entries | Windows 004F6D58..004F6D9F contains eighteen entries | Restored slots 15..17 and the 48 size assertion; see [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md) |
@@ -2794,3 +2880,19 @@ Reconstructed the map constructor, binary chunk dispatcher, XB_Pack decoders and
 ## Palette startup reconstruction - 2026-10-03
 
 Reconstructed the palette constructor, complete static/token storage, 16-color lookup, RGB/modifier/palette helpers and remap construction. Added nine mapped addresses and replaced one dummy; current coverage is 1,965/5,056 (38.86%), excluding 131 dummies. The prior menu/map block is committed as 15fd4fe. Project/filters contain 149 cpp files and 147 headers. Windows ASM/PE/static verification only; no builds, tests or runtime execution. Next: Houses constructor 0048E651 and its direct helpers, then deeper drawing dependencies. See [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md), OA105/OA106 and FP088..FP090.
+
+## Main-menu click dispatch - 2026-10-04
+
+Replaced the default command-handler dummy and reconstructed its direct provider/lobby/color/connection-policy helpers. All 46 command entries use the Windows table and correct third-parameter payload. Saved player +30 is named colorId. Eighteen mappings add coverage to 1,983/5,056 (39.22%), excluding 130 dummies. Project/filters contain 150 cpp files and 147 headers. ASM/PE/static verification only; no builds, tests or runtime execution. Credits widget construction and primary keyboard input remain tracked dependencies, so complete menu usability is not claimed. See [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md), OA107/OA108 and FP091..FP093.
+
+## Main-menu credits and keyboard reconstruction - 2026-10-04
+
+Reconstructed the credits hypertext owner/parser/layout/widget tree, primary keyboard/clipboard/campaign-code handler and palette copy construction. Added 42 mappings and removed three dummies. Current coverage is 2,025/5,056 (40.05%), excluding 127 dummies; project and GUI filters include 151 cpp files and 148 headers. README OB096/OB097, OA109/OA110 and FP094..FP096 index reviewed failures. ASM/PE/static verification only; no builds, tests or game runtime. Menu listbox constructors remain unfinished. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md).
+
+## Main-menu listbox and savegame reconstruction - 2026-10-04
+
+The reported load-menu null element is traced to constructor dummy 004CFF78. Its complete listbox/controller/child tree and savegame filler now have genuine bodies, adding 40 mappings and removing four dummies. Current coverage is 2,065/5,056 (40.84%), excluding 123 dummies; project/GUI filters include 152 cpp files and 149 headers. OA111 and FP097..FP099 index retained failure paths. ASM/PE/static verification only; no builds, tests or runtime rerun. See [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md).
+
+## Guide-manager startup correction - 2026-10-04
+
+The user reached in-game overview drawing, exposing the missing guide-array owner behind constructor dummy 0041AE53. Real startup now creates/publishes that array and allocates/registers the manager state in original order. Save/load boundaries and the existing destruction path are reviewed; the complete guide static region is named. Three new mappings and one removed dummy bring coverage to 2,068/5,056 (40.90%), excluding 122 dummies. OA112 and FP100/FP101 index failures. ASM/static verification only; no build or runtime rerun. Guide connection/goods callbacks remain pending. See [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md).

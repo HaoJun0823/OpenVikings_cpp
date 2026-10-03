@@ -9,7 +9,7 @@ namespace NC2Logic
         std::uint32_t value;
         char name[40];
         std::uint32_t unknown2C;
-        std::uint32_t unknown30;
+        std::uint32_t colorId;                  // +0x30; restored lobby/player color.
     };
 
     struct SSavegameInfoHeaderData
@@ -65,6 +65,7 @@ namespace NC2Logic
     // Complete CSavegamesManager::mStaticVars region at 005113A8..005114AB.
     inline char gCurrentPlayerSavegameDirectory[260]{};
     static_assert(sizeof(SSavegamePlayerInfoData) == 0x34);
+    static_assert(offsetof(SSavegamePlayerInfoData, colorId) == 0x30);
     static_assert(sizeof(SSavegameInfoHeaderData) == 0x5DC);
     static_assert(offsetof(SSavegameInfoHeaderData, slotId) == 0x198);
     static_assert(offsetof(SSavegameInfoHeaderData, creationTimeFields) == 0x19C);

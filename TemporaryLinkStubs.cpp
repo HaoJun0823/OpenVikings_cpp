@@ -88,10 +88,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CDelayedActionManager::System_DoOneGameTick.
     void __fastcall DelayedActionManager_System_DoOneGameTick(void *, void *) {}
 
-    // TEMPORARY DUMMY: Windows address 0041AE53; implementation pending.
-    // Naming reference: NC2Logic::CGuideManager::CGuideManager.
-    void * __fastcall GuideManager_Construct(void *, void *) { return nullptr; }
-
     // TEMPORARY DUMMY: Windows address 0041B061; implementation pending.
     // Naming reference: NC2Logic::CGuideManager::InsertGuideAtPosition.
     void __fastcall GuideManager_InsertGuideAtPosition(void *, void *, unsigned int, void const *, unsigned int) {}
@@ -102,7 +98,8 @@ namespace NC2Logic
 
     // TEMPORARY DUMMY: Windows address 0041B936; implementation pending.
     // Naming reference: NC2Logic::CGuideManager::l_Guides_Callback.
-    bool __cdecl GuideManager_l_Guides_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
+    // The original always returns true; preserve callback-chain continuation while guide work remains pending.
+    bool __cdecl GuideManager_l_Guides_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
     // TEMPORARY DUMMY: Windows address 0041CB1E; implementation pending.
     // Naming reference: NC2Logic::CHumanMerchantArray::CleanMap_LoadTradeAgreements.
@@ -490,9 +487,6 @@ void * __fastcall InGameGuiManagerMousePointer_Construct(void *) { return nullpt
     // Naming reference: NC2InGameGuiManager::CGuiManagerPrimaryMessageHandlerElement::CGuiManagerPrimaryMessageHandlerElement.
 void * __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Construct(void *) { return nullptr; }
 
-// TEMPORARY DUMMY: Windows address 004C1A3F; implementation pending.
-    // Naming reference: NC2InGameGuiMiscWindows::Tool_Options_FillSavegameListboxForLoading.
-void __cdecl Tool_Options_FillSavegameListboxForLoading(void *, void *, unsigned int, bool, unsigned int, bool) {}
 
 // TEMPORARY DUMMY: Windows address 004C9777; implementation pending.
     // Naming reference: NC2InGameGuiOverviewDisplay::CWorldOverviewStaticGuiWindow::~CWorldOverviewStaticGuiWindow.
@@ -502,29 +496,9 @@ void * __fastcall WorldOverviewStaticGuiWindow_Delete(void *, void *, unsigned i
     // Naming reference: NC2InGameGuiOverviewDisplay::CWorldOverviewStaticGuiWindow::XGui_BE_Element_Draw.
 void __fastcall WorldOverviewStaticGuiWindow_XGui_BE_Element_Draw(void *, void *, NXBasics::CBitmap *, NXBasics::SRectangle *) {}
 
-// TEMPORARY DUMMY: Windows address 004CBCD6; implementation pending.
-    // Naming reference: NHyperLinkTextSystem::CGuiElementBase::CGuiElementBase.
-void * __fastcall HyperLinkTextGuiElementBase_Construct(void *, void *, NXBasics::SRectangle const *, unsigned int, unsigned int, char const *, char const *, void *, void *) { return nullptr; }
 
-// TEMPORARY DUMMY: Windows address 004CBF6C; implementation pending.
-    // Naming reference: NHyperLinkTextSystem::CGuiElementBase::SetAutoScrollSpeed.
-void __fastcall HyperLinkTextGuiElementBase_SetAutoScrollSpeed(void *, void *, float, unsigned int) {}
 
-// TEMPORARY DUMMY: Windows address 004CFF78; implementation pending.
-    // Naming reference: NC2InGameGuiTool::CToolListBoxElement::CToolListBoxElement.
-void * __fastcall ToolListBoxElement_Construct(void *, void *, NXBasics::SRectangle const *) { return nullptr; }
 
-// TEMPORARY DUMMY: Windows address 004CFFF5; implementation pending.
-    // Naming reference: NC2InGameGuiTool::CToolListBoxControllerElement::CToolListBoxControllerElement.
-void * __fastcall ToolListBoxControllerElement_Construct(void *, void *, NXBasics::SRectangle const *, void *, bool, bool) { return nullptr; }
-
-// TEMPORARY DUMMY: Windows address 004D01A3; implementation pending.
-    // Naming reference: NC2InGameGuiBaseListBox::CBaseListBoxElement::Element_Add.
-void __fastcall BaseListBoxElement_Element_Add(void *, void *, void *) {}
-
-// TEMPORARY DUMMY: Windows address 004D6BBB; implementation pending.
-    // Naming reference: NC2MainMenuGuiManager::CGuiManagerDefaultMessageHandlerElement::XGui_BE_Message_Handle.
-bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle(void *, void *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
 
 
@@ -533,10 +507,6 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
 // TEMPORARY DUMMY: Windows address 004DAE69; implementation pending.
     // Naming reference: NC2MainMenuGuiManager::CGuiManagerMousePointer::DrawMouse.
 void __fastcall MainMenuGuiManagerMousePointer_DrawMouse(void *, void *, NXBasics::CBitmap *, int const *) {}
-
-// TEMPORARY DUMMY: Windows address 004DB0D1; implementation pending.
-    // Naming reference: NC2MainMenuGuiManager::CGuiManagerPrimaryMessageHandlerElement::XGui_BE_Message_Handle.
-bool __fastcall MainMenuGuiManagerPrimaryMessageHandlerElement_XGui_BE_Message_Handle(void *, void *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
 // TEMPORARY DUMMY: Windows address 004E6E44; implementation pending.
     // Naming evidence: Windows CRT log10 entry; runtime adapter name, not a recovered Mac private symbol.

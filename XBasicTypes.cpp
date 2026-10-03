@@ -3,6 +3,14 @@
 
 namespace NXBasics
 {
+    // Original function: FUN_0041055a.
+    void SRectangle::CombineWith(const SRectangle& other) noexcept
+    {
+        if (other.x < x) { width = AddWrapped(width, SubtractWrapped(x, other.x)); x = other.x; }
+        if (AddWrapped(other.x, other.width) > AddWrapped(x, width)) width = SubtractWrapped(AddWrapped(other.x, other.width), x);
+        if (other.y < y) { height = AddWrapped(height, SubtractWrapped(y, other.y)); y = other.y; }
+        if (AddWrapped(other.y, other.height) > AddWrapped(y, height)) height = SubtractWrapped(AddWrapped(other.y, other.height), y);
+    }
     // Original function: FUN_0040f80a; RGB modification retains the fourth byte.
     void SColorRGB::Modify(const SColorModifier& modifier) noexcept
     {

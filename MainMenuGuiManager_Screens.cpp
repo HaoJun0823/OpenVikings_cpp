@@ -1,6 +1,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiTextToolElementAccess.h"
+#include "GuiListBoxElementAccess.h"
 #include "MainMenuGuiManager.h"
 #include "C2CampaignStaticDataManager.h"
 #include "C2CleanMapsManager.h"
@@ -9,6 +10,7 @@
 #include "C2LanguageTools.h"
 #include "C2SavegamesManager.h"
 #include "GuiToolsBase.h"
+#include "HyperLinkTextSystem.h"
 #include "MainMenuGuiManager_Access.h"
 #include "MasterControlProgram.h"
 #include "NetworkShutdown.h"
@@ -16,14 +18,6 @@
 
 #include <cstdio>
 #include <cstring>
-
-// Original widget interfaces; their constructors are separate reconstruction targets.
-extern void* __fastcall ToolListBoxElement_Construct(void*, void* unusedEdx, const NXBasics::SRectangle*);
-extern void* __fastcall ToolListBoxControllerElement_Construct(void*, void* unusedEdx, const NXBasics::SRectangle*, void*, bool, bool);
-extern void __fastcall BaseListBoxElement_Element_Add(void*, void* unusedEdx, void*);
-extern void __cdecl Tool_Options_FillSavegameListboxForLoading(void*, void*, std::uint32_t, bool, std::uint32_t, bool);
-extern void* __fastcall HyperLinkTextGuiElementBase_Construct(void*, void* unusedEdx, const NXBasics::SRectangle*, std::uint32_t, std::uint32_t, const char*, const char*, void*, void*);
-extern void __fastcall HyperLinkTextGuiElementBase_SetAutoScrollSpeed(void*, void* unusedEdx, float, std::uint32_t);
 
 namespace NC2MainMenuGuiManager
 {

@@ -285,6 +285,9 @@
     <ClCompile Include="MainMenuGuiManager_Lists.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="MainMenuGuiManager_Commands.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
     <ClCompile Include="MainMenuGuiManager_Network.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
@@ -945,6 +948,9 @@
     <ClCompile Include="GuiClockToolElementAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="GuiListBoxElementAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
     <ClCompile Include="WindowsVideoPlayer.cpp">
       <Filter>Application\Display</Filter>
     </ClCompile>
@@ -973,6 +979,9 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="GuiClockToolElementAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="GuiListBoxElementAccess.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="WindowsVideoPlayer.h">
@@ -1031,5 +1040,9 @@
     <ClInclude Include="C2MapResourceManagers.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="XPack.cpp"><Filter>Core\Memory</Filter></ClCompile>
     <ClInclude Include="XPack.h"><Filter>Core\Memory</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HyperLinkTextSystem.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="HyperLinkTextSystem.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
 </Project>

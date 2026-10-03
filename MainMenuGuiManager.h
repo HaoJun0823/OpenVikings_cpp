@@ -14,6 +14,8 @@ namespace NXBasics
     class CBitmap;
 }
 
+namespace NC2Logic { struct SCleanMapGuid; }
+
 namespace NNetwork
 {
     class CFileTransferManager;
@@ -101,6 +103,20 @@ namespace NC2MainMenuGuiManager
         bool Network_UpdatePlayerList();
         bool Network_PlayerListHasChanged() const;
         bool Network_SelectedProviderIsTcpIp() const;
+        bool Network_SelectServiceProvider(std::uint32_t index);
+        const GUID* Network_GetSelectedServiceProvider() const;
+        void Network_SetAllowConnections(bool allow);
+        void Network_KickSelectedPlayer();
+        void Network_KickUnassignedPlayers();
+        void Network_SelectPlayer(std::uint32_t playerId);
+        void Network_AssignSelectedPlayer(std::uint32_t slot);
+        void Network_ChangePlayerType(std::uint32_t slot);
+        void Network_ChangePlayerColor(std::uint32_t slot);
+        std::uint32_t Network_FindNextPlayerColor(std::uint32_t color) const;
+        void Network_SetLobbySelection(std::uint32_t selection, bool keepData);
+        void Network_SetLobbyDifficulty(std::uint32_t difficulty);
+        void Network_SelectMap(const NC2Logic::SCleanMapGuid& guid);
+        void Network_SelectSavegame(std::uint32_t id);
         void Network_SendLobbyData();
         void Network_InitializeCallsign();
         bool Network_AutoHost();

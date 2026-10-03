@@ -12,6 +12,7 @@ namespace NXBasics
     public:
         // Original function: FUN_0040f95e
         CPalette();
+        CPalette(const CPalette& source);
 
         // Original function: FUN_0040fa43
         CPalette(void* file, std::uint32_t version);

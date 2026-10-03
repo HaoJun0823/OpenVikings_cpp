@@ -1269,6 +1269,16 @@ namespace NNetwork
         return success;
     }
 
+    // Original function: FUN_004dd5bd; connection policy is broadcast only in host mode.
+    bool CDPNet::SetAllowConnections(bool allow)
+    {
+        if (allowConnections == static_cast<std::uint8_t>(allow)) return true;
+        if ((flags & 2u) != 2u) return false;
+        allowConnections = static_cast<std::uint8_t>(allow);
+        const std::uint8_t packet[2] = {2, static_cast<std::uint8_t>(allow)};
+        return SendPacket(0, packet);
+    }
+
     // Original function: FUN_004dd5f2
     bool CDPNet::KickPlayer(DPNID playerId)
     {

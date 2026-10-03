@@ -64,6 +64,7 @@ namespace NXBasics
         }
 
         void PlaceInside(const SRectangle& other) noexcept;
+        void CombineWith(const SRectangle& other) noexcept;
         void Inflate(std::int32_t horizontal, std::int32_t vertical) noexcept;
 
         // Original function: FUN_0041046d

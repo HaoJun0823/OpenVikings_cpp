@@ -336,6 +336,7 @@ namespace NNetwork
 
         // Original function: FUN_004dd5f2
         bool KickPlayer(DPNID playerId);
+        bool SetAllowConnections(bool allow);
 
         // Original function: FUN_004dd65e
         bool SendPacket(DPNID recipient, const void* packet);

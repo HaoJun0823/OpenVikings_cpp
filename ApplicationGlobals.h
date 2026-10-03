@@ -14,6 +14,20 @@ namespace NC2Logic
     // Original data: DAT_005106f8.
     // Mac reference: NC2Logic::gGameControlStartupData.
     inline SGameControlStartupData gGameControlStartupData;
+
+    // Complete Windows region 00511540..0051154B; CGuideManager::mStaticVars and map-change bounds.
+    // Field meanings follow the scan and two-pass map-change callback accesses.
+    struct SGuideManagerStaticVars
+    {
+        std::int32_t scanGuideId;
+        std::int16_t modifiedAreaMinimum[2];
+        std::int16_t modifiedAreaMaximum[2];
+    };
+    inline SGuideManagerStaticVars gGuideManagerStaticVars{};
+    static_assert(sizeof(SGuideManagerStaticVars) == 0x0C);
+    static_assert(offsetof(SGuideManagerStaticVars, scanGuideId) == 0);
+    static_assert(offsetof(SGuideManagerStaticVars, modifiedAreaMinimum) == 4);
+    static_assert(offsetof(SGuideManagerStaticVars, modifiedAreaMaximum) == 8);
 }
 
 // Original data: 0050F620. Only the one-byte clear at 0040102D is established.
@@ -26,9 +40,6 @@ inline void* gDirectMusicManager = nullptr;
 
 // These byte ranges cover the storage addressed by the startup routines.
 // They are not declarations of complete reconstructed game classes.
-
-// Original data: DAT_00511540; startup writes offsets 0x04 through 0x0B.
-alignas(4) inline std::byte DAT_00511540[0x0C]{};
 
 // Original data: DAT_00511570; the next global begins at 0051257c.
 alignas(4) inline std::byte DAT_00511570[0x100C]{};

@@ -72,6 +72,7 @@
     <ClCompile Include="MainMenuGuiManager.cpp" />
     <ClCompile Include="MainMenuGuiManager_Access.cpp" />
     <ClCompile Include="MainMenuGuiManager_Lists.cpp" />
+    <ClCompile Include="MainMenuGuiManager_Commands.cpp" />
     <ClCompile Include="MainMenuGuiManager_Network.cpp" />
     <ClCompile Include="MainMenuGuiManager_Screens.cpp" />
     <ClCompile Include="MasterControlProgram_DisplayResolution.cpp" />
@@ -380,6 +381,7 @@
     <ClCompile Include="XGuiDesktop_Attachment.cpp" />
     <ClCompile Include="GuiTextToolElementAccess.cpp" />
     <ClCompile Include="GuiClockToolElementAccess.cpp" />
+    <ClCompile Include="GuiListBoxElementAccess.cpp" />
     <ClCompile Include="WindowsVideoPlayer.cpp" />
     <ClCompile Include="C2StringAccess.cpp" />
     <ClCompile Include="C2HouseAccess.cpp" />
@@ -390,6 +392,7 @@
     <ClInclude Include="XGuiWindowAccess.h" />
     <ClInclude Include="GuiTextToolElementAccess.h" />
     <ClInclude Include="GuiClockToolElementAccess.h" />
+    <ClInclude Include="GuiListBoxElementAccess.h" />
     <ClInclude Include="WindowsVideoPlayer.h" />
     <ClInclude Include="C2StringAccess.h" />
     <ClInclude Include="C2HouseAccess.h" />
@@ -427,5 +430,9 @@
     <ClInclude Include="C2MapResourceManagers.h" />
     <ClCompile Include="XPack.cpp" />
     <ClInclude Include="XPack.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HyperLinkTextSystem.cpp" />
+    <ClInclude Include="HyperLinkTextSystem.h" />
   </ItemGroup>
 </Project>

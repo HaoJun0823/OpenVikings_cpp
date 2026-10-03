@@ -56,8 +56,12 @@ Confidence labels:
 
 ## Object-array globals
 
+Guide-manager startup and its complete static region are recorded in [GUIDE_MANAGER_STARTUP.md](GUIDE_MANAGER_STARTUP.md).
+
 | Address | Meaning | Confidence |
 |---|---|---:|
+| `00511540..0051154B` | `gGuideManagerStaticVars`: scan cursor and changed-map bounds | **Confirmed** |
+| `00511550` | `gGuideManager` owner; creates the guide array | **Confirmed** |
 | `005109F8` | `CHouseArray` storage/object | **Confirmed** |
 | `005109FC` | house manager pointer | **Confirmed** |
 | `00510A00` | `CHumanArray` storage/object | **Confirmed** |
@@ -67,7 +71,7 @@ Confidence labels:
 | `00511554` | `CAnimalArray` storage/object | **Confirmed** |
 | `00511558` | animal manager pointer | **Confirmed** |
 | `00512588` | `CGuideArray` storage/object | **Confirmed** |
-| `0051258C` | guide manager pointer | **Confirmed** |
+| `0051258C` | `CGuideArray` owner pointer | **Confirmed** |
 
 ## CMapWalkSectorManager/static sector data
 

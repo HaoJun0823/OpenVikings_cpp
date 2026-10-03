@@ -67,7 +67,7 @@ namespace NC2Logic
                     auto& player = header->players[index];
                     player.value = io.IO_File_ReadLong();
                     std::strncpy(player.name, io.IO_File_ReadString(), 40);
-                    player.unknown30 = io.IO_File_ReadLong();
+                    player.colorId = io.IO_File_ReadLong();
                 }
                 break;
             }

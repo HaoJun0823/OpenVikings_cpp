@@ -4,6 +4,7 @@
 #include "C2LogicLifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
+#include "C2IoHelper.h"
 #include "C2LogicObjectArrays.h"
 #include "C2EngineTerrainData.h"
 #include "C2GameMapAccess.h"
@@ -23,6 +24,8 @@
 #include "C2StaticVehicleTypeData.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2StaticTribeTypeData.h"
+
+#include <new>
 
 namespace NC2Logic
 {
@@ -409,6 +412,19 @@ namespace NC2Logic
         }
         gPlayerStatisticManager = nullptr;
     }
+    // Original function: FUN_0041ae53; CGuideManager constructs and owns CGuideArray.
+    void* __fastcall GuideManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gGuideManager = manager;
+        Write<std::uint32_t>(manager, 0, 0);
+        gGuideManagerStaticVars.scanGuideId = -1;
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x30, 1);
+        if (allocation != nullptr) ::new (allocation) CGuideArray();
+        for (std::uint32_t type : {1u, 0x33u, 0x31u, 0x32u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, GuideManager_l_Guides_Callback, 0x64, 0);
+        Write(manager, 0x1364, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
+        return manager;
+    }
+
     // Original function: FUN_0041aedf.
     static void GuideManager_Destruct(void* manager)
     {
@@ -416,6 +432,33 @@ namespace NC2Logic
         Unregister(GuideManager_l_Guides_Callback, 0x64, {1, 0x33, 0x31, 0x32});
         DestroyOwned(CGuideArray::sTheObjectPtr, [](CGuideArray* array) { array->~CGuideArray(); });
         gGuideManager = nullptr;
+    }
+
+    // Original function: FUN_0041af52; NC2Logic::CGuideManager::IO_Savegame_DoSave.
+    void __fastcall GuideManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
+    {
+        io->IO_Tool_Chunk_StartCreation(0x78646778, 1);
+        CGuideArray::sTheObjectPtr->IO_Savegame_DoSave(io);
+        io->IO_Memory_WriteBinary(manager, 4);
+        io->IO_Tool_Chunk_FinishAndWrite();
+    }
+
+    // Original function: FUN_0041af8a; CGuideManager loading constructor.
+    void* __fastcall GuideManager_ConstructFromSavegame(void* manager, void* /*unusedEdx*/, CIoHelper* io)
+    {
+        gGuideManager = manager;
+        if (io->mReadHeader.version != 1)
+        {
+            io->IO_File_Chunk_Skip();
+            return manager;
+        }
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x30, 1);
+        if (allocation != nullptr) ::new (allocation) CGuideArray(io);
+        io->IO_File_ReadBinary(manager, 4);
+        gGuideManagerStaticVars.scanGuideId = -1;
+        Write(manager, 0x1364, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
+        for (std::uint32_t type : {1u, 0x33u, 0x31u, 0x32u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, GuideManager_l_Guides_Callback, 0x64, 0);
+        return manager;
     }
     // Original function: FUN_0040b9af.
     static void MarkerArray_Destruct(void* array)
