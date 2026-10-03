@@ -40,7 +40,6 @@ namespace NC2Logic
     extern void MapTool_WallGate_SetState(std::uint32_t, const void*, bool);
     extern void __fastcall GuideManager_InsertGuideAtPosition(void*, void*, std::uint32_t, const void*, std::uint32_t);
     extern void __fastcall GuideManager_RemoveGuide(void*, void*, std::uint32_t);
-    extern void __fastcall GameControl_Diplomacy_SetState(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t);
     extern void __fastcall TributeData_Pay(void*, void*);
     extern void Tool_GlobalDefendMode_Start(std::uint32_t);
     extern void Tool_GlobalDefendMode_Stop(std::uint32_t);

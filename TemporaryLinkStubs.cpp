@@ -32,17 +32,9 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CAIManager::l_AI_Callback.
     bool __cdecl AIManager_l_AI_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-    // TEMPORARY DUMMY: Windows address 00408FDD; implementation pending.
-    // Naming reference: NC2Logic::CGameControl::CGameControl.
-    void * __fastcall GameControl_Construct(void *, void *, NXBasics::CIniFileReader *) { return nullptr; }
-
     // TEMPORARY DUMMY: Windows address 00409BCC; implementation pending.
     // Naming reference: NC2Logic::CGameControl::System_DoOneGameTick.
     void __fastcall GameControl_System_DoOneGameTick(void *, void *, unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 0040A171; implementation pending.
-    // Naming reference: NC2Logic::CGameControl::Diplomacy_SetState.
-    void __fastcall GameControl_Diplomacy_SetState(void *, void *, unsigned int, unsigned int, unsigned int) {}
 
     // TEMPORARY DUMMY: Windows address 0040A295; implementation pending.
     // Naming reference: NC2Logic::CGameControl::Player_LeavesGame.
@@ -51,10 +43,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 0040A2D4; implementation pending.
     // Naming reference: NC2Logic::CGameControl::Player_LeftGameModifyObjects.
     void __fastcall GameControl_Player_LeftGameModifyObjects(void *, void *, unsigned int, bool, bool) {}
-
-    // TEMPORARY DUMMY: Windows address 0040A612; implementation pending.
-    // Naming reference: NC2Logic::CGameControl::ls_LogicCallback.
-    bool __cdecl GameControl_ls_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
     // TEMPORARY DUMMY: Windows address 0040ACE5; implementation pending.
     // Naming reference: NC2Logic::CHouseArray::DoOneGameTick.
@@ -364,17 +352,9 @@ namespace NC2E2
     // Naming reference: NC2E2::CE2StaticDataTransitionsManager::CE2StaticDataTransitionsManager.
     void * __fastcall E2StaticDataTransitionsManager_Construct(void *, void *) { return nullptr; }
 
-    // TEMPORARY DUMMY: Windows address 0048E24E; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataPatternManager::CE2StaticDataPatternManager.
-    void * __fastcall E2StaticDataPatternManager_Construct(void *, void *) { return nullptr; }
-
     // TEMPORARY DUMMY: Windows address 0048E651; implementation pending.
     // Naming reference: NC2E2::CE2StaticDataHousesManager::CE2StaticDataHousesManager.
     void * __fastcall E2StaticDataHousesManager_Construct(void *, void *) { return nullptr; }
-
-    // TEMPORARY DUMMY: Windows address 0048F79F; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataLandscapesManager::CE2StaticDataLandscapesManager.
-    void * __fastcall E2StaticDataLandscapesManager_Construct(void *, void *) { return nullptr; }
 
     // TEMPORARY DUMMY: Windows address 00493656; implementation pending.
     void __cdecl DrawAtom_MapMoveable_DoDraw(unsigned int, NXBasics::CBitmap *, int, int, void const *, bool, int) {}

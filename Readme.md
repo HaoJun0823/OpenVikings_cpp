@@ -10,7 +10,7 @@ Last handoff update: **2026-10-03**.
 
 ## Compilable checkpoint - temporary implementations
 
-Debug|Win32 and Release|Win32 now build and link with zero linker errors. At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) supplies 146 temporary dummy implementations; [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
+Debug|Win32 and Release|Win32 passed with zero linker errors at checkpoint a77fd47. Subsequent naming/output and terrain changes have not been built. At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) now supplies 144 temporary dummy implementations; [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
 
 Main executable outputs use `OpenVikings/Debug` and `OpenVikings/Release`. Future new function calls use original names found in the Mac source. Replace each dummy with Windows-equivalent behavior and remove its inventory entry while keeping both configurations buildable. See [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md).
 
@@ -1553,6 +1553,10 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA093](#oa093) | Command queues and checksum records retain original unchecked processing | 00410F00, 00410FCC, 00411829, 004118F6 |
 | [OA094](#oa094) | GUI messages retain padding, history and callback-order assumptions | 004B3DAA, 004B400E, 004B438A, 0042C0C8 |
 | [OA095](#oa095) | Transport reservations retain signed/byte counters and reused ledger entries | 00441CB4, 00431D2D, 0044BBA6, 0044BD0D |
+| [OA096](#oa096) | Terrain INI loaders retain missing-input, capacity and transition rules | 0048E24E, 0048F79F |
+| [OA097](#oa097) | Texture and area loading retain unchecked allocation and wrapped geometry | 00490448, 0040BEAA, 00452B05, 00452B44 |
+| [OA098](#oa098) | GameControl input retains directed state, ignored tokens and special-item limits | 00408FDD, 0040A034 |
+| [OA099](#oa099) | Player availability and diplomacy retain unchecked indices and callback order | 00409D42, 0040A171, 0040A612 |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -2524,6 +2528,38 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Assessment / Renewed task:** Preserve these original rollback, capacity and failure semantics; no runtime reproduction is claimed.
 - **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
 
+<a id="oa096"></a>
+### OA096 - Terrain INI loaders retain missing-input, capacity and transition rules
+
+- **Original reference:** `0048E24E`, `0048F79F`, `0048E5F8`, `0048E58A`, `00490360`, `00480F6D`.
+- **Evidence and retained behavior:** Managers are published/cleared before INI loading. Unloaded input leaves cached IDs zero; loaded zero-group Pattern input writes -1, while zero-group Landscapes input returns with zeros. Records accept three groups; a full 100-name manager returns -1, which is still stored in the record. Area/frame valencies and equality-only 80/150/four-entry caps retain original parameter consumption. Lazy token exit-registration failure is ignored. Missing transition targets are skipped after all records load; a type-13 flag remains set even when its target is missing. ID lookup returns the first case-insensitive match or -1.
+- **Assessment / Renewed task:** Preserve malformed-input and partial-resource semantics; runtime reachability of unchecked paths is not established. The palette constructor remains separate pending work.
+- **Status:** Preserved / original observation. See [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md).
+
+<a id="oa097"></a>
+### OA097 - Texture and area loading retain unchecked allocation and wrapped geometry
+
+- **Original reference:** `00490448`, `0040BEAA`, `00452B05`, `00452B44`.
+- **Evidence and retained behavior:** Existing texture names are reused; missing files return -1 before allocation. New records and replacement index arrays are allocated without rollback checks. Bitmap extraction unconditionally detaches its palette. Picture decoder/fatal behavior is shared with the existing implementation. Area object/row allocation is unchecked before copy/update. DWORD point counts wrap; bounds compare signed WORD coordinates and wrapped row endpoints, retaining +1000/-1000 for empty areas.
+- **Assessment / Renewed task:** Keep original failure continuation and allocation/free ownership. No runtime failure reproduction is claimed for these paths.
+- **Status:** Preserved / original observation. See [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md).
+
+<a id="oa098"></a>
+### OA098 - GameControl input retains directed state, ignored tokens and special-item limits
+
+- **Original reference:** `00408FDD`, `0040A034`, `00409A9A..00409A9D`.
+- **Evidence and retained behavior:** A null reader creates default player zero; missing groups with a non-null reader leave zero records. Valid INI commands retain exact parameter consumption and directed diplomacy writes. Three miscellaneous tokens are ignored. Name loading retries null results, skips parameter reads on failure and copies up to fifty bytes without a separate terminator. Lazy exit-registration failure is ignored. Special-item capacity is one hundred; type zero remains reusable even after an add message. Loader add failures are ignored; the shared add method retains a signed upper-bound-only player check.
+- **Assessment / Renewed task:** Preserve original input/capacity behavior and ownership. Malformed-input reachability and runtime validation remain separate work.
+- **Status:** Preserved / original observation. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md).
+
+<a id="oa099"></a>
+### OA099 - Player availability and diplomacy retain unchecked indices and callback order
+
+- **Original reference:** `00409D42`, `00409A3B`, `0040A171`, `0040A612`, `0041AA59`.
+- **Evidence and retained behavior:** House requirement counts and IDs are unchecked; type-two players bypass requirements only after their reads. Windows equipment writes use a 56-byte tribe stride for 66 flags. Diplomacy changes store state before callback dispatch and inspect visibility afterward; unchanged state returns true without dispatch. Setter player checks lack lower bounds, and the logic callback excludes sentinel twenty by equality only. Statistics allocations use the explicit new-handler thunk and continue into unchecked clears.
+- **Assessment / Renewed task:** Retain the established strides, allocation family, return values and callback order. These observations alone do not establish reachable gameplay defects.
+- **Status:** Preserved / original observation. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md).
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2607,6 +2643,11 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP073 | Network command allocation, incomplete buffers and checksums | Preserve immediate/queued execution, original copies, send-size assertions, false on incomplete receive buffers, mismatch warnings and stale-record clearing | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA093 |
 | FP074 | GUI message rejection, history selection and button allocation | Preserve original return values, capacity/timestamp rules, callback/deletion order and null desktop attachment | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA094 |
 | FP075 | Transport reservation underflow, capacity and ledger exhaustion | Preserve house rejection/saturation, byte counters, requested ledger delta, retained counters and mutated failed door searches | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA095 |
+| FP076 | Terrain missing/empty INI, full groups and token registration | Preserve singleton publication, distinct empty-input cached-ID results, stored -1 group IDs and ignored registration failure | [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md); OA096 |
+| FP077 | Landscape valency/capacity and missing resource/transition names | Preserve parameter consumption, optional Bob filenames, palette -1, transition compaction and retained fire flag | [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md); OA096 |
+| FP078 | Texture/area allocation, image decode and geometry | Preserve missing-file -1, original picture failure handling, unchecked allocation, extracted ownership and wrapped DWORD/WORD calculations | [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md); OA097 |
+| FP079 | GameControl missing/invalid INI, string-loader failure and special-item capacity | Preserve default-vs-missing-reader behavior, exact parameter consumption, ignored tokens, retry/copy semantics, zero-type slot reuse and ignored add/registration results | [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md); OA098 |
+| FP080 | Player requirements, diplomacy indices/callback mutation and statistics allocation | Preserve unchecked counts/IDs, original equipment stride, signed/equality bounds, state-before-callback and visibility-after-callback, explicit new-handler allocation | [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md); OA099 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2614,9 +2655,10 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 
 | Finding | Why it is not an original bug | Required reconstruction action |
 | --- | --- | --- |
+| SoundFX startup dereferences null Pattern group data | Pattern/Landscapes temporary constructor dummies never set their singleton or load groups; Windows publishes both owners first | Reconstructed both loaders and their texture/area dependencies, removed the two dummies and retained the original shared group lookup. Runtime confirmation awaits the user's build; see [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md) |
 | Full build reports missing Windows/DirectX imports | Existing OS calls need explicit import libraries; this is project integration, not game behavior | Both configurations now link the SDK libraries and generated legacy DirectInput import library; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
 | Mapped originals and data owners remain referenced under disconnected names | Tooltip sorting, overview palette assignment and nine data consumers already have canonical native implementations/storage | Reconnected existing bodies/owners and verified MMX/network initial storage from Windows PE/xrefs; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
-| Syntax/object success is mistaken for a complete executable | Extern declarations compile without definitions; linking still requires every real function/data body | Full Win32 Debug/Release linking remains incomplete with 213 distinct symbols; the complete [inventory](docs/UNRESOLVED_LINK_SYMBOLS.csv) tracks genuine remaining reconstruction work |
+| Syntax/object success is mistaken for a complete executable | Extern declarations compile without definitions; linking still requires every real function/data body | The later a77fd47 checkpoint linked with temporary dummies; the current [dummy inventory](docs/TEMPORARY_LINK_STUBS.csv) tracks unfinished implementations. Current terrain changes remain unbuilt |
 | Overview-window virtual table is truncated to fifteen entries | Windows 004F78FC..004F7947 contains nineteen entries; hide dispatch reads slot 15 | Restored slots 15..18 and the 4C size assertion; see [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md) |
 | Bitmap-tool virtual table is truncated to fifteen entries | Windows 004F6D58..004F6D9F contains eighteen entries | Restored slots 15..17 and the 48 size assertion; see [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md) |
 | Menu desktop and GUI resource owners use host allocation/free families | Windows allocates through the runtime and uses original object sizes, qualified destruction and Runtime_Free | Corrected menu graphics ownership; see [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md) |
@@ -2638,6 +2680,8 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Callback nodes, Storable objects, bitmap memory and palette caches use mixed host/project allocation | Reconstruction allocator mismatch, not original game behavior | Matched object/buffer allocation and deleting wrappers to the original runtime family; added original palette vector deletion. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md) |
 | System-manager object and 16-bit shadow table use host allocation; application clears assert instead of fatal | Windows allocates through explicit-handler thunk `004E5DDD`, frees through `004E5E48`, and clears warning/fatal in `00479169` | Corrected the directly related allocation/free paths, minimal converter initialization and callback clearing; retained original unchecked allocation behavior. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md) |
 | Property manager, records and duplicated strings use host allocation; `0050F620` is described as property-manager storage | Windows uses the explicit-handler runtime allocator/free family; `0050F620` has only a one-byte clear and no established semantic identity | Corrected ownership and reused the canonical runtime list; retained the unknown byte under its original name. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md) |
+| Player statistics read a null GameControl owner during startup | The temporary constructor omitted publication of `005109EC`; the statistics read is an original dependency | Reconstructed GameControl initialization and its direct helpers; corrected both statistics allocations to the original new-handler thunk. Static verification only. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md) |
+| Progress-bar bitmap triggers a heap breakpoint when deleted | Its object used global host-CRT allocation, while `CBitmap::operator delete` frees through the project Runtime heap | Corrected `ProgressBar_Init` to the `004025AB` allocation path: `Runtime_AllocateWithNewHandler(0x54, 1)`. Static verification only. See [PROGRESS_BAR_HEAP_OWNERSHIP.md](docs/PROGRESS_BAR_HEAP_OWNERSHIP.md) |
 
 StringIO/CStringArray/CMemory handler invocation differed from the explicit-handler thunk on five directly reached allocation sites. Those reconstruction differences are corrected; the original unchecked continuation is retained. See [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md).
 
@@ -2659,6 +2703,15 @@ After the faithful project is complete, use this register to plan Renewed. Until
 
 ## Semantic naming and build layout — 2026-10-03
 
-Checkpoint a77fd47 preserves the successful Win32 link state. All 143 remaining active FUN identifiers now use semantic names; [FUNCTION_NAME_MAP.csv](docs/FUNCTION_NAME_MAP.csv) records the Mac reference and explicit Windows-only exceptions. The 146 temporary bodies remain unfinished and do not increase reconstruction coverage. See [FUNCTION_NAMES.md](docs/FUNCTION_NAMES.md).
+Commit 4220d37 records semantic naming and output layout on the previously successful a77fd47 Win32 link checkpoint. All 143 remaining active FUN identifiers now use semantic names; [FUNCTION_NAME_MAP.csv](docs/FUNCTION_NAME_MAP.csv) records the Mac reference and explicit Windows-only exceptions. The naming pass retained 146 temporary bodies; the subsequent terrain block replaces two constructors, leaving 144 unfinished bodies. See [FUNCTION_NAMES.md](docs/FUNCTION_NAMES.md).
 
 Executables stay under OpenVikings/Debug or OpenVikings/Release, with PDB files in symbols/ and intermediate build products in obj/. Current naming/output changes have static verification only. No tests or automatic Debug/Release builds are run; builds require an explicit user request.
+
+
+## Terrain startup reconstruction - 2026-10-03
+
+Pattern/Landscapes constructors now publish their managers and load the complete Windows INI groups, records, textures, frames, areas, transitions and cached special IDs. This corrects the initialization cause of the reported null group-data crash. New production files are included in vcxproj/filters; README OA096/OA097 and FP076..FP078 index retained failure paths. Coverage is provisionally 1,901/5,056 (37.60%), excluding 144 dummies. ASM/PE/static verification only; no build or startup rerun. Next: palette-manager construction/loading at 00480A20, then Houses at 0048E651. See [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md).
+
+## GameControl startup reconstruction - 2026-10-03
+
+The subsequent screenshot reaches player statistics with a null GameControl owner. The real GameControl constructor and its player/allowed-item/special-item/diplomacy/callback tree now replace that missing initialization. Statistics allocations retain the original new-handler path. Production additions are included in vcxproj/filters; OA098/OA099 and FP079/FP080 index reviewed failure paths. Current provisional coverage is 1,911/5,056 (37.80%), excluding 141 dummies. ASM/PE/static verification only; no build or runtime rerun. Next: palette-manager construction/loading, then Houses. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md).

@@ -23,13 +23,13 @@ namespace NC2Logic
             if (Read<std::uint8_t>(playerData, 0) == 0) continue;
             if (Read<std::uint32_t>(playerData, 4) == 1)
             {
-                void* history = NXBasics::Runtime_Allocate(0x2DB40);
+                void* history = NXBasics::Runtime_AllocateWithNewHandler(0x2DB40, 1);
                 Write<void*>(manager, 8u + player * 4u, history);
                 std::memset(history, 0, 0x2DB40);
             }
             else
             {
-                void* sample = NXBasics::Runtime_Allocate(0x138);
+                void* sample = NXBasics::Runtime_AllocateWithNewHandler(0x138, 1);
                 Write<void*>(manager, 0x58u + player * 4u, sample);
                 std::memset(sample, 0, 0x138);
             }

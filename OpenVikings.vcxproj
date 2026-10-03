@@ -15,6 +15,7 @@
     <ClCompile Include="C2GameTime.cpp" />
     <ClCompile Include="C2GameState.cpp" />
     <ClCompile Include="C2GameControlNetwork.cpp" />
+    <ClCompile Include="C2GameControlStartup.cpp" />
     <ClCompile Include="C2PlayerCenterPosition.cpp" />
     <ClCompile Include="MainMenuGuiManager_WorldDisplay.cpp" />
     <ClCompile Include="C2AnimalAccess.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="C2E2LevelOfDetailManager.cpp" />
     <ClCompile Include="C2E2StaticDataAnimalSounds.cpp" />
     <ClCompile Include="C2E2StaticDataGroups.cpp" />
+    <ClCompile Include="C2E2StaticDataTerrain.cpp" />
     <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
     <ClCompile Include="C2EngineDisplayAccess.cpp" />
     <ClCompile Include="C2EngineDisplayManager.cpp" />
@@ -41,6 +43,7 @@
     <ClCompile Include="C2LanguageTools.cpp" />
     <ClCompile Include="C2LogicObjectArrays.cpp" />
     <ClCompile Include="C2MapGeometry.cpp" />
+    <ClCompile Include="C2MapArea.cpp" />
     <ClCompile Include="C2MapSectorAttachment.cpp" />
     <ClCompile Include="C2MapSectorGridCursor.cpp" />
     <ClCompile Include="C2MapWalkSectorManager.cpp" />
@@ -123,6 +126,7 @@
     <ClInclude Include="C2GameMapIO.h" />
     <ClInclude Include="C2GameTime.h" />
     <ClInclude Include="C2GameControlNetwork.h" />
+    <ClInclude Include="C2GameControlStartup.h" />
     <ClInclude Include="C2PlayerCenterPosition.h" />
     <ClInclude Include="ApplicationGlobals.h" />
     <ClInclude Include="ApplicationStartup.h" />
@@ -141,6 +145,7 @@
     <ClInclude Include="C2E2LevelOfDetailManager.h" />
     <ClInclude Include="C2E2StaticDataAnimalSounds.h" />
     <ClInclude Include="C2E2StaticDataGroups.h" />
+    <ClInclude Include="C2E2StaticDataTerrain.h" />
     <ClInclude Include="C2E2StaticDataSoundFX.h" />
     <ClInclude Include="C2EngineDisplayAccess.h" />
     <ClInclude Include="C2EngineDisplayManager.h" />
@@ -153,6 +158,7 @@
     <ClInclude Include="C2LogicObjectArrays.h" />
     <ClInclude Include="C2LogicIOAccess.h" />
     <ClInclude Include="C2MapGeometry.h" />
+    <ClInclude Include="C2MapArea.h" />
     <ClInclude Include="C2MapSectorAttachment.h" />
     <ClInclude Include="C2MapSectorGridCursor.h" />
     <ClInclude Include="C2MapWalkSectorManager.h" />

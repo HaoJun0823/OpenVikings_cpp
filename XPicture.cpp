@@ -125,6 +125,15 @@ namespace NXBasics
         return { heightBits, heightBits - 1u, 0xFFFFFFFFu, 0xFFFFFFFFu };
     }
 
+    // Original function: FUN_0040beaa.
+    CBitmap* CPicture::ExtractBitmap()
+    {
+        mBitmap->SetPalettePtr(nullptr);
+        CBitmap* bitmap = mBitmap;
+        mBitmap = nullptr;
+        return bitmap;
+    }
+
     // Original function: FUN_0040bebd
     CPalette* CPicture::ExtractPalette()
     {

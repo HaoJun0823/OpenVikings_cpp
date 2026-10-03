@@ -10,6 +10,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MapArea.h"
 #include "C2GameMapAccess.h"
 #include "C2MapSectorGridCursor.h"
 #include "XPalette.h"
@@ -531,8 +532,7 @@ namespace NC2E2
         gE2StaticDataPatternManager = nullptr;
     }
 
-    // Original function: FUN_00452b3a. CMapArea destructor.
-    static void MapArea_Destruct(void* list) { FreeField(list, 4); }
+    static void MapArea_Destruct(void* list) { static_cast<NC2Logic::CMapArea*>(list)->~CMapArea(); }
     static void DestroyMapArea(void* list) { DestroyOwned(list, MapArea_Destruct); }
     // Original function: FUN_0048f5ba.
     static void E2StaticDataHousesManager_Destruct(void*)

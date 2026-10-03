@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 #include "C2GameState.h"
+#include "C2E2StaticDataTerrain.h"
+#include "C2GameControlStartup.h"
 
 namespace NXBasics { class CStringArray; }
 
@@ -31,7 +33,7 @@ namespace NC2Logic
     // Original global: 005109D4.
     inline void* gAIManager = nullptr;
     // Original global: 005109EC.
-    inline void* gGameControl = nullptr;
+    inline void*& gGameControl = gGameControlRuntimeStorage.owner;
     // Original global: 00510A14.
     inline void* gMarkerArray = nullptr;
     // Original global: 00510A20.
@@ -227,11 +229,11 @@ namespace NC2E2
     // Original global: 005689E4.
     inline void* gStaticParticelData = nullptr;
     // Original global: 00568A34.
-    inline void* gStaticPatternEntries = nullptr;
+    inline void*& gStaticPatternEntries = gStaticPatternStorage.entries;
     // Original global: 00568A64.
     inline void* gStaticHouseEntries = nullptr;
     // Original global: 00568A7C.
-    inline void* gStaticLandscapeEntries = nullptr;
+    inline void*& gStaticLandscapeEntries = gStaticLandscapeStorage.entries;
     // Original global: 005550E4.
     inline void* gStaticPaletteEntries = nullptr;
     // Original global: 005550EC.
@@ -249,8 +251,8 @@ namespace NC2E2
     alignas(4) inline std::byte gStaticTransitionData[0x20]{};
     inline std::uint32_t gStaticMiscLandscapeGroupCount = 0; // 00568550
     inline std::int32_t gStaticHouseCount = 0;               // 00568A60
-    inline std::int32_t gStaticLandscapeCount = 0;           // 00568A78
-    inline std::uint32_t gStaticPatternCount = 0;            // 00568A30
+    inline std::int32_t& gStaticLandscapeCount = gStaticLandscapeStorage.count; // 00568A78
+    inline std::uint32_t& gStaticPatternCount = gStaticPatternStorage.count;   // 00568A30
     inline std::int32_t gStaticPaletteCount = 0;             // 005550E0
     inline std::uint32_t gStaticPaletteNameCount = 0;        // 005550E8
     // Complete Windows music selection region 005683B0..00568417. The owning

@@ -11,7 +11,7 @@ namespace NC2LogicExternals
         if (count <= 0) return -1;
         for (std::int32_t index = 0; index < count; ++index)
         {
-            // Original engine record is 0x8C bytes; its remaining layout is unresolved.
+            // Original 0x8C layout is described by SE2StaticDataLandscape.
             const auto* record = static_cast<const std::byte*>(NC2E2::gStaticLandscapeEntries) + static_cast<std::uint32_t>(index) * 0x8Cu;
             if (NC2Lifetime::Read<std::int32_t>(record, 0x38) != landscapeType) continue;
             if (!requireMapLandscape || NC2Lifetime::Read<std::uint8_t>(record, 0x41) != 0) return index;

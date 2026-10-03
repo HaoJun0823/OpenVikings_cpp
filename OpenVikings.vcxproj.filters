@@ -150,6 +150,9 @@
     <ClCompile Include="C2GameControlNetwork.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2GameControlStartup.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="C2PlayerCenterPosition.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
@@ -240,6 +243,9 @@
     <ClCompile Include="C2E2StaticDataGroups.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
+    <ClCompile Include="C2E2StaticDataTerrain.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
     <ClCompile Include="C2E2StaticDataSoundFX.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
@@ -328,6 +334,9 @@
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="C2MapGeometry.cpp">
+      <Filter>Engine\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="C2MapArea.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="C2ControlStartup.cpp">
@@ -470,6 +479,9 @@
     <ClInclude Include="C2GameControlNetwork.h">
       <Filter>Logic</Filter>
     </ClInclude>
+    <ClInclude Include="C2GameControlStartup.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
     <ClInclude Include="C2PlayerCenterPosition.h">
       <Filter>GUI</Filter>
     </ClInclude>
@@ -549,6 +561,9 @@
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
     <ClInclude Include="C2E2StaticDataGroups.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2StaticDataTerrain.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
     <ClInclude Include="C2E2StaticDataSoundFX.h">
@@ -645,6 +660,9 @@
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="C2MapGeometry.h">
+      <Filter>Engine\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="C2MapArea.h">
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="C2ControlStartup.h">

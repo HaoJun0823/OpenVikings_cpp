@@ -19,6 +19,8 @@ namespace NXBasics
         // Original function: FUN_0040be7d
         ~CPicture();
 
+        CBitmap* ExtractBitmap();
+
         // Original function: FUN_0040bebd
         CPalette* ExtractPalette();
 

@@ -3,9 +3,37 @@
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2GameState.h"
+#include "C2UserMessageAccess.h"
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040a034; CGameControl::SpecialItem_Add.
+    bool GameControl_SpecialItem_Add(void* gameControl, std::int32_t player, std::uint32_t type, std::uint32_t item, const void* position)
+    {
+        using namespace NC2Lifetime;
+        if (player >= 20) return false;
+        const std::uint32_t base = static_cast<std::uint32_t>(player) * 0x4A80u;
+        if (Read<std::uint8_t>(gameControl, base) == 0) return false;
+        for (std::uint32_t index = 0; index < 100; ++index)
+        {
+            const std::uint32_t offset = base + 0x4624u + index * 8u;
+            if (Read<std::uint32_t>(gameControl, offset) != 0) continue;
+            Write(gameControl, offset, type);
+            Write(gameControl, offset + 4, item);
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 0x3F);
+            Write(message, 8, player);
+            Write(message, 0x2FC, type);
+            Write(message, 0x300, item);
+            if (position != nullptr) Write(message, 0x28, Read<std::uint32_t>(position, 0));
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+            return true;
+        }
+        return false;
+    }
+
     // Original function: FUN_0040a0d7; matching entries are consumed immediately.
     bool GameControl_SpecialItem_Use(void* gameControl, std::int32_t player, std::uint32_t type, std::uint32_t item)
     {
@@ -53,7 +81,29 @@ namespace NC2Logic
         if (otherPlayer >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(otherPlayer) * 0x4A80u) == 0) return 0;
         return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * 0x4A80u + static_cast<std::uint32_t>(otherPlayer) * 4u + 0x45A8u);
     }
-    // Original command processing remains a separate reconstruction target.
+    // Original function: FUN_0040a171; CGameControl::Diplomacy_SetState.
+    bool __fastcall GameControl_Diplomacy_SetState(void* gameControl, void* /*unusedEdx*/, std::uint32_t player, std::uint32_t otherPlayer, std::uint32_t state)
+    {
+        using namespace NC2Lifetime;
+        // Signed upper bounds deliberately retain the original missing lower checks.
+        if (static_cast<std::int32_t>(player) >= 20 || Read<std::uint8_t>(gameControl, player * 0x4A80u) == 0) return false;
+        if (static_cast<std::int32_t>(otherPlayer) >= 20 || Read<std::uint8_t>(gameControl, otherPlayer * 0x4A80u) == 0) return false;
+        const std::uint32_t offset = player * 0x4A80u + otherPlayer * 4u + 0x45A8u;
+        if (Read<std::uint32_t>(gameControl, offset) == state) return true;
+        Write(gameControl, offset, state);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1A, true, player, otherPlayer, state);
+        if (Read<std::uint8_t>(gameControl, player * 0x4A80u + otherPlayer + 0x496Cu) == 0)
+        {
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 0x3D);
+            Write(message, 8, otherPlayer);
+            Write(message, 0x0C, player);
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        }
+        return true;
+    }
 
 
     // Original function: FUN_0040a4fd; Windows network-ID command adapter.

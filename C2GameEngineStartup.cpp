@@ -1,5 +1,6 @@
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "C2PlayerStatisticAccess.h"
+#include "C2GameControlStartup.h"
 #include "C2GameEngineStartup.h"
 #include "C2GameTime.h"
 #include "ApplicationGlobals.h"
@@ -15,6 +16,7 @@
 #include "C2E2LevelOfDetailManager.h"
 #include "C2E2StaticDataAnimalSounds.h"
 #include "C2E2StaticDataSoundFX.h"
+#include "C2E2StaticDataTerrain.h"
 #include "C2EngineDisplayManager.h"
 #include "C2LogicObjectArrays.h"
 #include "C2CampaignStaticDataManager.h"
@@ -52,7 +54,6 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
-    extern void* __fastcall GameControl_Construct(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void* __fastcall GameMap_Construct(void*, void* unusedEdx, std::int16_t, std::int16_t);
     extern void* __fastcall MissionManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall AIManager_Construct(void*, void* unusedEdx);
@@ -220,9 +221,7 @@ namespace NC2E2
     using namespace NC2Lifetime;
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
     extern void* __fastcall E2StaticDataPalettesManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2StaticDataLandscapesManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataHousesManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2StaticDataPatternManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataTransitionsManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataMapMoveablesManager_Construct(void*, void* unusedEdx);
