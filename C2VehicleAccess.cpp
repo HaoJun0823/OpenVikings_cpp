@@ -6,11 +6,150 @@
 #include "C2HumanCommandAccess.h"
 #include "C2MapGeometry.h"
 #include "C2UserMessageAccess.h"
+#include "C2GameMapAccess.h"
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_0042ce12; copy the packed position returned by the shared accessor.
+    bool Human_GetMapPosition(const void* human, void* point)
+    {
+        NC2Lifetime::Write(point, 0, NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+        return true;
+    }
     using NC2Lifetime::Read;
     static const std::byte* AddressAt(const void* object, std::uint32_t offset) { return reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(object) + offset); }
+
+    // Original function: FUN_0044bb37; both stock-slot lookups are retained.
+    std::uint32_t Vehicle_Stock_GetFutureAmount(const void* vehicle, std::uint32_t goodId)
+    {
+        if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return 0;
+        return Read<std::uint8_t>(vehicle, 0x37Au + static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId)));
+    }
+
+    // Original function: FUN_0044bb63.
+    std::uint32_t Vehicle_Stock_GetTotalFutureAmount(const void* vehicle)
+    {
+        const auto count = Vehicle_GetVehicleTypeDataPtr(vehicle)->goodTypeCount;
+        std::uint32_t total = 0;
+        for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, 0x37Au + slot);
+        return total;
+    }
+
+    // Original function: FUN_0044bce5; complete 21-record stock reservation list.
+    static bool VehicleStock_IsHumanInList(const void* stock, std::uint32_t revision)
+    {
+        for (std::uint32_t slot = 0; slot < 21; ++slot)
+            if (Read<std::uint8_t>(stock, 0xC8u + slot * 12u) != 0 && Read<std::uint32_t>(stock, 0xCCu + slot * 12u) == revision) return true;
+        return false;
+    }
+
+    // Original function: FUN_0044bd6c; the retained counter is updated before clearing occupancy.
+    static void VehicleStock_RemoveHumanFromList(void* stock, std::uint32_t revision, std::int32_t delta)
+    {
+        for (std::uint32_t slot = 0; slot < 21; ++slot)
+        {
+            const auto offset = 0xC8u + slot * 12u;
+            if (Read<std::uint8_t>(stock, offset) == 0 || Read<std::uint32_t>(stock, offset + 4) != revision) continue;
+            NC2Lifetime::Write(stock, offset + 8, Read<std::uint32_t>(stock, offset + 8) - static_cast<std::uint32_t>(delta));
+            NC2Lifetime::Write<std::uint8_t>(stock, offset, 0);
+            return;
+        }
+    }
+
+    // Original function: FUN_0044bd0d; a full reservation list is silently left unchanged.
+    static void VehicleStock_AddHumanToList(void* stock, std::uint32_t revision, std::int32_t delta)
+    {
+        if (VehicleStock_IsHumanInList(stock, revision)) { VehicleStock_RemoveHumanFromList(stock, revision, NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(delta))); return; }
+        for (std::uint32_t slot = 0; slot < 21; ++slot)
+        {
+            const auto offset = 0xC8u + slot * 12u;
+            if (Read<std::uint8_t>(stock, offset) != 0) continue;
+            NC2Lifetime::Write(stock, offset + 8, Read<std::uint32_t>(stock, offset + 8) + static_cast<std::uint32_t>(delta));
+            NC2Lifetime::Write(stock, offset + 4, revision);
+            NC2Lifetime::Write<std::uint8_t>(stock, offset, 1);
+            return;
+        }
+    }
+
+    // Original function: FUN_0044bba6; the reservation records receive the requested, unclamped delta.
+    bool Vehicle_Stock_ModifyFutureAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision)
+    {
+        if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return false;
+        const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
+        const auto slot = static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId));
+        std::uint32_t applied;
+        if (delta < 0)
+        {
+            const auto negative = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(delta));
+            if (negative > NXBasics::Runtime_TimeSigned32(Vehicle_Stock_GetFutureAmount(vehicle, goodId))) return false;
+            applied = static_cast<std::uint32_t>(delta);
+        }
+        else
+        {
+            const auto available = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(type->stockSlots) - Vehicle_Stock_GetTotalFutureAmount(vehicle));
+            applied = static_cast<std::uint32_t>(delta > available ? available : delta);
+        }
+        NC2Lifetime::Write(vehicle, 0x37Au + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, 0x37Au + slot) + applied));
+        VehicleStock_AddHumanToList(static_cast<std::byte*>(vehicle) + 0x338, humanRevision, delta);
+        return true;
+    }
+
+    // Original function: FUN_004412e3.
+    void Vehicle_GetMapPosition(const void* vehicle, void* point) { NC2Lifetime::Write(point, 0, Read<std::uint32_t>(Vehicle_GetMapPositionRef(vehicle), 0)); }
+
+    // Original function: FUN_004378a1; each candidate advances the same packed cursor.
+    static bool Vehicle_Door_ValidateEntryPoint(void* point, std::uint32_t requiredSpace)
+    {
+        const auto* cell = GameMap_GetConstMapMicroPointPtr(point);
+        const auto continent = Read<std::uint8_t>(cell, 6);
+        if ((Read<std::uint8_t>(cell, 12) & 0x80u) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
+        auto cursor = Read<std::uint32_t>(point, 0);
+        MapMigPoint_MoveCursorUnwrapped(cursor, 4);
+        NC2Lifetime::Write(point, 0, cursor);
+        for (std::uint32_t candidate = 0; candidate < 6; ++candidate)
+        {
+            MapMigPoint_MoveCursorUnwrapped(cursor, 0);
+            NC2Lifetime::Write(point, 0, cursor);
+            if (!MapMigPoint_IsInsideMap(point)) continue;
+            cell = GameMap_GetConstMapMicroPointPtr(point);
+            if (Read<std::uint8_t>(cell, 6) == continent && (Read<std::uint8_t>(cell, 12) & 0x80u) == 0 && requiredSpace <= (Read<std::uint8_t>(cell, 12) & 7u)) return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_0043779d; retain the signed direction and distance calculations.
+    bool Vehicle_Door_GetEntryPoint(const void* vehicle, void* point, std::uint32_t requiredSpace)
+    {
+        const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+        if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) != 0)
+        {
+            NC2Lifetime::Write(point, 0, Read<std::uint32_t>(vehicle, 0x1CC));
+            return Vehicle_Door_ValidateEntryPoint(point, requiredSpace);
+        }
+        const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
+        Vehicle_GetMapPosition(vehicle, point);
+        const auto* moveable = AddressAt(gMapMoveableArrayStorage.entries, Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u);
+        auto direction = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::int32_t>(moveable, 0x20) : 2;
+        auto distance = Read<std::int32_t>(type, 0x1C4);
+        const auto offset = Read<std::int32_t>(type, 0x1C0);
+        if (direction < 6) direction = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(offset) + static_cast<std::uint32_t>(direction)) % 6;
+        else
+        {
+            bool halveDistance = false;
+            if (direction == 6)
+            {
+                switch (offset) { case 0: direction = 6; halveDistance = true; break; case 1: direction = 5; break; case 2: direction = 1; break; case 3: direction = 7; halveDistance = true; break; case 4: direction = 2; break; case 5: direction = 4; break; }
+            }
+            else
+            {
+                switch (offset) { case 0: direction = 7; halveDistance = true; break; case 1: direction = 2; break; case 2: direction = 4; break; case 3: direction = 6; halveDistance = true; break; case 4: direction = 5; break; case 5: direction = 1; break; }
+            }
+            // Windows combines SAR by one with the signed IDIV remainder.
+            if (halveDistance) distance = (distance >> 1) + distance % 2;
+        }
+        MapMigPoint_MoveCursorUnwrapped(point, static_cast<std::uint32_t>(direction), static_cast<std::uint32_t>(distance));
+        return Vehicle_Door_ValidateEntryPoint(point, requiredSpace);
+    }
 
     // Original function: FUN_0043f34a; twenty-two 20-byte command slots start at +10h.
     bool Vehicle_DoAddNewUserCommand(void* vehicle, const void* command)

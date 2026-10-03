@@ -30,7 +30,6 @@ extern void* __fastcall FUN_004bb78a(void* object);
 extern void* __fastcall FUN_004b8607(void* object);
 extern void __fastcall FUN_004a0d01(void* object);
 extern void __fastcall FUN_004a0e9d(void* object);
-extern void __fastcall FUN_004b4187(void* object, void* unusedEdx, std::int32_t mode);
 extern bool __cdecl FUN_004a2c0b(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
 extern int __fastcall FUN_004a002d(void* object);
@@ -417,7 +416,7 @@ namespace NInGameGuiManager
         FUN_004a0e9d(this);
         NC2E2::Inform_ControllingPlayerChanged(GetLocalPlayerId());
         NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_ControllingPlayerChanged(GetLocalPlayerId());
-        FUN_004b4187(NC2InGameGuiMessages::gMessageManager, nullptr, 0);
+        static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveAll(false);
     }
 
     // Original function: FUN_004a0aaf.

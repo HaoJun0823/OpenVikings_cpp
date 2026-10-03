@@ -60,6 +60,8 @@
     <ClCompile Include="InGameGuiManager_State.cpp" />
     <ClCompile Include="InGameGuiInputAccess.cpp" />
     <ClCompile Include="InGameGuiSupportAccess.cpp" />
+    <ClCompile Include="InGameGuiMessageManagerAccess.cpp" />
+    <ClCompile Include="InGameGuiMessageMiniButtonAccess.cpp" />
     <ClCompile Include="InGameGuiOverviewDisplayAccess.cpp" />
     <ClCompile Include="InGameGuiOverviewHandler.cpp" />
     <ClCompile Include="InGameGuiOverviewWindowAccess.cpp" />
@@ -266,10 +268,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)OpenVikings\$(Configuration)\</OutDir>
     <NMakeOutput>OpenVikings.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)OpenVikings\$(Configuration)\</OutDir>
     <NMakeOutput>OpenVikings.exe</NMakeOutput>
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
   </PropertyGroup>
@@ -385,6 +389,13 @@
     <ClCompile Include="C2HumanCommandAccess.cpp" />
     <ClInclude Include="C2HumanCommandAccess.h" />
     <ClCompile Include="C2UserMessageAccess.cpp" />
+    <ClCompile Include="C2HumanMessageAccess.cpp" />
+    <ClCompile Include="C2InteractionTargetAccess.cpp" />
     <ClInclude Include="C2UserMessageAccess.h" />
+    <ClInclude Include="C2HumanMessageAccess.h" />
+    <ClInclude Include="C2InteractionTargetAccess.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TemporaryLinkStubs.cpp" />
   </ItemGroup>
 </Project>

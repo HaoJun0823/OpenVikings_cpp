@@ -24,10 +24,28 @@ namespace NC2InGameGuiMessages
     public:
         CMessageManager();
         ~CMessageManager();
+        bool Message_Add(const void* message);
+        void Message_Remove(std::uint32_t uniqueId, bool addToHistory);
+        void Message_RemoveAll(bool addToHistory);
+        void* Message_GetPtr(std::uint32_t uniqueId) const;
+        void MiniButton_Removed(std::uint32_t uniqueId);
+        void PresentationWindow_Open(std::uint32_t uniqueId);
+        void Message_RemoveAllForHuman(std::uint32_t humanId);
+        void System_Update();
+        void System_HumanArrayDestructed();
+        static std::int32_t MessagePriority_Calculate(std::uint32_t type, std::uint32_t job);
+        static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:
+        void l_GuiElements_UpdateMiniButtons();
+        void l_MessageHistory_Add(const void* message);
+        bool l_MessageHistory_IsSameInList(const void* message) const;
+        bool l_MessageHistory_IsSimmilarInList(const void* message) const;
         alignas(4) std::byte mStorage[0x18];
     };
     static_assert(sizeof(CMessageManager) == 0x18);
+    std::uint32_t SingleMessageDisplayed_GetValidHumanId(const void* record);
+    void* MessageMiniButton_Construct(void* button, std::uint32_t uniqueId, std::int32_t x);
+    void Tool_CreateMessageString(const void* message, char* output, std::uint32_t capacity);
 }
 
 namespace NC2InGameGuiGroups
@@ -64,6 +82,7 @@ namespace NC2InGameGuiDeadHumanDataManager
         CDeadHumanDataManager();
         ~CDeadHumanDataManager();
         void DeadHuman_Add(std::uint32_t humanId);
+        void* DeadHuman_GetDataPtrByHumanUniqueId(std::uint32_t uniqueId) const;
         void System_HumanArrayDestructed();
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:

@@ -23,6 +23,7 @@ These instructions are mandatory for all work in this repository.
 - Aim for **functional equivalence**, not binary identity.
 - Do not invent behavior that is not supported by Windows assembly, the current C++ implementation, or a clearly matching Mac reference.
 - Do not create new fake `FUN_XXXXXXXX` helper implementations merely to make the project compile.
+  - User-authorized exception (2026-10-03): temporary link-only dummies are permitted for the missing original functions so Debug/Release can produce an executable. Keep them isolated in `TemporaryLinkStubs.cpp`, list them in `docs/TEMPORARY_LINK_STUBS.csv`, and exclude them from reconstruction-completion counts. Remove each dummy when its real implementation is connected. A successful build with dummies does not establish functional equivalence.
 - Unresolved original `FUN_XXXXXXXX` calls may remain in translated functions until that function is analyzed properly.
 - Never silently replace an unknown original routine with a guessed standard-library operation unless the match has been established.
 - Preserve original control-flow semantics where they materially affect behavior.
@@ -52,6 +53,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 - **All code comments must be in English.**
 - Function declarations, definitions, and ordinary function-call argument lists must stay on one line. Do not vertically wrap parameters.
 - Keep names semantic and stable. Prefer original class/function names recovered from the Mac build when they match Windows behavior.
+- Before adding a new function call, search the Mac source for its original name and use that name directly instead of introducing another `FUN_XXXXXXXX` call. Existing legacy bindings may remain until their owning block is reconstructed; do not guess names when the correspondence is unresolved.
 - In `.cpp` files, keep the original Windows address/Ghidra name as a comment where it helps traceability.
 - In `.h` declarations, do **not** add noisy `FUN_XXXXXXXX` comments merely for tracing.
 - Keep functions ordered by original Windows address where that produces a logical layout; otherwise group by clear functional purpose.

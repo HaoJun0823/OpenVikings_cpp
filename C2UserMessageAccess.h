@@ -3,6 +3,10 @@ namespace NC2Logic
 {
     void ToUserMessage_Construct(void* message);
     void ToUserMessage_FinishMessage(void* message);
+    void ToUserMessage_CopyConstruct(void* message, const void* source);
+    bool ToUserMessage_IsValid(const void* message, bool checkHuman);
+    bool ToUserMessage_IsEqualTo(const void* message, const void* other);
+    bool ToUserMessage_IsSimmilarTo(const void* message, const void* other);
 }
 namespace NC2LogicExternals
 {

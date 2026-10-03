@@ -15,7 +15,6 @@
 #include <initializer_list>
 
 // Original logic callbacks remain separate reconstruction targets.
-extern bool __cdecl FUN_004b450d(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 extern bool __cdecl FUN_004b77e8(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
 namespace
@@ -224,6 +223,15 @@ namespace NC2InGameGuiGroups
 
 namespace NC2InGameGuiDeadHumanDataManager
 {
+    // Original function: FUN_004b3935; returns the first matching retained record.
+    void* CDeadHumanDataManager::DeadHuman_GetDataPtrByHumanUniqueId(std::uint32_t uniqueId) const
+    {
+        const auto count = Read<std::uint32_t>(this, 0);
+        auto* record = Read<std::byte*>(this, 8);
+        for (std::uint32_t index = 0; index < count; ++index, record += 0x3C)
+            if (Read<std::uint32_t>(record, 0) == uniqueId) return record;
+        return nullptr;
+    }
     // Original function: FUN_004b3759.
     CDeadHumanDataManager::CDeadHumanDataManager()
     {
@@ -289,7 +297,7 @@ namespace NC2InGameGuiMessages
         gMessageManager = this;
         std::memset(this, 0, 0xC);
         std::memset(mStorage + 0xC, 0, 0xC);
-        RegisterCallbacks(FUN_004b450d, {1, 0x16, 4, 3, 0x2E}, 10);
+        RegisterCallbacks(ls_Callback_Logic, {1, 0x16, 4, 3, 0x2E}, 10);
         Write<std::uint32_t>(this, 4, 1);
         Write<std::uint32_t>(this, 8, 0);
         auto* active = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(0x26480, 1));
@@ -309,7 +317,7 @@ namespace NC2InGameGuiMessages
     {
         NXBasics::Runtime_Free(Read<void*>(this, 0x14));
         NXBasics::Runtime_Free(Read<void*>(this, 0x10));
-        UnregisterCallbacks(FUN_004b450d, {0x2E, 3, 4, 0x16, 1});
+        UnregisterCallbacks(ls_Callback_Logic, {0x2E, 3, 4, 0x16, 1});
         gMessageManager = nullptr;
     }
 }

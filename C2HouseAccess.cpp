@@ -5,6 +5,61 @@
 #include "C2EngineDisplayAccess.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00432d14; production entries are 14h bytes and totals cap at FEh.
+    static bool House_Production_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta)
+    {
+        using namespace NC2Lifetime;
+        for (std::int32_t index = 0; index < Read<std::int32_t>(house, 0x38); ++index)
+        {
+            const auto offset = 0x3Cu + static_cast<std::uint32_t>(index) * 0x14u;
+            if (Read<std::uint32_t>(house, offset) != goodId) continue;
+            const auto future = Read<std::uint32_t>(house, offset + 12);
+            if (NXBasics::Runtime_TimeSigned32(future + static_cast<std::uint32_t>(delta)) < 0) return false;
+            if (Read<std::uint32_t>(house, offset + 8) + future + static_cast<std::uint32_t>(delta) > 254u) continue;
+            const auto byteDelta = static_cast<std::int8_t>(static_cast<std::uint8_t>(delta));
+            Write(house, offset + 12, future + static_cast<std::uint32_t>(static_cast<std::int32_t>(byteDelta)));
+            return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_004316ef; enhancer stocks are available only outside future-stock queries.
+    bool House_Stock_CanStoreGoodType(const void* house, std::uint32_t goodId, bool futureStock)
+    {
+        using namespace NC2Lifetime;
+        const auto* type = House_GetHouseTypeDataPtr(house);
+        if (type->mainType == 2)
+        {
+            if (goodId == 15) return !futureStock && Read<std::uint8_t>(house, 0x790) != 0 && Read<std::uint32_t>(house, 0x20) >= 2u;
+            if (goodId == 28) return !futureStock && Read<std::uint8_t>(house, 0x788) != 0;
+            if (goodId == 29) return !futureStock && Read<std::uint8_t>(house, 0x780) != 0;
+        }
+        else if (!futureStock && goodId == 15 && Read<std::uint32_t>(house, 0x14) == 37) return true;
+        const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
+        if (slot == -1) return false;
+        if (type->mainType != 3) return true;
+        const auto productionOnly = Read<std::uint8_t>(type, 0x6Cu + static_cast<std::uint32_t>(slot) * 12u);
+        return futureStock ? productionOnly == 0 : productionOnly != 0;
+    }
+
+    // Original function: FUN_00431d2d; negative wrapped totals fail, positive totals cap at 1000.
+    bool House_Stock_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta, bool modifyProduction)
+    {
+        using namespace NC2Lifetime;
+        if (modifyProduction && Read<std::uint32_t>(house, 0x2C) != 3 && (delta == 1 || delta == -1) && House_Production_ModifyFutureAmount(house, goodId, delta)) return true;
+        if (House_GetHouseTypeDataPtr(house)->mainType == 2)
+        {
+            if (goodId == 15 || (NXBasics::Runtime_TimeSigned32(goodId) > 27 && NXBasics::Runtime_TimeSigned32(goodId) <= 29)) return true;
+        }
+        else if (goodId == 15 && Read<std::uint32_t>(house, 0x14) == 37) return true;
+        const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
+        if (slot == -1) return false;
+        const auto offset = 0x328u + static_cast<std::uint32_t>(slot) * 4u;
+        const auto value = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, offset) + static_cast<std::uint32_t>(delta));
+        if (value < 0) return false;
+        Write(house, offset, value > 1000 ? 1000 : value);
+        return true;
+    }
     // Original function: FUN_00434cb0; notify before storing the newly enabled flag.
     void House_SetDefenceModeFlag(void* house, bool enabled)
     {

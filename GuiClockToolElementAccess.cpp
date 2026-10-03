@@ -74,6 +74,14 @@ namespace NC2InGameGuiBase
         NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, 2);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, 2);
     }
+    // Original function: FUN_004b8a46; shared CBaseToolElement construction.
+    void* BaseToolElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
+    {
+        BaseElement_Construct(element, rectangle, flags, elementId);
+        Write(element, 0, gBaseToolElementVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 1);
+        return element;
+    }
     // Original function: FUN_004b99b8; CToolClockElement constructor.
     void* ToolClockElement_Construct(void* element, const NXBasics::SRectangle* rectangle)
     {

@@ -11,6 +11,17 @@ namespace NXBasics
 
 namespace NC2E2
 {
+    struct S2DEngineDisplayRectangle
+    {
+        std::uint32_t worldX;
+        std::uint32_t worldY;
+        std::uint32_t bitmapX;
+        std::uint32_t bitmapY;
+        std::uint32_t width;
+        std::uint32_t height;
+    };
+    static_assert(sizeof(S2DEngineDisplayRectangle) == 0x18);
+
     const void* EngineMap_GetConstMapMacroPointPtr(const void* point);
     const void* EngineMap_GetConstMapMicroPointPtr(const void* point);
     const void* Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(const void* point);

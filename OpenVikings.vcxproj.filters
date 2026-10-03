@@ -453,6 +453,12 @@
     <ClCompile Include="InGameGuiSupportAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="InGameGuiMessageManagerAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiMessageMiniButtonAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="C2GameMapIO.h">
@@ -982,6 +988,13 @@
     <ClCompile Include="C2HumanCommandAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanCommandAccess.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2UserMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2HumanMessageAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2InteractionTargetAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2UserMessageAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2HumanMessageAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2InteractionTargetAccess.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TemporaryLinkStubs.cpp"><Filter>Diagnostics</Filter></ClCompile>
   </ItemGroup>
 </Project>

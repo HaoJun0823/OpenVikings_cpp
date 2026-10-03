@@ -3,10 +3,87 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2HouseAccess.h"
+#include "C2VehicleAccess.h"
+#include "C2InteractionTargetAccess.h"
 #include <cstring>
 namespace NC2Logic
 {
-    extern void __fastcall FUN_00441cb4(void* human, void* unusedEdx);
+    // Original function: FUN_0042c5aa.
+    static bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0x18) == 5; }
+
+    // Original function: FUN_0042d768; target allocation and revision are both required.
+    static void* Human_GetTargetHousePtr(const void* human)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(human, 0xA68) != 5) return nullptr;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CHouseArray::ElementSize;
+        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(human, 0xA80)) return nullptr;
+        return house;
+    }
+
+    // Original function: FUN_00441cb4; all five Windows circulation modes release their reservations.
+    void Human_StopCurrentGoodCirculationMode(void* human)
+    {
+        using namespace NC2Lifetime;
+        const auto houseById = [](std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; };
+        switch (Read<std::uint32_t>(human, 0xACC))
+        {
+        case 1:
+            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
+            break;
+        case 2:
+        {
+            if (Read<std::uint32_t>(human, 0xA68) == 8) break;
+            auto* house = Human_GetTargetHousePtr(human);
+            if (house != nullptr && (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0xAD0), true) || House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0xAD0), false))) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
+            if (Read<std::uint32_t>(human, 0xA68) == 6 && InteractionTargetData_IsValid(static_cast<std::byte*>(human) + 0xA68))
+            {
+                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, 0xAD0))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD0), 1, Read<std::uint32_t>(human, 8));
+            }
+            if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            break;
+        }
+        case 3:
+            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
+            if (Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            break;
+        case 4:
+        {
+            if (Read<std::uint32_t>(human, 0xA68) == 8) break;
+            if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), -1, true);
+            else if (Read<std::uint32_t>(human, 0xA68) == 6)
+            {
+                if (!InteractionTargetData_IsValid(static_cast<std::byte*>(human) + 0xA68)) break;
+                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, 0xAD0))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD0), -1, Read<std::uint32_t>(human, 8));
+            }
+            else if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            else if (Human_IsJobWoman(human) && Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), -1, true);
+            break;
+        }
+        case 5:
+            if (Read<std::uint32_t>(human, 0xAD4) != 0)
+            {
+                if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD4), -1, false);
+            }
+            else if (Human_IsJobWoman(human))
+            {
+                if (Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(human, 0xA68) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), 1, false);
+            }
+            else
+            {
+                if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, 0xA68) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), 1, false);
+                if (Read<std::uint32_t>(human, 0xA68) != 6) break;
+                auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CVehicleArray::ElementSize;
+                if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(human, 0xA80) != Read<std::uint32_t>(vehicle, 8)) break;
+                if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, 0xAD0))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD0), 1, Read<std::uint32_t>(human, 8));
+            }
+            break;
+        }
+        Write<std::uint32_t>(human, 0xACC, 0);
+    }
 
     // Original function: FUN_00443dab.
     bool Human_StopWaitingForOtherHuman(void* human)
@@ -97,7 +174,7 @@ namespace NC2Logic
             break;
         default: break;
         }
-        FUN_00441cb4(human, nullptr);
+            Human_StopCurrentGoodCirculationMode(human);
         Write<std::uint32_t>(human, 0xAD0, 0);
         Write<std::uint32_t>(human, 0x370, 0);
         Human_StopWaitingForOtherHuman_Detach(human);

@@ -24,4 +24,5 @@ namespace NC2Logic
     std::uint32_t MapMigPoint_GetLong(const void* packedMigPoint);
     void MapMigPoint_AssignLong(void* packedMigPoint, std::uint32_t value);
     void MapMigPoint_MoveCursorUnwrapped(std::uint32_t& packedMigPoint, std::uint32_t direction);
+    void MapMigPoint_MoveCursorUnwrapped(void* packedMigPoint, std::uint32_t direction, std::uint32_t distance);
 }

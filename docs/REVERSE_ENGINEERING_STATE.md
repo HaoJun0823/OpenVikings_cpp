@@ -1,18 +1,20 @@
 # Reverse-Engineering State
 
-**Snapshot:** 2026-10-02
+**Snapshot:** 2026-10-03
 
 This document records the accumulated technical state that is useful to a new Codex session. It deliberately distinguishes confirmed behavior from unfinished work.
 
 The 2026-09-30 production source audit replaced three inline-assembly blocks and eight live data-address references, fixed the desktop compiler failure, and connected established runtime/file/network interfaces. Its options/CD-audio/desktop/overview/DirectMusic follow-ups leave six hardware/conversion assembly blocks and 41 live `DAT_` symbols. Static-analysis coverage and the remaining four incomplete main-menu/master-control units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md); this audit does not claim full game equivalence or a successful full link.
 
-## Active link closure - 2026-10-03
+## Active build checkpoint - 2026-10-03
 
-Both Debug|Win32 and Release|Win32 compile all 136 production implementations and fail at linking with identical inventories: 153 unresolved references, 147 decorated symbols for 147 original function addresses, and zero missing data/system-import symbols. All 136 cpp and 138 headers match the project and filters. Latest logs: OpenVikings-link-debug-command-actors.log and OpenVikings-link-release-command-actors.log in the user's Temp directory. See [NATIVE_LINK_SUPPORT.md](NATIVE_LINK_SUPPORT.md) and [UNRESOLVED_LINK_SYMBOLS.csv](UNRESOLVED_LINK_SYMBOLS.csv).
+HEAD is 3ea8c64 (Reconstruct native game link dependencies), with current uncommitted GUI-message/transport reconstruction and the user-authorized temporary build checkpoint. The user explicitly authorized dummies on 2026-10-03 to reach zero linker errors before resuming missing function/member/module reconstruction. TemporaryLinkStubs.cpp isolates 146 missing original implementations; [TEMPORARY_LINK_STUBS.csv](TEMPORARY_LINK_STUBS.csv) tracks every address and referencing object. These dummies are not reconstructed behavior and must remain excluded from completion counts.
 
-Ambient sectors, Human-sound parsing, GUI speed/priority buttons, network command queue/send/receive/dispatch, Human command insertion/interruption, vehicle immediate commands/passenger notifications, house production controls and game-assistant input are reconstructed in addition to the earlier native link-support blocks. The dispatcher exposed previously hidden real dependencies: the intermediate inventory fell to 122 symbols, rose to 157 when its branches were connected, then fell to 147. No fake original bodies, tests or executable/runtime success are claimed.
+Debug|Win32 and Release|Win32 build and link successfully. Project and filters contain the same 141 cpp files (140 reconstructed production units plus the temporary stub unit) and 140 headers. Executable outputs use OpenVikings/Debug and OpenVikings/Release. The former inventory had 152 reference diagnostics at 146 original addresses; the current unresolved linker inventory is empty. Gameplay/runtime functionality is not verified.
 
-Provisional mapping: 1,819/5,049; 31 mapped entries retain direct original calls; 18 raw startup constructors remain. The user paused reconstruction at this checkpoint and requested a commit. Next connected block: GUI message insertion/history/filtering through 004B3DAA and callback 004B450D, then the remaining genuine command/tick, world and widget trees. Current snapshot is included in the checkpoint commit following d64247c.
+The message-manager callback, insertion/removal/history/priority/validity/similarity tree, mini-button family, Human message filtering and current-good-circulation interruption are reconstructed. House/vehicle reservation rollback, the 21-entry ledger, interaction targets and vehicle-door search follow Windows behavior. The three newly introduced GUI dependencies use confirmed Mac names: CMessageManager::PresentationWindow_Open, Tool_CreateMessageString and DrawAtom_MapMoveable_DoDraw; their bodies are temporarily stubbed. For every future new call, find and use the original Mac name directly; keep uncertain correspondence explicit.
+
+Actual provisional reconstruction coverage remains 1,890/5,056 (37.38%), with 3,166 unmapped candidates; the 146 dummies do not increase this numerator. Eighteen startup constructor boundaries remain unfinished. Next: replace the GUI presentation/text/portrait dummies with real Windows implementations, then command/tick, world and widget families. Remove each matching stub/inventory row when its real body is connected; keep both builds linkable. See [NATIVE_LINK_SUPPORT.md](NATIVE_LINK_SUPPORT.md) and [LINK_BUILD_AUDIT.md](LINK_BUILD_AUDIT.md).
 
 ## Previous full Win32 link audit - 2026-10-02
 
@@ -128,7 +130,7 @@ The game/runtime/static-manager and engine cleanup trees now contain 109 additio
 - The project should be functionally equivalent, not binary-identical.
 - Original function boundaries should be preserved unless there is strong evidence that a decompiler split is artificial.
 - Unknown original calls may remain as `FUN_...` calls while their surrounding function is translated.
-- Do not create fake implementations for unresolved `FUN_...` symbols.
+- User-authorized temporary link dummies are isolated in TemporaryLinkStubs.cpp and tracked separately. They are not completed reconstructions; see the active checkpoint above.
 - Unknown global/static regions should be examined as complete regions, not renamed one isolated symbol at a time.
 
 ## 2. CFile / filesystem / runtime foundation

@@ -1,23 +1,21 @@
 # Win32 full-build and unresolved-symbol audit
 
-Snapshot: 2026-10-03, HEAD d64247c plus the user-requested checkpoint commit of menu/link and command reconstruction.
+Snapshot: 2026-10-03, HEAD 3ea8c64 plus current uncommitted message/transport reconstruction.
 
 ## Reproduced result
 
 The reported Debug build produces 424 unresolved reference diagnostics plus LNK1120: 305 distinct decorated symbols. Several translation units reference the same missing symbol, so 425 error-list entries do not mean 425 different missing functions.
 
-Both Debug|Win32 and Release|Win32 now compile all production units without compiler errors and reach linking. Each still fails with 153 unresolved reference diagnostics plus LNK1120: 147 distinct decorated symbols. There is no successfully linked executable or game-runtime verification.
+Both Debug|Win32 and Release|Win32 now build and link successfully with the user's explicitly authorized temporary dummies. There are zero unresolved reference diagnostics and zero unresolved linker symbols. TemporaryLinkStubs.cpp supplies 146 unfinished original entries: void functions do nothing, pointers return nullptr, booleans return false and numeric results return zero. These are a compilable checkpoint, not faithful runtime implementations.
 
-| Measure | Reported baseline | Current Debug and Release |
-| --- | ---: | ---: |
-| Unresolved reference diagnostics (LNK2001/LNK2019) | 424 | 153 |
-| Final LNK1120 distinct-symbol count | 305 | 147 |
-| Unresolved system/DirectX imports and mouse-format symbol | 24 | 0 |
-| Unresolved FUN decorated symbols | 258 | 147 |
-| Distinct original FUN addresses | 256 | 147 |
-| Remaining named non-FUN symbols | 47 | 0 |
+| Measure | Reported baseline | Before dummies | Current Debug and Release |
+| --- | ---: | ---: | ---: |
+| Unresolved reference diagnostics (LNK2001/LNK2019) | 424 | 152 | 0 |
+| Distinct decorated symbols | 305 | 146 | 0 |
+| Missing original addresses | 256 | 146 | 0 unresolved; 146 temporary dummies |
+| Missing data/system imports | 24 system imports plus data | 0 | 0 |
 
-The intermediate integration snapshot had 370 references / 267 symbols. Subsequent real reconstruction of inherited GUI methods, windows, desktop drawing/input, widgets, bitmap primitives, sound-token storage, the assertion callback and command-manager construction reduced it to the current set. See [GUI_LINK_CLOSURE.md](GUI_LINK_CLOSURE.md) and [NATIVE_LINK_SUPPORT.md](NATIVE_LINK_SUPPORT.md). Address 00410F00 now uses one native Windows-ABI entry; 00478A36 has one verified signature and body. The fully translated 00410FCC dispatcher exposed additional original dependencies rather than substituting fake definitions. No remaining raw target matches a currently mapped implementation.
+[TEMPORARY_LINK_STUBS.csv](TEMPORARY_LINK_STUBS.csv) preserves all 146 addresses and their referencing objects. [UNRESOLVED_LINK_SYMBOLS.csv](UNRESOLVED_LINK_SYMBOLS.csv) is the current empty linker inventory. Provisional real reconstruction coverage remains 1,890/5,056; the dummies are excluded. The real GUI-message and transport-reservation blocks are described in [NATIVE_LINK_SUPPORT.md](NATIVE_LINK_SUPPORT.md). No game-runtime verification is claimed. Both complete Rebuild runs returned exit code zero with zero compiler/linker errors. Debug reported zero warnings; Release reported one cleanup warning for the old root-level Release/OpenVikings.exe (access denied). The newly generated OpenVikings/Release/OpenVikings.exe is present and verified as PE32/x86, as is the Debug executable.
 
 ## Corrections applied
 
@@ -29,24 +27,18 @@ The intermediate integration snapshot had 370 references / 267 symbols. Subseque
 - Defined the dynamic-network initial-update flag using the verified first byte at 0050AA2C: one, not a guessed zero. PE bytes are 01 00 00 00; all three Windows xrefs access the first byte at 004DF27F/004DF28B/004DF2AE.
 - LegacyDirectInput.def is included in the project and Platform/Input filter. Generated Debug/Release outputs are ignored by Git. Production source/header inclusion, Win32 target, compiler settings and output-path settings are retained.
 
-## Why syntax success did not imply a complete build
+## Build-only checkpoint and subsequent replacement
 
-An extern declaration lets a caller compile without providing a definition. Original FUN boundaries were deliberately retained while their owning blocks remain open; the reconstructed game does not automatically call the old Game.exe at those addresses. Complete linking requires real definitions and matching declarations for every referenced function and data region.
+Extern declarations alone do not provide executable behavior. The previous build compiled 140 production units but failed at 146 original addresses. The user authorized temporary dummy bodies on 2026-10-03 to establish a compilable checkpoint; all such definitions are isolated and explicitly marked. Three recently introduced GUI calls now use the Mac names directly. Older legacy bindings retain their existing names until their owning blocks are reconstructed; no new raw FUN call sites were introduced for the checkpoint.
 
-The earlier isolated-object results proved compilation only. Full compilation now covers 136 production implementations and 138 headers with matching project/filter inclusion. Provisional source-address coverage is 1,819/5,049; it is neither a linkability nor a gameplay-completion percentage.
+Project and filters match 141 implementation files and 140 headers, including the temporary unit. Shared S2DEngineDisplayRectangle moved unchanged into its owning header so the by-value stub uses the same 24-byte type. Main target remains Win32/x86. Executables are emitted into OpenVikings/Debug and OpenVikings/Release, as requested. No tests/test projects were added.
 
-The user's examples 0041ACD6 and 00410F00 now use native PlayerStatisticManager_UpdateStatistics and UserNetworkCommandManager_AddCommand. Their connected sample/count/stock/iterator and command queue/send/receive/dispatch blocks are translated. Examples 00428736 and 0040BD33 remain real checksum and moveable-update reconstruction targets in GameTime_DoOneGameTick.
-
-## Remaining inventory and next work
-
-[UNRESOLVED_LINK_SYMBOLS.csv](UNRESOLVED_LINK_SYMBOLS.csv) contains all 147 decorated symbols and their referencing objects. Debug and Release currently produce the same symbol/reference sets. All 147 missing symbols are original functions at 147 addresses; there are no unresolved data or system-import symbols.
-
-The sound token regions and assertion callback are complete. The title/pre-ingame FMV owners, Windows video-player tree, keyboard-assignment owner and particle-generator storage are connected. The particle clock byte retains an unresolved original name and writer. Other open families include per-tick managers/commands, deeper widgets/menu handlers and world/cursor drawing. No placeholder definitions were introduced.
+For each real replacement, preserve Windows ABI/behavior, remove its temporary definition and CSV row, and rebuild both configurations. Future new calls must use names established from the Mac source; uncertain correspondence must not be hidden by guessed naming. Zero linker errors must remain separate from the genuine reconstruction progress metric.
 
 ## Reproduction and artifacts
 
-MSBuild OpenVikings.vcxproj /t:Build /p:Configuration=Debug /p:Platform=Win32 /m
+MSBuild OpenVikings.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=Win32 /m
 
-MSBuild OpenVikings.vcxproj /t:Build /p:Configuration=Release /p:Platform=Win32 /m
+MSBuild OpenVikings.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=Win32 /m
 
-Complete logs and diagnostic CSVs are saved outside the repository in C:/Users/ravo/AppData/Local/Temp/OpenVikings-link-debug-before.log, OpenVikings-link-debug-command-actors.log and OpenVikings-link-release-command-actors.log. The parser is OpenVikings-link-audit.py; the PE/xref evidence script is OpenVikings-link-binding-evidence.py. Generated import-library headers were inspected with the x86 MSVC dumpbin tool. No tests/test projects were added, and the failed link was not presented as a successful build.
+Logs are saved outside the repository in C:/Users/ravo/AppData/Local/Temp/OpenVikings-rebuild-debug-temporary-stubs.log and OpenVikings-rebuild-release-temporary-stubs.log. Pre-dummy comparison logs are OpenVikings-link-debug-gui-reservations.log and OpenVikings-link-release-gui-reservations.log. The read-only progress script explicitly excludes TemporaryLinkStubs.cpp. No game launch/runtime success is claimed.

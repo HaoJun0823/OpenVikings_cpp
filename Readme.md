@@ -6,7 +6,13 @@ The primary goal of the current project phase is **faithful functional reconstru
 
 A later **Renewed** phase may intentionally correct original defects, modernize behavior and improve safety. Until the faithful reconstruction is complete, confirmed original bugs are preserved and documented rather than silently fixed.
 
-Last handoff update: **2026-10-02**.
+Last handoff update: **2026-10-03**.
+
+## Compilable checkpoint - temporary implementations
+
+Debug|Win32 and Release|Win32 now build and link with zero linker errors. At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) supplies 146 temporary dummy implementations; [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
+
+Main executable outputs use `OpenVikings/Debug` and `OpenVikings/Release`. Future new function calls use original names found in the Mac source. Replace each dummy with Windows-equivalent behavior and remove its inventory entry while keeping both configurations buildable. See [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md).
 
 ## Source authority and reverse-engineering references
 
@@ -33,7 +39,7 @@ These rules apply to every reconstructed subsystem:
 - Preserve Windows behavior first; target **functional equivalence**, not binary equivalence.
 - Always try to correlate unresolved `DAT_`, `PTR_`, `UNK_`, anonymous data regions and unknown functions with the macOS code before assigning permanent names.
 - Use surrounding Windows callers, callees, offsets, data access patterns and initialization paths together when identifying globals or members.
-- Do not invent helper implementations merely to eliminate unresolved `FUN_XXXXXXXX` calls.
+- Temporary link dummies are permitted only under the explicit checkpoint authorization above; keep them isolated, documented and excluded from reconstruction-completion counts.
 - An unresolved original `FUN_XXXXXXXX` call may remain in reconstructed code until its behavior is understood.
 - Prefer completing a coherent functional subsystem or call chain rather than translating isolated functions indefinitely.
 - Preserve confirmed original defects during the faithful reconstruction phase.
@@ -1545,6 +1551,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA091](#oa091) | Statistics and Bob cache retain unchecked storage and partial results | 0041AA59, 0041ACD6, 0049063F |
 | [OA092](#oa092) | Ambient and Human sounds preserve original index and sentinel assumptions | 0047F56E, 0047F760, 004854D9 |
 | [OA093](#oa093) | Command queues and checksum records retain original unchecked processing | 00410F00, 00410FCC, 00411829, 004118F6 |
+| [OA094](#oa094) | GUI messages retain padding, history and callback-order assumptions | 004B3DAA, 004B400E, 004B438A, 0042C0C8 |
+| [OA095](#oa095) | Transport reservations retain signed/byte counters and reused ledger entries | 00441CB4, 00431D2D, 0044BBA6, 0044BD0D |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -2500,6 +2508,22 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Assessment / Renewed task:** Preserve ownership, callback order and failure behavior. Remaining original callees are unresolved implementation work, not substituted runtime behavior.
 - **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
 
+<a id="oa094"></a>
+### OA094 - GUI messages retain padding, history and callback-order assumptions
+
+- **Original reference:** `004B3DAA`, `004B400E`, `004B438A`, `0042C022`, `0042C0C8`, `0045C37F`, `004D107B`.
+- **Evidence and retained behavior:** Message equality includes padding, while the original copy skips bytes 5..7. Similarity is asymmetric. Insertion rejects an active count of exactly 200, invalid Human allocation, and earlier history matches; priority/early-tick suppression returns true. History selection skips insertion if every occupied timestamp is FFFFFFFF. Human notification precedes widget deletion; teardown clears the active count without clearing records. Failed mini-button allocation still reaches the original desktop-add call.
+- **Assessment / Renewed task:** Keep unchecked original references and callback order. Presentation and portrait dependencies remain genuine reconstruction targets.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
+<a id="oa095"></a>
+### OA095 - Transport reservations retain signed/byte counters and reused ledger entries
+
+- **Original reference:** `00441CB4`, `00431D2D`, `00432D14`, `0044BBA6`, `0044BD0D`, `0044BD6C`, `0045CCFF`, `004378A1`.
+- **Evidence and retained behavior:** House reservation underflow returns false, counters saturate at 1000, and production adjustments sign-extend the requested low byte. Vehicle counters wrap as bytes and record the requested delta after capacity clamping. Ledger removal clears only the used flag; reuse adds to retained counter bytes, and a full 21-entry list silently remains unchanged. Door search mutates its point on failure; interaction validation ignores the door helper's boolean result.
+- **Assessment / Renewed task:** Preserve these original rollback, capacity and failure semantics; no runtime reproduction is claimed.
+- **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2581,6 +2605,8 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP071 | Statistics storage and missing/failed Bob resources | Preserve history/current allocation, equality-only wrap, count arithmetic, file rejection and cached null loads | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA091 |
 | FP072 | Ambient and Human sound allocation/indexing | Preserve sector allocation, original sentinel comparison, unchecked sound indices and response capacity handling | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA092 |
 | FP073 | Network command allocation, incomplete buffers and checksums | Preserve immediate/queued execution, original copies, send-size assertions, false on incomplete receive buffers, mismatch warnings and stale-record clearing | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA093 |
+| FP074 | GUI message rejection, history selection and button allocation | Preserve original return values, capacity/timestamp rules, callback/deletion order and null desktop attachment | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA094 |
+| FP075 | Transport reservation underflow, capacity and ledger exhaustion | Preserve house rejection/saturation, byte counters, requested ledger delta, retained counters and mutated failed door searches | [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md); OA095 |
 
 ## Reconstruction errors are not original bugs
 

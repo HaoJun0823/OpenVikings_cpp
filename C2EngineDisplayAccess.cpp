@@ -1107,17 +1107,6 @@ namespace NC2E2
         }
     }
 
-    struct S2DEngineDisplayRectangle
-    {
-        std::uint32_t worldX;
-        std::uint32_t worldY;
-        std::uint32_t bitmapX;
-        std::uint32_t bitmapY;
-        std::uint32_t width;
-        std::uint32_t height;
-    };
-    static_assert(sizeof(S2DEngineDisplayRectangle) == 0x18);
-
     // The original drawing stage takes a copied 24-byte rectangle on the stack.
     extern void __fastcall FUN_00481ae2(void* display, void* unusedEdx, S2DEngineDisplayRectangle rectangle);
 

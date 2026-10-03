@@ -8,6 +8,17 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042ac72; distance is an unchecked unsigned loop count.
+    void MapMigPoint_MoveCursorUnwrapped(void* packedMigPoint, std::uint32_t direction, std::uint32_t distance)
+    {
+        while (distance-- != 0)
+        {
+            std::uint32_t point;
+            std::memcpy(&point, packedMigPoint, sizeof(point));
+            MapMigPoint_MoveCursorUnwrapped(point, direction);
+            std::memcpy(packedMigPoint, &point, sizeof(point));
+        }
+    }
     // Original function: FUN_00423761.
     bool MapMagPoint_IsInsideMap(const void* packedMagPoint)
     {

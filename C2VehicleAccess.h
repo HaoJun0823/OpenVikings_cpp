@@ -6,6 +6,11 @@ namespace NC2Logic
     bool Vehicle_DoAddNewUserCommand(void* vehicle, const void* command);
     bool Vehicle_l_UserCommands_TryToExecuteRightAway(void* vehicle, const void* command);
     std::uint32_t Vehicle_Stock_GetTotalWantedAmount(const void* vehicle);
+    std::uint32_t Vehicle_Stock_GetFutureAmount(const void* vehicle, std::uint32_t goodId);
+    std::uint32_t Vehicle_Stock_GetTotalFutureAmount(const void* vehicle);
+    bool Vehicle_Stock_ModifyFutureAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision);
+    bool Vehicle_Door_GetEntryPoint(const void* vehicle, void* point, std::uint32_t requiredSpace);
+    void Vehicle_GetMapPosition(const void* vehicle, void* point);
     bool Vehicle_Stock_SetWantedAmount(void* vehicle, std::uint32_t good, std::uint32_t wanted);
     void* Vehicle_Passengers_GetAttachedHumanPtr(const void* vehicle, std::uint32_t slot);
     void* Vehicle_Passengers_GetAttachedCommanderPtr(const void* vehicle);
@@ -15,6 +20,7 @@ namespace NC2Logic
     const void* Vehicle_GetConstMapMicroPointPtr(const void* vehicle);
     const void* Vehicle_GetMapPositionRef(const void* vehicle);
     const std::uint16_t* Human_GetMapPositionRef(const void* human);
+    bool Human_GetMapPosition(const void* human, void* point);
     std::uint32_t Vehicle_Stock_GetAmountOfGoods(const void* vehicle, std::uint32_t goodId);
     bool Vehicle_Stock_CanStoreGoodType(const void* vehicle, std::uint32_t goodId);
     std::int32_t Vehicle_l_Stock_GetStockSlotIdForGoodType(const void* vehicle, std::uint32_t goodId);
