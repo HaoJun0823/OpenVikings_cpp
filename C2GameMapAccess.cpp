@@ -77,7 +77,7 @@ namespace NC2Logic
 
         std::memset(DAT_00511570, 0, sizeof(DAT_00511570));
 
-        // The meaning of the field at +0x3C is not established.
+        // The continent count precedes the 250 serialized 16-byte continent records.
         const std::uint32_t initialValue3C = 1;
         std::memcpy(DAT_00511570 + 0x3C, &initialValue3C, sizeof(initialValue3C));
 

@@ -554,6 +554,45 @@ namespace NXBasics
         }
     }
 
+    // Original function: FUN_0040d010; only indexed source bitmaps are supported.
+    void CBitmap::CopyIntoBitmap_ColorKeyed(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY, std::uint8_t colorKey) const
+    {
+        if (mDepth != 0 || mRawMemory == nullptr || destination->mRawMemory == nullptr) return;
+        const SRectangle bounds(0, 0, destination->mRectangle.width, destination->mRectangle.height);
+        SRectangle area(destinationX, destinationY, mRectangle.width, mRectangle.height);
+        if (!area.IsTouching(bounds)) return;
+        area.CutInside(bounds);
+        const std::uint16_t* highColorTable = nullptr;
+        const std::uint32_t* trueColorTable = nullptr;
+        if (destination->mDepth == 1)
+        {
+            highColorTable = GetHighColorTablePtr();
+            if (highColorTable == nullptr) return;
+        }
+        else if (destination->mDepth == 2)
+        {
+            trueColorTable = GetTrueColorTablePtr();
+            if (trueColorTable == nullptr) return;
+        }
+        else if (destination->mDepth != 0) return;
+        std::uint32_t sourceIndex = (static_cast<std::uint32_t>(area.y) - static_cast<std::uint32_t>(destinationY)) * mRowPixelCount + static_cast<std::uint32_t>(area.x) - static_cast<std::uint32_t>(destinationX);
+        std::uint32_t destinationIndex = static_cast<std::uint32_t>(area.y) * destination->mRowPixelCount + static_cast<std::uint32_t>(area.x);
+        for (std::int32_t row = 0; row < area.height; ++row)
+        {
+            for (std::int32_t column = 0; column < area.width; ++column)
+            {
+                const std::uint8_t pixel = *BitmapPixelAddress(mRawMemory, sourceIndex + static_cast<std::uint32_t>(column));
+                if (pixel == colorKey) continue;
+                const std::uint32_t target = destinationIndex + static_cast<std::uint32_t>(column);
+                if (destination->mDepth == 0) *BitmapPixelAddress(destination->mRawMemory, target) = pixel;
+                else if (destination->mDepth == 1) *BitmapPixelAddress(destination->mHighColorMemory, target) = highColorTable[pixel];
+                else *BitmapPixelAddress(destination->mTrueColorMemory, target) = trueColorTable[pixel];
+            }
+            sourceIndex += mRowPixelCount;
+            destinationIndex += destination->mRowPixelCount;
+        }
+    }
+
     // Original function: FUN_0040d56b
     void CBitmap::CopyIntoBitmap_FitIn(CBitmap* destination) const
     {

@@ -50,6 +50,9 @@ namespace NC2E2
     void Inform_DesktopXTructed(std::int32_t width, std::int32_t height, std::uint32_t depth);
     void Inform_ControllingPlayerChanged(std::int32_t playerId);
     void DE_ToDraw_SetState(void* display, std::uint32_t flags, bool enabled);
+    void DE_ToDraw_ToggleFlagset(void* display, std::uint32_t flags);
+    void DE_Zoom_SetCounter(void* display, std::int32_t counter);
+    void DE_Zoom_ToggleLevel(void* display, bool allowZoomIn);
 
     // Original function: FUN_0047d335
     void Display_ExitSpecialOverlays(void* display);
@@ -61,6 +64,7 @@ namespace NC2E2
     void Display_ExitScrollVariables(void* display);
 
     void Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(const void* display, std::int32_t* point, bool applyZoom);
+    void Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(const void* display, std::int32_t* point, bool applyZoom);
     void Display_MapMigToLocalDisplayPixelCoordinates(const void* display, const void* packedMapPoint, std::int32_t* point, bool applyZoom);
     void Display_UpdateDisplay(void* display);
     std::int32_t DE_GetDisplayedCenterWorldXPosition(const void* display);

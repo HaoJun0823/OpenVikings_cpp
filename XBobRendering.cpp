@@ -818,7 +818,8 @@ namespace NXBasics
 			if (descriptor == 0xFFFFFFFFu)
 				continue;
 
-			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
+			// Windows SHR ..., 16 uses hexadecimal 0x16: the upper ten bits are X.
+			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
 			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
 
 			bool fast = depth == 1 && !wasClipped;
@@ -1100,7 +1101,8 @@ namespace NXBasics
 			if (descriptor == 0xFFFFFFFFu)
 				continue;
 
-			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 16);
+			// Windows SHR ..., 16 uses hexadecimal 0x16: the upper ten bits are X.
+			std::uint32_t currentX = static_cast<std::uint32_t>(placed.x) + (descriptor >> 22);
 			const std::byte* input = offsetAddress(readPointer(bobManager, 0x28), descriptor & 0x003FFFFFu);
 
 			bool fast = depth == 1 && !wasClipped;

@@ -206,6 +206,18 @@ namespace NC2GuiToolsBase
         DrawTool_DrawFrame(nullptr, &frameBitmap, &rectangle, mode);
     }
 
+    // Original function: FUN_004e2645.
+    NXBasics::CFont* DrawTool_GetFont10Ptr()
+    {
+        return CGuiBaseDataManager::mStaticVars.resources.font10;
+    }
+
+    // Original function: FUN_004e264b; the last color of the white palette.
+    const NXBasics::SColorRGB* DrawTool_GetFontColorRef()
+    {
+        return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette) + 0x400);
+    }
+
     // Original scratch region 0056988C..005698F7: 100-byte word and terminator;
     // seven following padding bytes have no exported references.
     static char gWrappingWordBuffer[0x6C]{};

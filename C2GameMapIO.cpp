@@ -15,8 +15,7 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
-    // Original map-chunk dispatcher and script-manager bodies remain unresolved.
-    extern bool GameMap_l_GlobalIO_Load(CIoHelper*);
+    // Script-manager bodies remain separately tracked reconstruction boundaries.
     extern void __fastcall MissionManager_LoadMissionScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall AIManager_IO_InitFromScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void*, void* unusedEdx, NXBasics::CIniFileReader*);

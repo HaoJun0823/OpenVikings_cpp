@@ -1,5 +1,6 @@
 #include "MainMenuGuiManager_Access.h"
 #include "MainMenuGuiManager.h"
+#include "MainMenuWorldDisplayElement.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LogicObjectArrays.h"
@@ -17,10 +18,6 @@
 extern bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 extern bool __fastcall MainMenuGuiManagerPrimaryMessageHandlerElement_XGui_BE_Message_Handle(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 extern void __fastcall MainMenuGuiManagerMousePointer_DrawMouse(void*, void* unusedEdx, NXBasics::CBitmap*, const std::int32_t*);
-extern void* __fastcall MainMenuWorldDisplayElement_Delete(void*, void* unusedEdx, std::uint32_t);
-extern bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void*, void* unusedEdx, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-extern void __fastcall MainMenuWorldDisplayElement_XGui_BE_Element_Draw(void*, void* unusedEdx, NXBasics::CBitmap*, const NXBasics::SRectangle*);
-extern void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void*);
 extern void __cdecl E2Manager_Inform_SetExplorationState(bool);
 extern void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void*, void* unusedEdx, std::uint32_t, std::int32_t*);
 
@@ -184,6 +181,21 @@ namespace NC2MainMenuGuiWorldElement
         return element;
     }
 
+    // Original function: FUN_004da5db; release resources before the bitmap base.
+    void WorldDisplayElement_Destruct(void* element)
+    {
+        Write(element, 0, gWorldDisplayElementVirtualTable + 0);
+        WorldDisplayElement_l_Tool_DarkenBitmap_Exit(element);
+        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->ScreenGuiElement_FrameCall_UnRegister(element);
+        void* display = Read<void*>(element, 0x30);
+        if (display != nullptr)
+        {
+            NC2E2::Display_Destruct(display);
+            NXBasics::Runtime_Free(display);
+        }
+        NC2InGameGuiBase::BaseBitmapToolElement_Destruct(element);
+    }
+
     // Original function: FUN_004dad5c.
     static void FollowMode_Validate(void* element)
     {
@@ -208,7 +220,7 @@ namespace NC2MainMenuGuiWorldElement
     }
 
     // Original function: FUN_004dadb4.
-    static void FollowMode_Update(void* element)
+    void WorldDisplayElement_l_FollowMode_Update(void* element)
     {
         FollowMode_Validate(element);
         if (Read<std::uint8_t>(element, 0x3C) == 0) return;
@@ -233,7 +245,7 @@ namespace NC2MainMenuGuiWorldElement
         Write<std::uint8_t>(element, 0x3D, 1);
         const auto generation = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, static_cast<std::uint32_t>(humanId) * 0xC58u + 8);
         Write(element, 0x44, generation);
-        FollowMode_Update(element);
+        WorldDisplayElement_l_FollowMode_Update(element);
     }
 }
 

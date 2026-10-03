@@ -1,5 +1,6 @@
 #include "C2MapSectorAttachment.h"
 #include "C2MapSectorGridCursor.h"
+#include "C2IoHelper.h"
 #include "ApplicationGlobals.h"
 #include "XCrtFileAccess.h"
 
@@ -37,6 +38,22 @@ namespace NC2Logic
         mSectorAuxiliaryData = nullptr;
 
         l_InitSizeAndAllocateSectorArray();
+    }
+
+    // Original function: FUN_0044ed2f.
+    CGameMapSectorAttachmentManager::CGameMapSectorAttachmentManager(CIoHelper& io)
+    {
+        sTheObjectPtr = this;
+        std::memset(this, 0, sizeof(*this));
+        l_InitSizeAndAllocateSectorArray();
+        if (io.mReadHeader.version != 1u)
+            io.IO_File_Chunk_Skip();
+        else
+        {
+            // The original allocates first, then overwrites the saved dimensions.
+            io.IO_File_ReadBinary(this, 8);
+            io.IO_File_ReadBinary(mSectorData, static_cast<std::uint32_t>(mGridWidth) * static_cast<std::uint32_t>(mGridHeight) * 0x540u);
+        }
     }
 
     // Original function: FUN_0044ebf8.

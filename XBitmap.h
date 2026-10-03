@@ -40,6 +40,7 @@ namespace NXBasics
         void Fill(const SColorRGB& color);
 
         void CopyIntoBitmap(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const;
+        void CopyIntoBitmap_ColorKeyed(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY, std::uint8_t colorKey) const;
         std::uint32_t Storable_GetId() override;
         void CopyIntoBitmap_FitIn(CBitmap* destination) const;
         void FillWithBitmap(CBitmap* sourceBitmap, std::int32_t x, std::int32_t y);

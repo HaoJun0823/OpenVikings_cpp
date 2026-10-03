@@ -100,7 +100,7 @@ namespace NC2Logic
             WallBuildManager_DoOneGameSecond(gWallBuildManager, nullptr);
         }
         Map_BioSystem_DoOneGameTick();
-        MapLandscapeAutoTransitionManager_System_DoOneGameTick(gMapFishManager, nullptr);
+        MapLandscapeAutoTransitionManager_System_DoOneGameTick(gMapLandscapeAutoTransitionManager, nullptr);
         MapBioRegrowManager_System_DoOneGameTick(gMapBioRegrowManager, nullptr);
         DelayedActionManager_System_DoOneGameTick(gDelayedActionManager, nullptr);
         GameControl_System_DoOneGameTick(gGameControl, nullptr, gGameTime.tick);

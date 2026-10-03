@@ -487,7 +487,7 @@ namespace NC2Logic
         gGameControl = nullptr;
     }
 
-    // Original function: FUN_00426a89. Shared by the fish and bio-regrow arrays.
+    // Original function: FUN_00426a89. Shared by the transition and bio-regrow arrays.
     static void MapBioRegrowManager_FreeAll(void* manager) { FreeAllocatedRecords(manager, 0x14); }
     // Original function: FUN_004269a0.
     static void MapBioRegrowManager_Destruct(void* manager)
@@ -498,11 +498,11 @@ namespace NC2Logic
         Write<std::uint8_t>(manager, 0, 0);
     }
     // Original function: FUN_00426e9b.
-    static void MapFishManager_Destruct(void* manager)
+    static void MapLandscapeAutoTransitionManager_Destruct(void* manager)
     {
         MapBioRegrowManager_FreeAll(manager);
         FreeAndClearField(manager, 0x30);
-        gMapFishManager = nullptr;
+        gMapLandscapeAutoTransitionManager = nullptr;
         Write<std::uint8_t>(manager, 0, 0);
     }
     // Original function: FUN_00427343.
@@ -528,10 +528,10 @@ namespace NC2Logic
         gRoadBuildManager = nullptr;
     }
     // Original function: FUN_0044e65b.
-    static void MapLandscapeAutoTransitionManager_Destruct(void*)
+    static void MapFishManager_Destruct(void*)
     {
         Unregister(MapFishManager_l_FishManager_Callback, 0x65, {1, 0x33, 0x32, 0x31});
-        gMapLandscapeAutoTransitionManager = nullptr;
+        gMapFishManager = nullptr;
     }
     // Original function: FUN_0042329f.
     void GameMap_Destruct(void*)
@@ -544,9 +544,9 @@ namespace NC2Logic
         GameMap_ReleaseMapBuffers();
         DestroyOwned(gWallBuildManager, WallBuildManager_Destruct);
         DestroyOwned(gRoadBuildManager, RoadBuildManager_Destruct);
-        DestroyOwned(gMapLandscapeAutoTransitionManager, MapLandscapeAutoTransitionManager_Destruct);
-        DestroyOwned(gMapBioRegrowManager, MapBioRegrowManager_Destruct);
         DestroyOwned(gMapFishManager, MapFishManager_Destruct);
+        DestroyOwned(gMapBioRegrowManager, MapBioRegrowManager_Destruct);
+        DestroyOwned(gMapLandscapeAutoTransitionManager, MapLandscapeAutoTransitionManager_Destruct);
         DestroyOwned(CGameMapSectorAttachmentManager::sTheObjectPtr, [](CGameMapSectorAttachmentManager* manager) { manager->~CGameMapSectorAttachmentManager(); });
         DestroyOwned(CMapWalkSectorManager::sTheObjectPtr, [](CMapWalkSectorManager* manager) { manager->~CMapWalkSectorManager(); });
         std::memset(DAT_00511570, 0, sizeof(DAT_00511570));

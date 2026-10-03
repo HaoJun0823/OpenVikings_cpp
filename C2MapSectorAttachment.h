@@ -5,6 +5,7 @@
 
 namespace NC2Logic
 {
+    class CIoHelper;
     class CGameMapSectorAttachmentManager
     {
     public:
@@ -13,6 +14,7 @@ namespace NC2Logic
 
         // Original function: FUN_0044ebd7.
         CGameMapSectorAttachmentManager();
+        explicit CGameMapSectorAttachmentManager(CIoHelper& io);
 
         // Original function: FUN_0044ebf8.
         ~CGameMapSectorAttachmentManager();

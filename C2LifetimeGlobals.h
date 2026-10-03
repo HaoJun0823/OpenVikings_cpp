@@ -107,13 +107,13 @@ namespace NC2Logic
     // Original global: 00512590.
     inline void* gMapBioRegrowManager = nullptr;
     // Original global: 00512594.
-    inline void* gMapFishManager = nullptr;
+    inline void* gMapLandscapeAutoTransitionManager = nullptr;
     // Original global: 00512598.
     inline void* gWallBuildManager = nullptr;
     // Original global: 0051259C.
     inline void* gRoadBuildManager = nullptr;
     // Original global: 00550E64.
-    inline void* gMapLandscapeAutoTransitionManager = nullptr;
+    inline void* gMapFishManager = nullptr;
     // Original global: 00510A10.
     inline void* gMarkerEntries = nullptr;
     // Original global: 00510A38.

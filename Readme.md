@@ -10,7 +10,7 @@ Last handoff update: **2026-10-03**.
 
 ## Compilable checkpoint - temporary implementations
 
-Debug|Win32 and Release|Win32 passed with zero linker errors at checkpoint a77fd47. Subsequent naming/output and terrain changes have not been built. At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) now supplies 144 temporary dummy implementations; [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
+Debug|Win32 and Release|Win32 passed with zero linker errors at checkpoint a77fd47. Startup and heap-ownership work is committed as 7b8b8f2. The user subsequently rebuilt in Visual Studio and reached the main menu, with fragmented text and a black world background. The following font correction has static verification only; see [MENU_RENDERING_AUDIT.md](docs/MENU_RENDERING_AUDIT.md). At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) now supplies 135 temporary dummy implementations; [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
 
 Main executable outputs use `OpenVikings/Debug` and `OpenVikings/Release`. Future new function calls use original names found in the Mac source. Replace each dummy with Windows-equivalent behavior and remove its inventory entry while keeping both configurations buildable. See [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md).
 
@@ -1557,6 +1557,11 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA097](#oa097) | Texture and area loading retain unchecked allocation and wrapped geometry | 00490448, 0040BEAA, 00452B05, 00452B44 |
 | [OA098](#oa098) | GameControl input retains directed state, ignored tokens and special-item limits | 00408FDD, 0040A034 |
 | [OA099](#oa099) | Player availability and diplomacy retain unchecked indices and callback order | 00409D42, 0040A171, 0040A612 |
+| [OA100](#oa100) | Menu remapping and previews retain unchecked resources and path formatting | 004DAB77, 004DAC4E, 004DA615 |
+| [OA101](#oa101) | Camera following retains unchecked carriers and wrapped movement interpolation | 0047C9DA, 0047CBBC |
+| [OA102](#oa102) | Binary unpacking retains unchecked serialized sizes and RLE runs | 00429FB4, 00458890, 00458C53, 00458D60 |
+| [OA103](#oa103) | Map dispatcher returns success after invalid headers or unread failed-owner payloads | 0042FBF4 |
+| [OA104](#oa104) | Saved map managers retain unchecked versions, dimensions and indices | 004269F9, 00426EF4, 004273DE, 00428053, 0044E6FA, 0044E762, 0044ED2F |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -2560,6 +2565,39 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 - **Assessment / Renewed task:** Retain the established strides, allocation family, return values and callback order. These observations alone do not establish reachable gameplay defects.
 - **Status:** Preserved / original observation. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md).
 
+<a id="oa100"></a>
+### OA100 - Menu remapping and previews retain unchecked resources and path formatting
+
+- **Original reference:** `004DAB77`, `004DAC4E`, `004DA615`, `0040D010`.
+- **Evidence and retained behavior:** Palette/table allocation and remapping reads have no added null checks. High-color masks/shifts index the palette through the maximum extracted channel without a range check. Preview formatting uses the original unbounded formatter into the 200-byte Windows stack region; missing hovered elements/maps/files skip their preview branches. Color-keyed copying accepts only indexed sources and returns on absent pixel/conversion storage or unsupported depths.
+- **Assessment / Renewed task:** Preserve the original failure handling and allocation families. A long formatted map path can exceed the stack region; no runtime reproduction or shipped-asset failure is claimed. The retained null paths depend on allocation/load failure.
+- **Status:** Preserved / original observation. See [MAIN_MENU_WORLD_ELEMENT.md](docs/MAIN_MENU_WORLD_ELEMENT.md).
+
+<a id="oa101"></a>
+### OA101 - Camera following retains unchecked carriers and wrapped movement interpolation
+
+- **Original reference:** `0047C9DA`, `0047CBBC`, `0047CEBF`, `0047CF2B`.
+- **Evidence and retained behavior:** Camera carrier selection reads indices/attachment bytes without occupancy or generation validation and substitutes at most one Vehicle carrier after a Human carrier. Direction values below eight enable interpolation; reversed movement uses opposite direction and 10000 minus progress. Signed division follows low-32-bit product wrap. Zoom changes rebuild scrolling only across zero and ignore center-conversion failure.
+- **Assessment / Renewed task:** Preserve these gates, arithmetic and callback order; no reachable stale-carrier crash or visual defect is established. Other validated position getters do not change this original camera path.
+- **Status:** Preserved / original observation. See [MAIN_MENU_WORLD_ELEMENT.md](docs/MAIN_MENU_WORLD_ELEMENT.md).
+
+
+<a id="oa102"></a>
+### OA102 - Binary unpacking retains unchecked serialized sizes and RLE runs
+
+Windows 00429FB4 replaces the expected destination size with the serialized size on the raw path. Packed reads ignore the unpack result. XB_Pack checks signatures/methods and declared output capacity, but does not validate individual runs, actual output count or the packed allocation size; malformed streams retain exact-position termination and unchecked accesses. Preserve these paths. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md).
+
+<a id="oa103"></a>
+### OA103 - Map dispatcher returns success after invalid headers or unread failed-owner payloads
+
+0042FBF4 returns true whenever ReadHeader stops, including an invalid signature. Unknown markers are skipped; a failed saved-owner allocation leaves its payload unread before the next header read. Existing owners are overwritten by successful saved constructors without added deletion. These are original paths, independent of the former false-returning dummy. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md).
+
+<a id="oa104"></a>
+### OA104 - Saved map managers retain unchecked versions, dimensions and indices
+
+Wall unknown versions skip without initializing the player-table field; road version 1 allocates a zero table then skips. Fish clean-map versions other than 2 read the original 0x4B0 prefix and count fallback. Attachment and walk-sector loaders allocate before reading saved dimensions. Player/array/swarm counts and map indices remain unchecked, including map-flag writes. Preserve these behaviors. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md).
+
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -2648,6 +2686,13 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP078 | Texture/area allocation, image decode and geometry | Preserve missing-file -1, original picture failure handling, unchecked allocation, extracted ownership and wrapped DWORD/WORD calculations | [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md); OA097 |
 | FP079 | GameControl missing/invalid INI, string-loader failure and special-item capacity | Preserve default-vs-missing-reader behavior, exact parameter consumption, ignored tokens, retry/copy semantics, zero-type slot reuse and ignored add/registration results | [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md); OA098 |
 | FP080 | Player requirements, diplomacy indices/callback mutation and statistics allocation | Preserve unchecked counts/IDs, original equipment stride, signed/equality bounds, state-before-callback and visibility-after-callback, explicit new-handler allocation | [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md); OA099 |
+| FP081 | Menu remapping allocation, palette/cache failure and owner teardown | Preserve unchecked initialization/remapping reads; release palette/table, unregister frame callbacks, then destroy display and bitmap base using runtime ownership | [MAIN_MENU_WORLD_ELEMENT.md](docs/MAIN_MENU_WORLD_ELEMENT.md); OA100 |
+| FP082 | Menu hover/metadata/file failures and indexed minimap copying | Skip absent hover/map/file previews; retain unbounded path formatting, conversion-table early returns, color key, clipping, source/destination strides and temporary cleanup | [MAIN_MENU_WORLD_ELEMENT.md](docs/MAIN_MENU_WORLD_ELEMENT.md); OA100 |
+| FP083 | Menu commands, camera carrier state and zoom rebuilding | Preserve false mutation returns, true frame return, float bits, pan/active gates, unchecked carrier indices, wrapped interpolation and ignored center-conversion failure | [MAIN_MENU_WORLD_ELEMENT.md](docs/MAIN_MENU_WORLD_ELEMENT.md); OA101 |
+| FP084 | Packed/raw binary size, invalid methods and malformed RLE | Preserve serialized raw size, ignored unpack return, conditional header reads, exact-position loops and temporary CMemory cleanup | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md); OA102 |
+| FP085 | Map chunk termination, unknown markers and saved-owner allocation failure | Preserve success termination, Skip for unknown markers and unread payload after failed allocation; retain original owner overwrite | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md); OA103 |
+| FP086 | Manager version/dimension/count/index failures | Preserve skip/fallback branches, allocation before saved dimensions, unchecked tables/indices and map-flag writes | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md); OA104 |
+| FP087 | Map startup/shutdown and fish callback lifecycle | Preserve explicit-handler allocation, original constructor/destructor order, callback priorities, validation flag and swarm relocation | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md) |
 
 ## Reconstruction errors are not original bugs
 
@@ -2669,13 +2714,13 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Missing semicolons after `Runtime_ClassifyCharacter(...)` | Transcription/syntax issue | Correct them; the user already reported doing so |
 | Incorrect or orphaned original-address comments | Reconstruction documentation issue | Repair ownership of the source references |
 | Formerly missing reconstructed CRT startup calls | Reconstruction integration issue, not an original defect | Resolved at source level through WinMain and Runtime_RunApplication; build/runtime verification remains separate |
-| Bob fallback decodes row-descriptor displacement with a 16-bit shift | Original `00463D32`/`00463E3B` use a hexadecimal shift count of 0x16, meaning 22 decimal bits | Corrected to 22 bits; see [ENGINE_DRAWING_BOB_EFFECTS.md](docs/ENGINE_DRAWING_BOB_EFFECTS.md) |
+| Bob fallback and both normal-transparency overloads decode row-descriptor displacement with a 16-bit shift | Original `00463D32`/`00463E3B` and all twelve row decoders in `0046534F`/`004660C6` use hexadecimal 0x16, meaning 22 decimal bits; the font calls `004660C6` | Corrected to 22 bits; see [ENGINE_DRAWING_BOB_EFFECTS.md](docs/ENGINE_DRAWING_BOB_EFFECTS.md) and [MENU_RENDERING_AUDIT.md](docs/MENU_RENDERING_AUDIT.md) |
 | Desktop list destruction uses invalid destructor-alias syntax | MSVC declaration/syntax problem; the original cleared list vtables require qualified destruction | Corrected qualified `CList` destructor calls; see [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md) |
 | Audio manager, DirectMusic strings and desktop bitmap allocations use the host allocator with project-runtime deletion | Windows uses `004E5DDD` allocation paired with `004E5E48` free; the mismatched allocator family was introduced by reconstruction | Corrected to runtime allocation/free in the owning paths; shared property-string code remains a separate boundary |
 | Translated floating-point branches treat unordered operands as ordinary inequality | Original x87 condition excludes both equal and unordered operands | Corrected ordered comparisons; documented in [SOURCE_AUDIT_2026_09_30.md](docs/SOURCE_AUDIT_2026_09_30.md) |
 | Callers retain stale runtime/file/network/music names or declarations | Existing original implementations were not connected through their established interfaces | Connected the audited callers; unresolved owning routines remain explicit dependencies |
 | Production sources/headers are missing from Visual Studio project or filters | Project integration issue, not original game behavior | Added the missing entries and synchronized subsequent additions; see [PROJECT_STATE.md](docs/PROJECT_STATE.md) |
-| Fish and landscape-transition manager names/bindings disagree at 00426F84 and 0044EB1E | Reconstruction ownership inconsistency exposed by Windows/Mac naming evidence; not an original game defect | Names recovered; existing bindings retained for a complete lifecycle audit. See [FUNCTION_NAMES.md](docs/FUNCTION_NAMES.md) |
+| Fish and landscape-transition manager names/bindings disagree at 00426F84 and 0044EB1E | Reconstruction ownership inconsistency exposed by Windows/Mac naming evidence; not an original game defect | Corrected complete owner bindings, startup, tick arguments, destruction and fish callbacks. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md) |
 | README OB001 contains unrelated sound-transition text; OB073 is absent from its index | Documentation transcription/maintenance errors | Restored signed-character trigger text, repaired table columns and synchronized both finding indexes |
 | Callback nodes, Storable objects, bitmap memory and palette caches use mixed host/project allocation | Reconstruction allocator mismatch, not original game behavior | Matched object/buffer allocation and deleting wrappers to the original runtime family; added original palette vector deletion. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md) |
 | System-manager object and 16-bit shadow table use host allocation; application clears assert instead of fatal | Windows allocates through explicit-handler thunk `004E5DDD`, frees through `004E5E48`, and clears warning/fatal in `00479169` | Corrected the directly related allocation/free paths, minimal converter initialization and callback clearing; retained original unchecked allocation behavior. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md) |
@@ -2715,3 +2760,12 @@ Pattern/Landscapes constructors now publish their managers and load the complete
 ## GameControl startup reconstruction - 2026-10-03
 
 The subsequent screenshot reaches player statistics with a null GameControl owner. The real GameControl constructor and its player/allowed-item/special-item/diplomacy/callback tree now replace that missing initialization. Statistics allocations retain the original new-handler path. Production additions are included in vcxproj/filters; OA098/OA099 and FP079/FP080 index reviewed failure paths. Current provisional coverage is 1,911/5,056 (37.80%), excluding 141 dummies. ASM/PE/static verification only; no build or runtime rerun. Next: palette-manager construction/loading, then Houses. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md).
+
+## Menu-world element reconstruction - 2026-10-03
+
+Reconstructed world drawing/message/lifetime/remapping and camera/zoom/exploration/minimap-copy helpers, adding seventeen address mappings and replacing six temporary bodies. Project and GUI filters include the new unit/header. Current coverage is 1,928/5,056, with 135 dummies excluded. Binary map dispatch and deeper static-data/landscape owners remain pending. No builds, tests or runtime verification of this block were performed. See [MAIN_MENU_WORLD_ELEMENT.md](docs/MAIN_MENU_WORLD_ELEMENT.md), OA100/OA101 and FP081..FP083.
+
+
+## Binary map loading reconstruction - 2026-10-03
+
+Reconstructed the map constructor, binary chunk dispatcher, XB_Pack decoders and immediate saved-owner tree. Fish/transition bindings now match their original owners throughout startup, tick and shutdown. This adds 28 mapped addresses and replaces three dummies; current coverage is 1,956/5,056 (38.69%), excluding 132 dummies. Project/filters include all production additions. ASM/PE/static verification only; no builds, tests or runtime execution. Next: palette-manager startup and complete palette storage, then Houses and deeper landscape drawing. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md), OA102..OA104 and FP084..FP087.

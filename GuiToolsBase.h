@@ -123,6 +123,8 @@ namespace NC2GuiToolsBase
     void DrawTool_FillArea(void* context, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle, std::int32_t mode);
     void DrawTool_DrawFrame(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, std::int32_t mode);
     void DrawTool_PrintStringX(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* font, const NXBasics::SColorRGB* color, const char* text);
+    NXBasics::CFont* DrawTool_GetFont10Ptr();
+    const NXBasics::SColorRGB* DrawTool_GetFontColorRef();
     std::int32_t DrawTool_PrintStringWrapping(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t width, NXBasics::CFont* font, const NXBasics::SColorRGB* color, const char* text);
     void FXTool_Chat();
     void FXTool_ClickConfirm();

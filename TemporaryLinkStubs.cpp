@@ -124,10 +124,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CMissionManager::l_Mission_Callback.
     bool __cdecl MissionManager_l_Mission_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-    // TEMPORARY DUMMY: Windows address 004231D7; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::CGameMap.
-    void * __fastcall GameMap_Construct(void *, void *, short, short) { return nullptr; }
-
     // TEMPORARY DUMMY: Windows address 00424AE9; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.
     bool __cdecl GameMap_l_ValidateLandscapes_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
@@ -192,10 +188,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CGame::Checksum_Calculate.
     unsigned int __cdecl Game_Checksum_Calculate(void) { return 0; }
 
-    // TEMPORARY DUMMY: Windows address 0042FBF4; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::l_GlobalIO_Load.
-    bool __cdecl GameMap_l_GlobalIO_Load(NC2Logic::CIoHelper *) { return false; }
-
     // TEMPORARY DUMMY: Windows address 00431276; implementation pending.
     // Naming reference: NC2Logic::CHouse::Misc_Destroy_House.
     void __fastcall House_Misc_Destroy_House(void *, void *) {}
@@ -231,10 +223,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 0043E8AA; implementation pending.
     // Naming reference: NC2Logic::CMapPathfinderSpecialWallRoadElement::GetNextDirection.
     int __fastcall MapPathfinderSpecialWallRoadElement_GetNextDirection(void *, void *) { return 0; }
-
-    // TEMPORARY DUMMY: Windows address 0044EB1E; implementation pending.
-    // Naming reference: NC2Logic::CMapFishManager::l_FishManager_Callback.
-    bool __cdecl MapFishManager_l_FishManager_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
     // TEMPORARY DUMMY: Windows address 0044FD3E; implementation pending.
     // Naming reference: NC2Logic::CMapWalkSectorManager::l_Sectors_CheckAndSetConnection.
@@ -375,9 +363,6 @@ namespace NC2InGameGuiMessages
     // Naming reference: NXBasics::CBitmap::ZoomIn.
 void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap *) {}
 
-// TEMPORARY DUMMY: Windows address 0047C9DA; implementation pending.
-    // Naming reference: NC2E2::C2DEngineDisplay::DE_MapMoveableToGlobalWorldPixelCoordinates.
-void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void *, void *, unsigned int, int *) {}
 
 // TEMPORARY DUMMY: Windows address 0047D37B; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw.
@@ -391,9 +376,6 @@ void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void *) {}
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw.
 void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void *) {}
 
-// TEMPORARY DUMMY: Windows address 0047E669; implementation pending.
-    // Naming reference: NC2E2::CE2Manager::Inform_SetExplorationState.
-void __cdecl E2Manager_Inform_SetExplorationState(bool) {}
 
 // TEMPORARY DUMMY: Windows address 0048114E; implementation pending.
     // Naming reference: NC2E2::Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr.
@@ -547,21 +529,9 @@ void __fastcall BaseListBoxElement_Element_Add(void *, void *, void *) {}
     // Naming reference: NC2MainMenuGuiManager::CGuiManagerDefaultMessageHandlerElement::XGui_BE_Message_Handle.
 bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle(void *, void *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-// TEMPORARY DUMMY: Windows address 004DA5BF; implementation pending.
-    // Naming reference: NC2MainMenuGuiWorldElement::CWorldDisplayElement::~CWorldDisplayElement.
-void * __fastcall MainMenuWorldDisplayElement_Delete(void *, void *, unsigned int) { return nullptr; }
 
-// TEMPORARY DUMMY: Windows address 004DA615; implementation pending.
-    // Naming reference: NC2MainMenuGuiWorldElement::CWorldDisplayElement::XGui_BE_Element_Draw.
-void __fastcall MainMenuWorldDisplayElement_XGui_BE_Element_Draw(void *, void *, NXBasics::CBitmap *, NXBasics::SRectangle const *) {}
 
-// TEMPORARY DUMMY: Windows address 004DAAC1; implementation pending.
-    // Naming reference: NC2MainMenuGuiWorldElement::CWorldDisplayElement::XGui_BE_Message_Handle.
-bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void *, void *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-// TEMPORARY DUMMY: Windows address 004DAB77; implementation pending.
-    // Naming reference: NC2MainMenuGuiWorldElement::CWorldDisplayElement::l_Tool_DarkenBitmap_Init.
-void __fastcall MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(void *) {}
 
 // TEMPORARY DUMMY: Windows address 004DAE69; implementation pending.
     // Naming reference: NC2MainMenuGuiManager::CGuiManagerMousePointer::DrawMouse.

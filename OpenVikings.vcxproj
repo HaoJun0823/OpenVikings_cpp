@@ -415,4 +415,15 @@
   <ItemGroup>
     <ClCompile Include="TemporaryLinkStubs.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainMenuWorldDisplayElement.cpp" />
+    <ClInclude Include="MainMenuWorldDisplayElement.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2GameMapLoading.cpp" />
+    <ClCompile Include="C2MapResourceManagers.cpp" />
+    <ClInclude Include="C2MapResourceManagers.h" />
+    <ClCompile Include="XPack.cpp" />
+    <ClInclude Include="XPack.h" />
+  </ItemGroup>
 </Project>

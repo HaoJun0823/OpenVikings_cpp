@@ -1015,4 +1015,15 @@
   <ItemGroup>
     <ClCompile Include="TemporaryLinkStubs.cpp"><Filter>Diagnostics</Filter></ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainMenuWorldDisplayElement.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="MainMenuWorldDisplayElement.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2GameMapLoading.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2MapResourceManagers.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MapResourceManagers.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="XPack.cpp"><Filter>Core\Memory</Filter></ClCompile>
+    <ClInclude Include="XPack.h"><Filter>Core\Memory</Filter></ClInclude>
+  </ItemGroup>
 </Project>

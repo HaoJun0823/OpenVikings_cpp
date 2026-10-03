@@ -15,6 +15,7 @@ namespace NC2E2
         void InformThatStaticMapChanged();
         void InformThatMapXtructed();
         void InformThatControllingPlayerChanged(std::int32_t playerId);
+        void InformSetExplorationState(bool enabled);
 
         // Original global: 00555114.
         inline static C2DEngineDisplayManager* sTheObjectPtr = nullptr;

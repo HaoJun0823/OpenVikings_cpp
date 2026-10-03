@@ -22,8 +22,8 @@ Four entries have explicit Windows/runtime provenance instead of a recovered Mac
 
 The naming evidence exposed two earlier manager-identity inconsistencies. This pass preserves the existing code so these remain explicit follow-up work:
 
-- `00426F84` matches `CMapLandscapeAutoTransitionManager::System_DoOneGameTick`: 20-byte entries contain allocation/tick/duration/landscape/point data; the routine applies landscape transitions and frees completed entries. `C2GameTime.cpp` currently passes `gMapFishManager`. Audit manager construction, global binding and tick/destruction ownership together before replacing the dummy.
-- `0044EB1E` matches `CMapFishManager::l_FishManager_Callback`: the callback maintains 12-byte fish swarms, regrows counts and removes invalid water positions. It is currently unregistered by the function named `MapLandscapeAutoTransitionManager_Destruct` in `C2LogicLifetimeAccess.cpp`. Audit both manager lifecycles and their global bindings as one block.
+- `00426F84` matches `CMapLandscapeAutoTransitionManager::System_DoOneGameTick`: 20-byte entries contain allocation/tick/duration/landscape/point data; the routine applies landscape transitions and frees completed entries. The binary-map block confirms owner 00512594 and now passes `gMapLandscapeAutoTransitionManager`; construction/destruction use the same owner. The tick remains a tracked dummy. See [BINARY_MAP_LOADING.md](BINARY_MAP_LOADING.md).
+- `0044EB1E` matches `CMapFishManager::l_FishManager_Callback`: the callback maintains 12-byte fish swarms, regrows counts and removes invalid water positions. The binary-map block reconstructs the callback and confirms owner 00550E64; construction and `MapFishManager_Destruct` now share `gMapFishManager`. See [BINARY_MAP_LOADING.md](BINARY_MAP_LOADING.md).
 
 ## Output directories and verification
 

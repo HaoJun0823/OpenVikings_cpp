@@ -3,6 +3,7 @@
 #include "XFile.h"
 #include "XMemory.h"
 #include "XMemoryChecksum.h"
+#include "XPack.h"
 
 #include <cstdarg>
 #include <cstdint>
@@ -40,6 +41,35 @@ namespace NC2Logic
     void CIoHelper::IO_File_ReadBinary(void* destination, std::uint32_t byteCount)
     {
         mFile->Read(destination, byteCount);
+    }
+
+    // Original function: FUN_00429fb4.
+    void CIoHelper::IO_File_ReadAndUnpackBinary(void* destination, std::uint32_t byteCount)
+    {
+        std::uint8_t packed;
+        mFile->Read(&packed, 1);
+        if (packed != 0)
+        {
+            std::uint32_t packedBytes;
+            mFile->Read(&packedBytes, 4);
+            NXBasics::CMemory buffer(packedBytes);
+            mFile->Read(buffer.mData, packedBytes);
+            NXBasics::XB_Pack_UnPack(buffer.mData, destination, byteCount);
+        }
+        else
+        {
+            // Windows replaces the caller's expected size with the serialized size.
+            mFile->Read(&byteCount, 4);
+            mFile->Read(destination, byteCount);
+        }
+    }
+
+    // Original function: FUN_0042a043.
+    std::uint8_t CIoHelper::IO_File_ReadByte()
+    {
+        std::uint8_t value;
+        mFile->Read(&value, 1);
+        return value;
     }
 
     // Original function: FUN_0042a02d

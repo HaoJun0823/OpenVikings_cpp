@@ -1,4 +1,5 @@
 #include "C2LifetimeGlobals.h"
+#include "C2LifetimeAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayManager.h"
@@ -635,6 +636,39 @@ namespace NC2E2
         Display_WriteField<std::uint8_t>(display, 0x978, 1);
     }
 
+    // Original function: FUN_0047cc4a.
+    void DE_ToDraw_ToggleFlagset(void* display, std::uint32_t flags)
+    {
+        Display_WriteField(display, 0x70, Display_ReadField<std::uint32_t>(display, 0x70) ^ flags);
+        Display_WriteField<std::uint8_t>(display, 0x978, 1);
+    }
+
+    // Original function: FUN_0047cebf; rebuild scrolling only across zero.
+    void DE_Zoom_SetCounter(void* display, std::int32_t counter)
+    {
+        if (counter < -1) counter = -1;
+        if (counter > 1) counter = 1;
+        const std::int32_t previous = Display_ReadField<std::int32_t>(display, 0x78);
+        Display_WriteField(display, 0x78, counter);
+        if ((previous < 0) != (counter < 0))
+        {
+            std::uint32_t center = 0;
+            DE_Misc_GetDisplayedCenterMapPosition(display, &center);
+            Display_ExitScrollVariables(display);
+            Display_InitScrollVariables(display);
+            DE_SetWantedPositionToMapPoint(display, &center);
+        }
+    }
+
+    // Original function: FUN_0047cf2b.
+    void DE_Zoom_ToggleLevel(void* display, bool allowZoomIn)
+    {
+        std::int32_t counter = DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, 0x78) + 1u);
+        if (counter == 2) counter = -1;
+        if (!allowZoomIn && counter > 0) counter = -1;
+        DE_Zoom_SetCounter(display, counter);
+    }
+
     // Original function: FUN_0047cf73.
     void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId)
     {
@@ -773,6 +807,30 @@ namespace NC2E2
             const std::uint32_t shiftY = 0u - readWord(display, 0x78);
             storeWord(point + 1, shiftRightSigned(readWord(point, 4), shiftY));
         }
+    }
+
+    // Original function: FUN_0047cbbc; inverse zoom precedes the world offset.
+    void Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(const void* display, std::int32_t* point, bool applyZoom)
+    {
+        std::uint32_t x = static_cast<std::uint32_t>(point[0]), y = static_cast<std::uint32_t>(point[1]);
+        if (applyZoom)
+        {
+            const std::int32_t zoom = Display_ReadField<std::int32_t>(display, 0x78);
+            if (zoom > 0)
+            {
+                const std::uint32_t centerX = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x964));
+                const std::uint32_t centerY = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x968));
+                x = DisplayDescription_ShiftRightSigned(x - centerX, static_cast<std::uint32_t>(zoom)) + centerX;
+                y = DisplayDescription_ShiftRightSigned(y - centerY, Display_ReadField<std::uint32_t>(display, 0x78)) + centerY;
+            }
+            else if (zoom < 0)
+            {
+                x <<= (0u - static_cast<std::uint32_t>(zoom)) & 31u;
+                y <<= (0u - Display_ReadField<std::uint32_t>(display, 0x78)) & 31u;
+            }
+        }
+        point[0] = DisplayDescription_SignedDword(x + Display_ReadField<std::uint32_t>(display, 0x954));
+        point[1] = DisplayDescription_SignedDword(y + Display_ReadField<std::uint32_t>(display, 0x958));
     }
 
     // Original function: FUN_0048143c
@@ -1289,4 +1347,51 @@ namespace NC2E2
         DisplayObjectReference_Reset(searchObject);
         return true;
     }
+}
+
+// Original function: FUN_0047c9da; camera following uses the carrier and movement progress.
+void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* display, void* unusedEdx, std::uint32_t moveableId, std::int32_t* point)
+{
+    (void)unusedEdx;
+    using namespace NC2Lifetime;
+    const auto moveableAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gMapMoveableArrayStorage.entries) + id * 0x58u); };
+    const auto vehicleAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CVehicleArray::mStaticVars) + id * 0x54Cu); };
+    const void* moveable = moveableAt(moveableId);
+    if (Read<std::uint32_t>(moveable, 8) == 1)
+    {
+        const void* human = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CHumanArray::mStaticVars) + Read<std::uint32_t>(moveable, 0x54) * 0xC58u);
+        if (Read<std::uint8_t>(human, 0xB51) != 0)
+            moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(human, 0xB48)), 0x1DC));
+    }
+    if (Read<std::uint32_t>(moveable, 8) == 3)
+    {
+        const void* vehicle = vehicleAt(Read<std::uint32_t>(moveable, 0x54));
+        // Original 0044DA5D only returns the attached byte; no generation validation.
+        if (Read<std::uint8_t>(vehicle, 0x548) != 0)
+            moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(vehicle, 0x540)), 0x1DC));
+    }
+    const void* position = static_cast<const std::byte*>(moveable) + 0x12;
+    NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, point, false);
+    if (Read<std::uint8_t>(moveable, 0x2C) != 0 && Read<std::uint8_t>(moveable, 0x39) == 0)
+    {
+        std::uint32_t direction = Read<std::uint32_t>(moveable, 0x30), progress = Read<std::uint32_t>(moveable, 0x34);
+        if (direction < 8)
+        {
+            if (Read<std::uint8_t>(moveable, 0x38) != 0)
+            {
+                progress = 10000u - progress;
+                direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
+            }
+            std::int32_t start[2], end[2];
+            NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, Read<std::uint32_t>(position, 0), start, true);
+            std::uint32_t target = Read<std::uint32_t>(position, 0);
+            NC2Logic::MapMigPoint_MoveCursorUnwrapped(target, direction);
+            NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, target, end, true);
+            const std::int32_t dx = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[0]) - static_cast<std::uint32_t>(start[0])) * progress) / 10000;
+            const std::int32_t dy = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[1]) - static_cast<std::uint32_t>(start[1])) * progress) / 10000;
+            point[0] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[0]) + static_cast<std::uint32_t>(dx));
+            point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) + static_cast<std::uint32_t>(dy));
+        }
+    }
+    NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, false);
 }

@@ -41,6 +41,8 @@ namespace NC2Logic
 
         // Original function: FUN_00429f88
         void IO_File_ReadBinary(void* destination, std::uint32_t byteCount);
+        void IO_File_ReadAndUnpackBinary(void* destination, std::uint32_t byteCount);
+        std::uint8_t IO_File_ReadByte();
 
         // Original function: FUN_0042a02d
         std::uint32_t IO_File_ReadLong();

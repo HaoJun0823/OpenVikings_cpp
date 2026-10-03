@@ -110,4 +110,18 @@ namespace NC2E2
         Display_Destruct(value);
         NXBasics::Runtime_Free(value);
     }
+
+    // Original function: FUN_0048134e.
+    void C2DEngineDisplayManager::InformSetExplorationState(bool enabled)
+    {
+        Iterator iterator(*this);
+        for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
+            DE_ToDraw_SetState(display, 4, enabled);
+    }
+}
+
+// Original function: FUN_0047e669; CE2Manager::Inform_SetExplorationState.
+void __cdecl E2Manager_Inform_SetExplorationState(bool enabled)
+{
+    NC2E2::C2DEngineDisplayManager::sTheObjectPtr->InformSetExplorationState(enabled);
 }
