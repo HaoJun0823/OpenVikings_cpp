@@ -7,9 +7,12 @@
 
 namespace NXBasics
 {
+    class CPalette;
     class CRemapTable : public CStorable
     {
     public:
+        CRemapTable(const CPalette& source, const CPalette& destination, std::uint32_t first, std::uint32_t last);
+
         // Original function: FUN_0040fde0
         CRemapTable(void* file, std::uint32_t version);
 

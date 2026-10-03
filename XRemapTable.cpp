@@ -1,8 +1,22 @@
 #include "XRemapTable.h"
 #include "XFileAccess.h"
+#include "XPalette.h"
+#include "XPaletteAccess.h"
 
 namespace NXBasics
 {
+    // Original function: FUN_0040fd80; inclusive unsigned source range.
+    CRemapTable::CRemapTable(const CPalette& source, const CPalette& destination, std::uint32_t first, std::uint32_t last) : mRemapIndices{}
+    {
+        if (first > last) return;
+        for (std::uint32_t index = first; index <= last; ++index)
+        {
+            SColorRGB color;
+            std::memcpy(&color, source.mColors[index], sizeof(color));
+            mRemapIndices[index] = Palette_FindMatchingColor(&destination, color);
+        }
+    }
+
     // Original function: LAB_0040fdda
     std::uint32_t CRemapTable::Storable_GetId()
     {

@@ -6,6 +6,7 @@
 
 namespace NXBasics
 {
+    struct SColorModifier;
     class CPalette : public CStorable
     {
     public:
@@ -19,6 +20,9 @@ namespace NXBasics
         virtual ~CPalette();
 
         static void* DeleteOriginal(CPalette* palette, std::uint32_t flags);
+
+        void operator=(const CPalette& other);
+        void Modify(const SColorModifier& modifier);
 
         // Original function: LAB_0040fdd4
         std::uint32_t Storable_GetId() override
@@ -37,6 +41,7 @@ namespace NXBasics
 
     private:
         friend class CPicture;
+        friend class CRemapTable;
 
         std::uint8_t mColors[256][4];             // +0x004; blue, green, red, fourth stored byte.
         std::uint16_t* mHighColorTable;           // +0x404; owned conversion cache.

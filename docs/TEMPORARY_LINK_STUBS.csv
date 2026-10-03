@@ -67,7 +67,6 @@ Address,CurrentName,Status,ReferencingObjects
 0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;C2GameEngineStartup.obj
 00480162,NC2E2::E2DynamicDataHumanManager_Construct,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
 004803D5,NC2E2::E2DynamicDataHumanManager_HumanXtructed,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
-00480A20,NC2E2::E2StaticDataPalettesManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048114E,Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr,Temporary dummy; Windows implementation pending,InGameGuiOverviewDisplayAccess.obj
 00481188,Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint,Temporary dummy; Windows implementation pending,InGameGuiOverviewDisplayAccess.obj
 00481228,NC2E2::DisplayManager_InformThatStaticMapChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj

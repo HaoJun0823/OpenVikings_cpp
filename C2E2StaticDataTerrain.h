@@ -1,5 +1,7 @@
 #pragma once
 
+#include "C2E2StaticDataPalettes.h"
+
 #include <cstddef>
 #include <cstdint>
 
@@ -101,7 +103,6 @@ namespace NC2E2
     std::int32_t E2StaticDataPatternManager_GetPatternId(const char* name);
     void* __fastcall E2StaticDataLandscapesManager_Construct(void* manager, void* unusedEdx);
     std::int32_t E2StaticDataLandscapesManager_GetLandscapeId(const char* name);
-    std::int32_t E2StaticDataPalettesManager_GetPalette256Id(const char* name);
     std::int32_t __fastcall E2StaticDataTexturesManager_GetTextureId(void* manager, void* unusedEdx, const char* fileName);
 
     static_assert(sizeof(SE2StaticDataPatternData) == 0x70);

@@ -243,6 +243,9 @@
     <ClCompile Include="C2E2StaticDataGroups.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
+    <ClCompile Include="C2E2StaticDataPalettes.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
     <ClCompile Include="C2E2StaticDataTerrain.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
@@ -561,6 +564,9 @@
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
     <ClInclude Include="C2E2StaticDataGroups.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2StaticDataPalettes.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
     <ClInclude Include="C2E2StaticDataTerrain.h">

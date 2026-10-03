@@ -72,7 +72,7 @@ namespace NC2E2
         std::memcpy(&paletteId, gStaticHumanColors + static_cast<std::uint32_t>(colorId) * 0x58u + 0x50u, sizeof(paletteId));
 
         std::uint32_t paletteAddress;
-        std::memcpy(&paletteAddress, addressAt(gStaticPaletteEntries, paletteId * 0x30u + 0x20u), sizeof(paletteAddress));
+        std::memcpy(&paletteAddress, addressAt(gStaticPalettes.palettes256, paletteId * 0x30u + 0x20u), sizeof(paletteAddress));
 
         return reinterpret_cast<NXBasics::CPalette*>(static_cast<std::uintptr_t>(paletteAddress));
     }
@@ -83,7 +83,7 @@ namespace NC2E2
         if (bobManager == nullptr)
             return;
 
-        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gStaticPaletteEntries));
+        const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gStaticPalettes.palettes256));
         const std::uint32_t address = baseAddress + colorTableIndex * 0x30u;
         auto* colorData = reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(address));
 
@@ -284,7 +284,7 @@ namespace NC2E2
 
         if (brightness == 0)
         {
-            drawWithoutBrightnessAdjustment(static_cast<NXBasics::CPalette*>(gStaticPalette005550F8));
+            drawWithoutBrightnessAdjustment(gStaticPalettes.blackPalette);
             return;
         }
 
@@ -310,7 +310,7 @@ namespace NC2E2
         const std::uint32_t brightnessProduct = (static_cast<std::uint32_t>(brightness) - 256u) * readWord(graphic, 0x80);
         brightness = signedValue(brightnessProduct) / 256 + 256;
 
-        const std::byte* colorData = addressAt(gStaticPaletteEntries, readWord(graphic, 0x74) * 0x30u);
+        const std::byte* colorData = addressAt(gStaticPalettes.palettes256, readWord(graphic, 0x74) * 0x30u);
         NXBasics::CPalette* palette;
 
         if (parameter24 != -1)
@@ -318,7 +318,7 @@ namespace NC2E2
             palette = EnginePalette_GetPlayerPalette(parameter24);
 
             if (palette == nullptr)
-                palette = static_cast<NXBasics::CPalette*>(gStaticPalette005550F8);
+                palette = gStaticPalettes.blackPalette;
         }
         else if (readWord(colorData, 0x24) != 0)
         {

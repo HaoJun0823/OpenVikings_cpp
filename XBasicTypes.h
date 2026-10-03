@@ -6,6 +6,20 @@
 
 namespace NXBasics
 {
+    struct SColorModifier
+    {
+        bool grayScale;
+        float redFactor;
+        float greenFactor;
+        float blueFactor;
+
+        SColorModifier(bool useGrayScale, float red, float green, float blue) noexcept;
+    };
+    static_assert(sizeof(SColorModifier) == 0x10);
+    static_assert(offsetof(SColorModifier, redFactor) == 4);
+    static_assert(offsetof(SColorModifier, greenFactor) == 8);
+    static_assert(offsetof(SColorModifier, blueFactor) == 0x0C);
+
     // Original function: FUN_0040f798
     inline std::int32_t __cdecl ConvertBitsToTDepth(std::int32_t bits)
     {
@@ -152,6 +166,7 @@ namespace NXBasics
 
         SColorRGB() noexcept;
         void SetColors(std::uint8_t redValue, std::uint8_t greenValue, std::uint8_t blueValue) noexcept;
+        void Modify(const SColorModifier& modifier) noexcept;
 
         // Original function: FUN_0040f7d3
         constexpr SColorRGB(std::uint8_t redValue, std::uint8_t greenValue, std::uint8_t blueValue) noexcept : blue(blueValue), green(greenValue), red(redValue), reserved(0)

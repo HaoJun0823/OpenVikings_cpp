@@ -39,7 +39,7 @@ namespace NC2E2
 {
     using namespace NC2Lifetime;
     SStaticDataTextures gStaticDataTextures{};
-    NXBasics::CPalette* gVertexColorsPalette = nullptr;
+    NXBasics::CPalette*& gVertexColorsPalette = gStaticPalettes.vertexColorsPalette;
     extern bool __cdecl E2Manager_sl_Callback_Misc(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl E2Manager_sl_Callback_MapEdited(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl E2Manager_sl_Callback_MapIO(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -591,21 +591,21 @@ namespace NC2E2
     // Original function: FUN_00480ebd.
     static void E2StaticDataPalettesManager_Destruct(void*)
     {
-        DeleteStorable(gVertexColorsPalette);
-        DeleteStorable(gStaticPalette005550F8);
-        NXBasics::Runtime_Free(gStaticPaletteNames);
-        gStaticPaletteNames = nullptr;
-        gStaticPaletteNameCount = 0;
-        for (std::int32_t index = 0; index < gStaticPaletteCount; ++index)
+        DeleteStorable(gStaticPalettes.vertexColorsPalette);
+        DeleteStorable(gStaticPalettes.blackPalette);
+        NXBasics::Runtime_Free(gStaticPalettes.palettes16);
+        gStaticPalettes.palettes16 = nullptr;
+        gStaticPalettes.palette16Count = 0;
+        for (std::int32_t index = 0; index < gStaticPalettes.palette256Count; ++index)
         {
-            const std::uint32_t offset = static_cast<std::uint32_t>(index) * 0x30;
-            DeleteStorable(Read<void*>(gStaticPaletteEntries, offset + 0x20));
-            if (void* palettes = Read<void*>(gStaticPaletteEntries, offset + 0x24)) NXBasics::CPalette::DeleteOriginal(static_cast<NXBasics::CPalette*>(palettes), 3);
-            FreeField(gStaticPaletteEntries, offset + 0x28);
+            auto& entry = gStaticPalettes.palettes256[index];
+            DeleteStorable(entry.palette);
+            if (entry.preshadedPalettes != nullptr) NXBasics::CPalette::DeleteOriginal(entry.preshadedPalettes, 3);
+            NXBasics::Runtime_Free(entry.remapTable);
         }
-        NXBasics::Runtime_Free(gStaticPaletteEntries);
-        gStaticPaletteEntries = nullptr;
-        gStaticPaletteCount = 0;
+        NXBasics::Runtime_Free(gStaticPalettes.palettes256);
+        gStaticPalettes.palettes256 = nullptr;
+        gStaticPalettes.palette256Count = 0;
         gE2StaticDataPalettesManager = nullptr;
     }
     // Original function: FUN_004903d3.

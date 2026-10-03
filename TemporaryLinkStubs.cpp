@@ -272,9 +272,6 @@ namespace NC2E2
     // Naming reference: NC2E2::CE2DynamicDataHumanManager::HumanXtructed.
     void __cdecl E2DynamicDataHumanManager_HumanXtructed(unsigned int, bool, bool) {}
 
-    // TEMPORARY DUMMY: Windows address 00480A20; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataPalettesManager::CE2StaticDataPalettesManager.
-    void * __fastcall E2StaticDataPalettesManager_Construct(void *, void *) { return nullptr; }
 
     // TEMPORARY DUMMY: Windows address 00481228; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplayManager::InformThatStaticMapChanged.

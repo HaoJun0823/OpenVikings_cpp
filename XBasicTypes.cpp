@@ -1,7 +1,35 @@
 #include "XBasicTypes.h"
+#include "XCrtFileAccess.h"
 
 namespace NXBasics
 {
+    // Original function: FUN_0040f80a; RGB modification retains the fourth byte.
+    void SColorRGB::Modify(const SColorModifier& modifier) noexcept
+    {
+        std::int32_t redValue = red;
+        std::int32_t greenValue = green;
+        std::int32_t blueValue = blue;
+        if (modifier.grayScale) redValue = greenValue = blueValue = (redValue + greenValue + blueValue) / 3;
+
+        redValue = Runtime_TimeSigned32(static_cast<std::uint32_t>(Runtime_TruncateDoubleToInt64(static_cast<double>(redValue) * modifier.redFactor)));
+        greenValue = Runtime_TimeSigned32(static_cast<std::uint32_t>(Runtime_TruncateDoubleToInt64(static_cast<double>(greenValue) * modifier.greenFactor)));
+        blueValue = Runtime_TimeSigned32(static_cast<std::uint32_t>(Runtime_TruncateDoubleToInt64(static_cast<double>(blueValue) * modifier.blueFactor)));
+        const std::int32_t redExcess = redValue > 255 ? (redValue - 255) / 2 : 0;
+        const std::int32_t greenExcess = greenValue > 255 ? (greenValue - 255) / 2 : 0;
+        const std::int32_t blueExcess = blueValue > 255 ? (blueValue - 255) / 2 : 0;
+        // Excess is measured before redistribution; x86 additions can wrap.
+        redValue = Runtime_TimeSigned32(static_cast<std::uint32_t>(redValue) + static_cast<std::uint32_t>(greenExcess) + static_cast<std::uint32_t>(blueExcess));
+        greenValue = Runtime_TimeSigned32(static_cast<std::uint32_t>(greenValue) + static_cast<std::uint32_t>(redExcess) + static_cast<std::uint32_t>(blueExcess));
+        blueValue = Runtime_TimeSigned32(static_cast<std::uint32_t>(blueValue) + static_cast<std::uint32_t>(redExcess) + static_cast<std::uint32_t>(greenExcess));
+        red = static_cast<std::uint8_t>(redValue < 0 ? 0 : redValue > 255 ? 255 : redValue);
+        green = static_cast<std::uint8_t>(greenValue < 0 ? 0 : greenValue > 255 ? 255 : greenValue);
+        blue = static_cast<std::uint8_t>(blueValue < 0 ? 0 : blueValue > 255 ? 255 : blueValue);
+    }
+
+    // Original function: FUN_0040f93e; the three alignment bytes are untouched.
+    SColorModifier::SColorModifier(bool useGrayScale, float red, float green, float blue) noexcept : grayScale(useGrayScale), redFactor(red), greenFactor(green), blueFactor(blue)
+    {}
+
     // Original function: FUN_00410403.
     void SRectangle::PlaceInside(const SRectangle& other) noexcept
     {

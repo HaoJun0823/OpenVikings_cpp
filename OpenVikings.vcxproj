@@ -32,6 +32,7 @@
     <ClCompile Include="C2E2LevelOfDetailManager.cpp" />
     <ClCompile Include="C2E2StaticDataAnimalSounds.cpp" />
     <ClCompile Include="C2E2StaticDataGroups.cpp" />
+    <ClCompile Include="C2E2StaticDataPalettes.cpp" />
     <ClCompile Include="C2E2StaticDataTerrain.cpp" />
     <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
     <ClCompile Include="C2EngineDisplayAccess.cpp" />
@@ -145,6 +146,7 @@
     <ClInclude Include="C2E2LevelOfDetailManager.h" />
     <ClInclude Include="C2E2StaticDataAnimalSounds.h" />
     <ClInclude Include="C2E2StaticDataGroups.h" />
+    <ClInclude Include="C2E2StaticDataPalettes.h" />
     <ClInclude Include="C2E2StaticDataTerrain.h" />
     <ClInclude Include="C2E2StaticDataSoundFX.h" />
     <ClInclude Include="C2EngineDisplayAccess.h" />

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "C2E2StaticDataPalettes.h"
+
 #include <cstddef>
 #include <cstdint>
 #include "C2GameState.h"
@@ -234,12 +236,6 @@ namespace NC2E2
     inline void* gStaticHouseEntries = nullptr;
     // Original global: 00568A7C.
     inline void*& gStaticLandscapeEntries = gStaticLandscapeStorage.entries;
-    // Original global: 005550E4.
-    inline void* gStaticPaletteEntries = nullptr;
-    // Original global: 005550EC.
-    inline void* gStaticPaletteNames = nullptr;
-    // Original global: 005550F8.
-    inline void* gStaticPalette005550F8 = nullptr;
     // Complete regions cleared by their Windows destructors. Unidentified fields
     // retain explicit offsets rather than speculative member names.
     // 00568590..00568957; color records occupy +0x58..+0x3C7.
@@ -253,8 +249,6 @@ namespace NC2E2
     inline std::int32_t gStaticHouseCount = 0;               // 00568A60
     inline std::int32_t& gStaticLandscapeCount = gStaticLandscapeStorage.count; // 00568A78
     inline std::uint32_t& gStaticPatternCount = gStaticPatternStorage.count;   // 00568A30
-    inline std::int32_t gStaticPaletteCount = 0;             // 005550E0
-    inline std::uint32_t gStaticPaletteNameCount = 0;        // 005550E8
     // Complete Windows music selection region 005683B0..00568417. The owning
     // Windows-only class name is unresolved; field roles follow its Windows xrefs.
     struct SWorldMusicState

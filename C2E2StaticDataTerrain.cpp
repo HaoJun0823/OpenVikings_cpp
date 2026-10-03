@@ -425,12 +425,4 @@ namespace NC2E2
         return static_cast<std::int32_t>(list->GetCount() - 1u);
     }
 
-    // Original function: FUN_00480f6d; CE2StaticDataPalettesManager::GetPalette256Id.
-    std::int32_t E2StaticDataPalettesManager_GetPalette256Id(const char* name)
-    {
-        const auto* entries = static_cast<const std::byte*>(gStaticPaletteEntries);
-        for (std::int32_t index = 0; index < gStaticPaletteCount; ++index)
-            if (NXBasics::Runtime_CompareStringsIgnoreCase(reinterpret_cast<const char*>(entries + static_cast<std::uint32_t>(index) * 0x30u), name) == 0) return index;
-        return -1;
-    }
 }

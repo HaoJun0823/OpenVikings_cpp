@@ -1,6 +1,8 @@
 #include "XPalette.h"
 #include "XFileAccess.h"
 #include "XCrtFileAccess.h"
+#include "XBasicTypes.h"
+#include "XPaletteAccess.h"
 
 #include <cstdint>
 #include <new>
@@ -67,5 +69,35 @@ namespace NXBasics
     void CPalette::Storable_SaveData(void* file)
     {
         File_Write(file, mColors, sizeof(mColors));
+    }
+
+    // Original function: FUN_0040fa98; void assignment, as in the named original.
+    void CPalette::operator=(const CPalette& other)
+    {
+        if (mHighColorTable != nullptr)
+        {
+            Runtime_Free(mHighColorTable);
+            mHighColorTable = nullptr;
+        }
+        if (mTrueColorTable != nullptr)
+        {
+            Runtime_Free(mTrueColorTable);
+            mTrueColorTable = nullptr;
+        }
+        std::memcpy(mColors, other.mColors, sizeof(mColors));
+        Palette_PaletteChanged(this);
+    }
+
+    // Original function: FUN_0040fb90.
+    void CPalette::Modify(const SColorModifier& modifier)
+    {
+        for (auto& entry : mColors)
+        {
+            SColorRGB color;
+            std::memcpy(&color, entry, sizeof(color));
+            color.Modify(modifier);
+            std::memcpy(entry, &color, sizeof(color));
+        }
+        Palette_PaletteChanged(this);
     }
 }

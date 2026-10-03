@@ -29,8 +29,8 @@ namespace NC2E2
     };
     extern SStaticDataTextures gStaticDataTextures;
 
-    // Engine entry-point palette ownership at 005550FC remains original.
-    extern NXBasics::CPalette* gVertexColorsPalette;
+    // Shared vertex-color palette ownership at Windows address 005550FC.
+    extern NXBasics::CPalette*& gVertexColorsPalette;
     static_assert(sizeof(SStaticDataTextures) == 8);
 }
 

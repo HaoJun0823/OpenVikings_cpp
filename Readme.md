@@ -1562,6 +1562,8 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA102](#oa102) | Binary unpacking retains unchecked serialized sizes and RLE runs | 00429FB4, 00458890, 00458C53, 00458D60 |
 | [OA103](#oa103) | Map dispatcher returns success after invalid headers or unread failed-owner payloads | 0042FBF4 |
 | [OA104](#oa104) | Saved map managers retain unchecked versions, dimensions and indices | 004269F9, 00426EF4, 004273DE, 00428053, 0044E6FA, 0044E762, 0044ED2F |
+| [OA105](#oa105) | Palette INI loading retains parameter order and unchecked allocations | 00480A20, 00480F6D, 00480FA8 |
+| [OA106](#oa106) | Color modification and remapping retain arithmetic and ownership rules | 0040F80A, 0040FA98, 0040FB90, 0040FD80, 00480EBD |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -2538,7 +2540,7 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 
 - **Original reference:** `0048E24E`, `0048F79F`, `0048E5F8`, `0048E58A`, `00490360`, `00480F6D`.
 - **Evidence and retained behavior:** Managers are published/cleared before INI loading. Unloaded input leaves cached IDs zero; loaded zero-group Pattern input writes -1, while zero-group Landscapes input returns with zeros. Records accept three groups; a full 100-name manager returns -1, which is still stored in the record. Area/frame valencies and equality-only 80/150/four-entry caps retain original parameter consumption. Lazy token exit-registration failure is ignored. Missing transition targets are skipped after all records load; a type-13 flag remains set even when its target is missing. ID lookup returns the first case-insensitive match or -1.
-- **Assessment / Renewed task:** Preserve malformed-input and partial-resource semantics; runtime reachability of unchecked paths is not established. The palette constructor remains separate pending work.
+- **Assessment / Renewed task:** Preserve malformed-input and partial-resource semantics; runtime reachability of unchecked paths is not established. The palette constructor was subsequently reconstructed; see [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md).
 - **Status:** Preserved / original observation. See [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md).
 
 <a id="oa097"></a>
@@ -2597,6 +2599,22 @@ Windows 00429FB4 replaces the expected destination size with the serialized size
 
 Wall unknown versions skip without initializing the player-table field; road version 1 allocates a zero table then skips. Fish clean-map versions other than 2 read the original 0x4B0 prefix and count fallback. Attachment and walk-sector loaders allocate before reading saved dimensions. Player/array/swarm counts and map indices remain unchecked, including map-flag writes. Preserve these behaviors. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md).
 
+
+<a id="oa105"></a>
+### OA105 - Palette INI loading retains parameter order and unchecked allocations
+
+- **Original reference:** `00480A20`, `00480F6D`, `00480FA8`.
+- **Evidence and retained behavior:** Missing INI returns with zeroed palette storage; an empty loaded INI performs auxiliary palette loading and stores missing IDs. Group allocation/clears are unchecked; duplicate commands overwrite owned resources. Preshading skips missing source palettes but continues after array allocation failure. Remapping consumes no target name without a source and ignores absent/unloaded/unshaded targets. Failed remap allocation stores null and retains the borrowed target. GfxPalette16 stores -1 before skipping the range parameter; only unsigned values below sixteen are accepted. Token exit-registration failure is ignored.
+- **Assessment / Renewed task:** Preserve Windows consumption/failure branches and allocation family. No runtime reproduction of malformed-input or allocation failure is claimed.
+- **Status:** Preserved / original observation. See [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md).
+
+<a id="oa106"></a>
+### OA106 - Color modification and remapping retain arithmetic and ownership rules
+
+- **Original reference:** `0040F80A`, `0040F93E`, `0040FA98`, `0040FB90`, `0040FD80`, `00480EBD`.
+- **Evidence and retained behavior:** Color scaling keeps truncation, low-DWORD interpretation, excess-before-redistribution, wrapped addition, final saturation and the fourth color byte. Palette assignment/modification invalidate both caches. Remapping retains the unchecked inclusive unsigned source range and first/exact weighted color match. Runtime palette arrays retain DWORD cookies and reverse deletion. Teardown keeps cached IDs and freed auxiliary palette pointers while clearing array/count/owner fields. The confirmed 31-entry/index-31 mismatch remains OB073.
+- **Assessment / Renewed task:** Preserve original arithmetic and ownership. Resource duplication, invalid ranges and retained fields remain observed boundaries; gameplay effects have not been reproduced.
+- **Status:** Preserved / original observation. See [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md).
 
 ## Reviewed failure handling
 
@@ -2693,6 +2711,9 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP085 | Map chunk termination, unknown markers and saved-owner allocation failure | Preserve success termination, Skip for unknown markers and unread payload after failed allocation; retain original owner overwrite | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md); OA103 |
 | FP086 | Manager version/dimension/count/index failures | Preserve skip/fallback branches, allocation before saved dimensions, unchecked tables/indices and map-flag writes | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md); OA104 |
 | FP087 | Map startup/shutdown and fish callback lifecycle | Preserve explicit-handler allocation, original constructor/destructor order, callback priorities, validation flag and swarm relocation | [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md) |
+| FP088 | Palette missing/empty INI, token registration and duplicate commands | Preserve zero-vs-missing-ID storage, auxiliary loading, registration result and original resource overwrite/parameter order | [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md); OA105 |
+| FP089 | Preshade/remap allocation, missing source/target and invalid 16-color range | Preserve unchecked array use, skipped parameter consumption, null remap plus borrowed target, stored -1 and unsigned range rejection | [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md); OA105, OB073 |
+| FP090 | Color overflow/truncation, remap bounds and palette teardown | Preserve DWORD arithmetic, cache invalidation, inclusive unchecked ranges, cookie/reverse deletion and retained auxiliary fields | [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md); OA106 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2769,3 +2790,7 @@ Reconstructed world drawing/message/lifetime/remapping and camera/zoom/explorati
 ## Binary map loading reconstruction - 2026-10-03
 
 Reconstructed the map constructor, binary chunk dispatcher, XB_Pack decoders and immediate saved-owner tree. Fish/transition bindings now match their original owners throughout startup, tick and shutdown. This adds 28 mapped addresses and replaces three dummies; current coverage is 1,956/5,056 (38.69%), excluding 132 dummies. Project/filters include all production additions. ASM/PE/static verification only; no builds, tests or runtime execution. Next: palette-manager startup and complete palette storage, then Houses and deeper landscape drawing. See [BINARY_MAP_LOADING.md](docs/BINARY_MAP_LOADING.md), OA102..OA104 and FP084..FP087.
+
+## Palette startup reconstruction - 2026-10-03
+
+Reconstructed the palette constructor, complete static/token storage, 16-color lookup, RGB/modifier/palette helpers and remap construction. Added nine mapped addresses and replaced one dummy; current coverage is 1,965/5,056 (38.86%), excluding 131 dummies. The prior menu/map block is committed as 15fd4fe. Project/filters contain 149 cpp files and 147 headers. Windows ASM/PE/static verification only; no builds, tests or runtime execution. Next: Houses constructor 0048E651 and its direct helpers, then deeper drawing dependencies. See [ENGINE_STATIC_PALETTES.md](docs/ENGINE_STATIC_PALETTES.md), OA105/OA106 and FP088..FP090.
