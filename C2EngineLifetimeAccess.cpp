@@ -163,14 +163,14 @@ namespace NC2E2
         return manager;
     }
 
-    // Original function: FUN_0048d109.
-    static void StaticMoveableAnimationList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableAnimationListTag>*>(list)->~CRuntimeOwnedList(); }
+    // Original function: FUN_0048d109; direct destruction bypasses any cleared list vptr.
+    static void StaticMoveableAnimationList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableAnimationListTag>*>(list)->CRuntimeOwnedList<SStaticMoveableAnimationListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_0048d126.
-    static void StaticMoveableShadowList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableShadowListTag>*>(list)->~CRuntimeOwnedList(); }
+    static void StaticMoveableShadowList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableShadowListTag>*>(list)->CRuntimeOwnedList<SStaticMoveableShadowListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_00490580.
-    static void StaticTextureList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticTextureListTag>*>(list)->~CRuntimeOwnedList(); }
+    static void StaticTextureList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticTextureListTag>*>(list)->CRuntimeOwnedList<SStaticTextureListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_00490702.
-    static void StaticBobManagerList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticBobManagerListTag>*>(list)->~CRuntimeOwnedList(); }
+    static void StaticBobManagerList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticBobManagerListTag>*>(list)->CRuntimeOwnedList<SStaticBobManagerListTag>::~CRuntimeOwnedList(); }
 
     // Original function: FUN_00484ca5; Mac l_SectorData_Free.
     void E2MapWeatherManagerSectorManager_FreeSectorData(void* manager)

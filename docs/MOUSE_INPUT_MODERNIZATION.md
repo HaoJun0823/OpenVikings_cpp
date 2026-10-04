@@ -38,3 +38,8 @@ Manual runtime checks still needed: pause on an exception or breakpoint and move
 - [WM_INPUT and required DefWindowProc cleanup](https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-input)
 - [RegisterRawInputDevices](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerrawinputdevices)
 - [RAWMOUSE relative/absolute input](https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-rawmouse)
+
+
+## User runtime confirmation - 2026-10-04
+
+The user rebuilt and explicitly confirms that the mouse no longer lags while debugging. Visual Studio is paused at a separate engine texture-list teardown crash after clicking the windowed-mode close button. That supports the reported debugger-lag improvement; the other remote, scrolling, wheel and fullscreen checks above are not independently confirmed. The shutdown fix is documented in [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md).

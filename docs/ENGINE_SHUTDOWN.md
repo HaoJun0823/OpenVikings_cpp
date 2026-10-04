@@ -165,3 +165,14 @@ The README register records OA035–OA040 and FP013. These include conditional A
 | `00490AEE` | `E2DynamicDataAnimalManager_Destruct` |
 | `004973C8` | `E2ParticelGeneratorManager_Destruct` |
 
+
+
+## Window-close texture-list crash correction - 2026-10-04
+
+The user reports a null-read exception on windowed-mode X/close. The supplied call stack is GameEngine_ShutDownEngine -> E2Manager_Destruct -> E2StaticDataTexturesManager_Destruct -> StaticTextureList_Destruct. The list pointer itself is non-null.
+
+Windows 0049039E clears all 0x14 bytes after installing its original list table. Likewise 004905B9 clears the 0x1C-byte Bob-manager object. The original list destructors 00490580/00490702 receive direct calls and restore their own table, conditionally delete owned payloads and invoke 00439C3F. Our unqualified explicit virtual destructor calls attempted to dispatch through the cleared first DWORD before entering their bodies. This is a reconstruction defect, not an original texture ownership error.
+
+All four engine CRuntimeOwnedList adapters (0048D109, 0048D126, 00490580, 00490702) now call their concrete specialization's qualified destructor, matching the direct-entry semantics already used in desktop teardown. Each original specialization remains separate. Constructor zeroing, runtime frees, texture palette/bitmap deletion, Bob-object deletion and outer shutdown order are unchanged. No null guard skips cleanup.
+
+Windows ASM and source dispatch/ownership were reviewed; no build or runtime run was performed. The screenshot confirms the old failing path, not the corrected path. README OA134/FP143 indexes the finding. The fix remains on codex/modernize-mouse-input, whose debugger mouse change the user has now confirmed eliminates the reported lag.

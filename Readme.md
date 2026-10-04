@@ -1608,6 +1608,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA131](#oa131) | Job setup retains equipment-count/stride assumptions and unattached military transitions | 0044A2AB, 0044A45D, 00449F48 |
 | [OA132](#oa132) | Command selectors, animation refusal and passenger sentinel decoding | 0043BCA9, 0043DCB0, 0045C762, 0044BEA0 |
 | [OA133](#oa133) | Overview pattern queries and border handling | 0048114E, 00481188, 0048327A |
+| [OA134](#oa134) | Direct teardown of cleared engine list headers | 0049039E, 00490580, 004905B9, 00490702 |
 | [OA108](#oa108) | Lobby selection retains unchecked slots, parser bounds and color rules | 004D7E5D, 004D7F7E, 004D804F, 004D80A7, 004D81C7, 004D8455 |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
@@ -2866,6 +2867,13 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Evidence and retained behavior:** The single-pattern query returns null at macro-map borders; otherwise it selects the +0/+2 WORD index and a 0x70-byte static pattern entry. The around-point query forwards to the existing helper, which clears all six output pointers before the direction 1/3/5 calls and retains partial output on early failure. The overview sample routine maps null descriptions to black.
 - **Status:** Windows ASM confirmed; Mac supplies semantic names. Two former link-only dummies are removed. The empty around-point dummy left stack pointers uninitialized, explaining a concrete route to the reported overview read crash. Runtime confirmation of this fix is pending. See [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md).
 
+<a id="oa134"></a>
+### OA134 - Cleared list headers require direct destruction
+
+- **Original reference:** `0049039E`, `00490580`, `004905B9`, `00490702`; related list destructors `0048D109`, `0048D126`.
+- **Evidence and retained behavior:** Texture and Bob-manager constructors clear the complete inherited list header, including the original vptr. Windows calls their list destructors directly; each destructor restores its table before optional payload deletion and base-node cleanup. Native C++ must use a qualified destructor call to bypass the cleared vptr.
+- **Status:** Confirmed reconstruction defect: the user's window-close call stack stops at StaticTextureList_Destruct with a null read. All four engine runtime-list adapters now use qualified destruction. Constructor clearing, resource/node ownership and shutdown order remain unchanged. The corrected close path awaits runtime confirmation. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -3014,6 +3022,7 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP140 | Atomic animation cannot start | Return false before changing state for noninterruptable/unsupported actions or missing fallback animation | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA132 |
 | FP141 | Produced-good command unavailable or invalid | Return 0 when noninterruptable and 1 when incapable; accepted commands return 2, preserving explicit deeper work-house boundaries | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA132 |
 | FP142 | Overview pattern query reaches a border or an incomplete around-way result | All six outputs start null; completed pairs remain populated and null samples draw black | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA133 |
+| FP143 | Window-close shutdown reaches a cleared engine list vptr | Qualified list destruction replaces erroneous virtual dispatch; retain resource and node teardown order | [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md); OA134 |
 
 ## Reconstruction errors are not original bugs
 
