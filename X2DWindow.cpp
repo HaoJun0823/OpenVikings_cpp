@@ -86,7 +86,7 @@ namespace NXSys2DApp
             return 0;
 
         case WM_ACTIVATE:
-            mWindowActive = wParam != WA_INACTIVE;
+            mWindowActive = LOWORD(wParam) != WA_INACTIVE;
 
             if (NXSysMouseManager::CMouseManager::sTheObjectPtr != nullptr)
             {

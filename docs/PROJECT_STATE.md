@@ -415,3 +415,8 @@ Human creation now connects Add_Human -> AllocateHuman -> Human_Init -> real mov
 ## Overview map-loading crash correction - 2026-10-04
 
 The empty around-point pattern dummy left six overview stack outputs uninitialized. Both pattern entry points 0048114E/00481188 now use Windows-equivalent implementations in C2EngineMapTerrainAccess.cpp and the overview uses their shared NC2E2 declarations. Two stub entries are removed; 118 remain. README OA133/FP142 records border and partial-output handling. Static checks only; the reported crash has no new runtime verification. See [ENGINE_GROUND_DRAWING.md](ENGINE_GROUND_DRAWING.md).
+
+
+## Intentional mouse modernization - 2026-10-04
+
+The user requested debugger-friendly mouse behavior on `codex/modernize-mouse-input`, based on commit `885cc57`. Active mouse input now uses foreground Raw Input instead of constructing DirectInput; debugger-attached and remote absolute-input paths do not warp or clip the Windows cursor. Buttons/wheel keep existing messages, focus loss clears state, and the bounded ordered message budget is 1024. Original object offsets remain unchanged. This is an explicit modernization exception to ASM equivalence, not a reconstruction coverage increase. Registration/read failure handling and pending runtime checks are documented in [MOUSE_INPUT_MODERNIZATION.md](MOUSE_INPUT_MODERNIZATION.md). Static review only; no build or tests.

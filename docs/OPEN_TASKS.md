@@ -288,3 +288,8 @@ The moveable allocation/init/exit tree, pathfinder allocation/init/free and logi
 ## Overview pattern-query correction - 2026-10-04
 
 Completed: replace 0048114E/00481188 global dummies with real NC2E2 pattern queries and connect the overview. The six-output query now initializes its outputs through the existing native helper. Pending: user runtime confirmation of map loading and overview sampling; house/home/work initialization and separate dynamic-object drawing remain the next reconstruction blocks. No build or tests performed. See [ENGINE_GROUND_DRAWING.md](ENGINE_GROUND_DRAWING.md).
+
+
+## Intentional mouse modernization - 2026-10-04
+
+The user requested debugger-friendly mouse behavior on `codex/modernize-mouse-input`, based on commit `885cc57`. Active mouse input now uses foreground Raw Input instead of constructing DirectInput; debugger-attached and remote absolute-input paths do not warp or clip the Windows cursor. Buttons/wheel keep existing messages, focus loss clears state, and the bounded ordered message budget is 1024. Original object offsets remain unchanged. This is an explicit modernization exception to ASM equivalence, not a reconstruction coverage increase. Registration/read failure handling and pending runtime checks are documented in [MOUSE_INPUT_MODERNIZATION.md](MOUSE_INPUT_MODERNIZATION.md). Static review only; no build or tests.

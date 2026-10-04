@@ -51,6 +51,9 @@ namespace NXSysMouseManager
         // Original function: FUN_004793a4
         void UpdateMouseButtonState(bool leftButton, bool middleButton, bool rightButton);
 
+        // Raw Input adapter; the original object layout and GUI message format remain unchanged.
+        void HandleRawMouseInput(HRAWINPUT input);
+
         // Original function: FUN_0047953d
         void ResetWindowsMouseState();
 

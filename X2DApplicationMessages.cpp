@@ -14,7 +14,9 @@ namespace NXSys2DApp
     {
         MSG message{};
 
-        for (std::uint32_t processedMessageCount = 0; processedMessageCount < 51; ++processedMessageCount)
+        // Keep queue order for raw movement, buttons and wheel, with room for high-rate mice.
+        // The finite budget still guarantees that the game receives an update.
+        for (std::uint32_t processedMessageCount = 0; processedMessageCount < 1024; ++processedMessageCount)
         {
             if (PeekMessageA(&message, nullptr, 0, 0, PM_NOREMOVE) == FALSE)
             {
@@ -44,6 +46,14 @@ namespace NXSys2DApp
     // Original function: FUN_00479a61
     LRESULT CApplication::HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam)
     {
+        // Raw Input cleanup must run even when the application callback consumes other messages.
+        if (message == WM_INPUT)
+        {
+            auto* mouseManager = NXSysMouseManager::CMouseManager::sTheObjectPtr;
+            if (mouseManager != nullptr) mouseManager->HandleRawMouseInput(reinterpret_cast<HRAWINPUT>(lParam));
+            return DefWindowProcA(windowHandle, message, wParam, lParam);
+        }
+
         if (windowMessageCallback != nullptr)
         {
             if (windowMessageCallback(windowHandle, message, wParam, lParam) == 0)

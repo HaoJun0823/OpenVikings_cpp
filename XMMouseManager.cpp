@@ -1,7 +1,7 @@
 #include "X2DApplication.h"
 #include "XMMouseManager.h"
-#include "XMDirectInputMouse.h"
 #include "XSystemMouseCursor.h"
+#include "XCrtFileAccess.h"
 
 #include <Windows.h>
 
@@ -9,10 +9,46 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdint>
-#include <new>
 
 namespace NXSysMouseManager
 {
+    namespace
+    {
+        // Modern input state lives outside the original 0x54-byte mouse-manager layout.
+        struct SRawMouseState
+        {
+            bool registered = false;
+            std::uint32_t deltaX = 0;
+            std::uint32_t deltaY = 0;
+            bool absolutePositionValid = false;
+            HANDLE absoluteDevice = nullptr;
+            POINT absolutePosition{};
+            bool cursorPositionValid = false;
+            POINT cursorPosition{};
+        };
+        SRawMouseState gRawMouse;
+
+        bool HasMouseFocus()
+        {
+            const auto* application = NXSys2DApp::CApplication::sTheObjectPtr;
+            return application != nullptr && application->IsApplicationActive() && GetForegroundWindow() == application->GetWindowHandle();
+        }
+
+        bool MayConstrainCursor()
+        {
+            // A suspended process cannot release a cursor clip; absolute devices must not be warped.
+            return HasMouseFocus() && !IsDebuggerPresent() && !gRawMouse.absolutePositionValid;
+        }
+
+        void ClearRawMovement()
+        {
+            gRawMouse.deltaX = 0;
+            gRawMouse.deltaY = 0;
+            gRawMouse.absolutePositionValid = false;
+            gRawMouse.cursorPositionValid = false;
+        }
+    }
+
     // Original function: FUN_00403014.
     bool CMouseManager::IsAnyButtonDown() const { return mLeftButton || mMiddleButton || mRightButton; }
 
@@ -22,7 +58,11 @@ namespace NXSysMouseManager
         sTheObjectPtr = this;
         std::memset(this, 0, sizeof(*this));
 
-        new (std::nothrow) CDirectInputMouse();
+        gRawMouse = {};
+        const RAWINPUTDEVICE device{ 0x01, 0x02, 0, NXSys2DApp::CApplication::sTheObjectPtr->GetWindowHandle() };
+        // Foreground delivery only; keep ordinary button and wheel messages enabled.
+        gRawMouse.registered = RegisterRawInputDevices(&device, 1, sizeof(device)) != FALSE;
+        if (!gRawMouse.registered) OutputDebugStringA("OpenVikings: raw mouse registration failed; using cursor-position fallback.\n");
 
         mHideSystemMouseCursorWhenFullscreen = false;
         ResetWindowsMouseState();
@@ -31,10 +71,12 @@ namespace NXSysMouseManager
     // Original function: FUN_00479323
     CMouseManager::~CMouseManager()
     {
-        if (CDirectInputMouse::sTheObjectPtr != nullptr)
+        if (gRawMouse.registered)
         {
-            delete CDirectInputMouse::sTheObjectPtr;
+            const RAWINPUTDEVICE device{ 0x01, 0x02, RIDEV_REMOVE, nullptr };
+            RegisterRawInputDevices(&device, 1, sizeof(device));
         }
+        gRawMouse = {};
 
         ClipCursor(nullptr);
 
@@ -47,17 +89,64 @@ namespace NXSysMouseManager
     // Original function: FUN_00479357
     void CMouseManager::UpdateMouseState()
     {
-        l_UpdateMouseState();
-
-        NXSys2DApp::CApplication* application = NXSys2DApp::CApplication::sTheObjectPtr;
-
-        if (application != nullptr && application->IsApplicationActive())
+        if (HasMouseFocus())
         {
+            l_UpdateMouseState();
             l_UpdateMouseButtonState();
             return;
         }
 
+        ClearRawMovement();
+        ClipCursor(nullptr);
+        mDirectInputCursorLocked = false;
+        mAccumulatedDeltaX = mAccumulatedDeltaY = mAccumulatedWheelDelta = 0;
         l_SetState_Total(false, false, false, mMouseX, mMouseY, 0, 0, 0);
+    }
+
+    void CMouseManager::HandleRawMouseInput(HRAWINPUT input)
+    {
+        if (!gRawMouse.registered || !HasMouseFocus()) return;
+        RAWINPUT raw{};
+        UINT bytes = sizeof(raw);
+        const UINT read = GetRawInputData(input, RID_INPUT, &raw, &bytes, sizeof(RAWINPUTHEADER));
+        if (read == static_cast<UINT>(-1) || read < sizeof(RAWINPUTHEADER) + sizeof(RAWMOUSE) || raw.header.dwType != RIM_TYPEMOUSE) return;
+
+        // Do not replay old scroll movement when continuing from a debugger pause.
+        if (IsDebuggerPresent() && GetTickCount() - static_cast<DWORD>(GetMessageTime()) > 250u)
+        {
+            ClearRawMovement();
+            return;
+        }
+
+        const bool stopped = mPositionCallback != nullptr && mPositionCallback();
+        const auto& mouse = raw.data.mouse;
+        LONG deltaX = mouse.lLastX, deltaY = mouse.lLastY;
+        if ((mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
+        {
+            // Remote/absolute devices report normalized desktop coordinates.
+            const bool virtualDesktop = (mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) != 0;
+            const int width = GetSystemMetrics(virtualDesktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+            const int height = GetSystemMetrics(virtualDesktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+            const int originX = virtualDesktop ? GetSystemMetrics(SM_XVIRTUALSCREEN) : 0;
+            const int originY = virtualDesktop ? GetSystemMetrics(SM_YVIRTUALSCREEN) : 0;
+            const POINT position{ originX + static_cast<LONG>(static_cast<std::int64_t>(mouse.lLastX) * width / 65535), originY + static_cast<LONG>(static_cast<std::int64_t>(mouse.lLastY) * height / 65535) };
+            deltaX = deltaY = 0;
+            if (gRawMouse.absolutePositionValid && gRawMouse.absoluteDevice == raw.header.hDevice)
+            {
+                deltaX = position.x - gRawMouse.absolutePosition.x;
+                deltaY = position.y - gRawMouse.absolutePosition.y;
+            }
+            gRawMouse.absolutePosition = position;
+            gRawMouse.absoluteDevice = raw.header.hDevice;
+            gRawMouse.absolutePositionValid = true;
+        }
+        else gRawMouse.absolutePositionValid = false;
+
+        if (stopped)
+        {
+            gRawMouse.deltaX += static_cast<std::uint32_t>(deltaX);
+            gRawMouse.deltaY += static_cast<std::uint32_t>(deltaY);
+        }
     }
 
     // Original function: FUN_0047938d
@@ -92,43 +181,28 @@ namespace NXSysMouseManager
 
         const int mouseX = cursorPosition.x - application->GetWindowOffsetX();
         const int mouseY = cursorPosition.y - application->GetWindowOffsetY();
+        const int fallbackDeltaX = gRawMouse.cursorPositionValid ? cursorPosition.x - gRawMouse.cursorPosition.x : 0;
+        const int fallbackDeltaY = gRawMouse.cursorPositionValid ? cursorPosition.y - gRawMouse.cursorPosition.y : 0;
 
-        l_SetState_Position(mouseX, mouseY);
-
-        CDirectInputMouse* directInputMouse = CDirectInputMouse::sTheObjectPtr;
-
-        if (directInputMouse != nullptr && directInputMouse->IsInitialised())
+        const bool stopped = mPositionCallback != nullptr && mPositionCallback();
+        if (stopped)
         {
-            int deltaX = 0;
-            int deltaY = 0;
-
-            directInputMouse->GetMovement(deltaX, deltaY);
-
-            if (mPositionCallback != nullptr && mPositionCallback())
-            {
-                const int fixedCursorX = mMouseX + application->GetWindowOffsetX();
-                const int fixedCursorY = mMouseY + application->GetWindowOffsetY();
-
-                SetCursorPos(fixedCursorX, fixedCursorY);
-
-                RECT cursorRectangle{ fixedCursorX,	fixedCursorY, fixedCursorX + 1, fixedCursorY + 1 };
-
-                ClipCursor(&cursorRectangle);
-
-                mDirectInputCursorLocked = true;
-
-                l_SetState_Total(mLeftButton, mMiddleButton, mRightButton, mMouseX, mMouseY, deltaX, deltaY, 0);
-            }
-            else if (mDirectInputCursorLocked)
-            {
-                l_UpdateWindowsMouseState();
-                mDirectInputCursorLocked = false;
-            }
+            const int deltaX = gRawMouse.registered ? NXBasics::Runtime_TimeSigned32(gRawMouse.deltaX) : fallbackDeltaX;
+            const int deltaY = gRawMouse.registered ? NXBasics::Runtime_TimeSigned32(gRawMouse.deltaY) : fallbackDeltaY;
+            l_SetState_Total(mLeftButton, mMiddleButton, mRightButton, mMouseX, mMouseY, deltaX, deltaY, 0);
+            l_UpdateWindowsMouseState();
+            mDirectInputCursorLocked = MayConstrainCursor();
         }
-        else if (mPositionCallback != nullptr && mPositionCallback())
+        else
         {
-            SetCursorPos(mMouseX + application->GetWindowOffsetX(), mMouseY + application->GetWindowOffsetY());
+            l_SetState_Position(mouseX, mouseY);
+            l_UpdateWindowsMouseState();
+            mDirectInputCursorLocked = false;
         }
+        gRawMouse.deltaX = 0;
+        gRawMouse.deltaY = 0;
+        // Use the post-warp position as the fallback baseline, not the previous sampled position.
+        gRawMouse.cursorPositionValid = GetCursorPos(&gRawMouse.cursorPosition) != FALSE;
     }
 
     // Original function: FUN_004794eb
@@ -148,7 +222,7 @@ namespace NXSysMouseManager
 
         NXSys2DApp::CApplication* application = NXSys2DApp::CApplication::sTheObjectPtr;
 
-        if (application->IsFullscreen() && mHideSystemMouseCursorWhenFullscreen)
+        if (MayConstrainCursor() && application->IsFullscreen() && mHideSystemMouseCursorWhenFullscreen)
         {
             NXSysMisc::XWS_SystemMouseCursor_Hide();
         }
@@ -164,6 +238,12 @@ namespace NXSysMouseManager
     void CMouseManager::l_UpdateWindowsMouseState()
     {
         NXSys2DApp::CApplication* application = NXSys2DApp::CApplication::sTheObjectPtr;
+
+        if (!MayConstrainCursor())
+        {
+            ClipCursor(nullptr);
+            return;
+        }
 
         if (mPositionCallback != nullptr && mPositionCallback())
         {
@@ -213,17 +293,20 @@ namespace NXSysMouseManager
     // Original function: FUN_0047969a
     void CMouseManager::Callback_WindowActivationChanged(bool active)
     {
+        ClearRawMovement();
         if (!active)
         {
+            ClipCursor(nullptr);
+            mDirectInputCursorLocked = false;
+            mAccumulatedDeltaX = mAccumulatedDeltaY = mAccumulatedWheelDelta = 0;
+            mPreviousLeftButtonClickTime = 0;
+            mLeftButtonPressed = mMiddleButtonPressed = mRightButtonPressed = mLeftButtonDoubleClicked = false;
+            l_SetState_Total(false, false, false, mMouseX, mMouseY, 0, 0, 0);
+            NXSysMisc::XWS_SystemMouseCursor_Show();
             return;
         }
 
-        CDirectInputMouse* directInputMouse = CDirectInputMouse::sTheObjectPtr;
-
-        if (directInputMouse != nullptr)
-        {
-            directInputMouse->Restart();
-        }
+        ResetWindowsMouseState();
     }
 
     // Original function: FUN_004796af

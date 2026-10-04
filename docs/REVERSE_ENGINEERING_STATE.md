@@ -519,3 +519,8 @@ Human creation now connects Add_Human -> AllocateHuman -> Human_Init -> real mov
 ## Overview pattern-query follow-up - 2026-10-04
 
 Windows 0048114E/00481188 are connected in C2EngineMapTerrainAccess.cpp; Mac confirms entry-point names. The former no-op around-point dummy left uninitialized stack outputs in overview terrain sampling. Six-pointer clearing and direction 1/3/5 short-circuit calls now come from the existing 0048327A body. Single-query border/null and +0/+2 WORD selection are preserved. Two dummies removed (118 remain); no runtime confirmation. See [ENGINE_GROUND_DRAWING.md](ENGINE_GROUND_DRAWING.md).
+
+
+## Intentional mouse modernization - 2026-10-04
+
+The user requested debugger-friendly mouse behavior on `codex/modernize-mouse-input`, based on commit `885cc57`. Active mouse input now uses foreground Raw Input instead of constructing DirectInput; debugger-attached and remote absolute-input paths do not warp or clip the Windows cursor. Buttons/wheel keep existing messages, focus loss clears state, and the bounded ordered message budget is 1024. Original object offsets remain unchanged. This is an explicit modernization exception to ASM equivalence, not a reconstruction coverage increase. Registration/read failure handling and pending runtime checks are documented in [MOUSE_INPUT_MODERNIZATION.md](MOUSE_INPUT_MODERNIZATION.md). Static review only; no build or tests.
