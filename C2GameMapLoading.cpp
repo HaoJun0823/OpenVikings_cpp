@@ -192,4 +192,21 @@ namespace NC2Logic
         // End markers and rejected headers both terminate with success in Windows.
         return true;
     }
+    // Original function: FUN_0042fb59; the size chunk is consumed before the map children.
+    void* __fastcall GameMap_ConstructFromSavegame(void* map, void* /*unusedEdx*/, CIoHelper* io)
+    {
+        gGameMap = map;
+        std::uint32_t version;
+        if (io->IO_File_Chunk_CheckMarkerAndGetVersion(0x6C73697A, &version, nullptr))
+        {
+            const auto width = io->IO_File_ReadLong();
+            const auto height = io->IO_File_ReadLong();
+            GameMap_InitAndCreateEmptyMap(static_cast<std::int16_t>(width), static_cast<std::int16_t>(height));
+            GameMap_l_GlobalIO_Load(io);
+            GameMap_l_RegisterCallbacks();
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(2, true, static_cast<std::uint32_t>(static_cast<std::int32_t>(static_cast<std::int16_t>(width))), static_cast<std::uint32_t>(static_cast<std::int32_t>(static_cast<std::int16_t>(height))), 0);
+        }
+        return map;
+    }
+
 }

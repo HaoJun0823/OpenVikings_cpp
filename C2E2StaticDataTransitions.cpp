@@ -1,0 +1,114 @@
+#include "C2E2StaticDataTerrain.h"
+#include "C2E2StaticDataGroups.h"
+#include "C2LifetimeGlobals.h"
+#include "XBTokenList.h"
+#include "XCrtFileAccess.h"
+#include "XIniFileReader.h"
+
+#include <cstring>
+
+namespace NC2E2
+{
+    namespace
+    {
+        // Complete token tables, 004F49D0..004F4A1F, and lazy state 00568A10..00568A1B.
+        const NXBasics::SToken gPointTypeTokens[] = {{"name", 0x6E616D65}, {"patterngroup", 0x70617467}, {nullptr, 0}};
+        const NXBasics::SToken gTransitionTokens[] = {{"name", 0x6E616D65}, {"pointtype", 0x706F6974}, {"gfxtexture", 0x74657874}, {"gfxtexturealpha", 0x74657861}, {"gfxcoordsa", 0x636F6F61}, {"gfxcoordsb", 0x636F6F62}, {nullptr, 0}};
+        const NXBasics::SToken* gTransitionTokenTable = nullptr;
+        std::uint32_t gTransitionTokenInitFlags = 0;
+        const NXBasics::SToken* gPointTypeTokenTable = nullptr;
+        // Original function: FUN_0048db87.
+        int __cdecl DestroyTransitionTokenList() { return 0; }
+        // Original function: FUN_0048db88.
+        int __cdecl DestroyPointTypeTokenList() { return 0; }
+    }
+
+    // Original function: FUN_0048d714.
+    void* __fastcall E2StaticDataTransitionsManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gE2StaticDataTransitionsManager = manager;
+        std::memset(manager, 0, 1);
+        std::memset(&gStaticTransitionStorage, 0, sizeof(gStaticTransitionStorage));
+        NXBasics::CIniFileReader reader("data\\engine2d\\inis\\patterntransitions\\transitions.ini", nullptr, false, nullptr, nullptr);
+        if (!reader.IsLoaded()) return manager;
+        auto& storage = gStaticTransitionStorage;
+        storage.pointTypeCount = reader.GetNumberOfGroups("pointtype");
+        if (storage.pointTypeCount == 0) return manager;
+        const auto pointBytes = static_cast<std::uint32_t>(storage.pointTypeCount) * 0x40u;
+        storage.pointTypes = static_cast<STransitionPointType*>(NXBasics::Runtime_AllocateWithNewHandler(pointBytes, 1));
+        std::memset(storage.pointTypes, 0, pointBytes);
+        auto* point = storage.pointTypes;
+        for (char* group = reader.GetFirstGroup("pointtype"); group != nullptr; group = reader.GetNextGroup("pointtype"), ++point)
+        {
+            while (reader.GetNextCommandLineInGroup() != nullptr)
+            {
+                if ((gTransitionTokenInitFlags & 1u) == 0)
+                {
+                    gTransitionTokenInitFlags |= 1u;
+                    gPointTypeTokenTable = gPointTypeTokens;
+                    NXBasics::Runtime_AtExit(DestroyPointTypeTokenList);
+                }
+                NXBasics::CTokenList tokens(gPointTypeTokenTable);
+                switch (tokens.FindToken(reader.GetCurrentName()))
+                {
+                    case 0x6E616D65: std::strncpy(point->name, reader.GetString(), 39); break;
+                    case 0x70617467:
+                        if (point->groupCount != 5) point->groupIds[point->groupCount++] = StaticDataGroups_FindIndex(gE2StaticDataPatternManager, reader.GetString());
+                        break;
+                }
+            }
+        }
+        storage.count = reader.GetNumberOfGroups("transition");
+        if (storage.count == 0 || static_cast<std::uint32_t>(storage.count) > 42u) return manager;
+        const auto bytes = static_cast<std::uint32_t>(storage.count) * 0x154u;
+        storage.entries = static_cast<SE2StaticDataTransition*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+        std::memset(storage.entries, 0, bytes);
+        auto* entry = storage.entries;
+        for (char* group = reader.GetFirstGroup("transition"); group != nullptr; group = reader.GetNextGroup("transition"), ++entry)
+        {
+            entry->alphaTextureId = -1;
+            unsigned countA = 0, countB = 0;
+            while (reader.GetNextCommandLineInGroup() != nullptr)
+            {
+                if ((gTransitionTokenInitFlags & 2u) == 0)
+                {
+                    gTransitionTokenInitFlags |= 2u;
+                    gTransitionTokenTable = gTransitionTokens;
+                    NXBasics::Runtime_AtExit(DestroyTransitionTokenList);
+                }
+                NXBasics::CTokenList tokens(gTransitionTokenTable);
+                switch (tokens.FindToken(reader.GetCurrentName()))
+                {
+                    case 0x6E616D65: std::strncpy(entry->name, reader.GetString(), 39); break;
+                    case 0x706F6974: entry->pointTypeId = E2StaticDataTransitionsManager_l_GetPointTypeId(reader.GetString()); break;
+                    case 0x74657874: entry->textureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString()); break;
+                    case 0x74657861: entry->alphaTextureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString()); break;
+                    case 0x636F6F61:
+                        if (countA != 6) { for (auto& coordinate : entry->coordinatesA[countA]) coordinate = reader.GetInt(); ++countA; }
+                        break;
+                    case 0x636F6F62:
+                        if (countB != 6) { for (auto& coordinate : entry->coordinatesB[countB]) coordinate = reader.GetInt(); ++countB; }
+                        break;
+                }
+            }
+        }
+        storage.roadOverlayIds[0] = E2StaticDataTransitionsManager_GetTransitionId("overlay road 1");
+        storage.roadOverlayIds[1] = E2StaticDataTransitionsManager_GetTransitionId("overlay road 2");
+        storage.houseOverlayIds[0] = E2StaticDataTransitionsManager_GetTransitionId("overlay house 1");
+        storage.houseOverlayIds[1] = E2StaticDataTransitionsManager_GetTransitionId("overlay house 2");
+        return manager;
+    }
+
+    // Original function: FUN_0048dbfb.
+    std::int32_t E2StaticDataTransitionsManager_GetTransitionId(const char* name)
+    {
+        for (std::int32_t index = 0; index < gStaticTransitionStorage.count; ++index) if (NXBasics::Runtime_CompareStringsIgnoreCase(gStaticTransitionStorage.entries[index].name, name) == 0) return index;
+        return -1;
+    }
+    // Original function: FUN_0048dc39.
+    std::int32_t E2StaticDataTransitionsManager_l_GetPointTypeId(const char* name)
+    {
+        for (std::int32_t index = 0; index < gStaticTransitionStorage.pointTypeCount; ++index) if (NXBasics::Runtime_CompareStringsIgnoreCase(gStaticTransitionStorage.pointTypes[index].name, name) == 0) return index;
+        return -1;
+    }
+}

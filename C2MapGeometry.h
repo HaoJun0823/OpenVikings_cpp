@@ -7,6 +7,9 @@ namespace NC2Logic
     std::uint32_t VE_HexagonDirection_OppositeDirection(std::uint32_t direction);
     std::int32_t VE_HexagonDirection_GetDistance(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY);
     void MapMigRectangle_CutInsideMap(std::int16_t* rectangle);
+    bool MapMigRectangle_IsTouching(const std::int16_t* rectangle, const std::int16_t* other);
+    void MapMagRectangle_CutInsideMap(std::int16_t* rectangle);
+    void MapMagRectangle_Construct(std::int16_t* rectangle, std::int16_t x, std::int16_t y, std::int16_t width, std::int16_t height);
 
     // Original function: FUN_0040b580
     bool MapMigPoint_IsInsideMap(const void* packedMigPoint);
@@ -18,6 +21,18 @@ namespace NC2Logic
     void MapMigPoint_ValidatePosition(void* packedMigPoint);
     void MapMigPoint_WrapPosition(void* packedMigPoint);
     void MapMagPoint_ValidatePosition(void* packedMagPoint);
+    void MapMagPoint_ValidateXPosition(void* packedMagPoint);
+    void MapMagPoint_ValidateYPosition(void* packedMagPoint);
+    void MapMagPoint_CutInsideMap(void* packedMagPoint);
+    void* MapMigPoint_ConstructFromMag(void* packedMigPoint, const void* packedMagPoint, bool validate);
+    bool MapMigPoint_MoveCursorWrapped(void* packedMigPoint, std::uint32_t direction);
+    void MapMagPoint_MoveCursorWrapped(void* packedMagPoint, std::uint32_t direction);
+    void MapMagPoint_MoveCursorUnwrapped(void* packedMagPoint, std::uint32_t direction);
+    void MapMagPoint_MoveCursorWrappedEast(void* packedMagPoint);
+    void MapMagPoint_MoveCursorWrappedWest(void* packedMagPoint);
+    void MapMagPoint_MoveCursorUnwrappedEast(void* packedMagPoint);
+    void MapMagPoint_MoveCursorUnwrappedWest(void* packedMagPoint);
+    void VE_MapCoords_GetMicroGridMapOffset(std::int16_t x, std::int16_t y, std::int16_t* offsetX, std::int16_t* offsetY);
     void VE_MapCoords_MicroGridMapToMacroGridMapPoint(std::int16_t x, std::int16_t y, std::int16_t* macroX, std::int16_t* macroY);
     void* MapMagPoint_ConstructFromMig(void* packedMagPoint, const void* packedMigPoint, bool validate);
     void* MapMigPoint_ConstructOffset(void* packedMigPoint, const void* source, std::int16_t xOffset, std::int16_t yOffset, bool validate);

@@ -5,6 +5,8 @@
 #include "XBobRendering.h"
 #include "XStringMemory.h"
 #include "XGuiElementAccess.h"
+#include "GuiClockToolElementAccess.h"
+#include "XFontMetrics.h"
 #include "XCrtFileAccess.h"
 
 #include <cstring>
@@ -357,4 +359,64 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b9500.
     static bool __fastcall GfxButton_ToolTipAtOnce(void* element) { return Read<std::uint8_t>(element, 0x44) != 0; }
 
+    static void __fastcall WindowMoverButton_Draw(void* element, void* unusedEdx, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle);
+    static bool __fastcall WindowMoverButton_ToolTip(void* element, void* unusedEdx, const char** output);
+
+    // Complete original table: 004F6EC0..004F6F07.
+    static const std::uintptr_t gWindowMoverButtonVirtualTable[18] = {
+        reinterpret_cast<std::uintptr_t>(&BaseToolElement_Delete),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Message_Handle),
+        reinterpret_cast<std::uintptr_t>(&WindowMoverButton_Draw),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&WindowMoverButton_ToolTip),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify)
+    };
+    static_assert(sizeof(gWindowMoverButtonVirtualTable) == 0x48);
+
+    // Original function: FUN_004b9869; CWindowMoverButton constructor.
+    void* WindowMoverButton_Construct(void* element, const NXBasics::SRectangle* rectangle, const char* caption)
+    {
+        NXBaseGui::BaseElement_Construct(element, rectangle, 0x12, 0);
+        BitmapTool_Write(element, 0, gBaseToolElementVirtualTable + 0);
+        BitmapTool_Write<std::uint8_t>(element, 0x2C, 0);
+        BitmapTool_Write(element, 0, gWindowMoverButtonVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(element) + 0x30, 0, 200);
+        // Original CRT entry 004E66A0 is strncpy, including its zero padding.
+        std::strncpy(static_cast<char*>(element) + 0x30, caption, 199);
+        return element;
+    }
+
+    // Original function: FUN_004b98bc.
+    static void __fastcall WindowMoverButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        using namespace NC2Lifetime;
+        const auto mode = (Read<std::uint32_t>(element, 0x18) & 0x100u) != 0 ? 4 : 2;
+        NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
+        NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
+        auto* font = NC2GuiToolsBase::DrawTool_GetFont10Ptr();
+        const char* caption = static_cast<const char*>(element) + 0x30;
+        const auto textWidth = NXBasics::Font_GetPixelWidth(font, caption);
+        const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0x10) - Read<std::uint32_t>(font, 8)) / 2) - 3u);
+        const auto x = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0xC) - static_cast<std::uint32_t>(textWidth)) / 2;
+        bitmap->Text_Print(font, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, y, caption);
+    }
+
+    // Original function: FUN_004b994b.
+    static bool __fastcall WindowMoverButton_ToolTip(void*, void*, const char** output)
+    {
+        *output = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x8C);
+        return true;
+    }
 }

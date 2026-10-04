@@ -32,6 +32,7 @@ namespace NC2InGameGuiMessages
         void PresentationWindow_Open(std::uint32_t uniqueId);
         void Message_RemoveAllForHuman(std::uint32_t humanId);
         void System_Update();
+        void MessagePriority_Toggle();
         void System_HumanArrayDestructed();
         static std::int32_t MessagePriority_Calculate(std::uint32_t type, std::uint32_t job);
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);

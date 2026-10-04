@@ -6,6 +6,13 @@
 
 namespace NXBasics
 {
+    struct SPoint
+    {
+        std::int32_t x;
+        std::int32_t y;
+    };
+    static_assert(sizeof(SPoint) == 8);
+
     struct SColorModifier
     {
         bool grayScale;

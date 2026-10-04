@@ -9,6 +9,7 @@
 
 namespace NC2LogicExternals
 {
+    void External_Misc_PropertyString_AddString(const char* name, const char* value);
     // Original function: FUN_00401c12
     void __stdcall External_Misc_ProgressBar_Update();
 }

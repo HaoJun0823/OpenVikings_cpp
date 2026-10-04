@@ -1,6 +1,7 @@
 #include "C2OverviewObjectIterators.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2GameMapAccess.h"
 #include "XCrtFileAccess.h"
 
 #include <cstring>
@@ -128,6 +129,15 @@ namespace NC2Logic
         flags = 1;
         current = gMapMoveableArrayStorage.manager->mFirstScanIndex;
         if (Iterator_Read<std::uint8_t>(Iterator_Entry(gMapMoveableArrayStorage.entries, current, 0x58), 0) == 0) current = -1;
+        return current;
+    }
+
+    // Original function: FUN_00434d65; caller supplies an inside-map position.
+    std::int32_t CMapMoveableIterator::GetFirstMapMoveableId(const void* point)
+    {
+        flags = 2;
+        current = Iterator_Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0A);
+        if (current < -1) current = -1;
         return current;
     }
 

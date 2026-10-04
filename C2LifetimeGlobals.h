@@ -228,8 +228,11 @@ namespace NC2E2
     inline void* gStaticMiscLandscapeGroups = nullptr;
     // Original global: 00568578.
     inline void* gStaticGoodData = nullptr;
-    // Original global: 005689E4.
-    inline void* gStaticParticelData = nullptr;
+    // Complete static particle region 005689E0..005689E7; vector stride 0x48.
+    struct SStaticParticelStorage { std::int32_t count; void* entries; };
+    inline SStaticParticelStorage gStaticParticelStorage{};
+    inline void*& gStaticParticelData = gStaticParticelStorage.entries;
+    static_assert(sizeof(SStaticParticelStorage) == 8);
     // Original global: 00568A34.
     inline void*& gStaticPatternEntries = gStaticPatternStorage.entries;
     // Original global: 00568A64.
@@ -244,7 +247,7 @@ namespace NC2E2
     // 00568998..005689BB; counts, record arrays and auxiliary allocations.
     alignas(4) inline std::byte gStaticMapMoveableData[0x24]{};
     // 005689F0..00568A0F; transition counts and tables.
-    alignas(4) inline std::byte gStaticTransitionData[0x20]{};
+    inline std::byte (&gStaticTransitionData)[0x20] = *reinterpret_cast<std::byte (*)[0x20]>(&gStaticTransitionStorage);
     inline std::uint32_t gStaticMiscLandscapeGroupCount = 0; // 00568550
     inline std::int32_t gStaticHouseCount = 0;               // 00568A60
     inline std::int32_t& gStaticLandscapeCount = gStaticLandscapeStorage.count; // 00568A78

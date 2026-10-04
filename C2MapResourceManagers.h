@@ -9,6 +9,7 @@ namespace NC2Logic
     public:
         CMapBioRegrowManager();
         explicit CMapBioRegrowManager(CIoHelper& io);
+        void IO_Savegame_DoSave(CIoHelper& io);
         std::byte* mRecords; // +0x30: owned 20-byte regrow entries.
     };
 
@@ -17,6 +18,7 @@ namespace NC2Logic
     public:
         CMapLandscapeAutoTransitionManager();
         explicit CMapLandscapeAutoTransitionManager(CIoHelper& io);
+        void IO_Savegame_DoSave(CIoHelper& io);
         std::byte* mRecords; // +0x30: owned 20-byte transition entries.
     };
 
@@ -33,6 +35,7 @@ namespace NC2Logic
     public:
         CMapFishManager();
         explicit CMapFishManager(CIoHelper& io);
+        void IO_Savegame_DoSave(CIoHelper& io);
         bool IO_Cleanmap_Load(CIoHelper& io);
         bool AddFishAtMapPosition(const void* point, std::uint32_t count, std::uint32_t maximumDistance);
         void ClearSwarmAtPosition(const void* point);
@@ -50,6 +53,7 @@ namespace NC2Logic
     public:
         CWallBuildManager();
         explicit CWallBuildManager(CIoHelper& io);
+        void IO_Savegame_DoSave(CIoHelper& io);
         std::int32_t mPlayerCount;
         std::byte** mPlayers;
     };
@@ -59,6 +63,7 @@ namespace NC2Logic
     public:
         CRoadBuildManager();
         explicit CRoadBuildManager(CIoHelper& io);
+        void IO_Savegame_DoSave(CIoHelper& io);
         std::int32_t mPlayerCount;
         std::byte** mPlayers;
     };

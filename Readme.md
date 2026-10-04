@@ -6,11 +6,11 @@ The primary goal of the current project phase is **faithful functional reconstru
 
 A later **Renewed** phase may intentionally correct original defects, modernize behavior and improve safety. Until the faithful reconstruction is complete, confirmed original bugs are preserved and documented rather than silently fixed.
 
-Last handoff update: **2026-10-03**.
+Last handoff update: **2026-10-04**.
 
 ## Compilable checkpoint - temporary implementations
 
-Debug|Win32 and Release|Win32 passed with zero linker errors at checkpoint a77fd47. Startup and heap-ownership work is committed as 7b8b8f2. The user subsequently rebuilt in Visual Studio and reached the main menu, with fragmented text and a black world background. The following font correction has static verification only; see [MENU_RENDERING_AUDIT.md](docs/MENU_RENDERING_AUDIT.md). At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) now supplies 135 temporary dummy implementations; [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
+Debug|Win32 and Release|Win32 passed with zero linker errors at checkpoint a77fd47. Startup and heap-ownership work is committed as 7b8b8f2. The user subsequently rebuilt in Visual Studio and reached the main menu, with fragmented text and a black world background. The following font correction has static verification only; see [MENU_RENDERING_AUDIT.md](docs/MENU_RENDERING_AUDIT.md). At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) now supplies 118 temporary unfinished implementations (including partial entries); [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
 
 Main executable outputs use `OpenVikings/Debug` and `OpenVikings/Release`. Future new function calls use original names found in the Mac source. Replace each dummy with Windows-equivalent behavior and remove its inventory entry while keeping both configurations buildable. See [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md).
 
@@ -1587,6 +1587,27 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA110](#oa110) | Menu keyboard/clipboard retains consumption, history and handle assumptions | 004DB0D1, 004DB3A5 |
 | [OA111](#oa111) | Listbox child lifetime, scroll/input and savegame allocation assumptions | 004C1A3F, 004CFF78, 004CFFF5, 004D01A3, 004D0471, 004D0670 |
 | [OA112](#oa112) | Guide-manager ownership retains allocation, callback and loading-version assumptions | 0041AE53, 0041AEDF, 0041AF52, 0041AF8A, 004266A9 |
+| [OA113](#oa113) | In-game default handler retains embedded ownership and deferred button-command assumptions | 004A3EAB, 004A0145, 004A3EDB, 0040AECE, 004B446F |
+| [OA114](#oa114) | Options window retains queued pause/restore and Windows option-command assumptions | 004A1DBD, 004A1E03, 004BF96F, 004BFA26, 004A2DC2, 004A2E45, 004C00E1 |
+| [OA115](#oa115) | Safety confirmation and restart preserve command/callback and owner order | 004A2862, 004C92A5, 004C94C4, 004C9335, 004075CB |
+| [OA116](#oa116) | Save/load preserve native IO, version and serialized-count assumptions | 00425A35, 00425A7B, 00425C9D, 00426229, 00425B1A, 00425B68, 00425DF1, 00408025 |
+| [OA117](#oa117) | RLE, string and autosave retain original size and retry assumptions | 004585C6, 0045892A, 00458CE2, 0042A281, 0042A32E, 004074E5, 00407505, 00407524 |
+| [OA118](#oa118) | Ground splitting and shaders retain native dimensions, pixel arithmetic and shared scanline limits | 00481AE2..00481E20, 00491C12..00493447, 0049A12F..0049FD78 |
+| [OA119](#oa119) | Transition loading retains partial state and unchecked texture/group identifiers | 0048D714, 0048DBFB, 0048DC39, 00492F26 |
+| [OA120](#oa120) | Engine-map updates retain allocation, callback bounds and encoded-transition assumptions | 00482241, 00482614, 0048274A, 004829DA, 00482C00, 00482D30 |
+| [OA121](#oa121) | Engine terrain IO preserves name remapping, missing-resource responses and unchecked counts | 004832FA, 00483800, 00483E30, 00483E4D |
+| [OA122](#oa122) | Engine save data retains version skips, raw payloads and logical-array ordering | 0047F272, 0047F2D0, 0048029C, 00480348, 00490C90, 00490D0B |
+| [OA123](#oa123) | Dynamic startup and dirty rectangles retain allocation, generator and narrowed-bound assumptions | 00480162, 00486336, 0049736D, 004973E6, 0047EAF3, 00481228 |
+| [OA124](#oa124) | Exploration retains player limits, footprint assumptions and callback packing | 004243C6, 0042469E, 0042475A, 0042479B, 0048075E, 004807A9 |
+| [OA125](#oa125) | Mission parsing retains unchecked type/count/string assumptions and zero-name fallback | 0041D0B6, 00449D37, 00449D66, 00449D95, 00449E34, 00449E9D, 00449F2D |
+| [OA126](#oa126) | Static-object commands preserve native player gates and parameter consumption | 0041D24B, 0040AEDA, 0040AEF6 |
+| [OA127](#oa127) | Family/home assignment and passenger attachment retain native reference assumptions | 0041D24B, 00434D65, 0044BDFB, 0044BF65, 0044C122, 0044C237 |
+| [OA128](#oa128) | Moveable/pathfinder allocation and teardown preserve reservation and flag ordering | 0040BCBF, 0040BD00, 0041CEF8, 0041CF1E, 00438E09, 00438E7D, 00438E9C |
+| [OA129](#oa129) | Micro and sector lists retain narrow IDs, unchecked membership and native neighbour updates | 004394AD, 004394CA, 00439516, 004395C3, 0042EA28, 0042EAC4, 004375B9, 00437689, 00441AC3, 00441B9A |
+| [OA130](#oa130) | Human/marker reservations, Init rejection and native cleanup side effects | 0040B502, 0040B5AA, 0040BA7D, 0043819B, 004386D9 |
+| [OA131](#oa131) | Job setup retains equipment-count/stride assumptions and unattached military transitions | 0044A2AB, 0044A45D, 00449F48 |
+| [OA132](#oa132) | Command selectors, animation refusal and passenger sentinel decoding | 0043BCA9, 0043DCB0, 0045C762, 0044BEA0 |
+| [OA133](#oa133) | Overview pattern queries and border handling | 0048114E, 00481188, 0048327A |
 | [OA108](#oa108) | Lobby selection retains unchecked slots, parser bounds and color rules | 004D7E5D, 004D7F7E, 004D804F, 004D80A7, 004D81C7, 004D8455 |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
@@ -2349,7 +2370,7 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 
 - **Original reference:** `0040212B`, `004021EA`, `00402298`, `004A2FB7`, `004800C8`.
 - **Evidence and retained behavior:** Menu allocation failure does not gain an early return. Reload clears time, loads the fixed demo map, centers and timestamps even a returning failure. Centering keeps persistent lazy token state and object/terrain fallback when retained startposition input cannot match. Ambient stop returns before loop access on missing/unready sound device; running entries are invalidated despite ignored stop failure, while non-running entries/count/volumes remain.
-- **Assessment / reconstruction limits:** Confirmed Windows handling. Fallback query and deeper menu constructor/destructor methods remain unfinished. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md).
+- **Assessment / reconstruction limits:** The 00439E61 fallback query and connected in-game centering/player assignment are now reconstructed: preferred own-house types 7/8/9/1, own house/placed-Human averages, unsigned DIV and continent/blocked spiral search. Zero contributors or no candidate returns false; the initial average retains its native unchecked read. This does not initialize exploration. See [MAIN_MENU_STATE.md](docs/MAIN_MENU_STATE.md) and [IN_GAME_TERRAIN_VISIBILITY.md](docs/IN_GAME_TERRAIN_VISIBILITY.md).
 - **Decision / Renewed task:** Preserve state/order and original fallback; review failure propagation after faithful reconstruction.
 - **Status:** Preserved / original observation; Renewed: open.
 
@@ -2531,8 +2552,8 @@ Related follow-up, 2026-10-01: `004B7FB7` also clears the embedded overview-elem
 ### OA092 - Ambient and Human sounds preserve original index and sentinel assumptions
 
 - **Original reference:** `0047F4D6`, `0047F56E`, `0047F760`, `00485453`, `004854D9`.
-- **Evidence and retained behavior:** Ambient sector allocation and group indices remain unchecked. Collectors compare against `00FFFFFF`, whereas the existing ambient-ID loader initializes `FFFFFFFF`; the original mismatch is preserved. Human sounds consume the first command line, retain unchecked tribe/sex-age/response indices, and resolve sound IDs before rejecting a response count of fifteen or more.
-- **Assessment / Renewed task:** Check malformed-data reachability after faithful reconstruction; no runtime reproduction is claimed.
+- **Evidence and retained behavior:** Ambient sector allocation and group indices remain unchecked. Collectors compare against `FFFFFFFF`, matching the ambient-ID loader. The export text at 0047F610/0047F659/0047F80C misleadingly prints `FFFFFF`: native `83 /7 ... FF` sign-extends the immediate to FFFFFFFF. The earlier mismatch claim was a reconstruction error, corrected after reproducing the main-menu sound crash; see [AMBIENT_SOUND_SENTINEL_FIX.md](docs/AMBIENT_SOUND_SENTINEL_FIX.md). Human sounds consume the first command line, retain unchecked tribe/sex-age/response indices, and resolve sound IDs before rejecting a response count of fifteen or more.
+- **Assessment / Renewed task:** The reconstruction sentinel error was reproduced and its correction verified in the debugger-owned process, reaching MainMenu state 8 and GUI screen 1. Original malformed-data reachability remains a separate review task; no build or complete gameplay validation is claimed.
 - **Status:** Preserved / original observation. See [NATIVE_LINK_SUPPORT.md](docs/NATIVE_LINK_SUPPORT.md).
 
 <a id="oa093"></a>
@@ -2656,6 +2677,43 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Assessment / Renewed task:** Preserve Windows parser/layout/ownership rules; validate malformed resources and report load/parse failures in a separate Renewed change. Named-block leaks and global-jump parsing are indexed as OB096/OB097.
 - **Status:** Preserved / original observation. ASM/PE/static verification only. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md).
 
+<a id="oa117"></a>
+### OA117 - RLE, string and autosave retain original size and retry assumptions
+
+- **Original reference:** `004585C6`, `0045892A`, `00458CE2`, `0042A281`, `0042A32E`, `004074E5`, `00407505`, `00407524`.
+- **Evidence and retained behavior:** Byte/word RLE uses original literal/run transitions and 127-value packets. Header writes can precede destination-capacity rejection; odd-sized word input returns zero. Pack-and-write grows by 10000 until a nonzero result with no retry limit; invalid packing types can therefore loop. String writing records a low-byte length, copies the string and grows once, retaining oversized-input assumptions. Nonzero autosave intervals save immediately and rotate ten files; unsigned deadline addition/comparison wraps, and no save-result check is added.
+- **Status:** Preserved / original observation. Windows ASM/PE/source verification only; see [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md).
+
+<a id="oa116"></a>
+### OA116 - Save/load preserve native IO, version and serialized-count assumptions
+
+- **Original reference:** `00425A35`, `00425A7B`, `00425C9D`, `00426229`, `00425B1A`, `00425B68`, `00425DF1`, `00408025`.
+- **Evidence and retained behavior:** Save owns file, output memory and packing memory in native stack order and writes all 21 managers before its end marker and callback. File-open/write results are ignored by these wrappers; Settings displays its original status message without a success result. Missing files return; header rejection precedes shutdown. Accepted input does not verify all required managers before initialization. Serialized player/array lengths and raw manager blobs retain original bounds assumptions; legacy versions preserve individual skip/no-skip and callback-registration order. Shared unfinished engine IO/gameplay callbacks can still limit restoration and are tracked separately.
+- **Status:** Preserved / original observation. Windows ASM/PE/source verification only; see [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md).
+
+<a id="oa115"></a>
+### OA115 - Safety confirmation and restart preserve command/callback and owner order
+
+- **Original reference:** `004A2862`, `004C92A5`, `004C94C4`, `004C9335`, `004075CB`.
+- **Evidence and retained behavior:** Quit queues command 0x88 before requesting MainMenu; cancel only closes the safety window. Settings restart opens mode 3 and closes Options. Restart executes callback 0x2E, restores sys_temp, reloads the map, embeds through the newly current owner, removes sys_temp and executes 0x2D. Unsupported modes/empty titles return without controls; mission data and child allocation remain unchecked. Reload/open results have no new recovery flow.
+- **Status:** Preserved / original observation. Windows ASM/PE/source verification only; see [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md).
+
+<a id="oa114"></a>
+### OA114 - Options window retains queued pause/restore and Windows option-command assumptions
+
+- **Original reference:** `004A1DBD`, `004A1E03`, `004BF96F`, `004BFA0A`, `004BFA26`, `004A2DC2`, `004A2E45`, `00407C5B`, `004BFA55`, `004C00E1`.
+- **Evidence and retained behavior:** Probe Options with message command 0x7D8 before closing/replacing it. Remove selection elements and close large windows/reset input before allocating the 0x78-byte centered owner. Initialize page DWORDs, add controls, register frame callbacks and queue the original single-player pause. Destruction queues restoration before frame unregistration/base destruction. Preserve saved speed, network checks, float/double comparisons including unordered branches, explicit runtime ownership and original unchecked allocation/child accesses. Title, mover/closer, six tabs, all six page bodies and clock follow PE-decoded geometry and strings.
+- **Assessment / Renewed task:** All six page bodies and option actions now have production implementations, including confirmation windows and native save/load/autosave. Retain the wider original command guards and unchecked indexing into the seven-speed/four-interval arrays, original page values and allocation assumptions. Shared game/engine IO and logic callbacks remain unfinished; the connected actions have static verification only.
+- **Status:** Preserved / original observation. Windows ASM/PE/source verification only. See [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md).
+
+<a id="oa113"></a>
+### OA113 - In-game default handler retains embedded ownership and deferred button-command assumptions
+
+- **Original reference:** `004A3EAB`, `004A0145`, `004A3EDB`, `0040AECE`, `004B446F`.
+- **Evidence and retained behavior:** Initialize the embedded 0x2C-byte handler through the original base constructor and full eighteen-slot derived table. Destruction restores the derived table, invokes base destruction and frees only when flags bit zero is set; the enclosing manager passes zero. Message dispatch returns true. Settings follows its original toggle/open owner; overview opens through its existing owner. Speed uses original float thresholds 12/24/36 and a zeroed 0x14-byte network command (type 0x87, DWORD at +4), queued with system=false/deferred=true. Priority wraps only at three, calls System_Update, then refreshes the button.
+- **Assessment / Renewed task:** The reported +0x08 access is a reconstruction constructor omission. Real construction/deletion are connected. The newly exposed message callback remains a tracked partial dummy, with options/overview/speed/priority branches reconstructed; other window/selection commands remain unfinished and excluded from completion counts. Preserve source ownership rather than adding a guard to the correctly translated button dispatch.
+- **Status:** Preserved / original observation. Windows ASM/PE/source verification only. See [IN_GAME_DEFAULT_HANDLER_STARTUP.md](docs/IN_GAME_DEFAULT_HANDLER_STARTUP.md).
+
 <a id="oa112"></a>
 ### OA112 - Guide-manager ownership retains allocation, callback and loading-version assumptions
 
@@ -2687,6 +2745,126 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Evidence and retained behavior:** Slot indices, selected map/save pointers and user-map allocations remain unchecked. Map player parsing has signed upper-only bounds; invalid options above two are consumed without setting bits. Temporary library removal precedes INI reader destruction; path mapping is cleared just after construction. Color allocation wraps exactly ten, ignores hidden slots and returns zero after a full cycle. Dual type flags retain original precedence. Saved-game IDs inhibit color replacement, and human names match the first current player. Kick messages retain type three, 0x168 bytes and client shutdown/screen-21 processing.
 - **Assessment / Renewed task:** Preserve Windows layout, ownership, arithmetic and parameter consumption. No malformed-input or network/runtime reproduction is claimed.
 - **Status:** Preserved / original observation. See [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md).
+
+<a id="oa118"></a>
+### OA118 - Ground splitting and shaders retain native dimension and pixel assumptions
+
+- **Original reference:** `00481AE2..00481E20`, `00491C12..00493447`, `0049EC09`, scalar/MMX shader paths.
+- **Evidence and retained behavior:** World/grid dimensions are divisors without zero checks. Ring-buffer splits subtract one buffer dimension and preserve the original outside-world test. Shader setup uses signed fixed-point arithmetic and truncating division, shared 1,400-row storage without a capacity guard, 256-wide raw texture indexing and only two/four-byte destinations. MMX keeps minimum brightness five, low-word multiplication, signed saturated light steps and its original overlapping RGB565 DWORD mask. Scalar alpha uses 255-minus-alpha, MMX alpha uses 256-minus-alpha; high-color vertex alpha expands every destination channel by three bits.
+- **Assessment / Renewed task:** Preserve original arithmetic and capacity assumptions. The former static-update no-op is a reconstruction omission; the separate landscape/creature no-op remains unfinished. Rendering equivalence requires a later user build/run.
+- **Status:** Preserved / original observation; runtime unverified. See [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md).
+
+<a id="oa119"></a>
+### OA119 - Transition loading retains partial initialization and unchecked IDs
+
+- **Original reference:** `0048D714`, `0048DBFB`, `0048DC39`, `00491EA8`, `00492F26`.
+- **Evidence and retained behavior:** Missing INI or zero point groups returns with cleared/partial state. Zero or more than 42 transition groups stops loading after point allocation and retains the count. Names truncate to 39 bytes; only five point groups and six coordinate sets per orientation are accepted. Failed group/texture/name lookup retains its sentinel. Alpha defaults to minus one; drawing indexes texture and cached overlay arrays without validating those identifiers. Existing destruction frees the runtime-owned arrays.
+- **Assessment / Renewed task:** Preserve these limits and early exits; do not fabricate fallback textures, groups or transitions. Validate resources and initialization separately in Renewed.
+- **Status:** Preserved / original observation. See [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md).
+
+<a id="oa120"></a>
+### OA120 - Engine-map updates retain unchecked allocation and transition encoding
+
+- **Original reference:** `00482241`, `00482614`, `0048274A`, `004829DA`, `00482C00`, `00482D30`.
+- **Evidence and retained behavior:** Count-times-stride runtime allocations are cleared without null checks. Micro IDs start at FFFF and transition bytes at FF. Callback bounds reset on 0x31 and are processed on 0x32 with three-point expansion and map cutting; callback registration results are ignored. Transition assignment checks minus-one, upper ID bound and layer count, but other negative IDs and point/group IDs remain unchecked. Shape and transition are packed into one byte. A changed byte triggers map-modified notification only inside an active modification block; callbacks retain their original order and true result.
+- **Assessment / Renewed task:** Retain ownership, sentinels, notifications and callback sequencing. Add resource/index validation only after faithful reconstruction.
+- **Status:** Preserved / original observation. See [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md).
+
+<a id="oa121"></a>
+### OA121 - Engine terrain IO retains saved-name and packed-plane assumptions
+
+- **Original reference:** `004832FA`, `00483800`, `00483E30`, `00483E4D`.
+- **Evidence and retained behavior:** Wrong clean-map envelope/version returns without loading. Name counts multiply by four without overflow/allocation checks; repeated name chunks overwrite the previous owner without freeing it. Packed-plane IO retains serialized-size behavior and unchecked result handling. Missing patterns use the second border ID; missing landscapes use FFFF and clear logic types zero/one. Both request string ten from Odin001 and print only if the GUI exists, then clear the flag. Missing transitions become FF without that warning. Unknown chunks are skipped; rejected headers/end markers both terminate reading. Name maps free in transition, landscape, pattern order.
+- **Assessment / Renewed task:** Preserve original sentinel, warning and ownership behavior. Do not substitute texture IDs for saved name-list indices or introduce guessed fallback resources.
+- **Status:** Preserved / original observation. See [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md).
+
+<a id="oa122"></a>
+### OA122 - Engine save data retains logical scan order and raw payloads
+
+- **Original reference:** `0047F272`, `0047F2D0`, `0048029C`, `00480348`, `00490798`, `00490817`, `00490918`, `004909A8`, `00490B09`, `00490B99`, `00490C90`, `00490D0B`, `00484CC3`, `00486F0E`.
+- **Evidence and retained behavior:** Engine loading accepts the outer version field without validating it, and an unknown engine child ends dispatch. Entity chunks require version one or are skipped. Their extra LONG is read and ignored; active logical records determine the inclusive scan order and raw dynamic destination. Atom saving uses a single-space filename when a bob cannot be resolved; loading resolves every nonempty name and keeps failed lookups null. Human saving invalidates both palette caches. Particle initialization happens before its version check. Weather frees old storage, multiplies dimensions by twelve and clears/reads the allocation without null checks. Music and particle state remain raw original blobs. IO results are not converted into new failure returns.
+- **Assessment / Renewed task:** Keep logical owners, native order, version-specific skips and allocation families. A serialized body alone does not establish complete restored gameplay or valid resource pointers.
+- **Status:** Preserved / original observation. See [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md).
+
+<a id="oa123"></a>
+### OA123 - Dynamic startup and display invalidation retain original bounds assumptions
+
+- **Original reference:** `0040743A`, `00480162`, `00486336`, `0049736D`, `004973E6`, `0047EAF3`, `00481228`, `00482D8A`, `00482DF6`, `0042AF01`.
+- **Evidence and retained behavior:** A missing startup map/savegame list entry returns without loading; invalid startup types do nothing. Human dynamic allocation uses a cookie and constructs palette subobjects before clearing all records, with no guard on the final clear. Generator storage has thirty entries but parsing does not bound group count; names use unchecked strcpy and missing static particle IDs remain minus one. Dirty bounds and rectangle ends retain signed WORD narrowing; rectangles are cut but not normalized to nonnegative size. Exploration updates filter by player and overlap; only unseen positions in exploration mode remain black. Road overlay selection consumes the original random bit.
+- **Assessment / Renewed task:** Preserve count, parameter-consumption, clipping and RNG effects. Keep absent exploration/gameplay initialization visible as a reconstruction dependency instead of forcing the map visible.
+- **Status:** Preserved / original observation. See [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md).
+
+<a id="oa124"></a>
+### OA124 - Exploration retains footprint and packed-rectangle assumptions
+
+- **Original reference:** `004243C6`, `0042469E`, `0042475A`, `0042479B`, `0048075E`, `004807A9`.
+- **Evidence and retained behavior:** Players >=16 return false in public exploration operations. Null areas, unassigned engine IDs and empty/nonqualifying area lists contribute no footprint points. Already seen points still expand footprints. The house outline assumes a valid logical house/type/engine definition; landscape-origin reads remain unchecked. Ring traversal, signed offsets, last-encountered extent assignments and DWORD rectangle packing retain Windows behavior. A redraw callback occurs only when a player bit changes.
+- **Assessment / Renewed task:** Preserve these contracts and complete real object/mission callers; do not replace initialization with forced visibility.
+- **Status:** Preserved / original observation. See [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md).
+
+<a id="oa125"></a>
+### OA125 - Mission parsing retains unchecked descriptor, slot and text input
+
+- **Original reference:** `0041D0B6`, `00449D37`, `00449D66`, `00449D95`, `00449E34`, `00449E9D`, `00449F2D`, `0040AF06`..`0040AFEA`, `0040B10B`.
+- **Evidence and retained behavior:** Unknown goal/result/type names return zero; numeric goal/result types index complete native descriptors without a bounds guard. Unsupported string parameter kinds return zero without consuming input. Mission/goal/result counts have no native capacity checks; result strings use unchecked strcpy into +0x2C and debug names use strncpy length 30. Activation timestamps change only when becoming active. The manager is cleared even when no MissionData group exists.
+- **Assessment / Renewed task:** Keep parsing and execution separate; the connected wrapper/parser reads mission and object commands, but actual object creation and mission execution remain reconstruction dependencies.
+- **Status:** Preserved / original observation. See [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md).
+
+<a id="oa126"></a>
+### OA126 - Static-object parameter and creation assumptions
+
+- **Original reference:** `0041D24B`, `0040AEDA`, `0040AEF6`, `00449AB8`, `00449AFC`, `004808B3`.
+- **Evidence and retained behavior:** Player gates can reject creation before its remaining parameters are read. Animals with signed player IDs at least twenty bypass that gate. Failed creation clears the current kind; attributes on an inappropriate kind consume no arguments. Unknown house engine names return -1. Native allowjob/forbidjob tokens have no dispatch branches. Production/experience indices and unsigned saturation assumptions remain unchanged.
+- **Status:** Preserved / original observation. The real parser does not complete the tracked object creators. See [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md).
+
+<a id="oa127"></a>
+### OA127 - Family and passenger references retain native assumptions
+
+- **Original reference:** `0041D24B`, `00434D65`, `0044BDFB`, `0044BF65`, `0044C122`, `0044C237`.
+- **Evidence and retained behavior:** Family point searches validate the position before the unchecked positional iterator. Missing eligible relatives stop consumption of later coordinates. Existing home/child references remain unchecked. Workplace distance ties select the father's existing home. Passengers require player/job compatibility; ordinary slots validate ID/revision, while the commander count trusts its flag. No eligible ordinary slot returns false.
+- **Status:** Preserved / original observation. Inhabitant attachment/detachment remains an explicit implementation boundary. See [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md).
+
+<a id="oa128"></a>
+### OA128 - Moveable/pathfinder allocation and teardown ordering
+
+- **Original reference:** `0040BCBF`, `0040BD00`, `0041CEF8`, `0041CF1E`, `00438E09`, `00438E7D`, `00438E9C`, `00447804`.
+- **Evidence and retained behavior:** Moveable Init rejects an allocated entry. Pathfinder exhaustion returns false, then the wrapper releases the reserved moveable via its genuine Exit path. Element_Free updates bookkeeping without clearing the object flag; failed frees prevent teardown. Detachment precedes pathfinder release and final allocation-flag clearing. Unsupported moveable types do not receive an object ID but are not otherwise rejected.
+- **Status:** Preserved / original observation. Human creation remains a separate unfinished tree. See [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md).
+
+<a id="oa129"></a>
+### OA129 - Micro and sector list assumptions
+
+- **Original reference:** `004394AD`, `004394CA`, `00439516`, `004395C3`, `0042EA28`, `0042EAC4`, `004375B9`, `00437689`, `00441AC3`, `00441B9A`.
+- **Evidence and retained behavior:** Micro heads are signed WORD IDs; records use DWORD next IDs. Missing micro-list targets are ignored. Sector indices, IDs and membership remain unchecked. Head removal clears the successor's previous ID; non-head removal only repairs the predecessor's next ID, retaining the original asymmetry. Animals change the count before neighbour operations; humans and vehicles change it afterwards. Type 4 has no sector attachment.
+- **Status:** Preserved / original observation. See [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md).
+
+<a id="oa130"></a>
+### OA130 - Human creation reservation and cleanup behavior
+
+- **Original reference:** `0040B502`, `0040B5AA`, `0040BA7D`, `0043819B`, `004386D9`.
+- **Evidence and retained behavior:** Human and marker allocation reserve before point validation; invalid/outside/border points return -1 without rolling back that reservation. Init rejects allocated entries and continent type zero before clearing the human. A moveable failure after allocation goes through FreeHuman and Exit; death-counter/message call order is retained even on that failure path when shutdown is not active. Failed Element_Free prevents callbacks and teardown. The unresolved shutdown byte at game-state +0x1B0 is kept explicit.
+- **Status:** Preserved / original observations. Actual human initialization now reaches native exploration. Deeper death/edit calls remain inventoried dependencies. See [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md).
+
+<a id="oa131"></a>
+### OA131 - Job and equipment compatibility observations
+
+- **Original reference:** `0044A2AB`, `0044A45D`, `00449F48`.
+- **Evidence and retained behavior:** SetupCurrentJobType uses goodCount for the equipment loop, a 56-byte tribe stride for equipment permission reads, and calls CanEquipToolIron twice. Player-specific setup uses the separate 66-byte good-permission stride. An unattached military job transition does not write the new job. Human/tribe/job/item indices retain native unchecked assumptions.
+- **Status:** Preserved / original observations. Sight radii 10/5/20/20 are verified PE values. See [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md).
+
+<a id="oa132"></a>
+### OA132 - Command and animation result conventions
+
+- **Original reference:** `0043BCA9`, `0043DCB0`, `0045C762`, `0044BEA0`.
+- **Evidence and retained behavior:** The complete command selector retains its inverted/profession-specific results; opcode 3 and out-of-range opcodes return true. ChangeProducedGood returns distinct 0/1/2 statuses. Atomic animation rejects action 1, a noninterruptable state, unavailable job actions or exhausted fallback before mutating animation state. Passenger OR opcode 83 sign-extends FF to FFFFFFFF; shortened export text is not a literal 0FFFFFFF mask.
+- **Status:** Preserved / original observations; PE selector and instruction bytes checked. See [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md).
+
+<a id="oa133"></a>
+### OA133 - Overview pattern query outputs
+
+- **Original reference:** `0048114E`, `00481188`, `0048327A`.
+- **Evidence and retained behavior:** The single-pattern query returns null at macro-map borders; otherwise it selects the +0/+2 WORD index and a 0x70-byte static pattern entry. The around-point query forwards to the existing helper, which clears all six output pointers before the direction 1/3/5 calls and retains partial output on early failure. The overview sample routine maps null descriptions to black.
+- **Status:** Windows ASM confirmed; Mac supplies semantic names. Two former link-only dummies are removed. The empty around-point dummy left stack pointers uninitialized, explaining a concrete route to the reported overview read crash. Runtime confirmation of this fix is pending. See [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md).
 
 ## Reviewed failure handling
 
@@ -2795,6 +2973,47 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP099 | Savegame refresh, grouping, network filtering and selected-entry payload | Preserve type/force flags, original captions/spacing, unchecked row allocation and unique-ID dispatch | [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md); OA111 |
 | FP100 | Guide-manager startup, array publication, scan buffer and destruction | Preserve runtime ownership, singleton/callback order, buffer capacity and unchecked allocation assumptions | [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md); OA112 |
 | FP101 | Guide-manager save/load nesting and unsupported versions | Preserve array-before-counter serialization, early owner publication, version skip and load-specific allocation/registration order | [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md); OA112 |
+| FP102 | In-game default handler initialization and embedded deletion | Restore base fields and all virtual slots; retain original flags-controlled runtime free and message stack cleanup | [IN_GAME_DEFAULT_HANDLER_STARTUP.md](docs/IN_GAME_DEFAULT_HANDLER_STARTUP.md); OA113 |
+| FP103 | Settings/overview/speed/priority commands and partial dispatcher limits | Preserve queued speed payload, System_Update-before-button order and true return; track remaining window/selection branches as unfinished | [IN_GAME_DEFAULT_HANDLER_STARTUP.md](docs/IN_GAME_DEFAULT_HANDLER_STARTUP.md); OA113 |
+| FP104 | Settings owner opening/closing and single-player time pause | Preserve query/close order, 0x78-byte runtime allocation, registration, queued pause/restore and base child destruction | [IN_GAME_DEFAULT_HANDLER_STARTUP.md](docs/IN_GAME_DEFAULT_HANDLER_STARTUP.md); OA114 |
+| FP105 | All Settings pages, queries and action ranges | Retain all six page layouts and original unchecked array/page/child assumptions | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA114 |
+| FP106 | Display, scrolling and audio changes | Preserve save-on-change, deferred resolution and property/ambient/music refresh order; disabled and absent audio managers follow Windows | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA114 |
+| FP107 | Safety confirmation, exit and restart | Preserve command 0x88 and program-state order, original modes/mission flags, cancellation and owner changes across reload | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA115 |
+| FP108 | Native save headers, owners and serializers | Retain stack destruction, original header contents, 21-manager order, ignored IO results and callback 0x14 | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA116 |
+| FP109 | Native load and manager versions | Reject header before shutdown; retain unbounded counts, raw blobs, distinct version skip paths and callback registration order | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA116 |
+| FP110 | Autosave and embedded restart | Immediate save on interval change; rotating files, unsigned deadline, restore/reembed/free and callback ordering | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA115/OA117 |
+| FP111 | Packed binary and string bounds | Preserve 127-value RLE packets, header-before-capacity writes, odd-word rejection, unlimited grow/retry and one-byte string length | [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md); OA117 |
+| FP112 | Static ground buffer and clipping | Preserve world rejection, wrapped splits, sub-bitmap destruction and native dimension divisors | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA118 |
+| FP113 | Engine-map allocation and callbacks | Preserve runtime buffers, initial sentinels, dirty bounds, clamping and notifications; no null-allocation substitution | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA120 |
+| FP114 | Transition INI and lookup failures | Retain cleared/partial state, count cap, unresolved IDs, default alpha minus-one and native cleanup | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA119 |
+| FP115 | Shader depths, arithmetic and shared capacity | Preserve unsupported-depth no-draw behavior, fixed-point/alpha/MMX differences and unchecked 1,400-row/texture access | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA118/OA119 |
+| FP116 | Engine terrain envelope and missing names | Reject wrong envelope/version; retain border/FFFF/FF mapping, warning and name-map free order | [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md); OA121 |
+| FP117 | Engine entity/weather/particle savegame versions | Retain native chunk order, unknown-child termination, version skips, logical scan ranges and raw state | [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md); OA122 |
+| FP118 | Human/particle startup and generator input | Retain original cookie/allocation ownership, unchecked group/name limits and missing particle sentinel | [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md); OA123 |
+| FP119 | Startup selection, exploration and redraw | Missing list entry returns; original player mask/rectangle clipping controls invalidation and unseen fields | [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md); OA123 |
+| FP120 | Unassigned pattern/landscape ambient mapping | Native sign-extended FF comparison skips FFFFFFFF; corrected reconstruction no longer reads records before the sound table | [AMBIENT_SOUND_SENTINEL_FIX.md](docs/AMBIENT_SOUND_SENTINEL_FIX.md); OA092 |
+| FP121 | Missing startposition or no usable own-object center | Use native preferred-house/average/continent fallback; false leaves camera assignment unperformed; retain unsigned sums and original unchecked initial read | [IN_GAME_TERRAIN_VISIBILITY.md](docs/IN_GAME_TERRAIN_VISIBILITY.md); OA072 |
+| FP122 | GUI callback chain and incomplete map visibility initialization | Restore native unconditional true; keep event dispatch tracked and unseen map fields suppressed until actual exploration runs | [IN_GAME_TERRAIN_VISIBILITY.md](docs/IN_GAME_TERRAIN_VISIBILITY.md) |
+| FP123 | Exploration player/area/ID rejection and redraw | Return false/no footprint for native invalid cases; preserve unchecked house/origin reads, original extent assignments and changes-only callbacks | [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md); OA124 |
+| FP124 | Mission type, parameter and record input | Retain zero-name fallback, nonconsuming unsupported strings, unchecked numeric descriptors/counts and native string copies | [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md); OA125 |
+| FP125 | Mission load remains incomplete after parsing | Object command parsing is now connected; creation and parsed ExploreArea execution still require their tracked pending trees | [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md) |
+| FP126 | Inactive/missing start-object player | Clear current kind and stop reading creation parameters; retain the neutral-animal exception | [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md); OA126 |
+| FP127 | Missing family candidate or invalid point | Stop that command at the native branch without consuming later coordinates; positional iteration remains unchecked after caller validation | [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md); OA127 |
+| FP128 | Inappropriate attribute target / production and experience input | Skip attributes for the wrong current kind; preserve good fallback, hero gate and unchecked experience indices/saturation | [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md); OA126 |
+| FP129 | Vehicle passenger rejection / family household references | Return false for player/job/slot rejection; retain unchecked native family/home references and exact home-choice ties | [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md); OA127 |
+| FP130 | Object creation remains a temporary boundary | Failed dummy creation reports -1; do not access house zero or fabricate exploration. Keep all new missing dependencies inventoried and excluded | [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md) |
+| FP131 | Moveable slot or pathfinder exhaustion | Return -1/false; pathfinder failure goes through the reserved moveable's free/Exit path without manufacturing a pathfinder | [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md); OA128 |
+| FP132 | Object already allocated or bookkeeping free fails | Reject Init or leave teardown untouched when Element_Free returns false; clear allocation flags only in the native exit step | [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md); OA128 |
+| FP133 | Missing micro-list target / narrowed list ID | Ignore an absent target; preserve signed WORD heads, unchecked micro pointers and DWORD chain traversal | [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md); OA129 |
+| FP134 | Sector-list membership and neighbour assumptions | Preserve unchecked removal, non-head neighbour asymmetry and object-kind counter order; do not synthesize validation or change categories | [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md); OA129 |
+| FP135 | Human/marker slot exhaustion or invalid point | Return -1; preserve reserve-before-validation and no rollback on invalid/outside/border points | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA130 |
+| FP136 | Human already allocated or continent type zero | Init returns false before clearing storage; wrapper cleanup remains allocation-flag dependent | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA130 |
+| FP137 | Human/marker moveable initialization failure | Free the initialized owner through original bookkeeping/Exit paths, including the native human death-counter/message branch | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA130 |
+| FP138 | Array bookkeeping free fails | Do not issue free callbacks or destroy the object when Element_Free rejects the operation | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA130 |
+| FP139 | Merchant allocation or work marker unavailable | Retain -1 allocation result and original visibility checks; no fake merchant/marker is manufactured | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA130/OA131 |
+| FP140 | Atomic animation cannot start | Return false before changing state for noninterruptable/unsupported actions or missing fallback animation | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA132 |
+| FP141 | Produced-good command unavailable or invalid | Return 0 when noninterruptable and 1 when incapable; accepted commands return 2, preserving explicit deeper work-house boundaries | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA132 |
+| FP142 | Overview pattern query reaches a border or an incomplete around-way result | All six outputs start null; completed pairs remain populated and null samples draw black | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA133 |
 
 ## Reconstruction errors are not original bugs
 
@@ -2802,6 +3021,8 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 
 | Finding | Why it is not an original bug | Required reconstruction action |
 | --- | --- | --- |
+| Game startup player/camera helpers do nothing and GUI callback always returns false | Windows sets the controlling player, resolves a player center and always continues the callback chain; link-only bodies omitted this behavior | Reconstructed player/center/follow helpers and native true return. GUI dispatch and genuine mission/exploration startup remain tracked; black terrain after loading is not yet runtime-resolved. See [IN_GAME_TERRAIN_VISIBILITY.md](docs/IN_GAME_TERRAIN_VISIBILITY.md) |
+| In-game button release dereferences a null handler virtual table at +0x08 | Constructor dummy 004A3EAB left the embedded handler uninitialized; Windows initializes its base and derived table before publication | Reconstructed construction/deletion and full table. Settings/overview/speed/priority branches are connected; the remaining message entry is explicitly partial and tracked; see [IN_GAME_DEFAULT_HANDLER_STARTUP.md](docs/IN_GAME_DEFAULT_HANDLER_STARTUP.md) |
 | SoundFX startup dereferences null Pattern group data | Pattern/Landscapes temporary constructor dummies never set their singleton or load groups; Windows publishes both owners first | Reconstructed both loaders and their texture/area dependencies, removed the two dummies and retained the original shared group lookup. Runtime confirmation awaits the user's build; see [ENGINE_TERRAIN_STATIC_DATA.md](docs/ENGINE_TERRAIN_STATIC_DATA.md) |
 | Full build reports missing Windows/DirectX imports | Existing OS calls need explicit import libraries; this is project integration, not game behavior | Both configurations now link the SDK libraries and generated legacy DirectInput import library; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
 | Mapped originals and data owners remain referenced under disconnected names | Tooltip sorting, overview palette assignment and nine data consumers already have canonical native implementations/storage | Reconnected existing bodies/owners and verified MMX/network initial storage from Windows PE/xrefs; see [LINK_BUILD_AUDIT.md](docs/LINK_BUILD_AUDIT.md) |
@@ -2810,6 +3031,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | Load-menu creation dereferences address 0x18 | The listbox constructor 004CFF78 was a dummy returning null; Windows returns the initialized listbox | Reconstructed listbox/controller, child lifetime/rendering/input and savegame filling, removed four dummies and synchronized project/filters; static verification only. See [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](docs/MAIN_MENU_LISTBOX_AND_SAVEGAMES.md) |
 | Credits screen writes through null; menu typing reaches a no-op | Credits constructor 004CBCD6 and primary keyboard handler 004DB0D1 were temporary dummies | Reconstructed their full connected hypertext/input trees and removed three dummies; static verification only. See [MAIN_MENU_CREDITS_AND_KEYBOARD.md](docs/MAIN_MENU_CREDITS_AND_KEYBOARD.md) |
 | Main-menu buttons play sound/animation but do not navigate | Default handler 004D6BBB was a no-op dummy; button feedback runs independently | Reconstructed all 46 Windows commands and direct helpers; the follow-up connects credits and primary keyboard input. See [MAIN_MENU_COMMAND_DISPATCH.md](docs/MAIN_MENU_COMMAND_DISPATCH.md) |
+| Main-menu ambient playback reads an invalid wave entry | Collector sentinel was translated as 00FFFFFF although native 83 /7 sign-extends FF to FFFFFFFF | Corrected both collectors; debugger reproduced the invalid filename-derived wave ID and process-only correction avoided the exception. No build or disk EXE patch. See [AMBIENT_SOUND_SENTINEL_FIX.md](docs/AMBIENT_SOUND_SENTINEL_FIX.md) |
 | Syntax/object success is mistaken for a complete executable | Extern declarations compile without definitions; linking still requires every real function/data body | The later a77fd47 checkpoint linked with temporary dummies; the current [dummy inventory](docs/TEMPORARY_LINK_STUBS.csv) tracks unfinished implementations. Current terrain changes remain unbuilt |
 | Overview-window virtual table is truncated to fifteen entries | Windows 004F78FC..004F7947 contains nineteen entries; hide dispatch reads slot 15 | Restored slots 15..18 and the 4C size assertion; see [STRING_OUTPUT_WINDOW.md](docs/STRING_OUTPUT_WINDOW.md) |
 | Bitmap-tool virtual table is truncated to fifteen entries | Windows 004F6D58..004F6D9F contains eighteen entries | Restored slots 15..17 and the 48 size assertion; see [MAIN_MENU_GUI_MANAGER.md](docs/MAIN_MENU_GUI_MANAGER.md) |
@@ -2833,6 +3055,7 @@ Bug compatibility does not waive the following corrections. Historical inclusion
 | System-manager object and 16-bit shadow table use host allocation; application clears assert instead of fatal | Windows allocates through explicit-handler thunk `004E5DDD`, frees through `004E5E48`, and clears warning/fatal in `00479169` | Corrected the directly related allocation/free paths, minimal converter initialization and callback clearing; retained original unchecked allocation behavior. See [SYSTEM_MANAGER_LIFETIME.md](docs/SYSTEM_MANAGER_LIFETIME.md) |
 | Property manager, records and duplicated strings use host allocation; `0050F620` is described as property-manager storage | Windows uses the explicit-handler runtime allocator/free family; `0050F620` has only a one-byte clear and no established semantic identity | Corrected ownership and reused the canonical runtime list; retained the unknown byte under its original name. See [MASTER_CONTROL_INITIALIZATION.md](docs/MASTER_CONTROL_INITIALIZATION.md) |
 | Player statistics read a null GameControl owner during startup | The temporary constructor omitted publication of `005109EC`; the statistics read is an original dependency | Reconstructed GameControl initialization and its direct helpers; corrected both statistics allocations to the original new-handler thunk. Static verification only. See [GAME_CONTROL_STARTUP.md](docs/GAME_CONTROL_STARTUP.md) |
+| New-map exploration and mission initialization are missing | Missing reconstruction dependencies; menu visibility bypasses the player mask | Native exploration and MissionData parsing are reconstructed; StaticObjects and mission execution remain tracked. No runtime terrain-success claim. See [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md) |
 | Progress-bar bitmap triggers a heap breakpoint when deleted | Its object used global host-CRT allocation, while `CBitmap::operator delete` frees through the project Runtime heap | Corrected `ProgressBar_Init` to the `004025AB` allocation path: `Runtime_AllocateWithNewHandler(0x54, 1)`. Static verification only. See [PROGRESS_BAR_HEAP_OWNERSHIP.md](docs/PROGRESS_BAR_HEAP_OWNERSHIP.md) |
 
 StringIO/CStringArray/CMemory handler invocation differed from the explicit-handler thunk on five directly reached allocation sites. Those reconstruction differences are corrected; the original unchecked continuation is retained. See [CAMPAIGN_AND_STATIC_STRINGS.md](docs/CAMPAIGN_AND_STATIC_STRINGS.md).
@@ -2896,3 +3119,45 @@ The reported load-menu null element is traced to constructor dummy 004CFF78. Its
 ## Guide-manager startup correction - 2026-10-04
 
 The user reached in-game overview drawing, exposing the missing guide-array owner behind constructor dummy 0041AE53. Real startup now creates/publishes that array and allocates/registers the manager state in original order. Save/load boundaries and the existing destruction path are reviewed; the complete guide static region is named. Three new mappings and one removed dummy bring coverage to 2,068/5,056 (40.90%), excluding 122 dummies. OA112 and FP100/FP101 index failures. ASM/static verification only; no build or runtime rerun. Guide connection/goods callbacks remain pending. See [GUIDE_MANAGER_STARTUP.md](docs/GUIDE_MANAGER_STARTUP.md).
+
+## In-game default handler and Settings window - 2026-10-04
+
+Historical opening-only checkpoint, superseded by the complete Settings block below. The preceding menu/listbox/guide work is committed as 1ef245b (Restore menu and guide initialization). The user confirms that the null virtual-table screenshot occurred on the Settings button. The default handler now has genuine construction/deletion and its full table. The 0xF3C branch connects the original Options toggle/open path, centered window construction/destruction, frame registration, queued single-player pause/restore and mover widget. Common window controls, six tabs, clock and initial page are reconstructed; the five other page bodies and option actions remain explicit partial dependencies. Overview/speed/priority branches are also connected. Fifteen genuine mappings replace two constructor/destructor dummies, while three newly exposed partial entries remain tracked: 2,083/5,056 (41.20%), 2,973 unmapped candidates and 123 unfinished entries. Project/filter inventory is 154 cpp / 151 headers; twelve engine-startup constructors remain. README OA113/OA114 and FP102..FP105 index ownership, deferred commands and partial-page limits. ASM/PE/source verification only; no build, tests or runtime run. See [IN_GAME_DEFAULT_HANDLER_STARTUP.md](docs/IN_GAME_DEFAULT_HANDLER_STARTUP.md). Next: Options page bodies/actions 004C00E1/004BFA55, followed by remaining 004A3EDB dispatch.
+
+## Complete Settings pages and actions - 2026-10-04
+
+All six Settings pages and their native commands are connected, including scrolling/display/audio, load/save/autosave and quit/restart confirmation. Native IO includes manager serializers/load constructors, map-plane writers, byte/word RLE and embedded restart ownership. AI and Mission startup constructor dummies are replaced. Shared engine IO/gameplay callbacks and the unrelated default-handler commands remain unfinished.
+
+Static verification confirms 74 related virtual slots, the 21-manager save order, 118 matching unfinished inventory entries and synchronized project/filters (157 cpp / 153 headers). Provisional coverage is 2,195/5,057 (43.41%), with 2,862 unmapped candidates. No build, tests or runtime were invoked. OA114..OA117 and FP104..FP111 index original assumptions. See [IN_GAME_OPTIONS_WINDOW.md](docs/IN_GAME_OPTIONS_WINDOW.md). Next: remaining 004A3EDB dispatch.
+
+## Static ground drawing - 2026-10-04
+
+The complete static ground path now connects world/buffer splitting, height-adjusted textured triangles, exploration/highlight/vertex shading, transition layers and road/house overlays. Required EngineMap startup/callbacks, transition INI/static storage and scalar/MMX scanline shaders are reconstructed. Five dummies are replaced and 67 mappings added: 2,262/5,057 (44.73%), with 2,795 unmapped candidates, 113 unfinished entries and eight startup constructor boundaries. Project/filters contain 161 cpp files and 155 headers. Both shape tables/token tables and source integration are reviewed against Windows ASM/PE. No builds, tests or runtime invoked. OA118..OA120 and FP112..FP115 index retained failure paths. See [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md). Next related block: separate 004911D5 landscape/creature drawing and its Houses/dynamic-object dependencies.
+
+## Mission data and native exploration - 2026-10-04
+
+Mission data and native map exploration are now reconstructed: clean-map loading reads all mission definitions, complete goal/result metadata and named parameters; exploration updates the original player WORD mask, house/landscape footprints and redraw callbacks. Static-object startup at 0041D24B and mission execution remain unfinished. The 0041D09B wrapper is explicitly partial and excluded from coverage. Nineteen mappings bring source coverage to 2,325/5,057 (45.98%), with 2,732 unmapped candidates and 105 tracked unfinished boundaries. Project/filters contain 164 cpp and 157 headers. Windows ASM/PE/source review only; no build, tests or runtime run. See [MISSION_DATA_AND_EXPLORATION.md](docs/MISSION_DATA_AND_EXPLORATION.md). Next: the StaticObjects creation tree, then mission tick/goal evaluation and result execution.
+
+## In-game terrain visibility and player centering - 2026-10-04
+
+The user confirms main-menu terrain, but reports a black loaded game map. Menu drawing disables exploration; game terrain uses the player's logical +8 WORD mask. The two startup dummies for player assignment and camera centering, plus the object/terrain center fallback, are now reconstructed with their connected position/follow helpers. The GUI logic callback's native unconditional true is restored; its actual dispatch remains incomplete and excluded from coverage. Five mappings replace three dummies: 2,306/5,057 (45.60%), 2,751 unmapped and 104 unfinished entries. No builds, tests or new runtime run. See [IN_GAME_TERRAIN_VISIBILITY.md](docs/IN_GAME_TERRAIN_VISIBILITY.md). Next priority: mission/static-object startup and genuine exploration initialization; centering alone does not establish that a new map has visible fields.
+
+## Engine map IO and startup loading - 2026-10-04
+
+The black-terrain investigation identifies two real omissions: the MapIO callback returned false without loading engine terrain, and the startup-record executor did nothing. Both now have Windows-equivalent bodies. Clean-map name remapping/planes, engine savegame dispatch and direct entity/weather/music/particle serializers are connected. Human and particle constructors establish their original serializer ownership. Player-aware dirty rectangles, load completion and road-overlay updates are reconstructed. Exploration still uses the original logical +8 WORD mask; unseen terrain is not forcibly revealed.
+
+Windows ASM/PE/source review adds 39 mappings and replaces six dummies: 2,301/5,057 (45.50%), 2,756 unmapped candidates and 107 unfinished entries. Project/filters match at 162 cpp / 156 headers; eight startup constructor names remain directly referenced by C2GameEngineStartup.cpp. README OA121..OA123 and FP116..FP119 index original failures. No builds, tests or runtime run; the latest screenshot proves GUI progression, not terrain rendering after this change. See [ENGINE_MAP_IO.md](docs/ENGINE_MAP_IO.md). Next: separate 004911D5 landscape/creature drawing, static-house/object dependencies and remaining gameplay exploration initialization.
+
+## Mission start-object commands - 2026-10-04
+
+Complete StaticObjects parsing, family/home branches, name/palette postpasses and vehicle passenger attachment are connected. Source coverage is 2,346/5,057 (46.39%), with 2,711 unmapped candidates and 117 tracked unfinished entries. Project and filters include 165 cpp and 158 headers. The two loader dummies are replaced; fourteen previously hidden dependencies remain explicit. Actual human/object initialization and its initial exploration are next; the black in-game map has no new runtime confirmation. README OA126/OA127 and FP126..FP130 index reviewed branches. Windows ASM/PE/source checks only; no build or tests. See [MISSION_START_OBJECTS.md](docs/MISSION_START_OBJECTS.md).
+
+
+## Map moveable placement and pathfinder ownership - 2026-10-04
+
+The moveable allocation/init/exit tree, pathfinder allocation/init/free and logical micro/sector attachment are reconstructed. Human, animal and vehicle sector lists preserve their distinct native categories, neighbour updates and counter order. Twenty new mappings and two relocated accessors bring the audit to 2,366/5,057 (46.79%), with 2,691 unmapped candidates and 117 unchanged unfinished boundaries. Project/filters match at 166 cpp and 159 headers. No builds, tests or runtime runs were invoked. README OA128/OA129 and FP131..FP134 index retained failure/unchecked paths. See [MAP_MOVEABLE_PLACEMENT.md](docs/MAP_MOVEABLE_PLACEMENT.md). This prerequisite does not replace the human creator; next are the correctly named CHumanArray::AllocateHuman and Human_Init, their job/cleanup trees and the native initial exploration call.
+
+
+### Human creation, job setup and initial exploration - 2026-10-04
+
+Add_Human, AllocateHuman and Human_Init now connect real placement, profession permissions, the original sight radius and GameMap_Exploration_DoExplore. Production setup/change/update, markers, merchant data, initial atomic animation and human/vehicle cleanup follow Windows control/call order. Two dummies are replaced; five deeper death/edit/work-house boundaries remain explicit and excluded from source coverage. The audit is 2,441/5,057 (48.27%), with 2,616 unmapped candidates and 120 tracked unfinished entries; project/filters match at 168 cpp / 161 headers. README OA130..OA132 and FP135..FP141 record reviewed paths. No builds, tests or runtime runs were performed; visibility of the loaded map is not newly confirmed. See [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md). Next: house inhabitants and home/work/build attachment commands, then other creators and dynamic-object drawing.

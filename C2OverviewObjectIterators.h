@@ -44,6 +44,7 @@ namespace NC2Logic
     public:
         CMapMoveableIterator();
         std::int32_t GetFirstMapMoveableId();
+        std::int32_t GetFirstMapMoveableId(const void* point);
         std::int32_t GetNextMapMoveableId();
     private:
         std::uint32_t flags;

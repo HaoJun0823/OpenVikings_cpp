@@ -859,7 +859,31 @@
     <ClCompile Include="C2SavegameIO.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2GameMapSaving.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2GameMapExploration.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2MissionScriptData.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2MissionScriptData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="C2SavegameStateAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AISavegameAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClInclude Include="C2SavegameIO.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2SavegameStateAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AISavegameAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2MapGuid.h">
@@ -1044,5 +1068,33 @@
   <ItemGroup>
     <ClCompile Include="HyperLinkTextSystem.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="HyperLinkTextSystem.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiManager_MessageHandlers.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiManager_MessageHandlers.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="InGameGuiOptionsWindowAccess.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiOptionsWindowAccess.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GouraudShader.cpp"><Filter>Core\Graphics</Filter></ClCompile>
+    <ClInclude Include="GouraudShader.h"><Filter>Core\Graphics</Filter></ClInclude>
+    <ClCompile Include="C2EngineGroundDrawing.cpp"><Filter>Engine\Display</Filter></ClCompile>
+    <ClCompile Include="C2EngineMapTerrainAccess.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClInclude Include="C2EngineMapTerrainAccess.h"><Filter>Engine\Map</Filter></ClInclude>
+    <ClCompile Include="C2EngineMapIO.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClInclude Include="C2EngineMapIO.h"><Filter>Engine\Map</Filter></ClInclude>
+    <ClCompile Include="C2E2StaticDataTransitions.cpp"><Filter>Engine\StaticData</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MissionStartObjects.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MissionStartObjects.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MapMoveableAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MapMoveableAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanJobAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanJobAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanInitialization.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanInitialization.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

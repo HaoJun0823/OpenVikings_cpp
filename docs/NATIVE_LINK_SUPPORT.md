@@ -70,7 +70,7 @@ Player-filtered iterator entries 0042C1EE/0042B788 share existing scanning imple
 
 ## Ambient sound, Human sounds and GUI buttons
 
-Ambient entries 0047F3C7/0047F4D6/0047F533/0047F56E/0047F760/0047F90B retain callback order, signed WORD dimensions, unchecked allocation/index arithmetic and the complete ten-byte change region at 00554DA8. Pattern and landscape scans use distinct complete 100-DWORD counters and rank three groups, retaining ascending-group ties. The collector compares ambient IDs against 00FFFFFF while the existing loader uses FFFFFFFF; this original mismatch is preserved. Map-border and engine map-point access helpers are native.
+Ambient entries 0047F3C7/0047F4D6/0047F533/0047F56E/0047F760/0047F90B retain callback order, signed WORD dimensions, unchecked allocation/index arithmetic and the complete ten-byte change region at 00554DA8. Pattern and landscape scans use distinct complete 100-DWORD counters and rank three groups, retaining ascending-group ties. The collectors compare ambient IDs against FFFFFFFF, matching the loader. Raw 83 /7 immediate-FF bytes at 0047F610/0047F659/0047F80C sign-extend to FFFFFFFF; the earlier claim of an original 00FFFFFF mismatch was a reconstruction error. See [AMBIENT_SOUND_SENTINEL_FIX.md](AMBIENT_SOUND_SENTINEL_FIX.md). Map-border and engine map-point access helpers are native.
 
 Human-sound construction/load 00485453/004854D9 retain the first-line tribe command, unchecked tribe/sex-age/response indexing, sound-ID lookup before the unsigned fifteen-entry cap, and the complete five-token region. Speed/priority updates 004A299B/004A2A55 preserve graphics-before-cache ordering, unsigned speed division, tooltip copying and the complete initialized cache pair at 00507378.
 

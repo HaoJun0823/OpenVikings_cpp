@@ -3,6 +3,8 @@
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineLifetimeAccess.h"
+#include "C2EngineMapIO.h"
+#include "C2EngineMapTerrainAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
 #include "C2EngineTerrainData.h"
@@ -30,6 +32,7 @@
 #include "XFile.h"
 #include "XStorableIO.h"
 #include <utility>
+#include <new>
 
 // Original CRT cosine/sine entries; known library boundaries.
 extern double __cdecl Runtime_Cos(double);
@@ -41,8 +44,6 @@ namespace NC2E2
     SStaticDataTextures gStaticDataTextures{};
     NXBasics::CPalette*& gVertexColorsPalette = gStaticPalettes.vertexColorsPalette;
     extern bool __cdecl E2Manager_sl_Callback_Misc(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl E2Manager_sl_Callback_MapEdited(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl E2Manager_sl_Callback_MapIO(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     struct SStaticMoveableAnimationListTag {};
@@ -172,7 +173,7 @@ namespace NC2E2
     static void StaticBobManagerList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticBobManagerListTag>*>(list)->~CRuntimeOwnedList(); }
 
     // Original function: FUN_00484ca5; Mac l_SectorData_Free.
-    static void E2MapWeatherManagerSectorManager_FreeSectorData(void* manager)
+    void E2MapWeatherManagerSectorManager_FreeSectorData(void* manager)
     {
         if (Read<void*>(manager, 8) != nullptr) FreeAndClearField(manager, 8);
         Write<std::uint32_t>(manager, 4, 0);
@@ -645,6 +646,35 @@ namespace NC2E2
     SDynamicObjectArrayStorage gDynamicDataVehicles{};
     SDynamicObjectArrayStorage gDynamicDataAnimals{};
 
+    // Original function: FUN_0048024a; SDynamicDataHuman palette subobjects.
+    static void* DynamicHuman_Construct(void* human)
+    {
+        ::new (static_cast<std::byte*>(human) + 0x44) NXBasics::CPalette;
+        ::new (static_cast<std::byte*>(human) + 0x450) NXBasics::CPalette;
+        return human;
+    }
+    // Original function: FUN_00480162; Windows clears the records after construction.
+    void* __fastcall E2DynamicDataHumanManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        gDynamicDataHumans.manager = manager;
+        std::memset(manager, 0, 1);
+        gDynamicDataHumans.entries = nullptr;
+        const auto count = static_cast<std::uint32_t>(NC2Logic::CHumanArray::sTheObjectPtr->mCapacity);
+        const auto bytes = count * 0x8C8u;
+        auto* allocation = static_cast<std::byte*>(NXBasics::Runtime_Allocate(bytes + 4u));
+        std::byte* entries = nullptr;
+        if (allocation != nullptr)
+        {
+            entries = allocation + 4;
+            Write(allocation, 0, count);
+            if (NXBasics::Runtime_TimeSigned32(count - 1u) >= 0)
+                for (std::uint32_t i = 0; i < count; ++i) DynamicHuman_Construct(entries + i * 0x8C8u);
+        }
+        gDynamicDataHumans.entries = entries;
+        std::memset(entries, 0, bytes);
+        return manager;
+    }
+
     // Original function: FUN_0048d093; JobGraphics_Animals_GetDataPtr.
     static void* StaticMapMoveables_JobGraphics_Animals_GetDataPtr(std::uint32_t tribe, std::uint32_t type)
     {
@@ -747,7 +777,6 @@ namespace NC2E2
 
     // Remaining original dependencies are creation/update paths, not shutdown bodies.
     extern void* __fastcall EngineMap_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2DynamicDataHumanManager_Construct(void*, void* unusedEdx);
     extern void E2DynamicDataHumanManager_HumanXtructed(std::uint32_t, bool, bool);
     extern void EngineMap_OverlayPattern_HouseAreaChanged(const void*, bool);
     extern void __fastcall DisplayManager_InformThatStaticMapChanged(void*, void* unusedEdx, const void*, std::int32_t);
@@ -939,7 +968,7 @@ namespace NC2E2
         return state;
     }
     // Original function: FUN_00486464, CE2ParticelManager::l_Initialize.
-    static void E2ParticelManager_Initialize(void* manager)
+    void E2ParticelManager_Initialize(void* manager)
     {
         if (void* entries = Read<void*>(manager, 4))
         {
@@ -954,6 +983,82 @@ namespace NC2E2
         std::memset(static_cast<std::byte*>(manager) + 0x2F0278, 0, 0x7D04);
         Write<std::uint32_t>(manager, 0x2F0270, 0);
         Write<std::uint32_t>(manager, 0x2F7F78, 0);
+    }
+
+    // Original function: FUN_0048d54e; CE2StaticDataParticelManager::GetParticelId.
+    static std::int32_t StaticParticelManager_GetParticelId(const char* name)
+    {
+        for (std::int32_t i = 0; i < gStaticParticelStorage.count; ++i)
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(i) * 0x48u, name) == 0) return i;
+        return -1;
+    }
+    // Original function: FUN_004973e6; complete token table 004F4C00..004F4C5F.
+    static void E2ParticelGeneratorManager_Initialize(void* generator, const char* filename)
+    {
+        const NXBasics::SToken tokens[] = {{"name", 0x6E616D65}, {"generate", 0x67656E65}, {"maxGoneLifeTime", 0x6D617867}, {"maxLifeTime", 0x6D61786C}, {"particelmove", 0x706D6F76}, {"particelspeed", 0x70737064}, {"usemapheights", 0x75736568}, {"usewind", 0x75736577}, {"setarea", 0x73657461}, {"groundcollision", 0x67726463}, {"heightoffset", 0x6867746F}, {nullptr, 0}};
+        NXBasics::CIniFileReader reader(filename, nullptr, false, nullptr, nullptr);
+        NXBasics::CTokenList tokenList(tokens);
+        for (char* group = reader.GetFirstGroup("ParticelGenerator"); group != nullptr; group = reader.GetNextGroup("ParticelGenerator"))
+        {
+            const auto count = Read<std::uint32_t>(generator, 0);
+            auto* record = Read<std::byte*>(generator, 4) + count * 0x68u;
+            Write(generator, 0, count + 1u);
+            while (reader.GetNextCommandLineInGroup() != nullptr)
+            {
+                switch (tokenList.FindToken(reader.GetCurrentName()))
+                {
+                case 0x6E616D65: std::strcpy(reinterpret_cast<char*>(record), reader.GetString()); break;
+                case 0x67656E65: Write(record, 0x20, StaticParticelManager_GetParticelId(reader.GetString())); break;
+                case 0x6D617867: Write(record, 0x28, reader.GetInt()); break;
+                case 0x6D61786C: Write(record, 0x24, reader.GetInt()); break;
+                case 0x706D6F76: Write(record, 0x30, reader.GetInt()); break;
+                case 0x70737064:
+                {
+                    const auto first = reader.GetInt(), second = reader.GetInt(), third = reader.GetInt();
+                    Write(record, 0x3C, first); Write(record, 0x38, second); Write(record, 0x34, third);
+                    break;
+                }
+                case 0x75736568: Write<std::uint8_t>(record, 0x40, reader.GetInt() != 0); break;
+                case 0x75736577: if (reader.GetInt() != 0) Write<std::uint8_t>(record, 0x48, 1); break;
+                case 0x73657461:
+                {
+                    const auto first = reader.GetInt(), second = reader.GetInt();
+                    Write(record, 0x60, first); Write(record, 0x5C, second); Write<std::uint8_t>(record, 0x58, 1);
+                    break;
+                }
+                case 0x67726463: Write<std::uint8_t>(record, 0x64, reader.GetInt() != 0); break;
+                case 0x6867746F: Write(record, 0x44, reader.GetInt()); break;
+                }
+            }
+        }
+    }
+    // Original function: FUN_0049736d; owns thirty 0x68-byte generator records.
+    static void* E2ParticelGeneratorManager_Construct(void* generator)
+    {
+        gE2ParticelGeneratorManager = generator;
+        std::memset(generator, 0, 8);
+        auto* records = static_cast<std::byte*>(NXBasics::Runtime_Allocate(0xC30));
+        if (records != nullptr) for (unsigned i = 0; i != 30; ++i) std::memset(records + i * 0x68u, 0, 0x68);
+        Write(generator, 4, records);
+        E2ParticelGeneratorManager_Initialize(generator, "Data\\Engine2D\\Inis\\Particel\\Generator.ini");
+        return generator;
+    }
+    // Original function: FUN_00486336; the initial record constructors are
+    // zero-only on this path, and l_Initialize clears both complete arrays.
+    void* __fastcall E2ParticelManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        std::memset(static_cast<std::byte*>(manager) + 0x9F70, 0, 0x2E6308);
+        for (unsigned i = 0; i != 1000; ++i) Write<std::uint32_t>(manager, 0x2F0278 + i * 0x20u, 0);
+        gE2ParticelManager = manager;
+        std::memset(manager, 0, 0x9F6C);
+        void* allocation = NXBasics::Runtime_Allocate(8);
+        void* generator = allocation == nullptr ? nullptr : E2ParticelGeneratorManager_Construct(allocation);
+        Write<void*>(manager, 4, nullptr);
+        Write(manager, 0, generator);
+        E2ParticelManager_Initialize(manager);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(1, E2ParticelManager_Callback, 0x14, 1);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(2, E2ParticelManager_Callback, 0x14, 1);
+        return manager;
     }
     extern void __fastcall E2ParticelManager_DoOneGameTick(void* manager, void* unusedEdx);
     // Original function: FUN_00486eb4, l_ParticelManager_CallBack.
@@ -992,7 +1097,7 @@ namespace NC2E2
         return 4;
     }
     // Original function: FUN_00485c3a.
-    static void WorldMusic_Update(std::uint32_t gameTime)
+    void WorldMusic_Update(std::uint32_t gameTime)
     {
         const auto mode = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode");
         if (mode != 1 && mode != 2) return;
@@ -1021,7 +1126,7 @@ namespace NC2E2
         NDMManager::ProcessEvent(gDirectMusicManager, event, event == 6 ? 0 : static_cast<std::uint32_t>(relationship), 2);
     }
     // Original function: FUN_00485ed7.
-    static void WorldMusic_UpdateCdTrack()
+    void WorldMusic_UpdateCdTrack()
     {
         if (gDirectMusicManager != nullptr && Read<void*>(gDirectMusicManager, 0x14) != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 0, 0, 1);
         auto* cd = NCDAudioManager::CCDAudioManager::sTheObjectPtr;

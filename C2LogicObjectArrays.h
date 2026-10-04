@@ -27,6 +27,7 @@ namespace NC2Logic
         // Original function: FUN_00430db7
         void IO_SaveArray(CIoHelper* io);
 
+        std::int32_t Element_Allocate();
         bool Element_Free(std::int32_t index, bool clearElement);
 
         // Original function: FUN_00430f23
@@ -105,6 +106,8 @@ namespace NC2Logic
         CHumanArray();                            // Original function: FUN_0040b271
         ~CHumanArray();                           // Original function: FUN_0040b3c8
         void IO_Savegame_DoSave(CIoHelper* io);    // Original function: FUN_0040b401
+        std::int32_t AllocateHuman(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags);
+        void FreeHuman(std::int32_t id);
         explicit CHumanArray(CIoHelper* io);       // Original function: FUN_0040b435
     };
 
@@ -175,6 +178,7 @@ namespace NC2Logic
     bool Human_IsJobSoldier(const void* human);
     bool Human_IsJobHero(const void* human);
     bool Human_IsAgeAdult(const void* human);
+    bool Human_IsMarried(const void* human);
     bool Human_IsSexMale(const void* human);
     bool Human_HasEquippedShoes(const void* human);
     bool Human_HasEquippedTools(const void* human);

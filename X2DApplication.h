@@ -117,6 +117,7 @@ namespace NXSys2DApp
         bool CheckFullscreenDisplayMode(std::uint32_t width, std::uint32_t height, std::uint32_t depth) const;
 
         std::uint32_t GetDesktopDepth() const;
+        const SDisplayModeData& GetDisplayModeData() const { return mDisplayModeData; }
         void BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y);
 
         // Original function: FUN_004790cd

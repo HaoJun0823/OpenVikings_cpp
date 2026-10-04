@@ -5,6 +5,7 @@
 #include "C2IoHelper.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2MissionScriptData.h"
 #include "XFileAccess.h"
 #include "XIniFileReader.h"
 
@@ -16,7 +17,6 @@ namespace NC2Logic
     using namespace NC2Lifetime;
 
     // Script-manager bodies remain separately tracked reconstruction boundaries.
-    extern void __fastcall MissionManager_LoadMissionScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall AIManager_IO_InitFromScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall MultiPlayerGoalManager_IO_LoadGoals(void*, void* unusedEdx, NXBasics::CIniFileReader*);

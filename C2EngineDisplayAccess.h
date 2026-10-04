@@ -67,11 +67,13 @@ namespace NC2E2
     void Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(const void* display, std::int32_t* point, bool applyZoom);
     void Display_MapMigToLocalDisplayPixelCoordinates(const void* display, const void* packedMapPoint, std::int32_t* point, bool applyZoom);
     void Display_UpdateDisplay(void* display);
+    void __fastcall Display_l_DE_DoUpdateStaticPart1(void* display, void* unusedEdx, S2DEngineDisplayRectangle rectangle);
     std::int32_t DE_GetDisplayedCenterWorldXPosition(const void* display);
     std::int32_t DE_GetDisplayedCenterWorldYPosition(const void* display);
     void Display_DrawTooltipOverlay_External_House(void* display, std::uint32_t houseId, NXBasics::CBitmap* bitmap, bool showGoods);
     void Display_DrawTooltipOverlay_External_Vehicle(void* display, std::uint32_t vehicleId, NXBasics::CBitmap* bitmap, bool showGoods);
     void WorldMusic_UpdateVisiblePlayerSelection();
+    bool Tool_Sound_IsDMUsable();
     bool Tool_Sound_IsCDAUsable();
     void DisplayDescription_GetMapRectangle(const void* display, std::uint32_t pixelX, std::uint32_t pixelY, std::uint32_t pixelWidth, std::uint32_t pixelHeight, std::int16_t* rectangle);
     void DisplayObjectReference_Reset(void* reference);

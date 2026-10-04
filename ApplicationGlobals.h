@@ -50,7 +50,7 @@ alignas(4) inline std::byte DAT_00512620[0x3E840]{};
 // Original data: DAT_00554d20.
 inline std::uint32_t DAT_00554d20 = 0;
 
-// Original data: DAT_00554d98.
+// Complete static-display dirty bounds 00554D98..00554D9F: min X/Y, max X/Y.
 alignas(4) inline std::byte DAT_00554d98[8]{};
 
 namespace NC2E2
@@ -65,8 +65,9 @@ namespace NC2E2
     static_assert(sizeof(SAmbientSoundChangeState) == 10);
 }
 
-// Original data: DAT_00568358; startup writes offsets 0x08 through 0x17.
-alignas(4) inline std::byte DAT_00568358[0x18]{};
+// Complete engine-map region 00568358..00568373: macro/micro owners, two
+// dirty bounds at +0x08/+0x10, missing-resource flag at +0x18 and padding.
+alignas(4) inline std::byte DAT_00568358[0x1C]{};
 
 
 // Original data: DAT_00569078.

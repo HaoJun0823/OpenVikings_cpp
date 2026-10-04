@@ -342,7 +342,15 @@
     <ClCompile Include="C2SavegamesManager.cpp" />
     <ClInclude Include="C2SavegamesManager.h" />
     <ClCompile Include="C2SavegameIO.cpp" />
+    <ClCompile Include="C2GameMapSaving.cpp" />
+    <ClCompile Include="C2GameMapExploration.cpp" />
+    <ClCompile Include="C2MissionScriptData.cpp" />
+    <ClInclude Include="C2MissionScriptData.h" />
+    <ClCompile Include="C2SavegameStateAccess.cpp" />
+    <ClCompile Include="C2AISavegameAccess.cpp" />
     <ClInclude Include="C2SavegameIO.h" />
+    <ClInclude Include="C2SavegameStateAccess.h" />
+    <ClInclude Include="C2AISavegameAccess.h" />
     <ClInclude Include="C2MapGuid.h" />
   </ItemGroup>
   <ItemGroup>
@@ -434,5 +442,33 @@
   <ItemGroup>
     <ClCompile Include="HyperLinkTextSystem.cpp" />
     <ClInclude Include="HyperLinkTextSystem.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiManager_MessageHandlers.cpp" />
+    <ClInclude Include="InGameGuiManager_MessageHandlers.h" />
+    <ClCompile Include="InGameGuiOptionsWindowAccess.cpp" />
+    <ClInclude Include="InGameGuiOptionsWindowAccess.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GouraudShader.cpp" />
+    <ClInclude Include="GouraudShader.h" />
+    <ClCompile Include="C2EngineGroundDrawing.cpp" />
+    <ClCompile Include="C2EngineMapTerrainAccess.cpp" />
+    <ClInclude Include="C2EngineMapTerrainAccess.h" />
+    <ClCompile Include="C2EngineMapIO.cpp" />
+    <ClInclude Include="C2EngineMapIO.h" />
+    <ClCompile Include="C2E2StaticDataTransitions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MissionStartObjects.cpp" />
+    <ClInclude Include="C2MissionStartObjects.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MapMoveableAccess.cpp" />
+    <ClInclude Include="C2MapMoveableAccess.h" />
+    <ClCompile Include="C2HumanJobAccess.cpp" />
+    <ClInclude Include="C2HumanJobAccess.h" />
+    <ClCompile Include="C2HumanInitialization.cpp" />
+    <ClInclude Include="C2HumanInitialization.h" />
   </ItemGroup>
 </Project>

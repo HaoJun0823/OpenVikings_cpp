@@ -234,4 +234,67 @@ namespace NC2Logic
             mMemoryUsage = 0;
         }
     }
+    // Original function: FUN_0042a0b1.
+    void CIoHelper::IO_File_Chunk_WriteMarkerAndVersion(std::uint32_t marker, std::uint32_t version, std::uint32_t payloadSize)
+    {
+        SIoChunkHeader header{};
+        header.signature = 0x78696F68;
+        header.marker = marker;
+        header.version = version;
+        header.payloadSize = payloadSize;
+        mFile->Write(&header, sizeof(header));
+    }
+
+    // Original function: FUN_0042a20a.
+    void CIoHelper::IO_Memory_WriteByte(std::uint8_t value)
+    {
+        if (mMemoryUsage + 1u > mMemory->mSize) mMemory->ChangeBufferSize(mMemory->mSize + 10000u, false, 0xEE);
+        mMemory->mData[mMemoryUsage++] = value;
+    }
+
+    // Original function: FUN_0042a281; the length prefix truncates to eight bits.
+    void CIoHelper::IO_Memory_WriteString(const char* value)
+    {
+        const auto length = static_cast<std::uint32_t>(std::strlen(value));
+        if (mMemoryUsage + length + 2u > mMemory->mSize) mMemory->ChangeBufferSize(mMemory->mSize + 10000u, false, 0xEE);
+        mMemory->mData[mMemoryUsage] = static_cast<std::uint8_t>(length);
+        std::strcpy(reinterpret_cast<char*>(mMemory->mData + mMemoryUsage + 1), value);
+        mMemoryUsage += length + 2u;
+    }
+
+    // Original function: FUN_0042a32e.
+    void CIoHelper::IO_Memory_PackAndWriteBinary(const void* data, std::uint32_t byteCount, std::uint32_t packingType)
+    {
+        if (packingType != 0x6E6F6E65 && mPackingBuffer != nullptr)
+        {
+            std::uint32_t packedBytes;
+            while ((packedBytes = NXBasics::XB_Pack_Pack(packingType, data, byteCount, mPackingBuffer->mData, mPackingBuffer->mSize)) == 0)
+                mPackingBuffer->ChangeBufferSize(mPackingBuffer->mSize + 10000u, false, 0xEE);
+            IO_Memory_WriteByte(1);
+            IO_Memory_WriteLong(packedBytes);
+            IO_Memory_WriteBinary(mPackingBuffer->mData, packedBytes);
+        }
+        else
+        {
+            IO_Memory_WriteByte(0);
+            IO_Memory_WriteLong(byteCount);
+            IO_Memory_WriteBinary(data, byteCount);
+        }
+    }
+
+    // Original function: FUN_0042a49e.
+    void CIoHelper::IO_Tool_Chunk_WriteEndChunk()
+    {
+        SIoChunkHeader header{};
+        header.signature = 0x78696F68;
+        header.marker = 0x78656E64;
+        mFile->Write(&header, sizeof(header));
+    }
+
+    // Original function: FUN_00429f9a.
+    void CIoHelper::IO_File_Skip(std::uint32_t byteCount)
+    {
+        mFile->SeekToPosition(mFile->GetPosition() + byteCount);
+    }
+
 }

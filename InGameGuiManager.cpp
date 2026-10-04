@@ -6,6 +6,7 @@
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayAccess.h"
 #include "InGameGuiManager.h"
+#include "InGameGuiManager_MessageHandlers.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiSupportAccess.h"
 #include "MasterPropertyManager.h"
@@ -33,8 +34,6 @@ extern void __fastcall InGameGuiManager_Selection_UpdateWindows(void* object);
 extern bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
 extern int __fastcall InGameGuiManager_Vars_Construct(void* object);
-extern void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Construct(void* object);
-extern void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Delete(void* object, void* unusedEdx, std::uint32_t deletingFlags);
 
 namespace
 {
@@ -419,6 +418,16 @@ namespace NInGameGuiManager
         static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveAll(false);
     }
 
+    // Original function: FUN_004a0c6d.
+    void CInGameGuiManager::ControllingPlayer_Set(std::int32_t playerId, bool force)
+    {
+        if (GetLocalPlayerId() == playerId && !force) return;
+        NC2Lifetime::Write<std::int32_t>(this, 0, playerId);
+        NC2E2::Inform_ControllingPlayerChanged(playerId);
+        NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_ControllingPlayerChanged(playerId);
+        static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveAll(false);
+    }
+
     // Original function: FUN_004a0aaf.
     void CInGameGuiManager::Desktop_Close()
     {
@@ -530,5 +539,70 @@ namespace NInGameGuiManager
             button = nullptr;
             std::memcpy(mLegacyState + 0x48, &button, sizeof(button));
         }
+    }
+}
+
+namespace NInGameGuiManager
+{
+    // Original function: FUN_004a2af3.
+    void CInGameGuiManager::Options_ScrollSpeed_Set(std::uint32_t speed, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint32_t>(this, 0xD8) == speed) return;
+        NC2Lifetime::Write<std::uint32_t>(this, 0xD8, speed);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2b2d.
+    void CInGameGuiManager::Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint32_t>(this, 0xDC) == mode) return;
+        NC2Lifetime::Write<std::uint32_t>(this, 0xDC, mode);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2b52.
+    void CInGameGuiManager::Options_GuiMisc_SetExpertFlag(bool enabled, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE0) == enabled) return;
+        NC2Lifetime::Write<std::uint8_t>(this, 0xE0, enabled);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2b77.
+    void CInGameGuiManager::Options_GuiMisc_SetTooltipsOffFlag(bool disabled, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE1) == disabled) return;
+        NC2Lifetime::Write<std::uint8_t>(this, 0xE1, disabled);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2b9c.
+    void CInGameGuiManager::Options_Scrolling_SetThirdMouseButtonScrollFlag(bool enabled, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE2) == enabled) return;
+        NC2Lifetime::Write<std::uint8_t>(this, 0xE2, enabled);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2bc1.
+    void CInGameGuiManager::Options_Scrolling_SetBorderScrollFlag(bool enabled, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE3) == enabled) return;
+        NC2Lifetime::Write<std::uint8_t>(this, 0xE3, enabled);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2be6.
+    void CInGameGuiManager::Options_Scrolling_SetSoftwareMouseFlag(bool enabled, bool save)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE4) == enabled) return;
+        NC2Lifetime::Write<std::uint8_t>(this, 0xE4, enabled);
+        if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
+    }
+
+    // Original function: FUN_004a2b18.
+    std::uint32_t CInGameGuiManager::Options_ScrollSpeed_Get() const
+    {
+        return NC2Lifetime::Read<std::uint32_t>(this, 0xD8);
     }
 }

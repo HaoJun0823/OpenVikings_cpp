@@ -292,6 +292,15 @@ namespace NC2InGameGuiMessages
         return false;
     }
 
+    // Original function: FUN_004b446f; retain the original unsigned increment and wrap condition.
+    void CMessageManager::MessagePriority_Toggle()
+    {
+        auto priority = NC2Lifetime::Read<std::uint32_t>(this, 8) + 1u;
+        if (priority == 3) priority = 0;
+        NC2Lifetime::Write(this, 8, priority);
+        System_Update();
+    }
+
     // Original function: FUN_004b4490; complete selector region 004b44ce..004b450c.
     std::int32_t CMessageManager::MessagePriority_Calculate(std::uint32_t type, std::uint32_t job)
     {

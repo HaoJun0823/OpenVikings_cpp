@@ -40,6 +40,15 @@ namespace NC2Logic
     static_assert(offsetof(SGameTimeState, latencySamples) == 0x3C);
     static_assert(offsetof(SGameTimeState, maximizeSpeed) == 0x65);
 
+    // Complete Windows autosave region 005108A0..005108AB.
+    struct SGameAutosaveState
+    {
+        std::uint32_t intervalTicks;
+        std::uint32_t lastSaveTick;
+        std::uint32_t sequence;
+    };
+    static_assert(sizeof(SGameAutosaveState) == 12);
+
     // Complete Windows CGame::mStaticVars region, 00510818..005109CF.
     struct SGameStaticVars
     {
@@ -48,9 +57,9 @@ namespace NC2Logic
         SCleanMapGuid mapGuid;                   // +0x008; original 00510820
         std::byte unknown018[8];
         SGameTimeState gameTime;
-        std::byte unknown088[0x0C];
+        SGameAutosaveState autosave;
         SGameRandomState random;
-        std::uint32_t DAT_005108b4;
+        std::uint32_t uniqueIdCounter;
         std::byte unknown0A0[0x104];
         NXBasics::CIniFileReader* DAT_005109bc;
         void* DAT_005109c0;
@@ -65,14 +74,16 @@ namespace NC2Logic
     inline SGameRandomState& gGameRandomState = gGameStaticVars.random;
     std::uint32_t Random_Get(SGameRandomState& random);
     std::uint32_t Game_Random_GetNumber();
+    std::uint32_t Game_UniqueId_Generate();
     std::uint32_t Logic_EntryPoint_Random_GetNumber();
     inline SGameTimeState& gGameTime = gGameStaticVars.gameTime;
     static_assert(sizeof(SGameRandomState) == 8);
     static_assert(sizeof(SGameStaticVars) == 0x1B8);
     static_assert(offsetof(SGameStaticVars, mapGuid) == 0x08);
     static_assert(offsetof(SGameStaticVars, gameTime) == 0x20);
+    static_assert(offsetof(SGameStaticVars, autosave) == 0x88);
     static_assert(offsetof(SGameStaticVars, random) == 0x94);
-    static_assert(offsetof(SGameStaticVars, DAT_005108b4) == 0x9C);
+    static_assert(offsetof(SGameStaticVars, uniqueIdCounter) == 0x9C);
     static_assert(offsetof(SGameStaticVars, DAT_005109bc) == 0x1A4);
     static_assert(offsetof(SGameStaticVars, DAT_005109c0) == 0x1A8);
     static_assert(offsetof(SGameStaticVars, DAT_005109c4) == 0x1AC);

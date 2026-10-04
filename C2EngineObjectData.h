@@ -4,7 +4,8 @@
 
 namespace NC2E2
 {
-    // Storage bindings only; the dynamic-data manager bodies remain original.
+    // Raw Windows storage bindings; startup and serialized prefixes are
+    // reconstructed separately from the remaining dynamic drawing/update bodies.
     struct SDynamicObjectArrayStorage
     {
         std::byte* entries;

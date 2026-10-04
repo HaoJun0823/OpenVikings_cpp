@@ -144,6 +144,12 @@ namespace NC2InGameGuiWorldElement
         NC2InGameGuiBase::BaseBitmapToolElement_Destruct(element);
     }
 
+    // Original function: FUN_004bb470; CWorldDisplayElement::FollowMode_End.
+    void WorldDisplayElement_FollowMode_End(void* element)
+    {
+        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+    }
+
     // Original function: FUN_004bb669.
     void WorldDisplayElement_DarkenBitmap_Exit(void* element)
     {

@@ -1,3 +1,4 @@
+#include "NetworkShutdown.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
 #include "C2EngineDisplayAccess.h"
@@ -10,6 +11,7 @@
 #include "C2MapGeometry.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
+#include "GouraudShader.h"
 #include "XBobManager.h"
 #include "XCrtFileAccess.h"
 
@@ -480,9 +482,7 @@ namespace NC2E2
 
         if (buffer != nullptr)
         {
-            // Original function: FUN_00481e51.
-            std::memset(buffer, 0, 0x78);
-            std::memset(static_cast<std::byte*>(buffer) + 0x78, 0, 0x1C);
+            ::new (buffer) NToolGouraudShader::CGouraudShader;
         }
 
         Display_WriteField<void*>(display, 0x80, buffer);
@@ -1394,4 +1394,13 @@ void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* displa
         }
     }
     NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, false);
+}
+
+namespace NC2E2
+{
+    // Original function: FUN_00491099; DirectMusic is disabled for a network game or active session.
+    bool Tool_Sound_IsDMUsable()
+    {
+        return gDirectMusicManager != nullptr && NC2Logic::gGameStaticVars.DAT_005109c4 == 0 && !NNetwork::Network_IsInSession();
+    }
 }

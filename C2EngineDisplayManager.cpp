@@ -1,6 +1,7 @@
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
 #include "C2GameMapAccess.h"
+#include "C2MapGeometry.h"
 #include "XCrtFileAccess.h"
 #include "XMKeyManager.h"
 
@@ -13,6 +14,11 @@ std::uint8_t DAT_00555110 = 0;
 
 namespace NC2E2
 {
+    // ABI adapter for the typed InformThatStaticMapChanged overload.
+    void __fastcall DisplayManager_InformThatStaticMapChanged(void* manager, void* /*unusedEdx*/, const void* rectangle, std::int32_t playerId)
+    {
+        static_cast<C2DEngineDisplayManager*>(manager)->InformThatStaticMapChanged(static_cast<const std::int16_t*>(rectangle), static_cast<std::uint32_t>(playerId));
+    }
     // Original function: FUN_004811ae
     C2DEngineDisplayManager::C2DEngineDisplayManager() : CKeyEntryListBase(0), mActiveDisplay(nullptr)
     {
@@ -68,6 +74,19 @@ namespace NC2E2
         }
     }
 
+    // Original function: FUN_00481228.
+    void C2DEngineDisplayManager::InformThatStaticMapChanged(const std::int16_t* rectangle, std::uint32_t playerId)
+    {
+        Iterator iterator(*this);
+        for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
+        {
+            std::uint32_t player;
+            std::memcpy(&player, static_cast<const std::byte*>(display) + 0x7C, sizeof(player));
+            const auto* visible = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
+            if ((playerId == 0xFFFFFFFFu || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[0x978] = std::byte{1};
+        }
+    }
+
     // Original function: FUN_00481284
     void C2DEngineDisplayManager::InformThatStaticMapChanged()
     {
@@ -97,6 +116,26 @@ namespace NC2E2
         Iterator iterator(*this);
         for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
             DE_ControllingPlayer_SetId(display, playerId);
+    }
+
+    // Original function: FUN_00481385.
+    void C2DEngineDisplayManager::InformThatLoadDone()
+    {
+        Iterator iterator(*this);
+        for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
+        {
+            std::uint8_t enabled;
+            void* target;
+            std::memcpy(&enabled, static_cast<const std::byte*>(display) + 0xA4, sizeof(enabled));
+            std::memcpy(&target, static_cast<const std::byte*>(display) + 0xA8, sizeof(target));
+            if (enabled != 0 && target != nullptr)
+            {
+                std::memset(target, 0, 0x18C);
+                DisplayObjectReference_Reset(target);
+            }
+            const std::uint32_t zero = 0;
+            std::memcpy(static_cast<std::byte*>(display) + 0xAC, &zero, sizeof(zero));
+        }
     }
 
     // Original function: FUN_00481405

@@ -25,6 +25,7 @@ namespace NC2Logic
     static_assert(offsetof(SGameControlRuntimeStorage, pathfinderLimitOverridePending) == 0x18);
     static_assert(offsetof(SGameControlRuntimeStorage, pathfinderLimitOverride) == 0x1C);
 
+    void PlayerAllowedThings_MarkHouseAvailable(void* allowedThings, std::uint32_t tribe, std::uint32_t house);
     void* __fastcall GameControl_Construct(void* gameControl, void* unusedEdx, NXBasics::CIniFileReader* reader);
     void GameControl_MiscSystem_PlayerDynamicData_InitStructures(void* gameControl);
     bool __cdecl GameControl_ls_LogicCallback(TCallbackTypes type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);

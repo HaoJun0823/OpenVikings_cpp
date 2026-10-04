@@ -41,6 +41,7 @@ namespace NC2Logic
 
         // Original function: FUN_00429f88
         void IO_File_ReadBinary(void* destination, std::uint32_t byteCount);
+        void IO_File_Skip(std::uint32_t byteCount);
         void IO_File_ReadAndUnpackBinary(void* destination, std::uint32_t byteCount);
         std::uint8_t IO_File_ReadByte();
 
@@ -61,6 +62,11 @@ namespace NC2Logic
 
         // Original function: FUN_0042a244
         void IO_Memory_WriteLong(std::uint32_t value);
+        void IO_Memory_WriteByte(std::uint8_t value);
+        void IO_Memory_WriteString(const char* value);
+        void IO_Memory_PackAndWriteBinary(const void* data, std::uint32_t byteCount, std::uint32_t packingType);
+        void IO_File_Chunk_WriteMarkerAndVersion(std::uint32_t marker, std::uint32_t version, std::uint32_t payloadSize);
+        void IO_Tool_Chunk_WriteEndChunk();
 
         // Original function: FUN_0042a2e4
         void IO_Memory_WriteBinary(const void* data, std::uint32_t byteCount);
@@ -77,7 +83,7 @@ namespace NC2Logic
         std::uint32_t mPayloadPosition;     // +0x28: file position immediately after that header
         NXBasics::CMemory* mMemory;         // +0x2C: borrowed output buffer
         std::uint32_t mMemoryUsage;         // +0x30: bytes used in the output buffer
-        NXBasics::CMemory* mPackingBuffer;  // +0x34: compression work buffer; ownership unresolved
+        NXBasics::CMemory* mPackingBuffer;  // +0x34: borrowed compression buffer owned by the save wrapper
         std::uint32_t mChunkDepth;          // +0x38: number of open output chunks
         std::uint32_t mChunkOffsets[5];     // +0x3C: output-header offsets by nesting level
     };

@@ -31,4 +31,13 @@ namespace NC2Logic
 
     // Original function: FUN_00423fb0
     std::uint8_t GameMap_GetHeightAtMapMigPoint(const void* packedMigPoint);
+    const void* GameMap_GetTrianglePatternDescriptionA(const void* packedMagPoint);
+    const void* GameMap_GetTrianglePatternDescriptionB(const void* packedMagPoint);
+    bool GameMap_Misc_GetTrianglePatternDescriptions_AroundWay(const void* packedMigPoint, std::int32_t direction, const void** descriptions);
+    bool GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(const void* packedMigPoint, const void** descriptions);
+    bool GameMap_Exploration_HasBeenSeenOnce(std::uint32_t player, const void* packedMigPoint);
+    bool GameMap_Exploration_DoExplore(std::uint32_t player, const void* packedMigPoint, std::uint32_t radius);
+    bool GameMap_Exploration_DoExploreAll(std::uint32_t player);
+    void GameMapModifyManager_GameMapModified(std::uint32_t type, const void* packedMigPoint, std::uint32_t parameter);
+    void GameMapModifyManager_GameMapModifiedMacro(std::uint32_t type, const void* packedMagPoint, std::uint32_t parameter);
 }

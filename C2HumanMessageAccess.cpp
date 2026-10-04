@@ -2,23 +2,14 @@
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
+#include "C2MapMoveableAccess.h"
+#include "C2HumanJobAccess.h"
 
 namespace NC2Logic
 {
     namespace
     {
         using namespace NC2Lifetime;
-
-        // Original function: FUN_0042c506; signed player comparison and unchecked indexing.
-        std::uint32_t Human_GetPlayerType(const void* human)
-        {
-            const auto player = Read<std::int32_t>(human, 0x10);
-            if (player >= 20) return 0;
-            return Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 4u);
-        }
-
-        // Original function: FUN_0042c5f9.
-        bool Human_IsJobTrader(const void* human) { const auto job = Read<std::uint32_t>(human, 0x18); return job == 25 || job == 26; }
 
         // Original function: FUN_0042c679; a vehicle attachment includes allocation and revision.
         bool Human_IsAttachedToVehicle(const void* human)
@@ -42,12 +33,6 @@ namespace NC2Logic
         // Original function: FUN_0042c956.
         bool Human_IsDoingSomething(const void* human) { return Read<std::uint32_t>(human, 0x36C) == 1 && Read<std::uint32_t>(human, 0x368) != 1; }
 
-        // Original function: FUN_0044186d.
-        const void* MapPathfinder_GetPtr(std::uint32_t id) { return static_cast<const std::byte*>(gMapPathfinderEntries) + id * 0x84u; }
-
-        // Original function: FUN_00439021.
-        const void* MapMoveable_Pathfinder_GetPathfinderPtr(const void* moveable) { return MapPathfinder_GetPtr(Read<std::uint32_t>(moveable, 0x28)); }
-
         // Original function: FUN_0042c9a2.
         bool Human_IsAboutToWalk(const void* human)
         {
@@ -62,8 +47,6 @@ namespace NC2Logic
         // Original function: FUN_0042ca88.
         bool Human_IsAboutToMarry(const void* human) { return Read<std::uint32_t>(human, 0xB1C) != 0xFFFFFFFFu; }
 
-        // Original function: FUN_0042ca95.
-        bool Human_IsMarried(const void* human) { return Read<std::uint32_t>(human, 0xB20) != 0xFFFFFFFFu; }
 
         // Original function: FUN_0042db55.
         std::int32_t Human_GetHumanAttributeMargin_Hitpoints(const void* human) { return Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 0x20 ? 0xB40 : 0x2D0; }

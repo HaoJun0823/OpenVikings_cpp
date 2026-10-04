@@ -8,6 +8,33 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042af01; signed WORD endpoints wrap before comparison.
+    bool MapMigRectangle_IsTouching(const std::int16_t* rectangle, const std::int16_t* other)
+    {
+        for (unsigned axis = 0; axis < 2; ++axis)
+        {
+            const auto end = static_cast<std::int16_t>(rectangle[axis] + rectangle[axis + 2] - 1);
+            const auto otherEnd = static_cast<std::int16_t>(other[axis] + other[axis + 2] - 1);
+            if (static_cast<std::int32_t>(end) + 1 <= other[axis] || static_cast<std::int32_t>(otherEnd) + 1 <= rectangle[axis]) return false;
+        }
+        return true;
+    }
+    // Original function: FUN_0042b3a7.
+    void MapMagRectangle_CutInsideMap(std::int16_t* rectangle)
+    {
+        for (unsigned axis = 0; axis < 2; ++axis)
+        {
+            if (rectangle[axis] < 0) { rectangle[axis + 2] = static_cast<std::int16_t>(rectangle[axis + 2] + rectangle[axis]); rectangle[axis] = 0; }
+            const auto limit = axis == 0 ? gMapPointDimensions.macroWidth : gMapPointDimensions.macroHeight;
+            if (rectangle[axis] + rectangle[axis + 2] > limit) rectangle[axis + 2] = static_cast<std::int16_t>(limit - rectangle[axis]);
+        }
+    }
+    // Original function: FUN_0042b376.
+    void MapMagRectangle_Construct(std::int16_t* rectangle, std::int16_t x, std::int16_t y, std::int16_t width, std::int16_t height)
+    {
+        rectangle[0] = x; rectangle[1] = y; rectangle[2] = width; rectangle[3] = height;
+        MapMagRectangle_CutInsideMap(rectangle);
+    }
     // Original function: FUN_0042ac72; distance is an unchecked unsigned loop count.
     void MapMigPoint_MoveCursorUnwrapped(void* packedMigPoint, std::uint32_t direction, std::uint32_t distance)
     {
@@ -50,6 +77,102 @@ namespace NC2Logic
             return result == dimension ? 0 : result;
         }
         return coordinate;
+    }
+
+    // Original function: FUN_0042a632.
+    void VE_MapCoords_GetMicroGridMapOffset(std::int16_t x, std::int16_t y, std::int16_t* offsetX, std::int16_t* offsetY)
+    {
+        *offsetX = static_cast<std::int16_t>((x - ((static_cast<std::uint16_t>(y) & 3u) == 1 || (static_cast<std::uint16_t>(y) & 3u) == 2 ? 1 : 0)) & 1);
+        *offsetY = static_cast<std::int16_t>(y & 1);
+    }
+    // Original function: FUN_0042a9b0.
+    void* MapMigPoint_ConstructFromMag(void* packedMigPoint, const void* packedMagPoint, bool validate)
+    {
+        std::int16_t point[2];
+        std::memcpy(point, packedMagPoint, sizeof(point));
+        const std::int16_t result[2] = {static_cast<std::int16_t>(point[0] * 2 + (point[1] & 1)), static_cast<std::int16_t>(point[1] * 2)};
+        std::memcpy(packedMigPoint, result, sizeof(result));
+        if (validate) MapMigPoint_WrapPosition(packedMigPoint);
+        return packedMigPoint;
+    }
+    // Original function: FUN_0042aa54.
+    bool MapMigPoint_MoveCursorWrapped(void* packedMigPoint, std::uint32_t direction)
+    {
+        if (direction > 7) return false;
+        std::uint32_t point;
+        std::memcpy(&point, packedMigPoint, sizeof(point));
+        MapMigPoint_MoveCursorUnwrapped(point, direction);
+        std::int16_t coordinates[2];
+        std::memcpy(coordinates, &point, sizeof(point));
+        bool wrapped = false;
+        if (direction < 6)
+        {
+            if (coordinates[0] == gMapPointDimensions.microWidth) { coordinates[0] = 0; wrapped = true; }
+            else if (coordinates[0] < 0) { coordinates[0] = static_cast<std::int16_t>(gMapPointDimensions.microWidth - 1); wrapped = true; }
+            if (coordinates[1] == gMapPointDimensions.microHeight) { coordinates[1] = 0; wrapped = true; }
+            else if (coordinates[1] < 0) { coordinates[1] = static_cast<std::int16_t>(gMapPointDimensions.microHeight - 1); wrapped = true; }
+        }
+        else if (direction == 6 && coordinates[1] < 0) { coordinates[1] = static_cast<std::int16_t>(coordinates[1] + gMapPointDimensions.microHeight); wrapped = true; }
+        else if (direction == 7 && coordinates[1] >= gMapPointDimensions.microHeight) { coordinates[1] = static_cast<std::int16_t>(coordinates[1] - gMapPointDimensions.microHeight); wrapped = true; }
+        std::memcpy(packedMigPoint, coordinates, sizeof(coordinates));
+        return wrapped;
+    }
+    // Original function: FUN_0042afcb.
+    void MapMagPoint_MoveCursorWrapped(void* packedMagPoint, std::uint32_t direction)
+    {
+        if (direction > 7) return;
+        MapMagPoint_MoveCursorUnwrapped(packedMagPoint, direction);
+        std::int16_t coordinates[2];
+        std::memcpy(coordinates, packedMagPoint, sizeof(coordinates));
+        if (coordinates[0] == gMapPointDimensions.macroWidth) coordinates[0] = 0;
+        else if (coordinates[0] < 0) coordinates[0] = static_cast<std::int16_t>(gMapPointDimensions.macroWidth - 1);
+        if (direction < 6)
+        {
+            if (coordinates[1] == gMapPointDimensions.macroHeight) coordinates[1] = 0;
+            else if (coordinates[1] < 0) coordinates[1] = static_cast<std::int16_t>(gMapPointDimensions.macroHeight - 1);
+        }
+        else if (direction == 6 && coordinates[1] < 0) coordinates[1] = static_cast<std::int16_t>(coordinates[1] + gMapPointDimensions.macroHeight);
+        else if (direction == 7 && coordinates[1] >= gMapPointDimensions.macroHeight) coordinates[1] = static_cast<std::int16_t>(coordinates[1] - gMapPointDimensions.macroHeight);
+        std::memcpy(packedMagPoint, coordinates, sizeof(coordinates));
+    }
+    // Original function: FUN_0042b128.
+    void MapMagPoint_MoveCursorWrappedEast(void* packedMagPoint)
+    {
+        auto* point = static_cast<std::int16_t*>(packedMagPoint);
+        *point = static_cast<std::int16_t>(*point + 1);
+        if (*point == gMapPointDimensions.macroWidth) *point = 0;
+    }
+    // Original function: FUN_0042b13c.
+    void MapMagPoint_MoveCursorWrappedWest(void* packedMagPoint)
+    {
+        auto* point = static_cast<std::int16_t*>(packedMagPoint);
+        *point = static_cast<std::int16_t>(*point - 1);
+        if (*point < 0) *point = static_cast<std::int16_t>(gMapPointDimensions.macroWidth - 1);
+    }
+    // Original function: FUN_0042b14f.
+    void MapMagPoint_MoveCursorUnwrapped(void* packedMagPoint, std::uint32_t direction)
+    {
+        std::uint32_t point;
+        std::memcpy(&point, packedMagPoint, sizeof(point));
+        MapMigPoint_MoveCursorUnwrapped(point, direction);
+        std::memcpy(packedMagPoint, &point, sizeof(point));
+    }
+    // Original function: FUN_0042b1e2.
+    void MapMagPoint_MoveCursorUnwrappedEast(void* packedMagPoint) { auto* point = static_cast<std::int16_t*>(packedMagPoint); *point = static_cast<std::int16_t>(*point + 1); }
+    // Original function: FUN_0042b1e6.
+    void MapMagPoint_MoveCursorUnwrappedWest(void* packedMagPoint) { auto* point = static_cast<std::int16_t*>(packedMagPoint); *point = static_cast<std::int16_t>(*point - 1); }
+    // Original function: FUN_0042b271.
+    void MapMagPoint_ValidateXPosition(void* packedMagPoint) { auto* point = static_cast<std::int16_t*>(packedMagPoint); *point = WrapCoordinate(*point, gMapPointDimensions.macroWidth); }
+    // Original function: FUN_0042b2b4.
+    void MapMagPoint_ValidateYPosition(void* packedMagPoint) { auto* point = static_cast<std::int16_t*>(packedMagPoint); point[1] = WrapCoordinate(point[1], gMapPointDimensions.macroHeight); }
+    // Original function: FUN_0042b2fd.
+    void MapMagPoint_CutInsideMap(void* packedMagPoint)
+    {
+        auto* point = static_cast<std::int16_t*>(packedMagPoint);
+        if (point[0] < 0) point[0] = 0;
+        else if (point[0] >= gMapPointDimensions.macroWidth) point[0] = static_cast<std::int16_t>(gMapPointDimensions.macroWidth - 1);
+        if (point[1] < 0) point[1] = 0;
+        else if (point[1] >= gMapPointDimensions.macroHeight) point[1] = static_cast<std::int16_t>(gMapPointDimensions.macroHeight - 1);
     }
 
     // Original function: FUN_0042a5f1.

@@ -15,6 +15,7 @@ namespace NC2Logic
         // Original function: FUN_0044ebd7.
         CGameMapSectorAttachmentManager();
         explicit CGameMapSectorAttachmentManager(CIoHelper& io);
+        void IO_Savegame_DoSave(CIoHelper& io);
 
         // Original function: FUN_0044ebf8.
         ~CGameMapSectorAttachmentManager();
@@ -24,6 +25,10 @@ namespace NC2Logic
             return mGridWidth;
         }
         const std::byte* GetSectorData() const noexcept
+        {
+            return mSectorData;
+        }
+        std::byte* GetSectorData() noexcept
         {
             return mSectorData;
         }

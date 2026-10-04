@@ -199,3 +199,7 @@ No substitute bodies or guessed standard-library implementations were supplied f
 - Complete production syntax inventory: 87/90 pass, with 103 diagnostics in MainMenuGuiManager (78), MasterControlProgram_PS_InGame (17), and MasterControlProgram_PS_MainMenu (8). Four previous caller diagnostics are resolved. This is compilation coverage, not full linking or runtime equivalence.
 - Both new source files and both new headers are included in OpenVikings.vcxproj and OpenVikings.vcxproj.filters, under Logic and Application\States as appropriate. All 90 production implementations and 99 headers have synchronized entries.
 - No tests or test projects were added. Full link/runtime validation remains open because original constructor/load/callback boundaries and unrelated incomplete units remain unresolved.
+
+## Engine map IO follow-up - 2026-10-04
+
+The historical boundary table above is superseded for 0040743A (all four startup map/savegame branches), 0047EA9F (engine MapIO) and 0047EAF3 (dirty rectangles/road overlays), now reconstructed in [ENGINE_MAP_IO.md](ENGINE_MAP_IO.md). The earlier ground block also replaced 00411C48/00411C84. A current direct-reference inventory finds eight still-dummy constructor names in C2GameEngineStartup.cpp; indirect callbacks and other missing gameplay methods are separate dependencies. No builds or runtime run.

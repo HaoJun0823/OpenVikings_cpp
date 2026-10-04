@@ -1,5 +1,15 @@
 #include "C2PlayerCenterPosition.h"
 #include "C2GameState.h"
+#include "C2GameMapAccess.h"
+#include "C2EngineDisplayAccess.h"
+#include "C2HumanIterator.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2LogicObjectArrays.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2MapGeometry.h"
+#include "InGameGuiManager.h"
+#include "WorldDisplayElementAccess.h"
 #include "XBTokenList.h"
 #include "XCrtFileAccess.h"
 #include "XIniFileReader.h"
@@ -9,12 +19,99 @@
 
 namespace NC2Logic
 {
-    // Original object/terrain fallback; its separate query body remains unresolved.
-    extern bool Tool_Misc_GetPlayerCenterPosition(std::uint32_t playerId, std::uint32_t* mapPoint);
+    // Original function: FUN_00439e61.
+    bool Tool_Misc_GetPlayerCenterPosition(std::uint32_t playerId, std::uint32_t* mapPoint)
+    {
+        using namespace NC2Lifetime;
+        const auto houseAt = [](std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; };
+        CHouseIterator preferredHouses;
+        for (auto id = preferredHouses.GetFirstHouseId(playerId); id != -1; id = preferredHouses.GetNextHouseId())
+        {
+            const auto* house = houseAt(id);
+            const auto type = Read<std::uint32_t>(house, 0x14);
+            if (type == 7 || type == 8 || type == 9 || type == 1)
+            {
+                *mapPoint = Read<std::uint32_t>(house, 0x24);
+                return true;
+            }
+        }
+        std::uint32_t sumX = 0, sumY = 0, count = 0, continent = 0xFFFFFFFFu;
+        bool firstHouse = true;
+        CHouseIterator houses;
+        for (auto id = houses.GetFirstHouseId(playerId); id != -1; id = houses.GetNextHouseId())
+        {
+            const auto* position = houseAt(id) + 0x1C;
+            sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, 0));
+            sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, 2));
+            ++count;
+            if (firstHouse)
+            {
+                continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+                firstHouse = false;
+            }
+        }
+        bool firstHuman = continent == 0xFFFFFFFFu;
+        CHumanIterator humans;
+        for (auto id = humans.GetFirstHumanId(playerId); id != -1; id = humans.GetNextHumanId())
+        {
+            const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+            const auto* moveable = static_cast<const std::byte*>(gMapMoveableArrayStorage.entries) + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+            if (Read<std::uint8_t>(moveable, 0x10) == 0) continue;
+            const auto* position = moveable + 0x12;
+            sumX += static_cast<std::uint32_t>(Read<std::int16_t>(position, 0));
+            sumY += static_cast<std::uint32_t>(Read<std::int16_t>(position, 2));
+            ++count;
+            if (firstHuman)
+            {
+                continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+                firstHuman = false;
+            }
+        }
+        if (count == 0) return false;
+        // Windows DIV treats the wrapped sums as unsigned, then narrows to WORDs.
+        *mapPoint = static_cast<std::uint16_t>(sumX / count) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(sumY / count)) << 16);
+        const auto acceptable = [&](const void* point)
+        {
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            return (Read<std::uint8_t>(micro, 0x0C) & 0x80u) == 0 && Read<std::uint8_t>(micro, 6) == continent;
+        };
+        if (acceptable(mapPoint)) return true;
+        const auto limit = static_cast<std::uint32_t>(GameMap_GetWidth() > GameMap_GetHeight() ? GameMap_GetWidth() : GameMap_GetHeight());
+        for (std::uint32_t radius = 1; radius < limit; ++radius)
+        {
+            MapMigPoint_MoveCursorUnwrapped(mapPoint, 4, 1);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                for (std::uint32_t step = 0; step < radius; ++step)
+                {
+                    MapMigPoint_MoveCursorUnwrapped(mapPoint, direction, 1);
+                    if (MapMigPoint_IsInsideMap(mapPoint) && acceptable(mapPoint)) return true;
+                }
+            }
+        }
+        return false;
+    }
 }
 
 namespace NC2InGameGuiEntryPoints
 {
+    // Original function: FUN_004a2f64.
+    void C2IGG_EntryPoint_MainDisplay_SetToMapPosition(const void* mapPoint)
+    {
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
+        void* display = NC2Lifetime::Read<void*>(manager->GetDesktop(), 0x30);
+        NC2E2::DE_SetWantedPositionToMapPoint(display, static_cast<const std::uint32_t*>(mapPoint));
+    }
+
+    // Original function: FUN_004a2f86.
+    void C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition()
+    {
+        std::uint32_t mapPoint = 0;
+        const auto playerId = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
+        if (C2IGG_EntryPoint_PlayerCenterPosition_Get(static_cast<std::uint32_t>(playerId), &mapPoint)) C2IGG_EntryPoint_MainDisplay_SetToMapPosition(&mapPoint);
+    }
+
     namespace
     {
         // Complete Windows lazy region 005690D0..005690D7; no owning allocation.

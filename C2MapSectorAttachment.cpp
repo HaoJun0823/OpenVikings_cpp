@@ -111,4 +111,13 @@ namespace NC2Logic
         mSectorAuxiliaryData = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(auxiliaryBytes, 1));
         std::memset(mSectorAuxiliaryData, 0, auxiliaryBytes);
     }
+    // Original function: FUN_0044ecec.
+    void CGameMapSectorAttachmentManager::IO_Savegame_DoSave(CIoHelper& io)
+    {
+        io.IO_Tool_Chunk_StartCreation(0x7361616D, 1);
+        io.IO_Memory_WriteBinary(this, 8);
+        io.IO_Memory_WriteBinary(mSectorData, static_cast<std::uint32_t>(mGridWidth) * static_cast<std::uint32_t>(mGridHeight) * 0x540u);
+        io.IO_Tool_Chunk_FinishAndWrite();
+    }
+
 }

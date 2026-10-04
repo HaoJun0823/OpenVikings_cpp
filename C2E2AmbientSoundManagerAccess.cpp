@@ -120,7 +120,8 @@ namespace NC2E2
                     for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
                     {
                         const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
-                        if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != 0x00FFFFFFu) ++gPatternAmbientGroupCounts[group];
+                        // Windows 83 /7 sign-extends the FF immediate to FFFFFFFF.
+                        if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != 0xFFFFFFFFu) ++gPatternAmbientGroupCounts[group];
                     }
                 }
             }
@@ -177,7 +178,7 @@ namespace NC2E2
                 for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
                 {
                     const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
-                    if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != 0x00FFFFFFu) ++gLandscapeAmbientGroupCounts[group];
+                    if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != 0xFFFFFFFFu) ++gLandscapeAmbientGroupCounts[group];
                 }
             }
         }

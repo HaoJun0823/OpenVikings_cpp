@@ -44,6 +44,11 @@ namespace
 
     bool IsPlayerIndex(std::int32_t player) { return player >= 0 && player < 20; }
     std::byte* PlayerData(void* gameControl, std::uint32_t player) { return static_cast<std::byte*>(gameControl) + player * 0x4A80u; }
+}
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
 
     // Original function: FUN_00409a3b. Inlined in the named Mac initializer;
     // the helper name describes the confirmed Windows writes, not an exported symbol.
@@ -60,11 +65,6 @@ namespace
             Write<std::uint8_t>(allowedThings, 0x1D3E + tribe * 66u, 1);
         }
     }
-}
-
-namespace NC2Logic
-{
-    using namespace NC2Lifetime;
 
     // Original function: FUN_00408fdd; CGameControl::CGameControl(CIniFileReader*).
     void* __fastcall GameControl_Construct(void* gameControl, void* /*unusedEdx*/, NXBasics::CIniFileReader* reader)

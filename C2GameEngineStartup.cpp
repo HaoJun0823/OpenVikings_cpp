@@ -2,6 +2,8 @@
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameControlStartup.h"
 #include "C2GameEngineStartup.h"
+#include "C2GameMapIO.h"
+#include "C2SavegameIO.h"
 #include "C2GameTime.h"
 #include "ApplicationGlobals.h"
 #include "C2LifetimeAccess.h"
@@ -17,6 +19,8 @@
 #include "C2E2StaticDataAnimalSounds.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2E2StaticDataTerrain.h"
+#include "C2EngineMapIO.h"
+#include "C2EngineMapTerrainAccess.h"
 #include "C2EngineDisplayManager.h"
 #include "C2LogicObjectArrays.h"
 #include "C2CampaignStaticDataManager.h"
@@ -53,6 +57,26 @@ namespace
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_0040743A.
+    void Game_WorkOnStartUpData()
+    {
+        const auto type = Read<std::uint32_t>(&gGameControlStartupData, 0);
+        if (type == 1 || type == 3)
+        {
+            const auto guid = Read<SCleanMapGuid>(&gGameControlStartupData, type == 1 ? 4u : 0x18u);
+            const auto* map = gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(guid);
+            if (map == nullptr) return;
+            if (map->archiveFilename[0] == '\0') GameIO_Cleanmap_Load(map->mapRoot, true, true, type == 3);
+            else GameIO_Cleanmap_LoadX(nullptr, map->archiveFilename, true, true, type == 3);
+        }
+        else if (type == 2)
+        {
+            const auto* savegame = gSavegamesManager->GetSavegameInfoPtrByUniqueId(Read<std::uint32_t>(&gGameControlStartupData, 0x14));
+            if (savegame != nullptr) GameIO_Savegame_Load(savegame->filename, false);
+        }
+        else if (type == 4) GameIO_Savegame_Load("sys_continue", true);
+    }
+
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
     extern void* __fastcall GameMap_Construct(void*, void* unusedEdx, std::int16_t, std::int16_t);
     extern void* __fastcall MissionManager_Construct(void*, void* unusedEdx);
@@ -75,7 +99,7 @@ namespace NC2Logic
         // Fixed Windows seed has thirteen set bits; neither adjustment branch runs.
         gGameRandomState.seed = 0x18273645;
         gGameRandomState.currentState = 0x18273645;
-        gGameStaticVars.DAT_005108b4 = 1;
+        gGameStaticVars.uniqueIdCounter = 1;
         ConstructNative<CStaticStringsManager>(0x1);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructNative<CCampaignStaticDataManager>(0x218);
@@ -132,7 +156,7 @@ namespace NC2Logic
         }
         gGameRandomState.seed = 0x18273645;
         gGameRandomState.currentState = 0x18273645;
-        gGameStaticVars.DAT_005108b4 = 1;
+        gGameStaticVars.uniqueIdCounter = 1;
         GameTime_Reset(false);
         gGameStaticVars.DAT_005109c4 = static_cast<std::uint8_t>(networkGame);
         ConstructOriginal(0x5D204, GameControl_Construct, iniFile);
@@ -163,7 +187,7 @@ namespace NC2Logic
         CCleanMapsManager::Tool_GenerateNewGuid(&gGameStaticVars.mapGuid);
         Write<std::uint32_t>(&gGameStaticVars, 0x18, 2);
         GameTime_Reset(enableTime);
-        Write<std::uint32_t>(&gGameStaticVars, 0x88, 0);
+        gGameStaticVars.autosave.intervalTicks = 0;
         gGameInitialized = 1;
     }
 
@@ -190,6 +214,14 @@ namespace NC2Logic
         gGameTime.speed = speed;
         gGameTime.tickDuration = speed > 0.1 ? 1000.0 / speed : 0.0;
         gGameTime.maximizeSpeed = 0;
+    }
+
+    // Original function: FUN_00407c5b; the network-game flag suppresses this operation.
+    void GameTime_MaximizeGameSpeed_SetFlag(bool enabled)
+    {
+        if (gGameStaticVars.DAT_005109c4 != 0) return;
+        GameTime_SetSpeed(enabled ? 1.0 : 12.0);
+        gGameTime.maximizeSpeed = static_cast<std::uint8_t>(enabled);
     }
 
     // Original function: FUN_00411bcc
@@ -228,12 +260,9 @@ namespace NC2E2
     extern void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelEffectManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall MacroMapManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2ParticelManager_Construct(void*, void* unusedEdx);
 
-    // Original callbacks remain unresolved; their verified signatures match the callback manager.
+    // The remaining original callbacks keep their verified callback-manager ABI.
     extern bool __cdecl E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl E2Manager_sl_Callback_MapIO(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl E2Manager_sl_Callback_MapEdited(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl E2Manager_sl_Callback_Misc(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
     // Original function: FUN_0047dcc4

@@ -1,4 +1,5 @@
 #include "C2VehicleAccess.h"
+#include "C2HumanInitialization.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -377,5 +378,109 @@ namespace NC2Logic
         const auto count = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->vehicleSlots);
         for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(vehicle, 0x2FCu + index * 12u) == vehicleId) return NXBasics::Runtime_TimeSigned32(index);
         return -1;
+    }
+
+    // Original function: FUN_0044bdfb.
+    bool Vehicle_Passengers_AttachHuman(void* vehicle, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        if (!Vehicle_Passengers_CanHumanBeAttached(vehicle, humanId)) return false;
+        const void* human = GetHumanPtr(static_cast<std::int32_t>(humanId));
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
+        std::uint32_t slot;
+        if (Read<std::uint8_t>(vehicle, 0x2EC) == 0 && Vehicle_Passengers_CanBeCommander(vehicle, human))
+        {
+            Write<std::uint8_t>(vehicle, 0x2EC, 1);
+            slot = capacity;
+        }
+        else
+        {
+            for (slot = 0; slot < capacity; ++slot)
+            {
+                if (!HumanReference_IsAllocated(static_cast<const std::byte*>(vehicle) + 0x1F0u + slot * 12u)) break;
+            }
+            if (slot == capacity) return false;
+        }
+        const auto offset = 0x1F0u + slot * 12u;
+        Write<std::uint32_t>(vehicle, offset, Read<std::uint32_t>(human, 4));
+        Write<std::uint32_t>(vehicle, offset + 4u, Read<std::uint32_t>(human, 8));
+        Write<std::uint8_t>(vehicle, offset + 8u, 0);
+        return true;
+    }
+
+    // Original function: FUN_0044bf65.
+    bool Vehicle_Passengers_CanHumanBeAttached(const void* vehicle, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        const void* human = GetHumanPtr(static_cast<std::int32_t>(humanId));
+        if (Read<std::uint32_t>(human, 0x10) != Read<std::uint32_t>(vehicle, 0x1E0)) return false;
+        if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[Read<std::uint32_t>(human, 0x18)] == 0) return false;
+        if (Read<std::uint8_t>(vehicle, 0x2EC) == 0 && Vehicle_Passengers_CanBeCommander(vehicle, human)) return true;
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
+        return capacity > Vehicle_Passengers_GetNumberOfAttachedHumans(vehicle, false);
+    }
+
+    // Original function: FUN_0044c122; Windows checks the passenger job mask here as well.
+    bool Vehicle_Passengers_CanBeCommander(const void* vehicle, const void* human)
+    {
+        if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[NC2Lifetime::Read<std::uint32_t>(human, 0x18)] == 0) return false;
+        return NC2Lifetime::Read<std::uint8_t>(vehicle, 0x2EC) == 0;
+    }
+
+    // Original function: FUN_0044c237; the commander flag is counted without a revision check.
+    std::uint32_t Vehicle_Passengers_GetNumberOfAttachedHumans(const void* vehicle, bool includeCommander)
+    {
+        std::uint32_t count = includeCommander && NC2Lifetime::Read<std::uint8_t>(vehicle, 0x2EC) != 0 ? 1u : 0u;
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
+        for (std::uint32_t slot = 0; slot < capacity; ++slot)
+        {
+            if (HumanReference_IsAllocated(static_cast<const std::byte*>(vehicle) + 0x1F0u + slot * 12u)) ++count;
+        }
+        return count;
+    }
+    // Original function: FUN_0044bea0.
+    bool Vehicle_Passengers_DetachHuman(void* vehicle, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0 && static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedCommanderId(vehicle)) == humanId)
+        {
+            Write<std::uint8_t>(vehicle, 0x2EC, 0);
+            const auto offset = 0x1F0u + static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots) * 12u;
+            // PE opcode 83 sign-extends its FF immediate to 0xFFFFFFFF.
+            Write<std::int32_t>(vehicle, offset, -1);
+            Write<std::uint8_t>(vehicle, offset + 8u, 0);
+            Human_DetachFromVehicle(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize);
+            Vehicle_Passengers_ScanForAttachedCommander(vehicle);
+            return true;
+        }
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
+        for (std::uint32_t slot = 0; slot < capacity; ++slot)
+        {
+            const auto offset = 0x1F0u + slot * 12u;
+            if (Read<std::uint32_t>(vehicle, offset) != humanId) continue;
+            Write<std::int32_t>(vehicle, offset, -1);
+            Write<std::uint8_t>(vehicle, offset + 8u, 0);
+            Human_DetachFromVehicle(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize);
+            return true;
+        }
+        return false;
+    }
+    // Original function: FUN_0044c150.
+    void Vehicle_Passengers_ScanForAttachedCommander(void* vehicle)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) return;
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots);
+        for (std::uint32_t slot = 0; slot < capacity; ++slot)
+        {
+            auto* entry = static_cast<std::byte*>(vehicle) + 0x1F0u + slot * 12u;
+            if (!HumanReference_IsAllocated(entry)) continue;
+            if (!Vehicle_Passengers_CanBeCommander(vehicle, CHumanArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CHumanArray::ElementSize)) continue;
+            Write<std::uint8_t>(vehicle, 0x2EC, 1);
+            std::memcpy(static_cast<std::byte*>(vehicle) + 0x1F0u + capacity * 12u, entry, 12);
+            Write<std::int32_t>(entry, 0, -1);
+            Write<std::uint8_t>(entry, 8, 0);
+            return;
+        }
     }
 }

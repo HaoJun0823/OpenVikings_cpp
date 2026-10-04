@@ -11,6 +11,19 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00430e3d; allocation reserves a slot without setting its object flag.
+    std::int32_t CArrayHandler::Element_Allocate()
+    {
+        if (mAllocatedCount == mCapacity) return -1;
+        const auto index = mNextFreeIndex;
+        mNextFreeIndex = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u);
+        while (mNextFreeIndex != mCapacity && mIsAllocated(l_Element_GetPtr(static_cast<std::uint32_t>(mNextFreeIndex)))) mNextFreeIndex = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(mNextFreeIndex) + 1u);
+        mAllocatedCount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(mAllocatedCount) + 1u);
+        if (index < mFirstScanIndex) mFirstScanIndex = index;
+        if (index > mLastScanIndex) mLastScanIndex = index;
+        return index;
+    }
+
     // Original function: FUN_004417d2; a reference stores the ID and revision in DWORDs.
     bool HumanReference_IsAllocated(const void* reference)
     {

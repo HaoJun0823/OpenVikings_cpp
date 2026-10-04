@@ -1,6 +1,7 @@
 #include "C2UserNetworkCommandAccess.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameTime.h"
+#include "C2SavegameIO.h"
 #include "C2CallbackManager.h"
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
@@ -16,6 +17,12 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+
+    // Original function: FUN_0040aece; Windows returns the stored double in ST(0).
+    double Logic_EntryPoint_GameTime_GetSpeed()
+    {
+        return gGameTime.speed;
+    }
 
     // Original subsystem updates/command processing are separate unresolved bodies.
     extern std::uint32_t Game_Checksum_Calculate();
@@ -199,4 +206,31 @@ namespace NC2Logic
 
     // Original function: FUN_0040b246.
     void GameTime_SetNetworkWaitFlag(bool waiting) { gGameStaticVars.networkWait = static_cast<std::uint8_t>(waiting); }
+    // Original function: FUN_004074e5.
+    void Autosave_Start(std::uint32_t intervalTicks)
+    {
+        if (intervalTicks == 0) { gGameStaticVars.autosave.intervalTicks = 0; return; }
+        gGameStaticVars.autosave.sequence = 0;
+        gGameStaticVars.autosave.intervalTicks = intervalTicks;
+        l_Autosave_Do();
+    }
+
+    // Original function: FUN_00407524.
+    void l_Autosave_Do()
+    {
+        gGameStaticVars.autosave.lastSaveTick = gGameTime.tick;
+        const auto slot = gGameStaticVars.autosave.sequence % 10;
+        char filename[20];
+        NXBasics::Runtime_PrintString(filename, "user_autosave_%2.2d", slot);
+        GameIO_Savegame_Save(filename, nullptr, static_cast<std::int32_t>(slot + 2000));
+        ++gGameStaticVars.autosave.sequence;
+    }
+
+    // Original function: FUN_00407505; both operands use wrapping unsigned arithmetic.
+    void Game_l_Autosave_Update()
+    {
+        const auto& autosave = gGameStaticVars.autosave;
+        if (autosave.intervalTicks != 0 && gGameTime.tick >= autosave.lastSaveTick + autosave.intervalTicks) l_Autosave_Do();
+    }
+
 }

@@ -27,4 +27,10 @@ namespace NC2Logic
     std::int32_t Vehicle_Passengers_GetAttachedHumanSlot(const void* vehicle, std::uint32_t humanId);
     std::int32_t Vehicle_Passengers_GetAttachedCommanderId(const void* vehicle);
     std::int32_t Vehicle_Passengers_GetAttachedVehicleSlot(const void* vehicle, std::uint32_t vehicleId);
+    bool Vehicle_Passengers_DetachHuman(void* vehicle, std::uint32_t humanId);
+    void Vehicle_Passengers_ScanForAttachedCommander(void* vehicle);
+    bool Vehicle_Passengers_AttachHuman(void* vehicle, std::uint32_t humanId);
+    bool Vehicle_Passengers_CanHumanBeAttached(const void* vehicle, std::uint32_t humanId);
+    bool Vehicle_Passengers_CanBeCommander(const void* vehicle, const void* human);
+    std::uint32_t Vehicle_Passengers_GetNumberOfAttachedHumans(const void* vehicle, bool includeCommander);
 }

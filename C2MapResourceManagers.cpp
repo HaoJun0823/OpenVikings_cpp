@@ -322,4 +322,56 @@ namespace NC2Logic
         }
         return removed;
     }
+    // Original function: FUN_004269c5.
+    void CMapBioRegrowManager::IO_Savegame_DoSave(CIoHelper& io)
+    {
+        io.IO_Tool_Chunk_StartCreation(0x73616772, 1);
+        io.IO_Memory_WriteLong(static_cast<std::uint32_t>(mCapacity));
+        IO_SaveArray(&io);
+        io.IO_Tool_Chunk_FinishAndWrite();
+    }
+
+    // Original function: FUN_00426ec0.
+    void CMapLandscapeAutoTransitionManager::IO_Savegame_DoSave(CIoHelper& io)
+    {
+        io.IO_Tool_Chunk_StartCreation(0x7361746D, 1);
+        io.IO_Memory_WriteLong(static_cast<std::uint32_t>(mCapacity));
+        IO_SaveArray(&io);
+        io.IO_Tool_Chunk_FinishAndWrite();
+    }
+
+    // Original function: FUN_0044e733.
+    void CMapFishManager::IO_Savegame_DoSave(CIoHelper& io)
+    {
+        io.IO_Tool_Chunk_StartCreation(0x7366696D, 1);
+        io.IO_Memory_WriteBinary(this, 0x1774);
+        io.IO_Tool_Chunk_FinishAndWrite();
+    }
+
+    // Original function: FUN_00427feb.
+    void CRoadBuildManager::IO_Savegame_DoSave(CIoHelper& io)
+    {
+        io.IO_Tool_Chunk_StartCreation(0x73726F64, 2);
+        io.IO_Memory_WriteBinary(this, 4);
+        for (std::int32_t index = 0; index < mPlayerCount; ++index)
+        {
+            io.IO_Memory_WriteByte(mPlayers[index] != nullptr);
+            if (mPlayers[index] != nullptr) io.IO_Memory_WriteBinary(mPlayers[index], 0x4B8);
+        }
+        io.IO_Tool_Chunk_FinishAndWrite();
+    }
+
+    // Original function: FUN_00427376.
+    void CWallBuildManager::IO_Savegame_DoSave(CIoHelper& io)
+    {
+        io.IO_Tool_Chunk_StartCreation(0x73726F77, 1);
+        io.IO_Memory_WriteBinary(this, 4);
+        for (std::int32_t index = 0; index < mPlayerCount; ++index)
+        {
+            io.IO_Memory_WriteByte(mPlayers[index] != nullptr);
+            if (mPlayers[index] != nullptr) io.IO_Memory_WriteBinary(mPlayers[index], 0x260);
+        }
+        io.IO_Tool_Chunk_FinishAndWrite();
+    }
+
 }

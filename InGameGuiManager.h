@@ -35,6 +35,7 @@ namespace NInGameGuiManager
 
         void* GetDesktop() const;
         std::int32_t GetLocalPlayerId() const;
+        void ControllingPlayer_Set(std::int32_t playerId, bool force);
         bool AreCheatsAllowed() const;
         NC2InGameGuiBaseTextInputElement::CStringInputHandler* GetStringInputHandler();
         bool IsMiddleButtonScrollingEnabled() const;
@@ -53,6 +54,19 @@ namespace NInGameGuiManager
         void MiscButtons_SpeedButton_Update(bool update);
         void MiscButtons_MessagePriorityButton_Update(bool update);
         void MiscWindows_CloseAllLargeOnes(bool resetInputMode);
+        void MiscWindows_OptionsWindow_Toggle(bool loadPage, bool savePage);
+        void MiscWindows_OptionsWindow_Open(bool loadPage, bool savePage);
+        void MiscWindows_GameSafetyBoxWindow_Open(std::uint32_t mode);
+        void Options_ScrollSpeed_Set(std::uint32_t speed, bool save);
+        std::uint32_t Options_ScrollSpeed_Get() const;
+        void Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save);
+        void Options_GuiMisc_SetExpertFlag(bool enabled, bool save);
+        void Options_GuiMisc_SetTooltipsOffFlag(bool disabled, bool save);
+        void Options_Scrolling_SetThirdMouseButtonScrollFlag(bool enabled, bool save);
+        void Options_Scrolling_SetBorderScrollFlag(bool enabled, bool save);
+        void Options_Scrolling_SetSoftwareMouseFlag(bool enabled, bool save);
+        void Misc_GameTime_Stop_LargeWindowOpened();
+        void Misc_GameTime_Continue_LargeWindowClosed();
         void MiscWindows_StringOutputWindow_Open();
         void MiscWindows_StringOutputWindow_PrintString(const char* text);
         void MiscWindows_StringOutputWindow_ClearAll();

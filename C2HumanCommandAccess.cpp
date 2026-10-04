@@ -1,4 +1,5 @@
 #include "C2HumanCommandAccess.h"
+#include "C2HumanJobAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -233,5 +234,34 @@ namespace NC2Logic
         Write(human, offset + 16, parameter2);
         if (Read<std::uint32_t>(human, 0x368) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
         return true;
+    }
+    // Original function: FUN_0043bc7d.
+    void Human_DoCheckAllUserCommands(void* human)
+    {
+        using namespace NC2Lifetime;
+        for (std::uint32_t slot = 0; slot < 87; ++slot)
+        {
+            auto* command = static_cast<std::byte*>(human) + 0x390u + slot * 0x14u;
+            if (Read<std::uint8_t>(command, 0) != 0 && Human_DoCheckUserCommand(human, command)) Write<std::uint8_t>(command, 0, 0);
+        }
+    }
+    // Original function: FUN_0043bca9.
+    // Complete Windows selector table 0043BD42..0043BD96.
+    bool Human_DoCheckUserCommand(const void* human, const void* command)
+    {
+        switch (NC2Lifetime::Read<std::uint8_t>(command, 0))
+        {
+        case 6: case 13: case 14: return Human_IsJobSoldier(human) || Human_IsJobScout(human) || Human_IsJobTrader(human);
+        case 28: case 29: return Human_IsJobBuilder(human);
+        case 30: case 31: return !Human_IsJobBuilder(human);
+        case 36: case 37: return !Human_IsJobTrader(human);
+        case 19: case 20: return !Human_IsJobScout(human);
+        default: { const auto opcode = NC2Lifetime::Read<std::uint8_t>(command, 0); return opcode < 4 || opcode > 87; }
+        }
+    }
+    // Original function: FUN_0043e49d.
+    void Human_ResetUserCommandArray(void* human)
+    {
+        for (std::uint32_t slot = 0; slot < 87; ++slot) NC2Lifetime::Write<std::uint8_t>(human, 0x390u + slot * 0x14u, 0);
     }
 }

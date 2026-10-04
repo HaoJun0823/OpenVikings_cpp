@@ -5,6 +5,7 @@
 #include "C2GameTime.h"
 #include "C2LifetimeAccess.h"
 #include "InGameGuiManager.h"
+#include "C2PlayerCenterPosition.h"
 #include "MasterPropertyManager.h"
 #include "XCrtFileAccess.h"
 
@@ -12,9 +13,6 @@
 
 namespace NC2Logic
 {
-    // Unreconstructed original map/startup/network boundaries.
-    extern void Game_WorkOnStartUpData();
-
     // Original function: FUN_00408f18; Mac CAIManager::EnableAI.
     static void AIManager_EnableAI(void* manager, std::int32_t playerId)
     {
@@ -25,10 +23,6 @@ namespace NC2Logic
         NC2Lifetime::Write<std::uint8_t>(NC2Lifetime::Read<void*>(manager, 0x50 + index * 4), 4, 1);
     }
 }
-
-// Original GUI entry points and controlling-player setter remain separate boundaries.
-extern void C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
-extern void __fastcall InGameGuiManager_ControllingPlayer_Set(void*, void* unusedEdx, std::int32_t, bool);
 
 namespace NMasterControlProgram
 {
@@ -65,7 +59,7 @@ namespace NMasterControlProgram
         if (startMap != nullptr)
         {
             NC2Logic::GameIO_Cleanmap_Load(startMap, true, true, false);
-            C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
+            NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("start_map");
             return;
         }
@@ -128,7 +122,7 @@ namespace NMasterControlProgram
             }
         }
 
-        InGameGuiManager_ControllingPlayer_Set(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, nullptr, controllingPlayer, true);
-        if (!suppressCentering) C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->ControllingPlayer_Set(controllingPlayer, true);
+        if (!suppressCentering) NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
     }
 }

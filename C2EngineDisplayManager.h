@@ -13,7 +13,9 @@ namespace NC2E2
         void RegisterDisplayObject(void* display);
         void UnregisterDisplayObject(void* display);
         void InformThatStaticMapChanged();
+        void InformThatStaticMapChanged(const std::int16_t* rectangle, std::uint32_t playerId);
         void InformThatMapXtructed();
+        void InformThatLoadDone();
         void InformThatControllingPlayerChanged(std::int32_t playerId);
         void InformSetExplorationState(bool enabled);
 

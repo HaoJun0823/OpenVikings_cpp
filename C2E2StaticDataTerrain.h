@@ -86,6 +86,42 @@ namespace NC2E2
     };
     inline SStaticPatternStorage gStaticPatternStorage{}; // 00568A30..00568A47
 
+    struct STransitionPointType
+    {
+        char name[40];
+        std::uint32_t groupCount;
+        std::int32_t groupIds[5];
+    };
+
+    struct SE2StaticDataTransition
+    {
+        char name[40];
+        std::int32_t pointTypeId;
+        std::int32_t textureId;
+        std::int32_t alphaTextureId;
+        std::int32_t coordinatesA[6][6];
+        std::int32_t coordinatesB[6][6];
+    };
+
+    struct SStaticTransitionStorage
+    {
+        std::int32_t pointTypeCount;
+        STransitionPointType* pointTypes;
+        std::int32_t count;
+        SE2StaticDataTransition* entries;
+        std::int32_t roadOverlayIds[2];
+        std::int32_t houseOverlayIds[2];
+    };
+    inline SStaticTransitionStorage gStaticTransitionStorage{}; // 005689F0..00568A0F
+    static_assert(sizeof(STransitionPointType) == 0x40);
+    static_assert(sizeof(SE2StaticDataTransition) == 0x154);
+    static_assert(offsetof(SE2StaticDataTransition, coordinatesA) == 0x34);
+    static_assert(offsetof(SE2StaticDataTransition, coordinatesB) == 0xC4);
+    static_assert(sizeof(SStaticTransitionStorage) == 0x20);
+    void* __fastcall E2StaticDataTransitionsManager_Construct(void* manager, void* unusedEdx);
+    std::int32_t E2StaticDataTransitionsManager_GetTransitionId(const char* name);
+    std::int32_t E2StaticDataTransitionsManager_l_GetPointTypeId(const char* name);
+
     struct SStaticLandscapeStorage
     {
         std::int32_t count;

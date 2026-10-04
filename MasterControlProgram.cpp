@@ -571,3 +571,12 @@ namespace NMasterControlProgram
         }
     }
 }
+
+namespace NC2LogicExternals
+{
+    // Original function: FUN_00401bfa.
+    void External_Misc_PropertyString_AddString(const char* name, const char* value)
+    {
+        NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add(name, false, 0, value);
+    }
+}
