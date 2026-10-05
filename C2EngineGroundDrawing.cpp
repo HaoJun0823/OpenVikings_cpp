@@ -1,4 +1,5 @@
 #include "C2EngineDisplayAccess.h"
+#include "C2EngineLandscapeDrawing.h"
 #include "C2EngineTerrainData.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
@@ -11,7 +12,6 @@
 #include <algorithm>
 #include <cstring>
 
-extern void __fastcall Display_l_DE_DrawLandscapeAndCreaturesField(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point, bool staticPart, bool topPart);
 
 namespace NC2E2
 {
@@ -284,7 +284,7 @@ namespace NC2E2
         rectangle[3] = static_cast<std::int16_t>(bitmap->GetRectangle().height / Read<I>(display, 0x20) + 37);
         NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
         pixelPoint[0] = Round(pixelPoint[0]); pixelPoint[1] = Round(pixelPoint[1]);
-        Display_l_DE_DrawLandscapeAndCreaturesField(display, nullptr, rectangle, bitmap, pixelPoint, true, false);
+        Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, bitmap, pixelPoint, true, false);
     }
 
     // Original function: FUN_00481e20.

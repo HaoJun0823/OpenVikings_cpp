@@ -10,6 +10,7 @@ namespace NC2E2
     bool __cdecl EngineMap_l_HeightChanged_Callback(std::uint32_t type, std::uint32_t userData, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t parameter3);
     bool __cdecl EngineMap_l_Transitions_Callback(std::uint32_t type, std::uint32_t userData, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t parameter3);
     void EngineMap_l_HeightChanged_CalculateBrightness(const void* packedPoint);
+    std::uint32_t EngineMap_Brightness_Get(const void* packedMicroPoint);
     void EngineMap_Transition_Set(const void* packedPoint, std::int32_t transitionId, std::uint32_t layer, bool triangleA);
     void EngineMap_l_Transitions_Check(const void* packedPoint);
     void EngineMap_OverlayPattern_RoadChanged(const void* packedMicroPoint, bool enabled);

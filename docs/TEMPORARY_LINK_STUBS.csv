@@ -1,7 +1,7 @@
-﻿Address,CurrentName,Status,ReferencingObjects
+Address,CurrentName,Status,ReferencingObjects
 0040822E,NC2Logic::AIManager_IO_InitFromScript,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 00408F7B,NC2Logic::AIManager_l_AI_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-00409BCC,NC2Logic::GameControl_System_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
+00409BCC,NC2Logic::GameControl_System_DoOneGameTick,Partial native implementation; per-tick pathfinder budget reset complete; periodic defeat scan/messages/network command pending,C2GameTime.obj; C2GameControlStartup.obj
 0040A295,NC2Logic::GameControl_Player_LeavesGame,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040ACE5,NC2Logic::HouseArray_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
@@ -12,7 +12,7 @@
 0040AE38,NC2Logic::Logic_EntryPoint_House_Set,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040B0C6,NC2Logic::Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType,Temporary dummy; Windows implementation pending,C2HumanInitialization.obj
 0040B183,NC2Logic::GameTime_Network_GetHighestPlayerLatency,Temporary dummy; Windows implementation pending,C2GameTime.obj
-0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
+0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,Partial Windows tick: turning and active walking connected; human event-free atomic progress connected; AI conditions/task machine/new paths/deletion remain pending,C2GameTime.obj
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
@@ -25,7 +25,9 @@
 0041B936,NC2Logic::GuideManager_l_Guides_Callback,Temporary dummy; original true return preserved; guide work pending,C2LogicLifetimeAccess.obj
 0041CB1E,NC2Logic::HumanMerchantArray_CleanMap_LoadTradeAgreements,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 0041CBB8,NC2Logic::HumanMerchantArray_l_LogicCallback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-004230EE,NC2Logic::MissionManager_l_Mission_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
+0041E2AE,NC2Logic::MissionManager_CheckAllMissionGoals,Partial implementation; active-goal scan and briefing stop flag reconstructed; submap transitions pending,C2MissionExecution.obj
+0041E45E,NC2Logic::MissionManager_l_CheckGoal,Partial implementation; True/Diplomacy/CheckMission/Population/IfMissionIsActive/IsMissionDone reconstructed; object-area-combat goals pending,C2MissionExecution.obj
+0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial implementation; briefing/activation/exploration/exit/external-AI-flag/diplomacy/visibility/submap request flags reconstructed; remaining actions pending,C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00426AC7,NC2Logic::MapBioRegrowManager_System_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
 00426F84,NC2Logic::MapLandscapeAutoTransitionManager_System_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
@@ -57,6 +59,8 @@
 0043E72E,NC2Logic::TributeData_Pay,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043E8AA,NC2Logic::MapPathfinderSpecialWallRoadElement_GetNextDirection,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00441F8C,NC2Logic::Human_VehicleMisc_Enter,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
+0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows task performance: event-free atomic progress/completion only; task event dispatch remains pending,C2MapMoveableAccess.obj
+00447CF1,NC2Logic::MapPathfinderElement_l_FindWayAndBuildVectorList,Partial native implementation; local search/vector construction complete; sector and guide routing fallback pending,C2MapPathfinderSearch.obj
 0044AD2E,NC2Logic::Human_UpdateCurrentJobType,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0044BA8A,NC2Logic::Vehicle_Stock_ModifyAmount,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0044FD3E,NC2Logic::MapWalkSectorManager_l_Sectors_CheckAndSetConnection,Temporary dummy; Windows implementation pending,C2MapWalkSectorManager.obj
@@ -70,7 +74,6 @@
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047E936,NC2E2::E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;C2GameEngineStartup.obj
 0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;C2GameEngineStartup.obj
-004803D5,NC2E2::E2DynamicDataHumanManager_HumanXtructed,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
 00480904,NC2LogicExternals::External_Misc_GetEngineCadaverLandscapeId,Temporary dummy; Windows implementation pending,C2HumanInitialization.obj
 00480939,NC2LogicExternals::External_Human_SetName,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
@@ -81,12 +84,9 @@
 0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048A4BA,NC2E2::E2StaticDataMiscLandscapeManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-0048ACFB,NC2E2::E2StaticDataHumanMiscManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-0048BD66,NC2E2::E2StaticDataMapMoveablesManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048D194,NC2E2::E2StaticDataParticelManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048E651,NC2E2::E2StaticDataHousesManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-004911D5,Display_l_DE_DrawLandscapeAndCreaturesField,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-00493656,NC2E2::DrawAtom_MapMoveable_DoDraw,Temporary dummy; Windows implementation pending,InGameGuiMessageMiniButtonAccess.obj
+004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native implementation; landscape and foreground moveable drawing complete; house/construction/particle/generic-sound branches pending,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
 004986C5,Display_l_DE_DrawTooltipOverlays,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
@@ -97,21 +97,17 @@
 004A0E9D,InGameGuiManager_Selection_UpdateWindows,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
 004A10CB,InGameGuiManager_l_Selection_ActionButtons_BringUp,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
 004A1BF0,InGameGuiManager_l_Selection_ActionButtons_GetChecksum,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
-004A2322,InGameGuiManager_MiscWindows_LargeOverviewWindow_Toggle,Temporary dummy; Windows implementation pending,InGameGuiOverviewWindowAccess.obj
-004A2C0B,InGameGuiManager_ls_Logic_CallbackFunction,Partial: native unconditional true restored; event dispatch remains pending,InGameGuiManager.obj
+004A2C0B,InGameGuiManager_ls_Logic_CallbackFunction,Partial native callback: true return; GUI save/load and briefing open/reset/reload connected; remaining selection/window/event branches pending,InGameGuiManager.obj
 004A2F54,C2IGG_EntryPoint_InputManager_Highlighting_Update,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-004A3EDB,InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle,Partial dummy; options/overview/speed/priority connected; other commands pending,InGameGuiManager_MessageHandlers.obj
+004A3EDB,InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle,Partial native dispatch: options/mission-info/overview/speed/priority connected; other commands pending,InGameGuiManager_MessageHandlers.obj
 004B3264,IGG_DrawWorldGameCursor_LogicCallback,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
 004B4247,NC2InGameGuiMessages::CMessageManager::PresentationWindow_Open,Temporary dummy; Windows implementation pending,InGameGuiMessageMiniButtonAccess.obj
 004B4854,InputManager_InputMode_Set,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
-004B77E8,InputManager_ls_Callback_Logic,Temporary dummy; Windows implementation pending,InGameGuiSupportAccess.obj
-004B7B62,InputManager_Misc_Tool_SendSelectedHuman,Temporary dummy; Windows implementation pending,InGameGuiOverviewDisplayAccess.obj
+004B77E8,InputManager_ls_Callback_Logic,Partial Windows callback: original unconditional true restored; selection validation/removal/highlighting/cursor reset pending; excluded from completion,InGameGuiSupportAccess.obj
 004B8607,MissionOnscreenInfoStaticGuiWindow_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
-004BA3BE,WorldDisplayElement_XGui_BE_Message_Handle,Temporary dummy; Windows implementation pending,WorldDisplayElementAccess.obj
+004BA3BE,NC2InGameGuiWorldElement::WorldDisplayElement_MessageHandle,Partial native implementation; overview camera command 2004 and wheel zoom restored; other world input pending; excluded from completion counts,WorldDisplayElementAccess.obj
 004BB78A,InGameGuiManagerMousePointer_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
 004BC31C,InGameGuiManagerPrimaryMessageHandlerElement_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
-004C9777,WorldOverviewStaticGuiWindow_Delete,Temporary dummy; Windows implementation pending,InGameGuiOverviewWindowAccess.obj
-004C9824,WorldOverviewStaticGuiWindow_XGui_BE_Element_Draw,Temporary dummy; Windows implementation pending,InGameGuiOverviewWindowAccess.obj
 004D21DE,NC2InGameGuiMessages::Tool_CreateMessageString,Temporary dummy; Windows implementation pending,InGameGuiMessageMiniButtonAccess.obj
 004DAE69,MainMenuGuiManagerMousePointer_DrawMouse,Temporary dummy; Windows implementation pending,MainMenuGuiManager_Access.obj
 004E6E44,Runtime_Log10,Temporary dummy; Windows implementation pending,DMManager.obj

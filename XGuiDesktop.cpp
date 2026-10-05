@@ -739,7 +739,8 @@ namespace NXBaseGui
         if ((event.flags & 2u) != 0)
         {
             activateAtPoint();
-            l_Message_Send(0x100, 0, static_cast<std::uint32_t>(event.wheelDelta), 0, 0);
+            // 00477D67..00477D74: wheel handlers read GUI parameter 3.
+            l_Message_Send(0x100, 0, 0, static_cast<std::uint32_t>(event.wheelDelta), 0);
         }
     }
 

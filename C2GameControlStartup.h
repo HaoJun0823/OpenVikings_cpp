@@ -28,5 +28,7 @@ namespace NC2Logic
     void PlayerAllowedThings_MarkHouseAvailable(void* allowedThings, std::uint32_t tribe, std::uint32_t house);
     void* __fastcall GameControl_Construct(void* gameControl, void* unusedEdx, NXBasics::CIniFileReader* reader);
     void GameControl_MiscSystem_PlayerDynamicData_InitStructures(void* gameControl);
+    bool GameControl_System_PathfinderLimit_IsSearchAllowed(void* gameControl, std::int32_t playerId);
+    void __fastcall GameControl_System_DoOneGameTick(void* gameControl, void* unusedEdx, std::uint32_t tick);
     bool __cdecl GameControl_ls_LogicCallback(TCallbackTypes type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 }

@@ -23,10 +23,6 @@
 #include <Windows.h>
 #include <mmsystem.h>
 
-// Original boundaries: engine map/pattern data, object traversal, input and bitmap primitives.
-// The unused EDX argument preserves original ECX receivers and stack cleanup.
-extern void __fastcall InputManager_Misc_Tool_SendSelectedHuman(void* manager, void* unusedEdx, const void* mapPoint);
-
 namespace NC2InGameGuiOverviewDisplay
 {
     template<typename T> static T OverviewDisplay_Read(const void* object, std::size_t offset)
@@ -884,7 +880,7 @@ namespace NC2InGameGuiOverviewDisplay
             if (selection <= 0) return true;
             if (selection <= 2)
             {
-                InputManager_Misc_Tool_SendSelectedHuman(input, nullptr, mapPoint);
+                NC2InGameGuiInputManager::Misc_Tool_SendSelectedHuman(input, mapPoint);
                 return true;
             }
             if (selection == 4)

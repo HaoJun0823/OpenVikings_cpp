@@ -21,10 +21,6 @@
 #include <cstring>
 #include <new>
 
-// Untranslated original base/widget interfaces. EDX is unused so the stack
-// parameters and callee cleanup match Windows __thiscall dispatch.
-extern std::uint32_t __fastcall WorldDisplayElement_XGui_BE_Message_Handle(void* object, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
-
 namespace NC2InGameGuiWorldElement
 {
     template<class T> static T WorldDisplayElement_ReadField(const void* object, std::size_t offset)
@@ -37,6 +33,34 @@ namespace NC2InGameGuiWorldElement
     template<typename T> static void WorldDisplayElement_WriteField(void* object, std::size_t offset, T value)
     {
         std::memcpy(static_cast<std::byte*>(object) + offset, &value, sizeof(value));
+    }
+
+    // Original function: FUN_004ba3be; overview camera and wheel zoom branches.
+    // Other world-input branches remain unfinished and this entry stays excluded
+    // from reconstruction completion counts in TEMPORARY_LINK_STUBS.csv.
+    static bool __fastcall WorldDisplayElement_MessageHandle(void* element, void*, std::int32_t message, std::int32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t)
+    {
+        if (message == 0x100)
+        {
+            void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
+            if (WorldDisplayElement_ReadField<std::uint8_t>(element, 0x34) != 0 && WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) != 0)
+            {
+                const auto wheelDelta = NXBasics::Runtime_TimeSigned32(param2);
+                if (wheelDelta > 0) NC2E2::DE_Zoom_In(display, false);
+                else if (wheelDelta < 0) NC2E2::DE_Zoom_Out(display);
+            }
+            return true;
+        }
+        if (message != 0x1000 || command != 2004) return false;
+        void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
+        if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & 0x200u) != 0) return false;
+        std::int32_t point[2];
+        NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &param1, point, false);
+        NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, false);
+        NC2E2::DE_SetWantedPositionToPixelPoint(display, point);
+        WorldDisplayElement_FollowMode_End(element);
+        // The original command branch changes the camera and still returns false.
+        return false;
     }
 
     // Original virtual entry: FUN_004ba124.
@@ -57,13 +81,13 @@ namespace NC2InGameGuiWorldElement
     }
 
     // Complete 15-slot table recovered from Game.exe at 004F6FAC..004F6FE7.
-    // Only destruction and drawing are replaced here; other entries retain
-    // their verified original interfaces, including the input dispatcher.
+    // Destruction, drawing, wheel zoom and the overview camera command use reconstructed
+    // bodies. Other world-input dispatcher branches remain unfinished.
     static const std::uintptr_t gWorldDisplayElementVirtualTable[] =
     {
         reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_DeletingDestructor),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
-        reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_XGui_BE_Message_Handle),
+        reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_MessageHandle),
         reinterpret_cast<std::uintptr_t>(&WorldDisplayElement_VirtualDraw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_DeActivate),

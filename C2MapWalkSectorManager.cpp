@@ -392,13 +392,7 @@ namespace NC2Logic
         GameMap_CalculationMap_SetValue(&basePoint, 1);
 
         // Original shared pathfinder storage: clear only the first two queue counts.
-        struct SPointQueue
-        {
-            std::uint32_t count;
-            std::uint32_t points[4000];
-        };
-        static_assert(sizeof(SPointQueue) == 0x3E84);
-        auto* queues = reinterpret_cast<SPointQueue*>(DAT_00512620);
+        auto* queues = sMapPathfinderStaticVariables;
         queues[0].count = 1;
         queues[0].points[0] = basePoint;
         queues[1].count = 0;

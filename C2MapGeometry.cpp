@@ -1,6 +1,7 @@
 #include "C2GameMapAccess.h"
 #include "C2MapGeometry.h"
 #include "C2LifetimeGlobals.h"
+#include "XCrtFileAccess.h"
 
 #include <cstdint>
 #include <cstddef>
@@ -8,6 +9,86 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042a6b7; directions 6/7 bridge the two vertical turns.
+    std::int32_t VE_HexagonDirection_DirectionToTurn(std::uint32_t source, std::uint32_t target, bool includeVertical)
+    {
+        if (source == target) return 0;
+        if (includeVertical)
+        {
+            if (source == 6) return target == 2 || target == 3 || target == 4 ? -1 : 1;
+            if (source == 7) return target == 2 || target == 3 || target == 4 ? 1 : -1;
+            if (target == 6) return source <= 1 || source == 5 ? -1 : 1;
+            if (target == 7) return source <= 1 || source == 5 ? 1 : -1;
+        }
+        if (source == 6 || source == 7 || target == 6 || target == 7) return 0;
+        const auto difference = NXBasics::Runtime_TimeSigned32(target - source);
+        if (difference >= 0) return difference <= 3 ? difference : NXBasics::Runtime_TimeSigned32(target - source - 6u);
+        return difference >= -3 ? difference : NXBasics::Runtime_TimeSigned32(target - source + 6u);
+    }
+
+    // Original function: FUN_0042a753.
+    std::uint32_t VE_HexagonDirection_NextDirection(std::uint32_t source, std::uint32_t target, bool includeVertical)
+    {
+        if (source == target) return source;
+        if (includeVertical)
+        {
+            if (source == 6) return target == 2 || target == 3 || target == 4 ? 4u : 5u;
+            if (source == 7) return target == 2 || target == 3 || target == 4 ? 2u : 1u;
+            if (target == 6)
+            {
+                if (source == 0) return 5;
+                if (source == 1) return 0;
+                if (source == 2) return 3;
+                if (source == 3) return 4;
+                return 6;
+            }
+            if (target == 7)
+            {
+                if (source == 0) return 1;
+                if (source == 3) return 2;
+                if (source == 4) return 3;
+                if (source == 5) return 0;
+                return 7;
+            }
+        }
+        if (source == 6 || source == 7 || target == 6 || target == 7) return target;
+        const bool counterclockwise = VE_HexagonDirection_DirectionToTurn(source, target, false) < 0;
+        auto next = counterclockwise ? (source != 0 ? source - 1u : 5u) : (source + 1u == 6 ? 0u : source + 1u);
+        if (includeVertical)
+        {
+            if (counterclockwise)
+            {
+                if (next == 4) next = 6;
+                else if (next == 1) next = 7;
+            }
+            else
+            {
+                if (next == 5) next = 6;
+                else if (next == 2) next = 7;
+            }
+        }
+        return next;
+    }
+
+    // Original function: FUN_0042ae0c; inclusive rectangle ends wrap as WORDs.
+    bool MapMigPoint_IsInside(const void* packedMigPoint, const std::int16_t* rectangle)
+    {
+        std::int16_t point[2];
+        std::memcpy(point, packedMigPoint, sizeof(point));
+        for (unsigned axis = 0; axis < 2; ++axis)
+        {
+            const auto end = static_cast<std::int16_t>(rectangle[axis] + rectangle[axis + 2] - 1);
+            if (point[axis] < rectangle[axis] || point[axis] > end) return false;
+        }
+        return true;
+    }
+
+    // Original function: FUN_0042b40f.
+    std::uint32_t VE_MicroPoint_GetMicroPointCount(std::uint32_t radius)
+    {
+        return (radius + 1u) * radius * 3u + 1u;
+    }
+
     // Original function: FUN_0042af01; signed WORD endpoints wrap before comparison.
     bool MapMigRectangle_IsTouching(const std::int16_t* rectangle, const std::int16_t* other)
     {

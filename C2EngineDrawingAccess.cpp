@@ -2,6 +2,9 @@
 #include "ApplicationGlobals.h"
 #include "C2EngineDrawingAccess.h"
 #include "C2E2LevelOfDetailManager.h"
+#include "C2HouseAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2LogicObjectArrays.h"
 #include "XBobRendering.h"
 #include "XCrtFileAccess.h"
 #include "XBasicTypes.h"
@@ -17,6 +20,31 @@
 
 namespace NC2E2
 {
+    // Original function: FUN_0048b4e6; ColorIds_GetPlayerShipPalettePtr.
+    NXBasics::CPalette* EnginePalette_GetPlayerShipPalette(std::int32_t playerId)
+    {
+        using NC2Lifetime::Read;
+        if (playerId < 0 || playerId >= 20) return nullptr;
+        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u;
+        if (Read<std::uint8_t>(player, 0) == 0) return nullptr;
+        auto color = Read<std::int32_t>(player, 0x10);
+        if (color < 0 || color >= 10) color = 9;
+        const auto paletteId = Read<std::uint32_t>(gStaticHumanColors + color * 0x58u, 0x54);
+        return gStaticPalettes.palettes256[paletteId].palette;
+    }
+
+    // Original function: FUN_0048b532.
+    std::int32_t StaticHumanMisc_SoldierSign_GetLandscapeId(std::int32_t playerId, std::uint32_t sign)
+    {
+        using NC2Lifetime::Read;
+        if (playerId < 0 || playerId >= 20) return -1;
+        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u;
+        if (Read<std::uint8_t>(player, 0) == 0) return -1;
+        auto color = Read<std::int32_t>(player, 0x10);
+        if (color < 0 || color >= 10) color = 9;
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0xC + sign * 4u);
+    }
+
     // Original function: FUN_00486f3c
     NXBasics::CPalette* EnginePalette_GetBrightnessPalette(const void* colorData, std::int32_t brightness)
     {
@@ -103,6 +131,17 @@ namespace NC2E2
         {
             NXBasics::BobManager_PrintBob_DoubleByteBobNormal(bobManager, bobId, bitmap, x, y, palette);
         }
+    }
+
+    // Original function: FUN_004966da
+    void DrawAtom_House_Tool_DoDrawBob(std::int32_t houseId, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness, std::uint32_t bobId)
+    {
+        const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * NC2Logic::CHouseArray::ElementSize;
+        NC2Logic::House_GetHouseTypeDataPtr(house);
+        const auto houseType = NC2Lifetime::Read<std::uint32_t>(house, 0x10);
+        const auto* graphic = static_cast<const std::byte*>(gStaticHouseEntries) + houseType * 0x8BCu;
+        const auto variant = NC2Lifetime::Read<std::uint32_t>(house, 8) % NC2Lifetime::Read<std::uint32_t>(graphic, 0x21C);
+        ls_DrawAtom_House_DoDraw_PrintImageBob(NC2Lifetime::Read<void*>(graphic, 0x214), bobId, NC2Lifetime::Read<std::uint32_t>(graphic, 0x220u + variant * 4u), brightness, bitmap, x, y, false);
     }
 
     // Original function: FUN_00496c8b

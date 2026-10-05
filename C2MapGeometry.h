@@ -4,7 +4,10 @@
 
 namespace NC2Logic
 {
+    std::uint32_t VE_MicroPoint_GetMicroPointCount(std::uint32_t radius);
     std::uint32_t VE_HexagonDirection_OppositeDirection(std::uint32_t direction);
+    std::int32_t VE_HexagonDirection_DirectionToTurn(std::uint32_t source, std::uint32_t target, bool includeVertical);
+    std::uint32_t VE_HexagonDirection_NextDirection(std::uint32_t source, std::uint32_t target, bool includeVertical);
     std::int32_t VE_HexagonDirection_GetDistance(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY);
     void MapMigRectangle_CutInsideMap(std::int16_t* rectangle);
     bool MapMigRectangle_IsTouching(const std::int16_t* rectangle, const std::int16_t* other);
@@ -13,6 +16,7 @@ namespace NC2Logic
 
     // Original function: FUN_0040b580
     bool MapMigPoint_IsInsideMap(const void* packedMigPoint);
+    bool MapMigPoint_IsInside(const void* packedMigPoint, const std::int16_t* rectangle);
     bool MapMagPoint_IsInsideMap(const void* packedMagPoint);
     bool MapMagPoint_IsBorderPoint(const void* packedMagPoint);
     bool MapMigPoint_IsBorderPoint(const void* packedMigPoint);

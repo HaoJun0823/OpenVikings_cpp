@@ -3,6 +3,8 @@
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineLifetimeAccess.h"
+#include "C2E2StaticDataMapMoveables.h"
+#include "C2EngineMoveableDrawing.h"
 #include "C2EngineMapIO.h"
 #include "C2EngineMapTerrainAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -46,8 +48,6 @@ namespace NC2E2
     extern bool __cdecl E2Manager_sl_Callback_Misc(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
-    struct SStaticMoveableAnimationListTag {};
-    struct SStaticMoveableShadowListTag {};
     struct SStaticTextureListTag {};
     struct SStaticBobManagerListTag {};
 
@@ -777,7 +777,6 @@ namespace NC2E2
 
     // Remaining original dependencies are creation/update paths, not shutdown bodies.
     extern void* __fastcall EngineMap_Construct(void*, void* unusedEdx);
-    extern void E2DynamicDataHumanManager_HumanXtructed(std::uint32_t, bool, bool);
     extern void EngineMap_OverlayPattern_HouseAreaChanged(const void*, bool);
     extern void __fastcall DisplayManager_InformThatStaticMapChanged(void*, void* unusedEdx, const void*, std::int32_t);
     extern bool __cdecl EngineMap_l_Transitions_Callback(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);

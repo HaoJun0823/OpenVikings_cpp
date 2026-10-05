@@ -1,4 +1,7 @@
 #include "C2MapMoveableAccess.h"
+#include "C2HumanCommandAccess.h"
+#include "C2MapGeometry.h"
+#include "C2MapPathfinderSearch.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -41,6 +44,55 @@ namespace NC2Logic
     {
         void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
         if (Read<std::uint8_t>(moveable, 0) != 0 && array->Element_Free(id, true)) MapMoveable_Exit(moveable);
+    }
+
+    // Partial original function: FUN_0040bd33. AI/path creation and pending deletion
+    // remain tracked boundaries; this connects the established in-flight tick branches.
+    void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* /*unusedEdx*/)
+    {
+        auto* handler = static_cast<CArrayHandler*>(array);
+        for (auto id = handler->mFirstScanIndex; id <= handler->mLastScanIndex; ++id)
+        {
+            void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+            if (Read<std::uint8_t>(moveable, 0) == 0) continue;
+            const auto type = Read<std::uint32_t>(moveable, 8);
+            if (type < 1u || type > 3u) continue;
+            if (Read<std::uint8_t>(moveable, 0x10) != 0)
+            {
+                if (!MapMoveable_Attachment_PerformTurn(moveable)) continue;
+                if (Read<std::int32_t>(moveable, 0x28) != -1)
+                {
+                    // Identical mechanical walking branches at 004390C2, 00439234,
+                    // and 0043939B. Walking ticks do not perform atomic tasks.
+                    if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                    {
+                        const auto progress = Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48);
+                        Write(moveable, 0x34, progress);
+                        if (Read<std::uint8_t>(moveable, 0x38) == 0 && progress >= 5000u)
+                        {
+                            Write<std::uint8_t>(moveable, 0x38, 1);
+                            MapMoveable_l_Attachment_DetachFromGameMap(moveable);
+                            auto point = Read<std::uint32_t>(moveable, 0x12);
+                            MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                            Write(moveable, 0x12, point);
+                            MapMoveable_l_Attachment_AttachToGameMap(moveable);
+                            const SSectorGridCursor sector(point);
+                            const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                            if (sector.x != previous.x || sector.y != previous.y)
+                            {
+                                MapMoveable_Attachment_DetachFromSectorMap(moveable);
+                                MapMoveable_Attachment_AttachToSectorMap(moveable);
+                            }
+                        }
+                        if (progress >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                        continue;
+                    }
+                    // Active pathfinder search/new-step callbacks are not reconstructed.
+                    if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) continue;
+                }
+            }
+            if (type == 1u) Human_CurrentTask_DoPerform(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
+        }
     }
 
     // Original function: FUN_0041cef8.
@@ -117,6 +169,57 @@ namespace NC2Logic
         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
         MapMoveable_Attachment_DetachFromSectorMap(moveable);
         Write<std::uint8_t>(moveable, 0x10, 0);
+    }
+
+    // Original function: FUN_00438F6A. An unrelocated walking object predicts its next point.
+    void MapMoveable_Attachment_GetNextMapPosition(const void* moveable, void* point)
+    {
+        auto packed = Read<std::uint32_t>(moveable, 0x12);
+        Write(point, 0, packed);
+        if (Read<std::uint8_t>(moveable, 0x2C) != 0 && Read<std::uint8_t>(moveable, 0x38) == 0)
+        {
+            MapMigPoint_MoveCursorUnwrapped(packed, Read<std::uint32_t>(moveable, 0x30));
+            Write(point, 0, packed);
+        }
+    }
+
+    // Original function: FUN_00438F8C.
+    bool MapMoveable_Pathfinder_Start(void* moveable, const void* destination, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides)
+    {
+        if (Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
+        MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), static_cast<std::byte*>(moveable) + 0x12, destination, radius, useResistance, useSectors, useGuides, false);
+        return true;
+    }
+
+    // Original function: FUN_00438FC4.
+    bool MapMoveable_Pathfinder_Start(void* moveable, std::int32_t targetId, std::int32_t distance, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides)
+    {
+        if (Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
+        MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), static_cast<std::byte*>(moveable) + 0x12, targetId, distance, radius, useResistance, useSectors, useGuides, false);
+        return true;
+    }
+
+    // Original function: FUN_00438FFF.
+    bool MapMoveable_Pathfinder_Stop(void* moveable)
+    {
+        const auto id = Read<std::int32_t>(moveable, 0x28);
+        if (id == -1 || Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
+        MapPathfinderElement_StopPathfinder(GetUnsafePathfinderPtr(id));
+        return true;
+    }
+
+    // Original function: FUN_0043961A. Revisions belong to the creature/marker, not its map slot.
+    std::uint32_t MapMoveable_GetUniqueId(const void* moveable)
+    {
+        const auto id = Read<std::uint32_t>(moveable, 0x54);
+        switch (Read<std::uint32_t>(moveable, 8))
+        {
+        case 1: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, 8);
+        case 2: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
+        case 3: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, 8);
+        case 4: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);
+        default: return 0xFFFFFFFFu;
+        }
     }
 
     // Original function: FUN_00439021.
@@ -341,5 +444,20 @@ namespace NC2Logic
             Write<std::uint8_t>(moveable, 0x39, 1);
             Write(moveable, 0x40, direction);
         }
+    }
+
+    // Original function: FUN_00438f2c; Mac Attachment_PerformTurn.
+    bool MapMoveable_Attachment_PerformTurn(void* moveable)
+    {
+        if (Read<std::uint8_t>(moveable, 0x39) == 0) return true;
+        const auto elapsed = Read<std::uint32_t>(moveable, 0x3C) + 1u;
+        Write(moveable, 0x3C, elapsed);
+        if (NXBasics::Runtime_TimeSigned32(elapsed) < Read<std::int32_t>(moveable, 0x4C)) return false;
+        Write<std::uint32_t>(moveable, 0x3C, 0);
+        const auto direction = VE_HexagonDirection_NextDirection(Read<std::uint32_t>(moveable, 0x20), Read<std::uint32_t>(moveable, 0x40), Read<std::uint8_t>(moveable, 0x50) != 0);
+        Write(moveable, 0x20, direction);
+        if (direction != Read<std::uint32_t>(moveable, 0x40)) return false;
+        Write<std::uint8_t>(moveable, 0x39, 0);
+        return true;
     }
 }

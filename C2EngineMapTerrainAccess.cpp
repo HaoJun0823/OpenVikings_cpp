@@ -207,6 +207,25 @@ namespace NC2E2
         Write<std::uint8_t>(macro, 4, static_cast<std::uint8_t>(std::clamp(brightness, 4, 255)));
     }
 
+    // Original function: FUN_004828e5; C2DEngineMap::Brightness_Get.
+    std::uint32_t EngineMap_Brightness_Get(const void* packedMicroPoint)
+    {
+        const auto x = Read<std::int16_t>(packedMicroPoint, 0), y = Read<std::int16_t>(packedMicroPoint, 2);
+        if (x < 4 || x >= NC2Logic::GameMap_GetWidth() - 4 || y < 4 || y >= NC2Logic::GameMap_GetHeight() - 4) return 0;
+        Point macro, offset;
+        NC2Logic::VE_MapCoords_MicroGridMapToMacroGridMapPoint(x, y, &macro[0], &macro[1]);
+        NC2Logic::VE_MapCoords_GetMicroGridMapOffset(x, y, &offset[0], &offset[1]);
+        const auto first = Read<std::uint8_t>(EngineMap_GetConstMapMacroPointPtr(macro), 4);
+        switch (static_cast<std::uint16_t>(offset[0]) | (static_cast<std::uint16_t>(offset[1]) << 1))
+        {
+        case 0: return first;
+        case 1: ++macro[0]; break;
+        case 2: if ((macro[1] & 1) == 0) --macro[0]; ++macro[1]; break;
+        default: if ((macro[1] & 1) != 0) ++macro[0]; ++macro[1]; break;
+        }
+        return (first + Read<std::uint8_t>(EngineMap_GetConstMapMacroPointPtr(macro), 4)) / 2u;
+    }
+
     namespace
     {
         bool ChangedCallback(std::uint32_t type, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t offset, bool heights)

@@ -19,6 +19,13 @@ namespace NC2Logic
     void MapMoveable_l_Misc_FreeAllAllocatedData(void* moveable);
     void MapMoveable_Attachment_AttachToMap(void* moveable, const void* packedMigPoint);
     void MapMoveable_Attachment_StartTurn(void* moveable, std::int32_t direction);
+    void MapMoveable_Attachment_GetNextMapPosition(const void* moveable, void* point);
+    std::uint32_t MapMoveable_GetUniqueId(const void* moveable);
+    bool MapMoveable_Pathfinder_Start(void* moveable, const void* destination, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides);
+    bool MapMoveable_Pathfinder_Start(void* moveable, std::int32_t targetId, std::int32_t distance, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides);
+    bool MapMoveable_Pathfinder_Stop(void* moveable);
+    bool MapMoveable_Attachment_PerformTurn(void* moveable);
+    void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* unusedEdx);
     void MapMoveable_Attachment_DetachFromMap(void* moveable);
     void MapMoveable_l_Attachment_AttachToGameMap(void* moveable);
     void MapMoveable_l_Attachment_DetachFromGameMap(void* moveable);

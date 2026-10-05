@@ -77,7 +77,7 @@ namespace NApplicationStartup
         // Each block constructs 4000 four-byte entries using FUN_004478b5.
         for (std::size_t index = 0; index < 16; ++index)
         {
-            std::memset(DAT_00512620 + index * 0x3E84 + 4, 0, 0x3E80);
+            std::memset(NC2Logic::sMapPathfinderStaticVariables[index].points, 0, 0x3E80);
         }
     },
 

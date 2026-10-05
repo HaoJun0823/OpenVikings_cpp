@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NC2Logic { class CIoHelper; }
+
 namespace NC2InGameGuiInputManager
 {
     class CInputManager
@@ -34,6 +36,9 @@ namespace NC2InGameGuiMessages
         void System_Update();
         void MessagePriority_Toggle();
         void System_HumanArrayDestructed();
+        void IO_Savegame_Save(NC2Logic::CIoHelper* io);
+        void IO_Savegame_Load(NC2Logic::CIoHelper* io);
+        void MessagePriority_Set(std::uint32_t priority);
         static std::int32_t MessagePriority_Calculate(std::uint32_t type, std::uint32_t job);
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:
@@ -61,6 +66,8 @@ namespace NC2InGameGuiGroups
         std::int32_t Misc_GetGroupIdOfVehicle(std::uint32_t vehicleId) const;
         std::int32_t Misc_GetGroupIdOfHouse(std::uint32_t houseId) const;
         void Group_VerifyAllObjects();
+        void IO_Savegame_Save(NC2Logic::CIoHelper* io);
+        void IO_Savegame_Load(NC2Logic::CIoHelper* io);
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:
         void l_Group_VerifyAllObjects(void* group);
@@ -85,6 +92,8 @@ namespace NC2InGameGuiDeadHumanDataManager
         void DeadHuman_Add(std::uint32_t humanId);
         void* DeadHuman_GetDataPtrByHumanUniqueId(std::uint32_t uniqueId) const;
         void System_HumanArrayDestructed();
+        void IO_Savegame_Save(NC2Logic::CIoHelper* io);
+        void IO_Savegame_Load(NC2Logic::CIoHelper* io);
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:
         alignas(4) std::byte mStorage[0x0C];

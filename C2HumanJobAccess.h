@@ -4,6 +4,12 @@
 
 namespace NC2Logic
 {
+    bool Human_Misc_IsHidden(const void* human);
+    bool Human_UserControl_DoesWantToMarry(const void* human);
+    bool Human_UserControl_DoesWantToGetChild(const void* human);
+    std::uint32_t Human_Tool_Gui_GetExperienceForEquippedWeapon(const void* human);
+    std::int32_t Human_JobEfficiency_CalculateExperienceFactor(const void* human);
+    void Tool_Human_GetExperienceType_GainedViaWorking(std::int32_t job, std::uint32_t good, std::uint32_t& general, std::uint32_t& specific);
     std::uint32_t Human_GetPlayerType(const void* human);
     bool Human_IsProducingVehicle(const void* human);
     bool Human_IsAgeBaby(const void* human);

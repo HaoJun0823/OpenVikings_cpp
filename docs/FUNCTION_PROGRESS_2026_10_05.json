@@ -1,0 +1,18 @@
+{
+  "TrackedUnfinished": 114,
+  "ParsedCppDefinitions": 3042,
+  "MappedAddresses": 2584,
+  "DirectCalls": 4561,
+  "ExplicitCodePointers": 184,
+  "VirtualTables": 107,
+  "VirtualEntries": 294,
+  "KnownEntries": 5054,
+  "ExcludedApiThunks": 13,
+  "MappedDirectCalls": 2363,
+  "OpenKnownEntries": 2470,
+  "RawReferenced": 0,
+  "RawUnmapped": 0,
+  "RawAlreadyMapped": 0,
+  "DeclarationsWithoutUniqueBody": 17,
+  "Artifacts": "C:\\Users\\ravo\\AppData\\Local\\Temp\\OpenVikings-function-progress-20261005"
+}

@@ -14,6 +14,10 @@ namespace NC2Logic
     int Logic_EntryPoint_House_Set(unsigned int player, unsigned int engineType, unsigned int stage, const void* point, bool completed, unsigned int missionCheck);
     std::int32_t MissionCheck_GetFirstHumanIdWithMissionCheckId(std::uint32_t missionCheck);
     std::int32_t MissionCheck_GetNextHumanIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous);
+    std::int32_t MissionCheck_GetFirstVehicleIdWithMissionCheckId(std::uint32_t missionCheck);
+    std::int32_t MissionCheck_GetNextVehicleIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous);
+    std::int32_t MissionCheck_GetFirstHouseIdWithMissionCheckId(std::uint32_t missionCheck);
+    std::int32_t MissionCheck_GetNextHouseIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous);
     bool Human_IsSexFemale(const void* human);
     bool Human_IsAbleToMarry(const void* human);
     bool Human_IsMarried(const void* human);

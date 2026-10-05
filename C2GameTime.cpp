@@ -1,6 +1,7 @@
 #include "C2UserNetworkCommandAccess.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameTime.h"
+#include "C2MapMoveableAccess.h"
 #include "C2SavegameIO.h"
 #include "C2CallbackManager.h"
 #include "C2GameState.h"
@@ -27,7 +28,6 @@ namespace NC2Logic
     // Original subsystem updates/command processing are separate unresolved bodies.
     extern std::uint32_t Game_Checksum_Calculate();
 
-    extern void __fastcall MapMoveableArray_DoOneGameTick(void*, void* unusedEdx);
     extern void __fastcall HouseArray_DoOneGameTick(void*, void* unusedEdx);
     extern void __fastcall HouseArray_DoOneGameSecond(void*, void* unusedEdx);
     extern void __fastcall RoadBuildManager_DoOneGameSecond(void*, void* unusedEdx);

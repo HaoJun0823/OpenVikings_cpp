@@ -4,6 +4,7 @@
 #include <cstdint>
 
 namespace NC2InGameGuiBaseTextInputElement { class CStringInputHandler; }
+namespace NC2Logic { class CIoHelper; }
 
 namespace NInGameGuiManager
 {
@@ -42,6 +43,9 @@ namespace NInGameGuiManager
         void Desktop_Open(std::int32_t width, std::int32_t height, std::uint32_t depth);
         void Desktop_Close();
         void MiscWindows_OverviewWindow_Open();
+        void MiscWindows_OverviewWindow_Closed();
+        void MiscWindows_LargeOverviewWindow_Toggle();
+        void MiscWindows_LargeOverviewWindow_Open(bool topRight);
         void EngineWorldDisplayGuiElement_Register(void* element);
         void EngineWorldDisplayGuiElement_UnRegister(void* element);
         bool Exploration_GetFlag() const;
@@ -49,6 +53,8 @@ namespace NInGameGuiManager
         void FrameCall_UnRegister(void* element);
         static void System_StartGame();
         static void System_EndGame();
+        static void l_IO_Savegame_Save(NC2Logic::CIoHelper* io);
+        static void l_IO_Savegame_Load(NC2Logic::CIoHelper* io);
         void System_UpdateGui();
         void FrameCall_Do();
         void MiscButtons_SpeedButton_Update(bool update);
@@ -57,6 +63,9 @@ namespace NInGameGuiManager
         void MiscWindows_OptionsWindow_Toggle(bool loadPage, bool savePage);
         void MiscWindows_OptionsWindow_Open(bool loadPage, bool savePage);
         void MiscWindows_GameSafetyBoxWindow_Open(std::uint32_t mode);
+        void MiscWindows_MissionInfoWindow_Toggle(std::uint32_t briefingId, bool goalsPage);
+        void MiscWindows_MissionInfoWindow_Open(std::uint32_t briefingId, bool goalsPage);
+        void MiscWindows_MissionInfoWindow_ReloadStrings();
         void Options_ScrollSpeed_Set(std::uint32_t speed, bool save);
         std::uint32_t Options_ScrollSpeed_Get() const;
         void Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save);

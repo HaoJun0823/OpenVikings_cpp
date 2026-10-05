@@ -43,3 +43,7 @@ Manual runtime checks still needed: pause on an exception or breakpoint and move
 ## User runtime confirmation - 2026-10-04
 
 The user rebuilt and explicitly confirms that the mouse no longer lags while debugging. Visual Studio is paused at a separate engine texture-list teardown crash after clicking the windowed-mode close button. That supports the reported debugger-lag improvement; the other remote, scrolling, wheel and fullscreen checks above are not independently confirmed. The shutdown fix is documented in [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md).
+
+## Mouse wheel reconstruction correction - 2026-10-05
+
+Windows 00477D67..00477D74 sends message 0x100 with GUI arguments (0,0,wheelDelta,0). The C++ desktop placed delta in argument 2, while minimap zoom (004CF88A) and list scrolling (004D054A) read argument 3, so both received zero. Dispatch now matches the original ABI. The previously partial world dispatcher also handles 004BAB2C: consume the message, require element input (+0x34) and active display (+0x6C), call DE_Zoom_In(false) for positive delta and DE_Zoom_Out for negative; zero changes nothing. The camera counter is clamped to -1..1 and wheel zoom-in caps at 0. Minimap zoom uses one direction step per aggregated GUI message; lists retain signed delta/5. No WHEEL_DELTA normalization or duplicate raw wheel injection was added. WM_MOUSEWHEEL high-word signed extraction and the legacy low-word path remain correct. No build, tests or runtime verification. README OA144/FP172.

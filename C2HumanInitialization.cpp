@@ -23,6 +23,13 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00438df2.
+    std::int32_t Marker_PlayerId_Get(const void* marker)
+    {
+        const auto humanId = NC2Lifetime::Read<std::int32_t>(marker, 0x14);
+        return humanId == -1 ? -1 : NC2Lifetime::Read<std::int32_t>(GetHumanPtr(humanId), 0x10);
+    }
+
     using namespace NC2Lifetime;
 
     namespace

@@ -112,6 +112,27 @@ namespace NC2Logic
     // Original function: FUN_00426ef4.
     CMapLandscapeAutoTransitionManager::CMapLandscapeAutoTransitionManager(CIoHelper& io) { LoadResourceArray(this, gMapLandscapeAutoTransitionManager, io); }
 
+    // Original function: FUN_004270be.
+    std::uint32_t CMapLandscapeAutoTransitionManager::AutoTransition_GetDataId(const void* point) const
+    {
+        const std::uint32_t last = static_cast<std::uint32_t>(mLastScanIndex);
+        for (std::uint32_t index = static_cast<std::uint32_t>(mFirstScanIndex); index <= last; ++index)
+        {
+            const auto* record = mRecords + index * 0x14u;
+            if (Read<std::uint8_t>(record, 0) != 0 && Read<std::uint16_t>(record, 0x10) == Read<std::uint16_t>(point, 0) && Read<std::uint16_t>(record, 0x12) == Read<std::uint16_t>(point, 2)) return index;
+        }
+        return 0xFFFFFFFFu;
+    }
+
+    // Original function: FUN_004270ff; multiplication wraps before unsigned division.
+    std::uint32_t CMapLandscapeAutoTransitionManager::AutoTransition_GetTimeDonePercentage(const void* point) const
+    {
+        const std::uint32_t index = AutoTransition_GetDataId(point);
+        if (index == 0xFFFFFFFFu) return 0;
+        const auto* record = mRecords + index * 0x14u;
+        return (Read<std::uint32_t>(record, 4) * 100u) / Read<std::uint32_t>(record, 8);
+    }
+
     // Original function: FUN_00427297.
     CWallBuildManager::CWallBuildManager() { InitializeBuildManager(this, gWallBuildManager, 0x260, InitializeWallPlayerData); }
     // Original function: FUN_004273de.

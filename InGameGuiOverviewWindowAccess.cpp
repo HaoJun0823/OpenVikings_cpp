@@ -1,4 +1,7 @@
 #include "GuiBitmapToolElementAccess.h"
+#include "GuiTextToolElementAccess.h"
+#include "XBitmap.h"
+#include "XBobRendering.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiOverviewWindowAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -10,10 +13,6 @@
 #include "XGuiDesktop.h"
 
 #include <cstring>
-
-extern void __fastcall InGameGuiManager_MiscWindows_LargeOverviewWindow_Toggle(void* manager);
-extern void* __fastcall WorldOverviewStaticGuiWindow_Delete(void* window, void* unusedEdx, std::uint32_t flags);
-extern void __fastcall WorldOverviewStaticGuiWindow_XGui_BE_Element_Draw(void* window, void* unusedEdx, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle);
 
 namespace NC2InGameGuiOverviewDisplay
 {
@@ -32,6 +31,21 @@ namespace NC2InGameGuiOverviewDisplay
     static void WorldOverviewStaticWindow_AddButtons(void* window);
     static void WorldOverviewStaticWindow_UpdateButtonGraphics(void* window);
     static void WorldOverviewStaticWindow_UpdateDisplayFlag(void* window);
+    static void* __fastcall WorldOverviewStaticWindow_Delete(void* window, void*, std::uint32_t flags);
+
+    // Original function: FUN_004c9824; draw on the root of the virtual bitmap chain.
+    static void __fastcall WorldOverviewStaticWindow_Draw(void*, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)
+    {
+        std::uint32_t x = 0, y = 0;
+        while (bitmap->GetSourceBitmap() != nullptr)
+        {
+            x += static_cast<std::uint32_t>(bitmap->GetSourceX());
+            y += static_cast<std::uint32_t>(bitmap->GetSourceY());
+            bitmap = bitmap->GetSourceBitmap();
+        }
+        const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+        NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, 0x37, bitmap, NXBasics::Runtime_TimeSigned32(x), NXBasics::Runtime_TimeSigned32(y - 13u), resources.iconsLeftPalette, 0x80);
+    }
 
     // Original function: FUN_004c97ac; XGui_BE_Message_Handle.
     static bool __fastcall WorldOverviewStaticWindow_MessageHandle(void* window, void* unusedEdx, std::int32_t message, std::int32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
@@ -56,7 +70,7 @@ namespace NC2InGameGuiOverviewDisplay
             break;
         }
         case 10005:
-            InGameGuiManager_MiscWindows_LargeOverviewWindow_Toggle(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+            NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_LargeOverviewWindow_Toggle();
             break;
         case 10010:
             WorldOverviewElement_ModifyZoom(OverviewWindow_Read<void*>(window, 0x74), -1);
@@ -69,13 +83,13 @@ namespace NC2InGameGuiOverviewDisplay
     }
 
     // Complete original table at 004F78FC..004F7947. Window/base destruction,
-    // title drawing and inherited GUI virtual methods remain original boundaries.
+    // title drawing and inherited GUI virtual methods use their reconstructed bodies.
     static const std::uintptr_t gWorldOverviewStaticWindowVirtualTable[] =
     {
-        reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticGuiWindow_Delete),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticWindow_Delete),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticWindow_MessageHandle),
-        reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticGuiWindow_XGui_BE_Element_Draw),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewStaticWindow_Draw),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_Activate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DeActivate),
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonPressed),
@@ -93,6 +107,17 @@ namespace NC2InGameGuiOverviewDisplay
         reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
     };
     static_assert(sizeof(gWorldOverviewStaticWindowVirtualTable) == 0x4C);
+
+    // Original function: FUN_004c9777; notify the manager before destroying children.
+    static void* __fastcall WorldOverviewStaticWindow_Delete(void* window, void*, std::uint32_t flags)
+    {
+        OverviewWindow_Write(window, 0, gWorldOverviewStaticWindowVirtualTable + 0);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_OverviewWindow_Closed();
+        OverviewWindow_Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        NXBaseGui::BaseWindow_Destruct(window);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
+        return window;
+    }
 
     // Original function: FUN_004c9708; CWorldOverviewStaticGuiWindow constructor.
     void* WorldOverviewStaticWindow_Construct(void* window)
@@ -179,5 +204,165 @@ namespace NC2InGameGuiOverviewDisplay
         OverviewWindow_Write<std::uint8_t>(element, 0x8044, 1);
         OverviewWindow_Write<std::uint8_t>(element, 0x8076, mode == 3 ? 1 : 0);
         OverviewWindow_Write<std::uint8_t>(element, 0x8044, 1);
+    }
+
+    // Complete Windows static region 00569478..00569487. Mac names:
+    // CWorldOverviewLargeGuiWindow::sDisplayFlagsStructure/sDisplayFlagsValidFlag.
+    struct SLargeOverviewDisplayFlags { std::uint8_t flags[15]; std::uint8_t valid; };
+    static SLargeOverviewDisplayFlags gLargeOverviewDisplayFlags{};
+    static_assert(sizeof(SLargeOverviewDisplayFlags) == 0x10);
+    static constexpr std::size_t gLargeOverviewFlagOffsets[13] = { 0x806C, 0x806D, 0x806E, 0x806F, 0x8070, 0x8072, 0x8074, 0x8075, 0x8076, 0x8077, 0x8078, 0x8079, 0x807A };
+
+    // Original function: FUN_004c5107; l_GuiButtons_UpdateMarkedStatus.
+    static void WorldOverviewLargeWindow_UpdateMarkedStatus(void* window)
+    {
+        const void* overview = OverviewWindow_Read<void*>(window, 0x80);
+        for (std::size_t index = 0; index < 13; ++index)
+            OverviewWindow_Write(OverviewWindow_Read<void*>(window, 0x84 + index * 4), 0x55, OverviewWindow_Read<std::uint8_t>(overview, gLargeOverviewFlagOffsets[index]));
+    }
+
+    static void WorldOverviewLargeWindow_Destruct(void* window);
+
+    // Original function: FUN_004c4e9e; scalar deleting destructor.
+    static void* __fastcall WorldOverviewLargeWindow_Delete(void* window, void*, std::uint32_t flags)
+    {
+        WorldOverviewLargeWindow_Destruct(window);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
+        return window;
+    }
+
+    // Original function: FUN_004c4eff; XGui_BE_Message_Handle.
+    static bool __fastcall WorldOverviewLargeWindow_MessageHandle(void* window, void*, std::int32_t message, std::int32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
+    {
+        if (message == 0x1000) return command == 0x7E9;
+        if (message != 0x800) return false;
+        void* overview = OverviewWindow_Read<void*>(window, 0x80);
+        if (command >= 0x2711 && command <= 0x271D)
+        {
+            const auto offset = gLargeOverviewFlagOffsets[command - 0x2711];
+            if (command == 0x2712) OverviewWindow_Write<std::uint8_t>(overview, 0x806C, 0);
+            if (command == 0x2718 || command == 0x2719)
+            {
+                OverviewWindow_Write<std::uint8_t>(overview, command == 0x2718 ? 0x8076 : 0x8075, 0);
+                OverviewWindow_Write<std::uint8_t>(overview, 0x8044, 1);
+            }
+            OverviewWindow_Write<std::uint8_t>(overview, offset, OverviewWindow_Read<std::uint8_t>(overview, offset) == 0 ? 1 : 0);
+            if (command >= 0x2717 && command <= 0x271A) OverviewWindow_Write<std::uint8_t>(overview, 0x8044, 1);
+            WorldOverviewLargeWindow_UpdateMarkedStatus(window);
+        }
+        else if (command == 0x2774 || command == 0x2775)
+            WorldOverviewElement_ModifyZoom(overview, command == 0x2774 ? -1 : 1);
+        return true;
+    }
+
+    // Original function: FUN_004c50c5.
+    static void __fastcall WorldOverviewLargeWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        NC2InGameGuiBase::BaseToolWindow_Draw(window, nullptr, bitmap, rectangle);
+        NXBasics::SRectangle frame(0, 0, 0, 0);
+        std::memcpy(&frame, static_cast<const std::byte*>(window) + 0x70, sizeof(frame));
+        frame.Inflate(2, 2);
+        NC2GuiToolsBase::DrawTool_DrawFrame(bitmap, frame, 2);
+    }
+
+    // Complete Windows table 004F7504..004F754F.
+    static const std::uintptr_t gWorldOverviewLargeWindowVirtualTable[19] = {
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewLargeWindow_Delete),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewLargeWindow_MessageHandle),
+        reinterpret_cast<std::uintptr_t>(&WorldOverviewLargeWindow_Draw),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_Activate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DeActivate),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonPressed),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_ButtonReleased),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_IsHit),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_GetRealActiveElementPtr),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_FindElementOnPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ParentToLocalPosition),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_Available),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_ToolTip_AtOnce),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Hide_CanBeHidden),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_UnresolvedVirtual40),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_Notify),
+        reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseWindow_DrawOverlays)
+    };
+    static_assert(sizeof(gWorldOverviewLargeWindowVirtualTable) == 0x4C);
+
+    // Original function: FUN_004c4eba; save all fifteen flags before deleting the overview.
+    static void WorldOverviewLargeWindow_Destruct(void* window)
+    {
+        OverviewWindow_Write(window, 0, gWorldOverviewLargeWindowVirtualTable + 0);
+        const auto* overview = static_cast<const std::byte*>(OverviewWindow_Read<void*>(window, 0x80));
+        std::memcpy(gLargeOverviewDisplayFlags.flags, overview + 0x806C, sizeof(gLargeOverviewDisplayFlags.flags));
+        gLargeOverviewDisplayFlags.valid = 1;
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
+        OverviewWindow_Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        NXBaseGui::BaseWindow_Destruct(window);
+    }
+
+    // Original function: FUN_004c4856; CWorldOverviewLargeGuiWindow constructor.
+    void* WorldOverviewLargeWindow_Construct(void* window, bool topRight)
+    {
+        using namespace NC2InGameGuiBase;
+        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
+        const auto left = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u);
+        const auto top = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u);
+        const NXBasics::SRectangle rectangle(topRight ? left : left / 2, topRight ? 0 : top / 2, 500, 420);
+        BaseToolWindow_Construct(window, &rectangle);
+        OverviewWindow_Write(window, 0, gWorldOverviewLargeWindowVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x48);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        const NXBasics::SRectangle titleRectangle(2, 2, 478, 14);
+        void* control = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &titleRectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0xFA));
+        NXBaseGui::BaseWindow_Element_Add(window, control);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        const NXBasics::SRectangle closeRectangle(482, 2, 16, 14);
+        control = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
+        NXBaseGui::BaseWindow_Element_Add(window, control);
+        NXBasics::SRectangle overviewRectangle(138, 20, 358, 396);
+        overviewRectangle.Inflate(-2, -2);
+        OverviewWindow_Write(window, 0x70, overviewRectangle);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x816C, 1);
+        void* overview = allocation == nullptr ? nullptr : WorldOverviewElement_Construct(allocation, &overviewRectangle, 1);
+        OverviewWindow_Write(window, 0x80, overview);
+        NXBaseGui::BaseWindow_Element_Add(window, overview);
+        if (topRight)
+        {
+            OverviewWindow_Write<std::uint8_t>(overview, 0x8071, 0);
+            OverviewWindow_Write<std::uint8_t>(overview, 0x8044, 1);
+            for (std::size_t offset = 0x8078; offset <= 0x807A; ++offset) OverviewWindow_Write<std::uint8_t>(overview, offset, 1);
+        }
+        if (gLargeOverviewDisplayFlags.valid != 0)
+        {
+            std::memcpy(static_cast<std::byte*>(overview) + 0x806C, gLargeOverviewDisplayFlags.flags, sizeof(gLargeOverviewDisplayFlags.flags));
+            OverviewWindow_Write<std::uint8_t>(overview, 0x8044, 1);
+        }
+        struct SFilterButton { std::int32_t y; std::uint32_t command, stringId; };
+        constexpr SFilterButton buttons[] = {
+            {20, 0x2711, 0xFB}, {40, 0x2712, 0xFC}, {60, 0x2713, 0xFD}, {80, 0x2714, 0xFE},
+            {116, 0x2715, 0xFF}, {136, 0x2716, 0x100}, {156, 0x2717, 0x101}, {176, 0x271A, 0x102},
+            {212, 0x2718, 0x103}, {232, 0x2719, 0x104}, {268, 0x271B, 0x107}, {288, 0x271C, 0x108}, {308, 0x271D, 0x109}
+        };
+        for (const auto& button : buttons)
+        {
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            const NXBasics::SRectangle buttonRectangle(4, button.y, 130, 18);
+            control = allocation == nullptr ? nullptr : BaseToolTextButton_Construct(allocation, nullptr, &buttonRectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(button.stringId), button.command, window);
+            OverviewWindow_Write(window, 0x84 + (button.command - 0x2711) * 4, control);
+            NXBaseGui::BaseWindow_Element_Add(window, control);
+        }
+        for (std::uint32_t index = 0; index < 2; ++index)
+        {
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            const NXBasics::SRectangle buttonRectangle(4 + static_cast<std::int32_t>(index) * 65, 344, 63, 18);
+            control = allocation == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &buttonRectangle, index == 0 ? "-" : "+", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(index == 0 ? 0x106 : 0x105), 0x2774 + index, window);
+            NXBaseGui::BaseWindow_Element_Add(window, control);
+        }
+        WorldOverviewLargeWindow_UpdateMarkedStatus(window);
+        using TMessage = bool(__thiscall*)(void*, std::int32_t, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+        OverviewWindow_Read<TMessage*>(overview, 0)[2](overview, 0x800, 12000, 0, 0, 0);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Stop_LargeWindowOpened();
+        return window;
     }
 }

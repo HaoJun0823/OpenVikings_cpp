@@ -1,46 +1,44 @@
 # Windows function mapping progress
 
-Snapshot: 2026-10-04. Human creation/job initialization adds 75 net mappings, replaces two dummies and tracks five deeper boundaries; see [HUMAN_INITIALIZATION_AND_EXPLORATION.md](HUMAN_INITIALIZATION_AND_EXPLORATION.md). Map moveable placement/pathfinder ownership adds twenty mappings and relocates two existing accessors, with no stub-count change; see [MAP_MOVEABLE_PLACEMENT.md](MAP_MOVEABLE_PLACEMENT.md). Mission data and native exploration add nineteen complete mappings; the newly exposed static-object loader brings tracked unfinished boundaries to 105. See [MISSION_DATA_AND_EXPLORATION.md](MISSION_DATA_AND_EXPLORATION.md). Player/camera centering adds five mappings and replaces three dummies; see [IN_GAME_TERRAIN_VISIBILITY.md](IN_GAME_TERRAIN_VISIBILITY.md). HEAD 1ef245b (Restore menu and guide initialization), with pending in-game default-handler initialization, complete Settings pages/actions, static ground drawing and engine map IO/startup loading. The latest block adds 39 mappings and replaces six dummies; see [ENGINE_MAP_IO.md](ENGINE_MAP_IO.md). The ground block adds 67 mappings and replaces five dummies; see [ENGINE_GROUND_DRAWING.md](ENGINE_GROUND_DRAWING.md). The complete Settings block adds 112 mappings and removes five unfinished entries; see [IN_GAME_OPTIONS_WINDOW.md](IN_GAME_OPTIONS_WINDOW.md). This block adds fifteen mappings and removes two dummies, while tracking three newly exposed partial entries; see [IN_GAME_DEFAULT_HANDLER_STARTUP.md](IN_GAME_DEFAULT_HANDLER_STARTUP.md). Guide startup adds three mappings and removes one dummy; see [GUIDE_MANAGER_STARTUP.md](GUIDE_MANAGER_STARTUP.md). The listbox block adds 40 mappings and removes four dummies; see [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](MAIN_MENU_LISTBOX_AND_SAVEGAMES.md). The latter adds 42 mappings and removes three dummies; see [MAIN_MENU_CREDITS_AND_KEYBOARD.md](MAIN_MENU_CREDITS_AND_KEYBOARD.md). The command handler adds eighteen mappings and replaces one dummy; see [MAIN_MENU_COMMAND_DISPATCH.md](MAIN_MENU_COMMAND_DISPATCH.md). The palette loader and color/remapping helpers add nine mappings and replace one dummy; see [ENGINE_STATIC_PALETTES.md](ENGINE_STATIC_PALETTES.md). The map loader adds 28 mappings and replaces three dummies; see [BINARY_MAP_LOADING.md](BINARY_MAP_LOADING.md). The world-element block adds seventeen mappings and replaces six temporary bodies; see [MAIN_MENU_WORLD_ELEMENT.md](MAIN_MENU_WORLD_ELEMENT.md). Terrain adds eleven distinct source-address mappings; the existing MapArea destructor mapping is moved without increasing the count. GameControl adds ten more mappings. See [ENGINE_TERRAIN_STATIC_DATA.md](ENGINE_TERRAIN_STATIC_DATA.md) and [GAME_CONTROL_STARTUP.md](GAME_CONTROL_STARTUP.md).
+Snapshot: 2026-10-05, current working tree before the requested checkpoint commit. This assessment was recomputed from Windows ASM, original PE and current C++ definitions. It is **source-address coverage**, not an assertion that 51.13% of gameplay is correct. Partial bodies and temporary dummies are excluded from the mapped numerator.
 
 | Measure | Count |
 | --- | ---: |
-| Distinct identified Windows entry candidates | 5,057 |
-| Original addresses associated with a C++ body | 2,441 / 5,057 (48.27%) |
-| Entry candidates without an associated C++ body | 2,616 / 5,057 (51.73%) |
-| Mapped addresses with direct raw FUN dependencies at the checkpoint (historical audit) | 29 |
-| Active raw FUN identifiers after semantic naming | 0 |
-| Original external subconstructors retained in startup | 8 |
-| Registered implementation units (current static inventory) | 168 / 168 (includes one temporary stub unit) |
-| Build-passing units at the last tested checkpoint a77fd47 | 141 / 141 |
-| Last tested Debug/Release link: distinct unresolved decorated symbols | 0 (current changes unbuilt) |
-| Original addresses with temporary dummy bodies (excluded above) | 120 |
+| Distinct identified Windows entry candidates | 5,054 |
+| Original addresses associated with a C++ body, excluding tracked unfinished entries | **2,584 / 5,054 (51.13%)** |
+| Entry candidates still open | **2,470 / 5,054 (48.87%)** |
+| Tracked dummy/partial boundaries, included in the open total | 114 |
+| Other candidates without an associated body | 2,356 |
+| Parsed C++ definitions, including utilities/overloads/unmapped functions | 3,042 |
+| Naming CSV rows, including names of unfinished functions | 275 |
+| Registered C++ units / headers; project and filters agree | 177 / 169 |
+| Active raw FUN identifiers in parsed function bodies | 0 |
+| Annotated declarations without a unique matching parsed definition | 17 |
+| New builds/tests/runtime runs for this checkpoint | 0 |
 
-The earlier 2026-09-30 assessment had 1,100 / 5,041 mapped addresses. Current coverage adds 1,341 distinct mapped addresses. The same Windows-target discovery method is retained; source mappings add sixteen further entry candidates. Six data addresses accidentally picked up from function trace comments (including screen jump table 004D6A49) are excluded from both numerator and denominator in the current assessment.
+The last published table showed 2,441/5,057. The updated trace parser removes six selector-table data addresses accidentally extracted from comments after semicolons: 0045C5CD/0045C607, 0045CE70/0045CE93 and 004B44CE/004B450C. It adds three genuine source/inventory entry candidates: 0041E2AE, 0049133B and 004915C9. The net denominator change is -3; this correction must not be represented as implementation work. The naming CSV is separate from coverage and must not be added blindly to the numerator.
+
+Completed source blocks since the previous assessment include mouse input, minimap controls/wheel, vegetation and moveable rendering/graphics, local routing, the mission popup and GUI savegame history, command priority/failure/stop helpers, and destination-arrival task-state logic. Several enclosing functions remain partial; their rows are excluded even where their completed branches are useful.
+
+Current gameplay gaps include human condition updates, new-position/non-arrival side effects, task selection/atomic events and sector/guide routing; animal/vehicle tasks; most mission object/area/combat predicates and result actions; submap transitions and persistent mission overlay; houses/production, AI initialization/ticks, construction/particles and remaining shared-field drawing. The supported timed/True/control briefing path now emits the original event, but complete mission scripts and autonomous movement remain unverified/incomplete. See [OPEN_TASKS.md](OPEN_TASKS.md) and [TEMPORARY_LINK_STUBS.csv](TEMPORARY_LINK_STUBS.csv).
 
 ## Method and limits
 
-Decode relative E8 call targets from the Windows instruction export; collect explicit code-pointer references and entries from 107 identified virtual-table bases; add traceable implementation addresses and deduplicate. Remove 13 API import thunks and exclude non-code source addresses outside 00401000..004F2FFF. The current call-target/pointer/table inputs are 4,561 / 184 / 294 distinct addresses respectively; sets overlap.
+The audit decodes E8 targets from the Windows instruction export (4,561 distinct direct targets), explicit code pointers (184), and entries from 107 identified PE virtual tables (294 distinct targets). It unions these with traceable source/inventory entries, deduplicates and removes 13 API import thunks. Addresses outside 00401000..004F2FFF and selector metadata after semicolons in tracing comments are not source function entries.
 
-Exclude TemporaryLinkStubs.cpp entirely before matching definitions. Match function trace comments and annotated declarations to C++ bodies, including inline definitions, constructor initializer lists and assignment operators. Declarations alone do not count. Repeated wrappers or specializations at the same address count once. Mac function totals do not enter the denominator. The current source parser recognizes 2,835 definitions; utilities, unmapped definitions and duplicate address specializations explain its difference from the address total.
+The source parser excludes TemporaryLinkStubs.cpp, matches trace comments to actual definitions/declarations, handles inline bodies/constructor initializers and counts repeated aliases once. Every address in TEMPORARY_LINK_STUBS.csv is excluded from the mapped set even if it has a production body. Those addresses remain visible in the candidate/open set. It does not prove that mapped functions or their transitive dependencies are complete, correctly reconstructed, compiled or runtime-equivalent. Zero raw FUN names means naming progress, not zero unresolved behavior.
 
-These are provisional source-address coverage figures, not a verified gameplay-completion percentage. The checkpoint audit found 29 mapped addresses with direct original FUN dependencies. Those calls now have semantic names and their implementations remain pending; renaming does not remove the dependencies. Other incomplete methods, virtual calls, transitive dependencies, unsupported globals and unchecked semantic reconstruction may remain inside the mapped set. Syntax compilation and the presence of a body do not prove assembly equivalence or successful linking/runtime behavior.
-
-Both Win32 configurations passed at a77fd47 after the user's explicit authorization to add temporary dummies. The agent has not built the current working tree. The user rebuilt the earlier startup/ownership corrections and reached the menu; the font, menu-world and binary-map changes have static verification only. At the earlier menu checkpoint, TemporaryLinkStubs.cpp provided 127 link-only implementations, excluded from its 2,025 mapped bodies; the current inventory is shown in the table above. The checkpoint source scan found 93 distinct legacy direct raw targets, all unmapped. All 143 active legacy identifiers are now named semantically; the naming pass itself resolved none of the 146 temporary bodies. The subsequent terrain block replaces two constructor dummies; GameControl replaces three more; the world-element block replaces six more; binary-map loading replaces the map constructor, map dispatcher and fish callback (three more). Three GUI dependencies had already received Mac names before this pass. See [FUNCTION_NAME_MAP.csv](FUNCTION_NAME_MAP.csv). A successful link does not establish game behavior. See [LINK_BUILD_AUDIT.md](LINK_BUILD_AUDIT.md).
-
-The Windows instruction export is not an authoritative function-entry list; indirectly called/unreferenced functions and misdecoded boundaries may be missing. An exact total requires a Windows Ghidra/IDA function-entry inventory. No such inventory is currently supplied. The distinction between unmapped functions and incomplete mapped bodies must remain visible in future x/y reports.
+The Windows export is not an authoritative Ghidra/IDA function inventory. Indirect/unreferenced entries and parser boundaries can remain missing; exact game-wide totals require such an inventory. The x/y figures are therefore provisional and must not be labeled verified game completion.
 
 ## Reproducible audit artifacts
 
-The read-only source/PE/assembly assessment is saved outside the repository in `C:\Users\ravo\AppData\Local\Temp\OpenVikings-function-progress-20261001`:
+[tools/function-progress.ps1](../tools/function-progress.ps1) runs the read-only source/ASM/PE assessment without compiling or launching the game. Defaults use this repository, its sibling OpenVikings_ASM and a dated temporary output directory; parameters allow overriding these paths. The 2026-10-05 outputs are in `C:\Users\ravo\AppData\Local\Temp\OpenVikings-function-progress-20261005`.
 
-- implemented-addresses.csv: address, source file/line/signature and direct original callees;
-- windows-entry-inventory.csv: candidate address and discovery/mapping categories;
-- definitions-without-address.csv and unmatched-declarations.csv: parser diagnostics, not additional function inventories;
-- summary.json: numeric totals.
+Artifacts: implemented-addresses.csv (source/signature provenance), windows-entry-inventory.csv (candidate categories), definitions-without-address.csv and unmatched-declarations.csv (parser diagnostics), summary.json. [FUNCTION_PROGRESS_2026_10_05.json](FUNCTION_PROGRESS_2026_10_05.json) retains this checkpoint's numeric result. Earlier 20261001/20260930 artifacts remain unchanged. No new Debug/Release build, tests or runtime launch was performed; the earlier build-passing checkpoint is historical only.
 
-The current script is `C:\Users\ravo\AppData\Local\Temp\OpenVikings-function-progress-current.ps1`. The old baseline artifacts remain unchanged in the corresponding 20260930 directory. Future assessments should rerun the same method and inspect parser limitations rather than adding per-block function counts blindly.
+## Historical block checkpoints
 
-No new builds are run for the naming/output, terrain, GameControl, menu-world, binary-map, palette, menu-command or credits/keyboard changes. Future dependency audits must match the semantic names in TEMPORARY_LINK_STUBS.csv as well as address tracing, rather than treating zero raw FUN calls as completion.
+The following entries describe their stated earlier checkpoints; counts and unresolved boundaries above supersede them.
 
 ## In-game default handler and Settings window - 2026-10-04
 

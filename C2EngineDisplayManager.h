@@ -18,6 +18,7 @@ namespace NC2E2
         void InformThatLoadDone();
         void InformThatControllingPlayerChanged(std::int32_t playerId);
         void InformSetExplorationState(bool enabled);
+        void* GetActiveDisplay() const { return mActiveDisplay; }
 
         // Original global: 00555114.
         inline static C2DEngineDisplayManager* sTheObjectPtr = nullptr;

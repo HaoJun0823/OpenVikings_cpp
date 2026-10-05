@@ -48,6 +48,25 @@ namespace
 
 namespace NC2Logic
 {
+    // Original function: FUN_00409CE7. The original rejects exactly two, not every value above two.
+    bool GameControl_System_PathfinderLimit_IsSearchAllowed(void* gameControl, std::int32_t playerId)
+    {
+        if (playerId == -1 || playerId == 20) return true;
+        if (playerId < 0 || playerId >= 20) return false;
+        const auto offset = static_cast<std::uint32_t>(playerId) * 0x4A80u + 0x4A20u;
+        const auto count = NC2Lifetime::Read<std::uint32_t>(gameControl, offset);
+        if (count == 2u) return false;
+        NC2Lifetime::Write(gameControl, offset, count + 1u);
+        return true;
+    }
+
+    // PARTIAL original function: FUN_00409BCC. Per-tick search budgets are complete;
+    // the periodic defeat scan and its messages/network command remain pending.
+    void __fastcall GameControl_System_DoOneGameTick(void* gameControl, void* /*unusedEdx*/, std::uint32_t /*tick*/)
+    {
+        for (std::uint32_t player = 0; player < 20; ++player) NC2Lifetime::Write<std::uint32_t>(gameControl, player * 0x4A80u + 0x4A20u, 0);
+    }
+
     using namespace NC2Lifetime;
 
     // Original function: FUN_00409a3b. Inlined in the named Mac initializer;

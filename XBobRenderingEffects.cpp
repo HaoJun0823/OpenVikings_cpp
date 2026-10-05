@@ -1,5 +1,6 @@
 #include "XBobRendering.h"
 #include "XBasicTypes.h"
+#include "XBitmap.h"
 #include "XCPU.h"
 #include "XCrtFileAccess.h"
 #include "XPaletteAccess.h"
@@ -161,6 +162,56 @@ namespace NXBasics
                 result |= value > 255u ? mask : (value >> right) << left;
             }
             return result;
+        }
+
+        std::uint32_t BlendPackedColour(std::uint32_t background, std::uint32_t foreground, std::uint32_t alpha, std::uint32_t inverse, std::uint32_t redMask, std::uint32_t greenMask, std::uint32_t redResultMask)
+        {
+            const auto red = (((background & redMask) * inverse + (foreground & redMask) * alpha) >> 8) & redResultMask;
+            const auto green = (((background & greenMask) * inverse + (foreground & greenMask) * alpha) >> 8) & greenMask;
+            const auto blueMask = redMask == 0xFF0000u ? 255u : 31u;
+            const auto blue = ((background & blueMask) * inverse + (foreground & blueMask) * alpha) >> 8;
+            return red + green + blue;
+        }
+
+        __m64 TransparencyFactors(std::uint32_t value)
+        {
+            const auto repeated = static_cast<std::uint64_t>(value) * 0x100000001ull;
+            __m64 factors;
+            std::memcpy(&factors, &repeated, sizeof(factors));
+            return factors;
+        }
+
+        std::uint32_t BlendTransparentMmx(std::uint32_t background, std::uint32_t foreground, __m64 inverse, __m64 alpha, std::uint32_t greenMask, bool highColour, bool paired)
+        {
+            const auto zero = _mm_setzero_si64();
+            auto bg = _mm_cvtsi32_si64(static_cast<int>(background));
+            auto fg = _mm_cvtsi32_si64(static_cast<int>(foreground));
+            if (!highColour)
+            {
+                bg = _mm_mullo_pi16(_mm_unpacklo_pi8(bg, zero), inverse);
+                fg = _mm_mullo_pi16(_mm_unpacklo_pi8(fg, zero), alpha);
+                return static_cast<std::uint32_t>(_mm_cvtsi64_si32(_mm_packs_pu16(_mm_srli_pi16(_mm_adds_pu16(bg, fg), 8), zero)));
+            }
+            const auto mask = _mm_cvtsi32_si64(static_cast<int>(greenMask));
+            auto bgGreen = _mm_and_si64(bg, mask);
+            auto fgGreen = _mm_and_si64(fg, mask);
+            bg = _mm_unpacklo_pi8(_mm_xor_si64(bg, bgGreen), zero);
+            fg = _mm_unpacklo_pi8(_mm_xor_si64(fg, fgGreen), zero);
+            bgGreen = _mm_srli_pi16(bgGreen, 4);
+            fgGreen = _mm_srli_pi16(fgGreen, 4);
+            if (paired)
+            {
+                bgGreen = _mm_unpacklo_pi8(bgGreen, zero);
+                fgGreen = _mm_unpacklo_pi8(fgGreen, zero);
+            }
+            auto other = _mm_adds_pu16(_mm_mullo_pi16(bg, inverse), _mm_mullo_pi16(fg, alpha));
+            auto green = _mm_adds_pu16(_mm_mullo_pi16(bgGreen, inverse), _mm_mullo_pi16(fgGreen, alpha));
+            other = _mm_packs_pu16(_mm_srli_pi16(other, 8), zero);
+            other = _mm_and_si64(other, _mm_cvtsi32_si64(static_cast<int>(~greenMask)));
+            green = _mm_srli_pi16(green, 4);
+            if (paired) green = _mm_packs_pi32(green, zero);
+            green = _mm_and_si64(green, mask);
+            return static_cast<std::uint32_t>(_mm_cvtsi64_si32(_mm_adds_pu16(other, green)));
         }
     }
 
@@ -331,5 +382,105 @@ namespace NXBasics
             const std::uint32_t result = red + green + blue;
             std::memcpy(destination, &result, depth == 1u ? 2u : 4u);
         });
+    }
+
+    // Original function: FUN_0049bdc8; bitmap line drawing clips the expanded runs.
+    void BobManager_PrintBob_FX_DrawOutline(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour, std::int32_t radius)
+    {
+        BobDrawRegion region;
+        if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || (region.type != 1 && region.type != 4) || region.clipped.height <= 0) return;
+        auto* rows = region.rows;
+        std::uint32_t row = 0;
+        do
+        {
+            const auto descriptor = BobRead<std::uint32_t>(rows);
+            rows = BobAddress(rows, 4);
+            if (descriptor != 0xFFFFFFFFu)
+            {
+                auto currentX = static_cast<std::uint32_t>(region.placed.x) + (descriptor >> 22);
+                auto* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & 0x3FFFFFu);
+                for (auto token = BobRead<std::uint8_t>(source); token != 0; token = BobRead<std::uint8_t>(source))
+                {
+                    source = BobAddress(source, 1);
+                    const auto count = static_cast<std::uint32_t>(token & 127u);
+                    if ((token & 128u) == 0)
+                    {
+                        bitmap->Draw_HorizontalLine(Runtime_TimeSigned32(currentX - static_cast<std::uint32_t>(radius)), Runtime_TimeSigned32(static_cast<std::uint32_t>(region.clipped.y) + row), Runtime_TimeSigned32(count + static_cast<std::uint32_t>(radius) * 2u), *colour);
+                        source = BobAddress(source, count * (region.type == 1 ? 1u : 2u));
+                    }
+                    currentX += count;
+                }
+            }
+            ++row;
+        } while (static_cast<std::uint16_t>(row) < region.clipped.height);
+    }
+
+    // Original function: FUN_0049d3e8; Windows blends only the inclusive source-byte range.
+    void BobManager_PrintBob_Glow_AddColor_OnlyBobByteRange(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour, std::uint32_t strength, std::uint8_t firstIndex, std::uint8_t lastIndex)
+    {
+        BobDrawRegion region;
+        if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 1) return;
+        const auto depth = BobRead<std::uint32_t>(bitmap, 4);
+        if (depth != 1 && depth != 2) return;
+        const auto foreground = depth == 1 ? g16BitPixelConverter->PackColor(*colour) : g32BitPixelConverter->PackColor(*colour);
+        const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? 0x07E007E0u : 0x03E003E0u) : 0xFF00u;
+        const auto redMask = depth == 1 ? 0xF800u : 0xFF0000u;
+        const auto inverse = (depth == 1 && region.wasClipped ? 255u : 256u) - strength;
+        DrawBobRuns(bobManager, bitmap, region, 1, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
+        {
+            const auto index = BobRead<std::uint8_t>(source);
+            if (index < firstIndex || index > lastIndex) return;
+            const auto background = depth == 1 ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
+            const auto result = BlendPackedColour(background, foreground, strength, inverse, redMask, greenMask, redMask);
+            std::memcpy(destination, &result, depth == 1 ? 2u : 4u);
+        });
+    }
+
+    // Original function: FUN_0046467d; arbitrary opacity, scalar and MMX branches.
+    void BobManager_PrintBob_UsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::uint32_t strength, std::int32_t x, std::int32_t y, CPalette* palette)
+    {
+        BobDrawRegion region;
+        if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 1) return;
+        const auto depth = BobRead<std::uint32_t>(bitmap, 4);
+        if (depth == 0) return;
+        if (depth != 1 && depth != 2) { _mm_empty(); return; }
+        const void* table = depth == 1 ? static_cast<const void*>(Palette_GetHighColorTablePtr(palette)) : Palette_GetTrueColorTablePtr(palette);
+        if (table == nullptr) return;
+        const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? 0x07E007E0u : 0x03E003E0u) : 0xFF00u;
+        const bool mmx = CPU_HasMMX();
+        const auto alpha = TransparencyFactors(strength * 0x10001u);
+        const auto inverse = TransparencyFactors(0x01000100u - strength * 0x10001u);
+        DrawBobRuns(bobManager, bitmap, region, 1, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool unchecked, std::uint32_t, std::uint32_t, std::uint32_t pixel, std::uint32_t count)
+        {
+            if (mmx && unchecked)
+            {
+                if (depth == 1)
+                {
+                    const auto pairedPixels = count & ~1u;
+                    if (pixel < pairedPixels && (pixel & 1u) != 0) return;
+                    const bool paired = pixel < pairedPixels;
+                    auto foreground = static_cast<std::uint32_t>(BobRead<std::uint16_t>(table, BobRead<std::uint8_t>(source) * 2u));
+                    if (paired) foreground |= static_cast<std::uint32_t>(BobRead<std::uint16_t>(table, BobRead<std::uint8_t>(source, 1) * 2u)) << 16;
+                    const auto background = paired ? BobRead<std::uint32_t>(destination) : BobRead<std::uint16_t>(destination);
+                    const auto result = BlendTransparentMmx(background, foreground, inverse, alpha, greenMask, true, paired);
+                    std::memcpy(destination, &result, paired ? 4u : 2u);
+                }
+                else
+                {
+                    const auto foreground = BobRead<std::uint32_t>(table, BobRead<std::uint8_t>(source) * 4u);
+                    const auto result = BlendTransparentMmx(BobRead<std::uint32_t>(destination), foreground, inverse, alpha, 0, false, false);
+                    std::memcpy(destination, &result, 4);
+                }
+            }
+            else
+            {
+                const auto foreground = depth == 1 ? BobRead<std::uint16_t>(table, BobRead<std::uint8_t>(source) * 2u) : BobRead<std::uint32_t>(table, BobRead<std::uint8_t>(source) * 4u);
+                const auto background = depth == 1 ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
+                const auto inverseStrength = (depth == 1 && !mmx && region.wasClipped ? 255u : 256u) - strength;
+                const auto result = BlendPackedColour(background, foreground, strength, inverseStrength, depth == 1 ? 0xF800u : 0xFF0000u, greenMask, depth == 1 ? 0xFFFFF800u : 0xFF0000u);
+                std::memcpy(destination, &result, depth == 1 ? 2u : 4u);
+            }
+        });
+        _mm_empty();
     }
 }

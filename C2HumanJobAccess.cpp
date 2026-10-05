@@ -13,6 +13,7 @@
 #include "C2UserMessageAccess.h"
 
 #include <cstring>
+#include <initializer_list>
 
 namespace NC2Logic
 {
@@ -30,6 +31,77 @@ namespace NC2Logic
             Write<std::uint32_t>(message, countOffset + 4u + count * 4u, item);
             Write<std::uint32_t>(message, countOffset, count + 1u);
         }
+    }
+
+    // Original function: FUN_00441aad.
+    bool Human_Misc_IsHidden(const void* human) { return Read<std::uint8_t>(human, 0xB50) != 0 || Read<std::uint8_t>(human, 0xB51) != 0; }
+
+    // Original function: FUN_004369e1; separate scans retain command precedence.
+    bool Human_UserControl_DoesWantToMarry(const void* human)
+    {
+        if (Read<std::uint32_t>(human, 0x368) == 5) return true;
+        for (const auto opcode : {13u, 14u})
+            for (std::uint32_t index = 0; index < 87; ++index) if (Read<std::uint8_t>(human, 0x390u + index * 20u) == opcode) return true;
+        return false;
+    }
+
+    // Original function: FUN_00436a19; only job 5 enters the child-command scans.
+    bool Human_UserControl_DoesWantToGetChild(const void* human)
+    {
+        if (Read<std::uint32_t>(human, 0x18) != 5) return false;
+        const auto task = Read<std::uint32_t>(human, 0x368);
+        if (task == 11 || task == 12) return true;
+        for (const auto opcode : {15u, 16u})
+            for (std::uint32_t index = 0; index < 87; ++index) if (Read<std::uint8_t>(human, 0x390u + index * 20u) == opcode) return true;
+        return false;
+    }
+
+    // Original function: FUN_004421e2, including unsigned product wrap before division.
+    std::uint32_t Human_Tool_Gui_GetExperienceForEquippedWeapon(const void* human)
+    {
+        const auto tribe = Read<std::uint32_t>(human, 0x14);
+        const auto weapon = Read<std::uint32_t>(human, 0xAE4);
+        const auto category = Read<std::uint32_t>(gStaticWeaponTypeArrays[tribe], weapon * 0xC4u + 0x20);
+        std::uint32_t experience = 0;
+        if (category == 1) experience = Read<std::uint32_t>(human, 0x140);
+        else if (category == 2) experience = Read<std::uint32_t>(human, 0x144);
+        else if (category == 3) experience = Read<std::uint32_t>(human, 0x148);
+        else if (category == 6) experience = Read<std::uint32_t>(human, 0x150);
+        else if (category == 7) experience = Read<std::uint32_t>(human, 0x154);
+        const auto percentage = experience * 100u / 100u;
+        return percentage > 100u ? 100u : percentage;
+    }
+
+    // Original function: FUN_0046224c; the final matching experience IDs win.
+    void Tool_Human_GetExperienceType_GainedViaWorking(std::int32_t job, std::uint32_t good, std::uint32_t& general, std::uint32_t& specific)
+    {
+        general = 0; specific = 0;
+        if (job < 7 || job > 30) return;
+        const auto* table = static_cast<const std::byte*>(gStaticHumanJobExperienceTable00510A3C) + static_cast<std::uint32_t>(job) * 0x2Cu;
+        const auto count = Read<std::uint32_t>(table, 0);
+        for (std::uint32_t index = 0; index < count; ++index)
+        {
+            const auto id = Read<std::uint32_t>(table, 4u + index * 4u);
+            const auto* data = static_cast<const std::byte*>(gStaticHumanJobExperienceData) + id * 0x34u;
+            const auto firstGood = Read<std::uint32_t>(data, 0x24);
+            if (firstGood == 0) general = id;
+            else if (firstGood == good || (Read<std::uint32_t>(data, 0x28) != 0 && Read<std::uint32_t>(data, 0x28) == good)) specific = id;
+        }
+    }
+
+    // Original function: FUN_00442335; signed and unsigned divisions match their native stages.
+    std::int32_t Human_JobEfficiency_CalculateExperienceFactor(const void* human)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        std::uint32_t general, specific;
+        Tool_Human_GetExperienceType_GainedViaWorking(Read<std::int32_t>(human, 0x18), good == 65 ? Read<std::uint32_t>(human, 0x20) : good, general, specific);
+        const auto id = specific != 0 ? specific : general;
+        if (id == 0) return 0;
+        const auto weighted = Read<std::uint32_t>(human, 0x24u + id * 4u) * Read<std::uint32_t>(gStaticHumanJobExperienceData, id * 0x34u + 0x2C) / 100u;
+        const auto divisor = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(weighted * 100u) / 5) + 100u);
+        const auto value = NXBasics::Runtime_TimeSigned32(100u - static_cast<std::uint32_t>(10000 / divisor));
+        const auto percentage = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(value) * 100u) / 98;
+        return percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
     }
 
     // Original function: FUN_0042c506. Signed player comparison; negative IDs remain unchecked.

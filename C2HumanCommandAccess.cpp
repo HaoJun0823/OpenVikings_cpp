@@ -7,9 +7,42 @@
 #include "C2HouseAccess.h"
 #include "C2VehicleAccess.h"
 #include "C2InteractionTargetAccess.h"
+#include "C2StaticAtomicAnimationData.h"
+#include "C2GameMapAccess.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2StaticActorTypeDataAccess.h"
 #include <cstring>
 namespace NC2Logic
 {
+    // Partial original function: FUN_0044314a; Mac CurrentTask_DoPerform.
+    // Event-bearing atomics remain pending rather than dropping their gameplay effects.
+    void Human_CurrentTask_DoPerform(void* human)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(human, 0xAB8) == 0)
+        {
+            Write<std::uint32_t>(human, 0x370, 0);
+            Write<std::uint32_t>(human, 0x368, 1);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            return;
+        }
+        if (Read<std::uint8_t>(human, 0xABC) == 0) return;
+        const auto& animation = gStaticAtomicAnimationData[Read<std::uint32_t>(human, 0xAC0)];
+        if (animation.eventCount != 0) return;
+        const auto done = Read<std::uint32_t>(human, 0xAC4) + 1u;
+        Write(human, 0xAC4, done);
+        if (done != static_cast<std::uint32_t>(animation.length)) return;
+        if (Read<std::uint32_t>(human, 0x36C) == 1u) Write<std::uint32_t>(human, 0x36C, 2);
+        if (animation.endDirection != -1)
+        {
+            void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+            Write(moveable, 0x20, animation.endDirection);
+        }
+        // Original l_ResetAtomic, 0045CCA7, is inlined here.
+        Write<std::uint32_t>(human, 0xAB8, 0);
+        Write<std::uint8_t>(human, 0xABC, 0);
+    }
+
     // Original function: FUN_0042c5aa.
     static bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0x18) == 5; }
 
@@ -114,6 +147,144 @@ namespace NC2Logic
         auto* other = CHumanArray::mStaticVars + otherId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(other, 0) != 0) Human_StopWaitingForOtherHuman(other);
         Write<std::uint32_t>(human, 0xB1C, 0xFFFFFFFFu);
+    }
+
+    // Original function: FUN_0042cea7.
+    void Human_Target_Reset(void* human) { NC2Lifetime::Write<std::uint32_t>(human, 0xA68, 0); }
+
+    // Original function: FUN_0042d18b; a non-landscape target has type zero.
+    std::uint32_t Human_GetLandscapeTypeAtTargetPosition(const void* human)
+    {
+        using namespace NC2Lifetime;
+        const void* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + 0xA6C);
+        return Read<std::uint8_t>(point, 0) == 1 ? Read<std::uint8_t>(point, 2) : 0;
+    }
+
+    // Original function: FUN_0042d45a.
+    std::uint32_t Human_Equipment_GetWeaponType(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xAE4); }
+
+    // Original function: FUN_00462ec6; arriving updates the current task before AI dispatch.
+    void Human_AI_DoNewMapPositionReached_DestinationReached(void* human)
+    {
+        using namespace NC2Lifetime;
+        const auto task = Read<std::uint32_t>(human, 0x368);
+        switch (task)
+        {
+        case 2: case 4: case 23: case 24: case 25: case 26: case 27: case 28: case 29:
+            Write<std::uint32_t>(human, 0x36C, 2);
+            return;
+        case 5: case 13:
+            if (Read<std::uint32_t>(human, 0x36C) == 1) Write<std::uint32_t>(human, 0x36C, 2);
+            return;
+        case 7:
+            if (Read<std::uint32_t>(human, 0x36C) != 1) return;
+            switch (Read<std::uint32_t>(human, 0x370))
+            {
+            case 1: Write<std::uint32_t>(human, 0x36C, 0); return;
+            case 2:
+                if (Human_GetLandscapeTypeAtTargetPosition(human) == 4) Write<std::uint32_t>(human, 0x36C, 2);
+                else { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 3); }
+                return;
+            case 3:
+            {
+                CMapMoveableIterator iterator;
+                for (auto id = iterator.GetFirstMapMoveableId(Human_GetMapPositionRef(human)); id != -1; id = iterator.GetNextMapMoveableId())
+                {
+                    const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+                    if (Read<std::uint32_t>(moveable, 8) == 1 && Read<std::uint32_t>(moveable, 0x54) != Read<std::uint32_t>(human, 4))
+                    {
+                        Write<std::uint32_t>(human, 0x36C, 2);
+                        return;
+                    }
+                }
+                Write<std::uint32_t>(human, 0x36C, 3);
+                Write<std::uint32_t>(human, 0x374, 6);
+                return;
+            }
+            case 4: Write<std::uint32_t>(human, 0x36C, 2); return;
+            default: return;
+            }
+        case 14: case 15:
+        {
+            Human_Target_Reset(human);
+            const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]);
+            if (static_cast<std::uint32_t>(weapons[Human_Equipment_GetWeaponType(human)].minimumRange) > 1u)
+            {
+                Write<std::uint32_t>(human, 0x37C, 0);
+                Write<std::uint32_t>(human, 0x36C, 0);
+                Write<std::uint32_t>(human, 0x368, 1);
+            }
+            else Write<std::uint32_t>(human, 0x36C, 2);
+            return;
+        }
+        default: return;
+        }
+    }
+
+    // Original function: FUN_004632c5; Windows clears carrier circulation state.
+    void Human_AI_DoPathfinderFailed(void* human)
+    {
+        using namespace NC2Lifetime;
+        const auto task = Read<std::uint32_t>(human, 0x368);
+        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, 0x374, 1);
+        if (task == 5 || task == 13) Human_StopWaitingForOtherHuman_Detach(human);
+        if (Human_IsJobCarrier(human))
+        {
+            Write<std::uint32_t>(human, 0x218, 0);
+            Write<std::uint32_t>(human, 0x1C, 0);
+            Write<std::uint32_t>(human, 0x38C, 0);
+        }
+    }
+
+    // Original function: FUN_00463311; interrupt only at an interruptable atomic.
+    void Human_AI_DoPathfinderStopped(void* human)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(human, 0x368) == 2) Write<std::uint32_t>(human, 0x36C, 3);
+        if (Human_l_IsAtomicInterruptable(human) && Human_UserControl_IsPriorityCommandInQueue(human)) Human_CurrentTask_DoInterrupt(human);
+    }
+
+    // Original function: FUN_00434deb; complete PE table 00434E0E..00434E6A.
+    bool Human_UserControl_IsAPriorityCommand(std::uint32_t opcode)
+    {
+        switch (opcode)
+        {
+        case 3: case 4: case 13: case 17: case 21: case 22: case 23: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49: case 50: case 51: return true;
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_00434e6b; separate predicate from priority commands.
+    bool Human_UserControl_IsAInterruptingCommand(std::uint32_t opcode)
+    {
+        switch (opcode)
+        {
+        case 3: case 4: case 13: case 21: case 22: case 25: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 43: case 44: case 45: case 46: case 47: case 48: return true;
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_00434ed0; all 87 command slots are checked in order.
+    bool Human_UserControl_IsPriorityCommandInQueue(const void* human)
+    {
+        for (std::uint32_t index = 0; index < 87; ++index)
+        {
+            const auto opcode = NC2Lifetime::Read<std::uint8_t>(human, 0x390u + index * 20u);
+            if (opcode != 0 && Human_UserControl_IsAPriorityCommand(opcode)) return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_00434f03; return the first matching slot or -1.
+    std::int32_t Human_UserControl_GetPriorityCommandIndexInQueue(const void* human)
+    {
+        for (std::int32_t index = 0; index < 87; ++index)
+        {
+            const auto opcode = NC2Lifetime::Read<std::uint8_t>(human, 0x390u + static_cast<std::uint32_t>(index) * 20u);
+            if (opcode != 0 && Human_UserControl_IsAPriorityCommand(opcode)) return index;
+        }
+        return -1;
     }
 
     // Original function: FUN_004355fc.

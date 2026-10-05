@@ -9,6 +9,8 @@
 #include "C2LifetimeAccess.h"
 #include "C2LogicLifetimeAccess.h"
 #include "C2EngineLifetimeAccess.h"
+#include "C2E2StaticDataMapMoveables.h"
+#include "C2E2StaticDataHumanMisc.h"
 #include "C2EngineDisplayAccess.h"
 #include "MasterControlProgram.h"
 #include "XCrtFileAccess.h"
@@ -254,8 +256,6 @@ namespace NC2E2
     extern void* __fastcall E2StaticDataHousesManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataTransitionsManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2StaticDataMapMoveablesManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2StaticDataHumanMiscManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataGoodManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelEffectManager_Construct(void*, void* unusedEdx);

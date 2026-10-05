@@ -1,0 +1,701 @@
+#include "C2EngineMoveableDrawing.h"
+#include "C2E2StaticDataHumanMisc.h"
+#include "C2E2StaticDataPalettes.h"
+#include "C2EngineDisplayAccess.h"
+#include "C2EngineDrawingAccess.h"
+#include "C2EngineObjectData.h"
+#include "C2GameMapAccess.h"
+#include "C2GameState.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LifetimeAccess.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2MapMoveableAccess.h"
+#include "C2MissionStartObjects.h"
+#include "C2AnimalAccess.h"
+#include "C2VehicleAccess.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanInitialization.h"
+#include "C2EngineLandscapeDrawing.h"
+#include "C2E2StaticDataTerrain.h"
+#include "C2E2AnimalSoundManager.h"
+#include "InGameGuiSupportAccess.h"
+#include "XBobRendering.h"
+#include "XBasicTypes.h"
+#include "XBitmap.h"
+
+#include <algorithm>
+#include <cstring>
+#include <windows.h>
+#include <mmsystem.h>
+
+namespace NC2E2
+{
+    namespace
+    {
+        using NC2Lifetime::Read;
+        using NC2Lifetime::Write;
+
+        std::uint32_t ParentJob(std::uint32_t job)
+        {
+            return Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * 0x88u + 0x20);
+        }
+
+        std::uint32_t DrawingDirection(const void* moveable)
+        {
+            return Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
+        }
+
+        const SE2StaticDataMapMoveableWalkData* GetCachedWalk(const void* moveable, SE2DynamicDataMapMoveableData& dynamic, std::uint32_t tribe, std::uint32_t job, std::uint32_t good)
+        {
+            const auto speed = Read<std::uint32_t>(moveable, 0x44);
+            if (dynamic.walk != nullptr && dynamic.walkTribe == tribe && dynamic.walkJob == job && dynamic.walkGood == good && dynamic.walkSpeed == speed) return dynamic.walk;
+            dynamic.walk = nullptr;
+            auto lookupJob = job;
+            auto lookupGood = good;
+            while (true)
+            {
+                dynamic.walk = StaticMapMoveables_GetWalkDataPtr(gE2StaticDataMapMoveablesManager, tribe, lookupJob, lookupGood, speed);
+                if (dynamic.walk != nullptr)
+                {
+                    dynamic.walkTribe = tribe; dynamic.walkJob = job; dynamic.walkGood = good; dynamic.walkSpeed = speed;
+                    return dynamic.walk;
+                }
+                const auto parent = ParentJob(lookupJob);
+                if (parent != 0) lookupJob = parent;
+                else if (lookupGood != 0) lookupGood = 0;
+                else return nullptr;
+            }
+        }
+
+        const SE2StaticDataMapMoveableAnimationData* FindAnimation(std::uint32_t tribe, std::uint32_t job, std::uint32_t action, std::uint32_t subId)
+        {
+            while (true)
+            {
+                if (const auto* animation = StaticMapMoveables_GetAnimationDataPtr(gE2StaticDataMapMoveablesManager, tribe, job, action, subId)) return animation;
+                job = ParentJob(job);
+                if (job == 0) return nullptr;
+            }
+        }
+
+        void SetFrame(SE2DynamicDataMapMoveableData& dynamic, std::uint32_t bodySequence, std::uint32_t headSequence, std::uint32_t frame)
+        {
+            dynamic.bodyBobId = bodySequence + frame;
+            dynamic.headBobId = headSequence == 0xFFFFFFFFu ? dynamic.bodyBobId : headSequence + frame;
+        }
+
+        void SetAnimationFrame(SE2DynamicDataMapMoveableData& dynamic, const SE2StaticDataMapMoveableAnimationData& animation, const SMapMoveableFrameList& frames, std::uint32_t done, std::uint32_t total)
+        {
+            std::uint32_t index = 0;
+            if (animation.animationMode == 0)
+            {
+                index = (frames.count * done) / total;
+                if (index >= frames.count) index = frames.count - 1u;
+            }
+            else if (animation.animationMode == 1) index = done % frames.count;
+            SetFrame(dynamic, animation.bodySequenceOrPartCount, animation.headSequenceOrPartAddress, frames.frames[index]);
+        }
+
+        std::int32_t AddOffset(std::int32_t first, std::int32_t second)
+        {
+            return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(first) + static_cast<std::uint32_t>(second));
+        }
+
+        std::int32_t InterpolateOffset(std::int32_t start, std::int32_t end, std::uint32_t progress)
+        {
+            const auto product = (static_cast<std::uint32_t>(end) - static_cast<std::uint32_t>(start)) * progress;
+            return AddOffset(start, NXBasics::Runtime_TimeSigned32(product) / 10000);
+        }
+    }
+
+    // Original function: FUN_0049b30b.
+    std::uint32_t DrawAtom_Tool_GetSelectedBrightness()
+    {
+        const auto time = ::timeGetTime() & 1023u;
+        const auto value = time >= 512u ? 512u - (time & 511u) : time;
+        return static_cast<std::uint32_t>(256 + NXBasics::Runtime_TimeSigned32(value - 256u) / 2);
+    }
+
+    namespace
+    {
+        std::uint32_t AtomicLength(const void* object, std::uint32_t typeOffset) { return Read<std::uint32_t>(NC2Logic::gStaticAtomicAnimationData, Read<std::uint32_t>(object, typeOffset) * 0x138u + 0x34); }
+        std::byte* HumanDynamic(const void* human) { return gDynamicDataHumans.entries + Read<std::uint32_t>(human, 4) * 0x8C8u; }
+        NXBasics::CPalette* HumanBody(std::byte* dynamic) { return reinterpret_cast<NXBasics::CPalette*>(dynamic + 0x44); }
+        NXBasics::CPalette* HumanHead(std::byte* dynamic) { return reinterpret_cast<NXBasics::CPalette*>(dynamic + 0x450); }
+        const std::byte* Vehicle(std::uint32_t id) { return NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize; }
+        void WalkingOffset(const void* moveable, const void* display, std::int32_t& x, std::int32_t& y, std::int32_t* brightness)
+        {
+            if (display == nullptr || Read<std::uint8_t>(moveable, 0x2C) == 0 || Read<std::uint8_t>(moveable, 0x39) != 0) return;
+            auto direction = Read<std::uint32_t>(moveable, 0x30);
+            if (direction >= 8u) return;
+            auto progress = Read<std::uint32_t>(moveable, 0x34);
+            if (Read<std::uint8_t>(moveable, 0x38) != 0)
+            {
+                progress = 10000u - progress;
+                direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
+            }
+            const auto startPoint = Read<std::uint32_t>(moveable, 0x12);
+            auto targetPoint = startPoint;
+            NC2Logic::MapMigPoint_MoveCursorUnwrapped(targetPoint, direction);
+            std::int32_t start[2], target[2];
+            DisplayDescription_MapMigToWorldPixelCoordinates(display, startPoint, start, true);
+            DisplayDescription_MapMigToWorldPixelCoordinates(display, targetPoint, target, true);
+            x = AddOffset(x, InterpolateOffset(0, AddOffset(target[0], NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(start[0]))), progress));
+            y = AddOffset(y, InterpolateOffset(0, AddOffset(target[1], NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(start[1]))), progress));
+            if (brightness != nullptr) *brightness = InterpolateOffset(*brightness, Display_DE_Hightlighting_GetMapBrightness(display, &targetPoint), progress);
+        }
+        std::int32_t DynamicBrightness(const void* dynamic, std::uint32_t selectedOffset, std::int32_t brightness)
+        {
+            if (Read<std::uint8_t>(dynamic, selectedOffset) != 0) brightness = static_cast<std::int32_t>(DrawAtom_Tool_GetSelectedBrightness() >> 1);
+            if (Read<std::uint8_t>(dynamic, selectedOffset + 1) != 0) brightness = 256;
+            return brightness;
+        }
+        std::uint32_t HealthBob(std::uint32_t hitpoints, std::uint32_t maximum)
+        {
+            const auto percentage = NXBasics::Runtime_TimeSigned32(hitpoints * 100u) / NXBasics::Runtime_TimeSigned32(maximum);
+            return 21u - static_cast<std::uint32_t>(std::clamp(percentage, 0, 100) / 10);
+        }
+    }
+
+    // Original function: FUN_004955e7; bounded descriptor append, distinct from sprite drawing.
+    bool S2DEngineDisplaySearchObjectBobData::AddBob(void* manager, std::uint32_t id, std::int32_t offsetX, std::int32_t offsetY)
+    {
+        if (count == 20 || !NXBasics::BobManager_DoesBobExists(manager, id)) return false;
+        bobs[count++] = {manager, id, offsetX, offsetY};
+        return true;
+    }
+
+    // Original function: FUN_004972de; descriptor animation differs from drawing.
+    void DrawAtom_Landscape_GetBobData(const void* graphicData, std::uint32_t variant, std::uint32_t phase, S2DEngineDisplaySearchObjectBobData* output)
+    {
+        std::memset(output, 0, sizeof(*output));
+        const auto* graphic = static_cast<const SE2StaticDataLandscape*>(graphicData);
+        if (graphic->frameGroupCount == 0) return;
+        std::int32_t group = static_cast<std::int32_t>(graphic->frameGroupCount) - 1;
+        while (group >= 0 && Read<std::uint32_t>(graphic->frameGroups, static_cast<std::uint32_t>(group) * 12u) > variant) --group;
+        if (group < 0) return;
+        const auto* frames = reinterpret_cast<const std::byte*>(graphic->frameGroups) + static_cast<std::uint32_t>(group) * 12u;
+        std::uint32_t value = graphic->loopAnimation != 0 ? phase + NC2Logic::gGameTime.tick : 0;
+        if (graphic->loopAnimation != 0 && gE2ParticelGeneratorStorage.unresolved00 != 0) value = ::timeGetTime() / 83u + phase;
+        const auto* ids = Read<const std::uint32_t*>(frames, 8);
+        output->AddBob(graphic->bobManagers[0], ids[value % Read<std::uint32_t>(frames, 4)], 0, 0);
+    }
+
+    // Original function: FUN_004951a4; only body/head sprites contribute to sort data.
+    void DrawAtom_MapMoveable_GetBobData(std::uint32_t moveableId, const void* display, S2DEngineDisplaySearchObjectBobData* output, std::int32_t playerId)
+    {
+        std::memset(output, 0, sizeof(*output));
+        const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * 0x58u;
+        std::int32_t walkingX = 0, walkingY = 0, offsetX = 0, offsetY = 0;
+        WalkingOffset(moveable, display, walkingX, walkingY, nullptr);
+        const auto type = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, 0x54);
+        void* dynamic = nullptr;
+        if (type == 1)
+        {
+            const auto* human = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize;
+            dynamic = HumanDynamic(human);
+            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(human, 0x14), Read<std::uint32_t>(human, 0x18), Read<std::uint32_t>(human, 0xAD4), Read<std::uint8_t>(human, 0xABC) != 0, Read<std::uint32_t>(human, 0xAB8), Read<std::uint32_t>(human, 0xAC4), AtomicLength(human, 0xAC0), Read<std::uint32_t>(human, 0xAC8), NC2Logic::Human_Misc_IsHidden(human), display, offsetX, offsetY, nullptr, false);
+        }
+        else if (type == 2)
+        {
+            const auto* animal = NC2Logic::CAnimalArray::mStaticVars + id * NC2Logic::CAnimalArray::ElementSize;
+            dynamic = gDynamicDataAnimals.entries + Read<std::uint32_t>(animal, 4) * 0x44u;
+            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(animal, 0x14), Read<std::uint32_t>(animal, 0x18), 0, Read<std::uint8_t>(animal, 0x74) != 0, Read<std::uint32_t>(animal, 0x70), Read<std::uint32_t>(animal, 0x7C), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, 0x80), Read<std::uint8_t>(animal, 0x94) != 0, display, offsetX, offsetY, nullptr, false);
+        }
+        else if (type == 3)
+        {
+            const auto* vehicle = Vehicle(id);
+            dynamic = gDynamicDataVehicles.entries + Read<std::uint32_t>(vehicle, 4) * 0x44u;
+            const auto vehicleType = Read<std::uint32_t>(vehicle, 0x1E8);
+            const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, 0x1D0) != 0;
+            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(vehicle, 0x1E4), Read<std::uint32_t>(vehicle, 0x1EC), special ? 5u : 0u, Read<std::uint8_t>(vehicle, 0x500) != 0, special ? 4u : Read<std::uint32_t>(vehicle, 0x4FC), Read<std::uint32_t>(vehicle, 0x508), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, 0x50C), false, display, offsetX, offsetY, nullptr, false);
+        }
+        else if (type == 4)
+        {
+            const auto* marker = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + id * 0x18u;
+            if (Read<std::uint32_t>(marker, 0x10) != 1 || NC2Logic::Marker_PlayerId_Get(marker) == -1 || NC2Logic::Marker_PlayerId_Get(marker) != playerId) return;
+            const auto landscapeId = StaticHumanMisc_SoldierSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
+            if (landscapeId != -1) DrawAtom_Landscape_GetBobData(static_cast<const SE2StaticDataLandscape*>(gStaticLandscapeEntries) + landscapeId, 1, NC2Logic::gGameTime.tick, output);
+            return;
+        }
+        else return;
+        const auto& frames = *static_cast<const SE2DynamicDataMapMoveableData*>(dynamic);
+        if (frames.bodyBobManager != nullptr && frames.bodyBobId != 0xFFFFFFFFu) output->AddBob(frames.bodyBobManager, frames.bodyBobId, AddOffset(offsetX, walkingX), AddOffset(offsetY, walkingY));
+        if (frames.headBobManager != nullptr && frames.headBobId != 0xFFFFFFFFu) output->AddBob(frames.headBobManager, frames.headBobId, AddOffset(offsetX, walkingX), AddOffset(offsetY, walkingY));
+    }
+
+    // Original function: FUN_00493656; full type-specific sprite and status dispatch.
+    void DrawAtom_MapMoveable_DoDraw(std::uint32_t moveableId, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* display, bool centered, std::int32_t playerId)
+    {
+        const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * 0x58u;
+        std::int32_t brightness = 128;
+        if (display != nullptr)
+        {
+            brightness = Display_DE_Hightlighting_GetMapBrightness(display, moveable + 0x12);
+            WalkingOffset(moveable, display, x, y, &brightness);
+            brightness = AddOffset(128, AddOffset(brightness, -128) / 2);
+        }
+        const auto type = Read<std::uint32_t>(moveable, 8), objectId = Read<std::uint32_t>(moveable, 0x54);
+        if (type == 4)
+        {
+            const auto* marker = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + objectId * 0x18u;
+            const auto markerType = Read<std::uint32_t>(marker, 0x10);
+            auto drawGraphic = [&](std::int32_t id, std::int32_t offsetY) { if (id != -1) EngineGraphic_Draw(static_cast<std::uint32_t>(id), 1, bitmap, x, AddOffset(y, offsetY), NC2Logic::gGameTime.tick, AddOffset(brightness, brightness), -1, false); };
+            if (markerType == 4)
+            {
+                static const auto incense = E2StaticDataLandscapesManager_GetLandscapeId("fx fire incense");
+                drawGraphic(incense, 0);
+                static const auto fire = E2StaticDataLandscapesManager_GetLandscapeId("fx fire small");
+                drawGraphic(fire, 0);
+                static const auto star = E2StaticDataLandscapesManager_GetLandscapeId("fx star");
+                drawGraphic(star, 0);
+                static const auto fog = E2StaticDataLandscapesManager_GetLandscapeId("fx fog waterfall");
+                drawGraphic(fog, 0);
+            }
+            else if (markerType == 3)
+            {
+                static const auto work = E2StaticDataLandscapesManager_GetLandscapeId("player01 work extern 01");
+                drawGraphic(work, 0);
+            }
+            else if (markerType == 2)
+            {
+                static const auto flag = E2StaticDataLandscapesManager_GetLandscapeId("fx marker");
+                drawGraphic(flag, -60);
+            }
+            else if (markerType == 1)
+            {
+                const auto humanId = Read<std::int32_t>(marker, 0x14);
+                if (humanId != -1) brightness = DynamicBrightness(gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * 0x8C8u, 0x8C4, brightness);
+                if (NC2Logic::Marker_PlayerId_Get(marker) != -1 && NC2Logic::Marker_PlayerId_Get(marker) == playerId)
+                {
+                    const auto id = StaticHumanMisc_SoldierSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
+                    if (id != -1) drawGraphic(id, 0);
+                }
+            }
+            return;
+        }
+        if (type == 3)
+        {
+            const auto* vehicle = Vehicle(objectId);
+            auto* dynamic = gDynamicDataVehicles.entries + Read<std::uint32_t>(vehicle, 4) * 0x44u;
+            brightness = DynamicBrightness(dynamic, 0x40, brightness);
+            const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Vehicle_GetMarkType(display, Read<std::uint32_t>(vehicle, 4)) : 0u;
+            const auto* commander = NC2Logic::Vehicle_Passengers_GetAttachedCommanderPtr(vehicle);
+            if (commander != nullptr && (NC2Logic::Human_IsJobTrader(commander) || NC2Logic::Human_IsJobCarrier(commander)) && Read<std::uint8_t>(commander, 0xB51) != 0)
+            {
+                const auto attachedType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(commander, 0xB48)), 0x1E8);
+                if (attachedType == 1 || attachedType == 2)
+                {
+                    auto* humanDynamic = HumanDynamic(commander);
+                    Write<void*>(humanDynamic, 0x34, nullptr); Write<void*>(humanDynamic, 0x38, nullptr);
+                    const bool atomic = Read<std::uint8_t>(vehicle, 0x500) != 0;
+                    sl_DoDrawMapMoveable(moveable, humanDynamic, Read<std::uint32_t>(commander, 0x14), 25, attachedType == 1 ? 59u : 60u, atomic, atomic ? (attachedType == 1 ? 2u : 3u) : 1u, Read<std::uint32_t>(vehicle, 0x508), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, 0x50C), HumanBody(humanDynamic), HumanHead(humanDynamic), bitmap, x, y, brightness, marking, Read<std::int32_t>(commander, 0x10), false, centered, false, nullptr, -1, -1, display, true);
+                    return;
+                }
+            }
+            const auto vehicleType = Read<std::uint32_t>(vehicle, 0x1E8);
+            const auto player = Read<std::int32_t>(vehicle, 0x1E0);
+            auto* palette = gStaticPalettes.palettes256[Read<std::uint32_t>(dynamic, 0x3C)].palette;
+            if ((vehicleType == 3 || vehicleType == 4) && player != -1) palette = EnginePalette_GetPlayerShipPalette(player);
+            const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, 0x1D0) != 0;
+            sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(vehicle, 0x1E4), Read<std::uint32_t>(vehicle, 0x1EC), special ? 5u : 0u, Read<std::uint8_t>(vehicle, 0x500) != 0, special ? 4u : Read<std::uint32_t>(vehicle, 0x4FC), Read<std::uint32_t>(vehicle, 0x508), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, 0x50C), palette, palette, bitmap, x, y, brightness, marking, player, false, centered, false, nullptr, -1, -1, display, false);
+            if (player != -1 && vehicleType != 3 && vehicleType != 4)
+                NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(vehicle, 0xC), vehicleType == 5 ? 3000u : 1000u), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
+            return;
+        }
+        if (type == 2)
+        {
+            const auto* animal = NC2Logic::CAnimalArray::mStaticVars + objectId * NC2Logic::CAnimalArray::ElementSize;
+            if (!centered && Read<std::uint8_t>(animal, 0x94) != 0) return;
+            auto* dynamic = gDynamicDataAnimals.entries + Read<std::uint32_t>(animal, 4) * 0x44u;
+            brightness = DynamicBrightness(dynamic, 0x40, brightness);
+            const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Animal_GetMarkType(display, Read<std::uint32_t>(animal, 4)) : 0u;
+            auto* palette = gStaticPalettes.palettes256[Read<std::uint32_t>(dynamic, 0x3C)].palette;
+            const auto player = Read<std::int32_t>(animal, 0x10);
+            sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(animal, 0x14), Read<std::uint32_t>(animal, 0x18), 0, Read<std::uint8_t>(animal, 0x74) != 0, Read<std::uint32_t>(animal, 0x70), Read<std::uint32_t>(animal, 0x7C), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, 0x80), palette, palette, bitmap, x, y, brightness, marking, player, Read<std::uint8_t>(animal, 0x94) != 0, centered, false, nullptr, -1, -1, display, false);
+            if (player != 20) NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(animal, 0x64), NC2Logic::Animal_HitPoints_GetMaximum(animal)), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
+            if (!centered && display != nullptr && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(animal, 0x18) == 49)
+            {
+                const auto offset = Read<std::uint32_t>(animal, 0x14) * 4u - 0x1Cu;
+                auto* sounds = CE2AnimalSoundManager::sTheObjectPtr;
+                Write(sounds, offset, Read<std::uint32_t>(sounds, offset) + 1u);
+            }
+            return;
+        }
+        if (type != 1) return;
+        const auto* human = NC2Logic::CHumanArray::mStaticVars + objectId * NC2Logic::CHumanArray::ElementSize;
+        if (!centered && NC2Logic::Human_Misc_IsHidden(human)) return;
+        auto* dynamic = HumanDynamic(human);
+        brightness = DynamicBrightness(dynamic, 0x8C4, brightness);
+        const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Human_GetMarkType(display, Read<std::uint32_t>(human, 4)) : 0u;
+        auto job = Read<std::uint32_t>(human, 0x18);
+        if ((NC2Logic::Human_IsJobTrader(human) || NC2Logic::Human_IsJobCarrier(human)) && (Read<std::uint8_t>(human, 0xB51) == 0 || centered))
+        {
+            job = 6;
+            const auto vehicleId = Read<std::uint32_t>(human, 0xB48);
+            if (vehicleId != 0xFFFFFFFFu)
+            {
+                std::int32_t patch = -1;
+                if (Read<std::uint32_t>(Vehicle(vehicleId), 0x1E8) == 1) patch = StaticHumanMisc_RandomPalette_GetPatchId("good_handcart");
+                const auto vehicleType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(human, 0xB48)), 0x1E8);
+                if (vehicleType == 2 || vehicleType == 6) patch = StaticHumanMisc_RandomPalette_GetPatchId("good_oxcart");
+                if (patch != -1) StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), HumanBody(dynamic), HumanHead(dynamic), true);
+            }
+        }
+        const auto tribe = Read<std::uint32_t>(human, 0x14), flags = Read<std::uint32_t>(human, 0xB84);
+        const auto player = Read<std::int32_t>(human, 0x10);
+        const bool specialHero = tribe == 2 && Read<std::uint32_t>(human, 0x18) == 47;
+        const auto* effect = (NC2Logic::Human_IsJobHero(human) || (flags & (1u << 19)) != 0) && !specialHero ? Tool_PlayerColors_GetColorRef(player) : nullptr;
+        sl_DoDrawMapMoveable(moveable, dynamic, tribe, job, Read<std::uint32_t>(human, 0xAD4), Read<std::uint8_t>(human, 0xABC) != 0, Read<std::uint32_t>(human, 0xAB8), Read<std::uint32_t>(human, 0xAC4), AtomicLength(human, 0xAC0), Read<std::uint32_t>(human, 0xAC8), HumanBody(dynamic), HumanHead(dynamic), bitmap, x, y, brightness, marking, player, NC2Logic::Human_Misc_IsHidden(human), centered, (flags & (1u << 14)) != 0, effect, -1, -1, display, false);
+        auto iconY = AddOffset(y, -56);
+        const bool tallSoldier = tribe == 3 && Read<std::uint32_t>(human, 0x18) == 32;
+        if (tallSoldier) iconY = AddOffset(iconY, -16);
+        auto icon = [&](std::uint32_t bob) { NXBasics::BobManager_PrintBob_UsingShadedAlpha(Read<void*>(gE2StaticDataBobManagersManager, 0x18), bob, bitmap, x, iconY, gStaticPalettes.palettes256[gStaticPalettes.guiBubblesPaletteId].palette, brightness); };
+        auto experience = [&](std::uint32_t value) { const auto level = (std::min)(value, 100u) / 25u; if (level > 0) { icon(10u - level); iconY = AddOffset(iconY, -16); } };
+        if (NC2Logic::Human_IsJobSoldier(human) && !centered && !tallSoldier) experience(NC2Logic::Human_Tool_Gui_GetExperienceForEquippedWeapon(human));
+        if (player == playerId && !centered && Read<std::uint8_t>(dynamic, 0x8C4) != 0)
+        {
+            NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(human, 0xAA0), NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), bitmap, x, iconY, EnginePalette_GetPlayerPalette(player));
+            iconY = AddOffset(iconY, -20);
+        }
+        if (player == playerId && !centered)
+        {
+            if (Read<std::uint8_t>(dynamic, 0x8C4) != 0) experience(static_cast<std::uint32_t>(NC2Logic::Human_JobEfficiency_CalculateExperienceFactor(human)));
+            // Read-only critical-need DWORDs at 004F3B68/004F3B6C are both 1000.
+            std::int32_t need = -1;
+            if (Read<std::int32_t>(human, 0xAA8) < 1000) need = 4;
+            else if (Read<std::int32_t>(human, 0xAAC) < 1000) need = 0;
+            else if (Read<std::uint8_t>(dynamic, 0x8C0) != 0) need = 5;
+            else if (NC2Logic::Human_UserControl_DoesWantToMarry(human) || NC2Logic::Human_UserControl_DoesWantToGetChild(human)) need = 2;
+            if (need != -1) { icon(static_cast<std::uint32_t>(need)); iconY = AddOffset(iconY, -16); }
+        }
+        if ((flags & (1u << 7)) != 0 && (!NC2Logic::Human_IsJobHero(human) || specialHero)) { icon(10); iconY = AddOffset(iconY, -16); }
+        if (!centered && Read<std::uint8_t>(human, 0xB8C) != 0) icon(22);
+        if (display == nullptr || centered || Read<void*>(display, 0x924) == nullptr || player != playerId || NC2InGameGuiGroups::gObjectGroupManager == nullptr) return;
+        const auto group = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman(Read<std::uint32_t>(human, 4));
+        if (group == -1) return;
+        static const NXBasics::SColorRGB white(255, 255, 255), black(0, 0, 0);
+        auto* font = Read<NXBasics::CFont*>(display, 0x924);
+        const auto labelX = AddOffset(x, 8), labelY = AddOffset(y, -5);
+        bitmap->Text_PrintV(font, &black, AddOffset(labelX, -1), labelY, "%d", AddOffset(group, 1));
+        bitmap->Text_PrintV(font, &black, AddOffset(labelX, 1), labelY, "%d", AddOffset(group, 1));
+        bitmap->Text_PrintV(font, &black, labelX, AddOffset(labelY, -1), "%d", AddOffset(group, 1));
+        bitmap->Text_PrintV(font, &black, labelX, AddOffset(labelY, 1), "%d", AddOffset(group, 1));
+        bitmap->Text_PrintV(font, &white, labelX, labelY, "%d", AddOffset(group, 1));
+    }
+
+    // Original function: FUN_004803d5; creation callback, including savegame preservation.
+    void E2DynamicDataHumanManager_HumanXtructed(std::uint32_t humanId, bool created, bool fromSavegame)
+    {
+        if (!created) return;
+        auto* dynamic = gDynamicDataHumans.entries + humanId * 0x8C8u;
+        const auto* human = NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize;
+        if (!fromSavegame) std::memset(dynamic, 0, 0x8C8);
+        const auto tribe = Read<std::uint32_t>(human, 0x14);
+        const auto* graphics = StaticHumanMisc_JobGraphicsBase_GetDataPtr(tribe, Read<std::uint32_t>(human, 0x18));
+        const auto bodyCount = Read<std::uint32_t>(graphics, 8);
+        if (bodyCount != 0)
+        {
+            const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % bodyCount;
+            Write(dynamic, 0x3C, Read<std::uint32_t>(graphics, 0xC + index * 12u));
+            Write(dynamic, 0x28, Read<void*>(graphics, 0x10 + index * 12u));
+            Write(dynamic, 0x30, Read<void*>(graphics, 0x14 + index * 12u));
+        }
+        const auto headCount = Read<std::uint32_t>(graphics, 0x48);
+        if (headCount != 0)
+        {
+            const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % headCount;
+            Write(dynamic, 0x40, Read<std::uint32_t>(graphics, 0x4C + index * 8u));
+            Write(dynamic, 0x2C, Read<void*>(graphics, 0x50 + index * 8u));
+        }
+        if (!fromSavegame)
+        {
+            auto* body = reinterpret_cast<NXBasics::CPalette*>(dynamic + 0x44);
+            auto* head = reinterpret_cast<NXBasics::CPalette*>(dynamic + 0x450);
+            const auto bodyPaletteCount = Read<std::uint32_t>(graphics, 0x74);
+            if (bodyPaletteCount != 0)
+            {
+                const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % bodyPaletteCount;
+                const auto paletteId = Read<std::uint32_t>(graphics, 0x78 + index * 4u);
+                *body = *gStaticPalettes.palettes256[paletteId].palette;
+            }
+            const auto headPaletteCount = Read<std::uint32_t>(graphics, 0x8C);
+            if (headPaletteCount != 0)
+            {
+                const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % headPaletteCount;
+                const auto paletteId = Read<std::uint32_t>(graphics, 0x90 + index * 4u);
+                *head = *gStaticPalettes.palettes256[paletteId].palette;
+            }
+            const auto playerPatch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, 0x10), NC2Logic::Human_IsSexFemale(human));
+            if (playerPatch != -1) StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(playerPatch), body, head, false);
+            const auto patchCount = Read<std::uint32_t>(graphics, 0xA4);
+            if (patchCount != 0)
+            {
+                const auto index = NC2Logic::Logic_EntryPoint_Random_GetNumber() % patchCount;
+                StaticHumanMisc_RandomPalette_Execute(Read<std::uint32_t>(graphics, 0xA8 + index * 4u), body, head, false);
+            }
+            const auto* name = StaticHumanMisc_TribeHumanNames_GetRandomNamePtr(tribe, NC2Logic::Human_IsSexFemale(human));
+            std::strncpy(reinterpret_cast<char*>(dynamic + 0x85C), name, 0x62);
+        }
+        Write<std::uint32_t>(dynamic, 0, 0xFFFFFFFFu);
+        Write<std::uint32_t>(dynamic, 4, 0xFFFFFFFFu);
+    }
+
+    // Original function: FUN_0049b337; original static colours have no destructor work.
+    const NXBasics::SColorRGB* DrawAtom_Tool_GetMarkingColorRef(std::uint32_t markingType, std::int32_t playerId)
+    {
+        static const NXBasics::SColorRGB white(255, 255, 255);
+        static const NXBasics::SColorRGB grey(170, 170, 170);
+        static const NXBasics::SColorRGB fallback(255, 0, 255);
+        if (markingType == 1) return &white;
+        if (markingType == 2) return &grey;
+        if (markingType == 3) return Tool_PlayerColors_GetColorRef(playerId);
+        return &fallback;
+    }
+
+    // Original function: FUN_0049445e; shared human, animal and vehicle drawing.
+    bool sl_DoDrawMapMoveable(const void* moveable, void* dynamicData, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, bool atomicActive, std::uint32_t action, std::uint32_t done, std::uint32_t total, std::uint32_t inHouseRevision, NXBasics::CPalette* bodyPalette, NXBasics::CPalette* headPalette, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness, std::uint32_t markingType, std::int32_t playerId, bool overrideAction, bool centered, bool transparent, const NXBasics::SColorRGB* effectColor, std::int32_t bodyRange, std::int32_t headRange, const void* display, bool ignorePathfinder)
+    {
+        SMapMoveableAnimationOverlays overlays{};
+        std::int32_t offsetX, offsetY;
+        sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamicData, tribe, job, good, atomicActive, action, done, total, inHouseRevision, overrideAction, display, offsetX, offsetY, centered ? nullptr : &overlays, ignorePathfinder);
+        auto& dynamic = *static_cast<SE2DynamicDataMapMoveableData*>(dynamicData);
+        const auto drawX = centered ? x : AddOffset(x, offsetX);
+        const auto drawY = centered ? y : AddOffset(y, offsetY);
+        if (markingType != 0)
+        {
+            const auto* color = DrawAtom_Tool_GetMarkingColorRef(markingType, playerId);
+            if (dynamic.bodyBobManager != nullptr && dynamic.bodyBobId != 0xFFFFFFFFu)
+                for (std::int32_t row = -1; row <= 1; ++row) NXBasics::BobManager_PrintBob_FX_DrawOutline(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, drawX, AddOffset(drawY, row), color, 1);
+            if (dynamic.headBobManager != nullptr && dynamic.headBobId != 0xFFFFFFFFu)
+                for (std::int32_t row = -1; row <= 1; ++row) NXBasics::BobManager_PrintBob_FX_DrawOutline(dynamic.headBobManager, dynamic.headBobId, bitmap, drawX, AddOffset(drawY, row), color, 1);
+        }
+        const auto drawOverlays = [&](std::uint32_t count, const SE2StaticDataMapMoveableAnimationPart* const* parts)
+        {
+            const auto* moveablePoint = static_cast<const std::byte*>(moveable) + 0x12;
+            const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(moveablePoint);
+            if (Read<std::uint8_t>(micro, 0) != 2) return;
+            std::int32_t anchorX = 0, anchorY = 0;
+            if (display != nullptr)
+            {
+                std::int32_t moveablePixel[2], housePixel[2];
+                Display_MapMigToLocalDisplayPixelCoordinates(display, moveablePoint, moveablePixel, false);
+                const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::uint32_t>(Read<std::uint16_t>(micro, 4)) : 0xFFFFFFFFu;
+                const auto* housePoint = NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize + 0x1C;
+                Display_MapMigToLocalDisplayPixelCoordinates(display, housePoint, housePixel, false);
+                anchorX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(housePixel[0]) - static_cast<std::uint32_t>(moveablePixel[0]));
+                anchorY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(housePixel[1]) - static_cast<std::uint32_t>(moveablePixel[1]));
+            }
+            for (std::int32_t index = 0; index < NXBasics::Runtime_TimeSigned32(count); ++index)
+            {
+                const auto& part = *parts[index];
+                const auto overlayX = AddOffset(AddOffset(x, anchorX), part.parameter10);
+                const auto overlayY = AddOffset(AddOffset(y, anchorY), part.parameter14);
+                const auto overlayBrightness = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(brightness) * 2u);
+                if (part.type == 4)
+                    EngineGraphic_Draw(static_cast<std::uint32_t>(part.dataId), 1, bitmap, overlayX, overlayY, NC2Logic::gGameTime.tick, overlayBrightness, -1, false);
+                else if (part.type == 3)
+                {
+                    const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro, 4)) : -1;
+                    DrawAtom_House_Tool_DoDrawBob(houseId, bitmap, overlayX, overlayY, overlayBrightness, static_cast<std::uint32_t>(part.dataId));
+                }
+            }
+        };
+        if (!centered) drawOverlays(overlays.behindCount, overlays.behind);
+        bool drawn = false;
+        if (dynamic.shadowBobManager != nullptr && dynamic.bodyBobId != 0xFFFFFFFFu)
+        {
+            NXBasics::BobManager_PrintBob_Shadow(dynamic.shadowBobManager, dynamic.bodyBobId, bitmap, drawX, drawY);
+            drawn = true;
+        }
+        if (effectColor != nullptr)
+        {
+            const std::int32_t glowX[8] = { -6, 6, 0, 0, -2, -2, 2, 2 };
+            const std::int32_t glowY[8] = { 0, 0, -6, 6, -2, 2, -2, 2 };
+            const std::uint32_t strength[8] = { 40, 40, 40, 40, 64, 64, 64, 64 };
+            const auto drawGlow = [&](const void* manager, std::uint32_t bobId, std::int32_t range)
+            {
+                if (manager == nullptr || bobId == 0xFFFFFFFFu) return;
+                for (std::uint32_t index = 0; index < 8; ++index)
+                {
+                    if (range == -1)
+                        NXBasics::BobManager_PrintBob_FX_DrawArea(manager, bobId, bitmap, AddOffset(drawX, glowX[index]), AddOffset(drawY, glowY[index]), effectColor, static_cast<std::int32_t>(strength[index]));
+                    else
+                    {
+                        const auto firstIndex = static_cast<std::uint8_t>((static_cast<std::uint32_t>(range) & 15u) << 4);
+                        NXBasics::BobManager_PrintBob_Glow_AddColor_OnlyBobByteRange(manager, bobId, bitmap, AddOffset(drawX, glowX[index]), AddOffset(drawY, glowY[index]), effectColor, strength[index], firstIndex, static_cast<std::uint8_t>(firstIndex + 15u));
+                    }
+                }
+            };
+            if (bodyRange == -1 && headRange == -1)
+            {
+                drawGlow(dynamic.bodyBobManager, dynamic.bodyBobId, -1);
+                drawGlow(dynamic.headBobManager, dynamic.headBobId, -1);
+            }
+            else
+            {
+                if (bodyRange != -1) drawGlow(bodyRange < 16 ? dynamic.bodyBobManager : dynamic.headBobManager, bodyRange < 16 ? dynamic.bodyBobId : dynamic.headBobId, bodyRange);
+                if (headRange != -1) drawGlow(headRange < 16 ? dynamic.bodyBobManager : dynamic.headBobManager, headRange < 16 ? dynamic.bodyBobId : dynamic.headBobId, headRange);
+            }
+        }
+        if (dynamic.bodyBobManager != nullptr && dynamic.bodyBobId != 0xFFFFFFFFu)
+        {
+            if (NXBasics::BobManager_GetBobType(dynamic.bodyBobManager, dynamic.bodyBobId) == 4)
+                NXBasics::BobManager_PrintBob_UsingShadedAlpha(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, drawX, drawY, bodyPalette, brightness);
+            else if (!transparent)
+                NXBasics::BobManager_PrintBob_Shade_MMX(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, drawX, drawY, bodyPalette, brightness);
+            else
+                NXBasics::BobManager_PrintBob_UsingTransparency(dynamic.bodyBobManager, dynamic.bodyBobId, bitmap, 128u, drawX, drawY, bodyPalette);
+            drawn = true;
+        }
+        if (dynamic.headBobManager != nullptr && dynamic.headBobId != 0xFFFFFFFFu)
+        {
+            if (!transparent)
+                NXBasics::BobManager_PrintBob_Shade_MMX(dynamic.headBobManager, dynamic.headBobId, bitmap, drawX, drawY, headPalette, brightness);
+            else
+                NXBasics::BobManager_PrintBob_UsingTransparency(dynamic.headBobManager, dynamic.headBobId, bitmap, 128u, drawX, drawY, headPalette);
+            drawn = true;
+        }
+        if (!centered) drawOverlays(overlays.frontCount, overlays.front);
+        return drawn;
+    }
+
+    // Original function: FUN_00494ae6; frame selection shared by drawing and depth descriptors.
+    void sl_DoUpdateMapMoveableDynamicBobData(const void* moveable, void* dynamicData, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, bool atomicActive, std::uint32_t action, std::uint32_t done, std::uint32_t total, std::uint32_t inHouseRevision, bool overrideAction, const void* display, std::int32_t& offsetX, std::int32_t& offsetY, SMapMoveableAnimationOverlays* overlays, bool ignorePathfinder)
+    {
+        auto& dynamic = *static_cast<SE2DynamicDataMapMoveableData*>(dynamicData);
+        offsetX = 0; offsetY = 0;
+        if (overrideAction) { inHouseRevision = 0xFFFFFFFFu; atomicActive = true; action = 2; done = 0; total = 1; }
+        if (Read<std::uint8_t>(moveable, 0x39) != 0)
+        {
+            const auto* walk = GetCachedWalk(moveable, dynamic, tribe, job, good);
+            if (walk == nullptr) return;
+            auto direction = DrawingDirection(moveable);
+            if (walk->turnFrames[direction].frames == nullptr)
+            {
+                SetFrame(dynamic, static_cast<std::uint32_t>(walk->bodySequence), static_cast<std::uint32_t>(walk->headSequence), walk->walkFrames[direction].frames[0]);
+                return;
+            }
+            auto turnDone = Read<std::uint32_t>(moveable, 0x3C);
+            const auto turnTotal = Read<std::uint32_t>(moveable, 0x4C);
+            const auto target = Read<std::uint32_t>(moveable, 0x40);
+            const bool vertical = Read<std::uint8_t>(moveable, 0x50) != 0;
+            const auto nextDirection = NC2Logic::VE_HexagonDirection_NextDirection(direction, target, vertical);
+            if (NC2Logic::VE_HexagonDirection_DirectionToTurn(direction, target, vertical) < 0)
+            {
+                direction = nextDirection;
+                turnDone = turnTotal - turnDone - 1u;
+            }
+            const auto& frames = walk->turnFrames[direction];
+            auto index = (frames.count * turnDone) / turnTotal;
+            if (index >= frames.count) index = frames.count - 1u;
+            SetFrame(dynamic, static_cast<std::uint32_t>(walk->bodySequence), static_cast<std::uint32_t>(walk->headSequence), frames.frames[index]);
+            return;
+        }
+        if (!atomicActive)
+        {
+            if (!ignorePathfinder && Read<std::uint32_t>(NC2Logic::MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4) == 1) return;
+            const auto* walk = GetCachedWalk(moveable, dynamic, tribe, job, good);
+            if (walk == nullptr) return;
+            const auto& frames = walk->walkFrames[DrawingDirection(moveable)];
+            SetFrame(dynamic, static_cast<std::uint32_t>(walk->bodySequence), static_cast<std::uint32_t>(walk->headSequence), frames.frames[NC2Logic::gGameTime.tick % frames.count]);
+            return;
+        }
+        if (dynamic.animation == nullptr || dynamic.animationTribe != tribe || dynamic.animationJob != job || dynamic.animationAction != action || dynamic.animationRevision != inHouseRevision)
+        {
+            dynamic.animation = nullptr;
+            dynamic.animation = FindAnimation(tribe, job, action, 0);
+            if (dynamic.animation != nullptr)
+            {
+                dynamic.animationTribe = tribe; dynamic.animationJob = job; dynamic.animationAction = action; dynamic.animationRevision = inHouseRevision;
+            }
+        }
+        const auto* animation = dynamic.animation;
+        if (animation == nullptr) return;
+        if (animation->animationMode == 0 || animation->animationMode == 1)
+        {
+            const auto& frames = animation->frames.frames != nullptr ? animation->frames : animation->directionFrames[DrawingDirection(moveable)];
+            SetAnimationFrame(dynamic, *animation, frames, done, total);
+            return;
+        }
+        if (animation->animationMode != 2) return;
+        const auto partCount = animation->bodySequenceOrPartCount;
+        const auto* parts = reinterpret_cast<const SE2StaticDataMapMoveableAnimationPart*>(static_cast<std::uintptr_t>(animation->headSequenceOrPartAddress));
+        const auto percent = (done * 10000u) / total;
+        if (display != nullptr && Read<std::uint8_t>(moveable, 0x10) != 0)
+        {
+            const auto* point = static_cast<const std::byte*>(moveable) + 0x12;
+            const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            {
+                const auto houseId = Read<std::uint16_t>(micro, 4);
+                const auto* housePoint = NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize + 0x1C;
+                std::int32_t moveablePixel[2], housePixel[2];
+                Display_MapMigToLocalDisplayPixelCoordinates(display, point, moveablePixel, false);
+                Display_MapMigToLocalDisplayPixelCoordinates(display, housePoint, housePixel, false);
+                offsetX = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(housePixel[0]) - static_cast<std::uint32_t>(moveablePixel[0]));
+                offsetY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(housePixel[1]) - static_cast<std::uint32_t>(moveablePixel[1]));
+            }
+        }
+        std::int32_t startX = 0, startY = 0;
+        for (std::uint32_t index = 0; index < partCount; ++index)
+        {
+            const auto& part = parts[index];
+            const auto begin = part.startTime * 100u;
+            const auto end = part.endTime * 100u;
+            if (percent < begin) continue;
+            if (percent >= end)
+            {
+                if (part.type == 1) { startX = part.parameter14; startY = part.parameter18; }
+                continue;
+            }
+            const auto progress = (percent * 10000u - begin * 10000u) / (end - begin);
+            if (part.type == 3 || part.type == 4) continue;
+            if (part.type == 1)
+            {
+                auto lookupJob = job;
+                const SE2StaticDataMapMoveableWalkData* walk;
+                while (true)
+                {
+                    walk = StaticMapMoveables_GetWalkDataPtr(gE2StaticDataMapMoveablesManager, tribe, lookupJob, static_cast<std::uint32_t>(part.parameter10), Read<std::uint32_t>(moveable, 0x44));
+                    if (walk != nullptr) break;
+                    lookupJob = ParentJob(lookupJob);
+                    if (lookupJob == 0) break;
+                }
+                if (walk != nullptr)
+                {
+                    const auto& frames = walk->walkFrames[part.dataId];
+                    SetFrame(dynamic, static_cast<std::uint32_t>(walk->bodySequence), static_cast<std::uint32_t>(walk->headSequence), frames.frames[NC2Logic::gGameTime.tick % frames.count]);
+                    startX = InterpolateOffset(startX, part.parameter14, progress);
+                    startY = InterpolateOffset(startY, part.parameter18, progress);
+                }
+            }
+            else if (part.type == 2)
+            {
+                const auto* atomic = FindAnimation(tribe, job, static_cast<std::uint32_t>(part.dataId), static_cast<std::uint32_t>(part.parameter10));
+                if (atomic != nullptr)
+                {
+                    const auto direction = part.parameter14 == -1 ? DrawingDirection(moveable) : static_cast<std::uint32_t>(part.parameter14);
+                    const auto& frames = atomic->frames.frames != nullptr ? atomic->frames : atomic->directionFrames[direction];
+                    SetAnimationFrame(dynamic, *atomic, frames, progress, 10000);
+                }
+            }
+            offsetX = AddOffset(offsetX, startX); offsetY = AddOffset(offsetY, startY);
+            break;
+        }
+        if (overlays == nullptr) return;
+        bool behind = true;
+        for (std::uint32_t index = 0; index < partCount; ++index)
+        {
+            const auto& part = parts[index];
+            if (percent < part.startTime * 100u || percent >= part.endTime * 100u) continue;
+            if (part.type == 1 || part.type == 2) behind = false;
+            else if (part.type == 3 || part.type == 4)
+            {
+                auto& count = behind ? overlays->behindCount : overlays->frontCount;
+                auto* entries = behind ? overlays->behind : overlays->front;
+                if (count != 5) entries[count++] = &part;
+            }
+        }
+    }
+}

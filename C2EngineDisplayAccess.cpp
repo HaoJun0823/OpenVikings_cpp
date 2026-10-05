@@ -2,6 +2,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2EngineLandscapeDrawing.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayManager.h"
 #include "C2E2LevelOfDetailManager.h"
@@ -29,7 +30,6 @@
 extern bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std::int16_t* rectangle);
 extern void __cdecl DrawAtom_FishManager_DoDraw(void* display);
 extern void __fastcall E2ParticelManager_SortParticelAndDrawBottom(void* manager, void* unusedEdx, void* display);
-extern void __fastcall Display_l_DE_DrawLandscapeAndCreaturesField(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point, bool firstFlag, bool secondFlag);
 extern void __fastcall Display_l_DE_SpecialOverlay_Rain_Draw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void* display);
@@ -41,6 +41,28 @@ extern void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
+    static std::uint32_t GetMoveableMarkType(const void* display, std::uint32_t id, std::uint32_t type, std::uint32_t idOffset, const std::byte* objects, std::uint32_t stride)
+    {
+        using NC2Lifetime::Read;
+        const auto matches = [=](const void* reference) { return Read<std::uint32_t>(reference, 0) == type && Read<std::uint32_t>(reference, idOffset) == id && Read<std::uint32_t>(reference, idOffset + 4) == Read<std::uint32_t>(objects + id * stride, 8); };
+        const void* primary = Read<void*>(display, 0xA8);
+        if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, 0x44);
+        const auto count = Read<std::int32_t>(display, 0xAC);
+        for (std::int32_t index = 0; index < count; ++index)
+        {
+            const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
+            if (matches(reference)) return Read<std::uint32_t>(reference, 0x44);
+        }
+        return 0;
+    }
+
+    // Original function: FUN_0047d14d; reference predicates also compare generation.
+    std::uint32_t Display_DE_ObjectsToMark_Human_GetMarkType(const void* display, std::uint32_t humanId) { return GetMoveableMarkType(display, humanId, 1, 8, NC2Logic::CHumanArray::mStaticVars, NC2Logic::CHumanArray::ElementSize); }
+    // Original function: FUN_0047d1c7.
+    std::uint32_t Display_DE_ObjectsToMark_Animal_GetMarkType(const void* display, std::uint32_t animalId) { return GetMoveableMarkType(display, animalId, 2, 0x10, NC2Logic::CAnimalArray::mStaticVars, NC2Logic::CAnimalArray::ElementSize); }
+    // Original function: FUN_0047d241.
+    std::uint32_t Display_DE_ObjectsToMark_Vehicle_GetMarkType(const void* display, std::uint32_t vehicleId) { return GetMoveableMarkType(display, vehicleId, 3, 0x18, NC2Logic::CVehicleArray::mStaticVars, NC2Logic::CVehicleArray::ElementSize); }
+
     // Original function: FUN_004824ea; C2DEngineMap::GetConstMapMacroPointPtr.
     const void* EngineMap_GetConstMapMacroPointPtr(const void* point)
     {
@@ -669,6 +691,20 @@ namespace NC2E2
         DE_Zoom_SetCounter(display, counter);
     }
 
+    // Original function: FUN_0047cf4e.
+    void DE_Zoom_In(void* display, bool allowZoomIn)
+    {
+        std::int32_t counter = DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, 0x78) + 1u);
+        if (!allowZoomIn && counter > 0) counter = 0;
+        DE_Zoom_SetCounter(display, counter);
+    }
+
+    // Original function: FUN_0047cf68.
+    void DE_Zoom_Out(void* display)
+    {
+        DE_Zoom_SetCounter(display, DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, 0x78) - 1u));
+    }
+
     // Original function: FUN_0047cf73.
     void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId)
     {
@@ -1268,8 +1304,8 @@ namespace NC2E2
         const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + 0x98C);
         if ((Display_ReadField<std::uint8_t>(display, 0x70) & 1u) != 0)
         {
-            Display_l_DE_DrawLandscapeAndCreaturesField(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, true);
-            Display_l_DE_DrawLandscapeAndCreaturesField(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, false);
+            Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, true);
+            Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, 0x68), point, false, false);
         }
         if (CLevelOfDetailManager::sLevelOfDetail == 2 && Display_ReadField<std::int32_t>(display, 0x78) >= 0)
         {

@@ -34,6 +34,14 @@ namespace NXBasics
 		return reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(ShadowRead<std::uint32_t>(base, offset)));
 	}
 
+    // Original function: FUN_00439ba2.
+    bool BobManager_DoesBobExists(const void* bobManager, std::uint32_t bobId)
+    {
+        const auto index = bobId - ShadowRead<std::uint32_t>(bobManager, 4);
+        if (index >= ShadowRead<std::uint32_t>(bobManager, 8)) return false;
+        return ShadowRead<std::uint32_t>(ShadowPointer(bobManager, 0x24), index * 24u) != 0;
+    }
+
 	template<typename T, typename Transform>
 	static void PrintShadowRuns(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, bool advanceClippedRuns, Transform transform)
 	{

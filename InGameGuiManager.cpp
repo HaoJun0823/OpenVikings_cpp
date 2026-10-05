@@ -18,6 +18,7 @@
 #include "XMMouseManager.h"
 #include "WorldDisplayElementAccess.h"
 #include "InGameGuiOverviewWindowAccess.h"
+#include "InGameGuiMissionInfoWindow.h"
 
 #include <cstddef>
 #include <cstring>
@@ -520,6 +521,41 @@ namespace NInGameGuiManager
         std::memcpy(mLegacyState + 0xCC, &zero, sizeof(zero));
     }
 
+    // Original function: FUN_004a20b4.
+    void CInGameGuiManager::MiscWindows_MissionInfoWindow_Toggle(std::uint32_t briefingId, bool goalsPage)
+    {
+        auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
+        auto* window = desktop->Message_SendToAllWindows(0x7E6, briefingId, goalsPage ? 1u : 0u, 0);
+        if (window != nullptr) desktop->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
+        else MiscWindows_MissionInfoWindow_Open(briefingId, goalsPage);
+    }
+
+    // Original function: FUN_004a20f8.
+    void CInGameGuiManager::MiscWindows_MissionInfoWindow_Open(std::uint32_t briefingId, bool goalsPage)
+    {
+        l_Selection_RemoveAllGuiElements();
+        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E6, 0, 0, 0);
+        if (window != nullptr)
+        {
+            using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+            NC2Lifetime::Read<TMessage*>(window, 0)[2](window, 0x800, 50000, briefingId, goalsPage ? 1u : 0u, 0);
+            return;
+        }
+        MiscWindows_CloseAllLargeOnes(true);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3B8, 1);
+        void* created = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::MissionInfoWindow_Construct(allocation, briefingId, goalsPage);
+        NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(created), false);
+    }
+
+    // Original function: FUN_004a2171.
+    void CInGameGuiManager::MiscWindows_MissionInfoWindow_ReloadStrings()
+    {
+        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E6, 0, 0, 0);
+        if (window == nullptr) return;
+        using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+        NC2Lifetime::Read<TMessage*>(window, 0)[2](window, 0x800, 50001, 0, 0, 0);
+    }
+
     // Original function: FUN_004a28a6.
     void CInGameGuiManager::MiscWindows_OverviewWindow_Open()
     {
@@ -539,6 +575,44 @@ namespace NInGameGuiManager
             button = nullptr;
             std::memcpy(mLegacyState + 0x48, &button, sizeof(button));
         }
+    }
+
+    // Original function: FUN_004a291b.
+    void CInGameGuiManager::MiscWindows_OverviewWindow_Closed()
+    {
+        using namespace NC2Lifetime;
+        Write<void*>(this, 0x44, nullptr);
+        if (Read<void*>(this, 0x48) != nullptr) return;
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        void* button = nullptr;
+        if (allocation != nullptr)
+        {
+            const NXBasics::SRectangle rectangle(0, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(mStaticVars.displayHeight) - 38u), 38, 38);
+            const char* tooltip = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(12);
+            button = NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, 0x91, tooltip, 0xF45, mDisplayObject);
+        }
+        Write(this, 0x48, button);
+        NC2InGameGuiBase::ToolGraphics_SetPalettePtr(button, NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.iconsLeftPalette);
+        NC2InGameGuiBase::BaseToolDesktop_AddElement(static_cast<NXBaseGui::CBaseElement*>(button));
+    }
+
+    // Original function: FUN_004a2322.
+    void CInGameGuiManager::MiscWindows_LargeOverviewWindow_Toggle()
+    {
+        auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E9, 0, 0, 0);
+        if (window != nullptr) NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
+        else MiscWindows_LargeOverviewWindow_Open(false);
+    }
+
+    // Original function: FUN_004a2358.
+    void CInGameGuiManager::MiscWindows_LargeOverviewWindow_Open(bool topRight)
+    {
+        l_Selection_RemoveAllGuiElements();
+        if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E9, 0, 0, 0) != nullptr) return;
+        MiscWindows_CloseAllLargeOnes(true);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xB8, 1);
+        void* window = allocation == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewLargeWindow_Construct(allocation, topRight);
+        NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), topRight);
     }
 }
 

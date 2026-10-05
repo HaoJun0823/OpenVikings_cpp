@@ -1,6 +1,7 @@
 #pragma once
 
 #include "C2MapWalkSectorManager.h"
+#include "C2MapPathfinderSearch.h"
 #include "C2ControlStartup.h"
 #include "C2LifetimeGlobals.h"
 #include "InGameGuiOverviewHandler.h"
@@ -43,9 +44,6 @@ inline void* gDirectMusicManager = nullptr;
 
 // Original data: DAT_00511570; the next global begins at 0051257c.
 alignas(4) inline std::byte DAT_00511570[0x100C]{};
-
-// Original data: DAT_00512620; sixteen blocks of 0x3E84 bytes.
-alignas(4) inline std::byte DAT_00512620[0x3E840]{};
 
 // Original data: DAT_00554d20.
 inline std::uint32_t DAT_00554d20 = 0;

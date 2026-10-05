@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    std::uint32_t Vehicle_GetCurrentAtomicAnimationLengthInTicks(const void* vehicle);
     struct SStaticVehicleTypeData;
     bool Vehicle_DoAddNewUserCommand(void* vehicle, const void* command);
     bool Vehicle_l_UserCommands_TryToExecuteRightAway(void* vehicle, const void* command);

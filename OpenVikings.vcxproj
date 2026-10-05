@@ -34,16 +34,22 @@
     <ClCompile Include="C2E2StaticDataGroups.cpp" />
     <ClCompile Include="C2E2StaticDataPalettes.cpp" />
     <ClCompile Include="C2E2StaticDataTerrain.cpp" />
+    <ClCompile Include="C2E2StaticDataMapMoveables.cpp" />
+    <ClCompile Include="C2E2StaticDataHumanMisc.cpp" />
     <ClCompile Include="C2E2StaticDataSoundFX.cpp" />
     <ClCompile Include="C2EngineDisplayAccess.cpp" />
     <ClCompile Include="C2EngineDisplayManager.cpp" />
     <ClCompile Include="C2EngineDrawingAccess.cpp" />
+    <ClCompile Include="C2EngineLandscapeDrawing.cpp" />
+    <ClCompile Include="C2EngineMoveableDrawing.cpp" />
     <ClCompile Include="C2EngineTooltipAccess.cpp" />
     <ClCompile Include="C2GameMapAccess.cpp" />
     <ClCompile Include="C2IoHelper.cpp" />
     <ClCompile Include="C2LanguageTools.cpp" />
     <ClCompile Include="C2LogicObjectArrays.cpp" />
     <ClCompile Include="C2MapGeometry.cpp" />
+    <ClCompile Include="C2MapPathfinderSearch.cpp" />
+    <ClCompile Include="C2E2HumanSoundAccess.cpp" />
     <ClCompile Include="C2MapArea.cpp" />
     <ClCompile Include="C2MapSectorAttachment.cpp" />
     <ClCompile Include="C2MapSectorGridCursor.cpp" />
@@ -149,10 +155,14 @@
     <ClInclude Include="C2E2StaticDataGroups.h" />
     <ClInclude Include="C2E2StaticDataPalettes.h" />
     <ClInclude Include="C2E2StaticDataTerrain.h" />
+    <ClInclude Include="C2E2StaticDataMapMoveables.h" />
+    <ClInclude Include="C2E2StaticDataHumanMisc.h" />
     <ClInclude Include="C2E2StaticDataSoundFX.h" />
     <ClInclude Include="C2EngineDisplayAccess.h" />
     <ClInclude Include="C2EngineDisplayManager.h" />
     <ClInclude Include="C2EngineDrawingAccess.h" />
+    <ClInclude Include="C2EngineLandscapeDrawing.h" />
+    <ClInclude Include="C2EngineMoveableDrawing.h" />
     <ClInclude Include="C2EngineObjectData.h" />
     <ClInclude Include="C2EngineTerrainData.h" />
     <ClInclude Include="C2GameMapAccess.h" />
@@ -161,6 +171,8 @@
     <ClInclude Include="C2LogicObjectArrays.h" />
     <ClInclude Include="C2LogicIOAccess.h" />
     <ClInclude Include="C2MapGeometry.h" />
+    <ClInclude Include="C2MapPathfinderSearch.h" />
+    <ClInclude Include="C2E2HumanSoundAccess.h" />
     <ClInclude Include="C2MapArea.h" />
     <ClInclude Include="C2MapSectorAttachment.h" />
     <ClInclude Include="C2MapSectorGridCursor.h" />
@@ -346,6 +358,8 @@
     <ClCompile Include="C2GameMapExploration.cpp" />
     <ClCompile Include="C2MissionScriptData.cpp" />
     <ClInclude Include="C2MissionScriptData.h" />
+    <ClCompile Include="C2MissionExecution.cpp" />
+    <ClInclude Include="C2MissionExecution.h" />
     <ClCompile Include="C2SavegameStateAccess.cpp" />
     <ClCompile Include="C2AISavegameAccess.cpp" />
     <ClInclude Include="C2SavegameIO.h" />
@@ -448,6 +462,9 @@
     <ClInclude Include="InGameGuiManager_MessageHandlers.h" />
     <ClCompile Include="InGameGuiOptionsWindowAccess.cpp" />
     <ClInclude Include="InGameGuiOptionsWindowAccess.h" />
+    <ClCompile Include="InGameGuiMissionInfoWindow.cpp" />
+    <ClCompile Include="InGameGuiSavegameIO.cpp" />
+    <ClInclude Include="InGameGuiMissionInfoWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GouraudShader.cpp" />

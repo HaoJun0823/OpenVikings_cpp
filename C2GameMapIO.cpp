@@ -1,4 +1,5 @@
 #include "C2GameMapIO.h"
+#include "C2GameMapAccess.h"
 #include "C2CallbackManager.h"
 #include "C2CleanMapsManager.h"
 #include "C2GameEngineStartup.h"
@@ -6,11 +7,14 @@
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2MissionScriptData.h"
+#include "C2LogicObjectArrays.h"
+#include "C2EngineObjectData.h"
 #include "XFileAccess.h"
 #include "XIniFileReader.h"
 
 #include <cstring>
 #include <new>
+#include <Windows.h>
 
 namespace NC2Logic
 {
@@ -23,6 +27,54 @@ namespace NC2Logic
 
     namespace
     {
+#ifdef _DEBUG
+        // Reconstruction diagnostics only; do not select frames or consume random state.
+        void DebugReportLoadedHumans(const char* mapRoot, const char* archiveFilename)
+        {
+            struct SCounts { std::uint32_t allocated = 0, attached = 0, hidden = 0, bodies = 0, heads = 0, explored = 0, turning = 0; };
+            SCounts counts[20];
+            for (auto id = CHumanArray::sTheObjectPtr->mFirstScanIndex; id <= CHumanArray::sTheObjectPtr->mLastScanIndex; ++id)
+            {
+                const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                if (Read<std::uint8_t>(human, 0) == 0) continue;
+                const auto player = Read<std::uint32_t>(human, 0x10);
+                if (player >= 20u) continue;
+                auto& count = counts[player];
+                ++count.allocated;
+                if (Read<std::uint8_t>(human, 0xB50) != 0 || Read<std::uint8_t>(human, 0xB51) != 0) ++count.hidden;
+                const auto moveableId = Read<std::int32_t>(human, 0xC);
+                if (moveableId != -1)
+                {
+                    const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * 0x58u;
+                    if (Read<std::uint8_t>(moveable, 0x39) != 0) ++count.turning;
+                    if (Read<std::uint8_t>(moveable, 0x10) != 0)
+                    {
+                        ++count.attached;
+                        if (player < 16u && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(moveable + 0x12), 8) & (1u << player)) != 0) ++count.explored;
+                    }
+                }
+                if (NC2E2::gDynamicDataHumans.entries != nullptr)
+                {
+                    const auto* dynamic = NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(id) * 0x8C8u;
+                    if (Read<void*>(dynamic, 0x28) != nullptr) ++count.bodies;
+                    if (Read<void*>(dynamic, 0x2C) != nullptr) ++count.heads;
+                }
+            }
+            ::OutputDebugStringA("[OpenVikings] Loaded human overview: ");
+            ::OutputDebugStringA(mapRoot != nullptr ? mapRoot : archiveFilename);
+            ::OutputDebugStringA("\n");
+            for (std::uint32_t player = 0; player < 20u; ++player)
+            {
+                const auto* data = static_cast<const std::byte*>(gGameControl) + player * 0x4A80u;
+                if (counts[player].allocated == 0 && Read<std::uint8_t>(data, 0) == 0) continue;
+                const auto& c = counts[player];
+                char line[256];
+                NXBasics::Runtime_PrintString(line, "[OpenVikings] player=%u active=%u type=%u tribe=%u humans=%u attached=%u hidden=%u bodies=%u heads=%u explored=%u turning=%u\n", player, static_cast<std::uint32_t>(Read<std::uint8_t>(data, 0)), Read<std::uint32_t>(data, 4), Read<std::uint32_t>(data, 0xC), c.allocated, c.attached, c.hidden, c.bodies, c.heads, c.explored, c.turning);
+                ::OutputDebugStringA(line);
+            }
+        }
+#endif
+
         void ReleaseIni(NXBasics::CIniFileReader* reader)
         {
             if (reader != nullptr)
@@ -142,6 +194,9 @@ namespace NC2Logic
             MultiPlayerGoalManager_IO_LoadGoals(gMultiPlayerGoalManager, nullptr, reader);
         }
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x16, false, 1, 0, 0);
+#ifdef _DEBUG
+        DebugReportLoadedHumans(mapRoot, libraryFilename);
+#endif
         if (rootMode) NXBasics::CFile::FileSystem_SystemPathName_Clear("$maproot$");
         if (libraryMode) DAT_005109c0 = library;
         if (reader != DAT_005109bc) ReleaseIni(reader);

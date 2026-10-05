@@ -249,6 +249,12 @@
     <ClCompile Include="C2E2StaticDataTerrain.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
+    <ClCompile Include="C2E2StaticDataMapMoveables.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
+    <ClCompile Include="C2E2StaticDataHumanMisc.cpp">
+      <Filter>Engine\StaticData</Filter>
+    </ClCompile>
     <ClCompile Include="C2E2StaticDataSoundFX.cpp">
       <Filter>Engine\StaticData</Filter>
     </ClCompile>
@@ -342,6 +348,12 @@
     <ClCompile Include="C2MapGeometry.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
+    <ClCompile Include="C2MapPathfinderSearch.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2E2HumanSoundAccess.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
     <ClCompile Include="C2MapArea.cpp">
       <Filter>Engine\Geometry</Filter>
     </ClCompile>
@@ -376,6 +388,12 @@
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="C2EngineDrawingAccess.cpp">
+      <Filter>Engine\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="C2EngineLandscapeDrawing.cpp">
+      <Filter>Engine\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="C2EngineMoveableDrawing.cpp">
       <Filter>Engine\Display</Filter>
     </ClCompile>
     <ClCompile Include="XSystemManager.cpp">
@@ -575,6 +593,12 @@
     <ClInclude Include="C2E2StaticDataTerrain.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
+    <ClInclude Include="C2E2StaticDataMapMoveables.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2StaticDataHumanMisc.h">
+      <Filter>Engine\StaticData</Filter>
+    </ClInclude>
     <ClInclude Include="C2E2StaticDataSoundFX.h">
       <Filter>Engine\StaticData</Filter>
     </ClInclude>
@@ -671,6 +695,12 @@
     <ClInclude Include="C2MapGeometry.h">
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="C2MapPathfinderSearch.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2E2HumanSoundAccess.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
     <ClInclude Include="C2MapArea.h">
       <Filter>Engine\Geometry</Filter>
     </ClInclude>
@@ -705,6 +735,12 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="C2EngineDrawingAccess.h">
+      <Filter>Engine\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="C2EngineLandscapeDrawing.h">
+      <Filter>Engine\Display</Filter>
+    </ClInclude>
+    <ClInclude Include="C2EngineMoveableDrawing.h">
       <Filter>Engine\Display</Filter>
     </ClInclude>
     <ClInclude Include="XPixelFormatConverter.h">
@@ -869,6 +905,12 @@
       <Filter>Logic</Filter>
     </ClCompile>
     <ClInclude Include="C2MissionScriptData.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClCompile Include="C2MissionExecution.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClInclude Include="C2MissionExecution.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClCompile Include="C2SavegameStateAccess.cpp">
@@ -1074,6 +1116,9 @@
     <ClInclude Include="InGameGuiManager_MessageHandlers.h"><Filter>GUI</Filter></ClInclude>
     <ClCompile Include="InGameGuiOptionsWindowAccess.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiOptionsWindowAccess.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="InGameGuiMissionInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="InGameGuiSavegameIO.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiMissionInfoWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GouraudShader.cpp"><Filter>Core\Graphics</Filter></ClCompile>

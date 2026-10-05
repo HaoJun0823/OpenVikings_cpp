@@ -11,6 +11,8 @@
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_00462ac1.
+    std::uint32_t Vehicle_GetCurrentAtomicAnimationLengthInTicks(const void* vehicle) { return NC2Lifetime::Read<std::uint32_t>(gStaticAtomicAnimationData, NC2Lifetime::Read<std::uint32_t>(vehicle, 0x504) * 0x138u + 0x34); }
     // Original function: FUN_0042ce12; copy the packed position returned by the shared accessor.
     bool Human_GetMapPosition(const void* human, void* point)
     {

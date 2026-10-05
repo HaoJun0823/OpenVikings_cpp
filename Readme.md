@@ -1609,7 +1609,23 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA132](#oa132) | Command selectors, animation refusal and passenger sentinel decoding | 0043BCA9, 0043DCB0, 0045C762, 0044BEA0 |
 | [OA133](#oa133) | Overview pattern queries and border handling | 0048114E, 00481188, 0048327A |
 | [OA134](#oa134) | Direct teardown of cleared engine list headers | 0049039E, 00490580, 004905B9, 00490702 |
+| [OA135](#oa135) | Overview window ownership, saved flags and camera command handling | 004A291B, 004C4856, 004C4EBA, 004C4EFF, 004BA915 |
+| [OA136](#oa136) | Human minimap movement, shared search queues and responding-sound assumptions | 004B7B62, 004B7DED, 00449706, 00410E2E, 00485931, 00490EEA |
+| [OA137](#oa137) | Landscape drawing, lighting, transition progress and attachment assumptions | 004911D5, 0047CDC8, 0047CE48, 004828E5, 004270FF, 0049710B |
+| [OA138](#oa138) | Shared moveable animation, walking and job graphic data assumptions | 0048BD66, 0048CEA1, 0048CF18, 0048D027 |
+| [OA139](#oa139) | Human graphic variants, random-patch and player-color assumptions | 0048ACFB, 0048AFAE, 0048B635, 0048BBED, 0048B214, 0048BACE, 0048BB3E |
+| [OA140](#oa140) | Human creation/savegame palette and name initialization | 004803D5, 0048B258, 0048B44F, 0048BBA5 |
+| [OA141](#oa141) | Walking/turning/atomic/house frame selection and overlay assumptions | 00494AE6, 0042A6B7, 0042A753 |
 | [OA108](#oa108) | Lobby selection retains unchecked slots, parser bounds and color rules | 004D7E5D, 004D7F7E, 004D804F, 004D80A7, 004D81C7, 004D8455 |
+| [OA142](#oa142) | Shared moveable drawing, house overlays and native sprite effect assumptions | 0049445E, 004966DA, 0049B337, 0049BDC8, 0049D3E8, 0046467D |
+| [OA143](#oa143) | Moveable type dispatch, bob descriptors and foreground ordering | 00493656, 004951A4, 004955E7, 004972DE, 004911D5 |
+| [OA144](#oa144) | Mouse wheel GUI argument and world zoom behavior | 00477D67, 004CF88A, 004D054A, 004BAB2C, 0047CF4E, 0047CF68 |
+| [OA145](#oa145) | Creature tick timing and partial task/event boundaries | 0040BD33, 00438F2C, 00439079, 0044314A |
+| [OA146](#oa146) | Input callback continuation and missing Viking graphics | 004B77E8, 004B7908, 00411E1D, 004803D5 |
+| [OA147](#oa147) | Local path routing, budgets, vector limits and unfinished gameplay connection | 00409BCC, 00409CE7, 0044797B, 00447CF1, 00448460..00449705 |
+| [OA148](#oa148) | Mission briefing popup, preview ownership and GUI savegame nesting | 004A20B4..004A21B3, 004A491D..004A5A6F, 004C9C3B..004C9E29 |
+| [OA149](#oa149) | Human path failure/stop callbacks and priority-command queue | 00434DEB..00434F36, 004632C5..00463345 |
+| [OA150](#oa150) | Native timed briefing execution and human arrival | 0041E2AE..0041E45D, 0041F9F7, 004230EE, 00462EC6..00463042 |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -2874,6 +2890,127 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Evidence and retained behavior:** Texture and Bob-manager constructors clear the complete inherited list header, including the original vptr. Windows calls their list destructors directly; each destructor restores its table before optional payload deletion and base-node cleanup. Native C++ must use a qualified destructor call to bypass the cleared vptr.
 - **Status:** Confirmed reconstruction defect: the user's window-close call stack stops at StaticTextureList_Destruct with a null read. All four engine runtime-list adapters now use qualified destruction. Constructor clearing, resource/node ownership and shutdown order remain unchanged. The corrected close path awaits runtime confirmation. See [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md).
 
+<a id="oa135"></a>
+### OA135 - Overview controls retain allocation and camera assumptions
+
+- **Original reference:** `004A291B`, `004C4856`, `004C4EBA`, `004C4EFF`, `004C5107`, `004CFF03`; camera branch `004BA915..004BA978`.
+- **Evidence and retained behavior:** Small-window deletion clears the manager window pointer before creating the reopen button. Large-window destruction copies fifteen display flags from its live child before resuming game time and destroying children. Construction/marked-status updates and palette assignment retain unchecked allocation and owner assumptions. Zoom clamps only to one. Overview camera command 2004 ignores inactive/hidden elements and returns false even after changing the camera and clearing follow mode.
+- **Status:** Windows ASM/PE confirmed; Mac supplies class, method and static-region names. Three complete dummies are removed. Only the overview branch of the world-input dispatcher is reconstructed; the remaining dispatcher, human right-click commands and input-mode reset stay tracked unfinished work. Static review only. See [INGAME_MINIMAP_CONTROLS.md](docs/INGAME_MINIMAP_CONTROLS.md).
+
+<a id="oa136"></a>
+### OA136 - Human minimap commands retain search and playback assumptions
+
+- **Original reference:** `004B7B62`, `004B7DED`, `004B7E3E`, `00449706`, `00410E2E`, `004856F9`, `00485931`, `00485A4E`, `00485A73`, `00490EEA`.
+- **Evidence and retained behavior:** Groups preserve the selected-index target modulo and group-only locked-unit skip. The shared sixteen-queue region remains non-reentrant; weighted/unweighted search invokes callbacks before queue capacity checks and marking, preserves unsigned budgets, and rejects radii above 511 before callback/statistics work. Command submission ignores unoccupied humans and invalid opcodes. Responses suppress absent/uninitialized sound, missing IDs/variants and already running waves; optional spatial playback rejects outside/unseen/distant points. Original owner/ID/nonzero-dimension and nonzero-group-target assumptions remain explicit.
+- **Status:** Windows ASM confirmed; Mac supplies public method, callback-data and static-region names. The human minimap command dummy is replaced and command execution uses existing native handlers. General selection/world input and simulation remain separate unfinished dependencies. No build, tests or runtime run. See [HUMAN_MINIMAP_MOVEMENT.md](docs/HUMAN_MINIMAP_MOVEMENT.md).
+
+<a id="oa137"></a>
+### OA137 - Landscape drawing retains map, graphic and transition assumptions
+
+- **Original reference:** `004911D5`, `004270BE`, `004270FF`, `0042AE0C`, `0047CDC8`, `0047CE48`, `004828E5`, `0049710B`.
+- **Evidence and retained behavior:** Unset primary IDs and disabled/low-detail phases skip drawing. Lighting samples macro records by micro-grid parity; exploration produces zero-brightness silhouettes, while static attachments reject unseen origins. Missing transition records return zero; occupied records retain unsigned multiplication wrap and unchecked nonzero total time. Valid rectangles, map owners, graphic/frame IDs, wall IDs and attachment origins remain caller/data assumptions; no substitute IDs or graphics are invented.
+- **Status:** Windows ASM confirmed; Mac supplies names. The shared field is partial for creature, construction-marker, particle and visible-entity sound branches and remains excluded from completion. Vegetation simulation ticks remain unfinished. Static/source/PE review only; no build, tests or runtime run. See [VEGETATION_DRAWING.md](docs/VEGETATION_DRAWING.md).
+
+<a id="oa138"></a>
+### OA138 - Shared moveable graphic data retains native parser and lookup assumptions
+
+- **Original reference:** `0048BD66..0048D092`.
+- **Evidence and retained behavior:** Load sequence, atomic/walk data and animal/vehicle job graphics from original paths/tokens. Common and directional animation lists are exclusive and capped at 500 entries; walking/turning lists at 200; in-house parts at 50 and job palette variants at five. IDs, directions, owner/record allocations and parent data remain unchecked where Windows assumes valid assets. Missing sequence names return -1; missing animation or sufficient-speed walking entries return null. Animation alternatives use an independent generator and at most ten choices. Borrowed fast lists preserve sorting and original qualified teardown after the native manager clear.
+- **Status:** Windows ASM/PE confirmed; Mac supplies names. Constructor and lookup block complete; creature drawing remains unfinished. Static review only; no build, tests or runtime run. See [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md).
+
+<a id="oa139"></a>
+### OA139 - Human graphics and player colors retain original lookup and ownership rules
+
+- **Original reference:** `0048ACFB`, `0048AFAE`, `0048B635`, `0048BBED`, `0048B214`, `0048BACE`, `0048BAFD`, `0048BB3E`, `0048BB6A`.
+- **Evidence and retained behavior:** Random patches, base/change job graphics, localized name arrays and ten player-color/sign records load in native order. Exact patch search returns -1 on null/unknown names. Base graphics follow parent jobs and ultimately return the first record; change graphics return null at parent zero. Valid patches without type 10 skip the remaining color initialization; unknown patches still resolve other IDs. Five-variant limits reject commands before consuming their parameters. Invalid tribe names are skipped; allocation failures, inline distinct-type capacity, palette IDs and cyclic parent chains retain original assumptions. Runtime arrays and owned string arrays use their established allocator/destructor families; bob graphics remain broker-owned.
+- **Status:** Windows ASM/PE confirmed; Mac supplies names. Random-patch execution and dynamic human graphics are now reconstructed in OA140; creature drawing remains unfinished. Static review only; no build, tests or runtime run. See [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md).
+
+<a id="oa140"></a>
+### OA140 - Human graphics initialize through the real creation callback
+
+- **Original reference:** `004803D5`, `0048B258`, `0048B44F`, `0048BBA5`.
+- **Evidence and retained behavior:** New humans clear the full dynamic record, select body/head/shadow variants, copy base palettes, execute player/job patches and copy at most 98 name bytes in native random-call order. Savegame creation preserves palettes/names/flags while selecting graphics; both bob IDs are reset to FFFFFFFF. Patch weights retain DWORD wrap and the signed cumulative comparison. Zero weights and absent source/destination palettes skip a type; invalid patch IDs return. Missing names use the Windows `<noname>` string. Palette cache invalidation and existing qualified lifetime handling are retained. Player/tribe lower bounds, malformed weights, palette IDs and the presence of base graphic records remain native caller/data assumptions.
+- **Status:** Windows ASM/PE confirmed; Mac supplies names. The creation callback is connected and its dummy removed. Static review only; no build, tests or runtime run. See [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md).
+
+<a id="oa141"></a>
+### OA141 - Moveable frame selection retains native cache and progress rules
+
+- **Original reference:** `00494AE6`, `0042A6B7`, `0042A753`.
+- **Evidence and retained behavior:** Turning precedes atomic activity, walk caches match original tribe/job/good/speed, parent fallback reaches good zero at the terminal job, and directional turn frames retain reversal/clamping. Atomic modes select common/directional frame lists or in-house parts, including house-anchor offsets and five-element behind/front overlay accumulators. Products wrap as DWORDs before unsigned frame/progress division; signed offset interpolation truncates toward zero. Lookup misses and pathfinder state 1 retain bob IDs. The caller owns overlay count initialization. Invalid directions/IDs, cyclic parents, empty frame lists, zero totals and absent owner arrays remain original assumptions; no substitute sprite or forced visible state is introduced.
+- **Status:** Windows ASM confirmed; Mac supplies names. Shared frame selection is complete; the actual draw/descriptor callers and landscape traversal remain unfinished and excluded from completion. Static review only; no build, tests or runtime run. See [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md).
+
+<a id="oa142"></a>
+### OA142 - Shared moveable drawing preserves native ordering and packed effects
+
+- **Original reference:** `0049445E`, `004966DA`, `0049B337`, `0049BDC8`, `0049D3E8`, `0046467D`.
+- **Evidence and retained behavior:** Frame selection precedes marking, behind-house overlays, shadows, glow, body/head and front-house overlays. Centered drawing suppresses overlays and body offsets. House overlay coordinates use the original input origin and independently recomputed house-anchor delta. Body type 4 retains shaded-alpha precedence over transparency. Glow preserves eight offsets/strengths and independent signed body/head range selection; restricted ranges are inclusive. Explicit-strength transparency retains scalar/MMX branches, clipping transitions, 16-bit paired/odd pixels, saturation and EMMS. The clipped scalar 16-bit formulas retain inverse 255 versus 256 where Windows distinguishes them. Missing managers/sentinel bob IDs, rejected bob/type/depth/intersection and missing conversion tables retain original skip/return paths. Valid owners/palettes/house IDs and nonzero house variant counts remain unchecked assumptions; strengths/ranges are not clamped. Only shadow/body/head availability sets the shared return flag.
+- **Status:** Windows ASM confirmed; Mac supplies names. The shared draw body and direct dependencies are complete. Type-specific draw/descriptor callers and landscape traversal remain unfinished and unconnected; visible creatures are not established. Source review only; no build, tests or runtime run. See [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md).
+
+<a id="oa143"></a>
+### OA143 - Type-specific moveable drawing and stable foreground ordering
+
+- **Original reference:** 00493656..0049445D, 004951A4..0049563C, 004972DE..0049736C and foreground branches in 004911D5.
+- **Evidence and retained behavior:** Hidden humans/animals skip ordinary drawing but remain eligible for descriptors/centered previews. Cart commanders replace hand/ox-cart sprites with human graphics using native job/action/good overrides. Body/head palettes, player ship palettes, selected/max brightness, health/experience/need icons, hero glow, markers and group labels retain native gates and ordering. Selection matches type, ID and generation before returning marking type. Descriptors preserve native distinctions from rendering, omit shadows/status and cap at twenty valid bobs. Foreground traversal uses signed stable Y*40000+X insertion only for 2..20 moveables; empty descriptors draw immediately. Visibility counts and human/animal seen counters are connected.
+- **Assumptions and remaining boundaries:** Valid owners, linked object indices, frame counts, static tables, palettes and nonzero health/atomic denominators remain unchecked. Immutable critical-need values are PE-confirmed; adjacent-region semantic names remain unresolved. Shared field houses, construction markers, particles and generic sound playback remain partial and excluded from completion. See [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md). Static verification only; no build/tests/runtime run.
+
+<a id="oa144"></a>
+### OA144 - Mouse wheel delta uses GUI parameter 3
+
+- **Original reference:** 00477D67..00477D74; minimap 004CF88A, lists 004D054A and world 004BAB2C.
+- **Correction:** The desktop put wheel delta into parameter 2; handlers read parameter 3 and received zero. Dispatch now uses (0,0,delta,0). The world dispatcher consumes wheel events and requires enabled element input plus an active display. Positive delta calls DE_Zoom_In(false), negative calls DE_Zoom_Out; zero is a no-op. The existing counter helper retains camera centering across the zero boundary and -1..1 limits; wheel zoom-in caps at zero. Minimap retains one direction step per aggregated event; lists retain signed delta/5.
+- **Status:** Windows ASM confirmed; Mac confirms zoom helper names. Raw Input remains movement-only and ordinary wheel messages retain signed high-word/legacy low-word extraction. No runtime verification. See [MOUSE_INPUT_MODERNIZATION.md](docs/MOUSE_INPUT_MODERNIZATION.md).
+
+<a id="oa145"></a>
+### OA145 - Creature tick progress and remaining task boundaries
+
+- **Evidence:** Windows turn completion uses signed elapsed/duration comparisons. Walking relocation occurs once at unsigned progress 5000, sector relinking only when coordinates change, and completion at 10000; that walking tick returns before atomic performance. Human task progress compares the incremented DWORD exactly to the atomic duration, applies the optional final direction and resets action/activity.
+- **Retained assumptions:** Occupied objects reference valid owner arrays, pathfinders and atomic records. Overflow retains DWORD behavior. Invalid IDs/directions and linked-list corruption retain original assumptions.
+- **Reconstruction boundary:** Conditions, task-machine selection, event dispatch, new path steps, animal/vehicle atomic execution, diplomacy/assistant work and pending deletion are unfinished. Event-bearing human atomics do not silently discard events. Both partial bodies remain excluded from completion.
+- **Observed report:** Egyptians render but stand still; COOP Viking visibility is unresolved. The installed COOP script defines 22/22/50 Vikings for slots 0/1/4. Debug-only load counters expose actual slot/allocation/attachment/graphics/exploration state without random calls or forced visibility. No runtime confirmation is claimed.
+- **References:** [CREATURE_TICK_PROGRESS.md](docs/CREATURE_TICK_PROGRESS.md); FP173, FP174.
+
+<a id="oa146"></a>
+### OA146 - Input callback continuation and Viking graphic initialization
+
+- **Evidence:** Windows input callback 004B77E8..004B790C always returns true after every branch. CCallbackManager::ExecuteCallback stops immediately on false. In-game callback 4 visits the input manager at priority 20 before the engine at priority 10; the temporary false return prevented human graphic creation.
+- **Runtime comparison:** Native start_map loading of COOP creates/attaches/explores all 94 humans (22/22/50), with zero body/head bindings. A process-only correction of the callback return produces 22/22/50 body/head bindings and selected frames for all 22 local humans. No build, tests, disk binary patch or installed asset edits. The absence of an input manager in the menu explains the different behavior.
+- **Correction and limits:** The partial callback now returns true. Selection validation/removal, highlighting and cursor-reset branches remain unfinished and excluded from completion. Autonomous movement/task/path execution remains separate. The unfinished briefing constructor returns null and is not the demonstrated blocker.
+- **References:** [CREATURE_TICK_PROGRESS.md](docs/CREATURE_TICK_PROGRESS.md); FP174, FP175.
+
+<a id="oa147"></a>
+### OA147 - Local path routing and explicit simulation boundary
+
+- **Windows evidence:** Start/stop/following target contracts, revision checks, signed and unsigned distance comparisons, per-player search allowance, distinct human/vehicle line/flood variants, blocked-area marking and the complete run-vector construction are reconstructed. Direction/weight geometry retains target-row parity and the original signed half-distance word. Weighted searches retain terrain costs, alternative equal-cost direction masks, shared queues and exact capacity/termination checks.
+- **Ownership and limits:** All searches reuse the original shared calculation map/point queues. No new heap allocation, replacement A* or invented autonomous wandering is introduced. Twenty byte-sized direction/count runs, 255-count splits, 6/7 vertical compression and blocked-start grace steps are retained. Index 20 triggers rebuilding before reading outside the run array.
+- **Remaining reconstruction:** 00447CF1 is partial at sector/guide fallback; 00409BCC is partial at defeat detection. Both remain excluded from completion. The partial creature tick still waits at active paths because its human/animal/vehicle step-result callbacks and task dispatch are not complete. A successful local search does not establish working gameplay movement.
+- **Verification:** Windows ranges 00409BCC..00409D1A, 00438F6A..00439020, 0043961A..00439673 and 00447837..00449705; Mac supplies original naming only. Static source/project/name/index review; no build, tests or runtime run.
+- **References:** [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); FP176..FP180.
+
+<a id="oa148"></a>
+### OA148 - Mission briefing popup and GUI savegame ownership
+
+- **Windows evidence:** The mission button uses command 0xF42. Window identity is 0x7E6; existing windows receive 0x800/50000 and new windows close other large windows before allocation. The complete 19-slot table, 0x3B8 object, page/history/scroll commands, language-dependent files and voice ID 0x65655656 follow Windows instructions. Missing briefing/goal files retain original visible error strings.
+- **Ownership and pause:** Mission strings are individually owned. The complete three-pointer preview region 005691AC..005691B7 owns 50x80/280x220 bitmaps and the preview display; destruction resumes the window pause, frees strings, stops voice, destroys display/bitmaps and then the base window. HLT previews borrow these resources. Reusing a popup does not acquire a second pause.
+- **Savegame contract:** History is fifty unique chronological IDs in the 0xCC-byte Xmbh/version-1 payload. It is nested in XGUI alongside eight other GUI children. Message records omit live mini-button pointers; loading removes existing mini-buttons and clears restored pointer slots. Unsupported child versions and unknown child chunks follow original skip/reset behavior. Network loading retains the distinct original group/window reset policies.
+- **Remaining boundaries:** The logic callback and default command handler remain partial and excluded. Mission evaluation/result execution still needs reconstruction to emit automatic briefing events; the persistent onscreen mission overlay is distinct and still unfinished. Popup implementation does not establish autonomous movement or completed missions.
+- **Verification:** Windows ranges, PE strings, Mac naming, source/header ownership, project/filter and CSV/index checks only; no build, tests or runtime launch. See [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); FP181..FP184.
+
+<a id="oa149"></a>
+### OA149 - Human path failure/stop and command priority
+
+- **Windows evidence:** 00434DEB's complete PE table identifies priority opcodes; 00434E6B is a separate interrupting-command predicate. Both ordered queue routines scan 87 slots from human+0x390, stride 20, and retain first-match/-1 behavior.
+- **Path result handling:** Failed paths set task status 3 and retry flag 1, detach paired-human waits for tasks 5/13, and clear carrier circulation fields using Windows IsJobCarrier 0042C60D. Stopped paths mark task type 2 and invoke CurrentTask_DoInterrupt only after atomic-interruptibility and queued-priority checks. Call/state order follows 004632C5..00463345.
+- **Integration boundary:** These full helpers are available; the still-partial creature tick awaits its new-position/arrival/condition/task/atomic tree before invoking them as part of active path execution. Movement is not newly claimed working. No build/tests/runtime launch. See [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); FP185/FP186.
+
+<a id="oa150"></a>
+### OA150 - Native timed briefings and destination arrival
+
+- **Mission contract:** Callback 1 evaluates every 36 ticks; other calls return true. Timers use twelve ticks per second, DWORD wrapping and activation timestamps. Random timers retain half-range modulo and clear cached delay after success. All goal flags are evaluated before aggregate success; mission deactivation precedes ordered actions and final success flag. Briefing action 9 emits 0x1B, marks the scan stop flag and plays the original GUI sample in that order.
+- **Partial boundaries:** General goal/action dispatchers and submap transition calls remain inventoried. Unknown reconstructed boundaries are false/no-op, not proof of mission behavior. Six general goal cases and the documented control actions are covered. No fixed map-load briefing event is invented.
+- **Human arrival:** Need paths validate the target landscape/other-human presence before success, retaining failure reasons. Combat target reset precedes unsigned weapon minimum-range comparison. Parent new-position side effects and condition/task/atomic dispatch remain pending, so active new walking steps are not newly claimed working.
+- **Verification:** Windows ASM/PE selectors, Mac names, source ownership and project/filter inclusion only; no build/tests/runtime. See [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md), [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md) and [FUNCTION_PROGRESS.md](docs/FUNCTION_PROGRESS.md); FP187..FP190.
+
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -3023,6 +3160,53 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP141 | Produced-good command unavailable or invalid | Return 0 when noninterruptable and 1 when incapable; accepted commands return 2, preserving explicit deeper work-house boundaries | [HUMAN_INITIALIZATION_AND_EXPLORATION.md](docs/HUMAN_INITIALIZATION_AND_EXPLORATION.md); OA132 |
 | FP142 | Overview pattern query reaches a border or an incomplete around-way result | All six outputs start null; completed pairs remain populated and null samples draw black | [ENGINE_GROUND_DRAWING.md](docs/ENGINE_GROUND_DRAWING.md); OA133 |
 | FP143 | Window-close shutdown reaches a cleared engine list vptr | Qualified list destruction replaces erroneous virtual dispatch; retain resource and node teardown order | [ENGINE_SHUTDOWN.md](docs/ENGINE_SHUTDOWN.md); OA134 |
+| FP144 | Overview child/control allocation fails | Retain original unchecked attachment, marked-status and palette assumptions; no fabricated success or replacement ownership | [INGAME_MINIMAP_CONTROLS.md](docs/INGAME_MINIMAP_CONTROLS.md); OA135 |
+| FP145 | Overview camera command targets an inactive or hidden world element | Leave camera/follow state unchanged and return false; active command also returns false after its original side effects | [INGAME_MINIMAP_CONTROLS.md](docs/INGAME_MINIMAP_CONTROLS.md); OA135 |
+| FP146 | Human minimap selection/command is inapplicable | Other selection modes do nothing; locked group members are skipped; invalid command opcodes/unoccupied humans do not enter the command queue | [HUMAN_MINIMAP_MOVEMENT.md](docs/HUMAN_MINIMAP_MOVEMENT.md); OA136 |
+| FP147 | Map search radius exceeds 511, queues fill or search exhausts | Oversized radius returns false before callback/statistics; exactly-full queues drop insertion without marking; exhaustion records failure only for player IDs 0..19; shared storage remains non-reentrant | [HUMAN_MINIMAP_MOVEMENT.md](docs/HUMAN_MINIMAP_MOVEMENT.md); OA136 |
+| FP148 | Responding/spatial sound is unavailable or suppressed | Absent/uninitialized DirectSound, invalid response IDs, zero variants and running waves skip playback; optional spatial checks also reject outside/unseen/distant points | [HUMAN_MINIMAP_MOVEMENT.md](docs/HUMAN_MINIMAP_MOVEMENT.md); OA136 |
+| FP149 | Human movement/playback encounters invalid owners, IDs, target count or display dimensions | Retain original caller validity assumptions and modulo/division requirements; do not fabricate a destination or successful playback | [HUMAN_MINIMAP_MOVEMENT.md](docs/HUMAN_MINIMAP_MOVEMENT.md); OA136 |
+| FP150 | Landscape primary ID is unset, phase disabled or unimportant void suppressed | Skip the applicable landscape draw using the original FFFF, display, phase and LOD conditions; no fallback ID | [VEGETATION_DRAWING.md](docs/VEGETATION_DRAWING.md); OA137 |
+| FP151 | Micro brightness is outside the four-point margin or landscape is unexplored | Return zero sample; non-highlight wrapper substitutes one; landscape exploration uses zero brightness and static attachments skip unseen origins | [VEGETATION_DRAWING.md](docs/VEGETATION_DRAWING.md); OA137 |
+| FP152 | Auto-transition record is missing or its total time is zero | Missing entry returns zero; an occupied entry retains native unsigned arithmetic and unchecked division by total time | [VEGETATION_DRAWING.md](docs/VEGETATION_DRAWING.md); OA137 |
+| FP153 | Landscape rectangle, attachment origin, owner or graphic/frame/wall ID is invalid | Retain original data/caller validity assumptions; adjacent wall points outside the map or of another type are skipped | [VEGETATION_DRAWING.md](docs/VEGETATION_DRAWING.md); OA137 |
+| FP154 | Animation, animal/vehicle job, human graphic or localized names file is missing | Preserve empty tables and continue original startup/load order; downstream drawing validity remains a separate caller assumption | [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md); OA138, OA139 |
+| FP155 | Sequence, patch, animation, walking-speed or parent-job graphics lookup misses | Return -1/null where original does; base graphics alone default to the first base record after parent zero | [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md); OA138, OA139 |
+| FP156 | Frame, in-house-part or graphic/palette variant limit is reached | Retain limits 500/200/50/5 and original parameter-consumption gates; no dynamic capacity expansion | [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md); OA138, OA139 |
+| FP157 | Direction/tribe/job/palette ID, allocation or parent chain is invalid | Preserve original unchecked accesses/ownership and caller/data assumptions; no substitute sprite or cycle guard is invented | [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md); OA138, OA139 |
+| FP158 | Player random patch exists without type 10, or localized name tribe is invalid | Skip the rest of that player-color record, or skip name insertion; a missing player patch still permits other color-ID lookups | [MAP_MOVEABLE_GRAPHIC_DATA.md](docs/MAP_MOVEABLE_GRAPHIC_DATA.md); OA139 |
+| FP159 | Random patch ID is outside the loaded array, a type has zero total weight, or its source/destination palette is absent | Return or skip that type; successful patches invalidate both conversion caches | [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md); OA140 |
+| FP160 | Player is inactive/outside the upper signed bound, its color is invalid, or the tribe name list is missing/empty | Return patch -1, use color 9, or return `<noname>`; unchecked negative IDs retain native assumptions | [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md); OA140 |
+| FP161 | Human creation comes from a savegame or the notification is destruction | Preserve saved palettes/name/flags or return; creation still selects graphics and resets bob IDs | [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md); OA140 |
+| FP162 | Walking/animation lookup misses, turn frames are absent, or ordinary walking has pathfinder state 1 | Retain prior bob IDs, use the first directional walk frame, or return; preserve parent/good fallback order | [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md); OA141 |
+| FP163 | House overlays reach five per layer, or frame totals/counts, directions, parent chains or borrowed IDs are invalid | Skip additional overlays and retain original unchecked data/divisor assumptions; no guessed fallback graphics | [MAP_MOVEABLE_SPRITE_SELECTION.md](docs/MAP_MOVEABLE_SPRITE_SELECTION.md); OA141 |
+| FP164 | Bob ID/type, intersection, bitmap depth or palette conversion table prevents drawing | Preserve original skip/early returns; EMMS follows normal explicit-strength transparency completion | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA142 |
+| FP165 | Drawing is centered, the logical micro point is not a house, or body/head/shadow data is missing | Suppress house overlays/animation offsets or skip the missing component; return flag tracks shadow/body/head availability only | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA142 |
+| FP166 | Source byte lies outside the requested glow range, or glow inputs select the same component | Skip out-of-range pixels and preserve both independent range passes, native offsets/strengths and packed blending | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA142 |
+| FP167 | Dynamic/map/house owners, palettes, house IDs or house palette variant counts are invalid | Retain original unchecked pointer/index/modulo assumptions; no clamping or substitute graphics | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA142 |
+| FP168 | Human/animal hidden state, foreign soldier marker or missing cached marker landscape ID | Retain native skip, centered preview and sentinel behavior | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA143 |
+| FP169 | Selection generation differs from a reused human/animal/vehicle slot | Reject the stale reference before reading its marking type | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA143 |
+| FP170 | Bob descriptor is full, bob is missing, or a field has fewer than 2 / more than 20 moveables | Refuse descriptor append; draw empty descriptors immediately; retain iterator order outside sorting range | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA143 |
+| FP171 | Dynamic owners, linked indices, frame tables, palettes or divisors are invalid | Preserve original unchecked assumptions; no fabricated sprites or denominator substitution | [MAP_MOVEABLE_DRAWING.md](docs/MAP_MOVEABLE_DRAWING.md); OA143 |
+| FP172 | Mouse wheel delta reaches the wrong GUI argument, is zero, or world input/display is disabled | Correct parameter-3 dispatch; retain zero/disabled no-op and original zoom limits | [MOUSE_INPUT_MODERNIZATION.md](docs/MOUSE_INPUT_MODERNIZATION.md); OA144 |
+| FP173 | Creature simulation remains inert despite advancing game time | Connect original turn/walk/event-free atomic counters; task/path/event execution stays explicitly partial | [CREATURE_TICK_PROGRESS.md](docs/CREATURE_TICK_PROGRESS.md); OA145 |
+| FP174 | COOP Vikings are absent from the visible map | Debug startup counters distinguish player activation, allocation, attachment, hidden state, graphics and exploration; subsequent runtime comparison confirms the input callback continuation failure (FP175) | [CREATURE_TICK_PROGRESS.md](docs/CREATURE_TICK_PROGRESS.md); OA145 |
+| FP175 | Input callback false return cancels creature graphic initialization | Preserve original unconditional true; selection/highlighting/cursor side effects remain partial | [CREATURE_TICK_PROGRESS.md](docs/CREATURE_TICK_PROGRESS.md); OA146 |
+| FP176 | A long path exceeds the current player's search allowance | Return -4 while retaining the pending path; exact two-search gate, exempt -1/20 and per-tick reset are retained | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA147 |
+| FP177 | A followed target is deleted, detached or its slot reused | Check allocation, creature revision and attachment; stop and return -1 rather than following a replacement object | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA147 |
+| FP178 | Next path field is blocked or has inadequate clearance | Undo the anticipated step and stop with -1; retain the original blocked-start grace counter | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA147 |
+| FP179 | Local path fails and would require sector/guide fallback | Explicit partial route-builder boundary remains in unfinished inventory; these fallback branches and gameplay task/callback connection are pending | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA147 |
+| FP180 | Search radius/budget, queue capacity or run-vector capacity is exhausted | Keep original range rejection, 4000-entry skip, equal-cost masks, partial-budget result and twenty-run rebuild behavior | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA147 |
+| FP181 | Map GUID, briefing file or goal strings are unavailable | Retain original absent-data flags and visible fallback messages; do not create history entries for missing HLT files | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA148 |
+| FP182 | Briefing requests focus on missing mission-check objects | Do not move the camera; consume the one-time focus request; user-picture callback returns null for missing tracked humans | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA148 |
+| FP183 | Unsupported history or GUI child version / unknown child marker | Skip the chunk and retain the original per-child reset policy; continue at the following child header | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA148 |
+| FP184 | Briefing/HLT allocation or malformed serialized counts | Preserve original allocation assumptions and unchecked fifty-ID/message-count contracts; no successful allocation or runtime validity is inferred from static review | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA148 |
+| FP185 | Human pathfinding fails | Mark task status/retry flag; detach paired wait for tasks 5/13 and reset carrier circulation fields in original order | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA149 |
+| FP186 | Human path stops with a queued priority command | Mark task type 2 failed; interrupt only when the current atomic allows interruption and a priority command exists | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA149 |
+| FP187 | Unsupported mission goal/result or requested submap transition | Explicit partial boundary; remaining dispatch cases/transition calls stay excluded from completion | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA150 |
+| FP188 | RandomTimeGone duration below two seconds | Original half-duration divisor is zero; no invented clamp/reroll | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA150 |
+| FP189 | Need destination has wrong landscape or no other human | Preserve failed task status and reason 3/6 respectively | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA150 |
+| FP190 | Combat arrival uses a weapon with minimum range above one | Reset target, clear counter/status and switch to task 1 in original order | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA150 |
 
 ## Reconstruction errors are not original bugs
 

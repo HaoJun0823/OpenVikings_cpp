@@ -99,6 +99,51 @@ namespace NC2Logic
         return -1;
     }
 
+    // Original function: FUN_00449b43.
+    std::int32_t MissionCheck_GetFirstVehicleIdWithMissionCheckId(std::uint32_t missionCheck)
+    {
+        // The unfiltered iterator at 00440CCC/00440E19 checks allocation only.
+        for (auto id = CVehicleArray::sTheObjectPtr->mFirstScanIndex; id <= CVehicleArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
+        {
+            const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 0x51C) == missionCheck) return id;
+        }
+        return -1;
+    }
+
+    // Original function: FUN_00449b87.
+    std::int32_t MissionCheck_GetNextVehicleIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous)
+    {
+        if (previous == -1) return -1;
+        for (auto id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u); id <= CVehicleArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
+        {
+            const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 0x51C) == missionCheck) return id;
+        }
+        return -1;
+    }
+
+    // Original function: FUN_00449bce.
+    std::int32_t MissionCheck_GetFirstHouseIdWithMissionCheckId(std::uint32_t missionCheck)
+    {
+        CHouseIterator iterator;
+        for (auto id = iterator.GetFirstHouseId(); id != -1; id = iterator.GetNextHouseId())
+            if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0x7CC) == missionCheck) return id;
+        return -1;
+    }
+
+    // Original function: FUN_00449c12.
+    std::int32_t MissionCheck_GetNextHouseIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous)
+    {
+        if (previous == -1) return -1;
+        for (auto id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u); id <= CHouseArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
+        {
+            const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x7CC) == missionCheck) return id;
+        }
+        return -1;
+    }
+
     namespace
     {
         void* Human(std::uint32_t id) { return const_cast<void*>(GetHumanPtr(static_cast<std::int32_t>(id))); }

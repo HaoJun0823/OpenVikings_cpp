@@ -19,6 +19,8 @@ namespace NC2Logic
         CMapLandscapeAutoTransitionManager();
         explicit CMapLandscapeAutoTransitionManager(CIoHelper& io);
         void IO_Savegame_DoSave(CIoHelper& io);
+        std::uint32_t AutoTransition_GetDataId(const void* point) const;
+        std::uint32_t AutoTransition_GetTimeDonePercentage(const void* point) const;
         std::byte* mRecords; // +0x30: owned 20-byte transition entries.
     };
 
