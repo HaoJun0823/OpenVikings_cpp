@@ -7,29 +7,29 @@
 
 namespace NC2Logic
 {
+    using namespace NC2Lifetime;
+
+    // Original function: FUN_0042c679; a vehicle attachment includes allocation and revision.
+    bool Human_IsAttachedToVehicle(const void* human)
+    {
+        const auto id = Read<std::uint32_t>(human, 0xB48);
+        if (id == 0xFFFFFFFFu) return false;
+        const auto* vehicle = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
+        return Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(human, 0xB4C) == Read<std::uint32_t>(vehicle, 8);
+    }
+
+    // Original function: FUN_0042c900.
+    bool Human_IsJobNeedingSocial(const void* human)
+    {
+        const auto job = Read<std::int32_t>(human, 0x18);
+        return !((job >= 1 && job <= 4) || (job >= 31 && job <= 41) || (job >= 42 && job <= 47));
+    }
+
+    // Original function: FUN_0042c928.
+    bool Human_IsJobNeedingReligion(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x80u) != 0; }
+
     namespace
     {
-        using namespace NC2Lifetime;
-
-        // Original function: FUN_0042c679; a vehicle attachment includes allocation and revision.
-        bool Human_IsAttachedToVehicle(const void* human)
-        {
-            const auto id = Read<std::uint32_t>(human, 0xB48);
-            if (id == 0xFFFFFFFFu) return false;
-            const auto* vehicle = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
-            return Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(human, 0xB4C) == Read<std::uint32_t>(vehicle, 8);
-        }
-
-        // Original function: FUN_0042c900.
-        bool Human_IsJobNeedingSocial(const void* human)
-        {
-            const auto job = Read<std::int32_t>(human, 0x18);
-            return !((job >= 1 && job <= 4) || (job >= 31 && job <= 41) || (job >= 42 && job <= 47));
-        }
-
-        // Original function: FUN_0042c928.
-        bool Human_IsJobNeedingReligion(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x80u) != 0; }
-
         // Original function: FUN_0042c956.
         bool Human_IsDoingSomething(const void* human) { return Read<std::uint32_t>(human, 0x36C) == 1 && Read<std::uint32_t>(human, 0x368) != 1; }
 

@@ -1626,6 +1626,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA148](#oa148) | Mission briefing popup, preview ownership and GUI savegame nesting | 004A20B4..004A21B3, 004A491D..004A5A6F, 004C9C3B..004C9E29 |
 | [OA149](#oa149) | Human path failure/stop callbacks and priority-command queue | 00434DEB..00434F36, 004632C5..00463345 |
 | [OA150](#oa150) | Native timed briefing execution and human arrival | 0041E2AE..0041E45D, 0041F9F7, 004230EE, 00462EC6..00463042 |
+| [OA151](#oa151) | Human idle finish/start lifecycle and partial task dispatch | 004433D1, 004436C5, 004445C9, 00445A6E, 00463346..00463508, 0046C39E |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -3010,6 +3011,13 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Human arrival:** Need paths validate the target landscape/other-human presence before success, retaining failure reasons. Combat target reset precedes unsigned weapon minimum-range comparison. Parent new-position side effects and condition/task/atomic dispatch remain pending, so active new walking steps are not newly claimed working.
 - **Verification:** Windows ASM/PE selectors, Mac names, source ownership and project/filter inclusion only; no build/tests/runtime. See [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md), [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md) and [FUNCTION_PROGRESS.md](docs/FUNCTION_PROGRESS.md); FP187..FP190.
 
+<a id="oa151"></a>
+### OA151 - Human idle finish/start lifecycle
+
+- **Windows contract:** AI_DoUpdateAI performs the atomic before checking interruptibility and entering the task machine. Supported finish/start transitions run in one tick. Idle finish resets both targets and returns to job selection, retaining the counter. PE selectors confirm idle jobs 1..4 and 6/23/26/27. Native animation selection uses the existing job/tribe-aware atomic starter and random source.
+- **Limits:** Eligible queued commands, urgent requests, production, failure, blocked/crowded/house positions and goodie starts remain partial. Autonomous civilians can still reach unfinished task 24 after counter 10. No complete standing/talking/sleeping/eating behavior is claimed. No-progress partial dispatch yields instead of spinning.
+- **Verification:** Windows ASM/PE constants/selectors and Mac names reviewed; shared predicates, project/filters and inventories checked. No build/tests/runtime or new visual confirmation. See [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); FP191..FP193.
+
 
 ## Reviewed failure handling
 
@@ -3207,6 +3215,9 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP188 | RandomTimeGone duration below two seconds | Original half-duration divisor is zero; no invented clamp/reroll | [MISSION_BRIEFING.md](docs/MISSION_BRIEFING.md); OA150 |
 | FP189 | Need destination has wrong landscape or no other human | Preserve failed task status and reason 3/6 respectively | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA150 |
 | FP190 | Combat arrival uses a weapon with minimum range above one | Reset target, clear counter/status and switch to task 1 in original order | [LOCAL_PATHFINDER_ROUTING.md](docs/LOCAL_PATHFINDER_ROUTING.md); OA150 |
+| FP191 | Eligible queued command, urgent request or unsupported task branch | Hold at the tracked boundary; no invented success or need effect | [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); OA151 |
+| FP192 | Idle requires combat, circulation/goods, house/crowding/escape/walk or task 24 | Explicit pending boundary; autonomous civilians can still lack their next action | [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); OA151 |
+| FP193 | Partial dispatcher leaves task/status unchanged | Yield rather than loop indefinitely; full native dispatch remains pending | [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); OA151 |
 
 ## Reconstruction errors are not original bugs
 

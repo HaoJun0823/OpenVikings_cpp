@@ -20,6 +20,9 @@ namespace NC2Logic
     bool Human_IsJobTrader(const void* human);
     bool Human_IsJobCarrier(const void* human);
     bool Human_IsJobFisher(const void* human);
+    bool Human_IsAttachedToVehicle(const void* human);
+    bool Human_IsJobNeedingSocial(const void* human);
+    bool Human_IsJobNeedingReligion(const void* human);
     bool Human_CanEquipShoes(const void* human);
     bool Human_CanEquipToolIron(const void* human);
     bool Human_DoesExperienceAllowJobChange(const void* human, std::uint32_t job);

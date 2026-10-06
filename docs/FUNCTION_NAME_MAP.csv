@@ -274,3 +274,13 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004E6E44,Runtime_Log10,,,"Windows CRT log10 entry; runtime adapter name, not a recovered Mac private symbol"
 004E8774,Runtime_Sin,,,"Windows CRT sin entry; runtime adapter name, not a recovered Mac private symbol"
 004E8824,Runtime_Cos,,,"Windows CRT cos entry; runtime adapter name, not a recovered Mac private symbol"
+0042CB92,NC2Logic::Human_IsAbleToDoGoodieNow,NC2Logic::CHuman::IsAbleToDoGoodieNow,174256,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+0042CEAF,NC2Logic::Human_Target_ResetSecondaryTarget,NC2Logic::CHuman::Target_ResetSecondaryTarget,174577,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+004369C8,NC2Logic::Human_UserControl_IsExecutingUserCommand,NC2Logic::CHuman::UserControl_IsExecutingUserCommand,178196,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+004433D1,NC2Logic::Human_CurrentTask_DoStartUp,NC2Logic::CHuman::CurrentTask_DoStartUp,185231,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+004436C5,NC2Logic::Human_CurrentTask_DoFinish,NC2Logic::CHuman::CurrentTask_DoFinish,186046,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+004445C9,NC2Logic::Human_l_StartTask_Idle,NC2Logic::CHuman::l_StartTask_Idle,185402,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+00445A6E,NC2Logic::Human_l_FinishTask_Idle,NC2Logic::CHuman::l_FinishTask_Idle,186174,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+00463346,NC2Logic::Human_AI_DoUpdateAI,NC2Logic::CHuman::AI_DoUpdateAI,168839,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,NC2Logic::CHuman::AI_DoUpdateTaskMachine,168861,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,NC2Logic::CHuman::l_StartTask_ExecuteJob,190874,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded

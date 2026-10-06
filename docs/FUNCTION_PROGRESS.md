@@ -1,6 +1,6 @@
 # Windows function mapping progress
 
-Snapshot: 2026-10-05, current working tree before the requested checkpoint commit. This assessment was recomputed from Windows ASM, original PE and current C++ definitions. It is **source-address coverage**, not an assertion that 51.13% of gameplay is correct. Partial bodies and temporary dummies are excluded from the mapped numerator.
+Snapshot: 2026-10-05, checkpoint committed as `9c85170`. This assessment was recomputed from Windows ASM, original PE and that checkpoint's C++ definitions. It is **source-address coverage**, not an assertion that 51.13% of gameplay is correct. Partial bodies and temporary dummies are excluded from the mapped numerator. Subsequent idle-task work is documented in [HUMAN_IDLE_TASKS.md](HUMAN_IDLE_TASKS.md) and is not included in this checkpoint table.
 
 | Measure | Count |
 | --- | ---: |

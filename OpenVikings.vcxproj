@@ -487,5 +487,7 @@
     <ClInclude Include="C2HumanJobAccess.h" />
     <ClCompile Include="C2HumanInitialization.cpp" />
     <ClInclude Include="C2HumanInitialization.h" />
+    <ClCompile Include="C2HumanTaskAccess.cpp" />
+    <ClInclude Include="C2HumanTaskAccess.h" />
   </ItemGroup>
 </Project>

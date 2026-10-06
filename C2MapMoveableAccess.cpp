@@ -1,5 +1,6 @@
 #include "C2MapMoveableAccess.h"
 #include "C2HumanCommandAccess.h"
+#include "C2HumanTaskAccess.h"
 #include "C2MapGeometry.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2GameMapAccess.h"
@@ -91,7 +92,7 @@ namespace NC2Logic
                     if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) continue;
                 }
             }
-            if (type == 1u) Human_CurrentTask_DoPerform(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
+            if (type == 1u) Human_AI_DoUpdateAI(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
         }
     }
 
