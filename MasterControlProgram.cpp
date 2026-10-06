@@ -18,6 +18,7 @@
 #include "XFileAccess.h"
 #include "XPicture.h"
 #include "XSystemMouseCursor.h"
+#include "resource.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -206,10 +207,10 @@ namespace NMasterControlProgram
         HINSTANCE applicationInstance = NXSys2DApp::CApplication::sTheObjectPtr->GetInstance();
         HWND window = NXSys2DApp::CApplication::sTheObjectPtr->GetWindowHandle();
 
-        HICON smallIcon = LoadIconA(applicationInstance, MAKEINTRESOURCEA(101));
+        HICON smallIcon = static_cast<HICON>(LoadImageA(applicationInstance, MAKEINTRESOURCEA(IDI_OPENVIKINGS_SMALL), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_SHARED));
         SendMessageA(window, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(smallIcon));
 
-        HICON largeIcon = LoadIconA(applicationInstance, MAKEINTRESOURCEA(102));
+        HICON largeIcon = static_cast<HICON>(LoadImageA(applicationInstance, MAKEINTRESOURCEA(IDI_OPENVIKINGS_LARGE), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_SHARED));
         SendMessageA(window, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(largeIcon));
 
         SendMessageA(window, WM_SETTEXT, 0, reinterpret_cast<LPARAM>("Weltwunder"));

@@ -852,7 +852,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.png">
+    <Image Include="icon.ico">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>

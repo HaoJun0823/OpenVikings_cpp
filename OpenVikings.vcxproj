@@ -253,7 +253,7 @@
     <ResourceCompile Include="OpenVikings.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.png" />
+    <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="LegacyDirectInput.def" />
