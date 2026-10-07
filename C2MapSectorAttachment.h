@@ -6,6 +6,7 @@
 namespace NC2Logic
 {
     class CIoHelper;
+    struct SSectorGridCursor;
     class CGameMapSectorAttachmentManager
     {
     public:
@@ -42,6 +43,9 @@ namespace NC2Logic
         std::byte* mSectorData;            // +0x08: 0x540 bytes per sector.
         std::byte* mSectorAuxiliaryData;   // +0x0C: 0xFC bytes per sector; internal fields unresolved.
     };
+
+    std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForSector(const SSectorGridCursor& cursor, std::int32_t player);
+    std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player, std::uint32_t radius);
 
     static_assert(sizeof(void*) == 4);
     static_assert(sizeof(CGameMapSectorAttachmentManager) == 0x10);

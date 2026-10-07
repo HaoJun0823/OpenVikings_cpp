@@ -192,10 +192,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CMapPathfinderSpecialWallRoadElement::GetNextDirection.
     int __fastcall MapPathfinderSpecialWallRoadElement_GetNextDirection(void *, void *) { return 0; }
 
-    // TEMPORARY DUMMY: Windows address 0044FD3E; implementation pending.
-    // Naming reference: NC2Logic::CMapWalkSectorManager::l_Sectors_CheckAndSetConnection.
-    void __cdecl MapWalkSectorManager_l_Sectors_CheckAndSetConnection(NC2Logic::SSectorGridCursor, unsigned int) {}
-
     // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.
     bool __cdecl GameMap_l_MaxMoveableSize_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }

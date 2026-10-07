@@ -167,6 +167,17 @@ namespace NC2Logic
         return current;
     }
 
+    // Original function: FUN_0042DC16.
+    std::int32_t CGuideIterator::GetFirstGuideId(std::uint32_t playerId, const void* point, std::uint32_t distance)
+    {
+        player = playerId;
+        flags = 3;
+        std::memcpy(center, point, sizeof(center));
+        radius = distance;
+        current = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return current;
+    }
+
     // Original function: FUN_0042dc4c.
     std::int32_t CGuideIterator::GetNextGuideId()
     {

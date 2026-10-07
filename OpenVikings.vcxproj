@@ -507,4 +507,11 @@
     <ClInclude Include="C2HumanEquipment.h" />
     <ClInclude Include="C2HumanFamily.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MapPathfinderSectorSearch.cpp" />
+    <ClCompile Include="C2MapSectorRouting.cpp" />
+    <ClCompile Include="C2GuideRouting.cpp" />
+    <ClInclude Include="C2MapPathfinderSectorSearch.h" />
+    <ClInclude Include="C2GuideRouting.h" />
+  </ItemGroup>
 </Project>

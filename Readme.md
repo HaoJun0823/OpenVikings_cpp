@@ -3404,3 +3404,8 @@ All 21 touched C++ files pass MSVC Win32 /Zs syntax-only checking; no Debug/Rele
 ## OA154 - Windows family, learning and idle target recovery (2026-10-07)
 
 Family marriage/love/home selection/childbirth, real house attachment and capacity checks, training/exercise/gold/wealth/counter events and native STargetData idle validation are connected. Home commands 26/27 and learning detach 33 dispatch. Sector human iteration preserves marriage candidate order and random calls. Windows ASM/Game.exe define behavior; Mac names only. See docs/HUMAN_FREEZE_RECOVERY.md for confirmed leaves and remaining boundaries. Thirteen cpp units pass Win32 /Zs; no Debug/Release build or runtime claim. Project/filter parity 187 cpp / 178 headers; 734 naming rows and 118 unfinished entries are inventories, not completed address coverage. Remaining sector/guide routing, assignment/default commands, combat/outdoor/vehicle/chest/guide work and external death dependencies stay explicit.
+
+
+### OA155 - Windows sector and guide route fallback (2026-10-07)
+
+Restored native sector connections and the special bounded pathfinder, first/second sector base points, sector routing with civilian danger costs, nearby guide selection and guide routing/cache continuation. Corrected sector direction 7 from the Game.exe jump table. No inline assembly. Eight changed/new translation units pass Win32 syntax checking; no build or runtime claim. Guide creation and remaining human work/combat/vehicle boundaries remain inventoried. See docs/HUMAN_FREEZE_RECOVERY.md.

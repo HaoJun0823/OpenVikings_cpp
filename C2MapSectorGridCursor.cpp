@@ -21,6 +21,12 @@ namespace NC2Logic
         y = static_cast<std::int32_t>(pointY) / 20;
     }
 
+    // Original function: FUN_004585A4.
+    bool SSectorGridCursor::IsInsideMap() const
+    {
+        return x < sGridWidth && x >= 0 && y < sGridHeight && y >= 0;
+    }
+
     // Original function: FUN_00458572
     void SSectorGridCursor::CutInsideMap()
     {
@@ -55,7 +61,7 @@ namespace NC2Logic
         if (direction > 7u)
             return;
 
-        static constexpr std::int32_t deltaX[8] = { 1, 1, 0, -1, -1, -1, 0, 0 };
+        static constexpr std::int32_t deltaX[8] = { 1, 1, 0, -1, -1, -1, 0, 1 };
         static constexpr std::int32_t deltaY[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
         const std::uint32_t xBits = static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(deltaX[direction]);
         const std::uint32_t yBits = static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(deltaY[direction]);

@@ -7,6 +7,8 @@
 #include "C2MapMoveableAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2GameControlStartup.h"
+#include "C2MapWalkSectorManager.h"
+#include "C2GuideRouting.h"
 
 namespace NC2Logic
 {
@@ -255,8 +257,7 @@ namespace NC2Logic
         return direction;
     }
 
-    // PARTIAL original function: FUN_00447CF1. All local searches and vector construction
-    // are reconstructed; sector/guide fallback calls are still tracked in the inventory.
+    // Original function: FUN_00447CF1. Local, sector and guide searches retain their distinct native order.
     bool MapPathfinderElement_l_FindWayAndBuildVectorList(void* pathfinder, const void* source, const void* destination, std::uint32_t radius)
     {
         const auto flags = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 0x0C);
@@ -274,9 +275,65 @@ namespace NC2Logic
             if (Read<std::uint8_t>(pathfinder, 0x14) != 0) found = MapPathfinderElement_l_FindWayDirectedWithResitance(pathfinder, source, destination, radius);
             else found = MapPathfinderElement_l_FindWayWithLine(pathfinder, source, destination, radius) || MapPathfinderElement_l_FindWayDirected(pathfinder, source, destination, radius);
         }
-        // Reconstruction boundary: GetNextSectorBasePoint and both GetNextGuideId overloads.
-        // No guessed detour is substituted when the original local search fails.
-        if (!found) return false;
+        if (!found)
+        {
+            const bool resistance = Read<std::uint8_t>(pathfinder, 0x14) != 0;
+            if (Read<std::uint8_t>(pathfinder, 0x15) != 0)
+            {
+                std::uint32_t firstPoint = 0, secondPoint = 0;
+                const bool land = GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6)) == 1;
+                if (!CMapWalkSectorManager::GetNextSectorBasePoint(source, destination, Read<std::uint32_t>(pathfinder, 0x10), land, &firstPoint, &secondPoint, radius, Read<std::int32_t>(pathfinder, 0x2C))) return false;
+                if (vehicle && resistance && !MapMigPoint_IsInsideMap(&firstPoint)) return false;
+                if (firstPoint == Read<std::uint32_t>(source, 0)) return false;
+                if (vehicle)
+                {
+                    if (resistance) found = MapPathfinderElement_l_VehicleFindWayDirectedWithResitance(pathfinder, source, &secondPoint, radius) || MapPathfinderElement_l_VehicleFindWayDirectedWithResitance(pathfinder, source, &firstPoint, radius);
+                    else found = MapPathfinderElement_l_VehicleFindWayDirected(pathfinder, source, &secondPoint, radius) || MapPathfinderElement_l_VehicleFindWayWithLine(pathfinder, source, &firstPoint, radius) || MapPathfinderElement_l_VehicleFindWayDirected(pathfinder, source, &firstPoint, radius);
+                }
+                else
+                {
+                    if (resistance) found = MapPathfinderElement_l_FindWayDirectedWithResitance(pathfinder, source, &secondPoint, radius) || MapPathfinderElement_l_FindWayDirectedWithResitance(pathfinder, source, &firstPoint, radius);
+                    else found = MapPathfinderElement_l_FindWayDirected(pathfinder, source, &secondPoint, radius) || MapPathfinderElement_l_FindWayWithLine(pathfinder, source, &firstPoint, radius) || MapPathfinderElement_l_FindWayDirected(pathfinder, source, &firstPoint, radius);
+                }
+            }
+            else if (!vehicle && Read<std::uint8_t>(pathfinder, 0x17) != 0)
+            {
+                const auto guide = [](std::int32_t id) { return CGuideArray::mStaticVars + static_cast<std::intptr_t>(id) * CGuideArray::ElementSize; };
+                auto previousGuide = Read<std::int32_t>(pathfinder, 0x24);
+                auto sourceGuide = Read<std::int32_t>(pathfinder, 0x1C);
+                if (previousGuide == sourceGuide && (!resistance || previousGuide != -1))
+                {
+                    Write<std::int32_t>(pathfinder, 0x24, -1);
+                    Write<std::int32_t>(pathfinder, 0x1C, -1);
+                    sourceGuide = -1;
+                }
+                bool cached = sourceGuide != -1 && Read<std::uint8_t>(guide(sourceGuide), 0) != 0 && Read<std::uint32_t>(guide(sourceGuide), 0x10) == Read<std::uint32_t>(pathfinder, 0x20);
+                const auto currentGuide = Read<std::int32_t>(pathfinder, 0x24);
+                cached = cached && currentGuide != -1 && Read<std::uint8_t>(guide(currentGuide), 0) != 0 && Read<std::uint32_t>(guide(currentGuide), 0x10) == Read<std::uint32_t>(pathfinder, 0x28) && Read<std::uint32_t>(guide(currentGuide), 0x0C) == Read<std::uint32_t>(guide(sourceGuide), 0x0C);
+                if (cached) Write(pathfinder, 0x24, GuideManager_GetNextGuideId(gGuideManager, currentGuide, sourceGuide));
+                else
+                {
+                    const auto next = GuideManager_GetNextGuideId(gGuideManager, Read<std::int32_t>(pathfinder, 0x2C), radius, source, destination, sourceGuide, previousGuide);
+                    Write(pathfinder, 0x1C, sourceGuide);
+                    Write(pathfinder, 0x24, next);
+                    if (sourceGuide != -1) Write(pathfinder, 0x20, Read<std::uint32_t>(guide(sourceGuide), 0x10));
+                }
+                auto nextGuide = Read<std::int32_t>(pathfinder, 0x24);
+                if (nextGuide == -1) return false;
+                std::uint32_t point = 0;
+                Guide_GetMovePoint(guide(nextGuide), &point);
+                found = resistance ? MapPathfinderElement_l_FindWayDirectedWithResitance(pathfinder, source, &point, radius) : MapPathfinderElement_l_FindWayDirected(pathfinder, source, &point, radius);
+                if (!found)
+                {
+                    Write(pathfinder, 0x24, previousGuide);
+                    nextGuide = previousGuide;
+                    Guide_GetMovePoint(guide(nextGuide), &point);
+                    found = resistance ? MapPathfinderElement_l_FindWayDirectedWithResitance(pathfinder, source, &point, radius) : MapPathfinderElement_l_FindWayDirected(pathfinder, source, &point, radius);
+                }
+                if (found) Write(pathfinder, 0x28, Read<std::uint32_t>(guide(nextGuide), 0x10));
+            }
+            if (!found) return false;
+        }
         Write<std::uint32_t>(pathfinder, 0x54, 0);
         Write<std::uint32_t>(pathfinder, 0x58, 0);
         auto point = Read<std::uint32_t>(pathfinder, 0x40);

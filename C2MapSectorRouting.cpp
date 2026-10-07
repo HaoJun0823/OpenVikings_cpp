@@ -1,0 +1,290 @@
+#include "C2MapWalkSectorManager.h"
+#include "C2MapPathfinderSectorSearch.h"
+#include "C2MapPathfinderSearch.h"
+#include "C2MapSectorGridCursor.h"
+#include "C2MapSectorAttachment.h"
+#include "C2MapGeometry.h"
+#include "C2GameMapAccess.h"
+#include "C2GameControlNetwork.h"
+#include "C2GameState.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+    namespace
+    {
+        std::uint32_t SectorIndex(const SSectorGridCursor& cursor)
+        {
+            return static_cast<std::uint32_t>(CMapWalkSectorManager::mStaticVars.gridWidth) * static_cast<std::uint32_t>(cursor.y) + static_cast<std::uint32_t>(cursor.x);
+        }
+        SMapWalkSectorData* Sector(const SSectorGridCursor& cursor, bool land)
+        {
+            return land ? CMapWalkSectorManager::GetLandSectorDataPtr(cursor) : CMapWalkSectorManager::GetWaterSectorDataPtr(cursor);
+        }
+        std::uint32_t Distance(const void* a, const void* b)
+        {
+            return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2)));
+        }
+        std::uint32_t PackSector(const SSectorGridCursor& cursor)
+        {
+            return static_cast<std::uint16_t>(cursor.x) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(cursor.y)) << 16);
+        }
+        SSectorGridCursor UnpackSector(std::uint32_t point)
+        {
+            SSectorGridCursor cursor;
+            cursor.x = static_cast<std::int16_t>(point);
+            cursor.y = static_cast<std::int16_t>(point >> 16);
+            return cursor;
+        }
+        struct SBasePointSearch
+        {
+            std::uint32_t point;
+            std::uint8_t land;
+            std::byte padding[3];
+            std::uint32_t clearance;
+        };
+        static_assert(sizeof(SBasePointSearch) == 12);
+
+        // Original function: FUN_00450471; Mac: slWalkSectorBasePointSearch.
+        bool __cdecl slWalkSectorBasePointSearch(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& data = *static_cast<SBasePointSearch*>(callback->userData);
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0D) & 0x10u) == 0) return false;
+            auto* sector = Sector(SSectorGridCursor(Read<std::uint32_t>(point, 0)), data.land != 0);
+            for (std::uint32_t direction = 0; direction < 8; ++direction)
+            {
+                if ((sector->connectionFlags & (1u << direction)) == 0 || sector->connectionValues[direction] < data.clearance) continue;
+                data.point = Read<std::uint32_t>(point, 0);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // Original function: FUN_00454405; Mac: CAIMilitaryManager::Military_GetCivilianDangerValueForSector.
+    std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForSector(const SSectorGridCursor& cursor, std::int32_t player)
+    {
+        const auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
+        const auto index = static_cast<std::uint32_t>(manager->GetGridWidth()) * static_cast<std::uint32_t>(cursor.y) + static_cast<std::uint32_t>(cursor.x);
+        const auto* sector = manager->GetSectorData() + index * 0x540u;
+        std::uint32_t total = 0;
+        for (std::int32_t other = 0; other < 21; ++other)
+        {
+            if (other == 20) { total += Read<std::uint32_t>(sector, 0x53C) * 10u; continue; }
+            if (Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * 0x4A80u) == 0) continue;
+            const auto* data = sector + static_cast<std::uint32_t>(other) * 0x40u;
+            const auto common = Read<std::uint32_t>(data, 0x24) * 5u + Read<std::uint32_t>(data, 0x2C) * 4u;
+            const auto relation = GameControl_Diplomacy_GetState(gGameControl, player, other);
+            if (relation == 4) total -= Read<std::uint32_t>(data, 4) + (common + Read<std::uint32_t>(data, 0x1C)) * 10u;
+            else if (relation == 3) total += Read<std::uint32_t>(data, 4) + (Read<std::uint32_t>(data, 0x14) + (common + Read<std::uint32_t>(data, 0x3C) + Read<std::uint32_t>(data, 0x1C)) * 2u) * 5u;
+            else if (relation == 2) total += Read<std::uint32_t>(data, 0x14) * 3u + (common + Read<std::uint32_t>(data, 0x3C) + Read<std::uint32_t>(data, 0x1C)) * 5u;
+        }
+        return NXBasics::Runtime_TimeSigned32(total);
+    }
+
+    // Original function: FUN_0045437A. The ring walks four even directions with two steps per radius.
+    std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player, std::uint32_t radius)
+    {
+        SSectorGridCursor cursor(Read<std::uint32_t>(point, 0));
+        std::uint32_t total = static_cast<std::uint32_t>(AIMilitaryManager_Military_GetCivilianDangerValueForSector(cursor, player));
+        for (std::int32_t ring = 1; ring < NXBasics::Runtime_TimeSigned32(radius); ++ring)
+        {
+            cursor.MoveCursorUnwrapped(5);
+            for (std::uint32_t direction = 0; direction < 8; direction += 2)
+            {
+                for (std::int32_t step = 0; step < ring * 2; ++step)
+                {
+                    cursor.MoveCursorUnwrapped(direction);
+                    if (cursor.IsInsideMap()) total += static_cast<std::uint32_t>(AIMilitaryManager_Military_GetCivilianDangerValueForSector(cursor, player) / (ring * ring));
+                }
+            }
+        }
+        return NXBasics::Runtime_TimeSigned32(total);
+    }
+
+    // Original function: FUN_0044FD3E. Both reciprocal connections use the original bounded search workspace.
+    void CMapWalkSectorManager::l_Sectors_CheckAndSetConnection(SSectorGridCursor cursor, std::uint32_t direction)
+    {
+        std::int16_t rectangle[4] = {static_cast<std::int16_t>(cursor.x * 20), static_cast<std::int16_t>(cursor.y * 20), 20, 20};
+        // Jump-table entries recovered from Game.exe at 0044FFF4.
+        if (direction == 3 || direction == 4 || direction == 5) rectangle[0] = static_cast<std::int16_t>(rectangle[0] - 20);
+        if (direction == 5 || direction == 6 || direction == 7) rectangle[1] = static_cast<std::int16_t>(rectangle[1] - 20);
+        if (direction == 0 || direction == 1 || direction == 3 || direction == 4 || direction == 5 || direction == 7) rectangle[2] = 40;
+        if (direction >= 1 && direction <= 3 || direction >= 5 && direction <= 7) rectangle[3] = 40;
+        auto* sourceLand = GetLandSectorDataPtr(cursor);
+        auto* sourceWater = GetWaterSectorDataPtr(cursor);
+        cursor.MoveCursorUnwrapped(direction);
+        if (!cursor.IsInsideMap()) return;
+        auto* targetLand = GetLandSectorDataPtr(cursor);
+        auto* targetWater = GetWaterSectorDataPtr(cursor);
+        if (targetLand->calculated == 0 || targetWater->calculated == 0) return;
+        const auto reverse = (direction - 4u) & 7u;
+        auto* workspace = mStaticVars.specialSectorSearchWorkspace;
+        const auto connect = [&](SMapWalkSectorData* source, SMapWalkSectorData* target, std::uint32_t maximum)
+        {
+            if (source->continentId == 0 || source->continentId != target->continentId)
+            {
+                source->connectionFlags &= static_cast<std::uint8_t>(~(1u << direction));
+                target->connectionFlags &= static_cast<std::uint8_t>(~(1u << reverse));
+                return;
+            }
+            CMapPathfinderSpecialSectorSearchElement::Init(workspace);
+            Write<std::uint8_t>(workspace, 0x0D, 1);
+            std::int32_t clearance = static_cast<std::int32_t>(source->connectionValues[direction] > maximum ? maximum : source->connectionValues[direction]);
+            std::int32_t result = static_cast<std::int32_t>(direction);
+            while (clearance >= 0)
+            {
+                Write<std::int32_t>(workspace, 8, clearance);
+                CMapPathfinderSpecialSectorSearchElement::StartPathfinder(workspace, source->basePoints, target->basePoints, 50, true, rectangle);
+                result = CMapPathfinderSpecialSectorSearchElement::GetNextDirection(workspace);
+                if (result >= 0) break;
+                --clearance;
+            }
+            if (result != -3 && result != -1)
+            {
+                source->connectionValues[direction] = static_cast<std::uint32_t>(clearance);
+                target->connectionValues[reverse] = static_cast<std::uint32_t>(clearance);
+                source->connectionFlags |= static_cast<std::uint8_t>(1u << direction);
+                target->connectionFlags |= static_cast<std::uint8_t>(1u << reverse);
+            }
+            else
+            {
+                source->connectionFlags &= static_cast<std::uint8_t>(~(1u << direction));
+                target->connectionFlags &= static_cast<std::uint8_t>(~(1u << reverse));
+            }
+        };
+        connect(sourceLand, targetLand, 1);
+        connect(sourceWater, targetWater, 4);
+    }
+
+    // Original Windows inline calculation-map accesses in 00450014/00450505.
+    std::uint32_t CMapWalkSectorManager::Sectors_CalculationMap_GetValue(const SSectorGridCursor& cursor)
+    {
+        return mStaticVars.calculationMap[SectorIndex(cursor)];
+    }
+    void CMapWalkSectorManager::l_Sectors_CalculationMap_SetValue(const SSectorGridCursor& cursor, std::uint32_t value)
+    {
+        mStaticVars.calculationMap[SectorIndex(cursor)] = value;
+    }
+
+    // Original function: FUN_00450014.
+    SMapWalkSectorData* CMapWalkSectorManager::l_GetNextSectorPtr(const SSectorGridCursor& source, const SSectorGridCursor& destination, std::uint32_t clearance, bool land, SMapWalkSectorData*& second, std::uint32_t radius, const void* sourcePoint, std::int32_t player)
+    {
+        auto* first = Sector(source, land);
+        const auto* target = Sector(destination, land);
+        if (first->calculated == 0 || target->calculated == 0 || first->continentId != target->continentId || !WayPossible(source, destination, clearance, land, player)) return nullptr;
+        auto cursor = source;
+        if ((Sectors_CalculationMap_GetValue(cursor) & 0xFF0000u) != 0) first = nullptr;
+        SMapWalkSectorData* best = nullptr;
+        std::uint32_t bestDistance = 0;
+        for (std::uint32_t step = 0; step < 2; ++step)
+        {
+            const auto value = Sectors_CalculationMap_GetValue(cursor);
+            if ((value & 0xFF0000u) == 0) return first;
+            std::uint32_t directions[8], count = 0;
+            for (std::uint32_t direction = 0; direction < 8; ++direction) if ((value & (0x10000u << direction)) != 0) directions[count++] = direction;
+            cursor.MoveCursorUnwrapped(directions[Game_Random_GetNumber() % count]);
+            if (!cursor.IsInsideMap()) continue;
+            if (step == 0) first = Sector(cursor, land);
+            else
+            {
+                second = Sector(cursor, land);
+                const auto distance = Distance(sourcePoint, second->basePoints);
+                if (distance < radius && distance > bestDistance) { best = second; bestDistance = distance; }
+            }
+        }
+        second = best;
+        return first;
+    }
+
+    // Original function: FUN_00450222. An absent second sector leaves the caller's second point untouched.
+    bool CMapWalkSectorManager::GetNextSectorBasePoint(const void* source, const void* destination, std::uint32_t clearance, bool land, void* firstPoint, void* secondPoint, std::uint32_t radius, std::int32_t player)
+    {
+        SBasePointSearch data{0, static_cast<std::uint8_t>(land), {}, clearance};
+        if (!CMapPathfinderElement::SearchOverMap(source, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
+        const SSectorGridCursor sourceSector(data.point);
+        auto* sourceData = Sector(sourceSector, land);
+        if (sourceData->calculated == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6) != sourceData->continentId) return false;
+        if (!CMapPathfinderElement::SearchOverMap(destination, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&data.point), 6) != sourceData->continentId) return false;
+        const SSectorGridCursor targetSector(data.point);
+        if (sourceSector.x == targetSector.x && sourceSector.y == targetSector.y) return false;
+        if (Sector(targetSector, land)->continentId != sourceData->continentId) return false;
+        SMapWalkSectorData* second = nullptr;
+        auto* first = l_GetNextSectorPtr(sourceSector, targetSector, clearance, land, second, radius, source, player);
+        if (first == nullptr) return false;
+        if (second != nullptr)
+        {
+            Write(secondPoint, 0, second->basePoints[Game_Random_GetNumber() % second->basePointCount]);
+            if (Distance(secondPoint, source) > radius)
+            {
+                Write(secondPoint, 0, first->basePoints[0]);
+                if (Distance(secondPoint, source) > radius) Write(secondPoint, 0, sourceData->basePoints[0]);
+            }
+        }
+        Write(firstPoint, 0, first->basePoints[Game_Random_GetNumber() % first->basePointCount]);
+        if (Distance(firstPoint, source) > radius)
+        {
+            Write(firstPoint, 0, first->basePoints[0]);
+            if (Distance(firstPoint, source) > radius) Write(firstPoint, 0, sourceData->basePoints[0]);
+        }
+        return true;
+    }
+
+    // Original function: FUN_00450505. Sector costs use sixteen shared buckets and stop when the source is inserted.
+    bool CMapWalkSectorManager::WayPossible(const SSectorGridCursor& source, const SSectorGridCursor& destination, std::uint32_t clearance, bool land, std::int32_t player)
+    {
+        l_Sectors_CalculationMap_ClearAll();
+        l_Sectors_CalculationMap_SetValue(source, 0);
+        std::uint32_t budget = 0xFFFFu;
+        for (auto& queue : sMapPathfinderStaticVariables) queue.count = 0;
+        sMapPathfinderStaticVariables[0].count = 1;
+        sMapPathfinderStaticVariables[0].points[0] = PackSector(destination);
+        const bool dangerCosts = player != -1 && player < 20 && Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 4) == 2;
+        l_Sectors_CalculationMap_SetValue(destination, 0xFFFFu);
+        std::uint32_t current = 0, pending = 1;
+        do
+        {
+            const auto remaining = budget - 1u;
+            auto& queue = sMapPathfinderStaticVariables[current];
+            for (std::uint32_t index = 0; index < queue.count; ++index)
+            {
+                --pending;
+                const auto cursor = UnpackSector(queue.points[index]);
+                const auto* sector = Sector(cursor, land);
+                for (std::uint32_t direction = 0; direction < 8; ++direction)
+                {
+                    if ((sector->connectionFlags & (1u << direction)) == 0 || sector->connectionValues[direction] < clearance) continue;
+                    auto next = cursor;
+                    next.MoveCursorUnwrapped(direction);
+                    if (!next.IsInsideMap()) continue;
+                    const auto value = Sectors_CalculationMap_GetValue(next);
+                    const auto oldCost = value & 0xFFFFu;
+                    std::uint32_t cost = 1;
+                    if (dangerCosts)
+                    {
+                        const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(sector->basePoints, player, 2) / 10;
+                        cost = danger <= 0 ? 1u : danger >= 16 ? 15u : static_cast<std::uint32_t>(danger);
+                    }
+                    if (oldCost >= budget - cost) continue;
+                    const auto nextCost = remaining - cost;
+                    const auto reverse = 0x10000u << ((direction + 4u) % 8u);
+                    if (nextCost == oldCost) { l_Sectors_CalculationMap_SetValue(next, value | reverse); continue; }
+                    auto& target = sMapPathfinderStaticVariables[(current + cost) & 15u];
+                    if (target.count == 4000u) continue;
+                    target.points[target.count++] = PackSector(next);
+                    ++pending;
+                    l_Sectors_CalculationMap_SetValue(next, nextCost | reverse);
+                    if (next.x == source.x && next.y == source.y) return true;
+                }
+            }
+            queue.count = 0;
+            if (pending == 0) break;
+            current = (current + 1u) & 15u;
+            budget = remaining;
+        } while (budget > 17u);
+        return (Sectors_CalculationMap_GetValue(source) & 0xFFFFu) != 0;
+    }
+}

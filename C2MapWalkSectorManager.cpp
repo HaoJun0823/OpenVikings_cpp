@@ -1,4 +1,5 @@
 #include "C2MapWalkSectorManager.h"
+#include "C2MapPathfinderSectorSearch.h"
 #include "C2CallbackManager.h"
 #include "C2MapSectorGridCursor.h"
 #include "C2MapGeometry.h"
@@ -13,9 +14,6 @@
 
 namespace NC2Logic
 {
-    // Original connection search; requires the unreconstructed special-sector pathfinder.
-    extern void __cdecl MapWalkSectorManager_l_Sectors_CheckAndSetConnection(SSectorGridCursor cursor, std::uint32_t direction);
-
     namespace
     {
         std::uint32_t PackPoint(std::int32_t x, std::int32_t y)
@@ -58,14 +56,7 @@ namespace NC2Logic
             return reinterpret_cast<SMapWalkSectorData*>(records);
         }
 
-        // Original function: FUN_004703ae.
-        void InitializeWalkSectorWorkspacePrefix(std::byte* workspace)
-        {
-            std::memset(workspace, 0, 0x60);
 
-            const std::uint32_t initialValue04 = 5;
-            std::memcpy(workspace + 0x04, &initialValue04, sizeof(initialValue04));
-        }
     }
 
     // Original function: FUN_0044f16d.
@@ -76,7 +67,7 @@ namespace NC2Logic
 
         AllocateArrays();
         RegisterCallbacks();
-        InitializeWalkSectorWorkspacePrefix(mStaticVars.specialSectorSearchWorkspace);
+        CMapPathfinderSpecialSectorSearchElement::Init(mStaticVars.specialSectorSearchWorkspace);
     }
 
     // Original function: FUN_0044f1a2.
@@ -366,10 +357,10 @@ namespace NC2Logic
             for (std::uint32_t direction = 0; direction < 8; ++direction)
                 water->connectionValues[direction] = MicroPointByte(GameMap_GetConstMapMicroPointPtr(water->basePoints), 0x0C) & 7u;
         }
-        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 0);
-        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 4);
-        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 6);
-        MapWalkSectorManager_l_Sectors_CheckAndSetConnection(cursor, 2);
+        l_Sectors_CheckAndSetConnection(cursor, 0);
+        l_Sectors_CheckAndSetConnection(cursor, 4);
+        l_Sectors_CheckAndSetConnection(cursor, 6);
+        l_Sectors_CheckAndSetConnection(cursor, 2);
         land->calculated = 1;
         water->calculated = 1;
         for (std::uint32_t index = 0; index < land->basePointCount; ++index)
@@ -508,7 +499,7 @@ namespace NC2Logic
         std::memset(&mStaticVars, 0, sizeof(mStaticVars));
         AllocateArrays();
         RegisterCallbacks();
-        InitializeWalkSectorWorkspacePrefix(mStaticVars.specialSectorSearchWorkspace);
+        CMapPathfinderSpecialSectorSearchElement::Init(mStaticVars.specialSectorSearchWorkspace);
         if (io.mReadHeader.version != 3u)
         {
             mStaticVars.requiresSectorRecalculation = 1;

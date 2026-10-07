@@ -39,7 +39,7 @@ namespace NC2Logic
             SMapWalkSectorData* landSectors; // +0x0008
             SMapWalkSectorData* waterSectors; // +0x000C
             std::uint32_t* calculationMap;   // +0x0010: one DWORD per sector.
-            std::byte specialSectorSearchWorkspace[0x60]; // +0x0014: pathfinder object; internal fields unresolved.
+            std::byte specialSectorSearchWorkspace[0x60]; // +0x0014: special sector pathfinder, reconstructed in C2MapPathfinderSectorSearch.
             SBasePointCandidate basePointCandidates[250]; // +0x0074
             std::uint32_t floodFillPoints[8][400];         // +0x0C2C
             std::int32_t floodFillPointCounts[8];          // +0x3E2C
@@ -79,6 +79,12 @@ namespace NC2Logic
         static bool __cdecl l_Sectors_Callback(TCallbackTypes type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
         static SMapWalkSectorData* GetLandSectorDataPtr(const SSectorGridCursor& cursor);
         static SMapWalkSectorData* GetWaterSectorDataPtr(const SSectorGridCursor& cursor);
+        static void l_Sectors_CheckAndSetConnection(SSectorGridCursor cursor, std::uint32_t direction);
+        static std::uint32_t Sectors_CalculationMap_GetValue(const SSectorGridCursor& cursor);
+        static void l_Sectors_CalculationMap_SetValue(const SSectorGridCursor& cursor, std::uint32_t value);
+        static bool WayPossible(const SSectorGridCursor& source, const SSectorGridCursor& destination, std::uint32_t clearance, bool land, std::int32_t player);
+        static SMapWalkSectorData* l_GetNextSectorPtr(const SSectorGridCursor& source, const SSectorGridCursor& destination, std::uint32_t clearance, bool land, SMapWalkSectorData*& second, std::uint32_t radius, const void* sourcePoint, std::int32_t player);
+        static bool GetNextSectorBasePoint(const void* source, const void* destination, std::uint32_t clearance, bool land, void* firstPoint, void* secondPoint, std::uint32_t radius, std::int32_t player);
         static void IO_Savegame_DoSave(CIoHelper& io);
         explicit CMapWalkSectorManager(CIoHelper& io);
         static bool IO_Cleanmap_Load(CIoHelper& io);

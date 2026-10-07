@@ -10,6 +10,7 @@ namespace NC2Logic
     public:
         CGuideIterator();
         std::int32_t GetFirstGuideId(std::uint32_t player);
+        std::int32_t GetFirstGuideId(std::uint32_t player, const void* point, std::uint32_t radius);
         std::int32_t GetNextGuideId();
     private:
         std::int32_t l_GetNext(std::int32_t previous);
