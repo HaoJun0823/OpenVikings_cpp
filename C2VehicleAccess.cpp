@@ -11,6 +11,9 @@
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_0044da5d; recovered from Game.exe's aligned instruction bytes.
+    bool Vehicle_Attachment_IsInsideVehicle(const void* vehicle) { return NC2Lifetime::Read<std::uint8_t>(vehicle, 0x548) != 0; }
+
     // Original function: FUN_004413b3; the door lookup result is not tested.
     bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace)
     {

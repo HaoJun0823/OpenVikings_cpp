@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    bool Vehicle_Attachment_IsInsideVehicle(const void* vehicle);
     bool Vehicle_Stock_ModifyAmount(void* vehicle, std::uint32_t good, std::int32_t amount, std::uint32_t revision);
     bool Vehicle_Stock_IsFull(const void* vehicle);
     bool Vehicle_Stock_IsFullSoon(const void* vehicle);

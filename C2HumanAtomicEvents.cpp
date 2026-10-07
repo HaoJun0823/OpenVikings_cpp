@@ -6,6 +6,8 @@
 #include "C2VehicleAccess.h"
 #include "C2HumanGoods.h"
 #include "C2HumanProduction.h"
+#include "C2HumanFamily.h"
+#include "C2GameControlStartup.h"
 #include "C2HouseAccess.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2LifetimeAccess.h"
@@ -61,7 +63,7 @@ namespace NC2Logic
     }
 
     // Implementation boundary: do not start advancing an animation whose later
-    // events would require an untranslated production, combat or training branch.
+    // events would require an untranslated outdoor production, combat or chest branch.
     bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
     {
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
@@ -73,7 +75,7 @@ namespace NC2Logic
             case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
             case 14: case 17: case 22: case 23: case 26: case 34: case 35: case 36:
                 break;
-            case 11: case 12: break;
+            case 11: case 12: case 24: case 28: case 29: case 30: case 31: case 32: break;
             case 21:
                 if (Read<std::uint32_t>(human, 0x1C) == 57 || Read<std::uint32_t>(human, 0x1C) == 58) return false;
                 break;
@@ -84,7 +86,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Production/combat/training events remain explicit boundaries.
+    // 00468B67. Outdoor production, combat and chest events remain explicit boundaries.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);
@@ -138,6 +140,20 @@ namespace NC2Logic
         case 11: Human_l_PerformTaskEvent_Pickup(human); return;
         case 12: Human_l_PerformTaskEvent_Pileup(human); return;
         case 21: Human_l_PerformTaskEvent_Produce(human); return;
+        case 24: Human_l_PerformTaskEvent_GiveBirth(human); return;
+        case 28:
+            if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) == 0 && (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)) Human_l_JobExperience_Gain(human);
+            return;
+        case 29:
+            if (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)
+            {
+                if (Read<std::uint32_t>(human, 0xAB8) == 89) Human_l_JobTraining_Train(human, amount);
+                else if (Read<std::uint32_t>(human, 0xAB8) == 90) Human_l_JobTraining_Exercise(human, amount);
+            }
+            return;
+        case 30: Human_l_PerformTaskEvent_ChangeGold(human, event.parameter); return;
+        case 31: Human_l_PerformTaskEvent_ChangeWealth(human, event.parameter); return;
+        case 32: Human_l_PerformTaskEvent_DidProduceOneGood(human); return;
         case 14: C2Debug_WarningBox("cAtomicAnimationEventTypeMerge not handled yet!"); return;
         case 17: C2Debug_WarningBox("cAtomicAnimationEventTypeShrink not handled yet!"); return;
         case 22: Human_HouseMisc_Leave(human); return;
@@ -158,6 +174,38 @@ namespace NC2Logic
         }
         default: return;
         }
+    }
+
+    // Original function: FUN_0046a1bf; positive values deliberately do nothing.
+    void Human_l_PerformTaskEvent_ChangeGold(void* human, std::int32_t amount)
+    {
+        if (amount >= 0) return;
+        if (Human_IsAttachedToLearnHouse(human) && Human_Misc_IsHidden(human))
+        {
+            auto* house = House(Read<std::uint32_t>(human, 0xB34));
+            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(house, 0x24) && House_Production_IsAbleToProduceGood(house, 8, false))
+            {
+                if (!House_Stock_ModifyAmount(house, 8, amount, 0, false)) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 13); Write<std::uint32_t>(human, 0xAD0, 7); }
+                return;
+            }
+        }
+        Write<std::uint32_t>(human, 0x374, 0);
+        Write<std::uint32_t>(human, 0x36C, 3);
+    }
+
+    // Original function: FUN_0046a291.
+    void Human_l_PerformTaskEvent_ChangeWealth(void* human, std::int32_t amount)
+    {
+        if (GameControl_Wealth_ChangeAmount(gGameControl, Read<std::int32_t>(human, 0x10), amount)) Write<std::uint32_t>(human, 0x36C, 2);
+        else { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 13); Write<std::uint32_t>(human, 0xAD0, 7); }
+    }
+
+    // Original function: FUN_0046a2d9; update counters only after successful completion.
+    void Human_l_PerformTaskEvent_DidProduceOneGood(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0x36C) != 2) return;
+        if (Human_IsAttachedToWorkHouse(human)) House_Production_DidProduceOneGood(House(Read<std::uint32_t>(human, 0xB34)));
+        Human_Production_DidProduceGoods(human, 1u);
     }
 
     // Original function: FUN_0046a0be. The unsafe pointer/revision check does not

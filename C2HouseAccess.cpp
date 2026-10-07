@@ -13,8 +13,207 @@
 #include "C2LogicObjectArrays.h"
 #include "C2CallbackManager.h"
 #include "C2HumanInitialization.h"
+#include "C2HumanJobAccess.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00431ffa; slots retain their training fields when reused.
+    bool House_Inhabitants_AttachHuman(void* house, std::uint32_t human, std::uint32_t mask)
+    {
+        using namespace NC2Lifetime;
+        if (!House_Inhabitants_CanHumanBeAttached(house, human, mask)) return false;
+        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human))
+        {
+            Write<std::uint8_t>(slot, 0, Read<std::uint8_t>(slot, 0) | mask);
+            return true;
+        }
+        for (std::uint32_t index = 0; index < 20; ++index)
+        {
+            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 16u;
+            if (Read<std::uint8_t>(slot, 0) != 0) continue;
+            Write(slot, 4, human);
+            Write<std::uint8_t>(slot, 0, static_cast<std::uint8_t>(mask));
+            return true;
+        }
+        if (mask != 1) return false;
+        for (std::uint32_t index = 0; index < 20; ++index)
+        {
+            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 16u;
+            if (Read<std::uint8_t>(slot, 0) != 4) continue;
+            Write<std::uint8_t>(slot, 0, 0);
+            Human_DetachFromWorkHouse(CHumanArray::mStaticVars + Read<std::uint32_t>(slot, 4) * CHumanArray::ElementSize);
+            Write(slot, 4, human);
+            Write<std::uint8_t>(slot, 0, 1);
+            return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_00432316; combined attachment masks are not accepted here.
+    bool House_Inhabitants_CanHumanBeAttached(void* house, std::uint32_t human, std::uint32_t mask)
+    {
+        switch (mask)
+        {
+        case 1: return House_Inhabitants_CanHumanBeAttachedAsHomie(house, human);
+        case 2: return House_Inhabitants_CanHumanBeAttachedAsWorker(house, human);
+        case 4: return House_Inhabitants_CanHumanBeAttachedAsBuilder(house, human);
+        case 8: return House_Inhabitants_CanHumanBeAttachedAsStudent(house, human);
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_00432359; relatives share a home independently of its family limit.
+    bool House_Inhabitants_CanHumanBeAttachedAsHomie(void* house, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, humanId) || House_GetHouseMainType(house) != 2) return false;
+        const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, humanId);
+        if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 1u) != 0) return true;
+        const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
+        for (const auto offset : {0xB14u, 0xB18u, 0xB24u, 0xB20u})
+        {
+            const auto relative = Read<std::uint32_t>(human, offset);
+            if (relative != 0xFFFFFFFFu && Read<std::uint32_t>(CHumanArray::mStaticVars + relative * CHumanArray::ElementSize, 0xB28) == Read<std::uint32_t>(house, 4)) return true;
+        }
+        return House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(House_GetHouseTypeDataPtr(house)->homeSize);
+    }
+
+    // Original function: FUN_00432439; queued job changes participate in worker capacity checks.
+    bool House_Inhabitants_CanHumanBeAttachedAsWorker(void* house, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, humanId)) return false;
+        const auto* data = House_GetHouseTypeDataPtr(house);
+        if (data->mainType == 2) return false;
+        const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
+        const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, humanId);
+        const auto attached = slot != nullptr && (Read<std::uint8_t>(slot, 0) & 2u) != 0;
+        const auto job = Human_UserControl_GetNextJobType(human);
+        std::int32_t worker = 0;
+        while (worker < data->workerCount && static_cast<std::uint32_t>(data->workers[worker].jobType) != job) ++worker;
+        if (worker == data->workerCount) return false;
+        if (!attached && House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) >= data->workers[worker].unknown04) return false;
+        if (job == 30 && Read<std::uint32_t>(house, 0x14) == 37) return true;
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        if (good == 0 || good == 65) return true;
+        const auto produced = Tool_Human_GetReallyProducedGoodType(Read<std::uint32_t>(human, 0x18), good);
+        return House_Production_IsAbleToProduceGood(house, produced, true) || House_Production_IsAbleToProduceGood(house, produced, false);
+    }
+
+    // Original function: FUN_00432523.
+    bool House_Inhabitants_CanHumanBeAttachedAsStudent(void* house, std::uint32_t human)
+    {
+        using namespace NC2Lifetime;
+        if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, human) || House_GetHouseMainType(house) != 4) return false;
+        const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human);
+        if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 8u) != 0) return true;
+        return House_Inhabitants_GetNumberOfAttachedHumans(house, 8) < static_cast<std::uint32_t>(House_GetHouseTypeDataPtr(house)->schoolSize);
+    }
+
+    // Original function: FUN_00432578; completed undamaged houses reject builders.
+    bool House_Inhabitants_CanHumanBeAttachedAsBuilder(void* house, std::uint32_t human)
+    {
+        using namespace NC2Lifetime;
+        if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, human) || Human_UserControl_GetNextJobType(CHumanArray::mStaticVars + human * CHumanArray::ElementSize) != 7) return false;
+        if (Read<std::uint32_t>(house, 0x2C) == 3 && House_HitPoints_IsDamaged(house)) return false;
+        const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human);
+        if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 4u) != 0) return true;
+        return static_cast<std::int32_t>(House_Inhabitants_GetNumberOfAttachedHumans(house, 4)) < House_Construction_GetTotalNumberOfBuildersAllowed(house);
+    }
+
+    // Original function: FUN_004325e8; only attached moveables require a continent match.
+    bool House_l_Inhabitants_CanHumanBeAttached_BaseCheck(const void* house, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+        const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
+        if (Read<std::uint32_t>(human, 0x10) != Read<std::uint32_t>(house, 12)) return false;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * 0x58u;
+        return Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6);
+    }
+
+    // Original function: FUN_004326fd.
+    std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house, std::uint32_t mask)
+    {
+        using namespace NC2Lifetime;
+        std::uint32_t count = 0;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) if ((Read<std::uint8_t>(house, 0x640u + slot * 16u) & mask) != 0) ++count;
+        return count;
+    }
+
+    // Original function: FUN_00432720; any builder bit excludes a slot from this count.
+    std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders(const void* house)
+    {
+        using namespace NC2Lifetime;
+        std::uint32_t count = 0;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) { const auto mask = Read<std::uint8_t>(house, 0x640u + slot * 16u); if (mask != 0 && (mask & 4u) == 0) ++count; }
+        return count;
+    }
+
+    // Original function: FUN_00432764; the first earlier relative determines each family ID.
+    std::uint32_t House_Inhabitants_GetNumberOfFamiliesLivingInHome(const void* house, std::uint32_t* families)
+    {
+        using namespace NC2Lifetime;
+        if (families != nullptr) for (std::uint32_t slot = 0; slot < 20; ++slot) families[slot] = 0xFFFFFFFFu;
+        if (House_GetHouseMainType(house) != 2) return 0;
+        std::uint32_t count = 0;
+        for (std::uint32_t slot = 0; slot < 20; ++slot)
+        {
+            if ((Read<std::uint8_t>(house, 0x640u + slot * 16u) & 1u) == 0) continue;
+            if (count == 0) { count = 1; if (families != nullptr) families[slot] = 0; continue; }
+            const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, 0x644u + slot * 16u) * CHumanArray::ElementSize;
+            bool related = false;
+            for (std::uint32_t previous = 0; previous < slot; ++previous)
+            {
+                if ((Read<std::uint8_t>(house, 0x640u + previous * 16u) & 1u) == 0) continue;
+                const auto id = Read<std::uint32_t>(house, 0x644u + previous * 16u);
+                for (const auto offset : {0xB14u, 0xB18u, 0xB24u, 0xB20u}) if (Read<std::uint32_t>(human, offset) != 0xFFFFFFFFu && Read<std::uint32_t>(human, offset) == id) related = true;
+                if (related) { if (families != nullptr) families[slot] = families[previous]; break; }
+            }
+            if (!related) { if (families != nullptr) families[slot] = count; ++count; }
+        }
+        return count;
+    }
+
+    // Original function: FUN_004328b7.
+    std::int32_t House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(const void* house, std::uint32_t job)
+    {
+        using namespace NC2Lifetime;
+        std::int32_t count = 0;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) if ((Read<std::uint8_t>(house, 0x640u + slot * 16u) & 2u) != 0 && Human_UserControl_GetNextJobType(CHumanArray::mStaticVars + Read<std::uint32_t>(house, 0x644u + slot * 16u) * CHumanArray::ElementSize) == job) ++count;
+        return count;
+    }
+
+    // Original function: FUN_00433079; construction stock limits builders and available slots.
+    std::int32_t House_Construction_GetTotalNumberOfBuildersAllowed(const void* house)
+    {
+        using namespace NC2Lifetime;
+        std::uint32_t total = 0;
+        for (std::int32_t index = 0; index < Read<std::int32_t>(house, 0x38); ++index) total += Read<std::uint32_t>(house, 0x40u + static_cast<std::uint32_t>(index) * 20u);
+        if (Read<std::int32_t>(house, 0x38) <= 0 || total < 5) { if (!House_HitPoints_IsDamaged(house)) total = 5; }
+        const auto available = 20 - static_cast<std::int32_t>(House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders(house));
+        return NXBasics::Runtime_TimeSigned32(total) <= available ? NXBasics::Runtime_TimeSigned32(total) : available;
+    }
+
+    // Original function: FUN_0043339a; Windows returns true for a full hitpoint value.
+    bool House_HitPoints_IsDamaged(const void* house)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(house, 0x2C) == 1) return true;
+        const auto* engine = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10));
+        return Read<std::int32_t>(house, 0x7C8) >= Read<std::int32_t>(engine, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u);
+    }
+
+    // Original function: FUN_00432690.
+    void* House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(void* house, std::uint32_t human)
+    {
+        for (std::uint32_t index = 0; index < 20; ++index)
+        {
+            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 0x10u;
+            if (NC2Lifetime::Read<std::uint8_t>(slot, 0) != 0 && NC2Lifetime::Read<std::uint32_t>(slot, 4) == human) return slot;
+        }
+        return nullptr;
+    }
+
     // Original function: FUN_004320ca; clear the mask before detaching human-side state.
     bool House_Inhabitants_DetachHuman(void* house, std::uint32_t humanId, std::uint32_t attachmentMask)
     {

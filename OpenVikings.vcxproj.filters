@@ -1153,10 +1153,12 @@
     <ClCompile Include="C2HumanGoods.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2HumanProduction.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2HumanEquipment.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2HumanFamily.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2MapLandscapeChanges.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanWalking.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2HumanGoods.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2HumanProduction.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2HumanEquipment.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2HumanFamily.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

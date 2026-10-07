@@ -4,9 +4,157 @@
 #include "C2GameMapAccess.h"
 #include "C2MapGeometry.h"
 #include "C2VehicleAccess.h"
+#include "C2AnimalAccess.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanAtomicEvents.h"
+#include "C2HumanInitialization.h"
 
 namespace NC2Logic
 {
+    using namespace NC2Lifetime;
+    namespace
+    {
+        const void* TargetObject(std::uint32_t type, std::uint32_t id)
+        {
+            switch (type)
+            {
+            case 1: return CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
+            case 2: return CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
+            case 3: return CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
+            case 4: return CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
+            default: return nullptr;
+            }
+        }
+        bool HiddenHumanIsInAttachedHouse(const void* human)
+        {
+            return (Human_IsAttachedToWorkHouse(human) && Human_IsInWorkHouse(human)) || (Human_IsAttachedToHomeHouse(human) && Human_IsInHomeHouse(human));
+        }
+    }
+
+    // Original function: FUN_0046184b; STargetData is distinct from SInteractionTargetData.
+    bool TargetData_IsValid(const void* target)
+    {
+        const auto type = TargetData_GetTargetType(target);
+        if (type == 5) return !MapMigPoint_IsBorderPoint(static_cast<const std::byte*>(target) + 4);
+        if (type == 6)
+        {
+            const auto* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + 4);
+            return Read<std::uint8_t>(point, 0) == 1 && Read<std::uint8_t>(point, 2) != 0;
+        }
+        if (type < 1 || type > 4) return false;
+        const auto id = TargetData_GetObjectId(target);
+        if (type == 1 && id == 0xFFFFFFFFu) return false;
+        const auto* object = TargetObject(type, id);
+        return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == TargetData_GetUniqueId(target) && (type != 4 || Read<std::uint8_t>(object, 0x7D0) == 0);
+    }
+
+    // Original function: FUN_00461970; raw-object validity precedes container redirection.
+    bool TargetData_l_IsValid(const void* target)
+    {
+        const auto type = Read<std::uint32_t>(target, 0);
+        if (type == 5) return !MapMigPoint_IsBorderPoint(static_cast<const std::byte*>(target) + 4);
+        if (type == 6)
+        {
+            const auto* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + 4);
+            return Read<std::uint8_t>(point, 0) == 1 && Read<std::uint8_t>(point, 2) != 0;
+        }
+        if (type < 1 || type > 4) return false;
+        const auto id = Read<std::uint32_t>(target, 4);
+        if (type == 1 && id == 0xFFFFFFFFu) return false;
+        const auto* object = TargetObject(type, id);
+        return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == Read<std::uint32_t>(target, 8) && (type != 4 || Read<std::uint8_t>(object, 0x7D0) == 0);
+    }
+
+    // Original function: FUN_00461a5e; point targets copy microgrid coordinates unchanged.
+    void TargetData_GetMapPosition(const void* target, void* point)
+    {
+        const auto type = TargetData_GetTargetType(target);
+        if (type == 5 || type == 6) { Write(point, 0, Read<std::uint32_t>(target, 4)); return; }
+        if (type < 1 || type > 4) return;
+        const auto* object = TargetObject(type, TargetData_GetObjectId(target));
+        const void* position = type == 1 ? Human_GetMapPositionRef(object) : type == 2 ? Vehicle_GetMapPositionRef(object) : type == 3 ? Animal_GetMapPositionRef(object) : static_cast<const std::byte*>(object) + 0x1C;
+        Write(point, 0, Read<std::uint32_t>(position, 0));
+    }
+
+    // Original function: FUN_00461b27; landscape ownership is a signed byte.
+    std::int32_t TargetData_GetPlayerId(const void* target)
+    {
+        const auto type = TargetData_GetTargetType(target);
+        if (type == 6)
+        {
+            const auto* point = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(target) + 4);
+            return Read<std::uint8_t>(point, 0) == 1 ? Read<std::int8_t>(point, 4) : -1;
+        }
+        if (type < 1 || type > 4) return -1;
+        return Read<std::int32_t>(TargetObject(type, TargetData_GetObjectId(target)), type == 4 ? 0x0Cu : type == 2 ? 0x1E0u : 0x10u);
+    }
+
+    // Original function: FUN_00461bc6; hidden humans expose their vehicle or house as target.
+    std::uint32_t TargetData_GetTargetType(const void* target)
+    {
+        if (Read<std::uint32_t>(target, 0) == 1 && TargetData_l_IsValid(target))
+        {
+            const auto* human = TargetObject(1, Read<std::uint32_t>(target, 4));
+            if (Human_Misc_IsHidden(human))
+            {
+                if (Read<std::uint8_t>(human, 0xB51) != 0) return 2;
+                if (HiddenHumanIsInAttachedHouse(human)) return 4;
+            }
+        }
+        return Read<std::uint32_t>(target, 0);
+    }
+
+    // Original function: FUN_00461c35; transported vehicles redirect their object ID.
+    std::uint32_t TargetData_GetObjectId(const void* target)
+    {
+        const auto type = Read<std::uint32_t>(target, 0);
+        if (type == 1 && TargetData_l_IsValid(target))
+        {
+            const auto* human = TargetObject(1, Read<std::uint32_t>(target, 4));
+            if (Human_Misc_IsHidden(human))
+            {
+                if (Read<std::uint8_t>(human, 0xB51) != 0) return Read<std::uint32_t>(human, 0xB48);
+                if (HiddenHumanIsInAttachedHouse(human))
+                {
+                    const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
+                    return Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : 0xFFFFFFFFu;
+                }
+            }
+        }
+        else if (type == 2 && TargetData_l_IsValid(target))
+        {
+            const auto* vehicle = TargetObject(2, Read<std::uint32_t>(target, 4));
+            if (Vehicle_Attachment_IsInsideVehicle(vehicle)) return Read<std::uint32_t>(vehicle, 0x540);
+        }
+        return Read<std::uint32_t>(target, 4);
+    }
+
+    // Original function: FUN_00461cfc; container revisions accompany the redirected ID.
+    std::uint32_t TargetData_GetUniqueId(const void* target)
+    {
+        const auto type = Read<std::uint32_t>(target, 0);
+        if (type == 1 && TargetData_l_IsValid(target))
+        {
+            const auto* human = TargetObject(1, Read<std::uint32_t>(target, 4));
+            if (Human_Misc_IsHidden(human))
+            {
+                if (Read<std::uint8_t>(human, 0xB51) != 0) return Read<std::uint32_t>(human, 0xB4C);
+                if (HiddenHumanIsInAttachedHouse(human))
+                {
+                    const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
+                    const auto id = Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : 0xFFFFFFFFu;
+                    return Read<std::uint32_t>(TargetObject(4, id), 8);
+                }
+            }
+        }
+        else if (type == 2 && TargetData_l_IsValid(target))
+        {
+            const auto* vehicle = TargetObject(2, Read<std::uint32_t>(target, 4));
+            if (Vehicle_Attachment_IsInsideVehicle(vehicle)) return Read<std::uint32_t>(vehicle, 0x544);
+        }
+        return Read<std::uint32_t>(target, 8);
+    }
+
     // Original function: FUN_0045ccff; complete nine-entry table at 0045ce70..0045ce93.
     bool InteractionTargetData_IsValid(const void* target)
     {

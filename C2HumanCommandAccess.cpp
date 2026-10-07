@@ -21,6 +21,7 @@
 #include "C2MissionStartObjects.h"
 #include "C2UserMessageAccess.h"
 #include "C2HumanEquipment.h"
+#include "C2HumanFamily.h"
 #include <cstring>
 namespace NC2Logic
 {
@@ -498,13 +499,13 @@ namespace NC2Logic
         if (Read<std::uint8_t>(command, 0) >= 52 && Read<std::uint8_t>(command, 0) <= 87) return true;
         switch (Read<std::uint8_t>(command, 0))
         {
-        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 29: case 41: return true;
+        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 26: case 27: case 29: case 33: case 41: return true;
         default: return false;
         }
     }
 
     // Original function: FUN_0045c293; the attachment-mask argument is unused in Windows.
-    static void Human_UserMessage_SendToUserMessage_CannotDetachHouse(void* human, std::uint32_t attachmentMask)
+    void Human_UserMessage_SendToUserMessage_CannotDetachHouse(void* human, std::uint32_t attachmentMask)
     {
         using namespace NC2Lifetime;
         (void)attachmentMask;
@@ -660,7 +661,13 @@ namespace NC2Logic
             return 2;
         }
         case 12: return Human_DoExecuteUserCommand_Cheer(human, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8));
+        case 13: case 14: return Human_DoExecuteUserCommand_Marry(human);
+        case 15: return Human_DoExecuteUserCommand_GetBoy(human);
+        case 16: return Human_DoExecuteUserCommand_GetGirl(human);
+        case 26: return Human_DoExecuteUserCommand_AttachHomeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case 27: return Human_DoExecuteUserCommand_DetachHomeHouse(human);
         case 29: return Human_DoExecuteUserCommand_DetachWorkHouse(human);
+        case 33: return Human_DoExecuteUserCommand_DetachLearnHouse(human);
         case 41:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write(human, 0xB5C, Read<std::uint32_t>(command, 0x0C));

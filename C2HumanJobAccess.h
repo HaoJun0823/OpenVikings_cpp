@@ -12,6 +12,8 @@ namespace NC2Logic
     std::int32_t Human_l_JobEfficiency_CalculateOutputAmountDecimal(const void* human);
     void Tool_Human_GetExperienceType_GainedViaWorking(std::int32_t job, std::uint32_t good, std::uint32_t& general, std::uint32_t& specific);
     std::uint32_t Human_GetPlayerType(const void* human);
+    std::uint32_t Human_UserControl_GetNextJobType(const void* human);
+    std::uint32_t Tool_Human_GetReallyProducedGoodType(std::uint32_t job, std::uint32_t good);
     bool Human_IsProducingVehicle(const void* human);
     bool Human_IsAgeBaby(const void* human);
     bool Human_IsJobBuilder(const void* human);
@@ -34,6 +36,8 @@ namespace NC2Logic
     bool Human_DoesEducationAllowGoodProduction(const void* human, std::uint32_t good);
     bool Human_IsCapableToProduceGood(const void* human, std::uint32_t good);
     bool Human_IsAbleToProduceGoodNow(const void* human, std::uint32_t good);
+    bool Human_IsAbleToDoJob(const void* human, std::uint32_t job);
+    void Human_GainExperienceForEquippedWeapon(void* human, std::uint32_t amount);
     std::uint32_t Human_GetHumanAttributeMaximum_Hitpoints(const void* human);
     std::int32_t Human_GetHumanAttributeMargin_Hitpoints(const void* human);
     void Human_Equipment_SetShoeType(void* human, std::uint32_t good);

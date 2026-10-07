@@ -36,6 +36,20 @@ namespace NC2Logic
     // Original function: FUN_00441aad.
     bool Human_Misc_IsHidden(const void* human) { return Read<std::uint8_t>(human, 0xB50) != 0 || Read<std::uint8_t>(human, 0xB51) != 0; }
 
+    // Original function: FUN_004355b5; the first queued job-change command overrides the current job.
+    std::uint32_t Human_UserControl_GetNextJobType(const void* human)
+    {
+        for (std::uint32_t slot = 0; slot < 87; ++slot) if (Read<std::uint8_t>(human, 0x390u + slot * 20u) == 21) return Read<std::uint32_t>(human, 0x39Cu + slot * 20u);
+        return Read<std::uint32_t>(human, 0x18);
+    }
+
+    // Original function: FUN_004622b9.
+    std::uint32_t Tool_Human_GetReallyProducedGoodType(std::uint32_t job, std::uint32_t good)
+    {
+        if (job == 15 && good == 56) return 21;
+        return good == 22 ? 16u : good;
+    }
+
     // Original function: FUN_004369e1; separate scans retain command precedence.
     bool Human_UserControl_DoesWantToMarry(const void* human)
     {
@@ -87,6 +101,12 @@ namespace NC2Logic
             if (firstGood == 0) general = id;
             else if (firstGood == good || (Read<std::uint32_t>(data, 0x28) != 0 && Read<std::uint32_t>(data, 0x28) == good)) specific = id;
         }
+    }
+
+    // Original function: FUN_00442047.
+    void Human_GainExperienceForEquippedWeapon(void* human, std::uint32_t amount)
+    {
+        if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) == 0) Human_GainExperienceForWeapon(human, Read<std::uint32_t>(human, 0xAE4), amount);
     }
 
     // Original function: FUN_0044206c; weapon-category experience uses unsigned saturation.
@@ -334,6 +354,24 @@ namespace NC2Logic
         if (Read<std::uint8_t>(gStaticJobTypeData, job * 0x88u + 0x84u) != 0 && Read<std::uint32_t>(house, 0x2C) != 3) return false;
         return House_Production_IsAbleToProduceGood(house, good, true) || House_Production_IsAbleToProduceGood(house, good, false);
     }
+    // Original function: FUN_0042d96c; military jobs also require the matching equipped weapon.
+    bool Human_IsAbleToDoJob(const void* human, std::uint32_t job)
+    {
+        if (Read<std::uint8_t>(human, 0x15Cu + job) == 0) return false;
+        const auto weapon = Read<std::int32_t>(human, 0xAE4);
+        switch (job)
+        {
+        case 31: return weapon < 4 || weapon > 17;
+        case 32: return weapon == 4;
+        case 33: return weapon == 5;
+        case 34: return weapon == 7;
+        case 35: return weapon == 8;
+        case 40: return weapon == 16;
+        case 41: return weapon == 17;
+        default: return true;
+        }
+    }
+
     // Original function: FUN_0042dac1.
     bool Human_IsCapableToProduceGood(const void* human, std::uint32_t good)
     {

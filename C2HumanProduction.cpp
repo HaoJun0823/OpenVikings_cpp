@@ -15,6 +15,8 @@
 #include "C2MissionStartObjects.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2StaticGoodTypeData.h"
+#include "C2StaticTribeTypeData.h"
+#include "C2UserMessageAccess.h"
 
 namespace NC2Logic
 {
@@ -37,6 +39,95 @@ namespace NC2Logic
             std::uint32_t real = 0, work = 0;
             return Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, 0xAD4), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work);
         }
+        void FinishTraining(void* human)
+        {
+            if (Human_IsAttachedToLearnHouse(human) && !House_Inhabitants_DetachHuman(WorkHouse(human), Read<std::uint32_t>(human, 4), 8))
+            {
+                std::byte command[0x14]{};
+                Write<std::uint8_t>(command, 0, 33);
+                Human_DoAddNewUserCommand(human, command);
+            }
+            Human_DoAddNewUserCommand(human, 5, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, 0, 0);
+        }
+    }
+
+    // Original function: FUN_00473b06; learning-house startup precedes ordinary job checks.
+    void Human_l_StartTask_ExerciseJob(void* human)
+    {
+        auto* house = WorkHouse(human);
+        if (Read<std::uint32_t>(house, 0x2C) != 3) { Fail(human, 0); return; }
+        if (Human_IsAtTargetPoint(human))
+        {
+            if (Read<std::uint32_t>(Real(human), 0) != Read<std::uint32_t>(house, 0x1C)) { Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(Work(human), 0) != Read<std::uint32_t>(house, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            const auto animation = Read<std::uint32_t>(house, 0x14) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
+            Human_l_StartAtomicAnimation(human, animation, -1);
+            Write<std::uint32_t>(human, 0x36C, 1);
+            House_ActionOverlay_Start(house, 3, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
+            House_ActionOverlay_Start(house, 4, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
+            return;
+        }
+        const auto real = Read<std::uint32_t>(house, 0x1C), work = Read<std::uint32_t>(house, 0x24);
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
+        {
+            if (!Human_l_StartAtomicWalk(human, &real, &work)) { Fail(human, 1); return; }
+        }
+        else if (!Human_Misc_IsHidden(human)) Human_HouseMisc_Enter(human);
+        Human_Target_SetTargetPositions(human, &real, &work);
+    }
+
+    // Original function: FUN_00473c9b; test the old training amount before adding this event.
+    void Human_l_JobTraining_Train(void* human, std::uint32_t amount)
+    {
+        auto* house = WorkHouse(human);
+        std::uint32_t job = 0, good = 0;
+        switch (Read<std::uint32_t>(house, 0x14))
+        {
+        case 38:
+        {
+            const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, Read<std::uint32_t>(human, 4));
+            job = Read<std::uint32_t>(slot, 8);
+            good = Read<std::uint32_t>(slot, 12);
+            break;
+        }
+        case 39:
+        {
+            auto weapon = Read<std::uint32_t>(human, 0xAE4);
+            if (weapon == 19) weapon = 1;
+            job = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)], weapon * 0xC4u + 0x34u);
+            break;
+        }
+        default: return;
+        }
+        if (job == 0) return;
+        const auto& tribe = gStaticTribeTypeData[Read<std::uint32_t>(human, 0x14)];
+        const auto required = tribe.jobTraining[job] + (good == 0 ? 0u : tribe.goodTraining[good]);
+        const auto previous = Read<std::uint32_t>(human, 0x158);
+        if (required > previous) { Write(human, 0x158, previous > 10000u - amount ? 10000u : previous + amount); return; }
+        if (!Human_IsAbleToDoJob(human, job))
+        {
+            Write<std::uint8_t>(human, 0x15Cu + job, 1);
+            Human_UserMessage_SendToUserMessage_CanDoNewJob(human, job);
+        }
+        if (good != 0 && Read<std::uint8_t>(human, 0x195u + good) == 0)
+        {
+            Write<std::uint8_t>(human, 0x195u + good, 1);
+            Human_UserMessage_SendToUserMessage_CanProduceNewGood(human, good);
+        }
+        Write<std::uint32_t>(human, 0x158, 0);
+        if (Read<std::uint32_t>(human, 0x18) != job) Human_SetJobType(human, job);
+        else { Human_SetupCurrentJobType(human); Human_Production_Setup(human); }
+        Human_SetupPlayerSpecificStuff(human);
+        if (good != 0 && Human_IsAbleToProduceGoodNow(human, good)) Human_ChangeProducedGoodType(human, good);
+        FinishTraining(human);
+    }
+
+    // Original function: FUN_00473e4c; exercise detaches after every event, independently of unlocks.
+    void Human_l_JobTraining_Exercise(void* human, std::uint32_t amount)
+    {
+        Human_GainExperienceForEquippedWeapon(human, amount);
+        Write<std::uint32_t>(human, 0x158, 0);
+        FinishTraining(human);
     }
 
     // Original function: FUN_0046c7be; a woman's household work requires a completed home.

@@ -9,6 +9,48 @@
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_0045c243; Windows ignores the requested attachment mask.
+    void Human_UserMessage_SendToUserMessage_CannotAttachHouse(void* human, std::uint32_t mask)
+    {
+        using namespace NC2Lifetime;
+        (void)mask;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 41);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045c138.
+    void Human_UserMessage_SendToUserMessage_CanProduceNewGood(void* human, std::uint32_t good)
+    {
+        using namespace NC2Lifetime;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 19);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045c191.
+    void Human_UserMessage_SendToUserMessage_CanDoNewJob(void* human, std::uint32_t job)
+    {
+        using namespace NC2Lifetime;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 20);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write(message, 0x13C, job);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
     // Original function: FUN_0042bf7e; complete 304h-byte SToUserMessage construction.
     void ToUserMessage_Construct(void* message)
     {

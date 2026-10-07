@@ -26,6 +26,7 @@ namespace NC2Logic
     static_assert(offsetof(SGameControlRuntimeStorage, pathfinderLimitOverride) == 0x1C);
 
     void PlayerAllowedThings_MarkHouseAvailable(void* allowedThings, std::uint32_t tribe, std::uint32_t house);
+    bool GameControl_Wealth_ChangeAmount(void* gameControl, std::int32_t player, std::int32_t amount);
     void* __fastcall GameControl_Construct(void* gameControl, void* unusedEdx, NXBasics::CIniFileReader* reader);
     void GameControl_MiscSystem_PlayerDynamicData_InitStructures(void* gameControl);
     bool GameControl_System_PathfinderLimit_IsSearchAllowed(void* gameControl, std::int32_t playerId);

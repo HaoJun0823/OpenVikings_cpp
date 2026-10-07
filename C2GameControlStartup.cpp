@@ -48,6 +48,19 @@ namespace
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040a005; signed sign testing follows DWORD wrap.
+    bool GameControl_Wealth_ChangeAmount(void* gameControl, std::int32_t player, std::int32_t amount)
+    {
+        using namespace NC2Lifetime;
+        if (player >= 20) return false;
+        auto* data = static_cast<std::byte*>(gameControl) + static_cast<std::uint32_t>(player) * 0x4A80u;
+        if (Read<std::uint8_t>(data, 0) == 0) return false;
+        const auto changed = Read<std::uint32_t>(data, 0x460C) + static_cast<std::uint32_t>(amount);
+        if (NXBasics::Runtime_TimeSigned32(changed) < 0) return false;
+        Write(data, 0x460C, changed);
+        return true;
+    }
+
     // Original function: FUN_00409CE7. The original rejects exactly two, not every value above two.
     bool GameControl_System_PathfinderLimit_IsSearchAllowed(void* gameControl, std::int32_t playerId)
     {

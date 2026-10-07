@@ -20,6 +20,8 @@
 #include "C2OverviewObjectIterators.h"
 #include "C2VehicleAccess.h"
 #include "C2UserMessageAccess.h"
+#include "C2InteractionTargetAccess.h"
+#include "C2HumanFamily.h"
 
 namespace NC2Logic
 {
@@ -48,8 +50,8 @@ namespace NC2Logic
     // Original function: FUN_004369c8.
     bool Human_UserControl_IsExecutingUserCommand(const void* human) { return Read<std::uint32_t>(human, 0x368) == 4 || Human_UserControl_IsPriorityCommandInQueue(human); }
 
-    // Partial original function: FUN_004433d1. Idle/job, waiting and goodie startup branches
-    // and supported need startup are connected; queued commands and other task types remain pending.
+    // Partial original function: FUN_004433d1. Civilian needs, family, equipment and goodies
+    // are connected; combat, outdoor, guide and vehicle-specific task trees remain pending.
     void Human_CurrentTask_DoStartUp(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return;
@@ -79,6 +81,9 @@ namespace NC2Logic
             return;
         }
         if (task == 16) { Human_l_StartTask_Equip(human); return; }
+        if (task == 5) { Human_l_StartTask_Marry(human); return; }
+        if (task == 11) { Human_l_StartTask_GetChild(human, 11, 15); return; }
+        if (task == 12) { Human_l_StartTask_GetChild(human, 12, 16); return; }
         if (task == 3) { Human_l_StartTask_GoHome(human); return; }
         if (task == 17) { Human_l_StartTask_Equip_DropItem(human, Read<std::uint32_t>(human, 0xAD0)); return; }
         if (task != 1 && task != 8 && task != 9) return;
@@ -114,12 +119,12 @@ namespace NC2Logic
         else Human_l_StartTask_ExecuteJob(human);
     }
 
-    // Partial original function: FUN_004436c5; idle, needs, waiting/listening and goodie
-    // branches retain the native preamble. Other task-specific finish routines are pending.
+    // Partial original function: FUN_004436c5; civilian and family branches retain the native
+    // preamble. Combat, chest, guide and vehicle-specific finish routines remain pending.
     void Human_CurrentTask_DoFinish(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 19 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
+        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 5 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 19 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
         if (task != 1)
         {
             Write<std::uint32_t>(human, 0x380, 0);
@@ -128,6 +133,7 @@ namespace NC2Logic
         if (task == 10) return; // Original table entry 00443790 is a no-op after the preamble.
         if (task == 3) { Write<std::uint32_t>(human, 0x368, 1); Write<std::uint32_t>(human, 0x36C, 0); }
         else if (task == 8) Human_l_FinishTask_ExecuteJob(human);
+        else if (task == 5) Human_l_FinishTask_Marry(human);
         else if (task == 16 || task == 17) Human_l_FinishTask_Equip(human);
         else if (task == 2 || task == 23)
         {
@@ -258,12 +264,12 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0xAD0, 0);
     }
 
-    // Partial original function: FUN_00443807; civilian needs, goods and equipment recovery.
-    // Family, combat and guide-specific failure trees remain pending.
+    // Partial original function: FUN_00443807; civilian needs, family, goods and equipment recovery.
+    // Combat and guide-specific failure trees remain pending.
     void Human_CurrentTask_DoFailure(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task == 5 || task == 11 || task == 12 || task == 14 || task == 15 || task == 18 || task == 20) return;
+        if (task == 14 || task == 15 || task == 18 || task == 20) return;
         if ((task == 2 || task == 4 || task == 23) && Read<std::uint32_t>(human, 0x374) == 1 && Human_GetPlayerType(human) == 2) return;
         if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
         Write(human, 0x380, Read<std::uint32_t>(human, 0x380) + 1u);
@@ -299,6 +305,9 @@ namespace NC2Logic
         }
         else if (task == 1) Human_l_FailTask_Idle(human);
         else if (task == 3) Human_l_FailTask_GoHome(human);
+        else if (task == 5) Human_l_FailTask_Marry(human);
+        else if (task == 11) Human_l_FailTask_GetBoy(human);
+        else if (task == 12) Human_l_FailTask_GetGirl(human);
         else if (task == 22) Human_l_FailTask_Misc(human);
         else if (task == 16) Human_l_FailTask_Equip(human);
         else if (task == 17) Human_l_FailTask_Drop(human);
@@ -352,10 +361,17 @@ namespace NC2Logic
         }
     }
 
-    // Partial original function: FUN_004445c9; opponent-target interaction remains pending.
+    // Original function: FUN_004445c9; nearby valid opponents transfer to task 14.
     void Human_l_StartTask_Idle(void* human)
     {
-        if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human) && Read<std::uint32_t>(human, 0xB64) != 0) return;
+        if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human) && TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64))
+        {
+            std::uint32_t point = 0;
+            TargetData_GetMapPosition(static_cast<const std::byte*>(human) + 0xB64, &point);
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2));
+            if (distance < 50) { Write<std::uint32_t>(human, 0x368, 14); return; } // Game.exe 004F4300.
+            Write<std::uint32_t>(human, 0xB64, 0);
+        }
         void* moveable = Moveable(human);
         const auto idleCount = Read<std::uint32_t>(human, 0x37C) + 1u;
         Write(human, 0x37C, idleCount);
@@ -456,8 +472,8 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 0);
     }
 
-    // Partial original function: FUN_0046c39e; household, indoor production and idle job cases.
-    // Learning, outdoor work, vehicle work and military jobs remain pending.
+    // Partial original function: FUN_0046c39e; household, learning, indoor production and idle jobs.
+    // Outdoor work, vehicle work and military jobs remain pending.
     void Human_l_StartTask_ExecuteJob(void* human)
     {
         Write<std::uint32_t>(human, 0x370, 0);
@@ -478,7 +494,7 @@ namespace NC2Logic
             else { Write<std::uint32_t>(human, 0x36C, 0); Write<std::uint32_t>(human, 0x368, 1); Human_l_StartTask_Idle(human); }
             return;
         }
-        if (Human_IsAttachedToLearnHouse(human)) return;
+        if (Human_IsAttachedToLearnHouse(human)) { Human_l_StartTask_ExerciseJob(human); return; }
         const auto attached = Human_IsAttachedToWorkHouse(human);
         if ((Read<std::uint8_t>(JobData(human), 0x83) != 0 && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, 0x2C) != 3))
         {
