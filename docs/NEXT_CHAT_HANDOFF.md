@@ -1,5 +1,11 @@
 # C++ continuation handoff - 2026-10-06
 
+## Current game continuation - 2026-10-07
+
+The preceding full working tree is committed as `81fb33d` (goodie startup and removal of all six inline assembly blocks). The next block connects supported atomic events, Windows condition/item/urgent-need updates and task-7 eating/sleeping/social/reached-prayer startup plus supported finish/home-refill/message removal. Read [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md) and current C2HumanAtomicEvents.cpp/.h and C2HumanNeeds.cpp/.h first. Mac is strictly naming-only under the user's clarification; never derive behavior/layout/constants from it. Windows ASM and Game.exe govern those facts.
+
+Resume with food collection/search/cargo storage, prayer-point/temple search, secondary-target restore and need/task failure, followed by production events and active path-step/result callbacks. Whole animations with untranslated event sets and terminal need finishes requiring a valid secondary target remain held. Existing home-detach/death-cleanup dummies, general passenger exits and child animal-play remain unfinished. Inventories: 364 naming rows / 135 unfinished; project/filter parity: 181 cpp / 173 headers. No native build/tests/runtime or new complete-activity/movement claim. Older game handoff entries below are historical; separate converter results remain separate.
+
 The user requested that game reconstruction continue in a new chat. This chat now works on the separate C# asset converter at `D:\Projekte\C#\_Cultures2\C2_BMD_to_sprites`; converter work is not game-function reconstruction and must not increase game coverage counts.
 
 ## Latest game continuation in the working tree - 2026-10-06

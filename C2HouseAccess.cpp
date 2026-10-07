@@ -5,6 +5,29 @@
 #include "C2EngineDisplayAccess.h"
 namespace NC2Logic
 {
+    // Original function: FUN_004333e6; complete three-enhancer value region.
+    bool House_HomeQualityEnhancer_ModifyValue(void* house, std::uint32_t enhancer, std::int32_t direction)
+    {
+        using namespace NC2Lifetime;
+        if (enhancer > 2) return true;
+        const auto offset = 0x784u + enhancer * 8u;
+        const auto previous = Read<std::uint32_t>(house, offset);
+        if (direction > 0)
+        {
+            const auto maximum = enhancer == 2 ? 5000 : 500;
+            auto value = NXBasics::Runtime_TimeSigned32(previous + (enhancer == 2 ? 1000u : 100u));
+            if (value > maximum) value = maximum;
+            Write(house, offset, value);
+            return true;
+        }
+        const auto amount = enhancer == 2 ? 3u : 5u;
+        const auto value = NXBasics::Runtime_TimeSigned32(previous - amount);
+        Write(house, offset, value);
+        if (value >= 0) return true;
+        Write(house, offset, previous);
+        return false;
+    }
+
     // Original function: FUN_00432d14; production entries are 14h bytes and totals cap at FEh.
     static bool House_Production_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta)
     {

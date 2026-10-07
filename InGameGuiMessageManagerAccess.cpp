@@ -183,6 +183,23 @@ namespace NC2InGameGuiMessages
         l_GuiElements_UpdateMiniButtons();
     }
 
+    // Original function: FUN_004b4144; remove only the first matching message.
+    void CMessageManager::Message_RemoveHumanMessage(std::uint32_t humanId, std::uint32_t type)
+    {
+        using namespace NC2Lifetime;
+        System_Update();
+        const auto count = Read<std::uint32_t>(this, 0);
+        for (std::uint32_t index = 0; index < count; ++index)
+        {
+            const void* record = Displayed(this, index);
+            if (Read<std::uint32_t>(record, 8) == type && Read<std::uint32_t>(record, 0x18) == humanId)
+            {
+                Message_Remove(Read<std::uint32_t>(record, 4), false);
+                return;
+            }
+        }
+    }
+
     // Original function: FUN_004b41cb.
     void CMessageManager::Message_RemoveAllForHuman(std::uint32_t humanId)
     {

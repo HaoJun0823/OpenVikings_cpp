@@ -11,6 +11,7 @@ namespace NC2Logic
     std::uint32_t Vehicle_Stock_GetTotalFutureAmount(const void* vehicle);
     bool Vehicle_Stock_ModifyFutureAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision);
     bool Vehicle_Door_GetEntryPoint(const void* vehicle, void* point, std::uint32_t requiredSpace);
+    bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace);
     void Vehicle_GetMapPosition(const void* vehicle, void* point);
     bool Vehicle_Stock_SetWantedAmount(void* vehicle, std::uint32_t good, std::uint32_t wanted);
     void* Vehicle_Passengers_GetAttachedHumanPtr(const void* vehicle, std::uint32_t slot);

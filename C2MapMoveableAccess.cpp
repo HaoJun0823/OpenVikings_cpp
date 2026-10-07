@@ -1,6 +1,7 @@
 #include "C2MapMoveableAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanTaskAccess.h"
+#include "C2HumanNeeds.h"
 #include "C2MapGeometry.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2GameMapAccess.h"
@@ -47,8 +48,9 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, 0) != 0 && array->Element_Free(id, true)) MapMoveable_Exit(moveable);
     }
 
-    // Partial original function: FUN_0040bd33. AI/path creation and pending deletion
-    // remain tracked boundaries; this connects the established in-flight tick branches.
+    // Partial original function: FUN_0040bd33. Human conditions precede turning,
+    // walking and AI; human deletion follows the tick. Other creature AI and
+    // active path-step callbacks remain tracked boundaries.
     void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* /*unusedEdx*/)
     {
         auto* handler = static_cast<CArrayHandler*>(array);
@@ -58,9 +60,11 @@ namespace NC2Logic
             if (Read<std::uint8_t>(moveable, 0) == 0) continue;
             const auto type = Read<std::uint32_t>(moveable, 8);
             if (type < 1u || type > 3u) continue;
+            void* human = type == 1u ? CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize : nullptr;
+            if (human != nullptr) Human_AI_DoUpdateConditions(human);
             if (Read<std::uint8_t>(moveable, 0x10) != 0)
             {
-                if (!MapMoveable_Attachment_PerformTurn(moveable)) continue;
+                if (!MapMoveable_Attachment_PerformTurn(moveable)) goto finishCreatureTick;
                 if (Read<std::int32_t>(moveable, 0x28) != -1)
                 {
                     // Identical mechanical walking branches at 004390C2, 00439234,
@@ -86,13 +90,16 @@ namespace NC2Logic
                             }
                         }
                         if (progress >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
-                        continue;
+                        goto finishCreatureTick;
                     }
                     // Active pathfinder search/new-step callbacks are not reconstructed.
-                    if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) continue;
+                    if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) goto finishCreatureTick;
                 }
             }
-            if (type == 1u) Human_AI_DoUpdateAI(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
+            if (human != nullptr) Human_AI_DoUpdateAI(human);
+        finishCreatureTick:
+            // Windows 0040BD5B / human branch of DeleteObjectWithMapMoveable (0040ADD6).
+            if (human != nullptr && Read<std::uint8_t>(moveable, 0x0C) != 0) CHumanArray::sTheObjectPtr->FreeHuman(Read<std::int32_t>(moveable, 0x54));
         }
     }
 

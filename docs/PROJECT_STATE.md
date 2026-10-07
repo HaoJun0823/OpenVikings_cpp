@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Windows human events and needs - 2026-10-07
+
+The user requires Mac names only; all behavior/values/layout/control flow come exclusively from Windows ASM and the original Windows Game.exe. Supported needs/home/conversation/sound/FX atomic events now run in native order; untranslated event sets remain held. Conditions/aging/items/urgent selection, task-7 carried-food/sleep/social/reached-prayer starts and supported finish/home-refill/message-removal branches are connected. Pending secondary-target restore, food/prayer searches, cargo/passenger exits, task failure, production/combat/training and active paths remain explicit. Existing home-detach/death dummies still limit tick/condition coverage. See [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md). Inventories: 364 names / 135 unfinished; project/filters: 181 cpp / 173 headers. No build/tests/runtime or new coverage/runtime claim. Earlier entries below describe historical checkpoints.
+
 ## Inline assembly removal - 2026-10-06
 
 At the user's request, all six remaining inline-assembly blocks in `C2MapGeometry.cpp`, `C2EngineDisplayAccess.cpp` and `XCrtFileAccess.cpp` have been replaced. Direction calculation uses the established `atan2` operation with Windows constants/order; display conversion uses a double product and the existing numeric truncation helper. Runtime initialization clears x87 exceptions through `_clearfp`, retaining SSE state with C++ intrinsics. `Runtime_ControlX87` uses the documented Win32 `__control87_2` API with a null SSE output, retaining original mask merging, encode/decode normalization and return semantics. These replacements introduce CRT floating-point APIs rather than additional reconstructed assembly.
@@ -77,11 +81,11 @@ Reconstruct the Windows x86 game implementation as maintainable C++ while preser
 
 ## Reference hierarchy
 
-1. Windows x86 ASM — behavioral truth.
-2. Current C++ `HEAD` — latest implementation state.
-3. macOS x86-64 C/H decompilation — names and parameter identity only; behavior comes from Windows ASM.
-4. Git history — evolution of mappings, fixes, rejected assumptions, and prior implementations.
-5. Handoff documentation — orientation only; verify against the above.
+1. Windows x86 ASM â€” behavioral truth.
+2. Current C++ `HEAD` â€” latest implementation state.
+3. macOS x86-64 C/H decompilation â€” names and parameter identity only; behavior comes from Windows ASM.
+4. Git history â€” evolution of mappings, fixes, rejected assumptions, and prior implementations.
+5. Handoff documentation â€” orientation only; verify against the above.
 
 ## Current active phase
 
@@ -255,12 +259,12 @@ The former static-update dummy now connects all buffer-splitting stages, texture
 
 - Reconstructed 109 previously missing Windows entries around `GameEngine_ShutDownEngine`, including game/runtime/static-manager destruction, nested map/list/vector cleanup and the five engine callbacks reached by shutdown notifications. Existing production destructors are reused. See [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md) for the complete address inventory and remaining creation/update/library boundaries.
 - Added canonical singleton/storage bindings, unified the static-human/color and Windows music regions, implemented original palette vector deletion and corrected callback/Storable/bitmap/palette allocator pairs. All six new production files are included in the Visual Studio project and existing filters.
-- Registered OA035–OA040 and FP013 in the README. Preserve the original null-list, conditional cleanup, retained-pointer, independent-gate and particle-reset behavior. The Windows-only owner at `00568418` and unspecified embedded record/member identities remain explicit.
+- Registered OA035â€“OA040 and FP013 in the README. Preserve the original null-list, conditional cleanup, retained-pointer, independent-gate and particle-reset behavior. The Windows-only owner at `00568418` and unspecified embedded record/member identities remain explicit.
 - Win32 syntax verification: 82/86 production units pass; the same four incomplete units retain 113 diagnostics. Sixteen affected/owned units generate `/Od` and `/O2` objects (existing array-module C4100 warning). No tests were added. Full linking/game runtime remains unverified. Next connected block: constructor/load ownership for game/engine managers and data owners, using the canonical bindings established here.
 
 ### README failure-path register synchronization
 
-- Reconciled the completed subsystem documents and retained Windows failure behavior with the README register. Added OB074–OB081 and OA019–OA034, plus the separate FP001–FP012 failure-handling index; the register now contains 81 defect/limitation entries and 34 observations/assessments.
+- Reconciled the completed subsystem documents and retained Windows failure behavior with the README register. Added OB074â€“OB081 and OA019â€“OA034, plus the separate FP001â€“FP012 failure-handling index; the register now contains 81 defect/limitation entries and 34 observations/assessments.
 - Added working links for both finding indexes, restored the missing OB073 index row, corrected OB001's unrelated trigger text, and recorded the recent reconstruction/integration corrections separately. The README now reflects the current project-inclusion policy. This documentation pass changes no production behavior and claims no game runtime validation.
 
 ### Overview input and Windows DirectMusic manager
@@ -306,7 +310,7 @@ The former static-update dummy now connects all buffer-splitting stages, texture
 
 ### Windows CD-audio manager
 
-- Reconstructed all 14 functions in `00403E45–00404451`, the two game-disc lookup helpers and `Tool_Sound_IsCDAUsable`, including MCI control, mixer volume, looping, errors and singleton ownership.
+- Reconstructed all 14 functions in `00403E45â€“00404451`, the two game-disc lookup helpers and `Tool_Sound_IsCDAUsable`, including MCI control, mixer volume, looping, errors and singleton ownership.
 - Connected startup, menu transitions and system update. Restored the original runtime allocation/free family and replaced live `DAT_0050F69C` references with `CCDAudioManager::sTheObjectPtr`; 46 live `DAT_` symbols remain.
 - Win32 `/Od` and `/O2` object generation succeeds. The full syntax pass covers 78 units: 72 pass and six incomplete units retain 139 diagnostics. See [CD_AUDIO_MANAGER.md](CD_AUDIO_MANAGER.md) for preserved Windows quirks, evidence and boundaries.
 
@@ -335,7 +339,7 @@ The former static-update dummy now connects all buffer-splitting stages, texture
 
 Latest completed theme block before this handoff:
 
-- static block around `00550E70–00554CDF` analyzed/reconstructed,
+- static block around `00550E70â€“00554CDF` analyzed/reconstructed,
 - constructor/destructor handled,
 - sector-array allocation/free behavior handled,
 - callback registration handled,
@@ -347,7 +351,7 @@ Latest completed theme block before this handoff:
 ### Immediate next target
 
 - Local continuation reconstructed `004507F2`, `0044F452`, `0044F5A0`, `0044FAA6`, `0044FCEB` and the related save/load paths.
-- Land/water arrays and the complete `00550E70–00554CDF` storage layout are now explicit. `00554CDC` is an incompatible-load recalculation request, retained inside the manager.
+- Land/water arrays and the complete `00550E70â€“00554CDF` storage layout are now explicit. `00554CDC` is an incompatible-load recalculation request, retained inside the manager.
 - MSVC x86 syntax checks and an isolated regression executable pass; no full game link/runtime equivalence claim is made.
 - Next target: `0044FD3E` and the special-sector pathfinder search chain at `004703CA` / `0047041B`. The original connection call remains unresolved in production.
 - See [MAP_WALK_SECTOR_CALLBACK.md](MAP_WALK_SECTOR_CALLBACK.md) for evidence, retained Windows observations and remaining uncertainties.
@@ -366,16 +370,16 @@ Latest completed theme block before this handoff:
 
 Confirmed object-array/global storage mappings from the latest DAT cleanup:
 
-- `005109F8` — `CHouseArray` storage/object.
-- `005109FC` — associated house manager pointer.
-- `00510A00` — `CHumanArray` storage/object.
-- `00510A04` — associated human manager pointer.
-- `00510A08` — `CVehicleArray` storage/object.
-- `00510A0C` — associated vehicle manager pointer.
-- `00511554` — `CAnimalArray` storage/object.
-- `00511558` — associated animal manager pointer.
-- `00512588` — `CGuideArray` storage/object.
-- `0051258C` — associated guide manager pointer.
+- `005109F8` â€” `CHouseArray` storage/object.
+- `005109FC` â€” associated house manager pointer.
+- `00510A00` â€” `CHumanArray` storage/object.
+- `00510A04` â€” associated human manager pointer.
+- `00510A08` â€” `CVehicleArray` storage/object.
+- `00510A0C` â€” associated vehicle manager pointer.
+- `00511554` â€” `CAnimalArray` storage/object.
+- `00511558` â€” associated animal manager pointer.
+- `00512588` â€” `CGuideArray` storage/object.
+- `0051258C` â€” associated guide manager pointer.
 
 The individual storage mappings were identified; higher-level integration/use across all logic paths still requires continued review.
 
@@ -388,7 +392,7 @@ Treated as reconstructed/resolved in the latest pass:
 - constructor `004E2D10`,
 - destructor `004E2EDF`,
 - singleton/global at `00569954`,
-- data region `005698F8–00569953`,
+- data region `005698F8â€“00569953`,
 - reconstruction separated permanent `0x44`-byte resource-style state from dynamic `0x18`-byte bitmap state,
 - nine former DAT-style names were removed in that pass.
 
@@ -406,7 +410,7 @@ Substantially identified but not entirely closed:
 - 100-byte fallback/static area beginning around `00569824`,
 - all known 31 call sites for MainMenu/MiscMenu/Update103/Odin001 string-access wrappers were handled in the prior pass.
 
-The exact filename table around `0050BBBC–0050BBEF` was still missing/unresolved at the time of the latest review, so do not fabricate those names.
+The exact filename table around `0050BBBCâ€“0050BBEF` was still missing/unresolved at the time of the latest review, so do not fabricate those names.
 
 ## Previous major reconstructed areas
 

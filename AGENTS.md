@@ -9,10 +9,10 @@ These instructions are mandatory for all work in this repository.
 1. **Windows x86 assembly is authoritative for behavior.**
    - Primary reference: `assembly_weltwunder_win.asm` or the current equivalent Windows disassembly export.
    - Preserve observable behavior: calling convention, parameter meaning, return values, call order, side effects, state changes, allocation/free behavior, error paths, and callback order.
-2. **macOS x86-64 code is a semantic and naming reference only.**
+2. **macOS x86-64 code is a naming reference only.**
    - Primary references: `x86-64-mac.c` and `x86-64-mac.h` or their current equivalents.
-   - Use the Mac build aggressively to identify class names, member names, globals, arrays, callbacks, token tables, strings, and high-level function purpose.
-   - If Mac behavior differs from Windows assembly, the Windows implementation wins.
+   - Use the Mac build only to recover names for Windows functions, classes, members, globals, arrays, callbacks and tokens whose correspondence is established from Windows evidence.
+   - Do not infer behavior, offsets, constants, layouts, control flow or side effects from Mac code. Establish these exclusively from Windows assembly and the original Windows `Game.exe`.
 3. **The current C++ repository (`HEAD`) is the current implementation state.**
    - Inspect the current source before proposing replacements.
    - Use `.git` history (`git log`, `git show`, `git blame`, `git diff`, `git log -S`) when a symbol, rename, or earlier reconstruction needs context.
@@ -21,7 +21,7 @@ These instructions are mandatory for all work in this repository.
 ## 2. Reverse-engineering rules
 
 - Aim for **functional equivalence**, not binary identity.
-- Do not invent behavior that is not supported by Windows assembly, the current C++ implementation, or a clearly matching Mac reference.
+- Do not invent behavior that is not supported by Windows assembly and the original Windows `Game.exe`. Use the current C++ implementation for integration context; use Mac only for naming.
 - Do not create new fake `FUN_XXXXXXXX` helper implementations merely to make the project compile.
   - User-authorized exception (2026-10-03): temporary link-only dummies are permitted for the missing original functions so Debug/Release can produce an executable. Keep them isolated in `TemporaryLinkStubs.cpp`, list them in `docs/TEMPORARY_LINK_STUBS.csv`, and exclude them from reconstruction-completion counts. Remove each dummy when its real implementation is connected. A successful build with dummies does not establish functional equivalence.
 - Unresolved original `FUN_XXXXXXXX` calls may remain in translated functions until that function is analyzed properly.
@@ -41,7 +41,7 @@ For each such symbol:
 
 1. Inspect all Windows xrefs and nearby code.
 2. Determine width, ownership, read/write patterns, indexing, initialization, and lifetime.
-3. Search the macOS reference for matching strings, constants, class layout, arrays, callbacks, or call sequences.
+3. Use Windows assembly and `Game.exe` to establish strings, constants, layout, arrays, callbacks and call sequences. Search the macOS reference only for corresponding names.
 4. Check current Git history for earlier names or partial discoveries.
 5. Rename only when the semantic identity is sufficiently supported.
 6. If still uncertain, keep it unresolved and document what is known; **do not invent a descriptive name that implies unsupported semantics**.
@@ -110,7 +110,7 @@ Before making changes:
 3. Read `docs/REVERSE_ENGINEERING_STATE.md` and `docs/OPEN_TASKS.md` for the relevant subsystem.
 4. Inspect `git status` and recent `git log --oneline` entries.
 5. Inspect the current target source files before relying on documentation.
-6. For unresolved globals/functions, cross-check `assembly_weltwunder_win.asm` with `x86-64-mac.c/.h`.
+6. For unresolved globals/functions, establish behavior from `assembly_weltwunder_win.asm` and Windows `Game.exe`; use `x86-64-mac.c/.h` only to cross-check names.
 
 ## 9. Primary project objective
 

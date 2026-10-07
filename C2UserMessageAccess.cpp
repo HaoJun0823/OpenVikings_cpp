@@ -98,6 +98,12 @@ namespace NC2Logic
 }
 namespace NC2LogicExternals
 {
+    // Original function: FUN_004a30a3.
+    void External_Misc_RemoveUserMessage(std::uint32_t humanId, std::uint32_t type)
+    {
+        if (NInGameGuiManager::CInGameGuiManager::sTheObjectPtr != nullptr) static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveHumanMessage(humanId, type);
+    }
+
     // Original function: FUN_004a307c; only the local player's or unowned messages pass.
     void External_Misc_SendToUserMessage(const void* message)
     {

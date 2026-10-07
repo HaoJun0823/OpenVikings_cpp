@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 namespace NC2Logic
 {
     void ToUserMessage_Construct(void* message);
@@ -11,4 +12,5 @@ namespace NC2Logic
 namespace NC2LogicExternals
 {
     void External_Misc_SendToUserMessage(const void* message);
+    void External_Misc_RemoveUserMessage(std::uint32_t humanId, std::uint32_t type);
 }

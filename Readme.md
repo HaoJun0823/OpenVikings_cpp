@@ -3382,3 +3382,8 @@ Add_Human, AllocateHuman and Human_Init now connect real placement, profession p
 ## Intentional mouse modernization - 2026-10-04
 
 The user requested debugger-friendly mouse behavior on `codex/modernize-mouse-input`, based on commit `885cc57`. Active mouse input now uses foreground Raw Input instead of constructing DirectInput; debugger-attached and remote absolute-input paths do not warp or clip the Windows cursor. Buttons/wheel keep existing messages, focus loss clears state, and the bounded ordered message budget is 1024. Original object offsets remain unchanged. This is an explicit modernization exception to ASM equivalence, not a reconstruction coverage increase. Registration/read failure handling and pending runtime checks are documented in [MOUSE_INPUT_MODERNIZATION.md](docs/MOUSE_INPUT_MODERNIZATION.md). Static review only; no build or tests.
+
+
+## Windows human atomic events and needs - 2026-10-07
+
+Supported needs/home/social/religion/sound/FX events, Windows condition/item/urgent updates and task-7 supported startup/finish branches are connected. Mac provides names only; behavior comes exclusively from Windows ASM and Game.exe. Production events, food/prayer searches, secondary-target restoration, failure and active path steps remain explicit boundaries. Inventories: 364 names / 135 unfinished; project/filters: 181 cpp / 173 headers. No build/tests/runtime or new completed-activity claim. See [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](docs/HUMAN_ATOMIC_EVENTS_AND_NEEDS.md).

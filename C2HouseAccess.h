@@ -5,6 +5,7 @@ namespace NC2Logic
     std::uint32_t House_Stock_GetMaximumAmountByStockId(const void* house, std::uint32_t stock);
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum);
     bool House_HomeQualityEnhancer_SetAllowedFlag(void* house, std::uint32_t enhancer, bool allowed);
+    bool House_HomeQualityEnhancer_ModifyValue(void* house, std::uint32_t enhancer, std::int32_t direction);
     void House_Production_SetStoppedFlag(void* house, bool stopped);
     void House_l_Production_CheckProductionCounter(void* house);
     void House_Production_ChangeCounter(void* house, std::int32_t delta);

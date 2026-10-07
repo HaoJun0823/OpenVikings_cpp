@@ -11,6 +11,14 @@
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_004413b3; the door lookup result is not tested.
+    bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace)
+    {
+        std::uint32_t point = 0;
+        Vehicle_Door_GetEntryPoint(vehicle, &point, requiredSpace);
+        return MapMigPoint_IsInsideMap(&point) && GameMap_Continent_GetContinentTyp(NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6)) == 1;
+    }
+
     // Original function: FUN_00462ac1.
     std::uint32_t Vehicle_GetCurrentAtomicAnimationLengthInTicks(const void* vehicle) { return NC2Lifetime::Read<std::uint32_t>(gStaticAtomicAnimationData, NC2Lifetime::Read<std::uint32_t>(vehicle, 0x504) * 0x138u + 0x34); }
     // Original function: FUN_0042ce12; copy the packed position returned by the shared accessor.

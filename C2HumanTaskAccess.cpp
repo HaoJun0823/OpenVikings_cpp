@@ -1,5 +1,6 @@
 #include "C2HumanTaskAccess.h"
 #include "C2HumanGoodieTasks.h"
+#include "C2HumanNeeds.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
@@ -31,24 +32,6 @@ namespace NC2Logic
             return true;
         }
 
-        // Established no-request branches of AI_DoCheckForUrgentNeeds (00463509).
-        // Do not mark A61 when a request could require unimplemented item/need work.
-        bool CheckUrgentNeedsWithoutStartingTask(void* human)
-        {
-            if (!Human_l_IsAtomicInterruptable(human) || Human_UserControl_IsExecutingUserCommand(human) || Read<std::uint8_t>(human, 0xA61) != 0) return true;
-            if (!Human_IsAgeAdult(human) || (Read<std::uint32_t>(human, 0xB84) & 1u) != 0)
-            {
-                Write<std::uint8_t>(human, 0xA61, 1);
-                Write<std::uint32_t>(human, 0x370, 0);
-                return true;
-            }
-            // The four original thresholds at 004F3B58..004F3B67 are 2000.
-            if (Read<std::int32_t>(human, 0xAA8) <= 2000 || Read<std::int32_t>(human, 0xAAC) <= 2000) return false;
-            if (Read<std::int32_t>(human, 0xAB4) <= 2000 && Human_IsJobNeedingReligion(human)) return false;
-            if (Read<std::int32_t>(human, 0xAB0) <= 2000 && Human_IsJobNeedingSocial(human)) return false;
-            Write<std::uint8_t>(human, 0xA61, 1);
-            return true;
-        }
     }
 
     // Original function: FUN_0042cb92; Mac IsAbleToDoGoodieNow.
@@ -67,7 +50,7 @@ namespace NC2Logic
     bool Human_UserControl_IsExecutingUserCommand(const void* human) { return Read<std::uint32_t>(human, 0x368) == 4 || Human_UserControl_IsPriorityCommandInQueue(human); }
 
     // Partial original function: FUN_004433d1. Idle/job, waiting and goodie startup branches
-    // are connected; queued commands, urgent requests and other task types remain pending.
+    // and supported need startup are connected; queued commands and other task types remain pending.
     void Human_CurrentTask_DoStartUp(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return;
@@ -83,11 +66,25 @@ namespace NC2Logic
             Write<std::uint32_t>(human, 0x36C, 1);
             return;
         }
+        if (task == 7)
+        {
+            Write<std::uint32_t>(human, 0x378, 0);
+            switch (Read<std::uint32_t>(human, 0x370))
+            {
+            case 1: Human_l_StartTask_FulfillNeeds_Food(human); break;
+            case 2: Human_l_StartTask_FulfillNeeds_Stamina(human); break;
+            case 3: Human_l_StartTask_FulfillNeeds_Social(human); break;
+            case 4: Human_l_StartTask_FulfillNeeds_Religion(human); break;
+            default: break;
+            }
+            return;
+        }
         if (task != 1 && task != 8 && task != 9) return;
         if (!CanContinueWithoutExecutingCommand(human)) return;
         // Task 8's food-producer postponement branch remains pending.
         if (task == 8 && Read<std::uint32_t>(human, 0xA64) != 0) return;
-        if (!CheckUrgentNeedsWithoutStartingTask(human)) return;
+        Human_AI_DoCheckForUrgentNeeds(human);
+        if (Read<std::uint32_t>(human, 0x368) == 7) return;
         if (task == 9)
         {
             Human_l_StartTask_WaitForOtherHuman(human);
@@ -104,18 +101,19 @@ namespace NC2Logic
         else Human_l_StartTask_ExecuteJob(human);
     }
 
-    // Partial original function: FUN_004436c5; idle, waiting/listening and goodie
+    // Partial original function: FUN_004436c5; idle, needs, waiting/listening and goodie
     // branches retain the native preamble. Other task-specific finish routines are pending.
     void Human_CurrentTask_DoFinish(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task != 1 && task != 9 && task != 13 && (task < 25 || task > 29)) return;
+        if (task != 1 && task != 7 && task != 9 && task != 13 && (task < 25 || task > 29)) return;
         if (task != 1)
         {
             Write<std::uint32_t>(human, 0x380, 0);
             if (!Human_IsDoingGoodie(human)) Write<std::uint32_t>(human, 0x37C, 0);
         }
-        if (task >= 25 && task <= 29) Human_l_FinishTask_Goodie(human);
+        if (task == 7) Human_l_FinishTask_FulfillNeeds(human);
+        else if (task >= 25 && task <= 29) Human_l_FinishTask_Goodie(human);
         else if (task == 9 && Read<std::uint32_t>(human, 0x378) != 0) Write<std::uint32_t>(human, 0x36C, 0);
         else Human_l_FinishTask_Idle(human);
     }

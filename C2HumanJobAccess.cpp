@@ -205,6 +205,8 @@ namespace NC2Logic
     }
     // Original function: FUN_0042db3e.
     std::uint32_t Human_GetHumanAttributeMaximum_Hitpoints(const void* human) { return Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32 ? 20000u : 5000u; }
+    // Original function: FUN_0042db55.
+    std::int32_t Human_GetHumanAttributeMargin_Hitpoints(const void* human) { return Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32 ? 2880 : 720; }
 
     // Original function: FUN_004316ef.
     bool House_Production_IsAbleToProduceGood(const void* house, std::uint32_t good, bool primary)

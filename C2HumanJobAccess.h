@@ -34,6 +34,7 @@ namespace NC2Logic
     bool Human_IsCapableToProduceGood(const void* human, std::uint32_t good);
     bool Human_IsAbleToProduceGoodNow(const void* human, std::uint32_t good);
     std::uint32_t Human_GetHumanAttributeMaximum_Hitpoints(const void* human);
+    std::int32_t Human_GetHumanAttributeMargin_Hitpoints(const void* human);
     void Human_Equipment_SetShoeType(void* human, std::uint32_t good);
     void Human_SetupCurrentJobType(void* human);
     void Human_SetJobType(void* human, std::uint32_t job);

@@ -1,5 +1,9 @@
 # Creature tick progress and COOP startup diagnosis
 
+## Windows human events and needs - 2026-10-07
+
+The user requires Mac names only; all behavior/values/layout/control flow come exclusively from Windows ASM and the original Windows Game.exe. Supported needs/home/conversation/sound/FX atomic events now run in native order; untranslated event sets remain held. Conditions/aging/items/urgent selection, task-7 carried-food/sleep/social/reached-prayer starts and supported finish/home-refill/message-removal branches are connected. Pending secondary-target restore, food/prayer searches, cargo/passenger exits, task failure, production/combat/training and active paths remain explicit. Existing home-detach/death dummies still limit tick/condition coverage. See [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md). Inventories: 364 names / 135 unfinished; project/filters: 181 cpp / 173 headers. No build/tests/runtime or new coverage/runtime claim. Earlier entries below describe historical checkpoints.
+
 ## Goodie task continuation - 2026-10-06
 
 Task 24 now reaches its supported conversation/listening/waiting, child selection, sleep-place/work-area search and non-passenger atomic-walk starts; supported goodie finishes reenter the native loop. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md). Event-bearing atomics and active new path steps remain held. Child animal-play, passenger exit, vehicle sleep-arrival and carried-cargo waiting remain tracked; conditions/need updates and task failure are pending. No build/tests/runtime or new civilian-behavior confirmation.

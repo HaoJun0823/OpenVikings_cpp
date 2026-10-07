@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Human events and needs follow-up - 2026-10-07
+
+Read [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md), C2HumanAtomicEvents and C2HumanNeeds before continuing. Urgent needs/items and supported task-7 starts/finishes now exist; do not recreate the older staging guard. Next close Food_Collect/Food_TryToCollect and cargo storage, House_Religion_GetNextPrayPoint/FindTempleForPraying, Target_RestoreSecondaryTarget and task failure 0047024A/CurrentTask_DoFailure. Then connect production/collection/building/training/combat event trees and active path-step/result callbacks. Secondary-target terminal finishes and untranslated whole event sets are held as explicit reconstruction boundaries. Human condition/tick ownership also depends on the existing house-detach/death-cleanup dummies. General passenger exit and child animal-play remain open. Mac supplies names only; behavior must be established from Windows ASM/Game.exe. 364 names / 135 unfinished; no build/tests/runtime. Earlier entries are historical.
+
 ## Human goodie follow-up - 2026-10-06
 
 The new game chat has connected supported goodie startup, conversation/listening/waiting, sleep-place/work-area searches, non-passenger walk starts and finish leaves. Close child task 29's animal-play/search-center tree, `CVehicle::Passengers_MoveOut_h`, vehicle target-arrival validation and cargo-bearing waiting; then reconstruct atomic event dispatcher 00468678, conditions/need updates and task failure. New path-step consumption with native position/result callbacks and sector/guide fallback remains subsequent work. The current naming/unfinished inventories contain 318/127 rows; no runtime confirmation or refreshed address-coverage count. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md) and README OA152/FP194..FP196. Earlier entries below describe historical checkpoints.
@@ -143,7 +147,7 @@ Next connected work:
 
 The completed string-output/desktop block is recorded in [STRING_OUTPUT_WINDOW.md](STRING_OUTPUT_WINDOW.md); its 116/117 syntax result is a historical pre-main-menu snapshot. The current production result is 123/123. No tests/test projects are requested.
 
-## P1 — Main-menu loading and directly related logic follow-up
+## P1 â€” Main-menu loading and directly related logic follow-up
 
 The menu-state file's three unknown targets now use reconstructed reload, ambient-stop and clock entry bodies. Loader/centering/network-clock helpers, complete clock/token regions and shared callers are connected; previous atomic/tribe work is committed as `acfcdb7`. See [MAIN_MENU_STATE.md](MAIN_MENU_STATE.md). This main-menu follow-up was subsequently committed as fb69f88 (Main Menu Code).
 
@@ -158,7 +162,7 @@ Next connected work:
 
 Historical menu-state snapshot: production syntax was 107/109 with 52 diagnostics in MainMenuGuiManager.cpp (40) and MasterControlProgram_PS_InGame.cpp (12). Thirteen complete affected units generate Win32 `/Od` and `/O2` objects. Project/filters cover 109 implementations and 117 headers. Provisional mapping is 1,377/5,044, including 58 mapped entries with original calls. No tests/test projects or full link/game runtime verification.
 
-## P1 — Special-sector pathfinder theme block
+## P1 â€” Special-sector pathfinder theme block
 
 ### `0044FD3E` and special-sector pathfinder follow-up
 
@@ -187,11 +191,11 @@ Separately review existing object/buffer allocation sites against Windows thunk 
 
 `00479052` and the complete bitmap-to-screen copy/convert/lock/diagnostic tree are reconstructed and integrated. See [BITMAP_TO_SCREEN.md](BITMAP_TO_SCREEN.md). Continue with the existing display startup/palette/presentation paths and their original failure handling; then the separate static-window/base-tool lifetime and world-input blocks. The current production syntax inventory is 82/86 with 110 diagnostics in the same four incomplete units. No tests/test projects are requested.
 
-## P1 — Further game/engine constructor and load ownership
+## P1 â€” Further game/engine constructor and load ownership
 
 The shutdown/destruction tree and startup orchestration are reconstructed; see [ENGINE_SHUTDOWN.md](ENGINE_SHUTDOWN.md) and [GAME_ENGINE_STARTUP.md](GAME_ENGINE_STARTUP.md). Complete the subordinate constructor/loading bodies after the completed static-string/campaign, map/savegame and terrain-type blocks. Bind storage to established owners, native lists, pattern/texture/dynamic-object arrays and dimension mirrors. Do not reintroduce copied process addresses or duplicate regions. The Windows-only music owner at `00568418`, extra job-experience table, AI embedded owner and unidentified record fields still require semantic/layout analysis. Full link/runtime remains open.
 
-## P1 — Continue global/static symbol cleanup
+## P1 â€” Continue global/static symbol cleanup
 
 The repository-wide audit found 47 remaining live `DAT_` symbols and six retained hardware/conversion `__asm` blocks after its supported replacements. The full per-file inventory, static-analysis findings and six incomplete production compilation units are recorded in [SOURCE_AUDIT_2026_09_30.md](SOURCE_AUDIT_2026_09_30.md). Next integration block: the main-menu/master-control owning dependencies and their established interfaces; retain original error paths while resolving them.
 
@@ -223,7 +227,7 @@ For every hit:
 - remaining constants/GUID-like static regions,
 - remaining static blocks not yet assigned to owning classes/managers.
 
-## P1 — CGuiBaseStringsManager closure
+## P1 â€” CGuiBaseStringsManager closure
 
 Known resolved pieces:
 
@@ -237,10 +241,10 @@ Known resolved pieces:
 Still important:
 
 - finish/verify getter `004E1DCB`,
-- recover the exact filename/table semantics around `0050BBBC–0050BBEF` if enough reference data exists,
+- recover the exact filename/table semantics around `0050BBBCâ€“0050BBEF` if enough reference data exists,
 - do not fabricate table entries if the required reference bytes/strings remain unavailable.
 
-## P1 — Verify older unresolved raw helpers against current HEAD
+## P1 â€” Verify older unresolved raw helpers against current HEAD
 
 These were historically unresolved or only partially named. Search current code first; remove from the active list if already solved:
 
@@ -256,7 +260,7 @@ These were historically unresolved or only partially named. Search current code 
 
 Do not translate these merely because they appear in this list; handle them when their owning subsystem/theme block is active.
 
-## P2 — Network leftovers, only if still present
+## P2 â€” Network leftovers, only if still present
 
 Historical unresolved network references:
 
@@ -266,7 +270,7 @@ Historical unresolved network references:
 
 A large network shutdown/runtime cleanup has already been completed. Verify with `git grep` before reopening this subsystem.
 
-## P2 — Application/display leftovers, only if still present
+## P2 â€” Application/display leftovers, only if still present
 
 Historical X2DApplication follow-ups included:
 
@@ -278,7 +282,7 @@ Historical X2DApplication follow-ups included:
 
 These items come from an earlier project stage and may already be superseded. Inspect current source and Git history before acting on them.
 
-## P2 — Build/runtime verification
+## P2 â€” Build/runtime verification
 
 Where source reconstruction is complete but not runtime-proven:
 
@@ -289,7 +293,7 @@ Where source reconstruction is complete but not runtime-proven:
 
 Do not use build errors as justification to invent unresolved original functions.
 
-## Related DirectMusic research — dormant unless explicitly resumed
+## Related DirectMusic research â€” dormant unless explicitly resumed
 
 If work returns to the managed/native `gedx8musicdrv` reimplementation, historical deep-open helpers included:
 

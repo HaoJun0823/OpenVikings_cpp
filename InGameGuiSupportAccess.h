@@ -28,6 +28,7 @@ namespace NC2InGameGuiMessages
         ~CMessageManager();
         bool Message_Add(const void* message);
         void Message_Remove(std::uint32_t uniqueId, bool addToHistory);
+        void Message_RemoveHumanMessage(std::uint32_t humanId, std::uint32_t type);
         void Message_RemoveAll(bool addToHistory);
         void* Message_GetPtr(std::uint32_t uniqueId) const;
         void MiniButton_Removed(std::uint32_t uniqueId);

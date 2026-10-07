@@ -1145,5 +1145,9 @@
     <ClInclude Include="C2HumanTaskAccess.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanGoodieTasks.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanGoodieTasks.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanAtomicEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanAtomicEvents.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanNeeds.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanNeeds.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

@@ -48,9 +48,6 @@ namespace NC2Logic
         bool Human_IsAboutToMarry(const void* human) { return Read<std::uint32_t>(human, 0xB1C) != 0xFFFFFFFFu; }
 
 
-        // Original function: FUN_0042db55.
-        std::int32_t Human_GetHumanAttributeMargin_Hitpoints(const void* human) { return Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 0x20 ? 0xB40 : 0x2D0; }
-
         // Original function: FUN_0041c5e1.
         const void* HumanMerchantArray_GetConstMerchantDataPtr(const void* manager, std::uint32_t id) { return Read<const std::byte*>(manager, 0x30) + id * 0xC4u; }
     }

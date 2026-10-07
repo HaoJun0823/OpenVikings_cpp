@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    bool Human_IsAtTargetPoint(const void* human);
     void Human_CurrentTask_DoPerform(void* human);
     void Human_DoCheckAllUserCommands(void* human);
     bool Human_DoCheckUserCommand(const void* human, const void* command);
@@ -20,6 +21,7 @@ namespace NC2Logic
     void Human_AI_DoNewMapPositionReached_DestinationReached(void* human);
     std::uint32_t Human_GetLandscapeTypeAtTargetPosition(const void* human);
     void Human_Target_Reset(void* human);
+    bool Human_Target_IsValid(const void* human);
     std::uint32_t Human_Equipment_GetWeaponType(const void* human);
     void Human_StopCurrentGoodCirculationMode(void* human);
     bool Human_DoAddNewUserCommand(void* human, const void* command);

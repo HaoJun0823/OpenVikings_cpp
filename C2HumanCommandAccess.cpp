@@ -1,4 +1,5 @@
 #include "C2HumanCommandAccess.h"
+#include "C2HumanAtomicEvents.h"
 #include "C2HumanJobAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -14,8 +15,42 @@
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_0042cc40; complete PE selector 0042CD3D..0042CD5C.
+    bool Human_IsAtTargetPoint(const void* human)
+    {
+        using namespace NC2Lifetime;
+        if (!Human_Target_IsValid(human)) return false;
+        switch (Read<std::uint32_t>(human, 0xA68))
+        {
+        case 1: case 3: case 4: case 5:
+            return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, 0xA70);
+        case 2:
+            return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, 0xA70) && Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, 0xA74);
+        case 6:
+        {
+            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            std::uint32_t entry = 0;
+            Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return false;
+            return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == entry;
+        }
+        case 7: case 8: return true;
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_0042ced7; a passenger may target its own vehicle
+    // even when the general interaction-target validation fails.
+    bool Human_Target_IsValid(const void* human)
+    {
+        using namespace NC2Lifetime;
+        if (InteractionTargetData_IsValid(static_cast<const std::byte*>(human) + 0xA68)) return true;
+        return Read<std::uint32_t>(human, 0xA68) == 6 && Read<std::uint32_t>(human, 0xA7C) == Read<std::uint32_t>(human, 0xB48) && Read<std::uint8_t>(human, 0xB51) != 0;
+    }
+
     // Partial original function: FUN_0044314a; Mac CurrentTask_DoPerform.
-    // Event-bearing atomics remain pending rather than dropping their gameplay effects.
+    // Established events run before incrementing time; unsupported event trees are held.
     void Human_CurrentTask_DoPerform(void* human)
     {
         using namespace NC2Lifetime;
@@ -28,7 +63,9 @@ namespace NC2Logic
         }
         if (Read<std::uint8_t>(human, 0xABC) == 0) return;
         const auto& animation = gStaticAtomicAnimationData[Read<std::uint32_t>(human, 0xAC0)];
-        if (animation.eventCount != 0) return;
+        if (!Human_AreAtomicEventsReconstructed(animation)) return;
+        for (std::uint32_t index = 0; index < animation.eventCount; ++index)
+            if (static_cast<std::uint32_t>(animation.events[index].time) == Read<std::uint32_t>(human, 0xAC4)) Human_l_PerformTaskEvent(human, animation.events[index]);
         const auto done = Read<std::uint32_t>(human, 0xAC4) + 1u;
         Write(human, 0xAC4, done);
         if (done != static_cast<std::uint32_t>(animation.length)) return;
@@ -38,9 +75,7 @@ namespace NC2Logic
             void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u;
             Write(moveable, 0x20, animation.endDirection);
         }
-        // Original l_ResetAtomic, 0045CCA7, is inlined here.
-        Write<std::uint32_t>(human, 0xAB8, 0);
-        Write<std::uint8_t>(human, 0xABC, 0);
+        Human_l_ResetAtomic(human);
     }
 
     // Original function: FUN_0042c5aa.
