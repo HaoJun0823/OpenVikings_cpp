@@ -43,11 +43,9 @@ Address,CurrentName,Status,ReferencingObjects
 0043293F,NC2Logic::House_Construction_UpgradeStop,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043B8F9,NC2Logic::Tool_GlobalDefendMode_Start,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043BA13,NC2Logic::Tool_GlobalDefendMode_Stop,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native implementation; Only empty or skipped queue branches recognized through private staging guard; eligible nonempty command execution pending,C2HumanTaskAccess.obj
+0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
-0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..16/26/27/29/33/41/52..87 connected; remaining commands and passenger/defence preamble pending,C2HumanCommandAccess.obj
-0043CB68,NC2Logic::Human_DoExecuteUserCommand_AttachWorkHouse,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
-0043CE7F,NC2Logic::Human_DoExecuteUserCommand_AttachBuildHouse,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
+0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..17/19..35/39/41/52..87 connected; remaining default-action/combat/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
 0043E72E,NC2Logic::TributeData_Pay,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043E8AA,NC2Logic::MapPathfinderSpecialWallRoadElement_GetNextDirection,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00441F8C,NC2Logic::Human_VehicleMisc_Enter,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj

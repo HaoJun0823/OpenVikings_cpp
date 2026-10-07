@@ -1166,10 +1166,12 @@
     <ClCompile Include="C2MapSectorRouting.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2GuideRouting.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2HumanScout.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2HumanWorkCommands.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2GuideAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2MapPathfinderSectorSearch.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2GuideRouting.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2HumanScout.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2HumanWorkCommands.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2GuideAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

@@ -423,10 +423,6 @@ namespace NC2Logic
     std::int32_t Logic_EntryPoint_Add_Animal(std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::uint32_t, std::uint32_t) { return -1; }
     // TEMPORARY DUMMY: Windows address 0040ADB7; object startup dependency pending.
     std::int32_t Logic_EntryPoint_Add_Vehicle(std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::uint32_t) { return -1; }
-    // TEMPORARY DUMMY: Windows address 0043CB68; object startup dependency pending.
-    std::uint32_t Human_DoExecuteUserCommand_AttachWorkHouse(void*, std::int32_t, std::uint32_t) { return 0; }
-    // TEMPORARY DUMMY: Windows address 0043CE7F; object startup dependency pending.
-    std::uint32_t Human_DoExecuteUserCommand_AttachBuildHouse(void*, std::int32_t, std::uint32_t) { return 0; }
     // TEMPORARY DUMMY: Windows address 00441F8C; object startup dependency pending.
     std::uint32_t Human_VehicleMisc_Enter(void*) { return 0; }
 }

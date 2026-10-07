@@ -1,4 +1,5 @@
 #pragma once
+#include "C2HumanWorkCommands.h"
 
 #include "C2HouseAccess.h"
 #include <cstdint>
@@ -29,8 +30,6 @@ namespace NC2Logic
     bool House_Inhabitants_AttachHuman(void* house, std::uint32_t human, std::uint32_t attachmentMask);
     bool House_Inhabitants_DetachHuman(void* house, std::uint32_t human, std::uint32_t attachmentMask);
     std::uint32_t Human_DoExecuteUserCommand_AttachHomeHouse(void* human, std::int32_t house, std::uint32_t revision);
-    std::uint32_t Human_DoExecuteUserCommand_AttachWorkHouse(void* human, std::int32_t house, std::uint32_t revision);
-    std::uint32_t Human_DoExecuteUserCommand_AttachBuildHouse(void* human, std::int32_t house, std::uint32_t revision);
     std::uint32_t Human_VehicleMisc_Enter(void* human);
     bool Human_IsAbleToProduceGoodNow(const void* human, std::uint32_t good);
     void Human_UpdateCurrentJobType(void* human);

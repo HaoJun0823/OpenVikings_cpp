@@ -13,6 +13,9 @@ namespace NC2Logic
     void House_Production_DidProduceOneGood(void* house);
     void House_ActionOverlay_Start(void* house, std::int32_t overlay, std::uint32_t duration);
     void* House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(void* house, std::uint32_t human);
+    bool House_Inhabitants_IsHumanAttachedAsStudent(const void* house, std::uint32_t human);
+    void House_Inhabitants_SetStudentJob(void* house, std::uint32_t human, std::uint32_t job);
+    void House_Inhabitants_SetStudentGood(void* house, std::uint32_t human, std::uint32_t good);
     bool House_Inhabitants_CanHumanBeAttached(void* house, std::uint32_t human, std::uint32_t mask);
     bool House_Inhabitants_CanHumanBeAttachedAsHomie(void* house, std::uint32_t human);
     bool House_Inhabitants_CanHumanBeAttachedAsWorker(void* house, std::uint32_t human);

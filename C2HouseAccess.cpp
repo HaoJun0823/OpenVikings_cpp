@@ -16,6 +16,25 @@
 #include "C2HumanJobAccess.h"
 namespace NC2Logic
 {
+    // Original function: FUN_004322e6; shared by initialization and school commands.
+    bool House_Inhabitants_IsHumanAttachedAsStudent(const void* house, std::uint32_t human)
+    {
+        if (House_GetHouseMainType(house) != 4) return false;
+        const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(const_cast<void*>(house), human);
+        return slot != nullptr && (NC2Lifetime::Read<std::uint8_t>(slot, 0) & 8u) != 0;
+    }
+
+    // Original function: FUN_00432653.
+    void House_Inhabitants_SetStudentJob(void* house, std::uint32_t human, std::uint32_t job)
+    {
+        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human)) NC2Lifetime::Write(slot, 8, job);
+    }
+
+    // Original function: FUN_0043266a.
+    void House_Inhabitants_SetStudentGood(void* house, std::uint32_t human, std::uint32_t good)
+    {
+        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human)) NC2Lifetime::Write(slot, 12, good);
+    }
     // Original function: FUN_00431ffa; slots retain their training fields when reused.
     bool House_Inhabitants_AttachHuman(void* house, std::uint32_t human, std::uint32_t mask)
     {

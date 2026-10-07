@@ -788,3 +788,20 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004E6E44,Runtime_Log10,,,"Windows CRT log10 entry; runtime adapter name, not a recovered Mac private symbol"
 004E8774,Runtime_Sin,,,"Windows CRT sin entry; runtime adapter name, not a recovered Mac private symbol"
 004E8824,Runtime_Cos,,,"Windows CRT cos entry; runtime adapter name, not a recovered Mac private symbol"
+004322E6,NC2Logic::House_Inhabitants_IsHumanAttachedAsStudent,NC2Logic::CHouse::Inhabitants_IsHumanAttachedAsStudent,162983,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00432653,NC2Logic::House_Inhabitants_SetStudentJob,NC2Logic::CHouse::Inhabitants_SetStudentJob,164399,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043266A,NC2Logic::House_Inhabitants_SetStudentGood,NC2Logic::CHouse::Inhabitants_SetStudentGood,164453,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043CB68,NC2Logic::Human_DoExecuteUserCommand_AttachWorkHouse,NC2Logic::CHuman::DoExecuteUserCommand_AttachWorkHouse,171070,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043CCE3,NC2Logic::Human_DoExecuteUserCommand_AttachLearnHouse,NC2Logic::CHuman::DoExecuteUserCommand_AttachLearnHouse,171204,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043CE7F,NC2Logic::Human_DoExecuteUserCommand_AttachBuildHouse,NC2Logic::CHuman::DoExecuteUserCommand_AttachBuildHouse,171342,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043CF70,NC2Logic::Human_DoExecuteUserCommand_DetachBuildHouse,NC2Logic::CHuman::DoExecuteUserCommand_DetachBuildHouse,171431,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043D181,NC2Logic::Human_DoExecuteUserCommand_DetachVehicle,NC2Logic::CHuman::DoExecuteUserCommand_DetachVehicle,170480,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043D297,NC2Logic::Human_DoExecuteUserCommand_SetWorkCenter,NC2Logic::CHuman::DoExecuteUserCommand_SetWorkCenter,171643,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043D4ED,NC2Logic::Human_DoExecuteUserCommand_ChangeJob,NC2Logic::CHuman::DoExecuteUserCommand_ChangeJob,171821,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043DB6B,NC2Logic::Human_DoExecuteUserCommand_SetJob,NC2Logic::CHuman::DoExecuteUserCommand_SetJob,172371,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043DDC6,NC2Logic::Human_DoExecuteUserCommand_ChangeProduction,NC2Logic::CHuman::DoExecuteUserCommand_ChangeProduction,172310,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043DE68,NC2Logic::Human_DoExecuteUserCommand_LearnJob,NC2Logic::CHuman::DoExecuteUserCommand_LearnJob,172494,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043DED7,NC2Logic::Human_DoExecuteUserCommand_LearnGood,NC2Logic::CHuman::DoExecuteUserCommand_LearnGood,172530,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043E023,NC2Logic::Human_DoExecuteUserCommand_RestartJobExecution,NC2Logic::CHuman::DoExecuteUserCommand_RestartJobExecution,172473,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0045C331,NC2Logic::Human_UserMessage_SendToUserMessage_CannotDetachVehicle,NC2Logic::CHuman::UserMessage_SendToUserMessage_CannotDetachVehicle,205451,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00436AAD,NC2Logic::Human_WorkCenterMarker_IsAllowed,,,Windows outlined predicate; name inferred from marker callers; separate Mac identity unresolved

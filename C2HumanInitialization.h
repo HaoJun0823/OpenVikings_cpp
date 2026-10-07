@@ -11,6 +11,7 @@ namespace NC2Logic
     bool Human_IsAttachedToRoadPoint(const void* human);
     bool Human_IsAttachedToWallPoint(const void* human);
     bool Human_WorkCenterMarker_IsVisible(const void* human);
+    bool Human_WorkCenterMarker_IsAllowed(const void* human);
     std::int32_t Human_WorkCenterMarker_GetId(const void* human);
     void Human_WorkCenterMarker_Create(void* human);
     void Human_WorkCenterMarker_Remove(void* human);

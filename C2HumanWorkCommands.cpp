@@ -1,0 +1,292 @@
+#include "C2HumanWorkCommands.h"
+#include "C2HumanCommandAccess.h"
+#include "C2HumanInitialization.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanTaskAccess.h"
+#include "C2HouseAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2MapMoveableAccess.h"
+#include "C2MissionStartObjects.h"
+#include "C2StaticActorTypeDataAccess.h"
+#include "C2UserMessageAccess.h"
+#include "C2VehicleAccess.h"
+#include <cstring>
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+    namespace
+    {
+        void* House(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::intptr_t>(id) * CHouseArray::ElementSize; }
+        void* Vehicle(std::int32_t id) { return CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * CVehicleArray::ElementSize; }
+        void Queue(void* human, std::uint8_t opcode, std::uint32_t value, std::uint32_t other) { Human_DoAddNewUserCommand(human, opcode, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), value, other); }
+        void SetCenter(void* human, std::uint32_t point) { Write(human, 0xB30, point); Write<std::uint32_t>(human, 0x38C, 0); Human_WorkCenterMarker_Update(human); }
+        std::uint32_t WeaponGood(const void* human) { return static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)].goodType; }
+        std::uint32_t ArmorGood(const void* human) { return static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData)[Read<std::uint32_t>(human, 0xAE8)].goodType; }
+        std::uint32_t DetachExistingWorkHouse(void* human)
+        {
+            auto* house = House(Read<std::int32_t>(human, 0xB34));
+            if (House_GetHouseMainType(house) == 4 && House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4))) return Human_DoExecuteUserCommand_DetachLearnHouse(human);
+            return Human_IsJobBuilder(human) ? Human_DoExecuteUserCommand_DetachBuildHouse(human) : Human_DoExecuteUserCommand_DetachWorkHouse(human);
+        }
+    }
+
+    // Original function: FUN_0043cb68.
+    std::uint32_t Human_DoExecuteUserCommand_AttachWorkHouse(void* human, std::int32_t id, std::uint32_t revision)
+    {
+        if (Human_IsJobBuilder(human)) return 1;
+        auto* house = House(id);
+        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (Read<std::int32_t>(human, 0xB34) == id) return 1;
+        if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
+        if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) { Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human); return 1; }
+        if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 2)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 2); return 1; }
+        Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
+        SetCenter(human, Read<std::uint32_t>(house, 0x24));
+        return 2;
+    }
+
+    // Original function: FUN_0043cce3; native prerequisites precede target validation.
+    std::uint32_t Human_DoExecuteUserCommand_AttachLearnHouse(void* human, std::int32_t id, std::uint32_t revision)
+    {
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (Read<std::int32_t>(human, 0xB34) == id && Human_IsAttachedToLearnHouse(human)) return 1;
+        if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
+        if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) { Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human); return 1; }
+        auto* house = House(id);
+        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
+        if (Read<std::uint32_t>(house, 0x14) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, 0x17B) != 0) { Queue(human, 21, 31, 0); return 0; }
+        if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 8)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 8); return 1; }
+        Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
+        SetCenter(human, Read<std::uint32_t>(house, 0x24));
+        return 2;
+    }
+
+    // Original function: FUN_0043ce7f.
+    std::uint32_t Human_DoExecuteUserCommand_AttachBuildHouse(void* human, std::int32_t id, std::uint32_t revision)
+    {
+        if (!Human_IsJobBuilder(human)) return 1;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (Human_IsAttachedToWorkHouse(human))
+        {
+            const auto result = Human_IsAttachedToLearnHouse(human) ? Human_DoExecuteUserCommand_DetachLearnHouse(human) : Human_DoExecuteUserCommand_DetachBuildHouse(human);
+            if (result == 0) return 1;
+        }
+        if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, 0x10), static_cast<std::byte*>(human) + 0xB30);
+        if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, 0x10), static_cast<std::byte*>(human) + 0xB30);
+        auto* house = House(id);
+        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
+        if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 4)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 4); return 1; }
+        Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
+        SetCenter(human, Read<std::uint32_t>(house, 0x24));
+        return 2;
+    }
+
+    // Original function: FUN_0043cf70.
+    std::uint32_t Human_DoExecuteUserCommand_DetachBuildHouse(void* human)
+    {
+        if (!Human_IsJobBuilder(human)) return 1;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (!Human_IsAttachedToWorkHouse(human)) return 1;
+        if (House_Inhabitants_DetachHuman(House(Read<std::int32_t>(human, 0xB34)), Read<std::uint32_t>(human, 4), 4)) return 2;
+        Human_UserMessage_SendToUserMessage_CannotDetachHouse(human, 4);
+        return 1;
+    }
+
+    // Original function: FUN_0043d181; passenger movement and detachment are distinct.
+    std::uint32_t Human_DoExecuteUserCommand_DetachVehicle(void* human)
+    {
+        // Windows 0042C8FD is an unconditional true eligibility predicate.
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (!Human_IsAttachedToVehicle(human)) return 1;
+        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        {
+            auto* vehicle = Vehicle(Read<std::int32_t>(human, 0xB48));
+            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return 0;
+            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+            {
+                std::byte command[0x14]{};
+                Write<std::uint8_t>(command, 0, 101);
+                Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
+                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+                std::uint32_t point = 0;
+                MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u, &point);
+                Write(command, 12, MapMigPoint_GetLong(&point));
+                Vehicle_DoAddNewUserCommand(vehicle, command);
+                return 0;
+            }
+            if (!Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4))) return 0;
+        }
+        if (Vehicle_Passengers_DetachHuman(Vehicle(Read<std::int32_t>(human, 0xB48)), Read<std::uint32_t>(human, 4))) return 2;
+        Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human);
+        return 1;
+    }
+
+    // Original function: FUN_0043d297.
+    std::uint32_t Human_DoExecuteUserCommand_SetWorkCenter(void* human, const void* point)
+    {
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (!Human_WorkCenterMarker_IsAllowed(human)) return 1;
+        if (Human_IsJobBuilder(human))
+        {
+            const auto mode = Read<std::uint32_t>(human, 0xACC);
+            if (mode != 0 && mode != 1) Human_StopCurrentGoodCirculationMode(human);
+            if (Human_IsAttachedToWorkHouse(human)) { if (Human_DoExecuteUserCommand_DetachBuildHouse(human) == 0) return 0; }
+            else
+            {
+                if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, 0x10), static_cast<std::byte*>(human) + 0xB30);
+                if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, 0x10), static_cast<std::byte*>(human) + 0xB30);
+            }
+        }
+        SetCenter(human, Read<std::uint32_t>(point, 0));
+        return 2;
+    }
+
+    // Original function: FUN_0043d4ed; all 36 equipment command records are cleared.
+    std::uint32_t Human_DoExecuteUserCommand_ChangeJob(void* human, std::int32_t job)
+    {
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        std::memset(static_cast<std::byte*>(human) + 0x778, 0, 36u * 0x14u);
+        if (static_cast<std::uint32_t>(job) == Read<std::uint32_t>(human, 0x18)) return 1;
+        if (job >= 31 && job <= 41)
+        {
+            if (Read<std::uint32_t>(human, 0xAD4) != 0) return 0;
+            if (!Human_IsAbleToDoJob(human, static_cast<std::uint32_t>(job)))
+            {
+                switch (job)
+                {
+                case 31: Queue(human, 54, WeaponGood(human), 0xFFFFFFFFu); break;
+                case 32: Queue(human, 63, 39, 0xFFFFFFFFu); break;
+                case 33: Queue(human, 63, 40, 0xFFFFFFFFu); break;
+                case 34: Queue(human, 63, 41, 0xFFFFFFFFu); break;
+                case 35: Queue(human, 63, 42, 0xFFFFFFFFu); break;
+                case 40: Queue(human, 63, 37, 0xFFFFFFFFu); break;
+                case 41: Queue(human, 63, 38, 0xFFFFFFFFu); break;
+                default: break;
+                }
+                switch (Human_Equipment_GetWeaponType(human))
+                {
+                case 1: job = 31; break; case 4: job = 32; break; case 5: job = 33; break;
+                case 7: job = 34; break; case 8: job = 35; break; case 10: job = 36; break;
+                case 11: job = 37; break; case 13: job = 38; break; case 14: job = 39; break;
+                case 16: job = 40; break; case 17: job = 41; break; default: break;
+                }
+            }
+        }
+        else
+        {
+            if (WeaponGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 72, WeaponGood(human), 0xFFFFFFFFu); }
+            else if (ArmorGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 73, ArmorGood(human), 0xFFFFFFFFu); }
+            Write<std::uint8_t>(human, 0xB60, 1);
+        }
+        return Human_DoExecuteUserCommand_SetJob(human, static_cast<std::uint32_t>(job));
+    }
+
+    // Original function: FUN_0043db6b; no additional unlock check occurs here.
+    std::uint32_t Human_DoExecuteUserCommand_SetJob(void* human, std::uint32_t job)
+    {
+        if (job == Read<std::uint32_t>(human, 0x18)) return 1;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (Human_IsJobBuilder(human))
+        {
+            if (Human_IsAttachedToWorkHouse(human))
+            {
+                const auto result = Human_IsAttachedToLearnHouse(human) ? Human_DoExecuteUserCommand_DetachLearnHouse(human) : Human_DoExecuteUserCommand_DetachBuildHouse(human);
+                if (result == 0) return 0;
+            }
+            else if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, 0x10), static_cast<std::byte*>(human) + 0xB30);
+            else if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, 0x10), static_cast<std::byte*>(human) + 0xB30);
+        }
+        else if (Human_IsAttachedToWorkHouse(human))
+        {
+            const auto result = Human_IsAttachedToLearnHouse(human) ? Human_DoExecuteUserCommand_DetachLearnHouse(human) : Human_DoExecuteUserCommand_DetachWorkHouse(human);
+            if (result == 0) return 0;
+        }
+        if (Read<std::uint32_t>(human, 0xACC) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, 0xAD0, 0); }
+        Write<std::int32_t>(human, 0xB3C, -1);
+        Write<std::uint32_t>(human, 0xB40, 0);
+        Human_SetJobType(human, job);
+        Human_Production_Setup(human);
+        Human_Target_Reset(human);
+        Human_Target_ResetSecondaryTarget(human);
+        Write<std::uint32_t>(human, 0xB64, 0);
+        Write<std::uint32_t>(human, 0xB70, 0);
+        if (!Human_IsAttachedToWorkHouse(human)) SetCenter(human, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+        // The native notification call at 0045BFEC is a no-op (RET 4).
+        return 2;
+    }
+
+    // Original function: FUN_0043ddc6; this command is not gated on interruptibility.
+    std::uint32_t Human_DoExecuteUserCommand_ChangeProduction(void* human, std::uint32_t good, std::int32_t amount)
+    {
+        Human_Production_ChangeCounter(human, good, amount);
+        if (amount > 0)
+        {
+            if (Read<std::uint32_t>(human, 0x1C) == 0)
+            {
+                Write<std::uint32_t>(human, 0x38C, 0);
+                Write(human, 0x218, good);
+                Write(human, 0x1C, good);
+                if (Read<std::uint32_t>(human, 0x368) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
+            }
+        }
+        else if (Read<std::uint32_t>(human, 0x1C) == good && Human_Production_GetCounter(human, good) == 0 && Read<std::uint32_t>(human, 0x368) == 8 && Human_l_IsAtomicInterruptable(human))
+        {
+            Human_CurrentTask_DoInterrupt(human);
+            Human_Production_Rotate(human);
+        }
+        Queue(human, 25, 0, 0);
+        return 2;
+    }
+
+    // Original function: FUN_0043de68; unavailable schooling returns zero.
+    std::uint32_t Human_DoExecuteUserCommand_LearnJob(void* human, std::uint32_t job)
+    {
+        if (!Human_l_IsAtomicInterruptable(human) || !Human_IsAttachedToLearnHouse(human)) return 0;
+        auto* house = House(Read<std::int32_t>(human, 0xB34));
+        if (!House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4))) return 0;
+        House_Inhabitants_SetStudentJob(house, Read<std::uint32_t>(human, 4), job);
+        Write<std::uint32_t>(human, 0x158, 0);
+        // The native notification call at 0045BFEC is a no-op (RET 4).
+        return 2;
+    }
+
+    // Original function: FUN_0043ded7; unavailable schooling returns one.
+    std::uint32_t Human_DoExecuteUserCommand_LearnGood(void* human, std::uint32_t good)
+    {
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (!Human_IsAttachedToLearnHouse(human)) return 1;
+        auto* house = House(Read<std::int32_t>(human, 0xB34));
+        if (!House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4))) return 1;
+        House_Inhabitants_SetStudentGood(house, Read<std::uint32_t>(human, 4), good);
+        Write<std::uint32_t>(human, 0x158, 0);
+        // The native notification call at 0045BFEC is a no-op (RET 4).
+        return 2;
+    }
+
+    // Original function: FUN_0043e023; restart shares the native 00445a6e leaf.
+    std::uint32_t Human_DoExecuteUserCommand_RestartJobExecution(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xAD4) != 0 || Read<std::uint32_t>(human, 0x368) == 16 || !Human_l_IsAtomicInterruptable(human)) return 0;
+        Human_l_FinishTask_Idle(human);
+        return 2;
+    }
+
+    // Original function: FUN_0045c331.
+    void Human_UserMessage_SendToUserMessage_CannotDetachVehicle(void* human)
+    {
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write<std::uint32_t>(message, 0, 42);
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+}

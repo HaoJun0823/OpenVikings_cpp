@@ -23,6 +23,7 @@
 #include "C2HumanEquipment.h"
 #include "C2HumanFamily.h"
 #include "C2HumanScout.h"
+#include "C2HumanWorkCommands.h"
 #include <cstring>
 namespace NC2Logic
 {
@@ -496,11 +497,13 @@ namespace NC2Logic
     static bool IsUserCommandReconstructed(const void* human, const void* command)
     {
         using namespace NC2Lifetime;
-        if (Human_IsDefendingHouse(human, -1) || Read<std::uint8_t>(human, 0xB51) != 0) return false;
+        if (Human_IsDefendingHouse(human, -1)) return false;
+        const auto opcode = Read<std::uint8_t>(command, 0);
+        if (Read<std::uint8_t>(human, 0xB51) != 0 && opcode != 17 && (opcode < 21 || opcode > 25) && opcode != 28 && opcode != 30 && opcode != 31 && opcode != 32 && opcode != 34 && opcode != 35 && opcode != 39) return false;
         if (Read<std::uint8_t>(command, 0) >= 52 && Read<std::uint8_t>(command, 0) <= 87) return true;
         switch (Read<std::uint8_t>(command, 0))
         {
-        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 19: case 20: case 26: case 27: case 29: case 33: case 41: return true;
+        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 19: case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 39: case 41: return true;
         default: return false;
         }
     }
@@ -609,6 +612,9 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto opcode = Read<std::uint8_t>(command, 0);
+        // Windows 0043BE95/0043BF0B: these assignment commands request vehicle
+        // detachment before their own handler, regardless of the detach result.
+        if (Human_IsAttachedToVehicle(human) && (opcode == 28 || opcode == 30 || opcode == 32)) Human_DoExecuteUserCommand_DetachVehicle(human);
         if ((opcode >= 52 && opcode <= 60) || (opcode >= 70 && opcode <= 78)) return Human_DoExecuteUserCommand_Equipment_Drop(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
         if ((opcode >= 61 && opcode <= 69) || (opcode >= 79 && opcode <= 87)) return Human_DoExecuteUserCommand_Equipment_Change(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
         switch (opcode)
@@ -665,6 +671,12 @@ namespace NC2Logic
         case 13: case 14: return Human_DoExecuteUserCommand_Marry(human);
         case 15: return Human_DoExecuteUserCommand_GetBoy(human);
         case 16: return Human_DoExecuteUserCommand_GetGirl(human);
+        case 17:
+        {
+            std::uint32_t point;
+            MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 12));
+            return Human_DoExecuteUserCommand_SetWorkCenter(human, &point);
+        }
         case 19: case 20:
         {
             if (opcode == 20 && Read<std::uint32_t>(command, 16) != 0)
@@ -678,9 +690,21 @@ namespace NC2Logic
             return opcode == 19 ? Human_DoExecuteUserCommand_BuildGuide(human, &point) : Human_DoExecuteUserCommand_ExploreArea(human, &point);
         }
         case 26: return Human_DoExecuteUserCommand_AttachHomeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case 21: return Human_DoExecuteUserCommand_ChangeJob(human, Read<std::int32_t>(command, 12));
+        case 22: return Human_DoExecuteUserCommand_ChangeProducedGood(human, Read<std::uint32_t>(command, 12));
+        case 23: return Human_DoExecuteUserCommand_ChangeProduction(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
+        case 24: return Human_DoExecuteUserCommand_SetJob(human, Read<std::uint32_t>(command, 12));
+        case 25: return Human_DoExecuteUserCommand_RestartJobExecution(human);
         case 27: return Human_DoExecuteUserCommand_DetachHomeHouse(human);
+        case 28: return Human_DoExecuteUserCommand_AttachWorkHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
         case 29: return Human_DoExecuteUserCommand_DetachWorkHouse(human);
+        case 30: return Human_DoExecuteUserCommand_AttachBuildHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case 31: return Human_DoExecuteUserCommand_DetachBuildHouse(human);
+        case 32: return Human_DoExecuteUserCommand_AttachLearnHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
         case 33: return Human_DoExecuteUserCommand_DetachLearnHouse(human);
+        case 34: return Human_DoExecuteUserCommand_LearnJob(human, Read<std::uint32_t>(command, 12));
+        case 35: return Human_DoExecuteUserCommand_LearnGood(human, Read<std::uint32_t>(command, 12));
+        case 39: return Human_DoExecuteUserCommand_DetachVehicle(human);
         case 41:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write(human, 0xB5C, Read<std::uint32_t>(command, 0x0C));

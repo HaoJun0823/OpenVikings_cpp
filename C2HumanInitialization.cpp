@@ -1,4 +1,5 @@
 #include "C2HumanInitialization.h"
+#include "C2HouseAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2LifetimeAccess.h"
@@ -32,6 +33,14 @@ namespace NC2Logic
 
     using namespace NC2Lifetime;
 
+    // Original function: FUN_00436aad; Windows outlined work-marker eligibility predicate.
+    bool Human_WorkCenterMarker_IsAllowed(const void* human)
+    {
+        if (!Human_IsSexMale(human) || !Human_IsAgeAdult(human)) return false;
+        const auto job = Read<std::uint32_t>(human, 0x18);
+        return (Human_IsJobCarrier(human) && Human_IsAttachedToWorkHouse(human)) || job == 8 || Human_IsJobHunter(human) || job == 18 || Human_IsJobFisher(human) || job == 28 || Human_IsJobBuilder(human);
+    }
+
     namespace
     {
         std::byte* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
@@ -46,30 +55,6 @@ namespace NC2Logic
             if (data == nullptr) return false;
             for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i) if (Read<std::uint32_t>(data, 8u + i * 6u) == Read<std::uint32_t>(point, 0)) return true;
             return false;
-        }
-        // Original function: FUN_00432690; inlined in the named Mac house inhabitants predicates.
-        const void* House_l_Inhabitants_GetSlotForHuman(const void* house, std::uint32_t human)
-        {
-            for (std::uint32_t slot = 0; slot < 20; ++slot)
-            {
-                const auto* entry = static_cast<const std::byte*>(house) + 0x640u + slot * 0x10u;
-                if (Read<std::uint8_t>(entry, 0) != 0 && Read<std::uint32_t>(entry, 4) == human) return entry;
-            }
-            return nullptr;
-        }
-        // Original function: FUN_004322e6.
-        bool House_Inhabitants_IsAttachedAsStudent(const void* house, std::uint32_t human)
-        {
-            if (Read<std::uint32_t>(gStaticHouseTypeData, Read<std::uint32_t>(house, 0x14) * 0x624u) != 4) return false;
-            const void* slot = House_l_Inhabitants_GetSlotForHuman(house, human);
-            return slot != nullptr && (Read<std::uint8_t>(slot, 0) & 8u) != 0;
-        }
-        // Original function: FUN_00436aad; Windows outlined work-marker eligibility predicate.
-        bool Human_WorkCenterMarker_IsAllowed(const void* human)
-        {
-            if (!Human_IsSexMale(human) || !Human_IsAgeAdult(human)) return false;
-            const auto job = Read<std::uint32_t>(human, 0x18);
-            return (Human_IsJobCarrier(human) && Human_IsAttachedToWorkHouse(human)) || job == 8 || Human_IsJobHunter(human) || job == 18 || Human_IsJobFisher(human) || job == 28 || Human_IsJobBuilder(human);
         }
         // Original function: FUN_00438d39.
         bool Marker_Init(void* marker, std::int32_t id, std::uint32_t type, const void* point, std::uint32_t human)
@@ -178,7 +163,7 @@ namespace NC2Logic
         if (id == -1) return false;
         const void* house = House(id);
         if (Read<std::uint32_t>(gStaticHouseTypeData, Read<std::uint32_t>(house, 0x14) * 0x624u) != 4) return false;
-        return House_Inhabitants_IsAttachedAsStudent(house, Read<std::uint32_t>(human, 4));
+        return House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4));
     }
     // Original function: FUN_0042c6aa.
     bool Human_IsAttachedToRoadPoint(const void* human)
