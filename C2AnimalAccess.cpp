@@ -104,7 +104,7 @@ namespace NC2Logic
         return true;
     }
 
-    // Original function: FUN_0042de20; death landscaping remains an external boundary.
+    // Original function: FUN_0042de20; landscape editing remains an external boundary.
     void Animal_Exit(void* animal)
     {
         if (Animal_l_IsLeaderValid(animal)) Animal_l_DetachLeader(animal);

@@ -12,6 +12,7 @@
 #include "C2E2StaticDataMapMoveables.h"
 #include "C2E2StaticDataHumanMisc.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2EngineLandscapeAccess.h"
 #include "MasterControlProgram.h"
 #include "XCrtFileAccess.h"
 #include "XIniFileReader.h"
@@ -257,7 +258,6 @@ namespace NC2E2
     extern void* __fastcall E2StaticDataTransitionsManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataGoodManager_Construct(void*, void* unusedEdx);
-    extern void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelEffectManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall MacroMapManager_Construct(void*, void* unusedEdx);
 

@@ -80,18 +80,7 @@ namespace NC2Logic
         if (job != 0) Write<std::uint8_t>(data, 0x948u + tribe * 56u + static_cast<std::uint32_t>(job), 1);
     }
 
-    // Translation boundary only: vehicle allocation remains link-only.
-    bool Human_IsChestRewardReconstructed(const void* human)
-    {
-        if (Read<std::uint32_t>(human, 0xACC) == 0 || !Human_Target_IsValid(human)) return true;
-        const auto* micro = GameMap_GetConstMapMicroPointPtr(RealTarget(human));
-        if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 86 && Read<std::uint32_t>(human, 0x18) != 30 && !Human_IsJobHero(human)) return true;
-        const auto reward = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
-        return reward != 89;
-    }
-
-    // Partial original function: FUN_0044cf1c; reward 89 retains the established
-    // 0040ADB7 wrapper while vehicle allocation remains an open boundary.
+    // Original function: FUN_0044cf1c; all Windows chest reward branches are connected.
     bool Tool_MapChest_UseChest(std::uint32_t humanId, const void* point)
     {
         auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;

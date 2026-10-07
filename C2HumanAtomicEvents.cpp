@@ -65,7 +65,7 @@ namespace NC2Logic
     }
 
     // Implementation boundary: do not start advancing an animation whose later
-    // events would require untranslated outdoor production, combat or vehicle rewards.
+    // events would require untranslated outdoor production or combat.
     bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
     {
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
@@ -84,9 +84,7 @@ namespace NC2Logic
             case 20:
                 if (!Human_IsJobScout(human) || Read<std::uint32_t>(human, 0xAB8) != 43) return false;
                 break;
-            case 33:
-                if (!Human_IsChestRewardReconstructed(human)) return false;
-                break;
+            case 33: break;
             default: return false;
             }
         }
@@ -94,7 +92,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Outdoor production, combat and vehicle rewards remain explicit boundaries.
+    // 00468B67. Outdoor production and combat remain explicit boundaries.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);

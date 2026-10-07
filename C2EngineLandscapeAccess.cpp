@@ -5,9 +5,121 @@
 #include "C2E2StaticDataTerrain.h"
 #include "C2EngineDisplayAccess.h"
 #include "XCrtFileAccess.h"
+#include "XBTokenList.h"
+#include "XIniFileReader.h"
+#include <cstring>
+
+namespace NC2E2
+{
+    // Original function: FUN_0048a4ba; the complete 00568548..00568567 region contains
+    // two owned count/pointer pairs, lazy token lists/flags, and the manager pointer.
+    // Windows token tables: 004F4760..004F477F and 00506270..0050628F after lazy init.
+    void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void* manager, void*)
+    {
+        using namespace NC2Lifetime;
+        constexpr NXBasics::SToken landscapeTokens[] = {{"logictribetype", 0x6C747274}, {"logiclandscapetype", 0x6C6C7479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
+        constexpr NXBasics::SToken groupTokens[] = {{"logictribetype", 0x6C747274}, {"logichousetype", 0x6C687479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
+        gStaticMiscLandscapeEntryCount = 0;
+        gStaticMiscLandscapeEntries = nullptr;
+        gStaticMiscLandscapeGroupCount = 0;
+        gStaticMiscLandscapeGroups = nullptr;
+        gE2StaticDataMiscLandscapeManager = manager;
+        NXBasics::CIniFileReader reader("data\\engine2d\\inis\\misc\\misc.ini", nullptr, false, nullptr, nullptr);
+        if (!reader.IsLoaded()) return manager;
+        const auto allocate = [](std::uint32_t bytes)
+        {
+            auto* entries = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+            std::memset(entries, 0, bytes);
+            return entries;
+        };
+        gStaticMiscLandscapeEntryCount = reader.GetNumberOfGroups("tribelandscapelinkdata");
+        if (gStaticMiscLandscapeEntryCount != 0)
+        {
+            auto* entry = allocate(gStaticMiscLandscapeEntryCount * 12u);
+            gStaticMiscLandscapeEntries = entry;
+            for (auto* group = reader.GetFirstGroup("tribelandscapelinkdata"); group != nullptr; group = reader.GetNextGroup("tribelandscapelinkdata"), entry += 12)
+                while (reader.GetNextCommandLineInGroup() != nullptr)
+                    switch (NXBasics::XB_Token_FindTokenInArray(landscapeTokens, reader.GetCurrentName()))
+                    {
+                    case 0x6C747274: Write(entry, 0, reader.GetInt()); break;
+                    case 0x6C6C7479: Write(entry, 4, reader.GetInt()); break;
+                    case 0x6C6E616D: Write(entry, 8, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString())); break;
+                    }
+        }
+        gStaticMiscLandscapeGroupCount = reader.GetNumberOfGroups("tribehouseLinkData");
+        if (gStaticMiscLandscapeGroupCount != 0)
+        {
+            auto* entry = allocate(gStaticMiscLandscapeGroupCount * 20u);
+            gStaticMiscLandscapeGroups = entry;
+            for (auto* group = reader.GetFirstGroup("tribehouseLinkData"); group != nullptr; group = reader.GetNextGroup("tribehouseLinkData"), entry += 20)
+            {
+                auto* choices = allocate(reader.GetNumberOfCommandsInGroup("landscapename") * 8u);
+                Write(entry, 16, choices);
+                reader.SetCurrentLineToGroupStart();
+                while (reader.GetNextCommandLineInGroup() != nullptr)
+                    switch (NXBasics::XB_Token_FindTokenInArray(groupTokens, reader.GetCurrentName()))
+                    {
+                    case 0x6C747274: Write(entry, 0, reader.GetInt()); break;
+                    case 0x6C687479: Write(entry, 4, reader.GetInt()); break;
+                    case 0x6C6E616D:
+                    {
+                        const auto index = Read<std::uint32_t>(entry, 8);
+                        Write(choices, index * 8u, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString()));
+                        const auto weight = reader.GetTypeOfNextParameter() == 3 ? static_cast<std::uint32_t>(reader.GetInt()) : 1u;
+                        Write(choices, index * 8u + 4, weight);
+                        Write(entry, 12, Read<std::uint32_t>(entry, 12) + weight);
+                        Write(entry, 8, index + 1u);
+                        break;
+                    }
+                    }
+            }
+        }
+        return manager;
+    }
+    // Original function: FUN_0048a86c; exact tribe/type lookup.
+    std::int32_t E2StaticDataMiscLandscapeManager_GetEngineLandscapeId(std::uint32_t tribe, std::uint32_t type)
+    {
+        using namespace NC2Lifetime;
+        for (std::uint32_t index = 0; index < NC2E2::gStaticMiscLandscapeEntryCount; ++index)
+        {
+            const auto offset = index * 12u;
+            if (Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeEntries, offset) == tribe && Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeEntries, offset + 4) == type) return Read<std::int32_t>(NC2E2::gStaticMiscLandscapeEntries, offset + 8);
+        }
+        return -1;
+    }
+
+    // Original function: FUN_0048a8a1. Exact type precedes type zero.
+    // The constructor/destructor own 00568548..00568557; groups have a 20-byte stride,
+    // nested eight-byte engine-id/weight entries, and unsigned total weight at +12.
+    std::int32_t E2StaticDataMiscLandscapeManager_GetRandomEngineLandscapeId(std::uint32_t tribe, std::uint32_t type)
+    {
+        using namespace NC2Lifetime;
+        for (std::uint32_t pass = 0; pass < 2; ++pass)
+            for (std::uint32_t index = 0; index < NC2E2::gStaticMiscLandscapeGroupCount; ++index)
+            {
+                const auto offset = index * 20u;
+                if (Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset) != tribe || Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + 4) != (pass == 0 ? type : 0u)) continue;
+                auto choice = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + 12);
+                const auto count = Read<std::uint32_t>(NC2E2::gStaticMiscLandscapeGroups, offset + 8);
+                const auto* entries = Read<const std::byte*>(NC2E2::gStaticMiscLandscapeGroups, offset + 16);
+                for (std::uint32_t item = 0; item < count; ++item)
+                {
+                    choice -= Read<std::uint32_t>(entries, item * 8u + 4);
+                    if (NXBasics::Runtime_TimeSigned32(choice) <= 0) return Read<std::int32_t>(entries, item * 8u);
+                }
+            }
+        return -1;
+    }
+
+}
 
 namespace NC2LogicExternals
 {
+    // Original function: FUN_00480904.
+    std::int32_t External_Misc_GetEngineCadaverLandscapeId(std::uint32_t tribe, std::uint32_t type) { return NC2E2::E2StaticDataMiscLandscapeManager_GetEngineLandscapeId(tribe, type); }
+    // Original function: FUN_004808f4; the Windows wrapper's original name is unresolved.
+    std::int32_t External_Misc_GetEngineDepotLandscapeId(std::uint32_t tribe, std::uint32_t type) { return NC2E2::E2StaticDataMiscLandscapeManager_GetRandomEngineLandscapeId(tribe, type); }
+
     // Original function: FUN_0045343e.
     std::uint32_t External_Landscape_GetMaximumValency(std::int32_t engineId) { return engineId == -1 ? 0u : NC2Lifetime::Read<std::uint32_t>(External_Landscape_GetLogicDataPtr(engineId), 4); }
 

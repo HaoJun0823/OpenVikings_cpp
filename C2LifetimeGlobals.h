@@ -223,6 +223,8 @@ namespace NC2E2
     // Original global: 005684D0.
     inline void* gStaticParticelEffects = nullptr;
     // Original global: 0056854C.
+    // Count at 00568548 belongs to the adjacent 12-byte landscape mapping array.
+    inline std::uint32_t gStaticMiscLandscapeEntryCount = 0;
     inline void* gStaticMiscLandscapeEntries = nullptr;
     // Original global: 00568554.
     inline void* gStaticMiscLandscapeGroups = nullptr;

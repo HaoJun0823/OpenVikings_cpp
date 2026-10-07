@@ -4,6 +4,7 @@
 
 namespace NC2Logic
 {
+    bool Human_IsWalking(const void* human);
     bool Human_l_Item_IsGoodTypeEquipped(const void* human, std::uint32_t good);
     bool Human_Item_IsAmuletEquipped_Speed(const void* human);
     std::int32_t Human_WalkSpeed_GetMoveSpeed(const void* human, std::uint32_t resistance);

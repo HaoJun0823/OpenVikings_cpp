@@ -124,6 +124,8 @@ namespace NC2Logic
         static constexpr std::uint32_t SaveVersion = 1;
 
         CVehicleArray();                          // Original function: FUN_0040b5fc
+        std::int32_t AllocateVehicle(std::uint32_t player, std::uint32_t tribe, std::uint32_t type, const void* point, std::uint32_t missionCheck);
+        void FreeVehicle(std::int32_t id);
         ~CVehicleArray();                         // Original function: FUN_0040b740
         void IO_Savegame_DoSave(CIoHelper* io);    // Original function: FUN_0040b779
         explicit CVehicleArray(CIoHelper* io);     // Original function: FUN_0040b7ad

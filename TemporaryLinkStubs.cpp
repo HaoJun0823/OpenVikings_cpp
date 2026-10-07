@@ -223,9 +223,6 @@ namespace NC2E2
     // Naming reference: NC2E2::CE2StaticDataParticelEffectManager::CE2StaticDataParticelEffectManager.
     void * __fastcall E2StaticDataParticelEffectManager_Construct(void *, void *) { return nullptr; }
 
-    // TEMPORARY DUMMY: Windows address 0048A4BA; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataMiscLandscapeManager::CE2StaticDataMiscLandscapeManager.
-    void * __fastcall E2StaticDataMiscLandscapeManager_Construct(void *, void *) { return nullptr; }
 
     // TEMPORARY DUMMY: Windows address 0048AB5C; implementation pending.
     // Naming reference: NC2E2::CE2StaticDataGoodManager::CE2StaticDataGoodManager.
@@ -419,8 +416,6 @@ double __cdecl Runtime_Cos(double) { return 0.0; }
 
 namespace NC2Logic
 {
-    // TEMPORARY DUMMY: Windows address 0040ADB7; object startup dependency pending.
-    std::int32_t Logic_EntryPoint_Add_Vehicle(std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::uint32_t) { return -1; }
     // TEMPORARY DUMMY: Windows address 00441F8C; object startup dependency pending.
     std::uint32_t Human_VehicleMisc_Enter(void*) { return 0; }
 }
@@ -439,9 +434,4 @@ namespace NC2Logic
     bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void*, std::uint32_t, std::uint32_t, std::int32_t, std::uint32_t, std::int32_t) { return false; }
     // TEMPORARY DUMMY: Windows address 00419B74; death-message dependency pending.
     void HappinessManager_Messages_CivilistDied(void*, const void*) {}
-}
-namespace NC2LogicExternals
-{
-    // TEMPORARY DUMMY: Windows address 00480904; cadaver mapping region 00568548/4C pending.
-    std::int32_t External_Misc_GetEngineCadaverLandscapeId(std::uint32_t, std::uint32_t) { return -1; }
 }

@@ -18,6 +18,13 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042c9c9; include a pending pathfinder start.
+    bool Human_IsWalking(const void* human)
+    {
+        if (NC2Lifetime::Read<std::uint32_t>(human, 0xAB8) == 1) return true;
+        const auto* moveable = gMapMoveableArrayStorage.entries + NC2Lifetime::Read<std::uint32_t>(human, 12) * 0x58u;
+        return NC2Lifetime::Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4) == 1;
+    }
     using namespace NC2Lifetime;
 
     namespace
