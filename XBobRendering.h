@@ -6,10 +6,12 @@ namespace NXBasics
 {
     class CBitmap;
     struct SColorRGB;
+    struct SRectangle;
     class CPalette;
 
     std::uint32_t BobManager_GetBobType(const void* bobManager, std::uint32_t bobId);
     bool BobManager_DoesBobExists(const void* bobManager, std::uint32_t bobId);
+    const void* BobManager_GetBobAreaRectanglePtr(const void* bobManager, std::uint32_t bobId);
     bool BobManager_IsBobHit(const void* bobManager, std::uint32_t bobId, const std::int32_t* point);
     void BobManager_PrintBob(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
     void BobManager_PrintBob_Remapped(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette, const void* remapping);

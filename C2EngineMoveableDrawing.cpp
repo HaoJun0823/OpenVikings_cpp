@@ -31,6 +31,35 @@
 
 namespace NC2E2
 {
+    // Original function: FUN_0047e936; callback bits select which state bytes are written.
+    bool __cdecl E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged(std::uint32_t type, std::uint32_t, std::uint32_t id, std::uint32_t flags, std::uint32_t)
+    {
+        using namespace NC2Lifetime;
+        switch (type)
+        {
+        case 0xE:
+        {
+            auto* data = gDynamicDataHumans.entries + id * 0x8C8u;
+            if ((flags & 2u) != 0) Write<std::uint8_t>(data, 0x8C4, flags & 1u);
+            if ((flags & 8u) != 0) Write<std::uint8_t>(data, 0x8C5, (flags >> 2) & 1u);
+            if ((flags & 0x20u) != 0) Write<std::uint8_t>(data, 0x8C0, (flags >> 4) & 1u);
+            break;
+        }
+        case 0xF: case 0x10:
+        {
+            auto* data = (type == 0xF ? gDynamicDataAnimals.entries : gDynamicDataVehicles.entries) + id * 0x44u;
+            if ((flags & 2u) != 0) Write<std::uint8_t>(data, 0x40, flags & 1u);
+            if ((flags & 8u) != 0) Write<std::uint8_t>(data, 0x41, (flags >> 2) & 1u);
+            break;
+        }
+        case 0x11:
+            if ((flags & 2u) != 0) Write<std::uint8_t>(gDynamicDataHouses.entries + id * 0xD0u, 0xCC, flags & 1u);
+            break;
+        default: break;
+        }
+        return true;
+    }
+
     namespace
     {
         using NC2Lifetime::Read;
@@ -214,7 +243,7 @@ namespace NC2E2
         {
             const auto* marker = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + id * 0x18u;
             if (Read<std::uint32_t>(marker, 0x10) != 1 || NC2Logic::Marker_PlayerId_Get(marker) == -1 || NC2Logic::Marker_PlayerId_Get(marker) != playerId) return;
-            const auto landscapeId = StaticHumanMisc_SoldierSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
+            const auto landscapeId = StaticHumanMisc_InhabitantSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
             if (landscapeId != -1) DrawAtom_Landscape_GetBobData(static_cast<const SE2StaticDataLandscape*>(gStaticLandscapeEntries) + landscapeId, 1, NC2Logic::gGameTime.tick, output);
             return;
         }
@@ -268,7 +297,7 @@ namespace NC2E2
                 if (humanId != -1) brightness = DynamicBrightness(gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * 0x8C8u, 0x8C4, brightness);
                 if (NC2Logic::Marker_PlayerId_Get(marker) != -1 && NC2Logic::Marker_PlayerId_Get(marker) == playerId)
                 {
-                    const auto id = StaticHumanMisc_SoldierSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
+                    const auto id = StaticHumanMisc_InhabitantSign_GetLandscapeId(NC2Logic::Marker_PlayerId_Get(marker), 9);
                     if (id != -1) drawGraphic(id, 0);
                 }
             }

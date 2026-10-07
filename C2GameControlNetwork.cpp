@@ -5,8 +5,19 @@
 #include "C2GameState.h"
 #include "C2UserMessageAccess.h"
 
+#include <cstring>
+
 namespace NC2Logic
 {
+    // Original function: FUN_0040a231. The signed upper bound has no lower check.
+    const char* GameControl_Names_GetPlayerTribeNamePtr(const void* gameControl, std::int32_t player)
+    {
+        if (player >= 20) return nullptr;
+        const auto offset = static_cast<std::uint32_t>(player) * 0x4A80u;
+        if (NC2Lifetime::Read<std::uint8_t>(gameControl, offset) == 0) return nullptr;
+        const auto* name = static_cast<const char*>(gameControl) + offset + 0x49ACu;
+        return std::strlen(name) != 0 ? name : nullptr;
+    }
     // Original function: FUN_0040a034; CGameControl::SpecialItem_Add.
     bool GameControl_SpecialItem_Add(void* gameControl, std::int32_t player, std::uint32_t type, std::uint32_t item, const void* position)
     {

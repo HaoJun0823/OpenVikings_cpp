@@ -41,6 +41,31 @@ extern void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
+    // Original function: FUN_0047cfea.
+    void Display_DE_ObjectsToMark_AddSecondaryHuman(void* display, std::uint32_t markType, std::uint32_t humanId)
+    {
+        using namespace NC2Lifetime;
+        const auto count = Read<std::uint32_t>(display, 0xAC);
+        if (count == 30) return;
+        auto* reference = static_cast<std::byte*>(display) + 0xB0u + count * 0x48u;
+        Write(reference, 0x44, markType); DisplayObjectReference_Reset(reference);
+        Write<std::uint32_t>(reference, 0, 1); Write(reference, 8, humanId);
+        Write(reference, 0xC, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize, 8));
+        Write(display, 0xAC, count + 1u);
+    }
+
+    // Original function: FUN_0047d06d.
+    void Display_DE_ObjectsToMark_AddSecondaryHouse(void* display, std::uint32_t markType, std::uint32_t houseId)
+    {
+        using namespace NC2Lifetime;
+        const auto count = Read<std::uint32_t>(display, 0xAC);
+        if (count == 30) return;
+        auto* reference = static_cast<std::byte*>(display) + 0xB0u + count * 0x48u;
+        Write(reference, 0x44, markType); DisplayObjectReference_Reset(reference);
+        Write<std::uint32_t>(reference, 0, 4); Write(reference, 0x28, houseId);
+        Write(reference, 0x2C, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize, 8));
+        Write(display, 0xAC, count + 1u);
+    }
     static std::uint32_t GetMoveableMarkType(const void* display, std::uint32_t id, std::uint32_t type, std::uint32_t idOffset, const std::byte* objects, std::uint32_t stride)
     {
         using NC2Lifetime::Read;

@@ -219,5 +219,6 @@ namespace NC2E2
                 EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(originLogic, 3) : 0u, bitmap, Add(x, Sub(originPixel[0], sourcePixel[0])), Add(y, Sub(originPixel[1], sourcePixel[1])), phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
             }
         }
+        E2HumanSoundManager_PlayGenericSounds(gE2HumanSoundManager, display);
     }
 }

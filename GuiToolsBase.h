@@ -132,6 +132,9 @@ namespace NC2GuiToolsBase
 
     char* StringTool_GetMainMenuStringPtr(std::uint32_t stringId);
     char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId);
+    char* StringTool_GetGameGuiMessagesStringPtr(std::uint32_t stringId);
+    void StringTool_GetLogicSpecialItemNamePtr(std::uint32_t type, std::int32_t item, char* output);
+    const char* StringTool_GetLogicDiplomacyStateNamePtr(std::uint32_t state);
     char* StringTool_GetGameGuiMiscWindowStringPtr(std::uint32_t stringId);
     char* StringTool_GetMiscMenuStringPtr(std::uint32_t stringId);
     char* StringTool_GetUpdate103StringPtr(std::uint32_t stringId);

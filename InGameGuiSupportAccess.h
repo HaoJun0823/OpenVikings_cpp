@@ -51,6 +51,7 @@ namespace NC2InGameGuiMessages
     };
     static_assert(sizeof(CMessageManager) == 0x18);
     std::uint32_t SingleMessageDisplayed_GetValidHumanId(const void* record);
+    bool SingleMessageDisplayed_GetMapPosition(const void* record, std::uint32_t* point);
     void* MessageMiniButton_Construct(void* button, std::uint32_t uniqueId, std::int32_t x);
     void Tool_CreateMessageString(const void* message, char* output, std::uint32_t capacity);
 }

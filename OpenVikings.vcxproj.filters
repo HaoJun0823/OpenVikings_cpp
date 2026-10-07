@@ -1178,4 +1178,18 @@
     <ClInclude Include="C2HumanWorkCommands.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2GuideAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineSelectionAccess.cpp">
+      <Filter>Engine\Display</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiSelectionAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiMessageText.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="InGameGuiMessageWindowAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>

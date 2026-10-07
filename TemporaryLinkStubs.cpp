@@ -27,8 +27,6 @@ namespace NC2Logic { class CIoHelper; }
 namespace NC2Logic
 {
 
-
-
     // TEMPORARY DUMMY: Windows address 0040822E; implementation pending.
     // Naming reference: NC2Logic::CAIManager::IO_InitFromScript.
     void __fastcall AIManager_IO_InitFromScript(void *, void *, NXBasics::CIniFileReader *) {}
@@ -95,8 +93,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 0041CBB8; implementation pending.
     // Naming reference: NC2Logic::CHumanMerchantArray::l_LogicCallback.
     bool __cdecl HumanMerchantArray_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-
 
 
     // TEMPORARY DUMMY: Windows address 00424AE9; implementation pending.
@@ -199,14 +195,6 @@ namespace NC2Logic
 
 namespace NC2E2
 {
-    // TEMPORARY DUMMY: Windows address 0047E936; implementation pending.
-    // Naming reference: NC2E2::CE2Manager::sl_Callback_ObjectDisplayStateInLogicChanged.
-    bool __cdecl E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 0047EC5B; implementation pending.
-    // Naming reference: NC2E2::CE2Manager::sl_Callback_Misc.
-    bool __cdecl E2Manager_sl_Callback_Misc(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
     // TEMPORARY DUMMY: Windows address 00482DC0; implementation pending.
     // Naming reference: NC2E2::C2DEngineMap::OverlayPattern_HouseAreaChanged.
     void __cdecl EngineMap_OverlayPattern_HouseAreaChanged(void const *, bool) {}
@@ -238,15 +226,6 @@ namespace NC2E2
 
 }
 
-namespace NC2InGameGuiMessages
-{
-    // TEMPORARY DUMMY: Windows address 004B4247; implementation pending.
-    void CMessageManager::PresentationWindow_Open(std::uint32_t) {}
-
-    // TEMPORARY DUMMY: Windows address 004D21DE; implementation pending.
-    void __cdecl Tool_CreateMessageString(void const *, char *, unsigned int) {}
-
-}
 
 // TEMPORARY DUMMY: Windows address 0040EEFA; implementation pending.
     // Naming reference: NXBasics::CBitmap::ZoomIn.
@@ -367,16 +346,6 @@ bool __fastcall InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Han
     // Naming reference: NC2InGameGuiWorldGameCursor::IGG_DrawWorldGameCursor_LogicCallback.
 bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-// TEMPORARY DUMMY: Windows address 004B4854; implementation pending.
-    // Naming reference: NC2InGameGuiInputManager::CInputManager::InputMode_Set.
-bool __fastcall InputManager_InputMode_Set(void *, void *, int) { return false; }
-
-// PARTIAL: Windows address 004B77E8; selection validation/removal, highlighting
-// and cursor reset remain pending. Every original branch returns true at 004B7908.
-// Returning false here aborts entity graphics creation in the next callback.
-// Naming reference: NC2InGameGuiInputManager::CInputManager::ls_Callback_Logic.
-bool __cdecl InputManager_ls_Callback_Logic(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
-
 // TEMPORARY DUMMY: Windows address 004B8607; implementation pending.
     // Naming reference: NC2InGameGuiMiscWindows::CMissionOnscreenInfoStaticGuiWindow::CMissionOnscreenInfoStaticGuiWindow.
 void * __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void *) { return nullptr; }
@@ -388,10 +357,6 @@ void * __fastcall InGameGuiManagerMousePointer_Construct(void *) { return nullpt
 // TEMPORARY DUMMY: Windows address 004BC31C; implementation pending.
     // Naming reference: NC2InGameGuiManager::CGuiManagerPrimaryMessageHandlerElement::CGuiManagerPrimaryMessageHandlerElement.
 void * __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Construct(void *) { return nullptr; }
-
-
-
-
 
 
 

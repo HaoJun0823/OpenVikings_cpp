@@ -82,8 +82,11 @@ namespace NC2E2
     bool Tool_Sound_IsCDAUsable();
     void DisplayDescription_GetMapRectangle(const void* display, std::uint32_t pixelX, std::uint32_t pixelY, std::uint32_t pixelWidth, std::uint32_t pixelHeight, std::int16_t* rectangle);
     void DisplayObjectReference_Reset(void* reference);
+    void Display_DE_ObjectsToMark_AddSecondaryHuman(void* display, std::uint32_t markType, std::uint32_t humanId);
+    void Display_DE_ObjectsToMark_AddSecondaryHouse(void* display, std::uint32_t markType, std::uint32_t houseId);
     bool DisplayObjectReference_Validate(void* reference);
     bool DisplaySearchObject_Validate(void* searchObject);
+    void DE_SearchObject_FindOnWorldPosition(const void* display, const std::int32_t* mouse, void* output);
 
     // Original function: FUN_00481e72
     void* DisplayDescription_Construct(void* description);

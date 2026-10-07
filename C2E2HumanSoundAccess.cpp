@@ -1,6 +1,9 @@
 #include "C2E2HumanSoundAccess.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2EngineDisplayManager.h"
+#include "C2EngineDisplayAccess.h"
+#include "C2GameState.h"
+#include "C2HumanIterator.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LogicObjectArrays.h"
@@ -11,6 +14,34 @@
 namespace NC2E2
 {
     using NC2Lifetime::Read;
+
+    // Original function: FUN_0047ec5b, sound-event branch 0x17. Other manager
+    // events remain unfinished; Windows returns true even for ignored events.
+    bool __cdecl E2Manager_sl_Callback_Misc(std::uint32_t type, std::uint32_t, std::uint32_t soundType, std::uint32_t point, std::uint32_t skipRunning)
+    {
+        if (type != 0x17 || NDSManager::CManager::sTheObjectPtr == nullptr) return true;
+        const auto* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
+        const auto x = Read<std::int16_t>(&point, 0), y = Read<std::int16_t>(&point, 2);
+        const auto left = Read<std::int16_t>(display, 0x97A), top = Read<std::int16_t>(display, 0x97C), width = Read<std::int16_t>(display, 0x97E), height = Read<std::int16_t>(display, 0x980);
+        if (x < left || x > static_cast<std::int16_t>(left + width - 1) || y < top || y > static_cast<std::int16_t>(top + height - 1)) return true;
+        const auto player = Read<std::uint32_t>(display, 0x7C);
+        if ((Read<std::uint8_t>(display, 0x70) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), 8) & (1u << player)) == 0) return true;
+        const auto pan = (x - width / 2 - left) * 128 / width, vertical = (y - height / 2 - top) * 128 / height;
+        const auto distance = ((pan < 0 ? -pan : pan) + (vertical < 0 ? -vertical : vertical)) / 2;
+        if (distance > 64) return true;
+        auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
+        const auto soundId = sounds->staticSoundIdsByType[soundType];
+        if (soundId == 0xFFFFFFFFu) return true;
+        const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
+        const auto count = Read<std::uint32_t>(sound, 0x28);
+        if (count == 0) return true;
+        const auto variant = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % count;
+        const auto wave = Read<std::uint32_t>(sound, 0x2Cu + variant * 8u);
+        auto* manager = NDSManager::CManager::sTheObjectPtr;
+        if (skipRunning != 0 && manager->PreloadWave_IsRunning(wave)) return true;
+        manager->PreloadWave_Play(wave, ((64u - static_cast<std::uint32_t>(distance)) * Read<std::uint32_t>(sound, 0x30u + variant * 8u)) >> 6, 1, static_cast<std::uint32_t>(pan) + 64u, false, 0);
+        return true;
+    }
 
     // Original function: FUN_004856f9. This helper is inlined in the Mac reference.
     static std::uint32_t HumanSound_GetSexAgeIndex(const void* human)
@@ -32,6 +63,46 @@ namespace NC2E2
         const auto tribe = Read<std::uint32_t>(human, 0x14);
         const auto offset = 4u + (tribe * 3u + HumanSound_GetSexAgeIndex(human)) * 0x8Cu;
         NC2Lifetime::Write(manager, offset, Read<std::uint32_t>(manager, offset) + 1u);
+    }
+
+    // Original function: FUN_0048575f; one chance value and at most one sound per game tick.
+    void E2HumanSoundManager_PlayGenericSounds(void* manager, const void* display)
+    {
+        if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0) return;
+        const auto tick = NC2Logic::gGameTime.tick;
+        if (Read<std::uint32_t>(manager, 0) == tick) return;
+        NC2Lifetime::Write(manager, 0, tick);
+        std::int16_t rectangle[4]{};
+        DisplayDescription_GetMapRectangle(display, Read<std::uint32_t>(display, 0x954), Read<std::uint32_t>(display, 0x958), Read<std::uint32_t>(display, 0x964), Read<std::uint32_t>(display, 0x968), rectangle);
+        const std::uint32_t center = static_cast<std::uint16_t>(rectangle[0] + (rectangle[2] >> 1)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(rectangle[1] + (rectangle[3] >> 1))) << 16);
+        const auto player = Read<std::uint32_t>(display, 0x7C);
+        const auto chance = static_cast<std::uint32_t>(NXBasics::Runtime_Rand() % 2000);
+        for (std::uint32_t tribe = 0; tribe < 8; ++tribe)
+        {
+            for (std::uint32_t category = 0; category < 3; ++category)
+            {
+                const auto offset = (tribe * 3u + category) * 0x8Cu;
+                if (chance >= Read<std::uint32_t>(manager, offset + 4u) || Read<std::uint32_t>(manager, offset + 0x0Cu) == 0xFFFFFFFFu) continue;
+                NC2Logic::CHumanIterator iterator;
+                const void* selected = nullptr;
+                for (auto id = iterator.GetFirstSectorHumanId(player, center, rectangle[2], false); id != -1; id = iterator.GetNextSectorHumanId())
+                {
+                    const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
+                    if (Read<std::uint32_t>(human, 0x14) == tribe && HumanSound_GetSexAgeIndex(human) == category) { selected = human; break; }
+                }
+                if (selected == nullptr && category == 2)
+                {
+                    for (auto id = iterator.GetFirstSectorHumanId(player, center, rectangle[2], true); id != -1; id = iterator.GetNextSectorHumanId())
+                    {
+                        const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
+                        if (Read<std::uint32_t>(human, 0x14) == tribe && HumanSound_GetSexAgeIndex(human) == 2) { selected = human; break; }
+                    }
+                }
+                if (selected == nullptr) continue;
+                Tool_Sound_PlaySoundOrientedOnDisplay(NC2Logic::Human_GetMapPositionRef(selected), Read<std::uint32_t>(manager, offset + 0x0Cu), display, true, true);
+                return;
+            }
+        }
     }
 
     // Original function: FUN_00485a73. The Mac reference inlines this response-list access.

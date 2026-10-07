@@ -28,6 +28,7 @@ namespace NC2Logic
     bool Human_DoAddNewUserCommand(void* human, const void* command);
     bool Human_DoAddNewUserCommand(void* human, std::uint8_t opcode, std::uint8_t player, std::uint32_t id, std::uint32_t revision, std::uint32_t parameter1, std::uint32_t parameter2);
     bool Human_CanExecuteQueuedCommands(const void* human);
+    std::uint32_t Human_UserControl_GetDefaultInteractionCommand_TrySendTo(const void* human, void* command, const void* point, bool parameter3, bool parameter4);
     bool Human_DoExecuteNextUserCommand(void* human);
     std::uint32_t Human_DoExecuteUserCommand(void* human, const void* command);
     std::uint32_t Human_DoExecuteUserCommand_GotoAndWait(void* human, const void* point);

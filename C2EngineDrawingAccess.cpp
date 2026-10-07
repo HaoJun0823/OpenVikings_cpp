@@ -34,7 +34,7 @@ namespace NC2E2
     }
 
     // Original function: FUN_0048b532.
-    std::int32_t StaticHumanMisc_SoldierSign_GetLandscapeId(std::int32_t playerId, std::uint32_t sign)
+    std::int32_t StaticHumanMisc_InhabitantSign_GetLandscapeId(std::int32_t playerId, std::uint32_t sign)
     {
         using NC2Lifetime::Read;
         if (playerId < 0 || playerId >= 20) return -1;
@@ -43,6 +43,20 @@ namespace NC2E2
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
         return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0xC + sign * 4u);
+    }
+
+    // Original function: FUN_0048b574.
+    std::int32_t StaticHumanMisc_SoldierSign_GetLandscapeId(std::int32_t playerId, std::uint32_t count)
+    {
+        using NC2Lifetime::Read;
+        if (count == 0 || playerId >= 20) return -1;
+        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u;
+        if (Read<std::uint8_t>(player, 0) == 0) return -1;
+        auto color = Read<std::int32_t>(player, 0x10);
+        if (color < 0 || color >= 10) color = 9;
+        auto index = count - 1u;
+        if (index >= 5) index = 4;
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0x34u + index * 4u);
     }
 
     // Original function: FUN_00486f3c

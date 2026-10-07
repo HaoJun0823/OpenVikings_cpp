@@ -524,4 +524,10 @@
     <ClInclude Include="C2HumanWorkCommands.h" />
     <ClInclude Include="C2GuideAccess.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineSelectionAccess.cpp" />
+    <ClCompile Include="InGameGuiSelectionAccess.cpp" />
+    <ClCompile Include="InGameGuiMessageText.cpp" />
+    <ClCompile Include="InGameGuiMessageWindowAccess.cpp" />
+  </ItemGroup>
 </Project>

@@ -18,5 +18,6 @@ namespace NC2E2
     NXBasics::CPalette* EnginePalette_GetBrightnessPalette(const void* colorData, std::int32_t brightness);
     NXBasics::CPalette* EnginePalette_GetPlayerPalette(std::int32_t playerId);
     NXBasics::CPalette* EnginePalette_GetPlayerShipPalette(std::int32_t playerId);
-    std::int32_t StaticHumanMisc_SoldierSign_GetLandscapeId(std::int32_t playerId, std::uint32_t sign);
+    std::int32_t StaticHumanMisc_InhabitantSign_GetLandscapeId(std::int32_t playerId, std::uint32_t sign);
+    std::int32_t StaticHumanMisc_SoldierSign_GetLandscapeId(std::int32_t playerId, std::uint32_t count);
 }

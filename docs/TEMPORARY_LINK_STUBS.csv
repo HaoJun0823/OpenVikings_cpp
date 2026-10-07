@@ -67,8 +67,7 @@ Address,CurrentName,Status,ReferencingObjects
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-0047E936,NC2E2::E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;C2GameEngineStartup.obj
-0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;C2GameEngineStartup.obj
+0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows implementation; sound event 0x17 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
 00480939,NC2LogicExternals::External_Human_SetName,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00482DC0,NC2E2::EngineMap_OverlayPattern_HouseAreaChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
@@ -94,17 +93,26 @@ Address,CurrentName,Status,ReferencingObjects
 004A2F54,C2IGG_EntryPoint_InputManager_Highlighting_Update,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004A3EDB,InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle,Partial native dispatch: options/mission-info/overview/speed/priority connected; other commands pending,InGameGuiManager_MessageHandlers.obj
 004B3264,IGG_DrawWorldGameCursor_LogicCallback,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
-004B4247,NC2InGameGuiMessages::CMessageManager::PresentationWindow_Open,Temporary dummy; Windows implementation pending,InGameGuiMessageMiniButtonAccess.obj
-004B4854,InputManager_InputMode_Set,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
-004B77E8,InputManager_ls_Callback_Logic,Partial Windows callback: original unconditional true restored; selection validation/removal/highlighting/cursor reset pending; excluded from completion,InGameGuiSupportAccess.obj
+004B4854,InputManager_InputMode_Set,Partial Windows implementation; normal mode reset connected; positive modes and modal GUI visibility pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B77E8,InputManager_ls_Callback_Logic,Partial Windows implementation; validation destruction and map-reset branches connected; command-mode highlighting pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004B8607,MissionOnscreenInfoStaticGuiWindow_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
-004BA3BE,NC2InGameGuiWorldElement::WorldDisplayElement_MessageHandle,Partial native implementation; overview camera command 2004 and wheel zoom restored; other world input pending; excluded from completion counts,WorldDisplayElementAccess.obj
+004BA3BE,NC2InGameGuiWorldElement::WorldDisplayElement_MessageHandle,Partial Windows implementation; click drag double-click normal human orders pan and zoom connected; positive modes selection windows follow and border scrolling pending; excluded from completion counts,WorldDisplayElementAccess.obj
 004BB78A,InGameGuiManagerMousePointer_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
 004BC31C,InGameGuiManagerPrimaryMessageHandlerElement_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
-004D21DE,NC2InGameGuiMessages::Tool_CreateMessageString,Temporary dummy; Windows implementation pending,InGameGuiMessageMiniButtonAccess.obj
 004DAE69,MainMenuGuiManagerMousePointer_DrawMouse,Temporary dummy; Windows implementation pending,MainMenuGuiManager_Access.obj
 004E6E44,Runtime_Log10,Temporary dummy; Windows implementation pending,DMManager.obj
 004E8774,Runtime_Sin,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
 004E8824,Runtime_Cos,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
 0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; landscape-edit external dummy remains; cadaver mapping is real,C2AnimalAccess.obj
 00436E8D,NC2Logic::Vehicle_Exit,Partial Windows vehicle exit; landscape-edit external dummy remains,C2VehicleLifecycle.obj
+004B4A5F,NC2InGameGuiInputManager::InputMode_Cancel,Partial Windows implementation; normal and positive-to-zero reset connected; modal window refresh pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B4A9F,NC2InGameGuiInputManager::Action_DoNormalSelect,Partial Windows implementation; normal object selection connected; road/wall selection pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B5EB1,NC2InGameGuiInputManager::Action_NormalSelectPossible,Partial Windows implementation; normal object queries connected; road/wall queries pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B5CFF,NC2InGameGuiInputManager::Action_DoDefault,Partial Windows implementation; single/group human movement connected; vehicle defaults pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B6CE1,NC2InGameGuiInputManager::Selection_Validate,Partial Windows implementation; human animal vehicle house guide singles/groups connected; construction/landscape selections pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B767E,NC2InGameGuiInputManager::Cursor_SetPosition,Partial Windows implementation; normal cursor validation connected; specialized modes pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004BABE0,NC2InGameGuiWorldElement::WorldDisplayElement_CheckObjectUnderMouse,Partial Windows implementation; hit testing family/home/workplace/house markers and ordinary single-human land command connected; other contextual commands pending; excluded from completion counts,WorldDisplayElementAccess.obj
+004BB0C1,NC2InGameGuiWorldElement::WorldDisplayElement_DoDefaultAction,Partial Windows implementation; single/group human prepared command dispatch connected; vehicle and school-window branch pending; excluded from completion counts,WorldDisplayElementAccess.obj
+004D08EB,NC2InGameGuiMessages::MessagePresentationWindow_Construct,Partial Windows implementation; native ownership layout and normal window lifecycle connected; contextual window behavior unfinished; excluded from completion counts,InGameGuiMessageWindowAccess.obj
+004D0ACF,NC2InGameGuiMessages::MessagePresentationWindow_MessageHandle,Partial Windows implementation; dismiss confirm and focus/select connected; good/house help context commands pending; excluded from completion counts,InGameGuiMessageWindowAccess.obj
+004D0B5E,NC2InGameGuiMessages::MessagePresentationWindow_Draw,Partial Windows implementation; papyrus text human portrait and type-18 category rows connected; house context buttons pending; excluded from completion counts,InGameGuiMessageWindowAccess.obj

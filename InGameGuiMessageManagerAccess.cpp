@@ -22,7 +22,7 @@ namespace NC2InGameGuiMessages
         std::byte* History(const void* manager, std::uint32_t index) { return Read<std::byte*>(manager, 0x14) + index * 0x30Cu; }
 
         // Original function: FUN_004b45c8; the object references are not validated here.
-        bool SingleMessageDisplayed_GetMapPosition(const void* record, std::uint32_t* point)
+        bool SingleMessageDisplayed_GetMapPositionImpl(const void* record, std::uint32_t* point)
         {
             const auto human = Read<std::uint32_t>(record, 0x18);
             if (human != 0xFFFFFFFFu) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), 0); return true; }
@@ -61,6 +61,8 @@ namespace NC2InGameGuiMessages
             Read<TDelete>(Read<void*>(button, 0), 0)(button, 1);
         }
     }
+
+    bool SingleMessageDisplayed_GetMapPosition(const void* record, std::uint32_t* point) { return SingleMessageDisplayed_GetMapPositionImpl(record, point); }
 
     // Original function: FUN_004b45a7.
     std::uint32_t SingleMessageDisplayed_GetValidHumanId(const void* record)

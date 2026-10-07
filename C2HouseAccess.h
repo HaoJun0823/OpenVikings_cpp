@@ -25,6 +25,7 @@ namespace NC2Logic
     std::uint32_t House_Inhabitants_GetNumberOfFamiliesLivingInHome(const void* house, std::uint32_t* families);
     std::int32_t House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(const void* house, std::uint32_t job);
     std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house, std::uint32_t mask);
+    std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house);
     std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders(const void* house);
     std::int32_t House_Construction_GetTotalNumberOfBuildersAllowed(const void* house);
     bool House_HitPoints_IsDamaged(const void* house);

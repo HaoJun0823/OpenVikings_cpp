@@ -8,6 +8,15 @@
 #include "GuiToolsBase.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "InGameGuiManager.h"
+#include "InGameGuiInputAccess.h"
+#include "C2HumanCommandAccess.h"
+#include "C2HouseAccess.h"
+#include "C2E2HumanSoundAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2LogicObjectArrays.h"
+#include "C2UserNetworkCommandAccess.h"
+#include "XMKeyManager.h"
+#include "XMMouseManager.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
@@ -19,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <initializer_list>
 #include <new>
 
 namespace NC2InGameGuiWorldElement
@@ -35,11 +45,215 @@ namespace NC2InGameGuiWorldElement
         std::memcpy(static_cast<std::byte*>(object) + offset, &value, sizeof(value));
     }
 
-    // Original function: FUN_004ba3be; overview camera and wheel zoom branches.
-    // Other world-input branches remain unfinished and this entry stays excluded
-    // from reconstruction completion counts in TEMPORARY_LINK_STUBS.csv.
-    static bool __fastcall WorldDisplayElement_MessageHandle(void* element, void*, std::int32_t message, std::int32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t)
+    // Original function: FUN_004bab5e.
+    static void WorldDisplayElement_MouseMoved(void* element, std::int32_t x, std::int32_t y)
     {
+        using namespace NC2Lifetime;
+        std::int32_t point[2]{x, y};
+        NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
+        auto* display = Read<void*>(element, 0x30);
+        NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
+        if (Read<std::uint8_t>(element, 0x1F4) != 0) { Write(element, 0x200, point[0]); Write(element, 0x204, point[1]); return; }
+        NC2E2::DisplayDescription_MakeValidWorldPixelPosition(display, point);
+        std::uint32_t mapPoint = 0;
+        NC2E2::DisplayDescription_WorldPixelToMapMigCoordinates(display, point, &mapPoint);
+        NC2InGameGuiInputManager::Cursor_SetPosition(NC2InGameGuiInputManager::gInputManager, &mapPoint);
+    }
+
+    // Original function: FUN_004babe0; advanced object interaction commands are
+    // reconstructed separately. The ordinary human point command is connected.
+    static void WorldDisplayElement_CheckObjectUnderMouse(void* element)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(element, 0x34) == 0) return;
+        auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
+        std::int32_t point[2]{Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
+        NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
+        auto* display = Read<void*>(element, 0x30);
+        NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
+        auto* target = static_cast<std::byte*>(element) + 0x38;
+        NC2E2::DE_SearchObject_FindOnWorldPosition(display, point, target);
+        Write<std::uint32_t>(display, 0xAC, 0);
+        const auto localPlayer = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
+        if (Read<std::uint32_t>(target, 0) == 1)
+        {
+            const auto* hoveredHuman = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, 8) * NC2Logic::CHumanArray::ElementSize;
+            if (Read<std::int32_t>(hoveredHuman, 0x10) == localPlayer)
+            {
+                for (const auto offset : {0xB20u, 0xB18u, 0xB14u, 0xB24u})
+                {
+                    const auto id = Read<std::uint32_t>(hoveredHuman, offset);
+                    if (id != 0xFFFFFFFFu) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, id);
+                }
+                for (const auto offset : {0xB28u, 0xB34u})
+                {
+                    const auto id = Read<std::uint32_t>(hoveredHuman, offset);
+                    if (id != 0xFFFFFFFFu) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHouse(display, 2, id);
+                }
+            }
+        }
+        else if (Read<std::uint32_t>(target, 0) == 4)
+        {
+            const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(target, 0x28) * NC2Logic::CHouseArray::ElementSize;
+            if (Read<std::int32_t>(house, 0xC) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
+                for (std::uint32_t i = 0; i < 20; ++i)
+                {
+                    const auto* slot = house + 0x640u + i * 0x10u;
+                    if (Read<std::uint8_t>(slot, 0) != 0) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, Read<std::uint32_t>(slot, 4));
+                }
+        }
+        Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
+        std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14);
+        const auto* input = NC2InGameGuiInputManager::gInputManager;
+        if (Read<std::uint32_t>(input, 4) != 1 || Read<std::uint32_t>(target, 0) != 9) return;
+        const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(input, 8) * NC2Logic::CHumanArray::ElementSize;
+        const auto action = NC2Logic::Human_UserControl_GetDefaultInteractionCommand_TrySendTo(human, static_cast<std::byte*>(element) + 0x1CC, target + 4, false, false);
+        Write(element, 0x1C4, action);
+    }
+
+    // Original function: FUN_004bb0c1; ordinary single-human prepared command.
+    static bool WorldDisplayElement_DoDefaultAction(void* element)
+    {
+        using namespace NC2Lifetime;
+        auto* command = static_cast<std::byte*>(element) + 0x1CC;
+        if (Read<std::uint8_t>(command, 0) == 0) return false;
+        if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 1)
+        {
+            NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
+            if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
+            NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(command, 4));
+        }
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 2)
+        {
+            auto* input = NC2InGameGuiInputManager::gInputManager;
+            const auto count = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanNumber(input);
+            for (std::uint32_t i = 0; i < count; ++i)
+            {
+                const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanId(input, i);
+                std::byte selectedCommand[0x14]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
+                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
+                NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
+                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_004ba3be; normal selection, double click, area drag,
+    // human point orders, overview camera and wheel zoom. Specialized input
+    // modes, selection windows and remaining camera commands stay unfinished.
+    static bool __fastcall WorldDisplayElement_MessageHandle(void* element, void*, std::int32_t message, std::int32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
+    {
+        using namespace NC2Lifetime;
+        using namespace NC2InGameGuiInputManager;
+        auto* input = gInputManager;
+        auto* display = Read<void*>(element, 0x30);
+        const auto keys = Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0);
+        auto* target = static_cast<std::byte*>(element) + 0x38;
+        const auto mainMode = Read<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xDC);
+        if (message == 1 || message == 2)
+        {
+            const auto doubleTime = Read<std::uint32_t>(element, 0x21C);
+            if (doubleTime != 0 && timeGetTime() - doubleTime < 250u) return true;
+        }
+        if (message == 1 || message == 0x20)
+        {
+            const auto offset = message == 1 ? 0x20Cu : 0x214u;
+            auto* overrideHandler = Read<void*>(element, offset);
+            if (overrideHandler != nullptr)
+            {
+                using THandle = bool(__fastcall*)(void*, void*, std::int32_t, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+                const auto handle = Read<THandle>(Read<void*>(overrideHandler, 0), 8);
+                if (handle(overrideHandler, nullptr, 0x800, Read<std::int32_t>(element, offset + 4), 0, 0, 0)) return true;
+            }
+        }
+        if (message == 1)
+        {
+            if (Read<std::uint8_t>(element, 0x34) == 0 || Read<std::uint8_t>(display, 0x6C) == 0 || Read<std::int32_t>(input, 0) != 0) return true;
+            Write<std::uint8_t>(element, 0x1F4, 1);
+            std::int32_t point[2]{command, static_cast<std::int32_t>(param1)};
+            NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
+            Write(element, 0x1F8, point[0]); Write(element, 0x1FC, point[1]); Write(element, 0x200, point[0]); Write(element, 0x204, point[1]);
+            return true;
+        }
+        if (message == 2)
+        {
+            if (Read<std::uint8_t>(element, 0x34) == 0) return true;
+            bool selectedArea = false;
+            if (WorldDisplayElement_MouseSelectingArea_IsAreaValid(element))
+            {
+                NXBasics::SRectangle rectangle(Read<std::int32_t>(element, 0x1F8), Read<std::int32_t>(element, 0x1FC), Read<std::int32_t>(element, 0x200) - Read<std::int32_t>(element, 0x1F8), Read<std::int32_t>(element, 0x204) - Read<std::int32_t>(element, 0x1FC));
+                selectedArea = Selection_SelectHumansInArea(input, element, rectangle, 0, (keys & 1u) != 0, (keys & 2u) != 0);
+            }
+            Write<std::uint8_t>(element, 0x1F4, 0);
+            WorldDisplayElement_MouseMoved(element, command, static_cast<std::int32_t>(param1));
+            if (selectedArea) return true;
+            if (mainMode == 1)
+            {
+                if (Read<std::int32_t>(input, 0) != 0 && Action_DoCancel(input, target)) return true;
+                if (Action_DoNormalSelect(input, target, false, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
+            }
+            else if (mainMode == 0 && Read<std::int32_t>(input, 0) == 0)
+            {
+                if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) return true;
+                if (Action_DoNormalSelect(input, target, true, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
+            }
+            return true;
+        }
+        if (message == 0x20)
+        {
+            if (Read<std::uint8_t>(element, 0x34) == 0) return true;
+            WorldDisplayElement_MouseMoved(element, command, static_cast<std::int32_t>(param1));
+            if (mainMode == 1)
+            {
+                if (Read<std::int32_t>(input, 0) != 0) return true;
+                if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
+            }
+            else if (mainMode == 0) { if (Action_DoCancel(input, target)) return true; }
+            else return true;
+            const auto type = Read<std::uint32_t>(target, 0);
+            if ((type == 1 || type == 3 || type == 4) && Read<std::uint32_t>(target, 0x40) == static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) && Action_DoNormalSelect(input, target, true, false, false)) NC2GuiToolsBase::FXTool_ClickConfirm();
+            return true;
+        }
+        if (message == 4)
+        {
+            Write(element, 0x21C, timeGetTime());
+            if (Read<std::uint8_t>(element, 0x34) != 0 && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(target, 0) == 1 && Read<std::uint32_t>(target, 0x40) == Read<std::uint32_t>(display, 0x7C) && Read<std::uint32_t>(input, 0) == 0 && (Selection_IsHumanSelected(input, Read<std::int32_t>(target, 8)) || Read<std::uint32_t>(input, 4) == 2))
+            {
+                const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, 8) * NC2Logic::CHumanArray::ElementSize;
+                const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
+                std::int32_t point[2]{Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
+                NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
+                NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
+                Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, 0x18), (keys & 1u) != 0, (keys & 2u) != 0);
+            }
+            Write<std::uint8_t>(element, 0x1F4, 0);
+            return true;
+        }
+        if (message == 0x80)
+        {
+            if (Read<std::uint8_t>(element, 0x34) == 0) return true;
+            const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
+            const auto callback = Read<bool(__cdecl*)()>(mouse, 0x4C);
+            if (callback != nullptr && callback())
+            {
+                const auto speed = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Options_ScrollSpeed_Get();
+                NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display, static_cast<std::int32_t>(speed * param2) / 300, static_cast<std::int32_t>(speed * param3) / 300);
+                WorldDisplayElement_FollowMode_End(element);
+            }
+            WorldDisplayElement_MouseMoved(element, command, static_cast<std::int32_t>(param1));
+            return true;
+        }
+        if (message == 0x800)
+        {
+            if (command == 2030) WorldDisplayElement_CheckObjectUnderMouse(element);
+            else if (command == 2031)
+            {
+                NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
+                std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14); Write<std::uint8_t>(element, 0x1F4, 0);
+            }
+            return true;
+        }
         if (message == 0x100)
         {
             void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
@@ -52,7 +266,6 @@ namespace NC2InGameGuiWorldElement
             return true;
         }
         if (message != 0x1000 || command != 2004) return false;
-        void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
         if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & 0x200u) != 0) return false;
         std::int32_t point[2];
         NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &param1, point, false);

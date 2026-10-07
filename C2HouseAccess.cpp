@@ -150,6 +150,14 @@ namespace NC2Logic
         return Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6);
     }
 
+    // Original function: FUN_004326e5.
+    std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house)
+    {
+        std::uint32_t count = 0;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) if (NC2Lifetime::Read<std::uint8_t>(house, 0x640u + slot * 16u) != 0) ++count;
+        return count;
+    }
+
     // Original function: FUN_004326fd.
     std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house, std::uint32_t mask)
     {

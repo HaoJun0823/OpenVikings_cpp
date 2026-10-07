@@ -3,6 +3,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LanguageTools.h"
 #include "C2StringIO.h"
+#include "C2StringAccess.h"
 #include "DSManager.h"
 #include "GuiToolsBase.h"
 #include "MasterPropertyManager.h"
@@ -535,6 +536,31 @@ namespace NC2GuiToolsBase
     char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId)
     {
         return CGuiBaseStringsManager::GetStringPtr(1, stringId);
+    }
+
+    // Original function: FUN_004e1e5f.
+    char* StringTool_GetGameGuiMessagesStringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(6, stringId);
+    }
+
+    // Original function: FUN_004e2218.
+    void StringTool_GetLogicSpecialItemNamePtr(std::uint32_t type, std::int32_t item, char* output)
+    {
+        output[0] = '\0';
+        if (type == 1 || type == 2) { std::strcpy(output, CGuiBaseStringsManager::GetStringPtr(5, type + 179u)); return; }
+        if (type < 3 || type > 7) return;
+        const char* format = CGuiBaseStringsManager::GetStringPtr(5, type + 179u);
+        const char* name = type == 7 ? NC2Logic::StringAccess_GetGoodNamePtr(static_cast<std::uint32_t>(item), 1) : type == 6 ? NC2Logic::StringAccess_GetJobNamePtr(static_cast<std::uint32_t>(item), 1) : NC2Logic::StringAccess_GetHouseNamePtr(static_cast<std::uint32_t>(item), 1);
+        NXBasics::Runtime_PrintString(output, format, name);
+    }
+
+    // Original function: FUN_004e22d8. Literal states are verified in Game.exe.
+    const char* StringTool_GetLogicDiplomacyStateNamePtr(std::uint32_t state)
+    {
+        if (state == 0) return "<NONE>";
+        if (state == 4) return "<SELF>";
+        return state <= 3 ? CGuiBaseStringsManager::GetStringPtr(5, state + 199u) : "";
     }
 
     // Original function: FUN_004e1e51.

@@ -28,6 +28,23 @@
 #include <cstring>
 namespace NC2Logic
 {
+    // Original function: FUN_0043623a; both trailing parameters are unused.
+    std::uint32_t Human_UserControl_GetDefaultInteractionCommand_TrySendTo(const void* human, void* command, const void* point, bool, bool)
+    {
+        using namespace NC2Lifetime;
+        if ((Read<std::uint32_t>(human, 0xB84) & 0x20u) != 0) return 0;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0xC) * 0x58u;
+        if (Read<std::uint8_t>(moveable, 0x10) == 0) return 0;
+        const auto* target = GameMap_GetConstMapMicroPointPtr(point);
+        const auto* source = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(moveable) + 0x12);
+        if (Read<std::uint8_t>(target, 6) != Read<std::uint8_t>(source, 6)) return 0;
+        const auto player = Read<std::uint32_t>(human, 0x10);
+        if (player < 16 && (Read<std::uint16_t>(target, 8) & (1u << player)) == 0) return 0;
+        std::memset(command, 0, 0x14);
+        Write<std::uint8_t>(command, 0, 4); Write(command, 4, Read<std::uint32_t>(human, 4)); Write(command, 8, Read<std::uint32_t>(human, 8)); Write(command, 0xC, MapMigPoint_GetLong(point));
+        return 2;
+    }
+
     // Original function: FUN_0042cc40; complete PE selector 0042CD3D..0042CD5C.
     bool Human_IsAtTargetPoint(const void* human)
     {
