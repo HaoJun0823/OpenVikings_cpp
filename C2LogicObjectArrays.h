@@ -142,6 +142,8 @@ namespace NC2Logic
         static constexpr std::uint32_t SaveVersion = 1;
 
         CAnimalArray();                           // Original function: FUN_0041c076
+        std::int32_t AllocateAnimal(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags);
+        void FreeAnimal(std::int32_t id);
         ~CAnimalArray();                          // Original function: FUN_0041c16a
         void IO_Savegame_DoSave(CIoHelper* io);    // Original function: FUN_0041c1a3
         explicit CAnimalArray(CIoHelper* io);      // Original function: FUN_0041c1d7

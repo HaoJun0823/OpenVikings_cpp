@@ -23,14 +23,14 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_00438cec; shared carried-good callback leaf.
+    void Human_ClearCarriedGood(void* human) { Write<std::uint32_t>(human, 0xAD4, 0); CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0); }
     namespace
     {
         void Fail(void* human, std::uint32_t code) { Write<std::uint32_t>(human, 0x36C, 3); Write(human, 0x374, code); }
         void Done(void* human) { Write<std::uint32_t>(human, 0x36C, 2); }
         void Queue(void* human, std::uint8_t opcode, std::uint32_t good, std::int32_t slot) { Human_DoAddNewUserCommand(human, opcode, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), good, static_cast<std::uint32_t>(slot)); }
         void* LastCommand(void* human) { return static_cast<std::byte*>(human) + 0x390u + Read<std::uint32_t>(human, 0xA5C) * 20u; }
-        // Original function: FUN_00438cec.
-        void Human_ClearCarriedGood(void* human) { Write<std::uint32_t>(human, 0xAD4, 0); CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0); }
         // Original function: FUN_0042db6c.
         void Human_SetCarriedGood(void* human, std::uint32_t good) { Write(human, 0xAD4, good); CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good); }
         // Original function: FUN_0045c075.

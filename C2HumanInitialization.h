@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "C2HumanGoods.h"
 
 namespace NC2Logic
 {
@@ -30,7 +31,6 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_DetachWorkHouse(void* human);
     // Remaining original operations are isolated in TemporaryLinkStubs.cpp.
     void HappinessManager_Messages_CivilistDied(void* manager, const void* human);
-    std::uint32_t Map_GoodTool_PutOnMap(std::uint32_t good, std::uint32_t amount, std::uint32_t point, std::uint32_t radius, bool notify);
     bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void* point, std::uint32_t type, std::uint32_t valency, std::int32_t engineId, std::uint32_t parameter, std::int32_t player);
 }
 

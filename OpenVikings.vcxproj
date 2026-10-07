@@ -512,11 +512,13 @@
     <ClCompile Include="C2MapSectorRouting.cpp" />
     <ClCompile Include="C2GuideRouting.cpp" />
     <ClCompile Include="C2HumanScout.cpp" />
+    <ClCompile Include="C2HumanChest.cpp" />
     <ClCompile Include="C2HumanWorkCommands.cpp" />
     <ClCompile Include="C2GuideAccess.cpp" />
     <ClInclude Include="C2MapPathfinderSectorSearch.h" />
     <ClInclude Include="C2GuideRouting.h" />
     <ClInclude Include="C2HumanScout.h" />
+    <ClInclude Include="C2HumanChest.h" />
     <ClInclude Include="C2HumanWorkCommands.h" />
     <ClInclude Include="C2GuideAccess.h" />
   </ItemGroup>

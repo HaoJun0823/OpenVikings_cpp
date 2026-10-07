@@ -1,6 +1,7 @@
 #include "C2AnimalIterator.h"
 #include "C2AnimalAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2LifetimeAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
 #include "C2MapSectorAttachment.h"
@@ -14,6 +15,33 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_004402cd; allocation eviction scans in array order.
+    std::int32_t CAnimalIterator::GetFirstAnimalId(std::uint32_t player)
+    {
+        selection = player;
+        flags = 1;
+        currentAnimalId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentAnimalId;
+    }
+
+    // Original function: FUN_00440408; array and sector iteration are distinct.
+    std::int32_t CAnimalIterator::l_GetNext(std::int32_t previousAnimalId)
+    {
+        using namespace NC2Lifetime;
+        for (auto id = previousAnimalId + 1; id <= CAnimalArray::sTheObjectPtr->mLastScanIndex; ++id)
+        {
+            const auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
+            if (Read<std::uint8_t>(animal, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(animal, 0x10) != selection)) continue;
+            if ((flags & 2u) != 0)
+            {
+                const auto* point = Animal_GetMapPositionRef(animal);
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(packedCenter), static_cast<std::int16_t>(packedCenter >> 16))) > static_cast<std::uint32_t>(radius)) continue;
+            }
+            return id;
+        }
+        return -1;
+    }
+
     // Original function: FUN_004402a3
     CAnimalIterator::CAnimalIterator()
     {

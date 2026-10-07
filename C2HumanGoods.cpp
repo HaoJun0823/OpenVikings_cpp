@@ -634,6 +634,29 @@ namespace NC2Logic
         return true;
     }
 
+    // Original function: FUN_00462176; retain partial placement on failure.
+    bool Map_GoodTool_PutOnMap(std::uint32_t good, std::uint32_t amount, std::uint32_t point, std::uint32_t radius, bool preserveEmptyLandscape)
+    {
+        while (amount != 0 && Map_GoodTool_PutOnMap(good, &point, preserveEmptyLandscape)) --amount;
+        if (amount == 0) return true;
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+        for (std::uint32_t ring = 1; ring < radius; ++ring)
+        {
+            MapMigPoint_MoveCursorUnwrapped(point, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                for (std::uint32_t step = 0; step < ring; ++step)
+                {
+                    MapMigPoint_MoveCursorUnwrapped(point, direction);
+                    if (!MapMigPoint_IsInsideMap(&point) || MapMigPoint_IsBorderPoint(&point) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) != continent) continue;
+                    while (amount != 0 && Map_GoodTool_PutOnMap(good, &point, preserveEmptyLandscape)) --amount;
+                    if (amount == 0) return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // Original function: FUN_00461f6f.
     bool Map_GoodTool_PutOnMap(std::uint32_t good, const void* point, bool preserveEmptyLandscape)
     {

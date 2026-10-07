@@ -52,6 +52,7 @@ namespace NC2Logic
     bool Human_FindConsumerNearWorkCenter(const void* human, std::uint32_t good);
     bool Human_FindConsumerNearWorkCenter(const void* human, std::uint32_t good, void* realPosition, void* workPosition);
     bool Map_GoodTool_PutOnMap(std::uint32_t good, const void* point, bool preserveEmptyLandscape);
+    bool Map_GoodTool_PutOnMap(std::uint32_t good, std::uint32_t amount, std::uint32_t point, std::uint32_t radius, bool preserveEmptyLandscape);
     bool Map_GoodTool_CanBePutOnMap(std::uint32_t good, const void* point);
     bool Human_FindPilePointNearby(const void* human, void* realPosition, void* workPosition);
     bool Human_FindPilePointNearby(const void* human, std::uint32_t good, void* realPosition, void* workPosition);

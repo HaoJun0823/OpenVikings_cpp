@@ -419,8 +419,6 @@ double __cdecl Runtime_Cos(double) { return 0.0; }
 
 namespace NC2Logic
 {
-    // TEMPORARY DUMMY: Windows address 0040AD95; object startup dependency pending.
-    std::int32_t Logic_EntryPoint_Add_Animal(std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::uint32_t, std::uint32_t) { return -1; }
     // TEMPORARY DUMMY: Windows address 0040ADB7; object startup dependency pending.
     std::int32_t Logic_EntryPoint_Add_Vehicle(std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::uint32_t) { return -1; }
     // TEMPORARY DUMMY: Windows address 00441F8C; object startup dependency pending.
@@ -441,8 +439,6 @@ namespace NC2Logic
     bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void*, std::uint32_t, std::uint32_t, std::int32_t, std::uint32_t, std::int32_t) { return false; }
     // TEMPORARY DUMMY: Windows address 00419B74; death-message dependency pending.
     void HappinessManager_Messages_CivilistDied(void*, const void*) {}
-    // TEMPORARY DUMMY: Windows address 00462176; map-good placement dependency pending.
-    std::uint32_t Map_GoodTool_PutOnMap(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, bool) { return 0; }
 }
 namespace NC2LogicExternals
 {

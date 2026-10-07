@@ -8,6 +8,7 @@
 #include "C2HumanProduction.h"
 #include "C2HumanFamily.h"
 #include "C2HumanScout.h"
+#include "C2HumanChest.h"
 #include "C2GameControlStartup.h"
 #include "C2HouseAccess.h"
 #include "C2InteractionTargetAccess.h"
@@ -64,7 +65,7 @@ namespace NC2Logic
     }
 
     // Implementation boundary: do not start advancing an animation whose later
-    // events would require an untranslated outdoor production, combat or chest branch.
+    // events would require untranslated outdoor production, combat or vehicle rewards.
     bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
     {
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
@@ -83,6 +84,9 @@ namespace NC2Logic
             case 20:
                 if (!Human_IsJobScout(human) || Read<std::uint32_t>(human, 0xAB8) != 43) return false;
                 break;
+            case 33:
+                if (!Human_IsChestRewardReconstructed(human)) return false;
+                break;
             default: return false;
             }
         }
@@ -90,7 +94,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Outdoor production, combat and chest events remain explicit boundaries.
+    // 00468B67. Outdoor production, combat and vehicle rewards remain explicit boundaries.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);
@@ -159,6 +163,7 @@ namespace NC2Logic
         case 30: Human_l_PerformTaskEvent_ChangeGold(human, event.parameter); return;
         case 31: Human_l_PerformTaskEvent_ChangeWealth(human, event.parameter); return;
         case 32: Human_l_PerformTaskEvent_DidProduceOneGood(human); return;
+        case 33: Human_l_PerformTaskEvent_OpenChest(human); return;
         case 14: C2Debug_WarningBox("cAtomicAnimationEventTypeMerge not handled yet!"); return;
         case 17: C2Debug_WarningBox("cAtomicAnimationEventTypeShrink not handled yet!"); return;
         case 22: Human_HouseMisc_Leave(human); return;

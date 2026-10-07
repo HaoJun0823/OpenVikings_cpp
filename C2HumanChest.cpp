@@ -1,0 +1,186 @@
+#include "C2HumanChest.h"
+#include "C2HumanCommandAccess.h"
+#include "C2HumanEquipment.h"
+#include "C2HumanGoods.h"
+#include "C2HumanGoodieTasks.h"
+#include "C2HumanInitialization.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanWalking.h"
+#include "C2InteractionTargetAccess.h"
+#include "C2GameMapAccess.h"
+#include "C2GameControlNetwork.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2MissionStartObjects.h"
+#include "C2StaticTribeTypeData.h"
+#include "C2VehicleAccess.h"
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+    namespace
+    {
+        void Fail(void* human) { Write<std::uint32_t>(human, 0x374, 0); Write<std::uint32_t>(human, 0x36C, 3); }
+        const void* RealTarget(const void* human) { return static_cast<const std::byte*>(human) + 0xA6C; }
+        const void* WorkTarget(const void* human) { return static_cast<const std::byte*>(human) + 0xA70; }
+    }
+
+    // Original function: FUN_0043d34b.
+    std::uint32_t Human_DoExecuteUserCommand_OpenChest(void* human, const void* point)
+    {
+        if (!Human_l_IsAtomicInterruptable(human) || Read<std::uint32_t>(human, 0xAD4) != 0) return 0;
+        const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+        if (Read<std::uint8_t>(micro, 0) != 1) return 1;
+        const auto landscape = Read<std::uint8_t>(micro, 2);
+        if ((landscape != 85 && landscape != 86) || !Human_IsAgeAdult(human)) return 1;
+        std::uint32_t work = 0;
+        if (!GameMap_Misc_GetLandscapeWorkPosition(point, &work)) return 1;
+        Human_Target_Reset(human);
+        Human_Target_SetTargetPositions(human, point, &work);
+        Write<std::uint32_t>(human, 0x36C, 0);
+        Write<std::uint32_t>(human, 0xA68, 2);
+        Write<std::uint32_t>(human, 0xA74, landscape);
+        Write<std::uint32_t>(human, 0xACC, 1);
+        Write<std::uint32_t>(human, 0x368, 18);
+        return 2;
+    }
+
+    // Original function: FUN_0044613f; cargo is dropped before retrying opcode 18.
+    void Human_l_StartTask_OpenChest(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xAD4) != 0)
+        {
+            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(RealTarget(human)), 0);
+            if (Read<std::uint32_t>(human, 0xACC) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, 0xAD0, 0); }
+            Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human);
+            return;
+        }
+        if (!Human_Target_IsValid(human)) { Fail(human); return; }
+        if (Human_IsAtTargetPoint(human))
+        {
+            Human_l_StartAtomicAnimation(human, 91, Human_Target_GetDirectionTo(human));
+            Write<std::uint32_t>(human, 0x36C, 1);
+            return;
+        }
+        const auto landscape = Read<std::uint32_t>(human, 0xA74);
+        Write<std::uint32_t>(human, 0xAD0, 64);
+        if (!Human_l_StartAtomicWalkAndFetch(human, RealTarget(human), WorkTarget(human), true)) { Fail(human); return; }
+        Write<std::uint32_t>(human, 0xA68, 2);
+        Write(human, 0xA74, landscape);
+    }
+
+    // Original function: FUN_0043b00c; enable the good and its Windows producer job.
+    void Tool_TechTree_EnableGoodProduction(std::uint32_t player, std::uint32_t tribe, std::uint32_t good)
+    {
+        auto* data = static_cast<std::byte*>(gGameControl) + player * 0x4A80u;
+        const auto job = gStaticTribeTypeData[tribe].goodProduction[good].job;
+        Write<std::uint8_t>(data, 0x1D4Cu + tribe * 66u + good, 1);
+        if (job != 0) Write<std::uint8_t>(data, 0x948u + tribe * 56u + static_cast<std::uint32_t>(job), 1);
+    }
+
+    // Translation boundary only: vehicle allocation remains link-only.
+    bool Human_IsChestRewardReconstructed(const void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xACC) == 0 || !Human_Target_IsValid(human)) return true;
+        const auto* micro = GameMap_GetConstMapMicroPointPtr(RealTarget(human));
+        if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 86 && Read<std::uint32_t>(human, 0x18) != 30 && !Human_IsJobHero(human)) return true;
+        const auto reward = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        return reward != 89;
+    }
+
+    // Partial original function: FUN_0044cf1c; reward 89 retains the established
+    // 0040ADB7 wrapper while vehicle allocation remains an open boundary.
+    bool Tool_MapChest_UseChest(std::uint32_t humanId, const void* point)
+    {
+        auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
+        const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+        const bool large = Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 86;
+        if (large && Read<std::uint32_t>(human, 0x18) != 30 && !Human_IsJobHero(human)) return false;
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, large ? 57 : 56, MapMigPoint_GetLong(point), 0);
+        const auto reward = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        const auto player = Read<std::uint32_t>(human, 0x10);
+        const auto goods = [&](std::uint32_t good, std::uint32_t amount)
+        {
+            auto drop = Read<std::uint32_t>(point, 0);
+            MapMigPoint_MoveCursorWrapped(&drop, 1);
+            Map_GoodTool_PutOnMap(good, amount, drop, 5, false);
+        };
+        const auto special = [&](std::uint32_t type, std::uint32_t item) { GameControl_SpecialItem_Add(gGameControl, player, type, item, point); };
+        const auto addHuman = [&](std::uint32_t job) { return CHumanArray::sTheObjectPtr->AllocateHuman(player, 1, job, point, 0, 0); };
+        if (reward >= 1 && reward <= 12) goods(43u + reward, large ? 3 : 1);
+        else
+        {
+            switch (reward)
+            {
+            case 20: goods(16, large ? 48 : 30); break;
+            case 21: goods(45, large ? 18 : 12); break;
+            case 22: goods(47, large ? 18 : 12); break;
+            case 23: goods(49, large ? 18 : 12); break;
+            case 24: goods(35, large ? 9 : 6); break;
+            case 25: goods(36, large ? 9 : 6); break;
+            case 26: goods(30, large ? 9 : 6); break;
+            case 50: case 51: special(2, 0); break;
+            case 52: special(3, 41); break;
+            case 53: special(3, 37); break;
+            case 54: special(3, 39); break;
+            case 55: special(3, 9); break;
+            case 56: special(3, 3); break;
+            case 57: special(3, 6); break;
+            case 60: special(3, 10); break;
+            case 61: special(3, 12); break;
+            case 62: special(3, 13); break;
+            case 63: special(3, 14); break;
+            case 64: special(3, 1); break;
+            case 65: special(3, 38); break;
+            case 70: Tool_TechTree_EnableGoodProduction(player, 1, 42); special(4, 32); addHuman(13); break;
+            case 71: Tool_TechTree_EnableGoodProduction(player, 1, 15); special(4, 35); addHuman(30); break;
+            case 72: Tool_TechTree_EnableGoodProduction(player, 1, 8); special(4, 33); addHuman(14); break;
+            case 73:
+            {
+                for (const auto good : {15u, 44u, 46u, 48u}) Tool_TechTree_EnableGoodProduction(player, 1, good);
+                special(4, 36);
+                const auto id = addHuman(30);
+                if (id != -1)
+                {
+                    auto* added = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                    for (const auto offset : {0x1A4u, 0x1C1u, 0x1C5u, 0x1C3u}) Write<std::uint8_t>(added, offset, 1);
+                    Human_Production_Setup(added);
+                }
+                break;
+            }
+            case 74: Tool_TechTree_EnableGoodProduction(player, 1, 37); special(4, 27); addHuman(10); break;
+            case 89: Logic_EntryPoint_Add_Vehicle(player, 1, 5, point, 0); break;
+            case 90: for (std::uint32_t n = 0; n < 5; ++n) Logic_EntryPoint_Add_Animal(20, 20, 49, point, 0, 0); break;
+            case 92: for (std::uint32_t n = 0; n < 3; ++n) addHuman(6); break;
+            case 93: for (std::uint32_t n = 0; n < 3; ++n) addHuman(5); break;
+            case 94: for (std::uint32_t n = 0; n < 3; ++n) addHuman(35); break;
+            case 95: for (std::uint32_t n = 0; n < 3; ++n) addHuman(41); break;
+            case 96: for (std::uint32_t n = 0; n < 3; ++n) Logic_EntryPoint_Add_Animal(20, 25, 49, point, 0, 0); break;
+            default: break;
+            }
+        }
+        GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 11);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, player, 9, 0);
+        return true;
+    }
+
+    // Original function: FUN_0046a310; preserve reset and reservation-release order.
+    void Human_l_PerformTaskEvent_OpenChest(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xACC) == 0) Human_Target_Reset(human);
+        if (!Human_Target_IsValid(human) || !Tool_MapChest_UseChest(Read<std::uint32_t>(human, 4), RealTarget(human))) Fail(human);
+        else
+        {
+            Write<std::uint32_t>(human, 0x36C, 2);
+            if (Human_IsJobHero(human) && Read<std::uint32_t>(human, 0xAD4) != 0)
+            {
+                Map_GoodTool_PutOnMap(Read<std::uint32_t>(human, 0xAD4), 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 5, false);
+                Human_ClearCarriedGood(human);
+            }
+        }
+        Human_Target_Reset(human);
+        Human_StopCurrentGoodCirculationMode(human);
+    }
+}

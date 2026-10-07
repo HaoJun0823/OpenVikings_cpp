@@ -3,6 +3,7 @@
 
 namespace NC2Logic
 {
+    void Human_ClearCarriedGood(void* human);
     std::uint32_t Tool_GoodEquipmentType_Convert(std::uint32_t good);
     bool Human_l_Item_Set(void* human, std::uint32_t good);
     void Human_l_Item_Clear(void* human, std::int32_t slot);

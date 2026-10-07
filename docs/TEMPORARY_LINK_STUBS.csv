@@ -6,7 +6,6 @@ Address,CurrentName,Status,ReferencingObjects
 0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040ACE5,NC2Logic::HouseArray_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040AD1D,NC2Logic::HouseArray_DoOneGameSecond,Temporary dummy; Windows implementation pending,C2GameTime.obj
-0040AD95,NC2Logic::Logic_EntryPoint_Add_Animal,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0040ADB7,NC2Logic::Logic_EntryPoint_Add_Vehicle,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0040ADD6,NC2Logic::Logic_EntryPoint_FreeMapMoveable,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040AE38,NC2Logic::Logic_EntryPoint_House_Set,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
@@ -45,25 +44,24 @@ Address,CurrentName,Status,ReferencingObjects
 0043BA13,NC2Logic::Tool_GlobalDefendMode_Stop,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
-0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..17/19..35/39/41/52..87 connected; remaining default-action/combat/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
+0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
 0043E72E,NC2Logic::TributeData_Pay,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043E8AA,NC2Logic::MapPathfinderSpecialWallRoadElement_GetNextDirection,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00441F8C,NC2Logic::Human_VehicleMisc_Enter,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs/pickup/pileup/ordinary production events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
-004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial Windows startup; civilian needs/family/goods/goodies/home/equipment and supported queues connected; combat/outdoor/vehicle/guide tasks pending,C2HumanTaskAccess.obj
-004436C5,NC2Logic::Human_CurrentTask_DoFinish,Partial Windows finish; civilian needs/family/equipment/goodies connected; combat/chest/vehicle/guide leaves pending,C2HumanTaskAccess.obj
-00443807,NC2Logic::Human_CurrentTask_DoFailure,Partial Windows failure; civilian/family/equipment/scout recovery connected; combat and AI NoWayFound pending,C2HumanTaskAccess.obj
+004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial Windows startup; civilian/family/goods/goodies/home/equipment/scout/chest and supported queues connected; combat/outdoor/vehicle trees pending,C2HumanTaskAccess.obj
+004436C5,NC2Logic::Human_CurrentTask_DoFinish,Partial Windows finish; civilian/family/equipment/goodies/scout/chest connected; combat/vehicle leaves pending,C2HumanTaskAccess.obj
+00443807,NC2Logic::Human_CurrentTask_DoFailure,Partial Windows failure; civilian/family/equipment/scout/chest recovery connected; combat and AI NoWayFound pending,C2HumanTaskAccess.obj
 00445DA5,NC2Logic::Human_l_FailTask_Goto,Partial Windows goto failure; messages complete; AI NoWayFound notification pending,C2HumanTaskAccess.obj
 00450C1D,NC2Logic::GameMap_l_MaxMoveableSize_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00450E8C,NC2Logic::GameMap_l_WalkFlagSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004511C5,NC2Logic::GameMap_l_ResistanceSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004513C1,NC2Logic::GameMap_l_Continents_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-00462176,NC2Logic::Map_GoodTool_PutOnMap,Temporary dummy; Windows implementation pending,C2HumanInitialization.obj
 00462CD5,NC2Logic::Human_AI_DoNewMapPositionReached,Partial Windows position callback; civilian exploration/wear/speed/scout animal ownership complete; military destination continuation pending,C2MapMoveableAccess.obj
 00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial Windows step callback; civilian urgent needs and priority handling connected; military enemy search pending,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
-00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows event dispatcher; civilian/family/training/scout guide build connected; outdoor/combat/chest events pending,C2HumanCommandAccess.obj
+00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; civilian/family/training/scout/chest connected; outdoor/combat and chest vehicle allocation boundary pending,C2HumanCommandAccess.obj
 00468F5D,NC2Logic::Human_l_PerformTaskEvent_Build,Partial Windows build event; scout guide animation 43 connected; house/wall/vehicle construction pending,C2HumanAtomicEvents.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
 0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household/learning/indoor production/idle connected; outdoor/vehicle/military pending,C2HumanTaskAccess.obj
@@ -111,3 +109,5 @@ Address,CurrentName,Status,ReferencingObjects
 004E6E44,Runtime_Log10,Temporary dummy; Windows implementation pending,DMManager.obj
 004E8774,Runtime_Sin,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
 004E8824,Runtime_Cos,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
+0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; cadaver/landscape-edit external dummies remain,C2AnimalAccess.obj
+0044CF1C,NC2Logic::Tool_MapChest_UseChest,Partial Windows chest effects; reward 89 uses link-only vehicle allocation; all other reward effects connected,C2HumanChest.obj

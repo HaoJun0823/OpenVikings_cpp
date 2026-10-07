@@ -2,6 +2,19 @@
 #include "C2LogicObjectArrays.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2AnimalIterator.h"
+#include "C2EngineLandscapeAccess.h"
+#include "C2GameMapAccess.h"
+#include "C2GameState.h"
+#include "C2HumanInitialization.h"
+#include "C2HumanWalking.h"
+#include "C2InteractionTargetAccess.h"
+#include "C2MapGeometry.h"
+#include "C2MapMoveableAccess.h"
+#include "C2StaticActorTypeDataAccess.h"
+#include "C2StaticAtomicAnimationData.h"
+#include "C2StaticTribeTypeData.h"
+#include "XCrtFileAccess.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -9,6 +22,194 @@
 
 namespace NC2Logic
 {
+    using namespace NC2Lifetime;
+    namespace
+    {
+        void* Animal(std::int32_t id) { return CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * CAnimalArray::ElementSize; }
+        void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * 0x58u; }
+        const SStaticAnimalTypeData& Type(const void* animal) { return static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u]; }
+    }
+
+    // Original function: FUN_0040ad95; the manager owns allocation and callbacks.
+    std::int32_t Logic_EntryPoint_Add_Animal(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags) { return CAnimalArray::sTheObjectPtr->AllocateAnimal(player, tribe, job, point, missionCheck, flags); }
+
+    // Original function: FUN_0041c2a9; only non-neutral requests evict a neutral animal.
+    std::int32_t CAnimalArray::AllocateAnimal(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags)
+    {
+        if (!MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
+        auto id = Element_Allocate();
+        if (id == -1)
+        {
+            if (player == 20) return -1;
+            CAnimalIterator iterator;
+            const auto neutral = iterator.GetFirstAnimalId(20);
+            if (neutral == -1) return -1;
+            FreeAnimal(neutral);
+            id = Element_Allocate();
+        }
+        if (!Animal_Init(Animal(id), id, player, tribe, job, point, missionCheck, flags)) { FreeAnimal(id); return -1; }
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(6, true, id, 1, 0);
+        return id;
+    }
+
+    // Original function: FUN_0041c358; notify before exiting the object.
+    void CAnimalArray::FreeAnimal(std::int32_t id)
+    {
+        auto* animal = Animal(id);
+        if (Read<std::uint8_t>(animal, 0) == 0 || !Element_Free(id, true)) return;
+        if (Read<std::int32_t>(animal, 12) != -1) CCallbackManager::sTheObjectPtr->ExecuteCallback(6, false, id, 0, 0);
+        Animal_Exit(animal);
+    }
+
+    // Original function: FUN_0042dce9; retain random-call and initial-atomic order.
+    bool Animal_Init(void* animal, std::int32_t id, std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags)
+    {
+        if (Read<std::uint8_t>(animal, 0) != 0) return false;
+        std::memset(animal, 0, CAnimalArray::ElementSize);
+        Write<std::uint8_t>(animal, 0, 1);
+        Write(animal, 4, id);
+        Write(animal, 8, Game_UniqueId_Generate());
+        Write<std::int32_t>(animal, 0x34, -1);
+        Write(animal, 0x10, player);
+        Write(animal, 0x14, tribe);
+        Write(animal, 0x18, job);
+        const auto moveableId = MapMoveableArray_AllocateMapMoveable(gMapMoveableArrayStorage.manager, 2, id);
+        Write(animal, 12, moveableId);
+        if (moveableId == -1) return false;
+        auto* moveable = Moveable(animal);
+        MapMoveable_Attachment_AttachToMap(moveable, point);
+        const auto start = Read<std::uint32_t>(moveable, 0x12);
+        Write(animal, 0x2C, start);
+        Write(animal, 0x28, start);
+        Write(animal, 0x24, start);
+        Write(animal, 0x64, Animal_HitPoints_GetMaximum(animal));
+        Write(animal, 0x68, Game_Random_GetNumber() % 400u);
+        Write<std::uint32_t>(animal, 0x6C, 0);
+        auto* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
+        const auto speed = Type(animal).moveSpeed;
+        Write(moveable, 0x44, speed);
+        Write(moveable, 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
+        Write(path, 0x2C, player);
+        Write<std::int32_t>(path, 0x24, -1);
+        Write<std::int32_t>(path, 0x1C, -1);
+        Animal_l_StartAtomicAnimation(animal, 2, -1);
+        Write<std::uint32_t>(animal, 0x1C, 1);
+        Write<std::uint32_t>(animal, 0x20, 1);
+        Write<std::int32_t>(animal, 0x34, -1);
+        Write(animal, 0x8C, missionCheck);
+        const auto delay = Game_Random_GetNumber() % 3u;
+        Write(animal, 0x90, flags);
+        Write(animal, 0x30, delay);
+        Animal_l_Aggressive_Check(animal);
+        return true;
+    }
+
+    // Original function: FUN_0042de20; death landscaping remains an external boundary.
+    void Animal_Exit(void* animal)
+    {
+        if (Animal_l_IsLeaderValid(animal)) Animal_l_DetachLeader(animal);
+        if (Read<std::uint8_t>(animal, 0) == 0) return;
+        const auto moveableId = Read<std::int32_t>(animal, 12);
+        auto size = static_cast<std::uint32_t>(Type(animal).maximumCadaverSize);
+        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && size != 0 && Read<std::uint8_t>(Moveable(animal), 0x10) != 0)
+        {
+            const auto* point = Animal_GetMapPositionRef(animal);
+            if (Read<std::uint32_t>(animal, 0x40) == 0xFFFE7960u)
+            {
+                const auto engine = NC2LogicExternals::External_Misc_GetEngineCadaverLandscapeId(Read<std::uint32_t>(animal, 0x14), 79);
+                if (engine != -1)
+                {
+                    Logic_EntryPoint_Edit_Start();
+                    if (Read<std::uint32_t>(animal, 0x18) == 48) size >>= 1;
+                    Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(point, 79, size, engine, 0, -1);
+                    Logic_EntryPoint_Edit_Stop();
+                }
+            }
+            else
+            {
+                size /= 3u;
+                if (size == 0) size = 1;
+                Logic_EntryPoint_Edit_Start();
+                if (Read<std::uint32_t>(animal, 0x18) == 48) size >>= 1;
+                const auto engine = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(44, true);
+                Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(point, 44, size, engine, 0, -1);
+                Logic_EntryPoint_Edit_Stop();
+            }
+        }
+        if (moveableId != -1) MapMoveableArray_FreeMapMoveable(gMapMoveableArrayStorage.manager, moveableId);
+        Write<std::uint8_t>(animal, 0, 0);
+    }
+
+    // Original function: FUN_0042e82c; unsupported atomic types return false.
+    bool Animal_l_StartAtomicAnimation(void* animal, std::uint32_t action, std::int32_t direction)
+    {
+        if (action == 1 || !Animal_l_IsAtomicInterruptable(animal)) return false;
+        auto job = Read<std::uint32_t>(animal, 0x18);
+        std::uint32_t animation;
+        for (;;)
+        {
+            const auto* data = static_cast<const std::byte*>(gStaticJobTypeData) + job * 0x88u;
+            if (Read<std::uint8_t>(data, 0x24u + action) == 0) return false;
+            animation = gStaticTribeTypeData[Read<std::uint32_t>(animal, 0x14)].atomicIds[job][action];
+            if (animation != 0xFFFFFFFFu) break;
+            job = Read<std::uint32_t>(data, 0x20);
+            if (job == 0) return false;
+        }
+        Write<std::uint32_t>(animal, 0x7C, 0);
+        Write(animal, 0x80, Read<std::uint32_t>(animal, 0x80) + 1u);
+        Write(animal, 0x78, animation);
+        Write(animal, 0x70, action);
+        Write<std::uint8_t>(animal, 0x74, 1);
+        const auto preferred = gStaticAtomicAnimationData[animation].startDirection;
+        if (preferred != -1) MapMoveable_Attachment_StartTurn(Moveable(animal), preferred);
+        else if (direction != -1) MapMoveable_Attachment_StartTurn(Moveable(animal), direction);
+        return true;
+    }
+
+    // Original function: FUN_0042e9ae; no active animation is interruptible.
+    bool Animal_l_IsAtomicInterruptable(const void* animal)
+    {
+        if (Read<std::uint32_t>(animal, 0x70) == 1) return Read<std::uint8_t>(Moveable(animal), 0x2C) == 0;
+        return Read<std::uint8_t>(animal, 0x74) == 0 || gStaticAtomicAnimationData[Read<std::uint32_t>(animal, 0x78)].interruptable != 0;
+    }
+
+    // Original function: FUN_0042ebc1; leader attachment types must agree.
+    bool Animal_l_IsLeaderValid(const void* animal)
+    {
+        const auto id = Read<std::int32_t>(animal, 0x34);
+        if (id == -1) return false;
+        const auto* leader = Animal(id);
+        if (Read<std::uint8_t>(leader, 0) == 0 || Read<std::uint32_t>(leader, 8) != Read<std::uint32_t>(animal, 0x38) || Read<std::uint32_t>(leader, 0x10) != Read<std::uint32_t>(animal, 0x10) || Animal_IsAttachedToVehicle(leader)) return false;
+        if (!Animal_IsAttachedToHouse(animal)) return !Animal_IsAttachedToHouse(leader);
+        return Animal_IsAttachedToHouse(leader) && TargetData_GetUniqueId(static_cast<const std::byte*>(leader) + 0x50) == TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50);
+    }
+
+    // Original function: FUN_0042f2ad.
+    bool Animal_IsAttachedToHouse(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + 0x50; return TargetData_GetTargetType(target) == 4 && TargetData_IsValid(target); }
+    // Original function: FUN_0042f2d1.
+    bool Animal_IsAttachedToVehicle(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + 0x50; return TargetData_GetTargetType(target) == 2 && TargetData_IsValid(target); }
+
+    // Original function: FUN_004471ca; aggression changes sector-list membership.
+    void Animal_l_Aggressive_Check(void* animal)
+    {
+        if (Type(animal).aggressive != 0 && Read<std::uint32_t>(animal, 0x18) == 49)
+        {
+            if (Read<std::uint8_t>(animal, 0x5C) == 0)
+            {
+                MapMoveable_Attachment_DetachFromSectorMap(Moveable(animal));
+                Write<std::uint8_t>(animal, 0x5C, 1);
+                MapMoveable_Attachment_AttachToSectorMap(Moveable(animal));
+            }
+        }
+        else if (Read<std::uint32_t>(animal, 0x60) != 0) Write(animal, 0x60, Read<std::uint32_t>(animal, 0x60) - 1u);
+        else if (Read<std::uint8_t>(animal, 0x5C) != 0)
+        {
+            MapMoveable_Attachment_DetachFromSectorMap(Moveable(animal));
+            Write<std::uint8_t>(animal, 0x5C, 0);
+            MapMoveable_Attachment_AttachToSectorMap(Moveable(animal));
+        }
+    }
+
     // Original function: FUN_0042e9e8.
     std::uint32_t Animal_GetCurrentAtomicAnimationLengthInTicks(const void* animal) { return NC2Lifetime::Read<std::uint32_t>(gStaticAtomicAnimationData, NC2Lifetime::Read<std::uint32_t>(animal, 0x78) * 0x138u + 0x34); }
     // Original function: FUN_0042f6aa; animal type IDs index the native biased table.
