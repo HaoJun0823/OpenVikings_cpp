@@ -27,7 +27,6 @@ namespace NC2Logic
     extern bool __fastcall House_Construction_UpgradeStop(void*, void*);
     extern void Logic_EntryPoint_FreeMapMoveable(std::uint32_t);
     extern std::int32_t Logic_EntryPoint_House_Set(std::uint32_t, std::uint32_t, std::uint32_t, const void*, bool, std::uint32_t);
-    extern void __fastcall House_Stock_ModifyAmount(void*, void*, std::uint32_t, std::uint32_t, bool);
     extern void __fastcall RoadBuildManager_SetRoadBuildFlag(void*, void*, std::uint32_t, const void*);
     extern std::int32_t __fastcall MapPathfinderSpecialWallRoadElement_GetNextDirection(void*, void*);
     extern void Tool_RoadBuildManager_GetPossibleVectorList(std::uint32_t, void*, const void*, const void*);

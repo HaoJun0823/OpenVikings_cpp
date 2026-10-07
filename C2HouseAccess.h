@@ -34,6 +34,7 @@ namespace NC2Logic
     std::int32_t House_Construction_GetPercentage(const void* house);
     std::uint32_t House_Stock_GetAmountOfGoods(const void* house, std::uint32_t goodId, bool stockOnly);
     std::uint32_t House_Stock_RequestAmountOfGoods(void* house, std::uint32_t goodId, bool stockOnly);
+    bool __fastcall House_Stock_ModifyAmount(void* house, void* unusedEdx, std::uint32_t good, std::uint32_t amount, bool construction);
     bool House_Stock_ModifyAmount(void* house, std::uint32_t good, std::int32_t amount, std::int32_t fraction, bool construction);
     bool House_l_Construction_PutGoodIntoStock(void* house, std::uint32_t good);
     bool House_Construction_IsNeedingGood(const void* house, std::uint32_t good);
