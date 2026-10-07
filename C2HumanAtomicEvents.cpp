@@ -7,6 +7,7 @@
 #include "C2HumanGoods.h"
 #include "C2HumanProduction.h"
 #include "C2HumanFamily.h"
+#include "C2HumanScout.h"
 #include "C2GameControlStartup.h"
 #include "C2HouseAccess.h"
 #include "C2InteractionTargetAccess.h"
@@ -79,6 +80,9 @@ namespace NC2Logic
             case 21:
                 if (Read<std::uint32_t>(human, 0x1C) == 57 || Read<std::uint32_t>(human, 0x1C) == 58) return false;
                 break;
+            case 20:
+                if (!Human_IsJobScout(human) || Read<std::uint32_t>(human, 0xAB8) != 43) return false;
+                break;
             default: return false;
             }
         }
@@ -140,6 +144,7 @@ namespace NC2Logic
         case 11: Human_l_PerformTaskEvent_Pickup(human); return;
         case 12: Human_l_PerformTaskEvent_Pileup(human); return;
         case 21: Human_l_PerformTaskEvent_Produce(human); return;
+        case 20: Human_l_PerformTaskEvent_Build(human); return;
         case 24: Human_l_PerformTaskEvent_GiveBirth(human); return;
         case 28:
             if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) == 0 && (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)) Human_l_JobExperience_Gain(human);

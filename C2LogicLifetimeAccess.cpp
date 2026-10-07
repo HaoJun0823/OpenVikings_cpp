@@ -1,4 +1,5 @@
 #include "C2StaticGoodTypeData.h"
+#include "C2GuideAccess.h"
 #include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2LogicLifetimeAccess.h"
@@ -74,7 +75,6 @@ namespace NC2Logic
     extern bool __cdecl GameAssistantManager_ls_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl MultiPlayerGoalManager_l_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl HappinessManager_l_Happiness_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-    extern bool __cdecl GuideManager_l_Guides_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl HumanMerchantArray_l_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl MissionManager_l_Mission_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl GameMap_l_ValidateLandscapes_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);

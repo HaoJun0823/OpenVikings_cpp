@@ -22,6 +22,7 @@
 #include "C2UserMessageAccess.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2HumanFamily.h"
+#include "C2HumanScout.h"
 
 namespace NC2Logic
 {
@@ -51,7 +52,7 @@ namespace NC2Logic
     bool Human_UserControl_IsExecutingUserCommand(const void* human) { return Read<std::uint32_t>(human, 0x368) == 4 || Human_UserControl_IsPriorityCommandInQueue(human); }
 
     // Partial original function: FUN_004433d1. Civilian needs, family, equipment and goodies
-    // are connected; combat, outdoor, guide and vehicle-specific task trees remain pending.
+    // and scout tasks are connected; combat, outdoor and vehicle task trees remain pending.
     void Human_CurrentTask_DoStartUp(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return;
@@ -81,6 +82,8 @@ namespace NC2Logic
             return;
         }
         if (task == 16) { Human_l_StartTask_Equip(human); return; }
+        if (task == 19) { Human_l_StartTask_BuildGuide(human); return; }
+        if (task == 20) { Human_l_StartTask_ExploreArea(human); return; }
         if (task == 5) { Human_l_StartTask_Marry(human); return; }
         if (task == 11) { Human_l_StartTask_GetChild(human, 11, 15); return; }
         if (task == 12) { Human_l_StartTask_GetChild(human, 12, 16); return; }
@@ -120,11 +123,11 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_004436c5; civilian and family branches retain the native
-    // preamble. Combat, chest, guide and vehicle-specific finish routines remain pending.
+    // preamble. Combat, chest and vehicle-specific finish routines remain pending.
     void Human_CurrentTask_DoFinish(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 5 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 19 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
+        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 5 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 19 && task != 20 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
         if (task != 1)
         {
             Write<std::uint32_t>(human, 0x380, 0);
@@ -134,6 +137,8 @@ namespace NC2Logic
         if (task == 3) { Write<std::uint32_t>(human, 0x368, 1); Write<std::uint32_t>(human, 0x36C, 0); }
         else if (task == 8) Human_l_FinishTask_ExecuteJob(human);
         else if (task == 5) Human_l_FinishTask_Marry(human);
+        else if (task == 19) Human_l_FinishTask_BuildGuide(human);
+        else if (task == 20) Human_l_FinishTask_ExploreArea(human);
         else if (task == 16 || task == 17) Human_l_FinishTask_Equip(human);
         else if (task == 2 || task == 23)
         {
@@ -265,11 +270,11 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00443807; civilian needs, family, goods and equipment recovery.
-    // Combat and guide-specific failure trees remain pending.
+    // Combat failure trees and the AI NoWayFound notification remain pending.
     void Human_CurrentTask_DoFailure(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task == 14 || task == 15 || task == 18 || task == 20) return;
+        if (task == 14 || task == 15 || task == 18) return;
         if ((task == 2 || task == 4 || task == 23) && Read<std::uint32_t>(human, 0x374) == 1 && Human_GetPlayerType(human) == 2) return;
         if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
         Write(human, 0x380, Read<std::uint32_t>(human, 0x380) + 1u);
@@ -312,6 +317,7 @@ namespace NC2Logic
         else if (task == 16) Human_l_FailTask_Equip(human);
         else if (task == 17) Human_l_FailTask_Drop(human);
         else if (task == 19) Human_UserMessage_SendToUserMessage(human, 2);
+        else if (task == 20) Human_l_FailTask_ExploreArea(human);
         else if (task == 21) { Write<std::uint32_t>(human, 0x368, 1); Write<std::uint32_t>(human, 0x36C, 0); }
         else if (task == 23)
         {

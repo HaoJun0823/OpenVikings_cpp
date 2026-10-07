@@ -1,4 +1,5 @@
 #include "C2MissionStartObjects.h"
+#include "C2GuideAccess.h"
 #include "C2MissionScriptData.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
@@ -16,7 +17,6 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
-    void __fastcall GuideManager_InsertGuideAtPosition(void* manager, void* unusedEdx, unsigned int player, const void* point, unsigned int flags);
 
     // Original function: FUN_0040aeda; the player comparison is signed.
     bool Logic_EntryPoint_IsPlayerInGame(std::int32_t player)

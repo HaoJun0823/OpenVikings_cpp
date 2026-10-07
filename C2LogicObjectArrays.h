@@ -163,6 +163,8 @@ namespace NC2Logic
         ~CGuideArray();                           // Original function: FUN_00426747
         void IO_Savegame_DoSave(CIoHelper* io);    // Original function: FUN_00426780
         explicit CGuideArray(CIoHelper* io);       // Original function: FUN_004267b4
+        std::int32_t AllocateGuide(std::uint32_t player, const void* point);
+        void FreeGuide(std::int32_t id);
     };
 
     static_assert(sizeof(CHouseArray) == 0x30);

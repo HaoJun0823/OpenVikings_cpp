@@ -39,6 +39,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0041AE53,NC2Logic::GuideManager_Construct,NC2Logic::CGuideManager::CGuideManager,157388,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0041B061,NC2Logic::GuideManager_InsertGuideAtPosition,NC2Logic::CGuideManager::InsertGuideAtPosition,157669,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0041B0A5,NC2Logic::GuideManager_RemoveGuide,NC2Logic::CGuideManager::RemoveGuide,157783,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0041B0F1,NC2Logic::GuideManager_RecalculateGuideConnections,NC2Logic::CGuideManager::RecalculateGuideConnections,157711,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0041B137,NC2Logic::slConnectGuidesAndSetGoods,NC2Logic::slConnectGuidesAndSetGoods,157819,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0041B30C,NC2Logic::GuideManager_GetNearestGuideIds,NC2Logic::CGuideManager::GetNearestGuideIds,157918,Windows ASM/Game.exe establish complete behavior; Mac reference supplies only the corresponding name
 0041B360,NC2Logic::slGuideSearch,NC2Logic::slGuideSearch,157942,Windows ASM/Game.exe establish complete behavior; Mac reference supplies only the corresponding name
 0041B3F3,NC2Logic::GuideManager_GetRawNearestGuideIds,NC2Logic::CGuideManager::GetRawNearestGuideIds,158075,Windows ASM/Game.exe establish complete behavior; Mac reference supplies only the corresponding name
@@ -68,6 +70,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004248ED,NC2Logic::GameMap_Misc_GetLandscapeWorkPosition,NC2Logic::CGameMap::Misc_GetLandscapeWorkPosition,226437,Windows ASM/PE controls offsets and behavior; Mac naming reference; partial bodies excluded; see HUMAN_GOODIE_TASKS.md
 004249AE,NC2Logic::GameMap_Misc_CanBeUsedAsLandscapeWorkPosition,,,Semantic adapter from Windows behavior; predicate inlined in Mac; no recovered private Mac name; see HUMAN_GOODIE_TASKS.md
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,NC2Logic::CGameMap::l_ValidateLandscapes_Callback,224818,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+00426885,NC2Logic::CGuideArray::AllocateGuide,NC2Logic::CGuideArray::AllocateGuide,157068,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004268DD,NC2Logic::CGuideArray::FreeGuide,NC2Logic::CGuideArray::FreeGuide,157104,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0042692D,NC2Logic::CMapBioRegrowManager,NC2Logic::CMapBioRegrowManager::CMapBioRegrowManager,222978,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 004269F9,NC2Logic::CMapBioRegrowManager,NC2Logic::CMapBioRegrowManager::CMapBioRegrowManager,222978,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00426AC7,NC2Logic::MapBioRegrowManager_System_DoOneGameTick,NC2Logic::CMapBioRegrowManager::System_DoOneGameTick,223228,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -295,6 +299,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0043CA9F,NC2Logic::Human_DoExecuteUserCommand_DetachHomeHouse,NC2Logic::CHuman::DoExecuteUserCommand_DetachHomeHouse,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 0043CC88,NC2Logic::Human_DoExecuteUserCommand_DetachWorkHouse,NC2Logic::CHuman::DoExecuteUserCommand_DetachWorkHouse,171171,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0043CE31,NC2Logic::Human_DoExecuteUserCommand_DetachLearnHouse,NC2Logic::CHuman::DoExecuteUserCommand_DetachLearnHouse,171313,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043D3FE,NC2Logic::Human_DoExecuteUserCommand_BuildGuide,NC2Logic::CHuman::DoExecuteUserCommand_BuildGuide,171753,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0043D45D,NC2Logic::Human_DoExecuteUserCommand_ExploreArea,NC2Logic::CHuman::DoExecuteUserCommand_ExploreArea,171782,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0043DCB0,NC2Logic::Human_DoExecuteUserCommand_ChangeProducedGood,NC2Logic::CHuman::DoExecuteUserCommand_ChangeProducedGood,172246,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0043DF4A,NC2Logic::Human_DoExecuteUserCommand_Equipment_Change,NC2Logic::CHuman::DoExecuteUserCommand_Equipment_Change,172637,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0043DFAC,NC2Logic::Human_DoExecuteUserCommand_Equipment_Drop,NC2Logic::CHuman::DoExecuteUserCommand_Equipment_Drop,172610,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
@@ -352,6 +358,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00445469,NC2Logic::Human_l_FinishTask_Marry,NC2Logic::CHuman::l_FinishTask_Marry,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 0044563A,NC2Logic::Human_l_FinishTask_Marry_AttachToBestHome,NC2Logic::CHuman::l_FinishTask_Marry_AttachToBestHome,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 00445A6E,NC2Logic::Human_l_FinishTask_Idle,NC2Logic::CHuman::l_FinishTask_Idle,186174,Mac symbol; Windows task/animation call sequence and object offsets establish correspondence; partial bodies remain excluded
+00445A90,NC2Logic::Human_l_FinishTask_Misc,NC2Logic::CHuman::l_FinishTask_Misc,186534,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00445ACF,NC2Logic::Human_l_FailTask_ExecuteJob,NC2Logic::CHuman::l_FailTask_ExecuteJob,186884,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00445CB2,NC2Logic::Human_l_FailTask_Idle,NC2Logic::CHuman::l_FailTask_Idle,186986,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00445CE7,NC2Logic::Human_l_FailTask_Misc,NC2Logic::CHuman::l_FailTask_Misc,187274,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
@@ -360,7 +367,25 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00445D7B,NC2Logic::Human_l_FailTask_GetBoy,NC2Logic::CHuman::l_FailTask_GetBoy,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 00445D90,NC2Logic::Human_l_FailTask_GetGirl,NC2Logic::CHuman::l_FailTask_GetGirl,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 00445DA5,NC2Logic::Human_l_FailTask_Goto,NC2Logic::CHuman::l_FailTask_Goto,187088,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0044621D,NC2Logic::Human_l_FinishTask_BuildGuide,NC2Logic::CHuman::l_FinishTask_BuildGuide,186501,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0044624C,NC2Logic::Human_l_StartTask_BuildGuide,NC2Logic::CHuman::l_StartTask_BuildGuide,185945,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004462E1,NC2Logic::Human_l_StartTask_ExploreArea,NC2Logic::CHuman::l_StartTask_ExploreArea,185989,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004463C7,NC2Logic::Human_l_FailTask_ExploreArea,NC2Logic::CHuman::l_FailTask_ExploreArea,187223,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00446468,NC2Logic::Human_l_FinishTask_ExploreArea,NC2Logic::CHuman::l_FinishTask_ExploreArea,186514,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00447283,NC2Logic::Tool_Guide_IsAllowedToBeBuild,NC2Logic::Tool_Guide_IsAllowedToBeBuild,97276,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0044737D,NC2Logic::Guide_AddConnectionToGuide,NC2Logic::CGuide::AddConnectionToGuide,156346,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004473E9,NC2Logic::Guide_TryConnectingFromGuide,NC2Logic::CGuide::TryConnectingFromGuide,156377,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004474AE,NC2Logic::Guide_RemoveConnectionToGuide,NC2Logic::CGuide::RemoveConnectionToGuide,156470,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004474F9,NC2Logic::Guide_DisconnectFromGuides,NC2Logic::CGuide::DisconnectFromGuides,156499,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0044752F,NC2Logic::Guide_Exit,NC2Logic::CGuide::Exit,156540,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00447543,NC2Logic::Guide_Init,NC2Logic::CGuide::Init,156609,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004475B3,NC2Logic::Guide_AttachToMap,NC2Logic::CGuide::AttachToMap,156653,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004475CF,NC2Logic::Guide_DetachFromMap,NC2Logic::CGuide::DetachFromMap,156590,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004475F6,NC2Logic::Guide_SetLinkId,NC2Logic::CGuide::SetLinkId,156672,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0044763E,NC2Logic::Guide_SetLinkIdInvalid,NC2Logic::CGuide::SetLinkIdInvalid,156702,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00447677,NC2Logic::Guide_GetMovePoint,NC2Logic::CGuide::GetMovePoint,156724,Windows ASM/Game.exe establish complete behavior; Mac reference supplies only the corresponding name
+004476C6,NC2Logic::Guide_ScanForGoods,NC2Logic::CGuide::ScanForGoods,156792,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+004476F6,NC2Logic::slScanGoodsAround,NC2Logic::slScanGoodsAround,156809,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00447837,NC2Logic::MapPathfinderElement_StartPathfinder,NC2Logic::CMapPathfinderElement::StartPathfinder,236779,Original Mac symbol; complete Windows range/control-flow cross-check; partial bodies explicitly excluded in TEMPORARY_LINK_STUBS.csv
 004478C1,NC2Logic::MapPathfinderElement_StartPathfinder,NC2Logic::CMapPathfinderElement::StartPathfinder,236815,Original Mac symbol; complete Windows range/control-flow cross-check; partial bodies explicitly excluded in TEMPORARY_LINK_STUBS.csv
 0044796E,NC2Logic::MapPathfinderElement_StopPathfinder,NC2Logic::CMapPathfinderElement::StopPathfinder,236861,Original Mac symbol; complete Windows range/control-flow cross-check; partial bodies explicitly excluded in TEMPORARY_LINK_STUBS.csv
@@ -488,6 +513,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0045D45E,NC2Logic::slHumanSearchNextVehicleFreeMapPointFunction,NC2Logic::slHumanSearchNextVehicleFreeMapPointFunction,179065,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0045D4D4,NC2Logic::Human_FindMapPointNearby,NC2Logic::CAnimal::FindMapPointNearby,148938,Windows ASM/PE controls offsets and behavior; Mac naming reference; partial bodies excluded; see HUMAN_GOODIE_TASKS.md
 0045D533,NC2Logic::slHumanSearchMapPointNearbyFunction,NC2Logic::slHumanSearchMapPointNearbyFunction,179141,Windows ASM/PE controls offsets and behavior; Mac naming reference; partial bodies excluded; see HUMAN_GOODIE_TASKS.md
+0045D56F,NC2Logic::Human_FindNotExploredPointNearWorkCenter,,,Semantic identity inferred from Windows search/control flow; separate Mac identity unresolved
+0045D5D1,NC2Logic::SearchNotExploredPoint,,,Semantic identity inferred from Windows search/control flow; separate Mac identity unresolved
 0045D724,NC2Logic::slHumanSearchPilePointFunction,NC2Logic::slHumanSearchPilePointFunction,179346,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0045DE98,NC2Logic::Human_FindHumanToTalkInTalkRange_Any,NC2Logic::CHuman::FindHumanToTalkInTalkRange_Any,180070,Windows ASM/PE controls offsets and behavior; Mac naming reference; partial bodies excluded; see HUMAN_GOODIE_TASKS.md
 0045DF56,NC2Logic::Human_FindHumanToTalkInSearchRange_Any,NC2Logic::CHuman::FindHumanToTalkInSearchRange_Any,180109,Windows ASM/PE controls offsets and behavior; Mac naming reference; partial bodies excluded; see HUMAN_GOODIE_TASKS.md
@@ -529,6 +556,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00468B68,NC2Logic::Human_l_PerformTaskEvent_PlaySoundFX,NC2Logic::CHuman::l_PerformTaskEvent_PlaySoundFX,7863,x86-64-mac.h name only; behavior established from Windows ASM and Game.exe PE; see HUMAN_ATOMIC_EVENTS_AND_NEEDS.md
 00468B91,NC2Logic::Human_l_PerformTaskEvent_Pickup,NC2Logic::CHuman::l_PerformTaskEvent_Pickup,189639,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00468D91,NC2Logic::Human_l_PerformTaskEvent_Pileup,NC2Logic::CHuman::l_PerformTaskEvent_Pileup,189737,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00468F5D,NC2Logic::Human_l_PerformTaskEvent_Build,NC2Logic::CHuman::l_PerformTaskEvent_Build,189251,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,NC2Logic::CHuman::l_PerformTaskEvent_Produce,189922,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00469401,NC2Logic::Human_l_PerformTaskEvent_Produce_Good,NC2Logic::CHuman::l_PerformTaskEvent_Produce_Good,190820,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00469A16,NC2Logic::Human_l_PerformTaskEvent_GiveBirth,NC2Logic::CHuman::l_PerformTaskEvent_GiveBirth,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming

@@ -3409,3 +3409,5 @@ Family marriage/love/home selection/childbirth, real house attachment and capaci
 ### OA155 - Windows sector and guide route fallback (2026-10-07)
 
 Restored native sector connections and the special bounded pathfinder, first/second sector base points, sector routing with civilian danger costs, nearby guide selection and guide routing/cache continuation. Corrected sector direction 7 from the Game.exe jump table. No inline assembly. Eight changed/new translation units pass Win32 syntax checking; no build or runtime claim. Guide creation and remaining human work/combat/vehicle boundaries remain inventoried. See docs/HUMAN_FREEZE_RECOVERY.md.
+
+OA156: Windows scout exploration/guide build tasks and commands; real guide placement, lifecycle, links, callbacks and goods scans. Three guide link dummies removed. Win32 /Zs only; no build/runtime confirmation. See docs/HUMAN_FREEZE_RECOVERY.md.

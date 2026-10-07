@@ -88,19 +88,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CDelayedActionManager::System_DoOneGameTick.
     void __fastcall DelayedActionManager_System_DoOneGameTick(void *, void *) {}
 
-    // TEMPORARY DUMMY: Windows address 0041B061; implementation pending.
-    // Naming reference: NC2Logic::CGuideManager::InsertGuideAtPosition.
-    void __fastcall GuideManager_InsertGuideAtPosition(void *, void *, unsigned int, void const *, unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 0041B0A5; implementation pending.
-    // Naming reference: NC2Logic::CGuideManager::RemoveGuide.
-    void __fastcall GuideManager_RemoveGuide(void *, void *, unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 0041B936; implementation pending.
-    // Naming reference: NC2Logic::CGuideManager::l_Guides_Callback.
-    // The original always returns true; preserve callback-chain continuation while guide work remains pending.
-    bool __cdecl GuideManager_l_Guides_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
-
     // TEMPORARY DUMMY: Windows address 0041CB1E; implementation pending.
     // Naming reference: NC2Logic::CHumanMerchantArray::CleanMap_LoadTradeAgreements.
     void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void *, void *, NXBasics::CIniFileReader *) {}
