@@ -1,5 +1,8 @@
 #include "ApplicationGlobals.h"
 #include "C2GameMapAccess.h"
+#include "C2EngineLandscapeAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2MapArea.h"
 #include "C2MapGeometry.h"
 #include "XBasicTypes.h"
 #include "XCrtFileAccess.h"
@@ -11,6 +14,43 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_004249ae; the Mac build inlines this predicate.
+    bool GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(const void* point)
+    {
+        const void* micro = GameMap_GetConstMapMicroPointPtr(point);
+        return (NC2Lifetime::Read<std::uint8_t>(micro, 0x0C) & 0x80u) == 0 && NC2Lifetime::Read<std::uint8_t>(micro, 7) != 0;
+    }
+
+    // Original function: FUN_004248ed; try five independently selected area positions.
+    bool GameMap_Misc_GetLandscapeWorkPosition(const void* realPosition, void* workPosition)
+    {
+        using namespace NC2Lifetime;
+        const void* micro = GameMap_GetConstMapMicroPointPtr(realPosition);
+        // Windows checks the computed micro address, not the unoffset buffer pointer.
+        if (micro == nullptr) return false;
+        const auto engineId = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(realPosition);
+        if (engineId == -1) return false;
+        const auto valency = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+        const auto* area = NC2LogicExternals::External_Landscape_GetAreaPtr(engineId, valency, 2);
+        if (area == nullptr)
+        {
+            if (!GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(realPosition)) return false;
+            Write(workPosition, 0, Read<std::uint32_t>(realPosition, 0));
+            return true;
+        }
+        std::int16_t x, y;
+        for (std::uint32_t attempt = 0; attempt < 5; ++attempt)
+        {
+            area->AreaTool_GetRandomPositionDelta(&x, &y);
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, realPosition, x, y, false);
+            if (!MapMigPoint_IsInsideMap(&point) || !GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(&point)) continue;
+            Write(workPosition, 0, point);
+            return true;
+        }
+        return false;
+    }
+
     std::int16_t GameMap_GetWidth()
     {
         std::int16_t width;

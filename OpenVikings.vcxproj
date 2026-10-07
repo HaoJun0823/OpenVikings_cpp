@@ -488,6 +488,8 @@
     <ClCompile Include="C2HumanInitialization.cpp" />
     <ClInclude Include="C2HumanInitialization.h" />
     <ClCompile Include="C2HumanTaskAccess.cpp" />
+    <ClCompile Include="C2HumanGoodieTasks.cpp" />
     <ClInclude Include="C2HumanTaskAccess.h" />
+    <ClInclude Include="C2HumanGoodieTasks.h" />
   </ItemGroup>
 </Project>

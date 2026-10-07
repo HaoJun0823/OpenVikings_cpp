@@ -25,6 +25,17 @@ namespace NC2Logic
         return currentAnimalId;
     }
 
+    // Original function: FUN_0042c214; the radius overload scans the same array in order.
+    std::int32_t CHumanIterator::GetFirstHumanId(std::uint32_t player, const void* point, std::int32_t radiusValue)
+    {
+        selection = player;
+        flags = 3;
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        radius = radiusValue;
+        currentAnimalId = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHumanArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return currentAnimalId;
+    }
+
     // Original function: FUN_0042c392.
     std::int32_t CHumanIterator::GetNextHumanId()
     {

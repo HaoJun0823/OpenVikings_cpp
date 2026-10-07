@@ -6,9 +6,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <excpt.h>
+#include <float.h>
 #include <malloc.h>
 #include <new>
 #include <Windows.h>
+#include <xmmintrin.h>
 
 // Original data: 005699e0; initially empty name buffer.
 char gRuntimeTemporaryFileName[16]{};
@@ -1952,10 +1954,11 @@ namespace NXBasics
         gRuntimePentiumFdivAdjustment = Runtime_GetPentiumDivisionAdjustment();
         Runtime_ControlFloatingPoint(0x00010000u, 0x00030000u);
 
-        __asm
-        {
-            fnclex
-        }
+        // FNClEX affects only x87; retain any SSE status across the CRT clear.
+        const bool hasSse = ::IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE) != FALSE;
+        const unsigned int savedSseControl = hasSse ? _mm_getcsr() : 0u;
+        ::_clearfp();
+        if (hasSse) _mm_setcsr(savedSseControl);
     }
 
     // Original function: FUN_004e6f13
@@ -6262,27 +6265,13 @@ namespace NXBasics
     int Runtime_ProbePentiumDivision()
     {
         // Original constants: 004fbb18, 004fbb20 and 004f3350.
-        const double numerator = 4195835.0;
-        const double denominator = 3145727.0;
-        const double reference = 1.0;
-        double residual;
-        std::uint16_t status;
-
-        // Preserve x87 evaluation and the explicit double-precision store.
-        __asm
-        {
-            fld qword ptr numerator
-            fdiv qword ptr denominator
-            fmul qword ptr denominator
-            fsubr qword ptr numerator
-            fstp qword ptr residual
-            fld qword ptr residual
-            fcomp qword ptr reference
-            fnstsw ax
-            mov status, ax
-        }
-
-        return (status & 0x4100u) == 0 ? 1 : 0;
+        // Volatile intermediates keep the hardware probe from being folded away.
+        const volatile double numerator = 4195835.0;
+        const volatile double denominator = 3145727.0;
+        const volatile double quotient = numerator / denominator;
+        const volatile double product = quotient * denominator;
+        const volatile double residual = numerator - product;
+        return residual > 1.0 ? 1 : 0;
     }
 
     // Original function: FUN_004eb973
@@ -10082,24 +10071,13 @@ namespace NXBasics
     // Original function: FUN_004f053b
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask)
     {
-        std::uint16_t controlWord;
-
-        __asm
-        {
-            fwait
-            fnstcw controlWord
-        }
-
-        const std::uint32_t previousControl = Runtime_DecodeX87ControlWord(controlWord);
+        // The CRT uses the same abstract bits as the original decode/encode pair.
+        // A null SSE output restricts both calls to the x87 unit.
+        unsigned int previousControl;
+        ::__control87_2(0, 0, &previousControl, nullptr);
         const std::uint32_t updatedControl = (previousControl & ~mask) | (newControl & mask);
-
-        controlWord = Runtime_EncodeX87ControlWord(updatedControl);
-
-        __asm
-        {
-            fldcw controlWord
-        }
-
+        const std::uint32_t hardwareControl = Runtime_DecodeX87ControlWord(Runtime_EncodeX87ControlWord(updatedControl));
+        ::__control87_2(hardwareControl, _MCW_EM | _MCW_RC | _MCW_PC | _MCW_IC, &previousControl, nullptr);
         return updatedControl;
     }
 

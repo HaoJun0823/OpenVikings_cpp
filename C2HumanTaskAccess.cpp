@@ -1,4 +1,5 @@
 #include "C2HumanTaskAccess.h"
+#include "C2HumanGoodieTasks.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
@@ -65,23 +66,33 @@ namespace NC2Logic
     // Original function: FUN_004369c8.
     bool Human_UserControl_IsExecutingUserCommand(const void* human) { return Read<std::uint32_t>(human, 0x368) == 4 || Human_UserControl_IsPriorityCommandInQueue(human); }
 
-    // Partial original function: FUN_004433d1. Only task 1/2/8 startup branches
+    // Partial original function: FUN_004433d1. Idle/job, waiting and goodie startup branches
     // are connected; queued commands, urgent requests and other task types remain pending.
     void Human_CurrentTask_DoStartUp(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return;
         const auto task = Read<std::uint32_t>(human, 0x368);
+        if (task >= 24 && task <= 29)
+        {
+            Human_l_StartTask_Goodie(human);
+            return;
+        }
         if (task == 2)
         {
             Write<std::uint32_t>(human, 0x368, 2);
             Write<std::uint32_t>(human, 0x36C, 1);
             return;
         }
-        if (task != 1 && task != 8) return;
+        if (task != 1 && task != 8 && task != 9) return;
         if (!CanContinueWithoutExecutingCommand(human)) return;
         // Task 8's food-producer postponement branch remains pending.
         if (task == 8 && Read<std::uint32_t>(human, 0xA64) != 0) return;
         if (!CheckUrgentNeedsWithoutStartingTask(human)) return;
+        if (task == 9)
+        {
+            Human_l_StartTask_WaitForOtherHuman(human);
+            return;
+        }
         if (task == 8) Write<std::uint32_t>(human, 0x370, 0);
         if (Read<std::uint32_t>(human, 0x378) != 0)
         {
@@ -93,11 +104,20 @@ namespace NC2Logic
         else Human_l_StartTask_ExecuteJob(human);
     }
 
-    // Partial original function: FUN_004436c5; the complete idle branch calls
-    // l_FinishTask_Idle. Other task-specific finish routines remain pending.
+    // Partial original function: FUN_004436c5; idle, waiting/listening and goodie
+    // branches retain the native preamble. Other task-specific finish routines are pending.
     void Human_CurrentTask_DoFinish(void* human)
     {
-        if (Read<std::uint32_t>(human, 0x368) == 1) Human_l_FinishTask_Idle(human);
+        const auto task = Read<std::uint32_t>(human, 0x368);
+        if (task != 1 && task != 9 && task != 13 && (task < 25 || task > 29)) return;
+        if (task != 1)
+        {
+            Write<std::uint32_t>(human, 0x380, 0);
+            if (!Human_IsDoingGoodie(human)) Write<std::uint32_t>(human, 0x37C, 0);
+        }
+        if (task >= 25 && task <= 29) Human_l_FinishTask_Goodie(human);
+        else if (task == 9 && Read<std::uint32_t>(human, 0x378) != 0) Write<std::uint32_t>(human, 0x36C, 0);
+        else Human_l_FinishTask_Idle(human);
     }
 
     // Partial original function: FUN_004445c9. The ordinary idle animation branch

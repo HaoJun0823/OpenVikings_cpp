@@ -51,6 +51,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 ## 4. Naming and code style
 
 - **All code comments must be in English.**
+- Do not use inline assembly in C++ source. Use established C++ numeric helpers or documented platform APIs and record any remaining floating-point precision/status differences.
 - Function declarations, definitions, and ordinary function-call argument lists must stay on one line. Do not vertically wrap parameters.
 - Keep names semantic and stable. Prefer original class/function names recovered from the Mac build when they match Windows behavior.
 - Before adding a new function call, search the Mac source for its original name and use that name directly instead of introducing another `FUN_XXXXXXXX` call. Existing legacy bindings may remain until their owning block is reconstructed; do not guess names when the correspondence is unresolved.

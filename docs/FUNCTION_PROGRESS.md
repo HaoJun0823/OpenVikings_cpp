@@ -1,5 +1,7 @@
 # Windows function mapping progress
 
+The 2026-10-06 goodie continuation adds 33 naming rows (318 total) and six partial boundaries (127 total), with project/filter parity at 179 cpp / 171 headers. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md). These are current inventories, not a recomputation of the historical source-address coverage table below. No new build/tests/runtime.
+
 Snapshot: 2026-10-05, checkpoint committed as `9c85170`. This assessment was recomputed from Windows ASM, original PE and that checkpoint's C++ definitions. It is **source-address coverage**, not an assertion that 51.13% of gameplay is correct. Partial bodies and temporary dummies are excluded from the mapped numerator. Subsequent idle-task work is documented in [HUMAN_IDLE_TASKS.md](HUMAN_IDLE_TASKS.md) and is not included in this checkpoint table.
 
 | Measure | Count |

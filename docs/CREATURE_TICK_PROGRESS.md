@@ -1,5 +1,9 @@
 # Creature tick progress and COOP startup diagnosis
 
+## Goodie task continuation - 2026-10-06
+
+Task 24 now reaches its supported conversation/listening/waiting, child selection, sleep-place/work-area search and non-passenger atomic-walk starts; supported goodie finishes reenter the native loop. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md). Event-bearing atomics and active new path steps remain held. Child animal-play, passenger exit, vehicle sleep-arrival and carried-cargo waiting remain tracked; conditions/need updates and task failure are pending. No build/tests/runtime or new civilian-behavior confirmation.
+
 ## Local routing checkpoint - 2026-10-05
 
 Point/following starts, stop, next-direction state machine, target prediction/revisions, both line searches, four separate directed searches, preferred geometry, blocked-area escape and twenty-run vector building are now reconstructed. Search allowance and its per-tick reset are connected at the existing GameControl update. See [LOCAL_PATHFINDER_ROUTING.md](LOCAL_PATHFINDER_ROUTING.md), README OA147 and FP176..FP180.

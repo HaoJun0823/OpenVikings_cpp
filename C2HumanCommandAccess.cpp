@@ -288,9 +288,16 @@ namespace NC2Logic
     }
 
     // Original function: FUN_004355fc.
-    static std::uint32_t Human_UserControl_GetLastCommandType(const void* human)
+    std::uint32_t Human_UserControl_GetLastCommandType(const void* human)
     {
         return NC2Lifetime::Read<std::uint32_t>(human, 0xA5C) + 2u;
+    }
+
+    // Original function: FUN_004355da; zero is also a searchable command type.
+    bool Human_UserControl_IsCommandTypeInQueue(const void* human, std::uint8_t opcode)
+    {
+        for (std::uint32_t slot = 0; slot < 87; ++slot) if (NC2Lifetime::Read<std::uint8_t>(human, 0x390u + slot * 20u) == opcode) return true;
+        return false;
     }
 
     // Original function: FUN_0044320e; Windows tests atomic interruptibility once.

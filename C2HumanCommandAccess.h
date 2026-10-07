@@ -8,6 +8,8 @@ namespace NC2Logic
     void Human_ResetUserCommandArray(void* human);
     bool Human_l_IsAtomicInterruptable(const void* human);
     bool Human_StopWaitingForOtherHuman(void* human);
+    bool Human_UserControl_IsCommandTypeInQueue(const void* human, std::uint8_t opcode);
+    std::uint32_t Human_UserControl_GetLastCommandType(const void* human);
     void Human_CurrentTask_DoInterrupt(void* human);
     bool Human_UserControl_IsAPriorityCommand(std::uint32_t opcode);
     bool Human_UserControl_IsAInterruptingCommand(std::uint32_t opcode);

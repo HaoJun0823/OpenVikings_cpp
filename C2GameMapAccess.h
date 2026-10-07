@@ -24,6 +24,8 @@ namespace NC2Logic
     // Original function: FUN_004237d2
     const void* GameMap_GetConstMapMicroPointPtr(const void* packedMigPoint);
     void* GameMap_GetMapMicroPointPtr(const void* packedMigPoint);
+    bool GameMap_Misc_GetLandscapeWorkPosition(const void* realPosition, void* workPosition);
+    bool GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(const void* point);
     std::int16_t GameMap_CalculationMap_GetValue(const void* packedMigPoint);
     void GameMap_CalculationMap_SetValue(const void* packedMigPoint, std::int16_t value);
     void GameMap_CalculationMap_Clear(const void* packedMigPoint, std::int32_t radius);

@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Human goodie startup and interaction - 2026-10-06
+
+Supported task-24 goodie startup and its conversation/listening/waiting, sleep-place/work-area search, non-passenger walk starts and finish leaves are connected in the game continuation. Windows PE confirms the misdecoded waiting routine, finish selector destinations, radii and complete direction region; Mac supplies names. Six new partial boundaries retain child animal-play, passenger exit, vehicle sleep-arrival and carried-cargo waiting gaps (127 unfinished entries total); 33 new naming rows give 318. Conditions/need updates, atomic events, task failure and active new path steps remain pending. Project/filter parity: 179 cpp / 171 headers. No build/tests/runtime or refreshed address-coverage figure. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md); README OA152/FP194..FP196.
+
+## Checkpoint and converter evidence boundary - 2026-10-06
+
+The human idle subset is committed as `5e2c4db`; icon resource wiring as `5cc139f`. The latest published 2,584/5,054 coverage remains a `9c85170` checkpoint. The user requested new-chat continuation of game work and C# BMD refactoring here. Windows BMD reader/writer/rendering semantics are confirmed; Mac generation routines are being analyzed at the user's explicit request for the separate converter. Byte-identical Windows asset generation is not established by those Mac routines alone. Read [NEXT_CHAT_HANDOFF.md](NEXT_CHAT_HANDOFF.md).
+
 ## Human idle task lifecycle subset - 2026-10-05
 
 The human tick now calls the native AI wrapper (perform atomic, check interruptibility, task machine). Supported idle finish/job-selection/start transitions run in the same tick. Ordinary land idle selection uses native random/counter/action rules; the complete idle finish retains its counter and resets both targets. Existing vehicle/social/religion predicates are shared. Other commands/tasks, urgent requests/items, conditions, production, house/crowding/escape/walk and goodie starts remain explicit partial boundaries. Autonomous civilians can still reach unfinished task 24 after counter 10; completed standing/talking/sleeping/eating or movement is not claimed. Ten new Mac naming rows and seven new partial inventory entries (121 total); project/filters include C2HumanTaskAccess.cpp/.h. No build/tests/runtime or new visual confirmation. README OA151/FP191..FP193; see [HUMAN_IDLE_TASKS.md](HUMAN_IDLE_TASKS.md). Next: goodie/talk/sleep helpers, atomic events and need-task starts/conditions.

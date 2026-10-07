@@ -11,6 +11,7 @@ namespace NC2Logic
         CHumanIterator() = default;
         std::int32_t GetFirstHumanId();
         std::int32_t GetFirstHumanId(std::uint32_t player);
+        std::int32_t GetFirstHumanId(std::uint32_t player, const void* point, std::int32_t radius);
         std::int32_t GetNextHumanId();
     private:
         std::int32_t l_GetNext(std::int32_t previous);

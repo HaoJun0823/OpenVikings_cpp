@@ -198,31 +198,10 @@ namespace NC2E2
 
     static std::uint32_t DisplayDescription_ConvertScaledFloat(float value, float scale)
     {
-        std::uint16_t savedControl;
-        std::uint16_t truncateControl;
-        std::uint64_t converted;
-
-        // Preserve the x87 conversion used by FUN_004e6f4c.
+        // Two float significands fit in a double product without float rounding.
         // The caller consumes only the low DWORD of the signed 64-bit result.
-        __asm
-        {
-            fld dword ptr value
-            fmul dword ptr scale
-
-            fwait
-            fnstcw word ptr savedControl
-            fwait
-
-            mov ax, word ptr savedControl
-            or ax, 0C00h
-            mov word ptr truncateControl, ax
-
-            fldcw word ptr truncateControl
-            fistp qword ptr converted
-            fldcw word ptr savedControl
-        }
-
-        return static_cast<std::uint32_t>(converted);
+        const double scaledValue = static_cast<double>(value) * static_cast<double>(scale);
+        return static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(scaledValue));
     }
 
     // Original function: FUN_00481e72

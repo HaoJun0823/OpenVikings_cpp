@@ -34,6 +34,8 @@ The two named static-data manager pointers remain external dependencies; their m
 
 ## Remaining inline assembly
 
+Superseded on 2026-10-06: the user requested C++ without inline assembly. The vehicle conversion had already been replaced; the six blocks present in the current tree (including the newer map-angle conversion) are now replaced with C++ numeric helpers, documented CRT APIs and SSE-state intrinsics. A fresh source search finds no inline assembly. The table below records the historical audit, not the current implementation. See [PROJECT_STATE.md](PROJECT_STATE.md) for the replacements and remaining floating-point equivalence limits. No new build/tests/runtime verification was performed.
+
 The [overview terrain follow-up](OVERVIEW_TERRAIN_SAMPLING.md) retains 43 live DAT symbols and six assembly blocks. Its two modified units pass Win32 `/Od` and `/O2` object generation without warnings; the repeated 82-unit syntax pass remains 77 passing units and five incomplete units with 129 diagnostics. Its static analysis repeats only the existing filename findings below.
 
 The [overview overlay follow-up](OVERVIEW_OBJECT_OVERLAYS.md) resolves two more live DAT identities, leaving 41 and the same six assembly blocks. Five affected units pass Win32 `/Od` and `/O2` object generation with the existing array-module C4100 warning. Its 83-unit syntax pass has 78 passing units and five incomplete units with 127 diagnostics. The [overview-input](OVERVIEW_INPUT.md) and [DirectMusic manager](DIRECT_MUSIC_MANAGER.md) follow-up now has seven affected units passing `/Od` and `/O2` without warnings; the current 84-unit syntax pass has 80 passing units and four incomplete units with 123 diagnostics.

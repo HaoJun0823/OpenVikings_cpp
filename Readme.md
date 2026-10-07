@@ -1627,6 +1627,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA149](#oa149) | Human path failure/stop callbacks and priority-command queue | 00434DEB..00434F36, 004632C5..00463345 |
 | [OA150](#oa150) | Native timed briefing execution and human arrival | 0041E2AE..0041E45D, 0041F9F7, 004230EE, 00462EC6..00463042 |
 | [OA151](#oa151) | Human idle finish/start lifecycle and partial task dispatch | 004433D1, 004436C5, 004445C9, 00445A6E, 00463346..00463508, 0046C39E |
+| [OA152](#oa152) | Human goodie startup, conversation/waiting and sleep/work-area search | 00443D74, 00443E79, 00444E46, 0045C82F, 0045C984, 00460B31, 0046A407..0046A805 |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -3019,6 +3020,14 @@ Wall unknown versions skip without initializing the player-table field; road ver
 - **Verification:** Windows ASM/PE constants/selectors and Mac names reviewed; shared predicates, project/filters and inventories checked. No build/tests/runtime or new visual confirmation. See [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); FP191..FP193.
 
 
+<a id="oa152"></a>
+### OA152 - Human goodie startup and interaction
+
+- **Windows contract:** Distinct age and range-search entries retain array order and random consumption. Waiting increments even on rejection; listener startup precedes waiting release and speaker animation. Sleep uses native always-true eligibility leaves, ten landscape candidates, bounded random work-position retries and random area-row selection. Atomic point/following starts retain flags, target/task state and house-leave order. Goodie finish/failure clears Windows AD0.
+- **Limits:** Child animal-play, passenger exit, vehicle sleep-arrival validation and cargo-bearing waiting remain six tracked partial boundaries. Atomic events, conditions/needs, failure dispatch and active new path steps remain pending. No completed civilian behavior or autonomous movement is claimed.
+- **Verification:** Windows ASM/PE/Mac/source and project/filter/inventory checks; 33 new naming rows, 318 total / 127 unfinished entries. No build/tests/runtime. See [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); FP194..FP196.
+
+
 ## Reviewed failure handling
 
 This index records the newer reviewed failure paths, including ordinary original handling that is not automatically a defect. Earlier filesystem, CRT, network and DirectSound findings remain indexed in OB/OA above. Compiler diagnostics and unresolved implementation dependencies are separate reconstruction work, not original runtime failure paths.
@@ -3218,6 +3227,9 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP191 | Eligible queued command, urgent request or unsupported task branch | Hold at the tracked boundary; no invented success or need effect | [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); OA151 |
 | FP192 | Idle requires combat, circulation/goods, house/crowding/escape/walk or task 24 | Explicit pending boundary; autonomous civilians can still lack their next action | [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); OA151 |
 | FP193 | Partial dispatcher leaves task/status unchanged | Yield rather than loop indefinitely; full native dispatch remains pending | [HUMAN_IDLE_TASKS.md](docs/HUMAN_IDLE_TASKS.md); OA151 |
+| FP194 | Waiting count reaches ten or no eligible talk partner exists | Increment is retained on rejection; range searches retain array order and native fallback; random call retained for one accepted candidate | [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); OA152 |
+| FP195 | Landscape has no usable work-area point | Five area attempts; sleep retries at most twice the ten-candidate count then uses native current-position checks; zero area point count remains an original unchecked divisor | [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); OA152 |
+| FP196 | Goodie needs child animal-play, passenger exit, vehicle sleep-arrival or cargo-bearing waiting | Explicit partial boundary; no guessed success, path failure or substitute animation; atomic events/new steps still held separately | [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); OA152 |
 
 ## Reconstruction errors are not original bugs
 

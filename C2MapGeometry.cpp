@@ -3,12 +3,39 @@
 #include "C2LifetimeGlobals.h"
 #include "XCrtFileAccess.h"
 
+#include <cmath>
 #include <cstdint>
 #include <cstddef>
 #include <cstring>
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042a894; retain Windows atan2 arguments and scaling order.
+    std::int32_t VE_HexagonDirection_GetDirectionFromPositions360Degrees(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY)
+    {
+        const auto dx = static_cast<std::int32_t>(static_cast<std::int16_t>(targetX * 2 + (targetY & 1) - sourceX * 2 - (sourceY & 1)));
+        const auto dy = static_cast<std::int32_t>(static_cast<std::int16_t>(targetY * 2 - sourceY * 2));
+        if (dy == 0) return dx >= 0 ? 90 : 270;
+        // Complete numeric tail of Windows region 004F3A70..004F3A87.
+        const double scale = 1000.0;
+        const double pi = 3.1415926535;
+        const double degrees = 180.0;
+        const double inverseScale = -0.001;
+        const double scaledAngle = (((std::atan2(static_cast<double>(dy), static_cast<double>(dx)) * scale) / pi) * degrees) * inverseScale;
+        const std::int64_t result = NXBasics::Runtime_TruncateDoubleToInt64(scaledAngle);
+        auto angle = (90 - static_cast<std::int32_t>(result)) % 360;
+        return angle < 0 ? angle + 360 : angle;
+    }
+
+    // Original function: FUN_0042a84a; complete direction tables 004F3A38..004F3A6F.
+    std::uint32_t VE_HexagonDirection_GetDirectionFromPositions(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY, bool includeVertical)
+    {
+        static constexpr std::uint32_t directions8[] = {6, 5, 0, 1, 7, 2, 3, 4};
+        static constexpr std::uint32_t directions6[] = {5, 0, 1, 2, 3, 4};
+        const auto angle = static_cast<std::uint32_t>(VE_HexagonDirection_GetDirectionFromPositions360Degrees(sourceX, sourceY, targetX, targetY));
+        return includeVertical ? directions8[((angle + 22u) / 45u) & 7u] : directions6[(angle / 60u) % 6u];
+    }
+
     // Original function: FUN_0042a6b7; directions 6/7 bridge the two vertical turns.
     std::int32_t VE_HexagonDirection_DirectionToTurn(std::uint32_t source, std::uint32_t target, bool includeVertical)
     {

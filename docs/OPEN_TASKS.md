@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Human goodie follow-up - 2026-10-06
+
+The new game chat has connected supported goodie startup, conversation/listening/waiting, sleep-place/work-area searches, non-passenger walk starts and finish leaves. Close child task 29's animal-play/search-center tree, `CVehicle::Passengers_MoveOut_h`, vehicle target-arrival validation and cargo-bearing waiting; then reconstruct atomic event dispatcher 00468678, conditions/need updates and task failure. New path-step consumption with native position/result callbacks and sector/guide fallback remains subsequent work. The current naming/unfinished inventories contain 318/127 rows; no runtime confirmation or refreshed address-coverage count. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md) and README OA152/FP194..FP196. Earlier entries below describe historical checkpoints.
+
+## Next chat: human behavior continuation - 2026-10-06
+
+The user moved game reconstruction to a new chat; resume from committed `5e2c4db` / `5cc139f`. First complete task 24 goodie startup and talk/sleep/search/wait helpers, then event-bearing atomics and need/task dispatch; active path-step consumption and sector/guide fallback remain open. No new runtime confirmation. C# BMD converter work in this chat is a separate project. Read [NEXT_CHAT_HANDOFF.md](NEXT_CHAT_HANDOFF.md) before continuing.
+
 ## Human idle task lifecycle subset - 2026-10-05
 
 The human tick now calls the native AI wrapper (perform atomic, check interruptibility, task machine). Supported idle finish/job-selection/start transitions run in the same tick. Ordinary land idle selection uses native random/counter/action rules; the complete idle finish retains its counter and resets both targets. Existing vehicle/social/religion predicates are shared. Other commands/tasks, urgent requests/items, conditions, production, house/crowding/escape/walk and goodie starts remain explicit partial boundaries. Autonomous civilians can still reach unfinished task 24 after counter 10; completed standing/talking/sleeping/eating or movement is not claimed. Ten new Mac naming rows and seven new partial inventory entries (121 total); project/filters include C2HumanTaskAccess.cpp/.h. No build/tests/runtime or new visual confirmation. README OA151/FP191..FP193; see [HUMAN_IDLE_TASKS.md](HUMAN_IDLE_TASKS.md). Next: goodie/talk/sleep helpers, atomic events and need-task starts/conditions.

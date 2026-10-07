@@ -9,6 +9,8 @@ namespace NC2Logic
     std::int32_t VE_HexagonDirection_DirectionToTurn(std::uint32_t source, std::uint32_t target, bool includeVertical);
     std::uint32_t VE_HexagonDirection_NextDirection(std::uint32_t source, std::uint32_t target, bool includeVertical);
     std::int32_t VE_HexagonDirection_GetDistance(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY);
+    std::int32_t VE_HexagonDirection_GetDirectionFromPositions360Degrees(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY);
+    std::uint32_t VE_HexagonDirection_GetDirectionFromPositions(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY, bool includeVertical);
     void MapMigRectangle_CutInsideMap(std::int16_t* rectangle);
     bool MapMigRectangle_IsTouching(const std::int16_t* rectangle, const std::int16_t* other);
     void MapMagRectangle_CutInsideMap(std::int16_t* rectangle);

@@ -1,5 +1,9 @@
 # Local pathfinder routing
 
+## Goodie walking starts - 2026-10-06
+
+The supported non-passenger `CHuman::l_StartAtomicWalk` point/following branches now connect goodie searches to the native pathfinder starts, retaining radii 50/63, flags, target/task state and house-leave order. Passenger exit remains a partial boundary. The creature tick still does not consume new steps or bypass pending position/result callbacks; no autonomous movement is claimed. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md).
+
 ## Reconstructed Windows bodies
 
 The movement layer now exposes point/following `Pathfinder_Start`, `Pathfinder_Stop`, predicted map position and creature revision lookup. The raw pathfinder keeps the original 0x84-byte storage. Its start/stop/next-direction state machine implements stopped, pending search, consuming vectors and arrival states; -4 means a deferred search, -3 stopped, -2 arrived and -1 failed. Following paths validate allocation, revision and attachment, predict the target's not-yet-relocated walking position and retain the original distance thresholds for rebuilding a moving target's route.

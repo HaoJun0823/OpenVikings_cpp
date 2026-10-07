@@ -1143,5 +1143,7 @@
     <ClInclude Include="C2HumanInitialization.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanTaskAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanTaskAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanGoodieTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanGoodieTasks.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

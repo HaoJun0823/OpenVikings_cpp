@@ -1,10 +1,28 @@
 #include "C2MapArea.h"
+#include "C2GameState.h"
 #include "XCrtFileAccess.h"
 
 #include <cstring>
 
 namespace NC2Logic
 {
+    // Original function: FUN_004533be; the random call precedes checking rowCount.
+    void CMapArea::AreaTool_GetRandomPositionDelta(std::int16_t* x, std::int16_t* y) const
+    {
+        const auto selected = Game_Random_GetNumber() % pointCount;
+        std::uint32_t visited = 0;
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            for (std::uint32_t column = 0; column < rows[row].width; ++column, ++visited)
+            {
+                if (visited != selected) continue;
+                *x = static_cast<std::int16_t>(static_cast<std::uint32_t>(rows[row].x) + column);
+                *y = rows[row].y;
+                return;
+            }
+        }
+    }
+
     // Original function: FUN_00452b05.
     CMapArea::CMapArea(std::uint32_t numberOfRows)
     {

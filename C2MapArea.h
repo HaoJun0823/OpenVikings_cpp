@@ -18,6 +18,7 @@ namespace NC2Logic
         explicit CMapArea(std::uint32_t numberOfRows);
         ~CMapArea();
         void UpdateCalculatedVariables();
+        void AreaTool_GetRandomPositionDelta(std::int16_t* x, std::int16_t* y) const;
 
         std::uint32_t rowCount;
         SMapAreaRow* rows;

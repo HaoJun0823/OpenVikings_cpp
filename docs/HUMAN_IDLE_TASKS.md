@@ -1,5 +1,9 @@
 # Human idle task lifecycle
 
+## Subsequent goodie continuation - 2026-10-06
+
+Supported task 24 goodie startup, baby/child selection, conversation/listening/waiting, sleep-place/work-area searches, non-passenger walk starts and goodie finish leaves are now connected. The six partial boundaries and remaining atomic/condition/path gaps are detailed in [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md). This supersedes the startup-only pending description below; complete civilian behavior remains unverified.
+
 ## Connected Windows path - 2026-10-05
 
 The partial creature tick now calls Human_AI_DoUpdateAI (00463346): perform the current atomic, check interruptibility, then enter the task machine. Supported status-2 finish and status-0 startup transitions run in the same tick. Reaching status 1 clears A60/A61 and restores reason 2, following 004634BD..00463508.
