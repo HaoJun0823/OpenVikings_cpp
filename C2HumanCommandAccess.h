@@ -9,6 +9,7 @@ namespace NC2Logic
     void Human_ResetUserCommandArray(void* human);
     bool Human_l_IsAtomicInterruptable(const void* human);
     bool Human_StopWaitingForOtherHuman(void* human);
+    void Human_StopWaitingForOtherHuman_Detach(void* human);
     bool Human_UserControl_IsCommandTypeInQueue(const void* human, std::uint8_t opcode);
     std::uint32_t Human_UserControl_GetLastCommandType(const void* human);
     void Human_CurrentTask_DoInterrupt(void* human);
@@ -26,4 +27,13 @@ namespace NC2Logic
     void Human_StopCurrentGoodCirculationMode(void* human);
     bool Human_DoAddNewUserCommand(void* human, const void* command);
     bool Human_DoAddNewUserCommand(void* human, std::uint8_t opcode, std::uint8_t player, std::uint32_t id, std::uint32_t revision, std::uint32_t parameter1, std::uint32_t parameter2);
+    bool Human_CanExecuteQueuedCommands(const void* human);
+    bool Human_DoExecuteNextUserCommand(void* human);
+    std::uint32_t Human_DoExecuteUserCommand(void* human, const void* command);
+    std::uint32_t Human_DoExecuteUserCommand_GotoAndWait(void* human, const void* point);
+    std::uint32_t Human_DoExecuteUserCommand_Cheer(void* human, std::uint32_t speakerId, std::uint32_t revision);
+    std::uint32_t Human_DoExecuteUserCommand_DetachLearnHouse(void* human);
+    void Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt(void* human);
+    bool Human_HasEquippedItemType(const void* human, std::uint32_t good, std::int32_t slot);
+    void Human_l_FinishTask_Goto(void* human);
 }

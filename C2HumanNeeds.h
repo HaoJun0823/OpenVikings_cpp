@@ -4,14 +4,20 @@
 
 namespace NC2Logic
 {
+    bool Human_IsAbleToTalk(const void* human);
+    bool Human_IsAbleToPray(const void* human);
     bool TGoodTypes_IsFood(std::uint32_t good);
     bool Human_IsAbleToEatCandy(const void* human);
     bool Human_CanSleepAtTargetMapPosition(const void* human);
     bool Human_CanPrayAtMapRealPosition(const void* human, const void* point);
     bool Human_CanPrayAtTargetMapPosition(const void* human);
+    bool Human_FindTempleForPraying(void* human, void* real, void* work);
     void Human_l_StartTask_FulfillNeeds_Food(void* human);
+    void Human_l_StartTask_FulfillNeeds_Food_TryToCollect(void* human);
+    void Human_l_StartTask_FulfillNeeds_Food_Collect(void* human);
     void Human_l_StartTask_FulfillNeeds_AtHome(void* human);
     void Human_l_FinishTask_FulfillNeeds(void* human);
+    void Human_l_FailTask_FulfillNeeds(void* human);
     void Human_l_StartTask_FulfillNeeds_Stamina(void* human);
     void Human_l_StartTask_FulfillNeeds_Stamina_AtHome(void* human);
     void Human_l_StartTask_FulfillNeeds_Stamina_OnMap(void* human);
@@ -34,4 +40,7 @@ namespace NC2Logic
     std::int32_t Human_l_Item_GetItemSlotIndexForUrgentNeed(const void* human, std::uint32_t need);
     void Human_l_Item_UseItemInSlot(void* human, std::int32_t slot);
     void Human_UserMessage_SendToUserMessage(void* human, std::uint32_t type);
+    void Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(void* human, std::uint32_t good);
+    void Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(void* human, std::uint32_t good);
+    void Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(void* human, std::uint32_t good);
 }

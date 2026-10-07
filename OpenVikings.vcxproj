@@ -491,9 +491,18 @@
     <ClCompile Include="C2HumanGoodieTasks.cpp" />
     <ClCompile Include="C2HumanAtomicEvents.cpp" />
     <ClCompile Include="C2HumanNeeds.cpp" />
+    <ClCompile Include="C2HumanWalking.cpp" />
+    <ClCompile Include="C2HumanGoods.cpp" />
+    <ClCompile Include="C2HumanProduction.cpp" />
+    <ClCompile Include="C2HumanEquipment.cpp" />
+    <ClCompile Include="C2MapLandscapeChanges.cpp" />
     <ClInclude Include="C2HumanTaskAccess.h" />
     <ClInclude Include="C2HumanGoodieTasks.h" />
     <ClInclude Include="C2HumanAtomicEvents.h" />
     <ClInclude Include="C2HumanNeeds.h" />
+    <ClInclude Include="C2HumanWalking.h" />
+    <ClInclude Include="C2HumanGoods.h" />
+    <ClInclude Include="C2HumanProduction.h" />
+    <ClInclude Include="C2HumanEquipment.h" />
   </ItemGroup>
 </Project>

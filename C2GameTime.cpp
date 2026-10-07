@@ -2,6 +2,7 @@
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameTime.h"
 #include "C2MapMoveableAccess.h"
+#include "C2MapResourceManagers.h"
 #include "C2SavegameIO.h"
 #include "C2CallbackManager.h"
 #include "C2GameState.h"
@@ -32,9 +33,6 @@ namespace NC2Logic
     extern void __fastcall HouseArray_DoOneGameSecond(void*, void* unusedEdx);
     extern void __fastcall RoadBuildManager_DoOneGameSecond(void*, void* unusedEdx);
     extern void __fastcall WallBuildManager_DoOneGameSecond(void*, void* unusedEdx);
-    extern void Map_BioSystem_DoOneGameTick();
-    extern void __fastcall MapLandscapeAutoTransitionManager_System_DoOneGameTick(void*, void* unusedEdx);
-    extern void __fastcall MapBioRegrowManager_System_DoOneGameTick(void*, void* unusedEdx);
     extern void __fastcall DelayedActionManager_System_DoOneGameTick(void*, void* unusedEdx);
     extern void __fastcall GameControl_System_DoOneGameTick(void*, void* unusedEdx, std::uint32_t);
     extern void Game_l_Autosave_Update();
@@ -107,8 +105,8 @@ namespace NC2Logic
             WallBuildManager_DoOneGameSecond(gWallBuildManager, nullptr);
         }
         Map_BioSystem_DoOneGameTick();
-        MapLandscapeAutoTransitionManager_System_DoOneGameTick(gMapLandscapeAutoTransitionManager, nullptr);
-        MapBioRegrowManager_System_DoOneGameTick(gMapBioRegrowManager, nullptr);
+        static_cast<CMapLandscapeAutoTransitionManager*>(gMapLandscapeAutoTransitionManager)->System_DoOneGameTick();
+        static_cast<CMapBioRegrowManager*>(gMapBioRegrowManager)->System_DoOneGameTick();
         DelayedActionManager_System_DoOneGameTick(gDelayedActionManager, nullptr);
         GameControl_System_DoOneGameTick(gGameControl, nullptr, gGameTime.tick);
         Game_l_Autosave_Update();

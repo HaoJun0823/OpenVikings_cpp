@@ -1,11 +1,163 @@
 #include "C2MapArea.h"
 #include "C2GameState.h"
+#include "C2GameMapAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2MapGeometry.h"
 #include "XCrtFileAccess.h"
 
 #include <cstring>
 
 namespace NC2Logic
 {
+    using namespace NC2Lifetime;
+
+    // Original function: FUN_00452bdc; changed walking bits notify the map manager.
+    void CMapArea::WalkBlock_Set(const void* source, bool blocked) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point))
+                {
+                    auto* micro = GameMap_GetMapMicroPointPtr(&point);
+                    const auto value = Read<std::uint8_t>(micro, 12);
+                    if (((value >> 7) != 0) != blocked)
+                    {
+                        Write<std::uint8_t>(micro, 12, static_cast<std::uint8_t>((value & 0x7Fu) | (blocked ? 0x80u : 0u)));
+                        GameMapModifyManager_GameMapModified(14, &point, 0);
+                    }
+                }
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+    }
+
+    // Original function: FUN_00452cfe.
+    void CMapArea::BuildBlock_Set(const void* source, bool blocked) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point))
+                {
+                    auto* micro = GameMap_GetMapMicroPointPtr(&point);
+                    Write<std::uint8_t>(micro, 13, static_cast<std::uint8_t>((Read<std::uint8_t>(micro, 13) & 0xFEu) | (blocked ? 1u : 0u)));
+                }
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+    }
+
+    // Original function: FUN_00452d79; out-of-map points are skipped.
+    bool CMapArea::BuildBlock_Check(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & 1u) != 0) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00452df0; every inside-map point invokes Clear separately.
+    void CMapArea::Landscapes_RemoveAll(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point)) GameMap_MapMicroPoint_Landscape_Clear(&point);
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+    }
+
+    // Original function: FUN_00452e5b.
+    bool CMapArea::Check_CanLandscapeBeSetOnPattern(const void* source, std::uint32_t landscape) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point) && !GameMap_Misc_IsLandscapeAllowedOnPattern(&point, landscape)) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_004531b9; an outside point rejects the entire area.
+    bool CMapArea::AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point)) return false;
+                const auto type = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0);
+                if (type != 0 && type != 1) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00453236; only empty points receive attachment offsets.
+    void CMapArea::AdditionalAttachmentPoints_SetToMap(const void* source) const
+    {
+        const auto original = Read<std::uint32_t>(source, 0);
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, &original, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point)) return;
+                auto* micro = GameMap_GetMapMicroPointPtr(&point);
+                if (Read<std::uint8_t>(micro, 0) == 0)
+                {
+                    Write<std::uint8_t>(micro, 0, 4);
+                    Write<std::uint8_t>(micro, 2, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 0) - Read<std::int16_t>(&point, 0)));
+                    Write<std::uint8_t>(micro, 3, static_cast<std::uint8_t>(Read<std::int16_t>(&original, 2) - Read<std::int16_t>(&point, 2)));
+                }
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+    }
+
+    // Original function: FUN_004532d9; stop at the first outside point.
+    void CMapArea::AdditionalAttachmentPoints_ClearFromMap(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point)) return;
+                Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 0, 0);
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+    }
+
     // Original function: FUN_004533be; the random call precedes checking rowCount.
     void CMapArea::AreaTool_GetRandomPositionDelta(std::int16_t* x, std::int16_t* y) const
     {

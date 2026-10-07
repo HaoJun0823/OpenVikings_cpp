@@ -116,18 +116,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.
     bool __cdecl GameMap_l_ValidateLandscapes_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-    // TEMPORARY DUMMY: Windows address 00426AC7; implementation pending.
-    // Naming reference: NC2Logic::CMapBioRegrowManager::System_DoOneGameTick.
-    void __fastcall MapBioRegrowManager_System_DoOneGameTick(void *, void *) {}
-
-    // TEMPORARY DUMMY: Windows address 00426F84; implementation pending.
-    // Naming reference: NC2Logic::CMapLandscapeAutoTransitionManager::System_DoOneGameTick.
-    void __fastcall MapLandscapeAutoTransitionManager_System_DoOneGameTick(void *, void *) {}
-
-    // TEMPORARY DUMMY: Windows address 0042712C; implementation pending.
-    // Naming reference: NC2Logic::Map_BioSystem_DoOneGameTick.
-    void __cdecl Map_BioSystem_DoOneGameTick(void) {}
-
     // TEMPORARY DUMMY: Windows address 0042750A; implementation pending.
     // Naming reference: NC2Logic::CWallBuildManager::SetWallBuildFlag.
     void __fastcall WallBuildManager_SetWallBuildFlag(void *, void *, unsigned int, void const *) {}
@@ -179,10 +167,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 00431276; implementation pending.
     // Naming reference: NC2Logic::CHouse::Misc_Destroy_House.
     void __fastcall House_Misc_Destroy_House(void *, void *) {}
-
-    // TEMPORARY DUMMY: Windows address 00431B42; implementation pending.
-    // Naming reference: NC2Logic::CHouse::Stock_ModifyAmount.
-    void __fastcall House_Stock_ModifyAmount(void *, void *, unsigned int, unsigned int, bool) {}
 
     // TEMPORARY DUMMY: Windows address 0043290F; implementation pending.
     // Naming reference: NC2Logic::CHouse::Construction_UpgradeStart.
@@ -458,8 +442,6 @@ namespace NC2Logic
     std::int32_t Logic_EntryPoint_Add_Vehicle(std::uint32_t, std::uint32_t, std::uint32_t, const void*, std::uint32_t) { return -1; }
     // TEMPORARY DUMMY: Windows address 00431FFA; object startup dependency pending.
     bool House_Inhabitants_AttachHuman(void*, std::uint32_t, std::uint32_t) { return false; }
-    // TEMPORARY DUMMY: Windows address 004320CA; object startup dependency pending.
-    bool House_Inhabitants_DetachHuman(void*, std::uint32_t, std::uint32_t) { return false; }
     // TEMPORARY DUMMY: Windows address 0043C8EA; object startup dependency pending.
     std::uint32_t Human_DoExecuteUserCommand_AttachHomeHouse(void*, std::int32_t, std::uint32_t) { return 0; }
     // TEMPORARY DUMMY: Windows address 0043CB68; object startup dependency pending.
@@ -468,10 +450,6 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_AttachBuildHouse(void*, std::int32_t, std::uint32_t) { return 0; }
     // TEMPORARY DUMMY: Windows address 00441F8C; object startup dependency pending.
     std::uint32_t Human_VehicleMisc_Enter(void*) { return 0; }
-    // TEMPORARY DUMMY: Windows address 0044AD2E; object startup dependency pending.
-    void Human_UpdateCurrentJobType(void*) {  }
-    // TEMPORARY DUMMY: Windows address 0044BA8A; object startup dependency pending.
-    bool Vehicle_Stock_ModifyAmount(void*, std::uint32_t, std::int32_t, std::uint32_t) { return false; }
 }
 
 namespace NC2LogicExternals
@@ -488,8 +466,6 @@ namespace NC2Logic
     bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void*, std::uint32_t, std::uint32_t, std::int32_t, std::uint32_t, std::int32_t) { return false; }
     // TEMPORARY DUMMY: Windows address 00419B74; death-message dependency pending.
     void HappinessManager_Messages_CivilistDied(void*, const void*) {}
-    // TEMPORARY DUMMY: Windows address 0043CC88; existing work-house attachment dependency pending.
-    std::uint32_t Human_DoExecuteUserCommand_DetachWorkHouse(void*) { return 0; }
     // TEMPORARY DUMMY: Windows address 00462176; map-good placement dependency pending.
     std::uint32_t Map_GoodTool_PutOnMap(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, bool) { return 0; }
 }

@@ -27,9 +27,12 @@ namespace NC2Logic
         std::int32_t GetFirstHouseId();
         std::int32_t GetFirstHouseId(std::uint32_t player);
         std::int32_t GetNextHouseId();
+        std::int32_t GetFirstSectorHouseId(std::uint32_t player, const void* point, std::uint32_t radius, bool useSecondList);
+        std::int32_t GetNextSectorHouseId();
     private:
         void l_ConstructNonVirtual();
         std::int32_t l_GetNext(std::int32_t previous);
+        std::int32_t l_GetNextSectorHouseId(std::int32_t previous);
         std::uint32_t flags;
         std::uint32_t player;
         std::int16_t center[2];

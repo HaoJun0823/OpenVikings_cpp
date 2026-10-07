@@ -24,6 +24,11 @@ namespace NC2Logic
     // Original function: FUN_004237d2
     const void* GameMap_GetConstMapMicroPointPtr(const void* packedMigPoint);
     void* GameMap_GetMapMicroPointPtr(const void* packedMigPoint);
+    bool GameMap_Misc_IsLandscapeAllowedOnPattern(const void* point, std::uint32_t landscape);
+    bool GameMap_MapMicroPoint_Landscape_SetType(const void* point, std::uint32_t type, std::uint32_t valency, std::int32_t engineId, bool preserveWalkingBlock, std::int32_t player);
+    void GameMap_MapMicroPoint_Landscape_Clear(const void* point);
+    std::int32_t GameMap_MapMicroPoint_Landscape_ApplyTransition(const void* point, std::uint32_t transition);
+    void GameMap_Misc_LetBlocksBeReDrawn(const std::int16_t* rectangle);
     bool GameMap_Misc_GetLandscapeWorkPosition(const void* realPosition, void* workPosition);
     bool GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(const void* point);
     std::int16_t GameMap_CalculationMap_GetValue(const void* packedMigPoint);

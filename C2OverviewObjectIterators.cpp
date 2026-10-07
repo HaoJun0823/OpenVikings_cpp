@@ -2,6 +2,12 @@
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
 #include "C2GameMapAccess.h"
+#include "C2MapSectorAttachment.h"
+#include "C2MapSectorGridCursor.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2StaticActorTypeDataAccess.h"
+#include "C2VehicleAccess.h"
 #include "XCrtFileAccess.h"
 
 #include <cstring>
@@ -55,6 +61,70 @@ namespace NC2Logic
         flags = 1;
         current = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHouseArray::sTheObjectPtr->mFirstScanIndex) - 1u));
         return current;
+    }
+
+    // Original function: FUN_0042b821; the boolean selects the second sector head.
+    std::int32_t CHouseIterator::GetFirstSectorHouseId(std::uint32_t playerId, const void* point, std::uint32_t radiusValue, bool useSecondList)
+    {
+        player = playerId;
+        std::memcpy(center, point, 4);
+        radius = radiusValue;
+        auto lowerPoint = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        NC2Lifetime::Write<std::uint16_t>(&lowerPoint, 0, center[0] - radiusValue);
+        NC2Lifetime::Write<std::uint16_t>(&lowerPoint, 2, center[1] - radiusValue);
+        SSectorGridCursor lower(lowerPoint);
+        lower.CutInsideMap();
+        auto upperPoint = lowerPoint;
+        NC2Lifetime::Write<std::uint16_t>(&upperPoint, 0, NC2Lifetime::Read<std::uint16_t>(&upperPoint, 0) + radiusValue * 2u);
+        NC2Lifetime::Write<std::uint16_t>(&upperPoint, 2, NC2Lifetime::Read<std::uint16_t>(&upperPoint, 2) + radiusValue * 2u);
+        SSectorGridCursor upper(upperPoint);
+        upper.CutInsideMap();
+        sectorCoordinates[0] = lower.x; sectorCoordinates[1] = lower.y;
+        sectorCoordinates[2] = upper.x; sectorCoordinates[3] = upper.y;
+        sectorCoordinates[4] = lower.x; sectorCoordinates[5] = lower.y;
+        flags = useSecondList ? 1u : 0u;
+        current = l_GetNextSectorHouseId(-1);
+        return current;
+    }
+
+    // Original function: FUN_0042b8c0.
+    std::int32_t CHouseIterator::GetNextSectorHouseId()
+    {
+        if (current != -1) current = l_GetNextSectorHouseId(current);
+        return current;
+    }
+
+    // Original function: FUN_0042b98a; preserve sector/list order and unsigned radius.
+    std::int32_t CHouseIterator::l_GetNextSectorHouseId(std::int32_t previous)
+    {
+        using namespace NC2Lifetime;
+        for (;;)
+        {
+            std::int32_t id;
+            if (previous == -1)
+            {
+                const auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
+                const auto cell = sectorCoordinates[5] * manager->GetGridWidth() + sectorCoordinates[4];
+                id = Read<std::int32_t>(manager->GetSectorData(), (cell * 21u + player) * 0x40u + ((flags & 1u) != 0 ? 0x28u : 0x10u));
+            }
+            else id = Read<std::int32_t>(CHouseArray::mStaticVars, static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize + 0x7A4u);
+            previous = id;
+            if (id != -1)
+            {
+                const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, 0x1C), Read<std::int16_t>(house, 0x1E), center[0], center[1])) <= radius) return id;
+            }
+            else
+            {
+                ++sectorCoordinates[4];
+                if (static_cast<std::int32_t>(sectorCoordinates[4]) > static_cast<std::int32_t>(sectorCoordinates[2]))
+                {
+                    sectorCoordinates[4] = sectorCoordinates[0];
+                    ++sectorCoordinates[5];
+                    if (static_cast<std::int32_t>(sectorCoordinates[5]) > static_cast<std::int32_t>(sectorCoordinates[3])) return -1;
+                }
+            }
+        }
     }
 
     // Original function: FUN_0042b8dc.

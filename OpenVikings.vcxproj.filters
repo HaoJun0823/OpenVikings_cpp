@@ -1149,5 +1149,14 @@
     <ClInclude Include="C2HumanAtomicEvents.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanNeeds.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanNeeds.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanWalking.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2HumanGoods.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2HumanProduction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2HumanEquipment.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2MapLandscapeChanges.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanWalking.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2HumanGoods.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2HumanProduction.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2HumanEquipment.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

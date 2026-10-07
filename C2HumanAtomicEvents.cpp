@@ -3,6 +3,9 @@
 #include "C2HumanGoodieTasks.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
+#include "C2VehicleAccess.h"
+#include "C2HumanGoods.h"
+#include "C2HumanProduction.h"
 #include "C2HouseAccess.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2LifetimeAccess.h"
@@ -59,7 +62,7 @@ namespace NC2Logic
 
     // Implementation boundary: do not start advancing an animation whose later
     // events would require an untranslated production, combat or training branch.
-    bool Human_AreAtomicEventsReconstructed(const SStaticAtomicAnimationData& animation)
+    bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
     {
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
         {
@@ -69,6 +72,10 @@ namespace NC2Logic
             {
             case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
             case 14: case 17: case 22: case 23: case 26: case 34: case 35: case 36:
+                break;
+            case 11: case 12: break;
+            case 21:
+                if (Read<std::uint32_t>(human, 0x1C) == 57 || Read<std::uint32_t>(human, 0x1C) == 58) return false;
                 break;
             default: return false;
             }
@@ -128,6 +135,9 @@ namespace NC2Logic
         case 8: Human_l_PerformTaskEvent_SendSocial(human, event.parameter); return;
         case 9: Human_l_PerformTaskEvent_SendReligion(human, event.parameter); return;
         case 10: Human_l_PerformTaskEvent_SendHitpoints(human, event.parameter); return;
+        case 11: Human_l_PerformTaskEvent_Pickup(human); return;
+        case 12: Human_l_PerformTaskEvent_Pileup(human); return;
+        case 21: Human_l_PerformTaskEvent_Produce(human); return;
         case 14: C2Debug_WarningBox("cAtomicAnimationEventTypeMerge not handled yet!"); return;
         case 17: C2Debug_WarningBox("cAtomicAnimationEventTypeShrink not handled yet!"); return;
         case 22: Human_HouseMisc_Leave(human); return;

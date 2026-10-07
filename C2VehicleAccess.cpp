@@ -30,6 +30,15 @@ namespace NC2Logic
     using NC2Lifetime::Read;
     static const std::byte* AddressAt(const void* object, std::uint32_t offset) { return reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(object) + offset); }
 
+    // Original function: FUN_0044ba62.
+    static std::uint32_t Vehicle_Stock_GetTotalAmount(const void* vehicle)
+    {
+        const auto count = Vehicle_GetVehicleTypeDataPtr(vehicle)->goodTypeCount;
+        std::uint32_t total = 0;
+        for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, 0x338u + slot);
+        return total;
+    }
+
     // Original function: FUN_0044bb37; both stock-slot lookups are retained.
     std::uint32_t Vehicle_Stock_GetFutureAmount(const void* vehicle, std::uint32_t goodId)
     {
@@ -45,6 +54,12 @@ namespace NC2Logic
         for (std::uint32_t slot = 0; slot < count; ++slot) total += Read<std::uint8_t>(vehicle, 0x37Au + slot);
         return total;
     }
+
+    // Original function: FUN_0044ba47.
+    bool Vehicle_Stock_IsFull(const void* vehicle) { return Vehicle_Stock_GetTotalAmount(vehicle) >= static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots); }
+
+    // Original function: FUN_0044bb8b.
+    bool Vehicle_Stock_IsFullSoon(const void* vehicle) { return Vehicle_Stock_GetTotalFutureAmount(vehicle) >= static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->stockSlots); }
 
     // Original function: FUN_0044bce5; complete 21-record stock reservation list.
     static bool VehicleStock_IsHumanInList(const void* stock, std::uint32_t revision)
@@ -80,6 +95,29 @@ namespace NC2Logic
             NC2Lifetime::Write<std::uint8_t>(stock, offset, 1);
             return;
         }
+    }
+
+    // Original function: FUN_0044ba8a; reservation removal uses the requested delta.
+    bool Vehicle_Stock_ModifyAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision)
+    {
+        if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return false;
+        const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
+        const auto slot = static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId));
+        std::uint32_t applied;
+        if (delta < 0)
+        {
+            if (NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(delta)) > NXBasics::Runtime_TimeSigned32(Vehicle_Stock_GetAmountOfGoods(vehicle, goodId))) return false;
+            applied = static_cast<std::uint32_t>(delta);
+        }
+        else
+        {
+            const auto available = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(type->stockSlots) - Vehicle_Stock_GetTotalAmount(vehicle));
+            applied = static_cast<std::uint32_t>(delta > available ? available : delta);
+        }
+        NC2Lifetime::Write(vehicle, 0x338u + slot, static_cast<std::uint8_t>(Read<std::uint8_t>(vehicle, 0x338u + slot) + applied));
+        if (!Vehicle_Passengers_IsCarrierAttached(vehicle)) Vehicle_Stock_SetWantedAmount(vehicle, goodId, Read<std::uint8_t>(vehicle, 0x338u + slot));
+        VehicleStock_RemoveHumanFromList(static_cast<std::byte*>(vehicle) + 0x338, humanRevision, delta);
+        return true;
     }
 
     // Original function: FUN_0044bba6; the reservation records receive the requested, unclamped delta.
@@ -247,6 +285,23 @@ namespace NC2Logic
         auto available = static_cast<std::uint32_t>(type->stockSlots) + Read<std::uint8_t>(vehicle, 0x3BCu + slot) - total;
         if (wanted <= available) available = wanted;
         NC2Lifetime::Write(vehicle, 0x3BCu + slot, static_cast<std::uint8_t>(available));
+        return true;
+    }
+
+    // Original function: FUN_0044c095; moving outside retains the passenger reference.
+    bool Vehicle_Passengers_MoveOut_h(void* vehicle, std::uint32_t humanId)
+    {
+        if (Read<std::int32_t>(vehicle, 12) > 0 && Read<std::uint32_t>(vehicle, 0x4FC) == 1) return false;
+        const auto slot = Vehicle_Passengers_GetAttachedHumanSlot(vehicle, humanId);
+        if (slot == -1) return false;
+        const auto offset = 0x1F8u + static_cast<std::uint32_t>(slot) * 12u;
+        if (Read<std::uint8_t>(vehicle, offset) != 0)
+        {
+            std::uint32_t point = 0;
+            Vehicle_Door_GetEntryPoint(vehicle, &point, 0);
+            Human_VehicleMisc_Leave(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize, &point);
+            NC2Lifetime::Write<std::uint8_t>(vehicle, offset, 0);
+        }
         return true;
     }
 

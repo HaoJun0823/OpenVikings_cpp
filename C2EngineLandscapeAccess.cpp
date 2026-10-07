@@ -1,12 +1,47 @@
 #include "C2EngineLandscapeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
+#include "C2GameMapAccess.h"
 #include "C2E2StaticDataTerrain.h"
 #include "C2EngineDisplayAccess.h"
 #include "XCrtFileAccess.h"
 
 namespace NC2LogicExternals
 {
+    // Original function: FUN_0045343e.
+    std::uint32_t External_Landscape_GetMaximumValency(std::int32_t engineId) { return engineId == -1 ? 0u : NC2Lifetime::Read<std::uint32_t>(External_Landscape_GetLogicDataPtr(engineId), 4); }
+
+    // Original function: FUN_00453456.
+    std::int32_t External_Landscape_GetTransitionTarget(std::int32_t engineId, std::uint32_t transition)
+    {
+        if (engineId == -1) return -1;
+        const auto* data = External_Landscape_GetLogicDataPtr(engineId);
+        const auto count = NC2Lifetime::Read<std::uint32_t>(data, 0x2C);
+        const auto* entries = NC2Lifetime::Read<const std::byte*>(data, 0x30);
+        for (std::uint32_t i = 0; i < count; ++i) if (NC2Lifetime::Read<std::uint32_t>(entries, i * 8u) == transition) return NC2Lifetime::Read<std::int32_t>(entries, i * 8u + 4);
+        return -1;
+    }
+
+    // Original function: FUN_00480803.
+    void External_Landscape_Clear(const void* point)
+    {
+        auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
+        const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
+        if (id == 0xFFFFu) return;
+        const auto parameter = NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(id) * 0x8Cu + 0x79u);
+        NC2Lifetime::Write<std::uint16_t>(micro, 0, 0xFFFFu);
+        NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, parameter);
+    }
+
+    // Original function: FUN_0048083f.
+    void External_Landscape_InternallySetData(const void* point, std::int32_t engineId)
+    {
+        auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
+        if (NC2Lifetime::Read<std::uint16_t>(micro, 0) == static_cast<std::uint32_t>(engineId)) return;
+        NC2Lifetime::Write<std::uint16_t>(micro, 0, static_cast<std::uint16_t>(engineId));
+        NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * 0x8Cu + 0x79u));
+    }
+
     // Original function: FUN_00480712.
     const void* External_Landscape_GetLogicDataPtr(std::int32_t engineId) { return static_cast<const std::byte*>(NC2E2::gStaticLandscapeEntries) + static_cast<std::uint32_t>(engineId) * 0x8Cu + 0x38u; }
     // Original function: FUN_00480914.

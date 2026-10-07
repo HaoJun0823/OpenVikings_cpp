@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## Human activity and freeze recovery - 2026-10-07
+
+The user reports freezes among women, children and scouts. The new recovery block connects household collection/delivery, equipment replacement and full equip/drop leaves, civilian goto/go-home/listening commands, goods/food/prayer searches and storage, ordinary indoor production, active civilian path callbacks, landscape/regrow ticks and real house detachment. Read [HUMAN_FREEZE_RECOVERY.md](HUMAN_FREEZE_RECOVERY.md) and current C2HumanGoods/C2HumanProduction/C2HumanEquipment/C2HumanWalking before relying on earlier entries below. All behavior derives from Windows ASM/Game.exe; Mac supplies names only.
+
+Remaining family/birth/learning/outdoor/vehicle/combat/default-action and sector/guide route branches are explicitly unfinished; opponent-target idle and unknown event sets can still hold humans. Do not claim all freezes fixed or all human workflows complete. Verification: all 21 touched cpp files passed MSVC Win32 /Zs syntax-only checks; project/filter parity 186 cpp / 177 headers; no inline asm. No Debug/Release build, tests or new runtime run. Inventories: 670 names / 121 unfinished entries. The 2584/5054 coverage figure remains historical. Earlier chapters describe older checkpoints.
+
 ## Windows human events and needs - 2026-10-07
 
 The user requires Mac names only; all behavior/values/layout/control flow come exclusively from Windows ASM and the original Windows Game.exe. Supported needs/home/conversation/sound/FX atomic events now run in native order; untranslated event sets remain held. Conditions/aging/items/urgent selection, task-7 carried-food/sleep/social/reached-prayer starts and supported finish/home-refill/message-removal branches are connected. Pending secondary-target restore, food/prayer searches, cargo/passenger exits, task failure, production/combat/training and active paths remain explicit. Existing home-detach/death dummies still limit tick/condition coverage. See [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md). Inventories: 364 names / 135 unfinished; project/filters: 181 cpp / 173 headers. No build/tests/runtime or new coverage/runtime claim. Earlier entries below describe historical checkpoints.

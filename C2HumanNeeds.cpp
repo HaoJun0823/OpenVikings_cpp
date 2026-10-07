@@ -15,6 +15,9 @@
 #include "C2MissionStartObjects.h"
 #include "C2UserMessageAccess.h"
 #include "C2VehicleAccess.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2HumanWalking.h"
+#include "C2HumanGoods.h"
 
 namespace NC2Logic
 {
@@ -26,6 +29,12 @@ namespace NC2Logic
         void AddAttribute(void* human, std::uint32_t offset, std::uint32_t amount) { Write(human, offset, Read<std::uint32_t>(human, offset) + amount); }
         bool IsIgnoringNeeds(const void* human) { return !Human_IsAgeAdult(human) || (Read<std::uint32_t>(human, 0xB84) & 1u) != 0; } // Windows 00463AD2.
     }
+
+    // Original function: FUN_0042cb08.
+    bool Human_IsAbleToTalk(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x32u) != 0; }
+
+    // Original function: FUN_0042cb4c.
+    bool Human_IsAbleToPray(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x30u) != 0; }
 
     // Original function: FUN_0042cf0f.
     bool TGoodTypes_IsFood(std::uint32_t good) { return (good >= 16 && good <= 23) || good == 56; }
@@ -95,6 +104,77 @@ namespace NC2Logic
         Write(message, 8, Read<std::uint32_t>(human, 0x10));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045be9c.
+    void Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(void* human, std::uint32_t good)
+    {
+        if (good == 64 || GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + 0xB88)) return;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 4);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045bf0b.
+    void Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(void* human, std::uint32_t good)
+    {
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 5);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045bf64; retain both unlocked/allowed-good checks.
+    void Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(void* human, std::uint32_t good)
+    {
+        const void* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+        const auto offset = Read<std::uint32_t>(human, 0x14) * 66u + good;
+        if (Read<std::uint8_t>(player, offset + 0x1D4C) == 0 || Read<std::uint8_t>(player, offset + 0x1278) == 0) return;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 6);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0047024a; social failure deliberately retains its need.
+    void Human_l_FailTask_FulfillNeeds(void* human)
+    {
+        const auto need = Read<std::uint32_t>(human, 0x370);
+        if (Human_GetPlayerType(human) == 2)
+        {
+            if (need >= 1 && need <= 4) Write<std::uint32_t>(human, need == 1 ? 0xAA8 : need == 2 ? 0xAAC : need == 3 ? 0xAB0 : 0xAB4, 8000);
+        }
+        else
+        {
+            if (need == 3) return;
+            if (need == 1 || need == 2)
+            {
+                if (Read<std::int32_t>(human, 0x380) < 2) { Write<std::uint32_t>(human, 0xAD0, 0); return; }
+                if (!Human_UserControl_IsCommandTypeInQueue(human, need == 1 ? 7 : 8))
+                {
+                    if (Read<std::int32_t>(human, need == 1 ? 0xAA8 : 0xAAC) <= 2000) Human_UserMessage_SendToUserMessage(human, need == 1 ? 0x1C : 0x1D);
+                    else if (need == 1) Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0));
+                    else Human_UserMessage_SendToUserMessage(human, 2);
+                }
+            }
+            else if (need == 4) Human_UserMessage_SendToUserMessage(human, 0x1F);
+        }
+        Write(human, 0x380, Read<std::uint32_t>(human, 0x380) - 1u);
+        Write<std::uint32_t>(human, 0x370, 0);
+        Write<std::uint32_t>(human, 0xAD0, 0);
     }
 
     // Original function: FUN_0045cf66. Higher unsigned useability wins; a tie
@@ -205,8 +285,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(human, 0x370) != 0) Write<std::uint32_t>(human, 0x368, 7);
     }
 
-    // Partial original function: FUN_0047014c. A terminal finish with a valid
-    // secondary target is held until Target_RestoreSecondaryTarget is connected.
+    // Original function: FUN_0047014c.
     void Human_l_FinishTask_FulfillNeeds(void* human)
     {
         const auto need = Read<std::uint32_t>(human, 0x370);
@@ -223,7 +302,6 @@ namespace NC2Logic
         case 4: repeat = Read<std::int32_t>(human, 0xAB4) <= 2000 && Human_IsJobNeedingReligion(human); message = 0x1F; break;
         default: break;
         }
-        if (!repeat && InteractionTargetData_IsValid(static_cast<const std::byte*>(human) + 0xA84)) return;
         if (need == 1) Write<std::uint32_t>(human, 0xA64, 0);
         if (repeat) Write<std::uint32_t>(human, 0x36C, 0);
         else if (message != 0) NC2LogicExternals::External_Misc_RemoveUserMessage(Read<std::uint32_t>(human, 4), message);
@@ -234,15 +312,18 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0xAD0, 0);
         Write<std::uint32_t>(human, 0xACC, 0);
         if (Human_IsInHomeHouse(human)) Human_l_StartTask_FulfillNeeds_AtHome(human);
-        if (Read<std::uint32_t>(human, 0x368) != 7) Human_Target_Reset(human);
+        if (Read<std::uint32_t>(human, 0x368) != 7)
+        {
+            Human_Target_Reset(human);
+            if (InteractionTargetData_IsValid(static_cast<const std::byte*>(human) + 0xA84)) Human_Target_RestoreSecondaryTarget(human);
+        }
     }
 
-    // Partial original function: FUN_0046f881. Food collection and storing
-    // non-food cargo remain boundaries; carried food is consumed before startup.
+    // Original function: FUN_0046f881.
     void Human_l_StartTask_FulfillNeeds_Food(void* human)
     {
         const auto good = Read<std::uint32_t>(human, 0xAD4);
-        if (good != 0 && !TGoodTypes_IsFood(good)) return;
+        if (good != 0 && !TGoodTypes_IsFood(good)) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (good != 0)
         {
             if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
@@ -258,24 +339,138 @@ namespace NC2Logic
             return;
         }
         if (!Human_IsRefreshingInWorld(human) && Human_UserControl_GetLastCommandType(human) != 7) { Write<std::uint32_t>(human, 0x36C, 3); return; }
-        if (Read<std::uint32_t>(human, 0xACC) != 0 && !TGoodTypes_IsFood(Read<std::uint32_t>(human, 0xAD0))) Human_CurrentTask_DoInterrupt(human);
-        // Food_Collect/Food_TryToCollect are not translated yet.
+        if (Read<std::uint32_t>(human, 0xACC) != 0)
+        {
+            if (!TGoodTypes_IsFood(Read<std::uint32_t>(human, 0xAD0))) { Human_CurrentTask_DoInterrupt(human); return; }
+            Human_l_StartTask_FulfillNeeds_Food_TryToCollect(human);
+        }
+        else Human_l_StartTask_FulfillNeeds_Food_Collect(human);
     }
 
-    // Partial original function: FUN_0046fc36; non-sleeping vehicle exit and
-    // carried-goods storage are pending. Supported branches retain native order.
+    // Original function: FUN_0046f95c.
+    void Human_l_StartTask_FulfillNeeds_Food_TryToCollect(void* human)
+    {
+        if (Human_IsAtTargetPoint(human))
+        {
+            if (Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human)) return;
+            Human_Target_Reset(human);
+            Write<std::uint32_t>(human, 0xAD0, 0);
+        }
+        Write<std::uint32_t>(human, 0xACC, 0);
+    }
+
+    // Original function: FUN_0046f98a; collect from a vehicle, defence house, home or map search.
+    void Human_l_StartTask_FulfillNeeds_Food_Collect(void* human)
+    {
+        Human_Target_Reset(human);
+        Write<std::uint32_t>(human, 0xAD0, 16);
+        std::uint32_t real = 0, work = 0;
+        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        {
+            auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            for (std::uint32_t good = 16; good < 24; ++good)
+            {
+                if (Vehicle_Stock_GetAmountOfGoods(vehicle, good) == 0) continue;
+                Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
+                Vehicle_Stock_ModifyAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
+                Write(human, 0xAD4, good);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good);
+                Write<std::uint32_t>(human, 0x36C, 2);
+                return;
+            }
+            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) goto failed;
+            std::uint32_t entry = 0;
+            Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+            const auto good = Human_FindFood_Complex(human, &real, &work, &entry);
+            if (good == 0) goto failed;
+            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+            {
+                alignas(4) std::byte command[20]{};
+                Write<std::uint8_t>(command, 0, 0x70);
+                Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
+                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+                Vehicle_DoAddNewUserCommand(vehicle, command);
+                Write<std::uint32_t>(human, 0x370, 0);
+                Write<std::uint32_t>(human, 0x368, 1);
+                Write<std::uint32_t>(human, 0x36C, 0);
+                return;
+            }
+            Write(human, 0xAD0, good);
+            Write<std::uint32_t>(human, 0xA84, 6);
+            Write(human, 0xA98, Read<std::uint32_t>(human, 0xB48));
+            Write(human, 0xA9C, Read<std::uint32_t>(human, 0xB4C));
+            if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, true)) return;
+            goto failed;
+        }
+        if (Human_Misc_IsHidden(human) && Human_IsDefendingHouse(human, -1))
+        {
+            const auto id = Human_GetDefenseHouseId(human);
+            auto* house = id == -1 ? nullptr : House(static_cast<std::uint32_t>(id));
+            for (std::uint32_t good = 16; good < 24; ++good)
+            {
+                if (!House_Stock_CanStoreGoodType(house, good, true) || House_Stock_GetAmountOfGoods(house, good, true) == 0) continue;
+                House_Stock_ModifyAmount(house, good, -1, 0, false);
+                House_Stock_ModifyFutureAmount(house, good, -1, false);
+                Write(human, 0xAD4, good);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good);
+                Write<std::uint32_t>(human, 0x36C, 2);
+                return;
+            }
+            Write<std::uint32_t>(human, 0x36C, 3);
+            Write<std::uint32_t>(human, 0x374, 0);
+            return;
+        }
+        if (Read<std::uint32_t>(human, 0x380) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_FindFoodInHomeHouse(human, &real, &work))
+        {
+            Write<std::uint32_t>(human, 0xAD0, 16);
+            if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, true)) return;
+        }
+        {
+            const auto good = Human_FindFood_Complex(human, &real, &work, Human_GetMapPositionRef(human));
+            if (good != 0)
+            {
+                Write(human, 0xAD0, good);
+                if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, true)) return;
+            }
+        }
+    failed:
+        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, 0x374, 3);
+    }
+
+    // Original function: FUN_0046fc36.
     void Human_l_StartTask_FulfillNeeds_Stamina(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) return;
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (!Human_IsRefreshingInWorld(human) && Human_UserControl_GetLastCommandType(human) != 8) { Write<std::uint32_t>(human, 0x36C, 3); return; }
         if (Read<std::uint8_t>(human, 0xB51) != 0)
         {
-            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
             const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
-            if (kind != 3 && kind != 4) return;
-            Human_l_StartAtomicAnimation(human, 8, -1);
-            Write<std::uint32_t>(human, 0x36C, 1);
-            return;
+            if (kind == 3 || kind == 4)
+            {
+                Human_l_StartAtomicAnimation(human, 8, -1);
+                Write<std::uint32_t>(human, 0x36C, 1);
+                return;
+            }
+            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+            {
+                std::byte command[20]{};
+                Write<std::uint8_t>(command, 0, 0x70);
+                Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, 0x10));
+                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+                Vehicle_DoAddNewUserCommand(vehicle, command);
+                Write<std::uint32_t>(human, 0x36C, 0);
+                Write<std::uint32_t>(human, 0x368, 1);
+                return;
+            }
+            Write<std::uint32_t>(human, 0xA84, 6);
+            Write(human, 0xA98, Read<std::uint32_t>(human, 0xB48));
+            Write(human, 0xA9C, Read<std::uint32_t>(human, 0xB4C));
+            Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4));
         }
         if (Human_IsAtTargetPoint(human) && Human_CanSleepAtTargetMapPosition(human))
         {
@@ -314,10 +509,10 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 3);
     }
 
-    // Partial original function: FUN_0046fe7f; cargo storage remains pending.
+    // Original function: FUN_0046fe7f.
     void Human_l_StartTask_FulfillNeeds_Social(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) return;
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (Read<std::uint8_t>(human, 0xB51) == 0)
         {
             void* other = Human_FindHumanToTalkInTalkRange_Any(human);
@@ -351,11 +546,10 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 1);
     }
 
-    // Partial original function: FUN_0046ff69; cargo storage and prayer-place
-    // searches remain pending. Already-reached prayer positions are connected.
+    // Original function: FUN_0046ff69.
     void Human_l_StartTask_FulfillNeeds_Religion(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) return;
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (Read<std::uint8_t>(human, 0xB51) != 0)
         {
             Write<std::uint32_t>(human, 0x36C, 3);
@@ -374,25 +568,79 @@ namespace NC2Logic
         Human_l_StartTask_FulfillNeeds_Religion_AtTemple(human);
     }
 
-    // Partial original function: FUN_0046fff6; the next-prayer-point helper is pending.
+    // Original function: FUN_0046fff6. Windows ignores the prayer-point result here.
     void Human_l_StartTask_FulfillNeeds_Religion_AtHome(void* human)
     {
-        if (!Human_IsAtTargetPoint(human) || Read<std::uint32_t>(human, 0xA6C) != Read<std::uint32_t>(House(Read<std::uint32_t>(human, 0xB28)), 0x1C)) return;
-        Human_l_StartAtomicAnimation(human, 12, -1);
-        Write<std::uint32_t>(human, 0x36C, 1);
+        const void* house = House(Read<std::uint32_t>(human, 0xB28));
+        if (Human_IsAtTargetPoint(human) && Read<std::uint32_t>(human, 0xA6C) == Read<std::uint32_t>(house, 0x1C))
+        {
+            Human_l_StartAtomicAnimation(human, 12, -1);
+            Write<std::uint32_t>(human, 0x36C, 1);
+            return;
+        }
+        const auto real = Read<std::uint32_t>(house, 0x1C);
+        std::uint32_t work = 0;
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
+        House_Religion_GetNextPrayPoint(house, Human_GetMapPositionRef(human), &work, false, Read<std::uint32_t>(human, 4), continent);
+        if (!Human_l_StartAtomicWalk(human, &real, &work)) Write<std::uint32_t>(human, 0x36C, 3);
     }
 
-    // Partial original function: FUN_004700c9; temple/prayer-point search is pending.
+    // Original function: FUN_004700c9.
     void Human_l_StartTask_FulfillNeeds_Religion_AtTemple(void* human)
     {
-        if (!Human_IsAtTargetPoint(human) || !Human_CanPrayAtTargetMapPosition(human)) return;
-        Human_l_StartAtomicAnimation(human, 12, -1);
-        Write<std::uint32_t>(human, 0x36C, 1);
+        if (Human_IsAtTargetPoint(human) && Human_CanPrayAtTargetMapPosition(human))
+        {
+            Human_l_StartAtomicAnimation(human, 12, -1);
+            Write<std::uint32_t>(human, 0x36C, 1);
+            return;
+        }
+        std::uint32_t real = 0, work = 0;
+        if (Human_FindTempleForPraying(human, &real, &work))
+        {
+            if (Human_l_StartAtomicWalk(human, &real, &work)) return;
+        }
+        else Human_UserMessage_SendToUserMessage(human, 0x1F);
+        Write<std::uint32_t>(human, 0x36C, 3);
+    }
+
+    // Original function: FUN_00460c1b. Equal distances replace the preceding candidate.
+    bool Human_FindTempleForPraying(void* human, void* real, void* work)
+    {
+        const void* position = Human_GetMapPositionRef(human);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6);
+        std::uint32_t nearest = 50000;
+        const void* selected = nullptr;
+        CHouseIterator iterator;
+        for (std::uint32_t pass = 0; pass < 2; ++pass)
+        {
+            if (pass != 0 && nearest <= 40) break;
+            for (auto id = iterator.GetFirstSectorHouseId(Read<std::uint32_t>(human, 0x10), position, 10000, pass != 0); id != -1; id = iterator.GetNextSectorHouseId())
+            {
+                const void* house = House(static_cast<std::uint32_t>(id));
+                if (Read<std::uint32_t>(house, 0x14) != (pass == 0 ? 37u : 1u) || Read<std::uint32_t>(house, 0x2C) != 3) continue;
+                if (Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6) != continent) continue;
+                const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(house, 0x1C), Read<std::int16_t>(house, 0x1E)));
+                if (distance > nearest) continue;
+                nearest = distance;
+                selected = house;
+                if (distance <= 40) break;
+            }
+        }
+        if (selected == nullptr) return false;
+        if (!House_Religion_GetNextPrayPoint(selected, position, work, true, Read<std::uint32_t>(human, 4), continent))
+        {
+            Write<std::uint32_t>(human, 0x36C, 3);
+            Write<std::uint32_t>(human, 0x374, 7);
+            return false;
+        }
+        Write(real, 0, Read<std::uint32_t>(selected, 0x1C));
+        return true;
     }
 
     // Partial original function: FUN_00463678. Windows conditions/aging/item and
-    // message order are translated; existing house-detach/death cleanup dummies
-    // remain dependencies and keep the owning tick excluded from completion.
+    // message order are translated; death cleanup still has unresolved dependencies
+    // and keeps the owning tick excluded from completion.
     void Human_AI_DoUpdateConditions(void* human)
     {
         if (IsIgnoringNeeds(human))

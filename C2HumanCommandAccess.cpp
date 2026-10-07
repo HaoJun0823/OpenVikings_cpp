@@ -12,6 +12,15 @@
 #include "C2GameMapAccess.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2StaticActorTypeDataAccess.h"
+#include "C2HumanTaskAccess.h"
+#include "C2HumanNeeds.h"
+#include "C2HumanInitialization.h"
+#include "C2HumanGoodieTasks.h"
+#include "C2HumanWalking.h"
+#include "C2HumanGoods.h"
+#include "C2MissionStartObjects.h"
+#include "C2UserMessageAccess.h"
+#include "C2HumanEquipment.h"
 #include <cstring>
 namespace NC2Logic
 {
@@ -63,7 +72,7 @@ namespace NC2Logic
         }
         if (Read<std::uint8_t>(human, 0xABC) == 0) return;
         const auto& animation = gStaticAtomicAnimationData[Read<std::uint32_t>(human, 0xAC0)];
-        if (!Human_AreAtomicEventsReconstructed(animation)) return;
+        if (!Human_AreAtomicEventsReconstructed(human, animation)) return;
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
             if (static_cast<std::uint32_t>(animation.events[index].time) == Read<std::uint32_t>(human, 0xAC4)) Human_l_PerformTaskEvent(human, animation.events[index]);
         const auto done = Read<std::uint32_t>(human, 0xAC4) + 1u;
@@ -80,16 +89,6 @@ namespace NC2Logic
 
     // Original function: FUN_0042c5aa.
     static bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0x18) == 5; }
-
-    // Original function: FUN_0042d768; target allocation and revision are both required.
-    static void* Human_GetTargetHousePtr(const void* human)
-    {
-        using namespace NC2Lifetime;
-        if (Read<std::uint32_t>(human, 0xA68) != 5) return nullptr;
-        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CHouseArray::ElementSize;
-        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(human, 0xA80)) return nullptr;
-        return house;
-    }
 
     // Original function: FUN_00441cb4; all five Windows circulation modes release their reservations.
     void Human_StopCurrentGoodCirculationMode(void* human)
@@ -174,7 +173,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00438d0a; the other human's occupied flag is checked.
-    static void Human_StopWaitingForOtherHuman_Detach(void* human)
+    void Human_StopWaitingForOtherHuman_Detach(void* human)
     {
         using namespace NC2Lifetime;
         const auto otherId = Read<std::uint32_t>(human, 0xB1C);
@@ -476,5 +475,288 @@ namespace NC2Logic
     void Human_ResetUserCommandArray(void* human)
     {
         for (std::uint32_t slot = 0; slot < 87; ++slot) NC2Lifetime::Write<std::uint8_t>(human, 0x390u + slot * 0x14u, 0);
+    }
+
+    // Original function: FUN_0042d348.
+    bool Human_HasEquippedItemType(const void* human, std::uint32_t good, std::int32_t slot)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(human, 0xAEC) == good || Read<std::uint32_t>(human, 0xAF0) == good) return true;
+        const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]);
+        const auto* armor = static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData);
+        if (static_cast<std::uint32_t>(weapons[Read<std::uint32_t>(human, 0xAE4)].goodType) == good || static_cast<std::uint32_t>(armor[Read<std::uint32_t>(human, 0xAE8)].goodType) == good) return true;
+        if (slot == -1) return Human_l_Item_IsGoodTypeEquipped(human, good);
+        const auto offset = 0xAF4u + static_cast<std::uint32_t>(slot) * 8u;
+        return Read<std::uint32_t>(human, offset) == good && Read<std::int32_t>(human, offset + 4) > 0;
+    }
+
+    // Translation boundary only; unsupported commands must not be consumed.
+    static bool IsUserCommandReconstructed(const void* human, const void* command)
+    {
+        using namespace NC2Lifetime;
+        if (Human_IsDefendingHouse(human, -1) || Read<std::uint8_t>(human, 0xB51) != 0) return false;
+        if (Read<std::uint8_t>(command, 0) >= 52 && Read<std::uint8_t>(command, 0) <= 87) return true;
+        switch (Read<std::uint8_t>(command, 0))
+        {
+        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 29: case 41: return true;
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_0045c293; the attachment-mask argument is unused in Windows.
+    static void Human_UserMessage_SendToUserMessage_CannotDetachHouse(void* human, std::uint32_t attachmentMask)
+    {
+        using namespace NC2Lifetime;
+        (void)attachmentMask;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 42);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0043cc88.
+    std::uint32_t Human_DoExecuteUserCommand_DetachWorkHouse(void* human)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(human, 0x18) == 7) return 1;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (!Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToLearnHouse(human)) return 1;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        if (House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 2)) return 2;
+        Human_UserMessage_SendToUserMessage_CannotDetachHouse(human, 2);
+        return 1;
+    }
+
+    // Original function: FUN_0043ce31.
+    std::uint32_t Human_DoExecuteUserCommand_DetachLearnHouse(void* human)
+    {
+        using namespace NC2Lifetime;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (!Human_IsAttachedToWorkHouse(human)) return 1;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        if (House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 8)) return 2;
+        Human_UserMessage_SendToUserMessage_CannotDetachHouse(human, 8);
+        return 1;
+    }
+
+    // Original function: FUN_0043c486; fallback walking retains the original work-center point.
+    std::uint32_t Human_DoExecuteUserCommand_GotoAndWait(void* human, const void* point)
+    {
+        using namespace NC2Lifetime;
+        Write<std::uint32_t>(human, 0xB64, 0);
+        Write<std::uint32_t>(human, 0xB70, 0);
+        Human_Target_Reset(human);
+        Human_Target_ResetSecondaryTarget(human);
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        const bool direct = Human_l_StartAtomicWalkAndWait(human, point);
+        if (!direct)
+        {
+            auto fallback = Read<std::uint32_t>(point, 0);
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6)) return 1;
+            if (!Tool_Map_GetNotBlockedPosition(&fallback, false) || !Human_l_StartAtomicWalkAndWait(human, &fallback)) return 1;
+        }
+        if (Human_IsAttachedToLearnHouse(human)) Human_DoExecuteUserCommand_DetachLearnHouse(human);
+        const auto job = Read<std::uint32_t>(human, 0x18);
+        bool recenter = Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobScout(human);
+        if (direct)
+        {
+            recenter = recenter || job == 6 || (job == 5 && !Human_IsAttachedToHomeHouse(human)) || (!Human_IsAgeAdult(human) && !Human_IsAttachedToHomeHouse(human));
+            if (Human_IsJobCarrier(human) && !Human_IsAttachedToWorkHouse(human) && !Human_IsAttachedToVehicle(human)) recenter = true;
+            if (Read<std::uint8_t>(gStaticJobTypeData, job * 0x88u + 0x83u) != 0 && !Human_IsAttachedToWorkHouse(human)) recenter = true;
+        }
+        if (recenter)
+        {
+            Write(human, 0xB30, Read<std::uint32_t>(point, 0));
+            Write<std::uint32_t>(human, 0x38C, 0);
+            Human_WorkCenterMarker_Update(human);
+            if (Human_IsAttachedToWorkHouse(human)) Human_DoExecuteUserCommand_DetachWorkHouse(human);
+        }
+        return 2;
+    }
+
+    // Original function: FUN_0043c7cf; speaker identity comes from command id/revision.
+    std::uint32_t Human_DoExecuteUserCommand_Cheer(void* human, std::uint32_t speakerId, std::uint32_t revision)
+    {
+        using namespace NC2Lifetime;
+        if (!Human_IsAbleToListen(human)) return 1;
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        const auto* speaker = CHumanArray::mStaticVars + speakerId * CHumanArray::ElementSize;
+        if (Read<std::uint8_t>(speaker, 0) == 0 || Read<std::uint32_t>(speaker, 8) != revision) return 1;
+        Human_Target_SetTargetPositions(human, Human_GetMapPositionRef(speaker), Human_GetMapPositionRef(human));
+        Human_l_StartTask_Listen(human, Human_Target_GetDirectionTo(human));
+        return 2;
+    }
+
+    bool Human_CanExecuteQueuedCommands(const void* human)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(human, 0xA60) != 0 || (Read<std::uint32_t>(human, 0xACC) != 0 && Read<std::uint32_t>(human, 0xACC) != 6) || Read<std::uint32_t>(human, 0x378) != 0) return true;
+        for (std::uint32_t slot = 0; slot < 87; ++slot)
+        {
+            const void* command = static_cast<const std::byte*>(human) + 0x390u + slot * 0x14u;
+            if (Read<std::uint8_t>(command, 0) != 0 && !IsUserCommandReconstructed(human, command)) return false;
+        }
+        return true;
+    }
+
+    // Partial original function: FUN_0043bed3; needs, goodies, house assignments and military-mode commands.
+    std::uint32_t Human_DoExecuteUserCommand(void* human, const void* command)
+    {
+        using namespace NC2Lifetime;
+        const auto opcode = Read<std::uint8_t>(command, 0);
+        if ((opcode >= 52 && opcode <= 60) || (opcode >= 70 && opcode <= 78)) return Human_DoExecuteUserCommand_Equipment_Drop(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
+        if ((opcode >= 61 && opcode <= 69) || (opcode >= 79 && opcode <= 87)) return Human_DoExecuteUserCommand_Equipment_Change(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
+        switch (opcode)
+        {
+        case 4:
+        {
+            Write<std::uint8_t>(human, 0x728, 0);
+            std::uint32_t point;
+            MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 0x0C));
+            return Human_DoExecuteUserCommand_GotoAndWait(human, &point);
+        }
+        case 5:
+        {
+            if (!Human_l_IsAtomicInterruptable(human)) return 0;
+            std::uint32_t point;
+            MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 0x0C));
+            Human_l_StartTask_GoAway(human, point, Read<std::uint32_t>(command, 0x10));
+            return 2;
+        }
+        case 6: // DoExecuteUserCommand_GoHome, inlined at 0043BF80.
+            if (!Human_l_IsAtomicInterruptable(human)) return 0;
+            Write<std::uint32_t>(human, 0x368, 3);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            return 2;
+        case 7: // DoExecuteUserCommand_Eat, 0043C674.
+        case 8: // DoExecuteUserCommand_Sleep, 0043C6BE.
+            if (!Human_l_IsAtomicInterruptable(human)) return 0;
+            if (Human_HasEquippedItemType(human, opcode == 7 ? 50u : 51u, -1)) return 1;
+            if (opcode == 7) Human_CurrentTask_DoInterrupt(human);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, 0x368, 7);
+            Write<std::uint32_t>(human, 0x370, opcode == 7 ? 1 : 2);
+            return 2;
+        case 9: // DoExecuteUserCommand_Talk, 0043C6FE.
+        case 10: // DoExecuteUserCommand_Pray, 0043C73D.
+            if (opcode == 9 ? !Human_IsAbleToTalk(human) : !Human_IsAbleToPray(human)) return 1;
+            if (!Human_l_IsAtomicInterruptable(human)) return 0;
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, 0x368, 7);
+            Write<std::uint32_t>(human, 0x370, opcode == 9 ? 3 : 4);
+            return 2;
+        case 11: // DoExecuteUserCommand_Goodie, 0043C77C.
+        {
+            auto task = Read<std::int32_t>(command, 0x0C);
+            if (task < 24 || task > 29) task = 24;
+            const auto job = Read<std::uint32_t>(human, 0x18);
+            if ((job >= 31 && job <= 41) || (job >= 42 && job <= 47)) return 1;
+            if (!Human_IsAbleToDoGoodieNow(human) || !Human_l_IsAtomicInterruptable(human)) return 0;
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Write(human, 0x368, task);
+            return 2;
+        }
+        case 12: return Human_DoExecuteUserCommand_Cheer(human, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8));
+        case 29: return Human_DoExecuteUserCommand_DetachWorkHouse(human);
+        case 41:
+            if (!Human_l_IsAtomicInterruptable(human)) return 0;
+            Write(human, 0xB5C, Read<std::uint32_t>(command, 0x0C));
+            if (Read<std::uint32_t>(command, 0x0C) == 3) Write<std::uint32_t>(human, 0xB70, 0);
+            return 2;
+        default: return 0;
+        }
+    }
+
+    // Original function: FUN_0043bd97. Call only after the reconstruction-boundary check.
+    bool Human_DoExecuteNextUserCommand(void* human)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(human, 0xA60) != 0 || (Read<std::uint32_t>(human, 0xACC) != 0 && Read<std::uint32_t>(human, 0xACC) != 6) || Read<std::uint32_t>(human, 0x378) != 0) return false;
+        const auto priority = Human_UserControl_GetPriorityCommandIndexInQueue(human);
+        if (priority != -1)
+        {
+            void* command = static_cast<std::byte*>(human) + 0x390u + static_cast<std::uint32_t>(priority) * 0x14u;
+            const auto result = Human_DoExecuteUserCommand(human, command);
+            if (result == 1) Write<std::uint8_t>(command, 0, 0);
+            else if (result != 0)
+            {
+                Write<std::uint8_t>(command, 0, 0);
+                if (result == 2) Write(human, 0xA5C, priority);
+                Write<std::uint8_t>(human, 0xA60, 1);
+                return true;
+            }
+        }
+        for (std::uint32_t slot = 0; slot < 87; ++slot)
+        {
+            void* command = static_cast<std::byte*>(human) + 0x390u + slot * 0x14u;
+            if (Read<std::uint8_t>(command, 0) == 0) continue;
+            const auto result = Human_DoExecuteUserCommand(human, command);
+            if (result == 1) Write<std::uint8_t>(command, 0, 0);
+            else if (result == 2)
+            {
+                Write<std::uint8_t>(command, 0, 0);
+                Write(human, 0xA5C, slot);
+                Write<std::uint8_t>(human, 0xA60, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Partial original function: FUN_0043be40; unsupported command trees retain their queue slots.
+    void Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt(void* human)
+    {
+        using namespace NC2Lifetime;
+        for (;;)
+        {
+            const auto index = Human_UserControl_GetPriorityCommandIndexInQueue(human);
+            if (index == -1) return;
+            void* command = static_cast<std::byte*>(human) + 0x390u + static_cast<std::uint32_t>(index) * 0x14u;
+            if (Human_UserControl_IsAInterruptingCommand(Read<std::uint8_t>(command, 0)) || !IsUserCommandReconstructed(human, command)) return;
+            const auto result = Human_DoExecuteUserCommand(human, command);
+            if (result == 0) return; // Pending command startup must yield without consuming the slot.
+            if (result == 1 || result == 2) Write<std::uint8_t>(command, 0, 0);
+            if (result == 2)
+            {
+                Write(human, 0xA5C, index);
+                Write<std::uint8_t>(human, 0xA60, 1);
+            }
+        }
+    }
+
+    // Original function: FUN_00445300; cargo mode selects pickup or equipment-drop startup.
+    void Human_l_FinishTask_Goto(void* human)
+    {
+        using namespace NC2Lifetime;
+        const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
+        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x2C) == 3) Human_HouseMisc_Enter(human);
+        if (Read<std::uint32_t>(human, 0x370) != 0)
+        {
+            Write<std::uint32_t>(human, 0x368, 7);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            return;
+        }
+        if ((!Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, 0xA68) == 6) || !Human_IsAtTargetPoint(human))
+        {
+            if (!Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, 0xA68) == 6) Human_Target_Reset(human);
+            Write<std::uint32_t>(human, 0x368, 8);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            return;
+        }
+        const auto target = Read<std::uint32_t>(human, 0xA68);
+        if (target == 6) Write<std::uint32_t>(human, 0x368, 15);
+        else if (target == 2 && Read<std::uint32_t>(human, 0xAD0) == 64) Write<std::uint32_t>(human, 0x368, 12);
+        else if (Read<std::uint32_t>(human, 0xACC) == 1)
+        {
+            Write<std::uint32_t>(human, 0x368, 16);
+            if (!Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human)) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 3); }
+            return;
+        }
+        else if (Read<std::uint32_t>(human, 0xACC) == 6) { Write<std::uint32_t>(human, 0x368, 17); Human_l_StartTask_Equip_DropItem(human, Read<std::uint32_t>(human, 0xAD0)); return; }
+        else Write<std::uint32_t>(human, 0x368, 8);
+        Write<std::uint32_t>(human, 0x36C, 0);
     }
 }

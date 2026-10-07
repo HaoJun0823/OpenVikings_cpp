@@ -116,15 +116,6 @@ namespace NC2Logic
             MapMoveable_Attachment_DetachFromMap(moveable);
             MapMoveable_Attachment_AttachToMap(moveable, point);
         }
-        // Original function: FUN_004413b3.
-        bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace)
-        {
-            std::uint32_t point = 0;
-            Vehicle_Door_GetEntryPoint(vehicle, &point, requiredSpace);
-            if (!MapMigPoint_IsInsideMap(&point)) return false;
-            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
-            return GameMap_Continent_GetContinentTyp(continent) == 1;
-        }
     }
 
     // Original function: FUN_0040b09b.
@@ -459,6 +450,40 @@ namespace NC2Logic
         std::memset(static_cast<std::byte*>(human) + 0xB88, 0, 0xD0);
         Write<std::uint8_t>(human, 0xB88, 1);
         return true;
+    }
+
+    // Original function: FUN_004418ec.
+    void Human_DetachFromHomeHouse(void* human)
+    {
+        const auto circulation = Read<std::uint32_t>(human, 0xACC);
+        if (Read<std::uint32_t>(human, 0x18) == 5 && circulation != 0 && circulation != 1)
+        {
+            Human_StopCurrentGoodCirculationMode(human);
+            Write<std::uint32_t>(human, 0xAD0, 0);
+        }
+        Write<std::uint32_t>(human, 0xB28, 0xFFFFFFFFu);
+        Write<std::uint32_t>(human, 0xB2C, 0);
+    }
+
+    // Original function: FUN_00441925.
+    void Human_DetachFromWorkHouse(void* human)
+    {
+        const auto produced = Read<std::uint32_t>(human, 0x1C);
+        if (Read<std::uint32_t>(human, 0xACC) != 0 && (Read<std::uint32_t>(human, 0xAD0) == produced || produced == 65 || produced == 58 || produced == 57))
+        {
+            Human_StopCurrentGoodCirculationMode(human);
+            Write<std::uint32_t>(human, 0xAD0, 0);
+        }
+        Human_DetachFromWorkHouse2(human);
+    }
+
+    // Original function: FUN_00442028; setup precedes production update.
+    void Human_DetachFromWorkHouse2(void* human)
+    {
+        Write<std::uint32_t>(human, 0xB34, 0xFFFFFFFFu);
+        Write<std::uint32_t>(human, 0xB38, 0);
+        Human_SetupCurrentJobType(human);
+        Human_Production_Update(human);
     }
 
     // Original function: FUN_00441962.

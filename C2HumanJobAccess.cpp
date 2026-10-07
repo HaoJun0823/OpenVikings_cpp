@@ -89,6 +89,145 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_0044206c; weapon-category experience uses unsigned saturation.
+    void Human_GainExperienceForWeapon(void* human, std::uint32_t weapon, std::uint32_t amount)
+    {
+        if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) != 0) return;
+        const auto category = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)], weapon * 0xC4u + 0x20u);
+        const auto offset = category == 1 ? 0x140u : category == 2 ? 0x144u : category == 3 ? 0x148u : category == 6 ? 0x150u : category == 7 ? 0x154u : 0u;
+        if (offset == 0) return;
+        const auto previous = Read<std::uint32_t>(human, offset);
+        Write(human, offset, previous > 10000u - amount ? 10000u : previous + amount);
+    }
+
+    // Original function: FUN_00442420.
+    void Human_l_JobExperience_Gain(void* human)
+    {
+        if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) != 0) return;
+        auto good = Read<std::uint32_t>(human, 0x1C);
+        if (good == 65) good = Read<std::uint32_t>(human, 0x20);
+        std::uint32_t general, specific;
+        Tool_Human_GetExperienceType_GainedViaWorking(Read<std::int32_t>(human, 0x18), good, general, specific);
+        auto increment = [human](std::uint32_t offset) { const auto previous = Read<std::uint32_t>(human, offset); Write(human, offset, previous > 9999u ? 10000u : previous + 1u); };
+        if (general != 0) increment(0x24u + general * 4u);
+        if (specific != 0 && specific != general) increment(0x24u + specific * 4u);
+        const auto job = Read<std::int32_t>(human, 0x18);
+        if ((job >= 31 && job <= 35) || (job >= 40 && job <= 41))
+        {
+            increment(0x138);
+            Human_GainExperienceForWeapon(human, Read<std::uint32_t>(human, 0xAE4), 1);
+        }
+    }
+
+    // Original function: FUN_0044b9db; increasing stops at 11, decreasing stops at zero.
+    void Human_Production_ChangeCounter(void* human, std::uint32_t good, std::int32_t amount)
+    {
+        const auto offset = 0x21Cu + good * 4u;
+        if (amount > 0)
+        {
+            while (amount-- > 0 && Read<std::int32_t>(human, offset) < 11) Write(human, offset, Read<std::uint32_t>(human, offset) + 1u);
+        }
+        else while (amount++ < 0 && Read<std::int32_t>(human, offset) > 0) Write(human, offset, Read<std::uint32_t>(human, offset) - 1u);
+    }
+
+    // Original function: FUN_0044b8fc; rotation also resets the production failure counter.
+    bool Human_Production_Rotate(void* human)
+    {
+        const auto initial = Read<std::uint32_t>(human, 0x218);
+        for (;;)
+        {
+            auto index = Read<std::uint32_t>(human, 0x218) + 1u;
+            if (NXBasics::Runtime_TimeSigned32(index) >= 66) index = 0;
+            Write(human, 0x218, index);
+            const auto counter = Read<std::int32_t>(human, 0x21Cu + index * 4u);
+            if (counter > 0 && counter <= 11) { Write(human, 0x1C, index); Write<std::uint32_t>(human, 0x38C, 0); return true; }
+            if (index == initial) break;
+        }
+        Write<std::uint32_t>(human, 0x218, 0);
+        Write<std::uint32_t>(human, 0x1C, 0);
+        Write<std::uint32_t>(human, 0x38C, 0);
+        return false;
+    }
+
+    // Original fraction overload: FUN_0044b871; round at five decimal tenths.
+    void Human_Production_DidProduceGoods(void* human, std::int32_t amount, std::int32_t fraction)
+    {
+        if (fraction >= 5) amount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(amount) + 1u);
+        Human_Production_DidProduceGoods(human, static_cast<std::uint32_t>(amount));
+    }
+
+    // Original function: FUN_0044b888.
+    void Human_Production_DidProduceGoods(void* human, std::uint32_t amount)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        if (Read<std::uint32_t>(human, 0x21Cu + good * 4u) != 11) Human_Production_ChangeCounter(human, good, NXBasics::Runtime_TimeSigned32(0u - amount));
+        if (Human_IsJobBuilder(human)) return;
+        // Original message functions: FUN_0045c608 and FUN_0045c667.
+        if (Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 0 && good != 0)
+        {
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 24);
+            Write(message, 0x10, Read<std::uint32_t>(human, 4));
+            Write(message, 8, Read<std::uint32_t>(human, 0x10));
+            Write(message, 0x30, good);
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        }
+        if (!Human_Production_Rotate(human))
+        {
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 25);
+            Write(message, 0x10, Read<std::uint32_t>(human, 4));
+            Write(message, 8, Read<std::uint32_t>(human, 0x10));
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        }
+    }
+
+    // Original function: FUN_0044b8dd.
+    void Human_Production_CouldNotProduceCurrentGood(void* human)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        // Original message function: FUN_0045c6b5.
+        if (good != 0)
+        {
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 26);
+            Write(message, 0x10, Read<std::uint32_t>(human, 4));
+            Write(message, 8, Read<std::uint32_t>(human, 0x10));
+            Write(message, 0x30, good);
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        }
+        if (!Human_Production_Rotate(human))
+        {
+            // Original message function: FUN_0045c714.
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 27);
+            Write(message, 0x10, Read<std::uint32_t>(human, 4));
+            Write(message, 8, Read<std::uint32_t>(human, 0x10));
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        }
+    }
+
+    // Original function: FUN_004422e9; tool quality is checked by HasEquippedTools.
+    std::int32_t Human_l_JobEfficiency_CalculateOutputAmountDecimal(const void* human)
+    {
+        std::uint32_t factor = 100;
+        if (Human_HasEquippedTools(human))
+        {
+            if (Read<std::uint32_t>(human, 0xAF0) == 31) factor = 125;
+            else if (Read<std::uint32_t>(human, 0xAF0) == 32) factor = 175;
+        }
+        const auto experience = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(Human_JobEfficiency_CalculateExperienceFactor(human)) * 15u) / 100;
+        return NXBasics::Runtime_TimeSigned32(factor * 10u) / 100 + experience;
+    }
+
     // Original function: FUN_00442335; signed and unsigned divisions match their native stages.
     std::int32_t Human_JobEfficiency_CalculateExperienceFactor(const void* human)
     {
@@ -366,6 +505,120 @@ namespace NC2Logic
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(human, 0x10), 8, 0);
+        }
+    }
+
+    // Original function: FUN_0044ad2e; update only newly unlocked entries and retain native message order.
+    void Human_UpdateCurrentJobType(void* human)
+    {
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 18);
+        const auto& enables = JobEnables(human);
+        const auto requirementsMet = [human](std::uint32_t house)
+        {
+            const auto tribe = Read<std::uint32_t>(human, 0x14);
+            const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+            STribeBuildRequirement requirement;
+            std::memcpy(&requirement, &gStaticTribeTypeData[tribe].houseBuildNeeds[house], 0x198);
+            for (std::uint32_t i = 0; i < requirement.jobCount; ++i) if (Read<std::uint8_t>(player, 0x948u + tribe * 56u + static_cast<std::uint32_t>(requirement.jobs[i])) == 0) return false;
+            for (std::uint32_t i = 0; i < requirement.goodCount; ++i) if (Read<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + static_cast<std::uint32_t>(requirement.goods[i])) == 0) return false;
+            return true;
+        };
+        for (std::uint32_t i = 0; i < enables.jobCount; ++i)
+        {
+            const auto job = static_cast<std::uint32_t>(enables.jobs[i]);
+            if (Read<std::uint8_t>(human, 0x15Cu + job) != 0) continue;
+            if (!Human_DoesExperienceAllowJobChange(human, job) && !Human_DoesEducationAllowJobChange(human, job) && Human_GetPlayerType(human) != 2) continue;
+            const auto tribe = Read<std::uint32_t>(human, 0x14);
+            auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+            if (Read<std::uint8_t>(player, 0x18u + tribe * 56u + job) == 0) continue;
+            Write<std::uint8_t>(human, 0x15Cu + job, 1);
+            if (Read<std::uint8_t>(player, 0x948u + tribe * 56u + job) != 0) continue;
+            Write<std::uint8_t>(player, 0x948u + tribe * 56u + job, 1);
+            AppendMessageItem(message, 0x138, job);
+            const auto& unlocked = gStaticTribeTypeData[tribe].jobEnables[job];
+            for (std::uint32_t j = 0; j < unlocked.goodCount; ++j)
+            {
+                const auto good = static_cast<std::uint32_t>(unlocked.goods[j]);
+                if (Read<std::uint8_t>(human, 0x195u + good) != 0 || Read<std::uint8_t>(player, 0x1278u + tribe * 66u + good) == 0) continue;
+                if (!Human_DoesExperienceAllowGoodProduction(human, good) && !Human_DoesEducationAllowGoodProduction(human, good) && Human_GetPlayerType(human) != 2) continue;
+                if (job == 15) { if (good == 56) Write<std::uint8_t>(human, 0x1CD, 1); }
+                else if (job != 16 || good == 57 || good == 58) Write<std::uint8_t>(human, 0x195u + good, 1);
+                if (Read<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good) == 0)
+                {
+                    Write<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good, 1);
+                    AppendMessageItem(message, 0x2C, good);
+                }
+            }
+            for (std::uint32_t house = 2; house < 55; ++house)
+            {
+                if (Read<std::uint8_t>(player, 0x2820u + tribe * 55u + house) == 0 || Read<std::uint8_t>(player, 0x3126u + tribe * 55u + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7 || !requirementsMet(house)) continue;
+                PlayerAllowedThings_MarkHouseAvailable(player + 0x18, tribe, house);
+                AppendMessageItem(message, 0x1FC, house);
+            }
+        }
+        for (std::uint32_t i = 0; i < enables.goodCount; ++i)
+        {
+            const auto good = static_cast<std::uint32_t>(enables.goods[i]);
+            if (Read<std::uint8_t>(human, 0x195u + good) != 0) continue;
+            if (!Human_DoesExperienceAllowGoodProduction(human, good) && !Human_DoesEducationAllowGoodProduction(human, good) && Human_GetPlayerType(human) != 2) continue;
+            const auto tribe = Read<std::uint32_t>(human, 0x14);
+            auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+            if (Read<std::uint8_t>(player, 0x1278u + tribe * 66u + good) == 0) continue;
+            if ((!Human_IsJobHunter(human) || good == 56) && (!Human_IsJobBreeder(human) || good == 57 || good == 58))
+            {
+                Write<std::uint8_t>(human, 0x195u + good, 1);
+                Human_Production_SetCounter(human, good, Human_IsAbleToProduceGoodNow(human, good) ? 0u : 14u);
+            }
+            if (Read<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good) == 0)
+            {
+                Write<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good, 1);
+                AppendMessageItem(message, 0x2C, good);
+            }
+        }
+        for (std::uint32_t i = 0; i < enables.houseCount; ++i)
+        {
+            const auto house = static_cast<std::uint32_t>(enables.houses[i]);
+            if (!Human_DoesExperienceAllowHouseBuilding(human, house) && Human_GetPlayerType(human) != 2) continue;
+            const auto tribe = Read<std::uint32_t>(human, 0x14);
+            auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+            if (Read<std::uint8_t>(player, 0x2820u + tribe * 55u + house) == 0 || Read<std::uint8_t>(player, 0x3126u + tribe * 55u + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7) continue;
+            const auto allowed = requirementsMet(house);
+            if (Human_GetPlayerType(human) != 2 && !allowed) continue;
+            PlayerAllowedThings_MarkHouseAvailable(player + 0x18, tribe, house);
+            AppendMessageItem(message, 0x1FC, house);
+        }
+        // Windows retains the goods-loop index when selecting the equipment pointer
+        // and never advances that pointer (0044B309..0044B387).
+        if (enables.equipmentCount != 0)
+        {
+            const auto item = Read<std::uint32_t>(&enables, 0x338u + enables.goodCount * 4u);
+            for (std::uint32_t i = 0; i < enables.equipmentCount; ++i)
+            {
+                if (Read<std::uint8_t>(human, 0x1E0u + item) != 0) continue;
+                if (!Human_DoesExperienceAllowEquipment(human, item) && Human_GetPlayerType(human) != 2) continue;
+                const auto tribe = Read<std::uint32_t>(human, 0x14);
+                const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+                if (Read<std::uint8_t>(player, 0x3C78u + tribe * 56u + item) == 0) continue;
+                Write<std::uint8_t>(human, 0x1E0u + item, 1);
+                // Original message function: FUN_0045c1ea.
+                std::byte equipMessage[0x304];
+                ToUserMessage_Construct(equipMessage);
+                Write<std::uint32_t>(equipMessage, 0, 23);
+                Write(equipMessage, 0x10, Read<std::uint32_t>(human, 4));
+                Write(equipMessage, 8, Read<std::uint32_t>(human, 0x10));
+                Write(equipMessage, 0x30, item);
+                ToUserMessage_FinishMessage(equipMessage);
+                NC2LogicExternals::External_Misc_SendToUserMessage(equipMessage);
+            }
+        }
+        if (Read<std::uint32_t>(message, 0x138) != 0 || Read<std::uint32_t>(message, 0x1FC) != 0 || Read<std::uint32_t>(message, 0x2C) != 0 || Read<std::uint32_t>(message, 0x2DC) != 0)
+        {
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
         }
     }
 

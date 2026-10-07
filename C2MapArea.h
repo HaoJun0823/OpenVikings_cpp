@@ -19,6 +19,14 @@ namespace NC2Logic
         ~CMapArea();
         void UpdateCalculatedVariables();
         void AreaTool_GetRandomPositionDelta(std::int16_t* x, std::int16_t* y) const;
+        void WalkBlock_Set(const void* point, bool blocked) const;
+        void BuildBlock_Set(const void* point, bool blocked) const;
+        bool BuildBlock_Check(const void* point) const;
+        void Landscapes_RemoveAll(const void* point) const;
+        bool Check_CanLandscapeBeSetOnPattern(const void* point, std::uint32_t landscape) const;
+        bool AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed(const void* point) const;
+        void AdditionalAttachmentPoints_SetToMap(const void* point) const;
+        void AdditionalAttachmentPoints_ClearFromMap(const void* point) const;
 
         std::uint32_t rowCount;
         SMapAreaRow* rows;

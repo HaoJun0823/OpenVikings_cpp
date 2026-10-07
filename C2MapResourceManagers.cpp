@@ -5,6 +5,11 @@
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2MapGeometry.h"
+#include "C2EngineLandscapeAccess.h"
+#include "C2StaticLandscapeTypeData.h"
+#include "C2GameState.h"
+#include "C2GameEngineStartup.h"
+#include "C2MapPathfinderSearch.h"
 
 #include <cstring>
 
@@ -16,6 +21,57 @@ namespace NC2Logic
     {
         // Original byte: 00550E60; set by fish-relevant map modification callbacks.
         std::uint8_t gFishSwarmValidationNeeded = 0;
+
+        struct SBioRegrowSearch { std::uint32_t count; std::uint32_t points[20]; };
+        // Original function: FUN_00426c11.
+        bool __cdecl ls_BioRegrow_PathfinderCallback(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0) return false;
+            const void* patterns[6];
+            if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns)) return false;
+            for (std::uint32_t i = 0; i < 6; ++i) if (Read<std::uint8_t>(patterns[i], 2) == 0 || Read<std::uint8_t>(patterns[i], 3) == 0) return false;
+            if ((Read<std::uint8_t>(micro, 13) & 2u) != 0) return false;
+            auto cursor = Read<std::uint32_t>(point, 0);
+            for (std::uint32_t radius = 1; radius <= 2; ++radius)
+            {
+                MapMigPoint_MoveCursorUnwrapped(cursor, 4);
+                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                    for (std::uint32_t step = 0; step < radius; ++step)
+                    {
+                        if (!MapMigPoint_IsInsideMap(&cursor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&cursor), 13) & 2u) != 0) return false;
+                        MapMigPoint_MoveCursorUnwrapped(cursor, direction);
+                    }
+            }
+            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || (Read<std::uint8_t>(micro, 13) & 1u) != 0) return false;
+            cursor = Read<std::uint32_t>(point, 0);
+            MapMigPoint_MoveCursorUnwrapped(cursor, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                if (!MapMigPoint_IsInsideMap(&cursor)) return false;
+                const auto* neighbor = GameMap_GetConstMapMicroPointPtr(&cursor);
+                if ((Read<std::uint8_t>(neighbor, 12) & 0x80u) != 0 || (Read<std::uint8_t>(neighbor, 13) & 1u) != 0) return false;
+                MapMigPoint_MoveCursorUnwrapped(cursor, direction);
+            }
+            cursor = Read<std::uint32_t>(point, 0);
+            std::uint32_t trees = 0;
+            for (std::uint32_t radius = 1; radius <= 5; ++radius)
+            {
+                MapMigPoint_MoveCursorUnwrapped(cursor, 4);
+                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                    for (std::uint32_t step = 0; step < radius; ++step)
+                    {
+                        if (!MapMigPoint_IsInsideMap(&cursor)) return false;
+                        const auto* neighbor = GameMap_GetConstMapMicroPointPtr(&cursor);
+                        if (Read<std::uint8_t>(neighbor, 0) == 1 && Read<std::uint8_t>(neighbor, 2) == 4) ++trees;
+                        MapMigPoint_MoveCursorUnwrapped(cursor, direction);
+                    }
+            }
+            if (trees < 6) return false;
+            auto& data = *static_cast<SBioRegrowSearch*>(callback->userData);
+            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            return data.count == 20;
+        }
 
         template<class T> void InitializeResourceArray(T* manager, void*& owner, std::uint32_t capacity)
         {
@@ -111,6 +167,123 @@ namespace NC2Logic
     CMapLandscapeAutoTransitionManager::CMapLandscapeAutoTransitionManager() { InitializeResourceArray(this, gMapLandscapeAutoTransitionManager, 100); }
     // Original function: FUN_00426ef4.
     CMapLandscapeAutoTransitionManager::CMapLandscapeAutoTransitionManager(CIoHelper& io) { LoadResourceArray(this, gMapLandscapeAutoTransitionManager, io); }
+
+    // Original function: FUN_00426ac7; re-read the live upper bound after freeing each entry.
+    void CMapBioRegrowManager::System_DoOneGameTick()
+    {
+        for (auto index = static_cast<std::uint32_t>(mFirstScanIndex); index <= static_cast<std::uint32_t>(mLastScanIndex); ++index)
+        {
+            auto* record = mRecords + index * 0x14u;
+            if (Read<std::uint8_t>(record, 0) == 0) continue;
+            Write(record, 4, Read<std::uint32_t>(record, 4) + 1u);
+            if (Read<std::uint32_t>(record, 4) < Read<std::uint32_t>(record, 8)) continue;
+            l_BioRegrow_Execute(record + 0x10, Read<std::uint32_t>(record, 0x0C));
+            if (Element_Free(static_cast<std::int32_t>(index), true)) Write<std::uint8_t>(mRecords + index * 0x14u, 0, 0);
+        }
+    }
+
+    // Original function: FUN_00426b70; even a failed regrow attempt expires its record.
+    void CMapBioRegrowManager::l_BioRegrow_Execute(const void* point, std::uint32_t engineId)
+    {
+        if (Game_Random_GetNumber() % 100u < 10u) return;
+        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6)) != 1) return;
+        SBioRegrowSearch data{};
+        CMapPathfinderElement::SearchOverMap(point, 12, false, ls_BioRegrow_PathfinderCallback, &data, false, -1);
+        if (data.count == 0) return;
+        const auto selected = Game_Random_GetNumber() % data.count;
+        GameMapModifyManager_StartGameMapModify();
+        const auto landscape = Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(static_cast<std::int32_t>(engineId)), 0);
+        GameMap_MapMicroPoint_Landscape_SetType(&data.points[selected], landscape, 1, static_cast<std::int32_t>(engineId), false, -1);
+        GameMapModifyManager_StopGameMapModify();
+    }
+
+    // Original function: FUN_00426f84.
+    void CMapLandscapeAutoTransitionManager::System_DoOneGameTick()
+    {
+        for (auto index = static_cast<std::uint32_t>(mFirstScanIndex); index <= static_cast<std::uint32_t>(mLastScanIndex); ++index)
+        {
+            auto* record = mRecords + index * 0x14u;
+            if (Read<std::uint8_t>(record, 0) == 0) continue;
+            Write(record, 4, Read<std::uint32_t>(record, 4) + 1u);
+            if (Read<std::uint32_t>(record, 4) < Read<std::uint32_t>(record, 8)) continue;
+            if (NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(record + 0x10) == Read<std::int32_t>(record, 0x0C)) GameMap_MapMicroPoint_Landscape_ApplyTransition(record + 0x10, 13);
+            if (Element_Free(static_cast<std::int32_t>(index), true)) Write<std::uint8_t>(mRecords + index * 0x14u, 0, 0);
+        }
+    }
+
+    // Original function: FUN_004271f0; row-major scan and one surrounding map-modification batch.
+    void Map_BioSystem_UpdateRectangle(const std::int16_t* rectangle)
+    {
+        GameMapModifyManager_StartGameMapModify();
+        const auto lastX = static_cast<std::int16_t>(static_cast<std::uint16_t>(rectangle[0]) + static_cast<std::uint16_t>(rectangle[2]) - 1u);
+        const auto lastY = static_cast<std::int16_t>(static_cast<std::uint16_t>(rectangle[1]) + static_cast<std::uint16_t>(rectangle[3]) - 1u);
+        for (std::int32_t y = rectangle[1]; y <= lastY; ++y)
+            for (std::int32_t x = rectangle[0]; x <= lastX; ++x)
+            {
+                const std::int16_t point[2] = { static_cast<std::int16_t>(x), static_cast<std::int16_t>(y) };
+                const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+                if (Read<std::uint8_t>(micro, 0) != 1) continue;
+                const auto landscape = Read<std::uint8_t>(micro, 2);
+                if (landscape != 0 && (gStaticLandscapeTypeStorage.records[landscape].transitionMask & 0x80u) != 0) GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 7);
+            }
+        GameMapModifyManager_StopGameMapModify();
+    }
+
+    // Original function: FUN_0042712c; the 20-by-20 partition advances every 24 ticks.
+    void Map_BioSystem_DoOneGameTick()
+    {
+        if (gGameTime.tick % 24u != 0) return;
+        const auto cell = gGameTime.tick / 24u % 400u;
+        const auto xPercent = static_cast<std::int32_t>(cell % 20u * 5u);
+        const auto yPercent = static_cast<std::int32_t>(cell / 20u * 5u);
+        const auto x = GameMap_GetWidth() * xPercent / 100;
+        const auto y = GameMap_GetHeight() * yPercent / 100;
+        const auto endX = GameMap_GetWidth() * (xPercent + 5) / 100;
+        const auto endY = GameMap_GetHeight() * (yPercent + 5) / 100;
+        if (x == endX || y == endY) return;
+        const std::int16_t rectangle[4] = { static_cast<std::int16_t>(x), static_cast<std::int16_t>(y), static_cast<std::int16_t>(endX - x), static_cast<std::int16_t>(endY - y) };
+        Map_BioSystem_UpdateRectangle(rectangle);
+    }
+
+    // Original function: FUN_00426b1f.
+    void CMapBioRegrowManager::BioRegrow_Add(const void* point, std::uint32_t engineId)
+    {
+        const auto id = Element_Allocate();
+        if (id == -1) return;
+        auto* record = mRecords + static_cast<std::uint32_t>(id) * 0x14u;
+        std::memset(record, 0, 0x14);
+        Write<std::uint8_t>(record, 0, 1);
+        Write(record, 0x10, Read<std::uint32_t>(point, 0));
+        Write(record, 0x0C, engineId);
+        Write(record, 8, Game_Random_GetNumber() % 10800u + 3600u);
+    }
+
+    // Original function: FUN_00426ff8; a full array applies transition 13 immediately.
+    void CMapLandscapeAutoTransitionManager::AutoTransition_Add(const void* point)
+    {
+        const auto engine = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(point);
+        const auto* micro = GameMap_GetMapMicroPointPtr(point);
+        const auto type = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
+        const auto* data = gStaticLandscapeTypeStorage.records + type;
+        auto id = AutoTransition_GetDataId(point);
+        if (id == 0xFFFFFFFFu)
+        {
+            id = static_cast<std::uint32_t>(Element_Allocate());
+            if (id == 0xFFFFFFFFu)
+            {
+                if (NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(point) == engine) GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 13);
+                return;
+            }
+        }
+        std::uint32_t duration = 1;
+        for (std::uint32_t i = 0; i < data->transitionCount; ++i) if (data->transitions[i].type == 13) { duration = data->transitions[i].unknown10; break; }
+        auto* record = mRecords + id * 0x14u;
+        std::memset(record, 0, 0x14);
+        Write<std::uint8_t>(record, 0, 1);
+        Write(record, 0x10, Read<std::uint32_t>(point, 0));
+        Write(record, 0x0C, engine);
+        Write(record, 8, duration);
+    }
 
     // Original function: FUN_004270be.
     std::uint32_t CMapLandscapeAutoTransitionManager::AutoTransition_GetDataId(const void* point) const

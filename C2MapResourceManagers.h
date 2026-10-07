@@ -10,6 +10,9 @@ namespace NC2Logic
         CMapBioRegrowManager();
         explicit CMapBioRegrowManager(CIoHelper& io);
         void IO_Savegame_DoSave(CIoHelper& io);
+        void BioRegrow_Add(const void* point, std::uint32_t engineId);
+        void System_DoOneGameTick();
+        void l_BioRegrow_Execute(const void* point, std::uint32_t engineId);
         std::byte* mRecords; // +0x30: owned 20-byte regrow entries.
     };
 
@@ -20,6 +23,8 @@ namespace NC2Logic
         explicit CMapLandscapeAutoTransitionManager(CIoHelper& io);
         void IO_Savegame_DoSave(CIoHelper& io);
         std::uint32_t AutoTransition_GetDataId(const void* point) const;
+        void AutoTransition_Add(const void* point);
+        void System_DoOneGameTick();
         std::uint32_t AutoTransition_GetTimeDonePercentage(const void* point) const;
         std::byte* mRecords; // +0x30: owned 20-byte transition entries.
     };
@@ -71,6 +76,8 @@ namespace NC2Logic
     };
 
     bool __cdecl MapFishManager_l_FishManager_Callback(std::uint32_t type, std::uint32_t userData, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t parameter3);
+    void Map_BioSystem_UpdateRectangle(const std::int16_t* rectangle);
+    void Map_BioSystem_DoOneGameTick();
 
     static_assert(sizeof(CMapBioRegrowManager) == 0x34);
     static_assert(sizeof(CMapLandscapeAutoTransitionManager) == 0x34);

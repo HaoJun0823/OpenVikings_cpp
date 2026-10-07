@@ -17,14 +17,17 @@ namespace NC2Logic
     bool Human_l_StartAtomicAnimation(void* human, std::uint32_t action, std::int32_t direction);
     bool Human_HouseMisc_Enter(void* human);
     void Human_DetachFromVehicle(void* human);
+    void Human_DetachFromHomeHouse(void* human);
+    void Human_DetachFromWorkHouse(void* human);
+    void Human_DetachFromWorkHouse2(void* human);
     void Human_VehicleMisc_Leave(void* human, const void* point);
     void BuildManager_DetachBuilder(void* manager, std::uint32_t player, const void* point);
 
     void Logic_EntryPoint_Edit_Start();
     void Logic_EntryPoint_Edit_Stop();
 
-    // Remaining original operations are isolated in TemporaryLinkStubs.cpp.
     std::uint32_t Human_DoExecuteUserCommand_DetachWorkHouse(void* human);
+    // Remaining original operations are isolated in TemporaryLinkStubs.cpp.
     void HappinessManager_Messages_CivilistDied(void* manager, const void* human);
     std::uint32_t Map_GoodTool_PutOnMap(std::uint32_t good, std::uint32_t amount, std::uint32_t point, std::uint32_t radius, bool notify);
     bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void* point, std::uint32_t type, std::uint32_t valency, std::int32_t engineId, std::uint32_t parameter, std::int32_t player);

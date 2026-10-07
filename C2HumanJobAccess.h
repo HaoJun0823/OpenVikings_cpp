@@ -9,6 +9,7 @@ namespace NC2Logic
     bool Human_UserControl_DoesWantToGetChild(const void* human);
     std::uint32_t Human_Tool_Gui_GetExperienceForEquippedWeapon(const void* human);
     std::int32_t Human_JobEfficiency_CalculateExperienceFactor(const void* human);
+    std::int32_t Human_l_JobEfficiency_CalculateOutputAmountDecimal(const void* human);
     void Tool_Human_GetExperienceType_GainedViaWorking(std::int32_t job, std::uint32_t good, std::uint32_t& general, std::uint32_t& specific);
     std::uint32_t Human_GetPlayerType(const void* human);
     bool Human_IsProducingVehicle(const void* human);
@@ -37,10 +38,18 @@ namespace NC2Logic
     std::int32_t Human_GetHumanAttributeMargin_Hitpoints(const void* human);
     void Human_Equipment_SetShoeType(void* human, std::uint32_t good);
     void Human_SetupCurrentJobType(void* human);
+    void Human_UpdateCurrentJobType(void* human);
     void Human_SetJobType(void* human, std::uint32_t job);
     void Human_SetupPlayerSpecificStuff(void* human);
     void Human_Production_Setup(void* human);
     void Human_Production_Update(void* human);
+    void Human_l_JobExperience_Gain(void* human);
+    void Human_GainExperienceForWeapon(void* human, std::uint32_t weapon, std::uint32_t amount);
+    bool Human_Production_Rotate(void* human);
+    void Human_Production_ChangeCounter(void* human, std::uint32_t good, std::int32_t amount);
+    void Human_Production_DidProduceGoods(void* human, std::uint32_t amount);
+    void Human_Production_DidProduceGoods(void* human, std::int32_t amount, std::int32_t fraction);
+    void Human_Production_CouldNotProduceCurrentGood(void* human);
     std::uint32_t Human_Production_GetCounter(const void* human, std::uint32_t good);
     void Human_ChangeProducedGoodType(void* human, std::uint32_t good);
     bool House_Production_IsAbleToProduceGood(const void* house, std::uint32_t good, bool primary);

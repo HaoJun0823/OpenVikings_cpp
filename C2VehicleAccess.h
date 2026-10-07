@@ -2,6 +2,9 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    bool Vehicle_Stock_ModifyAmount(void* vehicle, std::uint32_t good, std::int32_t amount, std::uint32_t revision);
+    bool Vehicle_Stock_IsFull(const void* vehicle);
+    bool Vehicle_Stock_IsFullSoon(const void* vehicle);
     std::uint32_t Vehicle_GetCurrentAtomicAnimationLengthInTicks(const void* vehicle);
     struct SStaticVehicleTypeData;
     bool Vehicle_DoAddNewUserCommand(void* vehicle, const void* command);
@@ -17,6 +20,7 @@ namespace NC2Logic
     void* Vehicle_Passengers_GetAttachedHumanPtr(const void* vehicle, std::uint32_t slot);
     void* Vehicle_Passengers_GetAttachedCommanderPtr(const void* vehicle);
     bool Vehicle_Passengers_IsCarrierAttached(const void* vehicle);
+    bool Vehicle_Passengers_MoveOut_h(void* vehicle, std::uint32_t humanId);
     void Vehicle_l_Passengers_StopAllIdleTasks(void* vehicle);
     const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle);
     const void* Vehicle_GetConstMapMicroPointPtr(const void* vehicle);

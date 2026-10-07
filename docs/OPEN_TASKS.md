@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Human activity and freeze recovery - 2026-10-07
+
+The user reports freezes among women, children and scouts. The new recovery block connects household collection/delivery, equipment replacement and full equip/drop leaves, civilian goto/go-home/listening commands, goods/food/prayer searches and storage, ordinary indoor production, active civilian path callbacks, landscape/regrow ticks and real house detachment. Read [HUMAN_FREEZE_RECOVERY.md](HUMAN_FREEZE_RECOVERY.md) and current C2HumanGoods/C2HumanProduction/C2HumanEquipment/C2HumanWalking before relying on earlier entries below. All behavior derives from Windows ASM/Game.exe; Mac supplies names only.
+
+Remaining family/birth/learning/outdoor/vehicle/combat/default-action and sector/guide route branches are explicitly unfinished; opponent-target idle and unknown event sets can still hold humans. Do not claim all freezes fixed or all human workflows complete. Verification: all 21 touched cpp files passed MSVC Win32 /Zs syntax-only checks; project/filter parity 186 cpp / 177 headers; no inline asm. No Debug/Release build, tests or new runtime run. Inventories: 670 names / 121 unfinished entries. The 2584/5054 coverage figure remains historical. Earlier chapters describe older checkpoints.
+
 ## Human events and needs follow-up - 2026-10-07
 
 Read [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md), C2HumanAtomicEvents and C2HumanNeeds before continuing. Urgent needs/items and supported task-7 starts/finishes now exist; do not recreate the older staging guard. Next close Food_Collect/Food_TryToCollect and cargo storage, House_Religion_GetNextPrayPoint/FindTempleForPraying, Target_RestoreSecondaryTarget and task failure 0047024A/CurrentTask_DoFailure. Then connect production/collection/building/training/combat event trees and active path-step/result callbacks. Secondary-target terminal finishes and untranslated whole event sets are held as explicit reconstruction boundaries. Human condition/tick ownership also depends on the existing house-detach/death-cleanup dummies. General passenger exit and child animal-play remain open. Mac supplies names only; behavior must be established from Windows ASM/Game.exe. 364 names / 135 unfinished; no build/tests/runtime. Earlier entries are historical.

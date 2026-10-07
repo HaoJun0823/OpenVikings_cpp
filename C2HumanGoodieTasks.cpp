@@ -1,4 +1,5 @@
 #include "C2HumanGoodieTasks.h"
+#include "C2CallbackManager.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
@@ -6,6 +7,7 @@
 #include "C2HumanInitialization.h"
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanGoods.h"
 #include "C2HumanTaskAccess.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2LifetimeAccess.h"
@@ -17,10 +19,88 @@
 #include "C2MapPathfinderSearch.h"
 #include "C2MissionStartObjects.h"
 #include "C2VehicleAccess.h"
+#include "C2HumanNeeds.h"
+#include "C2OverviewObjectIterators.h"
 
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+
+    // Original function: FUN_0042cb60; the listening permission differs from ListenNow.
+    bool Human_IsAbleToListen(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x35u) != 0; }
+
+    // Original function: FUN_00444b79; carrying a good leaves task state unchanged.
+    void Human_l_StartTask_Listen(void* human, std::uint32_t direction)
+    {
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) return;
+        Human_l_StartAtomicAnimation(human, 17, static_cast<std::int32_t>(direction));
+        Write<std::uint32_t>(human, 0x368, 6);
+        Write<std::uint32_t>(human, 0x36C, 1);
+    }
+
+    // Original function: FUN_00444aaf; the approach animation uses task 13 at the home entrance.
+    void Human_l_StartTask_GoHome(void* human)
+    {
+        if (!Human_IsAttachedToHomeHouse(human)) { Write<std::uint32_t>(human, 0x36C, 3); return; }
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB28) * CHouseArray::ElementSize;
+        const auto work = Read<std::uint32_t>(house, 0x24);
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == work)
+        {
+            Human_l_StartAtomicAnimation(human, 78, -1);
+            Write<std::uint32_t>(human, 0x368, 13);
+            Write<std::uint32_t>(human, 0x36C, 1);
+            return;
+        }
+        if (!Human_l_StartAtomicWalk(human, static_cast<std::byte*>(house) + 0x1C, &work)) { Write<std::uint32_t>(human, 0x36C, 3); return; }
+        // Windows adds a zero-filled opcode-6 command, without human id/revision.
+        Human_DoAddNewUserCommand(human, 6, 0, 0, 0, 0, 0);
+    }
+
+    // Original function: FUN_00445d5b; resume the go-home command after detaching paired waits.
+    void Human_l_FailTask_GoHome(void* human)
+    {
+        Human_StopWaitingForOtherHuman_Detach(human);
+        Human_DoAddNewUserCommand(human, 6, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+    }
+
+    // Original function: FUN_00445ce7; callback is retained even for empty cargo.
+    void Human_l_FailTask_Misc(void* human)
+    {
+        const auto failure = Read<std::uint32_t>(human, 0x374);
+        if (failure != 7 && failure != 11) return;
+        if (Read<std::uint32_t>(human, 0xACC) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, 0xAD0, 0); }
+        Write<std::uint32_t>(human, 0xAD4, 0);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+    }
+
+    namespace
+    {
+        struct SDamagedWallSearch { std::uint32_t player; std::uint32_t count; std::uint32_t points[10]; };
+        // Original function: FUN_0045eb2a.
+        bool __cdecl slHumanSearchDamagedWallFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& data = *static_cast<SDamagedWallSearch*>(callback->userData);
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != data.player) return false;
+            const auto landscape = Read<std::uint8_t>(micro, 2);
+            if (landscape < 82 || landscape > 84 || Read<std::uint8_t>(micro, 3) >= 100) return false;
+            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            return data.count == 10;
+        }
+    }
+
+    // Original function: FUN_0045eaa9; native attempts sample with replacement.
+    bool Human_FindDamagedWallNearWorkCenter(const void* human, void* realPosition, void* workPosition)
+    {
+        SDamagedWallSearch data{ Read<std::uint32_t>(human, 0x10), 0, {} };
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, 5, false, slHumanSearchDamagedWallFunction, &data, true, static_cast<std::int32_t>(data.player));
+        for (std::uint32_t attempt = 0; attempt < data.count * 2u; ++attempt)
+        {
+            Write(realPosition, 0, data.points[Game_Random_GetNumber() % data.count]);
+            if (GameMap_Misc_GetLandscapeWorkPosition(realPosition, workPosition)) return true;
+        }
+        return false;
+    }
 
     namespace
     {
@@ -130,14 +210,14 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_00444e46; carried-goods startup 00444E9D remains pending.
+    // Original function: FUN_00444e46.
     void Human_l_StartTask_WaitForOtherHuman(void* human)
     {
         Write<std::uint32_t>(human, 0x370, 0);
         if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
         Write<std::uint32_t>(human, 0xAD0, 0);
         Human_Target_Reset(human);
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) return;
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         Human_l_StartAtomicAnimation(human, 5, -1);
         Write<std::uint32_t>(human, 0x36C, 1);
     }
@@ -151,11 +231,16 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_0045c82f; passenger MoveOut_h is pending.
-    // Connected callers stage before this boundary, so it is not a native path failure.
+    // Original function: FUN_0045c82f.
     bool Human_l_StartAtomicWalk(void* human, const void* realPosition, const void* workPosition)
     {
-        if (!Human_l_IsAtomicInterruptable(human) || Read<std::uint8_t>(human, 0xB51) != 0) return false;
+        if (!Human_l_IsAtomicInterruptable(human)) return false;
+        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        {
+            auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4))) return false;
+        }
         if (Read<std::uint32_t>(Position(human), 0) == Read<std::uint32_t>(workPosition, 0))
         {
             Write<std::uint8_t>(human, 0xABC, 0);
@@ -180,12 +265,17 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_0045c984; passenger MoveOut_h is pending.
+    // Original function: FUN_0045c984.
     bool Human_l_StartAtomicWalk(void* human, std::int32_t moveableId, std::uint32_t distance)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return false;
         const auto useSectors = UseExtendedPathfinder(human);
-        if (Read<std::uint8_t>(human, 0xB51) != 0) return false;
+        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        {
+            auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
+            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4))) return false;
+        }
         if (!MapMoveable_Pathfinder_Start(Moveable(human), moveableId, static_cast<std::int32_t>(distance), Human_IsJobCarrier(human) ? 63u : 50u, true, useSectors, true)) return false;
         Write<std::uint8_t>(human, 0xABC, 0);
         Write<std::uint32_t>(human, 0xAB8, 1);
@@ -194,6 +284,14 @@ namespace NC2Logic
         const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) Human_HouseMisc_Leave(human);
         Write<std::uint32_t>(human, 0x384, 0);
+        return true;
+    }
+
+    // Original function: FUN_0045ca72.
+    bool Human_l_StartAtomicWalkAndWait(void* human, const void* point)
+    {
+        if (!Human_l_StartAtomicWalk(human, point, point)) return false;
+        Write<std::uint32_t>(human, 0x368, 4);
         return true;
     }
 
@@ -238,11 +336,9 @@ namespace NC2Logic
         return nullptr;
     }
 
-    // Partial original function: FUN_0046a407; task 29 animal-play dependencies remain pending.
+    // Original function: FUN_0046a407.
     void Human_l_StartTask_Goodie(void* human)
     {
-        // Passenger walk-out is not yet available to any goodie walking helper.
-        if (Read<std::uint8_t>(human, 0xB51) != 0) return;
         if (Human_UserControl_IsCommandTypeInQueue(human, 11))
         {
             if (Human_UserControl_GetLastCommandType(human) == 11)
@@ -273,7 +369,7 @@ namespace NC2Logic
         }
     }
 
-    // Partial original function: FUN_0046a4dc; only task 29's animal-play helper is pending.
+    // Original function: FUN_0046a4dc.
     void Human_l_StartTask_Goodie_Helper_Child(void* human)
     {
         switch (Read<std::uint32_t>(human, 0x368))
@@ -287,12 +383,12 @@ namespace NC2Logic
         case 26: Human_l_StartTask_Goodie_Helper_WalkAround(human); return;
         case 27: Human_l_StartTask_Goodie_Helper_Sleep(human); return;
         case 28: Human_l_StartTask_Goodie_Helper_TalkToAny(human); return;
-        case 29: return; // FindAnimalForPlaying and its center/iterator tree are pending.
+        case 29: Human_l_StartTask_Goodie_Helper_PlayWithAnimal(human); return;
         default: Write<std::uint32_t>(human, 0x368, 24); return;
         }
     }
 
-    // Original function: FUN_0046a55f; no fabricated walking or fallback on an unfinished branch.
+    // Original function: FUN_0046a55f.
     void Human_l_StartTask_Goodie_Helper_WalkAround(void* human)
     {
         std::uint32_t point = 0;
@@ -333,27 +429,11 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_0046a5be; vehicle target-arrival query is pending.
+    // Original function: FUN_0046a5be.
     void Human_l_StartTask_Goodie_Helper_Sleep(void* human)
     {
-        if (Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 0xA68) == 6) return;
-        // Non-vehicle cases of IsAtTargetPoint (0042CC40), including target validity.
-        const auto targetType = Read<std::uint32_t>(human, 0xA68);
-        bool reached = false;
-        if (InteractionTargetData_IsValid(static_cast<std::byte*>(human) + 0xA68))
+        if (Human_IsAtTargetPoint(human) && Human_CanSleepAtTargetMapPosition(human))
         {
-            if (targetType == 7 || targetType == 8) reached = true;
-            else if (targetType >= 1 && targetType <= 5)
-            {
-                reached = Read<std::uint32_t>(Position(human), 0) == Read<std::uint32_t>(human, 0xA70);
-                if (reached && targetType == 2) reached = Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, 0xA74);
-            }
-        }
-        if (reached)
-        {
-            // CanSleepAtTargetMapPosition (0042D24E) calls the nullable map accessor
-            // and always returns true in Windows; it is not a guessed terrain filter.
-            GameMap_GetMapMicroPointPtr(static_cast<std::byte*>(human) + 0xA6C);
             Human_l_StartAtomicAnimation(human, 8, -1);
             Write<std::uint32_t>(human, 0x36C, 1);
             return;
@@ -364,6 +444,45 @@ namespace NC2Logic
             Write<std::uint32_t>(human, 0x368, 27);
             Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 27, 0);
             return;
+        }
+        Human_l_StartAtomicAnimation(human, 5, -1);
+        Write<std::uint32_t>(human, 0x368, 25);
+        Write<std::uint32_t>(human, 0x36C, 1);
+    }
+
+    // Original function: FUN_0045e498; strict weighted-distance comparison retains the first tie.
+    void* Human_FindAnimalForPlaying(const void* human)
+    {
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 6);
+        CAnimalIterator iterator;
+        void* selected = nullptr;
+        std::uint32_t nearest = 10000;
+        for (auto id = iterator.GetFirstSectorAnimalId(20, Read<std::uint32_t>(human, 0xB30), 50, false, false); id != -1; id = iterator.GetNextSectorAnimalId())
+        {
+            void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
+            if (Read<std::uint32_t>(animal, 0x18) == 49 && Read<std::uint8_t>(animal, 0x5C) != 0) continue;
+            const void* position = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0x0C) * 0x58u + 0x12;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent) continue;
+            auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
+            const auto tribe = Read<std::uint32_t>(animal, 0x14);
+            if (tribe != 16 && tribe != 17) distance *= 2u;
+            if (distance < nearest) { selected = animal; nearest = distance; }
+        }
+        return selected;
+    }
+
+    // Original function: FUN_0046a662.
+    void Human_l_StartTask_Goodie_Helper_PlayWithAnimal(void* human)
+    {
+        if (const void* animal = Human_FindAnimalForPlaying(human))
+        {
+            const void* point = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0x0C) * 0x58u + 0x12;
+            if (Human_l_StartAtomicWalk(human, point, point))
+            {
+                Write<std::uint32_t>(human, 0x368, 29);
+                if (Read<std::uint32_t>(human, 0x36C) != 2) Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 29, 0);
+                return;
+            }
         }
         Human_l_StartAtomicAnimation(human, 5, -1);
         Write<std::uint32_t>(human, 0x368, 25);
@@ -401,7 +520,7 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 1);
     }
 
-    // Original function: FUN_0046a7d7; Windows clears AD0, unlike the Mac build.
+    // Original function: FUN_0046a7d7; Windows clears AD0 before the idle finish.
     void Human_l_FinishTask_Goodie(void* human)
     {
         if (Human_UserControl_IsCommandTypeInQueue(human, 11)) Write<std::uint32_t>(human, 0x36C, 0);

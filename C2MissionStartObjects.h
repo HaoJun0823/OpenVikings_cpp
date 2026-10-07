@@ -25,7 +25,7 @@ namespace NC2Logic
     void Human_Production_SetCounter(void* human, std::uint32_t good, std::uint32_t counter);
 
     // These object operations remain explicit reconstruction boundaries.
-    void __fastcall House_Stock_ModifyAmount(void* house, void* unusedEdx, unsigned int good, unsigned int amount, bool notify);
+    bool __fastcall House_Stock_ModifyAmount(void* house, void* unusedEdx, unsigned int good, unsigned int amount, bool construction);
     bool House_Inhabitants_AttachHuman(void* house, std::uint32_t human, std::uint32_t attachmentMask);
     bool House_Inhabitants_DetachHuman(void* house, std::uint32_t human, std::uint32_t attachmentMask);
     std::uint32_t Human_DoExecuteUserCommand_AttachHomeHouse(void* human, std::int32_t house, std::uint32_t revision);

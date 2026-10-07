@@ -1628,6 +1628,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA150](#oa150) | Native timed briefing execution and human arrival | 0041E2AE..0041E45D, 0041F9F7, 004230EE, 00462EC6..00463042 |
 | [OA151](#oa151) | Human idle finish/start lifecycle and partial task dispatch | 004433D1, 004436C5, 004445C9, 00445A6E, 00463346..00463508, 0046C39E |
 | [OA152](#oa152) | Human goodie startup, conversation/waiting and sleep/work-area search | 00443D74, 00443E79, 00444E46, 0045C82F, 0045C984, 00460B31, 0046A407..0046A805 |
+| [OA153](#oa153) | Windows civilian goods, household work, equipment and freeze recovery | 0041BB51..0041BDE1, 004320CA, 0043C486, 0043C7CF, 00468B91, 00468D91, 0046BA57..0046C39D, 0046C7BE, 00473EC6..00475FCE |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa001"></a>
@@ -3230,6 +3231,10 @@ This index records the newer reviewed failure paths, including ordinary original
 | FP194 | Waiting count reaches ten or no eligible talk partner exists | Increment is retained on rejection; range searches retain array order and native fallback; random call retained for one accepted candidate | [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); OA152 |
 | FP195 | Landscape has no usable work-area point | Five area attempts; sleep retries at most twice the ten-candidate count then uses native current-position checks; zero area point count remains an original unchecked divisor | [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); OA152 |
 | FP196 | Goodie needs child animal-play, passenger exit, vehicle sleep-arrival or cargo-bearing waiting | Explicit partial boundary; no guessed success, path failure or substitute animation; atomic events/new steps still held separately | [HUMAN_GOODIE_TASKS.md](docs/HUMAN_GOODIE_TASKS.md); OA152 |
+| FP197 | Household or producer source stock disappears or a destination cannot accept cargo | Native reservation release, target reset, alternate consumer/pile search and failure codes retained | [HUMAN_FREEZE_RECOVERY.md](docs/HUMAN_FREEZE_RECOVERY.md); OA153 |
+| FP198 | Scout shoes or tools reach condition zero | Native replacement queue, goods fetch, pickup, equipment startup/finish and failure recovery connected | [HUMAN_FREEZE_RECOVERY.md](docs/HUMAN_FREEZE_RECOVERY.md); OA153 |
+| FP199 | Inventory slot is occupied or equipment is partially used | Original drop/change queues, signed condition comparisons, discard rules and callbacks retained | [HUMAN_FREEZE_RECOVERY.md](docs/HUMAN_FREEZE_RECOVERY.md); OA153 |
+| FP200 | Human enters a family/combat/training task or needs sector/guide routing | Still unfinished and excluded from completion; no guessed success or timeout masks these states | [HUMAN_FREEZE_RECOVERY.md](docs/HUMAN_FREEZE_RECOVERY.md); OA153 |
 
 ## Reconstruction errors are not original bugs
 
@@ -3387,3 +3392,10 @@ The user requested debugger-friendly mouse behavior on `codex/modernize-mouse-in
 ## Windows human atomic events and needs - 2026-10-07
 
 Supported needs/home/social/religion/sound/FX events, Windows condition/item/urgent updates and task-7 supported startup/finish branches are connected. Mac provides names only; behavior comes exclusively from Windows ASM and Game.exe. Production events, food/prayer searches, secondary-target restoration, failure and active path steps remain explicit boundaries. Inventories: 364 names / 135 unfinished; project/filters: 181 cpp / 173 headers. No build/tests/runtime or new completed-activity claim. See [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](docs/HUMAN_ATOMIC_EVENTS_AND_NEEDS.md).
+
+
+### OA153 - Windows civilian activity and freeze recovery
+
+Household collection/delivery, goods and food search/storage, civilian step callbacks, passenger exit, prayer searches, ordinary indoor production, equipment fetch/change/drop and real house detachment are connected from Windows ASM/Game.exe. The user specifically observes remaining freezes among women, children and scouts. See [HUMAN_FREEZE_RECOVERY.md](docs/HUMAN_FREEZE_RECOVERY.md) for completed native blocks and remaining family/training/outdoor/vehicle/combat/route boundaries. Mac supplies names only.
+
+All 21 touched C++ files pass MSVC Win32 /Zs syntax-only checking; no Debug/Release build, tests or new runtime launch. Project/filter parity: 186 cpp / 177 headers; 670 naming rows / 121 unfinished entries. This does not establish linking, complete gameplay behavior or a new address-coverage percentage.

@@ -1,5 +1,11 @@
 # C++ continuation handoff - 2026-10-06
 
+## Human activity and freeze recovery - 2026-10-07
+
+The user reports freezes among women, children and scouts. The new recovery block connects household collection/delivery, equipment replacement and full equip/drop leaves, civilian goto/go-home/listening commands, goods/food/prayer searches and storage, ordinary indoor production, active civilian path callbacks, landscape/regrow ticks and real house detachment. Read [HUMAN_FREEZE_RECOVERY.md](HUMAN_FREEZE_RECOVERY.md) and current C2HumanGoods/C2HumanProduction/C2HumanEquipment/C2HumanWalking before relying on earlier entries below. All behavior derives from Windows ASM/Game.exe; Mac supplies names only.
+
+Remaining family/birth/learning/outdoor/vehicle/combat/default-action and sector/guide route branches are explicitly unfinished; opponent-target idle and unknown event sets can still hold humans. Do not claim all freezes fixed or all human workflows complete. Verification: all 21 touched cpp files passed MSVC Win32 /Zs syntax-only checks; project/filter parity 186 cpp / 177 headers; no inline asm. No Debug/Release build, tests or new runtime run. Inventories: 670 names / 121 unfinished entries. The 2584/5054 coverage figure remains historical. Earlier chapters describe older checkpoints.
+
 ## Current game continuation - 2026-10-07
 
 The preceding full working tree is committed as `81fb33d` (goodie startup and removal of all six inline assembly blocks). The next block connects supported atomic events, Windows condition/item/urgent-need updates and task-7 eating/sleeping/social/reached-prayer startup plus supported finish/home-refill/message removal. Read [HUMAN_ATOMIC_EVENTS_AND_NEEDS.md](HUMAN_ATOMIC_EVENTS_AND_NEEDS.md) and current C2HumanAtomicEvents.cpp/.h and C2HumanNeeds.cpp/.h first. Mac is strictly naming-only under the user's clarification; never derive behavior/layout/constants from it. Windows ASM and Game.exe govern those facts.

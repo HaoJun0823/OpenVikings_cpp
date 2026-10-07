@@ -2,6 +2,8 @@
 #include "C2HumanCommandAccess.h"
 #include "C2HumanTaskAccess.h"
 #include "C2HumanNeeds.h"
+#include "C2HumanWalking.h"
+#include "C2VehicleAccess.h"
 #include "C2MapGeometry.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2GameMapAccess.h"
@@ -50,7 +52,7 @@ namespace NC2Logic
 
     // Partial original function: FUN_0040bd33. Human conditions precede turning,
     // walking and AI; human deletion follows the tick. Other creature AI and
-    // active path-step callbacks remain tracked boundaries.
+    // military path callbacks remain tracked boundaries.
     void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* /*unusedEdx*/)
     {
         auto* handler = static_cast<CArrayHandler*>(array);
@@ -92,11 +94,39 @@ namespace NC2Logic
                         if (progress >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
                         goto finishCreatureTick;
                     }
-                    // Active pathfinder search/new-step callbacks are not reconstructed.
-                    if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) goto finishCreatureTick;
+                    if (human != nullptr)
+                    {
+                        auto direction = MapPathfinderElement_GetNextDirection(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)));
+                        if (direction == -4) goto finishCreatureTick;
+                        if (direction >= 0)
+                        {
+                            if (!Human_AI_DoNewMapPositionReached(human, false))
+                            {
+                                MapMoveable_Pathfinder_Stop(moveable);
+                                direction = -3;
+                            }
+                            if (direction != -3)
+                            {
+                                Write<std::uint8_t>(moveable, 0x2C, 1);
+                                Write(moveable, 0x30, direction);
+                                Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x48));
+                                Write<std::uint8_t>(moveable, 0x38, 0);
+                                MapMoveable_Attachment_StartTurn(moveable, direction);
+                            }
+                        }
+                        else if (direction == -2) Human_AI_DoNewMapPositionReached(human, true);
+                        else if (direction == -1) Human_AI_DoPathfinderFailed(human);
+                        else if (direction == -3) Human_AI_DoPathfinderStopped(human);
+                    }
+                    else if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) goto finishCreatureTick;
                 }
             }
-            if (human != nullptr) Human_AI_DoUpdateAI(human);
+            if (human != nullptr)
+            {
+                Human_AI_DoUpdateAI(human);
+                if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(human, 0x10), Human_GetMapPositionRef(human));
+                GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(human) + 0xB88);
+            }
         finishCreatureTick:
             // Windows 0040BD5B / human branch of DeleteObjectWithMapMoveable (0040ADD6).
             if (human != nullptr && Read<std::uint8_t>(moveable, 0x0C) != 0) CHumanArray::sTheObjectPtr->FreeHuman(Read<std::int32_t>(moveable, 0x54));

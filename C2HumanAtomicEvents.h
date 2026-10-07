@@ -6,7 +6,7 @@ namespace NC2Logic
 {
     struct SStaticAtomicAnimationData;
     struct SStaticAtomicAnimationEventData;
-    bool Human_AreAtomicEventsReconstructed(const SStaticAtomicAnimationData& animation);
+    bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation);
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event);
     void Human_l_PerformTaskEvent_SendSocial(void* human, std::int32_t amount);
     void Human_l_PerformTaskEvent_SendReligion(void* human, std::int32_t amount);

@@ -11,6 +11,15 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MissionStartObjects.h"
+#include "C2HumanWalking.h"
+#include "C2HumanAtomicEvents.h"
+#include "C2HumanGoods.h"
+#include "C2HumanProduction.h"
+#include "C2HumanEquipment.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2VehicleAccess.h"
+#include "C2UserMessageAccess.h"
 
 namespace NC2Logic
 {
@@ -19,18 +28,8 @@ namespace NC2Logic
     namespace
     {
         void* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u; }
-        const void* Position(const void* human) { return static_cast<const std::byte*>(Moveable(human)) + 0x12; }
+        const void* Position(const void* human) { return Human_GetMapPositionRef(human); }
         const void* JobData(const void* human) { return static_cast<const std::byte*>(gStaticJobTypeData) + Read<std::uint32_t>(human, 0x18) * 0x88u; }
-
-        // The empty/skipped branches of DoExecuteNextUserCommand (0043BD97) have
-        // no side effects. An eligible nonempty queue remains a dispatch boundary.
-        bool CanContinueWithoutExecutingCommand(const void* human)
-        {
-            const auto circulation = Read<std::uint32_t>(human, 0xACC);
-            if (Read<std::uint8_t>(human, 0xA60) != 0 || (circulation != 0 && circulation != 6) || Read<std::uint32_t>(human, 0x378) != 0) return true;
-            for (std::uint32_t slot = 0; slot < 87; ++slot) if (Read<std::uint8_t>(human, 0x390u + slot * 20u) != 0) return false;
-            return true;
-        }
 
     }
 
@@ -79,11 +78,25 @@ namespace NC2Logic
             }
             return;
         }
+        if (task == 16) { Human_l_StartTask_Equip(human); return; }
+        if (task == 3) { Human_l_StartTask_GoHome(human); return; }
+        if (task == 17) { Human_l_StartTask_Equip_DropItem(human, Read<std::uint32_t>(human, 0xAD0)); return; }
         if (task != 1 && task != 8 && task != 9) return;
-        if (!CanContinueWithoutExecutingCommand(human)) return;
-        // Task 8's food-producer postponement branch remains pending.
-        if (task == 8 && Read<std::uint32_t>(human, 0xA64) != 0) return;
-        Human_AI_DoCheckForUrgentNeeds(human);
+        if (!Human_CanExecuteQueuedCommands(human)) return;
+        if (Human_DoExecuteNextUserCommand(human))
+        {
+            Write<std::uint32_t>(human, 0x37C, 0);
+            if (Read<std::uint32_t>(human, 0x36C) == (task == 1 ? 0u : 1u) && Read<std::uint32_t>(human, 0x368) == 1)
+            {
+                Human_Target_Reset(human);
+                Write<std::uint32_t>(human, 0x368, task == 9 ? 9 : 8);
+                Write<std::uint32_t>(human, 0x36C, 0);
+            }
+            return;
+        }
+        if (Read<std::uint32_t>(human, 0x368) != task) return;
+        if (task == 8 && Read<std::uint32_t>(human, 0xA64) != 0 && TGoodTypes_IsFood(Read<std::uint32_t>(human, 0x1C))) Write(human, 0xA64, Read<std::uint32_t>(human, 0xA64) - 1u);
+        else Human_AI_DoCheckForUrgentNeeds(human);
         if (Read<std::uint32_t>(human, 0x368) == 7) return;
         if (task == 9)
         {
@@ -106,62 +119,313 @@ namespace NC2Logic
     void Human_CurrentTask_DoFinish(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task != 1 && task != 7 && task != 9 && task != 13 && (task < 25 || task > 29)) return;
+        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 19 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
         if (task != 1)
         {
             Write<std::uint32_t>(human, 0x380, 0);
             if (!Human_IsDoingGoodie(human)) Write<std::uint32_t>(human, 0x37C, 0);
         }
-        if (task == 7) Human_l_FinishTask_FulfillNeeds(human);
+        if (task == 10) return; // Original table entry 00443790 is a no-op after the preamble.
+        if (task == 3) { Write<std::uint32_t>(human, 0x368, 1); Write<std::uint32_t>(human, 0x36C, 0); }
+        else if (task == 8) Human_l_FinishTask_ExecuteJob(human);
+        else if (task == 16 || task == 17) Human_l_FinishTask_Equip(human);
+        else if (task == 2 || task == 23)
+        {
+            if (task == 23) Human_Target_Reset(human);
+            Human_l_FinishTask_Goto(human);
+        }
+        else if (task == 4)
+        {
+            const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
+            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x2C) == 3) Human_HouseMisc_Enter(human);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, 0x368, 1);
+        }
+        else if (task == 24) Write<std::uint32_t>(human, 0x36C, 0);
+        else if (task == 7) Human_l_FinishTask_FulfillNeeds(human);
         else if (task >= 25 && task <= 29) Human_l_FinishTask_Goodie(human);
         else if (task == 9 && Read<std::uint32_t>(human, 0x378) != 0) Write<std::uint32_t>(human, 0x36C, 0);
         else Human_l_FinishTask_Idle(human);
     }
 
-    // Partial original function: FUN_004445c9. The ordinary idle animation branch
-    // is connected; combat, crowded/blocked positions, goods and autonomous goodie/walk
-    // calls are explicit boundaries rather than invented successful operations.
+    // Original function: FUN_00445cb2; clear cargo only for the native failure cases.
+    void Human_l_FailTask_Idle(void* human)
+    {
+        const auto failure = Read<std::uint32_t>(human, 0x374);
+        if (failure != 7 && (failure != 11 || Read<std::uint32_t>(human, 0xAD4) == 0)) return;
+        if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
+        Write<std::uint32_t>(human, 0xAD4, 0);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+    }
+
+    // Original function: FUN_00444a36.
+    void Human_l_StartTask_GoAway(void* human, std::uint32_t point, std::uint32_t radius)
+    {
+        Human_StopCurrentGoodCirculationMode(human);
+        const auto found = radius != 0 ? Human_FindNextVehicleFreeMapPoint(human, &point, radius) : Human_FindNextFreeMapPoint(human, &point);
+        if (found && Human_l_StartAtomicWalkAndWait(human, &point)) Write<std::uint32_t>(human, 0x368, 23);
+        else
+        {
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, 0x368, 1);
+            Human_l_StartTask_Idle(human);
+        }
+    }
+
+    // Partial original function: FUN_00445da5; AI NoWayFound notification remains pending.
+    void Human_l_FailTask_Goto(void* human)
+    {
+        switch (Read<std::uint32_t>(human, 0x374))
+        {
+        case 1: Human_UserMessage_SendToUserMessage(human, 3); return;
+        case 3: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); return;
+        case 4: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); return;
+        case 5: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); return;
+        case 6: Human_UserMessage_SendToUserMessage(human, 7); return;
+        case 7: Human_UserMessage_SendToUserMessage(human, 8); return;
+        default: Human_UserMessage_SendToUserMessage(human, 2); return;
+        }
+    }
+
+    // Original function: FUN_00445acf; finite-production rotation precedes threshold messages.
+    void Human_l_FailTask_ExecuteJob(void* human)
+    {
+        const auto job = Read<std::int32_t>(human, 0x18);
+        if (Read<std::uint32_t>(human, 0x380) >= 2 && job >= 8 && job <= 30 && Read<std::uint32_t>(human, 0x1C) != 0)
+        {
+            std::uint32_t productionCount = 0;
+            for (std::uint32_t good = 0; good < 66; ++good) { const auto count = Read<std::int32_t>(human, 0x21Cu + good * 4u); if (count > 0 && count <= 11) ++productionCount; }
+            if (productionCount >= 2) { Write<std::uint32_t>(human, 0x380, 0); Human_Production_CouldNotProduceCurrentGood(human); }
+        }
+        if (Read<std::uint32_t>(human, 0x380) >= 5)
+        {
+            Write<std::uint32_t>(human, 0x380, 0);
+            switch (Read<std::uint32_t>(human, 0x374))
+            {
+            case 0: if (!Human_IsAttachedToLearnHouse(human)) Human_UserMessage_SendToUserMessage(human, 2); break;
+            case 1: Human_UserMessage_SendToUserMessage(human, 3); break;
+            case 2:
+                if (Human_IsJobBuilder(human))
+                {
+                    std::uint32_t real = 0, work = 0;
+                    if (Human_FindDamagedWallNearWorkCenter(human, &real, &work))
+                    {
+                        Write(human, 0xB30, real);
+                        Write<std::uint32_t>(human, 0x38C, 0);
+                        Human_WorkCenterMarker_Update(human);
+                        Human_Target_SetTargetPositions(human, &real, &work);
+                        return;
+                    }
+                }
+                if (job >= 8 && job <= 30)
+                {
+                    const auto id = Read<std::uint32_t>(human, 0xB34);
+                    if (id == 0xFFFFFFFFu || Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, 0x2C) != 2) Human_UserMessage_SendToUserMessage(human, 11);
+                }
+                break;
+            case 3: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); break;
+            case 4: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); break;
+            case 5: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); break;
+            case 6: Human_UserMessage_SendToUserMessage(human, 7); break;
+            case 7: Human_UserMessage_SendToUserMessage(human, 8); break;
+            case 8: Human_UserMessage_SendToUserMessage(human, 9); break;
+            case 9: Human_UserMessage_SendToUserMessage(human, 10); break;
+            case 10: break; // Windows 0045BFEC returns without emitting a message.
+            case 11:
+            {
+                const auto good = Read<std::uint32_t>(human, 0x1C);
+                if (Read<std::uint32_t>(gGameControl, 0x5D200) == 2 && (good == 16 || good == 17 || good == 19 || good == 20 || good == 21 || good == 23)) break;
+                // Original message function: FUN_0045bfef.
+                std::byte message[0x304];
+                ToUserMessage_Construct(message);
+                Write<std::uint32_t>(message, 0, 13);
+                Write(message, 0x10, Read<std::uint32_t>(human, 4));
+                Write(message, 8, Read<std::uint32_t>(human, 0x10));
+                Write(message, 0x30, good);
+                ToUserMessage_FinishMessage(message);
+                NC2LogicExternals::External_Misc_SendToUserMessage(message);
+                break;
+            }
+            case 13:
+                Human_UserMessage_SendToUserMessage(human, 14);
+                if (Human_IsAttachedToLearnHouse(human)) House_Inhabitants_DetachHuman(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, Read<std::uint32_t>(human, 4), 8);
+                break;
+            case 14: Human_UserMessage_SendToUserMessage(human, 15); break;
+            case 15: Human_UserMessage_SendToUserMessage(human, 16); break;
+            default: Human_UserMessage_SendToUserMessage(human, 2); break;
+            }
+        }
+        Write<std::uint32_t>(human, 0xAD0, 0);
+    }
+
+    // Partial original function: FUN_00443807; civilian needs, goods and equipment recovery.
+    // Family, combat and guide-specific failure trees remain pending.
+    void Human_CurrentTask_DoFailure(void* human)
+    {
+        const auto task = Read<std::uint32_t>(human, 0x368);
+        if (task == 5 || task == 11 || task == 12 || task == 14 || task == 15 || task == 18 || task == 20) return;
+        if ((task == 2 || task == 4 || task == 23) && Read<std::uint32_t>(human, 0x374) == 1 && Human_GetPlayerType(human) == 2) return;
+        if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
+        Write(human, 0x380, Read<std::uint32_t>(human, 0x380) + 1u);
+        bool doJob = true, checkUrgent = true;
+        if (task == 8) { doJob = false; Human_l_FailTask_ExecuteJob(human); }
+        else if (task == 7)
+        {
+            const auto need = Read<std::uint32_t>(human, 0x370);
+            if (need >= 2 && need <= 4) doJob = false;
+            else if (need == 1) { doJob = TGoodTypes_IsFood(Read<std::uint32_t>(human, 0x1C)); Write<std::uint32_t>(human, 0xA64, 10); }
+            checkUrgent = false;
+            Human_l_FailTask_FulfillNeeds(human);
+        }
+        else if (task == 2 || task == 4)
+        {
+            doJob = false;
+            if (Read<std::uint32_t>(human, 0x370) != 0)
+            {
+                Human_l_FailTask_FulfillNeeds(human);
+                const auto need = Read<std::uint32_t>(human, 0x370);
+                if (need != 0)
+                {
+                    Write<std::uint32_t>(human, 0x368, 7);
+                    Write<std::uint32_t>(human, 0x36C, 0);
+                    if (need == 1) Human_l_StartTask_FulfillNeeds_Food(human);
+                    else if (need == 2) Human_l_StartTask_FulfillNeeds_Stamina(human);
+                    else if (need == 3) Human_l_StartTask_FulfillNeeds_Social_Monologuize(human);
+                    else if (need == 4) Human_l_StartTask_FulfillNeeds_Religion(human);
+                    return;
+                }
+            }
+            else Human_l_FailTask_Goto(human);
+        }
+        else if (task == 1) Human_l_FailTask_Idle(human);
+        else if (task == 3) Human_l_FailTask_GoHome(human);
+        else if (task == 22) Human_l_FailTask_Misc(human);
+        else if (task == 16) Human_l_FailTask_Equip(human);
+        else if (task == 17) Human_l_FailTask_Drop(human);
+        else if (task == 19) Human_UserMessage_SendToUserMessage(human, 2);
+        else if (task == 21) { Write<std::uint32_t>(human, 0x368, 1); Write<std::uint32_t>(human, 0x36C, 0); }
+        else if (task == 23)
+        {
+            Human_l_FailTask_Goto(human);
+            doJob = false;
+            if (Read<std::uint32_t>(human, 0x370) != 0) Human_l_FailTask_FulfillNeeds(human);
+        }
+        else if (task >= 24 && task <= 29) Human_l_FailTask_Goodie(human);
+        if (Human_IsJobSoldier(human))
+        {
+            if ((task == 2 || task == 4) && Read<std::uint32_t>(human, 0x374) == 1)
+            {
+                if (!Human_IsAttachedToWorkHouse(human))
+                {
+                    Write(human, 0xB30, Read<std::uint32_t>(Position(human), 0));
+                    Write<std::uint32_t>(human, 0x38C, 0);
+                    Human_WorkCenterMarker_Update(human);
+                }
+                else if (Human_GetPlayerType(human) == 2) Human_DoAddNewUserCommand(human, 29, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, 0xB34), Read<std::uint32_t>(human, 0xB38));
+            }
+            if (Read<std::uint32_t>(human, 0x370) != 0 && Human_IsRefreshingInWorld(human)) doJob = false;
+        }
+        if (Read<std::int32_t>(human, 0x380) > 10) { Write<std::uint32_t>(human, 0x380, 0); doJob = false; }
+        Human_Target_Reset(human);
+        Write<std::uint32_t>(human, 0xAD0, 0);
+        Write<std::uint32_t>(human, 0x374, 2);
+        if (doJob)
+        {
+            Write<std::uint32_t>(human, 0x368, 8);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            if (checkUrgent) Human_AI_DoCheckForUrgentNeeds(human);
+            if (Read<std::uint32_t>(human, 0x368) == 7) return;
+            Write<std::uint32_t>(human, 0x370, 0);
+            if (Read<std::uint32_t>(human, 0x378) == 0) { Human_l_StartTask_ExecuteJob(human); return; }
+        }
+        if (Read<std::uint32_t>(human, 0x378) != 0)
+        {
+            Write<std::uint32_t>(human, 0x368, 9);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Human_l_StartTask_WaitForOtherHuman(human);
+        }
+        else
+        {
+            Write<std::uint32_t>(human, 0x368, 1);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Human_l_StartTask_Idle(human);
+        }
+    }
+
+    // Partial original function: FUN_004445c9; opponent-target interaction remains pending.
     void Human_l_StartTask_Idle(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xACC) != 0) return; // Reservation-release/circulation branches pending here.
         if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human) && Read<std::uint32_t>(human, 0xB64) != 0) return;
         void* moveable = Moveable(human);
         const auto idleCount = Read<std::uint32_t>(human, 0x37C) + 1u;
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
-        {
-            const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
-            if (Read<std::uint8_t>(micro, 0) == 2) return; // Defense-house/crowding/escape branches pending.
-            if (Read<std::uint8_t>(human, 0xA60) == 0)
-            {
-                const auto occupant = Read<std::int16_t>(micro, 0x0A);
-                if (occupant != Read<std::int32_t>(human, 0x0C)) return;
-                if (Read<std::int32_t>(moveable, 0x24) != -1) return;
-            }
-        }
-        if (Read<std::uint32_t>(human, 0xAD4) != 0) return;
-        const auto atomic = Read<std::uint32_t>(human, 0xAB8);
-        if ((atomic == 0 || atomic == 1) && idleCount >= 10u && (Read<std::uint32_t>(human, 0xB84) & 2u) == 0 && Read<std::uint32_t>(human, 0xB64) == 0 && !Human_IsAttachedToVehicle(human))
-        {
-            // Empty eligible queues were checked by the startup dispatcher.
-            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(moveable, 0x12), Read<std::int16_t>(moveable, 0x14), Read<std::int16_t>(human, 0xB30), Read<std::int16_t>(human, 0xB32));
-            if (distance >= 5) return; // Tool_Map_GetNotBlockedPosition/l_StartAtomicWalk pending.
-            if (Human_IsAbleToDoGoodieNow(human))
-            {
-                Write(human, 0x37C, idleCount);
-                if (Read<std::uint8_t>(moveable, 0x10) != 0)
-                {
-                    if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
-                    Write<std::uint32_t>(human, 0xAD0, 0);
-                }
-                Write<std::uint32_t>(human, 0x368, 24);
-                return;
-            }
-        }
         Write(human, 0x37C, idleCount);
         if (Read<std::uint8_t>(moveable, 0x10) != 0)
         {
             if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
             Write<std::uint32_t>(human, 0xAD0, 0);
+            const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
+            const auto soldierAtWork = Human_IsJobSoldier(human) && Human_IsAttachedToWorkHouse(human) && Human_IsInWorkHouse(human);
+            if (Read<std::uint8_t>(human, 0xA60) == 0 && !soldierAtWork)
+            {
+                if (Read<std::uint8_t>(micro, 0) == 2 && Read<std::uint8_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x7D8) != 0)
+                {
+                    if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+                    Human_l_StartAtomicAnimation(human, 5, -1);
+                    Write<std::uint32_t>(human, 0x36C, 1);
+                    return;
+                }
+                const auto occupant = Read<std::int16_t>(micro, 0x0A);
+                if (occupant != Read<std::int32_t>(human, 0x0C) || Read<std::int32_t>(moveable, 0x24) != -1)
+                {
+                    CMapMoveableIterator iterator;
+                    for (auto id = iterator.GetFirstMapMoveableId(Position(human)); id != -1; id = iterator.GetNextMapMoveableId())
+                    {
+                        if (id == Read<std::int32_t>(human, 0x0C)) continue;
+                        const auto* other = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+                        if (Read<std::uint32_t>(other, 8) == 1 && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(other, 0x54) * CHumanArray::ElementSize, 0x368) == 23) continue;
+                        Human_DoAddNewUserCommand(human, 5, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, 0, 0);
+                        Human_DoExecuteNextUserCommand(human);
+                        Write<std::uint8_t>(human, 0xA60, 1);
+                        if (Read<std::uint32_t>(human, 0x368) != 1) return;
+                    }
+                }
+            }
+            if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+            if (idleCount > 2u && Read<std::uint8_t>(micro, 0) == 2 && !soldierAtWork) { Human_l_StartTask_GoAway(human, 0, 0); return; }
+        }
+        if (Read<std::uint32_t>(human, 0xAD4) != 0 && Read<std::uint8_t>(human, 0xB51) != 0)
+        {
+            auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            const auto good = Read<std::uint32_t>(human, 0xAD4);
+            if (Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFullSoon(vehicle))
+            {
+                if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
+                Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, Read<std::uint32_t>(human, 8));
+                Vehicle_Stock_ModifyAmount(vehicle, Read<std::uint32_t>(human, 0xAD4), 1, Read<std::uint32_t>(human, 8));
+                Write<std::uint32_t>(human, 0xAD4, 0);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+            }
+        }
+        if (Read<std::uint32_t>(human, 0xAD4) != 0)
+        {
+            Write<std::uint32_t>(human, 0xAD4, 0);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+        }
+        const auto atomic = Read<std::uint32_t>(human, 0xAB8);
+        if ((atomic == 0 || atomic == 1) && idleCount >= 10u && (Read<std::uint32_t>(human, 0xB84) & 2u) == 0 && Read<std::uint32_t>(human, 0xB64) == 0 && !Human_IsAttachedToVehicle(human))
+        {
+            // Empty eligible queues were checked by the startup dispatcher.
+            const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(human, 0xB30), Read<std::int16_t>(human, 0xB32));
+            if (distance >= 5)
+            {
+                auto point = Read<std::uint32_t>(human, 0xB30);
+                if (Tool_Map_GetNotBlockedPosition(&point, true) && Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x37C, 0); return; }
+            }
+            else if (Human_IsAbleToDoGoodieNow(human))
+            {
+                Write<std::uint32_t>(human, 0x368, 24);
+                return;
+            }
         }
         if (atomic == 0 || atomic == 1)
         {
@@ -182,13 +446,23 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x368, 8);
     }
 
-    // Partial original function: FUN_0046c39e. Native idle-only job cases and the
-    // disabled-job branch are connected; production/learning/equipment paths are pending.
+    // Original function: FUN_0046f76b.
+    void Human_l_FinishTask_ExecuteJob(void* human)
+    {
+        Human_UpdateCurrentJobType(human);
+        Human_WorkCenterMarker_Update(human);
+        const auto job = Read<std::uint32_t>(human, 0x18);
+        if (job != 7 && job != 8) Human_Target_Reset(human);
+        Write<std::uint32_t>(human, 0x36C, 0);
+    }
+
+    // Partial original function: FUN_0046c39e; household, indoor production and idle job cases.
+    // Learning, outdoor work, vehicle work and military jobs remain pending.
     void Human_l_StartTask_ExecuteJob(void* human)
     {
         Write<std::uint32_t>(human, 0x370, 0);
         const auto circulation = Read<std::uint32_t>(human, 0xACC);
-        if (circulation == 0 && Read<std::uint32_t>(human, 0xAD4) != 0) return;
+        if (circulation == 0 && Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         if ((Read<std::uint32_t>(human, 0xB84) & 2u) != 0)
         {
             if (circulation != 0) Human_StopCurrentGoodCirculationMode(human);
@@ -197,17 +471,57 @@ namespace NC2Logic
             Human_l_StartTask_Idle(human);
             return;
         }
-        // Do not bypass the defense/target or equipment/learning branches.
-        if (circulation != 0 || Read<std::uint32_t>(human, 0xA68) != 0 || Read<std::uint32_t>(human, 0xAD4) != 0) return;
-        const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
-        if (Read<std::uint8_t>(micro, 0) == 2) return;
-        if (Human_IsAttachedToLearnHouse(human) || Human_IsAttachedToWorkHouse(human) || Read<std::uint8_t>(JobData(human), 0x83) != 0) return;
+        if (Human_IsDefendingHouse(human, -1))
+        {
+            if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
+            if (Read<std::uint32_t>(human, 0xAD4) != 0) Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human);
+            else { Write<std::uint32_t>(human, 0x36C, 0); Write<std::uint32_t>(human, 0x368, 1); Human_l_StartTask_Idle(human); }
+            return;
+        }
+        if (Human_IsAttachedToLearnHouse(human)) return;
+        const auto attached = Human_IsAttachedToWorkHouse(human);
+        if ((Read<std::uint8_t>(JobData(human), 0x83) != 0 && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, 0x2C) != 3))
+        {
+            Write<std::uint32_t>(human, 0x36C, 3);
+            Write<std::uint32_t>(human, 0x374, 2);
+            return;
+        }
         if (!Human_l_IsAtomicInterruptable(human)) return;
-        if (Read<std::uint8_t>(human, 0xA60) == 0 && ((Read<std::uint32_t>(human, 0xAF0) != 0 && Read<std::uint32_t>(human, 0xAE0) == 0) || (Read<std::uint32_t>(human, 0xAEC) != 0 && Read<std::uint32_t>(human, 0xADC) == 0))) return;
+        if (Read<std::uint32_t>(human, 0xACC) == 0 && Read<std::uint8_t>(human, 0xA60) == 0)
+        {
+            const auto tool = Read<std::uint32_t>(human, 0xAF0), shoes = Read<std::uint32_t>(human, 0xAEC);
+            if (tool != 0 && Read<std::uint32_t>(human, 0xAE0) == 0) Human_DoAddNewUserCommand(human, 80, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, tool, 0xFFFFFFFFu);
+            else if (shoes != 0 && Read<std::uint32_t>(human, 0xADC) == 0) Human_DoAddNewUserCommand(human, 79, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, shoes, 0xFFFFFFFFu);
+            if ((tool != 0 && Read<std::uint32_t>(human, 0xAE0) == 0) || (shoes != 0 && Read<std::uint32_t>(human, 0xADC) == 0))
+            {
+                Human_DoExecuteNextUserCommand(human);
+                Write<std::uint8_t>(human, 0xA60, 1);
+            }
+            if (Read<std::uint32_t>(human, 0x368) != 8) return;
+        }
+        if (Read<std::uint32_t>(human, 0xA68) != 0)
+        {
+            if (!Human_Target_IsValid(human)) { Human_StopCurrentGoodCirculationMode(human); Human_Target_Reset(human); }
+            else if (!Human_IsAtTargetPoint(human))
+            {
+                const auto target = Read<std::uint32_t>(human, 0xA68);
+                if (target == 2)
+                {
+                    Write(human, 0xAD0, Read<std::uint32_t>(human, 0xA78));
+                    if (Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(human) + 0xA6C, static_cast<std::byte*>(human) + 0xA70, false)) return;
+                }
+                else if (Human_l_StartAtomicWalk(human, static_cast<std::byte*>(human) + 0xA6C, static_cast<std::byte*>(human) + 0xA70)) { Write(human, 0xA68, target); return; }
+                Human_Target_Reset(human);
+            }
+        }
         if (Human_IsAttachedToVehicle(human)) return;
         const auto job = Read<std::uint32_t>(human, 0x18);
         switch (job)
         {
+        case 5: Human_l_StartTask_ExecuteJob_Woman(human); return;
+        case 11: case 12: case 13: case 14: case 17: case 19: case 20: case 21:
+            Human_l_StartTask_ExecuteJob_Tool_GoodProducer(human);
+            return;
         case 1: case 2: case 3: case 4:
             Write<std::uint32_t>(human, 0x37C, 10); // Original constant 004F3C34.
             [[fallthrough]];
@@ -231,10 +545,29 @@ namespace NC2Logic
     // run in one tick. Pending dispatch leaves state intact and yields instead of spinning.
     void Human_AI_DoUpdateTaskMachine(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xACC) != 0 && Read<std::uint32_t>(human, 0xA68) != 0) return;
+        if (Read<std::uint32_t>(human, 0xACC) != 0 && Read<std::uint32_t>(human, 0xA68) != 0 && !Human_Target_IsValid(human))
+        {
+            const auto target = Read<std::uint32_t>(human, 0xA68);
+            if (target == 2 && Read<std::uint32_t>(human, 0xAD0) == 0) Write(human, 0xAD0, gStaticDependencyGoodByLandscape[Human_GetLandscapeTypeAtTargetPosition(human)]);
+            Write<std::uint32_t>(human, 0x36C, 3);
+            Write<std::uint32_t>(human, 0x374, target == 1 ? 1 : target == 2 ? 3 : target == 3 || target == 4 ? 7 : target == 7 ? 6 : 0);
+        }
         void* moveable = Moveable(human);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0 && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 0x0C) & 0x80u) != 0) return;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + 0xB30), 0x0C) & 0x80u) != 0 && !Human_IsAttachedToWallPoint(human)) return;
+        if (Read<std::uint8_t>(moveable, 0x10) != 0 && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 0x0C) & 0x80u) != 0)
+        {
+            Human_CurrentTask_DoInterrupt(human);
+            Human_l_StartTask_GoAway(human, 0, 0);
+        }
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(human) + 0xB30), 0x0C) & 0x80u) != 0 && !Human_IsAttachedToWallPoint(human))
+        {
+            auto workCenter = Read<std::uint32_t>(human, 0xB30);
+            if (Tool_Map_GetNotBlockedPosition(&workCenter, false))
+            {
+                Write(human, 0xB30, workCenter);
+                Write<std::uint32_t>(human, 0x38C, 0);
+                Human_WorkCenterMarker_Update(human);
+            }
+        }
         for (;;)
         {
             const auto task = Read<std::uint32_t>(human, 0x368);
@@ -248,7 +581,8 @@ namespace NC2Logic
             }
             if (status == 0) Human_CurrentTask_DoStartUp(human);
             else if (status == 2) Human_CurrentTask_DoFinish(human);
-            else return; // CurrentTask_DoFailure and unsupported statuses remain pending.
+            else if (status == 3) Human_CurrentTask_DoFailure(human);
+            else return;
             if (Read<std::uint32_t>(human, 0x368) == task && Read<std::uint32_t>(human, 0x36C) == status) return;
         }
     }
