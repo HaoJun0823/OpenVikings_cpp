@@ -1,5 +1,11 @@
 # C++ continuation handoff - 2026-10-06
 
+## Active priority: all menus and keyboard commands, including cheats - 2026-10-08
+
+Continue this request before the older road/house-builder suggestions below. The user requested all menus and keyboard commands, including cheats. The task remains open. Read [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md) and current source/history: global settings, construction chooser, help, diplomacy, technology tree, resident list, statistics and observation windows are connected. Native on-screen mission information replaces its link-only constructor. Only Win32 `/Zs` checks have run; no build, tests or runtime verification is authorized.
+
+Next: network-information window 004C5219..004C6435 and manager 004A23B1/004A2402; remaining selection-window families under partial Selection_UpdateWindows 004A0E9D; complete default message dispatcher 004A3EDB and primary keyboard/cheat handler 004BC36F..004BD3C3. The partial GUI logic callback 004A2C0B remains in TemporaryLinkStubs.cpp and must acquire native menu/observer lifetime branches. Audit main menu/options/save/load/briefing/overview input routing, then update naming/boundary inventories and source-address x/y. Preserve Windows behavior exclusively; Mac names only. Do not touch or register the user's untracked C2HumanCombatTasks.cpp/.h.
+
 ## Road, palisade and gate construction - 2026-10-08
 
 Connected native start/end selection, reachable-point highlighting, complete vector previews, network flag creation/cancellation, per-second worker assignment, builder job/material/pickup/delivery/build/repair execution and road map-edit callbacks. Own flag selection now opens native camera/cancellation windows. Configured road/wall/gate shortcuts and gate eligibility/placement/state commands are connected. Windows ASM/Game.exe establish all behavior and layouts; Mac headers supply names only. Twelve link dummies were replaced. See [WALL_ROAD_CONSTRUCTION.md](WALL_ROAD_CONSTRUCTION.md).

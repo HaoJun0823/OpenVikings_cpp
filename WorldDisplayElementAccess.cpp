@@ -439,6 +439,8 @@ namespace NC2InGameGuiWorldElement
     // Original functions: FUN_004baffa/FUN_004bb007.
     void WorldDisplayElement_DrawFrame_SetMode(void* element, std::uint32_t mode) { NC2Lifetime::Write(element, 0x208, mode); }
     void WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, 0x20C, handler); NC2Lifetime::Write(element, 0x210, command); }
+    // Original function: FUN_004bb01e.
+    void WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, 0x214, handler); NC2Lifetime::Write(element, 0x218, command); }
 
     // Original function: FUN_004ba042.
     void* WorldDisplayElement_Construct(void* element, const NXBasics::SRectangle* rectangle, bool active, bool inputEnabled)

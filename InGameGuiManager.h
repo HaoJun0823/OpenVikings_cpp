@@ -43,6 +43,13 @@ namespace NInGameGuiManager
         void Desktop_Open(std::int32_t width, std::int32_t height, std::uint32_t depth);
         void Desktop_Close();
         void MiscWindows_OverviewWindow_Open();
+        void ObservationWindow_CreateNewOne();
+        void ObservationWindow_Register(void* window);
+        void ObservationWindow_UnRegister(void* window);
+        void ObservationWindow_CloseAll();
+        void Exploration_Toggle();
+        void MiscWindows_OverviewWindow_Toggle();
+        void MiscWindows_OverviewWindow_Close();
         void MiscWindows_OverviewWindow_Closed();
         void MiscWindows_LargeOverviewWindow_Toggle();
         void MiscWindows_LargeOverviewWindow_Open(bool topRight);

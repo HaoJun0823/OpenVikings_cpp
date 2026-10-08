@@ -1258,4 +1258,14 @@
     <ClInclude Include="InGameGuiStatisticsWindow.h"><Filter>GUI</Filter></ClInclude>
     <ClInclude Include="InGameGuiStatisticsData.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiObservationWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiObservationWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MissionOnscreenInfoAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MissionOnscreenInfoAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="InGameGuiMissionOnscreenInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiMissionOnscreenInfoWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
 </Project>

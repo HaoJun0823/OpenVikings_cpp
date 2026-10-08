@@ -2,7 +2,7 @@
 
 ## Menu and keyboard priority - work in progress, 2026-10-08
 
-The user requested all menus and keyboard commands, including cheats, before further house-builder work. Global settings, construction chooser, help and diplomacy window families and their manager entry points are reconstructed from Windows. Native tribute payment replaces its link dummy. Group management, the BMP writer/map export and palette-remap initialization are connected dependencies; full keyboard dispatch and the other menu/selection window families remain pending. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). No full completion claim or new aggregate coverage count yet. Win32 `/Zs` checks only; no Debug/Release build, tests or game run.
+The user requested all menus and keyboard commands, including cheats, before further house-builder work. Global settings, construction chooser, help, diplomacy, technology tree, resident list, statistics and observation windows and their manager entry points are reconstructed from Windows. Native tribute payment and the on-screen mission-information constructor replace their link dummies. Group management, the BMP writer/map export, native local mission counts and palette-remap initialization are connected dependencies. Full keyboard/default dispatch, network-information and the remaining selection windows and menu audits remain pending. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). No full completion claim or new aggregate coverage count yet. Win32 `/Zs` checks only; no Debug/Release build, tests or game run.
 
 ## Road, palisade and gate construction - 2026-10-08
 

@@ -235,9 +235,6 @@ bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(unsigned int type, unsig
 }
 
 
-// TEMPORARY DUMMY: Windows address 004B8607; implementation pending.
-    // Naming reference: NC2InGameGuiMiscWindows::CMissionOnscreenInfoStaticGuiWindow::CMissionOnscreenInfoStaticGuiWindow.
-void * __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void *) { return nullptr; }
 
 
 

@@ -596,4 +596,14 @@
     <ClInclude Include="InGameGuiStatisticsWindow.h" />
     <ClInclude Include="InGameGuiStatisticsData.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiObservationWindow.cpp" />
+    <ClInclude Include="InGameGuiObservationWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MissionOnscreenInfoAccess.cpp" />
+    <ClInclude Include="C2MissionOnscreenInfoAccess.h" />
+    <ClCompile Include="InGameGuiMissionOnscreenInfoWindow.cpp" />
+    <ClInclude Include="InGameGuiMissionOnscreenInfoWindow.h" />
+  </ItemGroup>
 </Project>
