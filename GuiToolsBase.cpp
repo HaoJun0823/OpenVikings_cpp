@@ -595,6 +595,9 @@ namespace NC2GuiToolsBase
         return state <= 3 ? CGuiBaseStringsManager::GetStringPtr(5, state + 199u) : "";
     }
 
+    // Original function: FUN_004e1e43.
+    char* StringTool_GetGameGuiHumanListWindowStringPtr(std::uint32_t stringId) { return CGuiBaseStringsManager::GetStringPtr(3, stringId); }
+
     // Original function: FUN_004e1e51.
     char* StringTool_GetGameGuiMiscWindowStringPtr(std::uint32_t stringId)
     {

@@ -1244,4 +1244,13 @@
     <ClCompile Include="InGameGuiDiplomacyWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiDiplomacyWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiTechTreeWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiTechTreeWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="InGameGuiTechTreeData.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHumanListWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiHumanListWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
 </Project>

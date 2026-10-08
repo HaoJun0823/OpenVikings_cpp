@@ -36,6 +36,8 @@ No Debug/Release build or tests are authorized for this task. Use Win32 syntax c
 - Help: hyperlink index, house/good/misc lists and details, cross-links, dynamic buttons and manager help entry points.
 - Diplomacy: overview labels, player tabs, both relationship directions, tribute demand/payment, bilateral trade offers and manager open/toggle entry points. Native tribute payment replaces the 0043E72E link dummy.
 - Groups: create/add/choose, per-type membership, allocation revision validation and selected-group camera centering. Numeric assignment dispatch is still pending.
+- Technology tree: all ten native static layouts (004F5308..004F6077), distinct house/good/job/line elements, player unlock/allowed flags, experience and producer requirements, dynamic prerequisite links, help links and manager open/toggle entry points.
+- Resident list: native 500-entry filter/sort/revision collection, live row details and equipment, click/double-click selection with modifier handling, select-all, both tribe/job choosers, logic callback lifetime and manager open/toggle entry points. The native query's two writes to the possible-job field are preserved.
 - Export dependencies: native 24-bit BMP writer, banded full-world rendering at supplied scale, and palette-remap initialization. The Windows BMP writer has no corresponding class name in the Mac header; its current semantic name is inferred from the Windows file headers and write calls.
 
 All blocks above passed MSVC Win32 `/Zs`. They are reconstructed source, not runtime-verified menus. Global/default keyboard dispatch, remaining window families and audits are still required; the full user request remains open.

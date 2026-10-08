@@ -379,6 +379,9 @@ namespace NC2Logic
         if (Read<std::uint8_t>(gStaticJobTypeData, job * 0x88u + 0x84u) != 0 && Read<std::uint32_t>(house, 0x2C) != 3) return false;
         return House_Production_IsAbleToProduceGood(house, good, true) || House_Production_IsAbleToProduceGood(house, good, false);
     }
+    // Original function: FUN_0042d95e.
+    bool Human_IsAllowedToDoJob(const void* human, std::uint32_t job) { return Read<std::uint8_t>(human, 0x15Cu + job) != 0; }
+
     // Original function: FUN_0042d96c; military jobs also require the matching equipped weapon.
     bool Human_IsAbleToDoJob(const void* human, std::uint32_t job)
     {

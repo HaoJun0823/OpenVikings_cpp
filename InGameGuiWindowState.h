@@ -17,6 +17,7 @@ namespace NC2InGameGuiMiscWindows
     void TechTreeWindow_Statics_Init();
     void DiplomacyWindow_Statics_Init();
     void HumanListWindow_Statics_Init();
+    void HumanListWindow_l_Filter_Reset();
     void StatisticsWindow_Statics_Init();
 }
 

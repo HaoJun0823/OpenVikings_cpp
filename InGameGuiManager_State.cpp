@@ -78,7 +78,7 @@ namespace NC2InGameGuiMiscWindows
         NC2Lifetime::Write<std::uint32_t>(gDiplomacyWindowStatics, 0, 0);
     }
     // Original function: FUN_004b1093; CHumanListWindow::l_Statics_Reset.
-    static void HumanListWindow_Statics_Reset()
+    void HumanListWindow_l_Filter_Reset()
     {
         std::memset(gHumanListWindowStatics, 0, sizeof(gHumanListWindowStatics));
         NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, 0x10, 0);
@@ -88,7 +88,7 @@ namespace NC2InGameGuiMiscWindows
     void HumanListWindow_Statics_Init()
     {
         std::memset(gHumanListWindowStatics, 0, sizeof(gHumanListWindowStatics));
-        HumanListWindow_Statics_Reset();
+        HumanListWindow_l_Filter_Reset();
     }
     // Original function: FUN_004b1dde.
     void StatisticsWindow_Statics_Init()

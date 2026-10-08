@@ -582,4 +582,13 @@
     <ClCompile Include="InGameGuiDiplomacyWindow.cpp" />
     <ClInclude Include="InGameGuiDiplomacyWindow.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiTechTreeWindow.cpp" />
+    <ClInclude Include="InGameGuiTechTreeWindow.h" />
+    <ClInclude Include="InGameGuiTechTreeData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHumanListWindow.cpp" />
+    <ClInclude Include="InGameGuiHumanListWindow.h" />
+  </ItemGroup>
 </Project>

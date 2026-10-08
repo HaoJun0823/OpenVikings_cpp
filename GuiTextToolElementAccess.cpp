@@ -21,7 +21,7 @@ namespace NC2InGameGuiBase
     static bool __fastcall TextButton_ToolTipAtOnce(void* element);
     static void __fastcall TextButton_DoPressedAction(void* element);
     // Complete eighteen-entry Windows table 004F6DE8..004F6E2F.
-    static const std::uintptr_t gTextButtonVirtualTable[18] = {
+    const std::uintptr_t gTextButtonVirtualTable[18] = {
         reinterpret_cast<std::uintptr_t>(&TextButton_Delete),
         reinterpret_cast<std::uintptr_t>(&BaseElement_HasSubElements),
         reinterpret_cast<std::uintptr_t>(&TextButton_Message),
@@ -165,7 +165,7 @@ namespace NC2InGameGuiBase
     }
 
     // Original function: FUN_004b8f9e.
-    static void TextButton_Destruct(void* element)
+    void BaseToolTextButton_Destruct(void* element)
     {
         Write(element, 0, gTextButtonVirtualTable + 0);
         FreeAndClearField(element, 0x30);
@@ -176,7 +176,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b8e10.
     static void* __fastcall TextButton_Delete(void* element, void*, std::uint32_t flags)
     {
-        TextButton_Destruct(element);
+        BaseToolTextButton_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
     }
