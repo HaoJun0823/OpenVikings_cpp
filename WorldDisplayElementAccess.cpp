@@ -10,6 +10,7 @@
 #include "InGameGuiManager.h"
 #include "InGameGuiInputAccess.h"
 #include "C2HumanCommandAccess.h"
+#include "C2DefaultInteraction.h"
 #include "C2HouseAccess.h"
 #include "C2E2HumanSoundAccess.h"
 #include "C2LifetimeAccess.h"
@@ -62,8 +63,7 @@ namespace NC2InGameGuiWorldElement
         NC2InGameGuiInputManager::Cursor_SetPosition(NC2InGameGuiInputManager::gInputManager, &mapPoint);
     }
 
-    // Original function: FUN_004babe0; advanced object interaction commands are
-    // reconstructed separately. The ordinary human point command is connected.
+    // Original function: FUN_004babe0; complete single/group human and vehicle preparation.
     static void WorldDisplayElement_CheckObjectUnderMouse(void* element)
     {
         using namespace NC2Lifetime;
@@ -107,10 +107,63 @@ namespace NC2InGameGuiWorldElement
         Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
         std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14);
         const auto* input = NC2InGameGuiInputManager::gInputManager;
-        if (Read<std::uint32_t>(input, 4) != 1 || Read<std::uint32_t>(target, 0) != 9) return;
-        const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(input, 8) * NC2Logic::CHumanArray::ElementSize;
-        const auto action = NC2Logic::Human_UserControl_GetDefaultInteractionCommand_TrySendTo(human, static_cast<std::byte*>(element) + 0x1CC, target + 4, false, false);
-        Write(element, 0x1C4, action);
+        auto* command = static_cast<std::byte*>(element) + 0x1CC;
+        auto* secondary = static_cast<std::byte*>(element) + 0x1E0;
+        const auto modifier = []() { return (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0; };
+        const auto clearGroup = [&](std::size_t offset) { Write<std::uint32_t>(element, offset, 0); std::memset(command, 0, 0x14); std::memset(secondary, 0, 0x14); };
+        using namespace NC2InGameGuiInputManager;
+        switch (Read<std::uint32_t>(input, 4))
+        {
+        case 1:
+        {
+            const auto id = Selection_GetSelectedSingleHumanId(input);
+            if (Read<std::uint32_t>(target, 0) == 1 && Read<std::int32_t>(target, 8) == id) return;
+            const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
+            Write(element, 0x1C4, NC2Logic::Human_UserControl_GetDefaultInteractionCommand_SingleHuman(human, target, command, secondary, modifier()));
+            return;
+        }
+        case 2:
+        {
+            const auto count = Selection_GetSelectedMultipleHumanNumber(input);
+            for (std::uint32_t i = 0; i < count; ++i)
+            {
+                const auto id = Selection_GetSelectedMultipleHumanId(input, i);
+                if (Read<std::uint32_t>(target, 0) == 1 && id == Read<std::int32_t>(target, 8)) return;
+            }
+            for (std::uint32_t i = 0; i < count; ++i)
+            {
+                const auto id = Selection_GetSelectedMultipleHumanId(input, i);
+                const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
+                if (!NC2Logic::Human_UserControl_GetDefaultInteractionCommand_MultipleHuman(human, reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(element) + 0x1C4), target, command, i, count, modifier())) { clearGroup(0x1C4); return; }
+            }
+            return;
+        }
+        case 4:
+        {
+            const auto id = Selection_GetSelectedSingleVehicleId(input);
+            if (Read<std::uint32_t>(target, 0) == 3 && Read<std::int32_t>(target, 0x18) == id) return;
+            const auto* vehicle = NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize;
+            Write(element, 0x1C8, NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(vehicle, target, command, secondary, modifier()));
+            return;
+        }
+        case 5:
+        {
+            const auto count = Selection_GetSelectedMultipleVehiclesNumber(input);
+            for (std::uint32_t i = 0; i < count; ++i)
+            {
+                const auto id = Selection_GetSelectedMultipleVehicleId(input, i);
+                if (Read<std::uint32_t>(target, 0) == 3 && id == Read<std::int32_t>(target, 0x18)) return;
+            }
+            for (std::uint32_t i = 0; i < count; ++i)
+            {
+                const auto id = Selection_GetSelectedMultipleVehicleId(input, i);
+                const auto* vehicle = NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize;
+                if (!NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_MultipleVehicles(vehicle, reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(element) + 0x1C8), target, command, i, count, modifier())) { clearGroup(0x1C8); return; }
+            }
+            return;
+        }
+        default: return;
+        }
     }
 
     // Original function: FUN_004bb0c1; complete prepared single/group human and vehicle dispatch.

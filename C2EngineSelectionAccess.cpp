@@ -1,4 +1,5 @@
 #include "C2EngineDisplayAccess.h"
+#include "C2DefaultInteraction.h"
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineLifetimeAccess.h"
@@ -296,15 +297,7 @@ namespace NC2E2
                 {
                     const auto* manager = (flags & 4u) != 0 ? NC2Logic::gRoadBuildManager : NC2Logic::gWallBuildManager;
                     Write<std::uint32_t>(output, 0, (flags & 4u) != 0 ? 7u : 8u);
-                    // Original function: FUN_0042853b; first player with this build flag.
-                    for (std::int32_t p = 0; p < Read<std::int32_t>(manager, 0); ++p)
-                    {
-                        const auto* data = Read<std::byte* const*>(manager, 4)[p];
-                        if (data == nullptr) continue;
-                        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
-                            if (Read<std::uint32_t>(data, 8u + i * 6u) == point) { Write(output, 0x40, p); break; }
-                        if (Read<std::int32_t>(output, 0x40) != -1) break;
-                    }
+                    Write(output, 0x40, NC2Logic::RoadBuildManager_GetRoadBuildFlagPlayerId(manager, &point));
                 }
             }
         }

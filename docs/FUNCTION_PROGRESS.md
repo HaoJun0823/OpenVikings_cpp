@@ -1,5 +1,11 @@
 # Windows function mapping progress
 
+## Contextual-command source-address checkpoint - 2026-10-08
+
+After full single/group human/vehicle command preparation: **3282 / 5057 (64.90%)**, **1775** known entries remain open. This is source-address coverage, not verified gameplay completion. Fifteen previously unmapped entries and completed 004BABE0 add 16 mappings. Moved 0042789B stays counted once; the known-candidate denominator is unchanged. Shared human/vehicle handler search 0044073F is counted once.
+
+The production-only audit reports **3951 parsed cpp definitions**, **3011 mapped direct-call targets**, **19 unmatched/ambiguous annotated declarations**, **113 unfinished boundaries**, **1120 naming rows** and **208/194 registered cpp/header files** with filter parity. [FUNCTION_PROGRESS_2026_10_08.json](FUNCTION_PROGRESS_2026_10_08.json) stores this checkpoint. All four changed/new units passed Win32 `/Zs`; no build/tests/gameplay run. Untracked CombatTasks files are excluded. See [DEFAULT_INTERACTION_COMMANDS.md](DEFAULT_INTERACTION_COMMANDS.md) for confirmed behavior and independent downstream gaps.
+
 ## Cursor/hover source-address checkpoint - 2026-10-08
 
 After cursor/hover reconstruction: **3266 / 5057 (64.58%)**, **1791** known entries remain open. This is source-address coverage, not verified gameplay completion. The numerator adds 20 mapped entries; the union of known candidates adds two traceable source entries. Two tracked partial/dummy rows became complete; world-cursor vector preview and contextual command preparation remain excluded.

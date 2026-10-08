@@ -490,6 +490,8 @@
     <ClCompile Include="C2HumanUserControl.cpp" />
     <ClInclude Include="C2HumanUserControl.h" />
     <ClCompile Include="C2HumanInitialization.cpp" />
+    <ClCompile Include="C2DefaultInteraction.cpp" />
+    <ClInclude Include="C2DefaultInteraction.h" />
     <ClInclude Include="C2HumanInitialization.h" />
     <ClCompile Include="C2HumanTaskAccess.cpp" />
     <ClCompile Include="C2HumanGoodieTasks.cpp" />

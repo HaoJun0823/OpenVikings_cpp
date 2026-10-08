@@ -1,0 +1,404 @@
+#include "C2DefaultInteraction.h"
+#include "C2AnimalAccess.h"
+#include "C2EngineLandscapeAccess.h"
+#include "C2GameControlNetwork.h"
+#include "C2GameMapAccess.h"
+#include "C2HouseAccess.h"
+#include "C2HumanCommandAccess.h"
+#include "C2HumanEquipment.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanMerchantAccess.h"
+#include "C2HumanUserControl.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2StaticActorTypeDataAccess.h"
+#include "C2StaticGoodTypeData.h"
+#include "C2StaticHouseTypeData.h"
+#include "C2VehicleAccess.h"
+#include <cstring>
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+    namespace
+    {
+        const std::byte* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
+        std::byte* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
+        const std::byte* Vehicle(std::uint32_t id) { return CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize; }
+        const std::byte* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0xC) * 0x58u; }
+        std::uint8_t Continent(const void* point) { return Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6); }
+        void Prepare(void* command, std::uint8_t opcode, const void* actor, std::uint32_t first, std::uint32_t second = 0)
+        {
+            std::memset(command, 0, 0x14); Write(command, 0, opcode); Write(command, 4, Read<std::uint32_t>(actor, 4)); Write(command, 8, Read<std::uint32_t>(actor, 8)); Write(command, 0xC, first); Write(command, 0x10, second);
+        }
+        // Windows outlined helper 00436B16; the separate original semantic name remains unresolved.
+        const void* Merchant(const void* human) { return Human_IsJobTrader(human) ? HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)) : nullptr; }
+    }
+
+    // Original function: FUN_00412248.
+    bool StaticDependencies_Item_IsChest(std::int32_t landscape) { return landscape == 85 || landscape == 86; }
+    // Original function: FUN_0041225d.
+    bool StaticDependencies_Item_IsAbleToOpenChest(std::int32_t job, std::int32_t landscape) { if (landscape == 85) return job >= 5 && job < 48; if (landscape == 86) return job == 30 || (job >= 42 && job <= 47); return false; }
+
+    // Original function: FUN_0042789b; Windows folds the matching wall-manager method into this entry.
+    bool RoadBuildManager_IsRoadBuildFlagSetForPlayer(const void* manager, std::int32_t player, const void* point)
+    {
+        if (player >= Read<std::int32_t>(manager, 0)) return false;
+        const auto* data = Read<std::byte* const*>(manager, 4)[player];
+        if (data == nullptr) return false;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i) if (Read<std::uint32_t>(data, 8u + i * 6u) == Read<std::uint32_t>(point, 0)) return true;
+        return false;
+    }
+    // Original function: FUN_0042853b; Windows folds GetWallBuildFlagPlayerId into this entry.
+    std::int32_t RoadBuildManager_GetRoadBuildFlagPlayerId(const void* manager, const void* point)
+    {
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+            if (Read<std::byte* const*>(manager, 4)[player] != nullptr && RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return player;
+        return -1;
+    }
+
+    // Original function: FUN_0042f68a.
+    const void* Animal_GetConstMapMicroPointPtr(const void* animal) { return GameMap_GetConstMapMicroPointPtr(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0xC) * 0x58u + 0x12u); }
+
+    // Original function: FUN_00434c41.
+    std::uint32_t House_JobMisc_GetPrimaryWorkerJobType(const void* house)
+    {
+        const auto* data = House_GetHouseTypeDataPtr(house);
+        return data->mainType != 2 && data->workerCount > 0 ? static_cast<std::uint32_t>(data->workers[0].jobType) : 0;
+    }
+    // Original function: FUN_00434c62.
+    bool House_JobMisc_CanJobBeAttachedAsWorker(const void* house, std::uint32_t job)
+    {
+        const auto* data = House_GetHouseTypeDataPtr(house);
+        if (data->mainType == 2) return false;
+        std::int32_t index = 0;
+        while (index < data->workerCount && static_cast<std::uint32_t>(data->workers[index].jobType) != job) ++index;
+        if (index == data->workerCount) return false;
+        return House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) < data->workers[index].unknown04;
+    }
+
+    // Original function: FUN_00435605; the complete nine-entry Windows selector is 00436216..00436239.
+    std::uint32_t Human_UserControl_GetDefaultInteractionCommand_SingleHuman(const void* human, const void* target, void* command, void* secondary, bool modifier)
+    {
+        if ((Read<std::uint32_t>(human, 0xB84) & 0x20u) != 0 || Read<std::uint8_t>(Moveable(human), 0x10) == 0) return 0;
+        const auto continent = Continent(Human_GetMapPositionRef(human));
+        SUserCommandsForHumanHandler available; Human_UserControl_GetCommands(human, &available, false, false);
+        const auto* point = static_cast<const std::byte*>(target) + 4;
+        const auto id = Read<std::uint32_t>(human, 4), player = Read<std::uint32_t>(human, 0x10);
+        const auto sendTo = [&]() { return Human_UserControl_GetDefaultInteractionCommand_TrySendTo(human, command, point, false, modifier); };
+        switch (Read<std::uint32_t>(target, 0))
+        {
+        case 1:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
+            if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) { Prepare(command, 43, human, targetId, Read<std::uint32_t>(other, 8)); return 41; }
+            if (Read<std::uint8_t>(Moveable(other), 0x10) == 0) return 0;
+            // Windows queries the active target's continent and still returns no command.
+            Continent(Human_GetMapPositionRef(other)); return 0;
+        }
+        case 2:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
+            const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0xC) * 0x58u;
+            if (Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), 6) != continent) return 0;
+            if (Human_IsJobScout(human) && static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u].warrantable != 0) return sendTo();
+            if (available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false)) { Prepare(command, 45, human, targetId, Read<std::uint32_t>(animal, 8)); return 43; }
+            return 0;
+        }
+        case 3:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
+            if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, 0x1E0)) == 3) { Prepare(command, 46, human, targetId, Read<std::uint32_t>(vehicle, 8)); return 44; }
+            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, 8)); return 12; }
+            return 0;
+        }
+        case 4:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
+            const auto houseCommand = [&](std::uint8_t opcode, std::uint32_t action) { Prepare(command, opcode, human, targetId, Read<std::uint32_t>(house, 8)); return action; };
+            if (Read<std::uint32_t>(target, 0x40) != player)
+            {
+                if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) return houseCommand(44, 42);
+                if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && MerchantData_Tool_CanHouseBeAdded(Merchant(human), id, targetId)) return houseCommand(36, 22);
+                if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(37, 23);
+                return 0;
+            }
+            if (Continent(house + 0x1C) != continent) return 0;
+            if (available.IsCommandAllowed(20) && House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return houseCommand(30, 20);
+            if (available.IsCommandAllowed(10) && House_Inhabitants_CanHumanBeAttachedAsHomie(house, id) && targetId != Read<std::uint32_t>(human, 0xB28)) return houseCommand(26, 10);
+            if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && !MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(36, 22);
+            if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(37, 23);
+            if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, 0xB34) && Human_UserControl_GetNextJobType(human) == 24 && Read<std::uint32_t>(house, 0x14) == 39) return houseCommand(28, 16);
+            if (available.IsCommandAllowed(18) && House_Inhabitants_CanHumanBeAttachedAsStudent(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return houseCommand(32, 18);
+            if (available.IsCommandAllowed(24) && targetId != Read<std::uint32_t>(human, 0xB34))
+            {
+                const auto job = House_JobMisc_GetPrimaryWorkerJobType(house);
+                if (job != 0 && job != Read<std::uint32_t>(human, 0x18) && Human_DoesEducationAllowJobChange(human, job) && House_JobMisc_CanJobBeAttachedAsWorker(house, job) && Human_UserControl_GetNextJobType(human) != 25)
+                {
+                    Prepare(command, 21, human, job); Prepare(secondary, 28, human, targetId, Read<std::uint32_t>(house, 8)); return 24;
+                }
+            }
+            if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return houseCommand(28, 16);
+            return 0;
+        }
+        case 5: return sendTo();
+        case 6:
+        {
+            if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 47, human, MapMigPoint_GetLong(point)); return 45; }
+            if (Continent(point) != continent) return 0;
+            const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38)); const auto type = Read<std::int32_t>(landscape, 0);
+            if (Read<std::int32_t>(human, 0xB34) == -1 && type == gStaticGoodTypeData[Read<std::uint32_t>(human, 0x1C)].landscapeToHarvest) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+            for (std::uint32_t good = 0; good < 66; ++good)
+                if (Read<std::uint8_t>(human, 0x195 + good) != 0 && good != Read<std::uint32_t>(human, 0x1C) && Human_DoesEducationAllowGoodProduction(human, good) && type == gStaticGoodTypeData[good].landscapeToHarvest)
+                {
+                    Prepare(command, 22, human, good);
+                    if (Read<std::int32_t>(human, 0xB34) == -1) Prepare(secondary, 17, human, MapMigPoint_GetLong(point));
+                    return 25;
+                }
+            if (available.IsCommandAllowed(26))
+            {
+                const auto good = gStaticDependencyGoodByLandscape[type];
+                if (good != 0 && Human_IsAbleToEquipGoodNow(human, good, true))
+                {
+                    const auto kind = Tool_GoodEquipmentType_Convert(good);
+                    if (kind < 1 || kind > 5) return 0;
+                    if (kind != 5 && Human_HasEquippedItemType(human, good, -1)) return 0;
+                    constexpr std::uint8_t opcodes[5]{81, 82, 80, 79, 83}; Prepare(command, opcodes[kind - 1], human, good, 0xFFFFFFFFu); return 26;
+                }
+            }
+            if (StaticDependencies_Item_IsChest(type) && StaticDependencies_Item_IsAbleToOpenChest(Read<std::int32_t>(human, 0x18), type))
+            {
+                Prepare(command, 18, human, MapMigPoint_GetLong(point));
+                auto destination = MapMigPoint_GetLong(point); MapMigPoint_MoveCursorUnwrapped(destination, 2);
+                if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), 0xC) & 0x80u) != 0)
+                {
+                    MapMigPoint_MoveCursorUnwrapped(destination, 0);
+                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), 0xC) & 0x80u) != 0) destination = MapMigPoint_GetLong(point);
+                }
+                Prepare(secondary, 4, human, destination); return 30;
+            }
+            if (Read<std::uint32_t>(target, 0x40) == player && type >= 82 && type <= 83 && Human_IsJobBuilder(human) && Read<std::uint32_t>(target, 0x3C) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38)), 4)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+            return sendTo();
+        }
+        case 7: case 8:
+        {
+            if (Continent(point) != continent) return 0;
+            if (available.IsCommandAllowed(20))
+            {
+                const auto* manager = Read<std::uint32_t>(target, 0) == 7 ? gRoadBuildManager : gWallBuildManager;
+                if (RoadBuildManager_GetRoadBuildFlagPlayerId(manager, point) == static_cast<std::int32_t>(player) && Continent(point) == Continent(Moveable(human) + 0x12)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+            }
+            return sendTo();
+        }
+        case 9:
+        {
+            if (Continent(point) != continent) return 0;
+            if (modifier)
+            {
+                if (available.IsCommandAllowed(28) && Read<std::int32_t>(human, 0xB34) == -1 && Continent(point) == Continent(Moveable(human) + 0x12) && (player >= 16 || (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) != 0)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+            }
+            else if (available.IsCommandAllowed(32) && player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) { Prepare(command, 20, human, MapMigPoint_GetLong(point)); return 32; }
+            return sendTo();
+        }
+        default: return 0;
+        }
+    }
+
+    // Original function: FUN_004362e9; count and modifier are unused in this Windows body.
+    bool Human_UserControl_GetDefaultInteractionCommand_MultipleHuman(const void* human, std::uint32_t* action, const void* target, void* command, std::uint32_t index, std::uint32_t, bool)
+    {
+        if ((Read<std::uint32_t>(human, 0xB84) & 0x20u) != 0) return false;
+        SUserCommandsForHumanHandler available; Human_UserControl_GetCommands(human, &available, true, true);
+        const auto id = Read<std::uint32_t>(human, 4), player = Read<std::uint32_t>(human, 0x10);
+        const auto commitTarget = [&](std::uint32_t wantedAction, std::uint8_t opcode, std::uint32_t targetId, const void* other)
+        {
+            if (index != 0) return *action == wantedAction && Read<std::uint8_t>(command, 0) == opcode && Read<std::uint32_t>(command, 0xC) == targetId;
+            Prepare(command, opcode, human, targetId, Read<std::uint32_t>(other, 8)); *action = wantedAction; return true;
+        };
+        switch (Read<std::uint32_t>(target, 0))
+        {
+        case 1:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
+            if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) return commitTarget(41, 43, targetId, other);
+            return false;
+        }
+        case 2:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
+            return available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false) && commitTarget(43, 45, targetId, animal);
+        }
+        case 3:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
+            if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, 0x1E0)) == 3) return commitTarget(44, 46, targetId, vehicle);
+            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, 8)); *action = 12; return true; }
+            return false;
+        }
+        case 4:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
+            if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3) return commitTarget(42, 44, targetId, house);
+            if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return commitTarget(16, 28, targetId, house);
+            if (available.IsCommandAllowed(20) && House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return commitTarget(20, 30, targetId, house);
+            if (available.IsCommandAllowed(18) && Read<std::uint32_t>(house, 0x14) == 39 && House_Inhabitants_CanHumanBeAttachedAsStudent(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return commitTarget(18, 32, targetId, house);
+            if (available.IsCommandAllowed(10) && House_Inhabitants_CanHumanBeAttachedAsHomie(house, id) && targetId != Read<std::uint32_t>(human, 0xB28)) return commitTarget(10, 26, targetId, house);
+            return false;
+        }
+        case 6:
+        {
+            const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38));
+            if (available.IsCommandAllowed(26))
+            {
+                const auto good = gStaticDependencyGoodByLandscape[Read<std::uint32_t>(landscape, 0)];
+                if (good != 0 && Human_IsAbleToEquipGoodNow(human, good, true))
+                {
+                    const auto kind = Tool_GoodEquipmentType_Convert(good);
+                    if (kind >= 1 && kind <= 5 && (kind == 5 || !Human_HasEquippedItemType(human, good, -1))) { constexpr std::uint8_t opcodes[5]{81, 82, 80, 79, 83}; Prepare(command, opcodes[kind - 1], human, good, 0xFFFFFFFFu); *action = 26; return true; }
+                }
+            }
+            const auto type = Read<std::int32_t>(landscape, 0);
+            if (StaticDependencies_Item_IsChest(type) && StaticDependencies_Item_IsAbleToOpenChest(Read<std::int32_t>(human, 0x18), type)) { Prepare(command, 18, human, Read<std::uint32_t>(target, 4)); *action = 30; return true; }
+            if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 47, human, Read<std::uint32_t>(target, 4)); *action = 45; return true; }
+            return false;
+        }
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_00437919.
+    void Vehicle_UserControl_GetCommands(const void* vehicle, SUserCommandsForVehicleHandler* commands, bool multiple)
+    {
+        commands->Init();
+        if (multiple)
+        {
+            if (Read<std::uint8_t>(vehicle, 0x2EC) == 0 || Read<std::uint32_t>(vehicle, 0x1EC) != 54) return;
+            if (!Vehicle_Attachment_IsInsideVehicle(vehicle)) { commands->AddCommand(5); commands->AddCommand(6); commands->AddCommand(7); commands->AddCommand(8); }
+            commands->AddCommand(9); commands->AddCommand(10); commands->AddCommand(11); return;
+        }
+        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0)
+        {
+            if (Vehicle_Attachment_IsValid(vehicle)) commands->AddCommand(13);
+            if (!Vehicle_Attachment_IsInsideVehicle(vehicle))
+            {
+                commands->AddCommand(2);
+                const auto type = Read<std::uint32_t>(vehicle, 0x1E8); commands->AddCommand(type == 3 || type == 4 ? 4 : 12);
+                if (Read<std::uint32_t>(vehicle, 0x1EC) == 54) { commands->AddCommand(5); commands->AddCommand(6); commands->AddCommand(7); commands->AddCommand(8); }
+                else goto passengerCommands;
+            }
+            if (Read<std::uint32_t>(vehicle, 0x1EC) == 54)
+            {
+                if (Read<std::uint32_t>(vehicle, 0x53C) != 1) commands->AddCommand(9);
+                if (Read<std::uint32_t>(vehicle, 0x53C) != 2) commands->AddCommand(10);
+                if (Read<std::uint32_t>(vehicle, 0x53C) != 3) commands->AddCommand(11);
+            }
+        }
+    passengerCommands:
+        if (Vehicle_Passengers_GetNumberOfAttachedHumans(vehicle, true) == 0 || !Vehicle_Door_IsEntryPointOnLand(vehicle, 0)) return;
+        if (Vehicle_Passengers_IsCarrierAttached(vehicle) && Vehicle_Stock_GetTotalWantedAmount(vehicle) != 0) commands->AddCommand(14);
+        const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+        if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return;
+        commands->AddCommand(3);
+    }
+
+    // Original function: FUN_00437aaf; secondary command is unused in this Windows body.
+    std::uint32_t Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(const void* vehicle, const void* target, void* command, void*, bool modifier)
+    {
+        SUserCommandsForVehicleHandler available; Vehicle_UserControl_GetCommands(vehicle, &available, false);
+        const auto player = Read<std::uint32_t>(vehicle, 0x1E0);
+        const auto* point = static_cast<const std::byte*>(target) + 4;
+        switch (Read<std::uint32_t>(target, 0))
+        {
+        case 1:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
+            if (Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, 0x10)) == 3) { Prepare(command, 104, vehicle, targetId, Read<std::uint32_t>(human, 8)); return 5; }
+            break;
+        }
+        case 2: case 5: case 6: case 9: break;
+        case 3:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
+            if (available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x1E0)) == 3) { Prepare(command, 107, vehicle, targetId, Read<std::uint32_t>(other, 8)); return 7; }
+            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanVehicleBeAttached(other, Read<std::uint32_t>(vehicle, 4))) { Prepare(command, 113, vehicle, targetId, Read<std::uint32_t>(other, 8)); return 12; }
+            break;
+        }
+        case 4:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
+            if (available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3) { Prepare(command, 105, vehicle, targetId, Read<std::uint32_t>(house, 8)); return 6; }
+            return 0;
+        }
+        default: return 0;
+        }
+        return Vehicle_UserControl_GetDefaultInteractionCommand_TrySendTo(vehicle, command, point, &available, modifier);
+    }
+
+    // Original function: FUN_00437cb1; modified point attack is evaluated before the continent comparison.
+    std::uint32_t Vehicle_UserControl_GetDefaultInteractionCommand_TrySendTo(const void* vehicle, void* command, const void* point, const SUserCommandsForVehicleHandler* commands, bool modifier)
+    {
+        if (!MapMigPoint_IsInsideMap(point)) return 0;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u;
+        if (Read<std::uint8_t>(moveable, 0x10) == 0) return 0;
+        const auto player = Read<std::uint32_t>(vehicle, 0x1E0);
+        if (player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) return 0;
+        if (modifier && commands->IsCommandAllowed(8)) { Prepare(command, 108, vehicle, MapMigPoint_GetLong(point)); return 8; }
+        if (Continent(point) != Continent(moveable + 0x12)) return 0;
+        Prepare(command, 101, vehicle, MapMigPoint_GetLong(point)); return 2;
+    }
+
+    // Original function: FUN_00437d9f; count is unused and group point attacks do not run single-vehicle movement checks.
+    bool Vehicle_UserControl_GetDefaultInteractionCommand_MultipleVehicles(const void* vehicle, std::uint32_t* action, const void* target, void* command, std::uint32_t index, std::uint32_t, bool modifier)
+    {
+        SUserCommandsForVehicleHandler available; Vehicle_UserControl_GetCommands(vehicle, &available, true);
+        const auto player = Read<std::uint32_t>(vehicle, 0x1E0);
+        const auto commitTarget = [&](std::uint32_t wantedAction, std::uint8_t opcode, std::uint32_t targetId, const void* other)
+        {
+            if (index != 0) return *action == wantedAction && Read<std::uint8_t>(command, 0) == opcode && Read<std::uint32_t>(command, 0xC) == targetId;
+            Prepare(command, opcode, vehicle, targetId, Read<std::uint32_t>(other, 8)); *action = wantedAction; return true;
+        };
+        switch (Read<std::uint32_t>(target, 0))
+        {
+        case 1:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
+            return Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, 0x10)) == 3 && commitTarget(5, 104, targetId, human);
+        }
+        case 3:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
+            return available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x1E0)) == 3 && commitTarget(7, 107, targetId, other);
+        }
+        case 4:
+        {
+            const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
+            return available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3 && commitTarget(6, 105, targetId, house);
+        }
+        case 6:
+            if (available.IsCommandAllowed(8) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }
+            [[fallthrough]];
+        case 9:
+            if (modifier && available.IsCommandAllowed(8)) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }
+            return false;
+        default: return false;
+        }
+    }
+
+    // Original function: FUN_004408ca.
+    void SUserCommandsForVehicleHandler::Init() { count = 0; std::memset(commands, 0, sizeof(commands)); }
+    // Original function: FUN_004408da; only equality with the native ten-entry capacity is checked.
+    void SUserCommandsForVehicleHandler::AddCommand(std::uint32_t command) { if (count != 10) commands[count++] = command; }
+    // Windows shares 0044073F with the human handler; the count controls the same linear search.
+    bool SUserCommandsForVehicleHandler::IsCommandAllowed(std::int32_t command) const { for (std::int32_t i = 0; i < count; ++i) if (commands[i] == static_cast<std::uint32_t>(command)) return true; return false; }
+
+    // Original function: FUN_0044da64; aligned bytes were read directly from Game.exe.
+    bool Vehicle_Attachment_IsValid(const void* vehicle)
+    {
+        const auto id = Read<std::uint32_t>(vehicle, 0x540);
+        if (id == 0xFFFFFFFFu) return false;
+        const auto* other = Vehicle(id);
+        return Read<std::uint8_t>(other, 0) != 0 && Read<std::uint32_t>(other, 8) == Read<std::uint32_t>(vehicle, 0x544);
+    }
+}

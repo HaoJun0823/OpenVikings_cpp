@@ -1,4 +1,5 @@
 #include "C2HumanInitialization.h"
+#include "C2DefaultInteraction.h"
 #include "C2HouseAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanCommandAccess.h"
@@ -47,15 +48,6 @@ namespace NC2Logic
         std::byte* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         std::byte* Moveable(std::uint32_t id) { return gMapMoveableArrayStorage.entries + id * 0x58u; }
 
-        // Original function: FUN_0042789b; shared IsRoad/WallBuildFlagSetForPlayer implementation.
-        bool BuildManager_IsBuildFlagSetForPlayer(const void* manager, std::int32_t player, const void* point)
-        {
-            if (player >= Read<std::int32_t>(manager, 0)) return false;
-            const auto* data = Read<std::byte* const*>(manager, 4)[player];
-            if (data == nullptr) return false;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i) if (Read<std::uint32_t>(data, 8u + i * 6u) == Read<std::uint32_t>(point, 0)) return true;
-            return false;
-        }
         // Original function: FUN_00438d39.
         bool Marker_Init(void* marker, std::int32_t id, std::uint32_t type, const void* point, std::uint32_t human)
         {
@@ -171,7 +163,7 @@ namespace NC2Logic
         if (!Human_IsJobBuilder(human)) return false;
         if (Read<std::uint32_t>(human, 0xAB8) == 41) return true;
         const void* point = static_cast<const std::byte*>(human) + 0xB30;
-        return !Human_IsAttachedToWorkHouse(human) && MapMigPoint_IsInsideMap(point) && BuildManager_IsBuildFlagSetForPlayer(gRoadBuildManager, Read<std::int32_t>(human, 0x10), point);
+        return !Human_IsAttachedToWorkHouse(human) && MapMigPoint_IsInsideMap(point) && RoadBuildManager_IsRoadBuildFlagSetForPlayer(gRoadBuildManager, Read<std::int32_t>(human, 0x10), point);
     }
     // Original function: FUN_0042c6f2.
     bool Human_IsAttachedToWallPoint(const void* human)
@@ -180,7 +172,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(human, 0xAB8) == 42) return true;
         const void* point = static_cast<const std::byte*>(human) + 0xB30;
         if (Human_IsAttachedToWorkHouse(human) || !MapMigPoint_IsInsideMap(point)) return false;
-        if (BuildManager_IsBuildFlagSetForPlayer(gWallBuildManager, Read<std::int32_t>(human, 0x10), point)) return true;
+        if (RoadBuildManager_IsRoadBuildFlagSetForPlayer(gWallBuildManager, Read<std::int32_t>(human, 0x10), point)) return true;
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
         if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != Read<std::int32_t>(human, 0x10)) return false;
         std::int32_t engineId;

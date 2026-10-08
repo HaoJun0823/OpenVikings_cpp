@@ -5,7 +5,7 @@ Behavior is confirmed from Windows assembly and Game.exe. Mac headers only suppl
 | Entry | Connected behavior | Status |
 | --- | --- | --- |
 | 004BB78A / 004BB7A7 | 0x14-byte object, two-slot table 004F7020 and scalar deleting wrapper | Complete |
-| 004BB8FC | Hardware/software cursor, desktop tooltip timing, both world control schemes, command/human/house/landscape/animal text | Complete body; command preparation is independently partial |
+| 004BB8FC | Hardware/software cursor, desktop tooltip timing, both world control schemes, command/human/house/landscape/animal text | Complete; contextual command preparation is now connected |
 | 004BB7C4 / 004BC24C | Centered tooltip, PlaceInside, darkening, temporary bitmap reference, fill mode 2, four black outline offsets, white/dim text, CRLF splitting with 400-byte buffer | Complete; existing single-line helper moved and corrected |
 | 004A2EA7 / 004A2EC0 | Ten manager bookmarks in +E8..+10F; getter zeroes output for an out-of-range index | Complete |
 | 004B7585 / 004B7596 / 004B7E92 | Engine house type/extension selection getters and 29 input-mode string IDs | Complete |
@@ -14,7 +14,7 @@ Behavior is confirmed from Windows assembly and Game.exe. Mac headers only suppl
 | 0048B5C1 / 0048B5FB | Player-color road/wall construction sign landscape IDs | Complete |
 | 004BE4FB / 004E2154 | Landscape tooltip selector and vehicle command string table | Complete |
 | 004B3264 | Bookmarks, target ring, house preview, human work marker, road/wall source signs | Partial; vector previews pending |
-| 004BB0C1 | Prepared command insertion for single/group humans/vehicles and school chooser continuation | Complete; incoming commands still depend on hover preparation |
+| 004BB0C1 | Prepared command insertion for single/group humans/vehicles and school chooser continuation | Complete; full hover preparation connected in 004BABE0 |
 
 The software cursor deliberately invokes the override callback twice and reloads its pointer between invocations, matching Windows. Hardware mode invokes it once. Tooltip expiry uses the original unsigned comparison; no alternative wrap policy was invented. Hovered human information suppresses the fallback name/landscape/animal block. House tooltips retain native main-type filtering in control scheme 1; this is not a construction-completion check. Human responding voices follow queue insertion; vehicle dispatch adds no human voice. School window opening follows response playback and checks command 32, house revision and engine house type 38 without adding an allocation check.
 
@@ -22,7 +22,7 @@ Game.exe regions inspected in full: 004F7000..004F701F (two four-element outline
 
 Road/wall vector preview crosses 0042871C/00427AEA -> 0043E8AA -> 0043E992 and its route search branches. The current direction dummy returns zero repeatedly. Calling that loop would never terminate, so it remains an explicit unfinished branch and 004B3264 remains excluded from completion counts. No substitute path algorithm was invented.
 
-Next: reconstruct the complete default-interaction preparation tree 004BABE0 -> human 00435605/004362E9 and vehicle 00437AAF/00437D9F, preserving native priorities, self-selection exclusions, modifiers, group intersection and command/secondary-command layouts. Then connect multiple/non-human selection windows and construction previews. Downstream combat and trader task gaps remain independent.
+The complete default-interaction preparation tree 004BABE0 -> human 00435605/004362E9 and vehicle 00437AAF/00437D9F is now connected, preserving native priorities, self-selection exclusions, modifiers, group intersection and command/secondary-command layouts. See [DEFAULT_INTERACTION_COMMANDS.md](DEFAULT_INTERACTION_COMMANDS.md). Next: multiple/non-human selection windows, remaining default-action dispatch and construction previews. Downstream combat and trader task gaps remain independent.
 
 Validation: Win32 `/Zs` for all twelve affected/calling units, project/filter parity and source-address inventory. No Debug/Release build, tests or gameplay validation. User-owned untracked C2HumanCombatTasks.cpp/.h were not edited or registered.
 

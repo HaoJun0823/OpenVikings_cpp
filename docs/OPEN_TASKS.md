@@ -1,5 +1,15 @@
 # Open Tasks
 
+## Complete contextual default-command preparation - 2026-10-08
+
+Connected the complete Windows hover/default preparation tree for single/group humans and vehicles: house/home/work/builder/school assignment, trader house membership, attacks, vehicle entry, job/production changes, equipment, chests, build flags, exploration and movement. Both 0x14-byte command buffers, native priorities, selected-member exclusion, modifier handling, group comparison/overwrite branches and failure reset are preserved. Vehicle command availability, parent allocation/revision validation, build-flag owners and worker-job capacity helpers are connected. Existing command queue insertion and human responding voices consume the prepared commands. Windows ASM/Game.exe establish behavior; Mac headers supply names only. See [DEFAULT_INTERACTION_COMMANDS.md](DEFAULT_INTERACTION_COMMANDS.md).
+
+**3282 / 5057 (64.90%)** source-address coverage; **1775** known candidates remain open. The numerator increased by 16; the denominator is unchanged. Completed 004BABE0 is removed from unfinished boundaries, while moved 0042789B is counted once. This is not verified gameplay completion.
+
+All four changed/new cpp units passed MSVC Win32 `/Zs`; no build/tests/gameplay run. Project/filter parity: **208 cpp / 194 headers**. Inventories: **1120 naming rows / 113 unfinished boundaries**. User-owned untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded.
+
+Next logical block: multiple/non-human selection windows and their controls, then remaining vehicle/general default-action dispatch and construction modes/previews. Road/wall vector previews and downstream combat/vehicle/task boundaries remain independently unfinished.
+
 ## Native in-game cursor and hover presentation - 2026-10-08
 
 Connected the real 0x14-byte in-game mouse-pointer object and its complete two-slot Windows table. Hardware/software pointer selection, normal/pressed/override sprites, 500 ms tooltip delay, pointer/position change detection, CRLF splitting and outlined tooltip drawing follow 004BB78A/004BB7A7/004BB8FC/004BC24C. The existing single-line tooltip helper is now shared and its bitmap-reference/background-fill call sequence is corrected. Hover text retains both control schemes, human names/jobs/products/experience, own/enemy house main-type filtering, contextual human/vehicle command descriptions and landscape/animal information. Mac headers supply names only; all behavior and tables come from Windows ASM/Game.exe.

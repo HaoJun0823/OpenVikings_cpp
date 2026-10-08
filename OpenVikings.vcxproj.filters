@@ -1144,6 +1144,8 @@
     <ClCompile Include="C2HumanUserControl.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanUserControl.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanInitialization.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2DefaultInteraction.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2DefaultInteraction.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2HumanInitialization.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanTaskAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanTaskAccess.h"><Filter>Logic</Filter></ClInclude>
