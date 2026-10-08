@@ -7,6 +7,9 @@ namespace NC2InGameGuiInputManager
 {
     // Complete singleton binding at 00569410; lifecycle is in InGameGuiSupportAccess.cpp.
     extern void* gInputManager;
+    std::int32_t Selection_GetSelectedEngineHouseTypeId(const void* manager);
+    std::uint32_t Selection_GetSelectedEngineHouseExtensionLevel(const void* manager);
+    const char* StringTool_GetInputModeNamePtr(const void* manager);
     bool InputMode_Set(void* manager, std::int32_t mode);
     void InputMode_Cancel(void* manager);
     bool Misc_House_IsEnemyToAttack(const void* manager, std::int32_t id);

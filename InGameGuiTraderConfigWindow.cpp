@@ -1,4 +1,5 @@
 #include "InGameGuiTraderConfigWindow.h"
+#include "InGameGuiMousePointer.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiManager.h"
@@ -29,27 +30,6 @@
 #include "XMMouseManager.h"
 #include <array>
 #include <cstring>
-
-namespace NC2InGameGuiManager
-{
-    using NXBasics::SRectangle;
-    // Original function: FUN_004bb7c4; complete outline offsets 004F7000..004F701F.
-    void gToolTip_PrintStringSingleLine(NXBasics::CBitmap* bitmap, std::int32_t* point, const char* text, bool bright)
-    {
-        const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
-        const auto width = NXBasics::Font_GetPixelWidth(resources.font08, text);
-        SRectangle area(point[0] - width / 2 - 2, point[1], width + 4, NXBasics::Font_GetPixelHeight(resources.font08, text) + 1);
-        area.PlaceInside(bitmap->GetRectangle());
-        bitmap->Tool_Darken(area);
-        NC2GuiToolsBase::DrawTool_DrawFrame(bitmap, area, 2);
-        const NXBasics::SColorRGB black(0, 0, 0);
-        static constexpr std::int32_t dx[4]{-1, 1, 0, 0}, dy[4]{0, 0, -1, 1};
-        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_Print(resources.font08, &black, area.x + 2 + dx[index], area.y + dy[index], text);
-        const auto* palette = bright ? resources.fontWhitePalette : resources.fontDimmedPalette;
-        bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(palette) + 0x400), area.x + 2, area.y, text);
-        point[1] += area.height;
-    }
-}
 
 namespace NC2InGameGuiSelectedAction
 {

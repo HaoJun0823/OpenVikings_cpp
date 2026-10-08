@@ -1209,5 +1209,8 @@
     <ClCompile Include="InGameGuiMessageWindowAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="InGameGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiMousePointer.h"><Filter>GUI</Filter></ClInclude>
+
   </ItemGroup>
 </Project>

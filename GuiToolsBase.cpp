@@ -552,6 +552,9 @@ namespace NC2GuiToolsBase
         constexpr std::uint8_t strings[56]{0,49,1,4,6,8,10,14,15,16,17,18,31,32,49,49,23,24,25,26,27,28,29,30,19,20,21,22,33,34,35,36,37,49,49,38,39,40,41,42,43,44,45,46,47,48,49,49,2,3,5,7,9,11,13,12};
         return CGuiBaseStringsManager::GetStringPtr(5, type < 56 ? strings[type] : 49);
     }
+    // Original function: FUN_004e2154; complete 15-entry Windows table 004E21DC..004E2217.
+    const char* StringTool_GetLogicUserCommandsForVehicleTypeNamePtr(std::uint32_t type) { return CGuiBaseStringsManager::GetStringPtr(5, type <= 14 ? type + 140 : 155); }
+
     // Original function: FUN_004e231c; fallback literal verified at 00508354.
     const char* StringTool_GetLogicGoodEquipmentTypeNamePtr(std::uint32_t type) { return type <= 6 ? CGuiBaseStringsManager::GetStringPtr(5, type + 220u) : "<UNKNOWN>"; }
 

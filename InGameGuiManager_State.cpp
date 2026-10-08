@@ -1,4 +1,5 @@
 #include "InGameGuiManager.h"
+#include "InGameGuiMousePointer.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiStringOutputWindow.h"
 #include "InGameGuiSupportAccess.h"
@@ -18,7 +19,7 @@
 #include <mmsystem.h>
 
 // Original widget construction, desktop input/rendering and logic callback bodies.
-extern bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+using NC2InGameGuiWorldGameCursor::IGG_DrawWorldGameCursor_LogicCallback;
 extern std::uint32_t __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(void* object);
 extern void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* object);
 extern bool __fastcall InputManager_InputMode_Set(void* object, void* unusedEdx, std::int32_t mode);
@@ -253,4 +254,12 @@ namespace NInGameGuiManager
         NXBasics::CListBase::Iterator iterator(*list);
         for (void* element = iterator.First(); element != nullptr; element = iterator.Next()) SendGuiMessage(element, 0x7EE, 0);
     }
+}
+
+namespace NInGameGuiManager
+{
+    // Original function: FUN_004a2ea7; complete ten-position region +0xE8..+0x10F.
+    void CInGameGuiManager::GuiMarker_Set(std::uint32_t index, const std::uint32_t* point) { if (index < 10) NC2Lifetime::Write(this, 0xE8 + index * 4u, *point); }
+    // Original function: FUN_004a2ec0.
+    void CInGameGuiManager::GuiMarker_Get(std::uint32_t index, std::uint32_t* point) const { *point = 0; if (index < 10) *point = NC2Lifetime::Read<std::uint32_t>(this, 0xE8 + index * 4u); }
 }

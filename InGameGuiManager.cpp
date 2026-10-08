@@ -22,6 +22,7 @@
 #include "WorldDisplayElementAccess.h"
 #include "InGameGuiOverviewWindowAccess.h"
 #include "InGameGuiMissionInfoWindow.h"
+#include "InGameGuiMousePointer.h"
 
 #include <cstddef>
 #include <cstring>
@@ -31,7 +32,6 @@
 // Untranslated Windows routines. The unused EDX argument keeps stack parameters
 // on the original __thiscall stack; constructors retain their original vtables.
 extern void* __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Construct(void* object);
-extern void* __fastcall InGameGuiManagerMousePointer_Construct(void* object);
 extern void* __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void* object);
 extern void __fastcall InGameGuiManager_InputMode_Changed(void* object);
 extern void __fastcall InGameGuiManager_Selection_UpdateWindows(void* object);

@@ -286,17 +286,11 @@ bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(unsigned int type, unsig
     return true;
 }
 
-// TEMPORARY DUMMY: Windows address 004B3264; implementation pending.
-    // Naming reference: NC2InGameGuiWorldGameCursor::IGG_DrawWorldGameCursor_LogicCallback.
-bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
 // TEMPORARY DUMMY: Windows address 004B8607; implementation pending.
     // Naming reference: NC2InGameGuiMiscWindows::CMissionOnscreenInfoStaticGuiWindow::CMissionOnscreenInfoStaticGuiWindow.
 void * __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void *) { return nullptr; }
 
-// TEMPORARY DUMMY: Windows address 004BB78A; implementation pending.
-    // Naming reference: NC2InGameGuiManager::CGuiManagerMousePointer::CGuiManagerMousePointer.
-void * __fastcall InGameGuiManagerMousePointer_Construct(void *) { return nullptr; }
 
 
 

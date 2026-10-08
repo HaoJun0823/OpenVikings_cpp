@@ -89,6 +89,8 @@ namespace NInGameGuiManager
         void MiscWindows_StringOutputWindow_Open();
         void MiscWindows_StringOutputWindow_PrintString(const char* text);
         void MiscWindows_StringOutputWindow_ClearAll();
+        void GuiMarker_Set(std::uint32_t index, const std::uint32_t* point);
+        void GuiMarker_Get(std::uint32_t index, std::uint32_t* point) const;
 
         inline static CInGameGuiManager* sTheObjectPtr = nullptr;
         inline static SInGameGuiStaticVars mStaticVars{};

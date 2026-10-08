@@ -543,5 +543,8 @@
     <ClInclude Include="InGameGuiTraderConfigWindow.h" />
     <ClCompile Include="InGameGuiMessageText.cpp" />
     <ClCompile Include="InGameGuiMessageWindowAccess.cpp" />
+    <ClCompile Include="InGameGuiMousePointer.cpp" />
+    <ClInclude Include="InGameGuiMousePointer.h" />
+
   </ItemGroup>
 </Project>

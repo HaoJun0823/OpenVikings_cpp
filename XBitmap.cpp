@@ -1669,3 +1669,65 @@ namespace NXBasics
 
     void CBitmap::operator delete(void* allocation, const std::nothrow_t&) noexcept { Runtime_Free(allocation); }
 }
+
+namespace NXBasics
+{
+    // Original function: FUN_0040e943.
+    void CBitmap::Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint8_t color)
+    {
+        std::uint32_t offset = 0, error = 3u - 2u * radius, fourRadius = 4u * radius;
+        if (Runtime_TimeSigned32(radius) < 0) return;
+        const auto centerX = static_cast<std::uint32_t>(x), centerY = static_cast<std::uint32_t>(y);
+        do
+        {
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY + radius), Runtime_TimeSigned32(2u * offset), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY - radius), Runtime_TimeSigned32(2u * offset), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY + offset), Runtime_TimeSigned32(2u * radius), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY - offset), Runtime_TimeSigned32(2u * radius), color);
+            if (Runtime_TimeSigned32(error) >= 0) { error += 4u - fourRadius; --radius; fourRadius -= 4u; }
+            error += 4u * offset + 2u; ++offset;
+        } while (Runtime_TimeSigned32(offset) <= Runtime_TimeSigned32(radius));
+    }
+    // Original function: FUN_0040ea1d.
+    void CBitmap::Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint16_t color)
+    {
+        std::uint32_t offset = 0, error = 3u - 2u * radius, fourRadius = 4u * radius;
+        if (Runtime_TimeSigned32(radius) < 0) return;
+        const auto centerX = static_cast<std::uint32_t>(x), centerY = static_cast<std::uint32_t>(y);
+        do
+        {
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY + radius), Runtime_TimeSigned32(2u * offset), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY - radius), Runtime_TimeSigned32(2u * offset), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY + offset), Runtime_TimeSigned32(2u * radius), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY - offset), Runtime_TimeSigned32(2u * radius), color);
+            if (Runtime_TimeSigned32(error) >= 0) { error += 4u - fourRadius; --radius; fourRadius -= 4u; }
+            error += 4u * offset + 2u; ++offset;
+        } while (Runtime_TimeSigned32(offset) <= Runtime_TimeSigned32(radius));
+    }
+    // Original function: FUN_0040eaf7.
+    void CBitmap::Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint32_t color)
+    {
+        std::uint32_t offset = 0, error = 3u - 2u * radius, fourRadius = 4u * radius;
+        if (Runtime_TimeSigned32(radius) < 0) return;
+        const auto centerX = static_cast<std::uint32_t>(x), centerY = static_cast<std::uint32_t>(y);
+        do
+        {
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY + radius), Runtime_TimeSigned32(2u * offset), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - offset), Runtime_TimeSigned32(centerY - radius), Runtime_TimeSigned32(2u * offset), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY + offset), Runtime_TimeSigned32(2u * radius), color);
+            Draw_HorizontalLine(Runtime_TimeSigned32(centerX - radius), Runtime_TimeSigned32(centerY - offset), Runtime_TimeSigned32(2u * radius), color);
+            if (Runtime_TimeSigned32(error) >= 0) { error += 4u - fourRadius; --radius; fourRadius -= 4u; }
+            error += 4u * offset + 2u; ++offset;
+        } while (Runtime_TimeSigned32(offset) <= Runtime_TimeSigned32(radius));
+    }
+    // Original function: FUN_0040ebd1.
+    void CBitmap::Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+            case 0: Draw_FilledCircle(x, y, radius, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case 1: Draw_FilledCircle(x, y, radius, g16BitPixelConverter->PackColor(color)); break;
+            case 2: Draw_FilledCircle(x, y, radius, g32BitPixelConverter->PackColor(color)); break;
+        }
+    }
+}

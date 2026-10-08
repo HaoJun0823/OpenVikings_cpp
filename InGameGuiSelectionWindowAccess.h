@@ -43,6 +43,7 @@ namespace NC2InGameGuiBase
 
 namespace NC2InGameGuiSelection
 {
+    void Tool_LandscapeType_GetTooltipStringPtr(std::int32_t graphicId, std::int32_t amount, char* output, bool* isGood, bool* isResource);
     void SelectionTool_FillRectangle(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, std::int32_t mode);
     void SelectionTool_PrintCenteredString(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, bool largeFont, const char* text);
     void* SelectionSingleHumanWindow_Construct(void* window);

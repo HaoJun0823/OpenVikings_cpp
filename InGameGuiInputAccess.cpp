@@ -7,6 +7,7 @@
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2E2HumanSoundAccess.h"
+#include "GuiToolsBase.h"
 
 #include <cstring>
 
@@ -25,6 +26,13 @@ namespace
 
 namespace NC2InGameGuiInputManager
 {
+    // Original function: FUN_004b7585.
+    std::int32_t Selection_GetSelectedEngineHouseTypeId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 7 ? Input_Read<std::int32_t>(manager, 0xA80) : -1; }
+    // Original function: FUN_004b7596.
+    std::uint32_t Selection_GetSelectedEngineHouseExtensionLevel(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 7 ? Input_Read<std::uint32_t>(manager, 0xA84) : 0; }
+    // Original function: FUN_004b7e92; complete 29-entry Windows jump table 004B7F23..004B7F96.
+    const char* StringTool_GetInputModeNamePtr(const void* manager) { const auto mode = Input_Read<std::uint32_t>(manager, 0); return mode <= 28 ? NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(mode + 10) : "<UNKNOWN>"; }
+
     struct SInputManagerTargetPointSearch
     {
         void* targetPoints;

@@ -1126,3 +1126,31 @@ namespace NC2InGameGuiSelection
         return window;
     }
 }
+
+namespace NC2InGameGuiSelection
+{
+    // Original function: FUN_004be4fb; complete selector region 004BE610..004BE648.
+    void Tool_LandscapeType_GetTooltipStringPtr(std::int32_t graphicId, std::int32_t amount, char* output, bool* isGood, bool* isResource)
+    {
+        output[0] = 0; if (isGood != nullptr) *isGood = false; if (isResource != nullptr) *isResource = false;
+        const auto type = NC2Lifetime::Read<std::int32_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(graphicId) * 0x8Cu + 0x38u);
+        const auto good = NC2Logic::gStaticDependencyGoodByLandscape[type];
+        if (good != 0)
+        {
+            const auto* name = NC2Logic::StringAccess_GetGoodNamePtr(good, amount);
+            NXBasics::Runtime_PrintString(output, "%d %s", amount, name); if (isGood != nullptr) *isGood = true; return;
+        }
+        std::uint32_t stringId = 0;
+        constexpr std::uint8_t strings[25]{100,0,0,0,0,101,101,101,102,102,0,103,103,0,104,104,0,105,105,0,0,0,0,106,106};
+        if (type >= 4 && type <= 28) stringId = strings[type - 4];
+        else if (type == 33 || type == 34) stringId = 107;
+        else if (type == 36) stringId = 108;
+        else if (type == 79 || type == 80) stringId = 109;
+        else if (type == 82) stringId = 110;
+        else if (type == 83 || type == 84) stringId = 111;
+        else if (type == 85) stringId = 112;
+        else if (type == 86) stringId = 113;
+        if (stringId != 0) std::strcpy(output, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(stringId));
+        if (isResource != nullptr && (stringId == 100 || (stringId >= 102 && stringId <= 105))) *isResource = true;
+    }
+}

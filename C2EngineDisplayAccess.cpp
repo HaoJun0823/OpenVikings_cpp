@@ -1444,3 +1444,22 @@ namespace NC2E2
         return gDirectMusicManager != nullptr && NC2Logic::gGameStaticVars.DAT_005109c4 == 0 && !NNetwork::Network_IsInSession();
     }
 }
+
+namespace NC2E2
+{
+    // Original function: FUN_00499019.
+    void DE_Debug_DrawMicroGridMarker(const void* display, const void* point, const NXBasics::SColorRGB* outerColor, const NXBasics::SColorRGB* innerColor, std::uint32_t radius, bool filled)
+    {
+        std::int32_t pixel[2]; Display_MapMigToLocalDisplayPixelCoordinates(display, point, pixel, false);
+        auto* bitmap = NC2Lifetime::Read<NXBasics::CBitmap*>(display, 0x68);
+        if (filled) { bitmap->Draw_FilledCircle(pixel[0], pixel[1], radius + 1u, *outerColor); bitmap->Draw_FilledCircle(pixel[0], pixel[1], radius, *innerColor); }
+        else { bitmap->Draw_Circle(pixel[0], pixel[1], radius - 1u, *outerColor); bitmap->Draw_Circle(pixel[0], pixel[1], radius + 1u, *outerColor); bitmap->Draw_Circle(pixel[0], pixel[1], radius, *innerColor); }
+    }
+    // Original function: FUN_004990a1; the native line starts at the second point.
+    void DE_Debug_DrawMicroGridLine(const void* display, const void* first, const void* second, const NXBasics::SColorRGB* color)
+    {
+        std::int32_t firstPixel[2], secondPixel[2];
+        Display_MapMigToLocalDisplayPixelCoordinates(display, first, firstPixel, false); Display_MapMigToLocalDisplayPixelCoordinates(display, second, secondPixel, false);
+        NC2Lifetime::Read<NXBasics::CBitmap*>(display, 0x68)->Draw_Line(secondPixel[0], secondPixel[1], firstPixel[0], firstPixel[1], *color);
+    }
+}

@@ -1,5 +1,11 @@
 # Windows function mapping progress
 
+## Cursor/hover source-address checkpoint - 2026-10-08
+
+After cursor/hover reconstruction: **3266 / 5057 (64.58%)**, **1791** known entries remain open. This is source-address coverage, not verified gameplay completion. The numerator adds 20 mapped entries; the union of known candidates adds two traceable source entries. Two tracked partial/dummy rows became complete; world-cursor vector preview and contextual command preparation remain excluded.
+
+The production-only `tools/function-progress.ps1` audit reports 3928 parsed cpp definitions, 2995 mapped direct-call targets, 19 unmatched/ambiguous annotated declarations, 114 unfinished boundaries, 1104 naming rows and 207/193 registered cpp/header files with filter parity. [FUNCTION_PROGRESS_2026_10_08.json](FUNCTION_PROGRESS_2026_10_08.json) stores this checkpoint. All twelve affected/calling units passed Win32 `/Zs`; no build/tests/gameplay run. Untracked CombatTasks files are excluded.
+
 ## Source-address checkpoint - 2026-10-08
 
 After character work-marker/input-mode reconstruction, the refreshed inventory is **3246 / 5055 (64.21%)** source-address coverage; **1809** known entries remain open. Captured partials/dummies remain excluded; this is not verified gameplay completion. The mapped numerator increased by 25 from the previous checkpoint; five tracked partial entries now have their complete native bodies connected. Remaining uncaptured gaps and unresolved downstream bodies still require separate review.

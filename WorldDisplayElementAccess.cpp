@@ -113,7 +113,7 @@ namespace NC2InGameGuiWorldElement
         Write(element, 0x1C4, action);
     }
 
-    // Original function: FUN_004bb0c1; ordinary single-human prepared command.
+    // Original function: FUN_004bb0c1; complete prepared single/group human and vehicle dispatch.
     static bool WorldDisplayElement_DoDefaultAction(void* element)
     {
         using namespace NC2Lifetime;
@@ -124,6 +124,12 @@ namespace NC2InGameGuiWorldElement
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
             if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(command, 4));
+            if (Read<std::uint8_t>(command, 0) == 32)
+            {
+                const auto address = reinterpret_cast<std::uintptr_t>(NC2Logic::CHouseArray::mStaticVars) + Read<std::uint32_t>(command, 0xC) * NC2Logic::CHouseArray::ElementSize;
+                const auto* house = reinterpret_cast<const void*>(address);
+                if (address != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(command, 0x10) && Read<std::uint32_t>(house, 0x14) == 38) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanLearnJobWindow_Open();
+            }
         }
         else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 2)
         {
@@ -136,6 +142,23 @@ namespace NC2InGameGuiWorldElement
                 Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
+            }
+        }
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 4)
+        {
+            NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
+            if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
+        }
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 5)
+        {
+            auto* input = NC2InGameGuiInputManager::gInputManager;
+            const auto count = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehiclesNumber(input);
+            for (std::uint32_t i = 0; i < count; ++i)
+            {
+                const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehicleId(input, i);
+                std::byte selectedCommand[0x14]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
+                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize, 8));
+                NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
             }
         }
         return true;

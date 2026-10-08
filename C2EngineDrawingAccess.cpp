@@ -429,3 +429,27 @@ namespace NC2E2
         }
     }
 }
+
+namespace NC2E2
+{
+    // Original function: FUN_0048b5c1.
+    std::int32_t StaticHumanMisc_RoadBuildSign_GetLandscapeId(std::int32_t playerId)
+    {
+        using NC2Lifetime::Read;
+        if (playerId >= 20) return -1;
+        const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u);
+        if (Read<std::uint8_t>(player, 0) == 0) return -1;
+        auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0);
+    }
+    // Original function: FUN_0048b5fb.
+    std::int32_t StaticHumanMisc_WallBuildSign_GetLandscapeId(std::int32_t playerId)
+    {
+        using NC2Lifetime::Read;
+        if (playerId >= 20) return -1;
+        const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u);
+        if (Read<std::uint8_t>(player, 0) == 0) return -1;
+        auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 4);
+    }
+}

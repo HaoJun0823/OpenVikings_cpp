@@ -1,5 +1,15 @@
 # C++ continuation handoff - 2026-10-06
 
+## Native in-game cursor and hover presentation - 2026-10-08
+
+Connected the real 0x14-byte in-game mouse-pointer object and its complete two-slot Windows table. Hardware/software pointer selection, normal/pressed/override sprites, 500 ms tooltip delay, pointer/position change detection, CRLF splitting and outlined tooltip drawing follow 004BB78A/004BB7A7/004BB8FC/004BC24C. The existing single-line tooltip helper is now shared and its bitmap-reference/background-fill call sequence is corrected. Hover text retains both control schemes, human names/jobs/products/experience, own/enemy house main-type filtering, contextual human/vehicle command descriptions and landscape/animal information. Mac headers supply names only; all behavior and tables come from Windows ASM/Game.exe.
+
+World-cursor callback 004B3264 now draws the ten bookmarks, valid target rings, house preview, human work-center marker and road/wall source signs. Its road/wall vector preview is explicitly partial: 0042871C/00427AEA and 0043E8AA remain link dummies, so the nonterminating dummy iterator is not invoked. The prepared-command dispatcher 004BB0C1 is complete for single/group humans and vehicles, including the revision/type-38 school chooser continuation. Preparing contextual commands in 004BABE0 remains partial; human 00435605/004362E9 and vehicle 00437AAF/00437D9F are the next logical block. Multiple/non-human selection windows and construction modes follow.
+
+**3266 / 5057 (64.58%)** source-address coverage; **1791** known candidates remain open. The numerator increased by 20 and the candidate denominator by two; partials/dummies remain excluded. This is not verified gameplay completion. See [WORLD_CURSOR_HOVER.md](WORLD_CURSOR_HOVER.md).
+
+Win32 `/Zs` passed for all twelve changed/calling cpp units; only existing manager C4805 warnings remain. No build/tests/gameplay run. Project/filter parity: **207 cpp / 193 headers**. Inventories: **1104 naming rows / 114 unfinished boundaries**. User-owned untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded.
+
 ## Character command availability and assignment actions - 2026-10-08
 
 Following `843e3c7`, `C2HumanUserControl.cpp/.h` reconstruct the complete Windows command-list tree 0040B01F -> 00434F37..004355AE and its 25-entry handler 0044071B..004408A5. Normal/alternate branches retain action order, duplicate/capacity semantics, tribe/age/job/family/vehicle checks, queue exclusions and native sorting priorities. Windows 0043550B repeats opcode 15 in the alternate pregnancy check; this is preserved. The two outlined predicates 00436A68/00436A97 remain inline with unresolved separate semantic identities. Mac headers supply names only.

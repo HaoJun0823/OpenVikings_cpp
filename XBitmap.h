@@ -58,6 +58,10 @@ namespace NXBasics
         void Draw_SetPixel(std::int32_t x, std::int32_t y, const SColorRGB& color);
         void Draw_Line(std::int32_t x1, std::int32_t y1, std::int32_t x2, std::int32_t y2, const SColorRGB& color);
         void Draw_Circle(std::int32_t x, std::int32_t y, std::uint32_t radius, const SColorRGB& color);
+        void Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint8_t color);
+        void Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint16_t color);
+        void Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, std::uint32_t color);
+        void Draw_FilledCircle(std::int32_t x, std::int32_t y, std::uint32_t radius, const SColorRGB& color);
         void Draw_SetPixelUnclipped(std::int32_t x, std::int32_t y, const SColorRGB& color);
         void Draw_HorizontalLine(std::int32_t x, std::int32_t y, std::int32_t length, const SColorRGB& color);
 
