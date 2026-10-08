@@ -32,6 +32,12 @@ Static review covers declarations, ownership, WM_INPUT cleanup, foreground filte
 
 Manual runtime checks still needed: pause on an exception or breakpoint and move the mouse between game and Visual Studio; continue and verify menu clicks, wheel zoom, middle-button scrolling, Alt-Tab and fullscreen transitions. Check the same actions through the user's remote connection and confirm that one absolute sample does not produce a scroll jump.
 
+## Ordered button delivery and event timing - 2026-10-08
+
+The user reports missing profession selection by double-click alongside slow terrain revelation. The modern message pump now yields to System_Update after each legacy button transition. This prevents queued down/up/down/up from collapsing into a single aggregated packet whose double-click is dispatched before the first release selects a human. The 1024-message upper bound and queue order remain. GetMessageTime supplies click timestamps; the world's existing 250 ms following-click suppression uses the same consumed event timestamp. The native 400 ms/four-pixel detection, profession filters, military grouping and selection area are retained. Poll-only transitions use timeGetTime; focus loss clears pending timing. Additional fields live outside the original mouse object, and the GUI packet layout is unchanged.
+
+This is a continuation of the authorized modern input adapter, not an ASM-identical reconstruction. The source establishes a possible failure sequence; no runtime trace proves it was the user's exact cause. Win32 syntax checks passed. Runtime confirmation remains needed. See [TOOLTIP_EXPLORATION_DOUBLECLICK_REGRESSION.md](TOOLTIP_EXPLORATION_DOUBLECLICK_REGRESSION.md).
+
 ## API references
 
 - [Microsoft Raw Input overview](https://learn.microsoft.com/en-us/windows/win32/inputdev/about-raw-input)

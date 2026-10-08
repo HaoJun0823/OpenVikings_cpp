@@ -30,6 +30,10 @@ namespace NXSys2DApp
 
             TranslateMessage(&message);
             DispatchMessageA(&message);
+
+            // Deliver each button transition before another can overwrite the
+            // aggregated GUI flags. A slow terrain redraw can queue both clicks.
+            if (message.message == WM_LBUTTONDOWN || message.message == WM_LBUTTONUP || message.message == WM_MBUTTONDOWN || message.message == WM_MBUTTONUP || message.message == WM_RBUTTONDOWN || message.message == WM_RBUTTONUP) break;
         }
 
         const auto* objectBytes = reinterpret_cast<const std::byte*>(this);

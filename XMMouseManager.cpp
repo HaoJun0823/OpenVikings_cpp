@@ -25,6 +25,10 @@ namespace NXSysMouseManager
             POINT absolutePosition{};
             bool cursorPositionValid = false;
             POINT cursorPosition{};
+            bool buttonMessageTimeValid = false;
+            std::uint32_t buttonMessageTime = 0;
+            bool pendingMessageTimeValid = false;
+            std::uint32_t inputMessageTime = 0;
         };
         SRawMouseState gRawMouse;
 
@@ -46,6 +50,7 @@ namespace NXSysMouseManager
             gRawMouse.deltaY = 0;
             gRawMouse.absolutePositionValid = false;
             gRawMouse.cursorPositionValid = false;
+            gRawMouse.pendingMessageTimeValid = false;
         }
     }
 
@@ -159,7 +164,13 @@ namespace NXSysMouseManager
     // Original function: FUN_004793a4
     void CMouseManager::UpdateMouseButtonState(bool leftButton, bool middleButton, bool rightButton)
     {
+        // This adapter is called only while dispatching legacy mouse messages.
+        // Queue latency must not change the native 400 ms double-click interval.
+        gRawMouse.buttonMessageTime = static_cast<std::uint32_t>(GetMessageTime());
+        gRawMouse.buttonMessageTimeValid = true;
+        gRawMouse.pendingMessageTimeValid = true;
         l_SetState_Total(leftButton, middleButton, rightButton, mMouseX, mMouseY, 0, 0, 0);
+        gRawMouse.buttonMessageTimeValid = false;
     }
 
     // Original function: FUN_004793c2
@@ -428,7 +439,7 @@ namespace NXSysMouseManager
 
         if (newLeftButtonPress)
         {
-            const std::uint32_t currentTime = timeGetTime();
+            const std::uint32_t currentTime = gRawMouse.buttonMessageTimeValid ? gRawMouse.buttonMessageTime : timeGetTime();
 
             if (currentTime - mPreviousLeftButtonClickTime < 400)
             {
@@ -463,6 +474,8 @@ namespace NXSysMouseManager
         }
 
         mStateChanged = false;
+        gRawMouse.inputMessageTime = gRawMouse.pendingMessageTimeValid ? gRawMouse.buttonMessageTime : timeGetTime();
+        gRawMouse.pendingMessageTimeValid = false;
 
         mouseMessage.mouseX = mMouseX;
         mouseMessage.mouseY = mMouseY;
@@ -535,6 +548,8 @@ namespace NXSysMouseManager
             mouseMessage.flags |= static_cast<std::uint32_t>(EMouseMessageFlags::WheelChanged);
         }
     }
+
+    std::uint32_t CMouseManager::GetInputMessageTime() const { return gRawMouse.inputMessageTime; }
 
     // Original function: FUN_00479923
     void CMouseManager::SetHideSystemMouseCursorWhenFullscreenState(bool hideSystemMouseCursor)

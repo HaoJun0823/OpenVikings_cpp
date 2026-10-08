@@ -79,15 +79,15 @@ namespace NC2InGameGuiManager
             if (NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human)) job = NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, 0x18), 1);
             const auto good = Read<std::uint32_t>(human, 0x1C);
             const char* goodName = good != 0 ? NC2Logic::StringAccess_GetGoodNamePtr(good, 1) : nullptr;
-            char text[200]; std::strcpy(text, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(60)); std::strcat(text, " ");
-            std::strcat(text, name != nullptr ? name : NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(61));
-            if (job != nullptr) { std::strcat(text, " "); std::strcat(text, job); }
+            char text[200]; std::strcpy(text, NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(60)); std::strcat(text, " ");
+            std::strcat(text, name != nullptr ? name : NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(61));
+            if (job != nullptr) { std::strcat(text, " - "); std::strcat(text, job); }
             if (goodName != nullptr) { std::strcat(text, " ("); std::strcat(text, goodName); std::strcat(text, ")"); }
             ls_PrintString(bitmap, point, text, true);
             auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
             if (Read<std::uint8_t>(manager, 0xE1) != 0 || !NC2Logic::Human_IsAgeAdult(human) || !NC2Logic::Human_IsSexMale(human) || NC2Logic::Human_IsJobHero(human)) return;
             const auto experience = NC2Logic::Human_JobEfficiency_CalculateExperienceFactor(human);
-            NXBasics::Runtime_PrintString(text, "%s: %d%%", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(63), experience);
+            NXBasics::Runtime_PrintString(text, "%s: %d%%", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(63), experience);
             ls_PrintString(bitmap, point, text, true);
         }
     }
@@ -170,7 +170,7 @@ namespace NC2InGameGuiManager
                                 if (scheme == 0)
                                 {
                                     const char* name = Read<std::uint8_t>(house, 0) != 0 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, 0x14), 1) : nullptr;
-                                    char text[200]; std::strcpy(text, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(60)); std::strcat(text, " "); std::strcat(text, name != nullptr ? name : NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(62)); ls_PrintString(bitmap, point, text, true);
+                                    char text[200]; std::strcpy(text, NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(60)); std::strcat(text, " "); std::strcat(text, name != nullptr ? name : NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(62)); ls_PrintString(bitmap, point, text, true);
                                 }
                                 else if (Read<std::uint8_t>(house, 0) != 0 && (Read<std::int32_t>(house, 0xC) == manager->GetLocalPlayerId() || NC2Logic::House_GetHouseMainType(house) == 1))
                                 {
@@ -182,7 +182,7 @@ namespace NC2InGameGuiManager
                             {
                                 std::uint32_t stringId = 0;
                                 switch (selection) { case 3: stringId = 64; break; case 4: stringId = 65; break; case 8: stringId = 66; break; case 9: stringId = 67; break; case 10: stringId = 68; break; case 11: stringId = 69; break; }
-                                if (stringId != 0) ls_PrintString(bitmap, point, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(stringId), true);
+                                if (stringId != 0) ls_PrintString(bitmap, point, NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(stringId), true);
                             }
                         }
                     }

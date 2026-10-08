@@ -53,6 +53,8 @@ namespace NXSysMouseManager
 
         // Raw Input adapter; the original object layout and GUI message format remain unchanged.
         void HandleRawMouseInput(HRAWINPUT input);
+        // Timestamp of the GUI event most recently consumed by the desktop.
+        std::uint32_t GetInputMessageTime() const;
 
         // Original function: FUN_0047953d
         void ResetWindowsMouseState();

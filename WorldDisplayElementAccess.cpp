@@ -255,8 +255,9 @@ namespace NC2InGameGuiWorldElement
         const auto mainMode = Read<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xDC);
         if (message == 1 || message == 2)
         {
+            // Use the modern adapter's event time for the native 250 ms gate.
             const auto doubleTime = Read<std::uint32_t>(element, 0x21C);
-            if (doubleTime != 0 && timeGetTime() - doubleTime < 250u) return true;
+            if (doubleTime != 0 && NXSysMouseManager::CMouseManager::sTheObjectPtr->GetInputMessageTime() - doubleTime < 250u) return true;
         }
         if (message == 1 || message == 0x20)
         {
@@ -325,7 +326,7 @@ namespace NC2InGameGuiWorldElement
         }
         if (message == 4)
         {
-            Write(element, 0x21C, timeGetTime());
+            Write(element, 0x21C, NXSysMouseManager::CMouseManager::sTheObjectPtr->GetInputMessageTime());
             if (Read<std::uint8_t>(element, 0x34) != 0 && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(target, 0) == 1 && Read<std::uint32_t>(target, 0x40) == Read<std::uint32_t>(display, 0x7C) && Read<std::uint32_t>(input, 0) == 0 && (Selection_IsHumanSelected(input, Read<std::int32_t>(target, 8)) || Read<std::uint32_t>(input, 4) == 2))
             {
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, 8) * NC2Logic::CHumanArray::ElementSize;

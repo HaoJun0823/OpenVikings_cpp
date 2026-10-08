@@ -467,7 +467,11 @@
     <ClInclude Include="InGameGuiMissionInfoWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GouraudShader.cpp" />
+    <ClCompile Include="GouraudShader.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MaxSpeed</Optimization>
+      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</BasicRuntimeChecks>
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
     <ClInclude Include="GouraudShader.h" />
     <ClCompile Include="C2EngineGroundDrawing.cpp" />
     <ClCompile Include="C2EngineMapTerrainAccess.cpp" />

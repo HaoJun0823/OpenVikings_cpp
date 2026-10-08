@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Tooltip, exploration redraw and double-click correction - 2026-10-08
+
+Restored Windows tooltip string group 2 (IDs 60..69) and the native profession separator, correcting the Hardware/experience label and unrelated name prefix. Specialized the existing integer Gouraud pixel variants, removed unused color updates/runtime arithmetic calls and enabled optimized Debug compilation for that renderer alone. Exploration/fog/redraw rules remain native. The modern Windows input adapter now delivers button transitions separately and preserves event timestamps for the existing 400 ms detection and 250 ms following-click suppression; profession filters, military grouping and selection area are unchanged. Adapter timing is an intentional compatibility correction, not new native behavior. See [TOOLTIP_EXPLORATION_DOUBLECLICK_REGRESSION.md](TOOLTIP_EXPLORATION_DOUBLECLICK_REGRESSION.md).
+
+All five changed cpp units passed MSVC Win32 `/Zs`. Project evaluation and filter parity were checked without building. No tests/gameplay run or measured performance improvement. Runtime confirmation remains pending. Source-address checkpoint unchanged: **3282 / 5057 (64.90%)**, **1775** open candidates; **208 cpp / 194 headers**, **1120 naming rows / 113 unfinished boundaries**. User-owned untracked combat files remain untouched and excluded. Next reconstruction block: multiple/non-human selection windows and their controls.
+
 ## Complete contextual default-command preparation - 2026-10-08
 
 Connected the complete Windows hover/default preparation tree for single/group humans and vehicles: house/home/work/builder/school assignment, trader house membership, attacks, vehicle entry, job/production changes, equipment, chests, build flags, exploration and movement. Both 0x14-byte command buffers, native priorities, selected-member exclusion, modifier handling, group comparison/overwrite branches and failure reset are preserved. Vehicle command availability, parent allocation/revision validation, build-flag owners and worker-job capacity helpers are connected. Existing command queue insertion and human responding voices consume the prepared commands. Windows ASM/Game.exe establish behavior; Mac headers supply names only. See [DEFAULT_INTERACTION_COMMANDS.md](DEFAULT_INTERACTION_COMMANDS.md).
