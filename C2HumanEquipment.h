@@ -3,6 +3,7 @@
 
 namespace NC2Logic
 {
+    bool Human_IsAbleToEquipGoodNow(const void* human, std::uint32_t good, bool anyPlayer);
     void Human_ClearCarriedGood(void* human);
     std::uint32_t Tool_GoodEquipmentType_Convert(std::uint32_t good);
     bool Human_l_Item_Set(void* human, std::uint32_t good);

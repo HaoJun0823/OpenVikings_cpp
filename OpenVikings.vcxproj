@@ -529,6 +529,8 @@
     <ClCompile Include="InGameGuiSelectionAccess.cpp" />
     <ClCompile Include="InGameGuiSelectionWindowAccess.cpp" />
     <ClInclude Include="InGameGuiSelectionWindowAccess.h" />
+    <ClCompile Include="InGameGuiHumanEquipmentWindow.cpp" />
+    <ClInclude Include="InGameGuiHumanEquipmentWindow.h" />
     <ClCompile Include="InGameGuiMessageText.cpp" />
     <ClCompile Include="InGameGuiMessageWindowAccess.cpp" />
   </ItemGroup>

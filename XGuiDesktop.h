@@ -39,6 +39,7 @@ namespace NXBaseGui
         std::uint32_t Window_Hide(CBaseWindow* window);
         void Element_Add(CBaseElement* element, bool insertAtEnd);
         std::uint32_t Element_Hide(CBaseElement* element);
+        void Element_UnHide(CBaseElement* element);
         CBaseElement* Window_GetActivePtr() const;
         CBaseElement* Element_GetUnderMousePtr();
 

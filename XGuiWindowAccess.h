@@ -19,4 +19,5 @@ namespace NXBaseGui
     void BaseWindow_NotifyAddedToDesktop(void* window);
     void BaseWindow_InternalHide(void* window);
     void BaseElement_InternalHide(void* element);
+    void BaseElement_InternalUnHide(void* element);
 }

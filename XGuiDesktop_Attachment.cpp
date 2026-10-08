@@ -83,6 +83,9 @@ namespace NXBaseGui
         return Read<std::uint32_t>(element, 0x28);
     }
 
+    // Original function: FUN_00477564.
+    void CDesktop::Element_UnHide(CBaseElement* element) { if (element != nullptr) BaseElement_InternalUnHide(element); }
+
     // Original function: FUN_00477943; the original climbs at most one parent.
     CBaseElement* CDesktop::Window_GetActivePtr() const
     {

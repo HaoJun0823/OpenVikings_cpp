@@ -67,6 +67,7 @@ namespace NInGameGuiManager
         void MiscWindows_MissionInfoWindow_Toggle(std::uint32_t briefingId, bool goalsPage);
         void MiscWindows_MissionInfoWindow_Open(std::uint32_t briefingId, bool goalsPage);
         void MiscWindows_MissionInfoWindow_ReloadStrings();
+        void MiscWindows_HumanChangeEquippedGoodsWindow_Open(std::uint32_t type, std::int32_t slot);
         void Options_ScrollSpeed_Set(std::uint32_t speed, bool save);
         std::uint32_t Options_ScrollSpeed_Get() const;
         void Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save);

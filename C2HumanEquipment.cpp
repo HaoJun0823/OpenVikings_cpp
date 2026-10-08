@@ -61,6 +61,9 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_0042db17; empty good succeeds before the enable/search checks.
+    bool Human_IsAbleToEquipGoodNow(const void* human, std::uint32_t good, bool anyPlayer) { return good == 0 || (Read<std::uint8_t>(human, 0x1E0u + good) != 0 && Human_FindEquipment_Complex_Nearby(human, good, anyPlayer)); }
+
     // Original function: FUN_0042d3c2.
     std::uint32_t Human_GetEquipmentType_Shoes(const void* human) { return Read<std::uint32_t>(human, 0xAEC); }
     // Original function: FUN_0042d3c9.

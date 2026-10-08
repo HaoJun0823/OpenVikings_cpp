@@ -24,6 +24,9 @@ namespace NC2Logic
     bool Human_IsJobHunter(const void* human);
     bool Human_IsJobBreeder(const void* human);
     bool Human_IsJobTrader(const void* human);
+    void* HumanMerchantArray_GetMerchantDataPtr(const void* manager, std::int32_t id);
+    void* MerchantData_GetHouseDataPtr(void* merchant, std::uint32_t index);
+    bool MerchantHouseData_IsValid(const void* houseData);
     bool Human_IsJobCarrier(const void* human);
     bool Human_IsJobFisher(const void* human);
     bool Human_IsAttachedToVehicle(const void* human);

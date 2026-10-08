@@ -295,6 +295,22 @@ namespace NC2Logic
         return false;
     }
 
+    // Original function: FUN_0045f721; availability search does not pick a random candidate.
+    bool Human_FindEquipment_Complex_Nearby(const void* human, std::uint32_t good, bool anyPlayer)
+    {
+        SHumanSearchGoodData data(good, static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[good].landscapeType), Read<std::uint32_t>(human, 0x10));
+        CMapPathfinderElement::SearchOverMap(Human_GetMapPositionRef(human), 40, true, slHumanSearchGoodFunction, &data, true, anyPlayer ? -1 : static_cast<std::int32_t>(Read<std::uint32_t>(human, 0x10)));
+        if (data.landscapeCount != 0 || data.houseCount != 0) return true;
+        for (std::uint32_t index = 0; index < data.guideCount; ++index)
+        {
+            const auto id = static_cast<std::int32_t>(data.guides[index]);
+            if (!GuideManager_IsGoodInLinkSystem(gGuideManager, id, good)) continue;
+            SGoodSearch search{Read<std::uint32_t>(human, 0x10), good, 0};
+            if (GuideManager_GetMapPositionWithGoods(gGuideManager, 40, id, search, anyPlayer)) return true;
+        }
+        return false;
+    }
+
     // Original function: FUN_0045f4ac; map goods precede direct stocks and guide fallback.
     bool Human_FindGood_Complex(const void* human, std::uint32_t good, void* realPosition, void* workPosition, const void* source)
     {

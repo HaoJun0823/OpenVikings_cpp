@@ -4,6 +4,7 @@
 namespace NC2InGameGuiBase
 {
     void* __fastcall BaseToolTextElement_Construct(void* element, void* unusedEdx, const NXBasics::SRectangle* rectangle, const char* caption, bool fillBackground, bool wrapText);
+    void BaseToolTextElement_SetCaptionString(void* element, const char* caption);
     void* __fastcall BaseToolTextButton_Construct(void* element, void* unusedEdx, const NXBasics::SRectangle* rectangle, const char* caption, std::uint32_t command, void* handler);
     void* __fastcall BaseToolTextButton_ConstructWithToolTip(void* element, void* unusedEdx, const NXBasics::SRectangle* rectangle, const char* caption, const char* tooltip, std::uint32_t command, void* handler);
     void* __fastcall BaseToolTextButton_ConstructToggle(void* element, void* unusedEdx, const NXBasics::SRectangle* rectangle, const char* caption, std::uint32_t command, void* handler, bool selected);

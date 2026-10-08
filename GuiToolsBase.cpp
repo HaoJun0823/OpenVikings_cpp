@@ -546,6 +546,9 @@ namespace NC2GuiToolsBase
         return CGuiBaseStringsManager::GetStringPtr(1, stringId);
     }
 
+    // Original function: FUN_004e231c; fallback literal verified at 00508354.
+    const char* StringTool_GetLogicGoodEquipmentTypeNamePtr(std::uint32_t type) { return type <= 6 ? CGuiBaseStringsManager::GetStringPtr(5, type + 220u) : "<UNKNOWN>"; }
+
     // Original function: FUN_004e1e5f.
     char* StringTool_GetGameGuiMessagesStringPtr(std::uint32_t stringId)
     {

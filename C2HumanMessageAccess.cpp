@@ -48,8 +48,6 @@ namespace NC2Logic
         bool Human_IsAboutToMarry(const void* human) { return Read<std::uint32_t>(human, 0xB1C) != 0xFFFFFFFFu; }
 
 
-        // Original function: FUN_0041c5e1.
-        const void* HumanMerchantArray_GetConstMerchantDataPtr(const void* manager, std::uint32_t id) { return Read<const std::byte*>(manager, 0x30) + id * 0xC4u; }
     }
 
     // Original function: FUN_0045c37f; complete Windows selector table 0045c5cd..0045c607.
@@ -69,7 +67,7 @@ namespace NC2Logic
         case 15:
             return Human_IsAttachedToVehicle(human);
         case 16:
-            return !Human_IsJobTrader(human) || Read<std::uint32_t>(HumanMerchantArray_GetConstMerchantDataPtr(gHumanMerchantArray, Read<std::uint32_t>(human, 0xB44)), 4) != 0xFFFFFFFFu;
+            return !Human_IsJobTrader(human) || Read<std::uint32_t>(HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)), 4) != 0xFFFFFFFFu;
         case 28:
             if (Read<std::int32_t>(human, 0xAA8) <= 0 || Read<std::int32_t>(human, 0xAA0) <= Human_GetHumanAttributeMargin_Hitpoints(human)) return true;
             // Read-only Windows thresholds: food fulfillment 004f3b58 = 2000, critical food 004f3b68 = 1000.

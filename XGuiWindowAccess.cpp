@@ -256,4 +256,10 @@ namespace NXBaseGui
         CDesktop::sTheObjectPtr->Element_Deactivate(static_cast<CBaseElement*>(element));
         Write<std::uint8_t>(element, 0x19, static_cast<std::uint8_t>(Read<std::uint8_t>(element, 0x19) | 2u));
     }
+    // Original function: FUN_00478ac2; an already visible element is not written.
+    void BaseElement_InternalUnHide(void* element)
+    {
+        const auto flags = Read<std::uint32_t>(element, 0x18);
+        if ((flags & 0x200u) != 0) Write(element, 0x18, flags & ~0x200u);
+    }
 }

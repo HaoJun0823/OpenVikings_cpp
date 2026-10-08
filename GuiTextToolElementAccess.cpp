@@ -80,6 +80,9 @@ namespace NC2InGameGuiBase
         return element;
     }
 
+    // Original function: FUN_004b8bc5; the cached wrapping state is invalidated.
+    void BaseToolTextElement_SetCaptionString(void* element, const char* caption) { std::strncpy(static_cast<char*>(element) + 0x30, caption, 0xC7); Write<std::uint8_t>(element, 0xF7, 0); }
+
     // Original function: FUN_004b8be8.
     static void __fastcall TextElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
