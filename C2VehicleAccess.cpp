@@ -1,4 +1,5 @@
 #include "C2VehicleAccess.h"
+#include "C2VehicleLifecycle.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2HumanInitialization.h"
 #include "C2LifetimeAccess.h"
@@ -566,4 +567,23 @@ namespace NC2Logic
             return;
         }
     }
+    // Original function: FUN_0044cab9.
+    bool Vehicle_Passengers_CanVehicleBeAttached(const void* vehicle, std::uint32_t vehicleId)
+    {
+        const auto* passenger = CVehicleArray::mStaticVars + vehicleId * CVehicleArray::ElementSize;
+        if (NC2Lifetime::Read<std::uint32_t>(passenger, 0x1E0) != NC2Lifetime::Read<std::uint32_t>(vehicle, 0x1E0)) return false;
+        const auto type = NC2Lifetime::Read<std::uint32_t>(passenger, 0x1EC);
+        if (Vehicle_GetVehicleTypeDataPtr(vehicle)->allowedPassengerTypes[type] == 0) return false;
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->vehicleSlots);
+        return capacity > Vehicle_Passengers_GetNumberOfAttachedVehicles(vehicle);
+    }
+    // Original function: FUN_0044cb15.
+    std::uint32_t Vehicle_Passengers_GetNumberOfAttachedVehicles(const void* vehicle)
+    {
+        std::uint32_t count = 0;
+        const auto capacity = static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->vehicleSlots);
+        for (std::uint32_t i = 0; i < capacity; ++i) if (VehicleReference_IsAllocated(static_cast<const std::byte*>(vehicle) + 0x2FCu + i * 12u)) ++count;
+        return count;
+    }
+
 }

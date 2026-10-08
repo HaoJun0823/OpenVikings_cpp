@@ -1,5 +1,19 @@
 # Reverse-Engineering State
 
+## Character command availability and assignment actions - 2026-10-08
+
+Following `843e3c7`, `C2HumanUserControl.cpp/.h` reconstruct the complete Windows command-list tree 0040B01F -> 00434F37..004355AE and its 25-entry handler 0044071B..004408A5. Normal/alternate branches retain action order, duplicate/capacity semantics, tribe/age/job/family/vehicle checks, queue exclusions and native sorting priorities. Windows 0043550B repeats opcode 15 in the alternate pregnancy check; this is preserved. The two outlined predicates 00436A68/00436A97 remain inline with unresolved separate semantic identities. Mac headers supply names only.
+
+The character window now includes native marriage/child, home assignment/detachment, workplace/builder assignment/detachment and vehicle entry/exit controls with original graphic/tooltip IDs, spacing and collapsed-control removal. Family actions enqueue 14/15/16; detachments enqueue 27/29/31/39. Target modes 4/5/7/8/9 send 26/28/30/36/37 after native house highlighting and target rings; mode 27 uses original vehicle eligibility/highlights and sends human 38 or vehicle 113. Command insertion precedes responding voices and cancellation. Vehicle passenger-capacity leaves reuse the existing revision-validating VehicleReference_IsAllocated rather than adding another implementation.
+
+InputMode_Changed 004A0D01 replaces its link dummy, retaining fourteen ordered desktop hide/unhide calls and both native desktop-selection notifications on mode transitions. Camera-follow toggle 10004 connects the complete human/vehicle follow-state tree 004BB388..004BB57A, including revision validation, per-frame update before mouse-object checking and the native -25 pixel vertical offset.
+
+The input/mouse/highlight dispatchers and character constructor/message/draw/layout remain partial. School mode 6 still requires its native learning chooser 004A27EA -> 004C8B04 and is not enabled; its map-highlight branch is reconstructed. Other contextual commands/action-button bar, work-marker controls, rename popup, portrait popup, multiple/non-human windows and trader AI remain open. Highlighting_Vehicles_Update 004CB137 is tracked as a new partial boundary for its unconnected enemy/other branches. Source reconstruction does not establish gameplay equivalence.
+
+MSVC Win32 `/Zs` passed for all six changed/new cpp units and existing InGameGuiManager/InGameGuiSupportAccess callers; only pre-existing C4805 warnings appeared in the manager. No Debug/Release build, tests or gameplay run. Project/filter parity: **204 cpp / 190 headers**. Inventories: **1033 naming rows / 121 unfinished boundaries**, not coverage. Existing untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded.
+
+Next: native school/job/name choosers and contextual action-button bar, then portrait popup and multiple/non-human selection windows. See [HUMAN_SELECTION_INFO_WINDOW.md](HUMAN_SELECTION_INFO_WINDOW.md).
+
 ## Trader routes and configuration - 2026-10-08
 
 Following `d503457`, trader route assignment and detachment are connected through native mode 8 and network opcodes 36/37. The cursor clips its 14x14 highlight area before the native five-ring target search. Modal desktop hiding/restoration follows the Windows list order and activates the first window in list +78 on return to normal mode. Both configured mouse modes reach the assignment action.

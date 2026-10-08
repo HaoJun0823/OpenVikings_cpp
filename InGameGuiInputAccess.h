@@ -9,6 +9,8 @@ namespace NC2InGameGuiInputManager
     extern void* gInputManager;
     bool InputMode_Set(void* manager, std::int32_t mode);
     void InputMode_Cancel(void* manager);
+    bool Misc_Vehicle_IsToEnter(const void* manager, std::int32_t id);
+    void Highlighting_Vehicles_Update(void* manager, bool force, bool clear);
     bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle);
     bool Action_DoInputSelect(void* manager, const void* object);
     void Selection_UnselectAll(void* manager);

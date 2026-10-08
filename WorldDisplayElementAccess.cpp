@@ -31,6 +31,8 @@
 #include <initializer_list>
 #include <new>
 
+extern void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* display, void* unusedEdx, std::uint32_t moveableId, std::int32_t* point);
+
 namespace NC2InGameGuiWorldElement
 {
     template<class T> static T WorldDisplayElement_ReadField(const void* object, std::size_t offset)
@@ -249,7 +251,7 @@ namespace NC2InGameGuiWorldElement
         }
         if (message == 0x800)
         {
-            if (command == 2030) WorldDisplayElement_CheckObjectUnderMouse(element);
+            if (command == 2030) { WorldDisplayElement_l_FollowMode_Update(element); WorldDisplayElement_CheckObjectUnderMouse(element); }
             else if (command == 2031)
             {
                 NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
@@ -388,10 +390,74 @@ namespace NC2InGameGuiWorldElement
         NC2InGameGuiBase::BaseBitmapToolElement_Destruct(element);
     }
 
+    // Original function: FUN_004bb388.
+    void WorldDisplayElement_FollowMode_FollowHuman(void* element, std::int32_t id)
+    {
+        using namespace NC2Lifetime;
+        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+        Write(element, 0x224, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x221, 1);
+        Write(element, 0x228, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
+        WorldDisplayElement_l_FollowMode_Update(element);
+    }
+    // Original function: FUN_004bb3d5; validate the revision before reporting the id.
+    std::int32_t WorldDisplayElement_FollowMode_GetHumanId(void* element)
+    {
+        WorldDisplayElement_l_FollowMode_Validate(element);
+        return NC2Lifetime::Read<std::uint8_t>(element, 0x220) != 0 && NC2Lifetime::Read<std::uint8_t>(element, 0x221) != 0 ? NC2Lifetime::Read<std::int32_t>(element, 0x224) : -1;
+    }
+    // Original function: FUN_004bb3fc.
+    void WorldDisplayElement_FollowMode_FollowVehicle(void* element, std::int32_t id)
+    {
+        using namespace NC2Lifetime;
+        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+        Write(element, 0x230, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x22C, 1);
+        Write(element, 0x234, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize, 8));
+        WorldDisplayElement_l_FollowMode_Update(element);
+    }
+    // Original function: FUN_004bb449.
+    std::int32_t WorldDisplayElement_FollowMode_GetVehicleId(void* element)
+    {
+        WorldDisplayElement_l_FollowMode_Validate(element);
+        return NC2Lifetime::Read<std::uint8_t>(element, 0x220) != 0 && NC2Lifetime::Read<std::uint8_t>(element, 0x22C) != 0 ? NC2Lifetime::Read<std::int32_t>(element, 0x230) : -1;
+    }
     // Original function: FUN_004bb470; CWorldDisplayElement::FollowMode_End.
     void WorldDisplayElement_FollowMode_End(void* element)
     {
         std::memset(static_cast<std::byte*>(element) + 0x220, 0, 0x18);
+    }
+
+    // Original function: FUN_004bb484; both modes share the 0x18-byte state.
+    void WorldDisplayElement_l_FollowMode_Validate(void* element)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint8_t>(element, 0x220) == 0) return;
+        const void* object = nullptr;
+        std::uint32_t revision = 0;
+        if (Read<std::uint8_t>(element, 0x221) != 0)
+        {
+            object = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize; revision = Read<std::uint32_t>(element, 0x228);
+        }
+        else if (Read<std::uint8_t>(element, 0x22C) != 0)
+        {
+            object = NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize; revision = Read<std::uint32_t>(element, 0x234);
+        }
+        if (object == nullptr || Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) WorldDisplayElement_FollowMode_End(element);
+    }
+    // Original function: FUN_004bb4f1; use the map-moveable id, including vehicle passengers.
+    void WorldDisplayElement_l_FollowMode_Update(void* element)
+    {
+        using namespace NC2Lifetime;
+        WorldDisplayElement_l_FollowMode_Validate(element);
+        if (Read<std::uint8_t>(element, 0x220) == 0) return;
+        std::uint32_t moveable;
+        if (Read<std::uint8_t>(element, 0x221) != 0) moveable = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize, 0xC);
+        else if (Read<std::uint8_t>(element, 0x22C) != 0) moveable = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize, 0x1DC);
+        else return;
+        std::int32_t point[2];
+        void* display = Read<void*>(element, 0x30);
+        Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, moveable, point);
+        point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) - 25u);
+        NC2E2::DE_SetWantedPositionToPixelPoint(display, point);
     }
 
     // Original function: FUN_004bb669.

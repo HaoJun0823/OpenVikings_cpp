@@ -8,6 +8,7 @@
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineObjectData.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanUserControl.h"
 #include "C2HumanEquipment.h"
 #include "C2LifetimeGlobals.h"
 #include "C2E2HumanSoundAccess.h"
@@ -392,7 +393,8 @@ namespace NC2InGameGuiSelection
                     NC2E2::DE_ControllingPlayer_SetId(Read<void*>(preview, 0x30), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId());
                     l_Misc_CenterWorldDisplay(window);
                 }
-                AddGraphicButton(window, SRectangle(basic.x + 6, basic.y + 22, 16, 18), 18, 100, 10003);
+                AddGraphicButton(window, SRectangle(basic.x + 6, basic.y + 22, 18, 16), 18, 100, 10003);
+                AddGraphicButton(window, SRectangle(basic.x + 44, basic.y + 22, 18, 16), 28, 101, 10004);
                 // Follow/context popup handlers remain reconstruction boundaries.
                 const auto id = Read<std::uint32_t>(human, 4);
                 const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C;
@@ -574,7 +576,7 @@ namespace NC2InGameGuiSelection
         }
 
         // Partial production presentation in 004AD257..004ADAAB; native counters/actions.
-        // Command-availability controls and good-help popups remain boundaries.
+        // Work-marker controls and good-help popups remain boundaries.
         void DrawProduction(void* window, NXBasics::CBitmap* bitmap, const void* human)
         {
             const auto removeCounterButtons = [&](std::uint32_t good)
@@ -586,7 +588,7 @@ namespace NC2InGameGuiSelection
             if (Read<std::uint8_t>(window, 0x72) == 0 || Read<std::uint8_t>(window, 0x78) != 0)
             {
                 for (std::uint32_t good = 1; good < 66; ++good) removeCounterButtons(good);
-                Buttons(window).RemoveButton(10017, 0);
+                for (auto command : {10017u, 10018u, 10019u, 10020u, 10021u}) Buttons(window).RemoveButton(command, 0);
                 return;
             }
             const auto section = Section(window, 2);
@@ -600,9 +602,24 @@ namespace NC2InGameGuiSelection
             {
                 Buttons(window).UpdateGfxButton(10017, 0, textX, y, 18, HumanString(30));
                 textX += 20;
-                bitmap->Text_Print(resources.font08, color, textX, y, NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14), 1));
             }
             else Buttons(window).RemoveButton(10017, 0);
+            NC2Logic::SUserCommandsForHumanHandler available;
+            const std::int32_t actions[4]{16, 17, 20, 21};
+            for (std::uint32_t index = 0; index < 4; ++index)
+            {
+                const auto command = 10018u + index;
+                if (NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false) && available.IsCommandAllowed(actions[index]))
+                {
+                    Buttons(window).UpdateGfxButton(command, 0, textX, y, (index & 1u) != 0 ? 29 : 30, HumanString(31u + index)); textX += 20;
+                }
+                else Buttons(window).RemoveButton(command, 0);
+            }
+            if (house != 0xFFFFFFFFu)
+            {
+                const auto type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14);
+                if (type != 0) bitmap->Text_Print(resources.font08, color, textX, y, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
+            }
             y += 14;
             bool first = true;
             for (std::uint32_t good = 1; good < 66; ++good)
@@ -728,45 +745,82 @@ namespace NC2InGameGuiSelection
                     DrawBar(window, bitmap, basic.x + 68, basic.y + 92, Read<std::int32_t>(human, 0xAB4), 10000, 37, 15, NC2Logic::Human_IsJobNeedingReligion(human) ? resources.standardBarPalette : resources.disabledBarPalette, false);
                 }
                 std::int32_t rowY = basic.y + (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, 0xB84) & 1u) == 0 ? 103 : 100);
-                const std::size_t fields[4] = {0xB20, 0xB24, 0xB18, 0xB14};
-                const std::uint32_t commands[4] = {10022, 10025, 10023, 10024};
-                const std::uint32_t labels[4] = {20, 22, 25, 26};
-                for (std::uint32_t index = 0; index < 4; ++index)
+                NC2Logic::SUserCommandsForHumanHandler available;
+                const auto allowed = [&](std::int32_t action) { return NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false) && available.IsCommandAllowed(action); };
+                const auto relative = [&](std::size_t field, std::uint32_t command, std::uint32_t label, std::uint32_t icon)
                 {
-                    const auto id = Read<std::uint32_t>(human, fields[index]);
-                    if (id == 0xFFFFFFFFu) { Buttons(window).RemoveButton(commands[index], 0); continue; }
-                    NC2GuiToolsBase::DrawTool_DrawIcon(index == 0 ? 33u : 31u, bitmap, basic.x + 10, rowY + 6);
+                    const auto id = Read<std::uint32_t>(human, field);
+                    if (id == 0xFFFFFFFFu) { Buttons(window).RemoveButton(command, 0); return; }
+                    NC2GuiToolsBase::DrawTool_DrawIcon(icon, bitmap, basic.x + 10, rowY + 6);
                     bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C);
-                    Buttons(window).UpdateGfxButton(commands[index], 0, basic.x + 24, rowY, 18, HumanString(labels[index]));
+                    Buttons(window).UpdateGfxButton(command, 0, basic.x + 24, rowY, 18, HumanString(label));
+                    rowY += 14;
+                };
+                relative(0xB20, 10022, 20, 33);
+                if (allowed(7))
+                {
+                    NC2GuiToolsBase::DrawTool_DrawIcon(33, bitmap, basic.x + 10, rowY + 6);
+                    Buttons(window).UpdateGfxButton(10026, 0, basic.x + 24, rowY, 30, HumanString(21)); rowY += 14;
+                }
+                else Buttons(window).RemoveButton(10026, 0);
+                relative(0xB24, 10025, 22, 31);
+                const bool canGetPregnant = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false) && (available.IsCommandAllowed(8) || available.IsCommandAllowed(9));
+                if (canGetPregnant)
+                {
+                    NC2GuiToolsBase::DrawTool_DrawIcon(31, bitmap, basic.x + 10, rowY + 6);
+                    auto x = basic.x + 24;
+                    if (available.IsCommandAllowed(9)) { Buttons(window).UpdateGfxButton(10028, 0, x, rowY, 30, HumanString(24)); x += 20; }
+                    else Buttons(window).RemoveButton(10028, 0);
+                    if (available.IsCommandAllowed(8)) Buttons(window).UpdateGfxButton(10027, 0, x, rowY, 30, HumanString(23));
+                    else Buttons(window).RemoveButton(10027, 0);
                     rowY += 14;
                 }
+                else { Buttons(window).RemoveButton(10027, 0); Buttons(window).RemoveButton(10028, 0); }
+                relative(0xB18, 10023, 25, 31); relative(0xB14, 10024, 26, 31);
                 if (!NC2Logic::Human_IsJobHero(human))
                 {
                     NC2GuiToolsBase::DrawTool_DrawIcon(32, bitmap, basic.x + 10, rowY + 6);
-                    const auto home = Read<std::uint32_t>(human, 0xB28);
-                    if (home != 0xFFFFFFFFu)
+                    auto x = basic.x + 24;
+                    const auto house = Read<std::uint32_t>(human, 0xB28);
+                    std::uint32_t type = 0;
+                    if (house != 0xFFFFFFFFu)
                     {
-                        Buttons(window).UpdateGfxButton(10011, 0, basic.x + 24, rowY, 18, HumanString(27));
-                        const auto type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + home * NC2Logic::CHouseArray::ElementSize, 0x14);
-                        if (type != 0) bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
+                        Buttons(window).UpdateGfxButton(10011, 0, x, rowY, 18, HumanString(27)); x += 20;
+                        type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14);
                     }
                     else Buttons(window).RemoveButton(10011, 0);
+                    if (allowed(10)) { Buttons(window).UpdateGfxButton(10012, 0, x, rowY, 30, HumanString(28)); x += 20; }
+                    else Buttons(window).RemoveButton(10012, 0);
+                    if (allowed(11)) { Buttons(window).UpdateGfxButton(10013, 0, x, rowY, 29, HumanString(29)); x += 20; }
+                    else Buttons(window).RemoveButton(10013, 0);
+                    if (type != 0) bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, rowY, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
                     rowY += 12;
                 }
-                else Buttons(window).RemoveButton(10011, 0);
-                if (NC2Logic::Human_IsAttachedToVehicle(human))
+                else for (auto command : {10011u, 10012u, 10013u}) Buttons(window).RemoveButton(command, 0);
+                const bool hasCommands = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false);
+                const bool attached = NC2Logic::Human_IsAttachedToVehicle(human);
+                if (attached || (hasCommands && (available.IsCommandAllowed(12) || available.IsCommandAllowed(13))))
                 {
                     rowY += 6;
                     NC2GuiToolsBase::DrawTool_DrawIcon(144, bitmap, basic.x + 10, rowY + 6);
-                    Buttons(window).UpdateGfxButton(10014, 0, basic.x + 24, rowY, 18, HumanString(37));
-                    const auto vehicle = Read<std::uint32_t>(human, 0xB48);
-                    bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize, 0x1E8)));
+                    auto x = basic.x + 24;
+                    if (attached) { Buttons(window).UpdateGfxButton(10014, 0, x, rowY, 18, HumanString(37)); x += 20; }
+                    else Buttons(window).RemoveButton(10014, 0);
+                    if (hasCommands && available.IsCommandAllowed(12)) { Buttons(window).UpdateGfxButton(10015, 0, x, rowY, 30, HumanString(38)); x += 20; }
+                    else Buttons(window).RemoveButton(10015, 0);
+                    if (hasCommands && available.IsCommandAllowed(13)) { Buttons(window).UpdateGfxButton(10016, 0, x, rowY, 29, HumanString(39)); x += 20; }
+                    else Buttons(window).RemoveButton(10016, 0);
+                    if (attached)
+                    {
+                        const auto vehicle = Read<std::uint32_t>(human, 0xB48);
+                        bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, rowY, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize, 0x1E8)));
+                    }
                     rowY += 12;
                 }
-                else Buttons(window).RemoveButton(10014, 0);
+                else for (auto command : {10014u, 10015u, 10016u}) Buttons(window).RemoveButton(command, 0);
                 l_SubTabs_OverwriteHeight(window, 0, rowY - basic.y - 10);
             }
-            else for (std::uint32_t command : {10022u, 10025u, 10023u, 10024u, 10011u, 10014u}) Buttons(window).RemoveButton(command, 0);
+            else for (std::uint32_t command : {10022u, 10025u, 10023u, 10024u, 10026u, 10027u, 10028u, 10011u, 10012u, 10013u, 10014u, 10015u, 10016u}) Buttons(window).RemoveButton(command, 0);
             DrawMilitary(window, bitmap, human);
             DrawProduction(window, bitmap, human);
             DrawEquipment(window, bitmap, human);
@@ -788,6 +842,16 @@ namespace NC2InGameGuiSelection
             {
                 if (const void* human = l_Misc_GetSelectedHumanPtr()) NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetToMapPosition(NC2Logic::Human_GetMapPositionRef(human));
             }
+            else if (command == 10004)
+            {
+                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                {
+                    void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
+                    const auto id = Read<std::int32_t>(human, 4);
+                    if (NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_GetHumanId(world) == id) NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
+                    else NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_FollowHuman(world, id);
+                }
+            }
             else if (command >= 10022 && command <= 10025)
             {
                 if (const void* human = l_Misc_GetSelectedHumanPtr())
@@ -803,6 +867,28 @@ namespace NC2InGameGuiSelection
                 {
                     const auto id = Read<std::uint32_t>(human, command == 10017 ? 0xB34 : 0xB28);
                     if (id != 0xFFFFFFFFu) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
+                }
+            }
+            else if (command == 10012 || command == 10018 || command == 10020)
+            {
+                if (l_Misc_GetSelectedHumanPtr() != nullptr) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, command == 10012 ? 4 : command == 10018 ? 5 : 7);
+            }
+            else if (command == 10015)
+            {
+                NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, 27);
+            }
+            else if (command == 10013 || command == 10016 || command == 10019 || command == 10021 || (command >= 10026 && command <= 10028))
+            {
+                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                {
+                    if (command != 10016 || NC2Logic::Human_IsAttachedToVehicle(human))
+                    {
+                        std::byte networkCommand[20]{};
+                        const auto opcode = command == 10013 ? 27 : command == 10016 ? 39 : command == 10019 ? 29 : command == 10021 ? 31 : command - 10012;
+                        Write<std::uint8_t>(networkCommand, 0, static_cast<std::uint8_t>(opcode)); Write(networkCommand, 4, Read<std::uint32_t>(human, 4));
+                        NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, networkCommand);
+                        NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(human, 4));
+                    }
                 }
             }
             else if (command == 10014)

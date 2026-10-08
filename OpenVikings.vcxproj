@@ -487,6 +487,8 @@
     <ClInclude Include="C2HumanJobAccess.h" />
     <ClCompile Include="C2HumanMerchantAccess.cpp" />
     <ClInclude Include="C2HumanMerchantAccess.h" />
+    <ClCompile Include="C2HumanUserControl.cpp" />
+    <ClInclude Include="C2HumanUserControl.h" />
     <ClCompile Include="C2HumanInitialization.cpp" />
     <ClInclude Include="C2HumanInitialization.h" />
     <ClCompile Include="C2HumanTaskAccess.cpp" />

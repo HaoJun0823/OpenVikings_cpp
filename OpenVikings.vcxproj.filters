@@ -1141,6 +1141,8 @@
     <ClInclude Include="C2HumanJobAccess.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanMerchantAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanMerchantAccess.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanUserControl.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanUserControl.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanInitialization.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanInitialization.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanTaskAccess.cpp"><Filter>Logic</Filter></ClCompile>

@@ -268,10 +268,6 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
     // Naming reference: NC2InGameGuiManager::CGuiManager::CGuiManager.
 int __fastcall InGameGuiManager_Vars_Construct(void *) { return 0; }
 
-// TEMPORARY DUMMY: Windows address 004A0D01; implementation pending.
-    // Naming reference: NC2InGameGuiManager::CGuiManager::InputMode_Changed.
-void __fastcall InGameGuiManager_InputMode_Changed(void *) {}
-
 // TEMPORARY DUMMY: Windows address 004A10CB; implementation pending.
     // Naming reference: NC2InGameGuiManager::CGuiManager::l_Selection_ActionButtons_BringUp.
 void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void *) {}

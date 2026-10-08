@@ -12,6 +12,7 @@
 #include "C2MissionStartObjects.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2VehicleAccess.h"
+#include "C2HouseAccess.h"
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanMerchantAccess.h"
@@ -189,12 +190,14 @@ namespace NC2InGameGuiInputManager
         }
     }
 
-    // Partial original function: FUN_004b4854; normal mode and trader route mode.
+    // Partial original function: FUN_004b4854; normal, home/work/build/route and vehicle-entry modes.
     bool InputMode_Set(void* manager, std::int32_t mode)
     {
         if (Read<std::int32_t>(manager, 0) == mode) return true;
-        if (mode != 0 && mode != 8) return false;
-        if (mode == 8 && Read<std::uint32_t>(manager, 4) != 1) return false;
+        const auto selection = Read<std::uint32_t>(manager, 4);
+        if (mode != 0 && mode != 4 && mode != 5 && mode != 7 && mode != 8 && mode != 9 && mode != 27) return false;
+        if (mode != 0 && mode != 27 && selection != 1) return false;
+        if (mode == 27 && selection != 1 && selection != 2 && selection != 4) return false;
         if (Read<std::uint8_t>(manager, 0xAB4) != static_cast<std::uint8_t>(mode != 0))
         {
             Write<std::uint8_t>(manager, 0xAB4, mode != 0);
@@ -211,6 +214,7 @@ namespace NC2InGameGuiInputManager
             if (Read<std::uint8_t>(display, 0x74) != static_cast<std::uint8_t>(mode != 0)) { Write<std::uint8_t>(display, 0x74, mode != 0); Write<std::uint8_t>(display, 0x978, 1); }
         }
         if (mode == 0) ClearObjectHighlights();
+        else if (mode == 27) { Write(manager, 0, mode); Highlighting_Vehicles_Update(manager, true, false); }
         NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4)));
         if (mode == 0) NC2E2::C2DEngineDisplayManager::sTheObjectPtr->InformSetExplorationState(true);
         Write<std::uint8_t>(manager, 0xABA, 0); Write<std::int32_t>(manager, 0, mode);
@@ -420,10 +424,11 @@ namespace NC2InGameGuiInputManager
         return false;
     }
 
-    // Partial original function: FUN_004c9e2a; the mode-8 branch of 004ca427.
+    // Partial original function: FUN_004c9e2a; complete outlined house/route helper 004ca427 for modes 4..9.
     bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle)
     {
-        if (Read<std::uint32_t>(manager, 0) != 8) return false;
+        const auto mode = Read<std::uint32_t>(manager, 0);
+        if (mode < 4 || mode > 9) return false;
         const auto id = Selection_GetSelectedSingleHumanId(manager);
         const void* human = Human(static_cast<std::uint32_t>(id));
         std::uint32_t position;
@@ -441,20 +446,34 @@ namespace NC2InGameGuiInputManager
                 if (positioned)
                 {
                     const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                    if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0 && merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, Read<std::uint16_t>(micro, 4))) mark = 3;
+                    if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
+                    {
+                        const auto houseId = Read<std::uint16_t>(micro, 4);
+                        bool valid = false;
+                        switch (mode)
+                        {
+                        case 4: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsHomie(House(houseId), id); break;
+                        case 5: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsWorker(House(houseId), id); break;
+                        case 6: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsStudent(House(houseId), id); break;
+                        case 7: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsBuilder(House(houseId), id); break;
+                        case 8: valid = merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, houseId); break;
+                        case 9: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(House(houseId), 8)); break;
+                        }
+                        if (valid) mark = 3;
+                    }
                 }
                 if ((flags & 3u) != mark) { Write<std::uint8_t>(engine, 2, (flags & 0xFCu) | mark); changed = true; }
             }
         return changed;
     }
 
-    // Partial original function: FUN_004b767e; normal mode and native mode-8 rings.
+    // Partial original function: FUN_004b767e; normal mode and native house/route target rings.
     void Cursor_SetPosition(void* manager, const void* point)
     {
         Write(manager, 0xAB6, Read<std::uint32_t>(point, 0));
         auto* cursor = static_cast<std::byte*>(manager) + 0xAB6;
         NC2Logic::MapMigPoint_ValidatePosition(cursor);
-        if (Read<std::uint32_t>(manager, 0) == 8)
+        if (Read<std::uint32_t>(manager, 0) >= 4 && Read<std::uint32_t>(manager, 0) <= 9)
         {
             std::int16_t rectangle[4]{static_cast<std::int16_t>(Read<std::int16_t>(cursor, 0) - 7), static_cast<std::int16_t>(Read<std::int16_t>(cursor, 2) - 7), 14, 14};
             // Native SMapMigRectangle construction clips before highlighting.
@@ -486,21 +505,73 @@ namespace NC2InGameGuiInputManager
         if (valid) Write(manager, 0xABC, Read<std::uint32_t>(cursor, 0));
     }
 
-    // Partial original function: FUN_004b4bd6; mode-8 branch 004B4E58.
-    bool Action_DoInputSelect(void* manager, const void*)
+    // Original function: FUN_004b7b08.
+    bool Misc_Vehicle_IsToEnter(const void* manager, std::int32_t id)
     {
-        if (Read<std::uint32_t>(manager, 0) != 8 || Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+        const auto selection = Read<std::uint32_t>(manager, 4);
+        if (selection == 1)
+        {
+            const auto human = Read<std::int32_t>(manager, 8);
+            return human != -1 && NC2Logic::Vehicle_Passengers_CanHumanBeAttached(Vehicle(id), human);
+        }
+        if (selection == 4)
+        {
+            const auto vehicle = Read<std::int32_t>(manager, 0x97C);
+            return vehicle != -1 && NC2Logic::Vehicle_Passengers_CanVehicleBeAttached(Vehicle(id), vehicle);
+        }
+        return false;
+    }
+    // Partial original function: FUN_004cb137; complete mode-27 and forced-clear branches.
+    void Highlighting_Vehicles_Update(void* manager, bool force, bool clear)
+    {
+        if (!force && Read<std::uint32_t>(manager, 0) != 27) return;
+        // The unfiltered Windows iterator scans allocation bytes in ascending array order.
+        const auto* array = NC2Logic::CVehicleArray::sTheObjectPtr;
+        for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
+        {
+            if (Read<std::uint8_t>(Vehicle(id), 0) == 0) continue;
+            const bool allowed = !clear && Read<std::uint32_t>(manager, 0) == 27 && Misc_Vehicle_IsToEnter(manager, id);
+            NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x10, true, id, allowed ? 12 : 8, 0);
+        }
+    }
+    // Partial original function: FUN_004b4bd6; native home/work/build/route and vehicle-entry branches.
+    bool Action_DoInputSelect(void* manager, const void* object)
+    {
+        const auto mode = Read<std::uint32_t>(manager, 0);
+        if (mode == 27)
+        {
+            if (object == nullptr || Read<std::uint32_t>(object, 0) != 3) return false;
+            const auto id = Read<std::int32_t>(object, 0x18);
+            if (!Misc_Vehicle_IsToEnter(manager, id)) return false;
+            const auto selection = Read<std::uint32_t>(manager, 4);
+            if (selection == 1 || selection == 4)
+            {
+                std::byte command[20]{};
+                Write<std::uint8_t>(command, 0, selection == 1 ? 38 : 113); Write(command, 4, Read<std::uint32_t>(manager, selection == 1 ? 8 : 0x97C));
+                Write(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(Vehicle(id), 8));
+                if (selection == 1)
+                {
+                    NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
+                    NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
+                }
+                else NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+            }
+            InputMode_Cancel(manager);
+            return true;
+        }
+        if ((mode != 4 && mode != 5 && mode != 7 && mode != 8 && mode != 9) || Read<std::uint8_t>(manager, 0xABA) == 0) return false;
         const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + 0xABC);
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
         {
             const auto id = Read<std::uint16_t>(micro, 4);
             std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 36); Write(command, 4, Read<std::uint32_t>(manager, 8));
+            const auto opcode = mode == 4 ? 26 : mode == 5 ? 28 : mode == 7 ? 30 : mode == 8 ? 36 : 37;
+            Write<std::uint8_t>(command, 0, static_cast<std::uint8_t>(opcode)); Write(command, 4, Read<std::uint32_t>(manager, 8));
             Write<std::uint32_t>(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(House(id), 8));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
         }
-        InputMode_Set(manager, 0);
+        InputMode_Cancel(manager);
         return true;
     }
 
@@ -622,4 +693,17 @@ bool __cdecl InputManager_ls_Callback_Logic(unsigned int type, unsigned int, uns
         }
     }
     return true;
+}
+
+// Original function: FUN_004a0d01; preserve the fourteen desktop element notifications.
+void __fastcall InGameGuiManager_InputMode_Changed(void* manager)
+{
+    const bool normal = NC2Lifetime::Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) == 0;
+    auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
+    for (std::uint32_t offset = 0xC; offset <= 0x40; offset += 4)
+    {
+        auto* element = NC2Lifetime::Read<NXBaseGui::CBaseElement*>(manager, offset);
+        if (normal) desktop->Element_UnHide(element); else desktop->Element_Hide(element);
+    }
+    NC2InGameGuiBase::BaseToolDesktop_SelectionActiveChanged();
 }

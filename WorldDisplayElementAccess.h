@@ -12,6 +12,12 @@ namespace NC2InGameGuiWorldElement
 {
     void* WorldDisplayElement_Construct(void* element, const NXBasics::SRectangle* rectangle, bool active, bool inputEnabled);
     void WorldDisplayElement_Destruct(void* element);
+    void WorldDisplayElement_FollowMode_FollowHuman(void* element, std::int32_t id);
+    std::int32_t WorldDisplayElement_FollowMode_GetHumanId(void* element);
+    void WorldDisplayElement_FollowMode_FollowVehicle(void* element, std::int32_t id);
+    std::int32_t WorldDisplayElement_FollowMode_GetVehicleId(void* element);
+    void WorldDisplayElement_l_FollowMode_Validate(void* element);
+    void WorldDisplayElement_l_FollowMode_Update(void* element);
     void WorldDisplayElement_FollowMode_End(void* element);
     void WorldDisplayElement_DrawFrame_SetMode(void* element, std::uint32_t mode);
     void WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(void* element, void* handler, std::uint32_t command);
