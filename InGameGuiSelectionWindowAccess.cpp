@@ -576,7 +576,7 @@ namespace NC2InGameGuiSelection
         }
 
         // Partial production presentation in 004AD257..004ADAAB; native counters/actions.
-        // Work-marker controls and good-help popups remain boundaries.
+        // Good-help popups remain a reconstruction boundary.
         void DrawProduction(void* window, NXBasics::CBitmap* bitmap, const void* human)
         {
             const auto removeCounterButtons = [&](std::uint32_t good)
@@ -588,7 +588,7 @@ namespace NC2InGameGuiSelection
             if (Read<std::uint8_t>(window, 0x72) == 0 || Read<std::uint8_t>(window, 0x78) != 0)
             {
                 for (std::uint32_t good = 1; good < 66; ++good) removeCounterButtons(good);
-                for (auto command : {10017u, 10018u, 10019u, 10020u, 10021u}) Buttons(window).RemoveButton(command, 0);
+                for (auto command : {10017u, 10018u, 10019u, 10020u, 10021u, 10037u, 10038u}) Buttons(window).RemoveButton(command, 0);
                 return;
             }
             const auto section = Section(window, 2);
@@ -621,6 +621,19 @@ namespace NC2InGameGuiSelection
                 if (type != 0) bitmap->Text_Print(resources.font08, color, textX, y, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
             }
             y += 14;
+            // Windows 004AD49C..004AD59E: marker placement (28) and work-area display (29).
+            const bool hasCommands = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false);
+            if (hasCommands && (available.IsCommandAllowed(28) || available.IsCommandAllowed(29)))
+            {
+                NC2GuiToolsBase::DrawTool_DrawIcon(39, bitmap, section.x + 10, y + 6);
+                auto markerX = section.x + 24;
+                if (available.IsCommandAllowed(28)) { Buttons(window).UpdateGfxButton(10037, 0, markerX, y, 30, HumanString(35)); markerX += 20; }
+                else Buttons(window).RemoveButton(10037, 0);
+                if (available.IsCommandAllowed(29)) Buttons(window).UpdateGfxButton(10038, 0, markerX, y, 28, HumanString(36));
+                else Buttons(window).RemoveButton(10038, 0);
+                y += 14;
+            }
+            else { Buttons(window).RemoveButton(10037, 0); Buttons(window).RemoveButton(10038, 0); }
             bool first = true;
             for (std::uint32_t good = 1; good < 66; ++good)
             {
@@ -840,8 +853,14 @@ namespace NC2InGameGuiSelection
             }
             else if (command == 10001 || command == 10003)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr()) NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetToMapPosition(NC2Logic::Human_GetMapPositionRef(human));
+                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                {
+                    void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
+                    NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, 0x30), reinterpret_cast<const std::uint32_t*>(NC2Logic::Human_GetMapPositionRef(human)));
+                    NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
+                }
             }
+            else if (command == 10002) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_ActionButtons_BringUp();
             else if (command == 10004)
             {
                 if (const void* human = l_Misc_GetSelectedHumanPtr())
@@ -931,6 +950,7 @@ namespace NC2InGameGuiSelection
             {
                 Write<void*>(window, 0x3D74, nullptr);
             }
+            else if (command == 10037 || command == 10038) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, command == 10037 ? 2 : 3);
             else if (command == 10039 || command == 10040)
             {
                 if (const void* human = l_Misc_GetSelectedHumanPtr())

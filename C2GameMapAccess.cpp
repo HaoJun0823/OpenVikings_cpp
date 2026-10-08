@@ -276,6 +276,16 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_00424d67; callers supply an already clipped rectangle.
+    void GameMap_CalculationMap_Clear(const std::int16_t* rectangle)
+    {
+        std::uint32_t baseAddress;
+        std::memcpy(&baseAddress, DAT_00511570 + 0x38, sizeof(baseAddress));
+        const auto stride = static_cast<std::int32_t>(GameMap_GetWidth());
+        auto* values = reinterpret_cast<std::int16_t*>(static_cast<std::uintptr_t>(baseAddress)) + rectangle[1] * stride + rectangle[0];
+        for (std::int32_t row = 0; row < rectangle[3]; ++row) { std::memset(values, 0, static_cast<std::uint32_t>(static_cast<std::int32_t>(rectangle[2])) * 2u); values += stride; }
+    }
+
     // Original function: FUN_00452aec.
     std::uint32_t GameMap_Continent_GetContinentTyp(std::uint32_t continentId)
     {

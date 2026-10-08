@@ -1,5 +1,17 @@
 # Reverse-Engineering State
 
+## Character work markers and specialized input modes - 2026-10-08
+
+Connected work-marker placement/work-area display (production buttons 10037/10038), native portrait right-click context actions and camera/follow call order. Character input modes 1/2/3/10/13/22/23/25/26 now validate point/object targets, enqueue the Windows commands, issue responding voices and cancel in native order. Native input-mode selection checks, object highlights, logic-tick highlight refresh, cursor target rings, cancellation notifications and overview exploration restoration are complete. Map highlighting remains partial for mode 12 and modes 14..21; downstream combat execution retains independent gaps.
+
+Windows ASM/Game.exe establish all behavior, constants and layouts. Mac headers supply corresponding names only; outlined helper names without Mac correspondence are documented semantic adapters. See [HUMAN_SELECTION_COMMAND_MODES.md](HUMAN_SELECTION_COMMAND_MODES.md).
+
+**3246 / 5055 (64.21%)** source-address coverage; **1809** known entries remain open. Captured partials/dummies remain excluded; this is not verified gameplay completion.
+
+Win32 `/Zs` passed for ten changed/calling cpp units; existing manager C4805 warnings only. No build/tests/gameplay run. Production/filter inventory remains **206 cpp / 192 headers**; **1086 naming rows / 116 tracked unfinished boundaries**. User-owned untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded.
+
+Next functional block: world-cursor rendering and contextual hover/default actions, then multiple/non-human selection windows and vehicle/construction modes. Keep keyboard hotkeys/chat/cheats and help/context popups as explicit separate boundaries.
+
 ## Native character choosers and contextual actions - 2026-10-08
 
 Following `e5b6b79`, `InGameGuiHumanJobWindows.cpp/.h` reconstruct the complete Windows job, name, produced-good and school chooser blocks: 004A2683/004A26C2/004A2723/004A2761/004A27EA -> 004C736E..004C8274 and 004C8B04..004C9009. Job changes retain single/group availability, alphabetical sorting, the six-entry farmer table, pressed current-job rows, two-second refresh with scroll restoration, command 21 followed by optional 22, response voices, automatic workplace selection and frame registration/unregistration. School rows use the human tribe, native job byte +87 in 0x88-byte job records, both player enable/unlock arrays and original farmer exclusions. Commands 34/35 preserve the optional-good behavior, including the existing desired-good fallback for single-good jobs. School target mode 6 enqueues 32, tests house type 38, responds, cancels the mode and then opens the learning chooser in native order.

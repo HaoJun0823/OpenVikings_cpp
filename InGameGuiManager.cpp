@@ -6,6 +6,7 @@
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayAccess.h"
 #include "InGameGuiManager.h"
+#include "C2EngineDisplayManager.h"
 #include "InGameGuiSelectionWindowAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiManager_MessageHandlers.h"
@@ -469,6 +470,13 @@ namespace NInGameGuiManager
     void CInGameGuiManager::EngineWorldDisplayGuiElement_UnRegister(void* element)
     {
         std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x60))->l_Base_RemoveElement(element);
+    }
+
+    // Original function: FUN_004a0ca6; both the main displays and registered overviews are informed.
+    void CInGameGuiManager::Exploration_Set(bool enabled)
+    {
+        NC2E2::C2DEngineDisplayManager::sTheObjectPtr->InformSetExplorationState(enabled);
+        NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->System_SetExplorationState(enabled);
     }
 
     // Original function: FUN_004a0cf2.

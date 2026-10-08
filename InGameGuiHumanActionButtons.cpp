@@ -152,7 +152,7 @@ namespace NC2InGameGuiManager
         NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
         NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id); return true;
     }
-    // Human branch of FUN_004a3edb; original unsupported input modes remain explicit reconstruction boundaries.
+    // Human branch of FUN_004a3edb; vehicle/house action branches remain reconstruction boundaries.
     bool HumanActionButtons_HandleCommand(std::uint32_t action)
     {
         using namespace NC2InGameGuiInputManager;

@@ -3,6 +3,7 @@
 
 namespace NC2Logic
 {
+    bool Animal_Misc_CanBeAttackedByHuman(const void* animal, std::int32_t humanId, bool allowOwnAnimals);
     const void* Animal_GetMapPositionRef(const void* animal);
     std::uint32_t Animal_GetCurrentAtomicAnimationLengthInTicks(const void* animal);
     std::uint32_t Animal_HitPoints_GetMaximum(const void* animal);

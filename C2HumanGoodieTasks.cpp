@@ -102,17 +102,17 @@ namespace NC2Logic
         return false;
     }
 
+    // Original function: FUN_0045ccb6; the Mac predicate is inlined and has no recovered standalone name.
+    bool Human_UsesExtendedPathfinder(const void* human)
+    {
+        const auto job = Read<std::uint32_t>(human, 0x18);
+        return Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobScout(human) || Human_IsJobHunter(human) || job == 30 || (Read<std::uint32_t>(human, 0xB84) & 0x100u) != 0;
+    }
+
     namespace
     {
         void* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u; }
         const void* Position(const void* human) { return Human_GetMapPositionRef(human); }
-
-        // Original 0045CCB6; Mac inlines this predicate into l_StartAtomicWalk.
-        bool UseExtendedPathfinder(const void* human)
-        {
-            const auto job = Read<std::uint32_t>(human, 0x18);
-            return Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobScout(human) || Human_IsJobHunter(human) || job == 30 || (Read<std::uint32_t>(human, 0xB84) & 0x100u) != 0;
-        }
 
         struct NearbyPoints { std::uint32_t count = 0; std::uint32_t points[8]{}; };
         static_assert(sizeof(NearbyPoints) == 0x24);
@@ -251,7 +251,7 @@ namespace NC2Logic
             return true;
         }
         if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(workPosition), 0x0C) & 0x80u) != 0) return false;
-        const auto useSectors = UseExtendedPathfinder(human);
+        const auto useSectors = Human_UsesExtendedPathfinder(human);
         // Windows 004F4300/004F4304: normal/carrier search radii 50/63.
         if (!MapMoveable_Pathfinder_Start(Moveable(human), workPosition, Human_IsJobCarrier(human) ? 63u : 50u, true, useSectors, true)) return false;
         Write<std::uint8_t>(human, 0xABC, 0);
@@ -269,7 +269,7 @@ namespace NC2Logic
     bool Human_l_StartAtomicWalk(void* human, std::int32_t moveableId, std::uint32_t distance)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return false;
-        const auto useSectors = UseExtendedPathfinder(human);
+        const auto useSectors = Human_UsesExtendedPathfinder(human);
         if (Read<std::uint8_t>(human, 0xB51) != 0)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;

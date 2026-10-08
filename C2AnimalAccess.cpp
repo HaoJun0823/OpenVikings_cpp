@@ -1,4 +1,5 @@
 #include "C2AnimalAccess.h"
+#include "C2GameControlNetwork.h"
 #include "C2LogicObjectArrays.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -28,6 +29,17 @@ namespace NC2Logic
         void* Animal(std::int32_t id) { return CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * CAnimalArray::ElementSize; }
         void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * 0x58u; }
         const SStaticAnimalTypeData& Type(const void* animal) { return static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u]; }
+    }
+
+    // Original function: FUN_0044710b; neutral animals bypass diplomacy, owned animals do so only on selection.
+    bool Animal_Misc_CanBeAttackedByHuman(const void* animal, std::int32_t humanId, bool allowOwnAnimals)
+    {
+        if (Type(animal).cannotBeAttacked != 0) return false;
+        const auto player = Read<std::int32_t>(animal, 0x10);
+        if (player == 20) return true;
+        const auto humanPlayer = Read<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize, 0x10);
+        if (player == humanPlayer && allowOwnAnimals) return true;
+        return Logic_EntryPoint_GetDiplomacyState(humanPlayer, player) == 3;
     }
 
     // Original function: FUN_0040ad95; the manager owns allocation and callbacks.

@@ -4,6 +4,7 @@
 
 namespace NC2Logic
 {
+    bool Human_UsesExtendedPathfinder(const void* human);
     bool Human_IsAbleToListenNow(const void* human);
     bool Human_IsAbleToListen(const void* human);
     bool Human_IsDoingGoodie(const void* human);

@@ -16,6 +16,11 @@
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanMerchantAccess.h"
+#include "C2AnimalAccess.h"
+#include "C2GameControlNetwork.h"
+#include "C2GuideAccess.h"
+#include "C2HumanGoodieTasks.h"
+#include "C2MapPathfinderSearch.h"
 #include "C2E2HumanSoundAccess.h"
 #include "InGameGuiBaseAccess.h"
 #include "C2EngineDisplayManager.h"
@@ -115,21 +120,6 @@ namespace NC2InGameGuiInputManager
 
         void ResetInvalid(void* manager) { Selection_UnselectAll(manager); InputMode_Set(manager, 0); }
 
-        void ClearObjectHighlights()
-        {
-            NC2Logic::CHumanIterator humans;
-            for (auto id = humans.GetFirstHumanId(); id != -1; id = humans.GetNextHumanId()) NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, id, 8, 0);
-            for (const auto type : {0xFu, 0x10u})
-            {
-                const auto* array = type == 0xF ? static_cast<const NC2Logic::CArrayHandler*>(NC2Logic::CAnimalArray::sTheObjectPtr) : static_cast<const NC2Logic::CArrayHandler*>(NC2Logic::CVehicleArray::sTheObjectPtr);
-                for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
-                {
-                    if (!array->mIsAllocated(array->mEntries + static_cast<std::uint32_t>(id) * array->mElementSize)) continue;
-                    NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(type, true, id, 8, 0);
-                }
-            }
-        }
-
         bool IsLive(const void* object, std::uint32_t revision, std::uint32_t offset = 8) { return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, offset) == revision; }
 
         void ValidateGroup(void* manager, bool vehicles)
@@ -190,17 +180,12 @@ namespace NC2InGameGuiInputManager
         }
     }
 
-    // Partial original function: FUN_004b4854; normal, home/work/build/route and vehicle-entry modes.
-    bool InputMode_Set(void* manager, std::int32_t mode)
+    // Original function: FUN_004b764f; changes to the enable flag clear the complete engine map.
+    void Highlighting_Map_SetState(void* manager, bool enabled)
     {
-        if (Read<std::int32_t>(manager, 0) == mode) return true;
-        const auto selection = Read<std::uint32_t>(manager, 4);
-        if (mode != 0 && mode != 4 && mode != 5 && mode != 6 && mode != 7 && mode != 8 && mode != 9 && mode != 27) return false;
-        if (mode != 0 && mode != 27 && selection != 1) return false;
-        if (mode == 27 && selection != 1 && selection != 2 && selection != 4) return false;
-        if (Read<std::uint8_t>(manager, 0xAB4) != static_cast<std::uint8_t>(mode != 0))
+        if (Read<std::uint8_t>(manager, 0xAB4) != static_cast<std::uint8_t>(enabled))
         {
-            Write<std::uint8_t>(manager, 0xAB4, mode != 0);
+            Write<std::uint8_t>(manager, 0xAB4, enabled);
             // Original function: FUN_004832dc; clear only the two highlight bits.
             for (std::int32_t y = NC2Logic::GameMap_GetHeight() - 1; y >= 0; --y)
                 for (std::int32_t x = NC2Logic::GameMap_GetWidth() - 1; x >= 0; --x)
@@ -211,12 +196,42 @@ namespace NC2InGameGuiInputManager
                 }
             auto* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
             auto* display = Read<void*>(world, 0x30);
-            if (Read<std::uint8_t>(display, 0x74) != static_cast<std::uint8_t>(mode != 0)) { Write<std::uint8_t>(display, 0x74, mode != 0); Write<std::uint8_t>(display, 0x978, 1); }
+            if (Read<std::uint8_t>(display, 0x74) != static_cast<std::uint8_t>(enabled)) { Write<std::uint8_t>(display, 0x74, enabled); Write<std::uint8_t>(display, 0x978, 1); }
         }
-        if (mode == 0) ClearObjectHighlights();
-        else if (mode == 27) { Write(manager, 0, mode); Highlighting_Vehicles_Update(manager, true, false); }
-        NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4)));
-        if (mode == 0) NC2E2::C2DEngineDisplayManager::sTheObjectPtr->InformSetExplorationState(true);
+    }
+
+    // Original function: FUN_004b4854; Windows validates selection before changing highlights.
+    bool InputMode_Set(void* manager, std::int32_t mode)
+    {
+        if (Read<std::int32_t>(manager, 0) == mode) return true;
+        const auto selection = Read<std::uint32_t>(manager, 4);
+        if (static_cast<std::uint32_t>(mode) <= 28)
+        {
+            bool allowed = true;
+            if ((mode >= 1 && mode <= 9) || mode == 13) allowed = selection == 1;
+            else if (mode == 10 || mode == 22 || mode == 23 || mode == 25) allowed = selection == 1 || selection == 2;
+            else if (mode == 11 || mode == 20 || mode == 21 || mode == 24 || mode == 28) allowed = selection == 4 || selection == 5;
+            else if (mode == 12) allowed = selection == 7;
+            else if (mode == 19) allowed = selection == 4;
+            else if (mode == 26 || mode == 27) allowed = selection == 1 || selection == 2 || selection == 4;
+            if (!allowed) return false;
+            Highlighting_Map_SetState(manager, mode != 0);
+            if (mode == 0)
+            {
+                Highlighting_Humans_Update(manager, true, true);
+                Highlighting_Animals_Update(manager, true, true);
+                Highlighting_Vehicles_Update(manager, true, true);
+            }
+            else if (mode >= 23)
+            {
+                Write(manager, 0, mode);
+                if (mode == 23 || mode == 24) Highlighting_Humans_Update(manager, true, false);
+                else if (mode == 25) Highlighting_Animals_Update(manager, true, false);
+                else Highlighting_Vehicles_Update(manager, true, false);
+            }
+            NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4)));
+            if (mode == 0) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Exploration_Set(true);
+        }
         Write<std::uint8_t>(manager, 0xABA, 0); Write<std::int32_t>(manager, 0, mode);
         Cursor_SetPosition(manager, static_cast<std::byte*>(manager) + 0xAB6);
         InGameGuiManager_InputMode_Changed(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
@@ -231,6 +246,7 @@ namespace NC2InGameGuiInputManager
         if (mode == 12) { InputMode_Set(manager, 0); Selection_UnselectAll(manager); }
         else if (mode == 0) Selection_UnselectAll(manager);
         else if (mode > 0 && mode <= 28) InputMode_Set(manager, 0);
+        NC2InGameGuiBase::BaseToolDesktop_SelectionActiveChanged();
     }
 
     // Original function: FUN_004b5eb1; road/wall queries remain unfinished.
@@ -424,15 +440,150 @@ namespace NC2InGameGuiInputManager
         return false;
     }
 
-    // Partial original function: FUN_004c9e2a; complete outlined house/route helper 004ca427 for modes 4..9.
+    namespace
+    {
+        // Integration loop preserves the signed-word rectangle endpoints used by the native helpers.
+        template<class Predicate> bool UpdateHighlightArea(const std::int16_t* rectangle, Predicate mark)
+        {
+            bool changed = false;
+            const auto right = static_cast<std::int16_t>(rectangle[0] + rectangle[2] - 1), bottom = static_cast<std::int16_t>(rectangle[1] + rectangle[3] - 1);
+            for (std::int32_t y = rectangle[1]; y <= bottom; ++y)
+                for (std::int32_t x = rectangle[0]; x <= right; ++x)
+                {
+                    const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
+                    auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
+                    const auto wanted = mark(point), flags = Read<std::uint8_t>(micro, 2);
+                    if ((flags & 3u) == wanted) continue;
+                    Write<std::uint8_t>(micro, 2, (flags & 0xFCu) | wanted);
+                    changed = true;
+                }
+            return changed;
+        }
+
+        // Original function: FUN_004c9f57; the folded helper has no recovered Mac name.
+        bool HighlightInvalidArea(const std::int16_t* rectangle) { return UpdateHighlightArea(rectangle, [](const void*) -> std::uint8_t { return 1; }); }
+
+        // Original function: FUN_004ca169.
+        bool ls_Highlighting_Update_Tool_CalculationMapIntoHighlightFlags(const std::int16_t* rectangle) { return UpdateHighlightArea(rectangle, [](const void* point) -> std::uint8_t { return NC2Logic::GameMap_CalculationMap_GetValue(point) != 0 ? 3 : 1; }); }
+
+        // Original function: FUN_004ca218.
+        bool __cdecl ls_Highlighting_Update_Tool_PathfinderSearchOverMapFunction_AlwaysGoOn(const void*, const NC2Logic::SMapPathfinderManagerSearchOverMapCallbackData*) { return false; }
+
+        bool HighlightHumanContinent(const std::int16_t* rectangle, std::uint32_t continent)
+        {
+            const auto mark = [continent](const void* point) -> std::uint8_t
+            {
+                const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+                return Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 0x0C) & 0x80u) == 0 ? 3 : 1;
+            };
+            return UpdateHighlightArea(rectangle, mark);
+        }
+
+        // Original function: FUN_004c9fdb; Windows outlined helper, original Mac name unavailable.
+        bool HighlightHumanMovement(void* manager, const std::int16_t* rectangle)
+        {
+            const auto* human = Human(Selection_GetSelectedSingleHumanId(manager));
+            std::uint32_t position = 0;
+            if (!NC2Logic::Human_GetMapPosition(human, &position)) return HighlightInvalidArea(rectangle);
+            if (NC2Logic::Human_UsesExtendedPathfinder(human))
+            {
+                const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6);
+                if (continent == 0 || NC2Logic::GameMap_Continent_GetContinentTyp(continent) != 1) return HighlightInvalidArea(rectangle);
+                return HighlightHumanContinent(rectangle, continent);
+            }
+            NC2Logic::GameMap_CalculationMap_Clear(rectangle);
+            // Game.exe 004F4300/004F4304: ordinary/carrier point-search radii.
+            NC2Logic::CMapPathfinderElement::SearchOverMap(NC2Logic::Human_GetMapPositionRef(human), NC2Logic::Human_IsJobCarrier(human) ? 63u : 50u, true, ls_Highlighting_Update_Tool_PathfinderSearchOverMapFunction_AlwaysGoOn, nullptr, true, -1);
+            return ls_Highlighting_Update_Tool_CalculationMapIntoHighlightFlags(rectangle);
+        }
+
+        // Original function: FUN_004ca21b; the displayed work area has a different origin from marker placement.
+        bool HighlightHumanWorkCenter(void* manager, const std::int16_t* rectangle, bool displayArea)
+        {
+            const auto* human = Human(Selection_GetSelectedSingleHumanId(manager));
+            std::uint32_t position = 0;
+            if (!NC2Logic::Human_GetMapPosition(human, &position)) return HighlightInvalidArea(rectangle);
+            if (NC2Logic::Human_UsesExtendedPathfinder(human))
+            {
+                const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6);
+                if (continent == 0 || NC2Logic::GameMap_Continent_GetContinentTyp(continent) != 1) return HighlightInvalidArea(rectangle);
+                return HighlightHumanContinent(rectangle, continent);
+            }
+            NC2Logic::GameMap_CalculationMap_Clear(rectangle);
+            const void* source;
+            std::uint32_t radius;
+            if (displayArea)
+            {
+                const auto job = Read<std::uint32_t>(human, 0x18);
+                radius = job == 18 || job == 29 ? 10u : 20u; // Game.exe 004F430C/004F4310.
+                source = static_cast<const std::byte*>(human) + 0xB30;
+            }
+            else if (NC2Logic::Human_IsAttachedToWorkHouse(human))
+            {
+                radius = NC2Logic::Human_IsJobCarrier(human) ? 43u : 5u; // Game.exe 004F4320/004F4324.
+                source = static_cast<const std::byte*>(House(Read<std::uint32_t>(human, 0xB34))) + 0x24;
+            }
+            else
+            {
+                radius = NC2Logic::Human_IsJobCarrier(human) ? 63u : 50u;
+                source = NC2Logic::Human_GetMapPositionRef(human);
+            }
+            NC2Logic::CMapPathfinderElement::SearchOverMap(source, radius, true, ls_Highlighting_Update_Tool_PathfinderSearchOverMapFunction_AlwaysGoOn, nullptr, true, -1);
+            return ls_Highlighting_Update_Tool_CalculationMapIntoHighlightFlags(rectangle);
+        }
+
+        // Original function: FUN_004ca5c5; this outlined helper uses the GUI player, not the selection owner.
+        bool HighlightEnemyHouses(const std::int16_t* rectangle)
+        {
+            const auto player = Player();
+            const auto mark = [player](const void* point) -> std::uint8_t
+            {
+                const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+                if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return 1;
+                return NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), 0x0C)) == 3 ? 3 : 1;
+            };
+            return UpdateHighlightArea(rectangle, mark);
+        }
+
+        // Original function: FUN_004ca7e8.
+        bool HighlightGuideConstruction(const std::int16_t* rectangle)
+        {
+            const auto player = Player();
+            return UpdateHighlightArea(rectangle, [player](const void* point) -> std::uint8_t { return NC2Logic::GameMap_Exploration_HasBeenSeenOnce(player, point) && NC2Logic::Tool_Guide_IsAllowedToBeBuild(player, point, true) ? 3 : 1; });
+        }
+
+        // Original function: FUN_004caf52.
+        bool HighlightEnemyLandscapes(const std::int16_t* rectangle)
+        {
+            const auto player = Player();
+            const auto mark = [player](const void* point) -> std::uint8_t
+            {
+                const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+                const auto owner = Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 ? Read<std::int8_t>(micro, 4) : -1;
+                return owner != -1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, owner) == 3 ? 3 : 1;
+            };
+            return UpdateHighlightArea(rectangle, mark);
+        }
+    }
+
+    // Partial original function: FUN_004c9e2a; modes 12 and 14..21 remain reconstruction boundaries.
     bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle)
     {
+        // Windows reads its singleton in both the dispatcher and the outlined helpers.
+        manager = gInputManager;
         const auto mode = Read<std::uint32_t>(manager, 0);
+        if (mode == 1) return HighlightHumanMovement(gInputManager, rectangle);
+        if (mode == 2 || mode == 3) return HighlightHumanWorkCenter(gInputManager, rectangle, mode == 3);
+        if (mode == 10 || mode == 11) return HighlightEnemyHouses(rectangle);
+        if (mode == 13) return HighlightGuideConstruction(rectangle);
+        if (mode == 22) return HighlightEnemyLandscapes(rectangle);
+        if (mode >= 23 && mode <= 28) return HighlightInvalidArea(rectangle);
         if (mode < 4 || mode > 9) return false;
         const auto id = Selection_GetSelectedSingleHumanId(manager);
         const void* human = Human(static_cast<std::uint32_t>(id));
         std::uint32_t position;
         const bool positioned = NC2Logic::Human_GetMapPosition(human, &position);
+        if (!positioned) return HighlightInvalidArea(rectangle);
         void* merchant = positioned && NC2Logic::Human_IsJobTrader(human) ? NC2Logic::HumanMerchantArray_GetMerchantDataPtr(NC2Logic::gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)) : nullptr;
         bool changed = false;
         const auto right = static_cast<std::int16_t>(rectangle[0] + rectangle[2] - 1), bottom = static_cast<std::int16_t>(rectangle[1] + rectangle[3] - 1);
@@ -467,13 +618,13 @@ namespace NC2InGameGuiInputManager
         return changed;
     }
 
-    // Partial original function: FUN_004b767e; normal mode and native house/route target rings.
+    // Original function: FUN_004b767e; all point modes 1..22 use the native five target rings.
     void Cursor_SetPosition(void* manager, const void* point)
     {
         Write(manager, 0xAB6, Read<std::uint32_t>(point, 0));
         auto* cursor = static_cast<std::byte*>(manager) + 0xAB6;
         NC2Logic::MapMigPoint_ValidatePosition(cursor);
-        if (Read<std::uint32_t>(manager, 0) >= 4 && Read<std::uint32_t>(manager, 0) <= 9)
+        if (Read<std::uint32_t>(manager, 0) >= 1 && Read<std::uint32_t>(manager, 0) <= 22)
         {
             std::int16_t rectangle[4]{static_cast<std::int16_t>(Read<std::int16_t>(cursor, 0) - 7), static_cast<std::int16_t>(Read<std::int16_t>(cursor, 2) - 7), 14, 14};
             // Native SMapMigRectangle construction clips before highlighting.
@@ -505,6 +656,78 @@ namespace NC2InGameGuiInputManager
         if (valid) Write(manager, 0xABC, Read<std::uint32_t>(cursor, 0));
     }
 
+    namespace
+    {
+        // Windows 004B790D/004B799D/004B7A7A inline the same selection-owner lookup.
+        std::int32_t SelectedAttackPlayer(const void* manager)
+        {
+            switch (Read<std::uint32_t>(manager, 4))
+            {
+            case 1: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10);
+            case 2: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), 0x10);
+            case 4: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0);
+            case 5: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : 0xFFFFFFFFu), 0x1E0);
+            default: return -1;
+            }
+        }
+
+        void QueueHumanTarget(std::int32_t humanId, std::uint8_t opcode, std::uint32_t first, std::uint32_t second, bool respond)
+        {
+            std::byte command[20]{};
+            Write(command, 0, opcode); Write(command, 4, humanId); Write(command, 0x0C, first); Write(command, 0x10, second);
+            NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
+            if (respond) NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, humanId);
+        }
+
+        void QueueSelectedHumanTargets(void* manager, std::uint8_t opcode, std::uint32_t targetId, const void* target)
+        {
+            const auto send = [&](std::int32_t humanId)
+            {
+                const auto first = target != nullptr ? targetId : NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + 0xABC);
+                QueueHumanTarget(humanId, opcode, first, target != nullptr ? Read<std::uint32_t>(target, 8) : 0u, false);
+            };
+            if (Read<std::uint32_t>(manager, 4) == 1)
+            {
+                send(Selection_GetSelectedSingleHumanId(manager));
+                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Selection_GetSelectedSingleHumanId(manager));
+            }
+            for (std::uint32_t index = 0; Read<std::uint32_t>(manager, 4) == 2 && index < Selection_GetSelectedMultipleHumanNumber(manager); ++index)
+            {
+                send(Selection_GetSelectedMultipleHumanId(manager, index));
+                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Selection_GetSelectedMultipleHumanId(manager, index));
+            }
+        }
+    }
+
+    // Original function: FUN_004b790d.
+    bool Misc_House_IsEnemyToAttack(const void* manager, std::int32_t id)
+    {
+        const auto player = SelectedAttackPlayer(manager);
+        return player != -1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(id), 0x0C)) == 3;
+    }
+
+    // Original function: FUN_004b799d; children are not attack targets.
+    bool Misc_Human_IsEnemyToAttack(const void* manager, std::int32_t id)
+    {
+        const auto player = SelectedAttackPlayer(manager);
+        return player != -1 && NC2Logic::Human_IsAgeAdult(Human(id)) && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(Human(id), 0x10)) == 3;
+    }
+
+    // Original function: FUN_004b7a38; a group uses its first member for eligibility.
+    bool Misc_Animal_CanBeAttacked(const void* manager, std::int32_t id, bool allowOwnAnimals)
+    {
+        auto human = Selection_GetSelectedSingleHumanId(manager);
+        if (Read<std::uint32_t>(manager, 4) == 2) human = Selection_GetSelectedMultipleHumanId(manager, 0);
+        return human != -1 && NC2Logic::Animal_Misc_CanBeAttackedByHuman(Animal(id), human, allowOwnAnimals);
+    }
+
+    // Original function: FUN_004b7a7a.
+    bool Misc_Vehicle_IsEnemyToAttack(const void* manager, std::int32_t id)
+    {
+        const auto player = SelectedAttackPlayer(manager);
+        return player != -1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(Vehicle(id), 0x1E0)) == 3;
+    }
+
     // Original function: FUN_004b7b08.
     bool Misc_Vehicle_IsToEnter(const void* manager, std::int32_t id)
     {
@@ -521,23 +744,97 @@ namespace NC2InGameGuiInputManager
         }
         return false;
     }
-    // Partial original function: FUN_004cb137; complete mode-27 and forced-clear branches.
+    // Original function: FUN_004cb04d.
+    void Highlighting_Humans_Update(void* manager, bool force, bool clear)
+    {
+        const auto mode = Read<std::uint32_t>(manager, 0);
+        if (!force && mode != 23 && mode != 24) return;
+        NC2Logic::CHumanIterator iterator;
+        for (auto id = iterator.GetFirstHumanId(); id != -1; id = iterator.GetNextHumanId())
+        {
+            const auto currentMode = Read<std::int32_t>(manager, 0);
+            const bool allowed = !clear && currentMode >= 23 && currentMode <= 24 && Misc_Human_IsEnemyToAttack(manager, id);
+            NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, id, allowed ? 12 : 8, 0);
+        }
+    }
+
+    // Original function: FUN_004cb0c8.
+    void Highlighting_Animals_Update(void* manager, bool force, bool clear)
+    {
+        if (!force && Read<std::uint32_t>(manager, 0) != 25) return;
+        const auto* array = NC2Logic::CAnimalArray::sTheObjectPtr;
+        for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
+        {
+            if (Read<std::uint8_t>(Animal(id), 0) == 0) continue;
+            const bool allowed = !clear && Read<std::uint32_t>(manager, 0) == 25 && Misc_Animal_CanBeAttacked(manager, id, false);
+            NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xF, true, id, allowed ? 12 : 8, 0);
+        }
+    }
+
+    // Original function: FUN_004cb137.
     void Highlighting_Vehicles_Update(void* manager, bool force, bool clear)
     {
-        if (!force && Read<std::uint32_t>(manager, 0) != 27) return;
+        const auto mode = Read<std::uint32_t>(manager, 0);
+        if (!force && mode != 26 && mode != 27 && mode != 28) return;
         // The unfiltered Windows iterator scans allocation bytes in ascending array order.
         const auto* array = NC2Logic::CVehicleArray::sTheObjectPtr;
         for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
         {
             if (Read<std::uint8_t>(Vehicle(id), 0) == 0) continue;
-            const bool allowed = !clear && Read<std::uint32_t>(manager, 0) == 27 && Misc_Vehicle_IsToEnter(manager, id);
+            const auto currentMode = Read<std::uint32_t>(manager, 0);
+            const bool allowed = !clear && (currentMode == 27 ? Misc_Vehicle_IsToEnter(manager, id) : (currentMode == 26 || currentMode == 28) && Misc_Vehicle_IsEnemyToAttack(manager, id));
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x10, true, id, allowed ? 12 : 8, 0);
         }
     }
-    // Partial original function: FUN_004b4bd6; native home/work/build/route and vehicle-entry branches.
+    // Partial original function: FUN_004b4bd6; character modes are connected; vehicle/build modes remain unresolved.
     bool Action_DoInputSelect(void* manager, const void* object)
     {
         const auto mode = Read<std::uint32_t>(manager, 0);
+        if (mode == 3) { InputMode_Cancel(manager); return true; }
+        if (mode == 1 || mode == 2 || mode == 13 || mode == 22)
+        {
+            if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+            const auto* point = static_cast<std::byte*>(manager) + 0xABC;
+            const auto packed = NC2Logic::MapMigPoint_GetLong(point);
+            if (mode == 1) Misc_Tool_SendSelectedHuman(manager, point);
+            else if (mode == 2)
+            {
+                QueueHumanTarget(Selection_GetSelectedSingleHumanId(manager), 17, packed, 0, false);
+                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Selection_GetSelectedSingleHumanId(manager));
+            }
+            else if (mode == 13)
+            {
+                QueueHumanTarget(Selection_GetSelectedSingleHumanId(manager), 4, packed, 0, false);
+                QueueHumanTarget(Selection_GetSelectedSingleHumanId(manager), 19, NC2Logic::MapMigPoint_GetLong(point), 0, false);
+                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Selection_GetSelectedSingleHumanId(manager));
+            }
+            else QueueSelectedHumanTargets(manager, 47, 0, nullptr);
+            InputMode_Cancel(manager);
+            return true;
+        }
+        if (mode == 10)
+        {
+            if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+            const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + 0xABC);
+            if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return false;
+            const auto id = Read<std::uint16_t>(micro, 4);
+            if (!Misc_House_IsEnemyToAttack(manager, id)) return false;
+            QueueSelectedHumanTargets(manager, 44, id, House(id));
+            InputMode_Cancel(manager);
+            return true;
+        }
+        if (mode == 23 || mode == 25 || mode == 26)
+        {
+            const auto type = mode == 23 ? 1u : mode == 25 ? 2u : 3u;
+            if (object == nullptr || Read<std::uint32_t>(object, 0) != type) return false;
+            const auto id = Read<std::int32_t>(object, type == 1 ? 8 : type == 2 ? 0x10 : 0x18);
+            const bool allowed = mode == 23 ? Misc_Human_IsEnemyToAttack(manager, id) : mode == 25 ? Misc_Animal_CanBeAttacked(manager, id, true) : Misc_Vehicle_IsEnemyToAttack(manager, id);
+            if (!allowed) return false;
+            const auto* target = mode == 23 ? Human(id) : mode == 25 ? Animal(id) : Vehicle(id);
+            QueueSelectedHumanTargets(manager, mode == 23 ? 43 : mode == 25 ? 45 : 46, id, target);
+            InputMode_Cancel(manager);
+            return true;
+        }
         if (mode == 27)
         {
             if (object == nullptr || Read<std::uint32_t>(object, 0) != 3) return false;
@@ -675,13 +972,12 @@ namespace NC2InGameGuiInputManager
 bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std::int16_t* rectangle) { return NC2InGameGuiInputManager::Highlighting_Map_Update(NC2InGameGuiInputManager::gInputManager, rectangle); }
 bool __fastcall InputManager_InputMode_Set(void* manager, void*, int mode) { return NC2InGameGuiInputManager::InputMode_Set(manager, mode); }
 
-// Original function: FUN_004b77e8; normal-mode validation/destruction callbacks.
-// Positive command-mode highlighting remains excluded from completion counts.
+// Original function: FUN_004b77e8; tick validation also refreshes all attack target highlights.
 bool __cdecl InputManager_ls_Callback_Logic(unsigned int type, unsigned int, unsigned int id, unsigned int created, unsigned int)
 {
     using namespace NC2InGameGuiInputManager;
     auto* manager = gInputManager;
-    if (type == 1) Selection_Validate(manager);
+    if (type == 1) { Selection_Validate(manager); Highlighting_Humans_Update(manager, false, false); Highlighting_Animals_Update(manager, false, false); Highlighting_Vehicles_Update(manager, false, false); }
     else if (type == 22) { Selection_Validate(manager); Selection_UnselectAll(manager); const std::uint32_t point = 0; Cursor_SetPosition(manager, &point); }
     else if (created == 0)
     {

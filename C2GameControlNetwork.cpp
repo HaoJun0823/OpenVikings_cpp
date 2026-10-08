@@ -9,6 +9,9 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040b13a; same player checks and matrix access as 0040A12B.
+    std::int32_t Logic_EntryPoint_GetDiplomacyState(std::int32_t player, std::int32_t otherPlayer) { return GameControl_Diplomacy_GetState(gGameControl, player, otherPlayer); }
+
     // Original function: FUN_0040a231. The signed upper bound has no lower check.
     const char* GameControl_Names_GetPlayerTribeNamePtr(const void* gameControl, std::int32_t player)
     {

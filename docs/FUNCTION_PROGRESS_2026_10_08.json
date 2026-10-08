@@ -1,15 +1,15 @@
 {
-  "TrackedUnfinished": 121,
-  "ParsedCppDefinitions": 3883,
-  "MappedAddresses": 3221,
+  "TrackedUnfinished": 116,
+  "ParsedCppDefinitions": 3906,
+  "MappedAddresses": 3246,
   "DirectCalls": 4561,
   "ExplicitCodePointers": 184,
   "VirtualTables": 107,
   "VirtualEntries": 294,
   "KnownEntries": 5055,
   "ExcludedApiThunks": 13,
-  "MappedDirectCalls": 2954,
-  "OpenKnownEntries": 1834,
+  "MappedDirectCalls": 2977,
+  "OpenKnownEntries": 1809,
   "RawReferenced": 0,
   "RawUnmapped": 0,
   "RawAlreadyMapped": 0,
@@ -19,6 +19,6 @@
   "ProductionCpp": 206,
   "ProductionHeaders": 192,
   "SourceFilter": "OpenVikings.vcxproj registered production files; untracked CombatTasks excluded",
-  "NamingRows": 1067,
-  "Percent": 63.72
+  "NamingRows": 1086,
+  "Percent": 64.21
 }

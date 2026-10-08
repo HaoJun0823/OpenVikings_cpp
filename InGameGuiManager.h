@@ -49,6 +49,7 @@ namespace NInGameGuiManager
         void EngineWorldDisplayGuiElement_Register(void* element);
         void EngineWorldDisplayGuiElement_UnRegister(void* element);
         bool Exploration_GetFlag() const;
+        void Exploration_Set(bool enabled);
         void FrameCall_Register(void* element);
         void FrameCall_UnRegister(void* element);
         static void System_StartGame();

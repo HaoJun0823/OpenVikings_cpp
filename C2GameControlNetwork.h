@@ -4,6 +4,7 @@
 
 namespace NC2Logic
 {
+    std::int32_t Logic_EntryPoint_GetDiplomacyState(std::int32_t player, std::int32_t otherPlayer);
     bool GameControl_Player_IsNetworkPlayer(const void* gameControl, std::int32_t player);
     std::int32_t GameControl_GetPlayerByNetworkId(const void* gameControl, std::uint32_t networkId);
     std::int32_t GameTime_Network_GetPlayerByNetworkId(std::uint32_t networkId);
