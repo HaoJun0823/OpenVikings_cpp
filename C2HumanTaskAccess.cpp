@@ -16,6 +16,7 @@
 #include "C2HumanAtomicEvents.h"
 #include "C2HumanGoods.h"
 #include "C2HumanProduction.h"
+#include "C2HumanConstruction.h"
 #include "C2HumanEquipment.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2VehicleAccess.h"
@@ -482,8 +483,8 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 0);
     }
 
-    // Partial original function: FUN_0046c39e; household, learning, indoor production and idle jobs.
-    // Outdoor work, vehicle work and military jobs remain pending.
+    // Partial original function: FUN_0046c39e; household, learning, indoor production, road/wall builders and idle jobs.
+    // House construction, other outdoor work, vehicle work and military jobs remain pending.
     void Human_l_StartTask_ExecuteJob(void* human)
     {
         Write<std::uint32_t>(human, 0x370, 0);
@@ -545,6 +546,7 @@ namespace NC2Logic
         switch (job)
         {
         case 5: Human_l_StartTask_ExecuteJob_Woman(human); return;
+        case 7: Human_l_StartTask_ExecuteJob_Builder(human); return;
         case 11: case 12: case 13: case 14: case 17: case 19: case 20: case 21:
             Human_l_StartTask_ExecuteJob_Tool_GoodProducer(human);
             return;

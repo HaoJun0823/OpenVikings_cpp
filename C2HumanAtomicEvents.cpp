@@ -82,6 +82,7 @@ namespace NC2Logic
                 if (Read<std::uint32_t>(human, 0x1C) == 57 || Read<std::uint32_t>(human, 0x1C) == 58) return false;
                 break;
             case 20:
+                if (Human_IsJobBuilder(human) && !Human_IsAttachedToWorkHouse(human) && (Read<std::uint32_t>(human, 0xAB8) == 41 || Read<std::uint32_t>(human, 0xAB8) == 42)) break;
                 if (!Human_IsJobScout(human) || Read<std::uint32_t>(human, 0xAB8) != 43) return false;
                 break;
             case 33: break;

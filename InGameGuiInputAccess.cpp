@@ -30,6 +30,10 @@ namespace NC2InGameGuiInputManager
     std::int32_t Selection_GetSelectedEngineHouseTypeId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 7 ? Input_Read<std::int32_t>(manager, 0xA80) : -1; }
     // Original function: FUN_004b7596.
     std::uint32_t Selection_GetSelectedEngineHouseExtensionLevel(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 7 ? Input_Read<std::uint32_t>(manager, 0xA84) : 0; }
+    // Original function: FUN_004b760b; invalid selection writes the native (-1,-1) point.
+    const void* Selection_GetSelectedRoadBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 10) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA8, 0xFFFFFFFFu); return static_cast<std::byte*>(manager) + 0xAA8; }
+    // Original function: FUN_004b762d.
+    const void* Selection_GetSelectedWallBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 11) NC2Lifetime::Write<std::uint32_t>(manager, 0xAAC, 0xFFFFFFFFu); return static_cast<std::byte*>(manager) + 0xAAC; }
     // Original function: FUN_004b7e92; complete 29-entry Windows jump table 004B7F23..004B7F96.
     const char* StringTool_GetInputModeNamePtr(const void* manager) { const auto mode = Input_Read<std::uint32_t>(manager, 0); return mode <= 28 ? NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(mode + 10) : "<UNKNOWN>"; }
 

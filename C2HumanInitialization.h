@@ -11,6 +11,7 @@ namespace NC2Logic
     void Human_Detach(void* human, bool forceVehicleDetach);
     bool Human_IsAttachedToRoadPoint(const void* human);
     bool Human_IsAttachedToWallPoint(const void* human);
+    bool Human_IsAttachedToBuildSite(const void* human);
     bool Human_WorkCenterMarker_IsVisible(const void* human);
     bool Human_WorkCenterMarker_IsAllowed(const void* human);
     std::int32_t Human_WorkCenterMarker_GetId(const void* human);

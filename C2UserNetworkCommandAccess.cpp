@@ -18,6 +18,8 @@
 #include "C2StaticHouseTypeData.h"
 #include "C2MapGeometry.h"
 #include "C2LogicLifetimeAccess.h"
+#include "C2WallRoadPathfinder.h"
+#include "C2WallRoadConstruction.h"
 #include <cstddef>
 #include <cstring>
 namespace NC2Logic
@@ -28,13 +30,6 @@ namespace NC2Logic
     extern bool __fastcall House_Construction_UpgradeStop(void*, void*);
     extern void Logic_EntryPoint_FreeMapMoveable(std::uint32_t);
     extern std::int32_t Logic_EntryPoint_House_Set(std::uint32_t, std::uint32_t, std::uint32_t, const void*, bool, std::uint32_t);
-    extern void __fastcall RoadBuildManager_SetRoadBuildFlag(void*, void*, std::uint32_t, const void*);
-    extern std::int32_t __fastcall MapPathfinderSpecialWallRoadElement_GetNextDirection(void*, void*);
-    extern void Tool_RoadBuildManager_GetPossibleVectorList(std::uint32_t, void*, const void*, const void*);
-    extern void __fastcall RoadBuildManager_ClearRoadBuildFlagArea(void*, void*, std::uint32_t, const void*, std::uint32_t);
-    extern void __fastcall WallBuildManager_SetWallBuildFlag(void*, void*, std::uint32_t, const void*);
-    extern void MapTool_Wall_Build_GetPossibleVectorList(std::uint32_t, void*, const void*, const void*);
-    extern void __fastcall WallBuildManager_ClearWallBuildFlagArea(void*, void*, std::uint32_t, const void*, std::uint32_t);
     extern void MapTool_WallGate_Remove(std::uint32_t, std::uint32_t, std::uint32_t);
     extern void MapTool_WallGate_SetIntoWall(std::uint32_t, const void*);
     extern void MapTool_WallGate_SetState(std::uint32_t, const void*, bool);
@@ -45,21 +40,6 @@ namespace NC2Logic
     extern void __fastcall GameControl_Player_LeftGameModifyObjects(void*, void*, std::uint32_t, bool, bool);
 
     static void PrintNetworkChecksumMessage(const char* text, std::uint32_t unused);
-
-    // Original function: FUN_0043e84b; both embedded points are initialized.
-    static void PathfinderWallRoadElement_ConstructPoints(void* element)
-    {
-        NC2Lifetime::Write<std::uint32_t>(element, 0x20, 0);
-        NC2Lifetime::Write<std::uint32_t>(element, 0x24, 0);
-    }
-
-    // Original function: FUN_0043e82e; the complete original stack object is 54h bytes.
-    static void PathfinderWallRoadElement_Construct(void* element)
-    {
-        PathfinderWallRoadElement_ConstructPoints(element);
-        std::memset(element, 0, 0x54);
-        NC2Lifetime::Write<std::uint32_t>(element, 0x0C, 0);
-    }
 
     // Original function: FUN_0040ad55; Windows passes the four-byte point by value.
     static std::uint32_t MapMigPoint_CopyValue(const void* point)
@@ -147,10 +127,9 @@ namespace NC2Logic
             MapMigPoint_AssignLong(&start, Read<std::uint32_t>(command, 4));
             MapMigPoint_AssignLong(&end, Read<std::uint32_t>(command, 8));
             RoadBuildManager_SetRoadBuildFlag(gRoadBuildManager, nullptr, player, &start);
-            alignas(4) std::byte path[0x54];
-            PathfinderWallRoadElement_Construct(path);
-            Tool_RoadBuildManager_GetPossibleVectorList(player, path, &start, &end);
-            for (auto direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr); direction >= 0; direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr))
+            CMapPathfinderSpecialWallRoadElement path;
+            Tool_RoadBuildManager_GetPossibleVectorList(player, &path, &start, &end);
+            for (auto direction = path.GetNextDirection(); direction >= 0; direction = path.GetNextDirection())
             {
                 MapMigPoint_MoveCursorUnwrapped(start, static_cast<std::uint32_t>(direction));
                 RoadBuildManager_SetRoadBuildFlag(gRoadBuildManager, nullptr, player, &start);
@@ -171,10 +150,9 @@ namespace NC2Logic
             MapMigPoint_AssignLong(&start, Read<std::uint32_t>(command, 4));
             MapMigPoint_AssignLong(&end, Read<std::uint32_t>(command, 8));
             WallBuildManager_SetWallBuildFlag(gWallBuildManager, nullptr, player, &start);
-            alignas(4) std::byte path[0x54];
-            PathfinderWallRoadElement_Construct(path);
-            MapTool_Wall_Build_GetPossibleVectorList(player, path, &start, &end);
-            for (auto direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr); direction >= 0; direction = MapPathfinderSpecialWallRoadElement_GetNextDirection(path, nullptr))
+            CMapPathfinderSpecialWallRoadElement path;
+            MapTool_Wall_Build_GetPossibleVectorList(player, &path, &start, &end);
+            for (auto direction = path.GetNextDirection(); direction >= 0; direction = path.GetNextDirection())
             {
                 MapMigPoint_MoveCursorUnwrapped(start, static_cast<std::uint32_t>(direction));
                 WallBuildManager_SetWallBuildFlag(gWallBuildManager, nullptr, player, &start);

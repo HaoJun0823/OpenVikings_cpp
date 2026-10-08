@@ -7,6 +7,7 @@
 #include "InGameGuiWindowState.h"
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiInputAccess.h"
+#include "InGameGuiKeyAssignmentManager.h"
 #include <array>
 #include <cstring>
 #include "XGuiElementAccess.h"
@@ -59,11 +60,17 @@ void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Construct(void* el
 
 namespace
 {
-    // Partial original function: FUN_004bc36f; native name-input forwarding, other keyboard branches remain open.
+    // Partial original function: FUN_004bc36f; native name input and road/wall/gate shortcuts.
     bool __fastcall InGameGuiManagerPrimaryMessageHandlerElement_MessageHandle(void*, void*, std::uint32_t message, std::uint32_t key, std::uint32_t character, std::uint32_t, std::uint32_t)
     {
         if (message != 0x200) return false;
-        return NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeNameWindow_SendKey(key, static_cast<char>(character));
+        if (NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeNameWindow_SendKey(key, static_cast<char>(character))) return true;
+        const auto* assignments = NC2InGameGuiKeyAssignmentManager::CKeyAssignmentManager::sTheObjectPtr;
+        if (assignments->CheckKey(0x11, key, static_cast<std::uint8_t>(character))) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, 14);
+        else if (assignments->CheckKey(0x12, key, static_cast<std::uint8_t>(character))) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, 16);
+        else if (assignments->CheckKey(0x13, key, static_cast<std::uint8_t>(character))) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, 18);
+        else return false;
+        return true;
     }
     void* __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Delete(void* element, void*, std::uint32_t flags);
     // Complete Windows table region 004F7038..004F707F; inherited folded entries retain their base semantics.

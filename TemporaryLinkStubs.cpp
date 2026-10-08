@@ -94,50 +94,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.
     bool __cdecl GameMap_l_ValidateLandscapes_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-    // TEMPORARY DUMMY: Windows address 0042750A; implementation pending.
-    // Naming reference: NC2Logic::CWallBuildManager::SetWallBuildFlag.
-    void __fastcall WallBuildManager_SetWallBuildFlag(void *, void *, unsigned int, void const *) {}
-
-    // TEMPORARY DUMMY: Windows address 0042765E; implementation pending.
-    // Naming reference: NC2Logic::CWallBuildManager::ClearWallBuildFlagArea.
-    void __fastcall WallBuildManager_ClearWallBuildFlagArea(void *, void *, unsigned int, void const *, unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 0042795F; implementation pending.
-    // Naming reference: NC2Logic::CWallBuildManager::DoOneGameSecond.
-    void __fastcall WallBuildManager_DoOneGameSecond(void *, void *) {}
-
-    // TEMPORARY DUMMY: Windows address 00427AEA; implementation pending.
-    // Naming reference: NC2Logic::MapTool_Wall_Build_GetPossibleVectorList.
-    void __cdecl MapTool_Wall_Build_GetPossibleVectorList(unsigned int, void *, void const *, void const *) {}
-
-    // TEMPORARY DUMMY: Windows address 00427B04; implementation pending.
-    // Naming reference: NC2Logic::MapTool_WallGate_Remove.
-    void __cdecl MapTool_WallGate_Remove(unsigned int, unsigned int, unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 00427D89; implementation pending.
-    // Naming reference: NC2Logic::MapTool_WallGate_SetIntoWall.
-    void __cdecl MapTool_WallGate_SetIntoWall(unsigned int, void const *) {}
-
-    // TEMPORARY DUMMY: Windows address 00427E27; implementation pending.
-    // Naming reference: NC2Logic::MapTool_WallGate_SetState.
-    void __cdecl MapTool_WallGate_SetState(unsigned int, void const *, bool) {}
-
-    // TEMPORARY DUMMY: Windows address 004281B4; implementation pending.
-    // Naming reference: NC2Logic::CRoadBuildManager::SetRoadBuildFlag.
-    void __fastcall RoadBuildManager_SetRoadBuildFlag(void *, void *, unsigned int, void const *) {}
-
-    // TEMPORARY DUMMY: Windows address 00428317; implementation pending.
-    // Naming reference: NC2Logic::CRoadBuildManager::ClearRoadBuildFlagArea.
-    void __fastcall RoadBuildManager_ClearRoadBuildFlagArea(void *, void *, unsigned int, void const *, unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 004285E2; implementation pending.
-    // Naming reference: NC2Logic::CRoadBuildManager::DoOneGameSecond.
-    void __fastcall RoadBuildManager_DoOneGameSecond(void *, void *) {}
-
-    // TEMPORARY DUMMY: Windows address 0042871C; implementation pending.
-    // Naming reference: NC2Logic::Tool_RoadBuildManager_GetPossibleVectorList.
-    void __cdecl Tool_RoadBuildManager_GetPossibleVectorList(unsigned int, void *, void const *, void const *) {}
-
     // TEMPORARY DUMMY: Windows address 00428736; implementation pending.
     // Naming reference: NC2Logic::CGame::Checksum_Calculate.
     unsigned int __cdecl Game_Checksum_Calculate(void) { return 0; }
@@ -165,10 +121,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 0043E72E; implementation pending.
     // Naming reference: NC2Logic::STributeData::Pay.
     void __fastcall TributeData_Pay(void *, void *) {}
-
-    // TEMPORARY DUMMY: Windows address 0043E8AA; implementation pending.
-    // Naming reference: NC2Logic::CMapPathfinderSpecialWallRoadElement::GetNextDirection.
-    int __fastcall MapPathfinderSpecialWallRoadElement_GetNextDirection(void *, void *) { return 0; }
 
     // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.

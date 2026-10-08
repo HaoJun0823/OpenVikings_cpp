@@ -85,6 +85,17 @@ namespace NC2Logic
         if (!MapMagPoint_IsInsideMap(point)) return nullptr;
         return gStaticTrianglePatternTypes + Read<std::uint8_t>(GetMacro(point), 1);
     }
+    // Original function: FUN_004240b0; map-edit callback 12 updates the road overlay.
+    bool GameMap_MapMicroPoint_Road_Set(const void* point, bool enabled)
+    {
+        auto* micro = GameMap_GetMapMicroPointPtr(point);
+        if (micro == nullptr || MapMigPoint_IsBorderPoint(point)) return false;
+        const auto flags = Read<std::uint8_t>(micro, 13);
+        if (((flags >> 1) & 1u) == static_cast<std::uint8_t>(enabled)) return false;
+        Write<std::uint8_t>(micro, 13, (flags & 0xFDu) | (static_cast<std::uint8_t>(enabled) << 1));
+        GameMapModifyManager_GameMapModified(12, point, static_cast<std::uint32_t>(enabled));
+        return true;
+    }
     // Original function: FUN_00424108.
     bool GameMap_Misc_GetTrianglePatternDescriptions_AroundWay(const void* micro, std::int32_t direction, const void** descriptions) { return GetAroundWay(micro, direction, descriptions, GameMap_GetTrianglePatternDescriptionA, GameMap_GetTrianglePatternDescriptionB); }
     // Original function: FUN_00424364.

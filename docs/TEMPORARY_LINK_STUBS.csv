@@ -22,17 +22,6 @@ Address,CurrentName,Status,ReferencingObjects
 0041E45E,NC2Logic::MissionManager_l_CheckGoal,Partial implementation; True/Diplomacy/CheckMission/Population/IfMissionIsActive/IsMissionDone reconstructed; object-area-combat goals pending,C2MissionExecution.obj
 0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial implementation; briefing/activation/exploration/exit/external-AI-flag/diplomacy/visibility/submap request flags reconstructed; remaining actions pending,C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-0042750A,NC2Logic::WallBuildManager_SetWallBuildFlag,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0042765E,NC2Logic::WallBuildManager_ClearWallBuildFlagArea,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0042795F,NC2Logic::WallBuildManager_DoOneGameSecond,Temporary dummy; Windows implementation pending,C2GameTime.obj
-00427AEA,NC2Logic::MapTool_Wall_Build_GetPossibleVectorList,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-00427B04,NC2Logic::MapTool_WallGate_Remove,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-00427D89,NC2Logic::MapTool_WallGate_SetIntoWall,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-00427E27,NC2Logic::MapTool_WallGate_SetState,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-004281B4,NC2Logic::RoadBuildManager_SetRoadBuildFlag,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-00428317,NC2Logic::RoadBuildManager_ClearRoadBuildFlagArea,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-004285E2,NC2Logic::RoadBuildManager_DoOneGameSecond,Temporary dummy; Windows implementation pending,C2GameTime.obj
-0042871C,NC2Logic::Tool_RoadBuildManager_GetPossibleVectorList,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00428736,NC2Logic::Game_Checksum_Calculate,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; landscape-edit external dummy remains; cadaver mapping is real,C2AnimalAccess.obj
 00431276,NC2Logic::House_Misc_Destroy_House,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
@@ -45,7 +34,6 @@ Address,CurrentName,Status,ReferencingObjects
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
 0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
 0043E72E,NC2Logic::TributeData_Pay,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0043E8AA,NC2Logic::MapPathfinderSpecialWallRoadElement_GetNextDirection,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00441F8C,NC2Logic::Human_VehicleMisc_Enter,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs/pickup/pileup/ordinary production events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
 004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial Windows startup; civilian/family/goods/goodies/home/equipment/scout/chest and supported queues connected; combat/outdoor/vehicle trees pending,C2HumanTaskAccess.obj
@@ -61,9 +49,9 @@ Address,CurrentName,Status,ReferencingObjects
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
 00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; civilian/family/training/scout/chest rewards connected; outdoor/combat pending,C2HumanCommandAccess.obj
-00468F5D,NC2Logic::Human_l_PerformTaskEvent_Build,Partial Windows build event; scout guide animation 43 connected; house/wall/vehicle construction pending,C2HumanAtomicEvents.obj
+00468F5D,NC2Logic::Human_l_PerformTaskEvent_Build,Partial Windows build event; scout road wall and wall repair connected; house construction pending; excluded from completion counts,C2HumanAtomicEvents.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household/learning/indoor production/idle connected; outdoor/vehicle/military pending,C2HumanTaskAccess.obj
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household learning indoor production idle and road/wall builder connected; house/outdoor/vehicle/military pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
@@ -85,7 +73,7 @@ Address,CurrentName,Status,ReferencingObjects
 004995D8,Display_l_DE_Debug_DrawGridLines,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00499AD5,DrawAtom_FishManager_DoDraw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004A002D,InGameGuiManager_Vars_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
-004A0E9D,InGameGuiManager_Selection_UpdateWindows,Partial Windows selection update; single-human basic info connected; group/non-human windows pending; excluded from completion counts,InGameGuiManager.obj
+004A0E9D,InGameGuiManager_Selection_UpdateWindows,Partial Windows selection update; single-human and road/wall build windows connected; group/other windows pending; excluded from completion counts,InGameGuiManager.obj
 004A10CB,InGameGuiManager_l_Selection_ActionButtons_BringUp,Partial native action-button layout: complete character branches; house and vehicle command lists pending,InGameGuiManager_State.obj
 004A1BF0,InGameGuiManager_l_Selection_ActionButtons_GetChecksum,Partial native command checksum: complete single/group human branches including native first-list reuse; house and vehicle branches pending,InGameGuiManager_State.obj
 004A2C0B,InGameGuiManager_ls_Logic_CallbackFunction,Partial native callback: true return; GUI save/load and briefing open/reset/reload connected; remaining selection/window/event branches pending,InGameGuiManager.obj
@@ -95,16 +83,13 @@ Address,CurrentName,Status,ReferencingObjects
 004ABA34,NC2InGameGuiSelection::SelectionSingleHumanWindow_MessageHandle,Partial Windows character commands; portrait context rename work-marker choosers and existing information/actions connected; help/context popups pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
 004AC26D,NC2InGameGuiSelection::SelectionSingleHumanWindow_Draw,Partial Windows character draw; work-marker controls and production/relationship availability connected; help/context rows pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
 004AE2A2,NC2InGameGuiSelection::l_SubTabs_UpdateAll,Partial Windows six-section layout and basic/experience/trader children; remaining basic/context controls pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
-004B3264,NC2InGameGuiWorldGameCursor::IGG_DrawWorldGameCursor_LogicCallback,Partial Windows implementation; bookmarks rings house preview and human work marker connected; road/wall source signs connected but vector preview iterator pending; excluded from completion counts,InGameGuiMousePointer.obj
-004B4A9F,NC2InGameGuiInputManager::Action_DoNormalSelect,Partial Windows implementation; normal object selection connected; road/wall selection pending; excluded from completion counts,InGameGuiSelectionAccess.obj
-004B4BD6,NC2InGameGuiInputManager::Action_DoInputSelect,Partial Windows input action; character modes 1..10/13/22/23/25/26/27 connected; vehicle and construction modes pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B4BD6,NC2InGameGuiInputManager::Action_DoInputSelect,Partial Windows input action; character modes and road/wall/gate modes 14..18 connected; house and vehicle modes pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004B5CFF,NC2InGameGuiInputManager::Action_DoDefault,Partial Windows implementation; single/group human movement connected; vehicle defaults pending; excluded from completion counts,InGameGuiSelectionAccess.obj
-004B5EB1,NC2InGameGuiInputManager::Action_NormalSelectPossible,Partial Windows implementation; normal object queries connected; road/wall queries pending; excluded from completion counts,InGameGuiSelectionAccess.obj
-004B6CE1,NC2InGameGuiInputManager::Selection_Validate,Partial Windows implementation; human animal vehicle house guide singles/groups connected; construction/landscape selections pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004B6CE1,NC2InGameGuiInputManager::Selection_Validate,Partial Windows selection validation; singles/groups and road/wall flags connected; house construction/landscape selections pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004B8607,MissionOnscreenInfoStaticGuiWindow_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
 004BA3BE,NC2InGameGuiWorldElement::WorldDisplayElement_MessageHandle,Partial Windows implementation; click drag double-click normal human orders pan and zoom connected; positive modes selection windows follow and border scrolling pending; excluded from completion counts,WorldDisplayElementAccess.obj
-004BC36F,InGameGuiManagerPrimaryMessageHandlerElement_MessageHandle,Partial native keyboard dispatch: name-dialog forwarding connected; other hotkey/chat/cheat branches pending,InGameGuiManager_MessageHandlers.obj
-004C9E2A,NC2InGameGuiInputManager::Highlighting_Map_Update,Partial Windows map highlighting; modes 1..11/13/22..28 connected; modes 12 and 14..21 pending; excluded from completion counts,InGameGuiSelectionAccess.obj
+004BC36F,InGameGuiManagerPrimaryMessageHandlerElement_MessageHandle,Partial native keyboard dispatch; name dialog and configured road/wall/gate shortcuts connected; other hotkey/chat/cheat branches pending,InGameGuiManager_MessageHandlers.obj
+004C9E2A,NC2InGameGuiInputManager::Highlighting_Map_Update,Partial Windows map highlighting; modes 1..11/13/14..18/22..28 connected; modes 12/19..21 pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004D08EB,NC2InGameGuiMessages::MessagePresentationWindow_Construct,Partial Windows implementation; native ownership layout and normal window lifecycle connected; contextual window behavior unfinished; excluded from completion counts,InGameGuiMessageWindowAccess.obj
 004D0ACF,NC2InGameGuiMessages::MessagePresentationWindow_MessageHandle,Partial Windows implementation; dismiss confirm and focus/select connected; good/house help context commands pending; excluded from completion counts,InGameGuiMessageWindowAccess.obj
 004D0B5E,NC2InGameGuiMessages::MessagePresentationWindow_Draw,Partial Windows implementation; papyrus text human portrait and type-18 category rows connected; house context buttons pending; excluded from completion counts,InGameGuiMessageWindowAccess.obj
@@ -112,3 +97,4 @@ Address,CurrentName,Status,ReferencingObjects
 004E6E44,Runtime_Log10,Temporary dummy; Windows implementation pending,DMManager.obj
 004E8774,Runtime_Sin,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
 004E8824,Runtime_Cos,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
+0046C822,NC2Logic::Human_l_StartTask_ExecuteJob_Builder,Partial Windows builder dispatcher; road/wall and unattached branches connected; house branch 00473FFF pending; excluded from completion counts,C2HumanConstruction.obj

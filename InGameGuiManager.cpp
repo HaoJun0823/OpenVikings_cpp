@@ -1,6 +1,7 @@
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
 #include "InGameGuiKeyAssignmentManager.h"
+#include "InGameGuiWallRoadWindows.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiToolsBase.h"
 #include "ApplicationGlobals.h"
@@ -501,7 +502,7 @@ namespace NInGameGuiManager
         std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x4C))->l_Base_RemoveElement(element);
     }
 
-    // Partial original function: FUN_004a0e9d; single-human information is connected.
+    // Partial original function: FUN_004a0e9d; human and road/wall selection windows are connected.
     // Other selection-window constructors remain explicit reconstruction boundaries.
     void CInGameGuiManager::Selection_UpdateWindows()
     {
@@ -512,7 +513,16 @@ namespace NInGameGuiManager
         Write(this, 0x88, checksum);
         l_RemoveAllGuiElements();
         NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7ED, 0, 0, 0);
-        if (Read<std::uint32_t>(input, 4) != 1) return;
+        const auto selection = Read<std::uint32_t>(input, 4);
+        if (selection == 10 || selection == 11)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+            void* window = allocation == nullptr ? nullptr : selection == 10 ? NC2InGameGuiSelection::SelectionRoadBuildWindow_Construct(allocation) : NC2InGameGuiSelection::SelectionWallBuildWindow_Construct(allocation);
+            Write(this, selection == 10 ? 0xB0 : 0xB4, window);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+            return;
+        }
+        if (selection != 1) return;
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3D78, 1);
         void* window = allocation == nullptr ? nullptr : NC2InGameGuiSelection::SelectionSingleHumanWindow_Construct(allocation);
         Write(this, 0x8C, window);

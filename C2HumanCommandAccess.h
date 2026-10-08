@@ -3,6 +3,8 @@
 namespace NC2Logic
 {
     bool Human_IsAtTargetPoint(const void* human);
+    bool Human_IsAtWorkCenter(const void* human);
+    bool Human_Target_HasTarget(const void* human);
     void Human_CurrentTask_DoPerform(void* human);
     void Human_DoCheckAllUserCommands(void* human);
     bool Human_DoCheckUserCommand(const void* human, const void* command);

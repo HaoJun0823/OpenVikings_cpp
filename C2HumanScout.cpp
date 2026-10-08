@@ -19,6 +19,8 @@
 #include "C2MapPathfinderSearch.h"
 #include "C2MissionStartObjects.h"
 #include "C2UserMessageAccess.h"
+#include "C2HumanEquipment.h"
+#include "C2WallRoadConstruction.h"
 
 namespace NC2Logic
 {
@@ -167,11 +169,39 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_00468f5d; scout animation 43 branch only.
-    // House, wall and vehicle construction remain separate reconstruction targets.
+    // Partial original function: FUN_00468f5d; roads, walls, repair and scout guides are connected.
+    // House construction remains a separate reconstruction target.
     void Human_l_PerformTaskEvent_Build(void* human)
     {
         if (!Human_Target_IsValid(human)) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 7); return; }
+        if (Human_IsAttachedToRoadPoint(human))
+        {
+            Human_ClearCarriedGood(human);
+            Write<std::uint32_t>(human, 0xACC, 0); Write<std::uint32_t>(human, 0xAD0, 0);
+            if (!RoadBuildManager_FinishRoad(gRoadBuildManager, Read<std::int32_t>(human, 0x10), RealTarget(human))) { Write<std::uint32_t>(human, 0x36C, 3); return; }
+            auto point = Read<std::uint32_t>(RealTarget(human), 0);
+            MapMigPoint_MoveCursorUnwrapped(point, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                MapMigPoint_MoveCursorUnwrapped(point, direction);
+                RoadBuildManager_FinishRoad(gRoadBuildManager, Read<std::int32_t>(human, 0x10), &point);
+            }
+            Human_l_JobExperience_Gain(human); Write<std::uint32_t>(human, 0x36C, 2); return;
+        }
+        if (Human_IsAttachedToWallPoint(human))
+        {
+            bool done;
+            if (Read<std::uint32_t>(human, 0xAD4) != 0)
+            {
+                Human_ClearCarriedGood(human);
+                Write<std::uint32_t>(human, 0xACC, 0); Write<std::uint32_t>(human, 0xAD0, 0);
+                done = WallBuildManager_FinishWall(gWallBuildManager, Read<std::int32_t>(human, 0x10), RealTarget(human));
+            }
+            else done = GameMap_MapMicroPoint_Landscape_ApplyTransition(RealTarget(human), 9) != -1;
+            if (done) { Write<std::uint32_t>(human, 0x36C, 2); Human_l_JobExperience_Gain(human); }
+            else Write<std::uint32_t>(human, 0x36C, 3);
+            return;
+        }
         if (Human_IsJobScout(human) && Read<std::uint32_t>(human, 0xAB8) == 43 && GuideManager_InsertGuideAtPosition(gGuideManager, nullptr, Read<std::uint32_t>(human, 0x10), RealTarget(human), 1))
         {
             Human_l_JobExperience_Gain(human);

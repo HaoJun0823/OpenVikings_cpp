@@ -553,4 +553,14 @@
     <ClInclude Include="InGameGuiMousePointer.h" />
 
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2WallRoadPathfinder.cpp" />
+    <ClInclude Include="C2WallRoadPathfinder.h" />
+    <ClCompile Include="C2WallRoadConstruction.cpp" />
+    <ClInclude Include="C2WallRoadConstruction.h" />
+    <ClCompile Include="C2HumanConstruction.cpp" />
+    <ClInclude Include="C2HumanConstruction.h" />
+    <ClCompile Include="InGameGuiWallRoadWindows.cpp" />
+    <ClInclude Include="InGameGuiWallRoadWindows.h" />
+  </ItemGroup>
 </Project>

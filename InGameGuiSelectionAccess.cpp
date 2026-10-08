@@ -28,6 +28,10 @@
 #include "XBasicTypes.h"
 #include "XCrtFileAccess.h"
 #include "XBobRendering.h"
+#include "C2UserNetworkCommandAccess.h"
+#include "C2WallRoadPathfinder.h"
+#include "C2WallRoadConstruction.h"
+#include "C2DefaultInteraction.h"
 
 #include <cstring>
 #include <initializer_list>
@@ -249,7 +253,7 @@ namespace NC2InGameGuiInputManager
         NC2InGameGuiBase::BaseToolDesktop_SelectionActiveChanged();
     }
 
-    // Original function: FUN_004b5eb1; road/wall queries remain unfinished.
+    // Original function: FUN_004b5eb1.
     std::uint32_t Action_NormalSelectPossible(void* manager, const void* object, std::uint32_t* first, std::uint32_t* second, std::uint32_t* third, std::uint32_t* fourth)
     {
         *first = *second = *third = *fourth = 0xFFFFFFFFu;
@@ -264,6 +268,13 @@ namespace NC2InGameGuiInputManager
             case 4: id = Read<std::int32_t>(object, 0x28); action = 6; break;
             case 5: id = Read<std::int32_t>(object, 0x30); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
             case 6: id = Read<std::int32_t>(object, 0x38); *second = Read<std::uint32_t>(object, 0x3C); *third = Read<std::uint32_t>(object, 4); *fourth = Read<std::uint32_t>(object, 0x40); action = 9; break;
+            case 7: case 8:
+            {
+                const bool road = Read<std::uint32_t>(object, 0) == 7;
+                const auto* point = static_cast<const std::byte*>(object) + 4;
+                if (NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(road ? NC2Logic::gRoadBuildManager : NC2Logic::gWallBuildManager, Player(), point) != nullptr) { id = static_cast<std::int32_t>(NC2Logic::MapMigPoint_GetLong(point)); action = road ? 10 : 11; }
+                break;
+            }
             default: break;
             }
         }
@@ -290,7 +301,7 @@ namespace NC2InGameGuiInputManager
         return static_cast<std::uint32_t>(action);
     }
 
-    // Original function: FUN_004b4a9f; road/wall selection remains unfinished.
+    // Original function: FUN_004b4a9f.
     bool Action_DoNormalSelect(void* manager, const void* object, bool keepSelection, bool add, bool remove)
     {
         std::uint32_t first, second, third, fourth;
@@ -303,6 +314,13 @@ namespace NC2InGameGuiInputManager
         case 4: if (add) Selection_SelectAddSingleVehicle(manager, id); else if (remove) UnSelect_Vehicle(manager, id); else Selection_SelectSingleVehicle(manager, id); break;
         case 6: Selection_SelectHouse(manager, id); break;
         case 8: Selection_SelectGuide(manager, id); break;
+        case 10: case 11:
+        {
+            std::uint32_t point; NC2Logic::MapMigPoint_AssignLong(&point, first);
+            if (action == 10) Selection_SelectRoadBuildPlace(manager, &point);
+            else Selection_SelectWallBuildPlace(manager, &point);
+            break;
+        }
         case 9:
             if (Read<std::uint32_t>(manager, 4) != 9 || Read<std::uint32_t>(manager, 0xA98) != first || Read<std::uint32_t>(manager, 0xA9C) != second || Read<std::uint32_t>(manager, 0xAA0) != third || Read<std::int32_t>(manager, 0xAA4) != static_cast<std::int32_t>(fourth))
             {
@@ -344,6 +362,21 @@ namespace NC2InGameGuiInputManager
     bool Selection_SelectSingleVehicle(void* manager, std::int32_t id) { return SelectSingle(manager, 4, 0x97C, id, Vehicle(id), 8, 0x10); }
     bool Selection_SelectHouse(void* manager, std::int32_t id) { return SelectSingle(manager, 6, 0xA78, id, House(id), 8, 0x11); }
     bool Selection_SelectGuide(void* manager, std::int32_t id) { return SelectSingle(manager, 8, 0xA90, id, Guide(id), 0x10, 0); }
+
+    // Original function: FUN_004b6788.
+    bool Selection_SelectRoadBuildPlace(void* manager, const void* point)
+    {
+        if (Read<std::uint32_t>(manager, 4) == 10 && Read<std::uint32_t>(manager, 0xAA8) == Read<std::uint32_t>(point, 0)) return false;
+        Selection_UnselectAll(manager); InputMode_Set(manager, 0);
+        Write<std::uint32_t>(manager, 4, 10); Write(manager, 0xAA8, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
+    }
+    // Original function: FUN_004b67ed.
+    bool Selection_SelectWallBuildPlace(void* manager, const void* point)
+    {
+        if (Read<std::uint32_t>(manager, 4) == 11 && Read<std::uint32_t>(manager, 0xAAC) == Read<std::uint32_t>(point, 0)) return false;
+        Selection_UnselectAll(manager); InputMode_Set(manager, 0);
+        Write<std::uint32_t>(manager, 4, 11); Write(manager, 0xAAC, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
+    }
 
     // Original function: FUN_004b618b; at most 300 humans, preserving the old single first.
     bool Selection_SelectAddSingleHuman(void* manager, std::int32_t id)
@@ -417,6 +450,8 @@ namespace NC2InGameGuiInputManager
         case 5: ValidateGroup(manager, true); return;
         case 6: valid = IsLive(House(Read<std::uint32_t>(manager, 0xA78)), Read<std::uint32_t>(manager, 0xA7C)); break;
         case 8: valid = IsLive(Guide(Read<std::uint32_t>(manager, 0xA90)), Read<std::uint32_t>(manager, 0xA94), 0x10) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, 0xA90)), 4) == Player(); break;
+        case 10: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gRoadBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAA8) != nullptr; break;
+        case 11: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gWallBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAAC) != nullptr; break;
         default: break;
         }
         if (!valid) ResetInvalid(manager);
@@ -566,7 +601,30 @@ namespace NC2InGameGuiInputManager
         }
     }
 
-    // Partial original function: FUN_004c9e2a; modes 12 and 14..21 remain reconstruction boundaries.
+    namespace
+    {
+        // Original function: FUN_004ca8c1; Windows-only outlined road-start highlighting.
+        bool HighlightRoadStart(const std::int16_t* rectangle) { const auto player = Player(); return UpdateHighlightArea(rectangle, [player](const void* point) -> std::uint8_t { return NC2Logic::CMapPathfinderSpecialWallRoadElement::IsPointOkForBuilding(player, true, point) ? 3 : 1; }); }
+        // Original function: FUN_004ca97e; clear the visible rectangle before marking reachable endpoints.
+        bool HighlightRoadEnd(const std::int16_t* rectangle)
+        {
+            NC2Logic::GameMap_CalculationMap_Clear(rectangle);
+            NC2Logic::Tool_RoadBuildManager_MarkPossibleEndPoints(Player(), static_cast<const std::byte*>(gInputManager) + 0xAC0);
+            return ls_Highlighting_Update_Tool_CalculationMapIntoHighlightFlags(rectangle);
+        }
+        // Original function: FUN_004ca9b1; Windows-only outlined wall-start highlighting.
+        bool HighlightWallStart(const std::int16_t* rectangle) { const auto player = Player(); return UpdateHighlightArea(rectangle, [player](const void* point) -> std::uint8_t { return NC2Logic::CMapPathfinderSpecialWallRoadElement::IsPointOkForBuilding(player, false, point) ? 3 : 1; }); }
+        // Original function: FUN_004caa70.
+        bool HighlightWallEnd(const std::int16_t* rectangle)
+        {
+            NC2Logic::GameMap_CalculationMap_Clear(rectangle);
+            NC2Logic::MapTool_Wall_Build_MarkPossibleEndPoints(Player(), static_cast<const std::byte*>(gInputManager) + 0xAC4);
+            return ls_Highlighting_Update_Tool_CalculationMapIntoHighlightFlags(rectangle);
+        }
+        // Original function: FUN_004caaa3; Windows-only outlined gate highlighting.
+        bool HighlightWallGate(const std::int16_t* rectangle) { const auto player = Player(); return UpdateHighlightArea(rectangle, [player](const void* point) -> std::uint8_t { return NC2Logic::MapTool_WallGate_IsPossibleMapPosition(player, point) ? 3 : 1; }); }
+    }
+    // Partial original function: FUN_004c9e2a; modes 12 and 19..21 remain reconstruction boundaries.
     bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle)
     {
         // Windows reads its singleton in both the dispatcher and the outlined helpers.
@@ -576,6 +634,11 @@ namespace NC2InGameGuiInputManager
         if (mode == 2 || mode == 3) return HighlightHumanWorkCenter(gInputManager, rectangle, mode == 3);
         if (mode == 10 || mode == 11) return HighlightEnemyHouses(rectangle);
         if (mode == 13) return HighlightGuideConstruction(rectangle);
+        if (mode == 14) return HighlightRoadStart(rectangle);
+        if (mode == 15) return HighlightRoadEnd(rectangle);
+        if (mode == 16) return HighlightWallStart(rectangle);
+        if (mode == 17) return HighlightWallEnd(rectangle);
+        if (mode == 18) return HighlightWallGate(rectangle);
         if (mode == 22) return HighlightEnemyLandscapes(rectangle);
         if (mode >= 23 && mode <= 28) return HighlightInvalidArea(rectangle);
         if (mode < 4 || mode > 9) return false;
@@ -786,10 +849,26 @@ namespace NC2InGameGuiInputManager
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x10, true, id, allowed ? 12 : 8, 0);
         }
     }
-    // Partial original function: FUN_004b4bd6; character modes are connected; vehicle/build modes remain unresolved.
+    // Partial original function: FUN_004b4bd6; character, road, wall and gate modes are connected.
     bool Action_DoInputSelect(void* manager, const void* object)
     {
         const auto mode = Read<std::uint32_t>(manager, 0);
+        if (mode >= 14 && mode <= 18)
+        {
+            if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+            auto* point = static_cast<std::byte*>(manager) + 0xABC;
+            if (mode == 14 || mode == 16)
+            {
+                Write(manager, mode == 14 ? 0xAC0 : 0xAC4, Read<std::uint32_t>(point, 0));
+                InputMode_Set(manager, mode == 14 ? 15 : 17); return true;
+            }
+            std::byte command[20]{};
+            Write<std::uint8_t>(command, 0, mode == 15 ? 0x76 : mode == 17 ? 0x78 : 0x7B); Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Player()));
+            if (mode == 18) Write(command, 4, NC2Logic::MapMigPoint_GetLong(point));
+            else { Write(command, 4, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + (mode == 15 ? 0xAC0 : 0xAC4))); Write(command, 8, NC2Logic::MapMigPoint_GetLong(point)); }
+            NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
+            InputMode_Cancel(manager); return true;
+        }
         if (mode == 3) { InputMode_Cancel(manager); return true; }
         if (mode == 1 || mode == 2 || mode == 13 || mode == 22)
         {

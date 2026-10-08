@@ -46,6 +46,12 @@ namespace NC2Logic
         return 2;
     }
 
+    // Original function: FUN_0042cc19.
+    bool Human_IsAtWorkCenter(const void* human) { return NC2Lifetime::Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == NC2Lifetime::Read<std::uint32_t>(human, 0xB30); }
+
+    // Original function: FUN_0042cecb.
+    bool Human_Target_HasTarget(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xA68) != 0; }
+
     // Original function: FUN_0042cc40; complete PE selector 0042CD3D..0042CD5C.
     bool Human_IsAtTargetPoint(const void* human)
     {

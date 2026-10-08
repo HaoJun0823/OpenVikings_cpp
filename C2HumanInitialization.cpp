@@ -185,6 +185,16 @@ namespace NC2Logic
         }
         return Read<std::uint8_t>(micro, 3) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(engineId), 4);
     }
+    // Original function: FUN_0042c7b3; active build animations keep their attachment.
+    bool Human_IsAttachedToBuildSite(const void* human)
+    {
+        const auto animation = Read<std::uint32_t>(human, 0xAB8);
+        if (animation == 41 || animation == 42 || Read<std::int32_t>(human, 0xB34) != -1) return true;
+        const void* point = static_cast<const std::byte*>(human) + 0xB30;
+        if (!MapMigPoint_IsInsideMap(point)) return false;
+        const auto player = Read<std::int32_t>(human, 0x10);
+        return RoadBuildManager_IsRoadBuildFlagSetForPlayer(gRoadBuildManager, player, point) || RoadBuildManager_IsRoadBuildFlagSetForPlayer(gWallBuildManager, player, point);
+    }
     // Original function: FUN_00427a6d; shared CRoad/CWallBuildManager::DetachBuilder body.
     void BuildManager_DetachBuilder(void* manager, std::uint32_t player, const void* point)
     {

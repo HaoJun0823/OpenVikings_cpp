@@ -32,6 +32,10 @@ namespace NC2InGameGuiInputManager
     bool Selection_SelectAddSingleVehicle(void* manager, std::int32_t id);
     bool Selection_SelectHouse(void* manager, std::int32_t id);
     bool Selection_SelectGuide(void* manager, std::int32_t id);
+    bool Selection_SelectRoadBuildPlace(void* manager, const void* point);
+    bool Selection_SelectWallBuildPlace(void* manager, const void* point);
+    const void* Selection_GetSelectedRoadBuildPlacePositionRef(void* manager);
+    const void* Selection_GetSelectedWallBuildPlacePositionRef(void* manager);
     void UnSelect_Human(void* manager, std::int32_t id);
     void UnSelect_Animal(void* manager, std::int32_t id);
     void UnSelect_Vehicle(void* manager, std::int32_t id);

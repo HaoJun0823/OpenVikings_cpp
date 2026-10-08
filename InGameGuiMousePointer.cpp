@@ -22,6 +22,7 @@
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
 #include "XGuiDesktop.h"
+#include "C2WallRoadPathfinder.h"
 #include "XMMouseManager.h"
 #include <cstring>
 
@@ -228,7 +229,7 @@ void* __fastcall InGameGuiManagerMousePointer_Construct(void* pointer)
 
 namespace NC2InGameGuiWorldGameCursor
 {
-    // Original function: FUN_004b3264; partial: road/wall vector previews depend on unresolved pathfinding.
+    // Original function: FUN_004b3264; complete road/wall vector previews.
     bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(std::uint32_t type, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
     {
         using namespace NC2Lifetime;
@@ -261,7 +262,28 @@ namespace NC2InGameGuiWorldGameCursor
             std::int32_t pixel[2]; NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, pixel, false);
             const auto brightness = NC2E2::Display_DE_Hightlighting_GetMapLandscapeBrightness(display, position);
             NC2E2::EngineGraphic_Draw(graphic, 1, Read<NXBasics::CBitmap*>(display, 0x68), pixel[0], pixel[1], 0, brightness, -1, false);
-            // The original continues through 0042871C/00427AEA and 0043E8AA here. Those link dummies cannot provide a terminating vector iterator.
+            if (Read<std::uint8_t>(input, 0xABA) != 0)
+            {
+                auto current = Read<std::uint32_t>(position, 0);
+                NC2Logic::CMapPathfinderSpecialWallRoadElement path;
+                const auto* target = static_cast<const std::byte*>(input) + 0xABC;
+                if (mode == 15) NC2Logic::Tool_RoadBuildManager_GetPossibleVectorList(player, &path, &current, target);
+                else NC2Logic::MapTool_Wall_Build_GetPossibleVectorList(player, &path, &current, target);
+                const auto drawSign = [&]
+                {
+                    NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &current, pixel, false);
+                    const auto light = NC2E2::Display_DE_Hightlighting_GetMapLandscapeBrightness(display, &current);
+                    NC2E2::EngineGraphic_Draw(graphic, 1, Read<NXBasics::CBitmap*>(display, 0x68), pixel[0], pixel[1], 0, light, -1, false);
+                };
+                drawSign();
+                auto previous = current;
+                for (auto direction = path.GetNextDirection(); direction >= 0; direction = path.GetNextDirection())
+                {
+                    NC2Logic::MapMigPoint_MoveCursorUnwrapped(current, static_cast<std::uint32_t>(direction));
+                    if (NC2Logic::MapMigPoint_IsInsideMap(&previous)) NC2E2::DE_Debug_DrawMicroGridLine(display, &current, &previous, &black);
+                    drawSign(); previous = current;
+                }
+            }
         }
         else if (mode == 2 || mode == 3) { const auto id = NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input); if (id != -1) marker(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize + 0xB30); }
         return true;
