@@ -6,12 +6,47 @@
 #include "C2StaticHouseTypeData.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2GameState.h"
 #include "XCrtFileAccess.h"
 #include <cstring>
 namespace NC2Logic
 {
     using NC2Lifetime::Read;
     using NC2Lifetime::Write;
+    // Original function: FUN_0041acf8.
+    SPlayerStatisticSampleData* PlayerStatisticManager_GetStatistics(void* manager, std::int32_t time, std::uint32_t player)
+    {
+        if (time < 0) return nullptr;
+        auto* history = Read<SPlayerStatisticSampleData*>(manager, 8u + player * 4u);
+        if (history == nullptr) return Read<SPlayerStatisticSampleData*>(manager, 0x58u + player * 4u);
+        const auto sampleTime = Read<std::uint32_t>(manager, 4);
+        const auto current = Read<std::uint32_t>(manager, 0);
+        if (static_cast<std::uint32_t>(time) >= sampleTime) return history + current;
+        const auto distance = (sampleTime - static_cast<std::uint32_t>(time) + 59u) / 60u;
+        if (distance > 598) return nullptr;
+        auto index = static_cast<std::int32_t>(current - distance);
+        if (index < 0) index += 600;
+        return history + index;
+    }
+    // Original function: FUN_0041ad54.
+    SPlayerStatisticSampleData* PlayerStatisticManager_GetCurrentStatistics(void* manager, std::uint32_t player) { return PlayerStatisticManager_GetStatistics(manager, static_cast<std::int32_t>(gGameTime.tick / 12u), player); }
+    // Original function: FUN_00440b4c.
+    std::int32_t Tool_PlayerStatistics_CountHumansOfJobExecuting(std::uint32_t player, std::uint32_t job)
+    {
+        std::int32_t count = 0; CHumanIterator iterator;
+        for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId()) if (Read<std::uint32_t>(GetHumanPtr(id), 0x18) == job) ++count;
+        return count;
+    }
+    // Original function: FUN_00440b92; complete Windows jump table 00440C6D..00440CAC.
+    std::int32_t SPlayerStatisticSampleData::GetNumber(std::int32_t type) const
+    {
+        if (type >= 16 && type <= 81) return goods[type - 16];
+        if (type >= 0 && type <= 14) return Read<std::uint16_t>(this, static_cast<std::uint32_t>(type) * 2u);
+        if (type == 15) return static_cast<std::int32_t>(goodTotal);
+        if (type >= 82 && type <= 84) return static_cast<std::int32_t>(values114[type - 82]);
+        if (type >= 85 && type <= 86) return static_cast<std::int32_t>(values130[type - 85]);
+        return 0;
+    }
     // Original function: FUN_00440af8.
     std::int32_t Tool_PlayerStatistics_CountHousesOfLogicType(std::uint32_t player, std::uint32_t type, std::int32_t* unfinished)
     {

@@ -72,6 +72,8 @@ namespace NInGameGuiManager
         void MiscWindows_TechTreeWindow_Open();
         void MiscWindows_HumanListWindow_Toggle(std::uint32_t job, std::uint32_t possibleJob);
         void MiscWindows_HumanListWindow_Open(std::uint32_t job, std::uint32_t possibleJob);
+        void MiscWindows_StatisticsWindow_Toggle();
+        void MiscWindows_StatisticsWindow_Open();
         void MiscWindows_ConstructionSelectionWindow_Open(std::uint32_t type, std::uint32_t item);
         void MiscWindows_ConstructionSelectionWindow_Toggle(std::uint32_t type, std::uint32_t item);
         void MiscWindows_ConstructionSelectionWindow_Close();

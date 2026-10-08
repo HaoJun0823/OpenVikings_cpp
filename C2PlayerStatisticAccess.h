@@ -12,11 +12,15 @@ namespace NC2Logic
         std::uint32_t values114[3];
         std::byte unknown120[16];
         std::uint32_t values130[2];
+        std::int32_t GetNumber(std::int32_t type) const;
     };
     static_assert(sizeof(SPlayerStatisticSampleData) == 0x138);
     static_assert(offsetof(SPlayerStatisticSampleData, goodTotal) == 0x8C);
     static_assert(offsetof(SPlayerStatisticSampleData, values114) == 0x114);
     void Tool_PlayerStatistics_CountHumans(std::uint32_t player, std::uint16_t* counts);
+    std::int32_t Tool_PlayerStatistics_CountHumansOfJobExecuting(std::uint32_t player, std::uint32_t job);
+    SPlayerStatisticSampleData* PlayerStatisticManager_GetStatistics(void* manager, std::int32_t time, std::uint32_t player);
+    SPlayerStatisticSampleData* PlayerStatisticManager_GetCurrentStatistics(void* manager, std::uint32_t player);
     void Tool_PlayerStatistics_CountHouses(std::uint32_t player, std::uint16_t* counts);
     std::int32_t Tool_PlayerStatistics_CountHousesOfLogicType(std::uint32_t player, std::uint32_t type, std::int32_t* unfinished);
     void Tool_PlayerStatistics_CountGoods(std::uint32_t player, void* counts);

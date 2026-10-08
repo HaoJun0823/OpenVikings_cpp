@@ -591,4 +591,9 @@
     <ClCompile Include="InGameGuiHumanListWindow.cpp" />
     <ClInclude Include="InGameGuiHumanListWindow.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiStatisticsWindow.cpp" />
+    <ClInclude Include="InGameGuiStatisticsWindow.h" />
+    <ClInclude Include="InGameGuiStatisticsData.h" />
+  </ItemGroup>
 </Project>

@@ -1253,4 +1253,9 @@
     <ClCompile Include="InGameGuiHumanListWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiHumanListWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiStatisticsWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiStatisticsWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="InGameGuiStatisticsData.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
 </Project>
