@@ -195,7 +195,7 @@ namespace NC2InGameGuiInputManager
     {
         if (Read<std::int32_t>(manager, 0) == mode) return true;
         const auto selection = Read<std::uint32_t>(manager, 4);
-        if (mode != 0 && mode != 4 && mode != 5 && mode != 7 && mode != 8 && mode != 9 && mode != 27) return false;
+        if (mode != 0 && mode != 4 && mode != 5 && mode != 6 && mode != 7 && mode != 8 && mode != 9 && mode != 27) return false;
         if (mode != 0 && mode != 27 && selection != 1) return false;
         if (mode == 27 && selection != 1 && selection != 2 && selection != 4) return false;
         if (Read<std::uint8_t>(manager, 0xAB4) != static_cast<std::uint8_t>(mode != 0))
@@ -559,19 +559,22 @@ namespace NC2InGameGuiInputManager
             InputMode_Cancel(manager);
             return true;
         }
-        if ((mode != 4 && mode != 5 && mode != 7 && mode != 8 && mode != 9) || Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+        if ((mode != 4 && mode != 5 && mode != 6 && mode != 7 && mode != 8 && mode != 9) || Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+        bool selectSchoolJob = false;
         const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + 0xABC);
         if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
         {
             const auto id = Read<std::uint16_t>(micro, 4);
             std::byte command[20]{};
-            const auto opcode = mode == 4 ? 26 : mode == 5 ? 28 : mode == 7 ? 30 : mode == 8 ? 36 : 37;
+            const auto opcode = mode == 4 ? 26 : mode == 5 ? 28 : mode == 6 ? 32 : mode == 7 ? 30 : mode == 8 ? 36 : 37;
             Write<std::uint8_t>(command, 0, static_cast<std::uint8_t>(opcode)); Write(command, 4, Read<std::uint32_t>(manager, 8));
             Write<std::uint32_t>(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(House(id), 8));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
+            selectSchoolJob = mode == 6 && Read<std::uint32_t>(House(id), 0x14) == 38;
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
         }
         InputMode_Cancel(manager);
+        if (selectSchoolJob) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanLearnJobWindow_Open();
         return true;
     }
 

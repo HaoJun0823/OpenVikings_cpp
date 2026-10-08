@@ -84,6 +84,12 @@ namespace NC2InGameGuiBase
             NXBaseGui::CDesktop::sTheObjectPtr->Window_Hide(window);
     }
 
+    // Original function: FUN_004b84ed.
+    void BaseToolDesktop_AddOverlayElement(NXBaseGui::CBaseElement* element)
+    {
+        NXBaseGui::CDesktop::sTheObjectPtr->Element_AddOverlay(element, true);
+        if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0) NXBaseGui::CDesktop::sTheObjectPtr->Element_Hide(element);
+    }
     // Original function: FUN_004b8518; Windows normal desktop-element adapter.
     void BaseToolDesktop_AddElement(NXBaseGui::CBaseElement* element)
     {

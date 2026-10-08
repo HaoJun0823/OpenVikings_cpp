@@ -534,7 +534,11 @@
     <ClCompile Include="InGameGuiSelectionWindowAccess.cpp" />
     <ClInclude Include="InGameGuiSelectionWindowAccess.h" />
     <ClCompile Include="InGameGuiHumanEquipmentWindow.cpp" />
+    <ClCompile Include="InGameGuiHumanJobWindows.cpp" />
+    <ClCompile Include="InGameGuiHumanActionButtons.cpp" />
     <ClInclude Include="InGameGuiHumanEquipmentWindow.h" />
+    <ClInclude Include="InGameGuiHumanJobWindows.h" />
+    <ClInclude Include="InGameGuiHumanActionButtons.h" />
     <ClCompile Include="InGameGuiTraderConfigWindow.cpp" />
     <ClInclude Include="InGameGuiTraderConfigWindow.h" />
     <ClCompile Include="InGameGuiMessageText.cpp" />

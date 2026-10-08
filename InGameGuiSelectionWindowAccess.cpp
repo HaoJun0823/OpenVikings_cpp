@@ -395,7 +395,7 @@ namespace NC2InGameGuiSelection
                 }
                 AddGraphicButton(window, SRectangle(basic.x + 6, basic.y + 22, 18, 16), 18, 100, 10003);
                 AddGraphicButton(window, SRectangle(basic.x + 44, basic.y + 22, 18, 16), 28, 101, 10004);
-                // Follow/context popup handlers remain reconstruction boundaries.
+                AddGraphicButton(window, SRectangle(basic.x + basic.width - 20, basic.y + basic.height - 20, 18, 18), 142, 102, 10005);
                 const auto id = Read<std::uint32_t>(human, 4);
                 const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C;
                 const SRectangle nameRect(basic.x + 68, basic.y + 20, basic.width - 72, 14);
@@ -852,6 +852,8 @@ namespace NC2InGameGuiSelection
                     else NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_FollowHuman(world, id);
                 }
             }
+            else if (command == 10005) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeJobWindow_Open();
+            else if (command == 10006) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeNameWindow_Open();
             else if (command >= 10022 && command <= 10025)
             {
                 if (const void* human = l_Misc_GetSelectedHumanPtr())

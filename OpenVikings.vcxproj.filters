@@ -1196,7 +1196,11 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClCompile Include="InGameGuiHumanEquipmentWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="InGameGuiHumanJobWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="InGameGuiHumanActionButtons.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiHumanEquipmentWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="InGameGuiHumanJobWindows.h"><Filter>GUI</Filter></ClInclude>
+    <ClInclude Include="InGameGuiHumanActionButtons.h"><Filter>GUI</Filter></ClInclude>
     <ClCompile Include="InGameGuiTraderConfigWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiTraderConfigWindow.h"><Filter>GUI</Filter></ClInclude>
     <ClCompile Include="InGameGuiMessageText.cpp">

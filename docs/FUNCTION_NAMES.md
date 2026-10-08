@@ -39,3 +39,7 @@ OpenVikings/<Debug|Release>/obj/...
 The linker incremental database and generated legacy DirectInput import library use the intermediate directory. A pre-compile/link target creates the symbols directory. Existing generated files are not moved or deleted. Project/filter source coverage is unchanged.
 
 Verification masks comments/string literals, checks that no active raw `FUN_` identifiers remain, validates every supplied Mac symbol and checks the complete temporary inventory. Reversing only the identifier replacements restores the prior C++ code tokens, including signatures and bodies. Both project XML files are checked for matching production inclusion and output settings. No tests or Debug/Release builds are run, following the user's current workflow instruction. The last successful builds belong to checkpoint `a77fd47`; the naming/output changes have only static verification.
+
+## Character chooser and action names - 2026-10-08
+
+34 Windows-address mappings were added for chooser entries/helpers, contextual actions, tooltip/overlay adapters and the primary keyboard constructor. Correspondence, constants, layouts and behavior come from Windows ASM/Game.exe; the Mac header supplies names only. Name-map total: **1067 rows**. The folded single-human validation entry 004C8238 appears once. Partial action/keyboard entries remain excluded from completion counts.

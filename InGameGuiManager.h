@@ -68,6 +68,13 @@ namespace NInGameGuiManager
         void MiscWindows_MissionInfoWindow_Open(std::uint32_t briefingId, bool goalsPage);
         void MiscWindows_MissionInfoWindow_ReloadStrings();
         void MiscWindows_HumanChangeEquippedGoodsWindow_Open(std::uint32_t type, std::int32_t slot);
+        void MiscWindows_HumanChangeJobWindow_Open();
+        void MiscWindows_HumanChangeNameWindow_Open();
+        bool MiscWindows_HumanChangeNameWindow_SendKey(std::uint32_t key, char character);
+        void MiscWindows_HumanLearnJobWindow_Open();
+        void MiscWindows_HumanChangeProducedGoodWindow_Open();
+        void l_Selection_RemoveAllGuiElements();
+        void Selection_ActionButtons_BringUp();
         void Options_ScrollSpeed_Set(std::uint32_t speed, bool save);
         std::uint32_t Options_ScrollSpeed_Get() const;
         void Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save);
@@ -87,7 +94,6 @@ namespace NInGameGuiManager
 
     private:
         void l_RemoveAllGuiElements();
-        void l_Selection_RemoveAllGuiElements();
         void l_Selection_ActionButtons_CheckUpdate();
         bool l_IsElement0038Required() const;
         void l_UpdateElement0038();

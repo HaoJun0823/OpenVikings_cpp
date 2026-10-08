@@ -26,4 +26,6 @@ namespace NC2InGameGuiWorldElement
     void WorldDisplayElement_ValidateObjectUnderMouse(void* element);
     void WorldDisplayElement_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap);
     bool WorldDisplayElement_MouseSelectingArea_IsAreaValid(const void* element);
+    bool WorldDisplayElement_l_TryToBringUpActionButtonsForObjectUnderMouse(void* element);
+    bool WorldDisplayElement_l_TryToSelectAndBringUpActionButtonsForObjectUnderMouse(void* element);
 }

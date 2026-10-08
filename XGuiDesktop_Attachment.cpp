@@ -33,6 +33,20 @@ namespace NXBaseGui
         Read<TAdded*>(element, 0)[12](element);
     }
 
+    // Original function: FUN_004771be; overlay draw/input lists are distinct from normal elements.
+    void CDesktop::Element_AddOverlay(CBaseElement* element, bool insertAtEnd)
+    {
+        const auto flags = Read<std::uint32_t>(element, 0x18);
+        if ((flags & 0x800u) != 0) return;
+        Write(element, 0x18, flags | 0x800u);
+        std::launder(reinterpret_cast<NXBasics::SRectangle*>(reinterpret_cast<std::byte*>(element) + 4))->PlaceInside(mRectangle);
+        auto* bytes = reinterpret_cast<std::byte*>(this);
+        auto* drawList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x3C));
+        auto* inputList = std::launder(reinterpret_cast<NXBasics::CListBase*>(bytes + 0x50));
+        if (insertAtEnd) { drawList->InsertAtEnd(element); inputList->InsertAtStart(element); }
+        else { drawList->InsertAtStart(element); inputList->InsertAtEnd(element); }
+        Read<void(__thiscall**)(void*)>(element, 0)[12](element);
+    }
     // Original function: FUN_00477219.
     void CDesktop::Window_Add(CBaseWindow* window)
     {

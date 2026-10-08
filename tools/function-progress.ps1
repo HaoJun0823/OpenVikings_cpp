@@ -23,7 +23,11 @@ function Get-Key([string]$signature) {
 }
 $entries=[Collections.Generic.List[object]]::new()
 $definitionPattern='(?m)^[ \t]*(?<sig>[^\r\n;{}]*\([^;{}]*\)[^;{}]*?)(?<end>;|\{)'
-foreach($file in Get-ChildItem -LiteralPath $workspacePath -File | Where-Object {$_.Extension -in '.cpp','.h' -and $_.Name -notin @('dplay8.h','dpaddr.h','TemporaryLinkStubs.cpp')}) {
+# Count only registered production sources; unrelated/untracked files are not reconstruction progress.
+[xml]$project=[IO.File]::ReadAllText((Join-Path $workspacePath 'OpenVikings.vcxproj'))
+$sourceNames=@($project.SelectNodes('//*[local-name()="ClCompile" or local-name()="ClInclude"][@Include]') | ForEach-Object {$_.Include} | Where-Object {[IO.Path]::GetExtension($_) -in '.cpp','.h' -and [IO.Path]::GetFileName($_) -notin @('dplay8.h','dpaddr.h','TemporaryLinkStubs.cpp')} | Sort-Object -Unique)
+foreach($sourceName in $sourceNames) {
+    $file=Get-Item -LiteralPath (Join-Path $workspacePath $sourceName)
     $source=[IO.File]::ReadAllText($file.FullName)
     $masked=Mask-Code $source
     foreach($match in [regex]::Matches($masked,$definitionPattern)) {

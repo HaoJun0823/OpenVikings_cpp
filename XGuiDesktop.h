@@ -41,6 +41,7 @@ namespace NXBaseGui
         void Window_HideAll(CBaseWindow* except);
         void Window_UnHideAll();
         void Element_Add(CBaseElement* element, bool insertAtEnd);
+        void Element_AddOverlay(CBaseElement* element, bool insertAtEnd);
         std::uint32_t Element_Hide(CBaseElement* element);
         void Element_UnHide(CBaseElement* element);
         void Element_HideAll(CBaseElement* except);

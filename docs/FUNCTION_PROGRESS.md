@@ -1,5 +1,15 @@
 # Windows function mapping progress
 
+## Source-address checkpoint - 2026-10-08
+
+After native character chooser/context reconstruction, the refreshed inventory is **3221 / 5055 known Windows function-entry candidates (63.72%)**. **1834** known entries remain without a counted source mapping. This is provisional source-address coverage, not verified behavioral/gameplay completion or an exhaustive disassembly boundary count. Captured partial/dummy entries are excluded; remaining uncaptured reconstruction gaps and unresolved helper bodies require separate review. A function's address mapping alone does not establish full Windows equivalence.
+
+The same `tools/function-progress.ps1` ASM/PE/source method was rerun against current production C++. Its source list now comes from `OpenVikings.vcxproj`, so unrelated/untracked root files (including C2HumanCombatTasks.cpp/.h) cannot inflate the numerator or denominator. The denominator unions direct-call targets, explicit code pointers, recovered PE table entries, mapped source entries and unfinished entries, removing 13 API thunks. It is an inventory of known candidates; compare historical values with this source-filter correction in mind.
+
+Snapshot: [FUNCTION_PROGRESS_2026_10_08.json](FUNCTION_PROGRESS_2026_10_08.json). Counts: 4561 direct-call targets, 184 explicit code pointers, 107 recovered virtual-table bases / 294 unique table entries, 2954 mapped direct-call targets, 3883 parsed C++ definitions, 19 declarations without a unique parsed body, and 121 explicitly tracked unfinished boundaries. The new partial character layout/checksum and primary keyboard dispatch remain outside the numerator. Registered production inventory is 206 cpp / 192 headers; the naming map has 1067 rows, which is a separate metric.
+
+Reproduce with `powershell -NoProfile -ExecutionPolicy Bypass -File tools\function-progress.ps1 -ArtifactPath <output-directory>`; it does not build or run the game. The 2026-10-05 snapshot below remains historical.
+
 The 2026-10-06 goodie continuation adds 33 naming rows (318 total) and six partial boundaries (127 total), with project/filter parity at 179 cpp / 171 headers. See [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md). These are current inventories, not a recomputation of the historical source-address coverage table below. No new build/tests/runtime.
 
 Snapshot: 2026-10-05, checkpoint committed as `9c85170`. This assessment was recomputed from Windows ASM, original PE and that checkpoint's C++ definitions. It is **source-address coverage**, not an assertion that 51.13% of gameplay is correct. Partial bodies and temporary dummies are excluded from the mapped numerator. Subsequent idle-task work is documented in [HUMAN_IDLE_TASKS.md](HUMAN_IDLE_TASKS.md) and is not included in this checkpoint table.

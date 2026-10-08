@@ -268,14 +268,6 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
     // Naming reference: NC2InGameGuiManager::CGuiManager::CGuiManager.
 int __fastcall InGameGuiManager_Vars_Construct(void *) { return 0; }
 
-// TEMPORARY DUMMY: Windows address 004A10CB; implementation pending.
-    // Naming reference: NC2InGameGuiManager::CGuiManager::l_Selection_ActionButtons_BringUp.
-void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void *) {}
-
-// TEMPORARY DUMMY: Windows address 004A1BF0; implementation pending.
-    // Naming reference: NC2InGameGuiManager::CGuiManager::l_Selection_ActionButtons_GetChecksum.
-unsigned int __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(void *) { return 0; }
-
 // PARTIAL: Windows address 004A2C0B; GUI save/load and briefing-open dispatch are reconstructed.
     // Naming reference: NC2InGameGuiManager::CGuiManager::ls_Logic_CallbackFunction.
 // Windows 004A2D2B returns true for every callback; do not abort later callbacks.
@@ -294,37 +286,6 @@ bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(unsigned int type, unsig
     return true;
 }
 
-// TEMPORARY DUMMY: Windows address 004A3EDB; five miscellaneous command branches are reconstructed.
-// Naming reference: NC2InGameGuiManager::CGuiManagerDefaultMessageHandlerElement::XGui_BE_Message_Handle.
-// Window, Human, House and Vehicle commands remain pending; keep this entire entry excluded from completion counts.
-bool __fastcall InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle(void*, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
-{
-    if (message == 0x800)
-    {
-        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-        if (command == 0xF3C) manager->MiscWindows_OptionsWindow_Toggle(false, false);
-        else if (command == 0xF42) manager->MiscWindows_MissionInfoWindow_Toggle(0xFFFFFFFFu, true);
-        else if (command == 0xF45) manager->MiscWindows_OverviewWindow_Open();
-        else if (command == 0xF46)
-        {
-            const double speed = NC2Logic::Logic_EntryPoint_GameTime_GetSpeed();
-            std::uint32_t nextSpeed = 12;
-            if (speed >= 12.0 && speed < 24.0) nextSpeed = 24;
-            else if (speed >= 24.0 && speed < 36.0) nextSpeed = 36;
-            std::byte networkCommand[0x14]{};
-            networkCommand[0] = std::byte{0x87};
-            std::memcpy(networkCommand + 4, &nextSpeed, sizeof(nextSpeed));
-            NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, networkCommand, false, true);
-        }
-        else if (command == 0xF47)
-        {
-            static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->MessagePriority_Toggle();
-            manager->MiscButtons_MessagePriorityButton_Update(true);
-        }
-    }
-    return true;
-}
-
 // TEMPORARY DUMMY: Windows address 004B3264; implementation pending.
     // Naming reference: NC2InGameGuiWorldGameCursor::IGG_DrawWorldGameCursor_LogicCallback.
 bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
@@ -337,9 +298,6 @@ void * __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void *) { return 
     // Naming reference: NC2InGameGuiManager::CGuiManagerMousePointer::CGuiManagerMousePointer.
 void * __fastcall InGameGuiManagerMousePointer_Construct(void *) { return nullptr; }
 
-// TEMPORARY DUMMY: Windows address 004BC31C; implementation pending.
-    // Naming reference: NC2InGameGuiManager::CGuiManagerPrimaryMessageHandlerElement::CGuiManagerPrimaryMessageHandlerElement.
-void * __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Construct(void *) { return nullptr; }
 
 
 

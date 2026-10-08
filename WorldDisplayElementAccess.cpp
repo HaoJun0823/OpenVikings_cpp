@@ -141,6 +141,30 @@ namespace NC2InGameGuiWorldElement
         return true;
     }
 
+    // Original function: FUN_004bb288.
+    bool WorldDisplayElement_l_TryToBringUpActionButtonsForObjectUnderMouse(void* element)
+    {
+        using namespace NC2Lifetime;
+        auto* input = NC2InGameGuiInputManager::gInputManager;
+        const auto type = Read<std::uint32_t>(element, 0x38), selection = Read<std::uint32_t>(input, 4);
+        const bool matches = (type == 1 && selection == 1 && NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input) == Read<std::int32_t>(element, 0x40)) || (type == 3 && selection == 4 && NC2InGameGuiInputManager::Selection_GetSelectedSingleVehicleId(input) == Read<std::int32_t>(element, 0x50)) || (type == 4 && selection == 6 && Read<std::int32_t>(input, 0xA78) == Read<std::int32_t>(element, 0x60));
+        if (!matches) return false;
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_ActionButtons_BringUp(); return true;
+    }
+    // Original function: FUN_004bb2f2.
+    bool WorldDisplayElement_l_TryToSelectAndBringUpActionButtonsForObjectUnderMouse(void* element)
+    {
+        using namespace NC2Lifetime;
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        const auto type = Read<std::uint32_t>(element, 0x38);
+        std::uint32_t player;
+        if (type == 1) player = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, 0x40) * NC2Logic::CHumanArray::ElementSize + 0x10);
+        else if (type == 3) player = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, 0x50) * NC2Logic::CVehicleArray::ElementSize + 0x1E0);
+        else if (type == 4) player = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, Read<std::uint32_t>(element, 0x60) * NC2Logic::CHouseArray::ElementSize + 0x0C);
+        else return false;
+        if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::gInputManager, static_cast<std::byte*>(element) + 0x38, true, false, false)) return false;
+        manager->Selection_ActionButtons_BringUp(); NC2GuiToolsBase::FXTool_ClickConfirm(); return true;
+    }
     // Original function: FUN_004ba3be; normal selection, double click, area drag,
     // human point orders, overview camera and wheel zoom. Specialized input
     // modes, selection windows and remaining camera commands stay unfinished.
@@ -214,10 +238,13 @@ namespace NC2InGameGuiWorldElement
                 if (Read<std::int32_t>(input, 0) != 0) return true;
                 if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
             }
-            else if (mainMode == 0) { if (Action_DoCancel(input, target)) return true; }
+            else if (mainMode == 0)
+            {
+                if (WorldDisplayElement_l_TryToBringUpActionButtonsForObjectUnderMouse(element)) return true;
+                if (Action_DoCancel(input, target)) return true;
+            }
             else return true;
-            const auto type = Read<std::uint32_t>(target, 0);
-            if ((type == 1 || type == 3 || type == 4) && Read<std::uint32_t>(target, 0x40) == static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) && Action_DoNormalSelect(input, target, true, false, false)) NC2GuiToolsBase::FXTool_ClickConfirm();
+            WorldDisplayElement_l_TryToSelectAndBringUpActionButtonsForObjectUnderMouse(element);
             return true;
         }
         if (message == 4)
