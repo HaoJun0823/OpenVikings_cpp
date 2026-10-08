@@ -64,6 +64,18 @@ namespace NInGameGuiManager
         void MiscWindows_CloseAllLargeOnes(bool resetInputMode);
         void MiscWindows_OptionsWindow_Toggle(bool loadPage, bool savePage);
         void MiscWindows_OptionsWindow_Open(bool loadPage, bool savePage);
+        void MiscWindows_GlobalGameSettingsWindow_Toggle(bool specialItemsPage, bool assistantPage);
+        void MiscWindows_GlobalGameSettingsWindow_Open(bool specialItemsPage, bool assistantPage);
+        void MiscWindows_DiplomacyWindow_Toggle();
+        void MiscWindows_DiplomacyWindow_Open();
+        void MiscWindows_ConstructionSelectionWindow_Open(std::uint32_t type, std::uint32_t item);
+        void MiscWindows_ConstructionSelectionWindow_Toggle(std::uint32_t type, std::uint32_t item);
+        void MiscWindows_ConstructionSelectionWindow_Close();
+        bool MiscWindows_ConstructionSelectionWindow_SendKey(std::uint32_t key, char character);
+        void MiscWindows_HelpWindow_Open();
+        void MiscWindows_HelpWindow_Toggle();
+        void MiscWindows_HelpWindow_Open_HouseInfo(std::uint32_t type, std::uint32_t developmentStage);
+        void MiscWindows_HelpWindow_Open_GoodInfo(std::uint32_t good);
         void MiscWindows_GameSafetyBoxWindow_Open(std::uint32_t mode);
         void MiscWindows_MissionInfoWindow_Toggle(std::uint32_t briefingId, bool goalsPage);
         void MiscWindows_MissionInfoWindow_Open(std::uint32_t briefingId, bool goalsPage);

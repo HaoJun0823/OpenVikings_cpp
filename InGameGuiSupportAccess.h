@@ -68,12 +68,20 @@ namespace NC2InGameGuiGroups
         std::int32_t Misc_GetGroupIdOfVehicle(std::uint32_t vehicleId) const;
         std::int32_t Misc_GetGroupIdOfHouse(std::uint32_t houseId) const;
         void Group_VerifyAllObjects();
+        void Group_CreateNewGroup(std::uint32_t index);
+        void Group_AddSelectionToGroup(std::uint32_t index);
+        void Group_Choose(std::uint32_t index);
         void IO_Savegame_Save(NC2Logic::CIoHelper* io);
         void IO_Savegame_Load(NC2Logic::CIoHelper* io);
         static bool __cdecl ls_Callback_Logic(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     private:
         void l_Group_VerifyAllObjects(void* group);
         bool l_Group_IsObjectValid(const void* object) const;
+        void l_Group_AddHuman(void* group, std::uint32_t id);
+        void l_Group_AddVehicle(void* group, std::uint32_t id);
+        void l_Group_AddHouse(void* group, std::uint32_t id);
+        bool l_Group_IsSelected(const void* group) const;
+        bool l_Group_GetPosition(const void* group, std::uint32_t* point) const;
         void l_Group_RemoveObject(void* group, std::uint32_t index);
         void l_Group_RemoveHuman(void* group, std::uint32_t id);
         void l_Group_RemoveVehicle(void* group, std::uint32_t id);

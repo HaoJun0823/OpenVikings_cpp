@@ -2,6 +2,21 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    struct SHouseConstructionGoodsEntry
+    {
+        std::uint32_t good;
+        std::uint32_t amount;
+        std::uint32_t values[3];
+    };
+    struct SHouseConstructionGoods
+    {
+        std::int32_t count;
+        SHouseConstructionGoodsEntry entries[10];
+        std::uint32_t total;
+        std::uint32_t values[2];
+    };
+    static_assert(sizeof(SHouseConstructionGoods) == 0xD8);
+    void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods);
     std::uint32_t House_Stock_GetMaximumAmountByStockId(const void* house, std::uint32_t stock);
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum);
     bool House_HomeQualityEnhancer_SetAllowedFlag(void* house, std::uint32_t enhancer, bool allowed);
@@ -37,6 +52,7 @@ namespace NC2Logic
     std::uint32_t House_GetHouseMainType(const void* house);
     std::int32_t House_Construction_GetPercentage(const void* house);
     std::uint32_t House_Stock_GetAmountOfGoods(const void* house, std::uint32_t goodId, bool stockOnly);
+    std::uint32_t Tool_House_GetAmountOfGoods(const void* house, std::uint32_t* good, bool stockOnly);
     std::uint32_t House_Stock_RequestAmountOfGoods(void* house, std::uint32_t goodId, bool stockOnly);
     bool __fastcall House_Stock_ModifyAmount(void* house, void* unusedEdx, std::uint32_t good, std::uint32_t amount, bool construction);
     bool House_Stock_ModifyAmount(void* house, std::uint32_t good, std::int32_t amount, std::int32_t fraction, bool construction);

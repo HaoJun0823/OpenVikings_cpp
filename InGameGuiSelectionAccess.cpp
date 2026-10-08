@@ -42,6 +42,41 @@ extern bool __fastcall InputManager_InputMode_Set(void* manager, void* unusedEdx
 
 namespace NC2InGameGuiInputManager
 {
+    // Original function: FUN_004b750d.
+    bool Selection_IsVehicleSelected(const void* manager, std::int32_t id)
+    {
+        using namespace NC2Lifetime;
+        const auto selection = Read<std::uint32_t>(manager, 4);
+        if (selection == 4) return Read<std::int32_t>(manager, 0x97C) == id;
+        if (selection == 5) for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0x984); ++i) if (Read<std::int32_t>(manager, 0x988u + i * 8u) == id) return true;
+        return false;
+    }
+
+    // Original function: FUN_004b7558.
+    std::int32_t Selection_GetSelectedHouseId(const void* manager)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(manager, 4) == 6 ? NC2Lifetime::Read<std::int32_t>(manager, 0xA78) : -1;
+    }
+
+    // Original function: FUN_004b7569.
+    bool Selection_IsHouseSelected(const void* manager, std::int32_t id)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(manager, 4) == 6 && NC2Lifetime::Read<std::int32_t>(manager, 0xA78) == id;
+    }
+
+    // Original function: FUN_004b65e5; all four fields participate in selection identity.
+    bool Selection_SelectEngineHouseType(void* manager, std::uint32_t type, std::uint32_t developmentStage, std::uint32_t specialItemType, std::uint32_t specialItem)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(manager, 4) == 7 && Read<std::uint32_t>(manager, 0xA80) == type && Read<std::uint32_t>(manager, 0xA84) == developmentStage && Read<std::uint32_t>(manager, 0xA88) == specialItemType && Read<std::uint32_t>(manager, 0xA8C) == specialItem) return false;
+        Selection_UnselectAll(manager);
+        InputMode_Set(manager, 0);
+        Write<std::uint32_t>(manager, 0xAB0, Read<std::uint32_t>(manager, 0xAB0) + 1);
+        Write(manager, 0xA80, type); Write<std::uint32_t>(manager, 4, 7);
+        Write(manager, 0xA84, developmentStage); Write(manager, 0xA88, specialItemType); Write(manager, 0xA8C, specialItem);
+        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_UpdateWindows();
+        return true;
+    }
     using namespace NC2Lifetime;
     namespace
     {

@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Menu and keyboard priority - work in progress, 2026-10-08
+
+The user requested all menus and keyboard commands, including cheats, before further house-builder work. Global settings, construction chooser, help and diplomacy window families and their manager entry points are reconstructed from Windows. Native tribute payment replaces its link dummy. Group management, the BMP writer/map export and palette-remap initialization are connected dependencies; full keyboard dispatch and the other menu/selection window families remain pending. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). No full completion claim or new aggregate coverage count yet. Win32 `/Zs` checks only; no Debug/Release build, tests or game run.
+
 ## Road, palisade and gate construction - 2026-10-08
 
 Connected native start/end selection, reachable-point highlighting, complete vector previews, network flag creation/cancellation, per-second worker assignment, builder job/material/pickup/delivery/build/repair execution and road map-edit callbacks. Own flag selection now opens native camera/cancellation windows. Configured road/wall/gate shortcuts and gate eligibility/placement/state commands are connected. Windows ASM/Game.exe establish all behavior and layouts; Mac headers supply names only. Twelve link dummies were replaced. See [WALL_ROAD_CONSTRUCTION.md](WALL_ROAD_CONSTRUCTION.md).

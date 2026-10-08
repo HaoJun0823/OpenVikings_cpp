@@ -20,6 +20,7 @@
 #include "C2LogicLifetimeAccess.h"
 #include "C2WallRoadPathfinder.h"
 #include "C2WallRoadConstruction.h"
+#include "C2TributeAccess.h"
 #include <cstddef>
 #include <cstring>
 namespace NC2Logic
@@ -33,7 +34,6 @@ namespace NC2Logic
     extern void MapTool_WallGate_Remove(std::uint32_t, std::uint32_t, std::uint32_t);
     extern void MapTool_WallGate_SetIntoWall(std::uint32_t, const void*);
     extern void MapTool_WallGate_SetState(std::uint32_t, const void*, bool);
-    extern void __fastcall TributeData_Pay(void*, void*);
     extern void Tool_GlobalDefendMode_Start(std::uint32_t);
     extern void Tool_GlobalDefendMode_Stop(std::uint32_t);
     extern void __fastcall GameControl_Player_LeavesGame(void*, void*, std::uint32_t, bool, bool);

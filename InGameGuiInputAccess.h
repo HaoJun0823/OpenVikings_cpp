@@ -31,6 +31,7 @@ namespace NC2InGameGuiInputManager
     bool Selection_SelectSingleVehicle(void* manager, std::int32_t id);
     bool Selection_SelectAddSingleVehicle(void* manager, std::int32_t id);
     bool Selection_SelectHouse(void* manager, std::int32_t id);
+    bool Selection_SelectEngineHouseType(void* manager, std::uint32_t type, std::uint32_t developmentStage, std::uint32_t specialItemType, std::uint32_t specialItem);
     bool Selection_SelectGuide(void* manager, std::int32_t id);
     bool Selection_SelectRoadBuildPlace(void* manager, const void* point);
     bool Selection_SelectWallBuildPlace(void* manager, const void* point);
@@ -45,6 +46,9 @@ namespace NC2InGameGuiInputManager
     std::uint32_t Selection_GetSelectedMultipleHumanNumber(const void* manager);
     std::int32_t Selection_GetSelectedMultipleHumanId(const void* manager, std::uint32_t index);
     bool Selection_IsHumanSelected(const void* manager, std::int32_t id);
+    bool Selection_IsVehicleSelected(const void* manager, std::int32_t id);
+    std::int32_t Selection_GetSelectedHouseId(const void* manager);
+    bool Selection_IsHouseSelected(const void* manager, std::int32_t id);
     void Cursor_SetPosition(void* manager, const void* point);
     bool Action_DoNormalSelect(void* manager, const void* object, bool keepSelection, bool add, bool remove);
     std::uint32_t Action_NormalSelectPossible(void* manager, const void* object, std::uint32_t* first, std::uint32_t* second, std::uint32_t* third, std::uint32_t* fourth);

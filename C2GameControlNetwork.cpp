@@ -4,11 +4,33 @@
 #include "C2LifetimeGlobals.h"
 #include "C2GameState.h"
 #include "C2UserMessageAccess.h"
+#include "C2StringAccess.h"
+#include "XCrtFileAccess.h"
+#include "NetworkShutdown.h"
 
 #include <cstring>
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040a263.
+    const char* GameControl_Names_GetPlayerTribeShortNamePtr(const void* gameControl, std::int32_t player)
+    {
+        if (player >= 20) return nullptr;
+        const auto offset = static_cast<std::uint32_t>(player) * 0x4A80u;
+        if (NC2Lifetime::Read<std::uint8_t>(gameControl, offset) == 0) return nullptr;
+        const auto* name = static_cast<const char*>(gameControl) + offset + 0x49E0u;
+        return std::strlen(name) != 0 ? name : nullptr;
+    }
+
+    // Original function: FUN_0040a58c; the network name takes precedence over tribe names.
+    void GameControl_Misc_GetPlayerName(const void* gameControl, std::int32_t player, bool shortName, char* output)
+    {
+        if (GameControl_Player_IsNetworkPlayer(gameControl, player) && NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 0x14u), output)) return;
+        const auto* name = shortName ? GameControl_Names_GetPlayerTribeShortNamePtr(gameControl, player) : GameControl_Names_GetPlayerTribeNamePtr(gameControl, player);
+        if (name != nullptr) std::strcpy(output, name);
+        else if (shortName) NXBasics::Runtime_PrintString(output, "P%d", player + 1);
+        else NXBasics::Runtime_PrintString(output, "%s %d", StringAccess_GetMiscStringPtr(0), player + 1);
+    }
     // Original function: FUN_0040b13a; same player checks and matrix access as 0040A12B.
     std::int32_t Logic_EntryPoint_GetDiplomacyState(std::int32_t player, std::int32_t otherPlayer) { return GameControl_Diplomacy_GetState(gGameControl, player, otherPlayer); }
 

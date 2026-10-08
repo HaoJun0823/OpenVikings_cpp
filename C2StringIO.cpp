@@ -1,5 +1,7 @@
 #include "C2StringIO.h"
 #include "C2LanguageTools.h"
+#include "C2CleanMapsManager.h"
+#include "C2LifetimeGlobals.h"
 #include "XBTokenList.h"
 #include "XIniFileReader.h"
 #include "XStringArray.h"
@@ -11,6 +13,12 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042bee1.
+    NXBasics::CStringArray* StringIO_GetMissionStringArrayPtr()
+    {
+        auto* info = gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(gGameStaticVars.mapGuid);
+        return info == nullptr ? nullptr : StringIO_GetMissionStringArrayPtr(info->mapRoot);
+    }
     // Original function: FUN_0042befe.
     NXBasics::CStringArray* StringIO_GetMissionStringArrayPtr(const char* mapRoot)
     {

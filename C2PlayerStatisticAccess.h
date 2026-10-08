@@ -18,6 +18,7 @@ namespace NC2Logic
     static_assert(offsetof(SPlayerStatisticSampleData, values114) == 0x114);
     void Tool_PlayerStatistics_CountHumans(std::uint32_t player, std::uint16_t* counts);
     void Tool_PlayerStatistics_CountHouses(std::uint32_t player, std::uint16_t* counts);
+    std::int32_t Tool_PlayerStatistics_CountHousesOfLogicType(std::uint32_t player, std::uint32_t type, std::int32_t* unfinished);
     void Tool_PlayerStatistics_CountGoods(std::uint32_t player, void* counts);
     void PlayerStatisticManager_CreateStatisticSamples(std::uint32_t player, SPlayerStatisticSampleData* sample);
     void PlayerStatisticManager_CreateStatistics(void* manager);

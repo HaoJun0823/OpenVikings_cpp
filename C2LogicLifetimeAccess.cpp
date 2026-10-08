@@ -30,6 +30,11 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00418cc6; the manager itself does not participate in validation.
+    bool GameAssistantManager_l_Assistant_IsPlayerIdOk(const void*, std::int32_t player)
+    {
+        return player >= 0 && player < 20 && NC2Lifetime::Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) != 0;
+    }
     // Original function: FUN_00418ae1; additions wrap before signed clamping to 0..20.
     void GameAssistantManager_UserInput_Save(void* manager, std::int32_t player, std::int32_t command, std::int32_t value)
     {

@@ -1,8 +1,8 @@
 #include "C2HouseAccess.h"
+#include "C2EngineDisplayAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2StaticHouseTypeData.h"
-#include "C2EngineDisplayAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2MapArea.h"
 #include "C2MapGeometry.h"
@@ -16,6 +16,45 @@
 #include "C2HumanJobAccess.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00441228; food categories resolve to the first usable stock.
+    std::uint32_t Tool_House_GetAmountOfGoods(const void* house, std::uint32_t* good, bool stockOnly)
+    {
+        const auto food = [](std::uint32_t type) { return type == 16 || type == 17 || type == 18 || type == 19 || type == 20 || type == 21 || type == 22 || type == 23 || type == 56; };
+        if (!food(*good)) return House_Stock_CanStoreGoodType(house, *good, stockOnly) ? House_Stock_GetAmountOfGoods(house, *good, stockOnly) : 0;
+        const bool drink = *good == 17 || *good == 20;
+        for (std::uint32_t candidate = 16; candidate < 24; ++candidate)
+        {
+            const bool sameCategory = drink ? candidate == 17 || candidate == 20 : candidate == 16 || candidate == 18 || candidate == 19 || candidate == 21 || candidate == 22 || candidate == 23 || candidate == 56;
+            if (sameCategory && House_Stock_CanStoreGoodType(house, candidate, stockOnly)) { *good = candidate; return House_Stock_GetAmountOfGoods(house, candidate, stockOnly); }
+        }
+        return 0;
+    }
+    // Original function: FUN_00432a64; aggregate repeated goods without changing first-seen order.
+    void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods)
+    {
+        const auto* names = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(engineType);
+        std::memset(goods, 0, sizeof(*goods));
+        const auto first = onlyCurrentStage ? developmentStage : 0u;
+        if (first > developmentStage) return;
+        auto stage = first;
+        do
+        {
+            const auto count = NC2Lifetime::Read<std::uint32_t>(names, 0x48u + stage * 0x40u);
+            for (std::uint32_t index = 0; index < count; ++index)
+            {
+                const auto good = NC2Lifetime::Read<std::uint32_t>(names, 0x4Cu + stage * 0x40u + index * 4u);
+                std::int32_t slot = 0;
+                while (slot < goods->count && goods->entries[slot].good != good) ++slot;
+                if (slot < goods->count) { ++goods->entries[slot].amount; ++goods->total; }
+                else if (goods->count != 10)
+                {
+                    goods->entries[goods->count].good = good;
+                    goods->entries[goods->count].amount = 1;
+                    ++goods->total; ++goods->count;
+                }
+            }
+        } while (stage++ != developmentStage);
+    }
     // Original function: FUN_004322e6; shared by initialization and school commands.
     bool House_Inhabitants_IsHumanAttachedAsStudent(const void* house, std::uint32_t human)
     {

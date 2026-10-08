@@ -33,7 +33,6 @@ Address,CurrentName,Status,ReferencingObjects
 0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
 0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
-0043E72E,NC2Logic::TributeData_Pay,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00441F8C,NC2Logic::Human_VehicleMisc_Enter,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs/pickup/pileup/ordinary production events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
 004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial Windows startup; civilian/family/goods/goodies/home/equipment/scout/chest and supported queues connected; combat/outdoor/vehicle trees pending,C2HumanTaskAccess.obj

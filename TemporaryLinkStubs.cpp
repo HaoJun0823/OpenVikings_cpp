@@ -118,10 +118,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::Tool_GlobalDefendMode_Stop.
     void __cdecl Tool_GlobalDefendMode_Stop(unsigned int) {}
 
-    // TEMPORARY DUMMY: Windows address 0043E72E; implementation pending.
-    // Naming reference: NC2Logic::STributeData::Pay.
-    void __fastcall TributeData_Pay(void *, void *) {}
-
     // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.
     bool __cdecl GameMap_l_MaxMoveableSize_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }

@@ -14,6 +14,7 @@ namespace NC2Logic
     void* __fastcall MissionOnscreenInfoManager_Construct(void* manager, void* unusedEdx);
     void* __fastcall GameAssistantManager_Construct(void* manager, void* unusedEdx);
     void GameAssistantManager_UserInput_Save(void* manager, std::int32_t player, std::int32_t command, std::int32_t value);
+    bool GameAssistantManager_l_Assistant_IsPlayerIdOk(const void* manager, std::int32_t player);
     void* __fastcall MultiPlayerGoalManager_Construct(void* manager, void* unusedEdx);
     void* __fastcall HappinessManager_Construct(void* manager, void* unusedEdx);
     void* __fastcall EmbeddedSavegameManager_Construct(void* manager, void* unusedEdx);

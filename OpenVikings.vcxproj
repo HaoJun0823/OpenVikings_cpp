@@ -462,6 +462,12 @@
     <ClInclude Include="InGameGuiManager_MessageHandlers.h" />
     <ClCompile Include="InGameGuiOptionsWindowAccess.cpp" />
     <ClInclude Include="InGameGuiOptionsWindowAccess.h" />
+    <ClCompile Include="InGameGuiGlobalGameSettingsWindow.cpp" />
+    <ClInclude Include="InGameGuiGlobalGameSettingsWindow.h" />
+    <ClCompile Include="InGameGuiConstructionSelectionWindow.cpp" />
+    <ClInclude Include="InGameGuiConstructionSelectionWindow.h" />
+    <ClCompile Include="InGameGuiHelpWindow.cpp" />
+    <ClInclude Include="InGameGuiHelpWindow.h" />
     <ClCompile Include="InGameGuiMissionInfoWindow.cpp" />
     <ClCompile Include="InGameGuiSavegameIO.cpp" />
     <ClInclude Include="InGameGuiMissionInfoWindow.h" />
@@ -562,5 +568,18 @@
     <ClInclude Include="C2HumanConstruction.h" />
     <ClCompile Include="InGameGuiWallRoadWindows.cpp" />
     <ClInclude Include="InGameGuiWallRoadWindows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XBitmapFileBMP.cpp" />
+    <ClInclude Include="XBitmapFileBMP.h" />
+    <ClCompile Include="C2EngineMapExport.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2TributeAccess.cpp" />
+    <ClInclude Include="C2TributeAccess.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiDiplomacyWindow.cpp" />
+    <ClInclude Include="InGameGuiDiplomacyWindow.h" />
   </ItemGroup>
 </Project>

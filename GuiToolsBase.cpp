@@ -293,6 +293,18 @@ namespace NC2GuiToolsBase
         }
     }
 
+    // Original function: FUN_004e2994; terminate the original 1000-byte formatting buffer.
+    void __cdecl DrawTool_PrintStringXV(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* font, const NXBasics::SColorRGB* color, const char* format, ...)
+    {
+        char text[1000];
+        va_list arguments;
+        va_start(arguments, format);
+        NXBasics::Runtime_FormatString(text, sizeof(text), format, arguments);
+        va_end(arguments);
+        text[999] = '\0';
+        DrawTool_PrintStringX(bitmap, x, y, font, color, text);
+    }
+
     // Original function: FUN_004e2661
     void DrawTool_PrintStringX(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* font, const NXBasics::SColorRGB* color, const char* text)
     {

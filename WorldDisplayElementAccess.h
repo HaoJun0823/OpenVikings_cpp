@@ -22,6 +22,7 @@ namespace NC2InGameGuiWorldElement
     void WorldDisplayElement_DrawFrame_SetMode(void* element, std::uint32_t mode);
     void WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(void* element, void* handler, std::uint32_t command);
     void WorldDisplayElement_DarkenBitmap_Exit(void* element);
+    void WorldDisplayElement_DarkenBitmap_Init(void* element, std::uint32_t variant);
     void WorldDisplayElement_Draw(void* element, NXBasics::CBitmap* bitmap, NXBasics::SRectangle* rectangle);
     void WorldDisplayElement_ValidateObjectUnderMouse(void* element);
     void WorldDisplayElement_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap);

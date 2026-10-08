@@ -12,6 +12,21 @@ namespace NC2Logic
 {
     using NC2Lifetime::Read;
     using NC2Lifetime::Write;
+    // Original function: FUN_00440af8.
+    std::int32_t Tool_PlayerStatistics_CountHousesOfLogicType(std::uint32_t player, std::uint32_t type, std::int32_t* unfinished)
+    {
+        *unfinished = 0;
+        std::int32_t total = 0;
+        CHouseIterator iterator;
+        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
+        {
+            const auto* house = static_cast<const std::byte*>(CHouseArray::mStaticVars) + static_cast<std::uint32_t>(id) * 0x7E0u;
+            if (Read<std::uint32_t>(house, 0x14) != type) continue;
+            ++total;
+            if (Read<std::uint32_t>(house, 0x2C) != 3) ++*unfinished;
+        }
+        return total;
+    }
     // Original function: FUN_0041aa59.
     void* __fastcall PlayerStatisticManager_Construct(void* manager, void* /*unusedEdx*/)
     {

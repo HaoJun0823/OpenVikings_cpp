@@ -9,6 +9,8 @@
 #include "C2GameState.h"
 #include "C2VehicleAccess.h"
 #include "C2UserMessageAccess.h"
+#include "InGameGuiInputAccess.h"
+#include "C2PlayerCenterPosition.h"
 
 #include <cstdint>
 #include <cstring>
@@ -85,6 +87,136 @@ namespace NC2InGameGuiGroups
     void CObjectGroupManager::Group_VerifyAllObjects()
     {
         for (std::uint32_t group = 0; group < 10; ++group) l_Group_VerifyAllObjects(mStorage + 4u + group * 0x4B4u);
+    }
+
+    // Original function: FUN_004a32e2.
+    void CObjectGroupManager::Group_CreateNewGroup(std::uint32_t index)
+    {
+        if (index >= 10) return;
+        Write<std::uint32_t>(mStorage, 4u + index * 0x4B4u, 0);
+        Group_AddSelectionToGroup(index);
+    }
+
+    // Original function: FUN_004a3301.
+    void CObjectGroupManager::Group_AddSelectionToGroup(std::uint32_t index)
+    {
+        using namespace NC2InGameGuiInputManager;
+        if (index >= 10) return;
+        Group_VerifyAllObjects();
+        void* group = mStorage + 4u + index * 0x4B4u;
+        auto* input = gInputManager;
+        switch (Read<std::uint32_t>(input, 4))
+        {
+        case 1: l_Group_AddHuman(group, Selection_GetSelectedSingleHumanId(input)); break;
+        case 2: for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleHumanNumber(input); ++i) l_Group_AddHuman(group, Selection_GetSelectedMultipleHumanId(input, i)); break;
+        case 4: l_Group_AddVehicle(group, Selection_GetSelectedSingleVehicleId(input)); break;
+        case 5: for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleVehiclesNumber(input); ++i) l_Group_AddVehicle(group, Selection_GetSelectedMultipleVehicleId(input, i)); break;
+        case 6: l_Group_AddHouse(group, Selection_GetSelectedHouseId(input)); break;
+        default: break;
+        }
+    }
+
+    // Original function: FUN_004a340e.
+    void CObjectGroupManager::Group_Choose(std::uint32_t index)
+    {
+        using namespace NC2InGameGuiInputManager;
+        if (index >= 10) return;
+        Group_VerifyAllObjects();
+        const void* group = mStorage + 4u + index * 0x4B4u;
+        if (l_Group_IsSelected(group))
+        {
+            std::uint32_t point = 0;
+            if (l_Group_GetPosition(group, &point)) NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetToMapPosition(&point);
+            return;
+        }
+        Selection_UnselectAll(gInputManager);
+        InputMode_Cancel(gInputManager);
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(group, 0); ++i)
+        {
+            const auto id = Read<std::int32_t>(group, 8u + i * 12u);
+            switch (Read<std::uint32_t>(group, 4u + i * 12u))
+            {
+            case 1: Selection_SelectAddSingleHuman(gInputManager, id); break;
+            case 2: Selection_SelectAddSingleVehicle(gInputManager, id); break;
+            case 3: Selection_SelectHouse(gInputManager, id); break;
+            default: break;
+            }
+        }
+    }
+
+    // Original function: FUN_004a358d; an object belongs to at most one group.
+    void CObjectGroupManager::l_Group_AddHuman(void* group, std::uint32_t id)
+    {
+        for (std::uint32_t i = 0; i < 10; ++i) l_Group_RemoveHuman(mStorage + 4u + i * 0x4B4u, id);
+        if (Read<std::uint32_t>(group, 0) == 0 || Read<std::uint32_t>(group, 4) != 1) Write<std::uint32_t>(group, 0, 0);
+        const auto count = Read<std::uint32_t>(group, 0);
+        if (count == 100) return;
+        Write<std::uint32_t>(group, 4u + count * 12u, 1); Write(group, 8u + count * 12u, id);
+        Write(group, 12u + count * 12u, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize, 8));
+        Write(group, 0, count + 1);
+    }
+
+    // Original function: FUN_004a363a.
+    void CObjectGroupManager::l_Group_AddVehicle(void* group, std::uint32_t id)
+    {
+        for (std::uint32_t i = 0; i < 10; ++i) l_Group_RemoveVehicle(mStorage + 4u + i * 0x4B4u, id);
+        if (Read<std::uint32_t>(group, 0) == 0 || Read<std::uint32_t>(group, 4) != 2) Write<std::uint32_t>(group, 0, 0);
+        const auto count = Read<std::uint32_t>(group, 0);
+        if (count == 100) return;
+        Write<std::uint32_t>(group, 4u + count * 12u, 2); Write(group, 8u + count * 12u, id);
+        Write(group, 12u + count * 12u, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize, 8));
+        Write(group, 0, count + 1);
+    }
+
+    // Original function: FUN_004a36e7; houses replace the complete group.
+    void CObjectGroupManager::l_Group_AddHouse(void* group, std::uint32_t id)
+    {
+        for (std::uint32_t i = 0; i < 10; ++i) l_Group_RemoveHouse(mStorage + 4u + i * 0x4B4u, id);
+        Write<std::uint32_t>(group, 0, 0); Write(group, 8, id); Write<std::uint32_t>(group, 4, 3);
+        Write(group, 12, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize, 8));
+        Write<std::uint32_t>(group, 0, 1);
+    }
+
+    // Original function: FUN_004a3947; Windows tests membership, not equal counts.
+    bool CObjectGroupManager::l_Group_IsSelected(const void* group) const
+    {
+        using namespace NC2InGameGuiInputManager;
+        bool selected = false;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(group, 0); ++i)
+        {
+            const auto id = Read<std::int32_t>(group, 8u + i * 12u);
+            switch (Read<std::uint32_t>(group, 4u + i * 12u))
+            {
+            case 1: selected = Selection_IsHumanSelected(gInputManager, id); break;
+            case 2: selected = Selection_IsVehicleSelected(gInputManager, id); break;
+            case 3: selected = Selection_IsHouseSelected(gInputManager, id); break;
+            default: continue;
+            }
+            if (!selected) return false;
+        }
+        return selected;
+    }
+
+    // Original function: FUN_004a39a8; signed sums and division precede WORD narrowing.
+    bool CObjectGroupManager::l_Group_GetPosition(const void* group, std::uint32_t* point) const
+    {
+        std::int32_t x = 0, y = 0, count = 0;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(group, 0); ++i)
+        {
+            const auto id = Read<std::uint32_t>(group, 8u + i * 12u);
+            const void* position;
+            switch (Read<std::uint32_t>(group, 4u + i * 12u))
+            {
+            case 1: position = NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize); break;
+            case 2: position = NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize); break;
+            case 3: position = NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize + 0x1C; break;
+            default: continue;
+            }
+            x += Read<std::int16_t>(position, 0); y += Read<std::int16_t>(position, 2); ++count;
+        }
+        if (count == 0) { *point = 0; return false; }
+        *point = static_cast<std::uint16_t>(x / count) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(y / count)) << 16);
+        return true;
     }
 
     // Original function: FUN_004a34c8; removal compacts and revisits the slot.

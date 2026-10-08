@@ -1,0 +1,274 @@
+#include "InGameGuiGlobalGameSettingsWindow.h"
+#include "InGameGuiManager.h"
+#include "InGameGuiBaseAccess.h"
+#include "C2CallbackManager.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicLifetimeAccess.h"
+#include "C2UserNetworkCommandAccess.h"
+#include "GuiListBoxElementAccess.h"
+#include "GuiTextToolElementAccess.h"
+#include "GuiBitmapToolElementAccess.h"
+#include "GuiToolsBase.h"
+#include "XBitmap.h"
+#include "XGuiDesktop.h"
+#include "XGuiWindowAccess.h"
+#include "XCrtFileAccess.h"
+#include <array>
+#include <cstring>
+#include <Windows.h>
+#include <mmsystem.h>
+
+namespace NC2InGameGuiMiscWindows
+{
+    using namespace NC2Lifetime;
+    // Complete Windows static DWORD at 005084CC; persists across window instances.
+    static std::uint32_t gGlobalGameSettingsPage = 0;
+    static void GlobalGameSettingsWindow_Destruct(void* window);
+    static void* __fastcall GlobalGameSettingsWindow_Delete(void* window, void* unusedEdx, std::uint32_t flags);
+    // Complete Windows table 004F7458..004F74A3; inherited entries are unchanged.
+    static const std::array<std::uintptr_t, 19> gGlobalGameSettingsWindowVirtualTable = []
+    {
+        std::array<std::uintptr_t, 19> table{};
+        std::memcpy(table.data(), NC2InGameGuiBase::gBaseToolWindowVirtualTable, sizeof(table));
+        table[0] = reinterpret_cast<std::uintptr_t>(&GlobalGameSettingsWindow_Delete);
+        table[2] = reinterpret_cast<std::uintptr_t>(&GlobalGameSettingsWindow_XGui_BE_Message_Handle);
+        table[3] = reinterpret_cast<std::uintptr_t>(&GlobalGameSettingsWindow_XGui_BE_Element_Draw);
+        return table;
+    }();
+
+    // Original function: FUN_004c1bf3; the Windows allocation is 0x74 bytes.
+    void* GlobalGameSettingsWindow_Construct(void* window, bool specialItemsPage, bool assistantPage)
+    {
+        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
+        const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
+        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
+        Write<std::uint32_t>(window, 0x70, 0);
+        Write(window, 0, gGlobalGameSettingsWindowVirtualTable.data());
+        if (specialItemsPage) gGlobalGameSettingsPage = 0;
+        if (assistantPage) gGlobalGameSettingsPage = 1;
+        GlobalGameSettingsWindow_l_GuiButtons_Add(window);
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        manager->FrameCall_Register(window);
+        manager->Misc_GameTime_Stop_LargeWindowOpened();
+        return window;
+    }
+
+    // Original function: FUN_004c1c8e.
+    static void* __fastcall GlobalGameSettingsWindow_Delete(void* window, void*, std::uint32_t flags)
+    {
+        GlobalGameSettingsWindow_Destruct(window);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
+        return window;
+    }
+
+    // Original function: FUN_004c1caa.
+    static void GlobalGameSettingsWindow_Destruct(void* window)
+    {
+        Write(window, 0, gGlobalGameSettingsWindowVirtualTable.data());
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        manager->Misc_GameTime_Continue_LargeWindowClosed();
+        manager->FrameCall_UnRegister(window);
+        Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        NXBaseGui::BaseWindow_Destruct(window);
+    }
+
+    // Original function: FUN_004c1cd9; packet layout and update branches follow Windows.
+    bool __fastcall GlobalGameSettingsWindow_XGui_BE_Message_Handle(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
+    {
+        const auto update = [window]
+        {
+            NXBaseGui::BaseWindow_Element_DeleteAll(window);
+            GlobalGameSettingsWindow_l_GuiButtons_Add(window);
+        };
+        if (message == 0x1000 && command == 0x7D9)
+        {
+            if (param1 != 0) { gGlobalGameSettingsPage = 0; update(); }
+            if (param2 != 0) { gGlobalGameSettingsPage = 1; update(); }
+            return true;
+        }
+        if (message != 0x800) return false;
+        if (command == 0x7EE)
+        {
+            if (timeGetTime() > Read<std::uint32_t>(window, 0x70) + 3000u) update();
+            return true;
+        }
+        if (command == 10000 || command == 10002)
+        {
+            gGlobalGameSettingsPage = command == 10000 ? 0 : 1;
+            update(); return true;
+        }
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (command == 10100)
+        {
+            if (NXBasics::Runtime_TimeSigned32(param2) >= 2 && NXBasics::Runtime_TimeSigned32(param2) <= 4)
+            {
+                manager->MiscWindows_ConstructionSelectionWindow_Open(param2, param3);
+                NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
+            }
+            return true;
+        }
+        std::byte packet[0x14]{};
+        packet[1] = static_cast<std::byte>(manager->GetLocalPlayerId());
+        if (command >= 10200 && command <= 10203)
+        {
+            packet[0] = static_cast<std::byte>(0x81u + command - 10200u);
+            NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false);
+            NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, manager->GetLocalPlayerId(), 9, 0);
+            NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
+            return true;
+        }
+        std::uint32_t assistantCommand = 0;
+        std::int32_t value = 0;
+        bool refresh = false;
+        switch (command)
+        {
+        case 10300: assistantCommand = 10; value = -1; break;
+        case 10301: assistantCommand = 10; value = 1; break;
+        case 10310: assistantCommand = 11; value = -1; break;
+        case 10311: assistantCommand = 11; value = 1; break;
+        case 10320: assistantCommand = 20; value = -1; break;
+        case 10321: assistantCommand = 20; value = 1; break;
+        case 10322: assistantCommand = 21; value = -1; break;
+        case 10323: assistantCommand = 21; value = 1; break;
+        case 10324: assistantCommand = 22; value = -1; break;
+        case 10325: assistantCommand = 22; value = 1; break;
+        case 10326: assistantCommand = 23; value = -1; break;
+        case 10327: assistantCommand = 23; value = 1; break;
+        case 10340: assistantCommand = 30; refresh = true; break;
+        case 10341: assistantCommand = 30; value = 1; refresh = true; break;
+        case 10350: assistantCommand = 31; refresh = true; break;
+        case 10351: assistantCommand = 31; value = 1; refresh = true; break;
+        case 10360: assistantCommand = 32; refresh = true; break;
+        case 10361: assistantCommand = 32; value = 1; refresh = true; break;
+        case 10370: assistantCommand = 33; refresh = true; break;
+        case 10371: assistantCommand = 33; value = 1; refresh = true; break;
+        case 10440: assistantCommand = 40; refresh = true; break;
+        case 10441: assistantCommand = 40; value = 1; refresh = true; break;
+        case 10470: assistantCommand = 41; refresh = true; break;
+        case 10471: assistantCommand = 41; value = 1; refresh = true; break;
+        default: return true;
+        }
+        packet[0] = std::byte{0x85};
+        Write(packet, 4, assistantCommand); Write(packet, 8, value);
+        NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, packet, false, false);
+        if (refresh) update();
+        return true;
+    }
+
+    // Original function: FUN_004c2502; both native pages, all controls and periodic update.
+    void __fastcall GlobalGameSettingsWindow_l_GuiButtons_Add(void* window)
+    {
+        using namespace NC2InGameGuiBase;
+        const auto button = [window](const NXBasics::SRectangle& rectangle, const char* caption, std::uint32_t command, bool toggle, bool selected, bool tooltip) -> void*
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1);
+            if (allocation == nullptr) return nullptr;
+            if (tooltip) return BaseToolTextButton_ConstructToggleWithToolTip(allocation, nullptr, &rectangle, caption, nullptr, command, window, selected);
+            return toggle ? BaseToolTextButton_ConstructToggle(allocation, nullptr, &rectangle, caption, command, window, selected) : BaseToolTextButton_Construct(allocation, nullptr, &rectangle, caption, command, window);
+        };
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1);
+        NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 22u), 14);
+        void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(500));
+        NXBaseGui::BaseWindow_Element_Add(window, element);
+        allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
+        rectangle = NXBasics::SRectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 18u), 2, 16, 14);
+        element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &rectangle);
+        NXBaseGui::BaseWindow_Element_Add(window, element);
+        rectangle = NXBasics::SRectangle(4, 22, 244, 22);
+        NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(10), 10002, true, gGlobalGameSettingsPage == 1, false));
+        rectangle.x += rectangle.width + 2;
+        NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(501), 10000, true, gGlobalGameSettingsPage == 0, false));
+        const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
+        if (gGlobalGameSettingsPage == 1)
+        {
+            const auto numeric = [&](std::int32_t y, std::uint32_t command)
+            {
+                rectangle = NXBasics::SRectangle(330, y, 24, 18);
+                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, "-", command, false, false, false));
+                rectangle.x += rectangle.width + 2;
+                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, "+", command + 1, false, false, false));
+            };
+            const auto flag = [&](std::int32_t y, std::uint32_t command, std::uint32_t offset)
+            {
+                const bool selected = NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) && Read<std::uint8_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * 0x38u + offset) != 0;
+                rectangle = NXBasics::SRectangle(330, y, 48, 18);
+                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(24), command, true, !selected, true));
+                rectangle.x += rectangle.width + 2;
+                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(23), command + 1, true, selected, true));
+            };
+            numeric(70, 10300); numeric(90, 10310);
+            flag(120, 10340, 0x18); flag(140, 10350, 0x19); flag(160, 10360, 0x1A); flag(180, 10370, 0x1B);
+            numeric(230, 10320); numeric(250, 10322); numeric(270, 10324); numeric(290, 10326);
+            flag(320, 10440, 0x1C); flag(340, 10470, 0x1D);
+        }
+        else if (gGlobalGameSettingsPage == 0)
+        {
+            rectangle = NXBasics::SRectangle(4, 76, 468, 336);
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+            void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
+            NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), 26);
+            const auto base = static_cast<std::uint32_t>(player) * 0x4A80u + 0x4624u;
+            for (std::uint32_t index = 0; index < 100; ++index)
+            {
+                const auto type = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * 8u);
+                const auto item = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * 8u + 4u);
+                if (type == 0) continue;
+                char caption[200];
+                NC2GuiToolsBase::StringTool_GetLogicSpecialItemNamePtr(type, static_cast<std::int32_t>(item), caption);
+                element = button(row, caption, 10100, true, false, false);
+                Write(element, 0x4C, type); Write(element, 0x50, item);
+                Write<std::uint8_t>(element, 0x56, type != 2 && type != 3 && type != 4);
+                BaseListBoxElement_Element_Add(list, nullptr, element);
+                row.y += row.height + 2;
+            }
+            NXBaseGui::BaseWindow_Element_Add(window, list);
+            rectangle.x = 476; rectangle.width = 20;
+            allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C, 1);
+            element = allocation == nullptr ? nullptr : ToolListBoxControllerElement_Construct(allocation, nullptr, &rectangle, list, false, true);
+            NXBaseGui::BaseWindow_Element_Add(window, element);
+        }
+        Write<std::uint32_t>(window, 0x70, timeGetTime());
+    }
+
+    // Original function: FUN_004c2f2b; assistant captions are drawn over the native base.
+    void __fastcall GlobalGameSettingsWindow_XGui_BE_Element_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
+    {
+        NC2InGameGuiBase::BaseToolWindow_Draw(window, nullptr, bitmap, rectangle);
+        if (gGlobalGameSettingsPage != 1 || NC2Logic::gGameAssistantManager == nullptr) return;
+        const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
+        auto* font = resources.font08;
+        const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400);
+        const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
+        const auto amount = [&](std::uint32_t offset) { return NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) ? Read<std::uint32_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * 0x38u + offset) : 0u; };
+        bitmap->Text_PrintV(font, color, 10, 72, "%s %d", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(11), amount(0));
+        bitmap->Text_PrintV(font, color, 10, 92, "%s %d", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(12), amount(4));
+        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_Print(font, color, 10, 124 + index * 20, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(17 + index));
+        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_PrintV(font, color, 10, 232 + index * 20, "%s %d", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(13 + index), amount(8 + index * 4));
+        bitmap->Text_Print(font, color, 10, 324, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(21));
+        bitmap->Text_Print(font, color, 10, 344, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(22));
+    }
+}
+
+namespace NInGameGuiManager
+{
+    // Original function: FUN_004a1e63.
+    void CInGameGuiManager::MiscWindows_GlobalGameSettingsWindow_Toggle(bool specialItemsPage, bool assistantPage)
+    {
+        auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
+        auto* window = desktop->Message_SendToAllWindows(0x7D9, specialItemsPage, assistantPage, 0);
+        if (window != nullptr) desktop->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
+        else MiscWindows_GlobalGameSettingsWindow_Open(specialItemsPage, assistantPage);
+    }
+
+    // Original function: FUN_004a1ea9.
+    void CInGameGuiManager::MiscWindows_GlobalGameSettingsWindow_Open(bool specialItemsPage, bool assistantPage)
+    {
+        l_Selection_RemoveAllGuiElements();
+        if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7D9, specialItemsPage, assistantPage, 0) != nullptr) return;
+        MiscWindows_CloseAllLargeOnes(true);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+        void* window = allocation == nullptr ? nullptr : NC2InGameGuiMiscWindows::GlobalGameSettingsWindow_Construct(allocation, specialItemsPage, assistantPage);
+        NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+    }
+}

@@ -1116,6 +1116,12 @@
     <ClInclude Include="InGameGuiManager_MessageHandlers.h"><Filter>GUI</Filter></ClInclude>
     <ClCompile Include="InGameGuiOptionsWindowAccess.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiOptionsWindowAccess.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="InGameGuiGlobalGameSettingsWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiGlobalGameSettingsWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="InGameGuiConstructionSelectionWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiConstructionSelectionWindow.h"><Filter>GUI</Filter></ClInclude>
+    <ClCompile Include="InGameGuiHelpWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiHelpWindow.h"><Filter>GUI</Filter></ClInclude>
     <ClCompile Include="InGameGuiMissionInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClCompile Include="InGameGuiSavegameIO.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiMissionInfoWindow.h"><Filter>GUI</Filter></ClInclude>
@@ -1224,5 +1230,18 @@
     <ClInclude Include="C2HumanConstruction.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="InGameGuiWallRoadWindows.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiWallRoadWindows.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XBitmapFileBMP.cpp"><Filter>Graphics\Images</Filter></ClCompile>
+    <ClInclude Include="XBitmapFileBMP.h"><Filter>Graphics\Images</Filter></ClInclude>
+    <ClCompile Include="C2EngineMapExport.cpp"><Filter>Engine</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2TributeAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2TributeAccess.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiDiplomacyWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiDiplomacyWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
 </Project>

@@ -23,6 +23,7 @@
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
 #include "XPaletteAccess.h"
+#include "XPictureAccess.h"
 #include "XGuiDesktop.h"
 
 #include <cstdarg>
@@ -562,6 +563,32 @@ namespace NC2InGameGuiWorldElement
         Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, moveable, point);
         point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) - 25u);
         NC2E2::DE_SetWantedPositionToPixelPoint(display, point);
+    }
+
+    // Original function: FUN_004bb57b; Windows maps the brightest channel through a PCX palette.
+    void WorldDisplayElement_DarkenBitmap_Init(void* element, std::uint32_t variant)
+    {
+        using namespace NC2Lifetime;
+        WorldDisplayElement_DarkenBitmap_Exit(element);
+        Write(element, 0x238, variant);
+        if (variant == 0) return;
+        char path[200];
+        NXBasics::Runtime_PrintString(path, "data\\gui\\palettes\\ingame_remap_%2.2d.pcx", variant);
+        auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture(path);
+        Write(element, 0x23C, palette);
+        if (Read<std::uint32_t>(Read<void*>(element, 0x2C), 4) != 1) return;
+        auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_Allocate(0x20000));
+        Write(element, 0x240, table);
+        const auto* colours = NXBasics::Palette_GetHighColorTablePtr(palette);
+        const auto* converter = NXBasics::g16BitPixelConverter;
+        for (std::uint32_t value = 0; value < 0x10000; ++value)
+        {
+            const auto red = ((value & Read<std::uint16_t>(converter, 0x0C)) >> (Read<std::uint8_t>(converter, 0x2C) & 31u)) << 3;
+            const auto green = ((value & Read<std::uint16_t>(converter, 0x0E)) >> (Read<std::uint8_t>(converter, 0x30) & 31u)) << 3;
+            const auto blue = ((value & Read<std::uint16_t>(converter, 0x10)) >> (Read<std::uint8_t>(converter, 0x34) & 31u)) << 3;
+            const auto brightness = red > green ? (red > blue ? red : blue) : (green > blue ? green : blue);
+            table[value] = colours[brightness];
+        }
     }
 
     // Original function: FUN_004bb669.

@@ -74,6 +74,7 @@ namespace NC2E2
     void DE_Debug_DrawMicroGridMarker(const void* display, const void* point, const NXBasics::SColorRGB* outerColor, const NXBasics::SColorRGB* innerColor, std::uint32_t radius, bool filled);
     void DE_Debug_DrawMicroGridLine(const void* display, const void* first, const void* second, const NXBasics::SColorRGB* color);
     void Display_UpdateDisplay(void* display);
+    void Tool_SaveWorldAsBMP(const char* filename, std::uint32_t percent);
     void __fastcall Display_l_DE_DoUpdateStaticPart1(void* display, void* unusedEdx, S2DEngineDisplayRectangle rectangle);
     std::int32_t DE_GetDisplayedCenterWorldXPosition(const void* display);
     std::int32_t DE_GetDisplayedCenterWorldYPosition(const void* display);
