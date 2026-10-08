@@ -75,6 +75,14 @@ namespace NC2GuiToolsBase
         return NXBasics::Runtime_CompareStringsIgnoreCase(left, right);
     }
 
+    // Original function: FUN_004e25ec; alpha Bobs use brightness 128.
+    void DrawTool_DrawIcon(std::uint32_t icon, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
+        if (NXBasics::BobManager_GetBobType(resources.windowBobManager, icon) == 4) NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, icon, bitmap, x, y, resources.backgroundPalette, 128);
+        else NXBasics::BobManager_PrintBob(resources.windowBobManager, icon, bitmap, x, y, resources.backgroundPalette);
+    }
+
     // Original function: FUN_004e2376.
     void DrawTool_FillArea(void* context, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle, std::int32_t mode)
     {

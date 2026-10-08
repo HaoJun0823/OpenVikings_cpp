@@ -57,6 +57,7 @@ namespace NInGameGuiManager
         static void l_IO_Savegame_Load(NC2Logic::CIoHelper* io);
         void System_UpdateGui();
         void FrameCall_Do();
+        void Selection_UpdateWindows();
         void MiscButtons_SpeedButton_Update(bool update);
         void MiscButtons_MessagePriorityButton_Update(bool update);
         void MiscWindows_CloseAllLargeOnes(bool resetInputMode);

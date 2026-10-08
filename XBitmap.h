@@ -92,6 +92,7 @@ namespace NXBasics
         const std::uint32_t* GetTrueColorTablePtr() const;
 
         void Tool_Darken();
+        void Draw_Box(const SRectangle& rectangle, const SColorRGB& color);
         void Tool_Darken(SRectangle rectangle);
         void Tool_Darken(SRectangle rectangle, std::uint8_t redMask, std::uint8_t greenMask, std::uint8_t blueMask);
 

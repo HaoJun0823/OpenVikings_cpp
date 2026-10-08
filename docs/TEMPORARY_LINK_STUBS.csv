@@ -1,6 +1,6 @@
 Address,CurrentName,Status,ReferencingObjects
 0040822E,NC2Logic::AIManager_IO_InitFromScript,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
-00408F7B,NC2Logic::AIManager_l_AI_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
+00408F7B,NC2Logic::AIManager_l_AI_Callback,Partial Windows callback; unconditional true restored at 00408FA3; tick/player-death dispatch pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 00409BCC,NC2Logic::GameControl_System_DoOneGameTick,Partial native implementation; per-tick pathfinder budget reset complete; periodic defeat scan/messages/network command pending,C2GameTime.obj; C2GameControlStartup.obj
 0040A295,NC2Logic::GameControl_Player_LeavesGame,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
@@ -12,10 +12,10 @@ Address,CurrentName,Status,ReferencingObjects
 0040B183,NC2Logic::GameTime_Network_GetHighestPlayerLatency,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,Partial Windows tick; human path consumption and position/result callbacks connected; other creature AI and combat continuations remain pending,C2GameTime.obj
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
+00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
-004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-00419A7F,NC2Logic::HappinessManager_l_Happiness_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
+004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,Partial Windows callback; unconditional true restored at 004195D0; 120-tick notification/goal updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
+00419A7F,NC2Logic::HappinessManager_l_Happiness_Callback,Partial Windows callback; unconditional true restored at 00419AE8; 720-tick calculation and events pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 00419B74,NC2Logic::HappinessManager_Messages_CivilistDied,Temporary dummy; Windows implementation pending,C2HumanInitialization.obj
 0041A097,NC2Logic::DelayedActionManager_System_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0041CB1E,NC2Logic::HumanMerchantArray_CleanMap_LoadTradeAgreements,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
@@ -86,7 +86,7 @@ Address,CurrentName,Status,ReferencingObjects
 00499AD5,DrawAtom_FishManager_DoDraw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004A002D,InGameGuiManager_Vars_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
 004A0D01,InGameGuiManager_InputMode_Changed,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
-004A0E9D,InGameGuiManager_Selection_UpdateWindows,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
+004A0E9D,InGameGuiManager_Selection_UpdateWindows,Partial Windows selection update; single-human basic info connected; group/non-human windows pending; excluded from completion counts,InGameGuiManager.obj
 004A10CB,InGameGuiManager_l_Selection_ActionButtons_BringUp,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
 004A1BF0,InGameGuiManager_l_Selection_ActionButtons_GetChecksum,Temporary dummy; Windows implementation pending,InGameGuiManager_State.obj
 004A2C0B,InGameGuiManager_ls_Logic_CallbackFunction,Partial native callback: true return; GUI save/load and briefing open/reset/reload connected; remaining selection/window/event branches pending,InGameGuiManager.obj
@@ -116,3 +116,8 @@ Address,CurrentName,Status,ReferencingObjects
 004D08EB,NC2InGameGuiMessages::MessagePresentationWindow_Construct,Partial Windows implementation; native ownership layout and normal window lifecycle connected; contextual window behavior unfinished; excluded from completion counts,InGameGuiMessageWindowAccess.obj
 004D0ACF,NC2InGameGuiMessages::MessagePresentationWindow_MessageHandle,Partial Windows implementation; dismiss confirm and focus/select connected; good/house help context commands pending; excluded from completion counts,InGameGuiMessageWindowAccess.obj
 004D0B5E,NC2InGameGuiMessages::MessagePresentationWindow_Draw,Partial Windows implementation; papyrus text human portrait and type-18 category rows connected; house context buttons pending; excluded from completion counts,InGameGuiMessageWindowAccess.obj
+004AB7F1,NC2InGameGuiSelection::SelectionSingleHumanWindow_Construct,Partial Windows basic-info constructor; other sections and experiences pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
+004AB9B7,NC2InGameGuiSelection::SelectionSingleHumanWindow_Delete,Partial Windows destructor through deleting adapter; action popup member unused; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
+004ABA34,NC2InGameGuiSelection::SelectionSingleHumanWindow_MessageHandle,Partial Windows collapse/focus/name-refresh/preview frame handling; remaining actions pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
+004AC26D,NC2InGameGuiSelection::SelectionSingleHumanWindow_Draw,Partial Windows basic info and five status bars; relationship/equipment/other-section drawing pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
+004AE2A2,NC2InGameGuiSelection::l_SubTabs_UpdateAll,Partial Windows basic-info default layout; variable heights and other sections pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj

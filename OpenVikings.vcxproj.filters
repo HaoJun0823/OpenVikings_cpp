@@ -1185,6 +1185,12 @@
     <ClCompile Include="InGameGuiSelectionAccess.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
+    <ClCompile Include="InGameGuiSelectionWindowAccess.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClInclude Include="InGameGuiSelectionWindowAccess.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
     <ClCompile Include="InGameGuiMessageText.cpp">
       <Filter>GUI</Filter>
     </ClCompile>

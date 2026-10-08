@@ -1193,6 +1193,17 @@ namespace NXBasics
         XB_Tool_Long_FillBlock(pixels, rectangle.width, rectangle.height, rowPixelCount, color);
     }
 
+    // Original function: FUN_0040dc23; preserve palette lookup and depth-specific fills.
+    void CBitmap::Draw_Box(const SRectangle& rectangle, const SColorRGB& color)
+    {
+        switch (mDepth)
+        {
+        case 0: Draw_Box(rectangle, static_cast<std::uint8_t>(Palette_FindMatchingColor(mPalette == nullptr ? NXBasics::CXBSystemManager::sPalettePtr : mPalette, color))); break;
+        case 1: Draw_Box(rectangle, g16BitPixelConverter->PackColor(color)); break;
+        case 2: Draw_Box(rectangle, g32BitPixelConverter->PackColor(color)); break;
+        }
+    }
+
     // Original function: FUN_0040dcb5
     void CBitmap::Draw_Rectangle(SRectangle rectangle, std::uint8_t colorIndex)
     {

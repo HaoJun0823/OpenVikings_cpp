@@ -6,6 +6,8 @@
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayAccess.h"
 #include "InGameGuiManager.h"
+#include "InGameGuiSelectionWindowAccess.h"
+#include "InGameGuiInputAccess.h"
 #include "InGameGuiManager_MessageHandlers.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiSupportAccess.h"
@@ -491,6 +493,24 @@ namespace NInGameGuiManager
         std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x4C))->l_Base_RemoveElement(element);
     }
 
+    // Partial original function: FUN_004a0e9d; single-human information is connected.
+    // Other selection-window constructors remain explicit reconstruction boundaries.
+    void CInGameGuiManager::Selection_UpdateWindows()
+    {
+        using namespace NC2Lifetime;
+        auto* input = NC2InGameGuiInputManager::gInputManager;
+        const auto checksum = Read<std::uint32_t>(input, 0xAB0);
+        if (Read<std::uint32_t>(this, 0x88) == checksum) return;
+        Write(this, 0x88, checksum);
+        l_RemoveAllGuiElements();
+        NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7ED, 0, 0, 0);
+        if (Read<std::uint32_t>(input, 4) != 1) return;
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3D78, 1);
+        void* window = allocation == nullptr ? nullptr : NC2InGameGuiSelection::SelectionSingleHumanWindow_Construct(allocation);
+        Write(this, 0x8C, window);
+        NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+    }
+
     // Original function: FUN_004a1996; entry bytes recovered from Game.exe.
     void CInGameGuiManager::l_RemoveAllGuiElements()
     {
@@ -680,3 +700,6 @@ namespace NInGameGuiManager
         return NC2Lifetime::Read<std::uint32_t>(this, 0xD8);
     }
 }
+
+// ABI adapter for original Windows member 004A0E9D.
+void __fastcall InGameGuiManager_Selection_UpdateWindows(void* manager) { static_cast<NInGameGuiManager::CInGameGuiManager*>(manager)->Selection_UpdateWindows(); }

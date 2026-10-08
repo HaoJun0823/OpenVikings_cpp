@@ -31,9 +31,10 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CAIManager::IO_InitFromScript.
     void __fastcall AIManager_IO_InitFromScript(void *, void *, NXBasics::CIniFileReader *) {}
 
-    // TEMPORARY DUMMY: Windows address 00408F7B; implementation pending.
+    // Partial Windows callback 00408F7B: unconditional true at 00408FA3 preserves propagation.
+    // Tick update (0042B6DD) and player-death dispatch (00408F49) remain unresolved.
     // Naming reference: NC2Logic::CAIManager::l_AI_Callback.
-    bool __cdecl AIManager_l_AI_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
+    bool __cdecl AIManager_l_AI_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
     // TEMPORARY DUMMY: Windows address 00409BCC; implementation pending.
     // Naming reference: NC2Logic::CGameControl::System_DoOneGameTick.
@@ -66,21 +67,24 @@ namespace NC2Logic
     // Naming evidence: Windows only: maximum non-local DirectPlay player latency; no corresponding Mac symbol found.
     unsigned int __cdecl GameTime_Network_GetHighestPlayerLatency(void) { return 0; }
 
-    // TEMPORARY DUMMY: Windows address 00418D3B; implementation pending.
+    // Partial Windows callback 00418D3B: unconditional true at 00418D76 preserves propagation.
+    // The 12-tick, 20-player assistant update (004176C8) remains unresolved.
     // Naming reference: NC2Logic::CGameAssistantManager::ls_LogicCallback.
-    bool __cdecl GameAssistantManager_ls_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
+    bool __cdecl GameAssistantManager_ls_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
     // TEMPORARY DUMMY: Windows address 0041910B; implementation pending.
     // Naming reference: NC2Logic::CMultiPlayerGoalManager::IO_LoadGoals.
     void __fastcall MultiPlayerGoalManager_IO_LoadGoals(void *, void *, NXBasics::CIniFileReader *) {}
 
-    // TEMPORARY DUMMY: Windows address 004195A4; implementation pending.
+    // Partial Windows callback 004195A4: unconditional true at 004195D0 preserves propagation.
+    // The 120-tick notification/goal updates (0041952C, 00419344) remain unresolved.
     // Naming reference: NC2Logic::CMultiPlayerGoalManager::l_LogicCallback.
-    bool __cdecl MultiPlayerGoalManager_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
+    bool __cdecl MultiPlayerGoalManager_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
-    // TEMPORARY DUMMY: Windows address 00419A7F; implementation pending.
+    // Partial Windows callback 00419A7F: unconditional true at 00419AE8 preserves propagation.
+    // The 720-tick calculation and event 0x27/0x28 handlers remain unresolved.
     // Naming reference: NC2Logic::CHappinessManager::l_Happiness_Callback.
-    bool __cdecl HappinessManager_l_Happiness_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
+    bool __cdecl HappinessManager_l_Happiness_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
     // TEMPORARY DUMMY: Windows address 0041A097; implementation pending.
     // Naming reference: NC2Logic::CDelayedActionManager::System_DoOneGameTick.
@@ -276,10 +280,6 @@ int __fastcall InGameGuiManager_Vars_Construct(void *) { return 0; }
 // TEMPORARY DUMMY: Windows address 004A0D01; implementation pending.
     // Naming reference: NC2InGameGuiManager::CGuiManager::InputMode_Changed.
 void __fastcall InGameGuiManager_InputMode_Changed(void *) {}
-
-// TEMPORARY DUMMY: Windows address 004A0E9D; implementation pending.
-    // Naming reference: NC2InGameGuiManager::CGuiManager::Selection_UpdateWindows.
-void __fastcall InGameGuiManager_Selection_UpdateWindows(void *) {}
 
 // TEMPORARY DUMMY: Windows address 004A10CB; implementation pending.
     // Naming reference: NC2InGameGuiManager::CGuiManager::l_Selection_ActionButtons_BringUp.

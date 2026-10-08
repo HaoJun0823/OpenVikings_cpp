@@ -527,6 +527,8 @@
   <ItemGroup>
     <ClCompile Include="C2EngineSelectionAccess.cpp" />
     <ClCompile Include="InGameGuiSelectionAccess.cpp" />
+    <ClCompile Include="InGameGuiSelectionWindowAccess.cpp" />
+    <ClInclude Include="InGameGuiSelectionWindowAccess.h" />
     <ClCompile Include="InGameGuiMessageText.cpp" />
     <ClCompile Include="InGameGuiMessageWindowAccess.cpp" />
   </ItemGroup>

@@ -1,5 +1,9 @@
 # Mission briefing window and GUI savegame IO
 
+## Installed startup-script audit - 2026-10-08
+
+Read-only inspection of installed map.ini/map.cif files identifies 59 first-mission automatic briefings: 57 True and two TimeGone predicates (1/5 seconds). The reconstructed 36-tick Windows cadence evaluates these forms before PlayCutscene and callback 0x1B. A priority-50 multiplayer-goal link dummy was aborting the tick callback chain before mission evaluation. Its return and the AI/assistant/happiness callback returns now match the unconditional Windows true exits; their subsystem side effects remain unresolved and excluded from completion counts. Campaign 03/01, tutorial 003 and multiplayer 201 special coop request ID 0 via PlayCutscene 0 1. The map GUID, language path and HLT lookup were reconciled with 004A5164 and the original Game.exe string bytes. No guessed unconditional map-load popup was introduced. Gameplay opening remains unconfirmed; later briefing predicates/actions may still be unresolved. See [HUMAN_SELECTION_INFO_WINDOW.md](HUMAN_SELECTION_INFO_WINDOW.md).
+
 ## Reconstructed popup
 
 Windows 004A491D..004A5A6F establishes the 0x3B8-byte `CMissionInfoWindow`, its complete 19-slot virtual table and the briefing/goals/history pages. `InGameGuiMissionInfoWindow.cpp` reconstructs those bodies. The existing HLT parser/layout/display/widget implements hypertext navigation, keyboard input and wheel scrolling. The popup adds the original up/down controls (60-pixel steps), initial 7.2-pixel-per-second scrolling after 1000 ms, previous/next briefing buttons, mover and closer.
