@@ -1,4 +1,5 @@
 #include "C2HumanCommandAccess.h"
+#include "C2HumanMerchantAccess.h"
 #include "C2HumanAtomicEvents.h"
 #include "C2HumanJobAccess.h"
 #include "C2LifetimeAccess.h"
@@ -517,11 +518,11 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (Human_IsDefendingHouse(human, -1)) return false;
         const auto opcode = Read<std::uint8_t>(command, 0);
-        if (Read<std::uint8_t>(human, 0xB51) != 0 && opcode != 17 && (opcode < 21 || opcode > 25) && opcode != 28 && opcode != 30 && opcode != 31 && opcode != 32 && opcode != 34 && opcode != 35 && opcode != 39) return false;
+        if (Read<std::uint8_t>(human, 0xB51) != 0 && opcode != 17 && (opcode < 21 || opcode > 25) && opcode != 28 && opcode != 30 && opcode != 31 && opcode != 32 && opcode != 34 && opcode != 35 && opcode != 36 && opcode != 37 && opcode != 39 && (opcode < 49 || opcode > 51)) return false;
         if (Read<std::uint8_t>(command, 0) >= 52 && Read<std::uint8_t>(command, 0) <= 87) return true;
         switch (Read<std::uint8_t>(command, 0))
         {
-        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 39: case 41: return true;
+        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 39: case 41: case 49: case 50: case 51: return true;
         default: return false;
         }
     }
@@ -728,12 +729,35 @@ namespace NC2Logic
         case 33: return Human_DoExecuteUserCommand_DetachLearnHouse(human);
         case 34: return Human_DoExecuteUserCommand_LearnJob(human, Read<std::uint32_t>(command, 12));
         case 35: return Human_DoExecuteUserCommand_LearnGood(human, Read<std::uint32_t>(command, 12));
+        case 36: return Human_DoExecuteUserCommand_AttachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case 37: return Human_DoExecuteUserCommand_DetachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
         case 39: return Human_DoExecuteUserCommand_DetachVehicle(human);
         case 41:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write(human, 0xB5C, Read<std::uint32_t>(command, 0x0C));
             if (Read<std::uint32_t>(command, 0x0C) == 3) Write<std::uint32_t>(human, 0xB70, 0);
             return 2;
+        case 49: // Inlined at 0043C2B2: enqueue restart before resetting flags.
+            Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            Human_l_Trader_ResetImportFlags(human);
+            return 1;
+        case 50: // Inlined at 0043C2D9: house id, good and flag share parameter 1.
+        case 51: // Inlined at 0043C340: select a trade agreement without validation.
+        {
+            if (!Human_IsJobTrader(human)) return 1;
+            void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+            const auto packed = Read<std::uint32_t>(command, 12);
+            void* data = nullptr;
+            if (opcode == 50)
+            {
+                data = MerchantData_GetHouseDataPtr(merchant, static_cast<std::int32_t>(packed & 0xFFFFu), Read<std::uint32_t>(command, 16));
+                if (data == nullptr) return 1;
+            }
+            Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            if (opcode == 50) MerchantHouseData_SetGoodTypeImportFlag(data, (packed >> 16u) & 0xFFu, (packed & 0xFF000000u) != 0);
+            else Write(merchant, 4, packed);
+            return 2;
+        }
         default: return 0;
         }
     }

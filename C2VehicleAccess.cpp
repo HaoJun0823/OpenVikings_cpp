@@ -1,4 +1,5 @@
 #include "C2VehicleAccess.h"
+#include "C2InteractionTargetAccess.h"
 #include "C2HumanInitialization.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -382,6 +383,20 @@ namespace NC2Logic
 
     // Original function: FUN_004375a6.
     const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle) { return reinterpret_cast<const SStaticVehicleTypeData*>(AddressAt(gStaticVehicleTypeData, Read<std::uint32_t>(vehicle, 0x1E8) * 0x1DCu)); }
+
+    // Original function: FUN_0044ce87; include the commander slot, require job 25.
+    std::int32_t Vehicle_Passengers_GetWorkTraderHumanId(const void* vehicle)
+    {
+        const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+        if (type == 3 || type == 4) return -1;
+        Vehicle_GetVehicleTypeDataPtr(vehicle);
+        for (std::uint32_t slot = 0; ; ++slot)
+        {
+            const void* target = static_cast<const std::byte*>(vehicle) + 0x1F0u + slot * 12u;
+            if (InteractionTargetData_IsValid(target) && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(target, 0) * CHumanArray::ElementSize, 0x18) == 25) return Read<std::int32_t>(target, 0);
+            if (slot + 1u > static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots)) return -1;
+        }
+    }
 
     // Original function: FUN_00437912.
     const void* Vehicle_GetConstMapMicroPointPtr(const void* vehicle) { return AddressAt(vehicle, 0x1CC); }

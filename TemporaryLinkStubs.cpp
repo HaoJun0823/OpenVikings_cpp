@@ -90,15 +90,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CDelayedActionManager::System_DoOneGameTick.
     void __fastcall DelayedActionManager_System_DoOneGameTick(void *, void *) {}
 
-    // TEMPORARY DUMMY: Windows address 0041CB1E; implementation pending.
-    // Naming reference: NC2Logic::CHumanMerchantArray::CleanMap_LoadTradeAgreements.
-    void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void *, void *, NXBasics::CIniFileReader *) {}
-
-    // TEMPORARY DUMMY: Windows address 0041CBB8; implementation pending.
-    // Naming reference: NC2Logic::CHumanMerchantArray::l_LogicCallback.
-    bool __cdecl HumanMerchantArray_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-
     // TEMPORARY DUMMY: Windows address 00424AE9; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.
     bool __cdecl GameMap_l_ValidateLandscapes_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
@@ -306,10 +297,6 @@ bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(unsigned int type, unsig
     }
     return true;
 }
-
-// TEMPORARY DUMMY: Windows address 004A2F54; implementation pending.
-    // Naming reference: NC2InGameGuiEntryPoints::C2IGG_EntryPoint_InputManager_Highlighting_Update.
-bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(short const *) { return false; }
 
 // TEMPORARY DUMMY: Windows address 004A3EDB; five miscellaneous command branches are reconstructed.
 // Naming reference: NC2InGameGuiManager::CGuiManagerDefaultMessageHandlerElement::XGui_BE_Message_Handle.

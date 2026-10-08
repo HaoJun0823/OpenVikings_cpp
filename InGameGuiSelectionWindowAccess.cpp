@@ -1,4 +1,5 @@
 #include "InGameGuiSelectionWindowAccess.h"
+#include "InGameGuiTraderConfigWindow.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiManager.h"
@@ -813,9 +814,34 @@ namespace NC2InGameGuiSelection
                 const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
                 if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(param2));
             }
-            else if (command == 10008 || command == 10009 || command == 10010)
+            else if (command == 10008)
             {
-                // Native route-assignment mode, detach command and trader configuration remain boundaries.
+                NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, 8);
+            }
+            else if (command == 10009)
+            {
+                const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
+                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3)
+                    if (const void* human = l_Misc_GetSelectedHumanPtr())
+                    {
+                        std::byte networkCommand[20]{};
+                        Write<std::uint8_t>(networkCommand, 0, 37); Write(networkCommand, 4, Read<std::uint32_t>(human, 4)); Write(networkCommand, 12, param2); Write(networkCommand, 16, param3);
+                        NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, networkCommand);
+                    }
+            }
+            else if (command == 10010)
+            {
+                if (Read<void*>(window, 0x3D74) == nullptr)
+                {
+                    void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x2B4, 1);
+                    void* popup = allocation == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedTraderConfigWindow_Construct(allocation, window, 10043);
+                    Write(window, 0x3D74, popup);
+                    NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(popup), false);
+                }
+            }
+            else if (command == 10043)
+            {
+                Write<void*>(window, 0x3D74, nullptr);
             }
             else if (command == 10039 || command == 10040)
             {
@@ -919,11 +945,12 @@ namespace NC2InGameGuiSelection
         }
         // Original function: FUN_004bf2f4.
         bool __fastcall SelectionSingleHumanWindow_True(void*) { return true; }
-        // Partial original destructor: FUN_004ab9b7; popup member remains unused.
+        // Original destructor: FUN_004ab9b7; close the owned popup before unregistering.
         // Original deleting wrapper: FUN_004ab989.
         void* __fastcall SelectionSingleHumanWindow_Delete(void* window, void*, std::uint32_t flags)
         {
             auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+            if (void* popup = Read<void*>(window, 0x3D74)) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(static_cast<NXBaseGui::CBaseWindow*>(popup));
             NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
             manager->FrameCall_UnRegister(window);
             gSelectionSingleHumanWindowStatics[0] = std::byte{1};

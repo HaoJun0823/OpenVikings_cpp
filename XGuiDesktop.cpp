@@ -328,7 +328,54 @@ namespace NXBaseGui
         }
     }
 
-    // Original function: FUN_0047772f
+    // Original functions: FUN_0047744a/FUN_0047745a/FUN_004774cd.
+    void CDesktop::Window_UnHide(CBaseWindow* window) { if (window != nullptr) BaseWindow_InternalUnHide(window); }
+    void CDesktop::Window_HideAll(CBaseWindow* except)
+    {
+        for (const auto offset : {0xB4u, 0x64u})
+        {
+            auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(reinterpret_cast<std::byte*>(this) + offset));
+            NXBasics::CListBase::Iterator iterator(*list);
+            for (auto* item = iterator.First(); item != nullptr; item = iterator.Next()) if (item != except) Window_Hide(static_cast<CBaseWindow*>(item));
+        }
+    }
+    void CDesktop::Window_UnHideAll()
+    {
+        for (const auto offset : {0xB4u, 0x64u})
+        {
+            auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseWindow>*>(reinterpret_cast<std::byte*>(this) + offset));
+            NXBasics::CListBase::Iterator iterator(*list);
+            for (auto* item = iterator.First(); item != nullptr; item = iterator.Next()) BaseWindow_InternalUnHide(item);
+        }
+    }
+    // Original functions: FUN_00477574/FUN_004775e4.
+    void CDesktop::Element_HideAll(CBaseElement* except)
+    {
+        for (const auto offset : {0x3Cu, 0x14u})
+        {
+            auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseElement>*>(reinterpret_cast<std::byte*>(this) + offset));
+            NXBasics::CListBase::Iterator iterator(*list);
+            for (auto* item = iterator.First(); item != nullptr; item = iterator.Next()) if (item != except) Element_Hide(static_cast<CBaseElement*>(item));
+        }
+    }
+    void CDesktop::Element_UnHideAll()
+    {
+        for (const auto offset : {0x3Cu, 0x14u})
+        {
+            auto* list = std::launder(reinterpret_cast<NXBasics::CList<CBaseElement>*>(reinterpret_cast<std::byte*>(this) + offset));
+            NXBasics::CListBase::Iterator iterator(*list);
+            for (auto* item = iterator.First(); item != nullptr; item = iterator.Next()) BaseElement_InternalUnHide(item);
+        }
+    }
+
+    // Original function: FUN_0047793b.
+    CBaseElement* CDesktop::Window_GetActive() const
+    {
+        auto* list = std::launder(reinterpret_cast<const NXBasics::CList<CBaseWindow>*>(reinterpret_cast<const std::byte*>(this) + 0x78));
+        return reinterpret_cast<CBaseElement*>(list->l_Base_GetStartElement());
+    }
+
+    // Original function: FUN_0047772f.
     void CDesktop::Element_Activate(CBaseElement* element)
     {
         if (element == nullptr || element == mActiveElement)

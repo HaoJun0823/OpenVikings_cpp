@@ -193,8 +193,10 @@ namespace NC2InGameGuiWorldElement
                 if (Read<std::int32_t>(input, 0) != 0 && Action_DoCancel(input, target)) return true;
                 if (Action_DoNormalSelect(input, target, false, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
             }
-            else if (mainMode == 0 && Read<std::int32_t>(input, 0) == 0)
+            else if (mainMode == 0)
             {
+                if (Action_DoInputSelect(input, target)) return true;
+                if (Read<std::int32_t>(input, 0) != 0) return true;
                 if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) return true;
                 if (Action_DoNormalSelect(input, target, true, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
             }
@@ -206,6 +208,7 @@ namespace NC2InGameGuiWorldElement
             WorldDisplayElement_MouseMoved(element, command, static_cast<std::int32_t>(param1));
             if (mainMode == 1)
             {
+                if (Action_DoInputSelect(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
                 if (Read<std::int32_t>(input, 0) != 0) return true;
                 if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
             }
@@ -325,6 +328,10 @@ namespace NC2InGameGuiWorldElement
         std::memset(static_cast<std::byte*>(state) + 0x1B0, 0, 0x14);
         return state;
     }
+
+    // Original functions: FUN_004baffa/FUN_004bb007.
+    void WorldDisplayElement_DrawFrame_SetMode(void* element, std::uint32_t mode) { NC2Lifetime::Write(element, 0x208, mode); }
+    void WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, 0x20C, handler); NC2Lifetime::Write(element, 0x210, command); }
 
     // Original function: FUN_004ba042.
     void* WorldDisplayElement_Construct(void* element, const NXBasics::SRectangle* rectangle, bool active, bool inputEnabled)

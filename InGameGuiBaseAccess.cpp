@@ -1,6 +1,8 @@
 #include "XGuiWindowAccess.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiBaseAccess.h"
+#include "InGameGuiManager.h"
+#include "InGameGuiInputAccess.h"
 #include "ApplicationGlobals.h"
 #include "GuiToolsBase.h"
 #include "XBitmap.h"
@@ -88,6 +90,26 @@ namespace NC2InGameGuiBase
         NXBaseGui::CDesktop::sTheObjectPtr->Element_Add(element, true);
         if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0)
             NXBaseGui::CDesktop::sTheObjectPtr->Element_Hide(element);
+    }
+
+    // Original function: FUN_004b8573.
+    void BaseToolDesktop_SelectionActiveChanged()
+    {
+        auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (Read<std::int32_t>(NC2InGameGuiInputManager::gInputManager, 0) != 0)
+        {
+            desktop->Window_HideAll(nullptr);
+            desktop->Element_HideAll(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, 4)));
+            desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, 0x44)));
+            desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, 8)));
+            desktop->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, 4)));
+        }
+        else
+        {
+            desktop->Window_UnHideAll(); desktop->Element_UnHideAll();
+            desktop->Element_Activate(desktop->Window_GetActive());
+        }
     }
 
     // Original function: FUN_004b8d11; CBaseToolWindow constructor.

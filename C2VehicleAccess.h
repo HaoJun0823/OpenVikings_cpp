@@ -24,6 +24,7 @@ namespace NC2Logic
     bool Vehicle_Passengers_MoveOut_h(void* vehicle, std::uint32_t humanId);
     void Vehicle_l_Passengers_StopAllIdleTasks(void* vehicle);
     const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle);
+    std::int32_t Vehicle_Passengers_GetWorkTraderHumanId(const void* vehicle);
     const void* Vehicle_GetConstMapMicroPointPtr(const void* vehicle);
     const void* Vehicle_GetMapPositionRef(const void* vehicle);
     const std::uint16_t* Human_GetMapPositionRef(const void* human);

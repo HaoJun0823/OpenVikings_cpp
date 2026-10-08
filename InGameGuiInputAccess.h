@@ -9,6 +9,8 @@ namespace NC2InGameGuiInputManager
     extern void* gInputManager;
     bool InputMode_Set(void* manager, std::int32_t mode);
     void InputMode_Cancel(void* manager);
+    bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle);
+    bool Action_DoInputSelect(void* manager, const void* object);
     void Selection_UnselectAll(void* manager);
     void Selection_Validate(void* manager);
     bool Selection_SelectSingleHuman(void* manager, std::int32_t id);

@@ -14,6 +14,9 @@
 #include "C2VehicleAccess.h"
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanMerchantAccess.h"
+#include "C2E2HumanSoundAccess.h"
+#include "InGameGuiBaseAccess.h"
 #include "C2EngineDisplayManager.h"
 #include "XGuiDesktop.h"
 #include "XBasicTypes.h"
@@ -186,15 +189,15 @@ namespace NC2InGameGuiInputManager
         }
     }
 
-    // Original function: FUN_004b4854; normal input mode. Positive modes still
-    // require their command eligibility/highlighting block and remain unfinished.
+    // Partial original function: FUN_004b4854; normal mode and trader route mode.
     bool InputMode_Set(void* manager, std::int32_t mode)
     {
         if (Read<std::int32_t>(manager, 0) == mode) return true;
-        if (mode != 0) return false;
-        if (Read<std::uint8_t>(manager, 0xAB4) != 0)
+        if (mode != 0 && mode != 8) return false;
+        if (mode == 8 && Read<std::uint32_t>(manager, 4) != 1) return false;
+        if (Read<std::uint8_t>(manager, 0xAB4) != static_cast<std::uint8_t>(mode != 0))
         {
-            Write<std::uint8_t>(manager, 0xAB4, 0);
+            Write<std::uint8_t>(manager, 0xAB4, mode != 0);
             // Original function: FUN_004832dc; clear only the two highlight bits.
             for (std::int32_t y = NC2Logic::GameMap_GetHeight() - 1; y >= 0; --y)
                 for (std::int32_t x = NC2Logic::GameMap_GetWidth() - 1; x >= 0; --x)
@@ -205,14 +208,15 @@ namespace NC2InGameGuiInputManager
                 }
             auto* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
             auto* display = Read<void*>(world, 0x30);
-            if (Read<std::uint8_t>(display, 0x74) != 0) { Write<std::uint8_t>(display, 0x74, 0); Write<std::uint8_t>(display, 0x978, 1); }
+            if (Read<std::uint8_t>(display, 0x74) != static_cast<std::uint8_t>(mode != 0)) { Write<std::uint8_t>(display, 0x74, mode != 0); Write<std::uint8_t>(display, 0x978, 1); }
         }
-        ClearObjectHighlights();
+        if (mode == 0) ClearObjectHighlights();
         NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4)));
-        NC2E2::C2DEngineDisplayManager::sTheObjectPtr->InformSetExplorationState(true);
+        if (mode == 0) NC2E2::C2DEngineDisplayManager::sTheObjectPtr->InformSetExplorationState(true);
         Write<std::uint8_t>(manager, 0xABA, 0); Write<std::int32_t>(manager, 0, mode);
         Cursor_SetPosition(manager, static_cast<std::byte*>(manager) + 0xAB6);
         InGameGuiManager_InputMode_Changed(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        NC2InGameGuiBase::BaseToolDesktop_SelectionActiveChanged();
         return true;
     }
 
@@ -416,16 +420,88 @@ namespace NC2InGameGuiInputManager
         return false;
     }
 
-    // Original function: FUN_004b767e; the normal cursor wraps then rejects border points.
+    // Partial original function: FUN_004c9e2a; the mode-8 branch of 004ca427.
+    bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle)
+    {
+        if (Read<std::uint32_t>(manager, 0) != 8) return false;
+        const auto id = Selection_GetSelectedSingleHumanId(manager);
+        const void* human = Human(static_cast<std::uint32_t>(id));
+        std::uint32_t position;
+        const bool positioned = NC2Logic::Human_GetMapPosition(human, &position);
+        void* merchant = positioned && NC2Logic::Human_IsJobTrader(human) ? NC2Logic::HumanMerchantArray_GetMerchantDataPtr(NC2Logic::gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)) : nullptr;
+        bool changed = false;
+        const auto right = static_cast<std::int16_t>(rectangle[0] + rectangle[2] - 1), bottom = static_cast<std::int16_t>(rectangle[1] + rectangle[3] - 1);
+        for (std::int32_t y = rectangle[1]; y <= bottom; ++y)
+            for (std::int32_t x = rectangle[0]; x <= right; ++x)
+            {
+                const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
+                auto* engine = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
+                auto flags = Read<std::uint8_t>(engine, 2);
+                std::uint8_t mark = positioned ? 1 : 0;
+                if (positioned)
+                {
+                    const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+                    if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0 && merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, Read<std::uint16_t>(micro, 4))) mark = 3;
+                }
+                if ((flags & 3u) != mark) { Write<std::uint8_t>(engine, 2, (flags & 0xFCu) | mark); changed = true; }
+            }
+        return changed;
+    }
+
+    // Partial original function: FUN_004b767e; normal mode and native mode-8 rings.
     void Cursor_SetPosition(void* manager, const void* point)
     {
         Write(manager, 0xAB6, Read<std::uint32_t>(point, 0));
         auto* cursor = static_cast<std::byte*>(manager) + 0xAB6;
         NC2Logic::MapMigPoint_ValidatePosition(cursor);
-        if (Read<std::uint32_t>(manager, 0) != 0) return; // Other input modes require map-highlighting reconstruction.
+        if (Read<std::uint32_t>(manager, 0) == 8)
+        {
+            std::int16_t rectangle[4]{static_cast<std::int16_t>(Read<std::int16_t>(cursor, 0) - 7), static_cast<std::int16_t>(Read<std::int16_t>(cursor, 2) - 7), 14, 14};
+            // Native SMapMigRectangle construction clips before highlighting.
+            NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
+            Highlighting_Map_Update(manager, rectangle);
+            const auto accept = [&](const void* candidate)
+            {
+                if ((Read<std::uint8_t>(NC2E2::EngineMap_GetConstMapMicroPointPtr(candidate), 2) & 3u) != 3) return false;
+                Write<std::uint8_t>(manager, 0xABA, 1); Write(manager, 0xABC, Read<std::uint32_t>(candidate, 0)); return true;
+            };
+            if (accept(cursor)) return;
+            Write<std::uint8_t>(manager, 0xABA, 0);
+            auto candidate = Read<std::uint32_t>(cursor, 0);
+            for (std::uint32_t radius = 1; radius <= 5; ++radius)
+            {
+                NC2Logic::MapMigPoint_MoveCursorWrapped(&candidate, 4);
+                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                    for (std::uint32_t step = 0; step < radius; ++step)
+                    {
+                        if (NC2Logic::MapMigPoint_IsInsideMap(&candidate) && accept(&candidate)) return;
+                        NC2Logic::MapMigPoint_MoveCursorWrapped(&candidate, direction);
+                    }
+            }
+            return;
+        }
+        if (Read<std::uint32_t>(manager, 0) != 0) return;
         const bool valid = NC2Logic::MapMigPoint_IsInsideMap(cursor) && !NC2Logic::MapMigPoint_IsBorderPoint(cursor);
         Write<std::uint8_t>(manager, 0xABA, valid);
         if (valid) Write(manager, 0xABC, Read<std::uint32_t>(cursor, 0));
+    }
+
+    // Partial original function: FUN_004b4bd6; mode-8 branch 004B4E58.
+    bool Action_DoInputSelect(void* manager, const void*)
+    {
+        if (Read<std::uint32_t>(manager, 0) != 8 || Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+        const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + 0xABC);
+        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
+        {
+            const auto id = Read<std::uint16_t>(micro, 4);
+            std::byte command[20]{};
+            Write<std::uint8_t>(command, 0, 36); Write(command, 4, Read<std::uint32_t>(manager, 8));
+            Write<std::uint32_t>(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(House(id), 8));
+            NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
+            NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
+        }
+        InputMode_Set(manager, 0);
+        return true;
     }
 
     // Original function: FUN_004b5cff; object is deliberately unused by Windows.
@@ -521,6 +597,8 @@ namespace NC2InGameGuiInputManager
 }
 
 // ABI adapter used by the existing GUI constructors and command handlers.
+// Partial original function: FUN_004a2f54; mode 8 is connected.
+bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std::int16_t* rectangle) { return NC2InGameGuiInputManager::Highlighting_Map_Update(NC2InGameGuiInputManager::gInputManager, rectangle); }
 bool __fastcall InputManager_InputMode_Set(void* manager, void*, int mode) { return NC2InGameGuiInputManager::InputMode_Set(manager, mode); }
 
 // Original function: FUN_004b77e8; normal-mode validation/destruction callbacks.

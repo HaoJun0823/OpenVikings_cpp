@@ -485,6 +485,8 @@
     <ClInclude Include="C2MapMoveableAccess.h" />
     <ClCompile Include="C2HumanJobAccess.cpp" />
     <ClInclude Include="C2HumanJobAccess.h" />
+    <ClCompile Include="C2HumanMerchantAccess.cpp" />
+    <ClInclude Include="C2HumanMerchantAccess.h" />
     <ClCompile Include="C2HumanInitialization.cpp" />
     <ClInclude Include="C2HumanInitialization.h" />
     <ClCompile Include="C2HumanTaskAccess.cpp" />
@@ -531,6 +533,8 @@
     <ClInclude Include="InGameGuiSelectionWindowAccess.h" />
     <ClCompile Include="InGameGuiHumanEquipmentWindow.cpp" />
     <ClInclude Include="InGameGuiHumanEquipmentWindow.h" />
+    <ClCompile Include="InGameGuiTraderConfigWindow.cpp" />
+    <ClInclude Include="InGameGuiTraderConfigWindow.h" />
     <ClCompile Include="InGameGuiMessageText.cpp" />
     <ClCompile Include="InGameGuiMessageWindowAccess.cpp" />
   </ItemGroup>

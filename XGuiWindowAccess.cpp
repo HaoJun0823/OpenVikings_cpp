@@ -249,6 +249,12 @@ namespace NXBaseGui
         for (void* element = iterator.First(); element != nullptr; element = iterator.Next()) Read<TAdded*>(element, 0)[12](element);
     }
 
+    // Original function: FUN_00478697.
+    void BaseWindow_InternalUnHide(void* window)
+    {
+        if ((Read<std::uint32_t>(window, 0x18) & 0x200u) != 0) BaseElement_InternalUnHide(window);
+    }
+
     // Original function: FUN_00478aa3; CBaseElement::BE_Internal_Element_Hide.
     void BaseElement_InternalHide(void* element)
     {
