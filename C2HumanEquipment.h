@@ -11,7 +11,12 @@ namespace NC2Logic
     std::int32_t Human_l_Item_GetItemSlotIndex(const void* human, std::uint32_t good);
     std::int32_t Human_l_Item_GetFreeSlotIndex(const void* human);
     std::uint32_t Human_GetEquipmentType_Weapon(const void* human);
+    std::uint32_t Human_GetEquipmentType_Shoes(const void* human);
+    std::uint32_t Human_GetEquipmentType_Tool(const void* human);
     std::uint32_t Human_GetEquipmentType_Armor(const void* human);
+    const char* Human_GetEquipmentType_Shoes_GetGuiNamePtr(const void* human);
+    const char* Human_GetEquipmentType_Tool_GetGuiNamePtr(const void* human);
+    std::uint32_t Human_Inventory_GetPercentageConditionOfItemInSlot(const void* human, std::int32_t slot);
     void Human_Equipment_SetToolType(void* human, std::uint32_t good);
     void Human_Equipment_SetArmorType(void* human, std::uint32_t armor);
     void Human_Equipment_SetWeaponType(void* human, std::uint32_t weapon);

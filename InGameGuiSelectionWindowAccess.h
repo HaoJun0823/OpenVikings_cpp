@@ -20,6 +20,25 @@ namespace NC2InGameGuiBase
         SEntry mEntries[100];
     };
     static_assert(sizeof(CStaticToolTipHandler) == 0x2EE4);
+
+    class CDynamicSubButtonsHandler
+    {
+    public:
+        CDynamicSubButtonsHandler();
+        void SetWindow(void* window) { mWindow = window; }
+        void AllButtonsHaveBeenRemoved();
+        void UpdateGfxButton(std::uint32_t command, std::uint32_t id, std::int32_t x, std::int32_t y, std::uint32_t graphic, const char* tooltip);
+        void UpdateTextButton(std::uint32_t command, std::uint32_t id, std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height, const char* text, bool centered, const char* tooltip);
+        void SetButtonMiscCommandData(std::uint32_t command, std::uint32_t id, std::uint32_t first, std::uint32_t second);
+        void RemoveButton(std::uint32_t command, std::uint32_t id);
+    private:
+        struct SEntry { std::uint32_t active; void* graphic; void* text; std::int32_t x, y; std::uint32_t command, id; };
+        SEntry* l_GetButtonDataPtr(std::uint32_t command, std::uint32_t id);
+        SEntry* l_GetFreeButtonDataPtr();
+        void* mWindow;
+        SEntry mEntries[100];
+    };
+    static_assert(sizeof(CDynamicSubButtonsHandler) == 0xAF4);
 }
 
 namespace NC2InGameGuiSelection

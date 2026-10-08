@@ -16,6 +16,7 @@
 #include "C2MapGeometry.h"
 #include "C2StaticActorTypeDataAccess.h"
 #include "C2StaticGoodTypeData.h"
+#include "C2StringAccess.h"
 #include "C2UserMessageAccess.h"
 #include "C2VehicleAccess.h"
 #include <cstring>
@@ -60,6 +61,10 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_0042d3c2.
+    std::uint32_t Human_GetEquipmentType_Shoes(const void* human) { return Read<std::uint32_t>(human, 0xAEC); }
+    // Original function: FUN_0042d3c9.
+    std::uint32_t Human_GetEquipmentType_Tool(const void* human) { return Read<std::uint32_t>(human, 0xAF0); }
     // Original function: FUN_0042d3d0.
     std::uint32_t Human_GetEquipmentType_Weapon(const void* human)
     {
@@ -68,6 +73,12 @@ namespace NC2Logic
     }
     // Original function: FUN_0042d3eb.
     std::uint32_t Human_GetEquipmentType_Armor(const void* human) { return static_cast<std::uint32_t>(static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData)[Read<std::uint32_t>(human, 0xAE8)].goodType); }
+    // Original function: FUN_0042d40d; an exhausted pair uses the empty-good name.
+    const char* Human_GetEquipmentType_Shoes_GetGuiNamePtr(const void* human) { const auto good = Human_GetEquipmentType_Shoes(human); return StringAccess_GetGoodNamePtr(good != 0 && Read<std::uint32_t>(human, 0xADC) != 0 ? good : 0, good != 0 && Read<std::uint32_t>(human, 0xADC) != 0 ? 1u : 0u); }
+    // Original function: FUN_0042d430.
+    const char* Human_GetEquipmentType_Tool_GetGuiNamePtr(const void* human) { const auto good = Human_GetEquipmentType_Tool(human); return StringAccess_GetGoodNamePtr(good != 0 && Read<std::uint32_t>(human, 0xAE0) != 0 ? good : 0, good != 0 && Read<std::uint32_t>(human, 0xAE0) != 0 ? 1u : 0u); }
+    // Original function: FUN_0045d0d3; values are stored as percentages, without clipping.
+    std::uint32_t Human_Inventory_GetPercentageConditionOfItemInSlot(const void* human, std::int32_t slot) { return slot == -1 || Read<std::uint32_t>(human, 0xAF4u + static_cast<std::uint32_t>(slot) * 8u) == 0 ? 0 : Read<std::uint32_t>(human, 0xAF8u + static_cast<std::uint32_t>(slot) * 8u); }
     // Original function: FUN_0042d47e.
     void Human_Equipment_SetToolType(void* human, std::uint32_t good) { Write(human, 0xAF0, good); }
     // Original function: FUN_0042d4a8.

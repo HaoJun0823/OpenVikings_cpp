@@ -291,12 +291,24 @@ namespace NC2Logic
     // Original function: FUN_0042d471.
     void Human_Equipment_SetShoeType(void* human, std::uint32_t good) { Write<std::uint32_t>(human, 0xAEC, good); }
 
+    // Original function: FUN_0042cc0b.
+    std::uint32_t Human_GetMilitaryMode(const void* human) { return Read<std::uint32_t>(human, 0xB5C); }
     // Original function: FUN_0042d6ad.
     bool Human_CanEquipShoes(const void* human)
     {
         if (!Human_IsSexMale(human)) return false;
         const auto job = Read<std::int32_t>(human, 0x18);
         return job < 1 || job > 4;
+    }
+    // Original function: FUN_0042d8ac; the first experience type of the requirement.
+    std::uint32_t Human_GetExperienceNeededYetForGoodProduction_Type(const void* human, std::uint32_t good) { return static_cast<std::uint32_t>(gStaticTribeTypeData[Read<std::uint32_t>(human, 0x14)].goodNeeds[good].jobs[0]); }
+    // Original function: FUN_0042d8ce; subtraction retains Windows DWORD wrapping.
+    std::int32_t Human_GetExperienceNeededYetForGoodProduction_Value(const void* human, std::uint32_t good)
+    {
+        const auto& requirement = gStaticTribeTypeData[Read<std::uint32_t>(human, 0x14)].goodNeeds[good];
+        std::uint32_t gained = 0;
+        for (std::uint32_t index = 0; index < requirement.jobCount; ++index) gained += Read<std::uint32_t>(human, 0x24u + static_cast<std::uint32_t>(requirement.jobs[index]) * 4u);
+        return NXBasics::Runtime_TimeSigned32(requirement.requiredExperience - gained);
     }
     // Original function: FUN_0042d6cf. Both initial tool checks call this same Windows function.
     bool Human_CanEquipToolIron(const void* human)

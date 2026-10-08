@@ -8,18 +8,28 @@ The connected basic section uses the Windows bottom-right placement, 200-pixel w
 
 Preview centering 004AE25F converts the human's map-moveable position to world pixels and subtracts 25 vertically. Frame command 2030 refreshes this position and rebuilds children when the engine-owned name changes. Portrait left-click and focus button center the main display. Native base-window deletion removes preview children; frame registration/unregistration and persisted collapse flags retain their ownership.
 
+The follow-up connects relationship rows for partner, child and parents (B20/B24/B18/B14), home (B28), attached vehicle (B48) and production workplace (B34). Their arrow buttons select the referenced human, house or vehicle through the existing input manager. Relationships belong to the basic section. The six descriptors mean basic, military, production, experiences, equipment and trader; there is no separate family section. Missing context-dependent action rows can still change the final row spacing compared with the complete native window.
+
+Military presentation follows 004AD173..004AD257: military mode, refresh setting and experience with the equipped weapon. Equipment presentation follows 004ADAAB..004AE0A7: weapon/armor rows only for soldiers/heroes, shoes/tool rows under the original age/sex/job checks, and four non-hero item slots. The native enable predicate at 00436A97 reads byte 1DF and excludes tribe 3/job 32; its original semantic name remains unresolved. Shoe/tool condition uses the distinct native 10000 maxima; item conditions are stored percentages and are not clipped. Good icons retain the original text markup and tooltips. This section currently displays equipment; the chooser remains open.
+
+Production presentation follows 004AD257..004ADAAB: workplace, finite/infinite counters, impossible-production labels, current-good marker and remaining experience for locked goods. Commands 10039/10040 enqueue native opcodes 0x16/0x17 and then play the responding voice. Modifier mask 0x2 multiplies the requested counter change by 11; zero/decrement and infinite/increment transitions retain their native special cases. The GUI does not directly mutate production state. Remaining-experience helpers preserve the requirement job list and DWORD subtraction.
+
+The shared dynamic-button handler at 004B9DDD..004BA04C retains the complete 100-entry, 0xAF4-byte Windows storage, separate gfx/text command-data offsets, position-based reuse, low-byte active flags and child ownership. Its text flag at +54 means centered drawing, as confirmed from the Windows text-button draw path. Shared layout 004AE2A2 now calculates width, right-aligned section rectangles, collapsed heights and content-height overrides; 004AEAF8/004AED3F retain checksum/dirty handling. The original scratch draw computes initial heights before laying out the real window. Complete section-specific child creation remains partial.
+
 The complete 19-slot Windows virtual table 004F6A90..004F6ADB and six 16-byte section descriptors 004F6770..004F67CF were read from Game.exe. Descriptor field +0C is zero; no unproven semantic name was assigned. The shared static tooltip handler at 004B9D0C/004B9D23/004B9D24/004B9D28/004B9DA3 retains all 100 rectangle/text entries, the terminator after 100 copied bytes and reverse hit-test priority. Selection rectangle/centered-string helpers 004CBF94/004CBFD9, icon drawing 004E25EC and bitmap color-area filling 0040DC23 have real Windows bodies. Mac headers were consulted only for corresponding names.
 
 ## Explicit remaining boundaries
 
-This is the basic information panel, not completion of CSelectionSingleHumanWindow. Its constructor, destructor, draw, message and layout routines remain partial and excluded from reconstruction completion counts. The following native branches are not connected:
+The constructor, destructor, draw, message and layout routines remain partial and excluded from reconstruction completion counts. The following native branches are not connected:
 
-- Military, production, experience, family and trader sections, including their enable/height calculations and dynamic controls.
-- Remaining basic-section relationship, equipment, home and vehicle rows after 004AC96B and their dynamic buttons.
+- Experience and trader sections, including their enable/height calculations and child controls.
+- Native command-availability tree 0040B01F -> 00434F37..004355AE, which supplies marriage/child, home/workplace, vehicle and related contextual actions. Available-vehicle entry/exit rows and military action controls remain open.
+- Equipment chooser 004A279D -> 004C8275..004C8B03, including native list entries and item availability search 0042DB17 -> 0045F721. No guessed chooser or availability check is installed.
+- Remaining production context controls and good-help popup command 10041.
 - Rename popup (name command 10006), follow chooser/toggle and contextual action popup. The native name control is present, but its editing command remains an explicit no-op boundary.
 - Multiple-human and all non-human selection-window constructors in manager update 004A0E9D.
 
-These require reconstruction from Windows entry points rather than invented controls or Mac-derived behavior. The current basic layout uses the native default 136-pixel content height until the remaining rows and native 004AED3F height-overwrite path are connected.
+These require reconstruction from Windows entry points rather than invented controls or Mac-derived behavior. The general layout and connected sections already use native height overrides; missing rows/actions are still explicit boundaries.
 
 ## Startup briefing audit
 
@@ -31,4 +41,4 @@ Read-only inspection of the installed map.ini/map.cif files found 59 first-missi
 
 ## Validation
 
-MSVC Win32 `/Zs` passed for the five affected translation units. Existing C4805 warnings in unrelated manager option handlers remain. Project/filter parity and whitespace were checked. No Debug/Release build, tests or gameplay run was performed. Existing untracked C2HumanCombatTasks.cpp/.h were excluded.
+MSVC Win32 `/Zs` passed for InGameGuiSelectionWindowAccess.cpp, C2HumanEquipment.cpp and C2HumanJobAccess.cpp after the follow-up. The preceding basic-window/briefing block also passed its five affected translation units, with existing C4805 warnings in unrelated manager option handlers. Project/filter parity and whitespace were checked. No Debug/Release build, tests or gameplay run was performed. Existing untracked C2HumanCombatTasks.cpp/.h were excluded.

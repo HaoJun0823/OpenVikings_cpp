@@ -12,6 +12,9 @@ namespace NC2Logic
     std::int32_t Human_l_JobEfficiency_CalculateOutputAmountDecimal(const void* human);
     void Tool_Human_GetExperienceType_GainedViaWorking(std::int32_t job, std::uint32_t good, std::uint32_t& general, std::uint32_t& specific);
     std::uint32_t Human_GetPlayerType(const void* human);
+    std::uint32_t Human_GetMilitaryMode(const void* human);
+    std::uint32_t Human_GetExperienceNeededYetForGoodProduction_Type(const void* human, std::uint32_t good);
+    std::int32_t Human_GetExperienceNeededYetForGoodProduction_Value(const void* human, std::uint32_t good);
     std::uint32_t Human_UserControl_GetNextJobType(const void* human);
     std::uint32_t Tool_Human_GetReallyProducedGoodType(std::uint32_t job, std::uint32_t good);
     bool Human_IsProducingVehicle(const void* human);
