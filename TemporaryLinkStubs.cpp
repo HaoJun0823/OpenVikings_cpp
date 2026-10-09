@@ -216,23 +216,6 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
     // Naming reference: NC2InGameGuiManager::CGuiManager::CGuiManager.
 int __fastcall InGameGuiManager_Vars_Construct(void *) { return 0; }
 
-// PARTIAL: Windows address 004A2C0B; GUI save/load and briefing-open dispatch are reconstructed.
-    // Naming reference: NC2InGameGuiManager::CGuiManager::ls_Logic_CallbackFunction.
-// Windows 004A2D2B returns true for every callback; do not abort later callbacks.
-// The missing dispatch remains excluded from completion counts.
-bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(unsigned int type, unsigned int, unsigned int param1, unsigned int param2, unsigned int)
-{
-    if (type == 0x14) NInGameGuiManager::CInGameGuiManager::l_IO_Savegame_Save(reinterpret_cast<NC2Logic::CIoHelper*>(param1));
-    else if (type == 0x15) NInGameGuiManager::CInGameGuiManager::l_IO_Savegame_Load(reinterpret_cast<NC2Logic::CIoHelper*>(param1));
-    else if (type == 0x16 && param1 != 0) NC2InGameGuiMiscWindows::MissionInfoWindow_MissionBriefingHistory_Init();
-    else if (type == 0x1B) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_MissionInfoWindow_Open(param1, param2 != 0);
-    else if (type == 0x2B)
-    {
-        NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition();
-        NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_MissionInfoWindow_ReloadStrings();
-    }
-    return true;
-}
 
 
 

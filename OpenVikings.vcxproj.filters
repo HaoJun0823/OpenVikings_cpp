@@ -1268,4 +1268,8 @@
     <ClCompile Include="InGameGuiMissionOnscreenInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiMissionOnscreenInfoWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiNetworkInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiNetworkInfoWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
 </Project>

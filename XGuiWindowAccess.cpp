@@ -12,6 +12,12 @@ namespace NXBaseGui
 
     using TElementList = NXBasics::CList<CBaseElement>;
     static TElementList* WindowList(void* window, std::uint32_t offset) { return std::launder(reinterpret_cast<TElementList*>(static_cast<std::byte*>(window) + offset)); }
+    // Original function: FUN_00478820; the separate original name remains unresolved.
+    void* BaseWindow_Message_SendToChildElements(void* window, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
+    {
+        using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t); NXBasics::CListBase::Iterator iterator(*WindowList(window, 0x50));
+        for (void* element = iterator.First(); element != nullptr; element = iterator.Next()) if (Read<TMessage*>(element, 0)[2](element, 0x1000, command, param1, param2, param3)) return element; return nullptr;
+    }
     static void* __fastcall BaseWindow_Delete(void* window, void*, std::uint32_t flags);
     // Complete Windows table 004F43A8..004F43F3.
     const std::uintptr_t gBaseWindowVirtualTable[19] = {

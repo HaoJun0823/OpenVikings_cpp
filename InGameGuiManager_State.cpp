@@ -12,11 +12,18 @@
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
 #include "XList.h"
+#include "InGameGuiMissionInfoWindow.h"
+#include "WorldDisplayElementAccess.h"
+#include "C2PlayerCenterPosition.h"
 
 #include <cstring>
+#include <cstdarg>
 #include <new>
 #include <Windows.h>
 #include <mmsystem.h>
+
+// Compatibility callback binding used by the existing manager registration.
+bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(unsigned int type, unsigned int userData, unsigned int param1, unsigned int param2, unsigned int param3) { return NInGameGuiManager::CInGameGuiManager::ls_Logic_CallbackFunction(type, userData, param1, param2, param3); }
 
 // Original widget construction, desktop input/rendering and logic callback bodies.
 using NC2InGameGuiWorldGameCursor::IGG_DrawWorldGameCursor_LogicCallback;
@@ -112,6 +119,27 @@ namespace NC2InGameGuiSelection
 
 namespace NInGameGuiManager
 {
+    // Original function: FUN_004a2c0b; native registered GUI callback tree.
+    bool __cdecl CInGameGuiManager::ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t, std::uint32_t param1, std::uint32_t param2, std::uint32_t)
+    {
+        auto* manager = sTheObjectPtr;
+        if (type == 1) { manager->Selection_UpdateWindows(); manager->MiscButtons_SpeedButton_Update(false); manager->MiscButtons_MessagePriorityButton_Update(false); manager->l_UpdateElement0038(); }
+        else if (type == 0x14) l_IO_Savegame_Save(reinterpret_cast<NC2Logic::CIoHelper*>(param1));
+        else if (type == 0x15) l_IO_Savegame_Load(reinterpret_cast<NC2Logic::CIoHelper*>(param1));
+        else if (type == 0x16)
+        {
+            using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t); NXBasics::CListBase::Iterator iterator(*std::launder(reinterpret_cast<NXBasics::CListBase*>(manager->mLegacyState + 0x60)));
+            for (auto* world = iterator.First(); world != nullptr; world = iterator.Next()) NC2Lifetime::Read<TMessage*>(world, 0)[2](world, 0x800, 0x7EF, 0, 0, 0);
+            if (param1 != 0) NC2InGameGuiMiscWindows::MissionInfoWindow_MissionBriefingHistory_Init(); manager = sTheObjectPtr; if (manager != nullptr && manager->GetDesktop() != nullptr) NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
+        }
+        else if (type == 0x1B) manager->MiscWindows_MissionInfoWindow_Open(param1, param2 != 0);
+        else if (type == 0x2B) { NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition(); manager->MiscWindows_MissionInfoWindow_ReloadStrings(); manager->ObservationWindow_CloseAll(); }
+        else if (type == 0x2C) { manager->MiscWindows_MissionInfoWindow_ReloadStrings(); manager->ObservationWindow_CloseAll(); }
+        else if (type == 0x2D) { NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetControllingPlayerCenterPosition(); manager->ObservationWindow_CloseAll(); }
+        else if (type == 0x2F) manager->MiscWindows_GameSafetyBoxWindow_Open(2);
+        else if (type == 0x30) manager->MiscWindows_NetworkInfoWindow_Open();
+        return true;
+    }
     using namespace NC2Lifetime;
 
     // Original function: FUN_004a0184.
@@ -232,6 +260,8 @@ namespace NInGameGuiManager
         if (window != nullptr) SendGuiMessage(window, 0x4E20, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(text)));
     }
 
+    // Original function: FUN_004a261a; native variadic adapter uses a 1000-byte buffer.
+    void __cdecl CInGameGuiManager::MiscWindows_StringOutputWindow_PrintStringV(const char* format, ...) { char text[1000]; va_list arguments; va_start(arguments, format); NXBasics::Runtime_FormatString(text, 1000, format, arguments); va_end(arguments); text[999] = 0; MiscWindows_StringOutputWindow_PrintString(text); }
     // Original function: FUN_004a2653.
     void CInGameGuiManager::MiscWindows_StringOutputWindow_ClearAll()
     {

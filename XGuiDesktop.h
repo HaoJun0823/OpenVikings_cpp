@@ -62,6 +62,7 @@ namespace NXBaseGui
         void Element_Remove(CBaseElement* element);
         void Element_Delete(CBaseElement* element);
         CBaseElement* Message_SendToAllWindows(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
+        CBaseElement* Message_SendToAllElements(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
         // Original function: FUN_0047795d
         void PrimaryMessageHandler_Set(CBaseElement* handler);

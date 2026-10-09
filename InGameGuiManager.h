@@ -81,6 +81,8 @@ namespace NInGameGuiManager
         void MiscWindows_HumanListWindow_Open(std::uint32_t job, std::uint32_t possibleJob);
         void MiscWindows_StatisticsWindow_Toggle();
         void MiscWindows_StatisticsWindow_Open();
+        void MiscWindows_NetworkInfoWindow_Open();
+        void MiscWindows_NetworkInfoWindow_Toggle();
         void MiscWindows_ConstructionSelectionWindow_Open(std::uint32_t type, std::uint32_t item);
         void MiscWindows_ConstructionSelectionWindow_Toggle(std::uint32_t type, std::uint32_t item);
         void MiscWindows_ConstructionSelectionWindow_Close();
@@ -113,6 +115,9 @@ namespace NInGameGuiManager
         void Misc_GameTime_Continue_LargeWindowClosed();
         void MiscWindows_StringOutputWindow_Open();
         void MiscWindows_StringOutputWindow_PrintString(const char* text);
+        void __cdecl MiscWindows_StringOutputWindow_PrintStringV(const char* format, ...);
+        bool Selection_CheckKey_Action(std::uint32_t key, char character);
+        static bool __cdecl ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
         void MiscWindows_StringOutputWindow_ClearAll();
         void GuiMarker_Set(std::uint32_t index, const std::uint32_t* point);
         void GuiMarker_Get(std::uint32_t index, std::uint32_t* point) const;

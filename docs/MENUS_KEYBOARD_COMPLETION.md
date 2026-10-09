@@ -14,11 +14,11 @@ Windows x86 assembly and the original Windows Game.exe establish behavior, sizes
 | Construction chooser and house placement controls | Native 004C647E tree, manager 004A24A4..004A2597 |
 | Diplomacy, resident list, statistics and technology tree | Missing window families and manager entry points |
 | Help and context help | Missing window family and popup routing |
-| Observers and multiplayer information | Missing window families and manager entry points |
+| Observers and multiplayer information | Native families and manager entry points connected; runtime verification pending |
 | Single/group humans, houses, animals, vehicles, guides and landscapes | Selection_UpdateWindows and context command branches remain partial |
-| Keyboard and input focus | Full primary handler 004BC36F..004BD3C3, contextual command table 00507350 |
-| Groups | Native choose/create/add operations and the thirty configured numeric assignments |
-| Cheats | In-game newest-first history 00569454..00569477; main-menu unlock history already implemented |
+| Keyboard and input focus | Full primary handler 004BC36F..004BD3C3 and contextual command table 00507350 connected; menu/input audits pending |
+| Groups | Native choose/create/add operations and all thirty configured numeric assignments connected |
+| Cheats | All four native in-game commands connected; main-menu unlock history still requires audit |
 | Debug screenshots and map exports | Native bitmap BMP writer and engine map export |
 
 ## Native keyboard order
@@ -43,4 +43,16 @@ No Debug/Release build or tests are authorized for this task. Use Win32 syntax c
 - Mission on-screen information: the real constructor replaces the 004B8607 link dummy; map-GUID-dependent string lifetime, five player-specific information slots, native goods/population goal lines, font/shadow layout and two-second refresh are connected. Native local animal/human/house/stock/map counts establish the formatted values.
 - Export dependencies: native 24-bit BMP writer, banded full-world rendering at supplied scale, and palette-remap initialization. The Windows BMP writer has no corresponding class name in the Mac header; its current semantic name is inferred from the Windows file headers and write calls.
 
-All blocks above passed MSVC Win32 `/Zs`. They are reconstructed source, not runtime-verified menus. Global/default keyboard dispatch, remaining window families and audits are still required; the full user request remains open.
+## Keyboard and network block (2026-10-09)
+
+The user's runtime report that `guckmalan` did not work exposed the previously absent cheat block in the partial primary keyboard handler. `WM_CHAR` reaches the original character parameter through `CKeyManager` and `CDesktop`; no adapter change was necessary. The handler now shifts the complete native 21-byte newest-first history, compares the original case-sensitive byte strings before rename/construction/chat input, toggles both engine display exploration and overview state, plays the native feedback sound and executes callback 0x18 with `(localPlayer, 9, 0)`. Windows checks the multiplayer game flag for `guckmalan`; it does not consult the unrelated `allow_cheats` property here. Type lowercase `guckmalan` directly during a single-player game; typing it again toggles exploration back. No console or Enter confirmation is required.
+
+`megamap` and `minimap` retain their session restrictions, independent file counters and native 25/100-percent exports. `malkasten` cycles four main-display remap variants. The complete scratch region 00569454..00569477 includes the two map counters and screenshot counter.
+
+The complete primary keyboard tree now includes contextual command availability, all native menu-opening shortcuts, Escape message/cancellation order, chat records and editing, construction modes, minimap visibility packets, pause/speed packets, quicksaving, house camera centering, job cycling, soldier/hero filters and select-all predicates, all thirty group checks, Ctrl+S timing and Ctrl+B screenshots. Native cycling/filter/group branches continue to later checks. Arrow/numpad scrolling and Tab remain handled by the existing continuous display controls. Floating-point adapters retain truncation without inline assembly; x87 intermediate precision may differ.
+
+Network information 004C5219..004C647D is connected: goals, ordered win/loss results, local outcome, six player-statistic columns, static tooltips, cached DirectPlay participants, connection metrics and simulation times, host auto-adjust/frequency controls and four native tabs. Its allocation is 0x2F58 and its complete virtual table is 004F7560..004F75AB. Windows behavior includes overwriting the participant caption when no game player matches. The Mac header supplies only the source-file association, not a corresponding class name. Manager open/toggle and all thirteen miscellaneous main-button branches are connected.
+
+GUI logic callback 004A2C0B replaces its partial body in TemporaryLinkStubs.cpp: tick updates, GUI save/load, world-element notifications and follow cancellation, briefing initialization/opening, map-change camera/string/observer lifetime, safety dialog and network information. Native desktop/child message routing 0047814F/00478820 supports the general zoom command and first-handled return.
+
+All completed source blocks passed MSVC Win32 `/Zs`. No Debug/Release build, tests or game run occurred. Selection windows, house/vehicle default commands and menu/input audits are still required; the full user request remains open.

@@ -1,8 +1,8 @@
 # OpenVikings Project State
 
-## Menu and keyboard priority - work in progress, 2026-10-08
+## Menu and keyboard priority - work in progress, 2026-10-09
 
-The user requested all menus and keyboard commands, including cheats, before further house-builder work. Global settings, construction chooser, help, diplomacy, technology tree, resident list, statistics and observation windows and their manager entry points are reconstructed from Windows. Native tribute payment and the on-screen mission-information constructor replace their link dummies. Group management, the BMP writer/map export, native local mission counts and palette-remap initialization are connected dependencies. Full keyboard/default dispatch, network-information and the remaining selection windows and menu audits remain pending. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). No full completion claim or new aggregate coverage count yet. Win32 `/Zs` checks only; no Debug/Release build, tests or game run.
+The user requested all menus and keyboard commands, including cheats, before further house-builder work. Global settings, construction chooser, help, diplomacy, technology tree, resident list, statistics, observation and network-information windows and their manager entry points are reconstructed from Windows. The complete primary keyboard tree now includes all four in-game cheats, contextual keys, chat, configured menu commands, groups, selection filters, pause/speed, quicksave and debug screenshots. The reported `guckmalan` failure came from the previously absent native cheat block; its map and overview toggle now precedes text input. GUI logic callback 004A2C0B replaces its partial stub, and all miscellaneous main buttons are routed. Native tribute payment and on-screen mission information replace link dummies. Remaining selection windows, house/vehicle default commands and menu/input audits remain pending. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). No full completion claim or new aggregate coverage count yet. Win32 `/Zs` checks only; no Debug/Release build, tests or game run.
 
 ## Road, palisade and gate construction - 2026-10-08
 

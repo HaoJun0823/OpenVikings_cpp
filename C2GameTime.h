@@ -9,6 +9,8 @@ namespace NC2Logic
     void Autosave_Start(std::uint32_t intervalTicks);
     void l_Autosave_Do();
     double Logic_EntryPoint_GameTime_GetSpeed();
+    std::uint32_t GameTime_Network_GetHighestStoredLatency();
+    std::uint32_t GameTime_Network_LatencyToFrequency(std::uint32_t latency);
     void GameTime_Update();
     void GameTime_DoOneGameTick();
     void GameTime_ResetNetworkSynchronization();

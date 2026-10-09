@@ -41,7 +41,7 @@ namespace NC2Logic
     static bool GameTime_IsATickToGo();
 
     // Original function: FUN_0040b1eb; maximum of the complete ten-sample region.
-    static std::uint32_t GameTime_Network_GetHighestStoredLatency()
+    std::uint32_t GameTime_Network_GetHighestStoredLatency()
     {
         std::uint32_t maximum = 0;
         for (std::uint32_t sample : gGameTime.latencySamples) if (sample > maximum) maximum = sample;
@@ -49,7 +49,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0040b206; unsigned addition and threshold comparisons.
-    static std::uint32_t GameTime_Network_LatencyToFrequency(std::uint32_t latency)
+    std::uint32_t GameTime_Network_LatencyToFrequency(std::uint32_t latency)
     {
         if (latency == 0) return 12;
         const std::uint32_t adjusted = latency + 150u;

@@ -474,6 +474,16 @@ namespace NXBaseGui
         deleteListElements(0x28, 0x14);
     }
 
+    // Original function: FUN_0047814f; preserves primary/overlay/element/window/default order and first-handled return.
+    CBaseElement* CDesktop::Message_SendToAllElements(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
+    {
+        using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+        const auto send = [=](void* element) { return NC2Lifetime::Read<TMessage*>(element, 0)[2](element, 0x1000, command, param1, param2, param3); };
+        if (mPrimaryMessageHandler != nullptr && send(mPrimaryMessageHandler)) return mPrimaryMessageHandler;
+        constexpr std::uint32_t offsets[4] = {0xC8,0x50,0x78,0x28};
+        for (auto offset : offsets) { auto* list = std::launder(reinterpret_cast<NXBasics::CListBase*>(reinterpret_cast<std::byte*>(this) + offset)); NXBasics::CListBase::Iterator iterator(*list); for (auto* element = iterator.First(); element != nullptr; element = iterator.Next()) { if (offset == 0xC8 || offset == 0x78) if (void* child = BaseWindow_Message_SendToChildElements(element, command, param1, param2, param3)) return static_cast<CBaseElement*>(child); if (send(element)) return static_cast<CBaseElement*>(element); } }
+        if (mOwnedObject0114 != nullptr && send(mOwnedObject0114)) return static_cast<CBaseElement*>(mOwnedObject0114); return nullptr;
+    }
     // Original function: FUN_004782fa; searches both original window lists.
     CBaseElement* CDesktop::Message_SendToAllWindows(std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
     {

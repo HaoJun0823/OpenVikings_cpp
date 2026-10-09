@@ -606,4 +606,8 @@
     <ClCompile Include="InGameGuiMissionOnscreenInfoWindow.cpp" />
     <ClInclude Include="InGameGuiMissionOnscreenInfoWindow.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiNetworkInfoWindow.cpp" />
+    <ClInclude Include="InGameGuiNetworkInfoWindow.h" />
+  </ItemGroup>
 </Project>
