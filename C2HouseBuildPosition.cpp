@@ -14,6 +14,29 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_00441151; stage work-area points retain WORD coordinate wrapping.
+    bool Tool_House_IsWorkPointOnContinent(const void* point, std::int32_t engineType, std::uint32_t stage, std::uint32_t continent, void* workPoint)
+    {
+        if (!MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point) || !MapMigPoint_IsOnMacroGrid(point)) return false;
+        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
+        const auto* area = Read<const CMapArea*>(definition, 0x34u + stage * 4u);
+        for (std::uint32_t row = 0; row < area->rowCount; ++row)
+        {
+            std::uint32_t candidate;
+            MapMigPoint_ConstructOffset(&candidate, point, area->rows[row].x, area->rows[row].y, false);
+            for (std::uint32_t column = 0; column < area->rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&candidate))
+                {
+                    const void* micro = GameMap_GetConstMapMicroPointPtr(&candidate);
+                    if (Read<std::uint8_t>(micro, 6) == continent && (Read<std::uint8_t>(micro, 12) & 0x80u) == 0) { Write(workPoint, 0, candidate); return true; }
+                }
+                Write<std::uint16_t>(&candidate, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&candidate, 0) + 1u));
+            }
+        }
+        return false;
+    }
+
     // Original function: FUN_0043aa23; player humans in both sector lists precede commander vehicles.
     bool Tool_Human_IsAnyOfPlayerAround(std::uint32_t player, const void* point, std::int32_t radius, bool includeVehicles)
     {

@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Vehicle production checkpoint - 2026-10-09
+
+Jobs 9/10 now share the native carpenter/armorer dispatcher and complete vehicle-builder work tree: site search and placement, material collection, delivery, construction animation and recovery. The occupied-house tick replaces its empty dummy and converts completed construction sites into vehicles; defensive-arrow work remains explicitly partial. See [HUMAN_VEHICLE_PRODUCTION.md](HUMAN_VEHICLE_PRODUCTION.md).
+
+**3966 / 5061 (78.36%)** source-address coverage, **1095** known entries open; **257 cpp / 237 headers**, **2126 naming rows / 68 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Continue ALL remaining professions: hunter/combat and remaining vehicle/sea simulation, including defensive-arrow and animal combat/vehicle dependencies. Vehicle-builder source integration is complete; runtime confirmation is pending. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Trader checkpoint - 2026-10-09
 
 Job 25 now executes domestic and foreign trade routes, its four distinct goods-selection routines, stock/minimum checks, batch/capacity accounting, pickup/delivery and vehicle approach. Commander and maximum-stock accessors are connected. See [HUMAN_TRADER_JOBS.md](HUMAN_TRADER_JOBS.md).

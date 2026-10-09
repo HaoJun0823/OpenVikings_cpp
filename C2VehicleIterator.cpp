@@ -7,6 +7,43 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00440d0c; array iteration is distinct from sector iteration.
+    std::int32_t CVehicleIterator::GetFirstVehicleId(std::uint32_t player, const void* point, std::int32_t searchRadius)
+    {
+        selection = player;
+        flags = 3;
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        radius = searchRadius;
+        currentAnimalId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentAnimalId;
+    }
+
+    // Original function: FUN_00440dfd.
+    std::int32_t CVehicleIterator::GetNextVehicleId()
+    {
+        if (currentAnimalId == -1) return -1;
+        currentAnimalId = l_GetNext(currentAnimalId);
+        return currentAnimalId;
+    }
+
+    // Original function: FUN_00440e19; retain the live occupied-range upper bound.
+    std::int32_t CVehicleIterator::l_GetNext(std::int32_t previous)
+    {
+        using namespace NC2Lifetime;
+        for (auto id = previous + 1; id <= CVehicleArray::sTheObjectPtr->mLastScanIndex; ++id)
+        {
+            const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+            if (Read<std::uint8_t>(vehicle, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(vehicle, 0x1E0) != selection)) continue;
+            if ((flags & 2u) != 0)
+            {
+                const void* point = Vehicle_GetMapPositionRef(vehicle);
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(packedCenter), static_cast<std::int16_t>(packedCenter >> 16))) > static_cast<std::uint32_t>(radius)) continue;
+            }
+            return id;
+        }
+        return -1;
+    }
+
     // Original function: FUN_00440d42; corners wrap to WORD before sector conversion.
     std::int32_t CVehicleIterator::GetFirstSectorVehicleId(std::uint32_t player, std::uint32_t point, std::int32_t searchRadius, bool useSecondList)
     {

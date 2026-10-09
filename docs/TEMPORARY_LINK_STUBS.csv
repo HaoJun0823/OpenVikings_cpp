@@ -4,7 +4,6 @@ Address,CurrentName,Status,ReferencingObjects
 00409BCC,NC2Logic::GameControl_System_DoOneGameTick,Partial native implementation; per-tick pathfinder budget reset complete; periodic defeat scan/messages/network command pending,C2GameTime.obj; C2GameControlStartup.obj
 0040A295,NC2Logic::GameControl_Player_LeavesGame,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0040ACE5,NC2Logic::HouseArray_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040ADD6,NC2Logic::Logic_EntryPoint_FreeMapMoveable,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040B183,NC2Logic::GameTime_Network_GetHighestPlayerLatency,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,Partial Windows per-creature ticks; human and civilian animal conditions walking AI and deletion connected; vehicle ticks and combat callbacks pending; excluded from completion counts,C2GameTime.obj
@@ -38,7 +37,7 @@ Address,CurrentName,Status,ReferencingObjects
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
 00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; animal production now connected alongside civilian family training scout chest map collection and fishing; combat and vehicle construction pending,C2HumanCommandAccess.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; civilian ground jobs breeder carrier trader and vehicle entry connected; hunter carpenter/armorer vehicle production and remaining vehicle simulation dependencies pending,C2HumanTaskAccess.obj
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; civilian ground jobs breeder carrier trader carpenter armorer and vehicle entry connected; hunter/combat and remaining vehicle simulation dependencies pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
@@ -67,3 +66,4 @@ Address,CurrentName,Status,ReferencingObjects
 0042E32E,NC2Logic::Animal_l_CurrentTask_DoPerform,Partial Windows atomic performance; movement/sound/end transitions connected; weapon-hit event 25 held before advancing; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 0042E6AA,NC2Logic::Animal_l_StartTask_Idle,Partial Windows ground animal idle; attached-vehicle availability and interaction pending; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 00460F3F,NC2Logic::Animal_l_StartTask_Stay,Partial Windows civilian animal stay including sheep interaction; aggressive enemy/attack decisions held; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
+00433694,NC2Logic::House_DoOneGameTick,Partial native house tick; destruction and conversion of completed vehicle construction sites connected; defensive arrows 004337AF..00433A90 pending; excluded from completion counts,C2HousePeriodic.obj

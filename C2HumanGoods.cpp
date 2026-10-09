@@ -641,6 +641,78 @@ namespace NC2Logic
         return false;
     }
 
+    // Original function: FUN_00460827; the attached workshop is checked before landscapes and other houses.
+    bool Human_FindGoodsDemandedForBuildVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
+    {
+        SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, 0x10));
+        const void* house = House(Read<std::uint32_t>(human, 0xB3C));
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        {
+            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
+            if (Read<std::uint32_t>(house, offset + 4) <= Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) continue;
+            const auto wanted = Read<std::uint32_t>(house, offset);
+            data.goods[data.goodCount] = wanted;
+            data.landscapeTypes[data.goodCount] = static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[wanted].landscapeType);
+            ++data.goodCount;
+        }
+        if (data.goodCount == 0) return false;
+        if (Human_IsAttachedToWorkHouse(human))
+        {
+            void* workshop = House(Read<std::uint32_t>(human, 0xB34));
+            for (std::uint32_t index = 0; index < data.goodCount; ++index)
+            {
+                const auto wanted = data.goods[index];
+                if (!House_Stock_CanStoreGoodType(workshop, wanted, false) || House_Stock_RequestAmountOfGoods(workshop, wanted, false) == 0) continue;
+                Write(realPosition, 0, Read<std::uint32_t>(workshop, 0x1C));
+                House_Door_GetEntryPoint(workshop, workPosition);
+                *good = wanted;
+                return true;
+            }
+        }
+        CMapPathfinderElement::SearchOverMap(source, 40, false, slHumanSearchGoodsComplexIgnoringHomesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        if (data.landscapeCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.landscapeCount;
+            Write(realPosition, 0, data.landscapePoints[index]);
+            Write(workPosition, 0, data.landscapePoints[index]);
+            AdjustPickupWorkPosition(workPosition);
+            *good = data.landscapeGoods[index];
+            return true;
+        }
+        if (data.houseCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.houseCount;
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            *good = data.houseGoods[index];
+            return true;
+        }
+        for (std::uint32_t index = 0; index < data.guideCount; ++index)
+        {
+            const auto id = static_cast<std::int32_t>(data.guides[index]);
+            if (!GuideManager_IsAnyGoodInLinkSystem(gGuideManager, id, data) || !GuideManager_GetMapPositionWithGoodsComplex(gGuideManager, 40, id, data)) continue;
+            if (data.landscapeCount != 0)
+            {
+                Write(realPosition, 0, data.landscapePoints[0]);
+                Write(workPosition, 0, data.landscapePoints[0]);
+                AdjustPickupWorkPosition(workPosition);
+                *good = data.landscapeGoods[0];
+                return true;
+            }
+            if (data.houseCount != 0)
+            {
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                *good = data.houseGoods[0];
+                return true;
+            }
+        }
+        Write(human, 0xAD0, data.goods[0]);
+        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, 0x374, 4);
+        return false;
+    }
+
     // Original function: FUN_0046011d; vehicle demand uses future stock.
     bool Human_FindGoodsDemandedForVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
     {

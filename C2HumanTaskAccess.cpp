@@ -31,6 +31,7 @@
 #include "C2HumanAnimalJobs.h"
 #include "C2HumanTransportJobs.h"
 #include "C2HumanTraderJobs.h"
+#include "C2HumanVehicleJobs.h"
 
 namespace NC2Logic
 {
@@ -566,6 +567,7 @@ namespace NC2Logic
         case 5: Human_l_StartTask_ExecuteJob_Woman(human); return;
         case 7: Human_l_StartTask_ExecuteJob_Builder(human); return;
         case 8: Human_l_StartTask_ExecuteJob_Collector(human); return;
+        case 9: case 10: Human_l_StartTask_ExecuteJob_Carpenter(human); return;
         case 16: Human_l_StartTask_ExecuteJob_Breeder(human); return;
         case 18: Human_l_StartTask_ExecuteJob_Farmer(human); return;
         case 22: Human_l_StartTask_ExecuteJob_Fisher(human); return;

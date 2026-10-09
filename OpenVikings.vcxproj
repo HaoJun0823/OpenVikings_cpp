@@ -713,4 +713,8 @@
     <ClCompile Include="C2HumanTraderJobs.cpp" />
     <ClInclude Include="C2HumanTraderJobs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanVehicleJobs.cpp" />
+    <ClInclude Include="C2HumanVehicleJobs.h" />
+  </ItemGroup>
 </Project>

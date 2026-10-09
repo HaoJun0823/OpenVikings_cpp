@@ -67,4 +67,6 @@ namespace NC2Logic
     void Human_l_PerformTaskEvent_Pickup(void* human);
     void Human_l_PerformTaskEvent_Pileup(void* human);
     void Human_Target_RestoreSecondaryTarget(void* human);
+    bool Human_FindGoodsDemandedForBuildVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
+
 }

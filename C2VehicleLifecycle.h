@@ -4,6 +4,8 @@
 
 namespace NC2Logic
 {
+    bool Tool_IsAnyNotMovingVehicleInsidePoint(const void* point);
+    bool Tool_IsPointHitByNotMovingVehicle(const void* point, const void* searchPoint);
     bool Vehicle_Init(void* vehicle, std::int32_t id, std::uint32_t player, std::uint32_t tribe, std::uint32_t type, const void* point, std::uint32_t missionCheck);
     void Vehicle_Exit(void* vehicle);
     bool VehicleReference_IsAllocated(const void* reference);

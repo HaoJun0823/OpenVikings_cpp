@@ -1,4 +1,5 @@
 #include "C2HouseAccess.h"
+#include "C2HappinessEvents.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanIterator.h"
@@ -18,6 +19,50 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+
+    void __fastcall House_Misc_Destroy_House(void* house, void* unusedEdx);
+
+    // Original function: FUN_0040ace5; the called house tick retains its explicit defence boundary.
+    void __fastcall HouseArray_DoOneGameTick(void* array, void*)
+    {
+        auto* handler = static_cast<CArrayHandler*>(array);
+        for (auto id = handler->mFirstScanIndex; id <= handler->mLastScanIndex; ++id)
+        {
+            void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+            if (Read<std::uint8_t>(house, 0) != 0) House_DoOneGameTick(house);
+        }
+    }
+
+    // Partial original function: FUN_00433694; destruction, first-contact information and vehicle-site conversion.
+    // The subsequent defensive-arrow branch 004337AF..00433A90 is still pending.
+    void House_DoOneGameTick(void* house)
+    {
+        if (Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::int32_t>(house, 0x7C8) <= 0)
+        {
+            HappinessManager_Messages_HouseDestroyedTroughAttack(gHappinessManager, house);
+            House_Misc_Destroy_House(house, nullptr);
+        }
+        if (Read<std::uint8_t>(house, 0x7D0) != 0)
+        {
+            const auto tick = static_cast<std::uint16_t>(Read<std::uint16_t>(house, 0x7D2) + 1u);
+            Write(house, 0x7D2, tick);
+            if (static_cast<std::int16_t>(tick) == Read<std::int16_t>(house, 0x7D4) - 12) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1D, true, Read<std::uint32_t>(house, 4), 0, 0);
+            if (static_cast<std::int16_t>(tick) >= Read<std::int16_t>(house, 0x7D4)) { CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, 4)); return; }
+        }
+        if (House_GetHouseMainType(house) == 6)
+        {
+            if (Read<std::uint32_t>(house, 0x2C) == 3)
+            {
+                // Windows frees the site first and reads its retained fields for vehicle allocation.
+                CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, 4));
+                Logic_EntryPoint_Add_Vehicle(Read<std::uint32_t>(house, 0xC), Read<std::uint32_t>(house, 0x18), gStaticHouseTypeStorage.records[Read<std::uint32_t>(house, 0x14)].vehicleType, static_cast<const std::byte*>(house) + 0x1C, 0);
+                return;
+            }
+        }
+        else if (Read<std::uint32_t>(house, 0x2C) == 3) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(house, 0xC), static_cast<const std::byte*>(house) + 0x1C);
+        if (Read<std::uint8_t>(house, 0x7D8) == 0 || Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return;
+        // Explicit reconstruction boundary: defender counting, target selection and projectile scheduling.
+    }
 
     // Original function: FUN_0040ad1d; the upper occupied-range bound is read each iteration.
     void __fastcall HouseArray_DoOneGameSecond(void* array, void*)

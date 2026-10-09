@@ -1,0 +1,11 @@
+# Carpenter/armorer vehicle production - 2026-10-09
+
+Windows ASM and Game.exe establish all behavior, offsets, constants, signedness and call order. Mac header declarations supply corresponding names only. Carpenter (job 9) and armorer (job 10) share Windows entry 0046C8C2: vehicle goods 59..63 use the vehicle-builder tree, other goods the existing indoor producer.
+
+The connected tree covers production availability/counters, retained construction sites, incompatible/deallocated-site recovery, material collection and pickup, deliveries via the existing FillStock path, work-point selection and animation 39. Existing build event 00468F5D now passes the animation boundary for house and vehicle builders, preserving original experience, tool wear, production credit and site detachment. Distinct Windows house-builder and vehicle-builder functions remain separate.
+
+Site searches 0045D2C4/0045DA7C/0045DC3F/0045DD63 preserve micro/macro-grid ring order, continent checks, clearance, obstruction checks and native failure reasons. The initially aligned point's result 2 still returns false in 0045DA7C, as Windows does; no behavioral correction was guessed. Work-point search 00441151, stationary vehicle footprint scans 0043B317/0043B39A and array vehicle iteration 00440D0C/00440DFD/00440E19 complete the helpers. Material search 00460827 checks the workshop first and preserves request-counter side effects before landscape/house/guide searching. Outlined attachment 00476B84 stores the workshop revision, as confirmed by Windows; its separate original Mac name remains unresolved.
+
+The formerly empty HouseArray tick 0040ACE5 now calls the real occupied-house loop. The reconstructed prefix of house tick 00433694 handles destruction, first-contact notifications and completed vehicle-site conversion: free the site first, then create the vehicle using its retained fields in native order. Its later defensive-arrow branch remains explicitly partial and is excluded from completion counts. General vehicle task/sea movement and hunter/combat remain open dependencies; this block does not claim all professions or complete vehicle simulation are finished.
+
+Affected units passed Win32 MSVC /Zs and project/filter parity checks. No build, tests or game run occurred; gameplay confirmation remains pending.

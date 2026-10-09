@@ -23,6 +23,41 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0043b317; the micro cursor advances cumulatively around each ring.
+    bool Tool_IsAnyNotMovingVehicleInsidePoint(const void* point)
+    {
+        using namespace NC2Lifetime;
+        if (Tool_IsPointHitByNotMovingVehicle(point, point)) return true;
+        auto cursor = Read<std::uint32_t>(point, 0);
+        for (std::uint32_t radius = 1; radius < 4; ++radius)
+        {
+            MapMigPoint_MoveCursorUnwrapped(cursor, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::uint32_t step = 0; step < radius; ++step)
+                {
+                    MapMigPoint_MoveCursorUnwrapped(cursor, direction);
+                    if (MapMigPoint_IsInsideMap(&cursor) && Tool_IsPointHitByNotMovingVehicle(point, &cursor)) return true;
+                }
+        }
+        return false;
+    }
+
+    // Original function: FUN_0043b39a; stationary vehicle footprints use their logic size.
+    bool Tool_IsPointHitByNotMovingVehicle(const void* point, const void* searchPoint)
+    {
+        using namespace NC2Lifetime;
+        CMapMoveableIterator iterator;
+        for (auto id = iterator.GetFirstMapMoveableId(searchPoint); id != -1; id = iterator.GetNextMapMoveableId())
+        {
+            const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+            if (Read<std::uint32_t>(moveable, 8) != 3) continue;
+            const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CVehicleArray::ElementSize;
+            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1) continue;
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(moveable, 0x12), Read<std::int16_t>(moveable, 0x14)));
+            if (gStaticVehicleTypeStorage.records[Read<std::uint32_t>(vehicle, 0x1E8)].logicSize >= distance) return true;
+        }
+        return false;
+    }
     using namespace NC2Lifetime;
     namespace
     {

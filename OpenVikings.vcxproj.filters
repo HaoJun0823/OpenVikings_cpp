@@ -1375,4 +1375,8 @@
     <ClCompile Include="C2HumanTraderJobs.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanTraderJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanVehicleJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanVehicleJobs.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

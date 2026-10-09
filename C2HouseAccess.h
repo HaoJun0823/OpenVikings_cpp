@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    void House_Door_GetEntryPoint(const void* house, void* point);
     bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t flags);
     void House_Exit(void* house);
     void House_l_Inhabitants_Reset(void* house);
@@ -14,6 +15,7 @@ namespace NC2Logic
     void House_l_AttachToSector(void* house);
     void House_l_DetachFromSector(void* house);
     void House_DoOneGameSecond(void* house);
+    void House_DoOneGameTick(void* house);
     void House_Religion_Send(const void* house);
     void House_l_ActionOverlay_Update(void* house);
     struct SHouseConstructionGoodsEntry
