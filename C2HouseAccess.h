@@ -89,6 +89,7 @@ namespace NC2Logic
     struct SStaticHouseTypeData;
     const SStaticHouseTypeData* House_GetHouseTypeDataPtr(const void* house);
     std::uint32_t House_GetHouseMainType(const void* house);
+    void House_l_Military_StartArrow(const void* house, std::uint32_t point);
     std::int32_t House_Construction_GetPercentage(const void* house);
     std::uint32_t House_Stock_GetAmountOfGoods(const void* house, std::uint32_t goodId, bool stockOnly);
     std::uint32_t Tool_House_GetAmountOfGoods(const void* house, std::uint32_t* good, bool stockOnly);

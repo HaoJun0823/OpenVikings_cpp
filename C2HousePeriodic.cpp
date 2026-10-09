@@ -1,4 +1,7 @@
 #include "C2HouseAccess.h"
+#include "C2AnimalAccess.h"
+#include "C2DelayedActionManager.h"
+#include "C2EngineDisplayAccess.h"
 #include "C2HappinessEvents.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
@@ -8,13 +11,17 @@
 #include "C2HumanTaskAccess.h"
 #include "C2HumanWalking.h"
 #include "C2GameMapAccess.h"
+#include "C2GameState.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
 #include "C2MissionStartObjects.h"
+#include "C2MilitaryTargetSearch.h"
+#include "C2StaticActorTypeDataAccess.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2VehicleAccess.h"
+#include "XCrtFileAccess.h"
 
 namespace NC2Logic
 {
@@ -22,7 +29,7 @@ namespace NC2Logic
 
     void __fastcall House_Misc_Destroy_House(void* house, void* unusedEdx);
 
-    // Original function: FUN_0040ace5; the called house tick retains its explicit defence boundary.
+    // Original function: FUN_0040ace5.
     void __fastcall HouseArray_DoOneGameTick(void* array, void*)
     {
         auto* handler = static_cast<CArrayHandler*>(array);
@@ -33,8 +40,7 @@ namespace NC2Logic
         }
     }
 
-    // Partial original function: FUN_00433694; destruction, first-contact information and vehicle-site conversion.
-    // The subsequent defensive-arrow branch 004337AF..00433A90 is still pending.
+    // Original function: FUN_00433694; target searches also run when the current tick has no arrows available.
     void House_DoOneGameTick(void* house)
     {
         if (Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::int32_t>(house, 0x7C8) <= 0)
@@ -61,7 +67,62 @@ namespace NC2Logic
         }
         else if (Read<std::uint32_t>(house, 0x2C) == 3) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(house, 0xC), static_cast<const std::byte*>(house) + 0x1C);
         if (Read<std::uint8_t>(house, 0x7D8) == 0 || Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return;
-        // Explicit reconstruction boundary: defender counting, target selection and projectile scheduling.
+        CHumanIterator iterator;
+        std::uint32_t defenders = 0;
+        const auto* door = static_cast<const std::byte*>(house) + 0x24;
+        const auto player = Read<std::uint32_t>(house, 0xC);
+        for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(door, 0), 0, false); id != -1; id = iterator.GetNextSectorHumanId()) ++defenders;
+        auto remaining = defenders / 24u;
+        if (defenders % 24u > gGameTime.tick % 24u) ++remaining;
+        const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, 0x18)])[20];
+        bool fired;
+        do
+        {
+            fired = false;
+            const auto humanFirst = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10, true, true);
+            if (humanFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanFirst) * CHumanArray::ElementSize), 0)); --remaining; fired = true; }
+            const auto vehicleFirst = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10, false, false);
+            if (vehicleFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleFirst) * CVehicleArray::ElementSize), 0)); --remaining; fired = true; }
+            const auto animal = Tool_Animals_GetOneOfNextEnemyInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, false, 5, 10);
+            if (animal != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Animal_GetMapPositionRef(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(animal) * CAnimalArray::ElementSize), 0)); --remaining; fired = true; }
+            const auto houseFirst = Tool_GetOneOfNextEnemyHousesInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10);
+            if (houseFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseFirst) * CHouseArray::ElementSize, 0x1C)); --remaining; fired = true; }
+            const auto humanSecond = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10, true, true);
+            if (humanSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanSecond) * CHumanArray::ElementSize), 0)); --remaining; fired = true; }
+            const auto vehicleSecond = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10, false, false);
+            if (vehicleSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleSecond) * CVehicleArray::ElementSize), 0)); --remaining; fired = true; }
+            const auto houseSecond = Tool_GetOneOfNextEnemyHousesInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10);
+            if (houseSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseSecond) * CHouseArray::ElementSize, 0x1C)); --remaining; fired = true; }
+        } while (fired && remaining != 0);
+    }
+
+    // Original function: FUN_00433a9d; the target is passed by value and scatter consumes y before x.
+    void House_l_Military_StartArrow(const void* house, std::uint32_t point)
+    {
+        const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, 0x18)])[20];
+        const auto source = Read<std::uint32_t>(house, 0x1C);
+        const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        std::uint32_t height = 0, offsetX = 20, offsetY = 20;
+        const auto launchPoints = Read<std::uint32_t>(graphics, 0x1B0);
+        if (launchPoints != 0)
+        {
+            const auto selected = Game_Random_GetNumber() % launchPoints;
+            height = Read<std::uint32_t>(graphics, 0x1BCu + selected * 12u);
+            offsetX = Read<std::uint32_t>(graphics, 0x1B4u + selected * 12u);
+            offsetY = Read<std::uint32_t>(graphics, 0x1B8u + selected * 12u);
+        }
+        const auto divisor = Game_Random_GetNumber() % 30u + 1u;
+        const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(&source, 0), Read<std::int16_t>(&source, 2)));
+        const auto spread = (distance >> 2) / divisor;
+        const auto scatterDivisor = NXBasics::Runtime_TimeSigned32(spread + 1u), half = NXBasics::Runtime_TimeSigned32(spread) / 2;
+        const auto y = static_cast<std::int16_t>(Game_Random_GetNumber()) % scatterDivisor - half;
+        const auto x = static_cast<std::int16_t>(Game_Random_GetNumber()) % scatterDivisor - half;
+        MapMigPoint_AddOffset(&point, static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
+        const auto flightTicks = (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(&source, 0), Read<std::int16_t>(&source, 2))) << 3) / static_cast<std::uint32_t>(weapon.speed);
+        // Complete native 0x24-byte stack callback record; its original type name remains unresolved.
+        const std::uint32_t arrow[9] = {source, point, height, offsetX, offsetY, 20, 20, static_cast<std::uint32_t>(weapon.munitionType), flightTicks};
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x23, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(arrow)), 0, 0);
+        DelayedActionManager_DelayedAction_AddWeaponHit(gDelayedActionManager, flightTicks, 4, Read<std::uint32_t>(house, 4), &point, 20);
     }
 
     // Original function: FUN_0040ad1d; the upper occupied-range bound is read each iteration.

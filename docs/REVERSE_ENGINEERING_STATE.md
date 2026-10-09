@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Building list and defensive-arrow checkpoint - 2026-10-09
+
+All 55 building logic IDs (54 actual types plus the None sentinel) are inventoried with installed Windows names/configuration, current source areas and explicit remaining dependencies in BUILDING_LIST.md/.csv. House_DoOneGameTick now includes the full native civilian-defense arrow branch and House_l_Military_StartArrow, with original target-search/RNG order and delayed building damage. The statistics list was checked against Windows and already matches its native behavior.
+
+**4032 / 5062 (79.65%)** source-address coverage, **1030** known entries open; **265 cpp / 245 headers**, **2186 naming rows / 63 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Next: remaining building helper entry mappings, projectile/hit/smoke visuals and original AI defense-group bodies, then vehicle/sea consumers and mission-specific wonder goals. Continue the earlier ALL-professions scope; source integration and the building inventory do not establish runtime completion. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Aggressive animal combat checkpoint - 2026-10-09
 
 The full aggressive-animal enemy search, attack-position selection, chase, leader-target propagation and melee-hit event are connected. Four held AI/path/stay/event boundaries are removed. The native shared attack-position record is reused by humans and animals. See ANIMAL_MILITARY_TASKS.md.

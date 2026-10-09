@@ -2184,3 +2184,4 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0044703A,NC2Logic::Animal_l_Military_IsOtherAttackingAnimalOnPoint,NC2Logic::CAnimal::l_Military_IsOtherAttackingAnimalOnPoint,6979,"Windows ASM/Game.exe establish behavior, constants, layouts and call order; Mac header supplies names only"
 004470AA,NC2Logic::Animal_l_Military_AttackTarget,NC2Logic::CAnimal::l_Military_AttackTarget,6980,"Windows ASM/Game.exe establish behavior, constants, layouts and call order; Mac header supplies names only"
 00446F48,NC2Logic::slAnimalSearchNextFreeMilitaryMapPointFunction,NC2Logic::slAnimalSearchNextFreeMilitaryMapPointFunction,6981,"Windows ASM/Game.exe establish behavior, constants, layouts and call order; Mac header supplies names only"
+00433A9D,NC2Logic::House_l_Military_StartArrow,NC2Logic::CHouse::l_Military_StartArrow,7355,"Windows ASM/Game.exe establish full defense shooting, launch-point/scatter RNG and delayed-hit order; Mac header supplies name only"

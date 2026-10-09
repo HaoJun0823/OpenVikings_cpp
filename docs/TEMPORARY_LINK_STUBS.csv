@@ -59,7 +59,6 @@ Address,CurrentName,Status,ReferencingObjects
 004E6E44,Runtime_Log10,Partial numeric CRT adapter; positive music-volume values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 004E8774,Runtime_Sin,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 004E8824,Runtime_Cos,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
-00433694,NC2Logic::House_DoOneGameTick,Partial native house tick; destruction and conversion of completed vehicle construction sites connected; defensive arrows 004337AF..00433A90 pending; excluded from completion counts,C2HousePeriodic.obj
 00473102,NC2Logic::AISinglePlayerHandler_Messages_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
 004732D2,NC2Logic::AISinglePlayerHandler_Messages_SoldierAttacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
 004293FC,NC2Logic::AIHighLevelHandler_Message_Soldier_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
