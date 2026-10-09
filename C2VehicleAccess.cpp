@@ -296,6 +296,29 @@ namespace NC2Logic
         return true;
     }
 
+    // Original function: FUN_0043f563; the three flag commands do not count as priorities.
+    bool Vehicle_IsPriorityCommandInQueue(const void* vehicle)
+    {
+        for (std::uint32_t slot = 0; slot < 22; ++slot)
+        {
+            const auto type = Read<std::uint8_t>(vehicle, 0x10u + slot * 20u);
+            if (type != 0 && type != 109 && type != 110 && type != 111) return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_0044c02c; entering retains the passenger reference.
+    bool Vehicle_Passengers_MoveIn_h(void* vehicle, std::uint32_t humanId)
+    {
+        const auto slot = Vehicle_Passengers_GetAttachedHumanSlot(vehicle, humanId);
+        if (slot == -1) return false;
+        std::uint32_t entry = 0;
+        Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
+        if (Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize), 0) != entry) return false;
+        NC2Lifetime::Write<std::uint8_t>(vehicle, 0x1F8u + static_cast<std::uint32_t>(slot) * 12u, 1);
+        return true;
+    }
+
     // Original function: FUN_0044c095; moving outside retains the passenger reference.
     bool Vehicle_Passengers_MoveOut_h(void* vehicle, std::uint32_t humanId)
     {

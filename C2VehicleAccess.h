@@ -23,6 +23,8 @@ namespace NC2Logic
     void* Vehicle_Passengers_GetAttachedCommanderPtr(const void* vehicle);
     bool Vehicle_Passengers_IsCarrierAttached(const void* vehicle);
     bool Vehicle_Passengers_MoveOut_h(void* vehicle, std::uint32_t humanId);
+    bool Vehicle_Passengers_MoveIn_h(void* vehicle, std::uint32_t humanId);
+    bool Vehicle_IsPriorityCommandInQueue(const void* vehicle);
     void Vehicle_l_Passengers_StopAllIdleTasks(void* vehicle);
     const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle);
     std::int32_t Vehicle_Passengers_GetWorkTraderHumanId(const void* vehicle);

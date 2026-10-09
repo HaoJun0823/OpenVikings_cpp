@@ -45,6 +45,8 @@ namespace NC2Logic
     std::uint32_t Human_FindFood_Complex(const void* human, void* realPosition, void* workPosition, const void* source);
     bool Human_FindGoodsDemandedForHomeHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
     bool Human_FindGoodsDemandedForBuildHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
+    bool Human_FindGoodsDemandedForVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
+    bool Human_FindGoodsDemandedForStockHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
     void* Human_GetHousePtrAtTargetPosition(const void* human);
     void* Human_GetTargetHousePtr(const void* human);
     bool Human_l_StartAtomicWalkAndFetch(void* human, const void* realPosition, const void* workPosition, bool forSelf);
@@ -58,6 +60,7 @@ namespace NC2Logic
     bool Map_GoodTool_CanBePutOnMap(std::uint32_t good, const void* point);
     bool Human_FindPilePointNearby(const void* human, void* realPosition, void* workPosition);
     bool Human_FindPilePointNearby(const void* human, std::uint32_t good, void* realPosition, void* workPosition);
+    bool Human_FindPilePointNearPosition(const void* human, std::uint32_t good, const void* source, void* realPosition, void* workPosition);
     bool Human_FindPilePointNearWorkCenter(const void* human, void* realPosition, void* workPosition);
     void Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(void* human);
     void Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(void* human);

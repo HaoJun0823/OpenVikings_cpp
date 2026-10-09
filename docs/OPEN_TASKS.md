@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Carrier and vehicle entry checkpoint - 2026-10-09
+
+Carrier ground warehouse and attached-vehicle work paths, demand searches, stock callbacks, explicit-source pile selection and task 21 startup/finish are reconstructed. The actual human vehicle-entry dummy is replaced. See [HUMAN_TRANSPORT_JOBS.md](HUMAN_TRANSPORT_JOBS.md). Vehicle simulation and sea navigation still require their own remaining branches.
+
+**3933 / 5061 (77.71%)** source-address coverage, **1128** known entries open; **255 cpp / 235 headers**, **2096 naming rows / 68 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Continue ALL remaining professions: trader, hunter/combat and carpenter/armorer vehicle production, with their vehicle/sea dependencies. Menu exit/fullscreen masks/32-bit selection are committed; runtime confirmation remains pending. Do not report all professions complete. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Breeder and civilian animal checkpoint - 2026-10-09
 
 Ground breeder startup, animal stock recount/adoption, slaughter approach, output flushing and newborn production are connected. Animal conditions now run in the common map-moveable tick: growth, civilian movement/path callbacks, leader/group handling, food, idle/stay, house interaction and birth-center updates are connected. Five partial animal boundaries explicitly retain pending combat/vehicle branches and are excluded from completion counts. See [HUMAN_ANIMAL_JOBS.md](HUMAN_ANIMAL_JOBS.md).

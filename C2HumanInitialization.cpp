@@ -3,6 +3,7 @@
 #include "C2HouseAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanCommandAccess.h"
+#include "C2HumanTaskAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -483,6 +484,19 @@ namespace NC2Logic
         Write<std::int32_t>(human, 0xB48, -1);
         Write<std::uint32_t>(human, 0xB4C, 0);
     }
+    // Original function: FUN_00441f8c; passenger state changes before detaching from the map.
+    std::uint32_t Human_VehicleMisc_Enter(void* human)
+    {
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+        if (!Vehicle_Passengers_MoveIn_h(vehicle, Read<std::uint32_t>(human, 4))) return 0;
+        MapMoveable_Attachment_DetachFromMap(Moveable(Read<std::uint32_t>(human, 0x0C)));
+        Human_Target_Reset(human);
+        Human_Target_ResetSecondaryTarget(human);
+        Write<std::uint8_t>(human, 0xB51, 1);
+        Human_WorkCenterMarker_Update(human);
+        return 1;
+    }
+
     // Original function: FUN_00441fe2.
     void Human_VehicleMisc_Leave(void* human, const void* point)
     {

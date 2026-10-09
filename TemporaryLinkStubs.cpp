@@ -192,12 +192,6 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
 
 
 
-namespace NC2Logic
-{
-    // TEMPORARY DUMMY: Windows address 00441F8C; object startup dependency pending.
-    std::uint32_t Human_VehicleMisc_Enter(void*) { return 0; }
-}
-
 namespace NC2LogicExternals
 {
     // TEMPORARY DUMMY: Windows address 00480939; object startup dependency pending.

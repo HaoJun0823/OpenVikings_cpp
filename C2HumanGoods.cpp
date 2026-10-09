@@ -203,6 +203,75 @@ namespace NC2Logic
             return data.landscapeCount == 10 || data.houseCount == 2;
         }
 
+        // Original function: FUN_004604d1; home-house refill only fetches from work houses.
+        bool __cdecl slHumanSearchGoodsComplexInWorkHousesOnlyFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& data = *static_cast<SHumanSearchGoodsComplexData*>(callback->userData);
+            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            const auto type = Read<std::uint8_t>(micro, 0);
+            if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            {
+                auto* house = House(Read<std::uint16_t>(micro, 4));
+                if (House_GetHouseMainType(house) != 3 || Read<std::uint32_t>(house, 12) != data.player || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                for (std::uint32_t index = 0; index < data.goodCount; ++index)
+                {
+                    if (!House_Stock_CanStoreGoodType(house, data.goods[index], true) || House_Stock_RequestAmountOfGoods(house, data.goods[index], true) == 0) continue;
+                    data.houses[data.houseCount] = house;
+                    data.houseGoods[data.houseCount++] = data.goods[index];
+                    if (data.firstDistance < 0) data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance);
+                    break;
+                }
+            }
+            else if (type == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            {
+                for (std::uint32_t index = 0; index < data.goodCount; ++index)
+                {
+                    if (Read<std::uint8_t>(micro, 2) != data.landscapeTypes[index]) continue;
+                    data.landscapePoints[data.landscapeCount] = Read<std::uint32_t>(point, 0);
+                    data.landscapeGoods[data.landscapeCount++] = data.goods[index];
+                    if (data.firstDistance < 0) { data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance); data.firstWasLandscape = 1; }
+                    break;
+                }
+            }
+            return data.landscapeCount == 10 || data.houseCount == 2;
+        }
+
+        // Original function: FUN_00460676; both work houses and stocks qualify.
+        bool __cdecl slHumanSearchGoodsComplexInWorkHousesAndStocksOnlyFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& data = *static_cast<SHumanSearchGoodsComplexData*>(callback->userData);
+            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            const auto type = Read<std::uint8_t>(micro, 0);
+            if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            {
+                auto* house = House(Read<std::uint16_t>(micro, 4));
+                const auto mainType = House_GetHouseMainType(house);
+                if ((mainType != 3 && mainType != 1) || Read<std::uint32_t>(house, 12) != data.player || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                for (std::uint32_t index = 0; index < data.goodCount; ++index)
+                {
+                    if (!House_Stock_CanStoreGoodType(house, data.goods[index], true) || House_Stock_RequestAmountOfGoods(house, data.goods[index], true) == 0) continue;
+                    data.houses[data.houseCount] = house;
+                    data.houseGoods[data.houseCount++] = data.goods[index];
+                    if (data.firstDistance < 0) data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance);
+                    break;
+                }
+            }
+            else if (type == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            {
+                for (std::uint32_t index = 0; index < data.goodCount; ++index)
+                {
+                    if (Read<std::uint8_t>(micro, 2) != data.landscapeTypes[index]) continue;
+                    data.landscapePoints[data.landscapeCount] = Read<std::uint32_t>(point, 0);
+                    data.landscapeGoods[data.landscapeCount++] = data.goods[index];
+                    if (data.firstDistance < 0) { data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance); data.firstWasLandscape = 1; }
+                    break;
+                }
+            }
+            return data.landscapeCount == 10 || data.houseCount == 2;
+        }
+
         // Original function: FUN_0041bc95; the first matching stock or landscape stops the search.
         bool __cdecl slGuideSearchGoodsComplexIgnoringHomesFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
@@ -572,6 +641,102 @@ namespace NC2Logic
         return false;
     }
 
+    // Original function: FUN_0046011d; vehicle demand uses future stock.
+    bool Human_FindGoodsDemandedForVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
+    {
+        SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, 0x10));
+        const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+        if (Vehicle_Stock_IsFull(vehicle)) return false;
+        for (std::uint32_t wanted = 0; wanted < 66; ++wanted)
+        {
+            if (!Vehicle_Stock_CanStoreGoodType(vehicle, wanted)) continue;
+            const auto amount = Vehicle_Stock_GetAmountOfWantedGoods(vehicle, wanted);
+            if (amount <= Vehicle_Stock_GetFutureAmount(vehicle, wanted)) continue;
+            data.goods[data.goodCount] = wanted;
+            data.landscapeTypes[data.goodCount++] = static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[wanted].landscapeType);
+        }
+        if (data.goodCount == 0) return false;
+        CMapPathfinderElement::SearchOverMap(source, 40, true, slHumanSearchGoodsComplexIgnoringHomesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        if (data.landscapeCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.landscapeCount;
+            Write(realPosition, 0, data.landscapePoints[index]);
+            Write(workPosition, 0, data.landscapePoints[index]);
+            AdjustPickupWorkPosition(workPosition);
+            *good = data.landscapeGoods[index];
+            return true;
+        }
+        if (data.houseCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.houseCount;
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            *good = data.houseGoods[index];
+            return true;
+        }
+        for (std::uint32_t index = 0; index < data.guideCount; ++index)
+        {
+            const auto guide = static_cast<std::int32_t>(data.guides[index]);
+            if (!GuideManager_IsAnyGoodInLinkSystem(gGuideManager, guide, data) || !GuideManager_GetMapPositionWithGoodsComplex(gGuideManager, 40, guide, data)) continue;
+            if (data.landscapeCount != 0)
+            {
+                Write(realPosition, 0, data.landscapePoints[0]);
+                Write(workPosition, 0, data.landscapePoints[0]);
+                AdjustPickupWorkPosition(workPosition);
+                *good = data.landscapeGoods[0];
+                return true;
+            }
+            if (data.houseCount != 0)
+            {
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                *good = data.houseGoods[0];
+                return true;
+            }
+        }
+        Write(human, 0xAD0, data.goods[0]);
+        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, 0x374, 3);
+        return false;
+    }
+
+    // Original function: FUN_00460327; completed houses search from the work center.
+    bool Human_FindGoodsDemandedForStockHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
+    {
+        auto* house = House(Read<std::uint32_t>(human, 0xB34));
+        if (Read<std::uint32_t>(house, 0x2C) != 3) return Human_FindGoodsDemandedForBuildHouse(human, realPosition, workPosition, good, source);
+        SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, 0x10));
+        for (std::uint32_t wanted = 1; wanted <= 55; ++wanted)
+        {
+            if (!House_Stock_CanStoreGoodType(house, wanted, false) || !House_Stock_HasDemandForGood(house, wanted)) continue;
+            data.goods[data.goodCount] = wanted;
+            data.landscapeTypes[data.goodCount++] = static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[wanted].landscapeType);
+            if (data.goodCount == 66) break;
+        }
+        if (data.goodCount == 0) return false;
+        const auto job = Read<std::uint32_t>(human, 0x18);
+        const auto callback = House_GetHouseMainType(house) == 1 ? slHumanSearchGoodsComplexInWorkHousesOnlyFunction : slHumanSearchGoodsComplexInWorkHousesAndStocksOnlyFunction;
+        CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, job == 18 || job == 29 ? 10u : 20u, true, callback, &data, true, Read<std::int32_t>(human, 0x10));
+        if (data.landscapeCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.landscapeCount;
+            Write(realPosition, 0, data.landscapePoints[index]);
+            Write(workPosition, 0, data.landscapePoints[index]);
+            AdjustPickupWorkPosition(workPosition);
+            *good = data.landscapeGoods[index];
+            return true;
+        }
+        if (data.houseCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.houseCount;
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            *good = data.houseGoods[index];
+            return true;
+        }
+        return false;
+    }
+
     // Original function: FUN_0042d73e; deleted houses are excluded.
     void* Human_GetHousePtrAtTargetPosition(const void* human)
     {
@@ -813,6 +978,21 @@ namespace NC2Logic
         if (!Human_l_StartAtomicWalk(human, realPosition, workPosition)) return false;
         auto* house = Human_GetTargetHousePtr(human);
         if (house != nullptr && !House_Stock_ModifyFutureAmount(house, good, 1, false)) { Human_Target_Reset(human); return false; }
+        return true;
+    }
+
+    // Original function: FUN_0045d8a5; explicit goods and source use radius 40.
+    bool Human_FindPilePointNearPosition(const void* human, std::uint32_t good, const void* source, void* realPosition, void* workPosition)
+    {
+        SPilePointSearch data{good, 0, {}};
+        auto point = Read<std::uint32_t>(source, 0);
+        AdjustPileSearchPosition(&point);
+        CMapPathfinderElement::SearchOverMap(&point, 40, true, slHumanSearchPilePointFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        if (data.count == 0) return false;
+        const auto selected = data.points[Game_Random_GetNumber() % data.count];
+        Write(realPosition, 0, selected);
+        Write(workPosition, 0, selected);
+        AdjustPickupWorkPosition(workPosition);
         return true;
     }
 

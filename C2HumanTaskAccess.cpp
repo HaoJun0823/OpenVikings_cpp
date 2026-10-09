@@ -29,6 +29,7 @@
 #include "C2HumanMilitaryJobs.h"
 #include "C2HumanSocialJobs.h"
 #include "C2HumanAnimalJobs.h"
+#include "C2HumanTransportJobs.h"
 
 namespace NC2Logic
 {
@@ -91,6 +92,7 @@ namespace NC2Logic
         if (task == 18) { Human_l_StartTask_OpenChest(human); return; }
         if (task == 19) { Human_l_StartTask_BuildGuide(human); return; }
         if (task == 20) { Human_l_StartTask_ExploreArea(human); return; }
+        if (task == 21) { Human_l_StartTask_MoveInsideVehicle(human); return; }
         if (task == 5) { Human_l_StartTask_Marry(human); return; }
         if (task == 11) { Human_l_StartTask_GetChild(human, 11, 15); return; }
         if (task == 12) { Human_l_StartTask_GetChild(human, 12, 16); return; }
@@ -134,7 +136,7 @@ namespace NC2Logic
     void Human_CurrentTask_DoFinish(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 5 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 18 && task != 19 && task != 20 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
+        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 5 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 18 && task != 19 && task != 20 && task != 21 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
         if (task != 1)
         {
             Write<std::uint32_t>(human, 0x380, 0);
@@ -147,6 +149,7 @@ namespace NC2Logic
         // Windows chest and guide completion share the same 0044621D entry.
         else if (task == 18 || task == 19) Human_l_FinishTask_BuildGuide(human);
         else if (task == 20) Human_l_FinishTask_ExploreArea(human);
+        else if (task == 21) Human_l_FinishTask_MoveInsideVehicle(human);
         else if (task == 16 || task == 17) Human_l_FinishTask_Equip(human);
         else if (task == 2 || task == 23)
         {
@@ -545,7 +548,17 @@ namespace NC2Logic
                 Human_Target_Reset(human);
             }
         }
-        if (Human_IsAttachedToVehicle(human)) return;
+        if (Human_IsAttachedToVehicle(human))
+        {
+            const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
+            const auto vehicleJob = Read<std::uint32_t>(vehicle, 0x1EC);
+            if (!(Human_IsJobCarrier(human) && (vehicleJob == 50 || vehicleJob == 51)) && !Human_IsJobTrader(human))
+            {
+                Write<std::uint32_t>(human, 0x368, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+                Write<std::uint32_t>(human, 0x36C, 0);
+                return;
+            }
+        }
         const auto job = Read<std::uint32_t>(human, 0x18);
         switch (job)
         {
@@ -555,6 +568,7 @@ namespace NC2Logic
         case 16: Human_l_StartTask_ExecuteJob_Breeder(human); return;
         case 18: Human_l_StartTask_ExecuteJob_Farmer(human); return;
         case 22: Human_l_StartTask_ExecuteJob_Fisher(human); return;
+        case 24: Human_l_StartTask_ExecuteJob_Carrier(human); return;
         case 28: Human_l_StartTask_ExecuteJob_Jester(human); return;
         case 29: Human_l_StartTask_ExecuteJob_HerbGuy(human); return;
         case 30: Human_l_StartTask_ExecuteJob_Druid(human); return;
