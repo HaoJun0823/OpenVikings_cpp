@@ -16,6 +16,13 @@ namespace NC2Logic
     using namespace NC2Lifetime;
     using namespace NC2LogicExternals;
 
+    // Original function: FUN_0040b0c6; editing requires an active map modification scope.
+    bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void* point, std::uint32_t type, std::uint32_t valency, std::int32_t engineId, std::uint32_t parameter, std::int32_t player)
+    {
+        if (gGameMapModifyNestingDepth == 0) return false;
+        return GameMap_MapMicroPoint_Landscape_SetType(point, type, valency, engineId, static_cast<std::uint8_t>(parameter) != 0, player);
+    }
+
     // Original function: FUN_004248b0, including the terrain classification at 00451503.
     bool GameMap_Misc_IsLandscapeAllowedOnPattern(const void* point, std::uint32_t landscape)
     {

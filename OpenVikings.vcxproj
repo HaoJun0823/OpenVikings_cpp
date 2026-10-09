@@ -659,4 +659,10 @@
     <ClCompile Include="C2VehicleIterator.cpp" />
     <ClInclude Include="C2VehicleIterator.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseConstruction.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseLifecycle.cpp" />
+  </ItemGroup>
 </Project>

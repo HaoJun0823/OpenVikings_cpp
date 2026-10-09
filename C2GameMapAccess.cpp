@@ -193,6 +193,26 @@ namespace NC2Logic
         return reinterpret_cast<const void*>(static_cast<std::uintptr_t>(address));
     }
 
+    // Original function: FUN_00423838; unlike the const accessor, there is no bounds check.
+    void* GameMap_GetMapMacroPointPtr(const void* packedMagPoint)
+    {
+        std::int16_t x, y, width;
+        std::uint32_t base;
+        std::memcpy(&x, packedMagPoint, sizeof(x));
+        std::memcpy(&y, static_cast<const std::byte*>(packedMagPoint) + 2, sizeof(y));
+        std::memcpy(&width, DAT_00511570 + 4, sizeof(width));
+        std::memcpy(&base, DAT_00511570 + 0x30, sizeof(base));
+        const auto index = static_cast<std::uint32_t>(static_cast<std::int32_t>(y)) * static_cast<std::uint32_t>(static_cast<std::int32_t>(width)) + static_cast<std::uint32_t>(static_cast<std::int32_t>(x));
+        return reinterpret_cast<void*>(static_cast<std::uintptr_t>(base + index * 3u));
+    }
+
+    // Original function: FUN_0042372d; the point overload checks the geometry dimensions.
+    const void* GameMap_GetConstMapMacroPointPtr(const void* packedMagPoint)
+    {
+        if (!MapMagPoint_IsInsideMap(packedMagPoint)) return nullptr;
+        return GameMap_GetMapMacroPointPtr(packedMagPoint);
+    }
+
     // Original function: FUN_004237d2
     const void* GameMap_GetConstMapMicroPointPtr(const void* packedMigPoint)
     {

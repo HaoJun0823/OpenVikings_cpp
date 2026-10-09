@@ -20,6 +20,8 @@ namespace NC2Logic
 
     // Original function: FUN_0042378b
     const void* GameMap_GetConstMapMacroPointPtr(std::int16_t x, std::int16_t y);
+    const void* GameMap_GetConstMapMacroPointPtr(const void* packedMagPoint);
+    void* GameMap_GetMapMacroPointPtr(const void* packedMagPoint);
 
     // Original function: FUN_004237d2
     const void* GameMap_GetConstMapMicroPointPtr(const void* packedMigPoint);

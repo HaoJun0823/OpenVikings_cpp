@@ -19,6 +19,47 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_0044b3c5.
+    void Human_UpdateCurrentBuildHouse(void* human)
+    {
+        const void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        Write(human, 0xB30, Read<std::uint32_t>(house, 0x24));
+        Write<std::uint32_t>(human, 0x38C, 0);
+        Human_WorkCenterMarker_Update(human);
+    }
+
+    // Original function: FUN_0044b3ed.
+    void Human_UpdateCurrentWorkHouse(void* human)
+    {
+        if (Human_WorkCenterMarker_IsAllowed(human)) return;
+        const void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        Write(human, 0xB30, Read<std::uint32_t>(house, 0x24));
+        Write<std::uint32_t>(human, 0x38C, 0);
+        Human_WorkCenterMarker_Update(human);
+    }
+
+    // Original function: FUN_0044b425; outlined IsJobWoman 0042C5AA checks job 5 alone.
+    void Human_UpdateCurrentHomeHouse(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0x18) != 5) return;
+        const void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB28) * CHouseArray::ElementSize;
+        Write(human, 0xB30, Read<std::uint32_t>(house, 0x24));
+        Write<std::uint32_t>(human, 0x38C, 0);
+        Human_WorkCenterMarker_Update(human);
+    }
+
+    // Original function: FUN_004422be.
+    std::uint32_t Human_l_JobEfficiency_CalculateToolFactor(const void* human)
+    {
+        if (Human_HasEquippedTools(human))
+        {
+            const auto good = Read<std::uint32_t>(human, 0xAF0);
+            if (good == 31) return 125;
+            if (good == 32) return 175;
+        }
+        return 100;
+    }
+
     namespace
     {
         const STribeJobEnables& JobEnables(const void* human)

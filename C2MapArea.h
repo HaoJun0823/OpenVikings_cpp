@@ -29,6 +29,7 @@ namespace NC2Logic
         bool Check_NoGuideOnArea(const void* point) const;
         bool Check_NoHouseBuildForbiddenFlag(const void* point) const;
         void Landscapes_RemoveAll(const void* point) const;
+        void Tool_CountGoods(const void* point, std::uint32_t* amounts) const;
         bool Check_CanLandscapeBeSetOnPattern(const void* point, std::uint32_t landscape) const;
         bool AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed(const void* point) const;
         void AdditionalAttachmentPoints_SetToMap(const void* point) const;

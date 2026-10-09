@@ -2,6 +2,17 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t flags);
+    void House_Exit(void* house);
+    void House_l_Inhabitants_Reset(void* house);
+    void House_Inhabitants_DetachAllHumans(void* house);
+    void House_Inhabitants_DetachAllHumans(void* house, std::uint32_t mask);
+    void House_ActionOverlay_Stop(void* house, std::int32_t overlay);
+    void House_l_ActionOverlay_StopAll(void* house);
+    void House_Misc_Blocks_ClearAndRebuild(const void* house);
+    void House_Misc_MapHeights_Modify(const void* house);
+    void House_l_AttachToSector(void* house);
+    void House_l_DetachFromSector(void* house);
     struct SHouseConstructionGoodsEntry
     {
         std::uint32_t good;
@@ -23,6 +34,18 @@ namespace NC2Logic
     void House_l_Construction_InitConstruction(void* house, std::uint32_t developmentStage, bool upgrade);
     void House_l_Construction_TransferFutureStock(void* house);
     void House_l_Construction_UpdateGoodsBeingBrought(void* house);
+    bool House_Construction_IsNeedingGoods(const void* house);
+    bool House_Construction_CanUseOneGoodNow(const void* house);
+    bool House_Construction_DoUseOneGood(void* house);
+    bool House_Construction_IsUseGoodRunning(const void* house);
+    bool House_Construction_DoOneStep(void* house);
+    void House_HitPoints_Reset(void* house);
+    void House_l_DoorPoint_Calculate(void* house);
+    void House_Inhabitants_UpdateAllHumans(void* house);
+    void House_l_Exploration_Do(const void* house);
+    void House_UserMessage_SendToUserMessage(const void* house, std::uint32_t type);
+    void House_Misc_ClearLandscapesAndGuides(const void* house);
+    void House_HitPoints_ModifyValue(void* house, std::int32_t delta);
     std::uint32_t House_Stock_GetMaximumAmountByStockId(const void* house, std::uint32_t stock);
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum);
     std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good);
@@ -53,7 +76,7 @@ namespace NC2Logic
     std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house);
     std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders(const void* house);
     std::int32_t House_Construction_GetTotalNumberOfBuildersAllowed(const void* house);
-    bool House_HitPoints_IsDamaged(const void* house);
+    bool House_Repair_IsFinished(const void* house);
     bool House_Construction_GetNextWorkPoint(const void* house, const void* source, void* point, bool avoidOtherBuilders, std::uint32_t humanId, std::uint32_t continent);
     void House_SetDefenceModeFlag(void* house, bool enabled);
     void House_DoNewUserCommand(void* house, const void* command);

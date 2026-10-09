@@ -1321,4 +1321,10 @@
     <ClCompile Include="C2VehicleIterator.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2VehicleIterator.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseConstruction.cpp"><Filter>Logic</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
+  </ItemGroup>
 </Project>

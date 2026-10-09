@@ -44,6 +44,7 @@ namespace NC2Logic
     bool Human_FindFoodInHomeHouse(const void* human, void* realPosition, void* workPosition);
     std::uint32_t Human_FindFood_Complex(const void* human, void* realPosition, void* workPosition, const void* source);
     bool Human_FindGoodsDemandedForHomeHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
+    bool Human_FindGoodsDemandedForBuildHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
     void* Human_GetHousePtrAtTargetPosition(const void* human);
     void* Human_GetTargetHousePtr(const void* human);
     bool Human_l_StartAtomicWalkAndFetch(void* human, const void* realPosition, const void* workPosition, bool forSelf);

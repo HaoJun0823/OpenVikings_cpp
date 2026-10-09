@@ -12,6 +12,7 @@ namespace NC2LogicExternals
 {
     std::int32_t External_Misc_GetEngineDepotLandscapeId(std::uint32_t tribe, std::uint32_t type);
     std::int32_t External_Misc_GetEngineCadaverLandscapeId(std::uint32_t tribe, std::uint32_t type);
+    std::int32_t External_HouseType_GetEngineRuineLandscapeId(std::uint32_t tribe, std::uint32_t type);
     std::uint32_t External_Landscape_GetMaximumValency(std::int32_t engineId);
     std::int32_t External_Landscape_GetTransitionTarget(std::int32_t engineId, std::uint32_t transition);
     void External_Landscape_Clear(const void* point);

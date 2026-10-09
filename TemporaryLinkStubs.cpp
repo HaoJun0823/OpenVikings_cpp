@@ -59,10 +59,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::Logic_EntryPoint_FreeMapMoveable.
     void __cdecl Logic_EntryPoint_FreeMapMoveable(unsigned int) {}
 
-    // TEMPORARY DUMMY: Windows address 0040AE38; implementation pending.
-    // Naming reference: NC2Logic::Logic_EntryPoint_House_Set.
-    int __cdecl Logic_EntryPoint_House_Set(unsigned int, unsigned int, unsigned int, void const *, bool, unsigned int) { return -1; }
-
     // TEMPORARY DUMMY: Windows address 0040B183; implementation pending.
     // Naming evidence: Windows only: maximum non-local DirectPlay player latency; no corresponding Mac symbol found.
     unsigned int __cdecl GameTime_Network_GetHighestPlayerLatency(void) { return 0; }
@@ -97,10 +93,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 00428736; implementation pending.
     // Naming reference: NC2Logic::CGame::Checksum_Calculate.
     unsigned int __cdecl Game_Checksum_Calculate(void) { return 0; }
-
-    // TEMPORARY DUMMY: Windows address 00431276; implementation pending.
-    // Naming reference: NC2Logic::CHouse::Misc_Destroy_House.
-    void __fastcall House_Misc_Destroy_House(void *, void *) {}
 
     // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.
@@ -225,8 +217,6 @@ namespace NC2LogicExternals
 
 namespace NC2Logic
 {
-    // TEMPORARY DUMMY: Windows address 0040B0C6; landscape editing dependency pending.
-    bool Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(const void*, std::uint32_t, std::uint32_t, std::int32_t, std::uint32_t, std::int32_t) { return false; }
     // TEMPORARY DUMMY: Windows address 00419B74; death-message dependency pending.
     void HappinessManager_Messages_CivilistDied(void*, const void*) {}
 }

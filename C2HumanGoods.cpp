@@ -513,6 +513,65 @@ namespace NC2Logic
         return false;
     }
 
+    // Original function: FUN_0045ff34; preserve build-material order and distinct failure side effects.
+    bool Human_FindGoodsDemandedForBuildHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
+    {
+        SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, 0x10));
+        const void* house = House(Read<std::uint32_t>(human, 0xB34));
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        {
+            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
+            if (Read<std::uint32_t>(house, offset + 4) <= Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) continue;
+            const auto wanted = Read<std::uint32_t>(house, offset);
+            data.goods[data.goodCount] = wanted;
+            data.landscapeTypes[data.goodCount] = static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[wanted].landscapeType);
+            ++data.goodCount;
+        }
+        if (data.goodCount == 0) return false;
+        CMapPathfinderElement::SearchOverMap(source, 40, true, slHumanSearchGoodsComplexIgnoringHomesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+        if (data.landscapeCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.landscapeCount;
+            Write(realPosition, 0, data.landscapePoints[index]);
+            Write(workPosition, 0, data.landscapePoints[index]);
+            AdjustPickupWorkPosition(workPosition);
+            *good = data.landscapeGoods[index];
+            return true;
+        }
+        if (data.houseCount != 0)
+        {
+            const auto index = Game_Random_GetNumber() % data.houseCount;
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            *good = data.houseGoods[index];
+            return true;
+        }
+        for (std::uint32_t index = 0; index < data.guideCount; ++index)
+        {
+            const auto id = static_cast<std::int32_t>(data.guides[index]);
+            if (!GuideManager_IsAnyGoodInLinkSystem(gGuideManager, id, data) || !GuideManager_GetMapPositionWithGoodsComplex(gGuideManager, 40, id, data)) continue;
+            if (data.landscapeCount != 0)
+            {
+                Write(realPosition, 0, data.landscapePoints[0]);
+                Write(workPosition, 0, data.landscapePoints[0]);
+                AdjustPickupWorkPosition(workPosition);
+                *good = data.landscapeGoods[0];
+                return true;
+            }
+            if (data.houseCount != 0)
+            {
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                *good = data.houseGoods[0];
+                return true;
+            }
+        }
+        Write(human, 0xAD0, data.goods[0]);
+        Write<std::uint32_t>(human, 0x36C, 3);
+        Write<std::uint32_t>(human, 0x374, 4);
+        return false;
+    }
+
     // Original function: FUN_0042d73e; deleted houses are excluded.
     void* Human_GetHousePtrAtTargetPosition(const void* human)
     {

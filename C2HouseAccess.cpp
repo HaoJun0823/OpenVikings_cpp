@@ -301,7 +301,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, human) || Human_UserControl_GetNextJobType(CHumanArray::mStaticVars + human * CHumanArray::ElementSize) != 7) return false;
-        if (Read<std::uint32_t>(house, 0x2C) == 3 && House_HitPoints_IsDamaged(house)) return false;
+        if (Read<std::uint32_t>(house, 0x2C) == 3 && House_Repair_IsFinished(house)) return false;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human);
         if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 4u) != 0) return true;
         return static_cast<std::int32_t>(House_Inhabitants_GetNumberOfAttachedHumans(house, 4)) < House_Construction_GetTotalNumberOfBuildersAllowed(house);
@@ -384,13 +384,13 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         std::uint32_t total = 0;
         for (std::int32_t index = 0; index < Read<std::int32_t>(house, 0x38); ++index) total += Read<std::uint32_t>(house, 0x40u + static_cast<std::uint32_t>(index) * 20u);
-        if (Read<std::int32_t>(house, 0x38) <= 0 || total < 5) { if (!House_HitPoints_IsDamaged(house)) total = 5; }
+        if (Read<std::int32_t>(house, 0x38) <= 0 || total < 5) { if (!House_Repair_IsFinished(house)) total = 5; }
         const auto available = 20 - static_cast<std::int32_t>(House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders(house));
         return NXBasics::Runtime_TimeSigned32(total) <= available ? NXBasics::Runtime_TimeSigned32(total) : available;
     }
 
     // Original function: FUN_0043339a; Windows returns true for a full hitpoint value.
-    bool House_HitPoints_IsDamaged(const void* house)
+    bool House_Repair_IsFinished(const void* house)
     {
         using namespace NC2Lifetime;
         if (Read<std::uint32_t>(house, 0x2C) == 1) return true;

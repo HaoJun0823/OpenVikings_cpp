@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## House construction and lifecycle checkpoint - 2026-10-09
+
+House builder execution, material search/collection, build events, repairs and construction/upgrade completion are reconstructed from Windows. House placement now allocates and initializes actual houses, including terrain/resource/map registration and sector attachment. Demolition start and house release preserve inhabitants, callbacks, ruin placement and salvage. Five former partial/dummy entries are removed. `House_Repair_IsFinished` corrects the misleading predicate name at 0043339A. See [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md).
+
+**3768 / 5059 (74.48%)** source-address coverage, **1291** known entries open; **241 cpp / 225 headers**, **1974 naming rows / 67 unfinished boundaries**. This is not verified gameplay completion. [FUNCTION_PROGRESS_2026_10_09.json](FUNCTION_PROGRESS_2026_10_09.json) records the production-only audit.
+
+Demolition is not yet complete during gameplay: HouseArray_DoOneGameTick 0040ACE5 and DoOneGameSecond 0040AD1D remain isolated dummies. Next: their complete house tick 00433694 and second 00433BF9 trees, including destruction timer, vehicle conversion, automatic builder recruitment, stock/overlay maintenance, defence and delayed hit dependencies. No new dummies or guessed military branches were added. Only MSVC Win32 `/Zs` and source/project consistency checks ran; no Debug/Release build, tests or game run. The user-owned untracked CombatTasks files remain untouched and excluded.
+
 ## Menu, keyboard and selection checkpoint - 2026-10-09
 
 Primary keyboard commands and all four in-game cheats, network information, general menu families and the GUI logic callback are connected from Windows. All selection families now connect, including the single-house window, goods and inhabitants. House controls cover construction, upgrading/removal, defence, homes, production, stock pages/minimums, foreign trading and help. Character observer/follow/equipment command IDs, production help links and desktop window clamping are corrected. Main-menu cursor/tooltips and message-presentation help links replace unfinished entries. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).

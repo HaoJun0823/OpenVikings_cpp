@@ -9,6 +9,11 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2WallRoadConstruction.h"
+#include "C2HouseAccess.h"
+#include "C2HumanProduction.h"
+#include "C2MapGeometry.h"
+#include "C2MissionStartObjects.h"
+#include "C2VehicleAccess.h"
 
 namespace NC2Logic
 {
@@ -20,14 +25,98 @@ namespace NC2Logic
         void StartBuild(void* human, std::uint32_t action) { Human_l_StartAtomicAnimation(human, action, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human))); Write<std::uint32_t>(human, 0x36C, 1); }
     }
 
-    // Partial original function: FUN_0046c822; the house-building branch 00473FFF remains pending.
+    // Original function: FUN_0046c822.
     void Human_l_StartTask_ExecuteJob_Builder(void* human)
     {
-        if (Human_IsAttachedToWorkHouse(human)) return;
+        if (Human_IsAttachedToWorkHouse(human)) { Human_l_StartTask_ExecuteJob_Tool_HouseBuilder(human); return; }
         if (Human_IsAttachedToRoadPoint(human)) { Human_l_StartTask_ExecuteJob_Tool_RoadBuilder(human); return; }
         if (Human_IsAttachedToWallPoint(human)) { Human_l_StartTask_ExecuteJob_Tool_WallBuilder(human); return; }
         Human_WorkCenterMarker_Remove(human);
         Fail(human, 2);
+    }
+
+    // Original function: FUN_00473fff; the native cargo-return branch shares 00474F17 with FillStock.
+    void Human_l_StartTask_ExecuteJob_Tool_HouseBuilder(void* human)
+    {
+        if (!Human_IsAttachedToWorkHouse(human)) { Fail(human, 2); return; }
+        void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        if (Read<std::uint32_t>(house, 0x2C) == 3 && House_Repair_IsFinished(house)) { House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 4); return; }
+        if (Read<std::uint32_t>(human, 0xACC) != 0)
+        {
+            if (Read<std::uint32_t>(human, 0xAD4) != 0) Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human);
+            else Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_Collect(human);
+            return;
+        }
+        if (House_Construction_CanUseOneGoodNow(house)) House_Construction_DoUseOneGood(house);
+        if (!House_Construction_IsUseGoodRunning(house) && House_Repair_IsFinished(house))
+        {
+            if (House_Construction_IsNeedingGoods(house)) Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_TryToCollect(human);
+            else Fail(human, 10);
+        }
+        else Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(human);
+    }
+
+    // Original function: FUN_0047472f.
+    void Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_TryToCollect(void* human)
+    {
+        Human_Target_Reset(human);
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        std::uint32_t real = 0, work = 0, good;
+        if (Human_FindGoodsDemandedForBuildHouse(human, &real, &work, &good, WorkCenter(human)))
+        {
+            Write(human, 0xAD0, good);
+            if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
+        }
+        Fail(human, 4);
+    }
+
+    // Original function: FUN_00474939.
+    void Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_Collect(void* human)
+    {
+        if (Human_IsAtTargetPoint(human))
+        {
+            if (Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human)) return;
+            Human_Target_Reset(human);
+            Human_StopCurrentGoodCirculationMode(human);
+            return;
+        }
+        Human_StopCurrentGoodCirculationMode(human);
+        Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_TryToCollect(human);
+    }
+
+    // Original function: FUN_00474a0d; occupied builder positions are retried before the unrestricted search.
+    void Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(void* human)
+    {
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
+        const bool atTarget = Human_IsAtTargetPoint(human);
+        void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        std::uint32_t work = 0;
+        if (atTarget)
+        {
+            const void* realTarget = static_cast<const std::byte*>(human) + 0xA6C;
+            if (Read<std::uint32_t>(realTarget, 0) != Read<std::uint32_t>(house, 0x1C)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(human); return; }
+            const void* workTarget = static_cast<const std::byte*>(human) + 0xA70;
+            if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, 4), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, 0xFFFFFFFFu, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(workTarget, 0) != work)
+            {
+                if (!Human_l_StartAtomicWalk(human, realTarget, &work)) { Fail(human, 0); Human_Target_Reset(human); }
+                return;
+            }
+            if (!House_Construction_IsUseGoodRunning(house)) { Fail(human, 10); Human_Target_Reset(human); return; }
+        }
+        else
+        {
+            const auto real = Read<std::uint32_t>(house, 0x1C);
+            if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, 4), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, 0xFFFFFFFFu, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
+            {
+                if (!Human_l_StartAtomicWalk(human, &real, &work)) Fail(human, 0);
+                return;
+            }
+            if (!House_Construction_IsUseGoodRunning(house) && House_Repair_IsFinished(house)) { Fail(human, 10); Human_Target_Reset(human); return; }
+            Human_Target_SetTargetPositions(human, &real, &work);
+        }
+        StartBuild(human, 39);
     }
 
     // Original function: FUN_004740d4.

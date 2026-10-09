@@ -128,3 +128,7 @@ Default `V` and `Shift+V` enqueue global-defence command 0x86. Its start/stop ro
 House upgrade commands 0x5B/0x5C now replace the 0043290F/0043293F dummies. Start retains upgrade eligibility, next-stage material initialization, future-stock transfer, live delivery accounting, attached-worker production refresh and defence cancellation. Stop rejects non-upgrading houses, returns delivered but unused materials near the door inside one map-modification bracket, restores state 3 and then refreshes workers. Separate helpers 00432289/00432A14/00432B32/00432BF8 retain native signed stock clamps, exact worker-role checks and the original early termination for delivery states 4/5; the completed stage is not advanced when the upgrade begins.
 
 All behavior and offsets are confirmed from Windows assembly/Game.exe. Mac declarations provide corresponding names only. MSVC Win32 `/Zs` passed for the affected source and command-dispatch consumers. House placement/removal, the construction tick itself and other gameplay boundaries remain separate reconstruction work; no build or game run occurred.
+
+## House execution continuation (2026-10-09)
+
+House builder/material/build/repair/upgrade completion and placement are connected, with real demolition start and house release. Five partial/dummy boundaries were removed. See [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md). Periodic house tick/second remain open, so demolition timing, automatic builder assignment and defence are not yet complete gameplay.

@@ -21,6 +21,7 @@
 #include "C2UserMessageAccess.h"
 #include "C2HumanEquipment.h"
 #include "C2WallRoadConstruction.h"
+#include "C2HouseAccess.h"
 
 namespace NC2Logic
 {
@@ -169,11 +170,38 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_00468f5d; roads, walls, repair and scout guides are connected.
-    // House construction remains a separate reconstruction target.
+    // Original function: FUN_00468f5d; house construction, repair, roads, walls and scout guides.
     void Human_l_PerformTaskEvent_Build(void* human)
     {
         if (!Human_Target_IsValid(human)) { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 7); return; }
+        if (Human_IsAttachedToWorkHouse(human) || Read<std::uint32_t>(human, 0xB3C) != 0xFFFFFFFFu)
+        {
+            void* house = CHouseArray::mStaticVars + (Read<std::uint32_t>(human, 0xB3C) != 0xFFFFFFFFu ? Read<std::uint32_t>(human, 0xB3C) : Read<std::uint32_t>(human, 0xB34)) * CHouseArray::ElementSize;
+            if (Read<std::uint32_t>(RealTarget(human), 0) == Read<std::uint32_t>(house, 0x1C))
+            {
+                auto efficiency = static_cast<std::uint32_t>(Human_JobEfficiency_CalculateExperienceFactor(human)) + 150u;
+                if (Human_HasEquippedTools(human))
+                {
+                    efficiency = Human_l_JobEfficiency_CalculateToolFactor(human) * efficiency / 100u;
+                    // Original outlined wear 0046A3B3, with PE constants -100 and 10000.
+                    const auto condition = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) - 100u);
+                    Write<std::uint32_t>(human, 0xAE0, condition < 0 ? 0u : static_cast<std::uint32_t>(condition));
+                    if (condition >= 0 && (Read<std::uint32_t>(human, 0xAF0) == 31 || Read<std::uint32_t>(human, 0xAF0) == 32) && condition > 10000) Write<std::uint32_t>(human, 0xAE0, 10000);
+                }
+                for (auto steps = efficiency / 100u; steps != 0; --steps) if (House_Construction_DoOneStep(house)) Write<std::uint32_t>(human, 0x36C, 2);
+                if (Read<std::uint32_t>(human, 0x36C) == 2)
+                {
+                    Human_l_JobExperience_Gain(human);
+                    if (Read<std::uint32_t>(house, 0x2C) == 3)
+                    {
+                        Human_Production_DidProduceGoods(human, 1);
+                        Write<std::uint32_t>(human, 0xB3C, 0xFFFFFFFFu);
+                        Write<std::uint32_t>(human, 0xB40, 0);
+                    }
+                    return;
+                }
+            }
+        }
         if (Human_IsAttachedToRoadPoint(human))
         {
             Human_ClearCarriedGood(human);

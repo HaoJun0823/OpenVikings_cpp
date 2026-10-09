@@ -2,6 +2,7 @@
 #include "C2GameState.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
 #include "C2MapGeometry.h"
 #include "XCrtFileAccess.h"
 
@@ -10,6 +11,31 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+
+    // Original function: FUN_0045310d.
+    void CMapArea::Tool_CountGoods(const void* source, std::uint32_t* amounts) const
+    {
+        std::memset(amounts, 0, 66 * sizeof(std::uint32_t));
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point))
+                {
+                    const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
+                    const auto landscape = Read<std::uint8_t>(micro, 2);
+                    if (Read<std::uint8_t>(micro, 0) == 1 && landscape != 0)
+                    {
+                        const auto good = gStaticDependencyGoodByLandscape[landscape];
+                        if (good != 0) amounts[good] += Read<std::uint8_t>(micro, 3);
+                    }
+                }
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+    }
 
     // Original function: FUN_00452bdc; changed walking bits notify the map manager.
     void CMapArea::WalkBlock_Set(const void* source, bool blocked) const

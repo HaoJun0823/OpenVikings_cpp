@@ -115,6 +115,11 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
+    // Original function: FUN_004808f4; distinct native house ruin adapter.
+    std::int32_t External_HouseType_GetEngineRuineLandscapeId(std::uint32_t tribe, std::uint32_t type)
+    {
+        return External_Misc_GetEngineCadaverLandscapeId(tribe, type);
+    }
     // Original function: FUN_00480904.
     std::int32_t External_Misc_GetEngineCadaverLandscapeId(std::uint32_t tribe, std::uint32_t type) { return NC2E2::E2StaticDataMiscLandscapeManager_GetEngineLandscapeId(tribe, type); }
     // Original function: FUN_004808f4; the Windows wrapper's original name is unresolved.

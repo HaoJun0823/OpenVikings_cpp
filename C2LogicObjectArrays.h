@@ -86,6 +86,8 @@ namespace NC2Logic
         static constexpr std::uint32_t SaveVersion = 2;
 
         CHouseArray();                            // Original function: FUN_0040aa24
+        std::int32_t AllocateHouse(std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, const void* point, bool finished, std::uint32_t flags);
+        void FreeHouse(std::int32_t id);
         ~CHouseArray();                           // Original function: FUN_0040aaec
         void IO_Savegame_DoSave(CIoHelper* io);    // Original function: FUN_0040ab25
         explicit CHouseArray(CIoHelper* io);       // Original function: FUN_0040ab59
