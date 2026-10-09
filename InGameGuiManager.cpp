@@ -2,6 +2,10 @@
 #include "C2LifetimeAccess.h"
 #include "InGameGuiKeyAssignmentManager.h"
 #include "InGameGuiWallRoadWindows.h"
+#include "InGameGuiSimpleSelectionWindows.h"
+#include "InGameGuiLandscapeSelectionWindow.h"
+#include "InGameGuiGroupSelectionWindows.h"
+#include "InGameGuiSingleVehicleWindow.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiToolsBase.h"
 #include "ApplicationGlobals.h"
@@ -502,8 +506,7 @@ namespace NInGameGuiManager
         std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x4C))->l_Base_RemoveElement(element);
     }
 
-    // Partial original function: FUN_004a0e9d; human and road/wall selection windows are connected.
-    // Other selection-window constructors remain explicit reconstruction boundaries.
+    // Partial original function: FUN_004a0e9d; the single-house window remains pending.
     void CInGameGuiManager::Selection_UpdateWindows()
     {
         using namespace NC2Lifetime;
@@ -514,6 +517,38 @@ namespace NInGameGuiManager
         l_RemoveAllGuiElements();
         NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7ED, 0, 0, 0);
         const auto selection = Read<std::uint32_t>(input, 4);
+        if (selection == 4)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C80, 1);
+            void* window = allocation == nullptr ? nullptr : NC2InGameGuiSelection::SelectionSingleVehicleWindow_Construct(allocation);
+            Write(this, 0x98, window);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+            return;
+        }
+        if (selection == 2 || selection == 5)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);
+            void* window = allocation == nullptr ? nullptr : selection == 2 ? NC2InGameGuiSelection::SelectionMultipleHumanWindow_Construct(allocation) : NC2InGameGuiSelection::SelectionMultipleVehiclesWindow_Construct(allocation);
+            Write(this, selection == 2 ? 0x90 : 0x9C, window);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+            return;
+        }
+        if (selection == 9)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x88, 1);
+            void* window = allocation == nullptr ? nullptr : NC2InGameGuiSelection::SelectionLandscapeTypeWindow_Construct(allocation);
+            Write(this, 0xAC, window);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+            return;
+        }
+        if (selection == 3 || selection == 7 || selection == 8)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(selection == 8 ? 0x2F54 : 0x74, 1);
+            void* window = allocation == nullptr ? nullptr : selection == 3 ? NC2InGameGuiSelection::SelectionSingleAnimalWindow_Construct(allocation) : selection == 7 ? NC2InGameGuiSelection::SelectionHouseTypeWindow_Construct(allocation) : NC2InGameGuiSelection::SelectionGuideWindow_Construct(allocation);
+            Write(this, selection == 3 ? 0x94 : selection == 7 ? 0xA4 : 0xA8, window);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+            return;
+        }
         if (selection == 10 || selection == 11)
         {
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x74, 1);

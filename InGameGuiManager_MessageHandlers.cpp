@@ -37,7 +37,7 @@
 
 namespace
 {
-    // Complete original table: 004F4DE0..004F4E27. Slot two remains partially reconstructed.
+    // Complete original table: 004F4DE0..004F4E27.
     const std::uintptr_t gInGameDefaultMessageHandlerVirtualTable[18] =
     {
         reinterpret_cast<std::uintptr_t>(&InGameGuiManagerDefaultMessageHandlerElement_Delete),
@@ -210,15 +210,57 @@ namespace NInGameGuiManager
     }
 }
 
-// Partial original function: FUN_004a3edb; character and miscellaneous branches are connected.
+// Vehicle branch of FUN_004a3edb; the single and group paths retain distinct native action sets.
+static void DefaultHandler_VehicleCommand(std::uint32_t action)
+{
+    using namespace NC2Lifetime;
+    using namespace NC2InGameGuiInputManager;
+    auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+    std::int32_t mode = -1;
+    switch (action) { case 2: mode = 20; break; case 5: mode = 24; break; case 6: mode = 11; break; case 7: mode = 28; break; case 8: mode = 21; break; }
+    if (mode != -1) { InputMode_Set(gInputManager, mode); manager->l_Selection_RemoveAllGuiElements(); return; }
+    const auto queue = [&](std::int32_t id, bool single)
+    {
+        std::uint8_t opcode = 0;
+        switch (action) { case 1: opcode = 0x64; break; case 3: opcode = 0x66; break; case 9: case 10: case 11: opcode = 0x6F; break; case 13: if (single) opcode = 0x72; break; case 14: if (single) opcode = 0x6E; break; }
+        if (opcode == 0) return;
+        std::byte packet[20]{}; Write(packet, 0, opcode); Write(packet, 4, id); if (opcode == 0x6F) Write(packet, 0xC, action - 8); NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, packet); manager->l_Selection_RemoveAllGuiElements();
+    };
+    if (Read<std::uint32_t>(gInputManager, 4) == 4) { const auto id = Selection_GetSelectedSingleVehicleId(gInputManager); if (action == 4) { InputMode_Set(gInputManager, 19); manager->l_Selection_RemoveAllGuiElements(); } else if (action == 12) InputMode_Set(gInputManager, 27); else queue(id, true); }
+    if (Read<std::uint32_t>(gInputManager, 4) == 5) { const auto count = Selection_GetSelectedMultipleVehiclesNumber(gInputManager); for (std::uint32_t index = 0; index < count; ++index) queue(Selection_GetSelectedMultipleVehicleId(gInputManager, index), false); }
+    manager->l_Selection_RemoveAllGuiElements();
+}
+// House branch of FUN_004a3edb; complete native command table 004A479E..004A47D9.
+static void DefaultHandler_HouseCommand(std::uint32_t command)
+{
+    using namespace NC2Lifetime;
+    using namespace NC2InGameGuiInputManager;
+    if (Read<std::uint32_t>(gInputManager, 4) != 6) return;
+    const auto id = Selection_GetSelectedHouseId(gInputManager);
+    const auto index = command - 3301u;
+    if (index > 14) return;
+    auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+    if (index == 0) manager->MiscWindows_HouseRemoveWindow_Open();
+    else
+    {
+        constexpr std::uint8_t opcode[14] = {0x5B,0x5C,0x5D,0x5D,0x5D,0x5D,0x5D,0x5D,0x5E,0x5E,0x5F,0x5F,0x61,0x61};
+        constexpr std::uint32_t first[14] = {0,0,0,0,1,1,2,2,1,0,1,0,1,0};
+        constexpr std::uint32_t second[14] = {0,0,1,0,1,0,1,0,0,0,1,1,0,0};
+        std::byte packet[20]{}; Write(packet, 0, opcode[index - 1]); Write(packet, 4, id); Write(packet, 0xC, first[index - 1]); Write(packet, 0x10, second[index - 1]); NC2Logic::UserNetworkCommand_AddHouseCommand(NC2Logic::gUserNetworkCommandManager, packet);
+    }
+    manager->l_Selection_RemoveAllGuiElements();
+}
+
+// Original function: FUN_004a3edb; complete native command dispatch.
 // Naming reference: NC2InGameGuiManager::CGuiManagerDefaultMessageHandlerElement::XGui_BE_Message_Handle.
-// Remaining window, house, vehicle and unsupported character-input branches stay excluded from completion counts.
 bool __fastcall InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle(void*, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
 {
     if (message == 0x800)
     {
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         if (command >= 3000 && command < 3299) return NC2InGameGuiManager::HumanActionButtons_HandleCommand(command - 3000);
+        if (command >= 3600 && command < 3899) { DefaultHandler_VehicleCommand(command - 3600); return true; }
+        if (command >= 3300 && command < 3599) { DefaultHandler_HouseCommand(command); return true; }
         if (command == 0xF3C) manager->MiscWindows_OptionsWindow_Toggle(false, false);
         else if (command == 0xF3D) manager->MiscWindows_GlobalGameSettingsWindow_Toggle(false, false);
         else if (command == 0xF3E) manager->MiscWindows_ConstructionSelectionWindow_Toggle(0, 0);

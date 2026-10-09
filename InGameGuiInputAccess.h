@@ -9,6 +9,10 @@ namespace NC2InGameGuiInputManager
     extern void* gInputManager;
     std::int32_t Selection_GetSelectedEngineHouseTypeId(const void* manager);
     std::uint32_t Selection_GetSelectedEngineHouseExtensionLevel(const void* manager);
+    std::int32_t Selection_GetSelectedEngineLandscapeTypeId(const void* manager);
+    std::uint32_t Selection_GetSelectedEngineLandscapeValency(const void* manager);
+    const void* Selection_GetSelectedEngineLandscapeMapPointRef(void* manager);
+    std::int32_t Selection_GetSelectedEngineLandscapePlayerId(const void* manager);
     const char* StringTool_GetInputModeNamePtr(const void* manager);
     bool InputMode_Set(void* manager, std::int32_t mode);
     void InputMode_Cancel(void* manager);
@@ -43,6 +47,8 @@ namespace NC2InGameGuiInputManager
     void UnSelect_House(void* manager, std::int32_t id);
     void UnSelect_Guide(void* manager, std::int32_t id);
     std::int32_t Selection_GetSelectedSingleHumanId(const void* manager);
+    std::int32_t Selection_GetSelectedSingleAnimalId(const void* manager);
+    std::int32_t Selection_GetSelectedGuideId(const void* manager);
     std::uint32_t Selection_GetSelectedMultipleHumanNumber(const void* manager);
     std::int32_t Selection_GetSelectedMultipleHumanId(const void* manager, std::uint32_t index);
     bool Selection_IsHumanSelected(const void* manager, std::int32_t id);
@@ -67,5 +73,6 @@ namespace NC2Logic
     // Complete singleton binding at 00510A20; the command queue owner remains original.
     extern void* gUserNetworkCommandManager;
     void UserNetworkCommand_AddVehicleCommand(void* manager, void* command);
+    void UserNetworkCommand_AddHouseCommand(void* manager, void* command);
     void UserNetworkCommand_AddHumanCommand(void* manager, void* command);
 }

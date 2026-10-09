@@ -4,6 +4,9 @@
 #include "InGameGuiBaseAccess.h"
 #include "C2E2HumanSoundAccess.h"
 #include "C2HumanUserControl.h"
+#include "C2DefaultInteraction.h"
+#include "C2HouseUserControl.h"
+#include "GuiTextToolElementAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -20,11 +23,17 @@ namespace
 {
     void* Input() { return NC2InGameGuiInputManager::gInputManager; }
 }
-// Partial original function: FUN_004a1bf0; human branches only, house/vehicle command lists remain open.
+// Original function: FUN_004a1bf0; Windows deliberately rehashes the first list in both group branches.
 std::uint32_t __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(void*)
 {
     using namespace NC2InGameGuiInputManager;
     const auto type = Read<std::uint32_t>(Input(), 4);
+    if (type == 6) { NC2Logic::SUserCommandsForHouseHandler house; if (!NC2Logic::Logic_UserControl_GetHouseCommands(Selection_GetSelectedHouseId(Input()), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(), &house)) return 0; return NXBasics::XB_GetMemoryChecksum(&house, sizeof(house)); }
+    if (type == 4 || type == 5)
+    {
+        NC2Logic::SUserCommandsForVehicleHandler vehicle; if (!NC2Logic::Logic_UserControl_GetVehicleCommands(type == 4 ? Selection_GetSelectedSingleVehicleId(Input()) : Selection_GetSelectedMultipleVehicleId(Input(), 0), &vehicle, type == 5)) return 0; auto checksum = NXBasics::XB_GetMemoryChecksum(&vehicle, sizeof(vehicle)); if (type == 4) return checksum; const auto count = Selection_GetSelectedMultipleVehiclesNumber(Input());
+        for (std::uint32_t index = 1; index < count; ++index) { NC2Logic::SUserCommandsForVehicleHandler other; if (!NC2Logic::Logic_UserControl_GetVehicleCommands(Selection_GetSelectedMultipleVehicleId(Input(), index), &other, true)) break; checksum ^= NXBasics::XB_GetMemoryChecksum(&vehicle, sizeof(vehicle)) + 10u; } return checksum;
+    }
     NC2Logic::SUserCommandsForHumanHandler commands;
     if (type == 1)
     {
@@ -43,11 +52,24 @@ std::uint32_t __fastcall InGameGuiManager_l_Selection_ActionButtons_GetChecksum(
     }
     return checksum;
 }
-// Partial original function: FUN_004a10cb; complete character layout, house/vehicle branches remain open.
+// Original function: FUN_004a10cb; native house/vehicle text lists and human radial actions.
 void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager)
 {
     using namespace NC2InGameGuiInputManager;
     const auto selection = Read<std::uint32_t>(Input(), 4);
+    if (selection == 4 || selection == 5 || selection == 6)
+    {
+        NC2Logic::SUserCommandsForHouseHandler house; NC2Logic::SUserCommandsForVehicleHandler vehicle; std::int32_t count; const std::uint32_t* commands;
+        if (selection == 6) { if (!NC2Logic::Logic_UserControl_GetHouseCommands(Selection_GetSelectedHouseId(Input()), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(), &house)) return; count = house.count; commands = house.commands; }
+        else
+        {
+            if (!NC2Logic::Logic_UserControl_GetVehicleCommands(selection == 4 ? Selection_GetSelectedSingleVehicleId(Input()) : Selection_GetSelectedMultipleVehicleId(Input(), 0), &vehicle, selection == 5)) return;
+            if (selection == 5) { const auto members = Selection_GetSelectedMultipleVehiclesNumber(Input()); for (std::uint32_t index = 1; index < members; ++index) { NC2Logic::SUserCommandsForVehicleHandler other; if (!NC2Logic::Logic_UserControl_GetVehicleCommands(Selection_GetSelectedMultipleVehicleId(Input(), index), &other, true)) return; for (std::int32_t command = 0; command < vehicle.count; ++command) { if (other.IsCommandAllowed(vehicle.commands[command])) continue; for (auto next = command; next < vehicle.count - 1; ++next) vehicle.commands[next] = vehicle.commands[next + 1]; --vehicle.count; --command; } } if (vehicle.count == 0) return; } count = vehicle.count; commands = vehicle.commands;
+        }
+        NXBasics::SRectangle area(Read<std::int32_t>(manager, 0xD0) - 260, Read<std::int32_t>(manager, 0xD4) - count * 22 / 2, 240, count * 22); NXBasics::SRectangle bounds(0, 0, 0, 0); std::memcpy(&bounds, NXBaseGui::CDesktop::sTheObjectPtr, sizeof(bounds)); area.PlaceInside(bounds); area.height = 22;
+        for (std::int32_t index = 0; index < count; ++index) { const auto action = commands[index]; const auto* caption = selection == 6 ? NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHouseTypeNamePtr(action) : NC2GuiToolsBase::StringTool_GetLogicUserCommandsForVehicleTypeNamePtr(action); void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); void* element = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &area, caption, (selection == 6 ? 3300u : 3600u) + action, static_cast<std::byte*>(manager) + 0x1A8); NC2InGameGuiBase::BaseToolDesktop_AddOverlayElement(static_cast<NXBaseGui::CBaseElement*>(element)); reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0xB8)->InsertAtEnd(element); area.y += 22; }
+        Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return;
+    }
     if (selection != 1 && selection != 2) { Write(manager, 0xCC, InGameGuiManager_l_Selection_ActionButtons_GetChecksum(manager)); return; }
     NC2Logic::SUserCommandsForHumanHandler commands;
     if (selection == 1)
@@ -152,7 +174,7 @@ namespace NC2InGameGuiManager
         NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
         NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id); return true;
     }
-    // Human branch of FUN_004a3edb; vehicle/house action branches remain reconstruction boundaries.
+    // Human branch of FUN_004a3edb; native input modes remain separate implementation boundaries.
     bool HumanActionButtons_HandleCommand(std::uint32_t action)
     {
         using namespace NC2InGameGuiInputManager;

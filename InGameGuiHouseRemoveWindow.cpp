@@ -1,0 +1,50 @@
+#include "InGameGuiHouseRemoveWindow.h"
+#include "InGameGuiBaseAccess.h"
+#include "InGameGuiInputAccess.h"
+#include "InGameGuiManager.h"
+#include "C2LifetimeAccess.h"
+#include "GuiToolsBase.h"
+#include "GuiTextToolElementAccess.h"
+#include "GuiBitmapToolElementAccess.h"
+#include "XGuiDesktop.h"
+#include "XGuiWindowAccess.h"
+#include "XCrtFileAccess.h"
+#include <array>
+#include <cstring>
+
+namespace NC2InGameGuiSelectedAction
+{
+    using namespace NC2Lifetime;
+    using namespace NC2InGameGuiBase;
+    using namespace NC2InGameGuiInputManager;
+    using NXBasics::SRectangle;
+    static void SelectedHouseRemoveWindow_l_System_Validate(void* window);
+    static bool __fastcall SelectedHouseRemoveWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t);
+    static void __fastcall SelectedHouseRemoveWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle);
+    // Complete native table 004F7854..004F789F.
+    static const std::array<std::uintptr_t, 19> gSelectedHouseRemoveVirtualTable = [] { std::array<std::uintptr_t, 19> t{}; std::memcpy(t.data(), gBaseToolWindowVirtualTable, sizeof(t)); t[2] = reinterpret_cast<std::uintptr_t>(&SelectedHouseRemoveWindow_Message); t[3] = reinterpret_cast<std::uintptr_t>(&SelectedHouseRemoveWindow_Draw); return t; }();
+    static const char* Text(std::uint32_t id) { return NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(id); }
+    // Original function: FUN_004c900c; allocation 0x78 and original 320x140 confirmation layout.
+    void* SelectedHouseRemoveWindow_Construct(void* window)
+    {
+        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 320u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 140u) / 2, 320, 140); BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, 0, gSelectedHouseRemoveVirtualTable.data());
+        const SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0xF8, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowMoverButton_Construct(memory, &title, Text(220))); const SRectangle close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowCloserButton_Construct(memory, nullptr, &close)); SelectedHouseRemoveWindow_l_System_Validate(window);
+        if (Read<std::uint8_t>(window, 0x70) != 0) { SRectangle button(4, 20, 154, 116); memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructToggle(memory, nullptr, &button, Text(221), 10000, window, false)); button.x += button.width + 4; memory = NXBasics::Runtime_AllocateWithNewHandler(0x60, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructToggle(memory, nullptr, &button, Text(222), 10001, window, false)); } return window;
+    }
+    // Original function: FUN_004c918c.
+    static bool __fastcall SelectedHouseRemoveWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
+    {
+        if (message != 0x800) { if (message != 0x1000) return false; if (command == 0x7EA) return true; if (command == 0x7ED) SelectedHouseRemoveWindow_l_System_Validate(window); return false; }
+        if (command == 10000) { SelectedHouseRemoveWindow_l_System_Validate(window); if (Read<std::uint8_t>(window, 0x70) != 0) { const auto id = Selection_GetSelectedHouseId(gInputManager); if (id != -1) { std::byte packet[20]{}; Write<std::uint8_t>(packet, 0, 0x5A); Write(packet, 4, id); NC2Logic::UserNetworkCommand_AddHouseCommand(NC2Logic::gUserNetworkCommandManager, packet); } } NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window)); }
+        else if (command == 10001) NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window)); return true;
+    }
+    // Original function: FUN_004c923c; the native draw body only validates and queries the selected house.
+    static void __fastcall SelectedHouseRemoveWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle) { BaseToolWindow_Draw(window, nullptr, bitmap, rectangle); SelectedHouseRemoveWindow_l_System_Validate(window); if (Read<std::uint8_t>(window, 0x70) != 0) Selection_GetSelectedHouseId(gInputManager); }
+    // Original function: FUN_004c9268; checksum zero permits the first selected-house revision.
+    static void SelectedHouseRemoveWindow_l_System_Validate(void* window) { const auto checksum = Read<std::uint32_t>(window, 0x74); if (Read<std::uint32_t>(gInputManager, 4) == 6 && (checksum == 0 || checksum == Read<std::uint32_t>(gInputManager, 0xAB0))) { Write(window, 0x74, Read<std::uint32_t>(gInputManager, 0xAB0)); Write<std::uint8_t>(window, 0x70, 1); return; } Write<std::uint32_t>(window, 0x74, 0); Write<std::uint8_t>(window, 0x70, 0); NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window)); }
+}
+namespace NInGameGuiManager
+{
+    // Original function: FUN_004a2826.
+    void CInGameGuiManager::MiscWindows_HouseRemoveWindow_Open() { if (NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7EA, 0, 0, 0) != nullptr) return; void* memory = NXBasics::Runtime_AllocateWithNewHandler(0x78, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(memory == nullptr ? nullptr : NC2InGameGuiSelectedAction::SelectedHouseRemoveWindow_Construct(memory)), false); }
+}

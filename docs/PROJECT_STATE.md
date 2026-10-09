@@ -1,8 +1,12 @@
 # OpenVikings Project State
 
-## Menu and keyboard priority - work in progress, 2026-10-09
+## Menu, keyboard and selection checkpoint - 2026-10-09
 
-The user requested all menus and keyboard commands, including cheats, before further house-builder work. Global settings, construction chooser, help, diplomacy, technology tree, resident list, statistics, observation and network-information windows and their manager entry points are reconstructed from Windows. The complete primary keyboard tree now includes all four in-game cheats, contextual keys, chat, configured menu commands, groups, selection filters, pause/speed, quicksave and debug screenshots. The reported `guckmalan` failure came from the previously absent native cheat block; its map and overview toggle now precedes text input. GUI logic callback 004A2C0B replaces its partial stub, and all miscellaneous main buttons are routed. Native tribute payment and on-screen mission information replace link dummies. Remaining selection windows, house/vehicle default commands and menu/input audits remain pending. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). No full completion claim or new aggregate coverage count yet. Win32 `/Zs` checks only; no Debug/Release build, tests or game run.
+Primary keyboard commands and all four in-game cheats, network information, general menu families and the GUI logic callback are connected from Windows. Group humans/vehicles, animals, guides, house-type/landscape and single-vehicle windows now connect with their native controls and lifetimes. House/vehicle command availability, context layout/checksums, default dispatch and house-removal confirmation are complete. Main-menu campaign cheats were audited against Windows. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).
+
+**3638 / 5059 (71.91%)** source-address coverage, **1421** known entries open; **233 cpp / 220 headers** with filter parity, **1726 naming rows / 92 unfinished boundaries**. Compared with the pre-menu checkpoint, the union adds two previously unlisted source entries: human-list toggle 004A1F8A and overview close 004A28EC. This is not verified gameplay completion. [FUNCTION_PROGRESS_2026_10_09.json](FUNCTION_PROGRESS_2026_10_09.json) records the production-only audit.
+
+Only MSVC Win32 `/Zs` and source/project consistency checks ran; no Debug/Release build, tests or game run. Remaining priority: single-house selection window, remaining single-human help/context rows, menu/input audits and specialized vehicle input modes. The user-owned untracked CombatTasks files remain untouched and excluded.
 
 ## Road, palisade and gate construction - 2026-10-08
 

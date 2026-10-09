@@ -1169,3 +1169,559 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004B762D,NC2InGameGuiInputManager::Selection_GetSelectedWallBuildPlacePositionRef,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedWallBuildPlacePositionRef,5959,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 00427C51,NC2Logic::ls_MapTool_WallGate_IsPossibleMapPosition_GatePossible,NC2Logic::ls_MapTool_WallGate_IsPossibleMapPosition_GatePossible,9039,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 0046C822,NC2Logic::Human_l_StartTask_ExecuteJob_Builder,NC2Logic::CHuman::l_StartTask_ExecuteJob_Builder,7871,Windows ASM/Game.exe establish correspondence; x86-64-mac.h supplies names only; house branch remains partial
+00406D85,Game_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004071C3,Game_ShutDown,NC2Logic::CGame::Game_ShutDown,8372,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004079CF,GameTime_ResetNetworkSynchronization,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00407A36,GameTime_IsATickToGo,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00407F55,AIManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00409A9E,GameControl_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A034,GameControl_SpecialItem_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A0D7,GameControl_SpecialItem_Use,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A12B,GameControl_Diplomacy_GetState,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A263,GameControl_Names_GetPlayerTribeShortNamePtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A4DA,GameControl_GetPlayerByNetworkId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A4FD,GameControl_QueueNetworkPlayerDeparture,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A55F,GameControl_Player_IsNetworkPlayer,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040A58C,GameControl_Misc_GetPlayerName,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040AD55,MapMigPoint_CopyValue,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040B04B,Logic_UserControl_GetHouseCommands,NC2Logic::Logic_UserControl_GetHouseCommands,8345,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0040B073,Logic_UserControl_GetVehicleCommands,NC2Logic::Logic_UserControl_GetVehicleCommands,8346,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0040B1EB,GameTime_Network_GetHighestStoredLatency,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040B206,GameTime_Network_LatencyToFrequency,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040B246,GameTime_SetNetworkWaitFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040B250,GameTime_Network_GetPlayerByNetworkId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040B94A,MarkerArray_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040B9AF,MarkerArray_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040BB10,MapMoveableArray_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040BBAA,MapMoveable_ConstructMembers,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0040BBBD,MapMoveableArray_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410D14,UserNetworkCommandManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410D3C,UserNetworkCommandManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410D71,UserNetworkCommandManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410D8D,UserCommandQueues_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410DA9,UserNetworkCommandManager_EmptyQueue,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410E2E,UserNetworkCommand_AddHumanCommand,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410E73,UserNetworkCommand_AddHouseCommand,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410EB8,UserNetworkCommand_AddVehicleCommand,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410F00,UserNetworkCommandManager_AddCommand,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00410FCC,UserNetworkCommandManager_Execute,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00411829,UserNetworkCommandManager_SendCommands,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004118F6,UserNetworkCommandManager_ReceiveCommands,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00411B6D,UserCommandList_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00411BC4,GameMapModifyManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041217B,StaticHumanJobExperienceTypeDataManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004121A9,StaticDependenciesManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00412240,StaticDependenciesManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00412761,StaticAnimalTypeDataManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00412A42,StaticArmorTypeDataManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00412FE0,StaticWeaponTypeDataManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004134B6,StaticJobTypeDataManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041714B,MissionOnscreenInfoManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00417168,MissionOnscreenInfoManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00417323,MissionOnscreenInfoManager_Info_GetPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041736D,MissionOnscreenInfoManager_Info_StringCreate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004175EC,GameAssistantManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041761F,GameAssistantManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00418AE1,GameAssistantManager_UserInput_Save,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00418CC6,GameAssistantManager_l_Assistant_IsPlayerIdOk,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419032,MultiPlayerGoalManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419065,MultiPlayerGoalManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004196CD,HappinessManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419727,HappinessManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419BC5,EmbeddedSavegameManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419BDF,EmbeddedSavegameManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419DDB,TributeManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419E06,TributeManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419ED5,TributeManager_CountGoodAmountForTribute,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419F41,DelayedActionManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00419F91,DelayedActionManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041A059,DelayedActionManager_FreeAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AA59,PlayerStatisticManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AAF1,PlayerStatisticManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041ACD6,PlayerStatisticManager_UpdateStatistics,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041ACF8,PlayerStatisticManager_GetStatistics,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AD54,PlayerStatisticManager_GetCurrentStatistics,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AD6F,PlayerStatisticManager_CreateStatistics,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041ADAF,PlayerStatisticManager_CreateStatisticSamples,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AEDF,GuideManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AF52,GuideManager_IO_Savegame_DoSave,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041AF8A,GuideManager_ConstructFromSavegame,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041C3AA,HumanMerchantArray_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041C428,HumanMerchantArray_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041CD2F,MapPathfinderManager_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041CDCC,MapPathfinderEntry_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041CDE1,MapPathfinderManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0041CFF0,MissionManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042329F,GameMap_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004269A0,MapBioRegrowManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00426A89,MapBioRegrowManager_FreeAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00426E9B,MapLandscapeAutoTransitionManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00427343,WallBuildManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00427FB8,RoadBuildManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00429546,AIMember00429546_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042BD6B,StringIO_CreateOutOfIniFile,NC2Logic::StringIO_CreateOutOfIniFile,9256,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042BEE1,StringIO_GetMissionStringArrayPtr,NC2Logic::StringIO_GetMissionStringArrayPtr,9258,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042BEFE,StringIO_GetMissionStringArrayPtr,NC2Logic::StringIO_GetMissionStringArrayPtr,9258,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042D95E,Human_IsAllowedToDoJob,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004329B6,House_Construction_CanBeUpgraded,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00432A64,House_Construction_CalculateGoodsNeeded,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00432D14,House_Production_ModifyFutureAmount,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00433549,House_UserControl_GetCommands,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004378A1,Vehicle_Door_ValidateEntryPoint,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0043B42B,Tool_CountGoodsOnMap,NC2Logic::Tool_CountGoodsOnMap,9091,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0043B46B,Tool_CountGoodsOnMap,NC2Logic::Tool_CountGoodsOnMap,9091,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0043B4D4,Tool_CountGoodsInHouses,NC2Logic::Tool_CountGoodsInHouses,9093,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0043B55C,Tool_CountHousesOnMap,NC2Logic::Tool_CountHousesOnMap,9094,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0043E5CC,TributeData_Possible,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0043E694,TributeData_GetTributeFromHouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004408A6,SUserCommandsForHouseHandler::Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004408B6,SUserCommandsForHouseHandler::AddCommand,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004408EE,Tool_PlayerStatistics_CountHumans,NC2Logic::Tool_PlayerStatistics_CountHumans,9156,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004409C1,Tool_PlayerStatistics_CountHouses,NC2Logic::Tool_PlayerStatistics_CountHouses,9157,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440A53,Tool_PlayerStatistics_CountGoods,NC2Logic::Tool_PlayerStatistics_CountGoods,9158,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440AF8,Tool_PlayerStatistics_CountHousesOfLogicType,NC2Logic::Tool_PlayerStatistics_CountHousesOfLogicType,9160,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440B4C,Tool_PlayerStatistics_CountHumansOfJobExecuting,NC2Logic::Tool_PlayerStatistics_CountHumansOfJobExecuting,9161,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440B92,SPlayerStatisticSampleData::GetNumber,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00441228,Tool_House_GetAmountOfGoods,NC2Logic::Tool_House_GetAmountOfGoods,7242,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0044BA62,Vehicle_Stock_GetTotalAmount,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BB37,Vehicle_Stock_GetFutureAmount,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BB63,Vehicle_Stock_GetTotalFutureAmount,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BC3A,Vehicle_Stock_GetTotalWantedAmount,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BCB9,Vehicle_Stock_GetAmountOfWantedGoods,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BCE5,VehicleStock_IsHumanInList,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BD0D,VehicleStock_AddHumanToList,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044BD6C,VehicleStock_RemoveHumanFromList,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0044E65B,MapFishManager_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00476ECA,CDesktop::CDesktop,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00476F2F,CDesktop::l_ConstructLists,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477010,~CDesktop,NXBaseGui::CDesktop::~CDesktop,4838,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00477082,CDesktop::l_DestroyLists,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477104,CDesktop::Desktop_DoWork,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047728C,CDesktop::Window_Close,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004773BC,CDesktop::Window_CloseAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477646,CDesktop::Element_Remove,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477681,CDesktop::Element_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047769C,CDesktop::Element_DeleteAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047772F,CDesktop::Element_Activate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004777A0,CDesktop::Element_Deactivate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477811,CDesktop::Window_AddToCloseList,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477859,CDesktop::l_WindowCloseList_Do,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047787B,CDesktop::Window_BringToFront,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047795D,CDesktop::PrimaryMessageHandler_Set,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047796A,CDesktop::l_DrawDesktop,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004779AB,CDesktop::l_DrawElementList,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477A82,CDesktop::l_Message_HandleMouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477D80,CDesktop::l_Message_HandleKeyBoard,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477EC4,CDesktop::l_Element_FindOnPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477F3D,CDesktop::l_Element_FindInList,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00477FD7,CDesktop::Element_GetUnderMousePtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478029,CDesktop::l_Element_GetRealActivePtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047803B,CDesktop::l_Element_GetRootElementPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047804D,CDesktop::l_Message_Send,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004780FC,CDesktop::Element_GetUnderMousePtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047814F,CDesktop::Message_SendToAllElements,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004782FA,CDesktop::Message_SendToAllWindows,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047841B,BaseWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478452,BaseWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047846E,BaseWindow_ConstructVars,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047849A,BaseWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004784C1,BaseWindow_ConstructState,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004784EB,BaseWindow_DestructState,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478511,BaseWindow_DrawAllChildElements,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004785B1,BaseWindow_Element_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004785E8,BaseWindow_Element_Remove,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478627,BaseWindow_Element_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478642,BaseWindow_Element_DeleteAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478687,BaseWindow_InternalHide,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004786A7,BaseWindow_Activate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478720,BaseWindow_DeActivate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047873C,BaseWindow_ButtonPressed,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047879D,BaseWindow_ButtonReleased,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004787AC,BaseWindow_FindElementOnPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478820,BaseWindow_Message_SendToChildElements,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478874,BaseWindow_NotifyAddedToDesktop,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478A24,BaseElement_MouseLeftArea,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478AA3,BaseElement_InternalHide,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00479962,CalculateFrameRate,NXSysTime::CFrameRateCalculator::CalculateFrameRate,4950,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00479975,CalculateFrameRate,NXSysTime::CFrameRateCalculator::CalculateFrameRate,4950,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0048F6E9,StaticDataHouses_GetHouseId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00490D97,Tool_SaveWorldAsBMP,NC2E2::Tool_SaveWorldAsBMP,5387,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004984EB,CBitmapFileBMP::CBitmapFileBMP,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004984FC,CBitmapFileBMP::WriteBitmap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004985C1,CBitmapFileBMP::Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00498697,CBitmapFileBMP::Close,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0049FD79,CInGameGuiManager::CInGameGuiManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A00C1,~CInGameGuiManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0184,CInGameGuiManager::System_UpdateGui,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0205,CInGameGuiManager::System_StartGame,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0295,CInGameGuiManager::System_EndGame,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A030C,CInGameGuiManager::Desktop_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0A90,sl_IsMouseStoppedCallback,NC2InGameGuiManager::sl_IsMouseStoppedCallback,6012,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A0AAF,CInGameGuiManager::Desktop_Close,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0BD4,CInGameGuiManager::EngineWorldDisplayGuiElement_Register,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0BE3,CInGameGuiManager::EngineWorldDisplayGuiElement_UnRegister,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0BF2,CInGameGuiManager::ObservationWindow_CreateNewOne,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0C17,CInGameGuiManager::ObservationWindow_Register,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0C26,CInGameGuiManager::ObservationWindow_UnRegister,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0C35,CInGameGuiManager::ObservationWindow_CloseAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0CC2,CInGameGuiManager::Exploration_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A0CF2,CInGameGuiManager::Exploration_GetFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1996,CInGameGuiManager::l_RemoveAllGuiElements,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1AF0,CInGameGuiManager::l_Selection_RemoveAllGuiElements,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1B29,CInGameGuiManager::Selection_CheckKey_Action,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1BC3,CInGameGuiManager::l_Selection_ActionButtons_CheckUpdate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1E63,CInGameGuiManager::MiscWindows_GlobalGameSettingsWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1EA9,CInGameGuiManager::MiscWindows_GlobalGameSettingsWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1F09,CInGameGuiManager::MiscWindows_DiplomacyWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1F3D,CInGameGuiManager::MiscWindows_DiplomacyWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1F8A,CInGameGuiManager::MiscWindows_HumanListWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1FD0,CInGameGuiManager::MiscWindows_HumanListWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A202F,CInGameGuiManager::MiscWindows_StatisticsWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2063,CInGameGuiManager::MiscWindows_StatisticsWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A21A1,CInGameGuiManager::MiscWindows_TechTreeWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A21D5,CInGameGuiManager::MiscWindows_TechTreeWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2226,CInGameGuiManager::MiscWindows_HelpWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A225A,CInGameGuiManager::MiscWindows_HelpWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A22AB,CInGameGuiManager::MiscWindows_HelpWindow_Open_HouseInfo,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A22E8,CInGameGuiManager::MiscWindows_HelpWindow_Open_GoodInfo,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2358,CInGameGuiManager::MiscWindows_LargeOverviewWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A23B1,CInGameGuiManager::MiscWindows_NetworkInfoWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2402,CInGameGuiManager::MiscWindows_NetworkInfoWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2436,CInGameGuiManager::l_IsElement0038Required,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A244E,CInGameGuiManager::MiscWindows_CloseAllLargeOnes,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A24A4,CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A24E6,CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2533,CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_Close,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A255A,CInGameGuiManager::MiscWindows_ConstructionSelectionWindow_SendKey,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2598,CInGameGuiManager::MiscWindows_StringOutputWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A25E0,CInGameGuiManager::MiscWindows_StringOutputWindow_PrintString,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A261A,CInGameGuiManager::MiscWindows_StringOutputWindow_PrintStringV,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2653,CInGameGuiManager::MiscWindows_StringOutputWindow_ClearAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2826,CInGameGuiManager::MiscWindows_HouseRemoveWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A28A6,CInGameGuiManager::MiscWindows_OverviewWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A28EC,CInGameGuiManager::MiscWindows_OverviewWindow_Close,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A290B,CInGameGuiManager::MiscWindows_OverviewWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A291B,CInGameGuiManager::MiscWindows_OverviewWindow_Closed,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A299B,CInGameGuiManager::MiscButtons_SpeedButton_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2A55,CInGameGuiManager::MiscButtons_MessagePriorityButton_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2ACD,CInGameGuiManager::l_UpdateElement0038,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2AF3,CInGameGuiManager::Options_ScrollSpeed_Set,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2B18,CInGameGuiManager::Options_ScrollSpeed_Get,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2B2D,CInGameGuiManager::Options_GuiMisc_SetMainMode,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2B52,CInGameGuiManager::Options_GuiMisc_SetExpertFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2B77,CInGameGuiManager::Options_GuiMisc_SetTooltipsOffFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2B9C,CInGameGuiManager::Options_Scrolling_SetThirdMouseButtonScrollFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2BC1,CInGameGuiManager::Options_Scrolling_SetBorderScrollFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2BE6,CInGameGuiManager::Options_Scrolling_SetSoftwareMouseFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2D62,CInGameGuiManager::FrameCall_Register,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2D71,CInGameGuiManager::FrameCall_UnRegister,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A2D80,CInGameGuiManager::FrameCall_Do,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A30C0,PrintNetworkChecksumMessage,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3179,CObjectGroupManager::CObjectGroupManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A31F4,~CObjectGroupManager,NC2InGameGuiGroups::CObjectGroupManager::~CObjectGroupManager,6212,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A32C2,CObjectGroupManager::Group_VerifyAllObjects,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A32E2,CObjectGroupManager::Group_CreateNewGroup,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3301,CObjectGroupManager::Group_AddSelectionToGroup,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A340E,CObjectGroupManager::Group_Choose,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A34C8,CObjectGroupManager::l_Group_VerifyAllObjects,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3508,CObjectGroupManager::l_Group_IsObjectValid,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A358D,CObjectGroupManager::l_Group_AddHuman,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3603,CObjectGroupManager::l_Group_RemoveHuman,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A363A,CObjectGroupManager::l_Group_AddVehicle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A36B0,CObjectGroupManager::l_Group_RemoveVehicle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A36E7,CObjectGroupManager::l_Group_AddHouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3741,CObjectGroupManager::l_Group_RemoveHouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3778,CObjectGroupManager::l_Group_RemoveObject,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A37B1,CObjectGroupManager::ls_Callback_Logic,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A388D,CObjectGroupManager::Misc_GetGroupIdOfHuman,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A38CB,CObjectGroupManager::Misc_GetGroupIdOfVehicle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3909,CObjectGroupManager::Misc_GetGroupIdOfHouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3947,CObjectGroupManager::l_Group_IsSelected,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A39A8,CObjectGroupManager::l_Group_GetPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A3EDB,InGameGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_Handle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A59AB,MissionInfoWindow_MissionBriefingHistory_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5A70,TechTreeHouseTypeElement_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5AC6,TextButton_ToolTipAtOnce,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5ACA,TechTreeHouseTypeElement_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5AEC,TechTreeHouseTypeElement_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5BC0,TechTreeGoodTypeElement_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5C16,TechTreeGoodTypeElement_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5C38,TechTreeGoodTypeElement_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5CF8,TechTreeGoodTypeElement_ToolTip,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5D0F,TechTreeJobTypeElement_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5D65,TechTreeJobTypeElement_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5D87,TechTreeJobTypeElement_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5E5A,TechTreeLineElement_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5EEA,TechTreeLineElement_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5F0C,TechTreeLineElement_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5F3B,TechTreeWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5FC0,TechTreeWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A5FF5,TechTreeWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6022,TechTreeWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6128,TechTreeWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6A74,TechTreeWindow_l_GuiButtons_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6A8D,TechTreeWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6D66,TechTreeWindow_IsHouseTypeFree,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6DB3,TechTreeWindow_IsHouseTypeFree,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6E00,TechTreeWindow_IsHouseTypeFree,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6E4A,TechTreeWindow_IsHouseTypeForbidden,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6E8D,TechTreeWindow_IsHouseTypeForbidden,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6ED0,TechTreeWindow_IsHouseTypeForbidden,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A7142,SelectionHouseWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A9786,SelectionSingleVehicleWindow_Construct,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::CSelectionSingleVehicleWindow,6480,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A98AD,SelectionSingleVehicleWindow_Delete,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::~CSelectionSingleVehicleWindow,6486,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A98DB,SelectionSingleVehicleWindow_Delete,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::~CSelectionSingleVehicleWindow,6486,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9946,SelectionSingleVehicleWindow_Statics_Init,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::Statics_Init,6489,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9958,SelectionSingleVehicleWindow_Message,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::XGui_BE_Message_Handle,6490,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9ECF,SelectionSingleVehicleWindow_Draw,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::XGui_BE_Element_Draw,6494,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AA87A,SelectionSingleVehicleWindow_IsHit,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::XGui_BE_Element_IsHit,6497,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AA8B1,SelectionSingleVehicleWindow_ToolTip_Available,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::XGui_BE_ToolTip_Available,6498,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AA8F5,l_TransportGoods_GetCurrentTotalAmount,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_TransportGoods_GetCurrentTotalAmount,6496,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AA941,l_Misc_GetSelectedVehiclePtr,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_Misc_GetSelectedVehiclePtr,6481,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AA96F,l_Misc_CenterWorldDisplay,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_Misc_CenterWorldDisplay,6493,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AA9B5,l_SubTabs_UpdateAll,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_UpdateAll,6483,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AB2E3,l_SubTabs_GetEnabledChecksum,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_GetEnabledChecksum,6500,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AB314,l_SubTabs_OverwriteHeight,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_OverwriteHeight,6495,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AB34E,l_SubTabs_StockVehicleGoods_Init,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_StockVehicleGoods_Init,6482,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AB4BF,l_StockGoodNameCompare,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AB4EB,l_SubTabs_StockVehicleGoods_GetMostStockGoods,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_StockVehicleGoods_GetMostStockGoods,6491,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004AB5B8,l_SubTabs_Trader_UpdateButtons,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_Trader_UpdateButtons,6492,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004ABA22,SelectionSingleHumanWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AEF6A,DiplomacyWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AEFFB,DiplomacyWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AF017,DiplomacyWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AF057,DiplomacyWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AF0E5,DiplomacyWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AF278,DiplomacyWindow_l_GuiButtons_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AF29C,DiplomacyWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AFB38,DiplomacyWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AFCEA,DiplomacyWindow_DrawOverlays,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AFFA9,HumanListWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B0072,HumanListWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B008E,HumanListWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B00DA,HumanListWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B0155,HumanListWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B0426,HumanListWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B0490,HumanListWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B0BA9,HumanListWindow_l_UpdateHumanDataArray,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B0FD3,HumanListWindow_ls_HumanSortFunction,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B106F,HumanListWindow_l_UpdateHumanListElements,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1093,HumanListWindow_l_Filter_Reset,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B10B3,HumanListWindow_l_JobSelectionWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B111F,HumanListWindow_ls_Callback_Logic,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1134,HumanListButton_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1198,HumanListButton_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1691,HumanListButton_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B16F7,HumanListButton_DoPressedAction,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1729,HumanListButton_l_ValidateHuman,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B17CC,HumanListJobSelectionWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B17E8,HumanListJobSelectionWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B17FD,HumanListJobSelectionWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1856,HumanListJobSelectionWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1A99,HumanListJobSelectionWindow_l_IsJobToChoose,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1B77,SStatisticsEntityDescription::GetNumber,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1BA6,SStatisticsEntityDescription::GetNamePtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1BC5,StatisticsWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1D75,StatisticsWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1DAF,StatisticsWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1DDE,StatisticsWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1E71,StatisticsWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1F99,StatisticsWindow_l_GuiButtons_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B1FBA,StatisticsWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B2795,StatisticsWindow_l_GuiButtons_UpdateJobsListBox,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B289E,StatisticsWindow_ls_SortJobs,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B28C8,StatisticsWindow_l_GuiButtons_UpdateHousesListBox,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B2A1D,StatisticsWindow_ls_SortHouses,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B2A49,StatisticsWindow_l_GuiButtons_UpdateGraveyardListBox,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B2B28,StatisticsWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B2F89,StatisticsWindow_l_DrawDiagram_Start,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B2FC0,StatisticsWindow_l_DrawDiagram_GetDisplayY,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B3013,StatisticsWindow_l_DrawDiagram_Do,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B31C5,StatisticsWindow_l_DrawDiagram_GetMaximumValues,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B31FA,StatisticsWindow_l_Tool_GetEntityControllerButtonArea,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B3759,CDeadHumanDataManager::CDeadHumanDataManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B37E0,~CDeadHumanDataManager,NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager::~CDeadHumanDataManager,5768,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B389E,CDeadHumanDataManager::DeadHuman_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B3935,CDeadHumanDataManager::DeadHuman_GetDataPtrByHumanUniqueId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B3957,CDeadHumanDataManager::ls_Callback_Logic,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B3997,CMessageManager::CMessageManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B3ABD,~CMessageManager,NC2InGameGuiMessages::CMessageManager::~CMessageManager,6149,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B4683,CInputManager::CInputManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B473B,ConstructInputMembers,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B476C,ConstructInputSelection,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B479F,ConstructInputPointState,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B47BF,ConstructInputPoints,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B47D9,~CInputManager,NC2InGameGuiInputManager::CInputManager::~CInputManager,5897,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B65E5,Selection_SelectEngineHouseType,NC2InGameGuiInputManager::CInputManager::Selection_SelectEngineHouseType,5940,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B74BA,Selection_GetSelectedSingleAnimalId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedSingleAnimalId,5944,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B74CB,Selection_GetSelectedSingleVehicleId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedSingleVehicleId,5925,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B74DC,Selection_GetSelectedMultipleVehiclesNumber,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedMultipleVehiclesNumber,5926,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B74EC,Selection_GetSelectedMultipleVehicleId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedMultipleVehicleId,5927,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B750D,Selection_IsVehicleSelected,NC2InGameGuiInputManager::CInputManager::Selection_IsVehicleSelected,5950,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B7558,Selection_GetSelectedHouseId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedHouseId,5946,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B7569,Selection_IsHouseSelected,NC2InGameGuiInputManager::CInputManager::Selection_IsHouseSelected,5951,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B75A6,Selection_GetSelectedGuideId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedGuideId,5948,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B75B7,Selection_GetSelectedEngineLandscapeTypeId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedEngineLandscapeTypeId,5954,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B75C8,Selection_GetSelectedEngineLandscapeValency,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedEngineLandscapeValency,5955,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B75D8,Selection_GetSelectedEngineLandscapeMapPointRef,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedEngineLandscapeMapPointRef,5956,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B75FA,Selection_GetSelectedEngineLandscapePlayerId,NC2InGameGuiInputManager::CInputManager::Selection_GetSelectedEngineLandscapePlayerId,5957,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B7DED,l_Selection_FillTargetPointArray,NC2InGameGuiInputManager::CInputManager::l_Selection_FillTargetPointArray,5962,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B7E3E,slInputManagerSearchForTargetPoints,NC2InGameGuiInputManager::slInputManagerSearchForTargetPoints,5963,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B865E,MissionOnscreenInfoStaticGuiWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B867A,MissionOnscreenInfoStaticGuiWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B86C8,MissionOnscreenInfoStaticGuiWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8A0A,MissionOnscreenInfoStaticGuiWindow_l_CurrentMapStrings_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8B51,BaseToolTextElement_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8BE8,TextElement_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8DA2,BaseToolTextButton_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8E10,TextButton_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8E2C,BaseToolTextButton_ConstructWithToolTip,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8EAC,BaseToolTextButton_ConstructToggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8F1C,BaseToolTextButton_ConstructToggleWithToolTip,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B8F9E,BaseToolTextButton_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B907A,TextButton_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B92A4,TextButton_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B936E,TextButton_DoPressedAction,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B9397,TextButton_ToolTip,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004B9407,ToolGraphics_SetCenterGraphicsFlag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BA042,WorldDisplayElement_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BA124,WorldDisplayElement_DeletingDestructor,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BA140,WorldDisplayElement_ConstructState,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BA174,WorldDisplayElement_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BA1BA,WorldDisplayElement_VirtualDraw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BAB5E,WorldDisplayElement_MouseMoved,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BABE0,WorldDisplayElement_CheckObjectUnderMouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BAF71,WorldDisplayElement_ValidateObjectUnderMouse,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BAFC2,WorldDisplayElement_MouseSelectingArea_IsAreaValid,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BB01E,WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BB0C1,WorldDisplayElement_DoDefaultAction,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BB57B,WorldDisplayElement_DarkenBitmap_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BB669,WorldDisplayElement_DarkenBitmap_Exit,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BB6A6,WorldDisplayElement_DarkenBitmap_Do,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BC34D,InGameGuiManagerPrimaryMessageHandlerElement_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD3C6,WorldObserveDisplayWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD662,WorldObserveDisplayWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD67E,WorldObserveDisplayWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD6AE,WorldObserveDisplayWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD907,WorldObserveDisplayWindow_l_Follow_Human,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD934,WorldObserveDisplayWindow_l_Follow_Vehicle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD964,WorldObserveDisplayWindow_l_Follow_House,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD997,WorldObserveDisplayWindow_l_Follow_Start,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BD9E4,WorldObserveDisplayWindow_l_Follow_Stop,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BDA0C,WorldObserveDisplayWindow_l_Follow_Validate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BDEA6,SelectionLandscapeTypeWindow_Construct,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::CSelectionLandscapeTypeWindow,6352,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BDF75,SelectionLandscapeTypeWindow_Delete,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::~CSelectionLandscapeTypeWindow,6355,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BDFAB,SelectionLandscapeTypeWindow_Message,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::XGui_BE_Message_Handle,6358,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE0F6,SelectionLandscapeTypeWindow_Draw,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::XGui_BE_Element_Draw,6361,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE257,SelectionLandscapeTypeWindow_l_Landscape_NeedToBeUpdatedFromMap,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::l_Landscape_NeedToBeUpdatedFromMap,6365,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE29B,SelectionLandscapeTypeWindow_l_Landscape_GetEngineId,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::l_Landscape_GetEngineId,6362,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE2C5,SelectionLandscapeTypeWindow_l_Landscape_GetValency,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::l_Landscape_GetValency,6364,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE2F2,SelectionLandscapeTypeWindow_l_Gui_UpdateElements,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::l_Gui_UpdateElements,6353,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE488,SelectionLandscapeTypeWindow_l_Gui_CalculateChecksum,NC2InGameGuiSelection::CSelectionLandscapeTypeWindow::l_Gui_CalculateChecksum,6360,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE649,SelectionGuideWindow_Construct,NC2InGameGuiSelection::CSelectionGuideWindow::CSelectionGuideWindow,6279,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE754,SelectionGuideWindow_Delete,NC2InGameGuiSelection::CSelectionGuideWindow::~CSelectionGuideWindow,6284,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE786,SelectionGuideWindow_Message,NC2InGameGuiSelection::CSelectionGuideWindow::XGui_BE_Message_Handle,6281,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE83F,SelectionGuideWindow_Draw,NC2InGameGuiSelection::CSelectionGuideWindow::XGui_BE_Element_Draw,6282,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE9A9,SelectionGuideWindow_ToolTip_Available,NC2InGameGuiSelection::CSelectionGuideWindow::XGui_BE_ToolTip_Available,6283,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BE9EA,SelectionHouseTypeWindow_Construct,NC2InGameGuiSelection::CSelectionHouseTypeWindow::CSelectionHouseTypeWindow,6347,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEA39,SelectionHouseTypeWindow_Draw,NC2InGameGuiSelection::CSelectionHouseTypeWindow::XGui_BE_Element_Draw,6350,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEADB,SelectionMultipleVehiclesWindow_Construct,NC2InGameGuiSelection::CSelectionMultipleVehiclesWindow::CSelectionMultipleVehiclesWindow,6384,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEBF6,SelectionMultipleVehiclesWindow_Message,NC2InGameGuiSelection::CSelectionMultipleVehiclesWindow::XGui_BE_Message_Handle,6387,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BED13,SelectionMultipleVehiclesWindow_Draw,NC2InGameGuiSelection::CSelectionMultipleVehiclesWindow::XGui_BE_Element_Draw,6388,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEDA9,SelectionMultipleVehiclesElement_Delete,NC2InGameGuiSelection::CSelectionMultipleVehiclesElement::~CSelectionMultipleVehiclesElement,6390,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEDCB,SelectionMultipleVehiclesElement_Draw,NC2InGameGuiSelection::CSelectionMultipleVehiclesElement::XGui_BE_Element_Draw,6394,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEE45,SelectionMultipleVehiclesElement_DoPressedAction,NC2InGameGuiSelection::CSelectionMultipleVehiclesElement::XGui_BE_Element_DoPressedAction,6396,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEE72,SelectionMultipleVehiclesElement_IsHit,NC2InGameGuiSelection::CSelectionMultipleVehiclesElement::XGui_BE_Element_IsHit,6397,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEEEA,SelectionMultipleVehiclesElement_ToolTip_Available,NC2InGameGuiSelection::CSelectionMultipleVehiclesElement::XGui_BE_ToolTip_Available,6398,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEF29,SelectionMultipleVehiclesElement_l_GetVehicleSlotBasePosition,NC2InGameGuiSelection::CSelectionMultipleVehiclesElement::l_GetVehicleSlotBasePosition,6395,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEF73,SelectionSingleAnimalWindow_Construct,NC2InGameGuiSelection::CSelectionSingleAnimalWindow::CSelectionSingleAnimalWindow,6405,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BEFDA,SelectionSingleAnimalWindow_Draw,NC2InGameGuiSelection::CSelectionSingleAnimalWindow::XGui_BE_Element_Draw,6408,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF097,SelectionMultipleHumanWindow_Construct,NC2InGameGuiSelection::CSelectionMultipleHumanWindow::CSelectionMultipleHumanWindow,6367,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF186,SelectionMultipleHumanWindow_Message,NC2InGameGuiSelection::CSelectionMultipleHumanWindow::XGui_BE_Message_Handle,6370,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF201,SelectionMultipleHumanWindow_Draw,NC2InGameGuiSelection::CSelectionMultipleHumanWindow::XGui_BE_Element_Draw,6371,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF297,SelectionMultipleHumanElement_Construct,NC2InGameGuiSelection::CSelectionMultipleHumanElement::CSelectionMultipleHumanElement,6368,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF2F7,SelectionMultipleHumanElement_Delete,NC2InGameGuiSelection::CSelectionMultipleHumanElement::~CSelectionMultipleHumanElement,6373,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF326,SelectionMultipleHumanElement_Message,NC2InGameGuiSelection::CSelectionMultipleHumanElement::XGui_BE_Message_Handle,6376,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF35D,SelectionMultipleHumanElement_Draw,NC2InGameGuiSelection::CSelectionMultipleHumanElement::XGui_BE_Element_Draw,6377,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF73F,SelectionMultipleHumanElement_IsHit,NC2InGameGuiSelection::CSelectionMultipleHumanElement::XGui_BE_Element_IsHit,6380,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF7B3,SelectionMultipleHumanElement_ToolTip_Available,NC2InGameGuiSelection::CSelectionMultipleHumanElement::XGui_BE_ToolTip_Available,6381,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF8B8,SelectionMultipleHumanElement_l_GetHumanSlotBasePosition,NC2InGameGuiSelection::CSelectionMultipleHumanElement::l_GetHumanSlotBasePosition,6378,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004C1BF3,GlobalGameSettingsWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C1C8E,GlobalGameSettingsWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C1CAA,GlobalGameSettingsWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C1CD9,GlobalGameSettingsWindow_XGui_BE_Message_Handle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C2502,GlobalGameSettingsWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C2F2B,GlobalGameSettingsWindow_XGui_BE_Element_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C31CA,HyperLinkTextWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C340E,lsSortGoodTypeCompareFunction,NC2InGameGuiMiscWindows::lsSortGoodTypeCompareFunction,5881,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004C3436,HyperLinkTextWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C3452,HyperLinkTextWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C34A8,HyperLinkTextWindow_XGui_BE_Message_Handle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C3730,HyperLinkTextWindow_XGui_BE_Element_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C3F86,HyperLinkTextWindow_l_GuiButtons_Update,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C3FA2,HyperLinkTextWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C4853,ls_GetUserBitmapCallback,NC2InGameGuiMiscWindows::ls_GetUserBitmapCallback,5892,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004C5219,NetworkInfoWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C528E,NetworkInfoWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C52AA,NetworkInfoWindow_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C52CA,NetworkInfoWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C53C0,NetworkInfoWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C5F94,NetworkInfoWindow_ToolTip_Available,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C5FD5,NetworkInfoWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C6436,NetworkInfoWindow_PrintRightAligned,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C647E,ConstructionSelectionWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C651E,ConstructionSelectionWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C6554,ConstructionSelectionWindow_XGui_BE_Message_Handle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C672B,ConstructionSelectionWindow_l_GuiButtons_Add,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C6AF6,ConstructionSelectionWindow_l_GuiButtons_UpdateListBox,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C6FEC,lsSortHouseTypeCompareFunction,NC2InGameGuiMiscWindows::lsSortHouseTypeCompareFunction,5880,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004C900C,SelectedHouseRemoveWindow_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C918C,SelectedHouseRemoveWindow_Message,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C923C,SelectedHouseRemoveWindow_Draw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004C9268,SelectedHouseRemoveWindow_l_System_Validate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CA8C1,HighlightRoadStart,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CA97E,HighlightRoadEnd,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CA9B1,HighlightWallStart,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CAA70,HighlightWallEnd,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CAAA3,HighlightWallGate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CDB39,SelectionVehicleAttachedHumansElement_Construct,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::CSelectionVehicleAttachedHumansElement,6522,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDBC4,SelectionVehicleAttachedHumansElement_Delete,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::~CSelectionVehicleAttachedHumansElement,6524,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDBE6,SelectionVehicleAttachedHumansElement_Message,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::XGui_BE_Message_Handle,6527,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDC26,SelectionVehicleAttachedHumansElement_Draw,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::XGui_BE_Element_Draw,6528,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDC9C,SelectionVehicleAttachedHumansElement_DoPressedAction,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::XGui_BE_Element_DoPressedAction,6531,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDCD2,SelectionVehicleAttachedHumansElement_IsHit,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::XGui_BE_Element_IsHit,6532,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDDB6,SelectionVehicleAttachedHumansElement_ToolTip_Available,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::XGui_BE_ToolTip_Available,6533,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDE83,SelectionVehicleAttachedHumansElement_l_ValidateVehicle,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::l_ValidateVehicle,6529,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CDEB5,SelectionVehicleAttachedHumansElement_l_UpdateAttachedHumans,NC2InGameGuiSelection::CSelectionVehicleAttachedHumansElement::l_UpdateAttachedHumans,6530,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CE035,SelectionVehicleAttachedVehiclesElement_Construct,NC2InGameGuiSelection::CSelectionVehicleAttachedVehiclesElement::CSelectionVehicleAttachedVehiclesElement,6534,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CE0C0,SelectionVehicleAttachedVehiclesElement_Delete,NC2InGameGuiSelection::CSelectionVehicleAttachedVehiclesElement::~CSelectionVehicleAttachedVehiclesElement,6536,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CE0E2,SelectionVehicleAttachedVehiclesElement_Draw,NC2InGameGuiSelection::CSelectionVehicleAttachedVehiclesElement::XGui_BE_Element_Draw,6540,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CE15B,SelectionVehicleAttachedVehiclesElement_IsHit,NC2InGameGuiSelection::CSelectionVehicleAttachedVehiclesElement::XGui_BE_Element_IsHit,6544,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CE242,SelectionVehicleAttachedVehiclesElement_ToolTip_Available,NC2InGameGuiSelection::CSelectionVehicleAttachedVehiclesElement::XGui_BE_ToolTip_Available,6545,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CE2D0,SelectionVehicleAttachedVehiclesElement_l_UpdateAttachedVehicles,NC2InGameGuiSelection::CSelectionVehicleAttachedVehiclesElement::l_UpdateAttachedVehicles,6542,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1D39,CGuiBaseStringsManager::CGuiBaseStringsManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004E1DA1,~CGuiBaseStringsManager,NC2GuiToolsBase::CGuiBaseStringsManager::~CGuiBaseStringsManager,4143,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1DCB,CGuiBaseStringsManager::GetStringPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004E1E19,StringTool_GetMainMenuStringPtr,NC2GuiToolsBase::StringTool_GetMainMenuStringPtr,4147,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1E27,StringTool_GetGameGuiMainStringPtr,NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr,4148,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1E35,StringTool_GetMiscMenuStringPtr,NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr,4149,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1E43,StringTool_GetGameGuiHumanListWindowStringPtr,NC2GuiToolsBase::StringTool_GetGameGuiHumanListWindowStringPtr,4150,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1E51,StringTool_GetGameGuiMiscWindowStringPtr,NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr,4151,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1E97,StringTool_GetUpdate103StringPtr,NC2GuiToolsBase::StringTool_GetUpdate103StringPtr,4157,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E1EA5,StringTool_GetOdin001StringPtr,NC2GuiToolsBase::StringTool_GetOdin001StringPtr,4158,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E20B8,StringTool_GetLogicUserCommandsForHouseTypeNamePtr,NC2GuiToolsBase::StringTool_GetLogicUserCommandsForHouseTypeNamePtr,4161,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2376,DrawTool_FillArea,NC2GuiToolsBase::DrawTool_FillArea,4124,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2445,DrawTool_DrawFrame,NC2GuiToolsBase::DrawTool_DrawFrame,4125,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E25BA,DrawTool_DrawFrame,NC2GuiToolsBase::DrawTool_DrawFrame,4125,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2645,DrawTool_GetFont10Ptr,NC2GuiToolsBase::DrawTool_GetFont10Ptr,4129,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E264B,DrawTool_GetFontColorRef,NC2GuiToolsBase::DrawTool_GetFontColorRef,4130,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2661,DrawTool_PrintStringX,NC2GuiToolsBase::DrawTool_PrintStringX,4132,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2994,DrawTool_PrintStringXV,NC2GuiToolsBase::DrawTool_PrintStringXV,4133,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E29D9,DrawTool_PrintStringWrapping,NC2GuiToolsBase::DrawTool_PrintStringWrapping,4134,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2B8D,FXTool_ClickConfirm,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004E2BCF,FXTool_Chat,NC2GuiToolsBase::FXTool_Chat,4138,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2BF0,StringToolMisc_StringSortCompare,NC2GuiToolsBase::StringToolMisc_StringSortCompare,4139,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E2D10,CGuiBaseDataManager::CGuiBaseDataManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004E2EDF,~CGuiBaseDataManager,NC2GuiToolsBase::CGuiBaseDataManager::~CGuiBaseDataManager,4118,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004E3012,CGuiBaseDataManager::DynamicData_Load,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004E3195,CGuiBaseDataManager::DynamicData_Free,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded

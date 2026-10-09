@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Menu, keyboard and selection checkpoint - 2026-10-09
+
+Primary keyboard commands and all four in-game cheats, network information, general menu families and the GUI logic callback are connected from Windows. Group humans/vehicles, animals, guides, house-type/landscape and single-vehicle windows now connect with their native controls and lifetimes. House/vehicle command availability, context layout/checksums, default dispatch and house-removal confirmation are complete. Main-menu campaign cheats were audited against Windows. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).
+
+**3638 / 5059 (71.91%)** source-address coverage, **1421** known entries open; **233 cpp / 220 headers** with filter parity, **1726 naming rows / 92 unfinished boundaries**. Compared with the pre-menu checkpoint, the union adds two previously unlisted source entries: human-list toggle 004A1F8A and overview close 004A28EC. This is not verified gameplay completion. [FUNCTION_PROGRESS_2026_10_09.json](FUNCTION_PROGRESS_2026_10_09.json) records the production-only audit.
+
+Only MSVC Win32 `/Zs` and source/project consistency checks ran; no Debug/Release build, tests or game run. Remaining priority: single-house selection window, remaining single-human help/context rows, menu/input audits and specialized vehicle input modes. The user-owned untracked CombatTasks files remain untouched and excluded.
+
 ## Road, palisade and gate construction - 2026-10-08
 
 Connected native start/end selection, reachable-point highlighting, complete vector previews, network flag creation/cancellation, per-second worker assignment, builder job/material/pickup/delivery/build/repair execution and road map-edit callbacks. Own flag selection now opens native camera/cancellation windows. Configured road/wall/gate shortcuts and gate eligibility/placement/state commands are connected. Windows ASM/Game.exe establish all behavior and layouts; Mac headers supply names only. Twelve link dummies were replaced. See [WALL_ROAD_CONSTRUCTION.md](WALL_ROAD_CONSTRUCTION.md).

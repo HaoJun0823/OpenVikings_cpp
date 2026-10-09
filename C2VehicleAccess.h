@@ -11,6 +11,7 @@ namespace NC2Logic
     bool Vehicle_DoAddNewUserCommand(void* vehicle, const void* command);
     bool Vehicle_l_UserCommands_TryToExecuteRightAway(void* vehicle, const void* command);
     std::uint32_t Vehicle_Stock_GetTotalWantedAmount(const void* vehicle);
+    std::uint32_t Vehicle_Stock_GetAmountOfWantedGoods(const void* vehicle, std::uint32_t goodId);
     std::uint32_t Vehicle_Stock_GetFutureAmount(const void* vehicle, std::uint32_t goodId);
     std::uint32_t Vehicle_Stock_GetTotalFutureAmount(const void* vehicle);
     bool Vehicle_Stock_ModifyFutureAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision);

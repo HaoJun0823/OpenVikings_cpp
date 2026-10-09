@@ -20,6 +20,7 @@ namespace NC2Logic
     const void* Animal_GetConstMapMicroPointPtr(const void* animal);
     bool Vehicle_Attachment_IsValid(const void* vehicle);
     void Vehicle_UserControl_GetCommands(const void* vehicle, SUserCommandsForVehicleHandler* commands, bool multiple);
+    bool Logic_UserControl_GetVehicleCommands(std::int32_t id, SUserCommandsForVehicleHandler* commands, bool multiple);
     std::uint32_t Human_UserControl_GetDefaultInteractionCommand_SingleHuman(const void* human, const void* target, void* command, void* secondary, bool modifier);
     bool Human_UserControl_GetDefaultInteractionCommand_MultipleHuman(const void* human, std::uint32_t* action, const void* target, void* command, std::uint32_t index, std::uint32_t count, bool modifier);
     std::uint32_t Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(const void* vehicle, const void* target, void* command, void* secondary, bool modifier);

@@ -1,12 +1,12 @@
 # C++ continuation handoff - 2026-10-06
 
-## Active priority: all menus and keyboard commands, including cheats - 2026-10-08
+## Active priority: all menus and keyboard commands, including cheats - 2026-10-09
 
-Continue this request before the older road/house-builder suggestions below. The user requested all menus and keyboard commands, including cheats. The task remains open. Read [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md) and current source/history: global settings, construction chooser, help, diplomacy, technology tree, resident list, statistics and observation windows are connected. Native on-screen mission information replaces its link-only constructor. Only Win32 `/Zs` checks have run; no build, tests or runtime verification is authorized.
+Continue the full menu/input request before house-builder AI. Read [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md), current sources/history and the latest checkpoint. The reported missing `guckmalan` tree is connected in commit 50d4819: lowercase direct input in single-player, no console/Enter; repeating toggles exploration back. No game run/build/tests are authorized.
 
-2026-10-09: native network-information window 004C5219..004C647D and manager 004A23B1/004A2402 are connected. The complete primary keyboard/cheat tree 004BC36F..004BD3C3 now replaces the former rename/road-only partial. User reported `guckmalan` failed; its missing native history/recognition/exploration/feedback block is now connected, alongside all other in-game cheats, contextual keys, chat, menu shortcuts, groups, filters, pause/speed, quicksave and debug exports. GUI logic callback 004A2C0B is fully connected in InGameGuiManager_State.cpp with a compatibility forwarding symbol; it is removed from TemporaryLinkStubs.cpp. All thirteen miscellaneous main-button routes are connected. Win32 `/Zs` passed; no runtime verification.
+Selection_UpdateWindows 004A0E9D now connects every selection family except the single-house window (allocation 0x3CE0, constructor 004A6F10, manager field 0xA0). The single-vehicle window, passenger children, stocks/wanted goods, trading controls and owned popup are complete. Default dispatcher 004A3EDB and action layout/checksum 004A10CB/004A1BF0 are complete and removed from unfinished rows. Correct earlier note: 004A2826 opens house-removal confirmation; it is not an inhabitant chooser.
 
-Next: remaining selection-window families under partial Selection_UpdateWindows 004A0E9D; house/vehicle branches of default message dispatcher 004A3EDB, including missing house inhabitant chooser 004A2826. Audit main menu/options/save/load/briefing/overview input routing and continuous controls, then update naming/boundary inventories and source-address x/y. Preserve Windows behavior exclusively; Mac names only. Do not touch or register the user's untracked C2HumanCombatTasks.cpp/.h.
+Next: reconstruct single-house 004A6F10..004A9785 and its children from Windows ASM/Game.exe; Mac headers for names only. Complete remaining human help/context rows, specialized vehicle input modes and general menu/input audits. Current x/y appears in PROJECT_STATE; retain explicit partials/dummies. Do not touch or register untracked C2HumanCombatTasks.cpp/.h.
 
 ## Road, palisade and gate construction - 2026-10-08
 

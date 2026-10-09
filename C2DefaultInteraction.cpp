@@ -268,6 +268,8 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_0040b073; unallocated vehicles leave the command list untouched.
+    bool Logic_UserControl_GetVehicleCommands(std::int32_t id, SUserCommandsForVehicleHandler* commands, bool multiple) { const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * CVehicleArray::ElementSize; if (Read<std::uint8_t>(vehicle, 0) == 0) return false; Vehicle_UserControl_GetCommands(vehicle, commands, multiple); return true; }
     // Original function: FUN_00437919.
     void Vehicle_UserControl_GetCommands(const void* vehicle, SUserCommandsForVehicleHandler* commands, bool multiple)
     {

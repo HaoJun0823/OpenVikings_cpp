@@ -101,6 +101,7 @@ namespace NInGameGuiManager
         bool MiscWindows_HumanChangeNameWindow_SendKey(std::uint32_t key, char character);
         void MiscWindows_HumanLearnJobWindow_Open();
         void MiscWindows_HumanChangeProducedGoodWindow_Open();
+        void MiscWindows_HouseRemoveWindow_Open();
         void l_Selection_RemoveAllGuiElements();
         void Selection_ActionButtons_BringUp();
         void Options_ScrollSpeed_Set(std::uint32_t speed, bool save);

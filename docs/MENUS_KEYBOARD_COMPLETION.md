@@ -18,7 +18,7 @@ Windows x86 assembly and the original Windows Game.exe establish behavior, sizes
 | Single/group humans, houses, animals, vehicles, guides and landscapes | Selection_UpdateWindows and context command branches remain partial |
 | Keyboard and input focus | Full primary handler 004BC36F..004BD3C3 and contextual command table 00507350 connected; menu/input audits pending |
 | Groups | Native choose/create/add operations and all thirty configured numeric assignments connected |
-| Cheats | All four native in-game commands connected; main-menu unlock history still requires audit |
+| Cheats | All four native in-game commands connected; main-menu campaign unlock history audited against Windows |
 | Debug screenshots and map exports | Native bitmap BMP writer and engine map export |
 
 ## Native keyboard order
@@ -55,4 +55,14 @@ Network information 004C5219..004C647D is connected: goals, ordered win/loss res
 
 GUI logic callback 004A2C0B replaces its partial body in TemporaryLinkStubs.cpp: tick updates, GUI save/load, world-element notifications and follow cancellation, briefing initialization/opening, map-change camera/string/observer lifetime, safety dialog and network information. Native desktop/child message routing 0047814F/00478820 supports the general zoom command and first-handled return.
 
-All completed source blocks passed MSVC Win32 `/Zs`. No Debug/Release build, tests or game run occurred. Selection windows, house/vehicle default commands and menu/input audits are still required; the full user request remains open.
+All completed source blocks passed MSVC Win32 `/Zs`. No Debug/Release build, tests or game run occurred. The full user request remains open.
+
+## Selection windows and default commands (2026-10-09)
+
+Native human/vehicle group windows, animals, guides, house-type and landscape windows now connect through Selection_UpdateWindows. Group portraits preserve reverse hit order, modifier selection, double-click actions, names/jobs, small-group health/need bars and dense-group health signs. Guide contents and landscape camera/removal/chest controls use their native packets and live checksums.
+
+The single-vehicle window 004A9786..004AB7F0 is connected with all five retained collapsible sections, camera preview/follow/observer controls, attached human/vehicle elements, trader route controls and its owned trader popup, seven stock pages, amount and wanted-amount displays, Ctrl-adjusted wanted commands and per-frame refresh. Complete native tables 004F6710..004F675B and 004F7A5C..004F7AEB and descriptor/page region 004F6500..004F670F were read from Game.exe. Passenger spacing uses the established double/truncation adapter; x87 intermediate precision can differ.
+
+House/vehicle command availability, context button layout/checksums and default dispatcher 004A3EDB are complete. Native checksum repetition in multi-selection is preserved. The native 004A2826 popup is the house-removal confirmation, not a house inhabitant chooser; its two choices, revision validation and removal packet are now connected. Three completed partial entries 004A10CB/004A1BF0/004A3EDB are removed from the unfinished inventory. The single-house selection window and remaining single-human help/context rows are still open, together with general menu/input audits and downstream specialized vehicle input modes.
+
+Main-menu campaign cheats in 004DB0D1..004DB3A5 were audited without changing the existing implementation: `oase`, `orakel`, `schatzinsel`, `tempel`, `olympia`, `pharao`, `atlantis` and `gamersus` use the native screen/campaign guards and newest-first history. The clipboard route and original feedback/GUI update order match Windows. This is source verification, not a runtime test.

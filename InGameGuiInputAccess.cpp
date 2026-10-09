@@ -26,10 +26,22 @@ namespace
 
 namespace NC2InGameGuiInputManager
 {
+    // Original function: FUN_004b74ba.
+    std::int32_t Selection_GetSelectedSingleAnimalId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 3 ? Input_Read<std::int32_t>(manager, 0x974) : -1; }
     // Original function: FUN_004b7585.
     std::int32_t Selection_GetSelectedEngineHouseTypeId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 7 ? Input_Read<std::int32_t>(manager, 0xA80) : -1; }
     // Original function: FUN_004b7596.
     std::uint32_t Selection_GetSelectedEngineHouseExtensionLevel(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 7 ? Input_Read<std::uint32_t>(manager, 0xA84) : 0; }
+    // Original function: FUN_004b75a6.
+    std::int32_t Selection_GetSelectedGuideId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 8 ? Input_Read<std::int32_t>(manager, 0xA90) : -1; }
+    // Original function: FUN_004b75b7.
+    std::int32_t Selection_GetSelectedEngineLandscapeTypeId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 9 ? Input_Read<std::int32_t>(manager, 0xA98) : -1; }
+    // Original function: FUN_004b75c8.
+    std::uint32_t Selection_GetSelectedEngineLandscapeValency(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 9 ? Input_Read<std::uint32_t>(manager, 0xA9C) : 0; }
+    // Original function: FUN_004b75d8.
+    const void* Selection_GetSelectedEngineLandscapeMapPointRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 9) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA0, 0xFFFFFFFFu); return static_cast<std::byte*>(manager) + 0xAA0; }
+    // Original function: FUN_004b75fa.
+    std::int32_t Selection_GetSelectedEngineLandscapePlayerId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 9 ? Input_Read<std::int32_t>(manager, 0xAA4) : -1; }
     // Original function: FUN_004b760b; invalid selection writes the native (-1,-1) point.
     const void* Selection_GetSelectedRoadBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 10) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA8, 0xFFFFFFFFu); return static_cast<std::byte*>(manager) + 0xAA8; }
     // Original function: FUN_004b762d.
@@ -140,6 +152,19 @@ namespace NC2Logic
         if (Input_Read<std::uint8_t>(human, 0) == 0) return;
         NC2Lifetime::Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Input_Read<std::uint32_t>(human, 0x10)));
         NC2Lifetime::Write<std::uint32_t>(command, 8, Input_Read<std::uint32_t>(human, 8));
+        UserNetworkCommandManager_AddCommand(manager, nullptr, command, false, false);
+    }
+
+    // Original function: FUN_00410e73; CUserNetworkCommandManager::AddHouseCommand.
+    void UserNetworkCommand_AddHouseCommand(void* manager, void* command)
+    {
+        const std::uint8_t type = Input_Read<std::uint8_t>(command, 0);
+        if (type <= 0x59 || type >= 0x62) return;
+        const std::uint32_t id = Input_Read<std::uint32_t>(command, 4);
+        const void* house = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(CHouseArray::mStaticVars) + id * CHouseArray::ElementSize);
+        if (Input_Read<std::uint8_t>(house, 0) == 0) return;
+        NC2Lifetime::Write<std::uint8_t>(command, 1, Input_Read<std::uint8_t>(house, 0xC));
+        NC2Lifetime::Write(command, 8, Input_Read<std::uint32_t>(house, 8));
         UserNetworkCommandManager_AddCommand(manager, nullptr, command, false, false);
     }
 

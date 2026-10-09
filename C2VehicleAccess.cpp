@@ -280,6 +280,9 @@ namespace NC2Logic
         return total;
     }
 
+    // Original function: FUN_0044bcb9; Windows performs the slot lookup twice on success.
+    std::uint32_t Vehicle_Stock_GetAmountOfWantedGoods(const void* vehicle, std::uint32_t goodId) { if (Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId) == -1) return 0; return Read<std::uint8_t>(vehicle, 0x3BCu + static_cast<std::uint32_t>(Vehicle_l_Stock_GetStockSlotIdForGoodType(vehicle, goodId))); }
+
     // Original function: FUN_0044bc62; unsigned capacity arithmetic precedes byte storage.
     bool Vehicle_Stock_SetWantedAmount(void* vehicle, std::uint32_t good, std::uint32_t wanted)
     {

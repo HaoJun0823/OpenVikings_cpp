@@ -1272,4 +1272,32 @@
     <ClCompile Include="InGameGuiNetworkInfoWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiNetworkInfoWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiSimpleSelectionWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiSimpleSelectionWindows.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiLandscapeSelectionWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiLandscapeSelectionWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiGroupSelectionWindows.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiGroupSelectionWindows.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseRemoveWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiHouseRemoveWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseUserControl.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HouseUserControl.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiVehicleInhabitantsElements.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiVehicleInhabitantsElements.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiSingleVehicleWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiSingleVehicleWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
 </Project>

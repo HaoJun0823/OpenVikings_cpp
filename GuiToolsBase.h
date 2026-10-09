@@ -136,6 +136,7 @@ namespace NC2GuiToolsBase
     char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId);
     const char* StringTool_GetLogicGoodEquipmentTypeNamePtr(std::uint32_t type);
     const char* StringTool_GetLogicUserCommandsForHumanTypeNamePtr(std::uint32_t type);
+    const char* StringTool_GetLogicUserCommandsForHouseTypeNamePtr(std::uint32_t type);
     const char* StringTool_GetLogicUserCommandsForVehicleTypeNamePtr(std::uint32_t type);
     char* StringTool_GetGameGuiMessagesStringPtr(std::uint32_t stringId);
     void StringTool_GetLogicSpecialItemNamePtr(std::uint32_t type, std::int32_t item, char* output);

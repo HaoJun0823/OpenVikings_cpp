@@ -610,4 +610,32 @@
     <ClCompile Include="InGameGuiNetworkInfoWindow.cpp" />
     <ClInclude Include="InGameGuiNetworkInfoWindow.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiSimpleSelectionWindows.cpp" />
+    <ClInclude Include="InGameGuiSimpleSelectionWindows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiLandscapeSelectionWindow.cpp" />
+    <ClInclude Include="InGameGuiLandscapeSelectionWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiGroupSelectionWindows.cpp" />
+    <ClInclude Include="InGameGuiGroupSelectionWindows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseRemoveWindow.cpp" />
+    <ClInclude Include="InGameGuiHouseRemoveWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseUserControl.cpp" />
+    <ClInclude Include="C2HouseUserControl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiVehicleInhabitantsElements.cpp" />
+    <ClInclude Include="InGameGuiVehicleInhabitantsElements.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiSingleVehicleWindow.cpp" />
+    <ClInclude Include="InGameGuiSingleVehicleWindow.h" />
+  </ItemGroup>
 </Project>
