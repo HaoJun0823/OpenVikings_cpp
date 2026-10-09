@@ -22,6 +22,12 @@ namespace NC2Logic
         void WalkBlock_Set(const void* point, bool blocked) const;
         void BuildBlock_Set(const void* point, bool blocked) const;
         bool BuildBlock_Check(const void* point) const;
+        bool WalkBlock_Check(const void* point) const;
+        bool Check_AreAllPointsOnSameLandContinent(const void* point) const;
+        bool Check_AreAllPointsAroundOnBuildAllowedPattern(const void* point) const;
+        bool Check_AreAllPointsAroundOnBioRegrowPattern(const void* point) const;
+        bool Check_NoGuideOnArea(const void* point) const;
+        bool Check_NoHouseBuildForbiddenFlag(const void* point) const;
         void Landscapes_RemoveAll(const void* point) const;
         bool Check_CanLandscapeBeSetOnPattern(const void* point, std::uint32_t landscape) const;
         bool AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed(const void* point) const;

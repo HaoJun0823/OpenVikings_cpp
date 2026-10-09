@@ -37,6 +37,7 @@ namespace NC2Logic
     void GameMap_CalculationMap_Clear(const void* packedMigPoint, std::int32_t radius);
     void GameMap_CalculationMap_Clear(const std::int16_t* rectangle);
     std::uint32_t GameMap_Continent_GetContinentTyp(std::uint32_t continentId);
+    std::uint32_t MapMicroPointData_Continent_GetContinentTyp(const void* micro);
 
     // Original function: FUN_00423fb0
     std::uint8_t GameMap_GetHeightAtMapMigPoint(const void* packedMigPoint);

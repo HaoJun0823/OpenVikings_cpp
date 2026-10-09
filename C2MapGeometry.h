@@ -39,6 +39,9 @@ namespace NC2Logic
     void MapMagPoint_MoveCursorUnwrappedEast(void* packedMagPoint);
     void MapMagPoint_MoveCursorUnwrappedWest(void* packedMagPoint);
     void VE_MapCoords_GetMicroGridMapOffset(std::int16_t x, std::int16_t y, std::int16_t* offsetX, std::int16_t* offsetY);
+    void VE_MapCoords_SnapMicroGridToMacroGridMapPoint(std::int16_t x, std::int16_t y, std::int16_t* resultX, std::int16_t* resultY);
+    void MapMigPoint_MakeMacroGridAligned(void* point);
+    bool MapMigPoint_IsOnMacroGrid(const void* point);
     void VE_MapCoords_MicroGridMapToMacroGridMapPoint(std::int16_t x, std::int16_t y, std::int16_t* macroX, std::int16_t* macroY);
     void* MapMagPoint_ConstructFromMig(void* packedMagPoint, const void* packedMigPoint, bool validate);
     void* MapMigPoint_ConstructOffset(void* packedMigPoint, const void* source, std::int16_t xOffset, std::int16_t yOffset, bool validate);

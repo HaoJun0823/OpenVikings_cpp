@@ -7,6 +7,9 @@
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2E2HumanSoundAccess.h"
+#include "C2HumanWalking.h"
+#include "C2VehicleAccess.h"
+#include "C2StaticVehicleTypeData.h"
 #include "GuiToolsBase.h"
 
 #include <cstring>
@@ -111,6 +114,46 @@ namespace NC2InGameGuiInputManager
             NC2Lifetime::Write<std::uint32_t>(command, 0x0C, NC2Logic::MapMigPoint_GetLong(point));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Input_Read<std::int32_t>(manager, 8));
+        }
+    }
+
+    // Original function: FUN_004b7c5a; the adjusted point is a native by-value argument.
+    void Misc_Tool_SendSelectedVehicle(void* manager, std::uint32_t point)
+    {
+        NC2Logic::Tool_Map_GetNotBlockedPosition(&point, true);
+        const auto selection = Input_Read<std::uint32_t>(manager, 4);
+        if (selection == 5)
+        {
+            std::uint32_t radius = 0;
+            for (std::uint32_t index = 0; index < Input_Read<std::uint32_t>(manager, 0x984); ++index)
+            {
+                const void* vehicle = NC2Logic::CVehicleArray::mStaticVars + Input_Read<std::uint32_t>(manager, 0x988u + index * 8u) * NC2Logic::CVehicleArray::ElementSize;
+                const auto size = static_cast<std::uint32_t>(NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
+                if (size > radius) radius = size;
+            }
+            l_Selection_FillTargetPointArray(manager, &point, radius, Input_Read<std::uint32_t>(manager, 0x984));
+            for (std::uint32_t index = 0; index < Input_Read<std::uint32_t>(manager, 0x984); ++index)
+            {
+                std::byte command[0x14]{};
+                NC2Lifetime::Write<std::uint8_t>(command, 0, 101);
+                NC2Lifetime::Write(command, 4, Input_Read<std::uint32_t>(manager, 0x988u + index * 8u));
+                const auto count = Input_Read<std::uint32_t>(manager, 0xAC8);
+                const void* target = count == 0 ? static_cast<const void*>(&point) : static_cast<const std::byte*>(manager) + 0xACCu + (index % count) * 4u;
+                NC2Lifetime::Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(target));
+                NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+                const void* vehicle = NC2Logic::CVehicleArray::mStaticVars + Input_Read<std::uint32_t>(manager, 0x988u + index * 8u) * NC2Logic::CVehicleArray::ElementSize;
+                if (Input_Read<std::uint8_t>(vehicle, 0x2EC) != 0) NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, NC2Logic::Vehicle_Passengers_GetAttachedCommanderId(vehicle));
+            }
+        }
+        else if (selection == 4)
+        {
+            std::byte command[0x14]{};
+            NC2Lifetime::Write<std::uint8_t>(command, 0, 101);
+            NC2Lifetime::Write(command, 4, Input_Read<std::uint32_t>(manager, 0x97C));
+            NC2Lifetime::Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(&point));
+            NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+            const void* vehicle = NC2Logic::CVehicleArray::mStaticVars + Input_Read<std::uint32_t>(manager, 0x97C) * NC2Logic::CVehicleArray::ElementSize;
+            if (Input_Read<std::uint8_t>(vehicle, 0x2EC) != 0) NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, NC2Logic::Vehicle_Passengers_GetAttachedCommanderId(vehicle));
         }
     }
 

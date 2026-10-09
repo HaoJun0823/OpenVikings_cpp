@@ -216,6 +216,14 @@ namespace NC2Logic
         return reinterpret_cast<const void*>(static_cast<std::uintptr_t>(address));
     }
 
+    // Original function: FUN_0042f6d5; distinct native micro-point forwarding entry.
+    std::uint32_t MapMicroPointData_Continent_GetContinentTyp(const void* micro)
+    {
+        std::uint8_t continent;
+        std::memcpy(&continent, static_cast<const std::byte*>(micro) + 6, sizeof(continent));
+        return GameMap_Continent_GetContinentTyp(continent);
+    }
+
     // Original function: FUN_0042385b.
     void* GameMap_GetMapMicroPointPtr(const void* packedMigPoint)
     {

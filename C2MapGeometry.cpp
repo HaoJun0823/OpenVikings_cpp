@@ -193,6 +193,37 @@ namespace NC2Logic
         *offsetX = static_cast<std::int16_t>((x - ((static_cast<std::uint16_t>(y) & 3u) == 1 || (static_cast<std::uint16_t>(y) & 3u) == 2 ? 1 : 0)) & 1);
         *offsetY = static_cast<std::int16_t>(y & 1);
     }
+    // Original function: FUN_0042a670; preserve the four low-bit alignment cases and WORD results.
+    void VE_MapCoords_SnapMicroGridToMacroGridMapPoint(std::int16_t x, std::int16_t y, std::int16_t* resultX, std::int16_t* resultY)
+    {
+        std::int32_t alignedX = x;
+        switch (static_cast<std::uint16_t>(y) & 3u)
+        {
+        case 0: alignedX &= ~1; break;
+        case 1: alignedX = (alignedX + 1) & ~1; break;
+        case 2: alignedX = ((alignedX - 1) & ~1) + 1; break;
+        case 3: alignedX = (alignedX & ~1) + 1; break;
+        }
+        *resultX = static_cast<std::int16_t>(alignedX);
+        *resultY = static_cast<std::int16_t>(y & ~1);
+    }
+
+    // Original function: FUN_0042ad79.
+    void MapMigPoint_MakeMacroGridAligned(void* point)
+    {
+        auto* coordinates = static_cast<std::int16_t*>(point);
+        VE_MapCoords_SnapMicroGridToMacroGridMapPoint(coordinates[0], coordinates[1], coordinates, coordinates + 1);
+    }
+
+    // Original function: FUN_0042adb8.
+    bool MapMigPoint_IsOnMacroGrid(const void* point)
+    {
+        std::int16_t coordinates[2], offsets[2];
+        std::memcpy(coordinates, point, sizeof(coordinates));
+        VE_MapCoords_GetMicroGridMapOffset(coordinates[0], coordinates[1], offsets, offsets + 1);
+        return offsets[0] == 0 && offsets[1] == 0;
+    }
+
     // Original function: FUN_0042a9b0.
     void* MapMigPoint_ConstructFromMag(void* packedMigPoint, const void* packedMagPoint, bool validate)
     {

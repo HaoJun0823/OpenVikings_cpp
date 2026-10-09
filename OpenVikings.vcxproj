@@ -653,4 +653,10 @@
   <ItemGroup>
     <ClCompile Include="MainMenuGuiMousePointer.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseBuildPosition.cpp" />
+    <ClInclude Include="C2HouseBuildPosition.h" />
+    <ClCompile Include="C2VehicleIterator.cpp" />
+    <ClInclude Include="C2VehicleIterator.h" />
+  </ItemGroup>
 </Project>

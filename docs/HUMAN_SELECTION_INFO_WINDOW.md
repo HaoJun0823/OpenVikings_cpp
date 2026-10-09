@@ -60,7 +60,7 @@ All behavior and constants above are confirmed from Windows ASM/Game.exe. Mac he
 
 The single-human constructor, message, draw and layout are reconstructed. All selection families, native context/action buttons, rename/job/school/equipment/trader popups, production help and observer/follow controls are connected. This supersedes the historical partial notes above.
 
-Specialized house/vehicle input/default/selection/highlight modes and downstream house/vehicle/combat/task logic retain separate inventory boundaries. A connected menu button does not establish completion of its eventual game logic. General menu/input flow audits and runtime verification remain open. No build, tests or game run occurred.
+All native input modes, human/vehicle default movement, selection validation and map highlighting are reconstructed. Windows validation deliberately does nothing for type-only house/landscape selections 7 and 9. Downstream house/vehicle/combat/task logic retains separate inventory boundaries. A connected menu button does not establish completion of its eventual game logic. General menu/input flow audits and runtime verification remain open. No build, tests or game run occurred.
 
 ## Startup briefing audit
 

@@ -1754,7 +1754,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0047DBF3,Display_UpdateEarthquake,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 0047E5F4,Inform_DesktopXTructed,NC2E2::CE2Manager::Inform_DesktopXTructed,5320,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 0047E650,Inform_ControllingPlayerChanged,NC2E2::CE2Manager::Inform_ControllingPlayerChanged,5321,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
-0048089E,Engine2d_EntryPoint_GetHouseDevelopNamePtr,NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr,5207,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0048089E,NC2E2::Engine2d_EntryPoint_GetHouseDataPtr,NC2E2::Engine2d_EntryPoint_GetHouseDataPtr,5206,"Windows returns the structured house data at entry +0x3C, read as logic stages and map areas by its xrefs; x86-64-mac.h supplies the matching data-access name only; supersedes incorrect DevelopName mapping"
 004808BE,Engine2d_EntryPoint_GetHouseId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 00481198,Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr,NC2E2::Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr,5227,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004811A3,Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr,NC2E2::Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr,5228,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
@@ -1826,3 +1826,87 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004A00A8,GuiMarkers_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004BB035,l_DoTimeSyncedScrolling,NC2InGameGuiWorldElement::CWorldDisplayElement::l_DoTimeSyncedScrolling,6659,Windows frame dispatch and scrolling call sites establish correspondence; x86-64-mac.h supplies names only
 004E2BAE,FXTool_Fail,NC2GuiToolsBase::FXTool_Fail,4137,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0040B580,MapMigPoint_IsInsideMap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004234C4,GameMap_InitAndCreateEmptyMap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00423761,MapMagPoint_IsInsideMap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042378B,GameMap_GetConstMapMacroPointPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004237D2,GameMap_GetConstMapMicroPointPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042385B,GameMap_GetMapMicroPointPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00423FB0,GameMap_GetHeightAtMapMigPoint,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004243C6,GameMap_Exploration_DoExplore,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042469E,ls_Exploration_ExploreArea,NC2Logic::ls_Exploration_ExploreArea,8628,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042475A,Exploration_ExploreHouseFootprint,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042479B,GameMap_Exploration_DoExploreAll,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00424CC1,GameMap_CalculationMap_GetValue,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00424CE2,GameMap_CalculationMap_SetValue,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00424D09,GameMap_CalculationMap_Clear,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042A5F1,VE_MapCoords_MicroGridMapToMacroGridMapPoint,NC2Logic::VE_MapCoords_MicroGridMapToMacroGridMapPoint,8708,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042A632,VE_MapCoords_GetMicroGridMapOffset,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042A670,VE_MapCoords_SnapMicroGridToMacroGridMapPoint,NC2Logic::VE_MapCoords_SnapMicroGridToMacroGridMapPoint,8710,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042A83E,VE_HexagonDirection_OppositeDirection,NC2Logic::VE_HexagonDirection_OppositeDirection,8714,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042A935,VE_HexagonDirection_GetDistance,NC2Logic::VE_HexagonDirection_GetDistance,8718,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042A9B0,MapMigPoint_ConstructFromMag,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042A9E7,MapMigPoint_ConstructOffset,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AA54,MapMigPoint_MoveCursorWrapped,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042ABDD,MapMigPoint_MoveCursorUnwrapped,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AC72,MapMigPoint_MoveCursorUnwrapped,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AC91,MapMigPoint_WrapPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AD18,MapMigPoint_ValidatePosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AD4E,MapMigPoint_IsBorderPoint,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AD79,MapMigPoint_MakeMacroGridAligned,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042ADB8,MapMigPoint_IsOnMacroGrid,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042ADEC,MapMigPoint_AssignLong,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042ADFF,MapMigPoint_GetLong,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AE99,MapMigRectangle_CutInsideMap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AF01,MapMigRectangle_IsTouching,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AF98,MapMagPoint_ConstructFromMig,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042AFCB,MapMagPoint_MoveCursorWrapped,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B128,MapMagPoint_MoveCursorWrappedEast,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B13C,MapMagPoint_MoveCursorWrappedWest,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B14F,MapMagPoint_MoveCursorUnwrapped,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B1E2,MapMagPoint_MoveCursorUnwrappedEast,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B1E6,MapMagPoint_MoveCursorUnwrappedWest,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B1EA,MapMagPoint_ValidatePosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B271,MapMagPoint_ValidateXPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B2B4,MapMagPoint_ValidateYPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B2FD,MapMagPoint_CutInsideMap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B33B,MapMagPoint_IsBorderPoint,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B376,MapMagRectangle_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B3A7,MapMagRectangle_CutInsideMap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0042B40F,VE_MicroPoint_GetMicroPointCount,NC2Logic::VE_MicroPoint_GetMicroPointCount,8790,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F6D5,MapMicroPointData_Continent_GetContinentTyp,NC2Logic::SMapMicroPointData::Continent_GetContinentTyp,8920,Windows micro-point byte +6 forwards to the established continent type accessor; x86-64-mac.h supplies names only
+0042F6E1,StringAccess_GetGoodNamePtr,NC2Logic::StringAccess_GetGoodNamePtr,9244,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F703,StringAccess_GetTribeNamePtr,NC2Logic::StringAccess_GetTribeNamePtr,9245,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F725,StringAccess_GetJobNamePtr,NC2Logic::StringAccess_GetJobNamePtr,9246,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F747,StringAccess_GetHouseNamePtr,NC2Logic::StringAccess_GetHouseNamePtr,9247,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F769,StringAccess_GetHouseNamePtr,NC2Logic::StringAccess_GetHouseNamePtr,9247,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F792,StringAccess_GetJobExperienceNamePtr,NC2Logic::StringAccess_GetJobExperienceNamePtr,9249,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F7A9,StringAccess_GetVehicleTypeNamePtr,NC2Logic::StringAccess_GetVehicleTypeNamePtr,9250,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F7C0,StringAccess_GetVehicleTaskNamePtr,NC2Logic::StringAccess_GetVehicleTaskNamePtr,9251,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F7D7,StringAccess_GetMilitaryModeNamePtr,NC2Logic::StringAccess_GetMilitaryModeNamePtr,9252,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0042F7EE,StringAccess_GetMiscStringPtr,NC2Logic::StringAccess_GetMiscStringPtr,9253,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0043AA23,Tool_Human_IsAnyOfPlayerAround,NC2Logic::Tool_Human_IsAnyOfPlayerAround,9071,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440D42,CVehicleIterator::GetFirstSectorVehicleId,NC2Logic::CVehicleIterator::GetFirstSectorVehicleId,9496,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440DE1,CVehicleIterator::GetNextSectorVehicleId,NC2Logic::CVehicleIterator::GetNextSectorVehicleId,9498,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440EA1,CVehicleIterator::l_GetNextSectorVehicleId,NC2Logic::CVehicleIterator::l_GetNextSectorVehicleId,9497,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00440F70,Tool_House_IsAllowedToBeBuild,NC2Logic::Tool_House_IsAllowedToBeBuild,7240,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452AEC,GameMap_Continent_GetContinentTyp,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00452B3A,~CMapArea,NC2Logic::CMapArea::~CMapArea,8524,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452BDC,CMapArea::WalkBlock_Set,NC2Logic::CMapArea::WalkBlock_Set,8527,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452C87,CMapArea::WalkBlock_Check,NC2Logic::CMapArea::WalkBlock_Check,8528,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452CFE,CMapArea::BuildBlock_Set,NC2Logic::CMapArea::BuildBlock_Set,8529,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452D79,CMapArea::BuildBlock_Check,NC2Logic::CMapArea::BuildBlock_Check,8530,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452DF0,CMapArea::Landscapes_RemoveAll,NC2Logic::CMapArea::Landscapes_RemoveAll,8531,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452E5B,CMapArea::Check_CanLandscapeBeSetOnPattern,NC2Logic::CMapArea::Check_CanLandscapeBeSetOnPattern,8532,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452ED4,CMapArea::Check_AreAllPointsOnSameLandContinent,NC2Logic::CMapArea::Check_AreAllPointsOnSameLandContinent,8533,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452F6D,CMapArea::Check_AreAllPointsAroundOnBuildAllowedPattern,NC2Logic::CMapArea::Check_AreAllPointsAroundOnBuildAllowedPattern,8534,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00452FFE,CMapArea::Check_AreAllPointsAroundOnBioRegrowPattern,NC2Logic::CMapArea::Check_AreAllPointsAroundOnBioRegrowPattern,8535,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00453095,CMapArea::Check_NoGuideOnArea,NC2Logic::CMapArea::Check_NoGuideOnArea,8536,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004531B9,CMapArea::AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed,NC2Logic::CMapArea::AdditionalAttachmentPoints_CheckIfPointsFreeOrToBeFreed,8538,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00453236,CMapArea::AdditionalAttachmentPoints_SetToMap,NC2Logic::CMapArea::AdditionalAttachmentPoints_SetToMap,8539,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004532D9,CMapArea::AdditionalAttachmentPoints_ClearFromMap,NC2Logic::CMapArea::AdditionalAttachmentPoints_ClearFromMap,8540,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00453347,CMapArea::Check_NoHouseBuildForbiddenFlag,NC2Logic::CMapArea::Check_NoHouseBuildForbiddenFlag,8541,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004B7C5A,Misc_Tool_SendSelectedVehicle,NC2InGameGuiInputManager::CInputManager::Misc_Tool_SendSelectedVehicle,5928,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CA6C4,HighlightHouseConstruction,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CACD8,HighlightVehicleWorkCenter,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CADE3,HighlightVehicleMovement,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded

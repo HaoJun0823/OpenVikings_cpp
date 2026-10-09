@@ -151,7 +151,7 @@ namespace NC2E2
     const NXBasics::SColorRGB* Tool_PlayerColors_GetColorRef(std::int32_t playerId) { return StaticHumanMisc_ColorIds_GetPlayerColorRef(playerId); }
 
     // Original function: FUN_0048089e.
-    const void* Engine2d_EntryPoint_GetHouseDevelopNamePtr(std::uint32_t type)
+    const void* Engine2d_EntryPoint_GetHouseDataPtr(std::uint32_t type)
     {
         return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHouseEntries) + type * 0x8BCu + 0x3Cu);
     }

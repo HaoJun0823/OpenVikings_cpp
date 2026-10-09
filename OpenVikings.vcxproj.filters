@@ -1315,4 +1315,10 @@
   <ItemGroup>
     <ClCompile Include="MainMenuGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HouseBuildPosition.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HouseBuildPosition.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2VehicleIterator.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2VehicleIterator.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

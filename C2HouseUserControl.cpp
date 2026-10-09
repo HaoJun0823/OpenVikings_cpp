@@ -14,7 +14,7 @@ namespace NC2Logic
     // Original function: FUN_004329b6.
     bool House_Construction_CanBeUpgraded(const void* house)
     {
-        if (Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return false; const auto* stages = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10)); const auto next = Read<std::uint32_t>(house, 0x20) + 1u; if (next >= Read<std::uint32_t>(stages, 0x18)) return false;
+        if (Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return false; const auto* stages = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10)); const auto next = Read<std::uint32_t>(house, 0x20) + 1u; if (next >= Read<std::uint32_t>(stages, 0x18)) return false;
         const auto type = Read<std::uint32_t>(stages, next * 4u), index = Read<std::uint32_t>(house, 0xC) * 0x4A80u + 0x18u + Read<std::uint32_t>(house, 0x18) * 55u + type; return Read<std::uint8_t>(gGameControl, index + 0x2808) != 0 && Read<std::uint8_t>(gGameControl, index + 0x310E) != 0;
     }
     // Original function: FUN_00433549.

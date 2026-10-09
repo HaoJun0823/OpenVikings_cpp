@@ -48,7 +48,7 @@ namespace NC2Logic
         const auto* micro = GameMap_GetMapMicroPointPtr(point);
         const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? Read<std::uint16_t>(micro, 4) : 0xFFFFFFFFu;
         const auto* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
-        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10));
+        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
         return ls_Exploration_ExploreArea(player, point, Read<const CMapArea*>(definition, 0x1C));
     }
 

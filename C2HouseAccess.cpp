@@ -36,7 +36,7 @@ namespace NC2Logic
     // Original function: FUN_00432a64; aggregate repeated goods without changing first-seen order.
     void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods)
     {
-        const auto* names = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(engineType);
+        const auto* names = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
         std::memset(goods, 0, sizeof(*goods));
         const auto first = onlyCurrentStage ? developmentStage : 0u;
         if (first > developmentStage) return;
@@ -269,7 +269,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (Read<std::uint32_t>(house, 0x2C) == 1) return true;
-        const auto* engine = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10));
+        const auto* engine = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
         return Read<std::int32_t>(house, 0x7C8) >= Read<std::int32_t>(engine, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u);
     }
 
@@ -367,7 +367,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, 0x2C) == 2 ? 1u : 0u);
-        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10));
+        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
         const auto* area = Read<const CMapArea*>(definition, 0x34u + stage * 4u);
         if (area == nullptr) return false;
         std::uint32_t best = 1000000;
@@ -482,7 +482,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, 0x2C) == 2 ? 1u : 0u);
-        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10));
+        const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
         const auto* area = Read<const CMapArea*>(definition, 0x34u + stage * 4u);
         if (area == nullptr) return false;
         std::uint32_t best = 1000000;
@@ -652,16 +652,16 @@ namespace NC2Logic
     // Original function: FUN_00434274; Windows looks up the definition twice.
     void House_Misc_Blocks_SetToMap(const void* house)
     {
-        const auto* type = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
+        const auto* type = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
         NC2Lifetime::Read<const CMapArea*>(type, 0x20u + NC2Lifetime::Read<std::uint32_t>(house, 0x20) * 4u)->WalkBlock_Set(static_cast<const std::byte*>(house) + 0x1C, true);
-        type = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
+        type = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
         NC2Lifetime::Read<const CMapArea*>(type, 0x1C)->BuildBlock_Set(static_cast<const std::byte*>(house) + 0x1C, true);
     }
 
     // Original function: FUN_00434345.
     void* House_Misc_WalkBlockArea_GetPtr(const void* house)
     {
-        const void* type = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
+        const void* type = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
         return NC2Lifetime::Read<void*>(type, 0x20u + NC2Lifetime::Read<std::uint32_t>(house, 0x20) * 4u);
     }
 

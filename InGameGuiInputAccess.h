@@ -65,6 +65,7 @@ namespace NC2InGameGuiInputManager
     std::uint32_t Selection_GetSelectedMultipleVehiclesNumber(const void* manager);
     std::int32_t Selection_GetSelectedMultipleVehicleId(const void* manager, std::uint32_t index);
     void Misc_Tool_SendSelectedHuman(void* manager, const void* point);
+    void Misc_Tool_SendSelectedVehicle(void* manager, std::uint32_t point);
     void l_Selection_FillTargetPointArray(void* manager, const void* point, std::uint32_t radius, std::uint32_t wanted);
 }
 

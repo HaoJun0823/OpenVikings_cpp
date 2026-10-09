@@ -80,7 +80,7 @@ namespace NC2Logic
     // Original function: FUN_0042f769.
     const char* StringAccess_GetHouseNamePtr(std::uint32_t type, std::uint32_t developmentStage, std::uint32_t amount)
     {
-        const void* names = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(type);
+        const void* names = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(type);
         if (names == nullptr || developmentStage >= NC2Lifetime::Read<std::uint32_t>(names, 0x18)) return nullptr;
         return StringAccess_GetHouseNamePtr(NC2Lifetime::Read<std::uint32_t>(names, developmentStage * 4u), amount);
     }

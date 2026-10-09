@@ -26,7 +26,7 @@ namespace NC2E2
     const void* EngineMap_GetConstMapMicroPointPtr(const void* point);
     const void* Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(const void* point);
     const void* Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(const void* point);
-    const void* Engine2d_EntryPoint_GetHouseDevelopNamePtr(std::uint32_t type);
+    const void* Engine2d_EntryPoint_GetHouseDataPtr(std::uint32_t type);
     std::int32_t Engine2d_EntryPoint_GetHouseId(std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage);
     extern NXBasics::CBitmap* gDesktopOwnedBobBitmap;
 

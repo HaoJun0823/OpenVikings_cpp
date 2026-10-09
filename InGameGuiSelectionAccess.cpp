@@ -12,7 +12,9 @@
 #include "C2MissionStartObjects.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2VehicleAccess.h"
+#include "C2StaticVehicleTypeData.h"
 #include "C2HouseAccess.h"
+#include "C2HouseBuildPosition.h"
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanMerchantAccess.h"
@@ -471,7 +473,7 @@ namespace NC2InGameGuiInputManager
         return true;
     }
 
-    // Original function: FUN_004b6ce1; construction-type cases remain an explicit boundary.
+    // Original function: FUN_004b6ce1; type-only selections 7 and 9 deliberately require no validation.
     void Selection_Validate(void* manager)
     {
         const auto mode = Read<std::uint32_t>(manager, 4);
@@ -634,6 +636,50 @@ namespace NC2InGameGuiInputManager
             };
             return UpdateHighlightArea(rectangle, mark);
         }
+
+        // Original function: FUN_004ca6c4; seen terrain, placement and nearby human/commander checks remain ordered.
+        bool HighlightHouseConstruction(const std::int16_t* rectangle)
+        {
+            const auto type = Selection_GetSelectedEngineHouseTypeId(gInputManager);
+            const auto stage = Selection_GetSelectedEngineHouseExtensionLevel(gInputManager);
+            const auto player = Player();
+            return UpdateHighlightArea(rectangle, [type, stage, player](const void* point) -> std::uint8_t
+            {
+                if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(player, point)) return 1;
+                if (!NC2Logic::Tool_House_IsAllowedToBeBuild(player, type, stage, Read<std::uint32_t>(point, 0), false, true)) return 1;
+                return NC2Logic::Tool_Human_IsAnyOfPlayerAround(player, point, 24, true) ? 3 : 1;
+            });
+        }
+
+        // Original function: FUN_004cacd8; movement space uses the selected vehicle's continent and size.
+        bool HighlightVehicleWorkCenter(const std::int16_t* rectangle)
+        {
+            const void* vehicle = Vehicle(Selection_GetSelectedSingleVehicleId(gInputManager));
+            const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(NC2Logic::Vehicle_GetMapPositionRef(vehicle)), 6);
+            const auto size = static_cast<std::uint32_t>(NC2Logic::Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
+            return UpdateHighlightArea(rectangle, [continent, size](const void* point) -> std::uint8_t
+            {
+                if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 6) != continent) return 1;
+                return (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 0x0C) & 7u) >= size ? 3 : 1;
+            });
+        }
+
+        // Original function: FUN_004cade3; groups can target the complete rectangle.
+        bool HighlightVehicleMovement(const std::int16_t* rectangle)
+        {
+            const auto selection = Read<std::uint32_t>(gInputManager, 4);
+            if (selection == 4)
+            {
+                const void* position = NC2Logic::Vehicle_GetMapPositionRef(Vehicle(Selection_GetSelectedSingleVehicleId(gInputManager)));
+                NC2Logic::GameMap_GetConstMapMicroPointPtr(position);
+                return UpdateHighlightArea(rectangle, [position](const void* point) -> std::uint8_t
+                {
+                    const auto distance = NC2Logic::VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2));
+                    return static_cast<std::uint32_t>(distance) <= 30u ? 3 : 1;
+                });
+            }
+            return selection == 5 ? UpdateHighlightArea(rectangle, [](const void*) -> std::uint8_t { return 3; }) : false;
+        }
     }
 
     namespace
@@ -659,7 +705,7 @@ namespace NC2InGameGuiInputManager
         // Original function: FUN_004caaa3; Windows-only outlined gate highlighting.
         bool HighlightWallGate(const std::int16_t* rectangle) { const auto player = Player(); return UpdateHighlightArea(rectangle, [player](const void* point) -> std::uint8_t { return NC2Logic::MapTool_WallGate_IsPossibleMapPosition(player, point) ? 3 : 1; }); }
     }
-    // Partial original function: FUN_004c9e2a; modes 12 and 19..21 remain reconstruction boundaries.
+    // Original function: FUN_004c9e2a; complete native input-mode highlighting dispatcher.
     bool Highlighting_Map_Update(void* manager, const std::int16_t* rectangle)
     {
         // Windows reads its singleton in both the dispatcher and the outlined helpers.
@@ -668,13 +714,16 @@ namespace NC2InGameGuiInputManager
         if (mode == 1) return HighlightHumanMovement(gInputManager, rectangle);
         if (mode == 2 || mode == 3) return HighlightHumanWorkCenter(gInputManager, rectangle, mode == 3);
         if (mode == 10 || mode == 11) return HighlightEnemyHouses(rectangle);
+        if (mode == 12) return HighlightHouseConstruction(rectangle);
         if (mode == 13) return HighlightGuideConstruction(rectangle);
         if (mode == 14) return HighlightRoadStart(rectangle);
         if (mode == 15) return HighlightRoadEnd(rectangle);
         if (mode == 16) return HighlightWallStart(rectangle);
         if (mode == 17) return HighlightWallEnd(rectangle);
         if (mode == 18) return HighlightWallGate(rectangle);
-        if (mode == 22) return HighlightEnemyLandscapes(rectangle);
+        if (mode == 19) return HighlightVehicleWorkCenter(rectangle);
+        if (mode == 20) return HighlightVehicleMovement(rectangle);
+        if (mode == 21 || mode == 22) return HighlightEnemyLandscapes(rectangle);
         if (mode >= 23 && mode <= 28) return HighlightInvalidArea(rectangle);
         if (mode < 4 || mode > 9) return false;
         const auto id = Selection_GetSelectedSingleHumanId(manager);
@@ -884,10 +933,75 @@ namespace NC2InGameGuiInputManager
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x10, true, id, allowed ? 12 : 8, 0);
         }
     }
-    // Partial original function: FUN_004b4bd6; character, road, wall and gate modes are connected.
+    // Original function: FUN_004b4bd6; complete native input-mode command dispatcher.
     bool Action_DoInputSelect(void* manager, const void* object)
     {
         const auto mode = Read<std::uint32_t>(manager, 0);
+        if (mode == 12)
+        {
+            if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+            std::byte command[20]{};
+            Write<std::uint8_t>(command, 0, 117); Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Player()));
+            Write(command, 4, Read<std::uint32_t>(manager, 0xA80)); Write(command, 8, Read<std::uint32_t>(manager, 0xA84));
+            Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + 0xABC));
+            Write(command, 0x10, (Read<std::uint32_t>(manager, 0xA88) << 16) | (Read<std::uint32_t>(manager, 0xA8C) & 0xFFFFu));
+            NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
+            InputMode_Cancel(manager); return true;
+        }
+        if (mode == 19 || mode == 20 || mode == 21)
+        {
+            if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+            const auto* point = static_cast<std::byte*>(manager) + 0xABC;
+            if (mode == 20) Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(point, 0));
+            else
+            {
+                const auto send = [&](std::int32_t id)
+                {
+                    std::byte command[20]{};
+                    Write<std::uint8_t>(command, 0, mode == 19 ? 103 : 108); Write(command, 4, id);
+                    Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(point));
+                    NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+                };
+                if (mode == 19) send(Read<std::int32_t>(manager, 0x97C));
+                else
+                {
+                    if (Read<std::uint32_t>(manager, 4) == 4) send(Read<std::int32_t>(manager, 0x97C));
+                    for (std::uint32_t index = 0; Read<std::uint32_t>(manager, 4) == 5 && index < Selection_GetSelectedMultipleVehiclesNumber(manager); ++index) send(Selection_GetSelectedMultipleVehicleId(manager, index));
+                }
+            }
+            InputMode_Cancel(manager); return true;
+        }
+        if (mode == 11 || mode == 24 || mode == 28)
+        {
+            std::int32_t targetId;
+            const void* target;
+            if (mode == 11)
+            {
+                if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
+                const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(manager) + 0xABC);
+                if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return false;
+                targetId = Read<std::uint16_t>(micro, 4);
+                if (!Misc_House_IsEnemyToAttack(manager, targetId)) return false;
+                target = House(targetId);
+            }
+            else
+            {
+                if (object == nullptr || Read<std::uint32_t>(object, 0) != (mode == 24 ? 1u : 3u)) return false;
+                targetId = Read<std::int32_t>(object, mode == 24 ? 8 : 0x18);
+                if (!(mode == 24 ? Misc_Human_IsEnemyToAttack(manager, targetId) : Misc_Vehicle_IsEnemyToAttack(manager, targetId))) return false;
+                target = mode == 24 ? Human(targetId) : Vehicle(targetId);
+            }
+            const auto send = [&](std::int32_t id)
+            {
+                std::byte command[20]{};
+                Write<std::uint8_t>(command, 0, mode == 11 ? 105 : mode == 24 ? 104 : 107); Write(command, 4, id);
+                Write(command, 0x0C, targetId); Write(command, 0x10, Read<std::uint32_t>(target, 8));
+                NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
+            };
+            if (Read<std::uint32_t>(manager, 4) == 4) send(Selection_GetSelectedSingleVehicleId(manager));
+            for (std::uint32_t index = 0; Read<std::uint32_t>(manager, 4) == 5 && index < Selection_GetSelectedMultipleVehiclesNumber(manager); ++index) send(Selection_GetSelectedMultipleVehicleId(manager, index));
+            InputMode_Cancel(manager); return true;
+        }
         if (mode >= 14 && mode <= 18)
         {
             if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
@@ -994,15 +1108,27 @@ namespace NC2InGameGuiInputManager
     {
         if (Read<std::uint32_t>(manager, 0) != 0) return false;
         const auto mode = Read<std::uint32_t>(manager, 4);
-        if (mode != 1 && mode != 2) return false; // Vehicle defaults remain a separate reconstruction boundary.
+        if (mode != 1 && mode != 2 && mode != 4 && mode != 5) return false;
         auto* cursor = static_cast<std::byte*>(manager) + 0xAB6;
         std::uint32_t position = 0;
-        const void* human = Human(Read<std::uint32_t>(manager, mode == 1 ? 8 : 0x14));
-        if (mode == 1)
+        if (mode == 1 || mode == 4)
         {
             const auto player = Player();
             if (player >= 16 || (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 8) & (1u << player)) != 0) return false;
         }
+        if (mode == 4)
+        {
+            Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, 0));
+            return true;
+        }
+        if (mode == 5)
+        {
+            NC2Logic::Vehicle_GetMapPosition(Vehicle(Read<std::uint32_t>(manager, 0x988)), &position);
+            if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 6) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6)) return false;
+            Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, 0));
+            return true;
+        }
+        const void* human = Human(Read<std::uint32_t>(manager, mode == 1 ? 8 : 0x14));
         if (!NC2Logic::Human_GetMapPosition(human, &position)) return false;
         if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 6) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6)) return false;
         Misc_Tool_SendSelectedHuman(manager, cursor);
@@ -1082,7 +1208,7 @@ namespace NC2InGameGuiInputManager
 }
 
 // ABI adapter used by the existing GUI constructors and command handlers.
-// Partial original function: FUN_004a2f54; mode 8 is connected.
+// Original function: FUN_004a2f54; distinct native singleton-forwarding entry.
 bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std::int16_t* rectangle) { return NC2InGameGuiInputManager::Highlighting_Map_Update(NC2InGameGuiInputManager::gInputManager, rectangle); }
 bool __fastcall InputManager_InputMode_Set(void* manager, void*, int mode) { return NC2InGameGuiInputManager::InputMode_Set(manager, mode); }
 

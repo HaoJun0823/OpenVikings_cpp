@@ -35,6 +35,22 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_00452c87; outside-map points are skipped.
+    bool CMapArea::WalkBlock_Check(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & 0x80u) != 0) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
     // Original function: FUN_00452cfe.
     void CMapArea::BuildBlock_Set(const void* source, bool blocked) const
     {
@@ -95,6 +111,95 @@ namespace NC2Logic
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
                 if (MapMigPoint_IsInsideMap(&point) && !GameMap_Misc_IsLandscapeAllowedOnPattern(&point, landscape)) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00452ed4; the source and every area point must share a land continent.
+    bool CMapArea::Check_AreAllPointsOnSameLandContinent(const void* source) const
+    {
+        const void* micro = GameMap_GetMapMicroPointPtr(source);
+        if (MapMicroPointData_Continent_GetContinentTyp(micro) != 1) return false;
+        const auto continent = Read<std::uint8_t>(micro, 6);
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point) || Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 6) != continent) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00452f6d; all six surrounding triangle descriptions must allow building.
+    bool CMapArea::Check_AreAllPointsAroundOnBuildAllowedPattern(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point)) return false;
+                const void* descriptions[6];
+                if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(&point, descriptions)) return false;
+                for (std::uint32_t triangle = 0; triangle < 6; ++triangle) if (Read<std::uint8_t>(descriptions[triangle], 1) == 0) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00452ffe; both native regrow bytes are required on every triangle.
+    bool CMapArea::Check_AreAllPointsAroundOnBioRegrowPattern(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point)) return false;
+                const void* descriptions[6];
+                if (!GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(&point, descriptions)) return false;
+                for (std::uint32_t triangle = 0; triangle < 6; ++triangle) if (Read<std::uint8_t>(descriptions[triangle], 2) == 0 || Read<std::uint8_t>(descriptions[triangle], 3) == 0) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00453095.
+    bool CMapArea::Check_NoGuideOnArea(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 0) == 3) return false;
+                Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+            }
+        }
+        return true;
+    }
+
+    // Original function: FUN_00453347.
+    bool CMapArea::Check_NoHouseBuildForbiddenFlag(const void* source) const
+    {
+        for (std::uint32_t row = 0; row < rowCount; ++row)
+        {
+            std::uint32_t point;
+            MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
+            for (std::uint32_t column = 0; column < rows[row].width; ++column)
+            {
+                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & 0x20u) != 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
