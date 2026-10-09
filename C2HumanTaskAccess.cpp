@@ -28,6 +28,7 @@
 #include "C2HumanChest.h"
 #include "C2HumanMilitaryJobs.h"
 #include "C2HumanSocialJobs.h"
+#include "C2HumanAnimalJobs.h"
 
 namespace NC2Logic
 {
@@ -551,6 +552,7 @@ namespace NC2Logic
         case 5: Human_l_StartTask_ExecuteJob_Woman(human); return;
         case 7: Human_l_StartTask_ExecuteJob_Builder(human); return;
         case 8: Human_l_StartTask_ExecuteJob_Collector(human); return;
+        case 16: Human_l_StartTask_ExecuteJob_Breeder(human); return;
         case 18: Human_l_StartTask_ExecuteJob_Farmer(human); return;
         case 22: Human_l_StartTask_ExecuteJob_Fisher(human); return;
         case 28: Human_l_StartTask_ExecuteJob_Jester(human); return;

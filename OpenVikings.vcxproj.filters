@@ -1359,4 +1359,12 @@
     <ClCompile Include="C2HumanSocialJobs.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanSocialJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanAnimalJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanAnimalJobs.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2AnimalTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2AnimalTasks.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

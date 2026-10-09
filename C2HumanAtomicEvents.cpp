@@ -66,7 +66,7 @@ namespace NC2Logic
     }
 
     // Implementation boundary: do not start advancing an animation whose later
-    // events would require untranslated outdoor production or combat.
+    // events would require untranslated combat or vehicle construction.
     bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
     {
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
@@ -80,9 +80,7 @@ namespace NC2Logic
                 break;
             case 11: case 12: case 24: case 28: case 29: case 30: case 31: case 32: break;
             case 13: case 15: case 16: case 18: case 19: break;
-            case 21:
-                if (Read<std::uint32_t>(human, 0x1C) == 57 || Read<std::uint32_t>(human, 0x1C) == 58) return false;
-                break;
+            case 21: break;
             case 20:
                 if (Human_IsJobBuilder(human) && !Human_IsAttachedToWorkHouse(human) && (Read<std::uint32_t>(human, 0xAB8) == 41 || Read<std::uint32_t>(human, 0xAB8) == 42)) break;
                 if (!Human_IsJobScout(human) || Read<std::uint32_t>(human, 0xAB8) != 43) return false;
@@ -95,7 +93,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Animal production and combat remain explicit boundaries.
+    // 00468B67. Combat remains an explicit boundary.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);

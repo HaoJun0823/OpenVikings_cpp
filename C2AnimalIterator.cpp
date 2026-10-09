@@ -24,6 +24,25 @@ namespace NC2Logic
         return currentAnimalId;
     }
 
+    // Original function: FUN_004402f3; this scans the array, not sector chains.
+    std::int32_t CAnimalIterator::GetFirstAnimalId(std::uint32_t player, const void* point, std::int32_t searchRadius)
+    {
+        selection = player;
+        flags = 3;
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        radius = searchRadius;
+        currentAnimalId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentAnimalId;
+    }
+
+    // Original function: FUN_004403ec.
+    std::int32_t CAnimalIterator::GetNextAnimalId()
+    {
+        if (currentAnimalId == -1) return -1;
+        currentAnimalId = l_GetNext(currentAnimalId);
+        return currentAnimalId;
+    }
+
     // Original function: FUN_00440408; array and sector iteration are distinct.
     std::int32_t CAnimalIterator::l_GetNext(std::int32_t previousAnimalId)
     {

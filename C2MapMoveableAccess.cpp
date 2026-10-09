@@ -1,4 +1,6 @@
 #include "C2MapMoveableAccess.h"
+#include "C2AnimalAccess.h"
+#include "C2AnimalTasks.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanTaskAccess.h"
 #include "C2HumanNeeds.h"
@@ -51,8 +53,8 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_0040bd33. Human conditions precede turning,
-    // walking and AI; human deletion follows the tick. Other creature AI and
-    // military path callbacks remain tracked boundaries.
+    // walking and AI; animal conditions and civilian tasks are also connected.
+    // Vehicle ticks and creature combat callbacks remain tracked boundaries.
     void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* /*unusedEdx*/)
     {
         auto* handler = static_cast<CArrayHandler*>(array);
@@ -63,7 +65,9 @@ namespace NC2Logic
             const auto type = Read<std::uint32_t>(moveable, 8);
             if (type < 1u || type > 3u) continue;
             void* human = type == 1u ? CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize : nullptr;
+            void* animal = type == 2u ? CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CAnimalArray::ElementSize : nullptr;
             if (human != nullptr) Human_AI_DoUpdateConditions(human);
+            if (animal != nullptr) Animal_DoUpdateConditions(animal);
             if (Read<std::uint8_t>(moveable, 0x10) != 0)
             {
                 if (!MapMoveable_Attachment_PerformTurn(moveable)) goto finishCreatureTick;
@@ -94,13 +98,13 @@ namespace NC2Logic
                         if (progress >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
                         goto finishCreatureTick;
                     }
-                    if (human != nullptr)
+                    if (human != nullptr || animal != nullptr)
                     {
                         auto direction = MapPathfinderElement_GetNextDirection(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)));
                         if (direction == -4) goto finishCreatureTick;
                         if (direction >= 0)
                         {
-                            if (!Human_AI_DoNewMapPositionReached(human, false))
+                            if (!(human != nullptr ? Human_AI_DoNewMapPositionReached(human, false) : Animal_DoNewMapPositionReached(animal, false)))
                             {
                                 MapMoveable_Pathfinder_Stop(moveable);
                                 direction = -3;
@@ -114,9 +118,9 @@ namespace NC2Logic
                                 MapMoveable_Attachment_StartTurn(moveable, direction);
                             }
                         }
-                        else if (direction == -2) Human_AI_DoNewMapPositionReached(human, true);
-                        else if (direction == -1) Human_AI_DoPathfinderFailed(human);
-                        else if (direction == -3) Human_AI_DoPathfinderStopped(human);
+                        else if (direction == -2) { if (human != nullptr) Human_AI_DoNewMapPositionReached(human, true); else Animal_DoNewMapPositionReached(animal, true); }
+                        else if (direction == -1) { if (human != nullptr) Human_AI_DoPathfinderFailed(human); else Animal_DoPathfinderFailed(animal); }
+                        else if (direction == -3) { if (human != nullptr) Human_AI_DoPathfinderStopped(human); else Animal_DoPathfinderStopped(animal); }
                     }
                     else if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) goto finishCreatureTick;
                 }
@@ -127,9 +131,15 @@ namespace NC2Logic
                 if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(human, 0x10), Human_GetMapPositionRef(human));
                 GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(human) + 0xB88);
             }
+            else if (animal != nullptr)
+            {
+                Animal_DoUpdateAI(animal);
+                if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(animal, 0x10), Animal_GetMapPositionRef(animal));
+            }
         finishCreatureTick:
             // Windows 0040BD5B / human branch of DeleteObjectWithMapMoveable (0040ADD6).
             if (human != nullptr && Read<std::uint8_t>(moveable, 0x0C) != 0) CHumanArray::sTheObjectPtr->FreeHuman(Read<std::int32_t>(moveable, 0x54));
+            else if (animal != nullptr && Read<std::uint8_t>(moveable, 0x0C) != 0) CAnimalArray::sTheObjectPtr->FreeAnimal(Read<std::int32_t>(moveable, 0x54));
         }
     }
 

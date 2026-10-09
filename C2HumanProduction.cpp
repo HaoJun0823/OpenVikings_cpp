@@ -1,4 +1,5 @@
 #include "C2HumanProduction.h"
+#include "C2HumanAnimalJobs.h"
 #include "C2Debug.h"
 #include "C2GameMapAccess.h"
 #include "C2HouseAccess.h"
@@ -444,20 +445,20 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 2);
     }
 
-    // Partial original function: FUN_004691ce; animal breeding needs its allocation branch.
+    // Original function: FUN_004691ce; retain input consumption before animal allocation.
     void Human_l_PerformTaskEvent_Produce(void* human)
     {
         const auto id = Read<std::uint32_t>(human, 0x1C);
         if (id == 0) { Fail(human, 2); return; }
-        if (id == 57 || id == 58) return;
         if (Human_IsAttachedToWorkHouse(human))
         {
             auto* house = WorkHouse(human);
             const auto& good = gStaticGoodTypeStorage.records[id];
-            if (InputsAvailable(house, good) && !House_Stock_IsFull(house, id))
+            if (InputsAvailable(house, good) && !House_Stock_IsFullSoon(house, id))
             {
                 for (std::uint32_t index = 0; index < good.productionInputCount; ++index) House_Stock_ModifyAmount(house, static_cast<std::uint32_t>(good.productionInputs[index]), -1, 0, false);
-                Human_l_PerformTaskEvent_Produce_Good(human);
+                if (id == 57 || id == 58) Human_l_PerformTaskEvent_Produce_Animal(human);
+                else Human_l_PerformTaskEvent_Produce_Good(human);
             }
             else Write<std::uint32_t>(human, 0x36C, 3);
         }

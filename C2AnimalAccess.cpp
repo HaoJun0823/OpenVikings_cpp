@@ -11,6 +11,10 @@
 #include "C2HumanWalking.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2MapGeometry.h"
+#include "C2HouseAccess.h"
+#include "C2MapSectorAttachment.h"
+#include "C2MapSectorGridCursor.h"
+#include "C2OverviewObjectIterators.h"
 #include "C2MapMoveableAccess.h"
 #include "C2StaticActorTypeDataAccess.h"
 #include "C2StaticAtomicAnimationData.h"
@@ -116,7 +120,7 @@ namespace NC2Logic
         return true;
     }
 
-    // Original function: FUN_0042de20; landscape editing remains an external boundary.
+    // Original function: FUN_0042de20; preserve cadaver editing and callback ownership.
     void Animal_Exit(void* animal)
     {
         if (Animal_l_IsLeaderValid(animal)) Animal_l_DetachLeader(animal);
@@ -200,6 +204,89 @@ namespace NC2Logic
     bool Animal_IsAttachedToHouse(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + 0x50; return TargetData_GetTargetType(target) == 4 && TargetData_IsValid(target); }
     // Original function: FUN_0042f2d1.
     bool Animal_IsAttachedToVehicle(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + 0x50; return TargetData_GetTargetType(target) == 2 && TargetData_IsValid(target); }
+
+    // Original function: FUN_0042f2f5; even an unallocated house triggers center update.
+    void Animal_AttachToHouse(void* animal, std::int32_t houseId)
+    {
+        const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
+        if (Read<std::uint8_t>(house, 0) != 0)
+        {
+            Write(animal, 0x54, houseId);
+            Write(animal, 0x58, Read<std::uint32_t>(house, 8));
+            Write<std::uint32_t>(animal, 0x50, 4);
+            Animal_l_DetachLeader(animal);
+        }
+        Animal_l_MoveWorkCenterPoint(animal);
+    }
+
+    // Original function: FUN_0042f376.
+    void Animal_l_MoveWorkCenterPoint(void* animal)
+    {
+        if (Animal_IsAttachedToVehicle(animal)) return;
+        if (Animal_IsAttachedToHouse(animal))
+        {
+            const auto id = TargetData_GetObjectId(static_cast<const std::byte*>(animal) + 0x50);
+            Write(animal, 0x24, Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, 0x24));
+            return;
+        }
+        const auto player = Read<std::uint32_t>(animal, 0x10);
+        if (player != 20)
+        {
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 6);
+            CHouseIterator iterator;
+            for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
+            {
+                const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6) != continent) continue;
+                Write(animal, 0x54, id);
+                Write(animal, 0x58, Read<std::uint32_t>(house, 8));
+                Write<std::uint32_t>(animal, 0x50, 4);
+                Animal_l_DetachLeader(animal);
+                return;
+            }
+        }
+        if (Type(animal).ignoreHouses != 0) return;
+        const auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
+        const auto occupied = [manager, player](const SSectorGridCursor& cursor, bool stopAtFirst) -> std::uint32_t
+        {
+            const auto index = static_cast<std::uint32_t>(cursor.y) * static_cast<std::uint32_t>(manager->GetGridWidth()) + static_cast<std::uint32_t>(cursor.x);
+            const auto* sector = manager->GetSectorData() + index * 0x540u;
+            std::uint32_t total = 0;
+            for (std::uint32_t other = 0; other < 20; ++other)
+            {
+                if (other == player || Read<std::uint8_t>(gGameControl, other * 0x4A80u) == 0) continue;
+                const auto first = Read<std::uint32_t>(sector, other * 0x40u + 0x14), second = Read<std::uint32_t>(sector, other * 0x40u + 0x2C);
+                if (stopAtFirst && (first != 0 || second != 0)) return 1;
+                total += first + second;
+            }
+            return total;
+        };
+        const SSectorGridCursor center(Read<std::uint32_t>(animal, 0x24));
+        if (occupied(center, true) == 0) return;
+        const SSectorGridCursor active(Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0));
+        auto best = active;
+        auto minimum = occupied(active, false);
+        for (std::uint32_t direction = 0; direction < 8; ++direction)
+        {
+            auto candidate = center;
+            candidate.MoveCursorUnwrapped(direction);
+            if (!candidate.IsInsideMap()) continue;
+            const auto count = occupied(candidate, false);
+            if (count < minimum) { best = candidate; minimum = count; }
+        }
+        Write(animal, 0x24, static_cast<std::uint32_t>(static_cast<std::uint16_t>(best.x * 20)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(best.y * 20)) << 16));
+        auto* point = static_cast<std::byte*>(animal) + 0x24;
+        if (MapMigPoint_IsBorderPoint(point)) MapMigPoint_ConstructOffset(point, point, 10, 10, false);
+        Tool_Map_GetNotBlockedPosition(point, true);
+    }
+
+    // Original function: FUN_00461521.
+    void Animal_GoIntoHouseInteractionMode(void* animal)
+    {
+        if (Read<std::uint32_t>(animal, 0x1C) == 10) return;
+        Write<std::uint32_t>(animal, 0x20, 0);
+        Write<std::uint32_t>(animal, 0x1C, 10);
+    }
 
     // Original function: FUN_004471ca; aggression changes sector-list membership.
     void Animal_l_Aggressive_Check(void* animal)

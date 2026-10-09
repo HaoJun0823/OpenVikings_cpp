@@ -1,0 +1,566 @@
+#include "C2AnimalTasks.h"
+#include "C2AnimalAccess.h"
+#include "C2AnimalIterator.h"
+#include "C2GameMapAccess.h"
+#include "C2GameState.h"
+#include "C2HouseAccess.h"
+#include "C2HumanWalking.h"
+#include "C2InteractionTargetAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2MapMoveableAccess.h"
+#include "C2MapPathfinderSearch.h"
+#include "C2MissionStartObjects.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2StaticActorTypeDataAccess.h"
+#include "C2StaticAtomicAnimationData.h"
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+    namespace
+    {
+        void* Animal(std::uint32_t id) { return CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize; }
+        void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * 0x58u; }
+        const SStaticAnimalTypeData& Type(const void* animal) { return static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u]; }
+        std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
+        bool IsAggressive(const void* animal) { return Read<std::uint32_t>(animal, 0x18) == 49 && Read<std::uint8_t>(animal, 0x5C) != 0; }
+        const void* Macro(const void* point) { std::uint32_t macro = 0; MapMagPoint_ConstructFromMig(&macro, point, false); return GameMap_GetConstMapMacroPointPtr(&macro); }
+
+        // Original functions: FUN_0042f231, FUN_0042f257, FUN_0042f27d.
+        // Original helper names remain unresolved; Windows proves these limits.
+        std::uint32_t LeaderDistance(const void* animal) { return Animal_IsAttachedToHouse(animal) ? 15u : static_cast<std::uint32_t>(Type(animal).maximumLeaderDistance); }
+        std::uint32_t BirthDistance(const void* animal) { return Animal_IsAttachedToHouse(animal) ? 10u : static_cast<std::uint32_t>(Type(animal).maximumDistanceToBirthPoint); }
+        std::uint32_t StayDistance(const void* animal) { return (Read<std::uint32_t>(animal, 0x90) & 4u) != 0 || Animal_IsAttachedToHouse(animal) ? 5u : static_cast<std::uint32_t>(Type(animal).maximumDistanceToStayPoint); }
+
+        // Original function: FUN_0042ee89.
+        bool Animal_l_AttachLeader(void* animal, void* leader)
+        {
+            if (animal == leader) Write<std::uint32_t>(animal, 0x3C, 0);
+            if (Read<std::uint32_t>(leader, 0x3C) >= static_cast<std::uint32_t>(Type(animal).maximumGroupSize)) return false;
+            Write(animal, 0x34, Read<std::uint32_t>(leader, 4));
+            Write(animal, 0x38, Read<std::uint32_t>(leader, 8));
+            Write(leader, 0x3C, Read<std::uint32_t>(leader, 0x3C) + 1u);
+            return true;
+        }
+
+        // Original function: FUN_0042eb8b.
+        bool Animal_SetLeaderId(void* animal, std::uint32_t id)
+        {
+            auto* leader = Animal(id);
+            return Read<std::uint32_t>(leader, 0x14) == Read<std::uint32_t>(animal, 0x14) && !Animal_l_IsLeaderValid(animal) && Animal_l_AttachLeader(animal, leader);
+        }
+
+        // Original function: FUN_0042ec3c.
+        void Animal_l_CheckForValidLeader(void* animal)
+        {
+            if (Read<std::uint32_t>(animal, 0x34) != Read<std::uint32_t>(animal, 4))
+            {
+                if (Animal_l_IsLeaderValid(animal)) return;
+                Animal_l_DetachLeader(animal);
+            }
+            if (Animal_IsAttachedToVehicle(animal)) { Animal_SetLeaderId(animal, Read<std::uint32_t>(animal, 4)); return; }
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 6);
+            CAnimalIterator iterator;
+            const bool attached = Animal_IsAttachedToHouse(animal);
+            auto id = attached ? iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, 0x10)) : -1;
+            if (!attached && (Type(animal).searchForLeader != 0 || Read<std::uint32_t>(animal, 0x18) == 48)) id = iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, 0x10), Animal_GetMapPositionRef(animal), 40);
+            for (; id != -1; id = iterator.GetNextAnimalId())
+            {
+                auto* other = Animal(static_cast<std::uint32_t>(id));
+                if (Read<std::uint32_t>(other, 0x14) != Read<std::uint32_t>(animal, 0x14) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(other)), 6) != continent || !Animal_l_IsLeaderValid(other)) continue;
+                auto* leader = Animal(Read<std::uint32_t>(other, 0x34));
+                if (attached && (!Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(leader) + 0x50) != TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50))) continue;
+                if (Animal_l_AttachLeader(animal, leader)) return;
+            }
+            if (Read<std::int32_t>(animal, 0x34) != -1) return;
+            Write<std::uint32_t>(animal, 0x40, 0);
+            Write(animal, 0x2C, Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0));
+            Animal_l_AttachLeader(animal, animal);
+            id = iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, 0x10), Animal_GetMapPositionRef(animal), 40);
+            for (; id != -1; id = iterator.GetNextAnimalId()) Animal_SetLeaderId(Animal(static_cast<std::uint32_t>(id)), Read<std::uint32_t>(animal, 4));
+        }
+
+        struct SNearbyPoints { std::uint32_t count = 0; std::uint32_t points[8]{}; };
+        struct SLandPoints
+        {
+            // Original constructor: FUN_0046158c.
+            SLandPoints() { for (auto& point : points) point = 0; }
+            std::uint32_t minimumDistance;
+            std::uint32_t count;
+            std::uint32_t points[8];
+        };
+        static_assert(sizeof(SNearbyPoints) == 0x24);
+        static_assert(sizeof(SLandPoints) == 0x28);
+
+        // Windows uses the shared slHumanSearchMapPointNearbyFunction (0045D533).
+        bool __cdecl SearchNearby(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& candidates = *static_cast<SNearbyPoints*>(callback->userData);
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::int16_t>(micro, 10) != -1) return false;
+            candidates.points[candidates.count++] = Read<std::uint32_t>(point, 0);
+            return candidates.count == 8;
+        }
+
+        // Original function: FUN_00461653.
+        bool __cdecl slAnimalSearchLandMapPoint(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& data = *static_cast<SLandPoints*>(callback->userData);
+            if (callback->distance < data.minimumDistance) return false;
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::int16_t>(micro, 10) != -1) return false;
+            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            return data.count == 1;
+        }
+
+        // Original function: FUN_0046128f.
+        bool __cdecl slAnimalSearchFoodPatterns(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::int16_t>(micro, 10) != -1 || Read<std::uint8_t>(Macro(point), 0) != 2) return false;
+            Write(callback->userData, 0, Read<std::uint32_t>(point, 0));
+            return true;
+        }
+
+        // Original function: FUN_00461308.
+        bool __cdecl CalculateFoodPattern(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 12) & 0x80u) == 0 && Read<std::uint8_t>(Macro(point), 0) == 2) Write(callback->userData, 0, Read<std::uint32_t>(callback->userData, 0) + 100u);
+            return false;
+        }
+
+        // Original function: FUN_004617e4.
+        bool __cdecl slAnimalSearchMapPointNearbyFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
+        {
+            auto& data = *static_cast<SNearbyPoints*>(callback->userData);
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
+            const auto id = Read<std::int16_t>(micro, 10);
+            if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || id == -1) return false;
+            const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
+            if (Read<std::uint32_t>(moveable, 8) != 1 || Human_IsJobSoldier(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize)) return false;
+            data.points[data.count++] = Read<std::uint32_t>(point, 0);
+            return data.count == 8;
+        }
+
+        // Original function: FUN_00461789.
+        bool FindSheepPlayPoint(const void* animal, void* point)
+        {
+            SNearbyPoints data;
+            CMapPathfinderElement::SearchOverMap(Animal_GetMapPositionRef(animal), 20, false, slAnimalSearchMapPointNearbyFunction, &data, false, Read<std::int32_t>(animal, 0x10));
+            if (data.count == 0) return false;
+            Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
+            return true;
+        }
+
+        // Original function: FUN_004612d9.
+        void Animal_l_CalculateFoodValue(void* animal)
+        {
+            auto* value = static_cast<std::byte*>(animal) + 0x40;
+            CMapPathfinderElement::SearchOverMap(Animal_GetMapPositionRef(animal), 10, true, CalculateFoodPattern, value, false, Read<std::int32_t>(animal, 0x10));
+            if (Read<std::int32_t>(value, 0) < 5000) Write<std::uint32_t>(value, 0, 5000);
+        }
+
+        // Original function: FUN_00461531.
+        bool Animal_FindMapPointNearby(const void* animal, void* point)
+        {
+            SNearbyPoints data;
+            CMapPathfinderElement::SearchOverMap(Animal_GetMapPositionRef(animal), 40, false, SearchNearby, &data, false, Read<std::int32_t>(animal, 0x10));
+            if (data.count == 0) return false;
+            Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
+            return true;
+        }
+
+        // Original function: FUN_004615a4; the seed cursor advances cumulatively.
+        bool FindNextLandPoint(const void* animal, void* result)
+        {
+            SLandPoints data;
+            data.minimumDistance = 5;
+            data.count = 0;
+            auto point = Read<std::uint32_t>(Animal(Read<std::uint32_t>(animal, 0x34)), 0x2C);
+            const auto direction = Game_Random_GetNumber() % 6u;
+            for (std::uint32_t step = 0; step < 5; ++step)
+            {
+                if ((Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(&point), 7) & (1u << direction)) == 0) break;
+                MapMigPoint_MoveCursorUnwrapped(&point, direction, 1);
+            }
+            CMapPathfinderElement::SearchOverMap(&point, 40, true, slAnimalSearchLandMapPoint, &data, false, Read<std::int32_t>(animal, 0x10));
+            if (data.count == 0) return false;
+            Write(result, 0, data.points[0]);
+            return true;
+        }
+
+        // Original function: FUN_00461698; the ring cursor is deliberately not reset.
+        bool FindBirthPoint(const void* current, const void* center, void* result, std::uint32_t radius)
+        {
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(current), 6);
+            auto point = Read<std::uint32_t>(center, 0);
+            MapMigPoint_MoveCursorUnwrapped(&point, 4, radius);
+            std::uint32_t minimum = 1000000;
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                for (std::uint32_t step = 0; step < radius; ++step)
+                {
+                    MapMigPoint_MoveCursorUnwrapped(point, direction);
+                    if (MapMigPoint_IsBorderPoint(&point)) continue;
+                    const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
+                    if ((Read<std::uint8_t>(micro, 12) & 0x80u) != 0 || Read<std::uint8_t>(micro, 6) != continent || (minimum != 1000000 && Read<std::uint8_t>(Macro(&point), 0) != 2)) continue;
+                    const auto distance = Distance(&point, current);
+                    if (distance >= minimum) continue;
+                    minimum = distance;
+                    Write(result, 0, point);
+                }
+            }
+            return minimum != 1000000;
+        }
+
+        // Entire Windows static region 00512600..00512618: six candidate points and initialization flag.
+        struct SBirthCandidates { std::uint32_t points[6]{}; std::uint8_t initialized = 0; };
+        SBirthCandidates gAnimalBirthCandidates;
+        static_assert(offsetof(SBirthCandidates, initialized) == 0x18);
+
+        // Original function: FUN_0042ef98.
+        void Animal_l_MoveBirthPoint(void* animal)
+        {
+            if ((Read<std::uint32_t>(animal, 0x90) & 1u) != 0) return;
+            const auto* current = Animal_GetMapPositionRef(animal);
+            auto* work = static_cast<std::byte*>(animal) + 0x24;
+            auto* birth = static_cast<std::byte*>(animal) + 0x2C;
+            const auto birthRadius = BirthDistance(animal), stayRadius = StayDistance(animal);
+            if (Distance(current, work) >= birthRadius + stayRadius) { FindBirthPoint(current, work, birth, birthRadius >> 1); return; }
+            if ((gAnimalBirthCandidates.initialized & 1u) == 0) { gAnimalBirthCandidates.initialized |= 1u; for (auto& point : gAnimalBirthCandidates.points) point = 0; }
+            const auto leaderRadius = LeaderDistance(animal);
+            if (Distance(current, birth) >= 30u) { FindBirthPoint(current, work, birth, 30); return; }
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(birth);
+            std::uint32_t count = 0;
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                if ((Read<std::uint8_t>(micro, 7) & (1u << direction)) == 0) continue;
+                auto& candidate = gAnimalBirthCandidates.points[count];
+                candidate = Read<std::uint32_t>(birth, 0);
+                MapMigPoint_MoveCursorUnwrapped(candidate, direction);
+                std::uint32_t player = 0;
+                for (; player < 20; ++player)
+                {
+                    if (player == Read<std::uint32_t>(animal, 0x10) || Read<std::uint8_t>(gGameControl, player * 0x4A80u) == 0) continue;
+                    CHouseIterator iterator;
+                    if (iterator.GetFirstSectorHouseId(player, &candidate, stayRadius + leaderRadius, false) != -1 || iterator.GetFirstSectorHouseId(player, &candidate, stayRadius + leaderRadius, true) != -1) break;
+                }
+                if (player != 20 || Distance(&candidate, work) >= birthRadius || Distance(&candidate, current) >= 30 || Read<std::uint8_t>(Macro(&candidate), 0) != 2) continue;
+                ++count;
+            }
+            if (count != 0) Write(birth, 0, gAnimalBirthCandidates.points[Game_Random_GetNumber() % count]);
+            else FindBirthPoint(current, work, birth, 30);
+        }
+
+        // Original function: FUN_00461345.
+        void Animal_l_Reproduction(void* animal)
+        {
+            const auto flags = Read<std::uint32_t>(animal, 0x90), count = Read<std::uint32_t>(animal, 0x3C);
+            if ((flags & 2u) != 0 || Read<std::uint32_t>(animal, 0x10) != 20 || (gGameTime.tick / 12u) % 600u != 0 || count >= static_cast<std::uint32_t>(Type(animal).maximumGroupSize) || count <= 1) return;
+            Logic_EntryPoint_Add_Animal(20, Read<std::uint32_t>(animal, 0x14), 49, Animal_GetMapPositionRef(animal), Read<std::uint32_t>(animal, 0x8C), flags);
+        }
+
+        // Original function: FUN_00447165.
+        void Animal_l_Speed_Fast(void* animal)
+        {
+            const auto speed = Type(animal).runSpeed;
+            if (speed <= 0) return;
+            Write(Moveable(animal), 0x44, speed);
+            Write(Moveable(animal), 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
+        }
+
+        // Original function: FUN_00447199.
+        void Animal_l_Speed_Normal(void* animal)
+        {
+            const auto speed = Type(animal).moveSpeed;
+            Write(Moveable(animal), 0x44, speed);
+            Write(Moveable(animal), 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
+        }
+
+        // Original function: FUN_0042e7eb.
+        bool Animal_l_StartTask_GoAway(void* animal)
+        {
+            if (!Animal_l_IsAtomicInterruptable(animal)) return false;
+            std::uint32_t point = 0;
+            return Animal_FindMapPointNearby(animal, &point) && Animal_l_StartAtomicWalk(animal, &point);
+        }
+
+        // Partial original function: FUN_0042e6aa; vehicle interaction is not reconstructed.
+        void Animal_l_StartTask_Idle(void* animal)
+        {
+            if (!Animal_l_IsAtomicInterruptable(animal) || Animal_IsAttachedToVehicle(animal)) return;
+            if (Distance(Animal_GetMapPositionRef(Animal(Read<std::uint32_t>(animal, 0x34))), Animal_GetMapPositionRef(animal)) > LeaderDistance(animal)) { Write<std::uint32_t>(animal, 0x1C, 3); Write<std::uint32_t>(animal, 0x20, 0); return; }
+            auto* moveable = Moveable(animal);
+            const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
+            if (Read<std::int16_t>(micro, 10) != Read<std::int32_t>(animal, 12) || Read<std::int32_t>(moveable, 0x24) != -1)
+            {
+                if (Animal_l_StartTask_GoAway(animal)) return;
+            }
+            else
+            {
+                CMapMoveableIterator iterator;
+                iterator.GetFirstMapMoveableId(Animal_GetMapPositionRef(animal));
+            }
+            Animal_l_StartAtomicAnimation(animal, Game_Random_GetNumber() % 6u + 2u, -1);
+            Write<std::uint32_t>(animal, 0x1C, 1);
+            Write<std::uint32_t>(animal, 0x20, 1);
+        }
+
+        // Original function: FUN_0042eef2.
+        void Animal_l_StartTask_FollowLeader(void* animal)
+        {
+            auto* leader = Animal(Read<std::uint32_t>(animal, 0x34));
+            auto distance = Distance(Animal_GetMapPositionRef(leader), Animal_GetMapPositionRef(animal));
+            if (distance != 0) --distance;
+            if (distance > LeaderDistance(animal)) distance = LeaderDistance(animal);
+            if (!Animal_l_StartAtomicWalk(animal, Read<std::int32_t>(leader, 12), distance)) Write<std::uint32_t>(animal, 0x20, 3);
+            Write<std::uint32_t>(animal, 0x1C, 3);
+        }
+
+        // Original function: FUN_0042f61c.
+        void Animal_l_StartTask_RunAway(void* animal)
+        {
+            Animal_l_Speed_Fast(animal);
+            Animal_l_StartAtomicWalk(animal, static_cast<const std::byte*>(animal) + 0x2C);
+            Write(animal, 0x28, Read<std::uint32_t>(animal, 0x2C));
+            Write<std::uint32_t>(animal, 0x1C, 4);
+        }
+
+        // Partial original function: FUN_00460f3f; aggressive combat task changes remain a boundary.
+        void Animal_l_StartTask_Stay(void* animal)
+        {
+            if (IsAggressive(animal)) return;
+            if (Read<std::int32_t>(animal, 0x68) <= 0) { Write<std::uint32_t>(animal, 0x1C, 7); Write<std::uint32_t>(animal, 0x20, 0); return; }
+            const auto* current = Animal_GetMapPositionRef(animal);
+            auto* leader = Animal(Read<std::uint32_t>(animal, 0x34));
+            if (leader == animal)
+            {
+                if (Distance(current, static_cast<const std::byte*>(animal) + 0x24) > StayDistance(animal) + BirthDistance(animal)) Write<std::uint32_t>(animal, 0x40, 0);
+                if (Read<std::int32_t>(animal, 0x40) <= 0) { Write<std::uint32_t>(animal, 0x1C, 6); Write<std::uint32_t>(animal, 0x20, 0); return; }
+                if (Distance(current, static_cast<const std::byte*>(animal) + 0x28) > StayDistance(animal)) { Animal_l_StartAtomicWalk(animal, static_cast<const std::byte*>(animal) + 0x28); return; }
+            }
+            else
+            {
+                if (Distance(Animal_GetMapPositionRef(leader), current) > LeaderDistance(animal) || Read<std::uint32_t>(leader, 0x1C) == 6) { Write<std::uint32_t>(animal, 0x1C, 3); Write<std::uint32_t>(animal, 0x20, 0); return; }
+                if (Read<std::uint32_t>(leader, 0x1C) == 4) { Animal_l_Speed_Fast(animal); Write<std::uint32_t>(animal, 0x1C, 3); Write<std::uint32_t>(animal, 0x20, 0); return; }
+                if (Read<std::uint32_t>(leader, 0x1C) == 8)
+                {
+                    if (!TargetData_IsValid(static_cast<const std::byte*>(animal) + 0x44)) for (std::uint32_t offset = 0; offset < 12; offset += 4) Write(animal, 0x44 + offset, Read<std::uint32_t>(leader, 0x44 + offset));
+                    Write<std::uint32_t>(animal, 0x1C, 8);
+                    Write<std::uint32_t>(animal, 0x20, 0);
+                    return;
+                }
+            }
+            if (Read<std::uint32_t>(animal, 0x14) == 13 && Game_Random_GetNumber() % 3u != 0)
+            {
+                std::uint32_t point = 0;
+                if (FindSheepPlayPoint(animal, &point) && Animal_l_StartAtomicWalk(animal, &point)) return;
+            }
+            if (Game_Random_GetNumber() % 5u == 0) { Animal_l_StartTask_GoAway(animal); return; }
+            Write<std::uint32_t>(animal, 0x1C, 1);
+            Write<std::uint32_t>(animal, 0x20, 0);
+        }
+
+        // Original function: FUN_00461133.
+        void Animal_l_StartTask_GotoNextPoint(void* animal)
+        {
+            std::uint32_t point = 0;
+            if (FindNextLandPoint(animal, &point) && Animal_l_StartAtomicWalk(animal, &point)) Write<std::uint32_t>(animal, 0x1C, 6);
+            else { Write<std::uint32_t>(animal, 0x20, 0); Write<std::uint32_t>(animal, 0x1C, 1); }
+        }
+
+        // Original function: FUN_00461177.
+        void Animal_l_StartTask_Eat(void* animal)
+        {
+            const auto* position = Animal_GetMapPositionRef(animal);
+            std::uint32_t macro = 0;
+            MapMagPoint_ConstructFromMig(&macro, position, false);
+            if (Read<std::uint8_t>(GameMap_GetConstMapMacroPointPtr(&macro), 0) == 2)
+            {
+                const auto food = Game_Random_GetNumber() % 400u + 100u;
+                Write(animal, 0x68, Read<std::uint32_t>(animal, 0x68) + food);
+                Write(animal, 0x64, Read<std::uint32_t>(animal, 0x64) + food / 10u);
+                if (Read<std::int32_t>(animal, 0x64) > static_cast<std::int32_t>(Animal_HitPoints_GetMaximum(animal))) Write(animal, 0x64, Animal_HitPoints_GetMaximum(animal));
+                auto* leader = Animal(Read<std::uint32_t>(animal, 0x34));
+                Write(leader, 0x40, Read<std::uint32_t>(leader, 0x40) - food);
+                Write<std::uint32_t>(animal, 0x20, Animal_l_StartAtomicAnimation(animal, 9, -1) ? 1u : 3u);
+                return;
+            }
+            std::uint32_t point = 0;
+            if (CMapPathfinderElement::SearchOverMap(position, LeaderDistance(animal), true, slAnimalSearchFoodPatterns, &point, true, Read<std::int32_t>(animal, 0x10))) { Animal_l_StartAtomicWalk(animal, &point); return; }
+            if (Read<std::uint32_t>(animal, 0x34) == Read<std::uint32_t>(animal, 4)) { Write<std::uint32_t>(animal, 0x1C, 6); Write<std::uint32_t>(animal, 0x20, 0); }
+            else Write<std::uint32_t>(animal, 0x20, 3);
+        }
+
+        // Original function: FUN_0042e5f6; all ten entries of the selector are retained.
+        void Animal_l_CurrentTask_DoSuccess(void* animal)
+        {
+            Animal_l_Speed_Normal(animal);
+            switch (Read<std::uint32_t>(animal, 0x1C))
+            {
+            case 1: Write<std::uint32_t>(animal, 0x1C, Animal_IsAttachedToVehicle(animal) ? 1u : 5u); break;
+            case 2: case 4: case 5: case 7: Write<std::uint32_t>(animal, 0x1C, 5); break;
+            case 3: case 9: case 10: Write<std::uint32_t>(animal, 0x1C, 1); break;
+            case 6: Write(animal, 0x28, Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0)); Animal_l_CalculateFoodValue(animal); Write<std::uint32_t>(animal, 0x1C, 5); break;
+            case 8: Write<std::uint32_t>(animal, 0x1C, 8); break;
+            default: return;
+            }
+            Write<std::uint32_t>(animal, 0x20, 0);
+        }
+
+        // Original function: FUN_0042e67c.
+        void Animal_l_CurrentTask_DoFailure(void* animal)
+        {
+            Animal_l_Speed_Normal(animal);
+            if (Read<std::uint32_t>(animal, 0x1C) == 3) { Animal_l_DetachLeader(animal); Animal_l_AttachLeader(animal, animal); }
+            Write<std::uint32_t>(animal, 0x70, 0);
+            Write<std::uint8_t>(animal, 0x74, 0);
+            Animal_l_StartTask_Idle(animal);
+        }
+
+        // Partial original function: FUN_0042e32e; weapon-hit event 25 is held.
+        bool Animal_l_CurrentTask_DoPerform(void* animal)
+        {
+            if (Read<std::uint32_t>(animal, 0x70) == 0) { Write<std::uint32_t>(animal, 0x1C, 1); Write<std::uint32_t>(animal, 0x20, 0); return true; }
+            if (Read<std::uint8_t>(animal, 0x74) == 0) return true;
+            const auto& animation = gStaticAtomicAnimationData[Read<std::uint32_t>(animal, 0x78)];
+            for (std::uint32_t index = 0; index < animation.eventCount; ++index) if (animation.events[index].type == 25) return false;
+            for (std::uint32_t index = 0; index < animation.eventCount; ++index)
+            {
+                const auto& event = animation.events[index];
+                if (static_cast<std::uint32_t>(event.time) != Read<std::uint32_t>(animal, 0x7C)) continue;
+                if (event.type == 26)
+                {
+                    auto* moveable = Moveable(animal);
+                    auto point = Read<std::uint32_t>(moveable, 0x12);
+                    MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u);
+                    if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & 0x80u) == 0) { MapMoveable_Attachment_DetachFromMap(moveable); MapMoveable_Attachment_AttachToMap(moveable, &point); }
+                }
+                else if (event.type == 34) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, event.parameter, MapMigPoint_GetLong(Animal_GetMapPositionRef(animal)), 0);
+            }
+            const auto tick = Read<std::uint32_t>(animal, 0x7C) + 1u;
+            Write(animal, 0x7C, tick);
+            if (tick != static_cast<std::uint32_t>(animation.length)) return true;
+            if (Read<std::uint32_t>(animal, 0x20) == 1) Write<std::uint32_t>(animal, 0x20, 2);
+            if (animation.endDirection != -1) Write(Moveable(animal), 0x20, animation.endDirection);
+            Write<std::uint32_t>(animal, 0x70, 0);
+            Write<std::uint8_t>(animal, 0x74, 0);
+            return true;
+        }
+    }
+
+    // Original function: FUN_0042df37; growth notifies after detaching and reattaching.
+    void Animal_DoUpdateConditions(void* animal)
+    {
+        Animal_l_Aggressive_Check(animal);
+        Write(animal, 0x68, Read<std::uint32_t>(animal, 0x68) - 1u);
+        const auto age = Read<std::uint32_t>(animal, 0x6C) + 1u;
+        Write(animal, 0x6C, age);
+        if (Read<std::uint32_t>(animal, 0x18) == 48 && NXBasics::Runtime_TimeSigned32(age) >= 3600)
+        {
+            const auto point = Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0);
+            auto* moveable = Moveable(animal);
+            MapMoveable_Attachment_DetachFromMap(moveable);
+            Write<std::uint32_t>(animal, 0x18, 49);
+            MapMoveable_Attachment_AttachToMap(moveable, &point);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(6, true, Read<std::int32_t>(animal, 4), 1, 1);
+        }
+        if (Read<std::int32_t>(animal, 0x64) <= 0) Write<std::uint8_t>(Moveable(animal), 12, 1);
+    }
+
+    // Original function: FUN_0042e8e7.
+    bool Animal_l_StartAtomicWalk(void* animal, const void* point)
+    {
+        if (!Animal_l_IsAtomicInterruptable(animal) || !MapMoveable_Pathfinder_Start(Moveable(animal), point, 40, false, true, false)) return false;
+        Write<std::uint8_t>(animal, 0x94, 0);
+        Write<std::uint8_t>(animal, 0x74, 0);
+        Write<std::uint32_t>(animal, 0x70, 1);
+        Write<std::uint32_t>(animal, 0x1C, 2);
+        Write<std::uint32_t>(animal, 0x20, 1);
+        return true;
+    }
+
+    // Original function: FUN_0042e949.
+    bool Animal_l_StartAtomicWalk(void* animal, std::int32_t moveableId, std::uint32_t distance)
+    {
+        if (!Animal_l_IsAtomicInterruptable(animal) || !MapMoveable_Pathfinder_Start(Moveable(animal), moveableId, static_cast<std::int32_t>(distance), 40, true, true, false)) return false;
+        Write<std::uint8_t>(animal, 0x94, 0);
+        Write<std::uint8_t>(animal, 0x74, 0);
+        Write<std::uint32_t>(animal, 0x70, 1);
+        Write<std::uint32_t>(animal, 0x1C, 2);
+        Write<std::uint32_t>(animal, 0x20, 1);
+        return true;
+    }
+
+    // Original function: FUN_004614c0.
+    void Animal_l_StartTask_InteractWithHouse(void* animal)
+    {
+        if (!Animal_IsAttachedToHouse(animal)) { Write<std::uint32_t>(animal, 0x20, 3); return; }
+        const auto* point = CHouseArray::mStaticVars + TargetData_GetObjectId(static_cast<const std::byte*>(animal) + 0x50) * CHouseArray::ElementSize + 0x24;
+        if (Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0) == Read<std::uint32_t>(point, 0)) Write<std::uint32_t>(animal, 0x20, 2);
+        else { Animal_l_StartAtomicWalk(animal, point); Write<std::uint32_t>(animal, 0x1C, 10); }
+    }
+
+    // Partial original function: FUN_0042e15c; aggressive path interrupts require combat.
+    bool Animal_DoNewMapPositionReached(void* animal, bool finalPosition)
+    {
+        if (IsAggressive(animal)) return false;
+        if (Read<std::uint32_t>(animal, 0x20) == 0) return false;
+        if (finalPosition)
+        {
+            if (Read<std::uint8_t>(animal, 0x94) == 0)
+            {
+                const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
+                if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 12) == Read<std::uint32_t>(animal, 0x10)) Write<std::uint8_t>(animal, 0x94, 1);
+            }
+            const auto task = Read<std::int32_t>(animal, 0x1C);
+            if (task > 0 && task <= 10) Write<std::uint32_t>(animal, 0x20, 2);
+        }
+        else if (Read<std::uint32_t>(animal, 0x34) != Read<std::uint32_t>(animal, 4) && Animal_l_IsLeaderValid(animal) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(animal, 0x34)), 0x1C) == 4)
+        {
+            Animal_l_Speed_Fast(animal);
+            Write<std::uint32_t>(animal, 0x1C, 3);
+            Write<std::uint32_t>(animal, 0x20, 0);
+        }
+        return true;
+    }
+
+    // Original function: FUN_0042e318.
+    void Animal_DoPathfinderFailed(void* animal) { Write<std::uint32_t>(animal, 0x20, 3); }
+    // Original function: FUN_0042e320.
+    void Animal_DoPathfinderStopped(void* animal) { if (Read<std::uint32_t>(animal, 0x1C) == 2) Write<std::uint32_t>(animal, 0x20, 3); }
+
+    // Partial original function: FUN_0042dfc0; combat and vehicle task branches are held.
+    void Animal_DoUpdateAI(void* animal)
+    {
+        if (Read<std::uint8_t>(Moveable(animal), 0x10) == 0 || Animal_IsAttachedToVehicle(animal) || IsAggressive(animal)) return;
+        if (!Animal_IsAttachedToHouse(animal) && Read<std::uint32_t>(animal, 0x10) != 20) Animal_l_MoveWorkCenterPoint(animal);
+        Animal_l_CheckForValidLeader(animal);
+        if (!Animal_l_CurrentTask_DoPerform(animal) || !Animal_l_IsAtomicInterruptable(animal)) return;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 12) & 0x80u) != 0) Animal_l_StartTask_GoAway(animal);
+        if (Read<std::uint32_t>(animal, 0x34) != Read<std::uint32_t>(animal, 4) && Read<std::uint32_t>(animal, 0x1C) != 3 && Read<std::uint32_t>(Animal(Read<std::uint32_t>(animal, 0x34)), 0x1C) == 4) { Animal_l_Speed_Fast(animal); Write<std::uint32_t>(animal, 0x20, 0); Write<std::uint32_t>(animal, 0x1C, 3); }
+        for (;;)
+        {
+            const auto status = Read<std::uint32_t>(animal, 0x20);
+            if (status == 1) break;
+            if (status == 2) { Animal_l_CurrentTask_DoSuccess(animal); continue; }
+            if (status == 3) { Animal_l_CurrentTask_DoFailure(animal); continue; }
+            if (status != 0) return;
+            switch (Read<std::uint32_t>(animal, 0x1C))
+            {
+            case 1: case 2: Animal_l_StartTask_Idle(animal); break;
+            case 3: Animal_l_StartTask_FollowLeader(animal); break;
+            case 4: Animal_l_StartTask_RunAway(animal); break;
+            case 5: Animal_l_StartTask_Stay(animal); break;
+            case 6: Animal_l_StartTask_GotoNextPoint(animal); break;
+            case 7: Animal_l_StartTask_Eat(animal); break;
+            case 10: Animal_l_StartTask_InteractWithHouse(animal); break;
+            default: return; // Explicit untranslated task boundary; never spin here.
+            }
+        }
+        if (Read<std::uint32_t>(animal, 0x34) == Read<std::uint32_t>(animal, 4) && (Read<std::uint32_t>(animal, 4) + gGameTime.tick) % 60u == 0) { Animal_l_MoveWorkCenterPoint(animal); Animal_l_MoveBirthPoint(animal); Animal_l_Reproduction(animal); }
+    }
+}

@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## Breeder and civilian animal checkpoint - 2026-10-09
+
+Ground breeder startup, animal stock recount/adoption, slaughter approach, output flushing and newborn production are connected. Animal conditions now run in the common map-moveable tick: growth, civilian movement/path callbacks, leader/group handling, food, idle/stay, house interaction and birth-center updates are connected. Five partial animal boundaries explicitly retain pending combat/vehicle branches and are excluded from completion counts. See [HUMAN_ANIMAL_JOBS.md](HUMAN_ANIMAL_JOBS.md).
+
+**3916 / 5061 (77.38%)** source-address coverage, **1145** entries open; **254 cpp / 234 headers**, **2079 naming rows / 69 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only. All remaining professions are still the active user request: hunter, carpenter/armorer vehicle production, carrier/trader and vehicle/sea paths, plus unresolved animal combat and vehicle dependencies. Do not report all professions complete. User-owned untracked CombatTasks are untouched and excluded.
+
 ## Farmer, herb guy, fisher, jester and druid checkpoint - 2026-10-09
 
 Five previously missing ground job branches (18/22/28/29/30) are connected with their complete native work paths: planting/cultivating/harvesting and stock relief, shore selection and fishing, entertainment, and druid production/stock/healing. Search callbacks, fish-swarm consumption and catch/retry events are included. The shared needs/task/movement machinery remains in use. The user now confirms soldiers and collectors work well; these five additional professions have no runtime confirmation yet. See [HUMAN_OUTDOOR_SOCIAL_JOBS.md](HUMAN_OUTDOOR_SOCIAL_JOBS.md).
