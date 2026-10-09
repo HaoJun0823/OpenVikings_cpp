@@ -5,7 +5,6 @@ Address,CurrentName,Status,ReferencingObjects
 0040A295,NC2Logic::GameControl_Player_LeavesGame,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040ACE5,NC2Logic::HouseArray_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
-0040AD1D,NC2Logic::HouseArray_DoOneGameSecond,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040ADD6,NC2Logic::Logic_EntryPoint_FreeMapMoveable,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0040B183,NC2Logic::GameTime_Network_GetHighestPlayerLatency,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,Partial Windows tick; human path consumption and position/result callbacks connected; other creature AI and combat continuations remain pending,C2GameTime.obj

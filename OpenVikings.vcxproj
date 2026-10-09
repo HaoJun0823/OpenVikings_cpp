@@ -665,4 +665,7 @@
   <ItemGroup>
     <ClCompile Include="C2HouseLifecycle.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HousePeriodic.cpp" />
+  </ItemGroup>
 </Project>

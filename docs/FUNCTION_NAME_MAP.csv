@@ -18,7 +18,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,NC2Logic::CGameControl::Player_LeftGameModifyObjects,154932,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0040A612,NC2Logic::GameControl_ls_LogicCallback,NC2Logic::CGameControl::ls_LogicCallback,153925,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0040ACE5,NC2Logic::HouseArray_DoOneGameTick,NC2Logic::CHouseArray::DoOneGameTick,159293,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0040AD1D,NC2Logic::HouseArray_DoOneGameSecond,NC2Logic::CHouseArray::DoOneGameSecond,159322,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0040AD1D,NC2Logic::HouseArray_DoOneGameSecond,NC2Logic::CHouseArray::DoOneGameSecond,7226,"Windows ASM/Game.exe establish behavior, offsets and call order; x86-64-mac.h supplies names only"
 0040AD73,NC2Logic::Logic_EntryPoint_Add_Human,NC2Logic::Logic_EntryPoint_Add_Human,210383,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0040ADD6,NC2Logic::Logic_EntryPoint_FreeMapMoveable,NC2Logic::Logic_EntryPoint_FreeMapMoveable,210428,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0040AE38,NC2Logic::Logic_EntryPoint_House_Set,NC2Logic::Logic_EntryPoint_House_Set,210479,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -1955,3 +1955,6 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00474939,NC2Logic::Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_Collect,NC2Logic::CHuman::l_StartTask_ExecuteJob_Tool_HouseBuilder_Collect,7933,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
 00474A0D,NC2Logic::Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse,NC2Logic::CHuman::l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse,7934,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
 004808F4,NC2LogicExternals::External_HouseType_GetEngineRuineLandscapeId,NC2LogicExternals::External_HouseType_GetEngineRuineLandscapeId,5267,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+00433337,NC2Logic::House_Religion_Send,NC2Logic::CHouse::Religion_Send,7343,"Windows ASM/Game.exe establish behavior, offsets and call order; x86-64-mac.h supplies names only"
+00433BF9,NC2Logic::House_DoOneGameSecond,NC2Logic::CHouse::DoOneGameSecond,7356,"Windows ASM/Game.exe establish behavior, offsets and call order; x86-64-mac.h supplies names only"
+0043420F,NC2Logic::House_l_ActionOverlay_Update,NC2Logic::CHouse::l_ActionOverlay_Update,7357,"Windows ASM/Game.exe establish behavior, offsets and call order; x86-64-mac.h supplies names only"

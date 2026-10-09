@@ -131,4 +131,4 @@ All behavior and offsets are confirmed from Windows assembly/Game.exe. Mac decla
 
 ## House execution continuation (2026-10-09)
 
-House builder/material/build/repair/upgrade completion and placement are connected, with real demolition start and house release. Five partial/dummy boundaries were removed. See [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md). Periodic house tick/second remain open, so demolition timing, automatic builder assignment and defence are not yet complete gameplay.
+House builder/material/build/repair/upgrade completion and placement are connected, with real demolition start and house release. Five partial/dummy boundaries were removed. See [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md). The periodic second now connects automatic builder assignment, upkeep and civilian defence assignment. The periodic tick remains open, so demolition timing and military house damage are not yet complete gameplay.

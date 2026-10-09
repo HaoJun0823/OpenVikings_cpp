@@ -13,6 +13,9 @@ namespace NC2Logic
     void House_Misc_MapHeights_Modify(const void* house);
     void House_l_AttachToSector(void* house);
     void House_l_DetachFromSector(void* house);
+    void House_DoOneGameSecond(void* house);
+    void House_Religion_Send(const void* house);
+    void House_l_ActionOverlay_Update(void* house);
     struct SHouseConstructionGoodsEntry
     {
         std::uint32_t good;

@@ -51,10 +51,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CHouseArray::DoOneGameTick.
     void __fastcall HouseArray_DoOneGameTick(void *, void *) {}
 
-    // TEMPORARY DUMMY: Windows address 0040AD1D; implementation pending.
-    // Naming reference: NC2Logic::CHouseArray::DoOneGameSecond.
-    void __fastcall HouseArray_DoOneGameSecond(void *, void *) {}
-
     // TEMPORARY DUMMY: Windows address 0040ADD6; implementation pending.
     // Naming reference: NC2Logic::Logic_EntryPoint_FreeMapMoveable.
     void __cdecl Logic_EntryPoint_FreeMapMoveable(unsigned int) {}

@@ -1327,4 +1327,7 @@
   <ItemGroup>
     <ClCompile Include="C2HouseLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HousePeriodic.cpp"><Filter>Logic</Filter></ClCompile>
+  </ItemGroup>
 </Project>
