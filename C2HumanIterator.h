@@ -14,6 +14,7 @@ namespace NC2Logic
         std::int32_t GetFirstHumanId(std::uint32_t player, const void* point, std::int32_t radius);
         std::int32_t GetNextHumanId();
         std::int32_t GetFirstSectorHumanId(std::uint32_t player, std::uint32_t point, std::int32_t radius, bool useSecondList);
+        std::int32_t GetFirstSectorHumanId(std::uint32_t player, bool useSecondList);
         std::int32_t GetNextSectorHumanId();
     private:
         std::int32_t l_GetNext(std::int32_t previous);

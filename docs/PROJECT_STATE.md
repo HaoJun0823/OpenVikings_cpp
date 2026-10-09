@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Military target search and happiness checkpoint - 2026-10-09
+
+The complete six-function enemy target-search family and happiness callback tree are reconstructed from Windows. Happiness now recalculates all four contributions and event values, handles attacks/deaths and updates the player total. The former callback partial and civilian-death dummy are removed. Native full-grid human iteration and the direct-coordinate sector cursor constructor are connected. Mac headers supply names only. See [MILITARY_TARGETS_HAPPINESS.md](MILITARY_TARGETS_HAPPINESS.md).
+
+**3795 / 5059 (75.01%)** source-address coverage, **1264** known entries open; **245 cpp / 227 headers**, **1981 naming rows / 64 unfinished boundaries**. This is not verified gameplay completion. MSVC Win32 `/Zs` and source/project checks passed; no Debug/Release build, tests or gameplay run occurred.
+
+Next: arrows and delayed weapon-hit execution/application, then the complete HouseArray tick 0040ACE5 / House_DoOneGameTick 00433694. That tick remains a link dummy, so timed demolition, vehicle-construction conversion and military house damage remain unfinished. The target searches and house-loss happiness helper are ready; 0043A9B1 searches houses, not vehicles. User-owned untracked CombatTasks files remain untouched and excluded.
+
 ## Periodic house second checkpoint - 2026-10-09
 
 HouseArray_DoOneGameSecond 0040AD1D now invokes the complete House_DoOneGameSecond 00433BF9. Native builder recruitment, religion/hitpoint effects, production/home-quality upkeep, stock/request smoothing, overlay expiration and civilian defender reassignment are connected. Windows ASM/Game.exe establish behavior; the Mac header supplies names only. See [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md).

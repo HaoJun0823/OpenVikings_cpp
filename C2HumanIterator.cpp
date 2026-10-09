@@ -28,6 +28,18 @@ namespace NC2Logic
         return currentAnimalId;
     }
 
+    // Original function: FUN_0042c31b; the full-grid overload retains the existing center/radius fields.
+    std::int32_t CHumanIterator::GetFirstSectorHumanId(std::uint32_t player, bool useSecondList)
+    {
+        selection = player;
+        firstSector = SSectorGridCursor(0, 0);
+        lastSector = SSectorGridCursor(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(SSectorGridCursor::sGridWidth) - 1u), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(SSectorGridCursor::sGridHeight) - 1u));
+        flags = useSecondList ? 1u : 0u;
+        currentSector = firstSector;
+        currentAnimalId = l_GetNextSectorHumanId(-1);
+        return currentAnimalId;
+    }
+
     // Original function: FUN_0042c376.
     std::int32_t CHumanIterator::GetNextSectorHumanId()
     {

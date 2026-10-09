@@ -132,3 +132,7 @@ All behavior and offsets are confirmed from Windows assembly/Game.exe. Mac decla
 ## House execution continuation (2026-10-09)
 
 House builder/material/build/repair/upgrade completion and placement are connected, with real demolition start and house release. Five partial/dummy boundaries were removed. See [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md). The periodic second now connects automatic builder assignment, upkeep and civilian defence assignment. The periodic tick remains open, so demolition timing and military house damage are not yet complete gameplay.
+
+## Target search and happiness continuation (2026-10-09)
+
+The complete enemy target-search family and happiness callback/recalculation/event tree are connected from Windows, with two former partial/dummy entries removed. Player happiness offset 0x4610 now receives the native goods/building/human/military contributions, event values and attack penalty. See [MILITARY_TARGETS_HAPPINESS.md](MILITARY_TARGETS_HAPPINESS.md). House ticks and delayed weapon hits remain unfinished independently.

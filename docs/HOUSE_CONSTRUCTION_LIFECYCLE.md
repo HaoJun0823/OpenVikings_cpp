@@ -20,7 +20,7 @@ Related original helpers are reconstructed: inhabitant reset/detachment, overlay
 
 ## Explicit remaining boundaries
 
-**Demolition is not yet complete in gameplay.** HouseArray_DoOneGameTick 0040ACE5 remains an isolated link dummy; HouseArray_DoOneGameSecond 0040AD1D is now connected. The full house tick 00433694 must be connected before the duration-driven 0040AC95 release can occur. Its initial destruction timer, vehicle-construction conversion and first-contact reporting are established from Windows, but its complete defence tree also calls enemy searches 0043A4B1/0043A72D/0043A9B1, arrow creation 00433A9D and delayed hit scheduling 0041A0EE. Those calls must be reconstructed together; an omitted defence branch is not counted as a complete tick.
+**Demolition is not yet complete in gameplay.** HouseArray_DoOneGameTick 0040ACE5 remains an isolated link dummy; HouseArray_DoOneGameSecond 0040AD1D is now connected. The full house tick 00433694 must be connected before the duration-driven 0040AC95 release can occur. Its initial destruction timer, vehicle-construction conversion and first-contact reporting are established from Windows, but its complete defence tree also calls enemy searches 0043A4B1/0043A72D/0043A9B1, arrow creation 00433A9D and delayed hit scheduling 0041A0EE. The complete enemy searches and happiness attack-loss message are now reconstructed; see [MILITARY_TARGETS_HAPPINESS.md](MILITARY_TARGETS_HAPPINESS.md). Arrow/delayed-hit execution and application remain open and must be connected coherently; an omitted defence branch is not counted as a complete tick.
 
 ## Connected periodic second
 

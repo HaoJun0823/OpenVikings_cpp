@@ -73,11 +73,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CMultiPlayerGoalManager::l_LogicCallback.
     bool __cdecl MultiPlayerGoalManager_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
-    // Partial Windows callback 00419A7F: unconditional true at 00419AE8 preserves propagation.
-    // The 720-tick calculation and event 0x27/0x28 handlers remain unresolved.
-    // Naming reference: NC2Logic::CHappinessManager::l_Happiness_Callback.
-    bool __cdecl HappinessManager_l_Happiness_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
-
     // TEMPORARY DUMMY: Windows address 0041A097; implementation pending.
     // Naming reference: NC2Logic::CDelayedActionManager::System_DoOneGameTick.
     void __fastcall DelayedActionManager_System_DoOneGameTick(void *, void *) {}
@@ -209,10 +204,4 @@ namespace NC2LogicExternals
     void External_Human_SetName(std::uint32_t, std::uint32_t) {  }
     // TEMPORARY DUMMY: Windows address 00480975; object startup dependency pending.
     void External_Human_SetRandomPalettePatch(std::uint32_t, const char*) {  }
-}
-
-namespace NC2Logic
-{
-    // TEMPORARY DUMMY: Windows address 00419B74; death-message dependency pending.
-    void HappinessManager_Messages_CivilistDied(void*, const void*) {}
 }

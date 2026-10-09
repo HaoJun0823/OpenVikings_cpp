@@ -668,4 +668,15 @@
   <ItemGroup>
     <ClCompile Include="C2HousePeriodic.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MilitaryTargetSearch.cpp" />
+    <ClInclude Include="C2MilitaryTargetSearch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HappinessEvents.cpp" />
+    <ClInclude Include="C2HappinessEvents.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HappinessRecalculation.cpp" />
+  </ItemGroup>
 </Project>

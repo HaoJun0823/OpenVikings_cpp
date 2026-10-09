@@ -21,6 +21,9 @@ namespace NC2Logic
         y = static_cast<std::int32_t>(pointY) / 20;
     }
 
+    // Original function: FUN_004584f5; direct sector coordinates require no conversion or clamping.
+    SSectorGridCursor::SSectorGridCursor(std::int32_t column, std::int32_t row) : x(column), y(row) {}
+
     // Original function: FUN_004585A4.
     bool SSectorGridCursor::IsInsideMap() const
     {

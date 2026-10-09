@@ -1330,4 +1330,15 @@
   <ItemGroup>
     <ClCompile Include="C2HousePeriodic.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MilitaryTargetSearch.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MilitaryTargetSearch.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HappinessEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HappinessEvents.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HappinessRecalculation.cpp"><Filter>Logic</Filter></ClCompile>
+  </ItemGroup>
 </Project>

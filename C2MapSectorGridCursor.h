@@ -15,6 +15,7 @@ namespace NC2Logic
 
         SSectorGridCursor() = default;
         explicit SSectorGridCursor(std::uint32_t packedMigPoint);
+        SSectorGridCursor(std::int32_t column, std::int32_t row);
 
         bool IsInsideMap() const;
         void CutInsideMap();
