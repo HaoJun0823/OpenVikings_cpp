@@ -1,0 +1,223 @@
+#include "C2MilitaryDamage.h"
+#include "C2AnimalAccess.h"
+#include "C2AnimalIterator.h"
+#include "C2GameControlNetwork.h"
+#include "C2HappinessEvents.h"
+#include "C2HouseAccess.h"
+#include "C2HouseUserControl.h"
+#include "C2HumanCommandAccess.h"
+#include "C2HumanEquipment.h"
+#include "C2HumanIterator.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanNeeds.h"
+#include "C2HumanWalking.h"
+#include "C2InteractionTargetAccess.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2StaticActorTypeDataAccess.h"
+#include "C2UserMessageAccess.h"
+#include "C2VehicleAccess.h"
+#include "XCrtFileAccess.h"
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+
+    // The three original AI notification bodies remain isolated link boundaries.
+    extern void __fastcall AISinglePlayerHandler_Messages_Attacked(void* handler, void* unusedEdx, const void* point);
+    extern void __fastcall AISinglePlayerHandler_Messages_SoldierAttacked(void* handler, void* unusedEdx, std::uint32_t human, const void* target);
+    extern void __fastcall AIHighLevelHandler_Message_Soldier_Attacked(void* handler, void* unusedEdx, const void* target);
+
+    namespace
+    {
+        std::uint32_t HalfForDifficulty(std::uint32_t amount, std::uint32_t player)
+        {
+            if (Read<std::uint32_t>(gGameControl, 0x5D200) != 0 && player != 20 && (player == 0 || GameControl_Player_IsNetworkPlayer(gGameControl, NXBasics::Runtime_TimeSigned32(player)))) return static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(amount) / 2);
+            return amount;
+        }
+
+        void RecordKill(const void* attacker, std::uint32_t offset)
+        {
+            if (!TargetData_IsValid(attacker)) return;
+            const auto player = TargetData_GetPlayerId(attacker);
+            if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) == 0) return;
+            const auto field = static_cast<std::uint32_t>(player) * 0x4A80u + offset;
+            Write(gGameControl, field, Read<std::uint32_t>(gGameControl, field) + 1u);
+        }
+
+        std::uint32_t Distance(const void* source, const void* target) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))); }
+    }
+
+    // Original function: FUN_00462316.
+    void AIManager_Message_Attacked(void* manager, std::uint32_t player, const void* point)
+    {
+        if (auto* handler = Read<void*>(manager, player * 4u)) AISinglePlayerHandler_Messages_Attacked(handler, nullptr, point);
+    }
+
+    // Original function: FUN_0046232d; single-player notification precedes high-level notification.
+    void AIManager_Messages_SoldierAttacked(void* manager, std::uint32_t player, std::uint32_t human, const void* target)
+    {
+        if (auto* handler = Read<void*>(manager, player * 4u))
+        {
+            AISinglePlayerHandler_Messages_SoldierAttacked(handler, nullptr, human, target);
+            auto* high = Read<void*>(manager, player * 4u + 0x50u);
+            if (Read<std::uint8_t>(high, 4) != 0) AIHighLevelHandler_Message_Soldier_Attacked(high, nullptr, target);
+        }
+    }
+
+    // Original function: FUN_0045d17e.
+    bool Human_Item_IsAmuletEquipped_Defense(const void* human) { return Human_l_Item_IsGoodTypeEquipped(human, 53); }
+
+    // Original function: FUN_00434781; difficulty adjustment precedes attacker bonuses for houses.
+    bool House_Military_StartGettingHitByWeapon(void* house, std::uint32_t tribe, std::uint32_t weapon, std::uint32_t attackerId, std::uint32_t attackerRevision, std::uint32_t attackerType, std::uint32_t power)
+    {
+        const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
+        auto damage = static_cast<std::uint32_t>(data.damageValues[7]) * 200u / (200u - (power > 100u ? 100u : power));
+        const auto player = Read<std::uint32_t>(house, 12);
+        damage = HalfForDifficulty(damage, player);
+        if (damage == 0) return false;
+        if (data.soundTypesHit[7] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[7], Read<std::uint32_t>(house, 0x1C), 0);
+        if (NXBasics::Runtime_TimeSigned32(player) < 20 && Read<std::uint32_t>(gGameControl, player * 0x4A80u + 4u) == 2 && House_CanEnableDefenceMode(house)) AIManager_Message_Attacked(gAIManager, player, static_cast<const std::byte*>(house) + 0x24);
+        const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
+        damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
+        House_HitPoints_ModifyValue(house, NXBasics::Runtime_TimeSigned32(0u - damage));
+        if (Read<std::int32_t>(house, 0x7C8) <= 0) RecordKill(attacker, 0x4620);
+        HappinessManager_Messages_HouseAttacked(gHappinessManager, house);
+        if (attackerType != 1) return true;
+        const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
+        if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != attackerRevision) return false;
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, 0x10), 0);
+        alignas(4) std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 49);
+        Write(message, 8, player);
+        Write(message, 0x18, Read<std::uint32_t>(house, 4));
+        Write(message, 0x1C, Read<std::uint32_t>(house, 8));
+        Write(message, 0x200, Read<std::uint32_t>(house, 0x14));
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        return true;
+    }
+
+    // Original function: FUN_0044272a; unlike houses, vehicles apply attacker bonuses first.
+    bool Vehicle_Military_StartGettingHitByWeapon(void* vehicle, std::uint32_t tribe, std::uint32_t weapon, std::uint32_t attackerId, std::uint32_t attackerRevision, std::uint32_t attackerType, std::uint32_t power)
+    {
+        const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
+        auto damage = static_cast<std::uint32_t>(data.damageValues[6]) * 200u / (200u - (power > 100u ? 100u : power));
+        if (damage == 0) return false;
+        const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
+        damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
+        const auto player = Read<std::uint32_t>(vehicle, 0x1E0);
+        damage = HalfForDifficulty(damage, player);
+        if (data.soundTypesHit[6] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[6], MapMigPoint_GetLong(Vehicle_GetMapPositionRef(vehicle)), 0);
+        Write(vehicle, 12, Read<std::uint32_t>(vehicle, 12) - damage);
+        if (Read<std::int32_t>(vehicle, 12) <= 0) RecordKill(attacker, 0x461C);
+        if (attackerType != 1) return true;
+        const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
+        if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != attackerRevision) return false;
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, 0x10), 0);
+        alignas(4) std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write<std::uint32_t>(message, 0, 52);
+        Write(message, 8, player);
+        Write(message, 0x20, Read<std::uint32_t>(vehicle, 4));
+        Write(message, 0x24, Read<std::uint32_t>(vehicle, 8));
+        Write(message, 0x2E0, Read<std::uint32_t>(vehicle, 0x1E8));
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        return true;
+    }
+
+    // Original function: FUN_00443ee9; zero-damage notifications retain native propagation and RNG order.
+    bool Human_Military_StartGettingHitByWeapon(void* human, const void* source, std::uint32_t tribe, std::uint32_t weapon, std::uint32_t attackerId, std::uint32_t attackerRevision, std::uint32_t attackerType, std::uint32_t power, bool propagate)
+    {
+        const auto& armor = static_cast<const SStaticArmorTypeData*>(gStaticArmorTypeData)[Read<std::uint32_t>(human, 0xAE8)];
+        const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
+        auto damage = static_cast<std::uint32_t>(data.damageValues[armor.materialType]) * 200u / (200u - (power > 100u ? 100u : power));
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * 0x58u;
+        auto facing = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
+        if (facing == 7) facing = 2;
+        else if (facing == 6) facing = 5;
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, 0x12), Read<std::int16_t>(moveable, 0x14), Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), false);
+        auto difference = NXBasics::Runtime_TimeSigned32(direction - facing);
+        if (difference < 0) difference = -difference;
+        if (difference > 2) damage = damage * 150u / 100u;
+        else if (difference > 1) damage = damage * 125u / 100u;
+        damage -= static_cast<std::uint32_t>(armor.blockingValue);
+        const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
+        damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
+        if (Human_Item_IsAmuletEquipped_Defense(human)) damage = static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(damage) / 2);
+        const auto player = Read<std::uint32_t>(human, 0x10);
+        damage = HalfForDifficulty(damage, player);
+        if (NXBasics::Runtime_TimeSigned32(damage) > 0)
+        {
+            if (NXBasics::Runtime_TimeSigned32(0u - damage) > 0 || (Read<std::uint32_t>(human, 0xB84) & 8u) == 0) Write(human, 0xAA0, Read<std::uint32_t>(human, 0xAA0) - damage);
+            if (Read<std::int32_t>(human, 0xAA0) <= 0 && Human_l_Item_GetItemSlotIndex(human, 5) == -1) RecordKill(attacker, Human_IsJobSoldier(human) ? 0x4614u : 0x4618u);
+            // Windows 0041AE3E initializes the two positions only; other fields are assigned by this caller.
+            alignas(4) std::byte effect[0x1C];
+            Write(effect, 4, MapMigPoint_GetLong(Human_GetMapPositionRef(human)));
+            Write(effect, 8, MapMigPoint_GetLong(source));
+            Write(effect, 0x14, player);
+            Write(effect, 0x18, human);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x27, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(effect)), damage, 0);
+            if (data.soundTypesHit[armor.materialType] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[armor.materialType], MapMigPoint_GetLong(Human_GetMapPositionRef(human)), 1);
+            if (TargetData_IsValid(attacker))
+            {
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, TargetData_GetPlayerId(attacker), 0);
+                Human_UserMessage_SendToUserMessage(human, 46);
+            }
+            if (Human_GetPlayerType(human) == 2) AIManager_Message_Attacked(gAIManager, player, Human_GetMapPositionRef(human));
+        }
+        if (!TargetData_IsValid(attacker)) return false;
+        std::uint32_t attackerPosition = 0, previousPosition = 10000u | (10000u << 16);
+        TargetData_GetMapPosition(attacker, &attackerPosition);
+        if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && TargetData_GetPlayerId(attacker) != NXBasics::Runtime_TimeSigned32(player))
+        {
+            auto allowed = NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) > 0 && NXBasics::Runtime_TimeSigned32(Human_GetMilitaryMode(human)) <= 2 && (Read<std::uint32_t>(human, 0xB84) & 4u) == 0;
+            if (Read<std::uint32_t>(human, 0x368) == 4 && Read<std::uint32_t>(human, 0x384) < 10u) allowed = false;
+            const auto enemy = TargetData_GetPlayerId(attacker);
+            if (enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * 0x4A80u) != 0 && GameControl_Diplomacy_GetState(gGameControl, enemy, player) != 3 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) allowed = false;
+            auto* secondary = static_cast<std::byte*>(human) + 0xB70;
+            if (allowed && TargetData_IsValid(secondary))
+            {
+                TargetData_GetMapPosition(secondary, &previousPosition);
+                if (Distance(Human_GetMapPositionRef(human), &previousPosition) <= Distance(Human_GetMapPositionRef(human), &attackerPosition)) allowed = false;
+            }
+            else if (allowed && Human_GetPlayerType(human) == 2) AIManager_Messages_SoldierAttacked(gAIManager, player, Read<std::uint32_t>(human, 4), attacker);
+            // Native comparison deliberately checks type/revision without comparing the object id.
+            if (allowed && !(Read<std::uint32_t>(human, 0xB6C) == attacker[2] && Read<std::uint32_t>(human, 0xB64) == attacker[0]))
+            {
+                for (std::uint32_t index = 0; index < 3; ++index) Write(secondary, index * 4u, attacker[index]);
+                if (Read<std::uint32_t>(human, 0x368) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            }
+        }
+        else if ((Read<std::uint32_t>(human, 0xB84) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
+        {
+            alignas(4) std::byte command[20]{};
+            Write<std::uint8_t>(command, 0, 4);
+            Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(player));
+            Write(command, 12, previousPosition);
+            Write<std::uint32_t>(command, 16, propagate ? 0u : 1u);
+            Human_DoAddNewUserCommand(human, command);
+        }
+        if (propagate && (Read<std::uint32_t>(human, 0xB84) & 0x8000u) == 0)
+        {
+            CHumanIterator humans;
+            for (std::uint32_t group = 0; group < 2; ++group)
+                for (auto id = humans.GetFirstSectorHumanId(player, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), group == 0 ? 40 : 20, group == 0); id != -1; id = humans.GetNextSectorHumanId())
+                    if (static_cast<std::uint32_t>(id) != Read<std::uint32_t>(human, 4)) Human_Military_StartGettingHitByWeapon(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, Human_GetMapPositionRef(human), tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
+            CAnimalIterator animals;
+            for (std::uint32_t group = 0; group < 2; ++group)
+                for (auto id = animals.GetFirstSectorAnimalId(player, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), group == 0 ? 40 : 20, true, false); id != -1; id = animals.GetNextSectorAnimalId()) Animal_Military_StartGettingHitByWeapon(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
+        }
+        return NXBasics::Runtime_TimeSigned32(damage) > 0;
+    }
+
+    // Original function: FUN_00443108; the commander gains category-specific weapon experience.
+    void Vehicle_Military_GainExperience(const void* vehicle)
+    {
+        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) Human_GainExperienceForWeapon(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle), Read<std::uint32_t>(vehicle, 0x1E8) == 5 ? 21u : 0u, 1);
+    }
+}

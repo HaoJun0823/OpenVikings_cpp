@@ -1,5 +1,7 @@
 # Hunting, attack transitions and dragging animals - 2026-10-09
 
+The subsequent [weapon-hit checkpoint](WEAPON_HITS_AND_DELAYED_ACTIONS.md) connects human event 25, direct damage and delayed projectile damage. The event-25 holds described below belong to this earlier checkpoint and are superseded. Particle visuals, aggressive animal combat, AI group notifications and vehicle/sea simulation remain open.
+
 Windows assembly and original Game.exe are the behavioral references. Mac header declarations supply names only. This checkpoint is source integration with MSVC Win32 syntax verification; no build, tests or game execution occurred.
 
 Hunter job 15 now has its native circulation dispatcher (0046C8DE), collection, retry and harvest work tree (0046C914 / 0046C979 / 0046CB0E). Cadavers of type 80 are preferred over type 79 using the same cached no-block landscape search (00460A91 / 0045E9C8). The two types supply goods 21 and 9 respectively. Saved cadaver targets are revalidated separately from military targets, and failed pickup can proceed to prey search. Prey selection (0045E3C4) preserves neutral sector iteration, same-continent filtering, invulnerability exclusion and the strict distance-plus-hitpoints minimum. Existing map collection events perform pickup and cadaver harvesting. Hunting live prey still needs the weapon-hit/projectile integration below.

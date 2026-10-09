@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Weapon-hit events and delayed projectile damage - 2026-10-09
+
+Human attack event 25 is connected for landscape, house, animal, vehicle and human targets. Native shooting scatter and moving-target prediction now schedule delayed impacts; the delayed manager tick, hit-list rules, area damage, experience and miss callbacks are reconstructed. House, vehicle and human damage responses preserve armor, direction, amulets, difficulty, flee/retaliation commands, messages, happiness and native side-effect order. The delayed tick dummy is removed; three original AI group notification dependencies are explicitly isolated and excluded from completion counts. See WEAPON_HITS_AND_DELAYED_ACTIONS.md.
+
+**4020 / 5062 (79.42%)** source-address coverage, **1042** known entries open; **264 cpp / 243 headers**, **2179 naming rows / 68 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Continue ALL remaining profession dependencies: aggressive animal counterattacks and pursuit, particle visuals for arrows/hits/smoke, AI defense-group notifications, defensive arrows and vehicle/sea simulation. Event 27 remains held. No runtime completion is claimed. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Hunting and dragging-animal checkpoint - 2026-10-09
 
 Hunter cadaver collection and prey search, the shared attack start/finish work tree, non-AI pursuit recovery, all 29 task-finish entries and dragging-animal vehicle entry are connected. Complete supporting animal damage/anger/flee routines are reconstructed; weapon-hit event 25 and projectiles remain held. See [HUMAN_HUNTING_AND_ATTACKS.md](HUMAN_HUNTING_AND_ATTACKS.md).

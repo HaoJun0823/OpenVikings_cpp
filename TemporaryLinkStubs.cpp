@@ -72,9 +72,17 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CMultiPlayerGoalManager::l_LogicCallback.
     bool __cdecl MultiPlayerGoalManager_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
-    // TEMPORARY DUMMY: Windows address 0041A097; implementation pending.
-    // Naming reference: NC2Logic::CDelayedActionManager::System_DoOneGameTick.
-    void __fastcall DelayedActionManager_System_DoOneGameTick(void *, void *) {}
+    // TEMPORARY DUMMY: Windows address 00473102; AI defense-group notification pending.
+    // Naming reference: NC2Logic::C2AISinglePlayerHandler::Messages_Attacked.
+    void __fastcall AISinglePlayerHandler_Messages_Attacked(void*, void*, const void*) {}
+
+    // TEMPORARY DUMMY: Windows address 004732D2; AI soldier-group retargeting pending.
+    // Naming reference: NC2Logic::C2AISinglePlayerHandler::Messages_SoldierAttacked.
+    void __fastcall AISinglePlayerHandler_Messages_SoldierAttacked(void*, void*, unsigned int, const void*) {}
+
+    // TEMPORARY DUMMY: Windows address 004293FC; high-level military notification pending.
+    // Naming reference: NC2Logic::C2AIHighLevelHandler::Message_Soldier_Attacked.
+    void __fastcall AIHighLevelHandler_Message_Soldier_Attacked(void*, void*, const void*) {}
 
     // TEMPORARY DUMMY: Windows address 00424AE9; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.

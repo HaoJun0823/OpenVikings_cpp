@@ -10,6 +10,15 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042ad91; odd vertical offsets correct odd source rows.
+    void MapMigPoint_AddOffset(void* point, std::int16_t x, std::int16_t y)
+    {
+        auto* coordinates = static_cast<std::int16_t*>(point);
+        coordinates[0] = static_cast<std::int16_t>(static_cast<std::uint16_t>(coordinates[0]) + static_cast<std::uint16_t>(x));
+        if ((static_cast<std::uint16_t>(y) & 1u) != 0 && (static_cast<std::uint16_t>(coordinates[1]) & 1u) != 0) coordinates[0] = static_cast<std::int16_t>(static_cast<std::uint16_t>(coordinates[0]) + 1u);
+        coordinates[1] = static_cast<std::int16_t>(static_cast<std::uint16_t>(coordinates[1]) + static_cast<std::uint16_t>(y));
+    }
+
     // Original function: FUN_0042a894; retain Windows atan2 arguments and scaling order.
     std::int32_t VE_HexagonDirection_GetDirectionFromPositions360Degrees(std::int16_t sourceX, std::int16_t sourceY, std::int16_t targetX, std::int16_t targetY)
     {

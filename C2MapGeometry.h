@@ -47,6 +47,7 @@ namespace NC2Logic
     void* MapMigPoint_ConstructOffset(void* packedMigPoint, const void* source, std::int16_t xOffset, std::int16_t yOffset, bool validate);
     std::uint32_t MapMigPoint_GetLong(const void* packedMigPoint);
     void MapMigPoint_AssignLong(void* packedMigPoint, std::uint32_t value);
+    void MapMigPoint_AddOffset(void* point, std::int16_t x, std::int16_t y);
     void MapMigPoint_MoveCursorUnwrapped(std::uint32_t& packedMigPoint, std::uint32_t direction);
     void MapMigPoint_MoveCursorUnwrapped(void* packedMigPoint, std::uint32_t direction, std::uint32_t distance);
 }

@@ -1,4 +1,5 @@
 #include "C2HumanAtomicEvents.h"
+#include "C2HumanWeaponEvents.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanGoodieTasks.h"
 #include "C2HumanInitialization.h"
@@ -65,8 +66,8 @@ namespace NC2Logic
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, sound, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), 0);
     }
 
-    // Implementation boundary: do not start advancing an animation whose later
-    // events would require untranslated combat or vehicle construction.
+    // Implementation boundary: advance animations only when their event leaves
+    // are connected. Weapon-hit event 25 includes delayed projectile damage.
     bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
     {
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
@@ -76,7 +77,7 @@ namespace NC2Logic
             switch (type)
             {
             case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
-            case 14: case 17: case 22: case 23: case 26: case 34: case 35: case 36:
+            case 14: case 17: case 22: case 23: case 25: case 26: case 34: case 35: case 36:
                 break;
             case 11: case 12: case 24: case 28: case 29: case 30: case 31: case 32: break;
             case 13: case 15: case 16: case 18: case 19: break;
@@ -94,7 +95,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Combat remains an explicit boundary.
+    // 00468B67. Event 27 remains an explicit boundary.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);
@@ -155,6 +156,7 @@ namespace NC2Logic
         case 21: Human_l_PerformTaskEvent_Produce(human); return;
         case 20: Human_l_PerformTaskEvent_Build(human); return;
         case 24: Human_l_PerformTaskEvent_GiveBirth(human); return;
+        case 25: Human_l_PerformTaskEvent_Attack(human); return;
         case 28:
             if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) == 0 && (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)) Human_l_JobExperience_Gain(human);
             return;

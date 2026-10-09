@@ -1,0 +1,29 @@
+# Weapon hits and delayed actions
+
+## Windows evidence
+
+All behavior below comes from `assembly_weltwunder_win.asm` and the original Windows `Game.exe`. The Mac header supplies corresponding function/type names only. No Mac implementation was used to infer behavior. These are source reconstructions; gameplay has not been run or verified for this checkpoint.
+
+- `00469B78..0046A0BE`: human attack event 25 checks the primary target before the secondary target. Invalid targets fail immediately. Landscape, house, animal, vehicle and human branches preserve native range checks, work-house range extension, direct-hit experience and moving-target prediction. The failed vehicle attack-point branch applies direct damage even for a weapon with munition.
+- `0046B7C7..0046BA29`: shooting preserves the hero accuracy exception, house launch-point RNG, signed low-word RNG remainders for scattering, staggered map offsets, flight-time calculation, tribe/job munition override, callback `0x23`, delayed scheduling and exploration order. `0046BA2C` is an empty exit callback.
+- `0042AD91..0042ADB8`: `SMapMigPoint::AddOffset` updates X, corrects odd source rows for odd Y offsets, then updates Y. The Game.exe bytes confirm the word-sized arithmetic.
+- Entire static region `00554CF8..00554D1F`: two packed map positions, source height, two pixel-offset pairs, munition ID, flight duration, lazy initialization flag and padding. Windows xrefs belong to shooting. Callback `0047F13E` forwards the values to `0048664C`; `0049761D/00497691` establish height and pixel-offset semantics. The reconstructed POD storage needs no cleanup because the original registered exit callback is empty.
+- `0041A097..0041AA56`: delayed manager tick, insertion, execution, hit-list collection and hit dispatch. The existing array owns 100 records of `0x30` bytes. Allocation failure executes the local record immediately; unsupported attacker types return false. Empty/full arrays and changing scan bounds retain native behavior.
+- `0041A37C`: discovery order and the 100-entry cap are preserved. Vehicles and houses are deduplicated; humans and animals retain native insertion rules. Own-player filtering, hidden humans, weapon 21's tree transition, blocked house-area search and both vehicle sector lists are distinct branches. Vehicle-area search skips the attacker's player even when the weapon allows hitting own objects, as in Windows.
+- `0041A1FE/0041A8B9`: area damage visits the center and its six neighbors before applying the entire list. Ordinary damage hits the first candidate. Smoke and miss-sound callbacks preserve their order. Experience is granted once after hit-list processing, and only to a still-valid human/vehicle attacker.
+- `00434781`: house damage, difficulty adjustment before attacker bonuses, defense notification, health modification, kill statistics, happiness, attacker validation and message 49.
+- `0044272A`: vehicle damage, attacker bonuses before difficulty adjustment, hit sound, health modification, kill statistics and message 52. A missing/reused human attacker returns false after damage, as in Windows.
+- `00443EE9..004445C9`: armor material/blocking, facing bonuses, defense amulet, difficulty, invincibility, resurrection-item kill-stat exception, hit/sound/message callbacks, retaliation and civilian fleeing. The primary-target equality check compares type and revision without object ID. Propagation visits separate human lists at radii 40/20 and the native animal lists without recursively propagating again; zero-damage notifications retain their effects and RNG order.
+- `00443108`, `00434B86`, `004415D9`, `0043B1CC`, `0045D17E`: vehicle commander experience, inclusive house row containment, vehicle radius containment, landscape hit transitions and defense-amulet predicate.
+- `00462316/0046232D`: AI manager forwarding order is reconstructed. Original handler implementations remain explicit dependencies below.
+
+## Integration and remaining work
+
+Event 25 is now accepted by `Human_AreAtomicEventsReconstructed` and dispatched through `Human_l_PerformTaskEvent_Attack`. The empty `0041A097` link dummy was removed. Jäger, soldiers and heroes now share the connected direct/projectile damage path, and the existing animal death/cadaver and hunter harvesting paths can follow damage. This does not establish a completed or runtime-verified combat subsystem.
+
+- Engine callback `0047EC5B` still implements sound `0x17` only. Projectile `0x23`, smoke `0x24` and hit-particle `0x27` visual branches and particle simulation/drawing remain untranslated. Damage scheduling is independent of these visual callbacks.
+- Aggressive animal AI/task 8, attack events and pursuit interruptions remain held in `C2AnimalTasks.cpp`. Their damage/flee/anger entry point is connected, but their counterattack task is not yet complete.
+- AI defense-group and retargeting bodies `00473102`, `004732D2`, `004293FC` are temporarily linked through isolated named dummies in `TemporaryLinkStubs.cpp`, under the user's existing link-only exception. They are listed in `TEMPORARY_LINK_STUBS.csv` and excluded from completion counts. Single-soldier command reactions and ordinary civilians' flee commands are reconstructed; these group notifications are not.
+- Human event 27 and vehicle/sea simulation remain separate unfinished blocks. Do not remove their guards based on this checkpoint.
+
+Verification: MSVC Win32 `/Zs` on affected production units, project/filter parity, unique naming addresses and whitespace checks. No Debug/Release build, tests or game launch was performed. User-owned untracked `C2HumanCombatTasks.cpp/.h` remain untouched and excluded from the project.

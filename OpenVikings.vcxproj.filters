@@ -1395,4 +1395,11 @@
     <ClCompile Include="C2VehicleAnimalPassengers.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2VehicleAnimalPassengers.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2WeaponHits.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2DelayedActionManager.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2DelayedActionManager.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanWeaponEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanWeaponEvents.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #include "C2UserNetworkCommandAccess.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameTime.h"
+#include "C2DelayedActionManager.h"
 #include "C2MapMoveableAccess.h"
 #include "C2MapResourceManagers.h"
 #include "C2SavegameIO.h"
@@ -33,7 +34,6 @@ namespace NC2Logic
     extern void __fastcall HouseArray_DoOneGameSecond(void*, void* unusedEdx);
     extern void __fastcall RoadBuildManager_DoOneGameSecond(void*, void* unusedEdx);
     extern void __fastcall WallBuildManager_DoOneGameSecond(void*, void* unusedEdx);
-    extern void __fastcall DelayedActionManager_System_DoOneGameTick(void*, void* unusedEdx);
     extern void __fastcall GameControl_System_DoOneGameTick(void*, void* unusedEdx, std::uint32_t);
     extern void Game_l_Autosave_Update();
     extern std::uint32_t GameTime_Network_GetHighestPlayerLatency();

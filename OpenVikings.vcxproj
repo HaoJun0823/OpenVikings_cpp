@@ -733,4 +733,11 @@
     <ClCompile Include="C2VehicleAnimalPassengers.cpp" />
     <ClInclude Include="C2VehicleAnimalPassengers.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2WeaponHits.cpp" />
+    <ClCompile Include="C2DelayedActionManager.cpp" />
+    <ClInclude Include="C2DelayedActionManager.h" />
+    <ClCompile Include="C2HumanWeaponEvents.cpp" />
+    <ClInclude Include="C2HumanWeaponEvents.h" />
+  </ItemGroup>
 </Project>

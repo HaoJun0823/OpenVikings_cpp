@@ -11,7 +11,6 @@ Address,CurrentName,Status,ReferencingObjects
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,Partial Windows callback; unconditional true restored at 004195D0; 120-tick notification/goal updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-0041A097,NC2Logic::DelayedActionManager_System_DoOneGameTick,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0041E2AE,NC2Logic::MissionManager_CheckAllMissionGoals,Partial implementation; active-goal scan and briefing stop flag reconstructed; submap transitions pending,C2MissionExecution.obj
 0041E45E,NC2Logic::MissionManager_l_CheckGoal,Partial implementation; True/Diplomacy/CheckMission/Population/IfMissionIsActive/IsMissionDone reconstructed; object-area-combat goals pending,C2MissionExecution.obj
 0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial implementation; briefing/activation/exploration/exit/external-AI-flag/diplomacy/visibility/submap request flags reconstructed; remaining actions pending,C2MissionExecution.obj
@@ -34,9 +33,9 @@ Address,CurrentName,Status,ReferencingObjects
 00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial native step callback; non-AI military enemy searches and pursuit range limits connected; AI target notification at 004631D8 pending; excluded from completion counts,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
-00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; animal production now connected alongside civilian family training scout chest map collection and fishing; combat and vehicle construction pending,C2HumanCommandAccess.obj
+00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; weapon-hit event 25 and vehicle construction connected; event 27 remains held; excluded from completion counts,C2HumanCommandAccess.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial native job startup; all civilian ground job selectors including hunter connected; weapon-hit event and remaining vehicle/sea simulation dependencies pending,C2HumanTaskAccess.obj
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial native job startup; all civilian ground job selectors and direct/projectile damage connected; remaining vehicle/sea simulation dependencies pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
@@ -65,3 +64,6 @@ Address,CurrentName,Status,ReferencingObjects
 0042E32E,NC2Logic::Animal_l_CurrentTask_DoPerform,Partial Windows atomic performance; movement/sound/end transitions connected; weapon-hit event 25 held before advancing; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 00460F3F,NC2Logic::Animal_l_StartTask_Stay,Partial Windows civilian animal stay including sheep interaction; aggressive enemy/attack decisions held; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 00433694,NC2Logic::House_DoOneGameTick,Partial native house tick; destruction and conversion of completed vehicle construction sites connected; defensive arrows 004337AF..00433A90 pending; excluded from completion counts,C2HousePeriodic.obj
+00473102,NC2Logic::AISinglePlayerHandler_Messages_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
+004732D2,NC2Logic::AISinglePlayerHandler_Messages_SoldierAttacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
+004293FC,NC2Logic::AIHighLevelHandler_Message_Soldier_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
