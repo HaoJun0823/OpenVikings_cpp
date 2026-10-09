@@ -1402,4 +1402,9 @@
     <ClCompile Include="C2HumanWeaponEvents.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanWeaponEvents.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2AnimalMilitaryTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2AnimalMilitaryTasks.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2MilitaryAttackPointSearch.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

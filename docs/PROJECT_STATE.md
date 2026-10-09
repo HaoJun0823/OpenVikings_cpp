@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Aggressive animal combat checkpoint - 2026-10-09
+
+The full aggressive-animal enemy search, attack-position selection, chase, leader-target propagation and melee-hit event are connected. Four held AI/path/stay/event boundaries are removed. The native shared attack-position record is reused by humans and animals. See ANIMAL_MILITARY_TASKS.md.
+
+**4030 / 5062 (79.61%)** source-address coverage, **1032** known entries open; **265 cpp / 245 headers**, **2185 naming rows / 64 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Next user-requested block: building list and building behavior audit, including the outstanding defensive-arrow tick. Remaining profession dependencies include particle visuals, AI group notification bodies and vehicle/sea simulation; runtime confirmation is pending. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Weapon-hit events and delayed projectile damage - 2026-10-09
 
 Human attack event 25 is connected for landscape, house, animal, vehicle and human targets. Native shooting scatter and moving-target prediction now schedule delayed impacts; the delayed manager tick, hit-list rules, area damage, experience and miss callbacks are reconstructed. House, vehicle and human damage responses preserve armor, direction, amulets, difficulty, flee/retaliation commands, messages, happiness and native side-effect order. The delayed tick dummy is removed; three original AI group notification dependencies are explicitly isolated and excluded from completion counts. See WEAPON_HITS_AND_DELAYED_ACTIONS.md.

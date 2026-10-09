@@ -1,5 +1,8 @@
 #include "C2AnimalTasks.h"
 #include "C2AnimalAccess.h"
+#include "C2AnimalMilitaryTasks.h"
+#include "C2MilitaryDamage.h"
+#include "C2HumanInitialization.h"
 #include "C2AnimalIterator.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
@@ -265,15 +268,6 @@ namespace NC2Logic
             Logic_EntryPoint_Add_Animal(20, Read<std::uint32_t>(animal, 0x14), 49, Animal_GetMapPositionRef(animal), Read<std::uint32_t>(animal, 0x8C), flags);
         }
 
-        // Original function: FUN_00447165.
-        void Animal_l_Speed_Fast(void* animal)
-        {
-            const auto speed = Type(animal).runSpeed;
-            if (speed <= 0) return;
-            Write(Moveable(animal), 0x44, speed);
-            Write(Moveable(animal), 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
-        }
-
         // Original function: FUN_00447199.
         void Animal_l_Speed_Normal(void* animal)
         {
@@ -338,16 +332,18 @@ namespace NC2Logic
             Write<std::uint32_t>(animal, 0x1C, 4);
         }
 
-        // Partial original function: FUN_00460f3f; aggressive combat task changes remain a boundary.
+        // Original function: FUN_00460f3f.
         void Animal_l_StartTask_Stay(void* animal)
         {
-            if (IsAggressive(animal)) return;
-            if (Read<std::int32_t>(animal, 0x68) <= 0) { Write<std::uint32_t>(animal, 0x1C, 7); Write<std::uint32_t>(animal, 0x20, 0); return; }
+            const bool aggressive = IsAggressive(animal);
+            if (aggressive) Write(animal, 0x40, Read<std::uint32_t>(animal, 0x40) - 1u);
+            if (!aggressive && Read<std::int32_t>(animal, 0x68) <= 0) { Write<std::uint32_t>(animal, 0x1C, 7); Write<std::uint32_t>(animal, 0x20, 0); return; }
             const auto* current = Animal_GetMapPositionRef(animal);
             auto* leader = Animal(Read<std::uint32_t>(animal, 0x34));
             if (leader == animal)
             {
                 if (Distance(current, static_cast<const std::byte*>(animal) + 0x24) > StayDistance(animal) + BirthDistance(animal)) Write<std::uint32_t>(animal, 0x40, 0);
+                else if (aggressive && Animal_l_Military_CheckForEnemy(animal)) { Write<std::uint32_t>(animal, 0x1C, 8); Write<std::uint32_t>(animal, 0x20, 0); return; }
                 if (Read<std::int32_t>(animal, 0x40) <= 0) { Write<std::uint32_t>(animal, 0x1C, 6); Write<std::uint32_t>(animal, 0x20, 0); return; }
                 if (Distance(current, static_cast<const std::byte*>(animal) + 0x28) > StayDistance(animal)) { Animal_l_StartAtomicWalk(animal, static_cast<const std::byte*>(animal) + 0x28); return; }
             }
@@ -430,18 +426,32 @@ namespace NC2Logic
             Animal_l_StartTask_Idle(animal);
         }
 
-        // Partial original function: FUN_0042e32e; weapon-hit event 25 is held.
+        // Original function: FUN_0042e32e; melee hits use the native minimum-range check.
         bool Animal_l_CurrentTask_DoPerform(void* animal)
         {
             if (Read<std::uint32_t>(animal, 0x70) == 0) { Write<std::uint32_t>(animal, 0x1C, 1); Write<std::uint32_t>(animal, 0x20, 0); return true; }
             if (Read<std::uint8_t>(animal, 0x74) == 0) return true;
             const auto& animation = gStaticAtomicAnimationData[Read<std::uint32_t>(animal, 0x78)];
-            for (std::uint32_t index = 0; index < animation.eventCount; ++index) if (animation.events[index].type == 25) return false;
             for (std::uint32_t index = 0; index < animation.eventCount; ++index)
             {
                 const auto& event = animation.events[index];
                 if (static_cast<std::uint32_t>(event.time) != Read<std::uint32_t>(animal, 0x7C)) continue;
-                if (event.type == 26)
+                if (event.type == 25)
+                {
+                    auto* target = static_cast<std::byte*>(animal) + 0x44;
+                    if (!TargetData_IsValid(target)) { Write<std::uint32_t>(animal, 0x20, 3); continue; }
+                    const auto* weapon = reinterpret_cast<const SStaticWeaponTypeData*>(reinterpret_cast<std::uintptr_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(animal, 0x14)]) + 0xC4u);
+                    if (weapon == nullptr) continue;
+                    const auto kind = TargetData_GetTargetType(target);
+                    if (kind != 1 && kind != 3) { Write<std::uint32_t>(animal, 0x20, 3); continue; }
+                    auto* object = kind == 1 ? CHumanArray::mStaticVars + TargetData_GetObjectId(target) * CHumanArray::ElementSize : static_cast<std::byte*>(Animal(TargetData_GetObjectId(target)));
+                    const auto* source = Animal_GetMapPositionRef(animal);
+                    const auto* destination = kind == 1 ? Human_GetMapPositionRef(object) : Animal_GetMapPositionRef(object);
+                    if (Distance(destination, source) > static_cast<std::uint32_t>(weapon->minimumRange)) continue;
+                    const bool killed = kind == 1 ? Human_Military_StartGettingHitByWeapon(object, source, Read<std::uint32_t>(animal, 0x14), 1, Read<std::uint32_t>(animal, 4), Read<std::uint32_t>(animal, 8), 3, 0, true) : Animal_Military_StartGettingHitByWeapon(object, Read<std::uint32_t>(animal, 0x14), 1, Read<std::uint32_t>(animal, 4), Read<std::uint32_t>(animal, 8), 3, 0, true);
+                    if (killed) Write<std::uint32_t>(animal, 0x20, 2);
+                }
+                else if (event.type == 26)
                 {
                     auto* moveable = Moveable(animal);
                     auto point = Read<std::uint32_t>(moveable, 0x12);
@@ -459,6 +469,15 @@ namespace NC2Logic
             Write<std::uint8_t>(animal, 0x74, 0);
             return true;
         }
+    }
+
+    // Original function: FUN_00447165.
+    void Animal_l_Speed_Fast(void* animal)
+    {
+        const auto speed = Type(animal).runSpeed;
+        if (speed <= 0) return;
+        Write(Moveable(animal), 0x44, speed);
+        Write(Moveable(animal), 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
     }
 
     // Original function: FUN_0042df37; growth notifies after detaching and reattaching.
@@ -535,10 +554,9 @@ namespace NC2Logic
         else { Animal_l_StartAtomicWalk(animal, point); Write<std::uint32_t>(animal, 0x1C, 10); }
     }
 
-    // Partial original function: FUN_0042e15c; aggressive path interrupts require combat.
+    // Original function: FUN_0042e15c.
     bool Animal_DoNewMapPositionReached(void* animal, bool finalPosition)
     {
-        if (IsAggressive(animal)) return false;
         if (Read<std::uint32_t>(animal, 0x20) == 0) return false;
         if (finalPosition)
         {
@@ -549,6 +567,22 @@ namespace NC2Logic
             }
             const auto task = Read<std::int32_t>(animal, 0x1C);
             if (task > 0 && task <= 10) Write<std::uint32_t>(animal, 0x20, 2);
+        }
+        else if (IsAggressive(animal))
+        {
+            if (Read<std::uint32_t>(animal, 0x34) == Read<std::uint32_t>(animal, 4) && Animal_l_Military_CheckForEnemy(animal)) { Write<std::uint32_t>(animal, 0x1C, 8); Write<std::uint32_t>(animal, 0x20, 0); return false; }
+            if (!Animal_l_IsLeaderValid(animal)) return true;
+            auto* target = static_cast<std::byte*>(animal) + 0x44;
+            if (Read<std::uint32_t>(animal, 0x34) == Read<std::uint32_t>(animal, 4) && TargetData_IsValid(target))
+            {
+                if (Distance(Animal_GetMapPositionRef(animal), static_cast<const std::byte*>(animal) + 0x28) <= 40u) return true;
+                Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(animal, 0x1C, 5); Write<std::uint32_t>(animal, 0x20, 0); return false;
+            }
+            const auto* leaderTarget = static_cast<const std::byte*>(Animal(Read<std::uint32_t>(animal, 0x34))) + 0x44;
+            // Windows compares target kind and revision here, without comparing the object id.
+            if (Read<std::uint32_t>(leaderTarget, 8) == Read<std::uint32_t>(target, 8) && Read<std::uint32_t>(leaderTarget, 0) == Read<std::uint32_t>(target, 0)) return true;
+            for (std::uint32_t offset = 0; offset < 12; offset += 4) Write(target, offset, Read<std::uint32_t>(leaderTarget, offset));
+            Write<std::uint32_t>(animal, 0x1C, TargetData_IsValid(target) ? 8u : 5u); Write<std::uint32_t>(animal, 0x20, 0); return false;
         }
         else if (Read<std::uint32_t>(animal, 0x34) != Read<std::uint32_t>(animal, 4) && Animal_l_IsLeaderValid(animal) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(animal, 0x34)), 0x1C) == 4)
         {
@@ -564,10 +598,10 @@ namespace NC2Logic
     // Original function: FUN_0042e320.
     void Animal_DoPathfinderStopped(void* animal) { if (Read<std::uint32_t>(animal, 0x1C) == 2) Write<std::uint32_t>(animal, 0x20, 3); }
 
-    // Partial original function: FUN_0042dfc0; aggressive combat task branches remain held.
+    // Original function: FUN_0042dfc0.
     void Animal_DoUpdateAI(void* animal)
     {
-        if (Read<std::uint8_t>(Moveable(animal), 0x10) == 0 || IsAggressive(animal)) return;
+        if (Read<std::uint8_t>(Moveable(animal), 0x10) == 0) return;
         if (!Animal_IsAttachedToVehicle(animal) && !Animal_IsAttachedToHouse(animal) && Read<std::uint32_t>(animal, 0x10) != 20) Animal_l_MoveWorkCenterPoint(animal);
         Animal_l_CheckForValidLeader(animal);
         if (!Animal_l_CurrentTask_DoPerform(animal) || !Animal_l_IsAtomicInterruptable(animal)) return;
@@ -588,6 +622,7 @@ namespace NC2Logic
             case 5: Animal_l_StartTask_Stay(animal); break;
             case 6: Animal_l_StartTask_GotoNextPoint(animal); break;
             case 7: Animal_l_StartTask_Eat(animal); break;
+            case 8: Animal_l_StartTask_Attack(animal); break;
             case 9: Animal_l_StartTask_InteractWithVehicle(animal); break;
             case 10: Animal_l_StartTask_InteractWithHouse(animal); break;
             default: return; // Explicit untranslated task boundary; never spin here.

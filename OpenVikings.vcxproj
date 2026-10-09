@@ -740,4 +740,9 @@
     <ClCompile Include="C2HumanWeaponEvents.cpp" />
     <ClInclude Include="C2HumanWeaponEvents.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2AnimalMilitaryTasks.cpp" />
+    <ClInclude Include="C2AnimalMilitaryTasks.h" />
+    <ClInclude Include="C2MilitaryAttackPointSearch.h" />
+  </ItemGroup>
 </Project>

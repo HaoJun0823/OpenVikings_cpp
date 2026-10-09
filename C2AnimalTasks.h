@@ -4,6 +4,7 @@
 namespace NC2Logic
 {
     void Animal_DoUpdateConditions(void* animal);
+    void Animal_l_Speed_Fast(void* animal);
     void Animal_DoUpdateAI(void* animal);
     bool Animal_DoNewMapPositionReached(void* animal, bool finalPosition);
     void Animal_DoPathfinderFailed(void* animal);

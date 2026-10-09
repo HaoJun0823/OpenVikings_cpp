@@ -17,6 +17,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MilitaryAttackPointSearch.h"
 #include "C2MapMoveableAccess.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2OverviewObjectIterators.h"
@@ -48,22 +49,6 @@ namespace NC2Logic
             }
             return false;
         }
-        struct SAttackPointSearch
-        {
-            std::uint32_t target;
-            std::uint32_t source;
-            std::uint32_t count;
-            std::uint32_t points[6];
-            std::uint32_t bestDistance;
-            std::uint32_t minimumRange;
-            std::uint32_t maximumRange;
-            const void* human;
-
-            // Original function: FUN_00442fc7; range and owner fields are filled by the caller.
-            SAttackPointSearch() : target(0), source(0), count(0), points{}, bestDistance(0xFFFFFFFFu) {}
-        };
-        static_assert(sizeof(SAttackPointSearch) == 0x34);
-
         // Original function: FUN_0046b61f. Equal source distances remain candidates.
         bool __cdecl slHumanSearchNextFreeMilitaryMapPointFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
@@ -71,7 +56,7 @@ namespace NC2Logic
             const auto sourceDistance = Distance(&data.source, point);
             if (sourceDistance > data.bestDistance) return true;
             const auto targetDistance = Distance(&data.target, point);
-            if (targetDistance < data.minimumRange || targetDistance > data.maximumRange || HasAttackingHuman(data.human, point, false, false)) return false;
+            if (targetDistance < data.minimumRange || targetDistance > data.maximumRange || HasAttackingHuman(data.owner, point, false, false)) return false;
             data.bestDistance = sourceDistance;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 6;
@@ -197,7 +182,7 @@ namespace NC2Logic
         data.source = Read<std::uint32_t>(Position(human), 0);
         data.minimumRange = static_cast<std::uint32_t>(weapon.minimumRange);
         data.maximumRange = static_cast<std::uint32_t>(weapon.maximumRange);
-        data.human = human;
+        data.owner = human;
         CMapPathfinderElement::SearchOverMap(&data.source, 5, true, slHumanSearchNextFreeMilitaryMapPointFunction, &data, true, Read<std::int32_t>(human, 0x10));
         if (data.count == 0) return false;
         Write(point, 0, data.points[Game_Random_GetNumber() % data.count]);
