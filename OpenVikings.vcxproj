@@ -679,4 +679,10 @@
   <ItemGroup>
     <ClCompile Include="C2HappinessRecalculation.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanMilitaryJobs.cpp" />
+    <ClInclude Include="C2HumanMilitaryJobs.h" />
+    <ClCompile Include="C2MilitaryLandscapeTargets.cpp" />
+    <ClCompile Include="C2MilitarySectorTargets.cpp" />
+  </ItemGroup>
 </Project>

@@ -1341,4 +1341,10 @@
   <ItemGroup>
     <ClCompile Include="C2HappinessRecalculation.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanMilitaryJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanMilitaryJobs.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2MilitaryLandscapeTargets.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2MilitarySectorTargets.cpp"><Filter>Logic</Filter></ClCompile>
+  </ItemGroup>
 </Project>

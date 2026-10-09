@@ -39,7 +39,7 @@ Address,CurrentName,Status,ReferencingObjects
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
 00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; civilian/family/training/scout/chest rewards connected; outdoor/combat pending,C2HumanCommandAccess.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household learning indoor production idle and road/wall builder connected; house/outdoor/vehicle/military pending,C2HumanTaskAccess.obj
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household learning indoor production idle house/road/wall builders and ground soldier/hero jobs connected; other outdoor and vehicle-dependent dispatch pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

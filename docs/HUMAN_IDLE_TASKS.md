@@ -1,5 +1,9 @@
 # Human idle task lifecycle
 
+## Soldier movement continuation - 2026-10-09
+
+The complete soldier/hero ground-job body 0046F41A and its enemy/landscape/sector-cache tree are now connected. Arrival can again transition from task 8 to task 1 and replace walking with the existing native idle atomic. Historical partial descriptions below have been superseded by subsequent needs/goods/family/queue/construction work; consult current HEAD and TEMPORARY_LINK_STUBS.csv. Attack/pursue and vehicle-dependent dispatch remain open. See [SOLDIER_MOVEMENT.md](SOLDIER_MOVEMENT.md).
+
 ## Subsequent goodie continuation - 2026-10-06
 
 Supported task 24 goodie startup, baby/child selection, conversation/listening/waiting, sleep-place/work-area searches, non-passenger walk starts and goodie finish leaves are now connected. The six partial boundaries and remaining atomic/condition/path gaps are detailed in [HUMAN_GOODIE_TASKS.md](HUMAN_GOODIE_TASKS.md). This supersedes the startup-only pending description below; complete civilian behavior remains unverified.

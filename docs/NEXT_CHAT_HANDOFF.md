@@ -1,5 +1,13 @@
 # C++ continuation handoff - 2026-10-06
 
+## Soldier movement/job continuation checkpoint - 2026-10-09
+
+Ground soldier/hero jobs 31..47 now dispatch to the complete native 0046F41A body. The former unsupported job could leave the walking atomic active after arrival; the reconstructed path selects idle or a return walk. Its enemy/landscape search and sector cache helpers are reconstructed as a complete related family. Windows ASM/Game.exe establish behavior; the Mac header supplies names only. See [SOLDIER_MOVEMENT.md](SOLDIER_MOVEMENT.md).
+
+**3806 / 5059 (75.23%)** source-address coverage, **1253** known entries open; **248 cpp / 228 headers**, **1989 naming rows / 64 unfinished boundaries**. This is not verified gameplay completion. Six affected/new calling cpp units passed MSVC Win32 `/Zs`; source/project checks passed. No Debug/Release build, tests or gameplay run occurred.
+
+Next: attack/pursue task startup, finish/failure and atomic events, then arrows/delayed hits and the full house tick. Selected targets still reach unsupported combat tasks independently; the intermediate-point military callback and vehicle-dependent job dispatch remain partial. User-owned untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded. Do not infer full combat completion from the ground-job correction.
+
 ## Active priority: periodic house execution after menus/input - 2026-10-09
 
 Continue the full menu/keyboard/cheat request. Connected GUI commands are distinct from completed gameplay. Read [HOUSE_CONSTRUCTION_LIFECYCLE.md](HOUSE_CONSTRUCTION_LIFECYCLE.md) and [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md), current source/history and the top checkpoint. Native cheats including lowercase direct-input `guckmalan` remain connected from commit 50d4819; runtime confirmation remains pending. No game run/build/tests are authorized.
