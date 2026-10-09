@@ -24,7 +24,7 @@ Address,CurrentName,Status,ReferencingObjects
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
 0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
 00441F8C,NC2Logic::Human_VehicleMisc_Enter,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
-0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs pickup pileup ordinary production and map collection events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
+0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs pickup pileup ordinary production map collection and fishing events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
 004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial Windows startup; civilian/family/goods/goodies/home/equipment/scout/chest and supported queues connected; combat/outdoor/vehicle trees pending,C2HumanTaskAccess.obj
 004436C5,NC2Logic::Human_CurrentTask_DoFinish,Partial Windows finish; civilian/family/equipment/goodies/scout/chest connected; combat/vehicle leaves pending,C2HumanTaskAccess.obj
 00443807,NC2Logic::Human_CurrentTask_DoFailure,Partial Windows failure; civilian/family/equipment/scout/chest recovery connected; combat and AI NoWayFound pending,C2HumanTaskAccess.obj
@@ -37,9 +37,9 @@ Address,CurrentName,Status,ReferencingObjects
 00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial Windows step callback; civilian urgent needs and priority handling connected; military enemy search pending,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
-00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; civilian family training scout chest map collection split/grow/transform/plant connected; fishing animal production and combat pending,C2HumanCommandAccess.obj
+00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; civilian family training scout chest map collection and fishing connected; animal production and combat pending,C2HumanCommandAccess.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household learning indoor production collector idle house/road/wall builders and ground soldier/hero jobs connected; other outdoor and vehicle-dependent dispatch pending,C2HumanTaskAccess.obj
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; household learning indoor production collector farmer herb guy fisher jester druid builders and ground soldier/hero jobs connected; hunter breeder carpenter/armorer vehicle production carrier trader and vehicle-dependent dispatch pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

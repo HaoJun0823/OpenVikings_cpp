@@ -6,6 +6,8 @@
 #include "C2GameMapAccess.h"
 #include "C2HouseAccess.h"
 #include "C2HumanCommandAccess.h"
+#include "C2HumanAtomicEvents.h"
+#include "C2HumanGoodieTasks.h"
 #include "C2HumanGoods.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
@@ -14,6 +16,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
+#include "C2MapResourceManagers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2VehicleAccess.h"
 
@@ -126,5 +129,45 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, changed ? 2u : 3u);
         WearTools(human);
         Human_StopCurrentGoodCirculationMode(human);
+    }
+
+    // Original function: FUN_004698c4.
+    void Human_l_PerformTaskEvent_CatchFish(void* human)
+    {
+        Human_l_JobEfficiency_SetupNeededRetries(human);
+        Write(human, 0x38C, Read<std::uint32_t>(human, 0x38C) + 1u);
+        if (Read<std::int32_t>(human, 0x38C) < Human_l_JobEfficiency_GetNeededRetries(human))
+        {
+            Human_l_ResetAtomic(human);
+            Human_l_StartAtomicAnimation(human, 38, Human_Target_GetDirectionTo(human));
+            Write<std::uint32_t>(human, 0x36C, 2);
+            WearTools(human);
+            Human_StopCurrentGoodCirculationMode(human);
+            return;
+        }
+        Write<std::uint32_t>(human, 0x38C, 0);
+        std::uint32_t swarmPosition = 0;
+        const auto caught = static_cast<CMapFishManager*>(gMapFishManager)->GetOneFishFromNearestSwarm(Real(human), 20, &swarmPosition);
+        Human_l_ResetAtomic(human);
+        Human_l_StartAtomicAnimation(human, caught ? 37u : 38u, Human_Target_GetDirectionTo(human));
+        if (caught)
+        {
+            Human_l_JobExperience_Gain(human);
+            Write<std::uint32_t>(human, 0xA64, 0);
+            Write<std::uint32_t>(human, 0x36C, 2);
+            // Native outlined carried-good setter 0042DB6C invokes callback 0x21.
+            Write<std::uint32_t>(human, 0xAD4, 16);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 16);
+            Human_l_PerformTaskEvent_DidProduceOneGood(human);
+            if (Read<std::uint32_t>(human, 0xACC) != 5) Write<std::uint32_t>(human, 0xACC, 4);
+            GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, 0x10), &swarmPosition, (Read<std::uint32_t>(human, 0xB7C) >> 1) + 1u);
+        }
+        else
+        {
+            Write<std::uint32_t>(human, 0x36C, 3);
+            Human_StopCurrentGoodCirculationMode(human);
+        }
+        WearTools(human);
+        Human_Target_Reset(human);
     }
 }

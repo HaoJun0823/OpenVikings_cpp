@@ -214,6 +214,9 @@ namespace NC2Logic
     // Original function: FUN_0042cea7.
     void Human_Target_Reset(void* human) { NC2Lifetime::Write<std::uint32_t>(human, 0xA68, 0); }
 
+    // Original function: FUN_0042ceb7.
+    void Human_Target_SetType(void* human, std::uint32_t type) { NC2Lifetime::Write(human, 0xA68, type); }
+
     // Original function: FUN_0042d18b; a non-landscape target has type zero.
     std::uint32_t Human_GetLandscapeTypeAtTargetPosition(const void* human)
     {

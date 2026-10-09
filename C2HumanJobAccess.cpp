@@ -17,6 +17,8 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042c8e6.
+    bool Human_IsForcedToHaveFinishedWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint8_t>(gStaticJobTypeData, NC2Lifetime::Read<std::uint32_t>(human, 0x18) * 0x88u + 0x84u) != 0; }
     using namespace NC2Lifetime;
 
     // Original function: FUN_0044b3c5.

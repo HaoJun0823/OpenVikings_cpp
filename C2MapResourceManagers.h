@@ -45,6 +45,8 @@ namespace NC2Logic
         void IO_Savegame_DoSave(CIoHelper& io);
         bool IO_Cleanmap_Load(CIoHelper& io);
         bool AddFishAtMapPosition(const void* point, std::uint32_t count, std::uint32_t maximumDistance);
+        bool IsFishNearMapPosition(const void* point, std::uint32_t maximumDistance) const;
+        bool GetOneFishFromNearestSwarm(const void* point, std::uint32_t maximumDistance, void* swarmPosition);
         void ClearSwarmAtPosition(const void* point);
         void l_FishReproduction();
         std::uint32_t RemoveInvalidSwarms();

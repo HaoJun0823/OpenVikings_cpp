@@ -24,6 +24,7 @@ namespace NC2Logic
     void Human_AI_DoNewMapPositionReached_DestinationReached(void* human);
     std::uint32_t Human_GetLandscapeTypeAtTargetPosition(const void* human);
     void Human_Target_Reset(void* human);
+    void Human_Target_SetType(void* human, std::uint32_t type);
     bool Human_Target_IsValid(const void* human);
     std::uint32_t Human_Equipment_GetWeaponType(const void* human);
     void Human_StopCurrentGoodCirculationMode(void* human);

@@ -35,5 +35,9 @@ namespace NC2Logic
     bool Human_FindLandscapesNearPos_Sorted(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source);
     bool Human_FindLandscapesNearPos_Random(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source);
     bool Human_FindBioLandscapeNearWorkCenter(const void* human, std::uint32_t landscape, void* real, void* work);
+    bool Human_FindLandscapeNearWorkCenter(const void* human, std::uint32_t landscape, void* real, void* work);
+    bool Human_FindGrowPatternNearWorkCenter(const void* human, void* real, void* work);
+    bool Human_FindGrowLandscapeNearWorkCenter(const void* human, std::uint32_t landscape, void* real, void* work);
+    bool Human_FindShorePointForFishing(const void* human, void* real, void* work);
     bool Human_FindPilePointNearPosition(const void* human, std::int32_t engineId, const void* source, void* point);
 }

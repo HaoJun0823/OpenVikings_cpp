@@ -160,6 +160,9 @@ namespace NC2Logic
     // Original function: FUN_0042c98b.
     bool Human_IsDoingGoodie(const void* human) { const auto task = Read<std::int32_t>(human, 0x368); return task >= 24 && task <= 29; }
 
+    // Original function: FUN_0042d00a.
+    void Human_Target_SetWorkPosition(void* human, const void* position) { Write(human, 0xA70, Read<std::uint32_t>(position, 0)); }
+
     // Original function: FUN_0042cf55.
     std::uint32_t Human_Target_GetDirectionTo(const void* human)
     {

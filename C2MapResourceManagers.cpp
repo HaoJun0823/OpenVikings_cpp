@@ -451,6 +451,40 @@ namespace NC2Logic
         return true;
     }
 
+    // Original function: FUN_0044e928.
+    bool CMapFishManager::IsFishNearMapPosition(const void* point, std::uint32_t maximumDistance) const
+    {
+        if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(point)) != 2u) return false;
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6);
+        for (std::int32_t index = 0; index < mSwarmCount; ++index)
+        {
+            const auto& swarm = mSwarms[index];
+            if (swarm.continentId != continent) continue;
+            if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2))) < maximumDistance && static_cast<std::int32_t>(swarm.fishCount) > 0) return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_0044e9b8.
+    bool CMapFishManager::GetOneFishFromNearestSwarm(const void* point, std::uint32_t maximumDistance, void* swarmPosition)
+    {
+        if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(point)) != 2u) return false;
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6);
+        auto nearest = mSwarmCount;
+        std::uint32_t nearestDistance = 1000;
+        for (std::int32_t index = 0; index < mSwarmCount; ++index)
+        {
+            const auto& swarm = mSwarms[index];
+            if (swarm.continentId != continent) continue;
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
+            if (distance < maximumDistance && distance < nearestDistance && static_cast<std::int32_t>(swarm.fishCount) > 0) { nearest = index; nearestDistance = distance; }
+        }
+        if (nearest >= mSwarmCount) return false;
+        --mSwarms[nearest].fishCount;
+        Write(swarmPosition, 0, Read<std::uint32_t>(&mSwarms[nearest], 0));
+        return true;
+    }
+
     // Original function: FUN_0044ea7c.
     void CMapFishManager::ClearSwarmAtPosition(const void* point)
     {

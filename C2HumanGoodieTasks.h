@@ -11,6 +11,7 @@ namespace NC2Logic
     bool Human_StartWaitingForOtherHuman(void* human);
     bool Human_StartListening(void* human, void* speaker);
     void Human_Target_SetTargetPositions(void* human, const void* realPosition, const void* workPosition);
+    void Human_Target_SetWorkPosition(void* human, const void* position);
     std::uint32_t Human_Target_GetDirectionTo(const void* human);
     void* Human_FindHumanToTalkInTalkRange_Any(const void* human);
     void* Human_FindHumanToTalkInSearchRange_Any(const void* human);

@@ -1,5 +1,13 @@
 # C++ continuation handoff - 2026-10-06
 
+## Farmer, herb guy, fisher, jester and druid checkpoint - 2026-10-09
+
+Five previously missing ground job branches (18/22/28/29/30) are connected with their complete native work paths: planting/cultivating/harvesting and stock relief, shore selection and fishing, entertainment, and druid production/stock/healing. Search callbacks, fish-swarm consumption and catch/retry events are included. The shared needs/task/movement machinery remains in use. The user now confirms soldiers and collectors work well; these five additional professions have no runtime confirmation yet. See [HUMAN_OUTDOOR_SOCIAL_JOBS.md](HUMAN_OUTDOOR_SOCIAL_JOBS.md).
+
+**3874 / 5061 (76.55%)** source-address coverage, **1187** known entries open; **252 cpp / 232 headers**, **2045 naming rows / 64 unfinished boundaries**. Affected cpp units passed MSVC Win32 `/Zs`; project/filter checks passed. No Debug/Release build, tests or gameplay run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only. The known-entry inventory grew by two discovered helper entry points.
+
+The current user request still requires ALL remaining professions: hunter, breeder, carpenter/armorer vehicle construction, carrier/trader and vehicle/sea-dependent paths with their dependencies. Continue these full trees; do not report all professions complete. Exit/fullscreen RGB masks/32-bit selection were committed as 56952be; the user localized the tint to GUI and transition pictures in fullscreen only and excluded the screenshot. See MAIN_MENU_STATE.md for the requested compatibility changes and pending runtime colour confirmation. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Collector job and map collection checkpoint - 2026-10-09
 
 Job 8 now dispatches to the complete native collector body 0046C876, with its generic 0047603F and distinct non-bio/bio map collection paths. Search around the work center, harvesting/pickup/store selection, retries, future-stock reservations, landscape split/grow/transform/plant events and engine edit wrappers are connected. The shared needs/task/movement machinery is retained. User feedback confirms the previous soldier routine now behaves well; the new collector correction has no runtime confirmation yet. See [HUMAN_MAP_COLLECTION.md](HUMAN_MAP_COLLECTION.md).

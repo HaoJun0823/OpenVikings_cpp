@@ -1,5 +1,7 @@
 #include "C2HumanMapCollection.h"
 #include "C2GameMapAccess.h"
+#include "C2EngineMapTerrainAccess.h"
+#include "C2MapGeometry.h"
 #include "C2HouseAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanGoodieTasks.h"
@@ -8,10 +10,12 @@
 #include "C2HumanJobAccess.h"
 #include "C2HumanLandscapeSearch.h"
 #include "C2HumanProduction.h"
+#include "C2HumanTaskAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2StaticGoodTypeData.h"
+#include "C2StaticTrianglePatternTypeData.h"
 #include "C2VehicleAccess.h"
 
 namespace NC2Logic
@@ -60,6 +64,119 @@ namespace NC2Logic
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(Real(human));
         return Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
+    }
+
+    // Original function: FUN_0042d1bf.
+    bool Human_CanPlantBioAtTargetMapPosition(const void* human) { return Human_CanPlantBioAtMapPosition(Real(human)); }
+
+    // Original function: FUN_0042d1cd.
+    bool Human_CanPlantBioAtMapPosition(const void* point)
+    {
+        if (!MapMigPoint_IsInsideMap(point)) return false;
+        const auto* micro = GameMap_GetMapMicroPointPtr(point);
+        const auto flags = Read<std::uint8_t>(micro, 13), kind = Read<std::uint8_t>(micro, 0);
+        if ((flags & 3u) != 0 || kind == 3 || (kind == 1 && Read<std::uint8_t>(micro, 2) != 0)) return false;
+        const void* descriptions[6];
+        NC2E2::Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(point, descriptions);
+        for (const auto* description : descriptions)
+        {
+            if (description == nullptr || gStaticTrianglePatternTypeStorage.records[Read<std::uint32_t>(description, 0x38)].bioCanPlantOn != 1) return false;
+        }
+        return true;
+    }
+
+    // Original function: FUN_0046d127.
+    void Human_l_StartTask_ExecuteJob_Farmer(void* human)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
+        if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
+        switch (Read<std::uint32_t>(human, 0xACC))
+        {
+        case 0:
+            if (Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
+            if (House_Stock_IsFullSoon(WorkHouse(human), good))
+            {
+                Write(human, 0xAD0, good);
+                Write<std::uint32_t>(human, 0xACC, 5);
+                Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
+                return;
+            }
+            Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human);
+            return;
+        case 2: Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human); return;
+        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
+        }
+    }
+
+    // Original function: FUN_0046d1ea.
+    void Human_l_StartTask_ExecuteJob_Fisher(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0x1C) == 0) { Fail(human, 2); return; }
+        Write<std::uint32_t>(human, 0xAD0, 22);
+        switch (Read<std::uint32_t>(human, 0xACC))
+        {
+        case 0: Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(human); return;
+        case 2: Human_l_StartTask_ExecuteJob_Fisher_Collect(human); return;
+        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case 5: Fail(human, 0); return;
+        }
+    }
+
+    // Original function: FUN_0046d245.
+    void Human_l_StartTask_ExecuteJob_Fisher_Collect(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xA68) == 2 && Read<std::uint32_t>(human, 0xA78) != 0)
+        {
+            if (Human_IsAtTargetPoint(human)) { Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human); return; }
+            if (Human_l_StartAtomicWalkAndFetch(human, Real(human), Work(human), false)) return;
+            Human_Target_Reset(human);
+        }
+        if (Human_IsAtTargetPoint(human))
+        {
+            const auto moveable = Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 10);
+            if (moveable == Read<std::int32_t>(human, 12) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * 0x58u, 0x24) == -1) Start(human, 36, Human_Target_GetDirectionTo(human));
+            else Human_l_StartTask_GoAway(human, 0, 0);
+            return;
+        }
+        Human_StopCurrentGoodCirculationMode(human);
+        Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(human);
+    }
+
+    // Original function: FUN_0046d305.
+    void Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(void* human)
+    {
+        Human_Target_Reset(human);
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Human_IsAttachedToWorkHouse(human) && House_Stock_IsFull(WorkHouse(human), Tool_Human_GetReallyProducedGoodType(Read<std::uint32_t>(human, 0x18), Read<std::uint32_t>(human, 0x1C)))) { Fail(human, 11); return; }
+        std::uint32_t real = 0, work = 0;
+        if (!Human_FindShorePointForFishing(human, &real, &work) || !Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Fail(human, 3);
+    }
+
+    // Original function: FUN_0046f19d; unlike Farmer, no production-capability check.
+    void Human_l_StartTask_ExecuteJob_HerbGuy(void* human)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
+        switch (Read<std::uint32_t>(human, 0xACC))
+        {
+        case 0:
+            if (Human_IsForcedToHaveFinishedWorkHouse(human) && Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
+            if (!House_Stock_CanStoreGoodType(WorkHouse(human), good, true)) { Fail(human, 2); return; }
+            if (House_Stock_IsFullSoon(WorkHouse(human), good))
+            {
+                Write(human, 0xAD0, good);
+                Write<std::uint32_t>(human, 0xACC, 5);
+                Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
+                return;
+            }
+            Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human);
+            return;
+        case 2: Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human); return;
+        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
+        }
     }
 
     // Original function: FUN_0046c876.
@@ -262,5 +379,53 @@ namespace NC2Logic
             if (harvest == 0 || !Human_FindBioLandscapeNearWorkCenter(human, harvest, &real, &work)) { Fail(human, 3); return; }
         }
         if (!Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Status(human, 3);
+    }
+
+    // Original function: FUN_0047696d.
+    void Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        Write(human, 0xAD0, good);
+        const auto& type = gStaticGoodTypeStorage.records[good];
+        if (Human_IsAtTargetPoint(human))
+        {
+            const auto landscape = Human_GetLandscapeTypeAtTargetPosition(human);
+            if (landscape == static_cast<std::uint32_t>(type.landscapeToHarvest) && Read<std::uint8_t>(WorkHouse(human), 0x798) == 0)
+            {
+                const auto valency = Human_GetLandscapeValencyAtTargetPosition(human);
+                Write<std::uint32_t>(human, 0xA68, 2);
+                Write(human, 0xA74, type.landscapeToHarvest);
+                Start(human, valency >= 5 ? type.atomicForHarvesting : type.atomicForCultivating, Human_Target_GetDirectionTo(human));
+                return;
+            }
+            if (landscape == static_cast<std::uint32_t>(type.landscapeToPickup) && Human_IsAttachedToWorkHouse(human) && House_Stock_HasDemandForGood(WorkHouse(human), good))
+            {
+                Write<std::uint32_t>(human, 0xA68, 2);
+                Write(human, 0xA74, type.landscapeToPickup);
+                Start(human, 22, 6);
+                return;
+            }
+            if (Human_CanPlantBioAtTargetMapPosition(human))
+            {
+                Human_Target_SetType(human, 1);
+                Start(human, type.atomicForPlanting, Human_Target_GetDirectionTo(human));
+                return;
+            }
+            Human_Target_Reset(human);
+            Status(human, 3);
+            return;
+        }
+        std::uint32_t real = 0, work = 0;
+        if (Human_IsAttachedToWorkHouse(human))
+        {
+            if (House_Stock_HasDemandForGood(WorkHouse(human), good) && Human_FindLandscapeNearWorkCenter(human, type.landscapeToPickup, &real, &work))
+            {
+                if (!Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Status(human, 3);
+                return;
+            }
+            if (Read<std::uint8_t>(WorkHouse(human), 0x798) != 0) { Status(human, 3); return; }
+        }
+        if (!Human_FindGrowLandscapeNearWorkCenter(human, type.landscapeToHarvest, &real, &work) || !Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Status(human, 3);
     }
 }
