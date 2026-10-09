@@ -9,6 +9,11 @@ namespace NC2Logic
     bool Human_UserControl_DoesWantToGetChild(const void* human);
     std::uint32_t Human_Tool_Gui_GetExperienceForEquippedWeapon(const void* human);
     std::int32_t Human_JobEfficiency_CalculateExperienceFactor(const void* human);
+    std::int32_t Human_l_JobEfficiency_GetNeededRetries(const void* human);
+    void Human_l_JobEfficiency_SetupNeededRetries(void* human);
+    std::int32_t Human_l_JobEfficiency_CalculateNeededRetries(const void* human);
+    std::int32_t Human_JobEfficiency_GetBaseRetryCounter(const void* human);
+    void Human_ChangeToolCondition(void* human, std::int32_t delta);
     std::uint32_t Human_l_JobEfficiency_CalculateToolFactor(const void* human);
     void Human_UpdateCurrentBuildHouse(void* human);
     void Human_UpdateCurrentWorkHouse(void* human);

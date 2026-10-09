@@ -1347,4 +1347,12 @@
     <ClCompile Include="C2MilitaryLandscapeTargets.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2MilitarySectorTargets.cpp"><Filter>Logic</Filter></ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanLandscapeSearch.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanLandscapeSearch.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanMapCollection.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanMapCollection.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2HumanCollectionEvents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanCollectionEvents.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

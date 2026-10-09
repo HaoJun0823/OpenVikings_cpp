@@ -685,4 +685,12 @@
     <ClCompile Include="C2MilitaryLandscapeTargets.cpp" />
     <ClCompile Include="C2MilitarySectorTargets.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanLandscapeSearch.cpp" />
+    <ClInclude Include="C2HumanLandscapeSearch.h" />
+    <ClCompile Include="C2HumanMapCollection.cpp" />
+    <ClInclude Include="C2HumanMapCollection.h" />
+    <ClCompile Include="C2HumanCollectionEvents.cpp" />
+    <ClInclude Include="C2HumanCollectionEvents.h" />
+  </ItemGroup>
 </Project>

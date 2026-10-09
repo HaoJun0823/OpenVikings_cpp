@@ -6,6 +6,7 @@
 #include "C2VehicleAccess.h"
 #include "C2HumanGoods.h"
 #include "C2HumanProduction.h"
+#include "C2HumanCollectionEvents.h"
 #include "C2HumanFamily.h"
 #include "C2HumanScout.h"
 #include "C2HumanChest.h"
@@ -78,6 +79,7 @@ namespace NC2Logic
             case 14: case 17: case 22: case 23: case 26: case 34: case 35: case 36:
                 break;
             case 11: case 12: case 24: case 28: case 29: case 30: case 31: case 32: break;
+            case 13: case 15: case 16: case 18: break;
             case 21:
                 if (Read<std::uint32_t>(human, 0x1C) == 57 || Read<std::uint32_t>(human, 0x1C) == 58) return false;
                 break;
@@ -93,7 +95,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Outdoor production and combat remain explicit boundaries.
+    // 00468B67. Fishing, animal production and combat remain explicit boundaries.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);
@@ -146,6 +148,10 @@ namespace NC2Logic
         case 10: Human_l_PerformTaskEvent_SendHitpoints(human, event.parameter); return;
         case 11: Human_l_PerformTaskEvent_Pickup(human); return;
         case 12: Human_l_PerformTaskEvent_Pileup(human); return;
+        case 13: Human_l_PerformTaskEvent_SplitUp(human); return;
+        case 15: Human_l_PerformTaskEvent_Transform(human); return;
+        case 16: Human_l_PerformTaskEvent_Plant(human); return;
+        case 18: Human_l_PerformTaskEvent_Grow(human); return;
         case 21: Human_l_PerformTaskEvent_Produce(human); return;
         case 20: Human_l_PerformTaskEvent_Build(human); return;
         case 24: Human_l_PerformTaskEvent_GiveBirth(human); return;

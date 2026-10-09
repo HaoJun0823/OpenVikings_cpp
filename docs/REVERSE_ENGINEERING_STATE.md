@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Collector job and map collection checkpoint - 2026-10-09
+
+Job 8 now dispatches to the complete native collector body 0046C876, with its generic 0047603F and distinct non-bio/bio map collection paths. Search around the work center, harvesting/pickup/store selection, retries, future-stock reservations, landscape split/grow/transform/plant events and engine edit wrappers are connected. The shared needs/task/movement machinery is retained. User feedback confirms the previous soldier routine now behaves well; the new collector correction has no runtime confirmation yet. See [HUMAN_MAP_COLLECTION.md](HUMAN_MAP_COLLECTION.md).
+
+**3839 / 5059 (75.88%)** source-address coverage, **1220** known entries open; **251 cpp / 231 headers**, **2013 naming rows / 64 unfinished boundaries**. Eight affected/new cpp units passed MSVC Win32 `/Zs`; source/project checks passed. No Debug/Release build, tests or gameplay run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Next: remaining outdoor job dispatch (farmers, hunter/breeder, fisher, carrier/trader and vehicle production) and their complete dependencies. Combat tasks, military intermediate-point callbacks and the full house tick remain separate open blocks. The untracked user-owned CombatTasks files remain untouched and excluded. A map collector source correction does not establish all professions or gameplay complete.
+
 ## Soldier movement/job continuation checkpoint - 2026-10-09
 
 Ground soldier/hero jobs 31..47 now dispatch to the complete native 0046F41A body. The former unsupported job could leave the walking atomic active after arrival; the reconstructed path selects idle or a return walk. Its enemy/landscape search and sector cache helpers are reconstructed as a complete related family. Windows ASM/Game.exe establish behavior; the Mac header supplies names only. See [SOLDIER_MOVEMENT.md](SOLDIER_MOVEMENT.md).

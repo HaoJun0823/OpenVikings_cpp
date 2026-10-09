@@ -4,6 +4,8 @@
 #include "C2GameMapAccess.h"
 #include "C2E2StaticDataTerrain.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2HumanInitialization.h"
+#include "C2MapGeometry.h"
 #include "XCrtFileAccess.h"
 #include "XBTokenList.h"
 #include "XIniFileReader.h"
@@ -11,6 +13,19 @@
 
 namespace NC2E2
 {
+    // Original function: FUN_004825be; Windows argument order and border rejection.
+    bool EngineMap_MapMicroPoint_Landscape_SetType(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player)
+    {
+        if (engineId == -1 || EngineMap_GetConstMapMicroPointPtr(point) == nullptr || NC2Logic::MapMigPoint_IsBorderPoint(point)) return false;
+        const auto type = NC2Lifetime::Read<std::uint32_t>(gStaticLandscapeEntries, static_cast<std::uint32_t>(engineId) * 0x8Cu + 0x38u);
+        return NC2Logic::Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(point, type, valency, engineId, preserveWalkingBlock, player);
+    }
+
+    // Original function: FUN_0048100d; edits require the original modify scope.
+    bool Engine2d_EntryPoint_Edit_SetMapMicroPointLandscape(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player)
+    {
+        return NC2Logic::gGameMapModifyNestingDepth != 0 && EngineMap_MapMicroPoint_Landscape_SetType(point, engineId, valency, preserveWalkingBlock, player);
+    }
     // Original function: FUN_0048a4ba; the complete 00568548..00568567 region contains
     // two owned count/pointer pairs, lazy token lists/flags, and the manager pointer.
     // Windows token tables: 004F4760..004F477F and 00506270..0050628F after lazy init.
@@ -115,6 +130,11 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
+    // Original function: FUN_00480877.
+    bool External_Landscape_SetMapMicroPointLandscape(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player)
+    {
+        return NC2E2::Engine2d_EntryPoint_Edit_SetMapMicroPointLandscape(point, engineId, valency, preserveWalkingBlock, player);
+    }
     // Original function: FUN_004808f4; distinct native house ruin adapter.
     std::int32_t External_HouseType_GetEngineRuineLandscapeId(std::uint32_t tribe, std::uint32_t type)
     {

@@ -434,13 +434,7 @@ namespace NC2Logic
         const auto decimal = Human_l_JobEfficiency_CalculateOutputAmountDecimal(human);
         const auto amount = decimal / 10, fraction = decimal % 10;
         House_Stock_ModifyAmount(house, Read<std::uint32_t>(human, 0x1C), amount, fraction, false);
-        if (Human_HasEquippedTools(human))
-        {
-            // Original Windows-only wear leaf: FUN_0046a3b3; PE constants are -100 and 10000.
-            auto condition = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) - 100u);
-            Write<std::uint32_t>(human, 0xAE0, condition < 0 ? 0u : static_cast<std::uint32_t>(condition));
-            if (condition >= 0 && (Read<std::uint32_t>(human, 0xAF0) == 31 || Read<std::uint32_t>(human, 0xAF0) == 32) && condition > 10000) Write<std::uint32_t>(human, 0xAE0, 10000);
-        }
+        if (Human_HasEquippedTools(human)) Human_ChangeToolCondition(human, -100);
         if (TGoodTypes_IsFood(Read<std::uint32_t>(human, 0x1C))) Write<std::uint32_t>(human, 0xA64, 0);
         Human_l_JobExperience_Gain(human);
         House_Production_DidProduceOneGood(house);

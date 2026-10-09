@@ -1,5 +1,9 @@
 # Human idle task lifecycle
 
+## Collector continuation - 2026-10-09
+
+Collector job 8 and its map collection/search/event tree are now connected. Generic event types 13/15/16/18 are reconstructed and admitted by the atomic guard. The shared movement/task/urgent-needs machinery is unchanged; unsupported other jobs remain explicit boundaries. User reports the previous soldier correction works well. Historical pending descriptions below may be superseded; consult HEAD and TEMPORARY_LINK_STUBS.csv. See [HUMAN_MAP_COLLECTION.md](HUMAN_MAP_COLLECTION.md). No gameplay run or Debug/Release build occurred for this correction.
+
 ## Soldier movement continuation - 2026-10-09
 
 The complete soldier/hero ground-job body 0046F41A and its enemy/landscape/sector-cache tree are now connected. Arrival can again transition from task 8 to task 1 and replace walking with the existing native idle atomic. Historical partial descriptions below have been superseded by subsequent needs/goods/family/queue/construction work; consult current HEAD and TEMPORARY_LINK_STUBS.csv. Attack/pursue and vehicle-dependent dispatch remain open. See [SOLDIER_MOVEMENT.md](SOLDIER_MOVEMENT.md).

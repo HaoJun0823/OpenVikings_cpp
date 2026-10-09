@@ -276,6 +276,22 @@ namespace NC2Logic
         }
     }
 
+    // Original function: FUN_0044224e.
+    std::int32_t Human_l_JobEfficiency_GetNeededRetries(const void* human) { return Read<std::int32_t>(human, 0x388); }
+
+    // Original function: FUN_00442255.
+    void Human_l_JobEfficiency_SetupNeededRetries(void* human) { Write(human, 0x388, Human_l_JobEfficiency_CalculateNeededRetries(human)); }
+
+    // Original function: FUN_00442265; preserve signed division and x86 wrapping arithmetic.
+    std::int32_t Human_l_JobEfficiency_CalculateNeededRetries(const void* human)
+    {
+        const auto base = Human_JobEfficiency_GetBaseRetryCounter(human);
+        const auto factor = static_cast<std::int32_t>(Human_l_JobEfficiency_CalculateToolFactor(human));
+        const auto reduction = Human_JobEfficiency_CalculateExperienceFactor(human) / 20;
+        const auto retries = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(base) * 100u) / factor) - static_cast<std::uint32_t>(reduction));
+        return retries < 1 ? 1 : retries;
+    }
+
     // Original function: FUN_004422e9; tool quality is checked by HasEquippedTools.
     std::int32_t Human_l_JobEfficiency_CalculateOutputAmountDecimal(const void* human)
     {
@@ -302,6 +318,25 @@ namespace NC2Logic
         const auto value = NXBasics::Runtime_TimeSigned32(100u - static_cast<std::uint32_t>(10000 / divisor));
         const auto percentage = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(value) * 100u) / 98;
         return percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
+    }
+
+    // Original function: FUN_004423ce.
+    std::int32_t Human_JobEfficiency_GetBaseRetryCounter(const void* human)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        std::uint32_t general, specific;
+        Tool_Human_GetExperienceType_GainedViaWorking(Read<std::int32_t>(human, 0x18), good == 65 ? Read<std::uint32_t>(human, 0x20) : good, general, specific);
+        const auto id = specific != 0 ? specific : general;
+        return id == 0 ? 10 : Read<std::int32_t>(gStaticHumanJobExperienceData, id * 0x34u + 0x30u);
+    }
+
+    // Original function: FUN_0046a3b3; Windows-only leaf, original Mac name unresolved.
+    void Human_ChangeToolCondition(void* human, std::int32_t delta)
+    {
+        auto condition = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) + static_cast<std::uint32_t>(delta));
+        if (condition < 0) condition = 0;
+        else if ((Read<std::uint32_t>(human, 0xAF0) == 31 || Read<std::uint32_t>(human, 0xAF0) == 32) && condition > 10000) condition = 10000;
+        Write(human, 0xAE0, condition);
     }
 
     // Original function: FUN_0042c506. Signed player comparison; negative IDs remain unchecked.

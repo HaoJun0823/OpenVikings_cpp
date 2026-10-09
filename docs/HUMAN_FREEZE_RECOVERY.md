@@ -1,5 +1,9 @@
 # Windows human activity and freeze recovery - 2026-10-07
 
+## Collector continuation - 2026-10-09
+
+Collector job 8 and its map collection/search/event tree are now connected. Generic event types 13/15/16/18 are reconstructed and admitted by the atomic guard. The shared movement/task/urgent-needs machinery is unchanged; unsupported other jobs remain explicit boundaries. User reports the previous soldier correction works well. Historical pending descriptions below may be superseded; consult HEAD and TEMPORARY_LINK_STUBS.csv. See [HUMAN_MAP_COLLECTION.md](HUMAN_MAP_COLLECTION.md). No gameplay run or Debug/Release build occurred for this correction.
+
 The user reports stationary humans specifically among women, children and scouts. These are runtime observations supplied by the user; the changes below have not been run in a newly built executable. Windows x86 ASM and the original Game.exe establish all behavior, values, layouts and control flow. Mac headers/source are used exclusively to recover corresponding names.
 
 ## Connected activity blocks
