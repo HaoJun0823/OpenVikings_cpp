@@ -801,4 +801,7 @@ namespace NXBaseGui
         }
     }
 
+    // Original function: FUN_00478122; Windows passes the rectangle by value and clamps it to the desktop.
+    void CDesktop::Window_ChangeAreaRectangle(CBaseWindow* window, NXBasics::SRectangle rectangle) { rectangle.PlaceInside(mRectangle); std::memcpy(reinterpret_cast<std::byte*>(window) + 4,&rectangle,sizeof(rectangle)); NC2Lifetime::Write(window,0x34,rectangle.width); NC2Lifetime::Write(window,0x38,rectangle.height); }
+
 }

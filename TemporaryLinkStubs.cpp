@@ -226,10 +226,6 @@ int __fastcall InGameGuiManager_Vars_Construct(void *) { return 0; }
 
 
 
-// TEMPORARY DUMMY: Windows address 004DAE69; implementation pending.
-    // Naming reference: NC2MainMenuGuiManager::CGuiManagerMousePointer::DrawMouse.
-void __fastcall MainMenuGuiManagerMousePointer_DrawMouse(void *, void *, NXBasics::CBitmap *, int const *) {}
-
 // TEMPORARY DUMMY: Windows address 004E6E44; implementation pending.
     // Naming evidence: Windows CRT log10 entry; runtime adapter name, not a recovered Mac private symbol.
 double __cdecl Runtime_Log10(double) { return 0.0; }

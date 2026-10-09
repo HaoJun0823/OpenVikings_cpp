@@ -638,4 +638,19 @@
     <ClCompile Include="InGameGuiSingleVehicleWindow.cpp" />
     <ClInclude Include="InGameGuiSingleVehicleWindow.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseInhabitantsElement.cpp" />
+    <ClInclude Include="InGameGuiHouseInhabitantsElement.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseGoodTypeElement.cpp" />
+    <ClInclude Include="InGameGuiHouseGoodTypeElement.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseWindow.cpp" />
+    <ClInclude Include="InGameGuiHouseWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainMenuGuiMousePointer.cpp" />
+  </ItemGroup>
 </Project>

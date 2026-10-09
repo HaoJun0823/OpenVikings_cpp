@@ -2,11 +2,11 @@
 
 ## Menu, keyboard and selection checkpoint - 2026-10-09
 
-Primary keyboard commands and all four in-game cheats, network information, general menu families and the GUI logic callback are connected from Windows. Group humans/vehicles, animals, guides, house-type/landscape and single-vehicle windows now connect with their native controls and lifetimes. House/vehicle command availability, context layout/checksums, default dispatch and house-removal confirmation are complete. Main-menu campaign cheats were audited against Windows. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).
+Primary keyboard commands and all four in-game cheats, network information, general menu families and the GUI logic callback are connected from Windows. All selection families now connect, including the single-house window, goods and inhabitants. House controls cover construction, upgrading/removal, defence, homes, production, stock pages/minimums, foreign trading and help. Character observer/follow/equipment command IDs, production help links and desktop window clamping are corrected. Main-menu cursor/tooltips and message-presentation help links replace unfinished entries. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).
 
-**3638 / 5059 (71.91%)** source-address coverage, **1421** known entries open; **233 cpp / 220 headers** with filter parity, **1726 naming rows / 92 unfinished boundaries**. Compared with the pre-menu checkpoint, the union adds two previously unlisted source entries: human-list toggle 004A1F8A and overview close 004A28EC. This is not verified gameplay completion. [FUNCTION_PROGRESS_2026_10_09.json](FUNCTION_PROGRESS_2026_10_09.json) records the production-only audit.
+**3682 / 5059 (72.78%)** source-address coverage, **1377** known entries open; **237 cpp / 223 headers** with filter parity, **1821 naming rows / 86 unfinished boundaries**. Compared with the pre-menu checkpoint, the union adds two previously unlisted source entries: human-list toggle 004A1F8A and overview close 004A28EC. This is not verified gameplay completion. [FUNCTION_PROGRESS_2026_10_09.json](FUNCTION_PROGRESS_2026_10_09.json) records the production-only audit.
 
-Only MSVC Win32 `/Zs` and source/project consistency checks ran; no Debug/Release build, tests or game run. Remaining priority: single-house selection window, remaining single-human help/context rows, menu/input audits and specialized vehicle input modes. The user-owned untracked CombatTasks files remain untouched and excluded.
+Only MSVC Win32 `/Zs` and source/project consistency checks ran; no Debug/Release build, tests or game run. Remaining priority: full single-human constructor/message/draw audit, manager variable initialization, general menu/input audits and specialized vehicle input modes. The user-owned untracked CombatTasks files remain untouched and excluded.
 
 ## Road, palisade and gate construction - 2026-10-08
 

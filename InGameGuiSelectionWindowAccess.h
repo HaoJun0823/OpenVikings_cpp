@@ -48,3 +48,5 @@ namespace NC2InGameGuiSelection
     void SelectionTool_PrintCenteredString(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, bool largeFont, const char* text);
     void* SelectionSingleHumanWindow_Construct(void* window);
 }
+
+namespace NC2InGameGuiSelection { int __cdecl lsSortGoodsCompareFunction(const void* first, const void* second); }

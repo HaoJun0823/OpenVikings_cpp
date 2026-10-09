@@ -1300,4 +1300,19 @@
     <ClCompile Include="InGameGuiSingleVehicleWindow.cpp"><Filter>GUI</Filter></ClCompile>
     <ClInclude Include="InGameGuiSingleVehicleWindow.h"><Filter>GUI</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseInhabitantsElement.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiHouseInhabitantsElement.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseGoodTypeElement.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiHouseGoodTypeElement.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="InGameGuiHouseWindow.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClInclude Include="InGameGuiHouseWindow.h"><Filter>GUI</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MainMenuGuiMousePointer.cpp"><Filter>GUI</Filter></ClCompile>
+  </ItemGroup>
 </Project>

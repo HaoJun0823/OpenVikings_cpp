@@ -19,6 +19,8 @@ namespace NC2Logic
     void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods);
     std::uint32_t House_Stock_GetMaximumAmountByStockId(const void* house, std::uint32_t stock);
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum);
+    std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good);
+    std::uint32_t House_Stock_GetMinimumValue(const void* house, std::uint32_t good);
     bool House_HomeQualityEnhancer_SetAllowedFlag(void* house, std::uint32_t enhancer, bool allowed);
     bool House_HomeQualityEnhancer_ModifyValue(void* house, std::uint32_t enhancer, std::int32_t direction);
     bool House_Religion_GetNextPrayPoint(const void* house, const void* source, void* point, bool inTemple, std::uint32_t humanId, std::uint32_t continent);
@@ -28,6 +30,8 @@ namespace NC2Logic
     void House_Production_DidProduceOneGood(void* house);
     void House_ActionOverlay_Start(void* house, std::int32_t overlay, std::uint32_t duration);
     void* House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(void* house, std::uint32_t human);
+    void* House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(void* house, std::uint32_t slot);
+    std::int32_t House_Inhabitants_GetAttachedHumanSlotIdByHumanId(const void* house, std::uint32_t human);
     bool House_Inhabitants_IsHumanAttachedAsStudent(const void* house, std::uint32_t human);
     void House_Inhabitants_SetStudentJob(void* house, std::uint32_t human, std::uint32_t job);
     void House_Inhabitants_SetStudentGood(void* house, std::uint32_t human, std::uint32_t good);

@@ -40,6 +40,7 @@ namespace NXBaseGui
         void Window_UnHide(CBaseWindow* window);
         void Window_HideAll(CBaseWindow* except);
         void Window_UnHideAll();
+        void Window_ChangeAreaRectangle(CBaseWindow* window, NXBasics::SRectangle rectangle);
         void Element_Add(CBaseElement* element, bool insertAtEnd);
         void Element_AddOverlay(CBaseElement* element, bool insertAtEnd);
         std::uint32_t Element_Hide(CBaseElement* element);

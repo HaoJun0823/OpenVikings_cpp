@@ -1,6 +1,8 @@
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiBaseAccess.h"
+#include "InGameGuiSelectionWindowAccess.h"
+#include "C2EngineDisplayAccess.h"
 #include "InGameGuiManager.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -19,6 +21,7 @@
 #include "XMKeyManager.h"
 
 #include <cstring>
+#include <new>
 
 namespace NC2InGameGuiMessages
 {
@@ -63,34 +66,7 @@ namespace NC2InGameGuiMessages
             Manager()->Message_GetPtr(Read<std::uint32_t>(window, 0x70));
         }
 
-        // Partial graphics-button path through the native dynamic-subbutton layout.
-        // The complete shared handler methods remain unreconstructed.
-        void MessageWindow_UpdateGfxButton(void* window, std::uint32_t command, std::uint32_t id, std::int32_t x, std::int32_t y, std::uint32_t parameter1, std::uint32_t parameter2)
-        {
-            auto* handler = static_cast<std::byte*>(window) + 0x74;
-            std::byte* record = nullptr;
-            for (std::uint32_t i = 0; i < 100; ++i)
-            {
-                auto* candidate = handler + 4u + i * 0x1Cu;
-                if (Read<std::uint8_t>(candidate, 0) != 0 && Read<std::uint32_t>(candidate, 0x14) == command && Read<std::uint32_t>(candidate, 0x18) == id) { record = candidate; break; }
-            }
-            if (record == nullptr)
-                for (std::uint32_t i = 0; i < 100; ++i) { auto* candidate = handler + 4u + i * 0x1Cu; if (Read<std::uint8_t>(candidate, 0) == 0) { record = candidate; break; } }
-            if (record == nullptr) return;
-            if (Read<std::uint8_t>(record, 0) == 0 || Read<std::int32_t>(record, 0xC) != x || Read<std::int32_t>(record, 0x10) != y)
-            {
-                if (Read<std::uint8_t>(record, 0) != 0) NXBaseGui::BaseWindow_Element_Delete(window, Read<void*>(record, 4));
-                auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x54, 1);
-                const NXBasics::SRectangle rectangle(x, y, 18, 16);
-                auto* button = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolGfxButton_ConstructWithToolTip(allocation, nullptr, &rectangle, 143, nullptr, command, window);
-                Write(record, 4, button); NXBaseGui::BaseWindow_Element_Add(window, button);
-                Write<std::uint8_t>(record, 0, 1); Write(record, 0xC, x); Write(record, 0x10, y); Write(record, 0x14, command); Write(record, 0x18, id);
-            }
-            auto* button = Read<void*>(record, 4);
-            if (button != nullptr) { Write(button, 0x48, parameter1); Write(button, 0x4C, parameter2); }
-            auto* textButton = Read<void*>(record, 8);
-            if (textButton != nullptr) { Write(textButton, 0x4C, parameter1); Write(textButton, 0x50, parameter2); }
-        }
+        NC2InGameGuiBase::CDynamicSubButtonsHandler& Buttons(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x74)); }
 
         // Original function: FUN_004d0975; queued closure clears the owner's pointer.
         void* __fastcall MessagePresentationWindow_Delete(void* window, void*, std::uint32_t flags)
@@ -103,9 +79,8 @@ namespace NC2InGameGuiMessages
             return window;
         }
 
-        // Original function: FUN_004d0acf; informational context-window commands
-        // 10200/10201 depend on the unfinished good/house help window.
-        bool __fastcall MessagePresentationWindow_MessageHandle(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
+        // Original function: FUN_004d0acf; all native informational context commands.
+        bool __fastcall MessagePresentationWindow_MessageHandle(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t first, std::uint32_t second)
         {
             if (message == 0x20)
             {
@@ -116,6 +91,8 @@ namespace NC2InGameGuiMessages
             if (message != 0x800) return false;
             if (command == 10000) Manager()->Message_Remove(Read<std::uint32_t>(window, 0x70), true);
             else if (command == 10100) MessagePresentationWindow_l_Misc_Select(window);
+            else if (command == 10200) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HelpWindow_Open_GoodInfo(first);
+            else if (command == 10201) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HelpWindow_Open_HouseInfo(first, second);
             return true;
         }
 
@@ -166,23 +143,30 @@ namespace NC2InGameGuiMessages
                 for (std::uint32_t i = 0; i < count; ++i)
                 {
                     const auto id = Read<std::uint32_t>(message, offset + 4u + i * 4u);
-                    const auto* item = category == 0 ? NC2Logic::StringAccess_GetJobNamePtr(id, 1) : category == 1 ? NC2Logic::StringAccess_GetGoodNamePtr(id, 1) : category == 2 ? NC2Logic::StringAccess_GetHouseNamePtr(id, 1) : NC2Logic::StringAccess_GetVehicleTypeNamePtr(id);
                     if (category == 1)
                     {
-                        MessageWindow_UpdateGfxButton(window, 10200, id, 160, y, id, 0);
+                        Buttons(window).UpdateGfxButton(10200, id, 160, y, 143, nullptr);
+                        Buttons(window).SetButtonMiscCommandData(10200, id, id, 0);
                         NXBasics::Runtime_PrintStringN(text, 1000, "{gfxgood:%d,1}", id);
                         NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, 180, y, resources.font08, color, text);
                     }
-                    // House-type context buttons need the engine-house/tribe
-                    // correspondence and remain with the information-window block.
+                    if (category == 2)
+                    {
+                        Buttons(window).UpdateGfxButton(10201, id, 160, y, 143, nullptr);
+                        std::uint32_t stage = 0, tribe;
+                        if (humanId != -1) tribe = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(humanId) * NC2Logic::CHumanArray::ElementSize, 0x14);
+                        else { const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(); tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 0xC); }
+                        const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, id, &stage);
+                        Buttons(window).SetButtonMiscCommandData(10201, id, engineType, stage);
+                    }
+                    const auto* item = category == 0 ? NC2Logic::StringAccess_GetJobNamePtr(id, 1) : category == 1 ? NC2Logic::StringAccess_GetGoodNamePtr(id, 1) : category == 2 ? NC2Logic::StringAccess_GetHouseNamePtr(id, 1) : NC2Logic::StringAccess_GetVehicleTypeNamePtr(id);
                     y += NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, category == 1 ? 210 : category == 2 ? 180 : 160, y, 436, resources.font08, color, item);
                     if (category == 1 || category == 2) y += 4;
                 }
             }
         }
 
-        // Complete 19-slot Windows virtual table; message content/context branches
-        // listed above remain excluded from reconstruction completion counts.
+        // Complete 19-slot Windows virtual table with native content and context branches.
         const std::uintptr_t gMessagePresentationWindowVirtualTable[19]{
             reinterpret_cast<std::uintptr_t>(&MessagePresentationWindow_Delete),
             reinterpret_cast<std::uintptr_t>(&NXBaseGui::BaseElement_HasSubElements),
@@ -212,10 +196,11 @@ namespace NC2InGameGuiMessages
             const auto& vars = NInGameGuiManager::CInGameGuiManager::mStaticVars;
             const NXBasics::SRectangle rectangle((vars.displayWidth - 440) / 2, (vars.displayHeight - 240) / 2, 440, 240);
             NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
+            new (static_cast<std::byte*>(window) + 0x74) NC2InGameGuiBase::CDynamicSubButtonsHandler;
             Write(window, 0x1C, Read<std::uint32_t>(window, 0x1C) | 0x20u);
             Write(window, 0, gMessagePresentationWindowVirtualTable + 0);
             std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0xAF8);
-            Write(window, 0x70, uniqueId); Write(window, 0x74, window);
+            Write(window, 0x70, uniqueId); Buttons(window).SetWindow(window);
             MessagePresentationWindow_l_GuiElements_Add(window);
             MessagePresentationWindow_l_Misc_Select(window);
             return window;
@@ -232,7 +217,7 @@ namespace NC2InGameGuiMessages
             if (Read<std::uint32_t>(window, 0x70) != uniqueId)
             {
                 Write(window, 0x70, uniqueId); NXBaseGui::BaseWindow_Element_DeleteAll(window);
-                std::memset(static_cast<std::byte*>(window) + 0x78, 0, 0xAF0);
+                Buttons(window).AllButtonsHaveBeenRemoved();
                 MessagePresentationWindow_l_GuiElements_Add(window);
             }
             MessagePresentationWindow_l_Misc_Select(window);

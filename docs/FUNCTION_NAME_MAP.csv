@@ -1483,7 +1483,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004AB2E3,l_SubTabs_GetEnabledChecksum,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_GetEnabledChecksum,6500,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004AB314,l_SubTabs_OverwriteHeight,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_OverwriteHeight,6495,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004AB34E,l_SubTabs_StockVehicleGoods_Init,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_StockVehicleGoods_Init,6482,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
-004AB4BF,l_StockGoodNameCompare,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004AB4BF,NC2InGameGuiSelection::lsSortGoodsCompareFunction,NC2InGameGuiSelection::lsSortGoodsCompareFunction,6317,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004AB4EB,l_SubTabs_StockVehicleGoods_GetMostStockGoods,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_StockVehicleGoods_GetMostStockGoods,6491,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004AB5B8,l_SubTabs_Trader_UpdateButtons,NC2InGameGuiSelection::CSelectionSingleVehicleWindow::l_SubTabs_Trader_UpdateButtons,6492,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004ABA22,SelectionSingleHumanWindow_Statics_Init,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
@@ -1725,3 +1725,98 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004E2EDF,~CGuiBaseDataManager,NC2GuiToolsBase::CGuiBaseDataManager::~CGuiBaseDataManager,4118,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004E3012,CGuiBaseDataManager::DynamicData_Load,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004E3195,CGuiBaseDataManager::DynamicData_Free,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00431F85,House_Stock_GetGoodRequestCounter,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00431FAC,House_Stock_GetMinimumValue,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00432681,House_Inhabitants_GetAttachedHumanSlotPtrBySlotId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004326C0,House_Inhabitants_GetAttachedHumanSlotIdByHumanId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00478122,CDesktop::Window_ChangeAreaRectangle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047C65D,Display_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047C713,Display_Destruct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047C73C,Display_AssignNewDisplayDefinitionValues,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047C836,Display_ReInit,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047C876,DE_SetWantedPositionToMapPoint,NC2E2::C2DEngineDisplay::DE_SetWantedPositionToMapPoint,4990,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047C8C6,DE_SetWantedPositionToPixelPoint,NC2E2::C2DEngineDisplay::DE_SetWantedPositionToPixelPoint,4992,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047C8F5,DE_SetWantedPositionAddDeltaPixelPoint,NC2E2::C2DEngineDisplay::DE_SetWantedPositionAddDeltaPixelPoint,4993,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047C913,DE_SetWantedPositionToPixelPosition,NC2E2::C2DEngineDisplay::DE_SetWantedPositionToPixelPosition,4991,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047C9AB,Display_MapMigToLocalDisplayPixelCoordinates,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047CB4D,Display_GlobalWorldPixelToLocalDisplayPixelCoordinates,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047CBBC,Display_LocalDisplayPixelToGlobalWorldPixelCoordinates,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047CC2B,DE_ToDraw_SetState,NC2E2::C2DEngineDisplay::DE_ToDraw_SetState,4989,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CC4A,DE_ToDraw_ToggleFlagset,NC2E2::C2DEngineDisplay::DE_ToDraw_ToggleFlagset,5000,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CC71,Display_Highlighting_CheckUpdate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047CEBF,DE_Zoom_SetCounter,NC2E2::C2DEngineDisplay::DE_Zoom_SetCounter,5008,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CF2B,DE_Zoom_ToggleLevel,NC2E2::C2DEngineDisplay::DE_Zoom_ToggleLevel,5010,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CF73,DE_ControllingPlayer_SetId,NC2E2::C2DEngineDisplay::DE_ControllingPlayer_SetId,5013,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CF89,DE_Misc_GetDisplayedCenterMapPosition,NC2E2::C2DEngineDisplay::DE_Misc_GetDisplayedCenterMapPosition,5009,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CFC6,DE_GetDisplayedCenterWorldXPosition,NC2E2::C2DEngineDisplay::DE_GetDisplayedCenterWorldXPosition,4985,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047CFD8,DE_GetDisplayedCenterWorldYPosition,NC2E2::C2DEngineDisplay::DE_GetDisplayedCenterWorldYPosition,4986,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047D335,Display_ExitSpecialOverlays,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047DBF3,Display_UpdateEarthquake,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0047E5F4,Inform_DesktopXTructed,NC2E2::CE2Manager::Inform_DesktopXTructed,5320,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0047E650,Inform_ControllingPlayerChanged,NC2E2::CE2Manager::Inform_ControllingPlayerChanged,5321,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0048089E,Engine2d_EntryPoint_GetHouseDevelopNamePtr,NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr,5207,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004808BE,Engine2d_EntryPoint_GetHouseId,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481198,Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr,NC2E2::Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr,5227,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004811A3,Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr,NC2E2::Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr,5228,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+0048143C,Display_InitScrollVariables,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048150E,Display_ExitScrollVariables,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481544,Display_SetMapRectangle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048162F,Display_UpdateDisplay,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048168C,Display_CopyStaticBitmap,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004817DC,Display_DoUpdateStatic,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481A74,Display_RebuildStaticCompletly,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481DD1,Display_WrapStaticBitmapPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481E72,DisplayDescription_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481E9C,DisplayDescription_AssignNewTriangleValues,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00481EFA,DisplayDescription_CalculateResultingVars,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048201B,DisplayDescription_MakeValidWorldPixelPosition,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00482049,DisplayDescription_WorldPixelToMapMigCoordinates,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048213C,DisplayDescription_MapMigToWorldPixelCoordinates,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004821C7,DisplayDescription_GetMapRectangle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004824EA,EngineMap_GetConstMapMacroPointPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048251F,EngineMap_GetConstMapMicroPointPtr,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00483E74,DisplayObjectReference_Reset,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00483EA1,DisplayObjectReference_Validate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00484B6C,DisplaySearchObject_Validate,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00485BF0,WorldMusic_UpdateVisiblePlayerSelection,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048B3A1,StaticHumanMisc_ColorIds_GetPlayerColorRef,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+0048B442,StaticHumanMisc_ColorIds_GetColorRef,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00490EDF,Tool_PlayerColors_GetColorRef,NC2E2::Tool_PlayerColors_GetColorRef,5391,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+00491099,Tool_Sound_IsDMUsable,NC2E2::Tool_Sound_IsDMUsable,5394,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004910BA,Tool_Sound_IsCDAUsable,NC2E2::Tool_Sound_IsCDAUsable,5395,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004910C5,Display_DrawForeground,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004986AB,Display_InformGuiRedraw,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A6F10,SelectionHouseWindow_Construct,NC2InGameGuiSelection::CSelectionHouseWindow::CSelectionHouseWindow,6287,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A70CC,SelectionHouseWindow_Delete,NC2InGameGuiSelection::CSelectionHouseWindow::~CSelectionHouseWindow,6300,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A70FA,SelectionHouseWindow_Delete,NC2InGameGuiSelection::CSelectionHouseWindow::~CSelectionHouseWindow,6300,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A7154,SelectionHouseWindow_Message,NC2InGameGuiSelection::CSelectionHouseWindow::XGui_BE_Message_Handle,6304,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A7895,SelectionHouseWindow_Draw,NC2InGameGuiSelection::CSelectionHouseWindow::XGui_BE_Element_Draw,6308,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A852B,SelectionHouseWindow_IsHit,NC2InGameGuiSelection::CSelectionHouseWindow::XGui_BE_Element_IsHit,6310,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A8562,SelectionHouseWindow_ToolTip_Available,NC2InGameGuiSelection::CSelectionHouseWindow::XGui_BE_ToolTip_Available,6311,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A85A6,l_Misc_GetSelectedHousePtr,NC2InGameGuiSelection::CSelectionHouseWindow::l_Misc_GetSelectedHousePtr,6305,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A85CA,l_Misc_IsOpponentTradeHouseSelected,NC2InGameGuiSelection::CSelectionHouseWindow::l_Misc_IsOpponentTradeHouseSelected,6295,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A8627,l_Misc_GetMainWorkerJobType,NC2InGameGuiSelection::CSelectionHouseWindow::l_Misc_GetMainWorkerJobType,6306,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A8644,l_SubTabs_UpdateAll,NC2InGameGuiSelection::CSelectionHouseWindow::l_SubTabs_UpdateAll,6297,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A91F8,l_SubTabs_GetEnabledChecksum,NC2InGameGuiSelection::CSelectionHouseWindow::l_SubTabs_GetEnabledChecksum,6314,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9229,l_SubTabs_StockHouseGoods_Init,NC2InGameGuiSelection::CSelectionHouseWindow::l_SubTabs_StockHouseGoods_Init,6296,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A93C0,l_SubTabs_StockHouseGoods_GetMostStockGoods,NC2InGameGuiSelection::CSelectionHouseWindow::l_SubTabs_StockHouseGoods_GetMostStockGoods,6307,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A94D2,l_SubTabs_OverwriteHeight,NC2InGameGuiSelection::CSelectionHouseWindow::l_SubTabs_OverwriteHeight,6309,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A950C,SelectionHouseGoodTypeElement_Construct,NC2InGameGuiSelection::CSelectionHouseGoodTypeElement::CSelectionHouseGoodTypeElement,6315,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9587,SelectionHouseGoodTypeElement_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A95A9,SelectionHouseGoodTypeElement_Message,NC2InGameGuiSelection::CSelectionHouseGoodTypeElement::XGui_BE_Message_Handle,6319,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A95D8,SelectionHouseGoodTypeElement_Draw,NC2InGameGuiSelection::CSelectionHouseGoodTypeElement::XGui_BE_Element_Draw,6320,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9714,SelectionHouseGoodTypeElement_DoPressedAction,NC2InGameGuiSelection::CSelectionHouseGoodTypeElement::XGui_BE_Element_DoPressedAction,6322,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A9738,SelectionHouseGoodTypeElement_ToolTip_Available,NC2InGameGuiSelection::CSelectionHouseGoodTypeElement::XGui_BE_ToolTip_Available,6323,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004A975E,l_ValidateHouse,NC2InGameGuiSelection::CSelectionHouseGoodTypeElement::l_Misc_GetHousePtr,6321,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004BF2F4,SelectionSingleHumanWindow_True,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004CC045,SelectionHouseInhabitantsElement_Construct,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::CSelectionHouseInhabitantsElement,6325,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC0D0,SelectionHouseInhabitantsElement_Delete,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::~CSelectionHouseInhabitantsElement,6327,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC0F2,SelectionHouseInhabitantsElement_Message,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::XGui_BE_Message_Handle,6330,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC132,SelectionHouseInhabitantsElement_Draw,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::XGui_BE_Element_Draw,6331,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC1A8,SelectionHouseInhabitantsElement_DoPressedAction,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::XGui_BE_Element_DoPressedAction,6334,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC1DE,SelectionHouseInhabitantsElement_IsHit,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::XGui_BE_Element_IsHit,6335,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC2C1,SelectionHouseInhabitantsElement_ToolTip_Available,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::XGui_BE_ToolTip_Available,6336,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC4DB,l_ValidateHouse,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::l_ValidateHouse,6332,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004CC50D,l_UpdateAttachedHumans,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::l_UpdateAttachedHumans,6333,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
+004D0975,MessagePresentationWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004DB00A,PrintTooltip,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded

@@ -16,6 +16,10 @@
 #include "C2HumanJobAccess.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00431f85.
+    std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,0x430u + static_cast<std::uint32_t>(slot) * 4u); }
+    // Original function: FUN_00431fac.
+    std::uint32_t House_Stock_GetMinimumValue(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,0x538u + static_cast<std::uint32_t>(slot) * 4u); }
     // Original function: FUN_00441228; food categories resolve to the first usable stock.
     std::uint32_t Tool_House_GetAmountOfGoods(const void* house, std::uint32_t* good, bool stockOnly)
     {
@@ -268,6 +272,11 @@ namespace NC2Logic
         const auto* engine = NC2E2::Engine2d_EntryPoint_GetHouseDevelopNamePtr(Read<std::uint32_t>(house, 0x10));
         return Read<std::int32_t>(house, 0x7C8) >= Read<std::int32_t>(engine, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u);
     }
+
+    // Original function: FUN_00432681.
+    void* House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(void* house, std::uint32_t slot) { return static_cast<std::byte*>(house) + 0x640u + slot * 16u; }
+    // Original function: FUN_004326c0.
+    std::int32_t House_Inhabitants_GetAttachedHumanSlotIdByHumanId(const void* house, std::uint32_t human) { for (std::uint32_t slot = 0; slot < 20; ++slot) if (NC2Lifetime::Read<std::uint8_t>(house,0x640u + slot * 16u) && NC2Lifetime::Read<std::uint32_t>(house,0x644u + slot * 16u) == human) return static_cast<std::int32_t>(slot); return -1; }
 
     // Original function: FUN_00432690.
     void* House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(void* house, std::uint32_t human)

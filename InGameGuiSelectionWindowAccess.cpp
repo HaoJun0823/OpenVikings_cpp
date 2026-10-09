@@ -332,7 +332,7 @@ namespace NC2InGameGuiSelection
             return element;
         }
 
-        // Partial original function: FUN_004ae2a2; common layout and connected section children.
+        // Original function: FUN_004ae2a2; all native section children and desktop area clamping.
         void l_SubTabs_UpdateAll(void* window, bool force)
         {
             const auto checksum = l_SubTabs_GetEnabledChecksum(window);
@@ -362,8 +362,7 @@ namespace NC2InGameGuiSelection
             }
             const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
             const SRectangle rectangle(state.displayWidth - width, state.displayHeight - height, width, height);
-            std::memcpy(static_cast<std::byte*>(window) + 4, &rectangle, sizeof(rectangle));
-            Write(window, 0x34, width); Write(window, 0x38, height);
+            NXBaseGui::CDesktop::sTheObjectPtr->Window_ChangeAreaRectangle(static_cast<NXBaseGui::CBaseWindow*>(window), rectangle);
             NXBaseGui::BaseWindow_Element_DeleteAll(window);
             std::memset(static_cast<std::byte*>(window) + 0x104, 0, 0x2C);
             Buttons(window).AllButtonsHaveBeenRemoved();
@@ -466,7 +465,7 @@ namespace NC2InGameGuiSelection
         {
             if (Read<std::uint8_t>(window, 0x74) == 0 || Read<std::uint8_t>(window, 0x7A) != 0)
             {
-                for (std::uint32_t command : {10045u, 10046u, 10048u, 10047u, 10049u, 10050u, 10051u, 10052u}) Buttons(window).RemoveButton(command, 0);
+                for (std::uint32_t command : {10029u, 10030u, 10032u, 10031u, 10033u, 10034u, 10035u, 10036u}) Buttons(window).RemoveButton(command, 0);
                 return;
             }
             const auto section = Section(window, 4);
@@ -498,22 +497,22 @@ namespace NC2InGameGuiSelection
                 printLabel(60);
                 const auto good = NC2Logic::Human_GetEquipmentType_Weapon(human);
                 printGood(good, 0, false, NC2Logic::StringAccess_GetGoodNamePtr(good, 1));
-                if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10045, 0, x + 78, y, 30, HumanString(62));
+                if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10029, 0, x + 78, y, 30, HumanString(62));
                 y += 20;
                 printLabel(63);
                 const auto armor = NC2Logic::Human_GetEquipmentType_Armor(human);
                 printGood(armor, 0, false, NC2Logic::StringAccess_GetGoodNamePtr(armor, 1));
-                if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10046, 0, x + 78, y, 30, HumanString(65));
+                if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10030, 0, x + 78, y, 30, HumanString(65));
                 y += 20;
             }
-            else { Buttons(window).RemoveButton(10045, 0); Buttons(window).RemoveButton(10046, 0); }
+            else { Buttons(window).RemoveButton(10029, 0); Buttons(window).RemoveButton(10030, 0); }
             if (NC2Logic::Human_IsAgeAdult(human) && NC2Logic::Human_IsSexMale(human) && !NC2Logic::Human_IsJobHero(human))
             {
                 printLabel(66);
                 const auto shoes = NC2Logic::Human_GetEquipmentType_Shoes(human);
                 const auto shoePercent = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xADC) * 100u) / 10000;
                 printGood(shoes, shoePercent, true, NC2Logic::Human_GetEquipmentType_Shoes_GetGuiNamePtr(human));
-                Buttons(window).UpdateGfxButton(10048, 0, x + 78, y, 30, HumanString(68));
+                Buttons(window).UpdateGfxButton(10032, 0, x + 78, y, 30, HumanString(68));
                 y += 20;
                 if (!NC2Logic::Human_IsJobSoldier(human))
                 {
@@ -522,12 +521,12 @@ namespace NC2InGameGuiSelection
                     // Native 00438CAB uses separate, equal 10000 maxima for goods 31/32.
                     const auto percent = tool == 31 || tool == 32 ? NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) * 100u) / 10000 : 0;
                     printGood(tool, percent, true, NC2Logic::Human_GetEquipmentType_Tool_GetGuiNamePtr(human));
-                    Buttons(window).UpdateGfxButton(10047, 0, x + 78, y, 30, HumanString(71));
+                    Buttons(window).UpdateGfxButton(10031, 0, x + 78, y, 30, HumanString(71));
                     y += 20;
                 }
-                else Buttons(window).RemoveButton(10047, 0);
+                else Buttons(window).RemoveButton(10031, 0);
             }
-            else { Buttons(window).RemoveButton(10048, 0); Buttons(window).RemoveButton(10047, 0); }
+            else { Buttons(window).RemoveButton(10032, 0); Buttons(window).RemoveButton(10031, 0); }
             if (!NC2Logic::Human_IsJobHero(human))
             {
                 printLabel(72);
@@ -546,7 +545,7 @@ namespace NC2InGameGuiSelection
                         text[sizeof(text) - 1] = '\0';
                         Tooltips(window).Add(SRectangle(itemX, y, 22, 16), text);
                     }
-                    Buttons(window).UpdateGfxButton(10049 + slot, 0, itemX - 20, y, 30, HumanString(73));
+                    Buttons(window).UpdateGfxButton(10033 + slot, 0, itemX - 20, y, 30, HumanString(73));
                 }
                 y += 20;
             }
@@ -576,18 +575,20 @@ namespace NC2InGameGuiSelection
         }
 
         // Partial production presentation in 004AD257..004ADAAB; native counters/actions.
-        // Good-help popups remain a reconstruction boundary.
+        // Native per-good help commands share the existing help window.
         void DrawProduction(void* window, NXBasics::CBitmap* bitmap, const void* human)
         {
             const auto removeCounterButtons = [&](std::uint32_t good)
             {
                 Buttons(window).RemoveButton(10039, good);
+                Buttons(window).RemoveButton(10040, good | 0x10000u);
                 Buttons(window).RemoveButton(10040, good | 0x20000u);
                 Buttons(window).RemoveButton(10040, good | 0x30000u);
+                Buttons(window).RemoveButton(10040, good | 0x40000u);
+                Buttons(window).RemoveButton(10041, good);
             };
             if (Read<std::uint8_t>(window, 0x72) == 0 || Read<std::uint8_t>(window, 0x78) != 0)
             {
-                for (std::uint32_t good = 1; good < 66; ++good) removeCounterButtons(good);
                 for (auto command : {10017u, 10018u, 10019u, 10020u, 10021u, 10037u, 10038u}) Buttons(window).RemoveButton(command, 0);
                 return;
             }
@@ -674,6 +675,10 @@ namespace NC2InGameGuiSelection
                 text[sizeof(text) - 1] = '\0';
                 Buttons(window).UpdateGfxButton(10040, good | 0x30000u, section.x + 223, buttonY, 26, text);
                 Buttons(window).SetButtonMiscCommandData(10040, good | 0x30000u, good, 1);
+                NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s %s", HumanString(55), name);
+                text[sizeof(text) - 1] = '\0';
+                Buttons(window).UpdateGfxButton(10041, good, section.x + 241, buttonY, 143, text);
+                Buttons(window).SetButtonMiscCommandData(10041, good, good, 0);
                 y += 12;
             }
             const auto tribe = Read<std::uint32_t>(human, 0x14);
@@ -861,7 +866,7 @@ namespace NC2InGameGuiSelection
                 }
             }
             else if (command == 10002) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_ActionButtons_BringUp();
-            else if (command == 10004)
+            else if (command == 10005)
             {
                 if (const void* human = l_Misc_GetSelectedHumanPtr())
                 {
@@ -871,7 +876,7 @@ namespace NC2InGameGuiSelection
                     else NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_FollowHuman(world, id);
                 }
             }
-            else if (command == 10005) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeJobWindow_Open();
+            else if (command == 10004) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->ObservationWindow_CreateNewOne();
             else if (command == 10006) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeNameWindow_Open();
             else if (command >= 10022 && command <= 10025)
             {
@@ -972,15 +977,16 @@ namespace NC2InGameGuiSelection
                     NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, static_cast<std::int32_t>(Read<std::uint32_t>(human, 4)));
                 }
             }
-            else if (command >= 10045 && command <= 10052)
+            else if (command >= 10029 && command <= 10036)
             {
                 if (l_Misc_GetSelectedHumanPtr() != nullptr)
                 {
-                    const auto type = command <= 10048 ? command - 10044 : 5u;
-                    const auto slot = command <= 10048 ? -1 : static_cast<std::int32_t>(command - 10049);
+                    const auto type = command <= 10032 ? command - 10028 : 5u;
+                    const auto slot = command <= 10032 ? -1 : static_cast<std::int32_t>(command - 10033);
                     NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeEquippedGoodsWindow_Open(type, slot);
                 }
             }
+            else if (command == 10041) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HelpWindow_Open_GoodInfo(param2);
             else if (command == 10042)
             {
                 Write(window, 0x130, param2);

@@ -6,6 +6,7 @@
 #include "InGameGuiLandscapeSelectionWindow.h"
 #include "InGameGuiGroupSelectionWindows.h"
 #include "InGameGuiSingleVehicleWindow.h"
+#include "InGameGuiHouseWindow.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiToolsBase.h"
 #include "ApplicationGlobals.h"
@@ -506,7 +507,7 @@ namespace NInGameGuiManager
         std::launder(reinterpret_cast<NXBasics::CListBase*>(mLegacyState + 0x4C))->l_Base_RemoveElement(element);
     }
 
-    // Partial original function: FUN_004a0e9d; the single-house window remains pending.
+    // Original function: FUN_004a0e9d; all native selection window families are connected.
     void CInGameGuiManager::Selection_UpdateWindows()
     {
         using namespace NC2Lifetime;
@@ -517,6 +518,14 @@ namespace NInGameGuiManager
         l_RemoveAllGuiElements();
         NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7ED, 0, 0, 0);
         const auto selection = Read<std::uint32_t>(input, 4);
+        if (selection == 6)
+        {
+            void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3CE0, 1);
+            void* window = allocation == nullptr ? nullptr : NC2InGameGuiSelection::SelectionHouseWindow_Construct(allocation);
+            Write(this, 0xA0, window);
+            NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
+            return;
+        }
         if (selection == 4)
         {
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x3C80, 1);

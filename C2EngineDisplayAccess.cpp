@@ -156,6 +156,10 @@ namespace NC2E2
         return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHouseEntries) + type * 0x8BCu + 0x3Cu);
     }
 
+    std::int32_t StaticDataHouses_GetHouseId(std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage);
+    // Original function: FUN_004808be; distinct Windows forwarding entry, semantic name from its verified target.
+    std::int32_t Engine2d_EntryPoint_GetHouseId(std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage) { return StaticDataHouses_GetHouseId(tribe,logicType,stage); }
+
     // Original owning pointer: 00554DA0. Windows establishes the ownership;
     // the exact original symbol name is unavailable in the Mac reference.
     NXBasics::CBitmap* gDesktopOwnedBobBitmap = nullptr;

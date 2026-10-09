@@ -12,10 +12,10 @@ Windows x86 assembly and the original Windows Game.exe establish behavior, sizes
 | In-game options, saving/loading, briefing, overview, confirmation dialogs | Audit existing windows and all entry points |
 | Global settings and special items | Native 004C1BF3..004C31C7 and manager 004A1E63/004A1EA9 |
 | Construction chooser and house placement controls | Native 004C647E tree, manager 004A24A4..004A2597 |
-| Diplomacy, resident list, statistics and technology tree | Missing window families and manager entry points |
-| Help and context help | Missing window family and popup routing |
+| Diplomacy, resident list, statistics and technology tree | Native families and manager entry points connected; runtime verification pending |
+| Help and context help | Native family, popups and human/house/message cross-links connected; runtime verification pending |
 | Observers and multiplayer information | Native families and manager entry points connected; runtime verification pending |
-| Single/group humans, houses, animals, vehicles, guides and landscapes | Selection_UpdateWindows and context command branches remain partial |
+| Single/group humans, houses, animals, vehicles, guides and landscapes | All selection families connected; single-human constructor/message/draw retain audit boundaries |
 | Keyboard and input focus | Full primary handler 004BC36F..004BD3C3 and contextual command table 00507350 connected; menu/input audits pending |
 | Groups | Native choose/create/add operations and all thirty configured numeric assignments connected |
 | Cheats | All four native in-game commands connected; main-menu campaign unlock history audited against Windows |
@@ -63,6 +63,20 @@ Native human/vehicle group windows, animals, guides, house-type and landscape wi
 
 The single-vehicle window 004A9786..004AB7F0 is connected with all five retained collapsible sections, camera preview/follow/observer controls, attached human/vehicle elements, trader route controls and its owned trader popup, seven stock pages, amount and wanted-amount displays, Ctrl-adjusted wanted commands and per-frame refresh. Complete native tables 004F6710..004F675B and 004F7A5C..004F7AEB and descriptor/page region 004F6500..004F670F were read from Game.exe. Passenger spacing uses the established double/truncation adapter; x87 intermediate precision can differ.
 
-House/vehicle command availability, context button layout/checksums and default dispatcher 004A3EDB are complete. Native checksum repetition in multi-selection is preserved. The native 004A2826 popup is the house-removal confirmation, not a house inhabitant chooser; its two choices, revision validation and removal packet are now connected. Three completed partial entries 004A10CB/004A1BF0/004A3EDB are removed from the unfinished inventory. The single-house selection window and remaining single-human help/context rows are still open, together with general menu/input audits and downstream specialized vehicle input modes.
+House/vehicle command availability, context button layout/checksums and default dispatcher 004A3EDB are complete. Native checksum repetition in multi-selection is preserved. The native 004A2826 popup is the house-removal confirmation, not a house inhabitant chooser; its two choices, revision validation and removal packet are now connected. Three completed partial entries 004A10CB/004A1BF0/004A3EDB are removed from the unfinished inventory. The single-house window and human help rows are connected in the following block; full single-human constructor/message/draw audits and downstream specialized vehicle input modes remain open.
 
 Main-menu campaign cheats in 004DB0D1..004DB3A5 were audited without changing the existing implementation: `oase`, `orakel`, `schatzinsel`, `tempel`, `olympia`, `pharao`, `atlantis` and `gamersus` use the native screen/campaign guards and newest-first history. The clipboard route and original feedback/GUI update order match Windows. This is source verification, not a runtime test.
+
+## House windows, context links and main-menu cursor (2026-10-09)
+
+The single-house window 004A6F10..004A9785 is connected through manager field 0xA0 with its native 0x3CE0 allocation and complete table 004F6468..004F64B3. All eleven descriptors and seven stock pages come from Game.exe region 004F61F8..004F6467. Enabled/collapsed sections, retained collapse states, live checksums, preview, health/capacity, upgrade prices, construction material/progress, home quality and inhabitants, production, barracks, defence and foreign trade retain the Windows branches and command order. Stock minimum changes preserve Ctrl increments and native bounds. House-removal, help, observer/camera and worker-list links use the existing native manager entry points.
+
+Goods child 004A950C..004A9785 retains request/minimum suffix order and revision checks. Inhabitants 004CC045..004CC878 retain attached family/worker/builder ordering, both trader route matches, unique nearby humans, 100-slot capacity, stable priority sorting, reverse portrait hits and family/role tooltips. Allocation, callback order and the native stale merchant flag in reused attachment/nearby slots are preserved. Four original house stock/attachment getters are reconstructed. Portrait spacing uses the established double/truncation adapter; original x87 intermediate precision can differ.
+
+Native desktop Window_ChangeAreaRectangle 00478122 clamps the complete rectangle before updating bitmap dimensions. Human, vehicle and house layouts now use it. The human message handler now distinguishes 10004 observation from 10005 following and uses the original equipment IDs 10029..10036. Production-good help uses 10041 with native misc data and removes the native counter/help keys. Full human constructor/message/draw entries remain partial pending their complete source/ASM audit; these corrections do not silently mark them complete.
+
+Message-presentation constructor/message/draw 004D08EB/004D0ACF/004D0B5E now use the real dynamic-button handler and its native reopen lifetime. Good/house links 10200/10201 preserve displayed-good IDs and tribe-dependent house engine type/stage. The distinct Windows forwarding entry 004808BE calls the established house correspondence routine 0048F6E9. Its separate Mac name is unresolved.
+
+Main-menu mouse drawing 004DAE69 replaces its link dummy, including software/hardware mode, repeated software cursor callbacks, original cursor sprites, element tooltips, position/text changes, immediate/500 ms timing and darkened font10 tooltip 004DB00A. Mac headers supply corresponding names only; all behavior, offsets, tables and strings are established from Windows assembly/Game.exe.
+
+Win32 MSVC `/Zs` and project/filter/source checks passed. No build, tests or game run occurred. Remaining priority: full single-human window audit, manager variable constructor 004A002D, general menu/input flow audits and specialized vehicle input modes. The full user request remains open.
