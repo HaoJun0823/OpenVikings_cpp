@@ -1,5 +1,15 @@
 # Main-menu state, clean-map loading and game-time dispatch
 
+## Requested exit/fullscreen colour/32-bit corrections - 2026-10-09
+
+The exit confirmation (004D6BBB command 0x1389) already requests the native title-screen post sequence. The native constructor 004027D2 only activates that sequence if post00.bmp exists; missing assets therefore return to the menu without reaching the exit flag. The constructor now activates the requested post sequence unconditionally. Its existing 00402C90 missing-next-picture branch requests normal application exit; supplied post pictures retain their native sequence.
+
+The gameplay display-mode ceiling in 00401000 is intentionally extended from the original 16 bits to 32 bits, as requested. The existing DirectDraw enumeration, options selection, bitmap conversion and display paths support both depths. Availability still depends on the modes returned by DirectDraw.
+
+The user localized the colour issue to GUI windows and transition preview pictures in fullscreen, and explicitly excluded the supplied screenshot. 0047C588/0047C5F1 now initialize converters from valid RGB masks returned by the back surface's GetPixelFormat, retaining the native GDI colour probes as fallback. This requested compatibility correction avoids deriving masks from failed exclusive-surface GetDC/SetPixel probes. Windows supplies the original control flow and converter semantics; the mask-query preference and 32-bit ceiling are explicit requested extensions. The reported tint's runtime cause and disappearance still require confirmation in the affected fullscreen environment.
+
+The three affected units passed MSVC Win32 /Zs syntax checks. No build, tests or game run occurred. The user now confirms the reconstructed collector and soldier routines behave well in the game.
+
 Snapshot: 2026-10-02. This block was subsequently committed as `fb69f88` (Main Menu Code); current in-game work is documented in [IN_GAME_STATE.md](IN_GAME_STATE.md).
 
 ## Evidence and scope

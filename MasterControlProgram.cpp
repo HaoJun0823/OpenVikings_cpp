@@ -148,7 +148,9 @@ namespace NMasterControlProgram
 
         applicationControl.maximumScreenWidth = 10000;
         applicationControl.maximumScreenHeight = 10000;
-        applicationControl.maximumScreenDepth = 16;
+        // Requested extension: expose the existing native 32-bit display paths.
+        // Windows Game.exe limits the selectable gameplay modes to 16 bits here.
+        applicationControl.maximumScreenDepth = 32;
 
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("gfx_screen_width"))
         {

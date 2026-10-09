@@ -1076,6 +1076,15 @@ namespace NXSys2DApp
         {
             auto* converter = NXBasics::g16BitPixelConverter;
             auto* surface = mBackSurface;
+            DDPIXELFORMAT format{};
+            format.dwSize = sizeof(format);
+            // Requested fullscreen colour correction: use the surface's RGB
+            // masks directly. GDI colour probes may fail on an exclusive surface.
+            if (surface->GetPixelFormat(&format) == DD_OK && (format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 16 && format.dwRBitMask != 0 && format.dwGBitMask != 0 && format.dwBBitMask != 0 && ((format.dwRBitMask | format.dwGBitMask | format.dwBBitMask) & 0xFFFF0000u) == 0 && (format.dwRBitMask & format.dwGBitMask) == 0 && (format.dwRBitMask & format.dwBBitMask) == 0 && (format.dwGBitMask & format.dwBBitMask) == 0)
+            {
+                converter->SetColorMasks(static_cast<std::uint16_t>(format.dwRBitMask), static_cast<std::uint16_t>(format.dwGBitMask), static_cast<std::uint16_t>(format.dwBBitMask));
+                return;
+            }
             const auto blue = static_cast<std::uint16_t>(l_GetColorMask(surface, RGB(0, 0, 255)));
             const auto green = static_cast<std::uint16_t>(l_GetColorMask(surface, RGB(0, 255, 0)));
             const auto red = static_cast<std::uint16_t>(l_GetColorMask(surface, RGB(255, 0, 0)));
@@ -1092,6 +1101,14 @@ namespace NXSys2DApp
         {
             auto* converter = NXBasics::g32BitPixelConverter;
             auto* surface = mBackSurface;
+            DDPIXELFORMAT format{};
+            format.dwSize = sizeof(format);
+            // Keep the native probe as fallback for surfaces without RGB masks.
+            if (surface->GetPixelFormat(&format) == DD_OK && (format.dwFlags & DDPF_RGB) != 0 && format.dwRGBBitCount == 32 && format.dwRBitMask != 0 && format.dwGBitMask != 0 && format.dwBBitMask != 0 && (format.dwRBitMask & format.dwGBitMask) == 0 && (format.dwRBitMask & format.dwBBitMask) == 0 && (format.dwGBitMask & format.dwBBitMask) == 0)
+            {
+                converter->SetColorMasks(format.dwRBitMask, format.dwGBitMask, format.dwBBitMask);
+                return;
+            }
             const auto blue = l_GetColorMask(surface, RGB(0, 0, 255));
             const auto green = l_GetColorMask(surface, RGB(0, 255, 0));
             const auto red = l_GetColorMask(surface, RGB(255, 0, 0));

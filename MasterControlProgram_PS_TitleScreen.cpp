@@ -248,11 +248,10 @@ namespace
         if (Read<std::uint8_t>(manager, 0) == 0 && NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_start_post_picture_sequence"))
         {
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("game_start_post_picture_sequence");
-            if (NXBasics::CFile::FileSystem_Tool_FileExists("datax\\pictures\\post00.bmp", true))
-            {
-                Write<std::uint32_t>(manager, 0xD0, 0xFFFFFFFFu);
-                Write<std::uint8_t>(manager, 0xCD, 1);
-            }
+            // Requested missing-asset fallback: the native sequence end already
+            // requests program exit when the next post picture does not exist.
+            Write<std::uint32_t>(manager, 0xD0, 0xFFFFFFFFu);
+            Write<std::uint8_t>(manager, 0xCD, 1);
         }
         if (Read<std::uint8_t>(manager, 0) != 0)
         {
