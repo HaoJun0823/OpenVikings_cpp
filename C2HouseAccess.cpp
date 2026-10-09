@@ -727,6 +727,16 @@ namespace NC2Logic
         return NC2Lifetime::Read<std::uint32_t>(House_GetHouseTypeDataPtr(house), 0x68u + stock * 12u) * multiplier;
     }
 
+    // Original function: FUN_00431c84.
+    std::uint32_t House_Stock_GetMaximumAmount(const void* house, std::uint32_t good, bool futureStock)
+    {
+        if (NXBasics::Runtime_TimeSigned32(good) >= 66) return 0;
+        const auto* data = House_GetHouseTypeDataPtr(house);
+        const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
+        if (slot == -1 || (NC2Lifetime::Read<std::uint32_t>(data, 0) == 3 && futureStock && NC2Lifetime::Read<std::uint8_t>(data, 0x6Cu + static_cast<std::uint32_t>(slot) * 12u) != 0)) return 0;
+        return House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
+    }
+
     // Original function: FUN_00431fd3; only a signed upper bound is checked.
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum)
     {

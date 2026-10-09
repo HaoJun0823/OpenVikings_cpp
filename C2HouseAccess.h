@@ -50,6 +50,7 @@ namespace NC2Logic
     void House_Misc_ClearLandscapesAndGuides(const void* house);
     void House_HitPoints_ModifyValue(void* house, std::int32_t delta);
     std::uint32_t House_Stock_GetMaximumAmountByStockId(const void* house, std::uint32_t stock);
+    std::uint32_t House_Stock_GetMaximumAmount(const void* house, std::uint32_t good, bool futureStock);
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum);
     std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good);
     std::uint32_t House_Stock_GetMinimumValue(const void* house, std::uint32_t good);

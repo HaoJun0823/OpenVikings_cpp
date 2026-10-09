@@ -14,6 +14,7 @@ namespace NC2Logic
     std::uint32_t Vehicle_Stock_GetAmountOfWantedGoods(const void* vehicle, std::uint32_t goodId);
     std::uint32_t Vehicle_Stock_GetFutureAmount(const void* vehicle, std::uint32_t goodId);
     std::uint32_t Vehicle_Stock_GetTotalFutureAmount(const void* vehicle);
+    std::uint32_t Vehicle_Stock_GetTotalAmount(const void* vehicle);
     bool Vehicle_Stock_ModifyFutureAmount(void* vehicle, std::uint32_t goodId, std::int32_t delta, std::uint32_t humanRevision);
     bool Vehicle_Door_GetEntryPoint(const void* vehicle, void* point, std::uint32_t requiredSpace);
     bool Vehicle_Door_IsEntryPointOnLand(const void* vehicle, std::uint32_t requiredSpace);
@@ -24,6 +25,8 @@ namespace NC2Logic
     bool Vehicle_Passengers_IsCarrierAttached(const void* vehicle);
     bool Vehicle_Passengers_MoveOut_h(void* vehicle, std::uint32_t humanId);
     bool Vehicle_Passengers_MoveIn_h(void* vehicle, std::uint32_t humanId);
+    bool Vehicle_Passengers_IsCommander(const void* vehicle, std::uint32_t humanId);
+    void Vehicle_GetTargetWorkPosition(const void* vehicle, void* point);
     bool Vehicle_IsPriorityCommandInQueue(const void* vehicle);
     void Vehicle_l_Passengers_StopAllIdleTasks(void* vehicle);
     const SStaticVehicleTypeData* Vehicle_GetVehicleTypeDataPtr(const void* vehicle);

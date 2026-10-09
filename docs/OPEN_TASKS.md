@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Trader checkpoint - 2026-10-09
+
+Job 25 now executes domestic and foreign trade routes, its four distinct goods-selection routines, stock/minimum checks, batch/capacity accounting, pickup/delivery and vehicle approach. Commander and maximum-stock accessors are connected. See [HUMAN_TRADER_JOBS.md](HUMAN_TRADER_JOBS.md).
+
+**3946 / 5061 (77.97%)** source-address coverage, **1115** known entries open; **256 cpp / 236 headers**, **2107 naming rows / 68 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Continue ALL remaining professions: hunter/combat and carpenter/armorer vehicle production, plus remaining vehicle/sea simulation dependencies. Carrier and trader work trees are connected; their vehicle gameplay is not yet confirmed. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Carrier and vehicle entry checkpoint - 2026-10-09
 
 Carrier ground warehouse and attached-vehicle work paths, demand searches, stock callbacks, explicit-source pile selection and task 21 startup/finish are reconstructed. The actual human vehicle-entry dummy is replaced. See [HUMAN_TRANSPORT_JOBS.md](HUMAN_TRANSPORT_JOBS.md). Vehicle simulation and sea navigation still require their own remaining branches.

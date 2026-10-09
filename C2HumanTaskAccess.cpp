@@ -30,6 +30,7 @@
 #include "C2HumanSocialJobs.h"
 #include "C2HumanAnimalJobs.h"
 #include "C2HumanTransportJobs.h"
+#include "C2HumanTraderJobs.h"
 
 namespace NC2Logic
 {
@@ -569,6 +570,14 @@ namespace NC2Logic
         case 18: Human_l_StartTask_ExecuteJob_Farmer(human); return;
         case 22: Human_l_StartTask_ExecuteJob_Fisher(human); return;
         case 24: Human_l_StartTask_ExecuteJob_Carrier(human); return;
+        case 25:
+            Human_l_StartTask_ExecuteJob_Trader(human);
+            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, 0x36C) == 3 && Read<std::uint32_t>(human, 0x374) == 2)
+            {
+                Write<std::uint32_t>(human, 0x368, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+                Write<std::uint32_t>(human, 0x36C, 0);
+            }
+            return;
         case 28: Human_l_StartTask_ExecuteJob_Jester(human); return;
         case 29: Human_l_StartTask_ExecuteJob_HerbGuy(human); return;
         case 30: Human_l_StartTask_ExecuteJob_Druid(human); return;

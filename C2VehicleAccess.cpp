@@ -36,7 +36,7 @@ namespace NC2Logic
     static const std::byte* AddressAt(const void* object, std::uint32_t offset) { return reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(object) + offset); }
 
     // Original function: FUN_0044ba62.
-    static std::uint32_t Vehicle_Stock_GetTotalAmount(const void* vehicle)
+    std::uint32_t Vehicle_Stock_GetTotalAmount(const void* vehicle)
     {
         const auto count = Vehicle_GetVehicleTypeDataPtr(vehicle)->goodTypeCount;
         std::uint32_t total = 0;
@@ -317,6 +317,18 @@ namespace NC2Logic
         if (Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize), 0) != entry) return false;
         NC2Lifetime::Write<std::uint8_t>(vehicle, 0x1F8u + static_cast<std::uint32_t>(slot) * 12u, 1);
         return true;
+    }
+
+    // Original function: FUN_0044c104.
+    bool Vehicle_Passengers_IsCommander(const void* vehicle, std::uint32_t humanId)
+    {
+        return Read<std::uint8_t>(vehicle, 0x2EC) != 0 && static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedCommanderId(vehicle)) == humanId;
+    }
+
+    // Original function: FUN_00441377.
+    void Vehicle_GetTargetWorkPosition(const void* vehicle, void* point)
+    {
+        NC2Lifetime::Write(point, 0, Vehicle_Passengers_GetAttachedCommanderPtr(vehicle) != nullptr ? Read<std::uint32_t>(vehicle, 0x1D2) : 0xFFFFFFFFu);
     }
 
     // Original function: FUN_0044c095; moving outside retains the passenger reference.
