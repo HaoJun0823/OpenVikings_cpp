@@ -15,6 +15,7 @@ namespace NC2Logic
     bool Animal_IsAttachedToHouse(const void* animal);
     bool Animal_IsAttachedToVehicle(const void* animal);
     void Animal_AttachToHouse(void* animal, std::int32_t houseId);
+    bool Animal_AttachToVehicle(void* animal, std::int32_t vehicleId);
     void Animal_l_MoveWorkCenterPoint(void* animal);
     void Animal_GoIntoHouseInteractionMode(void* animal);
     void Animal_l_Aggressive_Check(void* animal);

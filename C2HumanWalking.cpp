@@ -2,6 +2,8 @@
 #include "C2HumanCommandAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanNeeds.h"
+#include "C2HumanMilitaryJobs.h"
+#include "C2InteractionTargetAccess.h"
 #include "C2GameControlNetwork.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
@@ -317,7 +319,7 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_00463043; military enemy-search branches remain pending.
+    // Partial original function: FUN_00463043; AI target notification at 004631D8 remains pending.
     bool Human_AI_DoNewMapPositionReached_DestinationNotReached(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return true;
@@ -332,6 +334,37 @@ namespace NC2Logic
         {
             Human_CurrentTask_DoInterrupt(human);
             return false;
+        }
+        if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human)) return true;
+        if ((Read<std::uint32_t>(human, 0x384) + Read<std::uint32_t>(human, 4)) % 10u != 0) return true;
+        const auto task = Read<std::uint32_t>(human, 0x368);
+        if (task != 14 && task != 15 && !(Human_GetPlayerType(human) == 2 && task == 4)) return true;
+        if (Read<std::uint32_t>(human, 0x370) != 0 && Human_IsRefreshingInWorld(human)) return true;
+        const auto mode = Read<std::uint32_t>(human, 0xB5C);
+        const auto* primary = static_cast<const std::byte*>(human) + 0xB64;
+        if (mode == 3)
+        {
+            if (task == 15 && !TargetData_IsValid(primary)) { Write<std::uint32_t>(human, 0x36C, 2); return false; }
+            return true;
+        }
+        if ((mode != 1 && mode != 2) || TargetData_IsValid(primary)) return true;
+        // AI handlers consume a target notification instead of the direct civilian transition.
+        if (Human_GetPlayerType(human) == 2) return true;
+        std::uint32_t target[3]{};
+        const auto* source = mode == 2 ? static_cast<const void*>(static_cast<const std::byte*>(human) + 0xB30) : Human_GetMapPositionRef(human);
+        if (Human_l_CheckForEnemyTarget(human, source, 0, 18, target))
+        {
+            for (std::uint32_t index = 0; index < 3; ++index) Write(human, 0xB70u + index * 4u, target[index]);
+            Write<std::uint32_t>(human, 0x36C, 2);
+            return false;
+        }
+        if (mode == 2 && task == 15)
+        {
+            auto point = Read<std::uint32_t>(human, 0xB30);
+            auto* secondary = static_cast<std::byte*>(human) + 0xB70;
+            if (TargetData_IsValid(secondary)) TargetData_GetMapPosition(secondary, &point);
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, 0xB30), Read<std::int16_t>(human, 0xB32), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
+            if (distance > 40) { Write<std::uint32_t>(secondary, 0, 0); Write<std::uint32_t>(human, 0x36C, 3); return false; }
         }
         return true;
     }

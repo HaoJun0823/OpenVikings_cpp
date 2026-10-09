@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Hunting and dragging-animal checkpoint - 2026-10-09
+
+Hunter cadaver collection and prey search, the shared attack start/finish work tree, non-AI pursuit recovery, all 29 task-finish entries and dragging-animal vehicle entry are connected. Complete supporting animal damage/anger/flee routines are reconstructed; weapon-hit event 25 and projectiles remain held. See [HUMAN_HUNTING_AND_ATTACKS.md](HUMAN_HUNTING_AND_ATTACKS.md).
+
+**4002 / 5062 (79.06%)** source-address coverage, **1060** known entries open; **261 cpp / 241 headers**, **2159 naming rows / 66 unfinished boundaries**. Affected units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Continue ALL remaining profession dependencies: weapon-hit/projectiles, animal combat, defensive arrows and remaining vehicle/sea simulation. Live hunting is not yet complete; runtime confirmation is pending. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Vehicle production checkpoint - 2026-10-09
 
 Jobs 9/10 now share the native carpenter/armorer dispatcher and complete vehicle-builder work tree: site search and placement, material collection, delivery, construction animation and recovery. The occupied-house tick replaces its empty dummy and converts completed construction sites into vehicles; defensive-arrow work remains explicitly partial. See [HUMAN_VEHICLE_PRODUCTION.md](HUMAN_VEHICLE_PRODUCTION.md).

@@ -717,4 +717,20 @@
     <ClCompile Include="C2HumanVehicleJobs.cpp" />
     <ClInclude Include="C2HumanVehicleJobs.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanHuntingJobs.cpp" />
+    <ClInclude Include="C2HumanHuntingJobs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanAttackTasks.cpp" />
+    <ClInclude Include="C2HumanAttackTasks.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MilitaryDamage.cpp" />
+    <ClInclude Include="C2MilitaryDamage.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2VehicleAnimalPassengers.cpp" />
+    <ClInclude Include="C2VehicleAnimalPassengers.h" />
+  </ItemGroup>
 </Project>

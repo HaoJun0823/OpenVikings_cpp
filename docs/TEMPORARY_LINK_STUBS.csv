@@ -23,21 +23,20 @@ Address,CurrentName,Status,ReferencingObjects
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
 0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
 0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs pickup pileup ordinary production map collection and fishing events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
-004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial Windows startup; civilian/family/goods/goodies/home/equipment/scout/chest and supported queues connected; combat/outdoor/vehicle trees pending,C2HumanTaskAccess.obj
-004436C5,NC2Logic::Human_CurrentTask_DoFinish,Partial Windows finish; civilian/family/equipment/goodies/scout/chest connected; combat/vehicle leaves pending,C2HumanTaskAccess.obj
-00443807,NC2Logic::Human_CurrentTask_DoFailure,Partial Windows failure; civilian/family/equipment/scout/chest recovery connected; combat and AI NoWayFound pending,C2HumanTaskAccess.obj
+004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial native startup; task 14 attack connected and task 15 retains native no-op startup; unsupported queued-command leaves remain explicit boundaries,C2HumanTaskAccess.obj
+00443807,NC2Logic::Human_CurrentTask_DoFailure,Partial native failure; tasks 14 and non-AI 15 connected including landscape-neighbor retry; AI pursuit NoWayFound notification still held; excluded from completion counts,C2HumanTaskAccess.obj
 00445DA5,NC2Logic::Human_l_FailTask_Goto,Partial Windows goto failure; messages complete; AI NoWayFound notification pending,C2HumanTaskAccess.obj
 00450C1D,NC2Logic::GameMap_l_MaxMoveableSize_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00450E8C,NC2Logic::GameMap_l_WalkFlagSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004511C5,NC2Logic::GameMap_l_ResistanceSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004513C1,NC2Logic::GameMap_l_Continents_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00462CD5,NC2Logic::Human_AI_DoNewMapPositionReached,Partial Windows position callback; civilian exploration/wear/speed/scout animal ownership complete; military destination continuation pending,C2MapMoveableAccess.obj
-00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial Windows step callback; civilian urgent needs and priority handling connected; military enemy search pending,C2HumanWalking.obj
+00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial native step callback; non-AI military enemy searches and pursuit range limits connected; AI target notification at 004631D8 pending; excluded from completion counts,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
 00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; animal production now connected alongside civilian family training scout chest map collection and fishing; combat and vehicle construction pending,C2HumanCommandAccess.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial Windows job startup; civilian ground jobs breeder carrier trader carpenter armorer and vehicle entry connected; hunter/combat and remaining vehicle simulation dependencies pending,C2HumanTaskAccess.obj
+0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial native job startup; all civilian ground job selectors including hunter connected; weapon-hit event and remaining vehicle/sea simulation dependencies pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
@@ -61,9 +60,8 @@ Address,CurrentName,Status,ReferencingObjects
 004E6E44,Runtime_Log10,Partial numeric CRT adapter; positive music-volume values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 004E8774,Runtime_Sin,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 004E8824,Runtime_Cos,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
-0042DFC0,NC2Logic::Animal_DoUpdateAI,Partial Windows ground animal AI connected; aggressive combat and vehicle tasks held; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
+0042DFC0,NC2Logic::Animal_DoUpdateAI,Partial native animal AI; dragging-vehicle task 9 connected; aggressive enemy search and combat task 8 remain held; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 0042E15C,NC2Logic::Animal_DoNewMapPositionReached,Partial Windows path callback; civilian movement and house entry connected; aggressive military interrupts held; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 0042E32E,NC2Logic::Animal_l_CurrentTask_DoPerform,Partial Windows atomic performance; movement/sound/end transitions connected; weapon-hit event 25 held before advancing; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
-0042E6AA,NC2Logic::Animal_l_StartTask_Idle,Partial Windows ground animal idle; attached-vehicle availability and interaction pending; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 00460F3F,NC2Logic::Animal_l_StartTask_Stay,Partial Windows civilian animal stay including sheep interaction; aggressive enemy/attack decisions held; excluded from completion counts,C2AnimalTasks.obj; C2MapMoveableAccess.obj
 00433694,NC2Logic::House_DoOneGameTick,Partial native house tick; destruction and conversion of completed vehicle construction sites connected; defensive arrows 004337AF..00433A90 pending; excluded from completion counts,C2HousePeriodic.obj

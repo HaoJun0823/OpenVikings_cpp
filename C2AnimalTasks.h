@@ -11,4 +11,5 @@ namespace NC2Logic
     bool Animal_l_StartAtomicWalk(void* animal, const void* point);
     bool Animal_l_StartAtomicWalk(void* animal, std::int32_t moveableId, std::uint32_t distance);
     void Animal_l_StartTask_InteractWithHouse(void* animal);
+    void Animal_l_StartTask_InteractWithVehicle(void* animal);
 }

@@ -32,6 +32,9 @@
 #include "C2HumanTransportJobs.h"
 #include "C2HumanTraderJobs.h"
 #include "C2HumanVehicleJobs.h"
+#include "C2HumanHuntingJobs.h"
+#include "C2HumanAttackTasks.h"
+#include "C2StaticActorTypeDataAccess.h"
 
 namespace NC2Logic
 {
@@ -61,7 +64,7 @@ namespace NC2Logic
     bool Human_UserControl_IsExecutingUserCommand(const void* human) { return Read<std::uint32_t>(human, 0x368) == 4 || Human_UserControl_IsPriorityCommandInQueue(human); }
 
     // Partial original function: FUN_004433d1. Civilian needs, family, equipment and goodies
-    // and scout tasks are connected; combat, outdoor and vehicle task trees remain pending.
+    // and scout/attack tasks are connected; remaining vehicle task trees are pending.
     void Human_CurrentTask_DoStartUp(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return;
@@ -91,6 +94,7 @@ namespace NC2Logic
             return;
         }
         if (task == 16) { Human_l_StartTask_Equip(human); return; }
+        if (task == 14) { Human_l_StartTask_Attack(human); return; }
         if (task == 18) { Human_l_StartTask_OpenChest(human); return; }
         if (task == 19) { Human_l_StartTask_BuildGuide(human); return; }
         if (task == 20) { Human_l_StartTask_ExploreArea(human); return; }
@@ -133,23 +137,23 @@ namespace NC2Logic
         else Human_l_StartTask_ExecuteJob(human);
     }
 
-    // Partial original function: FUN_004436c5; civilian and family branches retain the native
-    // preamble. Combat and vehicle-specific finish routines remain pending.
+    // Original function: FUN_004436c5; all 29 entries retain the native preamble.
     void Human_CurrentTask_DoFinish(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task != 1 && task != 2 && task != 3 && task != 4 && task != 5 && task != 6 && task != 7 && task != 8 && task != 9 && task != 10 && task != 11 && task != 12 && task != 13 && task != 16 && task != 17 && task != 18 && task != 19 && task != 20 && task != 21 && task != 22 && task != 23 && task != 24 && (task < 25 || task > 29)) return;
         if (task != 1)
         {
             Write<std::uint32_t>(human, 0x380, 0);
             if (!Human_IsDoingGoodie(human)) Write<std::uint32_t>(human, 0x37C, 0);
         }
+        if (task < 1 || task > 29) return;
         if (task == 10) return; // Original table entry 00443790 is a no-op after the preamble.
         if (task == 3) { Write<std::uint32_t>(human, 0x368, 1); Write<std::uint32_t>(human, 0x36C, 0); }
         else if (task == 8) Human_l_FinishTask_ExecuteJob(human);
+        else if (task == 14 || task == 15) Human_l_FinishTask_Attack(human);
         else if (task == 5) Human_l_FinishTask_Marry(human);
-        // Windows chest and guide completion share the same 0044621D entry.
-        else if (task == 18 || task == 19) Human_l_FinishTask_BuildGuide(human);
+        // Only task 18 uses 0044621D; guide task 19 finishes through the ordinary idle entry.
+        else if (task == 18) Human_l_FinishTask_BuildGuide(human);
         else if (task == 20) Human_l_FinishTask_ExploreArea(human);
         else if (task == 21) Human_l_FinishTask_MoveInsideVehicle(human);
         else if (task == 16 || task == 17) Human_l_FinishTask_Equip(human);
@@ -283,16 +287,37 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00443807; civilian needs, family, goods and equipment recovery.
-    // Combat failure trees and the AI NoWayFound notification remain pending.
+    // The AI NoWayFound notification remains pending.
     void Human_CurrentTask_DoFailure(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        if (task == 14 || task == 15) return;
+        // The AI pursuit failure notification at 00443B3C remains a boundary.
+        if (task == 15 && Human_GetPlayerType(human) == 2 && Read<std::uint32_t>(human, 0x370) == 0 && TargetData_GetTargetType(static_cast<const std::byte*>(human) + 0xB64) != 6) return;
         if ((task == 2 || task == 4 || task == 23) && Read<std::uint32_t>(human, 0x374) == 1 && Human_GetPlayerType(human) == 2) return;
         if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
         Write(human, 0x380, Read<std::uint32_t>(human, 0x380) + 1u);
         bool doJob = true, checkUrgent = true;
         if (task == 8) { doJob = false; Human_l_FailTask_ExecuteJob(human); }
+        else if (task == 14) Human_l_FailTask_Attack(human);
+        else if (task == 15)
+        {
+            auto* target = static_cast<std::byte*>(human) + 0xB64;
+            if (Read<std::uint32_t>(human, 0x370) != 0 || (!TargetData_IsValid(target) && !TargetData_IsValid(static_cast<std::byte*>(human) + 0xB70))) Human_l_FailTask_Attack(human);
+            else
+            {
+                const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)];
+                if (TargetData_GetTargetType(target) == 6 && weapon.maximumRange == 1 && TargetData_MapPos_NextAttackPoint(target))
+                {
+                    std::uint32_t point = 0;
+                    TargetData_MapPos_GetAttackPosition(target, &point);
+                    if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                }
+                Human_UserMessage_SendToUserMessage(human, 3);
+                Write<std::uint32_t>(human, 0xB64, 0);
+                Write<std::uint32_t>(human, 0xB70, 0);
+                doJob = false;
+            }
+        }
         else if (task == 7)
         {
             const auto need = Read<std::uint32_t>(human, 0x370);
@@ -493,7 +518,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_0046c39e; household, learning, indoor production, collection, farming, fishing, social jobs, builders, ground military and idle jobs.
-    // Other outdoor work and the vehicle-dependent dispatch remain pending.
+    // Hunter work is connected; the remaining vehicle-dependent dispatch is pending.
     void Human_l_StartTask_ExecuteJob(void* human)
     {
         Write<std::uint32_t>(human, 0x370, 0);
@@ -568,6 +593,7 @@ namespace NC2Logic
         case 7: Human_l_StartTask_ExecuteJob_Builder(human); return;
         case 8: Human_l_StartTask_ExecuteJob_Collector(human); return;
         case 9: case 10: Human_l_StartTask_ExecuteJob_Carpenter(human); return;
+        case 15: Human_l_StartTask_ExecuteJob_Hunter(human); return;
         case 16: Human_l_StartTask_ExecuteJob_Breeder(human); return;
         case 18: Human_l_StartTask_ExecuteJob_Farmer(human); return;
         case 22: Human_l_StartTask_ExecuteJob_Fisher(human); return;

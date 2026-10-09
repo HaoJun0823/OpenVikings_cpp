@@ -1379,4 +1379,20 @@
     <ClCompile Include="C2HumanVehicleJobs.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanVehicleJobs.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanHuntingJobs.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanHuntingJobs.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2HumanAttackTasks.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2HumanAttackTasks.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MilitaryDamage.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MilitaryDamage.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2VehicleAnimalPassengers.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2VehicleAnimalPassengers.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

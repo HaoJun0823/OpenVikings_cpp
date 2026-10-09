@@ -40,4 +40,5 @@ namespace NC2Logic
     bool Human_FindGrowLandscapeNearWorkCenter(const void* human, std::uint32_t landscape, void* real, void* work);
     bool Human_FindShorePointForFishing(const void* human, void* real, void* work);
     bool Human_FindPilePointNearPosition(const void* human, std::int32_t engineId, const void* source, void* point);
+    bool Human_FindLandscapesNearPos_NoBlock(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source);
 }

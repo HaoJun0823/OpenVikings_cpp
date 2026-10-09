@@ -219,6 +219,21 @@ namespace NC2Logic
         Animal_l_MoveWorkCenterPoint(animal);
     }
 
+    // Original function: FUN_0042f331; a walking animal keeps its task and reports failure after attachment.
+    bool Animal_AttachToVehicle(void* animal, std::int32_t vehicleId)
+    {
+        const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleId) * CVehicleArray::ElementSize;
+        if (Read<std::uint8_t>(vehicle, 0) != 0)
+        {
+            Write(animal, 0x54, vehicleId);
+            Write(animal, 0x58, Read<std::uint32_t>(vehicle, 8));
+            Write<std::uint32_t>(animal, 0x50, 2);
+        }
+        if (Read<std::uint32_t>(animal, 0x70) == 1) return false;
+        if (Read<std::uint32_t>(animal, 0x1C) != 9) { Write<std::uint32_t>(animal, 0x20, 0); Write<std::uint32_t>(animal, 0x1C, 9); }
+        return true;
+    }
+
     // Original function: FUN_0042f376.
     void Animal_l_MoveWorkCenterPoint(void* animal)
     {

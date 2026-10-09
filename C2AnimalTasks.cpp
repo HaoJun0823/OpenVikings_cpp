@@ -16,6 +16,8 @@
 #include "C2OverviewObjectIterators.h"
 #include "C2StaticActorTypeDataAccess.h"
 #include "C2StaticAtomicAnimationData.h"
+#include "C2VehicleAccess.h"
+#include "C2VehicleAnimalPassengers.h"
 
 namespace NC2Logic
 {
@@ -288,10 +290,17 @@ namespace NC2Logic
             return Animal_FindMapPointNearby(animal, &point) && Animal_l_StartAtomicWalk(animal, &point);
         }
 
-        // Partial original function: FUN_0042e6aa; vehicle interaction is not reconstructed.
+        // Original function: FUN_0042e6aa; invalid dragging assignments are cleared before normal idle work.
         void Animal_l_StartTask_Idle(void* animal)
         {
-            if (!Animal_l_IsAtomicInterruptable(animal) || Animal_IsAttachedToVehicle(animal)) return;
+            if (!Animal_l_IsAtomicInterruptable(animal)) return;
+            if (Animal_IsAttachedToVehicle(animal))
+            {
+                auto* target = static_cast<std::byte*>(animal) + 0x50;
+                const auto* vehicle = CVehicleArray::mStaticVars + TargetData_GetObjectId(target) * CVehicleArray::ElementSize;
+                if (Vehicle_Passengers_IsDraggingAnimal(vehicle, Read<std::uint32_t>(animal, 4), Read<std::uint32_t>(animal, 8))) { Write<std::uint32_t>(animal, 0x1C, 9); Write<std::uint32_t>(animal, 0x20, 0); return; }
+                Write<std::uint32_t>(target, 0, 0);
+            }
             if (Distance(Animal_GetMapPositionRef(Animal(Read<std::uint32_t>(animal, 0x34))), Animal_GetMapPositionRef(animal)) > LeaderDistance(animal)) { Write<std::uint32_t>(animal, 0x1C, 3); Write<std::uint32_t>(animal, 0x20, 0); return; }
             auto* moveable = Moveable(animal);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
@@ -495,6 +504,28 @@ namespace NC2Logic
         return true;
     }
 
+    // Original function: FUN_004613b0; approach the vehicle before consuming the dragging animal.
+    void Animal_l_StartTask_InteractWithVehicle(void* animal)
+    {
+        auto* target = static_cast<std::byte*>(animal) + 0x50;
+        if (!Animal_IsAttachedToVehicle(animal)) { Write<std::uint32_t>(animal, 0x20, 3); return; }
+        auto* vehicle = CVehicleArray::mStaticVars + TargetData_GetObjectId(target) * CVehicleArray::ElementSize;
+        if (!Vehicle_Passengers_IsDraggingAnimal(vehicle, Read<std::uint32_t>(animal, 4), Read<std::uint32_t>(animal, 8))) { Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(animal, 0x20, 3); return; }
+        const auto* destination = Vehicle_GetMapPositionRef(vehicle);
+        if (Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0) == Read<std::uint32_t>(destination, 0))
+        {
+            if (!Vehicle_Passengers_AnimalMoveIn(vehicle, Read<std::uint32_t>(animal, 4))) { Write<std::uint32_t>(animal, 0x20, 3); return; }
+            Write<std::uint32_t>(target, 0, 0);
+            Write<std::uint32_t>(animal, 0x20, 2);
+            return;
+        }
+        auto point = Read<std::uint32_t>(destination, 0);
+        MapMigPoint_MoveCursorUnwrapped(point, VE_HexagonDirection_OppositeDirection(2));
+        if (MapMigPoint_IsBorderPoint(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & 0x80u) != 0) MapMigPoint_MoveCursorUnwrapped(point, 2);
+        Animal_l_StartAtomicWalk(animal, Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0) == point ? destination : &point);
+        Write<std::uint32_t>(animal, 0x1C, 9);
+    }
+
     // Original function: FUN_004614c0.
     void Animal_l_StartTask_InteractWithHouse(void* animal)
     {
@@ -533,11 +564,11 @@ namespace NC2Logic
     // Original function: FUN_0042e320.
     void Animal_DoPathfinderStopped(void* animal) { if (Read<std::uint32_t>(animal, 0x1C) == 2) Write<std::uint32_t>(animal, 0x20, 3); }
 
-    // Partial original function: FUN_0042dfc0; combat and vehicle task branches are held.
+    // Partial original function: FUN_0042dfc0; aggressive combat task branches remain held.
     void Animal_DoUpdateAI(void* animal)
     {
-        if (Read<std::uint8_t>(Moveable(animal), 0x10) == 0 || Animal_IsAttachedToVehicle(animal) || IsAggressive(animal)) return;
-        if (!Animal_IsAttachedToHouse(animal) && Read<std::uint32_t>(animal, 0x10) != 20) Animal_l_MoveWorkCenterPoint(animal);
+        if (Read<std::uint8_t>(Moveable(animal), 0x10) == 0 || IsAggressive(animal)) return;
+        if (!Animal_IsAttachedToVehicle(animal) && !Animal_IsAttachedToHouse(animal) && Read<std::uint32_t>(animal, 0x10) != 20) Animal_l_MoveWorkCenterPoint(animal);
         Animal_l_CheckForValidLeader(animal);
         if (!Animal_l_CurrentTask_DoPerform(animal) || !Animal_l_IsAtomicInterruptable(animal)) return;
         if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal)), 12) & 0x80u) != 0) Animal_l_StartTask_GoAway(animal);
@@ -557,6 +588,7 @@ namespace NC2Logic
             case 5: Animal_l_StartTask_Stay(animal); break;
             case 6: Animal_l_StartTask_GotoNextPoint(animal); break;
             case 7: Animal_l_StartTask_Eat(animal); break;
+            case 9: Animal_l_StartTask_InteractWithVehicle(animal); break;
             case 10: Animal_l_StartTask_InteractWithHouse(animal); break;
             default: return; // Explicit untranslated task boundary; never spin here.
             }

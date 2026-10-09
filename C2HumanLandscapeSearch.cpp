@@ -221,6 +221,24 @@ namespace NC2Logic
         return false;
     }
 
+    // Original function: FUN_0045e9c8.
+    bool Human_FindLandscapesNearPos_NoBlock(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source)
+    {
+        if (data.scanned == 0)
+        {
+            CMapPathfinderElement::SearchOverMap(source, Radius(human), true, slHumanSearchLandscapesFunction, &data, true, Read<std::int32_t>(human, 0x10));
+            data.scanned = 1;
+            if (data.selectedCount == 0) return false;
+        }
+        if (data.candidateCount == 0 || data.typeCount == 0) return false;
+        for (std::uint32_t index = 0; index < data.typeCount; ++index)
+        {
+            const auto& entry = data.entries[index];
+            if (entry.enabled != 0 && entry.count != 0 && TryCandidatePoints(entry.count, entry.points, real, work)) return true;
+        }
+        return false;
+    }
+
     // Original function: FUN_0045e83d; unlike Sorted, this does not set scanned.
     bool Human_FindLandscapesNearPos_Random(const void* human, SHumanSearchLandscapesData& data, void* real, void* work, const void* source)
     {
