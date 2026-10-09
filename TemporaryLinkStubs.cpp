@@ -214,7 +214,6 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
 
 // TEMPORARY DUMMY: Windows address 004A002D; implementation pending.
     // Naming reference: NC2InGameGuiManager::CGuiManager::CGuiManager.
-int __fastcall InGameGuiManager_Vars_Construct(void *) { return 0; }
 
 
 

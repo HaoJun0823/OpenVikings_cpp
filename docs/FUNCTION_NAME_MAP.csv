@@ -1820,3 +1820,9 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004CC50D,l_UpdateAttachedHumans,NC2InGameGuiSelection::CSelectionHouseInhabitantsElement::l_UpdateAttachedHumans,6333,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004D0975,MessagePresentationWindow_Delete,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004DB00A,PrintTooltip,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004783B5,l_DeleteData,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00479943,FrameRateCalculator_Construct,NXSysTime::CFrameRateCalculator::CFrameRateCalculator,4948,Windows 0x84-byte initialization and frame-calculation call sites establish correspondence; x86-64-mac.h supplies names only
+004A0069,InGameGuiManagerGuiElementPtr_Construct,NC2InGameGuiManager::CGuiManager::SVars::SGuiElementPtr::SGuiElementPtr,6094,Windows list construction and registered contents establish correspondence; x86-64-mac.h supplies names only
+004A00A8,GuiMarkers_Construct,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004BB035,l_DoTimeSyncedScrolling,NC2InGameGuiWorldElement::CWorldDisplayElement::l_DoTimeSyncedScrolling,6659,Windows frame dispatch and scrolling call sites establish correspondence; x86-64-mac.h supplies names only
+004E2BAE,FXTool_Fail,NC2GuiToolsBase::FXTool_Fail,4137,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only

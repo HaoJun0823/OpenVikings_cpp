@@ -1,5 +1,9 @@
 # Human selection information window - 2026-10-08
 
+## Current audit checkpoint - 2026-10-09
+
+The constructor 004AB7F1, message dispatcher 004ABA34, six-section draw 004AC26D and layout 004AE2A2 are connected and removed from the partial inventory. Complete Windows code and both command tables were audited. Observer 10004, following 10005, equipment 10029..10036 and good help 10041 use their native IDs. Scratch-bitmap lifetime, constructor/reset order, initial selection snapshot, two production-counter reads, section-derived bar widths, unlimited-production symbol position and empty special-job text are corrected. All selection window families and the context/action/rename/job/school/trader popup families are connected in the menu work; earlier boundary notes below record historical states. Downstream vehicle/combat/house task execution and specialized input branches retain independent gaps. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md) and current source/inventories. Win32 `/Zs` passed; no build, tests or game run occurred.
+
 ## Windows evidence and connected behavior
 
 `InGameGuiSelectionWindowAccess.cpp` connects the single-human information path of selection update 004A0E9D. The selection checksum at input+AB0 is compared with manager+88; native selection elements/windows are removed before broadcasting command 2029 and publishing the replacement at manager+8C. Allocation remains 0x3D78 bytes. The existing ABI adapter now lives with the manager implementation rather than in TemporaryLinkStubs.cpp.
@@ -10,7 +14,7 @@ Preview centering 004AE25F converts the human's map-moveable position to world p
 
 The follow-up connects relationship rows for partner, child and parents (B20/B24/B18/B14), home (B28), attached vehicle (B48) and production workplace (B34). Their arrow buttons select the referenced human, house or vehicle through the existing input manager. Relationships belong to the basic section. The six descriptors mean basic, military, production, experiences, equipment and trader; there is no separate family section. Family/home/vehicle action rows now follow native command eligibility and spacing, as detailed below.
 
-Military presentation follows 004AD173..004AD257: military mode, refresh setting and experience with the equipped weapon. Equipment presentation follows 004ADAAB..004AE0A7: weapon/armor rows only for soldiers/heroes, shoes/tool rows under the original age/sex/job checks, and four non-hero item slots. The native enable predicate at 00436A97 reads byte 1DF and excludes tribe 3/job 32; its original semantic name remains unresolved. Shoe/tool condition uses the distinct native 10000 maxima; item conditions are stored percentages and are not clipped. Good icons retain the original text markup and tooltips. Native arrow commands 10045..10052 now open the appropriate equipment category or item slot.
+Military presentation follows 004AD173..004AD257: military mode, refresh setting and experience with the equipped weapon. Equipment presentation follows 004ADAAB..004AE0A7: weapon/armor rows only for soldiers/heroes, shoes/tool rows under the original age/sex/job checks, and four non-hero item slots. The native enable predicate at 00436A97 reads byte 1DF and excludes tribe 3/job 32; its original semantic name remains unresolved. Shoe/tool condition uses the distinct native 10000 maxima; item conditions are stored percentages and are not clipped. Good icons retain the original text markup and tooltips. Native arrow commands 10029..10036 now open the appropriate equipment category or item slot.
 
 Production presentation follows 004AD257..004ADAAB: workplace, finite/infinite counters, impossible-production labels, current-good marker and remaining experience for locked goods. Commands 10039/10040 enqueue native opcodes 0x16/0x17 and then play the responding voice. Modifier mask 0x2 multiplies the requested counter change by 11; zero/decrement and infinite/increment transitions retain their native special cases. The GUI does not directly mutate production state. Remaining-experience helpers preserve the requirement job list and DWORD subtraction.
 
@@ -54,15 +58,9 @@ All behavior and constants above are confirmed from Windows ASM/Game.exe. Mac he
 
 ## Explicit remaining boundaries
 
-The constructor, draw, message and layout routines remain partial and excluded from reconstruction completion counts. The following native branches are not connected:
+The single-human constructor, message, draw and layout are reconstructed. All selection families, native context/action buttons, rename/job/school/equipment/trader popups, production help and observer/follow controls are connected. This supersedes the historical partial notes above.
 
-- Other special input/highlighting modes, school mode 6/learning chooser and trader job/task execution remain open. Connected vehicle entry does not establish completion of vehicle task execution.
-- Contextual action-button bar and its military/work-marker/job actions remain open; native command availability and basic family/home/vehicle rows are connected.
-- Production work-marker controls and good-help popup command 10041; school/job choosers remain open.
-- Rename popup (name command 10006) and portrait popup 004A0BF2 -> 004BD3C6. Follow toggle 10004 is connected; name editing remains a boundary.
-- Multiple-human and all non-human selection-window constructors in manager update 004A0E9D.
-
-These require reconstruction from Windows entry points rather than invented controls or Mac-derived behavior. The general layout and connected sections already use native height overrides; missing rows/actions are still explicit boundaries.
+Specialized house/vehicle input/default/selection/highlight modes and downstream house/vehicle/combat/task logic retain separate inventory boundaries. A connected menu button does not establish completion of its eventual game logic. General menu/input flow audits and runtime verification remain open. No build, tests or game run occurred.
 
 ## Startup briefing audit
 

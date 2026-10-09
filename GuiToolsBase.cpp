@@ -474,6 +474,13 @@ namespace NC2GuiToolsBase
         if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_confirm.wav", 100u, 0xFFFFFFFFu, 1u, false, false, 100u);
     }
 
+    // Original function: FUN_004e2bae; original failure feedback sound.
+    void FXTool_Fail()
+    {
+        auto* manager = NDSManager::CManager::sTheObjectPtr;
+        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_fail.wav", 100u, 0xFFFFFFFFu, 1u, false, false, 100u);
+    }
+
     // Original function: FUN_004e2bcf
     void FXTool_Chat()
     {

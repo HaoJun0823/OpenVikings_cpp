@@ -71,15 +71,10 @@ Address,CurrentName,Status,ReferencingObjects
 0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004995D8,Display_l_DE_Debug_DrawGridLines,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00499AD5,DrawAtom_FishManager_DoDraw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-004A002D,InGameGuiManager_Vars_Construct,Temporary dummy; Windows implementation pending,InGameGuiManager.obj
 004A2F54,C2IGG_EntryPoint_InputManager_Highlighting_Update,Partial Windows highlighting adapter; modes 4..9 connected; other native modes pending; excluded from completion counts,C2EngineDisplayAccess.obj
-004AB7F1,NC2InGameGuiSelection::SelectionSingleHumanWindow_Construct,Partial Windows six-section constructor; remaining contextual controls/popups pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
-004ABA34,NC2InGameGuiSelection::SelectionSingleHumanWindow_MessageHandle,Partial Windows character commands; portrait context rename work-marker choosers and existing information/actions connected; help/context popups pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
-004AC26D,NC2InGameGuiSelection::SelectionSingleHumanWindow_Draw,Partial Windows character draw; work-marker controls and production/relationship availability connected; help/context rows pending; excluded from completion counts,InGameGuiSelectionWindowAccess.obj
 004B4BD6,NC2InGameGuiInputManager::Action_DoInputSelect,Partial Windows input action; character modes and road/wall/gate modes 14..18 connected; house and vehicle modes pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004B5CFF,NC2InGameGuiInputManager::Action_DoDefault,Partial Windows implementation; single/group human movement connected; vehicle defaults pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004B6CE1,NC2InGameGuiInputManager::Selection_Validate,Partial Windows selection validation; singles/groups and road/wall flags connected; house construction/landscape selections pending; excluded from completion counts,InGameGuiSelectionAccess.obj
-004BA3BE,NC2InGameGuiWorldElement::WorldDisplayElement_MessageHandle,Partial Windows implementation; click drag double-click normal human orders pan and zoom connected; positive modes selection windows follow and border scrolling pending; excluded from completion counts,WorldDisplayElementAccess.obj
 004C9E2A,NC2InGameGuiInputManager::Highlighting_Map_Update,Partial Windows map highlighting; modes 1..11/13/14..18/22..28 connected; modes 12/19..21 pending; excluded from completion counts,InGameGuiSelectionAccess.obj
 004E6E44,Runtime_Log10,Temporary dummy; Windows implementation pending,DMManager.obj
 004E8774,Runtime_Sin,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj

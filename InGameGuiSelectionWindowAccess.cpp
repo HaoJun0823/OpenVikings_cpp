@@ -445,7 +445,8 @@ namespace NC2InGameGuiSelection
             std::int32_t percent = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(current) * 100u) / maximum;
             if (hitpoints) { if (percent < 0) percent = 0; if (percent > 100) percent = 100; }
             NC2GuiToolsBase::DrawTool_DrawIcon(icon, bitmap, x + 6, y + 6);
-            SRectangle bar(x + 16, y + 2, 112, 8);
+            const auto width = Section(window, 0).width - 72;
+            SRectangle bar(x + 16, y + 2, width - 16, 8);
             NC2GuiToolsBase::DrawTool_DrawFrame(bitmap, bar, 2);
             bar.Inflate(-2, -2);
             const auto fillPercent = static_cast<std::uint32_t>(percent) > 100u ? 100u : static_cast<std::uint32_t>(percent);
@@ -457,7 +458,7 @@ namespace NC2InGameGuiSelection
             if (hitpoints) NXBasics::Runtime_PrintStringN(text, 100, "%s %d/%d", HumanString(label), current, maximum);
             else NXBasics::Runtime_PrintStringN(text, 100, "%s %d%%", HumanString(label), percent);
             text[99] = '\0';
-            Tooltips(window).Add(SRectangle(x, y, 128, 12), text);
+            Tooltips(window).Add(SRectangle(x, y, width, 12), text);
         }
 
         // Inlined equipment presentation in 004ADAAB..004AE0A7.
@@ -496,12 +497,12 @@ namespace NC2InGameGuiSelection
             {
                 printLabel(60);
                 const auto good = NC2Logic::Human_GetEquipmentType_Weapon(human);
-                printGood(good, 0, false, NC2Logic::StringAccess_GetGoodNamePtr(good, 1));
+                printGood(good, 0, false, good != 0 ? NC2Logic::StringAccess_GetGoodNamePtr(good, 1) : nullptr);
                 if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10029, 0, x + 78, y, 30, HumanString(62));
                 y += 20;
                 printLabel(63);
                 const auto armor = NC2Logic::Human_GetEquipmentType_Armor(human);
-                printGood(armor, 0, false, NC2Logic::StringAccess_GetGoodNamePtr(armor, 1));
+                printGood(armor, 0, false, armor != 0 ? NC2Logic::StringAccess_GetGoodNamePtr(armor, 1) : nullptr);
                 if (!NC2Logic::Human_IsJobHero(human)) Buttons(window).UpdateGfxButton(10030, 0, x + 78, y, 30, HumanString(65));
                 y += 20;
             }
@@ -511,7 +512,7 @@ namespace NC2InGameGuiSelection
                 printLabel(66);
                 const auto shoes = NC2Logic::Human_GetEquipmentType_Shoes(human);
                 const auto shoePercent = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xADC) * 100u) / 10000;
-                printGood(shoes, shoePercent, true, NC2Logic::Human_GetEquipmentType_Shoes_GetGuiNamePtr(human));
+                printGood(shoes, shoePercent, true, shoes != 0 ? NC2Logic::Human_GetEquipmentType_Shoes_GetGuiNamePtr(human) : nullptr);
                 Buttons(window).UpdateGfxButton(10032, 0, x + 78, y, 30, HumanString(68));
                 y += 20;
                 if (!NC2Logic::Human_IsJobSoldier(human))
@@ -520,7 +521,7 @@ namespace NC2InGameGuiSelection
                     const auto tool = NC2Logic::Human_GetEquipmentType_Tool(human);
                     // Native 00438CAB uses separate, equal 10000 maxima for goods 31/32.
                     const auto percent = tool == 31 || tool == 32 ? NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) * 100u) / 10000 : 0;
-                    printGood(tool, percent, true, NC2Logic::Human_GetEquipmentType_Tool_GetGuiNamePtr(human));
+                    printGood(tool, percent, true, tool != 0 ? NC2Logic::Human_GetEquipmentType_Tool_GetGuiNamePtr(human) : nullptr);
                     Buttons(window).UpdateGfxButton(10031, 0, x + 78, y, 30, HumanString(71));
                     y += 20;
                 }
@@ -541,7 +542,9 @@ namespace NC2InGameGuiSelection
                         NXBasics::Runtime_PrintStringN(text, sizeof(text), "{gfxgood:%d,1}", good);
                         text[sizeof(text) - 1] = '\0';
                         NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, itemX, y, resources.font08, color, text);
-                        NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s (%d%%)", NC2Logic::StringAccess_GetGoodNamePtr(good, 1), NC2Logic::Human_Inventory_GetPercentageConditionOfItemInSlot(human, static_cast<std::int32_t>(slot)));
+                        const auto percent = NC2Logic::Human_Inventory_GetPercentageConditionOfItemInSlot(human, static_cast<std::int32_t>(slot));
+                        const auto* name = NC2Logic::StringAccess_GetGoodNamePtr(good, 1);
+                        NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s (%d%%)", name, percent);
                         text[sizeof(text) - 1] = '\0';
                         Tooltips(window).Add(SRectangle(itemX, y, 22, 16), text);
                     }
@@ -574,7 +577,7 @@ namespace NC2InGameGuiSelection
             l_SubTabs_OverwriteHeight(window, 1, y - section.y - 8);
         }
 
-        // Partial production presentation in 004AD257..004ADAAB; native counters/actions.
+        // Inlined production presentation in 004AD257..004ADAAB; native counters/actions.
         // Native per-good help commands share the existing help window.
         void DrawProduction(void* window, NXBasics::CBitmap* bitmap, const void* human)
         {
@@ -654,7 +657,7 @@ namespace NC2InGameGuiSelection
                 if (counter == 11)
                 {
                     bitmap->Text_Print(resources.font08, color, section.x + 11, y, name);
-                    NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, 180, bitmap, section.x + 15 + NXBasics::Font_GetPixelWidth(resources.font08, name), y + 2, resources.fontWhitePalette, 128);
+                    NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, 180, bitmap, section.x + 15 + NXBasics::Font_GetPixelWidth(resources.font08, name), y - 2, resources.fontWhitePalette, 128);
                 }
                 else
                 {
@@ -724,7 +727,7 @@ namespace NC2InGameGuiSelection
             l_SubTabs_OverwriteHeight(window, 3, y - section.y - 8);
         }
 
-        // Partial original function: FUN_004ac26d; remaining contextual actions are reconstruction boundaries.
+        // Original function: FUN_004ac26d; complete six-section Windows presentation.
         void __fastcall SelectionSingleHumanWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* clip)
         {
             Tooltips(window).ClearAll();
@@ -743,16 +746,17 @@ namespace NC2InGameGuiSelection
             if (human == nullptr) return;
             const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
             const auto basic = Section(window, 0);
-            if (Read<std::uint8_t>(window, 0x76) == 0)
+            if (Read<std::uint8_t>(window, 0x70) != 0 && Read<std::uint8_t>(window, 0x76) == 0)
             {
                 char job[140];
                 const auto tribe = Read<std::uint32_t>(human, 0x14), type = Read<std::uint32_t>(human, 0x18);
                 const char* jobName = NC2Logic::Human_IsJobHero(human) ? (tribe == 2 && type == 47 ? NC2GuiToolsBase::StringTool_GetOdin001StringPtr(31) : HumanString(120)) : NC2Logic::StringAccess_GetJobNamePtr(type, 1);
-                if (tribe == 3 && type == 32 && !NC2Logic::Human_IsJobHero(human)) jobName = " ";
+                // Original 00512584 has only read references into zero-initialized storage.
+                if (tribe == 3 && type == 32 && !NC2Logic::Human_IsJobHero(human)) jobName = "";
                 if (NC2Logic::Human_IsAgeAdult(human)) NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s", jobName);
                 else NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s - %d %s", jobName, Read<std::int32_t>(human, 0xAA4) / 270, HumanString(10));
                 job[139] = '\0';
-                bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400), basic.x + 68 + (128 - NXBasics::Font_GetPixelWidth(resources.font08, job)) / 2, basic.y + 34, job);
+                bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400), basic.x + 68 + (basic.width - 72 - NXBasics::Font_GetPixelWidth(resources.font08, job)) / 2, basic.y + 34, job);
                 DrawBar(window, bitmap, basic.x + 68, basic.y + 48, Read<std::int32_t>(human, 0xAA0), static_cast<std::int32_t>(NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), 34, 11, resources.hitpointsBarPalette, true);
                 // Windows helper 00463AD2: children and adult behavior-flag bit 0 omit needs.
                 if (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, 0xB84) & 1u) == 0)
@@ -817,7 +821,7 @@ namespace NC2InGameGuiSelection
                 else for (auto command : {10011u, 10012u, 10013u}) Buttons(window).RemoveButton(command, 0);
                 const bool hasCommands = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false);
                 const bool attached = NC2Logic::Human_IsAttachedToVehicle(human);
-                if (attached || (hasCommands && (available.IsCommandAllowed(12) || available.IsCommandAllowed(13))))
+                if (hasCommands && (attached || available.IsCommandAllowed(12) || available.IsCommandAllowed(13)))
                 {
                     rowY += 6;
                     NC2GuiToolsBase::DrawTool_DrawIcon(144, bitmap, basic.x + 10, rowY + 6);
@@ -835,10 +839,10 @@ namespace NC2InGameGuiSelection
                     }
                     rowY += 12;
                 }
-                else for (auto command : {10014u, 10015u, 10016u}) Buttons(window).RemoveButton(command, 0);
+                else if (hasCommands) for (auto command : {10014u, 10015u, 10016u}) Buttons(window).RemoveButton(command, 0);
                 l_SubTabs_OverwriteHeight(window, 0, rowY - basic.y - 10);
             }
-            else for (std::uint32_t command : {10022u, 10025u, 10023u, 10024u, 10026u, 10027u, 10028u, 10011u, 10012u, 10013u, 10014u, 10015u, 10016u}) Buttons(window).RemoveButton(command, 0);
+            else for (std::uint32_t command : {10022u, 10023u, 10024u, 10025u, 10026u, 10027u, 10028u, 10011u, 10012u, 10013u, 10014u, 10015u, 10016u}) Buttons(window).RemoveButton(command, 0);
             DrawMilitary(window, bitmap, human);
             DrawProduction(window, bitmap, human);
             DrawEquipment(window, bitmap, human);
@@ -846,19 +850,20 @@ namespace NC2InGameGuiSelection
 
         }
 
-        // Partial original function: FUN_004aba34; information, selection and production branches.
+        // Original function: FUN_004aba34; complete native command dispatcher and frame refresh.
         bool __fastcall SelectionSingleHumanWindow_MessageHandle(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
         {
+            const void* selectedHuman = l_Misc_GetSelectedHumanPtr();
             if (message == 0x1000) return command == 2001;
             if (message != 0x800) return false;
-            if (command == 10000 && param2 < 6 && Read<std::uint8_t>(window, 0x70 + param2) != 0)
+            if (command == 10000 && Read<std::uint8_t>(window, 0x70 + param2) != 0)
             {
                 Write<std::uint8_t>(window, 0x76 + param2, Read<std::uint8_t>(window, 0x76 + param2) == 0);
                 l_SubTabs_UpdateAll(window, false);
             }
             else if (command == 10001 || command == 10003)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                if (const void* human = selectedHuman)
                 {
                     void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
                     NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, 0x30), reinterpret_cast<const std::uint32_t*>(NC2Logic::Human_GetMapPositionRef(human)));
@@ -868,7 +873,7 @@ namespace NC2InGameGuiSelection
             else if (command == 10002) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_ActionButtons_BringUp();
             else if (command == 10005)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                if (const void* human = selectedHuman)
                 {
                     void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
                     const auto id = Read<std::int32_t>(human, 4);
@@ -880,7 +885,7 @@ namespace NC2InGameGuiSelection
             else if (command == 10006) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanChangeNameWindow_Open();
             else if (command >= 10022 && command <= 10025)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                if (const void* human = selectedHuman)
                 {
                     const std::size_t fields[4] = {0xB20, 0xB18, 0xB14, 0xB24};
                     const auto id = Read<std::uint32_t>(human, fields[command - 10022]);
@@ -889,7 +894,7 @@ namespace NC2InGameGuiSelection
             }
             else if (command == 10017 || command == 10011)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                if (const void* human = selectedHuman)
                 {
                     const auto id = Read<std::uint32_t>(human, command == 10017 ? 0xB34 : 0xB28);
                     if (id != 0xFFFFFFFFu) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(id));
@@ -897,7 +902,7 @@ namespace NC2InGameGuiSelection
             }
             else if (command == 10012 || command == 10018 || command == 10020)
             {
-                if (l_Misc_GetSelectedHumanPtr() != nullptr) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, command == 10012 ? 4 : command == 10018 ? 5 : 7);
+                if (selectedHuman != nullptr) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, command == 10012 ? 4 : command == 10018 ? 5 : 7);
             }
             else if (command == 10015)
             {
@@ -905,7 +910,7 @@ namespace NC2InGameGuiSelection
             }
             else if (command == 10013 || command == 10016 || command == 10019 || command == 10021 || (command >= 10026 && command <= 10028))
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                if (const void* human = selectedHuman)
                 {
                     if (command != 10016 || NC2Logic::Human_IsAttachedToVehicle(human))
                     {
@@ -919,7 +924,7 @@ namespace NC2InGameGuiSelection
             }
             else if (command == 10014)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr()) if (NC2Logic::Human_IsAttachedToVehicle(human)) NC2InGameGuiInputManager::Selection_SelectSingleVehicle(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(Read<std::uint32_t>(human, 0xB48)));
+                if (const void* human = selectedHuman) if (NC2Logic::Human_IsAttachedToVehicle(human)) NC2InGameGuiInputManager::Selection_SelectSingleVehicle(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(Read<std::uint32_t>(human, 0xB48)));
             }
             else if (command == 10007)
             {
@@ -934,7 +939,7 @@ namespace NC2InGameGuiSelection
             {
                 const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
                 if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3)
-                    if (const void* human = l_Misc_GetSelectedHumanPtr())
+                    if (const void* human = selectedHuman)
                     {
                         std::byte networkCommand[20]{};
                         Write<std::uint8_t>(networkCommand, 0, 37); Write(networkCommand, 4, Read<std::uint32_t>(human, 4)); Write(networkCommand, 12, param2); Write(networkCommand, 16, param3);
@@ -958,7 +963,7 @@ namespace NC2InGameGuiSelection
             else if (command == 10037 || command == 10038) NC2InGameGuiInputManager::InputMode_Set(NC2InGameGuiInputManager::gInputManager, command == 10037 ? 2 : 3);
             else if (command == 10039 || command == 10040)
             {
-                if (const void* human = l_Misc_GetSelectedHumanPtr())
+                if (const void* human = selectedHuman)
                 {
                     std::byte networkCommand[20]{};
                     Write<std::uint8_t>(networkCommand, 0, command == 10039 ? 0x16 : 0x17);
@@ -968,9 +973,8 @@ namespace NC2InGameGuiSelection
                     {
                         auto amount = param3;
                         if ((Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0) amount *= 11u;
-                        const auto counter = NC2Logic::Human_Production_GetCounter(human, param2);
-                        if (counter == 0 && NXBasics::Runtime_TimeSigned32(amount) < 0) amount = 11;
-                        else if (counter == 11 && NXBasics::Runtime_TimeSigned32(amount) > 0) amount = 0u - 11u;
+                        if (NC2Logic::Human_Production_GetCounter(human, param2) == 0 && NXBasics::Runtime_TimeSigned32(amount) < 0) amount = 11;
+                        if (NC2Logic::Human_Production_GetCounter(human, param2) == 11 && NXBasics::Runtime_TimeSigned32(amount) > 0) amount = 0u - 11u;
                         Write(networkCommand, 0x10, amount);
                     }
                     NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, networkCommand);
@@ -979,7 +983,7 @@ namespace NC2InGameGuiSelection
             }
             else if (command >= 10029 && command <= 10036)
             {
-                if (l_Misc_GetSelectedHumanPtr() != nullptr)
+                if (selectedHuman != nullptr)
                 {
                     const auto type = command <= 10032 ? command - 10028 : 5u;
                     const auto slot = command <= 10032 ? -1 : static_cast<std::int32_t>(command - 10033);
@@ -990,14 +994,17 @@ namespace NC2InGameGuiSelection
             else if (command == 10042)
             {
                 Write(window, 0x130, param2);
-                NXBasics::CBitmap scratch(10, 10, 1);
-                const SRectangle bounds(0, 0, 10, 10);
-                SelectionSingleHumanWindow_Draw(window, nullptr, &scratch, &bounds);
+                {
+                    NXBasics::CBitmap scratch(10, 10, 1);
+                    const SRectangle bounds(0, 0, 10, 10);
+                    using TDraw = void(__thiscall*)(void*, NXBasics::CBitmap*, const SRectangle*);
+                    Read<TDraw*>(window, 0)[3](window, &scratch, &bounds);
+                }
                 l_SubTabs_UpdateAll(window, true);
             }
             else if (command == 2030)
             {
-                const void* human = l_Misc_GetSelectedHumanPtr();
+                const void* human = selectedHuman;
                 const void* nameElement = Read<void*>(window, 0x108);
                 if (human != nullptr && nameElement != nullptr)
                 {
@@ -1100,16 +1107,16 @@ namespace NC2InGameGuiSelection
         static_assert(sizeof(gSingleHumanWindowVirtualTable) == 0x4C);
     }
 
-    // Partial original function: FUN_004ab7f1; remaining contextual actions are reconstruction boundaries.
+    // Original function: FUN_004ab7f1; native embedded constructors precede the storage reset.
     void* SelectionSingleHumanWindow_Construct(void* window)
     {
         const SRectangle rectangle(0, 0, 1, 1);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x3D08);
         ::new(static_cast<std::byte*>(window) + 0x39C) NC2InGameGuiBase::CStaticToolTipHandler;
         ::new(static_cast<std::byte*>(window) + 0x3280) NC2InGameGuiBase::CDynamicSubButtonsHandler;
-        Buttons(window).SetWindow(window);
         Write(window, 0, gSingleHumanWindowVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x3D08);
+        Buttons(window).SetWindow(window);
         Write<std::uint8_t>(window, 0x70, 1);
         if (const void* human = l_Misc_GetSelectedHumanPtr())
         {

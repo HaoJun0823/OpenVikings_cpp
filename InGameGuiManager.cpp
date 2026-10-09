@@ -24,6 +24,7 @@
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
 #include "XList.h"
+#include "XGuiLists.h"
 #include "XMMouseManager.h"
 #include "WorldDisplayElementAccess.h"
 #include "InGameGuiOverviewWindowAccess.h"
@@ -34,6 +35,7 @@
 #include <cstddef>
 #include <cstring>
 #include <new>
+#include <mmsystem.h>
 
 
 // Untranslated Windows routines. The unused EDX argument keeps stack parameters
@@ -43,10 +45,25 @@ extern void __fastcall InGameGuiManager_InputMode_Changed(void* object);
 extern void __fastcall InGameGuiManager_Selection_UpdateWindows(void* object);
 extern bool __cdecl InGameGuiManager_ls_Logic_CallbackFunction(std::uint32_t type, std::uint32_t userData, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
 
-extern int __fastcall InGameGuiManager_Vars_Construct(void* object);
+extern void* __fastcall InGameGuiManager_Vars_Construct(void* object);
 
 namespace
 {
+    // Original function: FUN_004a0069; SGuiElementPtr list constructors, in native order.
+    void* InGameGuiManagerGuiElementPtr_Construct(void* object)
+    {
+        new (static_cast<std::byte*>(object) + 0x48) NXBasics::CList<NXBaseGui::CBaseElement>(false);
+        new (static_cast<std::byte*>(object) + 0x5C) NXBasics::CList<NC2InGameGuiWorldElement::CWorldDisplayElement>(false);
+        new (static_cast<std::byte*>(object) + 0x70) NXBasics::CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>(false);
+        return object;
+    }
+
+    // Original function: FUN_004a00a8; ten pairs of 16-bit map coordinates.
+    void* GuiMarkers_Construct(void* object) { for (std::uint32_t index = 0; index < 10; ++index) { NC2Lifetime::Write<std::uint16_t>(object,index * 4u + 2u,0); NC2Lifetime::Write<std::uint16_t>(object,index * 4u,0); } return object; }
+
+    // Original function: FUN_00479943; original CFrameRateCalculator constructor storage.
+    void* FrameRateCalculator_Construct(void* object) { std::memset(object,0,0x84); NC2Lifetime::Write(object,0,timeGetTime()); return object; }
+
     // Original function: FUN_004b9407.
     void ToolGraphics_SetCenterGraphicsFlag(void* object, bool centered)
     {
@@ -146,6 +163,16 @@ namespace
 
         return NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue(propertyName);
     }
+}
+
+// Original function: FUN_004a002d; outer manager construction subsequently resets its complete storage.
+void* __fastcall InGameGuiManager_Vars_Construct(void* object)
+{
+    InGameGuiManagerGuiElementPtr_Construct(static_cast<std::byte*>(object) + 4);
+    new (static_cast<std::byte*>(object) + 0xB8) NXBasics::CList<NXBaseGui::CBaseElement>(false);
+    GuiMarkers_Construct(static_cast<std::byte*>(object) + 0xE8);
+    FrameRateCalculator_Construct(static_cast<std::byte*>(object) + 0x110);
+    return object;
 }
 
 namespace NInGameGuiManager

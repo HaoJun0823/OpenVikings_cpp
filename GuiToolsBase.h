@@ -130,6 +130,7 @@ namespace NC2GuiToolsBase
     std::int32_t DrawTool_PrintStringWrapping(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t width, NXBasics::CFont* font, const NXBasics::SColorRGB* color, const char* text);
     void FXTool_Chat();
     void FXTool_ClickConfirm();
+    void FXTool_Fail();
     std::int32_t StringToolMisc_StringSortCompare(const char* first, const char* second);
 
     char* StringTool_GetMainMenuStringPtr(std::uint32_t stringId);

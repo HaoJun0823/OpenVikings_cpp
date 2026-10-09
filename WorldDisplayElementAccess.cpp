@@ -8,6 +8,7 @@
 #include "GuiToolsBase.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "InGameGuiManager.h"
+#include "InGameGuiKeyAssignmentManager.h"
 #include "InGameGuiInputAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2DefaultInteraction.h"
@@ -242,9 +243,24 @@ namespace NC2InGameGuiWorldElement
         if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::gInputManager, static_cast<std::byte*>(element) + 0x38, true, false, false)) return false;
         manager->Selection_ActionButtons_BringUp(); NC2GuiToolsBase::FXTool_ClickConfirm(); return true;
     }
-    // Original function: FUN_004ba3be; normal selection, double click, area drag,
-    // human point orders, overview camera and wheel zoom. Specialized input
-    // modes, selection windows and remaining camera commands stay unfinished.
+    // Original function: FUN_004bb035; Windows scales directional scrolling by the measured frame rate.
+    static void l_DoTimeSyncedScrolling(void* element, std::uint32_t direction)
+    {
+        using namespace NC2Lifetime;
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        const auto speed = NXBasics::Runtime_TimeSigned32(manager->Options_ScrollSpeed_Get());
+        std::int32_t x = 0, y = 0;
+        if (direction == 1) x = speed;
+        else if (direction == 2) y = speed;
+        else if (direction == 3) x = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(speed));
+        else if (direction == 4) y = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(speed));
+        const auto rate = Read<float>(manager, 0x190);
+        const auto factor = 1.0 / (rate >= 1.0f ? static_cast<double>(rate) : 1.0);
+        NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(x * factor)), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(y * factor)));
+        WorldDisplayElement_FollowMode_End(element);
+    }
+
+    // Original function: FUN_004ba3be; complete native message branches, retaining the event-time compatibility adapter.
     static bool __fastcall WorldDisplayElement_MessageHandle(void* element, void*, std::int32_t message, std::int32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3)
     {
         using namespace NC2Lifetime;
@@ -294,7 +310,7 @@ namespace NC2InGameGuiWorldElement
             if (selectedArea) return true;
             if (mainMode == 1)
             {
-                if (Read<std::int32_t>(input, 0) != 0 && Action_DoCancel(input, target)) return true;
+                if (Read<std::int32_t>(input, 0) != 0 && Action_DoCancel(input, target)) { NC2GuiToolsBase::FXTool_Fail(); return true; }
                 if (Action_DoNormalSelect(input, target, false, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
             }
             else if (mainMode == 0)
@@ -315,6 +331,8 @@ namespace NC2InGameGuiWorldElement
                 if (Action_DoInputSelect(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
                 if (Read<std::int32_t>(input, 0) != 0) return true;
                 if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
+                if (WorldDisplayElement_l_TryToSelectAndBringUpActionButtonsForObjectUnderMouse(element)) NC2GuiToolsBase::FXTool_ClickConfirm();
+                return true;
             }
             else if (mainMode == 0)
             {
@@ -356,12 +374,38 @@ namespace NC2InGameGuiWorldElement
         }
         if (message == 0x800)
         {
-            if (command == 2030) { WorldDisplayElement_l_FollowMode_Update(element); WorldDisplayElement_CheckObjectUnderMouse(element); }
+            if (command == 2030)
+            {
+                WorldDisplayElement_l_FollowMode_Update(element); WorldDisplayElement_CheckObjectUnderMouse(element);
+                if (Read<std::uint8_t>(display, 0x6C) != 0)
+                {
+                    auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+                    if (Read<std::uint8_t>(manager, 0xE3) != 0)
+                    {
+                        auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
+                        const auto x = Read<std::int32_t>(mouse, 0), y = Read<std::int32_t>(mouse, 4);
+                        if (x >= 0 && x <= 1) l_DoTimeSyncedScrolling(element, 3);
+                        const auto width = Read<std::int32_t>(element, 0xC);
+                        if (x >= width - 2 && x <= width - 1) l_DoTimeSyncedScrolling(element, 1);
+                        if (y >= 0 && y <= 1) l_DoTimeSyncedScrolling(element, 4);
+                        const auto height = Read<std::int32_t>(element, 0x10);
+                        if (y >= height - 2 && y <= height - 1) l_DoTimeSyncedScrolling(element, 2);
+                    }
+                    auto* assignments = NC2InGameGuiKeyAssignmentManager::CKeyAssignmentManager::sTheObjectPtr;
+                    if (assignments->CheckDirectKeyVirtualOnly(26)) l_DoTimeSyncedScrolling(element, 3);
+                    if (assignments->CheckDirectKeyVirtualOnly(27)) l_DoTimeSyncedScrolling(element, 1);
+                    if (assignments->CheckDirectKeyVirtualOnly(24)) l_DoTimeSyncedScrolling(element, 4);
+                    if (assignments->CheckDirectKeyVirtualOnly(25)) l_DoTimeSyncedScrolling(element, 2);
+                    Write<std::uint8_t>(display, 0x920, assignments->CheckDirectKeyVirtualOnly(28));
+                }
+            }
             else if (command == 2031)
             {
+                std::memset(target, 0, 0x18C);
                 NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
                 std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14); Write<std::uint8_t>(element, 0x1F4, 0);
             }
+            else return false;
             return true;
         }
         if (message == 0x100)
@@ -375,7 +419,23 @@ namespace NC2InGameGuiWorldElement
             }
             return true;
         }
-        if (message != 0x1000 || command != 2004) return false;
+        if (message != 0x1000) return false;
+        if (Read<std::uint8_t>(display, 0x6C) == 0) return false;
+        if (command == 2002)
+        {
+            float definition[3]; const std::uint32_t bits[3]{param1,param2,param3}; std::memcpy(definition,bits,sizeof(definition));
+            NC2E2::Display_AssignNewDisplayDefinitionValues(display,definition[0],definition[1],definition[2],true);
+            return false;
+        }
+        if (command == 2003) { NC2E2::DE_ToDraw_ToggleFlagset(display,param1); return false; }
+        if (command == 2006) { l_DoTimeSyncedScrolling(element,param1); return false; }
+        if (command == 2007) { NC2E2::DE_Zoom_ToggleLevel(display,false); return false; }
+        if (command == 2005)
+        {
+            if ((Read<std::uint32_t>(element,0x18) & 0x200u) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
+            return false;
+        }
+        if (command != 2004) return false;
         if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & 0x200u) != 0) return false;
         std::int32_t point[2];
         NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &param1, point, false);
