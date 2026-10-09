@@ -58,6 +58,14 @@ namespace
         return object;
     }
 
+    // Original function: FUN_004a0167; end all three placement-constructed list lifetimes in native order.
+    void InGameGuiManagerGuiElementPtr_Destruct(void* object)
+    {
+        std::launder(reinterpret_cast<NXBasics::CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>*>(static_cast<std::byte*>(object) + 0x70))->~CList();
+        std::launder(reinterpret_cast<NXBasics::CList<NC2InGameGuiWorldElement::CWorldDisplayElement>*>(static_cast<std::byte*>(object) + 0x5C))->~CList();
+        std::launder(reinterpret_cast<NXBasics::CList<NXBaseGui::CBaseElement>*>(static_cast<std::byte*>(object) + 0x48))->~CList();
+    }
+
     // Original function: FUN_004a00a8; ten pairs of 16-bit map coordinates.
     void* GuiMarkers_Construct(void* object) { for (std::uint32_t index = 0; index < 10; ++index) { NC2Lifetime::Write<std::uint16_t>(object,index * 4u + 2u,0); NC2Lifetime::Write<std::uint16_t>(object,index * 4u,0); } return object; }
 
@@ -76,82 +84,6 @@ namespace
         if (!NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->IsMiddleButtonScrollingEnabled())
             return false;
         return NXSysMouseManager::CMouseManager::sTheObjectPtr->IsMiddleButtonDown();
-    }
-
-    struct SDeferredDeletionNode
-    {
-        SDeferredDeletionNode* next;
-        void* object;
-    };
-
-    using TScalarDeletingDestructor = void* (__thiscall*)(void* object, std::uint8_t flags);
-
-    void* PopDeferredDeletionObject(std::byte* queue)
-    {
-        auto& objectCount = *reinterpret_cast<std::uint32_t*>(queue + 0x04);
-        auto*& firstNode = *reinterpret_cast<SDeferredDeletionNode**>(queue + 0x08);
-        auto*& lastNode = *reinterpret_cast<SDeferredDeletionNode**>(queue + 0x0C);
-
-        if (objectCount == 0 || firstNode == nullptr)
-        {
-            return nullptr;
-        }
-
-        SDeferredDeletionNode* removedNode = firstNode;
-        void* object = removedNode->object;
-
-        if (removedNode == lastNode)
-        {
-            firstNode = nullptr;
-            lastNode = nullptr;
-        }
-        else
-        {
-            firstNode = removedNode->next;
-        }
-
-        NXBasics::Runtime_Free(removedNode);
-        --objectCount;
-
-        return object;
-    }
-
-    void DeletePolymorphicObject(void* object)
-    {
-        if (object == nullptr)
-        {
-            return;
-        }
-
-        void** vtable = *static_cast<void***>(object);
-        const auto scalarDeletingDestructor = reinterpret_cast<TScalarDeletingDestructor>(vtable[0]);
-
-        scalarDeletingDestructor(object, 1);
-    }
-
-    void DestroyDeferredDeletionQueue(std::byte* queue)
-    {
-        const bool destroyQueuedObjects = *reinterpret_cast<const bool*>(queue + 0x10);
-
-        if (destroyQueuedObjects)
-        {
-            while (*reinterpret_cast<const std::uint32_t*>(queue + 0x04) != 0)
-            {
-                SDeferredDeletionNode* firstNode = *reinterpret_cast<SDeferredDeletionNode**>(queue + 0x08);
-
-                if (firstNode == nullptr || firstNode->object == nullptr)
-                {
-                    break;
-                }
-
-                DeletePolymorphicObject(PopDeferredDeletionObject(queue));
-            }
-        }
-
-        while (*reinterpret_cast<SDeferredDeletionNode**>(queue + 0x08) != nullptr)
-        {
-            PopDeferredDeletionObject(queue);
-        }
     }
 
     std::int32_t ReadIntegerProperty(const char* propertyName, std::int32_t defaultValue)
@@ -314,10 +246,8 @@ namespace NInGameGuiManager
         // the embedded element; its original base-element vtable is retained.
         InGameGuiManagerDefaultMessageHandlerElement_Delete(mDisplayObject, nullptr, 0);
 
-        DestroyDeferredDeletionQueue(mLegacyState + 0xB8);
-        DestroyDeferredDeletionQueue(mLegacyState + 0x74);
-        DestroyDeferredDeletionQueue(mLegacyState + 0x60);
-        DestroyDeferredDeletionQueue(mLegacyState + 0x4C);
+        std::launder(reinterpret_cast<NXBasics::CList<NXBaseGui::CBaseElement>*>(mLegacyState + 0xB8))->~CList();
+        InGameGuiManagerGuiElementPtr_Destruct(mLegacyState + 4);
     }
 
     bool CInGameGuiManager::IsMiddleButtonScrollingEnabled() const
@@ -787,6 +717,13 @@ namespace NInGameGuiManager
     std::uint32_t CInGameGuiManager::Options_ScrollSpeed_Get() const
     {
         return NC2Lifetime::Read<std::uint32_t>(this, 0xD8);
+    }
+
+    // Original function: FUN_004a2b1f; complete three-DWORD table at 00507380..0050738B.
+    std::uint32_t CInGameGuiManager::Options_ScrollSpeed_GetInPixelPerSecond() const
+    {
+        static constexpr std::uint32_t speeds[3]{300, 600, 1200};
+        return speeds[NC2Lifetime::Read<std::uint32_t>(this, 0xD8)];
     }
 }
 

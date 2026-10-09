@@ -102,22 +102,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CHouse::Misc_Destroy_House.
     void __fastcall House_Misc_Destroy_House(void *, void *) {}
 
-    // TEMPORARY DUMMY: Windows address 0043290F; implementation pending.
-    // Naming reference: NC2Logic::CHouse::Construction_UpgradeStart.
-    bool __fastcall House_Construction_UpgradeStart(void *, void *) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 0043293F; implementation pending.
-    // Naming reference: NC2Logic::CHouse::Construction_UpgradeStop.
-    bool __fastcall House_Construction_UpgradeStop(void *, void *) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 0043B8F9; implementation pending.
-    // Naming reference: NC2Logic::Tool_GlobalDefendMode_Start.
-    void __cdecl Tool_GlobalDefendMode_Start(unsigned int) {}
-
-    // TEMPORARY DUMMY: Windows address 0043BA13; implementation pending.
-    // Naming reference: NC2Logic::Tool_GlobalDefendMode_Stop.
-    void __cdecl Tool_GlobalDefendMode_Stop(unsigned int) {}
-
     // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.
     bool __cdecl GameMap_l_MaxMoveableSize_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
@@ -224,18 +208,6 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
 
 
 
-
-// TEMPORARY DUMMY: Windows address 004E6E44; implementation pending.
-    // Naming evidence: Windows CRT log10 entry; runtime adapter name, not a recovered Mac private symbol.
-double __cdecl Runtime_Log10(double) { return 0.0; }
-
-// TEMPORARY DUMMY: Windows address 004E8774; implementation pending.
-    // Naming evidence: Windows CRT sin entry; runtime adapter name, not a recovered Mac private symbol.
-double __cdecl Runtime_Sin(double) { return 0.0; }
-
-// TEMPORARY DUMMY: Windows address 004E8824; implementation pending.
-    // Naming evidence: Windows CRT cos entry; runtime adapter name, not a recovered Mac private symbol.
-double __cdecl Runtime_Cos(double) { return 0.0; }
 
 namespace NC2Logic
 {

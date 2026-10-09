@@ -106,6 +106,7 @@ namespace NInGameGuiManager
         void Selection_ActionButtons_BringUp();
         void Options_ScrollSpeed_Set(std::uint32_t speed, bool save);
         std::uint32_t Options_ScrollSpeed_Get() const;
+        std::uint32_t Options_ScrollSpeed_GetInPixelPerSecond() const;
         void Options_GuiMisc_SetMainMode(std::uint32_t mode, bool save);
         void Options_GuiMisc_SetExpertFlag(bool enabled, bool save);
         void Options_GuiMisc_SetTooltipsOffFlag(bool disabled, bool save);

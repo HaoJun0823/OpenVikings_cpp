@@ -1,4 +1,9 @@
 #include "C2HouseUserControl.h"
+#include "C2HouseAccess.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2GameMapAccess.h"
+#include "C2MapGeometry.h"
+#include "C2WallRoadConstruction.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -8,6 +13,71 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0043b8f9; all eligible house flags precede the separate gate pass.
+    void Tool_GlobalDefendMode_Start(std::uint32_t player)
+    {
+        using namespace NC2Lifetime;
+        {
+            CHouseIterator houses;
+            for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
+            {
+                void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (House_CanEnableDefenceMode(house)) House_SetDefenceModeFlag(house, true);
+            }
+        }
+        CHouseIterator houses;
+        for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
+        {
+            std::uint32_t point = Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0x1C);
+            for (std::uint32_t ring = 1; ring < 50; ++ring)
+            {
+                MapMigPoint_MoveCursorUnwrapped(&point, 4, 1);
+                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                    for (std::uint32_t step = 0; step < ring; ++step)
+                    {
+                        MapMigPoint_MoveCursorUnwrapped(&point, direction, 1);
+                        if (!MapMigPoint_IsInsideMap(&point)) continue;
+                        const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
+                        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) continue;
+                        const auto type = Read<std::uint8_t>(micro, 2);
+                        if (type == 84 || type == 83) MapTool_WallGate_SetState(player, &point, false);
+                    }
+            }
+        }
+    }
+
+    // Original function: FUN_0043ba13; the distinct stop pass retains the native opposite gate argument.
+    void Tool_GlobalDefendMode_Stop(std::uint32_t player)
+    {
+        using namespace NC2Lifetime;
+        {
+            CHouseIterator houses;
+            for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
+            {
+                void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (House_CanEnableDefenceMode(house)) House_SetDefenceModeFlag(house, false);
+            }
+        }
+        CHouseIterator houses;
+        for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
+        {
+            std::uint32_t point = Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0x1C);
+            for (std::uint32_t ring = 1; ring < 50; ++ring)
+            {
+                MapMigPoint_MoveCursorUnwrapped(&point, 4, 1);
+                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                    for (std::uint32_t step = 0; step < ring; ++step)
+                    {
+                        MapMigPoint_MoveCursorUnwrapped(&point, direction, 1);
+                        if (!MapMigPoint_IsInsideMap(&point)) continue;
+                        const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
+                        if (Read<std::uint8_t>(micro, 0) != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) continue;
+                        const auto type = Read<std::uint8_t>(micro, 2);
+                        if (type == 84 || type == 83) MapTool_WallGate_SetState(player, &point, true);
+                    }
+            }
+        }
+    }
     using namespace NC2Lifetime;
     // Original function: FUN_0040b04b; an unallocated house leaves output untouched.
     bool Logic_UserControl_GetHouseCommands(std::int32_t id, std::int32_t player, SUserCommandsForHouseHandler* commands) { const auto* house = CHouseArray::mStaticVars + static_cast<std::intptr_t>(id) * CHouseArray::ElementSize; if (Read<std::uint8_t>(house, 0) == 0) return false; House_UserControl_GetCommands(house, player, commands); return true; }

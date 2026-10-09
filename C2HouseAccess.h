@@ -17,6 +17,12 @@ namespace NC2Logic
     };
     static_assert(sizeof(SHouseConstructionGoods) == 0xD8);
     void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods);
+    void House_Inhabitants_UpdateAllWorkers(void* house);
+    bool __fastcall House_Construction_UpgradeStart(void* house, void* unusedEdx);
+    bool __fastcall House_Construction_UpgradeStop(void* house, void* unusedEdx);
+    void House_l_Construction_InitConstruction(void* house, std::uint32_t developmentStage, bool upgrade);
+    void House_l_Construction_TransferFutureStock(void* house);
+    void House_l_Construction_UpdateGoodsBeingBrought(void* house);
     std::uint32_t House_Stock_GetMaximumAmountByStockId(const void* house, std::uint32_t stock);
     void House_Stock_SetMinimumValue(void* house, std::uint32_t good, std::uint32_t minimum);
     std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good);

@@ -14,8 +14,133 @@
 #include "C2CallbackManager.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
+#include "C2HouseUserControl.h"
+#include "C2GameEngineStartup.h"
+#include "C2HumanGoods.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00432289; only an exact worker role is refreshed.
+    void House_Inhabitants_UpdateAllWorkers(void* house)
+    {
+        using namespace NC2Lifetime;
+        for (std::uint32_t slot = 0; slot < 20; ++slot)
+        {
+            const auto offset = 0x640u + slot * 0x10u;
+            if (Read<std::uint8_t>(house, offset) == 2) Human_Production_Update(CHumanArray::mStaticVars + Read<std::uint32_t>(house, offset + 4) * CHumanArray::ElementSize);
+        }
+    }
+
+    // Original function: FUN_0043290f.
+    bool __fastcall House_Construction_UpgradeStart(void* house, void* unusedEdx)
+    {
+        (void)unusedEdx;
+        if (!House_Construction_CanBeUpgraded(house)) return false;
+        House_l_Construction_InitConstruction(house, NC2Lifetime::Read<std::uint32_t>(house, 0x20) + 1u, true);
+        House_Inhabitants_UpdateAllWorkers(house);
+        House_SetDefenceModeFlag(house, false);
+        return true;
+    }
+
+    // Original function: FUN_0043293f; leftover delivery stock is returned inside one map-modification bracket.
+    bool __fastcall House_Construction_UpgradeStop(void* house, void* unusedEdx)
+    {
+        using namespace NC2Lifetime;
+        (void)unusedEdx;
+        if (Read<std::uint32_t>(house, 0x2C) != 2) return false;
+        GameMapModifyManager_StartGameMapModify();
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        {
+            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
+            const auto amount = Read<std::uint32_t>(house, offset + 8) - Read<std::uint32_t>(house, offset + 16);
+            const auto good = Read<std::uint32_t>(house, offset);
+            // Outlined getter 0043264F and copy 0040AD55 return the by-value door point at +0x24.
+            if (amount != 0) Map_GoodTool_PutOnMap(good, amount, Read<std::uint32_t>(house, 0x24), 10, false);
+        }
+        GameMapModifyManager_StopGameMapModify();
+        Write<std::uint32_t>(house, 0x2C, 3);
+        House_Inhabitants_UpdateAllWorkers(house);
+        return true;
+    }
+
+    // Original function: FUN_00432a14; the completed development stage remains unchanged during an upgrade.
+    void House_l_Construction_InitConstruction(void* house, std::uint32_t developmentStage, bool upgrade)
+    {
+        using namespace NC2Lifetime;
+        Write<std::uint32_t>(house, 0x2C, upgrade ? 2u : 1u);
+        House_Construction_CalculateGoodsNeeded(Read<std::uint32_t>(house, 0x10), developmentStage, upgrade, reinterpret_cast<SHouseConstructionGoods*>(static_cast<std::byte*>(house) + 0x38));
+        House_l_Construction_TransferFutureStock(house);
+        House_l_Construction_UpdateGoodsBeingBrought(house);
+        const auto steps = Read<std::uint32_t>(house, 0x104) * 30u;
+        Write<std::uint32_t>(house, 0x30, 0);
+        Write<std::uint32_t>(house, 0x110, 0);
+        Write(house, 0x34, steps);
+    }
+
+    // Original function: FUN_00432b32; stock quantities use the native signed clamp after DWORD arithmetic.
+    void House_l_Construction_TransferFutureStock(void* house)
+    {
+        using namespace NC2Lifetime;
+        if (Read<std::uint32_t>(house, 0x2C) == 3)
+        {
+            for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+            {
+                const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
+                const auto reserved = Read<std::uint32_t>(house, offset + 12);
+                if (reserved == 0) continue;
+                const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, Read<std::uint32_t>(house, offset));
+                if (stock == -1) continue;
+                const auto stockOffset = 0x328u + static_cast<std::uint32_t>(stock) * 4u;
+                auto amount = static_cast<std::int32_t>(Read<std::uint32_t>(house, stockOffset) - reserved);
+                if (amount < 0) amount = 0;
+                else if (amount > 1000) amount = 1000;
+                Write<std::uint32_t>(house, offset + 12, 0);
+                Write(house, stockOffset, amount);
+            }
+            return;
+        }
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        {
+            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
+            const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, Read<std::uint32_t>(house, offset));
+            if (stock == -1) continue;
+            const auto stockOffset = 0x328u + static_cast<std::uint32_t>(stock) * 4u;
+            const auto reserved = Read<std::uint32_t>(house, offset + 12);
+            auto amount = static_cast<std::int32_t>(Read<std::uint32_t>(house, stockOffset) - Read<std::uint32_t>(house, 0x118u + static_cast<std::uint32_t>(stock) * 4u) + reserved);
+            if (amount < 0) amount = 0;
+            else if (amount > 1000) amount = 1000;
+            Write(house, offset + 12, amount);
+            Write(house, stockOffset, Read<std::uint32_t>(house, stockOffset) - (static_cast<std::uint32_t>(amount) - reserved));
+        }
+    }
+
+    // Original function: FUN_00432bf8; delivery states 5 and off-site state 4 terminate the current good's scan.
+    void House_l_Construction_UpdateGoodsBeingBrought(void* house)
+    {
+        using namespace NC2Lifetime;
+        for (std::int32_t goodSlot = 0; goodSlot < Read<std::int32_t>(house, 0x38); ++goodSlot)
+        {
+            const auto offset = 0x3Cu + static_cast<std::uint32_t>(goodSlot) * 20u;
+            std::uint32_t amount = 0;
+            for (std::uint32_t slot = 0; slot < 20; ++slot)
+            {
+                const auto role = Read<std::uint8_t>(house, 0x640u + slot * 16u);
+                if (role == 0 || role == 1) continue;
+                const void* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, 0x644u + slot * 16u) * CHumanArray::ElementSize;
+                if (Read<std::uint8_t>(human, 0) == 0) continue;
+                const auto state = Read<std::uint32_t>(human, 0xACC);
+                if (state == 0 || Read<std::uint32_t>(human, 0xAD0) != Read<std::uint32_t>(house, offset)) continue;
+                if (state == 5) break;
+                if (state == 4 && MapMigPoint_IsInsideMap(Human_GetMapPositionRef(human)))
+                {
+                    const auto* point = Human_GetMapPositionRef(human);
+                    if (point[0] != Read<std::uint16_t>(house, 0x1C) || point[1] != Read<std::uint16_t>(house, 0x1E)) break;
+                }
+                ++amount;
+            }
+            if (amount != Read<std::uint32_t>(house, offset + 12)) Write(house, offset + 12, amount);
+        }
+    }
+
     // Original function: FUN_00431f85.
     std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,0x430u + static_cast<std::uint32_t>(slot) * 4u); }
     // Original function: FUN_00431fac.

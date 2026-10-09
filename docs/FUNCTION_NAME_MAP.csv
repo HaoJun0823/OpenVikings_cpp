@@ -231,8 +231,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00432720,NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders,NC2Logic::CHouse::Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 00432764,NC2Logic::House_Inhabitants_GetNumberOfFamiliesLivingInHome,NC2Logic::CHouse::Inhabitants_GetNumberOfFamiliesLivingInHome,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 004328B7,NC2Logic::House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob,NC2Logic::CHouse::Inhabitants_GetNumberOfAttachedWorkersOfPassedJob,,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
-0043290F,NC2Logic::House_Construction_UpgradeStart,NC2Logic::CHouse::Construction_UpgradeStart,164822,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0043293F,NC2Logic::House_Construction_UpgradeStop,NC2Logic::CHouse::Construction_UpgradeStop,164906,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0043290F,NC2Logic::House_Construction_UpgradeStart,NC2Logic::CHouse::Construction_UpgradeStart,7322,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+0043293F,NC2Logic::House_Construction_UpgradeStop,NC2Logic::CHouse::Construction_UpgradeStop,7325,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
 00432CC8,NC2Logic::House_l_Construction_PutGoodIntoStock,NC2Logic::CHouse::l_Construction_PutGoodIntoStock,161696,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00432D92,NC2Logic::House_Construction_IsNeedingGood,NC2Logic::CHouse::Construction_IsNeedingGood,162051,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00432DC1,NC2Logic::House_Construction_IsNeedingFutureGood,NC2Logic::CHouse::Construction_IsNeedingFutureGood,162178,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
@@ -1910,3 +1910,9 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004CA6C4,HighlightHouseConstruction,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004CACD8,HighlightVehicleWorkCenter,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004CADE3,HighlightVehicleMovement,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00432289,House_Inhabitants_UpdateAllWorkers,NC2Logic::CHouse::Inhabitants_UpdateAllWorkers,7295,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+00432A14,House_l_Construction_InitConstruction,NC2Logic::CHouse::l_Construction_InitConstruction,7254,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+00432B32,House_l_Construction_TransferFutureStock,NC2Logic::CHouse::l_Construction_TransferFutureStock,7326,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+00432BF8,House_l_Construction_UpdateGoodsBeingBrought,NC2Logic::CHouse::l_Construction_UpdateGoodsBeingBrought,7327,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+004A0167,InGameGuiManagerGuiElementPtr_Destruct,NC2InGameGuiManager::CGuiManager::SVars::SGuiElementPtr::~SGuiElementPtr,6099,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only
+004A2B1F,CInGameGuiManager::Options_ScrollSpeed_GetInPixelPerSecond,NC2InGameGuiManager::CGuiManager::Options_ScrollSpeed_GetInPixelPerSecond,6086,Windows ASM/Game.exe establish behavior and call-site correspondence; x86-64-mac.h supplies names only

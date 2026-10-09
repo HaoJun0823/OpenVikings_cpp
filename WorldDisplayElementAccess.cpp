@@ -248,7 +248,7 @@ namespace NC2InGameGuiWorldElement
     {
         using namespace NC2Lifetime;
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-        const auto speed = NXBasics::Runtime_TimeSigned32(manager->Options_ScrollSpeed_Get());
+        const auto speed = NXBasics::Runtime_TimeSigned32(manager->Options_ScrollSpeed_GetInPixelPerSecond());
         std::int32_t x = 0, y = 0;
         if (direction == 1) x = speed;
         else if (direction == 2) y = speed;
@@ -365,7 +365,7 @@ namespace NC2InGameGuiWorldElement
             const auto callback = Read<bool(__cdecl*)()>(mouse, 0x4C);
             if (callback != nullptr && callback())
             {
-                const auto speed = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Options_ScrollSpeed_Get();
+                const auto speed = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Options_ScrollSpeed_GetInPixelPerSecond();
                 NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display, static_cast<std::int32_t>(speed * param2) / 300, static_cast<std::int32_t>(speed * param3) / 300);
                 WorldDisplayElement_FollowMode_End(element);
             }

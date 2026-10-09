@@ -8,15 +8,15 @@ Windows x86 assembly and the original Windows Game.exe establish behavior, sizes
 
 | Block | Current boundary |
 | --- | --- |
-| Main menu, campaigns, map selection, loading and settings | Audit current implementation and input routing |
-| In-game options, saving/loading, briefing, overview, confirmation dialogs | Audit existing windows and all entry points |
+| Main menu, campaigns, map selection, loading and settings | Native screen/command/keyboard/listbox families connected; existing Windows audits reconciled with current sources |
+| In-game options, saving/loading, briefing, overview, confirmation dialogs | Native pages, entry points and message routing connected; existing Windows audits reconciled with current sources |
 | Global settings and special items | Native 004C1BF3..004C31C7 and manager 004A1E63/004A1EA9 |
 | Construction chooser and house placement controls | Native 004C647E tree, manager 004A24A4..004A2597 |
 | Diplomacy, resident list, statistics and technology tree | Native families and manager entry points connected; runtime verification pending |
 | Help and context help | Native family, popups and human/house/message cross-links connected; runtime verification pending |
 | Observers and multiplayer information | Native families and manager entry points connected; runtime verification pending |
-| Single/group humans, houses, animals, vehicles, guides and landscapes | All selection families and single-human constructor/message/draw connected; downstream input modes retain separate boundaries |
-| Keyboard and input focus | Full primary handler 004BC36F..004BD3C3 and contextual command table 00507350 connected; menu/input audits pending |
+| Single/group humans, houses, animals, vehicles, guides and landscapes | All selection families, every native input mode and complete selection/default/highlight dispatch connected; downstream logic remains separate |
+| Keyboard and input focus | Primary handler 004BC36F..004BD3C3, contextual command table 00507350 and continuous controls connected; source routing reconciled |
 | Groups | Native choose/create/add operations and all thirty configured numeric assignments connected |
 | Cheats | All four native in-game commands connected; main-menu campaign unlock history audited against Windows |
 | Debug screenshots and map exports | Native bitmap BMP writer and engine map export |
@@ -35,7 +35,7 @@ No Debug/Release build or tests are authorized for this task. Use Win32 syntax c
 - Construction chooser: five filter pages, special-item constraints, sorted house stages, prices, profession-letter input and manager open/toggle/close/key entry points.
 - Help: hyperlink index, house/good/misc lists and details, cross-links, dynamic buttons and manager help entry points.
 - Diplomacy: overview labels, player tabs, both relationship directions, tribute demand/payment, bilateral trade offers and manager open/toggle entry points. Native tribute payment replaces the 0043E72E link dummy.
-- Groups: create/add/choose, per-type membership, allocation revision validation and selected-group camera centering. Numeric assignment dispatch is still pending.
+- Groups: create/add/choose, per-type membership, allocation revision validation, selected-group camera centering and all thirty numeric assignment checks are connected.
 - Technology tree: all ten native static layouts (004F5308..004F6077), distinct house/good/job/line elements, player unlock/allowed flags, experience and producer requirements, dynamic prerequisite links, help links and manager open/toggle entry points.
 - Resident list: native 500-entry filter/sort/revision collection, live row details and equipment, click/double-click selection with modifier handling, select-all, both tribe/job choosers, logic callback lifetime and manager open/toggle entry points. The native query's two writes to the possible-job field are preserved.
 - Statistics: all seven tabs, five goods categories, complete native entity/time-scale tables, historical sample access, two-pass diagram scaling, job/house/graveyard lists, retained scroll positions, two-second refresh, profession links and manager open/toggle entry points. Numeric helpers preserve truncation without inline assembly; x87 intermediate precision can differ.
@@ -49,7 +49,7 @@ The user's runtime report that `guckmalan` did not work exposed the previously a
 
 `megamap` and `minimap` retain their session restrictions, independent file counters and native 25/100-percent exports. `malkasten` cycles four main-display remap variants. The complete scratch region 00569454..00569477 includes the two map counters and screenshot counter.
 
-The complete primary keyboard tree now includes contextual command availability, all native menu-opening shortcuts, Escape message/cancellation order, chat records and editing, construction modes, minimap visibility packets, pause/speed packets, quicksaving, house camera centering, job cycling, soldier/hero filters and select-all predicates, all thirty group checks, Ctrl+S timing and Ctrl+B screenshots. Native cycling/filter/group branches continue to later checks. Arrow/numpad scrolling and Tab belong to the continuous display controls; their missing frame-dispatch branch is restored in the later world-display audit below. Floating-point adapters retain truncation without inline assembly; x87 intermediate precision may differ.
+The complete primary keyboard tree now includes contextual command availability, all native menu-opening shortcuts, Escape message/cancellation order, chat records and editing, construction modes, global-defence packets, pause/speed packets, quicksaving, house camera centering, job cycling, soldier/hero filters and select-all predicates, all thirty group checks, Ctrl+S timing and Ctrl+B screenshots. Native cycling/filter/group branches continue to later checks. Arrow/numpad scrolling and Tab belong to the continuous display controls; their missing frame-dispatch branch is restored in the later world-display audit below. Floating-point adapters retain truncation without inline assembly; x87 intermediate precision may differ.
 
 Network information 004C5219..004C647D is connected: goals, ordered win/loss results, local outcome, six player-statistic columns, static tooltips, cached DirectPlay participants, connection metrics and simulation times, host auto-adjust/frequency controls and four native tabs. Its allocation is 0x2F58 and its complete virtual table is 004F7560..004F75AB. Windows behavior includes overwriting the participant caption when no game player matches. The Mac header supplies only the source-file association, not a corresponding class name. Manager open/toggle and all thirteen miscellaneous main-button branches are connected.
 
@@ -108,3 +108,23 @@ Full Windows selection validation 004B6CE1 confirms that type-only house/landsca
 Windows 0048089E returns the structured house data at engine-entry +0x3C, read as logic-stage IDs, map-area pointers and work offsets. Its previous DevelopNamePtr designation was incorrect; the Mac header supplies the matching GetHouseDataPtr name only. Production callers and the naming ledger are corrected. User-owned untracked CombatTasks files remain untouched and excluded.
 
 All thirteen affected C++ files passed MSVC Win32 `/Zs`, and project/filter parity is checked without building. No Debug/Release build, tests or game run occurred. Downstream house placement/upgrade/removal, combat and some vehicle command execution remain separately tracked; connected GUI commands do not establish their functional completion. General menu/input flow audits remain the current priority.
+
+## Scroll speed, clock/audio adapters and menu audit reconciliation (2026-10-09)
+
+Windows 004A2B18 returns the option index; the separate 004A2B1F returns pixels per second through the complete 00507380..0050738B table `{300,600,1200}`. The time-synchronized and middle-button scroll paths incorrectly used the index accessor. Both now use the distinct original GetInPixelPerSecond method, with native division/truncation retained. The table's native unchecked indexing is preserved.
+
+Manager cleanup now calls the actual placement-constructed CList destructors instead of a manually reproduced node-cleanup loop. Distinct helper 004A0167 destroys observer, world and frame lists in native order, after the deferred list. The constructor's native outer reset remains unchanged.
+
+The clock's sin/cos and DirectMusic volume's log10 previously returned zero from isolated link dummies. Their real numeric adapters now use the already hosted compiler CRT and the established x87 control helpers to save control, select native 0x027F settings and restore prior control. Normal finite clock/rotation and positive volume paths are connected. Original exceptional-value math-error hooks, status behavior and x87 numeric precision remain unresolved; all three are retained as partial inventory entries and excluded from completion counts. No inline assembly is added.
+
+Current main-menu sources retain the complete 46-command button table and native keyboard/campaign unlock routing previously audited in [MAIN_MENU_COMMAND_DISPATCH.md](MAIN_MENU_COMMAND_DISPATCH.md), [MAIN_MENU_CREDITS_AND_KEYBOARD.md](MAIN_MENU_CREDITS_AND_KEYBOARD.md) and [MAIN_MENU_LISTBOX_AND_SAVEGAMES.md](MAIN_MENU_LISTBOX_AND_SAVEGAMES.md). Current in-game pages, confirmation, save/load and briefing entry points are reconciled with [IN_GAME_OPTIONS_WINDOW.md](IN_GAME_OPTIONS_WINDOW.md), [MISSION_BRIEFING.md](MISSION_BRIEFING.md) and [OVERVIEW_INPUT.md](OVERVIEW_INPUT.md). Historic partial notes and counters in those documents do not override this current checkpoint. No remaining GUI/input partial is listed in the current inventory; unresolved inline symbol identities and downstream game logic are retained separately.
+
+MSVC Win32 `/Zs` passed for affected units and their clock/audio consumers, with only existing manager C4805 warnings. No build, tests, link check or gameplay run occurred. GUI/input source connection is complete for the requested families; actual command effects that still reach house/combat/vehicle logic boundaries require their separate reconstruction and runtime verification.
+
+## Global defence and house upgrade execution (2026-10-09)
+
+Default `V` and `Shift+V` enqueue global-defence command 0x86. Its start/stop routines 0043B8F9 and 0043BA13 now replace both empty link dummies. Each first updates every eligible player's house, then separately scans radius rings 1..49 around every house for owned gate types 83/84. Cursor movement precedes point checks. Start passes false to the gate-state routine and stop passes true, exactly as Windows does. Individual defence callbacks retain their original order.
+
+House upgrade commands 0x5B/0x5C now replace the 0043290F/0043293F dummies. Start retains upgrade eligibility, next-stage material initialization, future-stock transfer, live delivery accounting, attached-worker production refresh and defence cancellation. Stop rejects non-upgrading houses, returns delivered but unused materials near the door inside one map-modification bracket, restores state 3 and then refreshes workers. Separate helpers 00432289/00432A14/00432B32/00432BF8 retain native signed stock clamps, exact worker-role checks and the original early termination for delivery states 4/5; the completed stage is not advanced when the upgrade begins.
+
+All behavior and offsets are confirmed from Windows assembly/Game.exe. Mac declarations provide corresponding names only. MSVC Win32 `/Zs` passed for the affected source and command-dispatch consumers. House placement/removal, the construction tick itself and other gameplay boundaries remain separate reconstruction work; no build or game run occurred.

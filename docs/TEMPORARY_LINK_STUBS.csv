@@ -25,11 +25,7 @@ Address,CurrentName,Status,ReferencingObjects
 00428736,NC2Logic::Game_Checksum_Calculate,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; landscape-edit external dummy remains; cadaver mapping is real,C2AnimalAccess.obj
 00431276,NC2Logic::House_Misc_Destroy_House,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0043290F,NC2Logic::House_Construction_UpgradeStart,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0043293F,NC2Logic::House_Construction_UpgradeStop,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 00436E8D,NC2Logic::Vehicle_Exit,Partial Windows vehicle exit; landscape-edit external dummy remains,C2VehicleLifecycle.obj
-0043B8F9,NC2Logic::Tool_GlobalDefendMode_Start,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0043BA13,NC2Logic::Tool_GlobalDefendMode_Stop,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
 0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
 0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
@@ -71,7 +67,7 @@ Address,CurrentName,Status,ReferencingObjects
 0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004995D8,Display_l_DE_Debug_DrawGridLines,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00499AD5,DrawAtom_FishManager_DoDraw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-004E6E44,Runtime_Log10,Temporary dummy; Windows implementation pending,DMManager.obj
-004E8774,Runtime_Sin,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
-004E8824,Runtime_Cos,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj;GuiClockToolElementAccess.obj
+004E6E44,Runtime_Log10,Partial numeric CRT adapter; positive music-volume values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
+004E8774,Runtime_Sin,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
+004E8824,Runtime_Cos,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 0046C822,NC2Logic::Human_l_StartTask_ExecuteJob_Builder,Partial Windows builder dispatcher; road/wall and unattached branches connected; house branch 00473FFF pending; excluded from completion counts,C2HumanConstruction.obj
