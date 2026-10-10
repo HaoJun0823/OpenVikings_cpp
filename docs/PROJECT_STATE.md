@@ -1,5 +1,15 @@
 # OpenVikings Project State
 
+## Campaign building/vehicle ownership and command checkpoint - 2026-10-10
+
+Four native result branches now transfer buildings/vehicles by mission-check ID, send every matching vehicle to the original corrected map position and start human camera-follow using the native first-parameter Boolean behavior. Three distinct native helpers are reconstructed; owner changes preserve sector links, pathfinder state and exploration order. Existing GUI selection/follow and command queue consumers remain connected. See [CAMPAIGN_OBJECT_COMMANDS.md](CAMPAIGN_OBJECT_COMMANDS.md).
+
+**4120 / 5062 (81.39%)** source-address coverage, **942** known entries open; **272 cpp / 252 headers**, **2255 naming rows / 57 unfinished boundaries**. Three original entries are newly mapped; the enclosing result dispatcher remains partial and excluded. Eight affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe establish behavior; Mac supplies names only. No build, tests or game run occurred. User-owned untracked CombatTasks remain untouched and excluded.
+
+The refreshed 35-asset audit connects 69 formerly missing result occurrences, 65 in story assets. Remaining story source branches: 21 goal types / 185 occurrences and 59 result types / 1,372 occurrences; all assets: 30 / 277 and 65 / 1,491. These are static script counts, not gameplay completion. PlayerDied's periodic automatic defeat producer, other interpreter cases and broader vehicle/AI/weather/drawing boundaries remain unfinished.
+
+Next logical block: human movement/docking commands and human/player-wide ownership changes, then script object creation/removal and remaining resource/combat/wonder predicates/actions. Follow native helpers through their actual dependencies.
+
 ## Campaign position/death conditions and tribute checkpoint - 2026-10-10
 
 Eight native goal branches now evaluate human/vehicle mission-ID positions, player human/vehicle radius searches, object/player death and allocated/paid tribute flags. Script CreateTribute/AddTributeGoods now reach four reconstructed native leaves and the existing diplomacy GUI/network payment/stock-removal chain. Complete 3Ch tribute layout is named without changing raw saves or unknown padding. Distinct native SMapMigPoint::SetPosition is reconstructed and used by the player radius search. See [CAMPAIGN_CONDITIONS_AND_TRIBUTES.md](CAMPAIGN_CONDITIONS_AND_TRIBUTES.md).

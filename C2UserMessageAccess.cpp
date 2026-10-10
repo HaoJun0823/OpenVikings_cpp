@@ -6,9 +6,22 @@
 #include "C2VehicleAccess.h"
 #include "C2MapGeometry.h"
 #include "C2HumanMessageAccess.h"
+#include "InGameGuiInputAccess.h"
+#include "WorldDisplayElementAccess.h"
 #include <cstring>
 namespace NC2LogicExternals
 {
+    // Original function: FUN_004a30ec; failed or unchanged selection prevents starting follow mode.
+    void External_Gui_SelectHuman(std::int32_t humanId, bool followOnly)
+    {
+        using namespace NC2InGameGuiInputManager;
+        if (!followOnly && (gInputManager == nullptr || !Selection_SelectSingleHuman(gInputManager, humanId))) return;
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (manager == nullptr) return;
+        void* world = NC2Lifetime::Read<void*>(manager, 4);
+        if (world != nullptr) NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_FollowHuman(world, humanId);
+    }
+
     // Original function: FUN_004a30c0; Windows ignores the second stack argument.
     void External_Misc_SendToUserStringMessage(const char* text, bool /*unused*/)
     {

@@ -8,6 +8,7 @@
 #include "C2StaticVehicleTypeData.h"
 #include "C2HumanCommandAccess.h"
 #include "C2MapGeometry.h"
+#include "C2MapMoveableAccess.h"
 #include "C2UserMessageAccess.h"
 #include "C2GameMapAccess.h"
 #include <cstring>
@@ -34,6 +35,24 @@ namespace NC2Logic
     }
     using NC2Lifetime::Read;
     static const std::byte* AddressAt(const void* object, std::uint32_t offset) { return reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(object) + offset); }
+
+    // Original function: FUN_0044155a; the native path always reattaches the saved map position.
+    void Vehicle_ChangePlayerId(void* vehicle, std::uint32_t player)
+    {
+        using NC2Lifetime::Write;
+        void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * 0x58u;
+        const auto point = Read<std::uint32_t>(moveable, 0x12);
+        MapMoveable_Attachment_DetachFromMap(moveable);
+        Write(vehicle, 0x1E0, player);
+        void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
+        Write<std::int32_t>(pathfinder, 0x24, -1);
+        Write<std::int32_t>(pathfinder, 0x1C, -1);
+        Write(pathfinder, 0x2C, player);
+        MapMoveable_Attachment_AttachToMap(moveable, &point);
+        const auto radius = Read<std::uint32_t>(vehicle, 0x518);
+        const auto owner = Read<std::uint32_t>(vehicle, 0x1E0);
+        GameMap_Exploration_DoExplore(owner, Vehicle_GetMapPositionRef(vehicle), radius);
+    }
 
     // Original function: FUN_0044ba62.
     std::uint32_t Vehicle_Stock_GetTotalAmount(const void* vehicle)

@@ -2251,3 +2251,6 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0043E55C,NC2Logic::TributeData_Init,NC2Logic::STributeData::Init,9267,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only; see CAMPAIGN_CONDITIONS_AND_TRIBUTES.md
 0043E57C,NC2Logic::TributeData_AddTribute,NC2Logic::STributeData::AddTribute,9268,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only; see CAMPAIGN_CONDITIONS_AND_TRIBUTES.md
 0042A98A,NC2Logic::MapMigPoint_SetPosition,NC2Logic::SMapMigPoint::SetPosition,8725,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only; see CAMPAIGN_CONDITIONS_AND_TRIBUTES.md
+00434B65,NC2Logic::House_ChangePlayerId,NC2Logic::CHouse::ChangePlayerId,7369,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only; see CAMPAIGN_OBJECT_COMMANDS.md
+0044155A,NC2Logic::Vehicle_ChangePlayerId,NC2Logic::CVehicle::ChangePlayerId,9465,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only; see CAMPAIGN_OBJECT_COMMANDS.md
+004A30EC,NC2LogicExternals::External_Gui_SelectHuman,NC2LogicExternals::External_Gui_SelectHuman,5987,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only; see CAMPAIGN_OBJECT_COMMANDS.md

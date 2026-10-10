@@ -7,6 +7,7 @@
 #include "C2HumanIterator.h"
 #include "C2VehicleIterator.h"
 #include "C2VehicleAccess.h"
+#include "C2HumanWalking.h"
 #include "C2MapGeometry.h"
 #include "C2TributeAccess.h"
 #include "C2MissionStartObjects.h"
@@ -220,6 +221,23 @@ namespace NC2Logic
         case 18: AIManager_EntryPoint_Condition_ExternalActivate_SetFlag(gAIManager, p[0], p[1], p[2] != 0); break;
         case 19: GameControl_Diplomacy_SetState(gGameControl, nullptr, p[0], p[1], p[2]); break;
         case 20: Write<std::uint8_t>(GetMission(manager, p[0]), 0x24, p[1] != 0); break;
+        case 24:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            Tool_Map_GetNotBlockedPosition(&point, false);
+            alignas(4) std::byte command[20]{};
+            Write<std::uint8_t>(command, 0, 0x65);
+            Write(command, 0x0C, MapMigPoint_GetLong(&point));
+            for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
+            {
+                void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+                Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, 0x1E0));
+                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Vehicle_DoAddNewUserCommand(vehicle, command);
+            }
+            break;
+        }
         case 27:
             TributeManager_CreateTribute(gTributeManager, p[1], p[2], p[0]);
             (static_cast<STributeData*>(gTributeManager) + p[0])->descriptionStringId = p[3];
@@ -227,6 +245,14 @@ namespace NC2Logic
         case 28: TributeManager_AddTribute(gTributeManager, p[0], p[1], p[2]); break;
         case 32: Write(manager, 0x0C, p[0]); Write(manager, 0x10, p[1]); Write<std::uint8_t>(manager, 8, 1); break;
         case 33: Write<std::uint8_t>(manager, 0x14, 1); break;
+        case 34:
+            for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
+                Vehicle_ChangePlayerId(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, p[1]);
+            break;
+        case 35:
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id))
+                House_ChangePlayerId(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, p[1]);
+            break;
         case 36:
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
             {
@@ -235,6 +261,13 @@ namespace NC2Logic
                 Write<std::uint8_t>(human, 0xB84, p[1] != 0 ? flags | 0x80u : flags & 0x7Fu);
             }
             break;
+        case 63:
+        {
+            const auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]);
+            // Windows 00420FA7 tests the mission-check ID, not the second script parameter.
+            if (id != -1) NC2LogicExternals::External_Gui_SelectHuman(id, p[0] != 0);
+            break;
+        }
         default: break;
         }
     }

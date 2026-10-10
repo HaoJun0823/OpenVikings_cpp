@@ -24,6 +24,15 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_00434b65; move the sector links before exploring for the new owner.
+    void House_ChangePlayerId(void* house, std::uint32_t player)
+    {
+        House_l_DetachFromSector(house);
+        Write(house, 0x0C, player);
+        House_l_AttachToSector(house);
+        House_l_Exploration_Do(house);
+    }
+
     // Original function: FUN_0040ac27.
     std::int32_t CHouseArray::AllocateHouse(std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, const void* point, bool finished, std::uint32_t flags)
     {

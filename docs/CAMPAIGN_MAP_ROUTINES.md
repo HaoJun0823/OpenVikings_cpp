@@ -1,6 +1,6 @@
 # Campaign-map routine audit
 
-Updated audit: 2026-10-10, after connecting campaign position/death/tribute conditions and tribute creation. See [CAMPAIGN_CONDITIONS_AND_TRIBUTES.md](CAMPAIGN_CONDITIONS_AND_TRIBUTES.md) and [CAMPAIGN_LIFECYCLE.md](CAMPAIGN_LIFECYCLE.md). Evidence: Windows ASM, original Windows Game.exe jump tables/strings, current registered C++ source and installed Windows map scripts. Mac provides names only. No game build or runtime run occurred.
+Updated audit: 2026-10-10, after connecting building/vehicle ownership, SendVehicle and SelectHuman. See [CAMPAIGN_OBJECT_COMMANDS.md](CAMPAIGN_OBJECT_COMMANDS.md). See [CAMPAIGN_CONDITIONS_AND_TRIBUTES.md](CAMPAIGN_CONDITIONS_AND_TRIBUTES.md) and [CAMPAIGN_LIFECYCLE.md](CAMPAIGN_LIFECYCLE.md). Evidence: Windows ASM, original Windows Game.exe jump tables/strings, current registered C++ source and installed Windows map scripts. Mac provides names only. No game build or runtime run occurred.
 
 ## Concrete result
 
@@ -10,9 +10,9 @@ The installation also contains ten `_campaign_04_*` folders: four main and six s
 
 The exact inventory is [CAMPAIGN_MAP_COVERAGE.csv](CAMPAIGN_MAP_COVERAGE.csv). Every goal/result occurrence, mission index, debug label, decoded line, parameter list, implementation state and PE-confirmed Windows branch address is in [CAMPAIGN_MAP_SCRIPT_AUDIT.csv](CAMPAIGN_MAP_SCRIPT_AUDIT.csv). Lines refer to decoded CIF command lines, not byte offsets in the binary CIF. `yes` means a corresponding source branch exists; it does not establish that all recursively called goals/dependencies work. The former `partial` submap request flags now reach reconstructed transitions. All current rows are `yes` or `no`; `PartialSubmapResults` is retained as a zero-valued compatibility column.
 
-Across those 27 assets: **1,022 mission groups**, **1,386 goal occurrences / 36 distinct types**, and **3,772 result occurrences / 80 distinct types**. Current dispatchers omit **21 used goal types (185 occurrences)** and **63 used result types (1,437 occurrences)**. The 30 start/end-submap result occurrences now reach native save/load transitions. Win/fail/unlock and import-flag branches cover 152 formerly missing result occurrences; the latest position/death/tribute and creation branches cover 777 formerly missing goals and 109 results. These are script-definition counts, not counts of runtime failures or percentage gameplay completion.
+Across those 27 assets: **1,022 mission groups**, **1,386 goal occurrences / 36 distinct types**, and **3,772 result occurrences / 80 distinct types**. Current dispatchers omit **21 used goal types (185 occurrences)** and **59 used result types (1,372 occurrences)**. The 30 start/end-submap result occurrences now reach native save/load transitions. Win/fail/unlock and import-flag branches cover 152 formerly missing result occurrences; the latest position/death/tribute and creation branches cover 777 formerly missing goals and 109 results. Building/vehicle ownership, SendVehicle and SelectHuman connect another 65 result occurrences. These are script-definition counts, not counts of runtime failures or percentage gameplay completion.
 
-Including tutorials/the additional singleplayer submap, the 35-asset inventory has **1,157 mission groups**, **1,572 goals / 45 types** and **4,228 results / 86 types**. Of these, **30 used goal types (277 occurrences)** and **69 used result types (1,560 occurrences)** have missing branches. The **31** submap request results now reach transitions; the previous lifecycle result types cover 154 occurrences, and the latest position/death/tribute and creation branches cover 818 goals and 113 results. Tutorial coverage is therefore also incomplete even where its opening briefing works.
+Including tutorials/the additional singleplayer submap, the 35-asset inventory has **1,157 mission groups**, **1,572 goals / 45 types** and **4,228 results / 86 types**. Of these, **30 used goal types (277 occurrences)** and **65 used result types (1,491 occurrences)** have missing branches. The **31** submap request results now reach transitions; the previous lifecycle result types cover 154 occurrences, and the latest position/death/tribute and creation branches cover 818 goals and 113 results. Building/vehicle ownership and commands connect another 69 result occurrences. Tutorial coverage is therefore also incomplete even where its opening briefing works.
 
 ## Windows mechanisms and current boundaries
 
@@ -37,16 +37,16 @@ The submap tree is concrete: **0040768A** finds the target campaign/map record, 
 
 | Map / actual map ID | Mission groups | Unsupported goal occurrences | Unsupported result occurrences |
 | --- | ---: | ---: | ---: |
-| campaign_03_01 / 10 | 85 | 26 | 79 |
-| campaign_03_02 / 20 | 51 | 20 | 80 |
-| campaign_03_03 / 30 | 125 | 28 | 284 |
-| campaign_03_04 / 40 | 115 | 25 | 209 |
-| campaign_03_05 / 50 | 55 | 12 | 55 |
-| campaign_03_06 / 60 | 62 | 17 | 82 |
-| campaign_03_07 / 70 | 70 | 13 | 101 |
-| campaign_03_08 / 80 | 40 | 5 | 55 |
+| campaign_03_01 / 10 | 85 | 26 | 74 |
+| campaign_03_02 / 20 | 51 | 20 | 78 |
+| campaign_03_03 / 30 | 125 | 28 | 260 |
+| campaign_03_04 / 40 | 115 | 25 | 204 |
+| campaign_03_05 / 50 | 55 | 12 | 51 |
+| campaign_03_06 / 60 | 62 | 17 | 73 |
+| campaign_03_07 / 70 | 70 | 13 | 96 |
+| campaign_03_08 / 80 | 40 | 5 | 54 |
 
-For example, campaign 03/01's first `START` mission already uses unsupported `ChangeHousesPlayerId 9 1`; its `cruise` mission issues `SendVehicle` and `SelectHuman`, and its now-connected `FindPosByHumans` objectives still depend on preceding script actions and the current object state. Its later `StartSubMission 3 11`, `MissionWon` and `AllowMap` requests now have source branches and transition orchestration. `SetHouseOverlayState`, the preceding missing actions and unsupported predicates remain proven blockers even if the first briefing opens. The final map uses scripted obelisk/object-location objectives; ordinary unit movement cannot substitute for those predicates.
+For example, campaign 03/01's first `START` mission now reaches `ChangeHousesPlayerId 9 1`; its `cruise` mission also reaches the native `SendVehicle` and `SelectHuman` branches, and its now-connected `FindPosByHumans` objectives still depend on preceding script actions and the current object state. Its later `StartSubMission 3 11`, `MissionWon` and `AllowMap` requests now have source branches and transition orchestration. `SetHouseOverlayState`, other missing actions and unsupported predicates remain proven blockers even if the first briefing opens. The final map uses scripted obelisk/object-location objectives; ordinary unit movement cannot substitute for those predicates.
 
 ## Next reconstruction order
 
@@ -54,7 +54,9 @@ The particle data/creation/tick tree and campaign win/fail/unlock/start/return o
 
 The frequent position/death/tribute conditions and native tribute creation/addition are now connected; see [CAMPAIGN_CONDITIONS_AND_TRIBUTES.md](CAMPAIGN_CONDITIONS_AND_TRIBUTES.md). PlayerDied reads the original flag, but its periodic automatic defeat producer remains unfinished.
 
-1. Scripted object creation/removal/ownership and commands; many ordinary game helpers now exist, but dispatcher calls still need native reconstruction.
+Building/vehicle ownership, scripted vehicle goto and human camera-follow are connected; see [CAMPAIGN_OBJECT_COMMANDS.md](CAMPAIGN_OBJECT_COMMANDS.md).
+
+1. Human movement/docking commands and human/player-wide ownership changes, then scripted object creation/removal; many ordinary helpers exist, but dispatcher calls still need native reconstruction.
 2. Remaining object/resource/combat goals, resource overlays, wonder building states, weather/colors and marker/magic effects, following each native branch through its actual callees.
 
 No generic victory popup, unconditional unlock, per-map workaround or substituted Mac behavior was added. Source integration and audit counts do not establish playable campaign completion.
