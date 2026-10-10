@@ -745,4 +745,8 @@
     <ClInclude Include="C2AnimalMilitaryTasks.h" />
     <ClInclude Include="C2MilitaryAttackPointSearch.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2E2StaticDataHouses.cpp" />
+    <ClInclude Include="C2E2StaticDataHouses.h" />
+  </ItemGroup>
 </Project>

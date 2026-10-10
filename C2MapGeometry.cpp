@@ -10,6 +10,14 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042aa34; coordinate constructor uses wrapping validation.
+    void MapMigPoint_Construct(void* packedMigPoint, std::int16_t x, std::int16_t y, bool validate)
+    {
+        std::memcpy(packedMigPoint, &x, 2);
+        std::memcpy(static_cast<std::byte*>(packedMigPoint) + 2, &y, 2);
+        if (validate) MapMigPoint_WrapPosition(packedMigPoint);
+    }
+
     // Original function: FUN_0042ad91; odd vertical offsets correct odd source rows.
     void MapMigPoint_AddOffset(void* point, std::int16_t x, std::int16_t y)
     {

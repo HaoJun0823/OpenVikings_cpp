@@ -1407,4 +1407,8 @@
     <ClInclude Include="C2AnimalMilitaryTasks.h"><Filter>Logic</Filter></ClInclude>
     <ClInclude Include="C2MilitaryAttackPointSearch.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2E2StaticDataHouses.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="C2E2StaticDataHouses.h"><Filter>Engine</Filter></ClInclude>
+  </ItemGroup>
 </Project>

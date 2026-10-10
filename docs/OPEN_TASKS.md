@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Construction menu/building selection checkpoint - 2026-10-10
+
+The user clarified that "building list" means the construction menu/building selection. The empty static-engine-house loader dummy is replaced by the complete Windows constructor/parser, including all 26 tokens, 0x8BC-byte records, building/stage mappings, construction costs, images, overlays, areas and effect points. The whole singleton/token region is represented with verified offsets. Distinct record constructors and the shared coordinate constructor are connected. The existing construction window, filtering, help/cost previews and placement-mode transition were checked against Windows and already implement their native paths. The installed Windows houses.cif contains 90 engine definitions and 123 stages; it supplies configuration only. See BUILD_MENU_SELECTION.md.
+
+**4038 / 5062 (79.77%)** source-address coverage, **1024** known entries open; **266 cpp / 246 headers**, **2191 naming rows / 62 unfinished boundaries**. Eleven affected/integration units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Next logical UI block: the building panel after placement, upgrades and production/stock controls. Runtime construction-menu appearance, availability and placement need confirmation in the next user game run. Continue the broader ALL-professions and outstanding effects/AI/vehicle scope afterward. User-owned untracked CombatTasks remain untouched and excluded; source coverage is not gameplay completion.
+
 ## Building list and defensive-arrow checkpoint - 2026-10-09
 
 All 55 building logic IDs (54 actual types plus the None sentinel) are inventoried with installed Windows names/configuration, current source areas and explicit remaining dependencies in BUILDING_LIST.md/.csv. House_DoOneGameTick now includes the full native civilian-defense arrow branch and House_l_Military_StartArrow, with original target-search/RNG order and delayed building damage. The statistics list was checked against Windows and already matches its native behavior.

@@ -137,10 +137,6 @@ namespace NC2E2
     // Naming reference: NC2E2::CE2StaticDataParticelManager::CE2StaticDataParticelManager.
     void * __fastcall E2StaticDataParticelManager_Construct(void *, void *) { return nullptr; }
 
-    // TEMPORARY DUMMY: Windows address 0048E651; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataHousesManager::CE2StaticDataHousesManager.
-    void * __fastcall E2StaticDataHousesManager_Construct(void *, void *) { return nullptr; }
-
 }
 
 

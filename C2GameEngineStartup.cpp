@@ -11,6 +11,7 @@
 #include "C2EngineLifetimeAccess.h"
 #include "C2E2StaticDataMapMoveables.h"
 #include "C2E2StaticDataHumanMisc.h"
+#include "C2E2StaticDataHouses.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineLandscapeAccess.h"
 #include "MasterControlProgram.h"
@@ -254,7 +255,6 @@ namespace NC2E2
 {
     using namespace NC2Lifetime;
     // Unreconstructed original subconstructors. No replacement bodies are supplied.
-    extern void* __fastcall E2StaticDataHousesManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataTransitionsManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataParticelManager_Construct(void*, void* unusedEdx);
     extern void* __fastcall E2StaticDataGoodManager_Construct(void*, void* unusedEdx);

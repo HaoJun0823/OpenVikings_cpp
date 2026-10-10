@@ -697,7 +697,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0048D194,NC2E2::E2StaticDataParticelManager_Construct,NC2E2::CE2StaticDataParticelManager::CE2StaticDataParticelManager,78962,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048D714,NC2E2::E2StaticDataTransitionsManager_Construct,NC2E2::CE2StaticDataTransitionsManager::CE2StaticDataTransitionsManager,80574,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048E24E,NC2E2::E2StaticDataPatternManager_Construct,NC2E2::CE2StaticDataPatternManager::CE2StaticDataPatternManager,79602,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0048E651,NC2E2::E2StaticDataHousesManager_Construct,NC2E2::CE2StaticDataHousesManager::CE2StaticDataHousesManager,72806,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0048E651,NC2E2::E2StaticDataHousesManager_Construct,NC2E2::CE2StaticDataHousesManager::CE2StaticDataHousesManager,72806,Windows ASM/Game.exe establish the complete constructor/INI parser and static region; Mac symbol used only for the manager name
 0048F79F,NC2E2::E2StaticDataLandscapesManager_Construct,NC2E2::CE2StaticDataLandscapesManager::CE2StaticDataLandscapesManager,75433,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,NC2E2::C2DEngineDisplay::l_DE_DrawLandscapeAndCreaturesField,50033,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 00493656,NC2E2::DrawAtom_MapMoveable_DoDraw,NC2E2::DrawAtom_MapMoveable_DoDraw,54930,Original Mac name; Windows x86 control flow and object offsets confirmed
@@ -2185,3 +2185,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004470AA,NC2Logic::Animal_l_Military_AttackTarget,NC2Logic::CAnimal::l_Military_AttackTarget,6980,"Windows ASM/Game.exe establish behavior, constants, layouts and call order; Mac header supplies names only"
 00446F48,NC2Logic::slAnimalSearchNextFreeMilitaryMapPointFunction,NC2Logic::slAnimalSearchNextFreeMilitaryMapPointFunction,6981,"Windows ASM/Game.exe establish behavior, constants, layouts and call order; Mac header supplies names only"
 00433A9D,NC2Logic::House_l_Military_StartArrow,NC2Logic::CHouse::l_Military_StartArrow,7355,"Windows ASM/Game.exe establish full defense shooting, launch-point/scatter RNG and delayed-hit order; Mac header supplies name only"
+0042AA34,NC2Logic::MapMigPoint_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
+0048F57F,DestroyHouseTokenList,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
+0048F580,HouseRecord_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
+0048F58F,HouseLogicData_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
+0048F5A1,HouseDoorPoints_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established

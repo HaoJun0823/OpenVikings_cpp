@@ -1,6 +1,7 @@
 #pragma once
 
 #include "C2E2StaticDataPalettes.h"
+#include "C2E2StaticDataHouses.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -195,7 +196,7 @@ namespace NC2E2
     // Original global: 00568A50.
     inline void* gE2StaticDataPatternManager = nullptr;
     // Original global: 00568A6C.
-    inline void* gE2StaticDataHousesManager = nullptr;
+    inline void*& gE2StaticDataHousesManager = gStaticHouseStorage.owner;
     // Original global: 00568AEC.
     inline void* gE2StaticDataLandscapesManager = nullptr;
     // Original global: 0055510C.
@@ -238,7 +239,7 @@ namespace NC2E2
     // Original global: 00568A34.
     inline void*& gStaticPatternEntries = gStaticPatternStorage.entries;
     // Original global: 00568A64.
-    inline void* gStaticHouseEntries = nullptr;
+    inline void*& gStaticHouseEntries = gStaticHouseStorage.entries;
     // Original global: 00568A7C.
     inline void*& gStaticLandscapeEntries = gStaticLandscapeStorage.entries;
     // Complete regions cleared by their Windows destructors. Unidentified fields
@@ -251,7 +252,7 @@ namespace NC2E2
     // 005689F0..00568A0F; transition counts and tables.
     inline std::byte (&gStaticTransitionData)[0x20] = *reinterpret_cast<std::byte (*)[0x20]>(&gStaticTransitionStorage);
     inline std::uint32_t gStaticMiscLandscapeGroupCount = 0; // 00568550
-    inline std::int32_t gStaticHouseCount = 0;               // 00568A60
+    inline std::int32_t& gStaticHouseCount = gStaticHouseStorage.count; // 00568A60
     inline std::int32_t& gStaticLandscapeCount = gStaticLandscapeStorage.count; // 00568A78
     inline std::uint32_t& gStaticPatternCount = gStaticPatternStorage.count;   // 00568A30
     // Complete Windows music selection region 005683B0..00568417. The owning
