@@ -62,6 +62,7 @@ namespace NC2Logic
     void Human_UpdateCurrentJobType(void* human);
     void Human_SetJobType(void* human, std::uint32_t job);
     void Human_SetupPlayerSpecificStuff(void* human);
+    void Human_UpdatePlayerSpecificStuffAndCaps(void* human);
     void Human_Production_Setup(void* human);
     void Human_Production_Update(void* human);
     void Human_l_JobExperience_Gain(void* human);

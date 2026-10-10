@@ -7,6 +7,7 @@ namespace NC2Logic
     void ToUserMessage_CopyConstruct(void* message, const void* source);
     void Human_UserMessage_SendToUserMessage_CanProduceNewGood(void* human, std::uint32_t good);
     void Human_UserMessage_SendToUserMessage_CanDoNewJob(void* human, std::uint32_t job);
+    void Human_UserMessage_SendToUserMessage_CanEquipNewItem(void* human, std::uint32_t item);
     void Human_UserMessage_SendToUserMessage_CannotAttachHouse(void* human, std::uint32_t mask);
     void Human_UserMessage_SendToUserMessage_CannotAttachVehicle(void* human);
     void Human_UserMessage_SendToUserMessage_CannotDetachHouse(void* human, std::uint32_t mask);

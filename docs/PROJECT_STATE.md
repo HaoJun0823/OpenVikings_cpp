@@ -1,5 +1,15 @@
 # OpenVikings Project State
 
+## Campaign allowances and building-restriction checkpoint - 2026-10-10
+
+Eight native result branches now grant job/good/house allowances or availability, deactivate all mission groups and set/clear physical house-build restrictions. Two goal branches read native job/good availability flags. The complete human capability-refresh tree retains experience/sex/behavior checks, soldier/hero equipment differences, message order, callbacks and final job setup/update; the separate original equipment-message body replaces its previous inline copy. Hex-ring build restriction preserves center/edge handling and native bit writes. See [CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md](CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md).
+
+**4137 / 5062 (81.73%)** source-address coverage, **925** known entries open; **272 cpp / 252 headers**, **2275 naming rows / 56 unfinished boundaries**. Three original entries are newly mapped; enclosing mission dispatchers remain partial and excluded. Seven affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe establish behavior; Mac supplies names only. No build, tests or game run occurred. User-owned untracked CombatTasks remain untouched and excluded.
+
+The refreshed 35-asset audit connects 160 formerly missing result occurrences and 17 goal occurrences. Story assets gain 137 results (mission disabling/build areas) and no goals; allowance and availability-goal uses occur in tutorials. Remaining story source branches: 21 goal types / 185 occurrences and 45 result types / 541 occurrences; all assets: 28 / 260 and 46 / 566. These are static script counts, not gameplay completion. DisableAll disables mission groups, not every player allowance. Behavior bit 6's original name, periodic PlayerDied production and broader vehicle/AI/weather/drawing remain open. The source parser's existing 21 unmatched signatures are unchanged.
+
+Next logical block: queued vehicle boarding/detachment actions with original available-command checks; then remaining object/resource/combat/wonder predicates and actions.
+
 ## Campaign object creation/removal checkpoint - 2026-10-10
 
 Eight native result branches now create and remove humans, vehicles, houses and landscapes. The connected tree preserves optional vehicle commander creation/attachment/entry and failure cleanup, radius-12 nearby house placement with the shared native callback, map-modification scopes and the original removal flag/iteration order. The real owner-dispatch free routine replaces its temporary dummy and also enables normal user delete commands. Human vehicle assignment and its failure-message helper are reconstructed and connected to normal command 38. See [CAMPAIGN_OBJECT_LIFECYCLE.md](CAMPAIGN_OBJECT_LIFECYCLE.md).

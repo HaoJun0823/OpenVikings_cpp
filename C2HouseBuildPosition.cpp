@@ -15,6 +15,28 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_0044dcac; the center is a by-value Windows position.
+    void Map_HouseBuildForbiddenFlagTool_SetArea(std::uint32_t point, std::int32_t radius, std::uint8_t forbidden)
+    {
+        const auto setPoint = [&]()
+        {
+            if (!MapMigPoint_IsInsideMap(&point)) return;
+            void* micro = GameMap_GetMapMicroPointPtr(&point);
+            Write<std::uint8_t>(micro, 0x0D, (Read<std::uint8_t>(micro, 0x0D) & 0xDFu) | ((forbidden & 1u) << 5));
+        };
+        setPoint();
+        for (std::int32_t ring = 1; ring <= radius; ring = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(ring) + 1u))
+        {
+            MapMigPoint_MoveCursorUnwrapped(point, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::int32_t step = 0; step < ring; ++step)
+                {
+                    setPoint();
+                    MapMigPoint_MoveCursorUnwrapped(point, direction);
+                }
+        }
+    }
+
     // Original function: FUN_0044dd43; shared by mission and AI house placement.
     bool __cdecl Tool_HouseBuildPointSearchEvaluationFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* data)
     {

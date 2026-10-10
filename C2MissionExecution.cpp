@@ -10,6 +10,8 @@
 #include "C2HumanWalking.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanCommandAccess.h"
+#include "C2HumanJobAccess.h"
+#include "C2GameControlStartup.h"
 #include "C2HouseBuildPosition.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2EngineLandscapeAccess.h"
@@ -178,6 +180,8 @@ namespace NC2Logic
             }
             return false;
         }
+        case 38: return Read<std::uint8_t>(gGameControl, p[0] * 0x4A80u + p[1] * 56u + p[2] + 0x948u) != 0;
+        case 39: return Read<std::uint8_t>(gGameControl, p[0] * 0x4A80u + p[1] * 66u + p[2] + 0x1D4Cu) != 0;
         case 46: return Read<std::uint8_t>(GetMission(manager, goal.parameters[0]), 0x26) != 0;
         case 50:
         {
@@ -380,6 +384,34 @@ namespace NC2Logic
             (static_cast<STributeData*>(gTributeManager) + p[0])->descriptionStringId = p[3];
             break;
         case 28: TributeManager_AddTribute(gTributeManager, p[0], p[1], p[2]); break;
+        case 29:
+        {
+            const auto player = p[0], tribe = p[1], job = p[2];
+            const auto offset = player * 0x4A80u + tribe * 56u + job + 0x18u;
+            if (Read<std::uint8_t>(gGameControl, offset) != 0) break;
+            Write<std::uint8_t>(gGameControl, offset, 1);
+            CHumanIterator iterator;
+            for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
+            {
+                void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                if (Read<std::uint32_t>(human, 0x14) == tribe) Human_UpdatePlayerSpecificStuffAndCaps(human);
+            }
+            break;
+        }
+        case 30:
+        {
+            const auto player = p[0], tribe = p[1], house = p[2];
+            const auto offset = player * 0x4A80u + tribe * 55u + house + 0x2820u;
+            if (Read<std::uint8_t>(gGameControl, offset) != 0) break;
+            Write<std::uint8_t>(gGameControl, offset, 1);
+            CHumanIterator iterator;
+            for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
+            {
+                void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                if (Read<std::uint32_t>(human, 0x14) == tribe) Human_UpdatePlayerSpecificStuffAndCaps(human);
+            }
+            break;
+        }
         case 32: Write(manager, 0x0C, p[0]); Write(manager, 0x10, p[1]); Write<std::uint8_t>(manager, 8, 1); break;
         case 33: Write<std::uint8_t>(manager, 0x14, 1); break;
         case 34:
@@ -398,11 +430,50 @@ namespace NC2Logic
                 Write<std::uint8_t>(human, 0xB84, p[1] != 0 ? flags | 0x80u : flags & 0x7Fu);
             }
             break;
+        case 37:
+        {
+            const auto offset = p[0] * 0x4A80u + p[1] * 56u + p[2] + 0x948u;
+            if (Read<std::uint8_t>(gGameControl, offset) == 0) Write<std::uint8_t>(gGameControl, offset, 1);
+            break;
+        }
+        case 38:
+            if (Read<std::uint8_t>(gGameControl, p[0] * 0x4A80u + p[1] * 55u + p[2] + 0x3126u) == 0) PlayerAllowedThings_MarkHouseAvailable(static_cast<std::byte*>(gGameControl) + p[0] * 0x4A80u + 0x18, p[1], p[2]);
+            break;
+        case 39:
+            for (std::int32_t index = 0; index < Read<std::int32_t>(manager, 0x18); ++index) MissionData_SetMissionActiveFlag(GetMission(manager, static_cast<std::uint32_t>(index)), false);
+            break;
+        case 42:
+        {
+            const auto player = p[0], tribe = p[1], good = p[2];
+            const auto offset = player * 0x4A80u + tribe * 66u + good + 0x1278u;
+            if (Read<std::uint8_t>(gGameControl, offset) != 0) break;
+            Write<std::uint8_t>(gGameControl, offset, 1);
+            CHumanIterator iterator;
+            for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
+            {
+                void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                if (Read<std::uint32_t>(human, 0x14) == tribe) Human_UpdatePlayerSpecificStuffAndCaps(human);
+            }
+            break;
+        }
+        case 43:
+        {
+            const auto offset = p[0] * 0x4A80u + p[1] * 66u + p[2] + 0x1D4Cu;
+            if (Read<std::uint8_t>(gGameControl, offset) == 0) Write<std::uint8_t>(gGameControl, offset, 1);
+            break;
+        }
         case 63:
         {
             const auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]);
             // Windows 00420FA7 tests the mission-check ID, not the second script parameter.
             if (id != -1) NC2LogicExternals::External_Gui_SelectHuman(id, p[0] != 0);
+            break;
+        }
+        case 91:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[0]), static_cast<std::int16_t>(p[1]), false);
+            Map_HouseBuildForbiddenFlagTool_SetArea(point, NXBasics::Runtime_TimeSigned32(p[2]), p[3] != 0);
             break;
         }
         default: break;

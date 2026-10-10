@@ -511,6 +511,62 @@ namespace NC2Logic
         return primary ? !slotPrimary : slotPrimary;
     }
 
+    // Original function: FUN_0044a07c; update existing capabilities after script allowances change.
+    void Human_UpdatePlayerSpecificStuffAndCaps(void* human)
+    {
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 18);
+        const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
+        if (Human_IsSexMale(human) && (Read<std::uint32_t>(human, 0xB84) & 0x40u) == 0)
+        {
+            for (std::uint32_t job = 6; job <= 41; ++job)
+            {
+                if (Read<std::uint8_t>(player, 0x18u + Read<std::uint32_t>(human, 0x14) * 56u + job) == 0) Write<std::uint8_t>(human, 0x15Cu + job, 0);
+                else if (Read<std::uint8_t>(human, 0x15Cu + job) == 0 && Human_DoesExperienceAllowJobChange(human, job))
+                {
+                    Write<std::uint8_t>(human, 0x15Cu + job, 1);
+                    AppendMessageItem(message, 0x138, job);
+                }
+            }
+        }
+        else Write<std::uint8_t>(human, 0x161, Read<std::uint8_t>(player, 0x1Du + Read<std::uint32_t>(human, 0x14) * 56u) != 0);
+        if (Human_IsJobSoldier(human))
+        {
+            for (std::uint32_t job = 31; job <= 41; ++job)
+                if (Read<std::uint8_t>(human, 0x15Cu + job) == 0 && Read<std::uint8_t>(player, 0x18u + Read<std::uint32_t>(human, 0x14) * 56u + job) != 0) Write<std::uint8_t>(human, 0x15Cu + job, 1);
+            for (std::uint32_t item = 37; item <= 42; ++item)
+            {
+                if (Read<std::uint8_t>(human, 0x1E0u + item) != 0 || Read<std::uint8_t>(player, 0x1278u + Read<std::uint32_t>(human, 0x14) * 66u + item) == 0) continue;
+                Write<std::uint8_t>(human, 0x1E0u + item, 1);
+                Human_UserMessage_SendToUserMessage_CanEquipNewItem(human, item);
+            }
+            for (std::uint32_t item = 33; item <= 36; ++item)
+            {
+                if (Read<std::uint8_t>(human, 0x1E0u + item) != 0 || Read<std::uint8_t>(player, 0x1278u + Read<std::uint32_t>(human, 0x14) * 66u + item) == 0) continue;
+                Write<std::uint8_t>(human, 0x1E0u + item, 1);
+                Human_UserMessage_SendToUserMessage_CanEquipNewItem(human, item);
+            }
+        }
+        else if (Human_IsJobHero(human))
+        {
+            for (std::uint32_t job = 42; job <= 47; ++job)
+                if (Read<std::uint8_t>(player, 0x18u + Read<std::uint32_t>(human, 0x14) * 56u + job) != 0) Write<std::uint8_t>(human, 0x15Cu + job, 1);
+            for (std::uint32_t item = 33; item <= 36; ++item)
+                if (Read<std::uint8_t>(player, 0x1278u + Read<std::uint32_t>(human, 0x14) * 66u + item) != 0) Write<std::uint8_t>(human, 0x1E0u + item, 1);
+        }
+        if (Read<std::uint32_t>(message, 0x138) != 0 || Read<std::uint32_t>(message, 0x1FC) != 0 || Read<std::uint32_t>(message, 0x2C) != 0 || Read<std::uint32_t>(message, 0x2DC) != 0)
+        {
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(human, 0x10), 8, 0);
+        }
+        Human_SetupCurrentJobType(human);
+        Human_UpdateCurrentJobType(human);
+    }
+
     // Original function: FUN_0044a45d.
     void Human_SetupCurrentJobType(void* human)
     {
@@ -748,15 +804,7 @@ namespace NC2Logic
                 const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, 0x10) * 0x4A80u;
                 if (Read<std::uint8_t>(player, 0x3C78u + tribe * 56u + item) == 0) continue;
                 Write<std::uint8_t>(human, 0x1E0u + item, 1);
-                // Original message function: FUN_0045c1ea.
-                std::byte equipMessage[0x304];
-                ToUserMessage_Construct(equipMessage);
-                Write<std::uint32_t>(equipMessage, 0, 23);
-                Write(equipMessage, 0x10, Read<std::uint32_t>(human, 4));
-                Write(equipMessage, 8, Read<std::uint32_t>(human, 0x10));
-                Write(equipMessage, 0x30, item);
-                ToUserMessage_FinishMessage(equipMessage);
-                NC2LogicExternals::External_Misc_SendToUserMessage(equipMessage);
+                Human_UserMessage_SendToUserMessage_CanEquipNewItem(human, item);
             }
         }
         if (Read<std::uint32_t>(message, 0x138) != 0 || Read<std::uint32_t>(message, 0x1FC) != 0 || Read<std::uint32_t>(message, 0x2C) != 0 || Read<std::uint32_t>(message, 0x2DC) != 0)
