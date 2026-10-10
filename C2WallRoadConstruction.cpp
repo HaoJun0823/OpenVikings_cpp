@@ -1,4 +1,5 @@
 #include "C2WallRoadConstruction.h"
+#include "C2ChecksumTools.h"
 #include "C2WallRoadPathfinder.h"
 #include "C2DefaultInteraction.h"
 #include "C2GameMapAccess.h"
@@ -39,6 +40,30 @@ namespace NC2Logic
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
             return Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 82 && Read<std::int8_t>(micro, 4) == static_cast<std::int32_t>(player) && Read<std::uint8_t>(micro, 3) >= gStaticLandscapeTypeStorage.records[82].maximumValency * 75u / 100u;
         }
+    }
+
+    // Original function: FUN_004274c7; hash the player count, then each allocated 260h record in player order.
+    std::uint32_t WallBuildManager_Checksum_Calculate(const void* manager)
+    {
+        auto checksum = Tool_Checksum_Calculate(manager, 4);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+        {
+            const auto* data = Read<std::byte* const*>(manager, 4)[player];
+            if (data != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, data, 0x260);
+        }
+        return checksum;
+    }
+
+    // Original function: FUN_00428171; unused entries and padding are part of the native 4B8h record hash.
+    std::uint32_t RoadBuildManager_Checksum_Calculate(const void* manager)
+    {
+        auto checksum = Tool_Checksum_Calculate(manager, 4);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+        {
+            const auto* data = Read<std::byte* const*>(manager, 4)[player];
+            if (data != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, data, 0x4B8);
+        }
+        return checksum;
     }
 
     // Original function: FUN_00427b04; radius one removes only the center.

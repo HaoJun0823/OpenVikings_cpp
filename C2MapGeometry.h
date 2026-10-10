@@ -4,6 +4,7 @@
 
 namespace NC2Logic
 {
+    void* MapMigPoint_ConstructZero(void* packedMigPoint);
     std::uint32_t VE_MicroPoint_GetMicroPointCount(std::uint32_t radius);
     std::uint32_t VE_HexagonDirection_OppositeDirection(std::uint32_t direction);
     std::int32_t VE_HexagonDirection_DirectionToTurn(std::uint32_t source, std::uint32_t target, bool includeVertical);

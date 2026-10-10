@@ -72,7 +72,8 @@ namespace NC2Logic
         if (type == 5 || type == 6) { Write(point, 0, Read<std::uint32_t>(target, 4)); return; }
         if (type < 1 || type > 4) return;
         const auto* object = TargetObject(type, TargetData_GetObjectId(target));
-        const void* position = type == 1 ? Human_GetMapPositionRef(object) : type == 2 ? Vehicle_GetMapPositionRef(object) : type == 3 ? Animal_GetMapPositionRef(object) : static_cast<const std::byte*>(object) + 0x1C;
+        if (type == 3) { Animal_GetMapPosition(object, point); return; }
+        const void* position = type == 1 ? Human_GetMapPositionRef(object) : type == 2 ? Vehicle_GetMapPositionRef(object) : static_cast<const std::byte*>(object) + 0x1C;
         Write(point, 0, Read<std::uint32_t>(position, 0));
     }
 

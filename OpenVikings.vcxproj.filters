@@ -1226,6 +1226,8 @@
     <ClInclude Include="C2WallRoadPathfinder.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2WallRoadConstruction.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2WallRoadConstruction.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2ChecksumTools.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2ChecksumTools.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanConstruction.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2HumanConstruction.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="InGameGuiWallRoadWindows.cpp"><Filter>GUI</Filter></ClCompile>

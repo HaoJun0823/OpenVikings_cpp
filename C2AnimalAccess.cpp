@@ -332,6 +332,19 @@ namespace NC2Logic
         const auto offset = NC2Lifetime::Read<std::uint32_t>(animal, 0x14) * 0x40u - (NC2Lifetime::Read<std::uint32_t>(animal, 0x18) == 48 ? 0x1CCu : 0x1C8u);
         return NC2Lifetime::Read<std::uint32_t>(gStaticAnimalTypeData, offset);
     }
+    // Original function: FUN_0042e9fc; the native helper copies the position without allocation or attachment checks.
+    bool Animal_GetMapPosition(const void* animal, void* point)
+    {
+        Write(point, 0, Read<std::uint32_t>(Moveable(animal), 0x12));
+        return true;
+    }
+
+    // Original function: FUN_0042ef84; the native work-center reference is the leader's +2Ch point.
+    const void* Animal_GetAnimalWorkCenterPointRef(const void* animal)
+    {
+        return static_cast<const std::byte*>(Animal(Read<std::int32_t>(animal, 0x34))) + 0x2C;
+    }
+
     // Original function: FUN_0042ea17
     const void* Animal_GetMapPositionRef(const void* animal)
     {

@@ -48,8 +48,8 @@ namespace NC2Logic
             {
                 for (std::int32_t index = 0; index < sectorCount; ++index)
                 {
-                    // Original array construction: three calls to FUN_004478b5.
-                    std::memset(records + static_cast<std::uint32_t>(index) * 0x34u + 0x24u, 0, 0x0C);
+                    auto* points = records + static_cast<std::uint32_t>(index) * 0x34u + 0x24u;
+                    for (std::uint32_t point = 0; point < 3; ++point) MapMigPoint_ConstructZero(points + point * 4u);
                 }
             }
 

@@ -2294,3 +2294,12 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0040575A,NDSManager::Wave_Construct,,,Windows-only outlined entry; native fields and constructor return established from Windows ASM; no Mac naming correspondence established
 0047DBCF,NC2E2::DE_SpecialFX_Earthquake_Start,NC2E2::C2DEngineDisplay::DE_SpecialFX_Earthquake_Start,5028,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
 004A3126,NC2LogicExternals::External_FX_Earthquake_Start,NC2LogicExternals::External_FX_Earthquake_Start,5988,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+004274C7,NC2Logic::WallBuildManager_Checksum_Calculate,NC2Logic::CWallBuildManager::Checksum_Calculate,9019,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+00428171,NC2Logic::RoadBuildManager_Checksum_Calculate,NC2Logic::CRoadBuildManager::Checksum_Calculate,8930,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+0042A4DD,NC2Logic::Tool_Checksum_Calculate,NC2Logic::Tool_Checksum_Calculate,7078,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+0042A4ED,NC2Logic::Tool_Checksum_Combine,NC2Logic::Tool_Checksum_Combine,7079,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+0042A500,NC2Logic::Tool_Checksum_CalculateAndCombine,NC2Logic::Tool_Checksum_CalculateAndCombine,7080,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+0042E9FC,NC2Logic::Animal_GetMapPosition,NC2Logic::CAnimal::GetMapPosition,6950,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+0042EF84,NC2Logic::Animal_GetAnimalWorkCenterPointRef,NC2Logic::CAnimal::GetAnimalWorkCenterPointRef,6955,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+0043F52D,NC2Logic::Vehicle_DoExecuteNextUserCommand,NC2Logic::CVehicle::DoExecuteNextUserCommand,9371,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
+004478B5,NC2Logic::MapMigPoint_ConstructZero,,,Windows zero-coordinate constructor and all three constructor-array xrefs establish identity; separate Mac default-constructor symbol unresolved

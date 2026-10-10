@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ApplicationGlobals.h"
+#include "C2MapGeometry.h"
 #include "C2MapWalkSectorManager.h"
 #include "NetworkShutdown.h"
 #include "XCrtFileAccess.h"
@@ -74,10 +75,9 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_004477d8.
-        // Each block constructs 4000 four-byte entries using FUN_004478b5.
         for (std::size_t index = 0; index < 16; ++index)
         {
-            std::memset(NC2Logic::sMapPathfinderStaticVariables[index].points, 0, 0x3E80);
+            for (auto& point : NC2Logic::sMapPathfinderStaticVariables[index].points) NC2Logic::MapMigPoint_ConstructZero(&point);
         }
     },
 

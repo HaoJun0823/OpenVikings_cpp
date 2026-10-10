@@ -1,5 +1,9 @@
 # Windows road, palisade and gate construction - 2026-10-08
 
+## Checksum and small-topic completion - 2026-10-10
+
+Both native manager checksum methods, `004274C7` (wall, 260h records) and `00428171` (road, 4B8h records), are reconstructed with their native shared checksum subtree. The identified roads/palisades/guides inventory is now **114 / 114** after correcting two provisional nonroad assignments. The enclosing global game-checksum tree remains unfinished. See [SMALL_TOPIC_COMPLETION.md](SMALL_TOPIC_COMPLETION.md) for exact classification corrections, evidence and validation.
+
 Behavior, limits, memory layouts and call order were reconstructed from `assembly_weltwunder_win.asm` and the original Windows `Game.exe`. `x86-64-mac.h` supplies corresponding names only. No Mac function body supplied behavior.
 
 ## Connected tree

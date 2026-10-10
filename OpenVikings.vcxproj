@@ -564,6 +564,8 @@
     <ClInclude Include="C2WallRoadPathfinder.h" />
     <ClCompile Include="C2WallRoadConstruction.cpp" />
     <ClInclude Include="C2WallRoadConstruction.h" />
+    <ClCompile Include="C2ChecksumTools.cpp" />
+    <ClInclude Include="C2ChecksumTools.h" />
     <ClCompile Include="C2HumanConstruction.cpp" />
     <ClInclude Include="C2HumanConstruction.h" />
     <ClCompile Include="InGameGuiWallRoadWindows.cpp" />

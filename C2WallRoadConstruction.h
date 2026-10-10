@@ -3,6 +3,8 @@
 
 namespace NC2Logic
 {
+    std::uint32_t WallBuildManager_Checksum_Calculate(const void* manager);
+    std::uint32_t RoadBuildManager_Checksum_Calculate(const void* manager);
     void* RoadBuildManager_GetRoadBuildDataPtr(void* manager, std::int32_t player);
     void* RoadBuildManager_GetRoadBuildDataPtr(void* manager, std::int32_t player, const void* point);
     bool RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(const void* manager, const void* point);

@@ -14,7 +14,6 @@ Address,CurrentName,Status,ReferencingObjects
 0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,"Partial Windows result dispatcher; building operations plus PlaySound, mission video and earthquake sound/FX connected; remaining mission actions pending; excluded from completion counts",C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00428736,NC2Logic::Game_Checksum_Calculate,Temporary dummy; Windows implementation pending,C2GameTime.obj
-0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; landscape-edit external dummy remains; cadaver mapping is real,C2AnimalAccess.obj
 00436E8D,NC2Logic::Vehicle_Exit,Partial Windows vehicle exit; landscape-edit external dummy remains,C2VehicleLifecycle.obj
 0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj

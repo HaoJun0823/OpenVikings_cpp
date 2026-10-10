@@ -10,6 +10,16 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_004478b5; both WORD coordinates are cleared and the destination is returned.
+    // No separate Mac default-constructor symbol has been established.
+    void* MapMigPoint_ConstructZero(void* packedMigPoint)
+    {
+        const std::int16_t zero = 0;
+        std::memcpy(static_cast<std::byte*>(packedMigPoint) + 2, &zero, 2);
+        std::memcpy(packedMigPoint, &zero, 2);
+        return packedMigPoint;
+    }
+
     // Original function: FUN_0042a98a; SetPosition returns the destination pointer.
     void* MapMigPoint_SetPosition(void* packedMigPoint, std::int16_t x, std::int16_t y, bool validate)
     {

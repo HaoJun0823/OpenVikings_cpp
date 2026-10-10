@@ -372,7 +372,7 @@ namespace NC2Logic
     // Original function: FUN_00460e03; other entry fields remain untouched until Add/SetCurrent.
     SHumanSearchLandscapesData::SHumanSearchLandscapesData() : firstDistance(-1), typeCount(0), scanned(0), candidateCount(0), selectedCount(0)
     {
-        for (auto& entry : entries) for (auto& point : entry.points) point = 0;
+        for (auto& entry : entries) for (auto& point : entry.points) MapMigPoint_ConstructZero(&point);
     }
 
     // Original function: FUN_00460e3a.

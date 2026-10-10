@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Completion of topics with fewer than ten open entries - 2026-10-10
+
+The selected small topics are complete in the identified native-entry inventory: roads/palisades/guides **114 / 114**, animals **65 / 65**. Both distinct construction-manager checksum methods and their three shared checksum leaves are reconstructed; animal position copying and leader work-center references are connected to their native callers. The shared zero-coordinate point constructor is reconstructed and connected at all three constructor-array xrefs. The Animal_Exit unfinished entry was stale: its landscape-edit subtree is real and its complete Windows exit flow was re-audited before removing the exclusion.
+
+Two provisional road assignments are corrected transparently: `0043F52D` is the still-open vehicle queue execution routine, now assigned to vehicles; `004478B5` is the completed common map-point constructor, now assigned to map/pathfinding. No function was marked implemented merely by reclassification. The enclosing global game-checksum dummy remains outside this completed small block. See [SMALL_TOPIC_COMPLETION.md](SMALL_TOPIC_COMPLETION.md).
+
+**4170 / 5062 (82.38%)** global source-address coverage, **892** open entries; **273 cpp / 253 headers**, **2304** unique naming rows and **51** explicit unfinished entries. Eight separate native bodies plus one corrected obsolete exclusion add nine mapped addresses. Eleven unique changed/audited integration units passed Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe determine behavior; Mac supplies names only. No build, tests or game run occurred; user-owned CombatTasks remain untouched and excluded. No nonempty topic now has fewer than ten open entries. Runtime music remains unverified. Next smallest topic is network/multiplayer (148 / 164), followed by common movement/combat/object lifecycle (82 / 99); queued vehicles and campaign dependencies also remain open.
+
 ## Missing music and original Windows path correction - 2026-10-10
 
 The reported missing music has a confirmed asset-lookup blocker: startup copied a changed `datax\dm2` string from the reference PE, while the installation uses `data\DM2`. A full comparison with the installed original Game.exe proves exactly eight changed path bytes and no other byte differences. Music, mouse, picture and FMV consumers now use the original Windows strings, including their doubled separator. The unchanged native `datax` library pattern remains. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md); the old blanket source-audit path assertion is withdrawn. Use the installed original for these eight strings; the reference EXE was not modified.

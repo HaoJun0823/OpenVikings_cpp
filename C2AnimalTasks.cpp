@@ -184,7 +184,7 @@ namespace NC2Logic
             SLandPoints data;
             data.minimumDistance = 5;
             data.count = 0;
-            auto point = Read<std::uint32_t>(Animal(Read<std::uint32_t>(animal, 0x34)), 0x2C);
+            auto point = MapMigPoint_GetLong(Animal_GetAnimalWorkCenterPointRef(animal));
             const auto direction = Game_Random_GetNumber() % 6u;
             for (std::uint32_t step = 0; step < 5; ++step)
             {
