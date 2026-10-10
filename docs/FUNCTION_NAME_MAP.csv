@@ -2209,3 +2209,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004396DC,NXBasics::Font_PrintCharacter,NXBasics::CFont::PrintCharacter,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 0040EC57,NXBasics::CBitmap::Text_Print,NXBasics::CBitmap::Text_Print,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 0040ED30,NXBasics::CBitmap::Text_PrintV,NXBasics::CBitmap::Text_PrintV,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004956B7,NC2E2::DrawAtom_Guide_DoDraw,NC2E2::DrawAtom_Guide_DoDraw,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004958FB,NC2E2::ls_DrawDirectionMarker,NC2E2::ls_DrawDirectionMarker,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00495A40,NC2E2::ls_QSortCompareFunction,NC2E2::ls_QSortCompareFunction,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0047D2BB,NC2E2::Display_DE_ObjectsToMark_Guide_GetMarkType,NC2E2::C2DEngineDisplay::DE_ObjectsToMark_Guide_GetMarkType,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00495843,NC2E2::GuideDirectionAngle,,,Windows ASM/Game.exe establish direction-angle behavior; semantic reconstruction name; exact separate Mac symbol unresolved

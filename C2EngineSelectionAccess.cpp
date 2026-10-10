@@ -3,6 +3,7 @@
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineHouseDrawing.h"
+#include "C2EngineGuideDrawing.h"
 #include "C2EngineLifetimeAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2HouseAccess.h"
@@ -16,7 +17,6 @@
 #include "C2VehicleAccess.h"
 #include "XBobRendering.h"
 
-#include <cmath>
 #include <cstring>
 
 namespace NC2E2
@@ -28,43 +28,6 @@ namespace NC2E2
         const void* House(std::uint32_t id) { return NC2Logic::CHouseArray::mStaticVars + id * 0x7E0u; }
         const void* Guide(std::uint32_t id) { return NC2Logic::CGuideArray::mStaticVars + id * 0x184u; }
         const void* Landscape(std::uint32_t id) { return static_cast<const std::byte*>(gStaticLandscapeEntries) + id * 0x8Cu; }
-
-        // Original function: FUN_00495843. Constants are from Game.exe.
-        float GuideDirectionAngle(float dx, float dy)
-        {
-            constexpr double pi = 3.1415927410125732421875;
-            double angle = dy > 0.000001 ? std::atan(static_cast<double>(dx) / dy) : dy < -0.000001 ? std::atan(static_cast<double>(dx) / dy) + pi : dx > 0.0f ? pi * 0.5 : pi * -0.5;
-            while (angle < 0.0) angle += pi * 2.0;
-            while (angle >= pi * 2.0) angle -= pi * 2.0;
-            return static_cast<float>(angle);
-        }
-
-        // Original function: FUN_0049563f.
-        std::uint32_t ls_AngleToBobId(float sourceAngle)
-        {
-            constexpr double pi = 3.1415927410125732421875;
-            double angle = -static_cast<double>(sourceAngle) + pi + pi * 0.0555555559694767f;
-            while (angle < 0.0) angle += pi * 2.0;
-            while (angle >= pi * 2.0) angle -= pi * 2.0;
-            return static_cast<std::uint32_t>(1 - static_cast<std::int32_t>(angle * -18.0 / (pi * 2.0)));
-        }
-
-        // Original function: FUN_00495a77.
-        void DrawAtom_Guide_GetBobData(std::uint32_t id, const void* display, S2DEngineDisplaySearchObjectBobData* output)
-        {
-            const auto* guide = Guide(id);
-            std::memset(output, 0, sizeof(*output));
-            auto* manager = E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, "data\\engine2d\\bin\\bobs\\ls_guidepost.bmd");
-            output->AddBob(manager, 0, 0, 0);
-            if (display == nullptr) return;
-            std::int32_t source[2], target[2];
-            Display_MapMigToLocalDisplayPixelCoordinates(display, static_cast<const std::byte*>(guide) + 0x14, source, false);
-            for (std::int32_t i = 0; i < Read<std::int32_t>(guide, 0x78); ++i)
-            {
-                Display_MapMigToLocalDisplayPixelCoordinates(display, static_cast<const std::byte*>(Guide(Read<std::uint32_t>(guide, 0x3Cu + i * 8u))) + 0x14, target, false);
-                output->AddBob(manager, ls_AngleToBobId(GuideDirectionAngle(static_cast<float>(target[0] - source[0]), static_cast<float>(target[1] - source[1]))), 0, 0);
-            }
-        }
 
         bool IsHit(const S2DEngineDisplaySearchObjectBobData& bobs, const std::int32_t* mouse, const std::int32_t* base)
         {

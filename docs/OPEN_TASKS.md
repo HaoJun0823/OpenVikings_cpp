@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Guideposts/construction markers/repair sound checkpoint - 2026-10-10
+
+The Windows guidepost drawing tree at 004956B7/004958FB is reconstructed and connected, including selection outlines, player/unowned palettes, back/post/front order, twenty-arm limit and the native zero/one qsort comparator. Existing angle/image/hit-test helpers are shared with selection. Road and palisade construction-marker branches now draw their original player signs, fallback boxes and debug markers. Repair sound starts or updates the original first wave from the visible damaged-house count. A confirmed wrong 0x9C-stride lookup in landscape transition-phase selection is corrected. See [GUIDE_AND_CONSTRUCTION_MARKERS.md](GUIDE_AND_CONSTRUCTION_MARKERS.md).
+
+**4060 / 5062 (80.21%)** source-address coverage, **1002** known entries open; **268 cpp / 248 headers**, **2215 naming rows / 62 unfinished boundaries**. This block adds four mapped original entries; marker and sound branches belong to the still-excluded field entry. Ten affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only. Existing x87 math-adapter differences remain explicitly documented.
+
+Next logical block: particle sorting/bottom drawing at 0048688E, row drawing at 004869D0 and the particle draw subtree at 00486A40. The enclosing 004911D5 remains partial because its particle-line hook at 004912E3..004912F5 is still missing; it stays excluded from coverage. Full engine preview/gameplay completion requires those dependencies and user runtime confirmation. Continue the broader open profession/AI/vehicle scope afterward. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## House/construction/demolition rendering checkpoint - 2026-10-10
 
 The complete Windows house drawing subtree at 00495B57 is reconstructed and connected to the foreground map path: completed/building/upgrading images, animated and landscape overlays, door images, selection outlines, resident/worker/soldier signs, incense/fire and separate back/front demolition smoke. Native construction/collapse/ranged masks and shadow masks now support 16/32-bit destinations. Original fire RNG order, bottom-row collapse displacement, lazy debug-color exit registration and repair/music counters are retained. Existing house hit-test/sign descriptors are shared with the drawing unit. See [HOUSE_DRAWING.md](HOUSE_DRAWING.md).

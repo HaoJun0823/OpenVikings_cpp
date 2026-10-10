@@ -103,6 +103,22 @@ namespace NC2E2
     // Original function: FUN_0047d241.
     std::uint32_t Display_DE_ObjectsToMark_Vehicle_GetMarkType(const void* display, std::uint32_t vehicleId) { return GetMoveableMarkType(display, vehicleId, 3, 0x18, NC2Logic::CVehicleArray::mStaticVars, NC2Logic::CVehicleArray::ElementSize); }
 
+    // Original function: FUN_0047d2bb; both guide references validate the generation at +0x10.
+    std::uint32_t Display_DE_ObjectsToMark_Guide_GetMarkType(const void* display, std::uint32_t guideId)
+    {
+        using NC2Lifetime::Read;
+        const auto* guide = NC2Logic::CGuideArray::mStaticVars + guideId * NC2Logic::CGuideArray::ElementSize;
+        const auto matches = [=](const void* reference) { return Read<std::uint32_t>(reference, 0) == 5 && Read<std::uint32_t>(reference, 0x30) == guideId && Read<std::uint32_t>(reference, 0x34) == Read<std::uint32_t>(guide, 0x10); };
+        const auto* primary = Read<void*>(display, 0xA8);
+        if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, 0x44);
+        for (std::int32_t index = 0; index < Read<std::int32_t>(display, 0xAC); ++index)
+        {
+            const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
+            if (matches(reference)) return Read<std::uint32_t>(reference, 0x44);
+        }
+        return 0;
+    }
+
     // Original function: FUN_004824ea; C2DEngineMap::GetConstMapMacroPointPtr.
     const void* EngineMap_GetConstMapMacroPointPtr(const void* point)
     {

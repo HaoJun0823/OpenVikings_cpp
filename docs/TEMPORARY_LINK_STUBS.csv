@@ -49,7 +49,7 @@ Address,CurrentName,Status,ReferencingObjects
 0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048D194,NC2E2::E2StaticDataParticelManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native implementation; landscape and foreground house/moveable drawing complete; guide/road-wall construction markers/particles/repair sound branches pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
+004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native implementation; landscape/house/guide/moveable/construction-marker drawing and repair sound connected; particle-line hook 004869D0 pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
 004986C5,Display_l_DE_DrawTooltipOverlays,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

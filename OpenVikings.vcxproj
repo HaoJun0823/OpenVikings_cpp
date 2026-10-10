@@ -753,4 +753,8 @@
     <ClCompile Include="C2EngineHouseDrawing.cpp" />
     <ClInclude Include="C2EngineHouseDrawing.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineGuideDrawing.cpp" />
+    <ClInclude Include="C2EngineGuideDrawing.h" />
+  </ItemGroup>
 </Project>

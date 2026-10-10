@@ -2,7 +2,10 @@
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineHouseDrawing.h"
+#include "C2EngineGuideDrawing.h"
 #include "C2HouseAccess.h"
+#include "C2DefaultInteraction.h"
+#include "C2WallRoadConstruction.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineMapTerrainAccess.h"
 #include "C2E2LevelOfDetailManager.h"
@@ -13,12 +16,14 @@
 #include "C2OverviewObjectIterators.h"
 #include "C2E2HumanSoundAccess.h"
 #include "C2E2AnimalSoundManager.h"
+#include "C2E2StaticDataSoundFX.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2MapGeometry.h"
 #include "C2MapResourceManagers.h"
 #include "C2StaticLandscapeTypeData.h"
 #include "XCrtFileAccess.h"
+#include "XBitmap.h"
 #include "DSManager.h"
 
 #include <algorithm>
@@ -37,6 +42,51 @@ namespace NC2E2
         std::int32_t Mul(std::int32_t a, std::int32_t b) { return Bits(static_cast<std::uint32_t>(a) * static_cast<std::uint32_t>(b)); }
         std::int32_t RoundFixed(std::int32_t value) { return Add(value, 127) >> 8; }
         const SE2StaticDataLandscape* Landscape(std::uint32_t id) { return static_cast<const SE2StaticDataLandscape*>(gStaticLandscapeEntries) + id; }
+
+        // Repair sound branch 00491B45..00491BFF of 004911D5; use the first configured wave.
+        void UpdateRepairSound(const void* display)
+        {
+            auto intensity = Read<std::uint32_t>(display, 0xA0) * 10u;
+            if (intensity > 100u) intensity = 100u;
+            const auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
+            const auto soundId = sounds->staticSoundIdsByType[41];
+            if (soundId == 0xFFFFFFFFu) return;
+            const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
+            if (Read<std::uint32_t>(sound, 0x28) == 0) return;
+            const auto wave = Read<std::uint32_t>(sound, 0x2C);
+            const auto volume = (Read<std::uint32_t>(sound, 0x30) * intensity) / 100u;
+            auto* manager = NDSManager::CManager::sTheObjectPtr;
+            if (manager->PreloadWave_IsRunning(wave)) manager->PreloadWave_ChangeVolume(wave, volume, true, 200);
+            else manager->PreloadWave_Play(wave, volume, 0xFFFFFFFFu, 64, true, 200);
+        }
+
+        // Foreground construction-marker branches 004915FA..0049180A of 004911D5.
+        void DrawConstructionMarker(const void* display, const void* logic, const void* point, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, bool wall)
+        {
+            if ((Read<std::uint8_t>(logic, 0xD) & (wall ? 8u : 4u)) == 0) return;
+            auto* manager = wall ? NC2Logic::gWallBuildManager : NC2Logic::gRoadBuildManager;
+            const auto player = NC2Logic::RoadBuildManager_GetRoadBuildFlagPlayerId(manager, point);
+            const auto* color = StaticHumanMisc_ColorIds_GetPlayerColorRef(player);
+            const auto sign = wall ? StaticHumanMisc_WallBuildSign_GetLandscapeId(player) : StaticHumanMisc_RoadBuildSign_GetLandscapeId(player);
+            if (sign != -1) EngineGraphic_Draw(static_cast<std::uint32_t>(sign), 1, bitmap, x, y, 0, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), -1, false);
+            else
+            {
+                const auto halfSize = wall ? 5 : 3;
+                bitmap->Draw_Box(NXBasics::SRectangle(Sub(x, halfSize), Sub(y, halfSize), halfSize * 2, halfSize * 2), *color);
+            }
+            if ((Read<std::uint8_t>(display, 0x72) & 1u) == 0) return;
+            const auto* data = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(manager, player, point);
+            if (data != nullptr)
+            {
+                if (Read<std::uint8_t>(data, 4) != 0) bitmap->Draw_Circle(x, y, wall ? 8u : 6u, *color);
+            }
+            else
+            {
+                const NXBasics::SColorRGB white(255, 255, 255);
+                bitmap->Draw_Line(Sub(x, 5), Sub(y, 5), Add(x, 5), Add(y, 5), white);
+                bitmap->Draw_Line(Sub(x, 5), Add(y, 5), Add(x, 5), Sub(y, 5), white);
+            }
+        }
 
         // Foreground branch 004918CF..00491B12 / 00491BB1..00491BEA of 004911D5.
         void DrawMoveablesOnField(void* display, const void* logic, const void* point, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
@@ -153,7 +203,7 @@ namespace NC2E2
     }
 
     // Original function: FUN_004911d5, landscape branches 0049133B..004915C9.
-    // Foreground houses and moveables are connected; guides, road/wall construction markers, particles and generic sound playback remain unfinished.
+    // Foreground houses, guides, construction markers, moveables and repair sound are connected; the particle-line hook remains unfinished.
     void Display_l_DE_DrawLandscapeAndCreaturesField(void* display, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* pixelPoint, bool staticPart, bool backgroundPart)
     {
         using NC2Lifetime::Read;
@@ -193,7 +243,7 @@ namespace NC2E2
                             const bool landscape = Read<std::uint8_t>(logic, 0) == 1;
                             const auto type = landscape ? Read<std::uint8_t>(logic, 2) : 0;
                             std::uint32_t phase = static_cast<std::uint32_t>(static_cast<std::int32_t>(point[0]) + static_cast<std::int32_t>(point[1]) * 2);
-                            if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + type, 0x2D) & 0x20u) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
+                            if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + static_cast<std::uint32_t>(type) * 0x9Cu, 0x2D) & 0x20u) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
                             const std::int32_t player = landscape ? Read<std::int8_t>(logic, 4) : -1;
                             if (landscape && type == 82) DrawAtom_Landscape_Wall_DoDraw(bitmap, x, y, phase, display, point, player);
                             else EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(logic, 3) : 0u, bitmap, x, y, phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
@@ -206,6 +256,8 @@ namespace NC2E2
                     const auto controllingPlayer = Read<std::uint32_t>(display, 0x7C);
                     if ((flags & 4u) == 0 || controllingPlayer >= 16u || (Read<std::uint16_t>(logic, 8) & (1u << controllingPlayer)) != 0)
                     {
+                        DrawConstructionMarker(display, logic, point, bitmap, x, y, false);
+                        DrawConstructionMarker(display, logic, point, bitmap, x, y, true);
                         // Windows foreground house branch 0049180A..0049189E.
                         if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0)
                         {
@@ -216,6 +268,8 @@ namespace NC2E2
                             const auto state = Read<std::uint32_t>(house, 0x2C);
                             if ((state == 3 || state == 2) && NC2Logic::House_HitPoints_IsDamaged(house)) Write(display, 0xA0, Read<std::uint32_t>(display, 0xA0) + 1u);
                         }
+                        // Windows guidepost branch 0049189E..004918CF.
+                        if (Read<std::uint8_t>(logic, 0) == 3) DrawAtom_Guide_DoDraw(Read<std::uint16_t>(logic, 2), bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
                         DrawMoveablesOnField(display, logic, point, bitmap, x, y);
                     }
                 }
@@ -236,6 +290,10 @@ namespace NC2E2
                 EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(originLogic, 3) : 0u, bitmap, Add(x, Sub(originPixel[0], sourcePixel[0])), Add(y, Sub(originPixel[1], sourcePixel[1])), phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
             }
         }
-        if (foregroundPart && Read<std::uint8_t>(display, 0x6C) != 0 && NDSManager::CManager::sTheObjectPtr != nullptr) E2HumanSoundManager_PlayGenericSounds(gE2HumanSoundManager, display);
+        if (foregroundPart && Read<std::uint8_t>(display, 0x6C) != 0 && NDSManager::CManager::sTheObjectPtr != nullptr)
+        {
+            UpdateRepairSound(display);
+            E2HumanSoundManager_PlayGenericSounds(gE2HumanSoundManager, display);
+        }
     }
 }
