@@ -3,6 +3,7 @@
 #include "C2LifetimeAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineLandscapeDrawing.h"
+#include "C2EngineParticleDrawing.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayManager.h"
 #include "C2E2LevelOfDetailManager.h"
@@ -29,7 +30,6 @@
 // ECX receiver and callee-popped stack of their Windows __thiscall interfaces.
 extern bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std::int16_t* rectangle);
 extern void __cdecl DrawAtom_FishManager_DoDraw(void* display);
-extern void __fastcall E2ParticelManager_SortParticelAndDrawBottom(void* manager, void* unusedEdx, void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Rain_Draw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void* display);

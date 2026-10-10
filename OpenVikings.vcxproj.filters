@@ -1419,4 +1419,8 @@
     <ClCompile Include="C2EngineGuideDrawing.cpp"><Filter>Engine</Filter></ClCompile>
     <ClInclude Include="C2EngineGuideDrawing.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineParticleDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="C2EngineParticleDrawing.h"><Filter>Engine</Filter></ClInclude>
+  </ItemGroup>
 </Project>

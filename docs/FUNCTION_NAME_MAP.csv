@@ -668,7 +668,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0048571D,NC2E2::E2HumanSoundManager_ClearSeenHumanCounter,NC2E2::CE2HumanSoundManager::ClearSeenHumanCounter,58777,Original Mac name; Windows x86 control flow and object offsets confirmed
 00485735,NC2E2::E2HumanSoundManager_IncreaseSeenCounter,NC2E2::CE2HumanSoundManager::IncreaseSeenCounter,58811,Original Mac name; Windows x86 control flow and object offsets confirmed
 00486336,NC2E2::E2ParticelManager_Construct,NC2E2::CE2ParticelManager::CE2ParticelManager,70029,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0048688E,E2ParticelManager_SortParticelAndDrawBottom,NC2E2::CE2ParticelManager::SortParticelAndDrawBottom,70779,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0048688E,NC2E2::E2ParticelManager_SortParticelAndDrawBottom,NC2E2::CE2ParticelManager::SortParticelAndDrawBottom,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 00486D61,NC2E2::E2ParticelManager_DoOneGameTick,NC2E2::CE2ParticelManager::DoOneGameTick,71378,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 00489DE0,NC2E2::MacroMapManager_Construct,NC2E2::CMacroMapManager::CMacroMapManager,64204,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,NC2E2::CE2StaticDataParticelEffectManager::CE2StaticDataParticelEffectManager,79381,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -2214,3 +2214,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00495A40,NC2E2::ls_QSortCompareFunction,NC2E2::ls_QSortCompareFunction,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 0047D2BB,NC2E2::Display_DE_ObjectsToMark_Guide_GetMarkType,NC2E2::C2DEngineDisplay::DE_ObjectsToMark_Guide_GetMarkType,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 00495843,NC2E2::GuideDirectionAngle,,,Windows ASM/Game.exe establish direction-angle behavior; semantic reconstruction name; exact separate Mac symbol unresolved
+004869D0,NC2E2::E2ParticelManager_DrawParticelLine,NC2E2::CE2ParticelManager::DrawParticelLine,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486A40,NC2E2::E2ParticelManager_l_DrawParticel,NC2E2::CE2ParticelManager::l_DrawParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00497A29,NC2E2::LogicParticelObject_Move,NC2E2::S2E2LogicParticelObject::Move,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00497DE2,NC2E2::LogicParticelObject_DoOneMovementTick,NC2E2::S2E2LogicParticelObject::DoOneMovementTick,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00497F54,NC2E2::LogicParticelObject_CalculateValency,NC2E2::S2E2LogicParticelObject::CalculateValency,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only

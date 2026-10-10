@@ -43,13 +43,12 @@ Address,CurrentName,Status,ReferencingObjects
 00480939,NC2LogicExternals::External_Human_SetName,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00482DC0,NC2E2::EngineMap_OverlayPattern_HouseAreaChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
-0048688E,E2ParticelManager_SortParticelAndDrawBottom,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00486D61,NC2E2::E2ParticelManager_DoOneGameTick,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
 00489DE0,NC2E2::MacroMapManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048D194,NC2E2::E2StaticDataParticelManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native implementation; landscape/house/guide/moveable/construction-marker drawing and repair sound connected; particle-line hook 004869D0 pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
+004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native integration; landscape/house/guide/moveable/construction-marker/particle-line drawing and repair sound connected; complete enclosing-entry audit pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
 004986C5,Display_l_DE_DrawTooltipOverlays,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

@@ -3,6 +3,7 @@
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineHouseDrawing.h"
 #include "C2EngineGuideDrawing.h"
+#include "C2EngineParticleDrawing.h"
 #include "C2HouseAccess.h"
 #include "C2DefaultInteraction.h"
 #include "C2WallRoadConstruction.h"
@@ -203,7 +204,7 @@ namespace NC2E2
     }
 
     // Original function: FUN_004911d5, landscape branches 0049133B..004915C9.
-    // Foreground houses, guides, construction markers, moveables and repair sound are connected; the particle-line hook remains unfinished.
+    // Foreground houses, guides, construction markers, moveables, particles and repair sound follow the Windows field order.
     void Display_l_DE_DrawLandscapeAndCreaturesField(void* display, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* pixelPoint, bool staticPart, bool backgroundPart)
     {
         using NC2Lifetime::Read;
@@ -225,6 +226,7 @@ namespace NC2E2
             const auto rowX = Add(Mul((point[1] & 1) + 1, Read<std::int32_t>(display, 0x2C)), pixelPoint[0]);
             const auto* engine = static_cast<const std::byte*>(EngineMap_GetConstMapMicroPointPtr(point));
             const auto* logic = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
+            if (foregroundPart && (Read<std::uint32_t>(display, 0x70) & 2u) != 0) E2ParticelManager_DrawParticelLine(gE2ParticelManager, display, point[1]);
             for (std::int32_t column = 0; column < rectangle[2]; ++column, ++point[0], engine += 4, logic += 14)
             {
                 Write(display, 0x84, Read<std::uint32_t>(display, 0x84) + 1u);

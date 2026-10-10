@@ -158,9 +158,6 @@ void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void *) {}
 void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void *) {}
 
 
-// TEMPORARY DUMMY: Windows address 0048688E; implementation pending.
-    // Naming reference: NC2E2::CE2ParticelManager::SortParticelAndDrawBottom.
-void __fastcall E2ParticelManager_SortParticelAndDrawBottom(void *, void *, void *) {}
 
 // TEMPORARY DUMMY: Windows address 004986C5; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_DrawTooltipOverlays.

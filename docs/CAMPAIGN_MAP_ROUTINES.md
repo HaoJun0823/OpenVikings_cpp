@@ -1,0 +1,59 @@
+# Campaign-map routine audit
+
+Read-only audit: 2026-10-10, after connecting particle drawing. Evidence: Windows ASM, original Windows Game.exe jump tables/strings, current registered C++ source and installed Windows map scripts. Mac provides names only. No game build or runtime run occurred.
+
+## Concrete result
+
+There are special campaign mechanisms, but the inspected loading/execution tree uses a shared script interpreter rather than a separate C++ routine for each main map. The eight `campaign_03_01` through `campaign_03_08` maps and their nine submaps encode progression, wonder objectives and special actions in `MissionData`. This conclusion is scoped to the inspected loader, campaign manager, goal/result tables and submap tree; it is not proof that no other map-specific branch exists elsewhere in Game.exe.
+
+The installation also contains ten `_campaign_04_*` folders: four main and six submap folders. All 27 story-campaign folders were audited. A metadata scan of all installed map folders additionally found seven tutorials (campaign 100/IDs 1..7) and `singleplayer_03_01-sub1` (campaign 0/ID 30101), also declared as maptype 1. Those eight are included as additional rows, bringing the complete metadata-based audit to **35 assets**. Directory names alone are not campaign identity: **`_campaign_04_04` actually declares campaign 3/map 20**, colliding with `campaign_03_02`. The CSV therefore includes the actual `misc_maptype/mapcampaignid` values. These additional assets are not assumed to be a separate playable campaign. Runtime selection/duplicate identity behavior has not been verified.
+
+The exact inventory is [CAMPAIGN_MAP_COVERAGE.csv](CAMPAIGN_MAP_COVERAGE.csv). Every goal/result occurrence, mission index, debug label, decoded line, parameter list, implementation state and PE-confirmed Windows branch address is in [CAMPAIGN_MAP_SCRIPT_AUDIT.csv](CAMPAIGN_MAP_SCRIPT_AUDIT.csv). Lines refer to decoded CIF command lines, not byte offsets in the binary CIF. `yes` means a corresponding source branch exists; it does not establish that all recursively called goals/dependencies work. `partial` marks submap request flags whose transitions are missing.
+
+Across those 27 assets: **1,022 mission groups**, **1,386 goal occurrences / 36 distinct types**, and **3,772 result occurrences / 80 distinct types**. Current dispatchers omit **29 used goal types (962 occurrences)** and **69 used result types (1,698 occurrences)**. Another 30 result occurrences set submap request flags but cannot perform transitions. These are script-definition counts, not counts of runtime failures or percentage gameplay completion.
+
+Including tutorials/the additional singleplayer submap, the 35-asset inventory has **1,157 mission groups**, **1,572 goals / 45 types** and **4,228 results / 86 types**. Of these, **38 used goal types (1,095 occurrences)** and **75 used result types (1,827 occurrences)** have missing branches; **31** submap request results remain partial. Tutorial coverage is therefore also incomplete even where its opening briefing works.
+
+## Windows mechanisms and current boundaries
+
+| Mechanism | Windows evidence | Current state |
+| --- | --- | --- |
+| Campaign metadata/lookup | 00416424, 00416608 and 004167A1 map metadata parser; maptype 1 and campaign/map IDs | Existing clean-map loader/list bodies; directory names do not choose behavior |
+| Persistent map unlock | 00416CAE / 00416D6C and result 14 at 0041FDFE | Campaign list persistence exists; `AllowMap` result branch is missing |
+| Goal/result interpreter | 0041E45E + 63-target table 0041F8FB; 0041F9F7 + 102-target table 00422E43 | Only a subset of cases is reconstructed; CSV maps every used case to its native branch |
+| Submap start | Result 32 at 0042030E; scan 0041E2F2..0041E30D; `CGame::SubMap_StartSubMap` 0040768A | Result stores IDs/request flag; scan never calls the real transition, and transition body is absent |
+| Return to parent | Result 33 at 00420323; scan 0041E2E6..0041E2F0; `CGame::SubMap_BackToParent` 0040773A | Request flag exists; transition/callback chain is absent |
+| Mission won/failed | Results 12/13 at 0041FD66 / 0041FDB2, callback 0x18; state 6/7; network notification branch | Both result branches are missing; briefing display alone cannot finish a map |
+| Tributes and wonder resource checks | Goals PayTribute / NumberOfGoodsInArea / NumberOfHousesInArea; results CreateTribute / AddTributeGoods / InfoCountGoodsInArea | These used dispatcher cases are missing; the separate ordinary economy does not implement scripted checks |
+| Wonder building overlay | Result 88 at 00422365 | Missing dispatch case; used in 11 occurrences across audited assets |
+| Weather/earthquake/vertex color | Results 61/62/68; earthquake branch 00420F5F scales seconds by 1000 and dispatches external FX/sound | Missing mission dispatch cases; not inferred from a Mac implementation |
+| Import-landscape marker | Result 96 at 00422998 | Windows creates/removes type-4 marker mode 2; missing mission dispatch |
+| Area marker / magic area marker | Results 101/102 at 00422C0B / 00422D28 | Windows iterates hexagonal rings and creates/removes marker modes 3/4; missing mission dispatch |
+| Special landscape removal | Windows 00421DE8..00421F6B uses names `fx fog`, `fx fog waterfall`, `fx fog waterfall00`, `fx waterfall` | Shared named landscape-effect operation, not an invented per-map routine |
+
+The submap tree is concrete: **0040768A** finds the target campaign/map record, saves the parent under the original system temporary save name, sets submap/import state, loads the target, embeds the parent save, removes the temporary file and emits callback **0x2B** after successful embedding. **0040773A** restores the embedded parent, loads the saved game, removes the temporary file and emits **0x2C**. Save/load/embed leaf bodies exist in `C2SavegameIO.cpp` and `C2SavegameStateAccess.cpp`; their orchestration and relevant object-import consumers remain missing. The original shared string pointer 004FF268/004FF26C resolves to `sys_temp`. The mission scan must prefer return-to-parent over starting a submap and return false after either transition.
+
+## Main campaign 3 blockers
+
+| Map / actual map ID | Mission groups | Unsupported goal occurrences | Unsupported result occurrences |
+| --- | ---: | ---: | ---: |
+| campaign_03_01 / 10 | 85 | 80 | 98 |
+| campaign_03_02 / 20 | 51 | 62 | 93 |
+| campaign_03_03 / 30 | 125 | 95 | 320 |
+| campaign_03_04 / 40 | 115 | 72 | 245 |
+| campaign_03_05 / 50 | 55 | 56 | 71 |
+| campaign_03_06 / 60 | 62 | 69 | 98 |
+| campaign_03_07 / 70 | 70 | 60 | 122 |
+| campaign_03_08 / 80 | 40 | 36 | 64 |
+
+For example, campaign 03/01's first `START` mission already uses unsupported `ChangeHousesPlayerId 9 1`; its `cruise` mission issues `SendVehicle` and `SelectHuman`, and its objectives depend on `FindPosByHumans`. It later requests `StartSubMission 3 11`, `MissionWon`, `AllowMap` and `SetHouseOverlayState`. These are proven blockers even if the first briefing opens. The final map uses scripted obelisk/object-location objectives; ordinary unit movement cannot substitute for those predicates.
+
+## Next reconstruction order
+
+1. Complete the remaining particle static-data/creation/tick tree; rendering is now connected, generation is not complete.
+2. Campaign transition and result lifecycle: win/fail/unlock, start/return submap, callback/import behavior and save ownership.
+3. The most frequently used missing predicates: FindPosByHumans (312), FindPosByPlayersMapMoveable (279), HumansDied (99), PayTribute (49); preserve original mission-check IDs and side effects.
+4. Scripted object creation/removal/ownership and commands; many ordinary game helpers now exist, but dispatcher calls still need native reconstruction.
+5. Tribute/resource overlays, wonder building states, weather/colors and marker/magic effects, following each native branch through its actual callees.
+
+No fabricated generic victory, unconditional unlock, per-map workaround or substituted Mac behavior was added by this audit.
