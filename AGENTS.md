@@ -91,6 +91,7 @@ When a contiguous static region is discovered, analyze the whole region rather t
 ## 7. Communication/workflow preferences
 
 - Store temporary analysis scripts, extracted text, scratch files and generated audit artifacts in the gitignored `.codex-work/` directory, not in the repository root. Keep maintained repository tools in `tools/`.
+- Keep assistant-only handoffs and generated progress snapshots in `.codex-work/docs/`, and internal analysis utilities in `.codex-work/tools/`. Retain shared project documentation and evidence inventories in `docs/`. If present, read `.codex-work/docs/NEXT_CHAT_HANDOFF.md` for local session continuity; verify it against current source and Git history.
 - Be action-oriented. Do not repeatedly ask whether to continue after every small function.
 - After completing a block, state directly what was completed and what the next logical block is.
 - Ask for additional reverse-engineering data only when it is genuinely needed, and request the **smallest targeted region** possible.
