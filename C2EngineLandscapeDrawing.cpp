@@ -245,7 +245,8 @@ namespace NC2E2
                             const bool landscape = Read<std::uint8_t>(logic, 0) == 1;
                             const auto type = landscape ? Read<std::uint8_t>(logic, 2) : 0;
                             std::uint32_t phase = static_cast<std::uint32_t>(static_cast<std::int32_t>(point[0]) + static_cast<std::int32_t>(point[1]) * 2);
-                            if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + static_cast<std::uint32_t>(type) * 0x9Cu, 0x2D) & 0x20u) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
+                            // Typed pointer indexing already applies the native 0x9C-byte stride.
+                            if ((Read<std::uint8_t>(NC2Logic::gStaticLandscapeTypeData + type, 0x2D) & 0x20u) != 0) phase = static_cast<NC2Logic::CMapLandscapeAutoTransitionManager*>(NC2Logic::gMapLandscapeAutoTransitionManager)->AutoTransition_GetTimeDonePercentage(point);
                             const std::int32_t player = landscape ? Read<std::int8_t>(logic, 4) : -1;
                             if (landscape && type == 82) DrawAtom_Landscape_Wall_DoDraw(bitmap, x, y, phase, display, point, player);
                             else EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(logic, 3) : 0u, bitmap, x, y, phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);

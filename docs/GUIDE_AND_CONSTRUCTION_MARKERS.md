@@ -22,7 +22,7 @@ The road branch 004915FA..00491702 and wall branch 00491702..0049180A now run be
 
 The native repair-sound branch 00491B45..00491BFF uses static-sound type 41, the first configured wave and a volume derived from ten times the visible damaged-house count, capped at 100. It changes an already running wave's volume or starts the infinite-repeat wave with centered pan and a 200 ms transition. It also processes zero intensity as Windows does. Generic human sounds run afterward, under the same active-foreground/DirectSound gate; previews do not enter this sound branch.
 
-One confirmed existing landscape mismatch was corrected at 004913D4..00491408: the logic landscape-type table has a 0x9C-byte stride. The former `base + type` access could read another record's byte instead of the intended transition-mask byte at +0x2D. The drawing path now uses `base + type * 0x9C + 0x2D` for the native auto-transition phase decision.
+Correction after the reported main-menu startup crash: Windows 004913D4..00491408 uses a 0x9C-byte landscape-record stride and reads the transition-mask byte at +0x2D. The earlier checkpoint incorrectly multiplied an already typed SStaticLandscapeTypeData pointer index by 0x9C, applying the stride twice and reading outside the allocation. The drawing path now uses `gStaticLandscapeTypeData + type`; C++ pointer arithmetic supplies exactly the native byte stride. The earlier claim that this typed access was wrong is withdrawn. The record-size static assertion and Windows instructions establish this correction; a fresh runtime check remains pending.
 
 ## Boundary and validation
 
