@@ -67,7 +67,7 @@ Reviewed representative high-risk paths against current source and Windows ASM:
 - Remaining nullable-allocation findings in picture/string/memory/INI/network/CRT code need routine-specific assembly confirmation. They were not suppressed by speculative guards or allocator substitutions.
 - No blanket changes were made to deprecated Windows APIs, original `MEM_DECOMMIT` paths, original indexing quirks or native allocation pairs merely to silence diagnostics.
 
-The `datax` startup paths were checked against actual `Game.exe` strings and retained. The disassembly's human-readable string comments do not reliably reproduce those bytes; changing them to `data` based on comments alone would have been incorrect.
+Correction, 2026-10-10: this inspection used the reference copy of `Game.exe`, whose eight music/mouse/picture/FMV path bytes differ from the installed original Windows executable (backslash changed to `x`). A full comparison confirms all other bytes match. Those eight original strings use `data` followed by two backslashes, and their C++ consumers are now corrected from the installed original. The blanket `datax` assertion is withdrawn for those strings; the unchanged `datax` library pattern remains valid. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md).
 
 ## Incomplete compilation units
 

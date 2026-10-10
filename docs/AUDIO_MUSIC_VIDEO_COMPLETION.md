@@ -2,6 +2,8 @@
 
 Updated: 2026-10-10. Windows x86 ASM and the original Windows `Game.exe` establish behavior, constants, strings, layouts and ownership. Mac declarations supply matching original names only.
 
+Runtime follow-up, 2026-10-10: the user reports no music. The reference PE has eight altered asset-path bytes compared with the installed original Windows executable; copying its `datax` music path caused a lookup under a nonexistent directory. The original music/mouse/picture/FMV path consumers are now corrected. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md). The address count below remains source coverage; actual playback is still unverified.
+
 ## Completion scope
 
 The current thematic inventory maps **138 / 138 known audio/music/video entry candidates (100%)**. The previous 136 / 139 snapshot included application-entry callback `00403487` in an overly broad audio address interval. Its existing lambda body in `WinMain.cpp` belongs to program startup; it is now assigned to the system category and remains an unmapped entry in the global inventory. Two genuine native DirectSound helper bodies are now separately connected. No dummy or partial enclosing dispatcher has been counted as complete.

@@ -1,5 +1,7 @@
 # Windows DirectMusic manager — 2026-10-01
 
+Follow-up, 2026-10-10: startup's music directory is corrected to the installed original Windows string `004FE0A4`, after proving the supplied reference PE differs in eight asset-path bytes only. The former `datax` directory does not exist in the installation. This fixes a resource-lookup blocker outside the manager body; playback is not yet runtime-confirmed. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md).
+
 ## Scope and evidence
 
 The preceding overview overlays and Visual Studio synchronization are committed as `d2cb794`. All 14 original game-side DirectMusic manager entries now have reconstructed bodies, including the six previously present event helpers. This completes the manager in the game executable, not the separate `gedx8musicdrv.dll` implementation.

@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## Missing music and original Windows path correction - 2026-10-10
+
+The reported missing music has a confirmed asset-lookup blocker: startup copied a changed `datax\dm2` string from the reference PE, while the installation uses `data\DM2`. A full comparison with the installed original Game.exe proves exactly eight changed path bytes and no other byte differences. Music, mouse, picture and FMV consumers now use the original Windows strings, including their doubled separator. The unchanged native `datax` library pattern remains. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md); the old blanket source-audit path assertion is withdrawn. Use the installed original for these eight strings; the reference EXE was not modified.
+
+Three changed units passed Win32 `/Zs`; no build, tests or game run occurred. Actual music driver/playback and film-asset availability remain unverified. Coverage stays **4161 / 5062 (82.20%)**, audio/music/video **138 / 138 mapped addresses**; this is not playback confirmation. User-owned CombatTasks remain untouched. Next broader block remains queued vehicle attachment/detachment and remaining campaign dependencies.
+
 ## Cursor text and chest-arrival correction - 2026-10-10
 
 The construction cursor's <1:22:NOT DEFINED!> comes from using GUI table 1 instead of native miscellaneous table 2 for all 29 input-mode captions. The chest crash comes from two hexadecimal task IDs mistranslated as decimal in arrival completion: chest 0x12 must be 18, and vehicle entry 0x15 must be 21. Both existing bodies are corrected from Windows ASM/Game.exe; six affected/integration units passed Win32 `/Zs`. No build, tests or runtime run occurred. Coverage remains **4161 / 5062 (82.20%)**. See [GUI_INPUT_AND_CHEST_FIX.md](GUI_INPUT_AND_CHEST_FIX.md). User-owned CombatTasks remain untouched. Next broader block remains queued vehicle attachment/detachment and remaining campaign dependencies.

@@ -173,17 +173,17 @@ namespace NMasterControlProgram
 
         char resolvedPath[MAX_PATH];
 
-        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("datax\\mouse\\mousenormal.cur", resolvedPath))
+        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("data\\\\mouse\\mousenormal.cur", resolvedPath))
         {
             mMouseCursors[0] = LoadCursorFromFileA(resolvedPath);
         }
 
-        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("datax\\mouse\\mousepressed.cur", resolvedPath))
+        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("data\\\\mouse\\mousepressed.cur", resolvedPath))
         {
             mMouseCursors[1] = LoadCursorFromFileA(resolvedPath);
         }
 
-        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("datax\\mouse\\mouseright.cur", resolvedPath))
+        if (NXBasics::CFile::FileSystem_Tool_GetRealFilename("data\\\\mouse\\mouseright.cur", resolvedPath))
         {
             mMouseCursors[2] = LoadCursorFromFileA(resolvedPath);
         }
@@ -267,7 +267,8 @@ namespace NMasterControlProgram
 
             GetCurrentDirectoryA(MAX_PATH - 1, directMusicPath);
             // Original append routine 004e5c30 is strcat.
-            std::strcat(directMusicPath, "\\datax\\dm2\\");
+            // Original 004FE0A4 in the installed Game.exe; the reference copy has patched path bytes.
+            std::strcat(directMusicPath, "\\data\\\\dm2\\");
 
             NDMManager::Init(gDirectMusicManager, 0, directMusicPath);
 
