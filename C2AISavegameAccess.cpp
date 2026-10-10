@@ -4,11 +4,41 @@
 #include "C2LifetimeGlobals.h"
 #include "C2CallbackManager.h"
 #include "C2MapSectorGridCursor.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2LogicObjectArrays.h"
 #include "XFile.h"
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
     extern bool __cdecl AIManager_l_AI_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
+    // Original function: FUN_0042a5de; an absent player handler leaves the stored array untouched.
+    void AIManager_EntryPoint_RebuildHouseArray(void* manager, std::int32_t player)
+    {
+        void* handler = Read<void*>(manager, static_cast<std::uint32_t>(player) * 4u);
+        if (handler != nullptr) AISinglePlayerHandler_EntryPoint_RecalculateHouseArray(handler);
+    }
+
+    // Original function: FUN_0044e35e; append missing positions, retaining existing entries and count.
+    void AISinglePlayerHandler_EntryPoint_RecalculateHouseArray(void* handler)
+    {
+        CHouseIterator iterator;
+        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, 0)); id != -1; id = iterator.GetNextHouseId())
+        {
+            const auto count = Read<std::uint32_t>(handler, 0x3D60);
+            if (count == 100) break;
+            const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+            const auto point = Read<std::uint32_t>(house, 0x1C);
+            std::uint32_t index = 0;
+            while (index < count && Read<std::uint32_t>(handler, 0x3D68u + index * 16u) != point) ++index;
+            if (index != count) continue;
+            Write(handler, 0x3D64u + count * 16u, Read<std::uint32_t>(house, 0x10));
+            Write(handler, 0x3D68u + count * 16u, point);
+            Write(handler, 0x3D6Cu + count * 16u, Read<std::uint32_t>(house, 0x20));
+            Write(handler, 0x3D70u + count * 16u, Read<std::uint32_t>(house, 0x7CC));
+            Write(handler, 0x3D60, count + 1u);
+        }
+    }
+
     namespace
     {
         // Original function: FUN_0042955d; serialized fields exclude the owned calculation grid.

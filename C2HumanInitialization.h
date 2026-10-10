@@ -9,6 +9,7 @@ namespace NC2Logic
     bool Human_Init(void* human, std::int32_t id, std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags);
     void Human_Exit(void* human);
     void Human_Detach(void* human, bool forceVehicleDetach);
+    void Human_ChangePlayerId(void* human, std::int32_t player, bool detach);
     bool Human_IsAttachedToRoadPoint(const void* human);
     bool Human_IsAttachedToWallPoint(const void* human);
     bool Human_IsAttachedToBuildSite(const void* human);

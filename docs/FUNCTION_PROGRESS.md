@@ -1,5 +1,15 @@
 # Windows function mapping progress
 
+## Campaign human movement/docking and owner transfer checkpoint - 2026-10-10
+
+Four native result branches now transfer humans individually or whole-player objects in the original order, send humans to corrected destinations and issue vehicle docking commands. The complete human transfer/reset/constructor tree preserves attachment-dependent exploration, connection detachment flags, callback order and job updates. The distinct vehicle player iterator and AI house-array rebuild/recalculate leaves are reconstructed. Three real outlined helper names remain unresolved and retain their original FUN_ addresses; no fake/link-only helpers were added. See [CAMPAIGN_HUMAN_COMMANDS.md](CAMPAIGN_HUMAN_COMMANDS.md).
+
+**4127 / 5062 (81.53%)** source-address coverage, **935** known entries open; **272 cpp / 252 headers**, **2264 naming rows / 57 unfinished boundaries**. Seven original entries are newly mapped; the enclosing result dispatcher remains partial and excluded. Ten affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe establish behavior; Mac supplies names only. No build, tests or game run occurred. User-owned untracked CombatTasks remain untouched and excluded.
+
+The refreshed 35-asset audit connects 192 formerly missing result occurrences, 170 in story assets. Remaining story source branches: 21 goal types / 185 occurrences and 55 result types / 1,202 occurrences; all assets: 30 / 277 and 61 / 1,299. These are static script counts, not gameplay completion. Three helper naming correspondences, PlayerDied's periodic automatic defeat producer and broader vehicle/AI/weather/drawing boundaries remain open. The progress parser's new unmatched signature is an actual raw-helper call with its complete mapped definition, not a new missing linker body; see the block report.
+
+Next logical block: script creation/removal of humans, vehicles, houses and landscapes, then job/good/building restrictions and remaining area-resource/combat/wonder predicates/actions. Follow native helpers through their actual dependencies.
+
 ## Campaign building/vehicle ownership and command checkpoint - 2026-10-10
 
 Four native result branches now transfer buildings/vehicles by mission-check ID, send every matching vehicle to the original corrected map position and start human camera-follow using the native first-parameter Boolean behavior. Three distinct native helpers are reconstructed; owner changes preserve sector links, pathfinder state and exploration order. Existing GUI selection/follow and command queue consumers remain connected. See [CAMPAIGN_OBJECT_COMMANDS.md](CAMPAIGN_OBJECT_COMMANDS.md).

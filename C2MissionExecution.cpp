@@ -8,6 +8,11 @@
 #include "C2VehicleIterator.h"
 #include "C2VehicleAccess.h"
 #include "C2HumanWalking.h"
+#include "C2HumanInitialization.h"
+#include "C2HumanCommandAccess.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2GuideAccess.h"
+#include "C2AISavegameAccess.h"
 #include "C2MapGeometry.h"
 #include "C2TributeAccess.h"
 #include "C2MissionStartObjects.h"
@@ -221,6 +226,47 @@ namespace NC2Logic
         case 18: AIManager_EntryPoint_Condition_ExternalActivate_SetFlag(gAIManager, p[0], p[1], p[2] != 0); break;
         case 19: GameControl_Diplomacy_SetState(gGameControl, nullptr, p[0], p[1], p[2]); break;
         case 20: Write<std::uint8_t>(GetMission(manager, p[0]), 0x24, p[1] != 0); break;
+        case 21:
+            for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
+                Human_ChangePlayerId(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NXBasics::Runtime_TimeSigned32(p[1]), true);
+            break;
+        case 22:
+        {
+            CHumanIterator humans;
+            CAnimalIterator animals;
+            CVehicleIterator vehicles;
+            CHouseIterator houses;
+            CGuideIterator guides;
+            for (auto id = vehicles.GetFirstVehicleId(p[0]); id != -1; id = vehicles.GetNextVehicleId())
+                Vehicle_ChangePlayerId(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, p[1]);
+            for (auto id = houses.GetFirstHouseId(p[0]); id != -1; id = houses.GetNextHouseId())
+                House_ChangePlayerId(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, p[1]);
+            for (auto id = humans.GetFirstHumanId(p[0]); id != -1; id = humans.GetNextHumanId())
+                Human_ChangePlayerId(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NXBasics::Runtime_TimeSigned32(p[1]), false);
+            for (auto id = animals.GetFirstAnimalId(p[0]); id != -1; id = animals.GetNextAnimalId())
+                Animal_ChangePlayerId(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, p[1]);
+            for (auto id = guides.GetFirstGuideId(p[0]); id != -1; id = guides.GetNextGuideId())
+            {
+                Write(CGuideArray::mStaticVars + static_cast<std::uint32_t>(id) * CGuideArray::ElementSize, 4, p[1]);
+                GuideManager_RecalculateGuideConnections(gGuideManager, id);
+            }
+            if (NXBasics::Runtime_TimeSigned32(p[1]) < 20 && Read<std::uint32_t>(gGameControl, p[1] * 0x4A80u + 4) == 2) AIManager_EntryPoint_RebuildHouseArray(gAIManager, NXBasics::Runtime_TimeSigned32(p[1]));
+            break;
+        }
+        case 23:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            Tool_Map_GetNotBlockedPosition(&point, false);
+            for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
+            {
+                void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                const auto objectId = Read<std::uint32_t>(human, 4);
+                const auto owner = Read<std::uint8_t>(human, 0x10);
+                Human_DoAddNewUserCommand(human, 4, owner, objectId, 0, MapMigPoint_GetLong(&point), 0);
+            }
+            break;
+        }
         case 24:
         {
             std::uint32_t point;
@@ -228,6 +274,23 @@ namespace NC2Logic
             Tool_Map_GetNotBlockedPosition(&point, false);
             alignas(4) std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 0x65);
+            Write(command, 0x0C, MapMigPoint_GetLong(&point));
+            for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
+            {
+                void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+                Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, 0x1E0));
+                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Vehicle_DoAddNewUserCommand(vehicle, command);
+            }
+            break;
+        }
+        case 25:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            Tool_Map_GetNotBlockedPosition(&point, false);
+            alignas(4) std::byte command[20]{};
+            Write<std::uint8_t>(command, 0, 0x67);
             Write(command, 0x0C, MapMigPoint_GetLong(&point));
             for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
             {

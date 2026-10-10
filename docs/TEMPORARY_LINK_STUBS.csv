@@ -12,7 +12,7 @@ Address,CurrentName,Status,ReferencingObjects
 0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,Partial Windows callback; unconditional true restored at 004195D0; 120-tick notification/goal updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0041E45E,NC2Logic::MissionManager_l_CheckGoal,"Partial Windows goal dispatcher; human/vehicle positions and player moveable search, object/player death and tribute paid flags now connected; remaining object-area-resource-combat goals pending; excluded from completion counts",C2MissionExecution.obj
-0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial Windows result dispatcher; building/vehicle owner changes and scripted vehicle goto/human selection now connected alongside tribute/control/briefing/exploration/AI/diplomacy/visibility/win/fail/unlock/submap/import flags; remaining actions pending; excluded from completion counts,C2MissionExecution.obj
+0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial Windows result dispatcher; human/player-wide owner transfers and human goto/vehicle docking now connected alongside building/vehicle transfers and preceding script actions; remaining actions pending; excluded from completion counts,C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00428736,NC2Logic::Game_Checksum_Calculate,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; landscape-edit external dummy remains; cadaver mapping is real,C2AnimalAccess.obj

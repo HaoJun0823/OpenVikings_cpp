@@ -35,6 +35,72 @@ namespace NC2Logic
 
     using namespace NC2Lifetime;
 
+    // Original function: FUN_00438c79; the original constructor name remains unresolved.
+    static void FUN_00438C79(void* data)
+    {
+        std::memset(static_cast<std::byte*>(data) + 1, 0, 66);
+        Write<std::uint8_t>(data, 1, 1);
+        Write<std::uint8_t>(data, 0, 0);
+    }
+
+    // Original function: FUN_0044b5e1; the original constructor name remains unresolved.
+    static void FUN_0044B5E1(void* data)
+    {
+        std::memset(static_cast<std::byte*>(data) + 1, 0, 7);
+        Write<std::uint8_t>(data, 1, 1);
+        Write<std::uint8_t>(data, 0, 0);
+    }
+
+    // Original function: FUN_0044b590; native name unresolved, reset ranges confirmed from Windows.
+    static void FUN_0044B590(void* human, std::int32_t player)
+    {
+        Write(human, 0x10, player);
+        std::memset(static_cast<std::byte*>(human) + 0x15C, 0, 0x38);
+        FUN_00438C79(static_cast<std::byte*>(human) + 0x194);
+        FUN_0044B5E1(static_cast<std::byte*>(human) + 0x1D7);
+        std::memset(static_cast<std::byte*>(human) + 0x1E0, 0, 0x38);
+        Human_SetupPlayerSpecificStuff(human);
+    }
+
+    // Original function: FUN_0044b45d; the native player upper bound is signed without a lower guard.
+    void Human_ChangePlayerId(void* human, std::int32_t player, bool detach)
+    {
+        if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u) == 0) return;
+        if (Human_IsJobSoldier(human) || Human_IsJobHero(human))
+        {
+            Write<std::uint32_t>(human, 0xB64, 0);
+            Write<std::uint32_t>(human, 0xB70, 0);
+            Write<std::uint8_t>(human, 0xB60, 1);
+            Write<std::uint32_t>(human, 0xB5C, 2);
+        }
+        std::uint32_t point = 0;
+        bool wasAttached = false;
+        void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        {
+            point = Read<std::uint32_t>(moveable, 0x12);
+            MapMoveable_Attachment_DetachFromMap(moveable);
+            wasAttached = true;
+        }
+        FUN_0044B590(human, player);
+        void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
+        Write<std::int32_t>(pathfinder, 0x24, -1);
+        Write<std::int32_t>(pathfinder, 0x1C, -1);
+        Write(pathfinder, 0x2C, player);
+        if (wasAttached)
+        {
+            MapMoveable_Attachment_AttachToMap(moveable, &point);
+            const auto radius = Read<std::uint32_t>(human, 0xB7C);
+            const auto owner = Read<std::uint32_t>(human, 0x10);
+            GameMap_Exploration_DoExplore(owner, Human_GetMapPositionRef(human), radius);
+        }
+        if (detach) Human_Detach(human, false);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 2, static_cast<std::uint32_t>(player));
+        Human_SetupCurrentJobType(human);
+        Human_UpdateCurrentJobType(human);
+        if (player == 0 && Read<std::uint32_t>(gGameControl, 0x5D200) == 2) Write(human, 0xB84, Read<std::uint32_t>(human, 0xB84) | 1u);
+    }
+
     // Original function: FUN_00436aad; Windows outlined work-marker eligibility predicate.
     bool Human_WorkCenterMarker_IsAllowed(const void* human)
     {
@@ -330,10 +396,7 @@ namespace NC2Logic
         Human_WorkCenterMarker_Update(human);
         Write<std::uint32_t>(human, 0xADC, 0);
         Write<std::uint32_t>(human, 0xAE0, 0);
-        // Original good-types constructor 00438C79: good zero enabled, aggregate flag cleared.
-        std::memset(static_cast<std::byte*>(human) + 0x195, 0, 66);
-        Write<std::uint8_t>(human, 0x195, 1);
-        Write<std::uint8_t>(human, 0x194, 0);
+        FUN_00438C79(static_cast<std::byte*>(human) + 0x194);
         std::memset(static_cast<std::byte*>(human) + 0x24, 0, 0x138);
         std::memset(static_cast<std::byte*>(human) + 0x15C, 0, 0x38);
         Write<std::uint8_t>(human, 0x15Cu + job, 1);

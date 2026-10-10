@@ -20,16 +20,16 @@ _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,37,3,runaways,result,10,ActivateMission,0041FD49,2,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,38,3,runaways,result,20,SetVisible,0041FEB2,2 1,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,43,4,runaways,goal,0,True,0041F8F4,,yes
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,44,4,runaways,result,23,SendHuman,00420083,5 87 178,no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,44,4,runaways,result,23,SendHuman,00420083,5 87 178,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,45,4,runaways,result,63,SelectHuman,00420F94,5 1,yes
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,46,4,runaways,result,23,SendHuman,00420083,6 87 178,no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,46,4,runaways,result,23,SendHuman,00420083,6 87 178,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,47,4,runaways,result,10,ActivateMission,0041FD49,4,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,53,5,runaways,goal,11,FindPosByHumans,0041E7C7,5 87 178 4,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,54,5,runaways,result,11,DeactivateMission,0041FD62,4,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,60,6,wiki_send,goal,28,TimeGone,0041F5EA,1,yes
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,61,6,wiki_send,result,23,SendHuman,00420083,1 594 61,no
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,62,6,wiki_send,result,23,SendHuman,00420083,2 594 61,no
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,63,6,wiki_send,result,23,SendHuman,00420083,3 594 61,no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,61,6,wiki_send,result,23,SendHuman,00420083,1 594 61,yes
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,62,6,wiki_send,result,23,SendHuman,00420083,2 594 61,yes
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,63,6,wiki_send,result,23,SendHuman,00420083,3 594 61,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,64,6,wiki_send,result,24,SendVehicle,004200FA,11 594 61,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,71,7,wiki_dissappear,goal,11,FindPosByHumans,0041E7C7,1 594 61 5,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,72,7,wiki_dissappear,goal,11,FindPosByHumans,0041E7C7,2 594 61 5,yes
@@ -99,7 +99,7 @@ _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,182,19,pay_tribut_1,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_spear_wooden"" 459 258 11 1088",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,183,19,pay_tribut_1,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_spear_wooden"" 459 258 11 1088",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,184,19,pay_tribut_1,result,9,PlayCutscene,0041FCFE,10 1,yes
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,185,19,pay_tribut_1,result,21,ChangeHumanPlayerId,0041FECB,11 0,no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,185,19,pay_tribut_1,result,21,ChangeHumanPlayerId,0041FECB,11 0,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,186,19,pay_tribut_1,result,63,SelectHuman,00420F94,11 1,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,187,19,pay_tribut_1,result,10,ActivateMission,0041FD49,18,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,188,19,pay_tribut_1,result,19,SetDiplomacy,0041FE97,"2 0 ""friend""",yes
@@ -117,7 +117,7 @@ _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,214,22,PL4_seen_wikinger,result,16,ExploreArea,0041FE17,0 233 370 35,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,215,22,PL4_seen_wikinger,result,16,ExploreArea,0041FE17,0 190 363 15,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,216,22,PL4_seen_wikinger,result,9,PlayCutscene,0041FCFE,6 1,yes
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,217,22,PL4_seen_wikinger,result,22,ChangePlayerPlayerId,0041FF04,4 0,no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,217,22,PL4_seen_wikinger,result,22,ChangePlayerPlayerId,0041FF04,4 0,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,218,22,PL4_seen_wikinger,result,10,ActivateMission,0041FD49,23,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,219,22,PL4_seen_wikinger,result,20,SetVisible,0041FEB2,23 1,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,220,22,PL4_seen_wikinger,result,10,ActivateMission,0041FD49,24,yes
@@ -131,7 +131,7 @@ _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,231,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""civilist"" 238 422 12 0",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,232,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""woman"" 239 420 12 0",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,233,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""civilist"" 241 424 12 0",no
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,234,23,viehzucht,result,21,ChangeHumanPlayerId,0041FECB,12 0,no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,234,23,viehzucht,result,21,ChangeHumanPlayerId,0041FECB,12 0,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,238,24,bäckerei,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,239,24,bäckerei,goal,6,GoodsGlobal,0041E60B,"0 ""candy"" 6",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,240,24,bäckerei,result,9,PlayCutscene,0041FCFE,8 1,yes
@@ -299,7 +299,7 @@ _campaign_04_01_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_01_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub1\map.cif,75,8,EXIT ,goal,0,True,0041F8F4,,yes
 _campaign_04_01_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub1\map.cif,76,8,EXIT ,result,17,Exit,0041FE5E,,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,10,0,START,goal,0,True,0041F8F4,,yes
-_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,11,0,START,result,21,ChangeHumanPlayerId,0041FECB,9 0,no
+_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,11,0,START,result,21,ChangeHumanPlayerId,0041FECB,9 0,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,12,0,START,result,9,PlayCutscene,0041FCFE,0 1,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,13,0,START,result,10,ActivateMission,0041FD49,1,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,14,0,START,result,20,SetVisible,0041FEB2,1 1,yes
@@ -312,18 +312,18 @@ _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,29,2,PL3_seen_wasserdrachen,result,9,PlayCutscene,0041FCFE,1 1,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,30,2,PL3_seen_wasserdrachen,result,10,ActivateMission,0041FD49,3,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,31,2,PL3_seen_wasserdrachen,result,20,SetVisible,0041FEB2,3 1,yes
-_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,32,2,PL3_seen_wasserdrachen,result,23,SendHuman,00420083,7 40 74,no
+_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,32,2,PL3_seen_wasserdrachen,result,23,SendHuman,00420083,7 40 74,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,37,3,eisstatue,goal,11,FindPosByHumans,0041E7C7,9 42 77 4,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,38,3,eisstatue,result,69,RemoveLandscapesInArea,004210FD,44 74 2,no
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,39,3,eisstatue,result,9,PlayCutscene,0041FCFE,2 1,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,40,3,eisstatue,result,10,ActivateMission,0041FD49,10,yes
-_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,41,3,eisstatue,result,23,SendHuman,00420083,7 46 69,no
+_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,41,3,eisstatue,result,23,SendHuman,00420083,7 46 69,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,42,3,eisstatue,result,10,ActivateMission,0041FD49,4,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,47,4,wächterläuft,goal,11,FindPosByHumans,0041E7C7,9 48 68 4,yes
-_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,48,4,wächterläuft,result,23,SendHuman,00420083,7 60 50,no
+_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,48,4,wächterläuft,result,23,SendHuman,00420083,7 60 50,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,49,4,wächterläuft,result,10,ActivateMission,0041FD49,5,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,54,5,wächterläuft,goal,11,FindPosByHumans,0041E7C7,9 61 48 4,yes
-_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,55,5,wächterläuft,result,23,SendHuman,00420083,7 66 27,no
+_campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,55,5,wächterläuft,result,23,SendHuman,00420083,7 66 27,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,62,6,gate 1 open,goal,11,FindPosByHumans,0041E7C7,5 47 69 5,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,63,6,gate 1 open,goal,11,FindPosByHumans,0041E7C7,6 47 69 5,yes
 _campaign_04_01_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub2\map.cif,64,6,gate 1 open,goal,11,FindPosByHumans,0041E7C7,7 47 69 5,yes
@@ -390,14 +390,14 @@ _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,27,2,PL1_steindrachenwachen,result,16,ExploreArea,0041FE17,0 63 72 15,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,28,2,PL1_steindrachenwachen,result,16,ExploreArea,0041FE17,0 83 44 25,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,29,2,PL1_steindrachenwachen,result,9,PlayCutscene,0041FCFE,1 1,yes
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,30,2,PL1_steindrachenwachen,result,23,SendHuman,00420083,7 57 79,no
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,31,2,PL1_steindrachenwachen,result,23,SendHuman,00420083,8 62 81,no
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,32,2,PL1_steindrachenwachen,result,23,SendHuman,00420083,9 77 56,no
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,30,2,PL1_steindrachenwachen,result,23,SendHuman,00420083,7 57 79,yes
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,31,2,PL1_steindrachenwachen,result,23,SendHuman,00420083,8 62 81,yes
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,32,2,PL1_steindrachenwachen,result,23,SendHuman,00420083,9 77 56,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,39,3,PL1_grauholm,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 82 41 13,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,40,3,PL1_grauholm,result,9,PlayCutscene,0041FCFE,2 1,yes
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,41,3,PL1_grauholm,result,23,SendHuman,00420083,7 52 79,no
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,42,3,PL1_grauholm,result,23,SendHuman,00420083,8 63 85,no
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,43,3,PL1_grauholm,result,23,SendHuman,00420083,9 61 78,no
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,41,3,PL1_grauholm,result,23,SendHuman,00420083,7 52 79,yes
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,42,3,PL1_grauholm,result,23,SendHuman,00420083,8 63 85,yes
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,43,3,PL1_grauholm,result,23,SendHuman,00420083,9 61 78,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,44,3,PL1_grauholm,result,69,RemoveLandscapesInArea,004210FD,53 52 2,no
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,45,3,PL1_grauholm,result,69,RemoveLandscapesInArea,004210FD,91 74 2,no
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,46,3,PL1_grauholm,result,10,ActivateMission,0041FD49,14,yes
@@ -436,7 +436,7 @@ _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,113,10,PL2_rothild,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 28 23 10,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,114,10,PL2_rothild,result,16,ExploreArea,0041FE17,0 25 29 20,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,115,10,PL2_rothild,result,9,PlayCutscene,0041FCFE,5 1,yes
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,116,10,PL2_rothild,result,23,SendHuman,00420083,2 72 61,no
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,116,10,PL2_rothild,result,23,SendHuman,00420083,2 72 61,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,117,10,PL2_rothild,result,11,DeactivateMission,0041FD62,11,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,118,10,PL2_rothild,result,10,ActivateMission,0041FD49,12,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,124,11,PL3_blaustrumpf,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 117 100 10,yes
@@ -445,10 +445,10 @@ _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,131,12,PL3_blaustrumpf,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 117 100 10,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,132,12,PL3_blaustrumpf,result,9,PlayCutscene,0041FCFE,7 1,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,133,12,PL3_blaustrumpf,result,16,ExploreArea,0041FE17,0 116 95 20,yes
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,134,12,PL3_blaustrumpf,result,23,SendHuman,00420083,3 102 78,no
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,134,12,PL3_blaustrumpf,result,23,SendHuman,00420083,3 102 78,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,135,12,PL3_blaustrumpf,result,10,ActivateMission,0041FD49,13,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,140,13,blaustrumpf_goes,goal,28,TimeGone,0041F5EA,6,yes
-_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,141,13,blaustrumpf_goes,result,23,SendHuman,00420083,3 73 61,no
+_campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,141,13,blaustrumpf_goes,result,23,SendHuman,00420083,3 73 61,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,142,13,blaustrumpf_goes,result,10,ActivateMission,0041FD49,13,yes
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,147,14,rothild+blaustrumpf,goal,13,FindHumansByHumans,0041E87B,2 3 2,no
 _campaign_04_01_sub3,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01_sub3\map.cif,148,14,rothild+blaustrumpf,result,9,PlayCutscene,0041FCFE,8 1,yes
@@ -497,7 +497,7 @@ _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,33,3,scout,goal,28,TimeGone,0041F5EA,6,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,34,3,scout,result,9,PlayCutscene,0041FCFE,1 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,35,3,scout,result,24,SendVehicle,004200FA,12 169 71,yes
-_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,36,3,scout,result,23,SendHuman,00420083,12 176 65,no
+_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,36,3,scout,result,23,SendHuman,00420083,12 176 65,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,42,4,hölhe,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 256 74 10,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,43,4,hölhe,result,9,PlayCutscene,0041FCFE,2 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,49,5,PL2_seen_feuerdrachen,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 294 396 35,yes
@@ -507,7 +507,7 @@ _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,53,5,PL2_seen_feuerdrachen,result,20,SetVisible,0041FEB2,6 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,57,6,pyro_befreit,goal,34,FindHumansByPlayersMM,0041EE7C,9 0 2,no
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,58,6,pyro_befreit,result,9,PlayCutscene,0041FCFE,10 1,yes
-_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,59,6,pyro_befreit,result,21,ChangeHumanPlayerId,0041FECB,9 0,no
+_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,59,6,pyro_befreit,result,21,ChangeHumanPlayerId,0041FECB,9 0,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,64,7,goalvisited_all_hüter,goal,50,IsMissionDone,0041F1C4,10,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,65,7,goalvisited_all_hüter,goal,50,IsMissionDone,0041F1C4,12,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,66,7,goalvisited_all_hüter,goal,50,IsMissionDone,0041F1C4,17,yes
@@ -565,7 +565,7 @@ _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,160,17,#PL1_Rapslieschen,result,20,SetVisible,0041FEB2,18 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,165,18,goods_traded,goal,42,NumberOfGoodsTraded,0041F012,0 1 20,no
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,166,18,goods_traded,result,9,PlayCutscene,0041FCFE,8 1,yes
-_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,167,18,goods_traded,result,21,ChangeHumanPlayerId,0041FECB,12 0,no
+_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,167,18,goods_traded,result,21,ChangeHumanPlayerId,0041FECB,12 0,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,171,19,all outposts_cutscene,goal,28,TimeGone,0041F5EA,8,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,172,19,all outposts_cutscene,result,9,PlayCutscene,0041FCFE,15 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,173,19,all outposts_cutscene,result,10,ActivateMission,0041FD49,25,yes
@@ -607,7 +607,7 @@ _campaign_04_02_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_02_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub1\map.cif,17,1,ENDSUBMISSION,goal,0,True,0041F8F4,,yes
 _campaign_04_02_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub1\map.cif,18,1,ENDSUBMISSION,result,33,EndSubMission,00420323,,yes
 _campaign_04_02_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub2\map.cif,11,0,START,goal,0,True,0041F8F4,,yes
-_campaign_04_02_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub2\map.cif,12,0,START,result,21,ChangeHumanPlayerId,0041FECB,3 0,no
+_campaign_04_02_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub2\map.cif,12,0,START,result,21,ChangeHumanPlayerId,0041FECB,3 0,yes
 _campaign_04_02_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub2\map.cif,13,0,START,result,9,PlayCutscene,0041FCFE,0 1,yes
 _campaign_04_02_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub2\map.cif,14,0,START,result,20,SetVisible,0041FEB2,1 1,yes
 _campaign_04_02_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02_sub2\map.cif,15,0,START,result,20,SetVisible,0041FEB2,37 1,yes
@@ -932,7 +932,7 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,84,8,pay_tribut_4,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_spear_wooden"" 122 215 11 1088",no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,85,8,pay_tribut_4,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_spear_wooden"" 129 211 11 1088",no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,86,8,pay_tribut_4,result,9,PlayCutscene,0041FCFE,10 1,yes
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,87,8,pay_tribut_4,result,21,ChangeHumanPlayerId,0041FECB,11 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,87,8,pay_tribut_4,result,21,ChangeHumanPlayerId,0041FECB,11 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,88,8,pay_tribut_4,result,63,SelectHuman,00420F94,11 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,89,8,pay_tribut_4,result,10,ActivateMission,0041FD49,7,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,90,8,pay_tribut_4,result,19,SetDiplomacy,0041FE97,"2 0 ""friend""",yes
@@ -985,7 +985,7 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,168,15,#_tribut1,result,9,PlayCutscene,0041FCFE,2 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,169,15,#_tribut1,result,19,SetDiplomacy,0041FE97,"0 5 ""friend""",yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,170,15,#_tribut1,result,19,SetDiplomacy,0041FE97,"5 0 ""friend""",yes
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,171,15,#_tribut1,result,21,ChangeHumanPlayerId,0041FECB,10 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,171,15,#_tribut1,result,21,ChangeHumanPlayerId,0041FECB,10 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,177,16,#PL5_seen_2,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 358 96 15,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,178,16,#PL5_seen_2,result,16,ExploreArea,0041FE17,0 357 95 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,179,16,#PL5_seen_2,result,16,ExploreArea,0041FE17,0 202 63 25,yes
@@ -999,7 +999,7 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,187,16,#PL5_seen_2,result,20,SetVisible,0041FEB2,17 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,191,17,#_tribut2,goal,30,PayTribute,0041EDB3,2,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,192,17,#_tribut2,result,9,PlayCutscene,0041FCFE,4 1,yes
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,193,17,#_tribut2,result,21,ChangeHumanPlayerId,0041FECB,11 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,193,17,#_tribut2,result,21,ChangeHumanPlayerId,0041FECB,11 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,199,18,#PL5_seen_3,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 248 359 15,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,200,18,#PL5_seen_3,result,16,ExploreArea,0041FE17,0 246 360 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,201,18,#PL5_seen_3,result,16,ExploreArea,0041FE17,0 202 63 25,yes
@@ -1010,7 +1010,7 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,206,18,#PL5_seen_3,result,20,SetVisible,0041FEB2,19 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,211,19,goods_traded,goal,42,NumberOfGoodsTraded,0041F012,0 5 20,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,212,19,goods_traded,result,9,PlayCutscene,0041FCFE,8 1,yes
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,213,19,goods_traded,result,21,ChangeHumanPlayerId,0041FECB,12 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,213,19,goods_traded,result,21,ChangeHumanPlayerId,0041FECB,12 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,219,20,#PL5_seen_4,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 79 531 15,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,220,20,#PL5_seen_4,result,16,ExploreArea,0041FE17,0 78 529 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,221,20,#PL5_seen_4,result,16,ExploreArea,0041FE17,0 202 63 25,yes
@@ -1032,15 +1032,15 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,247,23,#PL5_seen_4,result,16,ExploreArea,0041FE17,0 246 360 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,248,23,#PL5_seen_4,result,16,ExploreArea,0041FE17,0 78 529 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,249,23,#PL5_seen_4,result,9,PlayCutscene,0041FCFE,12 1,yes
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,250,23,#PL5_seen_4,result,21,ChangeHumanPlayerId,0041FECB,14 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,250,23,#PL5_seen_4,result,21,ChangeHumanPlayerId,0041FECB,14 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,256,24,#PL5_seen_5,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 375 556 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,257,24,#PL5_seen_5,result,16,ExploreArea,0041FE17,0 378 558 29,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,258,24,#PL5_seen_5,result,16,ExploreArea,0041FE17,0 202 63 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,259,24,#PL5_seen_5,result,16,ExploreArea,0041FE17,0 357 95 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,260,24,#PL5_seen_5,result,16,ExploreArea,0041FE17,0 246 360 25,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,261,24,#PL5_seen_5,result,16,ExploreArea,0041FE17,0 78 529 25,yes
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,262,24,#PL5_seen_5,result,21,ChangeHumanPlayerId,0041FECB,9 0,no
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,263,24,#PL5_seen_5,result,21,ChangeHumanPlayerId,0041FECB,13 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,262,24,#PL5_seen_5,result,21,ChangeHumanPlayerId,0041FECB,9 0,yes
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,263,24,#PL5_seen_5,result,21,ChangeHumanPlayerId,0041FECB,13 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,264,24,#PL5_seen_5,result,9,PlayCutscene,0041FCFE,13 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,269,25,PL6_seen_kabalianer,goal,32,PlayerSeen,0041EE02,0 6,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,270,25,PL6_seen_kabalianer,result,16,ExploreArea,0041FE17,0 403 222 39,yes
@@ -1089,15 +1089,15 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,332,30,giftwolke_weg,result,69,RemoveLandscapesInArea,004210FD,446 191 3,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,333,30,giftwolke_weg,result,79,RemoveFXSmokeLandscapeInArea,004218B9,404 205 69,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,339,31,mani und norbert,goal,34,FindHumansByPlayersMM,0041EE7C,5 0 6,no
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,340,31,mani und norbert,result,21,ChangeHumanPlayerId,0041FECB,5 0,no
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,341,31,mani und norbert,result,21,ChangeHumanPlayerId,0041FECB,6 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,340,31,mani und norbert,result,21,ChangeHumanPlayerId,0041FECB,5 0,yes
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,341,31,mani und norbert,result,21,ChangeHumanPlayerId,0041FECB,6 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,342,31,mani und norbert,result,50,SetHumanBehaviourFlag,00420B29,5 65574 0,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,343,31,mani und norbert,result,50,SetHumanBehaviourFlag,00420B29,6 65574 0,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,344,31,mani und norbert,result,10,ActivateMission,0041FD49,38,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,350,32,old man 1,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 97 213 5,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,351,32,old man 1,result,9,PlayCutscene,0041FCFE,14 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,352,32,old man 1,result,8,RemoveLandscape,0041FCCE,98 211,no
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,353,32,old man 1,result,21,ChangeHumanPlayerId,0041FECB,15 0,no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,353,32,old man 1,result,21,ChangeHumanPlayerId,0041FECB,15 0,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,359,33,old man 2,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 505 191 5,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,360,33,old man 2,result,9,PlayCutscene,0041FCFE,17 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,361,33,old man 2,result,8,RemoveLandscape,0041FCCE,506 189,no
@@ -1144,7 +1144,7 @@ _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,32,3,schiff,goal,11,FindPosByHumans,0041E7C7,2 59 119 15,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,33,3,schiff,result,9,PlayCutscene,0041FCFE,2 1,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,34,3,schiff,result,10,ActivateMission,0041FD49,7,yes
-_campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,35,3,schiff,result,23,SendHuman,00420083,7 46 69,no
+_campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,35,3,schiff,result,23,SendHuman,00420083,7 46 69,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,41,4,auqarum,goal,11,FindPosByHumans,0041E7C7,1 88 123 7,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,42,4,auqarum,goal,11,FindPosByHumans,0041E7C7,2 88 123 7,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,43,4,auqarum,result,9,PlayCutscene,0041FCFE,3 1,yes
@@ -1153,13 +1153,13 @@ _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_ca
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,50,5,schiffübergabe,goal,11,FindPosByHumans,0041E7C7,1 88 123 2,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,51,5,schiffübergabe,goal,11,FindPosByHumans,0041E7C7,2 88 123 2,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,52,5,schiffübergabe,result,9,PlayCutscene,0041FCFE,4 1,yes
-_campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,53,5,schiffübergabe,result,23,SendHuman,00420083,3 81 123,no
+_campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,53,5,schiffübergabe,result,23,SendHuman,00420083,3 81 123,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,54,5,schiffübergabe,result,34,ChangeVehiclesPlayerId,0042032C,1 0,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,55,5,schiffübergabe,result,10,ActivateMission,0041FD49,6,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,60,6,schiffrückrgabe,goal,11,FindPosByHumans,0041E7C7,1 88 123 2,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,61,6,schiffrückrgabe,goal,11,FindPosByHumans,0041E7C7,2 88 123 2,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,62,6,schiffrückrgabe,result,9,PlayCutscene,0041FCFE,5 1,yes
-_campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,63,6,schiffrückrgabe,result,23,SendHuman,00420083,3 88 123,no
+_campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,63,6,schiffrückrgabe,result,23,SendHuman,00420083,3 88 123,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,64,6,schiffrückrgabe,result,34,ChangeVehiclesPlayerId,0042032C,1 3,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,65,6,schiffrückrgabe,result,10,ActivateMission,0041FD49,5,yes
 _campaign_04_03_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03_sub1\map.cif,70,7,teleporterschalter,goal,11,FindPosByHumans,0041E7C7,1 95 83 2,yes
@@ -1215,9 +1215,9 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,54,5,position1found,result,10,ActivateMission,0041FD49,13,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,55,5,position1found,result,20,SetVisible,0041FEB2,13 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,56,5,position1found,result,10,ActivateMission,0041FD49,7,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,57,5,position1found,result,25,DockVehicle,0042018D,1 295 170,no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,58,5,position1found,result,25,DockVehicle,0042018D,2 297 181,no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,59,5,position1found,result,25,DockVehicle,0042018D,3 284 187,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,57,5,position1found,result,25,DockVehicle,0042018D,1 295 170,yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,58,5,position1found,result,25,DockVehicle,0042018D,2 297 181,yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,59,5,position1found,result,25,DockVehicle,0042018D,3 284 187,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,60,5,position1found,result,11,DeactivateMission,0041FD62,4,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,61,5,position1found,result,11,DeactivateMission,0041FD62,2,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,67,6,mani,goal,11,FindPosByHumans,0041E7C7,6 298 171 3,yes
@@ -1290,7 +1290,7 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,189,21,LEVEL1,goal,50,IsMissionDone,0041F1C4,18,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,190,21,LEVEL1,goal,50,IsMissionDone,0041F1C4,19,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,191,21,LEVEL1,goal,50,IsMissionDone,0041F1C4,30,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,192,21,LEVEL1,result,21,ChangeHumanPlayerId,0041FECB,5 3,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,192,21,LEVEL1,result,21,ChangeHumanPlayerId,0041FECB,5 3,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,193,21,LEVEL1,result,71,SetHouseExtensionLevel,00421633,9 1,no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,199,22,vagabounds,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 538 275 34,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,200,22,vagabounds,result,16,ExploreArea,0041FE17,0 538 275 34,yes
@@ -1335,12 +1335,12 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,257,27,gate1,result,4,SetLandscape,0041FBC6,"558 274 ""gate_01_open"" 0 0",no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,261,28,sostratos,goal,34,FindHumansByPlayersMM,0041EE7C,5 0 1,no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,262,28,sostratos,result,9,PlayCutscene,0041FCFE,6 1,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,263,28,sostratos,result,21,ChangeHumanPlayerId,0041FECB,5 0,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,263,28,sostratos,result,21,ChangeHumanPlayerId,0041FECB,5 0,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,264,28,sostratos,result,10,ActivateMission,0041FD49,29,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,265,28,sostratos,result,10,ActivateMission,0041FD49,30,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,266,28,sostratos,result,20,SetVisible,0041FEB2,30 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,270,29,Sostratos_go,goal,28,TimeGone,0041F5EA,3,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,271,29,Sostratos_go,result,23,SendHuman,00420083,5 223 98,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,271,29,Sostratos_go,result,23,SendHuman,00420083,5 223 98,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,275,30,sostratos lighthouse,goal,11,FindPosByHumans,0041E7C7,5 217 90 21,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,276,30,sostratos lighthouse,result,9,PlayCutscene,0041FCFE,7 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,277,30,sostratos lighthouse,result,11,DeactivateMission,0041FD62,33,yes
@@ -1374,11 +1374,11 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,321,34,sostrates_father2,result,64,AddGoodsToMapArea,00420FB8,"""amulet_strength"" 10 206 219 10 1 0",no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,322,34,sostrates_father2,result,64,AddGoodsToMapArea,00420FB8,"""amulet_defense"" 10 206 219 10 1 0",no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,328,35,gate2,goal,8,FindHumans,0041E6AD,0 8,no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,329,35,gate2,result,21,ChangeHumanPlayerId,0041FECB,8 0,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,329,35,gate2,result,21,ChangeHumanPlayerId,0041FECB,8 0,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,330,35,gate2,result,50,SetHumanBehaviourFlag,00420B29,8 503 0,no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,331,35,gate2,result,50,SetHumanBehaviourFlag,00420B29,8 451 1,no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,332,35,gate2,result,9,PlayCutscene,0041FCFE,11 1,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,333,35,gate2,result,23,SendHuman,00420083,8 50 513,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,333,35,gate2,result,23,SendHuman,00420083,8 50 513,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,334,35,gate2,result,10,ActivateMission,0041FD49,42,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,335,35,gate2,result,20,SetVisible,0041FEB2,42 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,341,36,gate3,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 96 519 10,yes
@@ -1441,7 +1441,7 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,436,46,wikis,result,28,AddTributeGoods,00420282,"5 ""amulet_defense"" 10",yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,440,47,tribut5,goal,30,PayTribute,0041EDB3,5,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,441,47,tribut5,result,9,PlayCutscene,0041FCFE,14 1,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,442,47,tribut5,result,22,ChangePlayerPlayerId,0041FF04,4 0,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,442,47,tribut5,result,22,ChangePlayerPlayerId,0041FF04,4 0,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,448,48,vagabounds_enemy,goal,37,PlayerAttackedByPlayer,0041EF2E,0 5,no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,449,48,vagabounds_enemy,result,9,PlayCutscene,0041FCFE,16 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,450,48,vagabounds_enemy,result,19,SetDiplomacy,0041FE97,"0 5 ""enemy""",yes
@@ -1762,7 +1762,7 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,150,12,LEVEL2map,result,10,ActivateMission,0041FD49,13,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,154,13,LEVEL2_txt,goal,28,TimeGone,0041F5EA,3,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,155,13,LEVEL2_txt,result,9,PlayCutscene,0041FCFE,11 1,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,156,13,LEVEL2_txt,result,23,SendHuman,00420083,8 286 377,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,156,13,LEVEL2_txt,result,23,SendHuman,00420083,8 286 377,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,157,13,LEVEL2_txt,result,71,SetHouseExtensionLevel,00421633,9 2,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,158,13,LEVEL2_txt,result,11,DeactivateMission,0041FD62,29,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,159,13,LEVEL2_txt,result,10,ActivateMission,0041FD49,30,yes
@@ -1793,7 +1793,7 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,205,17,pl3_hirten_ seen,result,16,ExploreArea,0041FE17,0 302 414 52,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,206,17,pl3_hirten_ seen,result,10,ActivateMission,0041FD49,24,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,207,17,pl3_hirten_ seen,result,20,SetVisible,0041FEB2,24 1,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,208,17,pl3_hirten_ seen,result,21,ChangeHumanPlayerId,0041FECB,20 0,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,208,17,pl3_hirten_ seen,result,21,ChangeHumanPlayerId,0041FECB,20 0,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,215,18,pl4_räuber_ seen,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 103 188 40,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,216,18,pl4_räuber_ seen,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 68 204 15,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,217,18,pl4_räuber_ seen,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 60 169 20,yes
@@ -1827,10 +1827,10 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,269,24,women_free,result,8,RemoveLandscape,0041FCCE,90 175,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,270,24,women_free,result,4,SetLandscape,0041FBC6,"90 175 ""gate_02_open"" 1 1",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,271,24,women_free,result,47,1 Open/0 CloseWallGate,00420A6E,4 120 179 1,no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,272,24,women_free,result,23,SendHuman,00420083,7 311 399,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,272,24,women_free,result,23,SendHuman,00420083,7 311 399,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,273,24,women_free,result,10,ActivateMission,0041FD49,25,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,274,24,women_free,result,20,SetVisible,0041FEB2,25 1,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,275,24,women_free,result,21,ChangeHumanPlayerId,0041FECB,7 0,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,275,24,women_free,result,21,ChangeHumanPlayerId,0041FECB,7 0,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,279,25,women_back,goal,11,FindPosByHumans,0041E7C7,7 309 416 45,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,280,25,women_back,result,10,ActivateMission,0041FD49,10,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,281,25,women_back,result,10,ActivateMission,0041FD49,11,yes
@@ -1848,7 +1848,7 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,293,25,women_back,result,8,RemoveLandscape,0041FCCE,288 393,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,294,25,women_back,result,8,RemoveLandscape,0041FCCE,291 390,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,295,25,women_back,result,8,RemoveLandscape,0041FCCE,291 391,no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,296,25,women_back,result,21,ChangeHumanPlayerId,0041FECB,7 3,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,296,25,women_back,result,21,ChangeHumanPlayerId,0041FECB,7 3,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,302,26,women_died,goal,18,HumansDied,0041EB7C,7,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,303,26,women_died,result,39,DisableAll,00420534,,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,304,26,women_died,result,13,MissionFailed,0041FDB2,0,yes
@@ -1974,7 +1974,7 @@ campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campa
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,49,4,women,result,10,ActivateMission,0041FD49,5,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,50,4,women,result,10,ActivateMission,0041FD49,15,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,54,5,women_move1,goal,11,FindPosByHumans,0041E7C7,5 32 44 5,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,55,5,women_move1,result,23,SendHuman,00420083,5 33 39,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,55,5,women_move1,result,23,SendHuman,00420083,5 33 39,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,56,5,women_move1,result,10,ActivateMission,0041FD49,8,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,63,6,gate 1 open,goal,11,FindPosByHumans,0041E7C7,5 32 44 5,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,64,6,gate 1 open,goal,11,FindPosByHumans,0041E7C7,6 32 44 5,yes
@@ -1987,7 +1987,7 @@ campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campa
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,75,7,gate 1 closed,result,4,SetLandscape,0041FBC6,"32 44 ""door_metall_closed"" 1 1",no
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,76,7,gate 1 closed,result,10,ActivateMission,0041FD49,6,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,80,8,women_move2,goal,11,FindPosByHumans,0041E7C7,5 32 44 5,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,81,8,women_move2,result,23,SendHuman,00420083,5 54 53,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,81,8,women_move2,result,23,SendHuman,00420083,5 54 53,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,82,8,women_move2,result,10,ActivateMission,0041FD49,11,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,89,9,gate 2 open,goal,11,FindPosByHumans,0041E7C7,5 53 56 5,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,90,9,gate 2 open,goal,11,FindPosByHumans,0041E7C7,6 53 56 5,yes
@@ -2000,7 +2000,7 @@ campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campa
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,101,10,gate 2 closed,result,4,SetLandscape,0041FBC6,"53 56 ""door_metall_closed"" 1 1",no
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,102,10,gate 2 closed,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,106,11,women_move3,goal,11,FindPosByHumans,0041E7C7,5 53 56 5,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,107,11,women_move3,result,23,SendHuman,00420083,5 24 55,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,107,11,women_move3,result,23,SendHuman,00420083,5 24 55,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,108,11,women_move3,result,10,ActivateMission,0041FD49,14,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,115,12,gate 3 open,goal,11,FindPosByHumans,0041E7C7,5 25 54 5,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,116,12,gate 3 open,goal,11,FindPosByHumans,0041E7C7,6 25 54 5,yes
@@ -2013,7 +2013,7 @@ campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campa
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,127,13,gate 3 closed,result,4,SetLandscape,0041FBC6,"25 54 ""door_metall_closed"" 1 1",no
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,128,13,gate 3 closed,result,10,ActivateMission,0041FD49,12,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,132,14,women_move4,goal,11,FindPosByHumans,0041E7C7,5 25 54 6,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,133,14,women_move4,result,23,SendHuman,00420083,5 30 47,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,133,14,women_move4,result,23,SendHuman,00420083,5 30 47,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,134,14,women_move4,result,10,ActivateMission,0041FD49,5,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,138,15,innenraum,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 43 76 15,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,139,15,innenraum,result,16,ExploreArea,0041FE17,0 45 83 20,yes
@@ -2027,7 +2027,7 @@ campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campa
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,151,16,räuber angrifftext,result,20,SetVisible,0041FEB2,19 1,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,152,16,räuber angrifftext,result,9,PlayCutscene,0041FCFE,2 1,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,156,17,räuber angriff,goal,0,True,0041F8F4,,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,157,17,räuber angriff,result,23,SendHuman,00420083,7 24 64,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,157,17,räuber angriff,result,23,SendHuman,00420083,7 24 64,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,158,17,räuber angriff,result,19,SetDiplomacy,0041FE97,"0 7 ""enemy""",yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,159,17,räuber angriff,result,19,SetDiplomacy,0041FE97,"7 0 ""enemy""",yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,165,18,dead_dragons,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 37 138 10,yes
@@ -2070,9 +2070,9 @@ campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campa
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,211,21,gates open!,result,11,DeactivateMission,0041FD62,11,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,212,21,gates open!,result,11,DeactivateMission,0041FD62,14,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,216,22,women_move5,goal,0,True,0041F8F4,,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,217,22,women_move5,result,23,SendHuman,00420083,6 20 55,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,217,22,women_move5,result,23,SendHuman,00420083,6 20 55,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,221,23,women_move6,goal,0,True,0041F8F4,,yes
-campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,222,23,women_move6,result,23,SendHuman,00420083,6 49 20,no
+campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,222,23,women_move6,result,23,SendHuman,00420083,6 49 20,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,228,24,gate 4 open,goal,11,FindPosByHumans,0041E7C7,6 45 30 5,yes
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,229,24,gate 4 open,result,8,RemoveLandscape,0041FCCE,45 30,no
 campaign_03_02_sub,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02_sub\map.cif,230,24,gate 4 open,result,4,SetLandscape,0041FBC6,"45 30 ""door_metall_open"" 1 1",no
@@ -2177,10 +2177,10 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,122,13,Abreise_1,result,9,PlayCutscene,0041FCFE,1 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,123,13,Abreise_1,result,10,ActivateMission,0041FD49,14,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,127,14,Abreise_2,goal,28,TimeGone,0041F5EA,3,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,128,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,81 14,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,129,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,82 14,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,130,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,85 14,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,131,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,86 14,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,128,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,81 14,yes
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,129,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,82 14,yes
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,130,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,85 14,yes
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,131,14,Abreise_2,result,21,ChangeHumanPlayerId,0041FECB,86 14,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,132,14,Abreise_2,result,89,AttachHumanToVehicle,004223BA,81 19,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,133,14,Abreise_2,result,89,AttachHumanToVehicle,004223BA,82 19,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,134,14,Abreise_2,result,89,AttachHumanToVehicle,004223BA,85 19,no
@@ -2331,7 +2331,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,390,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 172 188 2 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,391,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_sword_short"" 182 202 2 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,392,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 181 202 2 32769",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,393,42,Demetrios_Soldiers_Refill,result,23,SendHuman,00420083,2 200 174,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,393,42,Demetrios_Soldiers_Refill,result,23,SendHuman,00420083,2 200 174,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,394,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 257 200 3 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,395,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 257 200 3 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,396,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_sword_short"" 257 200 3 32769",no
@@ -2340,7 +2340,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,399,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_sword_short"" 240 208 3 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,400,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 227 206 3 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,401,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 227 206 3 32769",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,402,42,Demetrios_Soldiers_Refill,result,23,SendHuman,00420083,3 252 168,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,402,42,Demetrios_Soldiers_Refill,result,23,SendHuman,00420083,3 252 168,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,403,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_sword_short"" 308 192 4 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,404,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_sword_short"" 308 192 4 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,405,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 308 192 4 32769",no
@@ -2350,22 +2350,22 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,409,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_sword_short"" 322 200 4 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,410,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 322 200 4 32769",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,411,42,Demetrios_Soldiers_Refill,result,1,SetHuman,0041FA1B,"2 ""byzantine"" ""soldier_bow_long"" 322 200 4 32769",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,412,42,Demetrios_Soldiers_Refill,result,23,SendHuman,00420083,4 312 168,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,412,42,Demetrios_Soldiers_Refill,result,23,SendHuman,00420083,4 312 168,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,413,42,Demetrios_Soldiers_Refill,result,67,ChangeMissionIdOfPlayer,0042109E,2 1,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,419,43,Defenders_Refill,goal,26,NumberOfSoldiers,0041ED17,10 2,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,420,43,Defenders_Refill,result,86,SetHumanX,0042220C,"10 ""byzantine"" ""soldier_sword_short"" 179 350 6 1 1",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,421,43,Defenders_Refill,result,23,SendHuman,00420083,6 168 354,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,421,43,Defenders_Refill,result,23,SendHuman,00420083,6 168 354,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,422,43,Defenders_Refill,result,66,ChangeMissionIdOfHumanInRange,00421048,10 1 172 347 15,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,428,44,Rhodos_Soldiers_Refill,goal,26,NumberOfSoldiers,0041ED17,1 25,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,429,44,Rhodos_Soldiers_Refill,result,86,SetHumanX,0042220C,"1 ""saracen"" ""soldier_sword_short"" 247 86 3 1 3",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,430,44,Rhodos_Soldiers_Refill,result,86,SetHumanX,0042220C,"1 ""saracen"" ""soldier_bow_short"" 247 84 3 1 3",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,431,44,Rhodos_Soldiers_Refill,result,23,SendHuman,00420083,3 254 127,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,431,44,Rhodos_Soldiers_Refill,result,23,SendHuman,00420083,3 254 127,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,432,44,Rhodos_Soldiers_Refill,result,10,ActivateMission,0041FD49,44,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,433,44,Rhodos_Soldiers_Refill,result,67,ChangeMissionIdOfPlayer,0042109E,1 0,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,438,45,Attack_Beach1,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 43 260 60,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,439,45,Attack_Beach1,result,2,SetVehicle,0041FA4D,"2 ""saracen"" ""ship small"" 8 184 120 1",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,440,45,Attack_Beach1,result,40,AddGoodsToVehicle,00420562,"120 ""food_simple"" 20",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,441,45,Attack_Beach1,result,25,DockVehicle,0042018D,120 32 228,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,441,45,Attack_Beach1,result,25,DockVehicle,0042018D,120 32 228,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,442,45,Attack_Beach1,result,10,ActivateMission,0041FD49,46,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,446,46,Attack_Beach2,goal,12,FindPosByVehicles,0041E821,120 31 227 3,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,447,46,Attack_Beach2,result,85,SetCameraPosition,004221E0,34 236,no
@@ -2381,7 +2381,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,463,48,Attack_Beach_BoatRM,goal,12,FindPosByVehicles,0041E821,120 8 180 5,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,464,48,Attack_Beach_BoatRM,result,6,RemoveVehicles,0041FC5A,120,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,465,48,Attack_Beach_BoatRM,result,67,ChangeMissionIdOfPlayer,0042109E,13 1,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,466,48,Attack_Beach_BoatRM,result,22,ChangePlayerPlayerId,0041FF04,13 2,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,466,48,Attack_Beach_BoatRM,result,22,ChangePlayerPlayerId,0041FF04,13 2,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,470,49,Attack_Beach_Restart,goal,28,TimeGone,0041F5EA,300,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,471,49,Attack_Beach_Restart,result,10,ActivateMission,0041FD49,45,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,479,51,Informant_01,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 231 81 4,yes
@@ -2486,7 +2486,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,640,69,Petros_reached_wMead,goal,60,NumberOfGoodsInVehiclesInArea,0041F7FF,"0 ""handcart"" ""mead"" 10 218 128 3",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,641,69,Petros_reached_wMead,result,85,SetCameraPosition,004221E0,218 127,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,642,69,Petros_reached_wMead,result,9,PlayCutscene,0041FCFE,290 1,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,643,69,Petros_reached_wMead,result,23,SendHuman,00420083,998 216 140,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,643,69,Petros_reached_wMead,result,23,SendHuman,00420083,998 216 140,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,644,69,Petros_reached_wMead,result,10,ActivateMission,0041FD49,70,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,648,70,SUB_Dungeon1,goal,28,TimeGone,0041F5EA,2,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,649,70,SUB_Dungeon1,result,11,DeactivateMission,0041FD62,17,yes
@@ -2517,7 +2517,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,690,75,Pos_reached_MeadForFree,result,90,DetachHumanFromVehicle,00422476,62,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,691,75,Pos_reached_MeadForFree,result,10,ActivateMission,0041FD49,76,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,695,76,Move_Mead_Carrier,goal,28,TimeGone,0041F5EA,1,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,696,76,Move_Mead_Carrier,result,23,SendHuman,00420083,62 225 119,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,696,76,Move_Mead_Carrier,result,23,SendHuman,00420083,62 225 119,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,697,76,Move_Mead_Carrier,result,34,ChangeVehiclesPlayerId,0042032C,61 0,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,698,76,Move_Mead_Carrier,result,10,ActivateMission,0041FD49,77,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,702,77,Remove_Mead_carrier,goal,11,FindPosByHumans,0041E7C7,62 225 119 1,yes
@@ -2545,12 +2545,12 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,737,81,Activate_Metros,result,10,ActivateMission,0041FD49,82,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,741,82,Metros_goes_Entrance,goal,29,CheckMission,0041ED99,81,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,742,82,Metros_goes_Entrance,result,63,SelectHuman,00420F94,90 1,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,743,82,Metros_goes_Entrance,result,23,SendHuman,00420083,90 207 234,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,743,82,Metros_goes_Entrance,result,23,SendHuman,00420083,90 207 234,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,744,82,Metros_goes_Entrance,result,10,ActivateMission,0041FD49,83,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,748,83,Metros_reaches_entrance,goal,11,FindPosByHumans,0041E7C7,90 207 234 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,749,83,Metros_reaches_entrance,result,90,DetachHumanFromVehicle,00422476,10,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,750,83,Metros_reaches_entrance,result,34,ChangeVehiclesPlayerId,0042032C,101 9,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,751,83,Metros_reaches_entrance,result,23,SendHuman,00420083,90 207 234,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,751,83,Metros_reaches_entrance,result,23,SendHuman,00420083,90 207 234,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,752,83,Metros_reaches_entrance,result,9,PlayCutscene,0041FCFE,320 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,753,83,Metros_reaches_entrance,result,10,ActivateMission,0041FD49,84,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,757,84,Metros_takes_meat,goal,29,CheckMission,0041ED99,83,yes
@@ -2595,7 +2595,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,808,88,Soldiers_at_Metros,result,10,ActivateMission,0041FD49,89,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,812,89,Defenders_to_PID2,goal,28,TimeGone,0041F5EA,120,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,813,89,Defenders_to_PID2,result,67,ChangeMissionIdOfPlayer,0042109E,11 1,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,814,89,Defenders_to_PID2,result,22,ChangePlayerPlayerId,0041FF04,11 2,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,814,89,Defenders_to_PID2,result,22,ChangePlayerPlayerId,0041FF04,11 2,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,818,90,Gunnar_Died,goal,18,HumansDied,0041EB7C,10,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,819,90,Gunnar_Died,result,10,ActivateMission,0041FD49,91,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,820,90,Gunnar_Died,result,9,PlayCutscene,0041FCFE,330 1,yes
@@ -2637,7 +2637,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,874,96,Get_paper_from_Chief,goal,13,FindHumansByHumans,0041E87B,200 95 2,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,875,96,Get_paper_from_Chief,result,9,PlayCutscene,0041FCFE,360 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,876,96,Get_paper_from_Chief,result,63,SelectHuman,00420F94,95 1,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,877,96,Get_paper_from_Chief,result,23,SendHuman,00420083,95 304 460,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,877,96,Get_paper_from_Chief,result,23,SendHuman,00420083,95 304 460,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,878,96,Get_paper_from_Chief,result,10,ActivateMission,0041FD49,97,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,879,96,Get_paper_from_Chief,result,20,SetVisible,0041FEB2,99 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,883,97,Chief_in_House,goal,11,FindPosByHumans,0041E7C7,95 304 460 2,yes
@@ -2645,7 +2645,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,885,97,Chief_in_House,result,10,ActivateMission,0041FD49,98,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,889,98,Chief_is_back,goal,28,TimeGone,0041F5EA,5,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,890,98,Chief_is_back,result,1,SetHuman,0041FA1B,"8 ""byzantine"" ""scout"" 304 460 97 195",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,891,98,Chief_is_back,result,23,SendHuman,00420083,97 307 462,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,891,98,Chief_is_back,result,23,SendHuman,00420083,97 307 462,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,895,99,Player_got_paper,goal,13,FindHumansByHumans,0041E87B,200 97 2,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,896,99,Player_got_paper,result,9,PlayCutscene,0041FCFE,370 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,897,99,Player_got_paper,result,50,SetHumanBehaviourFlag,00420B29,97 128 0,no
@@ -2662,9 +2662,9 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,911,100,Paper_to_Harbour_Master,result,9,PlayCutscene,0041FCFE,380 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,912,100,Paper_to_Harbour_Master,result,2,SetVehicle,0041FA4D,"0 ""viking"" ""ship small"" 326 458 110 1",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,913,100,Paper_to_Harbour_Master,result,40,AddGoodsToVehicle,00420562,"110 ""food_simple"" 20",no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,914,100,Paper_to_Harbour_Master,result,25,DockVehicle,0042018D,110 323 463,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,914,100,Paper_to_Harbour_Master,result,25,DockVehicle,0042018D,110 323 463,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,915,100,Paper_to_Harbour_Master,result,11,DeactivateMission,0041FD62,94,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,916,100,Paper_to_Harbour_Master,result,21,ChangeHumanPlayerId,0041FECB,200 8,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,916,100,Paper_to_Harbour_Master,result,21,ChangeHumanPlayerId,0041FECB,200 8,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,921,101,Fog_reached,goal,12,FindPosByVehicles,0041E821,110 410 455 50,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,922,101,Fog_reached,goal,12,FindPosByVehicles,0041E821,110 402 430 30,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,923,101,Fog_reached,goal,12,FindPosByVehicles,0041E821,110 435 407 55,yes
@@ -2768,7 +2768,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1066,116,Chares_2,result,9,PlayCutscene,0041FCFE,440 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1067,116,Chares_2,result,92,MoveHuman,00422542,98 208 154,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1068,116,Chares_2,result,63,SelectHuman,00420F94,98 1,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1069,116,Chares_2,result,23,SendHuman,00420083,98 216 127,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1069,116,Chares_2,result,23,SendHuman,00420083,98 216 127,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1070,116,Chares_2,result,10,ActivateMission,0041FD49,117,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1074,117,Chares_arrived,goal,11,FindPosByHumans,0041E7C7,98 216 127 3,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1075,117,Chares_arrived,result,63,SelectHuman,00420F94,98 1,yes
@@ -2777,14 +2777,14 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1078,117,Chares_arrived,result,85,SetCameraPosition,004221E0,228 76,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1079,117,Chares_arrived,result,69,RemoveLandscapesInArea,004210FD,231 81 1,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1080,117,Chares_arrived,result,69,RemoveLandscapesInArea,004210FD,222 69 6,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1081,117,Chares_arrived,result,23,SendHuman,00420083,98 230 80,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1081,117,Chares_arrived,result,23,SendHuman,00420083,98 230 80,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1082,117,Chares_arrived,result,27,CreateTribute,00420254,10 0 12 131,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1083,117,Chares_arrived,result,28,AddTributeGoods,00420282,"10 ""ornament"" 25",yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1084,117,Chares_arrived,result,10,ActivateMission,0041FD49,119,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1085,117,Chares_arrived,result,20,SetVisible,0041FEB2,119 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1092,119,STEP_1,goal,30,PayTribute,0041EDB3,10,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1093,119,STEP_1,result,63,SelectHuman,00420F94,98 1,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1094,119,STEP_1,result,23,SendHuman,00420083,98 217 128,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1094,119,STEP_1,result,23,SendHuman,00420083,98 217 128,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1095,119,STEP_1,result,91,SetHouseBuildForbiddenArea,004224EE,230 68 7 0,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1096,119,STEP_1,result,3,SetHouse,0041FB38,"1 ""wonder koloss"" 0 1 229 69 199",no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1097,119,STEP_1,result,10,ActivateMission,0041FD49,120,yes
@@ -2798,7 +2798,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1111,121,Negotiations2,result,28,AddTributeGoods,00420282,"11 ""gold"" 5",yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1112,121,Negotiations2,result,28,AddTributeGoods,00420282,"11 ""mud"" 10",yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1113,121,Negotiations2,result,28,AddTributeGoods,00420282,"11 ""stone"" 10",yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1114,121,Negotiations2,result,23,SendHuman,00420083,98 227 77,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1114,121,Negotiations2,result,23,SendHuman,00420083,98 227 77,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1115,121,Negotiations2,result,10,ActivateMission,0041FD49,122,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1116,121,Negotiations2,result,20,SetVisible,0041FEB2,122 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1120,122,STEP_2,goal,30,PayTribute,0041EDB3,11,yes
@@ -3267,11 +3267,11 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,524,57,Fam_Bjarni_arrives1,result,40,AddGoodsToVehicle,00420562,"300 ""sword_shord"" 5",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,525,57,Fam_Bjarni_arrives1,result,10,ActivateMission,0041FD49,58,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,529,58,Fam_Bjarni_arrives2,goal,28,TimeGone,0041F5EA,3,yes
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,530,58,Fam_Bjarni_arrives2,result,25,DockVehicle,0042018D,300 169 30,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,530,58,Fam_Bjarni_arrives2,result,25,DockVehicle,0042018D,300 169 30,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,531,58,Fam_Bjarni_arrives2,result,10,ActivateMission,0041FD49,59,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,535,59,Fam_Bjarni_arrives3,goal,12,FindPosByVehicles,0041E821,300 169 34 2,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,536,59,Fam_Bjarni_arrives3,result,34,ChangeVehiclesPlayerId,0042032C,300 0,yes
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,537,59,Fam_Bjarni_arrives3,result,22,ChangePlayerPlayerId,0041FF04,10 0,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,537,59,Fam_Bjarni_arrives3,result,22,ChangePlayerPlayerId,0041FF04,10 0,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,538,59,Fam_Bjarni_arrives3,result,85,SetCameraPosition,004221E0,166 30,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,539,59,Fam_Bjarni_arrives3,result,26,PlaySound,00420220,57 166 30,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,540,59,Fam_Bjarni_arrives3,result,1,SetHuman,0041FA1B,"0 ""viking"" ""hero_sword_BJARNI"" 173 33 71 6337",no
@@ -3395,7 +3395,7 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,769,90,1_1_AL_Rhababa_Attack,result,95,RemoveVehiclesWithMissionId,004227E0,201 1,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,770,90,1_1_AL_Rhababa_Attack,result,2,SetVehicle,0041FA4D,"3 ""saracen"" ""ship small"" 66 346 201 1",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,771,90,1_1_AL_Rhababa_Attack,result,40,AddGoodsToVehicle,00420562,"201 ""food_simple"" 20",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,772,90,1_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,201 203 266,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,772,90,1_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,201 203 266,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,773,90,1_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,91,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,774,90,1_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,93,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,778,91,1_2_Attack,goal,12,FindPosByVehicles,0041E821,201 201 266 3,yes
@@ -3413,19 +3413,19 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,799,94,2_1_AL_Rhababa_Attack,result,95,RemoveVehiclesWithMissionId,004227E0,205 1,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,800,94,2_1_AL_Rhababa_Attack,result,2,SetVehicle,0041FA4D,"3 ""saracen"" ""ship small"" 12 316 205 1",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,801,94,2_1_AL_Rhababa_Attack,result,40,AddGoodsToVehicle,00420562,"205 ""food_simple"" 20",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,802,94,2_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,205 169 62,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,802,94,2_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,205 169 62,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,803,94,2_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,95,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,804,94,2_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,97,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,808,95,2_2_Attack,goal,12,FindPosByVehicles,0041E821,205 167 60 3,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,809,95,2_2_Attack,result,85,SetCameraPosition,004221E0,169 62,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,810,95,2_2_Attack,result,86,SetHumanX,0042220C,"3 ""saracen"" ""soldier_sword_short"" 170 62 97 1 3",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,811,95,2_2_Attack,result,86,SetHumanX,0042220C,"3 ""saracen"" ""soldier_bow_short"" 168 63 97 1 3",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,812,95,2_2_Attack,result,23,SendHuman,00420083,97 190 40,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,812,95,2_2_Attack,result,23,SendHuman,00420083,97 190 40,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,813,95,2_2_Attack,result,9,PlayCutscene,0041FCFE,81 0,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,814,95,2_2_Attack,result,26,PlaySound,00420220,60 169 62,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,815,95,2_2_Attack,result,10,ActivateMission,0041FD49,96,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,819,96,2_3_Retreat,goal,28,TimeGone,0041F5EA,30,yes
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,820,96,2_3_Retreat,result,23,SendHuman,00420083,97 190 40,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,820,96,2_3_Retreat,result,23,SendHuman,00420083,97 190 40,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,821,96,2_3_Retreat,result,24,SendVehicle,004200FA,205 12 316,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,825,97,2_4_Restart,goal,45,RandomTimeGone,0041F5EA,1800,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,826,97,2_4_Restart,result,10,ActivateMission,0041FD49,94,yes
@@ -3434,19 +3434,19 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,832,98,3_1_AL_Rhababa_Attack,result,95,RemoveVehiclesWithMissionId,004227E0,206 1,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,833,98,3_1_AL_Rhababa_Attack,result,2,SetVehicle,0041FA4D,"3 ""saracen"" ""ship small"" 13 326 206 1",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,834,98,3_1_AL_Rhababa_Attack,result,40,AddGoodsToVehicle,00420562,"206 ""food_simple"" 20",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,835,98,3_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,206 167 27,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,835,98,3_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,206 167 27,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,836,98,3_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,99,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,837,98,3_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,101,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,841,99,3_2_Attack,goal,12,FindPosByVehicles,0041E821,206 165 27 3,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,842,99,3_2_Attack,result,85,SetCameraPosition,004221E0,167 27,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,843,99,3_2_Attack,result,86,SetHumanX,0042220C,"3 ""saracen"" ""soldier_sword_short"" 169 26 96 1 5",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,844,99,3_2_Attack,result,86,SetHumanX,0042220C,"3 ""saracen"" ""soldier_bow_short"" 169 28 96 1 5",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,845,99,3_2_Attack,result,23,SendHuman,00420083,96 180 36,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,845,99,3_2_Attack,result,23,SendHuman,00420083,96 180 36,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,846,99,3_2_Attack,result,9,PlayCutscene,0041FCFE,82 0,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,847,99,3_2_Attack,result,26,PlaySound,00420220,60 169 28,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,848,99,3_2_Attack,result,10,ActivateMission,0041FD49,100,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,852,100,3_3_Retreat,goal,28,TimeGone,0041F5EA,30,yes
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,853,100,3_3_Retreat,result,23,SendHuman,00420083,96 180 36,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,853,100,3_3_Retreat,result,23,SendHuman,00420083,96 180 36,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,854,100,3_3_Retreat,result,24,SendVehicle,004200FA,206 13 326,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,858,101,3_4_Restart,goal,45,RandomTimeGone,0041F5EA,2100,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,859,101,3_4_Restart,result,10,ActivateMission,0041FD49,98,yes
@@ -3455,19 +3455,19 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,865,102,4_1_AL_Rhababa_Attack,result,95,RemoveVehiclesWithMissionId,004227E0,203 1,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,866,102,4_1_AL_Rhababa_Attack,result,2,SetVehicle,0041FA4D,"3 ""saracen"" ""ship small"" 63 364 203 1",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,867,102,4_1_AL_Rhababa_Attack,result,40,AddGoodsToVehicle,00420562,"203 ""food_simple"" 20",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,868,102,4_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,203 161 378,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,868,102,4_1_AL_Rhababa_Attack,result,25,DockVehicle,0042018D,203 161 378,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,869,102,4_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,103,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,870,102,4_1_AL_Rhababa_Attack,result,10,ActivateMission,0041FD49,105,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,874,103,4_2_Attack,goal,12,FindPosByVehicles,0041E821,203 159 378 3,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,875,103,4_2_Attack,result,85,SetCameraPosition,004221E0,161 378,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,876,103,4_2_Attack,result,86,SetHumanX,0042220C,"3 ""saracen"" ""soldier_sword_short"" 162 377 95 1 5",no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,877,103,4_2_Attack,result,86,SetHumanX,0042220C,"3 ""saracen"" ""soldier_bow_short"" 163 380 95 1 5",no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,878,103,4_2_Attack,result,23,SendHuman,00420083,95 178 354,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,878,103,4_2_Attack,result,23,SendHuman,00420083,95 178 354,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,879,103,4_2_Attack,result,9,PlayCutscene,0041FCFE,83 0,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,880,103,4_2_Attack,result,26,PlaySound,00420220,60 163 375,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,881,103,4_2_Attack,result,10,ActivateMission,0041FD49,104,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,885,104,4_3_Retreat,goal,28,TimeGone,0041F5EA,30,yes
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,886,104,4_3_Retreat,result,23,SendHuman,00420083,95 178 354,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,886,104,4_3_Retreat,result,23,SendHuman,00420083,95 178 354,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,887,104,4_3_Retreat,result,24,SendVehicle,004200FA,203 63 364,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,891,105,4_4_Restart,goal,45,RandomTimeGone,0041F5EA,2100,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,892,105,4_4_Restart,result,10,ActivateMission,0041FD49,102,yes
@@ -3549,8 +3549,8 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,16,0,START,result,10,ActivateMission,0041FD49,13,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,17,0,START,result,20,SetVisible,0041FEB2,13 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,18,0,START,result,9,PlayCutscene,0041FCFE,0 1,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,19,0,START,result,23,SendHuman,00420083,11 257 123,no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,20,0,START,result,23,SendHuman,00420083,12 257 128,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,19,0,START,result,23,SendHuman,00420083,11 257 123,yes
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,20,0,START,result,23,SendHuman,00420083,12 257 128,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,21,0,START,result,91,SetHouseBuildForbiddenArea,004224EE,267 116 20 1,no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,26,1,maingoal,goal,50,IsMissionDone,0041F1C4,51,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,30,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
@@ -3573,12 +3573,12 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,61,5,pl5_herostrates erben,result,9,PlayCutscene,0041FCFE,25 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,65,6,temple_cracked,goal,28,TimeGone,0041F5EA,20,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,66,6,temple_cracked,result,35,ChangeHousesPlayerId,00420363,7 0,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,67,6,temple_cracked,result,23,SendHuman,00420083,12 145 51,no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,68,6,temple_cracked,result,23,SendHuman,00420083,11 143 59,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,67,6,temple_cracked,result,23,SendHuman,00420083,12 145 51,yes
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,68,6,temple_cracked,result,23,SendHuman,00420083,11 143 59,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,69,6,temple_cracked,result,10,ActivateMission,0041FD49,7,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,73,7,send_hatschi,goal,28,TimeGone,0041F5EA,20,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,74,7,send_hatschi,result,50,SetHumanBehaviourFlag,00420B29,3 14561 1,no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,75,7,send_hatschi,result,23,SendHuman,00420083,3 280 15,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,75,7,send_hatschi,result,23,SendHuman,00420083,3 280 15,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,76,7,send_hatschi,result,9,PlayCutscene,0041FCFE,23 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,77,7,send_hatschi,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,78,7,send_hatschi,result,10,ActivateMission,0041FD49,8,yes
@@ -3591,7 +3591,7 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,91,9,hatschi_dissappear,result,4,SetLandscape,0041FBC6,"280 15 ""fx fog"" 1 1",no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,92,9,hatschi_dissappear,result,11,DeactivateMission,0041FD62,8,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,96,10,start_first_large_attack,goal,28,TimeGone,0041F5EA,600,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,97,10,start_first_large_attack,result,21,ChangeHumanPlayerId,0041FECB,11 6,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,97,10,start_first_large_attack,result,21,ChangeHumanPlayerId,0041FECB,11 6,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,98,10,start_first_large_attack,result,10,ActivateMission,0041FD49,11,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,103,11,generate_enough_soldiers,goal,26,NumberOfSoldiers,0041ED17,6 15,no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,104,11,generate_enough_soldiers,goal,28,TimeGone,0041F5EA,30,yes
@@ -3649,21 +3649,21 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,195,20,hermeias,result,11,DeactivateMission,0041FD62,22,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,199,21,hermeias,goal,13,FindHumansByHumans,0041E87B,8 9 7,no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,200,21,hermeias,result,9,PlayCutscene,0041FCFE,13 1,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,201,21,hermeias,result,21,ChangeHumanPlayerId,0041FECB,8 4,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,201,21,hermeias,result,21,ChangeHumanPlayerId,0041FECB,8 4,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,202,21,hermeias,result,10,ActivateMission,0041FD49,24,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,208,22,amelia,goal,8,FindHumans,0041E6AD,0 8,no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,209,22,amelia,result,9,PlayCutscene,0041FCFE,14 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,210,22,amelia,result,10,ActivateMission,0041FD49,21,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,211,22,amelia,result,20,SetVisible,0041FEB2,21 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,212,22,amelia,result,11,DeactivateMission,0041FD62,20,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,213,22,amelia,result,21,ChangeHumanPlayerId,0041FECB,8 0,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,213,22,amelia,result,21,ChangeHumanPlayerId,0041FECB,8 0,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,214,22,amelia,result,50,SetHumanBehaviourFlag,00420B29,8 1408 1,no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,218,23,amelia,goal,8,FindHumans,0041E6AD,0 8,no
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,219,23,amelia,result,9,PlayCutscene,0041FCFE,14 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,220,23,amelia,result,10,ActivateMission,0041FD49,21,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,221,23,amelia,result,20,SetVisible,0041FEB2,21 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,222,23,amelia,result,11,DeactivateMission,0041FD62,20,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,223,23,amelia,result,21,ChangeHumanPlayerId,0041FECB,8 0,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,223,23,amelia,result,21,ChangeHumanPlayerId,0041FECB,8 0,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,227,24,100 ornament krösus,goal,28,TimeGone,0041F5EA,30,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,228,24,100 ornament krösus,result,9,PlayCutscene,0041FCFE,3 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,229,24,100 ornament krösus,result,64,AddGoodsToMapArea,00420FB8,"""ornament"" 100 254 132 15 0 0",no
@@ -3679,8 +3679,8 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,250,27,general,result,20,SetVisible,0041FEB2,28 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,254,28,pay_tribut4,goal,30,PayTribute,0041EDB3,4,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,255,28,pay_tribut4,result,9,PlayCutscene,0041FCFE,21 1,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,256,28,pay_tribut4,result,23,SendHuman,00420083,10 184 133,no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,257,28,pay_tribut4,result,23,SendHuman,00420083,13 182 137,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,256,28,pay_tribut4,result,23,SendHuman,00420083,10 184 133,yes
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,257,28,pay_tribut4,result,23,SendHuman,00420083,13 182 137,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,258,28,pay_tribut4,result,18,SetExternalFlag,0041FE77,5 10 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,259,28,pay_tribut4,result,18,SetExternalFlag,0041FE77,6 10 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,260,28,pay_tribut4,result,50,SetHumanBehaviourFlag,00420B29,10 137 1,no
@@ -3698,8 +3698,8 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,280,30,tribut5,result,20,SetVisible,0041FEB2,31 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,284,31,pay_tribut5,goal,30,PayTribute,0041EDB3,5,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,285,31,pay_tribut5,result,9,PlayCutscene,0041FCFE,27 1,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,286,31,pay_tribut5,result,23,SendHuman,00420083,10 167 95,no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,287,31,pay_tribut5,result,23,SendHuman,00420083,13 163 110,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,286,31,pay_tribut5,result,23,SendHuman,00420083,10 167 95,yes
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,287,31,pay_tribut5,result,23,SendHuman,00420083,13 163 110,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,288,31,pay_tribut5,result,18,SetExternalFlag,0041FE77,6 20 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,293,32,mani+norbert,goal,11,FindPosByHumans,0041E7C7,1 143 49 11,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,294,32,mani+norbert,goal,11,FindPosByHumans,0041E7C7,2 143 49 11,yes
@@ -3822,7 +3822,7 @@ campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\camp
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,22,1,herostrates im verlies,result,9,PlayCutscene,0041FCFE,5 1,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,23,1,herostrates im verlies,result,19,SetDiplomacy,0041FE97,"0 6 ""neutral""",yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,24,1,herostrates im verlies,result,19,SetDiplomacy,0041FE97,"6 0 ""neutral""",yes
-campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,25,1,herostrates im verlies,result,21,ChangeHumanPlayerId,0041FECB,7 6,no
+campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,25,1,herostrates im verlies,result,21,ChangeHumanPlayerId,0041FECB,7 6,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,32,2,pl5_seen,goal,32,PlayerSeen,0041EE02,0 5,no
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,33,2,pl5_seen,result,10,ActivateMission,0041FD49,8,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,34,2,pl5_seen,result,20,SetVisible,0041FEB2,8 1,yes
@@ -3861,10 +3861,10 @@ campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\camp
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,94,7,gate_close,result,10,ActivateMission,0041FD49,6,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,98,8,herostrates,goal,34,FindHumansByPlayersMM,0041EE7C,7 0 5,no
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,99,8,herostrates,result,9,PlayCutscene,0041FCFE,4 1,yes
-campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,100,8,herostrates,result,21,ChangeHumanPlayerId,0041FECB,7 0,no
+campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,100,8,herostrates,result,21,ChangeHumanPlayerId,0041FECB,7 0,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,101,8,herostrates,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,105,9,herostrates_send,goal,28,TimeGone,0041F5EA,10,yes
-campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,106,9,herostrates_send,result,23,SendHuman,00420083,7 152 58,no
+campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,106,9,herostrates_send,result,23,SendHuman,00420083,7 152 58,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,107,9,herostrates_send,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,113,10,hero1_dead,goal,18,HumansDied,0041EB7C,1,yes
 campaign_03_05_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05_sub1\map.cif,114,10,hero1_dead,result,39,DisableAll,00420534,,no
@@ -4032,7 +4032,7 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,54,4,the_others,result,1,SetHuman,0041FA1B,"0 ""viking"" ""child_female"" 512 364 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,55,4,the_others,result,1,SetHuman,0041FA1B,"0 ""viking"" ""child_male"" 508 362 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,56,4,the_others,result,1,SetHuman,0041FA1B,"0 ""viking"" ""child_male"" 511 365 0 0",no
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,57,4,the_others,result,22,ChangePlayerPlayerId,0041FF04,7 0,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,57,4,the_others,result,22,ChangePlayerPlayerId,0041FF04,7 0,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,61,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,62,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,63,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
@@ -4043,7 +4043,7 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,71,6,building_place,result,16,ExploreArea,0041FE17,0 130 203 46,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,72,6,building_place,result,16,ExploreArea,0041FE17,0 160 210 50,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,73,6,building_place,result,16,ExploreArea,0041FE17,0 152 257 35,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,74,6,building_place,result,23,SendHuman,00420083,10 85 277,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,74,6,building_place,result,23,SendHuman,00420083,10 85 277,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,78,7,building_place,goal,28,TimeGone,0041F5EA,8,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,79,7,building_place,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 82 257 30,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,80,7,building_place,result,74,InfoCountGoodsInArea,00421754,"0 0 20 ""ornament"" 83 260 45 0",no
@@ -4059,7 +4059,7 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,90,7,building_place,result,20,SetVisible,0041FEB2,17 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,91,7,building_place,result,10,ActivateMission,0041FD49,18,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,92,7,building_place,result,10,ActivateMission,0041FD49,33,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,93,7,building_place,result,21,ChangeHumanPlayerId,0041FECB,7 0,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,93,7,building_place,result,21,ChangeHumanPlayerId,0041FECB,7 0,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,94,7,building_place,result,10,ActivateMission,0041FD49,8,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,95,7,building_place,result,11,DeactivateMission,0041FD62,29,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,96,7,building_place,result,11,DeactivateMission,0041FD62,30,yes
@@ -4069,16 +4069,16 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,100,7,building_place,result,1,SetHuman,0041FA1B,"1 ""byzantine"" ""civilist"" 83 259 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,101,7,building_place,result,1,SetHuman,0041FA1B,"1 ""byzantine"" ""civilist"" 82 261 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,105,8,send_läufer_to_elis,goal,0,True,0041F8F4,,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,106,8,send_läufer_to_elis,result,23,SendHuman,00420083,7 78 157,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,106,8,send_läufer_to_elis,result,23,SendHuman,00420083,7 78 157,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,107,8,send_läufer_to_elis,result,63,SelectHuman,00420F94,7 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,108,8,send_läufer_to_elis,result,10,ActivateMission,0041FD49,8,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,109,8,send_läufer_to_elis,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,113,9,läufer_marathon,goal,11,FindPosByHumans,0041E7C7,7 78 157 2,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,114,9,läufer_marathon,result,11,DeactivateMission,0041FD62,8,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,115,9,läufer_marathon,result,21,ChangeHumanPlayerId,0041FECB,7 3,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,115,9,läufer_marathon,result,21,ChangeHumanPlayerId,0041FECB,7 3,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,116,9,läufer_marathon,result,10,ActivateMission,0041FD49,29,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,117,9,läufer_marathon,result,63,SelectHuman,00420F94,7 0,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,118,9,läufer_marathon,result,23,SendHuman,00420083,7 156 292,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,118,9,läufer_marathon,result,23,SendHuman,00420083,7 156 292,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,119,9,läufer_marathon,result,50,SetHumanBehaviourFlag,00420B29,7 1 1,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,126,10,pl1_olympia,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 130 203 46,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,127,10,pl1_olympia,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 160 210 50,yes
@@ -4114,12 +4114,12 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,175,14,p3_elis,result,9,PlayCutscene,0041FCFE,9 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,176,14,p3_elis,result,64,AddGoodsToMapArea,00420FB8,"""ornament"" 40 83 147 20 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,177,14,p3_elis,result,34,ChangeVehiclesPlayerId,0042032C,8 0,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,178,14,p3_elis,result,21,ChangeHumanPlayerId,0041FECB,8 0,no
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,179,14,p3_elis,result,21,ChangeHumanPlayerId,0041FECB,9 0,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,178,14,p3_elis,result,21,ChangeHumanPlayerId,0041FECB,8 0,yes
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,179,14,p3_elis,result,21,ChangeHumanPlayerId,0041FECB,9 0,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,180,14,p3_elis,result,10,ActivateMission,0041FD49,15,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,181,14,p3_elis,result,16,ExploreArea,0041FE17,0 74 120 40,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,182,14,p3_elis,result,11,DeactivateMission,0041FD62,8,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,183,14,p3_elis,result,21,ChangeHumanPlayerId,0041FECB,7 3,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,183,14,p3_elis,result,21,ChangeHumanPlayerId,0041FECB,7 3,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,187,15,ornament_delivered,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""ornament"" 40 83 260 45",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,188,15,ornament_delivered,result,50,SetHumanBehaviourFlag,00420B29,8 1153 0,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,189,15,ornament_delivered,result,50,SetHumanBehaviourFlag,00420B29,8 1 1,no
@@ -4184,16 +4184,16 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,298,28,läufer,goal,34,FindHumansByPlayersMM,0041EE7C,7 0 8,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,299,28,läufer,result,9,PlayCutscene,0041FCFE,6 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,305,29,marathon,goal,11,FindPosByHumans,0041E7C7,7 156 292 5,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,306,29,marathon,result,23,SendHuman,00420083,7 108 275,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,306,29,marathon,result,23,SendHuman,00420083,7 108 275,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,307,29,marathon,result,10,ActivateMission,0041FD49,30,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,311,30,marathon,goal,11,FindPosByHumans,0041E7C7,7 108 275 5,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,312,30,marathon,result,23,SendHuman,00420083,7 105 166,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,312,30,marathon,result,23,SendHuman,00420083,7 105 166,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,313,30,marathon,result,10,ActivateMission,0041FD49,31,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,317,31,marathon,goal,11,FindPosByHumans,0041E7C7,7 105 166 5,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,318,31,marathon,result,23,SendHuman,00420083,7 193 235,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,318,31,marathon,result,23,SendHuman,00420083,7 193 235,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,319,31,marathon,result,10,ActivateMission,0041FD49,32,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,323,32,marathon,goal,11,FindPosByHumans,0041E7C7,7 193 235 5,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,324,32,marathon,result,23,SendHuman,00420083,7 156 292,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,324,32,marathon,result,23,SendHuman,00420083,7 156 292,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,325,32,marathon,result,10,ActivateMission,0041FD49,29,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,329,33,SUB2,goal,11,FindPosByHumans,0041E7C7,1 233 529 11,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,330,33,SUB2,goal,11,FindPosByHumans,0041E7C7,2 233 529 11,yes
@@ -4257,34 +4257,34 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,435,44,* flowers_yellow,goal,34,FindHumansByPlayersMM,0041EE7C,13 0 5,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,436,44,* flowers_yellow,result,9,PlayCutscene,0041FCFE,23 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,437,44,* flowers_yellow,result,63,SelectHuman,00420F94,13 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,438,44,* flowers_yellow,result,23,SendHuman,00420083,13 57 90,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,438,44,* flowers_yellow,result,23,SendHuman,00420083,13 57 90,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,444,45,* flowers_red,goal,34,FindHumansByPlayersMM,0041EE7C,14 0 5,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,445,45,* flowers_red,result,9,PlayCutscene,0041FCFE,24 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,446,45,* flowers_red,result,63,SelectHuman,00420F94,14 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,447,45,* flowers_red,result,23,SendHuman,00420083,14 379 142,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,447,45,* flowers_red,result,23,SendHuman,00420083,14 379 142,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,453,46,* flowers_blue,goal,34,FindHumansByPlayersMM,0041EE7C,15 0 5,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,454,46,* flowers_blue,result,9,PlayCutscene,0041FCFE,25 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,455,46,* flowers_blue,result,63,SelectHuman,00420F94,15 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,456,46,* flowers_blue,result,23,SendHuman,00420083,15 273 523,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,456,46,* flowers_blue,result,23,SendHuman,00420083,15 273 523,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,462,47,* red_to_yellow,goal,50,IsMissionDone,0041F1C4,45,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,463,47,* red_to_yellow,goal,34,FindHumansByPlayersMM,0041EE7C,13 0 5,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,464,47,* red_to_yellow,result,9,PlayCutscene,0041FCFE,26 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,465,47,* red_to_yellow,result,63,SelectHuman,00420F94,13 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,466,47,* red_to_yellow,result,23,SendHuman,00420083,13 76 109,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,466,47,* red_to_yellow,result,23,SendHuman,00420083,13 76 109,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,467,47,* red_to_yellow,result,64,AddGoodsToMapArea,00420FB8,"""gold"" 10 77 106 20 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,468,47,* red_to_yellow,result,64,AddGoodsToMapArea,00420FB8,"""coin"" 5 76 108 20 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,474,48,* blue_to_red,goal,50,IsMissionDone,0041F1C4,46,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,475,48,* blue_to_red,goal,34,FindHumansByPlayersMM,0041EE7C,14 0 5,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,476,48,* blue_to_red,result,9,PlayCutscene,0041FCFE,27 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,477,48,* blue_to_red,result,63,SelectHuman,00420F94,14 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,478,48,* blue_to_red,result,23,SendHuman,00420083,14 375 119,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,478,48,* blue_to_red,result,23,SendHuman,00420083,14 375 119,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,479,48,* blue_to_red,result,64,AddGoodsToMapArea,00420FB8,"""gold"" 10 376 118 20 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,480,48,* blue_to_red,result,64,AddGoodsToMapArea,00420FB8,"""coin"" 5 376 118 20 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,486,49,* yellow_to_blue,goal,50,IsMissionDone,0041F1C4,44,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,487,49,* yellow_to_blue,goal,34,FindHumansByPlayersMM,0041EE7C,15 0 5,no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,488,49,* yellow_to_blue,result,9,PlayCutscene,0041FCFE,28 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,489,49,* yellow_to_blue,result,63,SelectHuman,00420F94,15 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,490,49,* yellow_to_blue,result,23,SendHuman,00420083,15 273 523,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,490,49,* yellow_to_blue,result,23,SendHuman,00420083,15 273 523,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,491,49,* yellow_to_blue,result,64,AddGoodsToMapArea,00420FB8,"""gold"" 10 273 546 10 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,492,49,* yellow_to_blue,result,64,AddGoodsToMapArea,00420FB8,"""coin"" 5 273 546 10 0 0",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,498,50,hero1_dead,goal,18,HumansDied,0041EB7C,1,yes
@@ -4353,35 +4353,35 @@ campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\camp
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,12,0,START,result,9,PlayCutscene,0041FCFE,0 1,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,13,0,START,result,10,ActivateMission,0041FD49,1,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,17,1,marathon,goal,0,True,0041F8F4,,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,18,1,marathon,result,23,SendHuman,00420083,7 31 84,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,18,1,marathon,result,23,SendHuman,00420083,7 31 84,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,19,1,marathon,result,10,ActivateMission,0041FD49,2,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,23,2,marathon,goal,11,FindPosByHumans,0041E7C7,7 31 84 5,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,24,2,marathon,result,23,SendHuman,00420083,7 75 69,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,24,2,marathon,result,23,SendHuman,00420083,7 75 69,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,25,2,marathon,result,10,ActivateMission,0041FD49,3,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,29,3,marathon,goal,11,FindPosByHumans,0041E7C7,7 75 69 5,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,30,3,marathon,result,23,SendHuman,00420083,7 42 40,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,30,3,marathon,result,23,SendHuman,00420083,7 42 40,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,31,3,marathon,result,10,ActivateMission,0041FD49,4,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,35,4,marathon,goal,11,FindPosByHumans,0041E7C7,7 42 40 5,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,36,4,marathon,result,23,SendHuman,00420083,7 33 19,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,36,4,marathon,result,23,SendHuman,00420083,7 33 19,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,37,4,marathon,result,10,ActivateMission,0041FD49,5,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,41,5,marathon,goal,11,FindPosByHumans,0041E7C7,7 33 19 5,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,42,5,marathon,result,23,SendHuman,00420083,7 66 23,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,42,5,marathon,result,23,SendHuman,00420083,7 66 23,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,43,5,marathon,result,10,ActivateMission,0041FD49,6,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,47,6,marathon,goal,11,FindPosByHumans,0041E7C7,7 66 23 5,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,48,6,marathon,result,23,SendHuman,00420083,7 93 58,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,48,6,marathon,result,23,SendHuman,00420083,7 93 58,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,49,6,marathon,result,10,ActivateMission,0041FD49,7,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,53,7,marathon,goal,11,FindPosByHumans,0041E7C7,7 93 58 5,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,54,7,marathon,result,50,SetHumanBehaviourFlag,00420B29,7 131499 0,no
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,55,7,marathon,result,50,SetHumanBehaviourFlag,00420B29,7 427 1,no
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,56,7,marathon,result,23,SendHuman,00420083,7 89 101,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,56,7,marathon,result,23,SendHuman,00420083,7 89 101,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,57,7,marathon,result,10,ActivateMission,0041FD49,8,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,61,8,marathon,goal,11,FindPosByHumans,0041E7C7,7 89 101 5,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,62,8,marathon,result,50,SetHumanBehaviourFlag,00420B29,7 427 0,no
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,63,8,marathon,result,50,SetHumanBehaviourFlag,00420B29,7 131499 1,no
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,64,8,marathon,result,23,SendHuman,00420083,7 67 118,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,64,8,marathon,result,23,SendHuman,00420083,7 67 118,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,65,8,marathon,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,69,9,marathon,goal,11,FindPosByHumans,0041E7C7,7 67 118 5,yes
-campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,70,9,marathon,result,23,SendHuman,00420083,7 38 119,no
+campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,70,9,marathon,result,23,SendHuman,00420083,7 38 119,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,71,9,marathon,result,10,ActivateMission,0041FD49,11,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,77,10,läufer_dead,goal,18,HumansDied,0041EB7C,7,yes
 campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub1\map.cif,78,10,läufer_dead,result,39,DisableAll,00420534,,no
@@ -4412,7 +4412,7 @@ campaign_03_06_sub1,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\camp
 campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,11,0,START,goal,0,True,0041F8F4,,yes
 campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,12,0,START,result,20,SetVisible,0041FEB2,22 1,yes
 campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,13,0,START,result,9,PlayCutscene,0041FCFE,0 1,yes
-campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,14,0,START,result,21,ChangeHumanPlayerId,0041FECB,9 0,no
+campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,14,0,START,result,21,ChangeHumanPlayerId,0041FECB,9 0,yes
 campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,20,1,old_man,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 99 57 6,yes
 campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,21,1,old_man,result,9,PlayCutscene,0041FCFE,1 1,yes
 campaign_03_06_sub2,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06_sub2\map.cif,28,2,flames,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 77 55 4,yes
@@ -4610,7 +4610,7 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,46,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,47,2,siedlung,result,0,None,00422DE6,,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,51,3,start_pseudo_attack,goal,0,True,0041F8F4,,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,52,3,start_pseudo_attack,result,23,SendHuman,00420083,11 150 338,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,52,3,start_pseudo_attack,result,23,SendHuman,00420083,11 150 338,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,53,3,start_pseudo_attack,result,10,ActivateMission,0041FD49,3,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,59,4,fight,goal,11,FindPosByHumans,0041E7C7,11 141 336 15,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,60,4,fight,result,16,ExploreArea,0041FE17,0 117 321 40,yes
@@ -4631,7 +4631,7 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,88,7,tribut1 payed,goal,30,PayTribute,0041EDB3,1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,89,7,tribut1 payed,result,9,PlayCutscene,0041FCFE,26 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,90,7,tribut1 payed,result,86,SetHumanX,0042220C,"1 ""egypt"" ""soldier_spear_iron"" 224 366 22 1024 5",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,91,7,tribut1 payed,result,21,ChangeHumanPlayerId,0041FECB,22 0,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,91,7,tribut1 payed,result,21,ChangeHumanPlayerId,0041FECB,22 0,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,92,7,tribut1 payed,result,10,ActivateMission,0041FD49,6,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,98,8,pyramiden,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 117 320 40,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,99,8,pyramiden,result,74,InfoCountGoodsInArea,00421754,"0 0 20 ""stone"" 122 320 55 0",no
@@ -4684,7 +4684,7 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,171,14,tribut2 payed,result,19,SetDiplomacy,0041FE97,"0 2 ""friend""",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,172,14,tribut2 payed,result,19,SetDiplomacy,0041FE97,"2 0 ""friend""",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,173,14,tribut2 payed,result,86,SetHumanX,0042220C,"2 ""saracen"" ""soldier_bow_short"" 363 360 16 1024 10",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,174,14,tribut2 payed,result,21,ChangeHumanPlayerId,0041FECB,16 0,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,174,14,tribut2 payed,result,21,ChangeHumanPlayerId,0041FECB,16 0,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,175,14,tribut2 payed,result,10,ActivateMission,0041FD49,13,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,181,15,pl3_,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 322 255 32,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,182,15,pl3_,result,16,ExploreArea,0041FE17,0 323 254 35,yes
@@ -4726,7 +4726,7 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,243,21,pay tribut,result,1,SetHuman,0041FA1B,"4 ""byzantine"" ""soldier_bow_long"" 115 321 15 1025",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,244,21,pay tribut,result,1,SetHuman,0041FA1B,"4 ""byzantine"" ""soldier_bow_long"" 117 318 15 1025",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,245,21,pay tribut,result,1,SetHuman,0041FA1B,"4 ""byzantine"" ""soldier_bow_long"" 118 320 15 1025",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,246,21,pay tribut,result,21,ChangeHumanPlayerId,0041FECB,15 0,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,246,21,pay tribut,result,21,ChangeHumanPlayerId,0041FECB,15 0,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,247,21,pay tribut,result,10,ActivateMission,0041FD49,20,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,253,22,black_area,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 383 45 35,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,254,22,black_area,result,11,DeactivateMission,0041FD62,23,yes
@@ -4737,7 +4737,7 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,269,24,p5 sarazenen,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 94 467 35,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,270,24,p5 sarazenen,result,9,PlayCutscene,0041FCFE,19 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,271,24,p5 sarazenen,result,16,ExploreArea,0041FE17,0 94 467 35,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,272,24,p5 sarazenen,result,23,SendHuman,00420083,19 385 22,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,272,24,p5 sarazenen,result,23,SendHuman,00420083,19 385 22,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,278,25,gold_area,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 391 43 30,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,279,25,gold_area,result,9,PlayCutscene,0041FCFE,25 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,285,26,gold_area,goal,22,FindPosByPlayersMapMoveable,0041EBC1,5 385 22 25,yes
@@ -4751,7 +4751,7 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,296,27,p5 sarazenen2,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 387 45 10,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,297,27,p5 sarazenen2,result,9,PlayCutscene,0041FCFE,20 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,298,27,p5 sarazenen2,result,35,ChangeHousesPlayerId,00420363,19 0,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,299,27,p5 sarazenen2,result,21,ChangeHumanPlayerId,0041FECB,19 0,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,299,27,p5 sarazenen2,result,21,ChangeHumanPlayerId,0041FECB,19 0,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,300,27,p5 sarazenen2,result,50,SetHumanBehaviourFlag,00420B29,19 321 0,no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,301,27,p5 sarazenen2,result,50,SetHumanBehaviourFlag,00420B29,19 1 1,no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,307,28,....p8 magier,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 486 562 25,yes
@@ -4881,10 +4881,10 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,532,53,Start first Large Attack,result,10,ActivateMission,0041FD49,56,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,533,53,Start first Large Attack,result,86,SetHumanX,0042220C,"7 ""weresnake"" ""soldier_unarmed"" 68 337 12 16384 35",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,534,53,Start first Large Attack,result,16,ExploreArea,0041FE17,0 68 337 10,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,535,53,Start first Large Attack,result,23,SendHuman,00420083,12 117 320,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,535,53,Start first Large Attack,result,23,SendHuman,00420083,12 117 320,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,536,53,Start first Large Attack,result,18,SetExternalFlag,0041FE77,7 10 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,540,54,stop attack,goal,28,TimeGone,0041F5EA,480,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,541,54,stop attack,result,23,SendHuman,00420083,12 460 85,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,541,54,stop attack,result,23,SendHuman,00420083,12 460 85,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,542,54,stop attack,result,10,ActivateMission,0041FD49,55,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,543,54,stop attack,result,18,SetExternalFlag,0041FE77,7 10 0,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,547,55,restart attack,goal,28,TimeGone,0041F5EA,800,yes
@@ -4910,10 +4910,10 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,586,60,attackB start,result,86,SetHumanX,0042220C,"7 ""weresnake"" ""soldier_unarmed"" 72 337 11 16384 16",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,587,60,attackB start,result,86,SetHumanX,0042220C,"7 ""weresnake"" ""soldier_unarmed"" 69 340 11 16384 10",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,588,60,attackB start,result,86,SetHumanX,0042220C,"7 ""weresnake"" ""soldier_unarmed"" 66 342 11 16384 10",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,589,60,attackB start,result,23,SendHuman,00420083,11 116 319,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,589,60,attackB start,result,23,SendHuman,00420083,11 116 319,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,590,60,attackB start,result,18,SetExternalFlag,0041FE77,7 20 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,594,61,attackB stop,goal,28,TimeGone,0041F5EA,600,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,595,61,attackB stop,result,23,SendHuman,00420083,11 460 85,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,595,61,attackB stop,result,23,SendHuman,00420083,11 460 85,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,596,61,attackB stop,result,10,ActivateMission,0041FD49,62,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,597,61,attackB stop,result,18,SetExternalFlag,0041FE77,7 20 0,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,601,62,attackB restart,goal,28,TimeGone,0041F5EA,1200,yes
@@ -4922,12 +4922,12 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,607,63,Warn 4,result,9,PlayCutscene,0041FCFE,6 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,611,64,Warn 5,goal,22,FindPosByPlayersMapMoveable,0041EBC1,7 119 327 60,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,612,64,Warn 5,result,9,PlayCutscene,0041FCFE,7 1,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,616,65,Send Snakes Away 11,result,23,SendHuman,00420083,11 465 6,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,616,65,Send Snakes Away 11,result,23,SendHuman,00420083,11 465 6,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,617,65,Send Snakes Away 11,result,10,ActivateMission,0041FD49,65,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,621,66,Remove Snakes 11,goal,11,FindPosByHumans,0041E7C7,11 465 6 2,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,622,66,Remove Snakes 11,goal,29,CheckMission,0041ED99,63,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,623,66,Remove Snakes 11,result,5,RemoveHumans,0041FC13,11,no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,627,67,Send Snakes Away 12,result,23,SendHuman,00420083,12 495 7,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,627,67,Send Snakes Away 12,result,23,SendHuman,00420083,12 495 7,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,628,67,Send Snakes Away 12,result,10,ActivateMission,0041FD49,68,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,632,68,Remove Snakes 12,goal,11,FindPosByHumans,0041E7C7,12 495 7 2,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,633,68,Remove Snakes 12,goal,29,CheckMission,0041ED99,0,yes
@@ -4994,13 +4994,13 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,106,11,# rot goods_delivered,result,9,PlayCutscene,0041FCFE,4 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,107,11,# rot goods_delivered,result,19,SetDiplomacy,0041FE97,"0 1 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,108,11,# rot goods_delivered,result,19,SetDiplomacy,0041FE97,"1 0 ""friend""",yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,109,11,# rot goods_delivered,result,23,SendHuman,00420083,11 198 219,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,109,11,# rot goods_delivered,result,23,SendHuman,00420083,11 198 219,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,110,11,# rot goods_delivered,result,10,ActivateMission,0041FD49,12,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,111,11,# rot goods_delivered,result,88,SetHouseOverlayState,00422365,7 1 1,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,112,11,# rot goods_delivered,result,65,RemoveGoodsFromMapArea,00421000,"""ornament"" 30 324 206 75 1 0",no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,113,11,# rot goods_delivered,result,73,InfoShowString,0042172C,0 0 21,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,117,12,pl1_obelisk,goal,28,TimeGone,0041F5EA,2,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,118,12,pl1_obelisk,result,23,SendHuman,00420083,11 198 219,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,118,12,pl1_obelisk,result,23,SendHuman,00420083,11 198 219,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,119,12,pl1_obelisk,result,10,ActivateMission,0041FD49,12,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,125,13,pl1_attackiert,goal,37,PlayerAttackedByPlayer,0041EF2E,1 0,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,126,13,pl1_attackiert,result,9,PlayCutscene,0041FCFE,17 1,yes
@@ -5025,37 +5025,37 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,156,15,pl2_3_4_seperated city,result,16,ExploreArea,0041FE17,0 121 231 39,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,162,16,major 1,goal,34,FindHumansByPlayersMM,0041EE7C,7 0 5,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,163,16,major 1,result,9,PlayCutscene,0041FCFE,6 1,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,164,16,major 1,result,21,ChangeHumanPlayerId,0041FECB,7 0,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,164,16,major 1,result,21,ChangeHumanPlayerId,0041FECB,7 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,170,17,major 2,goal,34,FindHumansByPlayersMM,0041EE7C,8 0 5,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,171,17,major 2,result,21,ChangeHumanPlayerId,0041FECB,8 0,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,171,17,major 2,result,21,ChangeHumanPlayerId,0041FECB,8 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,172,17,major 2,result,9,PlayCutscene,0041FCFE,7 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,178,18,major 3,goal,34,FindHumansByPlayersMM,0041EE7C,9 0 5,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,179,18,major 3,result,21,ChangeHumanPlayerId,0041FECB,9 0,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,179,18,major 3,result,21,ChangeHumanPlayerId,0041FECB,9 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,180,18,major 3,result,9,PlayCutscene,0041FCFE,8 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,184,19,# all majors on obelisk,goal,11,FindPosByHumans,0041E7C7,9 195 226 20,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,185,19,# all majors on obelisk,goal,11,FindPosByHumans,0041E7C7,7 195 226 20,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,186,19,# all majors on obelisk,goal,11,FindPosByHumans,0041E7C7,8 195 226 20,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,187,19,# all majors on obelisk,result,9,PlayCutscene,0041FCFE,9 1,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,188,19,# all majors on obelisk,result,21,ChangeHumanPlayerId,0041FECB,7 2,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,189,19,# all majors on obelisk,result,21,ChangeHumanPlayerId,0041FECB,8 3,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,190,19,# all majors on obelisk,result,21,ChangeHumanPlayerId,0041FECB,9 4,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,188,19,# all majors on obelisk,result,21,ChangeHumanPlayerId,0041FECB,7 2,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,189,19,# all majors on obelisk,result,21,ChangeHumanPlayerId,0041FECB,8 3,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,190,19,# all majors on obelisk,result,21,ChangeHumanPlayerId,0041FECB,9 4,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,191,19,# all majors on obelisk,result,19,SetDiplomacy,0041FE97,"0 2 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,192,19,# all majors on obelisk,result,19,SetDiplomacy,0041FE97,"2 0 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,193,19,# all majors on obelisk,result,19,SetDiplomacy,0041FE97,"0 3 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,194,19,# all majors on obelisk,result,19,SetDiplomacy,0041FE97,"3 0 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,195,19,# all majors on obelisk,result,19,SetDiplomacy,0041FE97,"0 4 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,196,19,# all majors on obelisk,result,19,SetDiplomacy,0041FE97,"4 0 ""friend""",yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,197,19,# all majors on obelisk,result,23,SendHuman,00420083,7 186 225,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,198,19,# all majors on obelisk,result,23,SendHuman,00420083,8 187 236,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,199,19,# all majors on obelisk,result,23,SendHuman,00420083,9 191 221,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,197,19,# all majors on obelisk,result,23,SendHuman,00420083,7 186 225,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,198,19,# all majors on obelisk,result,23,SendHuman,00420083,8 187 236,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,199,19,# all majors on obelisk,result,23,SendHuman,00420083,9 191 221,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,200,19,# all majors on obelisk,result,10,ActivateMission,0041FD49,20,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,201,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 0 1,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,202,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 5 1,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,203,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 6 1,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,207,20,send majors,goal,28,TimeGone,0041F5EA,2,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,208,20,send majors,result,23,SendHuman,00420083,7 186 225,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,209,20,send majors,result,23,SendHuman,00420083,8 187 236,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,210,20,send majors,result,23,SendHuman,00420083,9 191 221,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,208,20,send majors,result,23,SendHuman,00420083,7 186 225,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,209,20,send majors,result,23,SendHuman,00420083,8 187 236,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,210,20,send majors,result,23,SendHuman,00420083,9 191 221,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,211,20,send majors,result,10,ActivateMission,0041FD49,20,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,217,21,pl5_moorvolk,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 237 478 32,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,218,21,pl5_moorvolk,result,16,ExploreArea,0041FE17,0 234 477 32,yes
@@ -5064,7 +5064,7 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,221,21,pl5_moorvolk,result,10,ActivateMission,0041FD49,22,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,222,21,pl5_moorvolk,result,20,SetVisible,0041FEB2,22 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,223,21,pl5_moorvolk,result,9,PlayCutscene,0041FCFE,10 1,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,224,21,pl5_moorvolk,result,21,ChangeHumanPlayerId,0041FECB,3 0,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,224,21,pl5_moorvolk,result,21,ChangeHumanPlayerId,0041FECB,3 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,228,22,tribut5,goal,30,PayTribute,0041EDB3,5,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,229,22,tribut5,result,9,PlayCutscene,0041FCFE,11 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,230,22,tribut5,result,19,SetDiplomacy,0041FE97,"0 5 ""friend""",yes
@@ -5084,9 +5084,9 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,253,24,pl6_inselv # blau,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 112 35 35,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,254,24,pl6_inselv # blau,result,9,PlayCutscene,0041FCFE,12 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,255,24,pl6_inselv # blau,result,16,ExploreArea,0041FE17,0 112 35 35,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,256,24,pl6_inselv # blau,result,21,ChangeHumanPlayerId,0041FECB,10 0,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,256,24,pl6_inselv # blau,result,21,ChangeHumanPlayerId,0041FECB,10 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,257,24,pl6_inselv # blau,result,86,SetHumanX,0042220C,"0 ""saracen"" ""civilist"" 204 236 12 1059 3",no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,258,24,pl6_inselv # blau,result,21,ChangeHumanPlayerId,0041FECB,12 6,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,258,24,pl6_inselv # blau,result,21,ChangeHumanPlayerId,0041FECB,12 6,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,259,24,pl6_inselv # blau,result,88,SetHouseOverlayState,00422365,7 3 1,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,260,24,pl6_inselv # blau,result,20,SetVisible,0041FEB2,25 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,265,25,pl6_inselv # lila,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 348 440 32,yes
@@ -5191,9 +5191,9 @@ tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,49,4,job+ navigat   ,result,10,ActivateMission,0041FD49,5,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,50,4,job+ navigat   ,result,20,SetVisible,0041FEB2,5 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,55,5,help!+woman,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 239 156 4,yes
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,56,5,help!+woman,result,21,ChangeHumanPlayerId,0041FECB,2 0,no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,56,5,help!+woman,result,21,ChangeHumanPlayerId,0041FECB,2 0,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,57,5,help!+woman,result,36,SetImportHumanFlag,0042039A,2 0,yes
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,58,5,help!+woman,result,23,SendHuman,00420083,2 227 137,no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,58,5,help!+woman,result,23,SendHuman,00420083,2 227 137,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,59,5,help!+woman,result,9,PlayCutscene,0041FCFE,5 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,60,5,help!+woman,result,10,ActivateMission,0041FD49,6,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,64,6,pause+dorf,goal,25,HumansWithHome,0041ECA8,0 2,no
@@ -5211,15 +5211,15 @@ tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,79,7,others,result,60,SetHumanName,00420EC0,6 76,no
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,80,7,others,result,10,ActivateMission,0041FD49,8,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,84,8,others,goal,28,TimeGone,0041F5EA,60,yes
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,85,8,others,result,23,SendHuman,00420083,3 226 136,no
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,86,8,others,result,23,SendHuman,00420083,4 228 135,no
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,87,8,others,result,23,SendHuman,00420083,5 227 134,no
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,88,8,others,result,23,SendHuman,00420083,6 229 136,no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,85,8,others,result,23,SendHuman,00420083,3 226 136,yes
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,86,8,others,result,23,SendHuman,00420083,4 228 135,yes
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,87,8,others,result,23,SendHuman,00420083,5 227 134,yes
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,88,8,others,result,23,SendHuman,00420083,6 229 136,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,89,8,others,result,9,PlayCutscene,0041FCFE,7 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,90,8,others,result,10,ActivateMission,0041FD49,11,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,91,8,others,result,20,SetVisible,0041FEB2,11 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,92,8,others,result,10,ActivateMission,0041FD49,9,yes
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,93,8,others,result,22,ChangePlayerPlayerId,0041FF04,2 0,no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,93,8,others,result,22,ChangePlayerPlayerId,0041FF04,2 0,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,98,9,goals,goal,11,FindPosByHumans,0041E7C7,3 225 135 20,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,99,9,goals,goal,11,FindPosByHumans,0041E7C7,4 225 135 10,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,100,9,goals,goal,11,FindPosByHumans,0041E7C7,5 225 135 10,yes
@@ -5259,11 +5259,11 @@ tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,37,3,bjoern,result,20,SetVisible,0041FEB2,4 1,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,40,4,fisher,goal,2,BuildHumans,0041E4D1,"0 ""fisher"" 1 6",no
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,41,4,fisher,result,16,ExploreArea,0041FE17,0 88 156 24,yes
-tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,42,4,fisher,result,22,ChangePlayerPlayerId,0041FF04,1 0,no
-tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,43,4,fisher,result,21,ChangeHumanPlayerId,0041FECB,3 1,no
+tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,42,4,fisher,result,22,ChangePlayerPlayerId,0041FF04,1 0,yes
+tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,43,4,fisher,result,21,ChangeHumanPlayerId,0041FECB,3 1,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,44,4,fisher,result,9,PlayCutscene,0041FCFE,4 1,yes
-tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,45,4,fisher,result,23,SendHuman,00420083,6 113 164,no
-tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,46,4,fisher,result,23,SendHuman,00420083,5 113 164,no
+tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,45,4,fisher,result,23,SendHuman,00420083,6 113 164,yes
+tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,46,4,fisher,result,23,SendHuman,00420083,5 113 164,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,47,4,fisher,result,10,ActivateMission,0041FD49,5,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,48,4,fisher,result,20,SetVisible,0041FEB2,5 1,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,49,4,fisher,result,10,ActivateMission,0041FD49,6,yes
@@ -5562,9 +5562,9 @@ tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,140,14,sarazen,result,16,ExploreArea,0041FE17,0 187 216 32,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,141,14,sarazen,result,16,ExploreArea,0041FE17,0 180 263 30,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,142,14,sarazen,result,16,ExploreArea,0041FE17,0 152 299 41,yes
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,143,14,sarazen,result,21,ChangeHumanPlayerId,0041FECB,40 0,no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,144,14,sarazen,result,21,ChangeHumanPlayerId,0041FECB,41 0,no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,145,14,sarazen,result,21,ChangeHumanPlayerId,0041FECB,42 0,no
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,143,14,sarazen,result,21,ChangeHumanPlayerId,0041FECB,40 0,yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,144,14,sarazen,result,21,ChangeHumanPlayerId,0041FECB,41 0,yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,145,14,sarazen,result,21,ChangeHumanPlayerId,0041FECB,42 0,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,146,14,sarazen,result,34,ChangeVehiclesPlayerId,0042032C,43 0,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,147,14,sarazen,result,35,ChangeHousesPlayerId,00420363,9 0,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,148,14,sarazen,result,10,ActivateMission,0041FD49,15,yes
@@ -5600,9 +5600,9 @@ tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,47,5,barracks,result,9,PlayCutscene,0041FCFE,7 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,48,5,barracks,result,10,ActivateMission,0041FD49,6,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,49,5,barracks,result,59,SetGuiMarker,00420E9D,3 0 0,no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,50,5,barracks,result,23,SendHuman,00420083,1 86 150,no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,51,5,barracks,result,23,SendHuman,00420083,2 95 145,no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,52,5,barracks,result,23,SendHuman,00420083,3 104 140,no
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,50,5,barracks,result,23,SendHuman,00420083,1 86 150,yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,51,5,barracks,result,23,SendHuman,00420083,2 95 145,yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,52,5,barracks,result,23,SendHuman,00420083,3 104 140,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,56,6,more soldiers,goal,28,TimeGone,0041F5EA,4,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,57,6,more soldiers,result,9,PlayCutscene,0041FCFE,8 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,58,6,more soldiers,result,10,ActivateMission,0041FD49,7,yes
@@ -5626,9 +5626,9 @@ tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,78,7,soldiers built,result,9,PlayCutscene,0041FCFE,9 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,79,7,soldiers built,result,10,ActivateMission,0041FD49,8,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,80,7,soldiers built,result,20,SetVisible,0041FEB2,8 1,yes
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,81,7,soldiers built,result,23,SendHuman,00420083,4 81 125,no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,82,7,soldiers built,result,23,SendHuman,00420083,5 89 133,no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,83,7,soldiers built,result,23,SendHuman,00420083,6 97 130,no
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,81,7,soldiers built,result,23,SendHuman,00420083,4 81 125,yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,82,7,soldiers built,result,23,SendHuman,00420083,5 89 133,yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,83,7,soldiers built,result,23,SendHuman,00420083,6 97 130,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,87,8,soldiers built,goal,2,BuildHumans,0041E4D1,"0 ""soldier_sword_short"" 5 0",no
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,88,8,soldiers built,goal,2,BuildHumans,0041E4D1,"0 ""soldier_spear_wooden"" 5 0",no
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,89,8,soldiers built,goal,2,BuildHumans,0041E4D1,"0 ""soldier_bow_long"" 5 0",no
@@ -5660,7 +5660,7 @@ tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,124,11,attack,result,10,ActivateMission,0041FD49,13,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,125,11,attack,result,20,SetVisible,0041FEB2,13 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,126,11,attack,result,10,ActivateMission,0041FD49,23,yes
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,127,11,attack,result,23,SendHuman,00420083,30 37 243,no
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,127,11,attack,result,23,SendHuman,00420083,30 37 243,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,133,12,position,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 21 214 16,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,134,12,position,result,9,PlayCutscene,0041FCFE,14 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,138,13,saraz bekämpft,goal,18,HumansDied,0041EB7C,30,yes
@@ -5761,7 +5761,7 @@ tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,64,7,räuber,goal,21,PlayerDied,0041EBA1,4,yes
 tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,65,7,räuber,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 106 163 15,yes
 tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,66,7,räuber,result,9,PlayCutscene,0041FCFE,6 1,yes
-tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,67,7,räuber,result,22,ChangePlayerPlayerId,0041FF04,3 0,no
+tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,67,7,räuber,result,22,ChangePlayerPlayerId,0041FF04,3 0,yes
 tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,68,7,räuber,result,10,ActivateMission,0041FD49,8,yes
 tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,72,8,holzwerkzeug,goal,28,TimeGone,0041F5EA,5,yes
 tutorial_007,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_007\map.cif,73,8,holzwerkzeug,result,9,PlayCutscene,0041FCFE,7 1,yes
