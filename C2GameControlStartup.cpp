@@ -8,6 +8,9 @@
 #include "XBTokenList.h"
 #include "XIniFileReader.h"
 #include "XStringArray.h"
+#include "C2HumanIterator.h"
+#include "C2LogicObjectArrays.h"
+#include "C2UserMessageAccess.h"
 
 #include <cstring>
 
@@ -73,11 +76,34 @@ namespace NC2Logic
         return true;
     }
 
-    // PARTIAL original function: FUN_00409BCC. Per-tick search budgets are complete;
-    // the periodic defeat scan and its messages/network command remain pending.
-    void __fastcall GameControl_System_DoOneGameTick(void* gameControl, void* /*unusedEdx*/, std::uint32_t /*tick*/)
+    // Original function: FUN_00409BCC.
+    void __fastcall GameControl_System_DoOneGameTick(void* gameControl, void* /*unusedEdx*/, std::uint32_t tick)
     {
+        using namespace NC2Lifetime;
         for (std::uint32_t player = 0; player < 20; ++player) NC2Lifetime::Write<std::uint32_t>(gameControl, player * 0x4A80u + 0x4A20u, 0);
+        if (tick < 720u || tick % 125u != 0) return;
+        for (std::uint32_t player = 0; player < 20; ++player)
+        {
+            auto* data = PlayerData(gameControl, player);
+            if (Read<std::uint8_t>(data, 0) == 0 || Read<std::uint8_t>(data, 8) != 0 || Read<std::uint8_t>(data, 0x49A8) != 0) continue;
+            CHumanIterator iterator;
+            auto id = iterator.GetFirstHumanId();
+            for (; id != -1; id = iterator.GetNextHumanId())
+            {
+                const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
+                if (Read<std::uint32_t>(human, 0x10) == player && Human_IsSexMale(human) && Human_IsAgeAdult(human)) break;
+            }
+            if (id != -1) continue;
+            Write<std::uint8_t>(data, 8, 1);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2A, true, player, 0, 0);
+            std::byte message[0x304];
+            ToUserMessage_Construct(message);
+            Write<std::uint32_t>(message, 0, 0x3E);
+            Write<std::uint32_t>(message, 8, 0xFFFFFFFF);
+            Write(message, 0x0C, player);
+            ToUserMessage_FinishMessage(message);
+            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+        }
     }
 
     using namespace NC2Lifetime;

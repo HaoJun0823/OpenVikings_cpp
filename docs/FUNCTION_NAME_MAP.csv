@@ -2303,3 +2303,16 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0042EF84,NC2Logic::Animal_GetAnimalWorkCenterPointRef,NC2Logic::CAnimal::GetAnimalWorkCenterPointRef,6955,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
 0043F52D,NC2Logic::Vehicle_DoExecuteNextUserCommand,NC2Logic::CVehicle::DoExecuteNextUserCommand,9371,"Windows ASM/Game.exe establish behavior, buffers, call order and correspondence; x86-64-mac.h supplies names only"
 004478B5,NC2Logic::MapMigPoint_ConstructZero,,,Windows zero-coordinate constructor and all three constructor-array xrefs establish identity; separate Mac default-constructor symbol unresolved
+004190FD,NC2Logic::MultiPlayerGoalManager_Checksum_Calculate,NC2Logic::CMultiPlayerGoalManager::Checksum_Calculate,9135,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the name only
+00419303,DestroyMultiPlayerGoalTokenList,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+00419344,NC2Logic::MultiPlayerGoalManager_l_Goals_Check,NC2Logic::CMultiPlayerGoalManager::l_Goals_Check,9139,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the name only
+0041950B,NC2Logic::MultiPlayerGoalManager_l_IsWonOrLost,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+0041952C,NC2Logic::MultiPlayerGoalManager_l_KickFlags_Execute,NC2Logic::CMultiPlayerGoalManager::l_KickFlags_Execute,9140,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the name only
+004DC432,GetExistingNetworkInstance,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004DD864,NNetwork::CommandPacket_Construct,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004DEE2D,NNetwork::ChatPacket_Construct,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004DEE4E,NNetwork::PayloadPacket_Construct,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004DFFDF,NNetwork::SFileTransferList::SFileTransferList,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004E0A2C,NNetwork::FileTransferAnnouncementPacket_Construct,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004E0FFD,NNetwork::ConstructDynamicSlotArray,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established
+004E1016,NNetwork::DestroyDynamicSlotArray,,,Windows ASM/Game.exe establish the native entry; semantic name describes confirmed Windows accesses; no matching Mac symbol established

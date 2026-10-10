@@ -173,8 +173,7 @@ namespace NNetwork
     // Original function: FUN_004059b3
     bool Network_IsInSession()
     {
-        // Original helper 004dc432 returns the existing singleton without creating it.
-        if (gNetworkInstance == nullptr)
+        if (GetExistingNetworkInstance() == nullptr)
         {
             return false;
         }
@@ -788,7 +787,22 @@ namespace NNetwork
         LeaveCriticalSection(&critical8C);
     }
 
-    // Original function: FUN_004de956
+    // Original function: FUN_004E0FFD.
+    SDynamicSlotArray* ConstructDynamicSlotArray(SDynamicSlotArray* array)
+    {
+        ++gDynamicSlotArrayConstructionCount;
+        array->revision = 0;
+        array->unknown00 = 0;
+        array->networkTick = 0;
+        array->count = 0;
+        array->slots = nullptr;
+        return array;
+    }
+
+    // Original function: FUN_004E1016; distinct tail-jump destructor entry.
+    void DestroyDynamicSlotArray(SDynamicSlotArray* array) { ReleaseDynamicSlots(array); }
+
+    // Original function: FUN_004de956.
     SDynamicNetworkData* ConstructDynamicNetworkData(SDynamicNetworkData* data)
     {
         // Original function: FUN_004db429
@@ -799,16 +813,7 @@ namespace NNetwork
 
         for (std::uint32_t index = 0; index < 3; ++index)
         {
-            // Original function: FUN_004e0ffd
-            ++gDynamicSlotArrayConstructionCount;
-
-            SDynamicSlotArray& array = data->arrays[index];
-
-            array.revision = 0;
-            array.unknown00 = 0;
-            array.networkTick = 0;
-            array.count = 0;
-            array.slots = nullptr;
+            ConstructDynamicSlotArray(&data->arrays[index]);
         }
 
         data->active = 0;
@@ -838,7 +843,7 @@ namespace NNetwork
         // Original destructors: FUN_004e1016 -> FUN_004e10fb.
         for (std::uint32_t index = 3; index != 0; --index)
         {
-            ReleaseDynamicSlots(&data->arrays[index - 1]);
+            DestroyDynamicSlotArray(&data->arrays[index - 1]);
         }
 
         // Original destructor: FUN_004db49b -> FUN_004db528.

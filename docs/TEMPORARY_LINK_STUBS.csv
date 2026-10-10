@@ -1,15 +1,9 @@
 Address,CurrentName,Status,ReferencingObjects
 0040822E,NC2Logic::AIManager_IO_InitFromScript,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 00408F7B,NC2Logic::AIManager_l_AI_Callback,Partial Windows callback; unconditional true restored at 00408FA3; tick/player-death dispatch pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-00409BCC,NC2Logic::GameControl_System_DoOneGameTick,Partial native implementation; per-tick pathfinder budget reset complete; periodic defeat scan/messages/network command pending,C2GameTime.obj; C2GameControlStartup.obj
-0040A295,NC2Logic::GameControl_Player_LeavesGame,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0040A2D4,NC2Logic::GameControl_Player_LeftGameModifyObjects,Temporary dummy; Windows implementation pending,C2UserNetworkCommandAccess.obj
-0040B183,NC2Logic::GameTime_Network_GetHighestPlayerLatency,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,Partial Windows per-creature ticks; human and animal conditions walking AI combat and deletion connected; vehicle ticks and remaining human combat effects pending; excluded from completion counts,C2GameTime.obj
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
-004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,Partial Windows callback; unconditional true restored at 004195D0; 120-tick notification/goal updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0041E45E,NC2Logic::MissionManager_l_CheckGoal,"Partial Windows goal evaluator; building construction, discovery, stock, area, home and worker predicates connected; remaining nonbuilding goals pending; excluded from completion counts",C2MissionExecution.obj
 0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,"Partial Windows result dispatcher; building operations plus PlaySound, mission video and earthquake sound/FX connected; remaining mission actions pending; excluded from completion counts",C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj

@@ -36,37 +36,13 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CAIManager::l_AI_Callback.
     bool __cdecl AIManager_l_AI_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
-    // TEMPORARY DUMMY: Windows address 00409BCC; implementation pending.
-    // Naming reference: NC2Logic::CGameControl::System_DoOneGameTick.
-
-    // TEMPORARY DUMMY: Windows address 0040A295; implementation pending.
-    // Naming reference: NC2Logic::CGameControl::Player_LeavesGame.
-    void __fastcall GameControl_Player_LeavesGame(void *, void *, unsigned int, bool, bool) {}
-
-    // TEMPORARY DUMMY: Windows address 0040A2D4; implementation pending.
-    // Naming reference: NC2Logic::CGameControl::Player_LeftGameModifyObjects.
-    void __fastcall GameControl_Player_LeftGameModifyObjects(void *, void *, unsigned int, bool, bool) {}
-
     // TEMPORARY DUMMY: Windows address 0040ACE5; implementation pending.
     // Naming reference: NC2Logic::CHouseArray::DoOneGameTick.
-
-    // TEMPORARY DUMMY: Windows address 0040B183; implementation pending.
-    // Naming evidence: Windows only: maximum non-local DirectPlay player latency; no corresponding Mac symbol found.
-    unsigned int __cdecl GameTime_Network_GetHighestPlayerLatency(void) { return 0; }
 
     // Partial Windows callback 00418D3B: unconditional true at 00418D76 preserves propagation.
     // The 12-tick, 20-player assistant update (004176C8) remains unresolved.
     // Naming reference: NC2Logic::CGameAssistantManager::ls_LogicCallback.
     bool __cdecl GameAssistantManager_ls_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
-
-    // TEMPORARY DUMMY: Windows address 0041910B; implementation pending.
-    // Naming reference: NC2Logic::CMultiPlayerGoalManager::IO_LoadGoals.
-    void __fastcall MultiPlayerGoalManager_IO_LoadGoals(void *, void *, NXBasics::CIniFileReader *) {}
-
-    // Partial Windows callback 004195A4: unconditional true at 004195D0 preserves propagation.
-    // The 120-tick notification/goal updates (0041952C, 00419344) remain unresolved.
-    // Naming reference: NC2Logic::CMultiPlayerGoalManager::l_LogicCallback.
-    bool __cdecl MultiPlayerGoalManager_l_LogicCallback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return true; }
 
     // TEMPORARY DUMMY: Windows address 00473102; AI defense-group notification pending.
     // Naming reference: NC2Logic::C2AISinglePlayerHandler::Messages_Attacked.

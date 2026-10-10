@@ -18,6 +18,59 @@
 #include <cwchar>
 #include <new>
 
+namespace NNetwork
+{
+    // Original function: FUN_004DD864; padding is deliberately left untouched.
+    void* CommandPacket_Construct(void* packet)
+    {
+        auto* bytes = static_cast<std::uint8_t*>(packet);
+        const std::uint32_t zero = 0;
+        std::memcpy(bytes + 4, &zero, 4);
+        bytes[8] = 0;
+        bytes[0] = 5;
+        std::memset(bytes + 9, 0, 0xC8);
+        return packet;
+    }
+
+    // Original function: FUN_004DEE2D.
+    void* ChatPacket_Construct(void* packet)
+    {
+        auto* bytes = static_cast<std::uint8_t*>(packet);
+        bytes[1] = 0;
+        bytes[0] = 3;
+        std::memset(bytes + 2, 0, 0x100);
+        return packet;
+    }
+
+    // Original function: FUN_004DEE4E.
+    void* PayloadPacket_Construct(void* packet)
+    {
+        auto* bytes = static_cast<std::uint8_t*>(packet);
+        const std::uint32_t zero = 0;
+        std::memcpy(bytes + 4, &zero, 4);
+        std::memcpy(bytes + 8, &zero, 4);
+        bytes[0] = 4;
+        std::memset(bytes + 0x0C, 0, 0x400);
+        return packet;
+    }
+
+    // Original function: FUN_004DFFDF; folded with the sound-device pointer ctor.
+    SFileTransferList::SFileTransferList() { first = nullptr; }
+
+    // Original function: FUN_004E0A2C; the original GUID at 004F7FB0 is zero.
+    void* FileTransferAnnouncementPacket_Construct(void* packet)
+    {
+        auto* bytes = static_cast<std::uint8_t*>(packet);
+        const std::uint32_t zero = 0;
+        std::memcpy(bytes + 0x14, &zero, 4);
+        bytes[0] = 11;
+        const GUID transferId{};
+        std::memcpy(bytes + 4, &transferId, sizeof(transferId));
+        std::memset(bytes + 0x18, 0, 0x100);
+        return packet;
+    }
+}
+
 // Original data: DAT_00569650.
 // Enabled at 004db9c7 after successfully opening the network log.
 std::uint8_t gNetworkLogEnabled = 0;
@@ -1361,11 +1414,9 @@ namespace NNetwork
                 break;
 
             case 10:
-                // Inline the packet initialization from FUN_004dd864.
-                convertedPacket[0] = 5;
+                CommandPacket_Construct(convertedPacket);
                 std::memcpy(convertedPacket + 4, bytes + 4, 4);
                 convertedPacket[8] = bytes[8];
-                std::memset(convertedPacket + 9, 0, 0xC8);
                 std::memcpy(convertedPacket + 9, bytes + 9, bytes[8]);
 
                 buffer.dwBufferSize = sizeof(convertedPacket);
@@ -1660,10 +1711,7 @@ namespace NNetwork
 
         SChatPacket packet;
 
-        // Original packet constructor: FUN_004dee2d.
-        packet.type = 3;
-        packet.characterCount = 0;
-        std::memset(packet.text, 0, sizeof(packet.text));
+        ChatPacket_Construct(&packet);
 
         // Preserve the original length byte before truncating the copied text.
         packet.characterCount = static_cast<std::uint8_t>(std::wcslen(text) + 1u);
@@ -1713,12 +1761,7 @@ namespace NNetwork
 
         SPayloadPacket packet;
 
-        // Original function: FUN_004dee4e.
-        // The original constructor leaves padding01 untouched.
-        packet.type = 4;
-        packet.payloadSize = 0;
-        packet.checksum = 0;
-        std::memset(packet.payload, 0, sizeof(packet.payload));
+        PayloadPacket_Construct(&packet);
 
         packet.checksum = NCRC32::Calculate(payload, static_cast<std::int32_t>(byteCount));
         packet.payloadSize = byteCount;
@@ -1735,12 +1778,10 @@ namespace NNetwork
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x16C, byteCount != 0, "Invalid message size (<= 0).");
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\dplogic.cpp", 0x16D, byteCount <= 200u, "Maximum message size exceeded.");
         if (byteCount > 200u) return false;
-        // Original packet constructor 004DD864 leaves its padding uninitialized.
         std::byte packet[0xD4];
-        packet[0] = std::byte{5};
+        CommandPacket_Construct(packet);
         std::memcpy(packet + 4, &data->networkTick, 4);
         packet[8] = static_cast<std::byte>(byteCount);
-        std::memset(packet + 9, 0, 200);
         std::memcpy(packet + 9, payload, byteCount);
         const auto player = GetDynamicNetworkLocalPlayerId(data);
         SetCommandMessageLength(&data->arrays[data->commandBufferIndices[0]], player, static_cast<std::uint8_t>(byteCount));
@@ -2262,11 +2303,8 @@ namespace NNetwork
 
                             SCommandReply reply;
 
-                            // Original constructor: FUN_004dd864, followed by type = 10.
+                            CommandPacket_Construct(&reply);
                             reply.type = 10;
-                            reply.tick = 0;
-                            reply.length = 0;
-                            std::memset(reply.payload, 0, sizeof(reply.payload));
 
                             if (buffer->slots == nullptr || GetCommandMessageLength(buffer, requestedPlayer) == 0)
                             {
@@ -2588,10 +2626,7 @@ namespace NNetwork
 
         SSpecialChatPacket packet;
 
-        // Original packet constructor: FUN_004dee2d.
-        packet.type = 3;
-        packet.characterCount = 0;
-        std::memset(packet.text, 0, sizeof(packet.text));
+        ChatPacket_Construct(&packet);
 
         packet.characterCount = static_cast<std::uint8_t>(std::wcslen(wideMessage) + 1u);
         std::wcsncpy(packet.text, wideMessage, 127);
@@ -2684,9 +2719,6 @@ namespace NNetwork
     // Original function: FUN_004e0062
     CFileTransferManager::CFileTransferManager()
     {
-        // Original list initialization: FUN_004dffdf.
-        transfers.first = nullptr;
-
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayLogic\\FileTransferManager.cpp", 0xC9, gFileTransferManager == nullptr, "Duplicate instance.");
 
         std::memset(this, 0, sizeof(*this));
@@ -2877,14 +2909,12 @@ namespace NNetwork
                         CDPNet* network = GetNetworkInstance();
                         std::uint8_t packet[0x118];
 
-                        // Inline the relevant initialization from FUN_004e0a2c.
-                        packet[0] = 11;
+                        FileTransferAnnouncementPacket_Construct(packet);
                         std::memcpy(packet + 4, node->transferId, sizeof(node->transferId));
 
                         const DPNID localPlayerId = network->GetLocalPlayerId();
                         std::memcpy(packet + 0x14, &localPlayerId, sizeof(localPlayerId));
 
-                        std::memset(packet + 0x18, 0, 0x100);
                         std::strcpy(reinterpret_cast<char*>(packet + 0x18), node->fileName);
 
                         if (network->SendPacket(network->GetHostPlayerId(), packet))
@@ -3677,6 +3707,9 @@ NNetwork::CDPNet* GetNetworkInstance()
 
     return gNetworkInstance;
 }
+
+// Original function: FUN_004DC432; this getter must not create the singleton.
+NNetwork::CDPNet* GetExistingNetworkInstance() { return gNetworkInstance; }
 
 // Original function: FUN_004ddc42
 void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t indentation)

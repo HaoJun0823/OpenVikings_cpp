@@ -7,11 +7,75 @@
 #include "C2StringAccess.h"
 #include "XCrtFileAccess.h"
 #include "NetworkShutdown.h"
+#include "C2LogicObjectArrays.h"
+#include "C2HumanWalking.h"
+#include "C2VehicleAccess.h"
+#include "C2GameMapAccess.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2GuideAccess.h"
 
 #include <cstring>
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040A295.
+    void __fastcall GameControl_Player_LeavesGame(void* gameControl, void* /*unusedEdx*/, unsigned int player, bool originalFlag, bool removeObjects)
+    {
+        using namespace NC2Lifetime;
+        const auto offset = player * 0x4A80u;
+        if (gGameStaticVars.DAT_005109c4 != 0 && Read<std::uint32_t>(gameControl, offset + 4) == 1 && Read<std::uint32_t>(gameControl, offset + 0x14) != 0)
+        {
+            Write<std::uint32_t>(gameControl, offset + 0x14, 0);
+            Write<std::uint32_t>(gameControl, offset + 4, 2);
+        }
+        GameControl_Player_LeftGameModifyObjects(gameControl, nullptr, player, originalFlag, removeObjects);
+    }
+
+    // Original function: FUN_0040A2D4; the middle flag is unused by Windows.
+    void __fastcall GameControl_Player_LeftGameModifyObjects(void* /*gameControl*/, void* /*unusedEdx*/, unsigned int player, bool /*originalFlag*/, bool removeObjects)
+    {
+        using namespace NC2Lifetime;
+        Write<std::uint8_t>(&gGameStaticVars, 0x1B1, 0);
+        Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 1);
+        if (removeObjects)
+        {
+            for (std::int32_t id = 0; id < CHouseArray::sTheObjectPtr->mCapacity; ++id)
+            {
+                const auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
+                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 0x0C) == player) CHouseArray::sTheObjectPtr->FreeHouse(id);
+            }
+            for (std::int32_t id = 0; id < CHumanArray::sTheObjectPtr->mCapacity; ++id)
+            {
+                const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
+                if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 0x10) != player) continue;
+                std::uint32_t position = 0;
+                bool createAnimal = false;
+                const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u;
+                if (Read<std::uint8_t>(moveable, 0x10) != 0 && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human))) == 1)
+                {
+                    createAnimal = true;
+                    position = Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);
+                }
+                CHumanArray::sTheObjectPtr->FreeHuman(id);
+                if (createAnimal) CAnimalArray::sTheObjectPtr->AllocateAnimal(20, 0x1E, 0x31, &position, 0, 0);
+            }
+            for (std::int32_t id = 0; id < CAnimalArray::sTheObjectPtr->mCapacity; ++id)
+            {
+                auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
+                if (Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, 0x10) == player) Animal_ChangePlayerId(animal, 20);
+            }
+            for (std::int32_t id = 0; id < CVehicleArray::sTheObjectPtr->mCapacity; ++id)
+            {
+                const auto* vehicle = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
+                if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 0x1E0) == player) CVehicleArray::sTheObjectPtr->FreeVehicle(id);
+            }
+            CGuideIterator iterator;
+            for (auto id = iterator.GetFirstGuideId(player); id != -1; id = iterator.GetNextGuideId()) GuideManager_RemoveGuide(gGuideManager, nullptr, static_cast<std::uint32_t>(id));
+        }
+        Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 0);
+        Write<std::uint8_t>(&gGameStaticVars, 0x1B1, 0);
+    }
+
     // Original function: FUN_0040a263.
     const char* GameControl_Names_GetPlayerTribeShortNamePtr(const void* gameControl, std::int32_t player)
     {

@@ -4,6 +4,8 @@
 
 namespace NC2Logic
 {
+    void __fastcall GameControl_Player_LeavesGame(void* gameControl, void* unusedEdx, unsigned int player, bool originalFlag, bool removeObjects);
+    void __fastcall GameControl_Player_LeftGameModifyObjects(void* gameControl, void* unusedEdx, unsigned int player, bool originalFlag, bool removeObjects);
     std::int32_t Logic_EntryPoint_GetDiplomacyState(std::int32_t player, std::int32_t otherPlayer);
     bool GameControl_Player_IsNetworkPlayer(const void* gameControl, std::int32_t player);
     std::int32_t GameControl_GetPlayerByNetworkId(const void* gameControl, std::uint32_t networkId);

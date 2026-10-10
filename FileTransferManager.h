@@ -31,6 +31,7 @@ namespace NNetwork
 
     struct SFileTransferList
     {
+        SFileTransferList();
         SFileTransferNode* first;                 // +0x00
 
         // Original function: FUN_004dffe5

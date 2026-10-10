@@ -36,7 +36,21 @@ namespace NC2Logic
     extern void __fastcall WallBuildManager_DoOneGameSecond(void*, void* unusedEdx);
     extern void __fastcall GameControl_System_DoOneGameTick(void*, void* unusedEdx, std::uint32_t);
     extern void Game_l_Autosave_Update();
-    extern std::uint32_t GameTime_Network_GetHighestPlayerLatency();
+    // Original function: FUN_0040B183; query only nonzero, non-local player IDs.
+    std::uint32_t GameTime_Network_GetHighestPlayerLatency()
+    {
+        const auto* players = static_cast<const std::byte*>(gDynamicNetworkData.allocation10);
+        auto* network = GetNetworkInstance();
+        std::uint32_t maximum = 0;
+        for (std::uint32_t index = 0; index < gDynamicNetworkData.playerCount; ++index)
+        {
+            const auto player = NC2Lifetime::Read<DPNID>(players, index * 0x98u);
+            if (player == 0 || player == NNetwork::Network_GetLocalPlayerId()) continue;
+            DPN_CONNECTION_INFO connection;
+            if (network->GetConnectionData(NC2Lifetime::Read<DPNID>(players, index * 0x98u), &connection) && connection.dwRoundTripLatencyMS > maximum) maximum = connection.dwRoundTripLatencyMS;
+        }
+        return maximum;
+    }
 
     static bool GameTime_IsATickToGo();
 

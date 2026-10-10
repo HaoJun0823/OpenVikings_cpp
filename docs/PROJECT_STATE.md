@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Network/multiplayer entry completion - 2026-10-11
+
+The next smallest identified topic is complete: network/multiplayer **164 / 164 (100%)**, formerly 148 / 164. Multiplayer goal loading/evaluation, victory/defeat notifications, delayed removal commands, maximum DirectPlay latency and seven distinct packet/list/slot boundaries are connected. The existing-singleton getter and the original no-op token exit callback are reconstructed. Three required game-control dependencies also have complete native flows: periodic player-death production, player departure and object modification. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [NETWORK_MULTIPLAYER_COMPLETION.md](NETWORK_MULTIPLAYER_COMPLETION.md).
+
+**4189 / 5062 (82.75%)** global source-address coverage, **873** open entries; **273 cpp / 253 headers**, **2317** unique naming rows and **45** explicit unfinished entries. Nineteen original entries are newly mapped; five dummy bodies and six unfinished exclusions are removed. Fourteen unique changed/integration units passed Win32 `/Zs`; project/filter, naming, thematic totals and whitespace checks passed. No build, tests or game run occurred. User-owned CombatTasks remain untouched and excluded.
+
+This is source-entry coverage, not live multiplayer confirmation. The broader global game-checksum aggregator, vehicle ticks and AI death consumers remain unfinished in their own blocks; actual music playback remains unverified. Next smallest topic: common movement/combat/object lifecycle (**82 / 99**, seventeen open), followed by the remaining campaign and vehicle dependencies.
+
 ## Completion of topics with fewer than ten open entries - 2026-10-10
 
 The selected small topics are complete in the identified native-entry inventory: roads/palisades/guides **114 / 114**, animals **65 / 65**. Both distinct construction-manager checksum methods and their three shared checksum leaves are reconstructed; animal position copying and leader work-center references are connected to their native callers. The shared zero-coordinate point constructor is reconstructed and connected at all three constructor-array xrefs. The Animal_Exit unfinished entry was stale: its landscape-edit subtree is real and its complete Windows exit flow was re-audited before removing the exclusion.

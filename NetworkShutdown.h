@@ -11,6 +11,10 @@
 namespace NNetwork
 {
     class CDPNet;
+    void* CommandPacket_Construct(void* packet);
+    void* ChatPacket_Construct(void* packet);
+    void* PayloadPacket_Construct(void* packet);
+    void* FileTransferAnnouncementPacket_Construct(void* packet);
     bool GetNetworkIPAddress(std::uint32_t index, char* destination, std::uint32_t capacity);
 
     struct SEventNode
@@ -196,6 +200,8 @@ namespace NNetwork
     bool TakeDynamicNetworkCommands(SDynamicNetworkData* data, SDynamicSlot** slots, std::uint32_t* count);
     void AdvanceDynamicNetworkTick(SDynamicNetworkData* data);
     void ResetDynamicSlots(SDynamicSlotArray* array);
+    SDynamicSlotArray* ConstructDynamicSlotArray(SDynamicSlotArray* array);
+    void DestroyDynamicSlotArray(SDynamicSlotArray* array);
 
     void ClearDynamicNetworkEvents(SDynamicNetworkData* data);
 
@@ -464,6 +470,7 @@ void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t 
 
 // Original function: FUN_004dc409
 NNetwork::CDPNet* GetNetworkInstance();
+NNetwork::CDPNet* GetExistingNetworkInstance();
 
 // Original function: FUN_004ddc42
 void WriteNetworkLogLevel(std::int32_t level, const char* text, std::int32_t indentation);
