@@ -669,9 +669,9 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00485735,NC2E2::E2HumanSoundManager_IncreaseSeenCounter,NC2E2::CE2HumanSoundManager::IncreaseSeenCounter,58811,Original Mac name; Windows x86 control flow and object offsets confirmed
 00486336,NC2E2::E2ParticelManager_Construct,NC2E2::CE2ParticelManager::CE2ParticelManager,70029,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048688E,NC2E2::E2ParticelManager_SortParticelAndDrawBottom,NC2E2::CE2ParticelManager::SortParticelAndDrawBottom,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
-00486D61,NC2E2::E2ParticelManager_DoOneGameTick,NC2E2::CE2ParticelManager::DoOneGameTick,71378,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+00486D61,NC2E2::E2ParticelManager_DoOneGameTick,NC2E2::CE2ParticelManager::DoOneGameTick,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 00489DE0,NC2E2::MacroMapManager_Construct,NC2E2::CMacroMapManager::CMacroMapManager,64204,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,NC2E2::CE2StaticDataParticelEffectManager::CE2StaticDataParticelEffectManager,79381,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,NC2E2::CE2StaticDataParticelEffectManager::CE2StaticDataParticelEffectManager,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 0048A4BA,NC2E2::E2StaticDataMiscLandscapeManager_Construct,NC2E2::CE2StaticDataMiscLandscapeManager::CE2StaticDataMiscLandscapeManager,78183,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,NC2E2::CE2StaticDataGoodManager::CE2StaticDataGoodManager,72674,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048ACFB,NC2E2::E2StaticDataHumanMiscManager_Construct,NC2E2::CE2StaticDataHumanMiscManager::CE2StaticDataHumanMiscManager,74214,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -694,7 +694,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0048CEA1,NC2E2::SearchBobSequence,NC2E2::CE2StaticDataMapMoveablesManager::l_Generation_SearchBobSequence,77543,Mac naming reference; Windows ASM/PE confirms loader or lookup behavior
 0048CF18,NC2E2::StaticMapMoveables_GetAnimationDataPtr,NC2E2::CE2StaticDataMapMoveablesManager::GetAnimationDataPtr,77770,Mac naming reference; Windows ASM/PE confirms loader or lookup behavior
 0048D027,NC2E2::StaticMapMoveables_GetWalkDataPtr,NC2E2::CE2StaticDataMapMoveablesManager::GetWalkDataPtr,77904,Mac naming reference; Windows ASM/PE confirms loader or lookup behavior
-0048D194,NC2E2::E2StaticDataParticelManager_Construct,NC2E2::CE2StaticDataParticelManager::CE2StaticDataParticelManager,78962,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0048D194,NC2E2::E2StaticDataParticelManager_Construct,NC2E2::CE2StaticDataParticelManager::CE2StaticDataParticelManager,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 0048D714,NC2E2::E2StaticDataTransitionsManager_Construct,NC2E2::CE2StaticDataTransitionsManager::CE2StaticDataTransitionsManager,80574,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048E24E,NC2E2::E2StaticDataPatternManager_Construct,NC2E2::CE2StaticDataPatternManager::CE2StaticDataPatternManager,79602,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0048E651,NC2E2::E2StaticDataHousesManager_Construct,NC2E2::CE2StaticDataHousesManager::CE2StaticDataHousesManager,72806,Windows ASM/Game.exe establish the complete constructor/INI parser and static region; Mac symbol used only for the manager name
@@ -2219,3 +2219,26 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00497A29,NC2E2::LogicParticelObject_Move,NC2E2::S2E2LogicParticelObject::Move,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 00497DE2,NC2E2::LogicParticelObject_DoOneMovementTick,NC2E2::S2E2LogicParticelObject::DoOneMovementTick,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 00497F54,NC2E2::LogicParticelObject_CalculateValency,NC2E2::S2E2LogicParticelObject::CalculateValency,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004864D1,NC2E2::E2ParticelManager_CreateFallingSmokeParticel,NC2E2::CE2ParticelManager::CreateFallingSmokeParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486585,NC2E2::E2ParticelManager_CreateFallingSpawnParticel,NC2E2::CE2ParticelManager::CreateFallingSpawnParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048664C,NC2E2::E2ParticelManager_CreateMunitionParticel,NC2E2::CE2ParticelManager::CreateMunitionParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004866E1,NC2E2::E2ParticelManager_StartParticelEffect,NC2E2::CE2ParticelManager::StartParticelEffect,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486705,NC2E2::E2ParticelManager_StartParticelEffectIntoDirection,NC2E2::CE2ParticelManager::StartParticelEffectIntoDirection,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486779,NC2E2::E2ParticelManager_l_CreateEffectParticel,NC2E2::CE2ParticelManager::l_CreateEffectParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048684B,NC2E2::E2ParticelManager_GetCleanParticel,NC2E2::CE2ParticelManager::GetCleanParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486BF1,NC2E2::E2ParticelManager_AddParticelGenerator,NC2E2::CE2ParticelManager::AddParticelGenerator,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486C7C,NC2E2::E2ParticelManager_EnableGenerator,NC2E2::CE2ParticelManager::EnableGenerator,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486CA1,NC2E2::E2ParticelManager_DestroyGenerator,NC2E2::CE2ParticelManager::DestroyGenerator,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00486CDD,NC2E2::E2ParticelManager_l_GeneratorTick,NC2E2::CE2ParticelManager::l_GeneratorTick,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048718C,NC2E2::E2ParticelWind_ChangeWind,NC2E2::C2E2ParticelWind::ChangeWind,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048741A,NC2E2::E2ParticelGenerator_GenerateParticel,NC2E2::CE2ParticelGenerator::GenerateParticel,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049761D,NC2E2::LogicParticelObject_SetStartPosition,NC2E2::S2E2LogicParticelObject::SetStartPosition,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00497691,NC2E2::LogicParticelObject_SetTargetPosition,NC2E2::S2E2LogicParticelObject::SetTargetPosition,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00497708,NC2E2::LogicParticelObject_CalculateMovingVector,NC2E2::S2E2LogicParticelObject::CalculateMovingVector,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049786C,NC2E2::LogicParticelObject_CalculateMovingVector,NC2E2::S2E2LogicParticelObject::CalculateMovingVector,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049798E,NC2E2::LogicParticelObject_SetParticelId,NC2E2::S2E2LogicParticelObject::SetParticelId,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00497C9B,NC2E2::LogicParticelObject_CalculateParrableHeight,NC2E2::S2E2LogicParticelObject::CalculateParrableHeight,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048D28B,NC2E2::E2StaticDataParticelManager_l_Initialize,NC2E2::CE2StaticDataParticelManager::l_Initialize,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048D54E,NC2E2::E2StaticDataParticelManager_GetParticelId,NC2E2::CE2StaticDataParticelManager::GetParticelId,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0048D5F2,NC2E2::GFXValencyHandler_AddGraphicsStructureToList,NC2E2::SGFXValencyHandler::AddGraphicsStructureToList,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004856B4,NC2E2::E2HumanSoundManager_PlayHumanScreamSound,NC2E2::CE2HumanSoundManager::PlayHumanScreamSound,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only

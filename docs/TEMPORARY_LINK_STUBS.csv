@@ -33,21 +33,18 @@ Address,CurrentName,Status,ReferencingObjects
 00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial native step callback; non-AI military enemy searches and pursuit range limits connected; AI target notification at 004631D8 pending; excluded from completion counts,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
-00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; weapon-hit event 25 and vehicle construction connected; event 27 remains held; excluded from completion counts,C2HumanCommandAccess.obj
+00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; event 27 stock modification connected; remaining building-event contexts retain reconstruction preflight; excluded from completion counts,C2HumanCommandAccess.obj
 004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
 0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial native job startup; all civilian ground job selectors and direct/projectile damage connected; remaining vehicle/sea simulation dependencies pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows implementation; sound event 0x17 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
+0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows implementation; sound 0x17 and particle/generator branches 0x1C and 0x23..0x27 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
 00480939,NC2LogicExternals::External_Human_SetName,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00482DC0,NC2E2::EngineMap_OverlayPattern_HouseAreaChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
-00486D61,NC2E2::E2ParticelManager_DoOneGameTick,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
 00489DE0,NC2E2::MacroMapManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-0048A028,NC2E2::E2StaticDataParticelEffectManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-0048D194,NC2E2::E2StaticDataParticelManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native integration; landscape/house/guide/moveable/construction-marker/particle-line drawing and repair sound connected; complete enclosing-entry audit pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
 004986C5,Display_l_DE_DrawTooltipOverlays,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

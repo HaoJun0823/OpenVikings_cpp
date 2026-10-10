@@ -231,11 +231,12 @@ namespace NC2E2
     inline void* gStaticMiscLandscapeGroups = nullptr;
     // Original global: 00568578.
     inline void* gStaticGoodData = nullptr;
-    // Complete static particle region 005689E0..005689E7; vector stride 0x48.
-    struct SStaticParticelStorage { std::int32_t count; void* entries; };
+    // Complete static particle region 005689D0..005689E7; vector stride 0x48.
+    struct SStaticParticelStorage { std::int32_t munitionIds[4]; std::int32_t count; void* entries; };
     inline SStaticParticelStorage gStaticParticelStorage{};
     inline void*& gStaticParticelData = gStaticParticelStorage.entries;
-    static_assert(sizeof(SStaticParticelStorage) == 8);
+    static_assert(sizeof(SStaticParticelStorage) == 0x18);
+    static_assert(offsetof(SStaticParticelStorage, count) == 0x10);
     // Original global: 00568A34.
     inline void*& gStaticPatternEntries = gStaticPatternStorage.entries;
     // Original global: 00568A64.

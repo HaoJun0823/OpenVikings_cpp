@@ -10,4 +10,6 @@ namespace NC2E2
     void LogicParticelObject_Move(void* particle);
     void LogicParticelObject_CalculateValency(void* particle);
     void LogicParticelObject_DoOneMovementTick(void* particle, void* display);
+    void ParticelPosition_ToMapPoint(const void* position, void* point);
+    void ParticelObject_RefreshGroundHeight(void* particle);
 }

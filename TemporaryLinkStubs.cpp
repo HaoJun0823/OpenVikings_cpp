@@ -116,26 +116,14 @@ namespace NC2E2
     // Naming reference: NC2E2::C2DEngineMap::OverlayPattern_HouseAreaChanged.
     void __cdecl EngineMap_OverlayPattern_HouseAreaChanged(void const *, bool) {}
 
-    // TEMPORARY DUMMY: Windows address 00486D61; implementation pending.
-    // Naming reference: NC2E2::CE2ParticelManager::DoOneGameTick.
-    void __fastcall E2ParticelManager_DoOneGameTick(void *, void *) {}
-
     // TEMPORARY DUMMY: Windows address 00489DE0; implementation pending.
     // Naming reference: NC2E2::CMacroMapManager::CMacroMapManager.
     void * __fastcall MacroMapManager_Construct(void *, void *) { return nullptr; }
-
-    // TEMPORARY DUMMY: Windows address 0048A028; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataParticelEffectManager::CE2StaticDataParticelEffectManager.
-    void * __fastcall E2StaticDataParticelEffectManager_Construct(void *, void *) { return nullptr; }
 
 
     // TEMPORARY DUMMY: Windows address 0048AB5C; implementation pending.
     // Naming reference: NC2E2::CE2StaticDataGoodManager::CE2StaticDataGoodManager.
     void * __fastcall E2StaticDataGoodManager_Construct(void *, void *) { return nullptr; }
-
-    // TEMPORARY DUMMY: Windows address 0048D194; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataParticelManager::CE2StaticDataParticelManager.
-    void * __fastcall E2StaticDataParticelManager_Construct(void *, void *) { return nullptr; }
 
 }
 

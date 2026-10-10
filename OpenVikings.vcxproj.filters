@@ -1423,4 +1423,12 @@
     <ClCompile Include="C2EngineParticleDrawing.cpp"><Filter>Engine</Filter></ClCompile>
     <ClInclude Include="C2EngineParticleDrawing.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2E2StaticDataParticles.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="C2E2StaticDataParticles.h"><Filter>Engine</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineParticleSimulation.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="C2EngineParticleSimulation.h"><Filter>Engine</Filter></ClInclude>
+  </ItemGroup>
 </Project>

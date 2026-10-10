@@ -761,4 +761,12 @@
     <ClCompile Include="C2EngineParticleDrawing.cpp" />
     <ClInclude Include="C2EngineParticleDrawing.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2E2StaticDataParticles.cpp" />
+    <ClInclude Include="C2E2StaticDataParticles.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineParticleSimulation.cpp" />
+    <ClInclude Include="C2EngineParticleSimulation.h" />
+  </ItemGroup>
 </Project>

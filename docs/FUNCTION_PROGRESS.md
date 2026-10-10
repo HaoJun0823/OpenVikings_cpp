@@ -1,5 +1,13 @@
 # Windows function mapping progress
 
+## Particle data/creation/tick and callback checkpoint - 2026-10-10
+
+The particle static-data/effect constructors and complete creation/generator/wind/game-tick tree are reconstructed and connected to the existing drawing/movement path. Engine callback branches 0x1C and 0x23..0x27 now reach building smoke generators, arrows, falling smoke, direct/directional/hit effects and the native human scream. Three link dummies are removed. The preceding assumption that 005689DC was isolated zero storage is corrected: Windows constructor/loader indirect writes establish the whole four-entry munition-ID table at 005689D0..005689DF. Human animation event 27 is also corrected and connected as native signed stock modification; other building-event contexts retain their explicit guard. See [PARTICLE_SIMULATION.md](PARTICLE_SIMULATION.md).
+
+**4107 / 5062 (81.13%)** source-address coverage, **955** known entries open; **271 cpp / 251 headers**, **2243 naming rows / 58 unfinished boundaries**. Thirty-six original entries are newly mapped. Ten affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe establish behavior; Mac supplies names only. Numeric x87/double/math differences remain documented; no build, tests or game run occurred. User-owned untracked CombatTasks remain untouched and excluded. Source integration does not establish runtime completion of every engine/combat effect.
+
+Next logical block: campaign win/fail/unlock and the start/return-submap orchestration/import chain, then frequently used missing mission predicates and actions. The concrete campaign audit remains valid: [CAMPAIGN_MAP_ROUTINES.md](CAMPAIGN_MAP_ROUTINES.md). Remaining miscellaneous engine callbacks, full enclosing draw audit, weather and broader AI/vehicle boundaries are separate unfinished work.
+
 ## Particle drawing and campaign-map audit - 2026-10-10
 
 The Windows particle drawing/movement subtree is reconstructed: sort/bottom draw 0048688E, row drawing 004869D0, native field hook 004912E3..004912F5, drawing dispatcher 00486A40, frame/valency/death/direction updates and all seven movement modes. The former global dummy binding is replaced by the namespaced production implementation. The five helper names and comparison global 005689DC remain explicitly unresolved rather than guessed. See [PARTICLE_DRAWING.md](PARTICLE_DRAWING.md). Particle static-data constructors, creation and generator/wind/tick remain unfinished; this does not establish visible smoke/projectile effects. The enclosing field remains excluded pending its full audit.

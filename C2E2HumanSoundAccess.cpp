@@ -2,11 +2,15 @@
 #include "C2E2StaticDataSoundFX.h"
 #include "C2EngineDisplayManager.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2EngineParticleSimulation.h"
+#include "C2HouseAccess.h"
 #include "C2GameState.h"
 #include "C2HumanIterator.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
 #include "C2VehicleAccess.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
@@ -15,10 +19,53 @@ namespace NC2E2
 {
     using NC2Lifetime::Read;
 
-    // Original function: FUN_0047ec5b, sound-event branch 0x17. Other manager
-    // events remain unfinished; Windows returns true even for ignored events.
-    bool __cdecl E2Manager_sl_Callback_Misc(std::uint32_t type, std::uint32_t, std::uint32_t soundType, std::uint32_t point, std::uint32_t skipRunning)
+    // Original function: FUN_0047ec5b; sound and particle branches are connected.
+    // Other manager events remain unfinished; Windows returns true for ignored events.
+    bool __cdecl E2Manager_sl_Callback_Misc(std::uint32_t type, std::uint32_t, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t parameter3)
     {
+        switch (type)
+        {
+        case 0x1C:
+        {
+            const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
+            NC2Logic::House_GetHouseTypeDataPtr(house);
+            const void* data = Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+            bool found = false;
+            if (parameter3 != 0)
+            {
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(data, 0x490); ++index)
+                {
+                    const void* entry = static_cast<const std::byte*>(Read<void*>(data, 0x494)) + index * 0xE4u;
+                    if (Read<std::uint32_t>(entry, 4) != 3 || Read<std::uint32_t>(entry, 0) != Read<std::uint32_t>(house, 0x20)) continue;
+                    auto position = Read<std::uint32_t>(house, 0x1C);
+                    NC2Logic::MapMigPoint_MoveCursorUnwrapped(position, 2);
+                    const std::int32_t pixel[2] = {NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0xC) + 17u), NXBasics::Runtime_TimeSigned32(0u - Read<std::uint32_t>(entry, 0x10) + 19u)};
+                    E2ParticelManager_AddParticelGenerator(gE2ParticelManager, 0, &position, pixel, 5, Read<std::uint32_t>(house, 8));
+                    found = true;
+                }
+            }
+            if (found) E2ParticelManager_EnableGenerator(gE2ParticelManager, Read<std::uint32_t>(house, 8));
+            else E2ParticelManager_DestroyGenerator(gE2ParticelManager, Read<std::uint32_t>(house, 8));
+            return true;
+        }
+        case 0x23:
+        {
+            const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
+            E2ParticelManager_CreateMunitionParticel(gE2ParticelManager, data, Read<std::uint32_t>(data, 8), static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 0xC, static_cast<const std::byte*>(data) + 0x14, Read<std::uint32_t>(data, 0x1C), Read<std::uint32_t>(data, 0x20));
+            return true;
+        }
+        case 0x24: E2ParticelManager_CreateFallingSmokeParticel(gE2ParticelManager, &parameter1, parameter2, parameter3); return true;
+        case 0x25: E2ParticelManager_StartParticelEffect(gE2ParticelManager, parameter1, &parameter2, parameter3); return true;
+        case 0x26: E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, parameter1, &parameter2, &parameter3, 0); return true;
+        case 0x27:
+        {
+            const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
+            E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, 1, static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 8, Read<std::uint32_t>(data, 0x14));
+            E2HumanSoundManager_PlayHumanScreamSound(gE2HumanSoundManager, Read<void*>(data, 0x18));
+            return true;
+        }
+        }
+        const auto soundType = parameter1, point = parameter2, skipRunning = parameter3;
         if (type != 0x17 || NDSManager::CManager::sTheObjectPtr == nullptr) return true;
         const auto* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
         const auto x = Read<std::int16_t>(&point, 0), y = Read<std::int16_t>(&point, 2);
@@ -48,6 +95,16 @@ namespace NC2E2
     {
         if (!NC2Logic::Human_IsAgeAdult(human)) return 0;
         return NC2Logic::Human_IsSexMale(human) ? 2u : 1u;
+    }
+
+    // Original function: FUN_004856b4.
+    void E2HumanSoundManager_PlayHumanScreamSound(const void* manager, const void* human)
+    {
+        const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
+        const auto tribe = Read<std::uint32_t>(human, 0x14);
+        const auto category = HumanSound_GetSexAgeIndex(human);
+        const auto soundId = Read<std::uint32_t>(manager, 8u + (tribe * 3u + category) * 0x8Cu);
+        Tool_Sound_PlaySoundOrientedOnDisplay(NC2Logic::Human_GetMapPositionRef(human), soundId, display, true, true);
     }
 
     // Original function: FUN_0048571d; eight tribes, three sex/age counters each.

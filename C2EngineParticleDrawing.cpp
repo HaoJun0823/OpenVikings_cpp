@@ -3,6 +3,7 @@
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineLandscapeDrawing.h"
 #include "C2E2StaticDataPalettes.h"
+#include "C2E2StaticDataParticles.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -21,22 +22,9 @@ namespace NC2E2
 
     namespace
     {
-        // Original global: DAT_005689DC; only the drawing comparison is known.
-        std::uint32_t DAT_005689DC = 0;
         std::byte* At(void* base, std::uint32_t offset) { return static_cast<std::byte*>(base) + offset; }
         std::int32_t Truncate(double value) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(value))); }
         void* StaticParticle(std::uint32_t id) { return At(gStaticParticelStorage.entries, id * 0x48u); }
-
-        // Original function: FUN_00486f68; original helper name remains unresolved.
-        void* FUN_00486f68(const void* list, std::uint32_t valency)
-        {
-            for (auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(list, 0) - 1u); index >= 0; --index)
-            {
-                void* entry = Read<void*>(Read<void*>(list, 8), static_cast<std::uint32_t>(index) * 4u);
-                if (Read<std::uint32_t>(entry, 0) <= valency) return entry;
-            }
-            return nullptr;
-        }
 
         // Original function: FUN_00487017; original position-helper name unresolved.
         void FUN_00487017(const void* position, std::int32_t* pixel, const void* display)
@@ -57,22 +45,23 @@ namespace NC2E2
             pixel[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(pixel[1]) - static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(bits) >> 8));
         }
 
-        // Original function: FUN_0049805a; normalized position to signed WORD map point.
-        void FUN_0049805a(const void* position, void* point)
-        {
-            Write<std::uint16_t>(point, 0, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetWidth() * Read<double>(position, 0) + 0.5)));
-            Write<std::uint16_t>(point, 2, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetHeight() * Read<double>(position, 8) + 0.5)));
-        }
+    }
 
-        // Original function: FUN_004980a7; refresh terrain height only on map-point change.
-        void FUN_004980a7(void* particle)
-        {
-            static std::uint32_t point = 0; // Original static point: 0056A380..0056A383.
-            FUN_0049805a(At(particle, 0x28), &point);
-            if (point == Read<std::uint32_t>(particle, 0x78)) return;
-            Write(particle, 0x80, NC2Logic::GameMap_GetHeightAtMapMigPoint(&point) * 0.004);
-            Write(particle, 0x78, point);
-        }
+    // Original function: FUN_0049805a; original helper name unresolved.
+    void ParticelPosition_ToMapPoint(const void* position, void* point)
+    {
+        Write<std::uint16_t>(point, 0, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetWidth() * Read<double>(position, 0) + 0.5)));
+        Write<std::uint16_t>(point, 2, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetHeight() * Read<double>(position, 8) + 0.5)));
+    }
+
+    // Original function: FUN_004980a7; original helper name unresolved.
+    void ParticelObject_RefreshGroundHeight(void* particle)
+    {
+        static std::uint32_t point = 0; // Original static point: 0056A380..0056A383.
+        ParticelPosition_ToMapPoint(At(particle, 0x28), &point);
+        if (point == Read<std::uint32_t>(particle, 0x78)) return;
+        Write(particle, 0x80, NC2Logic::GameMap_GetHeightAtMapMigPoint(&point) * 0.004);
+        Write(particle, 0x78, point);
     }
 
     // Original function: FUN_00497a29.
@@ -100,7 +89,7 @@ namespace NC2E2
             const double progress = ((1.0 - static_cast<double>(Read<std::uint32_t>(particle, 0x14)) / Read<std::uint32_t>(particle, 0x10)) - 0.5) * 2.0;
             height = baseline - (progress * progress - 1.0) * Read<double>(particle, 0x100);
             Write(particle, 0x38, height);
-            FUN_0049805a(At(particle, 0x28), At(particle, 0x78));
+            ParticelPosition_ToMapPoint(At(particle, 0x28), At(particle, 0x78));
             Write(particle, 0x40, Read<double>(particle, 0x40) - ticks * Read<double>(particle, 0xE0));
             Write(particle, 0x48, Read<double>(particle, 0x48) - ticks * Read<double>(particle, 0xE8));
             if (height > 1.0) Write(particle, 0x38, 1.0);
@@ -112,7 +101,7 @@ namespace NC2E2
             if (height > 1.0) Write<std::uint8_t>(particle, 4, 0);
             break;
         case 4: case 6:
-            if (mode == 6) FUN_004980a7(particle);
+            if (mode == 6) ParticelObject_RefreshGroundHeight(particle);
             height -= ticks * speed;
             Write(particle, 0x38, height);
             // Native JAE treats unordered as a collision as well.
@@ -124,7 +113,7 @@ namespace NC2E2
             }
             break;
         case 7:
-            FUN_004980a7(particle);
+            ParticelObject_RefreshGroundHeight(particle);
             if (Read<double>(particle, 0x80) > height)
             {
                 if (Read<std::uint8_t>(particle, 0xF9) != 0) Write<std::uint8_t>(particle, 4, 0);
@@ -153,7 +142,7 @@ namespace NC2E2
         if (direction) FUN_00486f91(At(particle, 0x28), reinterpret_cast<std::int32_t*>(At(particle, 0x88)), display);
         else LogicParticelObject_CalculateValency(particle);
         void* data = StaticParticle(Read<std::uint32_t>(particle, 0x128));
-        void* frames = FUN_00486f68(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
+        void* frames = ParticelGraphics_GetValency(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
         if (frames == nullptr) { Write<std::uint8_t>(particle, 4, 0); return; }
         if (Read<std::uint32_t>(particle, 0x124) >= Read<std::uint32_t>(frames, 4))
         {
@@ -242,9 +231,9 @@ namespace NC2E2
         Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, pixel, false);
         auto* bitmap = Read<NXBasics::CBitmap*>(display, 0x68);
         const auto id = Read<std::uint32_t>(particle, 0x128);
-        if (id == DAT_005689DC) { bitmap->Draw_FilledCircle(pixel[0], pixel[1], 3, NXBasics::SColorRGB(255, 255, 255)); return; }
+        if (id == static_cast<std::uint32_t>(gStaticParticelStorage.munitionIds[3])) { bitmap->Draw_FilledCircle(pixel[0], pixel[1], 3, NXBasics::SColorRGB(255, 255, 255)); return; }
         auto* data = StaticParticle(id);
-        const auto* frames = FUN_00486f68(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
+        const auto* frames = ParticelGraphics_GetValency(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
         const auto bob = Read<std::uint32_t>(Read<void*>(frames, 8), Read<std::uint32_t>(particle, 0x124) * 4u);
         const auto* bobManager = Read<void*>(data, 0x28);
         NXBasics::SRectangle rectangle(0, 0, 0, 0);

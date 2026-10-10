@@ -3,6 +3,8 @@
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineLifetimeAccess.h"
+#include "C2E2StaticDataParticles.h"
+#include "C2EngineParticleSimulation.h"
 #include "C2E2StaticDataMapMoveables.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineMapIO.h"
@@ -984,13 +986,6 @@ namespace NC2E2
         Write<std::uint32_t>(manager, 0x2F7F78, 0);
     }
 
-    // Original function: FUN_0048d54e; CE2StaticDataParticelManager::GetParticelId.
-    static std::int32_t StaticParticelManager_GetParticelId(const char* name)
-    {
-        for (std::int32_t i = 0; i < gStaticParticelStorage.count; ++i)
-            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(i) * 0x48u, name) == 0) return i;
-        return -1;
-    }
     // Original function: FUN_004973e6; complete token table 004F4C00..004F4C5F.
     static void E2ParticelGeneratorManager_Initialize(void* generator, const char* filename)
     {
@@ -1007,7 +1002,7 @@ namespace NC2E2
                 switch (tokenList.FindToken(reader.GetCurrentName()))
                 {
                 case 0x6E616D65: std::strcpy(reinterpret_cast<char*>(record), reader.GetString()); break;
-                case 0x67656E65: Write(record, 0x20, StaticParticelManager_GetParticelId(reader.GetString())); break;
+                case 0x67656E65: Write(record, 0x20, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
                 case 0x6D617867: Write(record, 0x28, reader.GetInt()); break;
                 case 0x6D61786C: Write(record, 0x24, reader.GetInt()); break;
                 case 0x706D6F76: Write(record, 0x30, reader.GetInt()); break;
@@ -1059,7 +1054,6 @@ namespace NC2E2
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(2, E2ParticelManager_Callback, 0x14, 1);
         return manager;
     }
-    extern void __fastcall E2ParticelManager_DoOneGameTick(void* manager, void* unusedEdx);
     // Original function: FUN_00486eb4, l_ParticelManager_CallBack.
     bool __cdecl E2ParticelManager_Callback(NC2Logic::TCallbackTypes type, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
     {

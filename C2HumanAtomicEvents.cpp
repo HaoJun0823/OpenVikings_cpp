@@ -79,7 +79,7 @@ namespace NC2Logic
             case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
             case 14: case 17: case 22: case 23: case 25: case 26: case 34: case 35: case 36:
                 break;
-            case 11: case 12: case 24: case 28: case 29: case 30: case 31: case 32: break;
+            case 11: case 12: case 24: case 27: case 28: case 29: case 30: case 31: case 32: break;
             case 13: case 15: case 16: case 18: case 19: break;
             case 21: break;
             case 20:
@@ -95,7 +95,7 @@ namespace NC2Logic
     }
 
     // Partial original function: FUN_00468678; complete selector table 00468AD8..
-    // 00468B67. Event 27 remains an explicit boundary.
+    // 00468B67. Some building-event contexts remain explicit boundaries.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
         const auto amount = static_cast<std::uint32_t>(event.parameter);
@@ -157,6 +157,17 @@ namespace NC2Logic
         case 20: Human_l_PerformTaskEvent_Build(human); return;
         case 24: Human_l_PerformTaskEvent_GiveBirth(human); return;
         case 25: Human_l_PerformTaskEvent_Attack(human); return;
+        case 27:
+        {
+            if (Human_IsAttachedToWorkHouse(human))
+            {
+                void* house = House(Read<std::uint32_t>(human, 0xB34));
+                const auto output = Human_l_JobEfficiency_CalculateOutputAmountDecimal(human);
+                if (House_Stock_ModifyAmount(house, amount, output / 10, output % 10, false)) Write<std::uint32_t>(human, 0x36C, 2);
+            }
+            else { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 2); }
+            return;
+        }
         case 28:
             if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) == 0 && (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)) Human_l_JobExperience_Gain(human);
             return;

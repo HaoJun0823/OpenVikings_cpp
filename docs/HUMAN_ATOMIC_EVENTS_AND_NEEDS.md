@@ -1,5 +1,9 @@
 # Human atomic events and needs - 2026-10-07
 
+## Stock-event continuation - 2026-10-10
+
+Event 27 is now reconstructed from Windows 004688EE..0046895C: work-house attachment, signed output / 10 and % 10, stock modification and native task success/failure state. It is admitted by the atomic preflight. It is not a particle event. Other building-event contexts retain their explicit reconstruction guard; the enclosing event dispatcher stays excluded. Particle callbacks and simulation are connected separately; see [PARTICLE_SIMULATION.md](PARTICLE_SIMULATION.md). No build or game run occurred.
+
 ## Collector continuation - 2026-10-09
 
 Collector job 8 and its map collection/search/event tree are now connected. Generic event types 13/15/16/18 are reconstructed and admitted by the atomic guard. The shared movement/task/urgent-needs machinery is unchanged; unsupported other jobs remain explicit boundaries. User reports the previous soldier correction works well. Historical pending descriptions below may be superseded; consult HEAD and TEMPORARY_LINK_STUBS.csv. See [HUMAN_MAP_COLLECTION.md](HUMAN_MAP_COLLECTION.md). No gameplay run or Debug/Release build occurred for this correction.
