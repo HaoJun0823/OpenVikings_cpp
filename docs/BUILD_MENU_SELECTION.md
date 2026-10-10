@@ -24,4 +24,4 @@ Read-only extraction of the installed Windows houses.cif found 90 GfxHouse group
 
 Affected units passed MSVC Win32 /Zs syntax checks; project/filter registration and whitespace checks passed. No Debug/Release build, tests or game run were performed. Runtime appearance, mission-dependent availability and interactive placement still need confirmation in the user's next game run. Source-address coverage is not a measure of gameplay completion.
 
-Next logical UI block: check the building panel after placement, upgrades and its production/stock controls, then continue the broader outstanding profession/vehicle and effects dependencies. The user-owned untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded.
+The subsequent building-panel/upgrade/stock audit is documented in [HOUSE_PANEL.md](HOUSE_PANEL.md). The next drawing dependency is the house/construction foreground tree; building previews remain unfinished. Continue the broader outstanding profession/vehicle and effects dependencies afterward. The user-owned untracked C2HumanCombatTasks.cpp/.h remain untouched and excluded.

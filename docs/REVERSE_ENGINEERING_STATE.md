@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Building panel/upgrade/stock audit - 2026-10-10
+
+The building panel and its upgrade, production/input/output, minimum-stock and inhabitant command trees were checked against Windows assembly/Game.exe. The extra 16-pixel gap before the home family count is corrected. Existing stock sorting already calls the native special-character-aware comparator and remains unchanged. Windows creates no extra production-counter/stop controls despite retaining their message handlers; no Mac behavior was imported. See [HOUSE_PANEL.md](HOUSE_PANEL.md).
+
+Coverage remains **4038 / 5062 (79.77%)**, **1024** known entries open; **266 cpp / 246 headers**, **2191 naming rows / 62 unfinished boundaries**. This fixes an existing function and adds no reconstructed entry. Seven affected/integration units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred.
+
+Next logical block: the house/construction drawing tree at 00495B57 / 004956B7 and its foreground integration into the still-partial 004911D5. Building previews and effects remain unfinished; do not report all menus or gameplay complete. Continue the broader outstanding profession/AI/vehicle scope afterward. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Construction menu/building selection checkpoint - 2026-10-10
 
 The user clarified that "building list" means the construction menu/building selection. The empty static-engine-house loader dummy is replaced by the complete Windows constructor/parser, including all 26 tokens, 0x8BC-byte records, building/stage mappings, construction costs, images, overlays, areas and effect points. The whole singleton/token region is represented with verified offsets. Distinct record constructors and the shared coordinate constructor are connected. The existing construction window, filtering, help/cost previews and placement-mode transition were checked against Windows and already implement their native paths. The installed Windows houses.cif contains 90 engine definitions and 123 stages; it supplies configuration only. See BUILD_MENU_SELECTION.md.
