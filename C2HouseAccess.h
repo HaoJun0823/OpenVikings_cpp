@@ -63,6 +63,9 @@ namespace NC2Logic
     void House_l_Production_CheckProductionCounter(void* house);
     void House_Production_ChangeCounter(void* house, std::int32_t delta);
     void House_Production_DidProduceOneGood(void* house);
+    bool House_HitPoints_IsDamaged(const void* house);
+    bool House_ActionOverlay_IsActive(const void* house, std::uint32_t overlay);
+    bool House_LandscapeOverlay_IsActive(const void* house, std::int32_t overlay);
     void House_ActionOverlay_Start(void* house, std::int32_t overlay, std::uint32_t duration);
     void* House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(void* house, std::uint32_t human);
     void* House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(void* house, std::uint32_t slot);

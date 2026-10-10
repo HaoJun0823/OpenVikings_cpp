@@ -1411,4 +1411,8 @@
     <ClCompile Include="C2E2StaticDataHouses.cpp"><Filter>Engine</Filter></ClCompile>
     <ClInclude Include="C2E2StaticDataHouses.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineHouseDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="C2EngineHouseDrawing.h"><Filter>Engine</Filter></ClInclude>
+  </ItemGroup>
 </Project>

@@ -1,12 +1,20 @@
 # Open Tasks
 
+## House/construction/demolition rendering checkpoint - 2026-10-10
+
+The complete Windows house drawing subtree at 00495B57 is reconstructed and connected to the foreground map path: completed/building/upgrading images, animated and landscape overlays, door images, selection outlines, resident/worker/soldier signs, incense/fire and separate back/front demolition smoke. Native construction/collapse/ranged masks and shadow masks now support 16/32-bit destinations. Original fire RNG order, bottom-row collapse displacement, lazy debug-color exit registration and repair/music counters are retained. Existing house hit-test/sign descriptors are shared with the drawing unit. See [HOUSE_DRAWING.md](HOUSE_DRAWING.md).
+
+**4056 / 5062 (80.13%)** source-address coverage, **1006** known entries open; **267 cpp / 247 headers**, **2210 naming rows / 62 unfinished boundaries**. This block adds 18 mapped original entries. Twelve affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming inventory and whitespace checks passed. No build, tests or game run occurred. Windows ASM/Game.exe establish behavior; Mac supplies names only.
+
+Correction to the prior checkpoint: 004956B7 draws guideposts; construction is inside 00495B57. Next logical block: guidepost drawing at 004956B7/004958FB, then road/wall construction markers, particles and repair-hammer sound. The enclosing 004911D5 remains partial and excluded; full preview/gameplay completion requires its remaining branches and user runtime confirmation. Continue the broader open profession/AI/vehicle scope afterward. User-owned untracked CombatTasks remain untouched and excluded.
+
 ## Building panel/upgrade/stock audit - 2026-10-10
 
 The building panel and its upgrade, production/input/output, minimum-stock and inhabitant command trees were checked against Windows assembly/Game.exe. The extra 16-pixel gap before the home family count is corrected. Existing stock sorting already calls the native special-character-aware comparator and remains unchanged. Windows creates no extra production-counter/stop controls despite retaining their message handlers; no Mac behavior was imported. See [HOUSE_PANEL.md](HOUSE_PANEL.md).
 
 Coverage remains **4038 / 5062 (79.77%)**, **1024** known entries open; **266 cpp / 246 headers**, **2191 naming rows / 62 unfinished boundaries**. This fixes an existing function and adds no reconstructed entry. Seven affected/integration units passed MSVC Win32 `/Zs`; project/filter and whitespace checks passed. No build, tests or game run occurred.
 
-Next logical block: the house/construction drawing tree at 00495B57 / 004956B7 and its foreground integration into the still-partial 004911D5. Building previews and effects remain unfinished; do not report all menus or gameplay complete. Continue the broader outstanding profession/AI/vehicle scope afterward. User-owned untracked CombatTasks remain untouched and excluded.
+Next logical block: the house drawing tree at 00495B57 and guidepost tree at 004956B7 and its foreground integration into the still-partial 004911D5. Building previews and effects remain unfinished; do not report all menus or gameplay complete. Continue the broader outstanding profession/AI/vehicle scope afterward. User-owned untracked CombatTasks remain untouched and excluded.
 
 ## Construction menu/building selection checkpoint - 2026-10-10
 

@@ -749,4 +749,8 @@
     <ClCompile Include="C2E2StaticDataHouses.cpp" />
     <ClInclude Include="C2E2StaticDataHouses.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2EngineHouseDrawing.cpp" />
+    <ClInclude Include="C2EngineHouseDrawing.h" />
+  </ItemGroup>
 </Project>

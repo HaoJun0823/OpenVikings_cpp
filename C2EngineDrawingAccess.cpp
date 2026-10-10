@@ -1,6 +1,7 @@
 #include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDrawingAccess.h"
+#include "C2EngineHouseDrawing.h"
 #include "C2E2LevelOfDetailManager.h"
 #include "C2HouseAccess.h"
 #include "C2LifetimeAccess.h"
@@ -120,7 +121,7 @@ namespace NC2E2
     }
 
     // Original function: FUN_00496594
-    static void ls_DrawAtom_House_DoDraw_PrintImageBob(const void* bobManager, std::uint32_t bobId, std::uint32_t colorTableIndex, std::int32_t brightness, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, bool /*drawFlag*/)
+    void ls_DrawAtom_House_DoDraw_PrintImageBob(const void* bobManager, std::uint32_t bobId, std::uint32_t colorTableIndex, std::int32_t brightness, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, bool /*drawFlag*/)
     {
         if (bobManager == nullptr)
             return;

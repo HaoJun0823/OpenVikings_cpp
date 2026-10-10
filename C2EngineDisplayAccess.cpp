@@ -81,6 +81,21 @@ namespace NC2E2
         return 0;
     }
 
+    // Original function: FUN_0047d0ef; only the primary house reference checks its generation.
+    std::uint32_t Display_DE_ObjectsToMark_House_GetMarkType(const void* display, std::uint32_t houseId)
+    {
+        using NC2Lifetime::Read;
+        const auto* primary = Read<void*>(display, 0xA8);
+        const auto* house = NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize;
+        if (primary != nullptr && Read<std::uint32_t>(primary, 0) == 4 && Read<std::uint32_t>(primary, 0x28) == houseId && Read<std::uint32_t>(primary, 0x2C) == Read<std::uint32_t>(house, 8)) return Read<std::uint32_t>(primary, 0x44);
+        for (std::int32_t index = 0; index < Read<std::int32_t>(display, 0xAC); ++index)
+        {
+            const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
+            if (Read<std::uint32_t>(reference, 0) == 4 && Read<std::uint32_t>(reference, 0x28) == houseId) return Read<std::uint32_t>(reference, 0x44);
+        }
+        return 0;
+    }
+
     // Original function: FUN_0047d14d; reference predicates also compare generation.
     std::uint32_t Display_DE_ObjectsToMark_Human_GetMarkType(const void* display, std::uint32_t humanId) { return GetMoveableMarkType(display, humanId, 1, 8, NC2Logic::CHumanArray::mStaticVars, NC2Logic::CHumanArray::ElementSize); }
     // Original function: FUN_0047d1c7.

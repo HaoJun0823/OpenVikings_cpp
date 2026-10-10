@@ -2,6 +2,7 @@
 #include "C2DefaultInteraction.h"
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineMoveableDrawing.h"
+#include "C2EngineHouseDrawing.h"
 #include "C2EngineLifetimeAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2HouseAccess.h"
@@ -27,97 +28,6 @@ namespace NC2E2
         const void* House(std::uint32_t id) { return NC2Logic::CHouseArray::mStaticVars + id * 0x7E0u; }
         const void* Guide(std::uint32_t id) { return NC2Logic::CGuideArray::mStaticVars + id * 0x184u; }
         const void* Landscape(std::uint32_t id) { return static_cast<const std::byte*>(gStaticLandscapeEntries) + id * 0x8Cu; }
-
-        struct SHouseSignData
-        {
-            struct SSign { std::int32_t landscape, x, y, human; };
-            std::uint32_t count;
-            SSign signs[30];
-        };
-        static_assert(sizeof(SHouseSignData) == 0x1E4);
-
-        // Original function: FUN_00496737; DrawAtom_House_GetSignData.
-        void DrawAtom_House_GetSignData(std::uint32_t id, SHouseSignData* output)
-        {
-            output->count = 0;
-            const auto* house = House(id);
-            auto stage = Read<std::uint32_t>(house, 0x20);
-            if (Read<std::uint32_t>(house, 0x2C) == 2) ++stage;
-            const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, 0x10) * 0x8BCu + stage * 0x34u;
-            const auto x = Read<std::int32_t>(data, 0x7D8), baseY = Read<std::int32_t>(data, 0x7DC);
-            if (x == 0 && baseY == 0) return;
-            if (NC2Logic::House_GetHouseMainType(house) == 2)
-            {
-                std::uint32_t families[20];
-                const auto count = NC2Logic::House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, families);
-                bool used[20]{};
-                if (count == 0) return;
-                auto y = baseY - static_cast<std::int32_t>(count * 25u) + 25;
-                for (std::uint32_t slot = 0; slot < 20; ++slot)
-                {
-                    const auto* attachment = static_cast<const std::byte*>(house) + 0x640u + slot * 16u;
-                    if ((Read<std::uint8_t>(attachment, 0) & 1u) == 0 || families[slot] == 0xFFFFFFFFu || used[families[slot]]) continue;
-                    used[families[slot]] = true;
-                    const auto humanId = Read<std::int32_t>(attachment, 4);
-                    const auto* human = Human(humanId);
-                    const auto sign = Read<std::int32_t>(human, 0xB18) != -1 || Read<std::int32_t>(human, 0xB14) != -1 || Read<std::int32_t>(human, 0xB24) != -1 ? 2u : Read<std::int32_t>(human, 0xB20) != -1 ? 1u : 0u;
-                    const auto graphic = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(human, 0x10), sign);
-                    if (graphic == -1) continue;
-                    output->signs[output->count++] = {graphic, x, y, humanId};
-                    if (output->count == 30) return;
-                    y += 25;
-                }
-                return;
-            }
-            if (NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house, 2) == 0) return;
-            std::int32_t ordinary[20], soldiers[20];
-            std::uint32_t ordinaryCount = 0, soldierCount = 0;
-            for (std::uint32_t slot = 0; slot < 20; ++slot)
-            {
-                const auto* attachment = static_cast<const std::byte*>(house) + 0x640u + slot * 16u;
-                if ((Read<std::uint8_t>(attachment, 0) & 2u) == 0) continue;
-                const auto humanId = Read<std::int32_t>(attachment, 4);
-                if (NC2Logic::Human_IsJobSoldier(Human(humanId)) && Read<std::uint8_t>(data, 0x7E0) != 0) soldiers[soldierCount++] = humanId;
-                else ordinary[ordinaryCount++] = humanId;
-            }
-            auto y = baseY - static_cast<std::int32_t>(ordinaryCount * 25u) + 25;
-            for (std::uint32_t i = 0; i < ordinaryCount; ++i)
-            {
-                const auto* human = Human(ordinary[i]);
-                const auto sign = NC2Logic::Human_IsJobCarrier(human) ? 7u : static_cast<std::uint32_t>(ordinary[i] % 4 + 3);
-                const auto graphic = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(human, 0x10), sign);
-                if (graphic == -1) continue;
-                output->signs[output->count++] = {graphic, x, y, ordinary[i]};
-                if (output->count == 30) return;
-                y += 25;
-            }
-            if (soldierCount != 0)
-            {
-                const auto graphic = StaticHumanMisc_SoldierSign_GetLandscapeId(Read<std::int32_t>(Human(soldiers[0]), 0x10), soldierCount);
-                if (graphic != -1) output->signs[output->count++] = {graphic, Read<std::int32_t>(data, 0x7E4), Read<std::int32_t>(data, 0x7E8), -1};
-            }
-        }
-
-        // Original function: FUN_0049660f.
-        void DrawAtom_House_GetBobData(std::uint32_t id, S2DEngineDisplaySearchObjectBobData* output)
-        {
-            const auto* house = House(id);
-            const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, 0x10) * 0x8BCu;
-            std::memset(output, 0, sizeof(*output));
-            auto* manager = Read<void*>(data, 0x214);
-            output->AddBob(manager, Read<std::uint32_t>(data, 0x238u + Read<std::uint32_t>(house, 0x20) * 4u), 0, 0);
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0x490); ++i)
-            {
-                const auto* overlay = Read<std::byte*>(data, 0x494) + i * 0xE4u;
-                const auto action = Read<std::int32_t>(overlay, 4);
-                if (action == 0 || Read<std::uint32_t>(overlay, 0) != Read<std::uint32_t>(house, 0x20) || Read<std::uint32_t>(overlay, 0x18) == 0) continue;
-                // Original function: FUN_004341c0; HouseActionOverlay_IsActive.
-                const bool active = action < 5 && Read<std::uint32_t>(house, 0x7A8u + static_cast<std::uint32_t>(action) * 4u) != 0;
-                if (Read<std::uint8_t>(overlay, 8) != static_cast<std::uint8_t>(active)) continue;
-                const auto frame = (NC2Logic::gGameTime.tick / Read<std::uint32_t>(overlay, 0x14)) % Read<std::uint32_t>(overlay, 0x18);
-                output->AddBob(manager, Read<std::uint32_t>(overlay, 0x1Cu + frame * 4u), Read<std::int32_t>(overlay, 0xC), Read<std::int32_t>(overlay, 0x10));
-            }
-        }
 
         // Original function: FUN_00495843. Constants are from Game.exe.
         float GuideDirectionAngle(float dx, float dy)
@@ -219,7 +129,7 @@ namespace NC2E2
                     const auto houseId = Read<std::uint16_t>(micro, 4);
                     if (priority <= 50)
                     {
-                        SHouseSignData signs;
+                        S2DEngineDrawAtomHouseSignData signs;
                         DrawAtom_House_GetSignData(houseId, &signs);
                         for (auto i = static_cast<std::int32_t>(signs.count) - 1; i >= 0; --i)
                         {

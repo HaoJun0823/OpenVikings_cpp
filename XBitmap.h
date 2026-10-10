@@ -87,6 +87,8 @@ namespace NXBasics
         void Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, std::uint32_t color);
         void Draw_VerticalLine(std::int32_t x, std::uint32_t y, std::int32_t length, const SColorRGB& color);
 
+        void Text_Print(CFont* font, std::int32_t x, std::int32_t y, const char* text);
+        void __cdecl Text_PrintV(CFont* font, std::int32_t x, std::int32_t y, const char* format, ...);
         void Text_Print(CFont* font, const SColorRGB* colour, std::int32_t x, std::int32_t y, const char* text);
         void __cdecl Text_PrintV(CFont* font, const SColorRGB* colour, std::int32_t x, std::int32_t y, const char* format, ...);
 

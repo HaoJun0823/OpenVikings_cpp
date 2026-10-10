@@ -19,6 +19,18 @@
 #include "C2HumanGoods.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00434c1a; the engine type supplies the repair threshold.
+    bool House_HitPoints_IsDamaged(const void* house)
+    {
+        const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, 0x10));
+        return NC2Lifetime::Read<std::int32_t>(house, 0x7C8) < NC2Lifetime::Read<std::int32_t>(data, 0x19Cu + NC2Lifetime::Read<std::uint32_t>(house, 0x20) * 4u);
+    }
+
+    // Original function: FUN_004341c0; the Windows bound comparison is signed.
+    bool House_ActionOverlay_IsActive(const void* house, std::uint32_t overlay) { return NXBasics::Runtime_TimeSigned32(overlay) < 5 && NC2Lifetime::Read<std::uint32_t>(house, 0x7A8u + overlay * 4u) != 0; }
+    // Original function: FUN_0043423e.
+    bool House_LandscapeOverlay_IsActive(const void* house, std::int32_t overlay) { return overlay >= 0 && overlay < 10 && NC2Lifetime::Read<std::uint8_t>(house, 0x7BCu + static_cast<std::uint32_t>(overlay)) != 0; }
+
     // Original function: FUN_00432289; only an exact worker role is refreshed.
     void House_Inhabitants_UpdateAllWorkers(void* house)
     {

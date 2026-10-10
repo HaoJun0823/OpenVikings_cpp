@@ -8,6 +8,16 @@
 
 namespace NXBasics
 {
+    // Original function: FUN_004396dc; the font palette is used without a color override.
+    void Font_PrintCharacter(const void* font, CBitmap* bitmap, std::uint8_t character, std::int32_t x, std::int32_t y)
+    {
+        void* manager;
+        CPalette* palette;
+        std::memcpy(&manager, static_cast<const std::byte*>(font) + 0x10, sizeof(manager));
+        std::memcpy(&palette, static_cast<const std::byte*>(font) + 0x14, sizeof(palette));
+        BobManager_PrintBob(manager, static_cast<std::uint32_t>(character) - 0x20u, bitmap, x, y, palette);
+    }
+
     // Original function: FUN_004396ff
     void Font_PrintCharacter(const void* font, const SColorRGB* colour, CBitmap* bitmap, std::uint8_t character, std::int32_t x, std::int32_t y)
     {

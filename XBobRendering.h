@@ -23,6 +23,11 @@ namespace NXBasics
     void BobManager_PrintBob_UsingTransparency(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::uint32_t strength, std::int32_t x, std::int32_t y, CPalette* palette);
     void BobManager_PrintBob_UsingShadedAlpha(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette, std::int32_t brightness);
     void BobManager_PrintBob_DoubleByteBobNormal(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
+    void BobManager_PrintBob_FX_DrawOutline_Lines(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour, std::int32_t length);
+    void BobManager_PrintBob_UsingTimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t time, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
+    std::int32_t BobManager_PrintBob_UsingCollapseTimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t time, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
+    void BobManager_PrintBob_UsingRangedCollapseTimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t start, std::uint32_t end, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette);
+    void BobManager_PrintBob_Shadow_TimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t time, CBitmap* bitmap, std::int32_t x, std::int32_t y);
     void BobManager_PrintBob_Shadow(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y);
     void BobManager_PrintBob_Shadow16(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t mode);
     void BobManager_PrintBob_Shadow32(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, std::uint32_t mode);

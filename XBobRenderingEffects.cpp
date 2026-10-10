@@ -2,6 +2,7 @@
 #include "XBasicTypes.h"
 #include "XBitmap.h"
 #include "XCPU.h"
+#include "XDiagnostics.h"
 #include "XCrtFileAccess.h"
 #include "XPaletteAccess.h"
 #include "XPixelFormatConverter.h"
@@ -482,5 +483,191 @@ namespace NXBasics
             }
         });
         _mm_empty();
+    }
+
+    // Original function: FUN_0049bba4; vertical end marks, distinct from the filled-run outline.
+    void BobManager_PrintBob_FX_DrawOutline_Lines(const void* bobManager, std::uint32_t bobId, CBitmap* bitmap, std::int32_t x, std::int32_t y, const SColorRGB* colour, std::int32_t length)
+    {
+        BobDrawRegion region;
+        if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || (region.type != 1 && region.type != 4) || region.clipped.height <= 0) return;
+        auto* rows = region.rows;
+        std::uint32_t row = 0;
+        do
+        {
+            const auto descriptor = BobRead<std::uint32_t>(rows);
+            rows = BobAddress(rows, 4);
+            if (descriptor != 0xFFFFFFFFu)
+            {
+                auto currentX = static_cast<std::uint32_t>(region.placed.x) + (descriptor >> 22);
+                auto* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & 0x3FFFFFu);
+                bool previousRun = false;
+                for (auto token = BobRead<std::uint8_t>(source); token != 0; token = BobRead<std::uint8_t>(source))
+                {
+                    source = BobAddress(source, 1);
+                    const auto count = static_cast<std::uint32_t>(token & 127u);
+                    if ((token & 128u) == 0)
+                    {
+                        source = BobAddress(source, count * (region.type == 1 ? 1u : 2u));
+                        if (!previousRun) bitmap->Draw_VerticalLine(Runtime_TimeSigned32(currentX - static_cast<std::uint32_t>(length)), static_cast<std::uint32_t>(region.clipped.y) + row, length, *colour);
+                        const auto next = BobRead<std::uint8_t>(source);
+                        previousRun = next != 0 && (next & 128u) == 0;
+                        if (!previousRun) bitmap->Draw_VerticalLine(Runtime_TimeSigned32(currentX + count), static_cast<std::uint32_t>(region.clipped.y) + row, length, *colour);
+                    }
+                    currentX += count;
+                }
+            }
+            ++row;
+        } while (static_cast<std::uint16_t>(row) < region.clipped.height);
+    }
+
+    namespace
+    {
+        const std::byte* TimeMaskEntry(const void* manager, std::uint32_t id)
+        {
+            const auto index = id - BobRead<std::uint32_t>(manager, 4);
+            if (index >= BobRead<std::uint32_t>(manager, 8)) return nullptr;
+            const auto* entry = BobAddress(BobPointer(manager, 0x24), index * 24u);
+            return BobRead<std::uint32_t>(entry) == 4 ? entry : nullptr;
+        }
+
+        // Original function: FUN_0049e5a3; scan packed double-byte rows from the bottom.
+        std::int32_t l_PrintTimeMask_BottomUpScanTimeMask(const void* manager, std::uint32_t time, const void* entry)
+        {
+            auto remaining = BobRead<std::uint32_t>(entry, 0x10);
+            auto* rows = BobAddress(BobPointer(manager, 0x2C), (BobRead<std::uint32_t>(entry, 0x14) + remaining) * 4u - 4u);
+            std::uint32_t removed = 0;
+            while (remaining != 0)
+            {
+                const auto descriptor = BobRead<std::uint32_t>(rows);
+                rows = BobAddress(rows, 0u - 4u);
+                if (descriptor != 0xFFFFFFFFu)
+                {
+                    auto* source = BobAddress(BobPointer(manager, 0x28), descriptor & 0x3FFFFFu);
+                    for (auto token = BobRead<std::uint8_t>(source); token != 0; token = BobRead<std::uint8_t>(source))
+                    {
+                        source = BobAddress(source, 1);
+                        if ((token & 128u) != 0) continue;
+                        for (std::uint32_t pixel = 0; pixel < (token & 127u); ++pixel, source = BobAddress(source, 2))
+                            if (BobRead<std::uint8_t>(source, 1) > time) return Runtime_TimeSigned32(removed);
+                    }
+                }
+                --remaining;
+                ++removed;
+            }
+            return Runtime_TimeSigned32(removed);
+        }
+
+        bool PrepareCollapsedTimeMask(const void* manager, const void* entry, CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t removed, BobDrawRegion& region)
+        {
+            region.type = 4;
+            std::memcpy(&region.placed, static_cast<const std::byte*>(entry) + 4, sizeof(SRectangle));
+            region.placed.y = Runtime_TimeSigned32(static_cast<std::uint32_t>(region.placed.y) + static_cast<std::uint32_t>(removed));
+            region.placed.height = Runtime_TimeSigned32(static_cast<std::uint32_t>(region.placed.height) - static_cast<std::uint32_t>(removed));
+            region.placed.x = Runtime_TimeSigned32(static_cast<std::uint32_t>(region.placed.x) + static_cast<std::uint32_t>(x));
+            region.placed.y = Runtime_TimeSigned32(static_cast<std::uint32_t>(region.placed.y) + static_cast<std::uint32_t>(y));
+            const auto& bounds = bitmap->GetRectangle();
+            if (!region.placed.IsTouching(bounds)) return false;
+            region.clipped = region.placed;
+            region.clipped.CutInside(bounds);
+            region.wasClipped = !(region.clipped == region.placed);
+            region.rows = BobAddress(BobPointer(manager, 0x2C), BobRead<std::uint32_t>(entry, 0x14) * 4u);
+            if (region.placed.y < 0) region.rows = BobAddress(region.rows, (0u - static_cast<std::uint32_t>(region.placed.y)) * 4u);
+            const auto right = Runtime_TimeSigned32(static_cast<std::uint32_t>(region.placed.x) + static_cast<std::uint32_t>(region.placed.width) - 1u);
+            region.clipRight = right >= BobRead<std::int32_t>(bitmap, 0x10);
+            return true;
+        }
+    }
+
+    // Original function: FUN_0049da62; the time byte is an inclusive construction threshold.
+    void BobManager_PrintBob_UsingTimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t time, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette)
+    {
+        BobDrawRegion region;
+        if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 4) return;
+        const auto depth = BobRead<std::uint32_t>(bitmap, 4);
+        if (depth != 1 && depth != 2) return;
+        const void* table = depth == 1 ? static_cast<const void*>(Palette_GetHighColorTablePtr(palette)) : Palette_GetTrueColorTablePtr(palette);
+        if (table == nullptr) return;
+        DrawBobRuns(bobManager, bitmap, region, 2, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
+        {
+            if (BobRead<std::uint8_t>(source, 1) > time) return;
+            const auto index = BobRead<std::uint8_t>(source);
+            const auto value = depth == 1 ? BobRead<std::uint16_t>(table, index * 2u) : BobRead<std::uint32_t>(table, index * 4u);
+            std::memcpy(destination, &value, depth == 1 ? 2u : 4u);
+        });
+    }
+
+    // Original function: FUN_0049ddf8; removed bottom rows shift the remaining image down.
+    std::int32_t BobManager_PrintBob_UsingCollapseTimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t time, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette)
+    {
+        const auto* entry = TimeMaskEntry(bobManager, bobId);
+        if (entry == nullptr) return 0;
+        const auto removed = l_PrintTimeMask_BottomUpScanTimeMask(bobManager, time, entry);
+        BobDrawRegion region;
+        if (!PrepareCollapsedTimeMask(bobManager, entry, bitmap, x, y, removed, region)) return removed;
+        const auto depth = BobRead<std::uint32_t>(bitmap, 4);
+        if (depth == 0) return 0;
+        if (depth != 1 && depth != 2) return removed;
+        const void* table = depth == 1 ? static_cast<const void*>(Palette_GetHighColorTablePtr(palette)) : Palette_GetTrueColorTablePtr(palette);
+        if (table == nullptr) return 0;
+        DrawBobRuns(bobManager, bitmap, region, 2, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
+        {
+            if (BobRead<std::uint8_t>(source, 1) <= time) return;
+            const auto index = BobRead<std::uint8_t>(source);
+            const auto value = depth == 1 ? BobRead<std::uint16_t>(table, index * 2u) : BobRead<std::uint32_t>(table, index * 4u);
+            std::memcpy(destination, &value, depth == 1 ? 2u : 4u);
+        });
+        return removed;
+    }
+
+    // Original function: FUN_0049e1b7; the start/end comparisons are both strict.
+    void BobManager_PrintBob_UsingRangedCollapseTimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t start, std::uint32_t end, CBitmap* bitmap, std::int32_t x, std::int32_t y, CPalette* palette)
+    {
+        if (start >= end) return;
+        const auto* entry = TimeMaskEntry(bobManager, bobId);
+        if (entry == nullptr) return;
+        const auto removed = l_PrintTimeMask_BottomUpScanTimeMask(bobManager, start, entry);
+        BobDrawRegion region;
+        if (!PrepareCollapsedTimeMask(bobManager, entry, bitmap, x, y, removed, region)) return;
+        const auto depth = BobRead<std::uint32_t>(bitmap, 4);
+        if (depth != 1 && depth != 2) return;
+        const void* table = depth == 1 ? static_cast<const void*>(Palette_GetHighColorTablePtr(palette)) : Palette_GetTrueColorTablePtr(palette);
+        if (table == nullptr) return;
+        DrawBobRuns(bobManager, bitmap, region, 2, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
+        {
+            const auto time = BobRead<std::uint8_t>(source, 1);
+            if (time <= start || time >= end) return;
+            const auto index = BobRead<std::uint8_t>(source);
+            const auto value = depth == 1 ? BobRead<std::uint16_t>(table, index * 2u) : BobRead<std::uint32_t>(table, index * 4u);
+            std::memcpy(destination, &value, depth == 1 ? 2u : 4u);
+        });
+    }
+
+    // Original function: FUN_0049e618; a single-byte mask applies the original darkening operation.
+    void BobManager_PrintBob_Shadow_TimeMask(const void* bobManager, std::uint32_t bobId, std::uint32_t time, CBitmap* bitmap, std::int32_t x, std::int32_t y)
+    {
+        BobDrawRegion region;
+        if (!PrepareBobDraw(bobManager, bobId, bitmap, x, y, region) || region.type != 1) return;
+        const auto depth = BobRead<std::uint32_t>(bitmap, 4);
+        if (depth == 0) { ReportWarning("NXBasics::CBobManager::PrintBob_1Bit_TimeMask\n\nUnsupported bitmap depth!"); return; }
+        if (depth != 1 && depth != 2) return;
+        DrawBobRuns(bobManager, bitmap, region, 1, !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
+        {
+            if (BobRead<std::uint8_t>(source) > time) return;
+            if (depth == 1)
+            {
+                const auto* table = BobPointer(g16BitPixelConverter, 8);
+                const auto value = BobRead<std::uint16_t>(table, BobRead<std::uint16_t>(destination) * 2u);
+                std::memcpy(destination, &value, 2);
+            }
+            else
+            {
+                const auto background = BobRead<std::uint32_t>(destination);
+                const auto red = ((background >> 15) & 0x1FFFEu) / 3u;
+                const auto blue = ((background & 255u) * 2u) / 3u;
+                const auto green = ((background >> 7) & 0x1FEu) / 3u;
+                const auto value = (((red << 8) | green) << 8) | (blue + ((red + blue) >> 4));
+                std::memcpy(destination, &value, 4);
+            }
+        });
     }
 }

@@ -1,6 +1,8 @@
 #include "C2EngineLandscapeDrawing.h"
 #include "C2EngineDrawingAccess.h"
 #include "C2EngineMoveableDrawing.h"
+#include "C2EngineHouseDrawing.h"
+#include "C2HouseAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineMapTerrainAccess.h"
 #include "C2E2LevelOfDetailManager.h"
@@ -17,6 +19,7 @@
 #include "C2MapResourceManagers.h"
 #include "C2StaticLandscapeTypeData.h"
 #include "XCrtFileAccess.h"
+#include "DSManager.h"
 
 #include <algorithm>
 #include <cstring>
@@ -150,7 +153,7 @@ namespace NC2E2
     }
 
     // Original function: FUN_004911d5, landscape branches 0049133B..004915C9.
-    // Foreground moveables are connected; houses, construction markers, particles and generic sound playback remain unfinished.
+    // Foreground houses and moveables are connected; guides, road/wall construction markers, particles and generic sound playback remain unfinished.
     void Display_l_DE_DrawLandscapeAndCreaturesField(void* display, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* pixelPoint, bool staticPart, bool backgroundPart)
     {
         using NC2Lifetime::Read;
@@ -160,6 +163,7 @@ namespace NC2E2
         if (foregroundPart && Read<std::uint8_t>(display, 0x6C) != 0)
         {
             std::memset(CE2AnimalSoundManager::sTheObjectPtr->animalCounts, 0, sizeof(CE2AnimalSoundManager::sTheObjectPtr->animalCounts));
+            std::memset(gWorldMusicState.visiblePlayerCounts, 0, sizeof(gWorldMusicState.visiblePlayerCounts));
             E2HumanSoundManager_ClearSeenHumanCounter(gE2HumanSoundManager);
         }
         bool drawVoid = Read<std::int32_t>(display, 0x78) >= 0;
@@ -200,7 +204,20 @@ namespace NC2E2
                 if (foregroundPart)
                 {
                     const auto controllingPlayer = Read<std::uint32_t>(display, 0x7C);
-                    if ((flags & 4u) == 0 || controllingPlayer >= 16u || (Read<std::uint16_t>(logic, 8) & (1u << controllingPlayer)) != 0) DrawMoveablesOnField(display, logic, point, bitmap, x, y);
+                    if ((flags & 4u) == 0 || controllingPlayer >= 16u || (Read<std::uint16_t>(logic, 8) & (1u << controllingPlayer)) != 0)
+                    {
+                        // Windows foreground house branch 0049180A..0049189E.
+                        if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0)
+                        {
+                            const auto id = Read<std::uint16_t>(logic, 4);
+                            if ((flags & 0x30000u) != 0x30000u) DrawAtom_House_DoDraw(id, bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
+                            Write(display, 0x9C, Read<std::uint32_t>(display, 0x9C) + 1u);
+                            const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize;
+                            const auto state = Read<std::uint32_t>(house, 0x2C);
+                            if ((state == 3 || state == 2) && NC2Logic::House_HitPoints_IsDamaged(house)) Write(display, 0xA0, Read<std::uint32_t>(display, 0xA0) + 1u);
+                        }
+                        DrawMoveablesOnField(display, logic, point, bitmap, x, y);
+                    }
                 }
                 if ((flags & 1u) == 0 || (flags & 0x40000u) != 0 || !staticPart || Read<std::uint8_t>(logic, 0) != 4) continue;
                 Point origin{static_cast<std::int16_t>(point[0] + Read<std::int8_t>(logic, 2)), static_cast<std::int16_t>(point[1] + Read<std::int8_t>(logic, 3))};
@@ -219,6 +236,6 @@ namespace NC2E2
                 EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(originLogic, 3) : 0u, bitmap, Add(x, Sub(originPixel[0], sourcePixel[0])), Add(y, Sub(originPixel[1], sourcePixel[1])), phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
             }
         }
-        E2HumanSoundManager_PlayGenericSounds(gE2HumanSoundManager, display);
+        if (foregroundPart && Read<std::uint8_t>(display, 0x6C) != 0 && NDSManager::CManager::sTheObjectPtr != nullptr) E2HumanSoundManager_PlayGenericSounds(gE2HumanSoundManager, display);
     }
 }

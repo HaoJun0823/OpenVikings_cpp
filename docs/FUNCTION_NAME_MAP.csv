@@ -2190,3 +2190,22 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0048F580,HouseRecord_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
 0048F58F,HouseLogicData_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
 0048F5A1,HouseDoorPoints_Construct,,,Windows ASM/Game.exe establish behavior and field roles; semantic reconstruction name; no exact separate Mac symbol established
+00495B57,NC2E2::DrawAtom_House_DoDraw,NC2E2::DrawAtom_House_DoDraw,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00496594,NC2E2::ls_DrawAtom_House_DoDraw_PrintImageBob,NC2E2::ls_DrawAtom_House_DoDraw_PrintImageBob,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049660E,DestroyHouseDebugColor,,,Windows ASM/Game.exe establish behavior; semantic reconstruction name; exact separate Mac symbol unresolved
+00496A95,NC2E2::DrawAtom_House_Tool_UpdateFirePoints,NC2E2::DrawAtom_House_Tool_UpdateFirePoints,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00496B79,NC2E2::DrawAtom_House_Tool_CreateDestroySmokeParticelForward,NC2E2::DrawAtom_House_Tool_CreateDestroySmokeParticelForward,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00496C02,NC2E2::DrawAtom_House_Tool_CreateDestroySmokeParticelBack,NC2E2::DrawAtom_House_Tool_CreateDestroySmokeParticelBack,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004341C0,NC2Logic::House_ActionOverlay_IsActive,NC2Logic::CHouse::ActionOverlay_IsActive,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0043423E,NC2Logic::House_LandscapeOverlay_IsActive,NC2Logic::CHouse::LandscapeOverlay_IsActive,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+00434C1A,NC2Logic::House_HitPoints_IsDamaged,NC2Logic::CHouse::HitPoints_IsDamaged,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0047D0EF,NC2E2::Display_DE_ObjectsToMark_House_GetMarkType,NC2E2::C2DEngineDisplay::DE_ObjectsToMark_House_GetMarkType,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049BBA4,NXBasics::BobManager_PrintBob_FX_DrawOutline_Lines,,,Windows ASM/Game.exe establish behavior; semantic reconstruction name; exact separate Mac symbol unresolved
+0049DA62,NXBasics::BobManager_PrintBob_UsingTimeMask,NXBasics::CBobManager::PrintBob_UsingTimeMask,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049DDF8,NXBasics::BobManager_PrintBob_UsingCollapseTimeMask,NXBasics::CBobManager::PrintBob_UsingCollapseTimeMask,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049E1B7,NXBasics::BobManager_PrintBob_UsingRangedCollapseTimeMask,NXBasics::CBobManager::PrintBob_UsingRangedCollapseTimeMask,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049E5A3,NXBasics::l_PrintTimeMask_BottomUpScanTimeMask,NXBasics::CBobManager::l_PrintTimeMask_BottomUpScanTimeMask,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0049E618,NXBasics::BobManager_PrintBob_Shadow_TimeMask,NXBasics::CBobManager::PrintBob_Shadow_TimeMask,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+004396DC,NXBasics::Font_PrintCharacter,NXBasics::CFont::PrintCharacter,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0040EC57,NXBasics::CBitmap::Text_Print,NXBasics::CBitmap::Text_Print,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0040ED30,NXBasics::CBitmap::Text_PrintV,NXBasics::CBitmap::Text_PrintV,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
