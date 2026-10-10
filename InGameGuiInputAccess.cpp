@@ -49,8 +49,8 @@ namespace NC2InGameGuiInputManager
     const void* Selection_GetSelectedRoadBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 10) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA8, 0xFFFFFFFFu); return static_cast<std::byte*>(manager) + 0xAA8; }
     // Original function: FUN_004b762d.
     const void* Selection_GetSelectedWallBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 11) NC2Lifetime::Write<std::uint32_t>(manager, 0xAAC, 0xFFFFFFFFu); return static_cast<std::byte*>(manager) + 0xAAC; }
-    // Original function: FUN_004b7e92; complete 29-entry Windows jump table 004B7F23..004B7F96.
-    const char* StringTool_GetInputModeNamePtr(const void* manager) { const auto mode = Input_Read<std::uint32_t>(manager, 0); return mode <= 28 ? NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(mode + 10) : "<UNKNOWN>"; }
+    // Original function: FUN_004b7e92; all 29 native cases use miscellaneous table 2 via 004E1E35.
+    const char* StringTool_GetInputModeNamePtr(const void* manager) { const auto mode = Input_Read<std::uint32_t>(manager, 0); return mode <= 28 ? NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(mode + 10) : "<UNKNOWN>"; }
 
     struct SInputManagerTargetPointSearch
     {

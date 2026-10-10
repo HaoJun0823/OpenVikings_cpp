@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Cursor text and chest-arrival correction - 2026-10-10
+
+The construction cursor's <1:22:NOT DEFINED!> comes from using GUI table 1 instead of native miscellaneous table 2 for all 29 input-mode captions. The chest crash comes from two hexadecimal task IDs mistranslated as decimal in arrival completion: chest 0x12 must be 18, and vehicle entry 0x15 must be 21. Both existing bodies are corrected from Windows ASM/Game.exe; six affected/integration units passed Win32 `/Zs`. No build, tests or runtime run occurred. Coverage remains **4161 / 5062 (82.20%)**. See [GUI_INPUT_AND_CHEST_FIX.md](GUI_INPUT_AND_CHEST_FIX.md). User-owned CombatTasks remain untouched. Next broader block remains queued vehicle attachment/detachment and remaining campaign dependencies.
+
 ## Main-menu indexing and audio/music/video checkpoint - 2026-10-10
 
 The reported post-loading main-menu access violation was traced to a typed landscape pointer whose native 0x9C stride had been applied twice. The index now applies the stride once, matching Windows ASM; commit `9ceab5a` contains the correction and withdraws the earlier incorrect stride claim. Ton/music/video source coverage is now **138 / 138 (100%)** for the identified thematic inventory. The old 139 denominator mistakenly included program-start callback 00403487, now assigned to the system category without counting it as implemented.

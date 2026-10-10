@@ -849,8 +849,9 @@ namespace NC2Logic
             return;
         }
         const auto target = Read<std::uint32_t>(human, 0xA68);
-        if (target == 6) Write<std::uint32_t>(human, 0x368, 15);
-        else if (target == 2 && Read<std::uint32_t>(human, 0xAD0) == 64) Write<std::uint32_t>(human, 0x368, 12);
+        // Native task 0x15 enters a vehicle; task 0x12 opens a chest.
+        if (target == 6) Write<std::uint32_t>(human, 0x368, 21);
+        else if (target == 2 && Read<std::uint32_t>(human, 0xAD0) == 64) Write<std::uint32_t>(human, 0x368, 18);
         else if (Read<std::uint32_t>(human, 0xACC) == 1)
         {
             Write<std::uint32_t>(human, 0x368, 16);
