@@ -86,6 +86,7 @@ namespace NC2E2
     std::int32_t DE_GetDisplayedCenterWorldYPosition(const void* display);
     void Display_DrawTooltipOverlay_External_House(void* display, std::uint32_t houseId, NXBasics::CBitmap* bitmap, bool showGoods);
     void Display_DrawTooltipOverlay_External_Vehicle(void* display, std::uint32_t vehicleId, NXBasics::CBitmap* bitmap, bool showGoods);
+    void DE_SpecialFX_Earthquake_Start(void* display, std::uint32_t durationMilliseconds);
     void WorldMusic_UpdateVisiblePlayerSelection();
     bool Tool_Sound_IsDMUsable();
     bool Tool_Sound_IsCDAUsable();

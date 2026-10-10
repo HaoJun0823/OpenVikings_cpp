@@ -1125,6 +1125,15 @@ namespace NC2E2
         return true;
     }
 
+    // Original function: FUN_0047dbcf.
+    void DE_SpecialFX_Earthquake_Start(void* display, std::uint32_t durationMilliseconds)
+    {
+        const auto endTime = ::timeGetTime() + durationMilliseconds;
+        Display_WriteField(display, 0x944, 0u);
+        Display_WriteField(display, 0x948, 0u);
+        Display_WriteField(display, 0x940, endTime);
+    }
+
     // Original function: FUN_0047dbf3; l_DE_SpecialFX_Earthquake_Update.
     static void Display_UpdateEarthquake(void* display)
     {

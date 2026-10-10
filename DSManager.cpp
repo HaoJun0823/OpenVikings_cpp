@@ -343,20 +343,7 @@ namespace NDSManager
 
         if (deviceToRelease != nullptr)
         {
-            auto* storage = static_cast<std::byte*>(deviceToRelease);
-
-            // Inline the device-wrapper destruction from FUN_0040523c.
-            IDirectSound8* device;
-            std::memcpy(&device, storage, sizeof(device));
-
-            if (device != nullptr)
-            {
-                device->Release();
-
-                device = nullptr;
-                std::memcpy(storage, &device, sizeof(device));
-            }
-
+            SoundDevice_Destroy(deviceToRelease);
             NXBasics::Runtime_Free(deviceToRelease);
         }
 
@@ -867,6 +854,20 @@ namespace NDSManager
         active = 0;
     }
 
+    // Original function: FUN_0040523c; release the interface without freeing wrapper storage.
+    // No corresponding Mac class name is established for this Windows-only wrapper.
+    void SoundDevice_Destroy(void* soundDevice)
+    {
+        IDirectSound8* device;
+        std::memcpy(&device, soundDevice, sizeof(device));
+        if (device != nullptr)
+        {
+            device->Release();
+            device = nullptr;
+            std::memcpy(soundDevice, &device, sizeof(device));
+        }
+    }
+
     // Original function: FUN_00405250
     // Descriptive reconstruction name; the original Windows class name is unknown.
     std::int32_t SoundDevice_Initialize(void* soundDevice, void* window, std::uint32_t cooperativeLevel, std::uint32_t channels, std::uint32_t samplesPerSecond, std::uint32_t bitsPerSample)
@@ -982,16 +983,8 @@ namespace NDSManager
         if (context == nullptr)
             return NXBasics::Runtime_TimeSigned32(0x8007000Eu);
 
-        // Inline initialization from FUN_0040575a; other bytes remain untouched.
-        std::memset(context, 0, 0x12);
-
-        HMMIO file = nullptr;
-        const std::uint32_t zero = 0;
+        Wave_Construct(context);
         const std::uint32_t one = 1;
-
-        std::memcpy(context + 0x14, &file, sizeof(file));
-        std::memcpy(context + 0x40, &zero, sizeof(zero));
-        std::memcpy(context + 0x44, &zero, sizeof(zero));
 
         std::memcpy(context, waveFormat, 0x12);
         std::memcpy(context + 0x48, &samples, sizeof(samples));
@@ -1350,6 +1343,19 @@ namespace NDSManager
         buffer->GetStatus(&status);
 
         return status & 1u;
+    }
+
+    // Original function: FUN_0040575a; initialize only the native constructor fields.
+    // No corresponding Mac class name is established for this Windows-only context.
+    void* Wave_Construct(void* waveContext)
+    {
+        auto* storage = static_cast<std::byte*>(waveContext);
+        std::memset(storage, 0, 0x12);
+        const std::uint32_t zero = 0;
+        std::memcpy(storage + 0x14, &zero, sizeof(zero));
+        std::memcpy(storage + 0x40, &zero, sizeof(zero));
+        std::memcpy(storage + 0x44, &zero, sizeof(zero));
+        return waveContext;
     }
 
     // Original function: FUN_0040577a

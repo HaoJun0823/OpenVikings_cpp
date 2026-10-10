@@ -727,5 +727,19 @@ namespace NInGameGuiManager
     }
 }
 
+namespace NC2LogicExternals
+{
+    // Original function: FUN_004a3126; the GUI desktop owns the main display.
+    void External_FX_Earthquake_Start(std::uint32_t durationMilliseconds)
+    {
+        const auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (manager == nullptr) return;
+        const void* desktop = NC2Lifetime::Read<void*>(manager, 4);
+        if (desktop == nullptr) return;
+        void* display = NC2Lifetime::Read<void*>(desktop, 0x30);
+        if (display != nullptr) NC2E2::DE_SpecialFX_Earthquake_Start(display, durationMilliseconds);
+    }
+}
+
 // ABI adapter for original Windows member 004A0E9D.
 void __fastcall InGameGuiManager_Selection_UpdateWindows(void* manager) { static_cast<NInGameGuiManager::CInGameGuiManager*>(manager)->Selection_UpdateWindows(); }

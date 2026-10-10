@@ -6,6 +6,7 @@
 namespace NDSManager
 {
     bool ls_WaveFile_Load(void* soundDevice, const char* fileName, void** sound, std::uint8_t** waveData);
+    void SoundDevice_Destroy(void* soundDevice);
     std::int32_t SoundDevice_Initialize(void* soundDevice, void* window, std::uint32_t cooperativeLevel, std::uint32_t channels, std::uint32_t samplesPerSecond, std::uint32_t bitsPerSample);
     std::int32_t SoundDevice_SetPrimaryFormat(void* soundDevice, std::uint32_t channels, std::uint32_t samplesPerSecond, std::uint32_t bitsPerSample);
     std::int32_t Sound_CreateFromMemory(void* soundDevice, void** sound, std::uint8_t* samples, std::uint32_t sampleBytes, const void* waveFormat, std::uint32_t flags);
@@ -18,6 +19,7 @@ namespace NDSManager
     std::int32_t Sound_Stop(void* sound);
     std::int32_t Sound_ResetPosition(void* sound);
     std::uint32_t Sound_IsPlaying(void* sound);
+    void* Wave_Construct(void* waveContext);
     std::int32_t Wave_Reset(void* waveContext);
     std::int32_t Wave_Read(void* waveContext, void* destination, std::uint32_t requestedBytes, std::uint32_t* bytesRead);
 

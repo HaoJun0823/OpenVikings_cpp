@@ -31,6 +31,9 @@
 #include "C2StringAccess.h"
 #include "C2UserMessageAccess.h"
 #include "DSManager.h"
+#include "MasterControlProgram.h"
+#include "XCrtFileAccess.h"
+#include "InGameGuiManager.h"
 
 namespace NC2Logic
 {
@@ -485,6 +488,13 @@ namespace NC2Logic
             }
             break;
         }
+        case 26:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, p[0], MapMigPoint_GetLong(&point), 0);
+            break;
+        }
         case 27:
             TributeManager_CreateTribute(gTributeManager, p[1], p[2], p[0]);
             (static_cast<STributeData*>(gTributeManager) + p[0])->descriptionStringId = p[3];
@@ -575,6 +585,17 @@ namespace NC2Logic
             if (Read<std::uint8_t>(gGameControl, offset) == 0) Write<std::uint8_t>(gGameControl, offset, 1);
             break;
         }
+        case 48:
+        {
+            char fileName[100];
+            NXBasics::Runtime_PrintString(fileName, "seq_%4.4d", NXBasics::Runtime_TimeSigned32(p[0]));
+            NC2LogicExternals::External_Misc_PropertyString_AddString("start_fmv", fileName);
+            break;
+        }
+        case 62:
+            NC2LogicExternals::External_FX_Earthquake_Start(p[0] * 1000u);
+            if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\misc\\earthquak.wav", 100, 0xFFFFFFFFu, 1, false, false, 100);
+            break;
         case 63:
         {
             const auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]);

@@ -2290,3 +2290,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00434259,NC2Logic::House_LandscapeOverlay_SetActive,NC2Logic::CHouse::LandscapeOverlay_SetActive,7364,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
 004345F2,NC2Logic::House_IsMilitarySectorType,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
 00498F2A,NC2E2::Display_DrawTooltipOverlay_StringV,NC2E2::C2DEngineDisplay::l_DE_DrawTooltipOverlay_StringV,5044,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+0040523C,NDSManager::SoundDevice_Destroy,,,Windows-only outlined entry; release order and wrapper ownership established from Windows ASM; no Mac naming correspondence established
+0040575A,NDSManager::Wave_Construct,,,Windows-only outlined entry; native fields and constructor return established from Windows ASM; no Mac naming correspondence established
+0047DBCF,NC2E2::DE_SpecialFX_Earthquake_Start,NC2E2::C2DEngineDisplay::DE_SpecialFX_Earthquake_Start,5028,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+004A3126,NC2LogicExternals::External_FX_Earthquake_Start,NC2LogicExternals::External_FX_Earthquake_Start,5988,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only

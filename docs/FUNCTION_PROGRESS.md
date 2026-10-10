@@ -1,5 +1,13 @@
 # Windows function mapping progress
 
+## Main-menu indexing and audio/music/video checkpoint - 2026-10-10
+
+The reported post-loading main-menu access violation was traced to a typed landscape pointer whose native 0x9C stride had been applied twice. The index now applies the stride once, matching Windows ASM; commit `9ceab5a` contains the correction and withdraws the earlier incorrect stride claim. Ton/music/video source coverage is now **138 / 138 (100%)** for the identified thematic inventory. The old 139 denominator mistakenly included program-start callback 00403487, now assigned to the system category without counting it as implemented.
+
+Separate native DirectSound wrapper destruction and wave construction are connected. Missions now reach PlaySound (26), film property/state transition (48) and earthquake FX/sound (62), including both native earthquake start helpers. This adds four mapped addresses and 34 supported script occurrences; mixed mission/engine dispatchers remain partial and excluded. See [AUDIO_MUSIC_VIDEO_COMPLETION.md](AUDIO_MUSIC_VIDEO_COMPLETION.md).
+
+**4161 / 5062 (82.20%)** global source-address coverage; **901** open entries, **272 cpp / 252 headers**, **2295 naming rows / 52 unfinished boundaries**. Twelve unique affected/integration units passed Win32 `/Zs`; project/filter and naming checks passed. Existing GUI C4805 warnings are unrelated. No build, tests or game run occurred. Source coverage is not confirmed playback; the external DirectMusic driver and general CRT math-error paths remain outside this block. User-owned untracked CombatTasks remain untouched and excluded. Next logical block: queued vehicle attachment/detachment and remaining mission resource/object/combat dependencies.
+
 ## Building helpers, overlays and mission operations - 2026-10-10
 
 The known house-helper block, house-area engine callback and building tooltip/debug passes are now connected. Ten building goal branches and seven result branches add construction/discovery/stock/area checks, extension replacement, damage, onscreen counts, overlay and behavior flags. Native production call order and the building-animation preflight are corrected. All 116 known candidates in 00430FCE..00434CCF are mapped. See [BUILDING_COMPLETION.md](BUILDING_COMPLETION.md) and [BUILDING_LIST.md](BUILDING_LIST.md).

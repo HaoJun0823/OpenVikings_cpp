@@ -3,6 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 
+namespace NC2LogicExternals
+{
+    void External_FX_Earthquake_Start(std::uint32_t durationMilliseconds);
+}
+
 namespace NC2InGameGuiBaseTextInputElement { class CStringInputHandler; }
 namespace NC2Logic { class CIoHelper; }
 
