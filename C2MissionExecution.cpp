@@ -5,6 +5,10 @@
 #include "C2GameControlNetwork.h"
 #include "C2GameMapAccess.h"
 #include "C2HumanIterator.h"
+#include "C2VehicleIterator.h"
+#include "C2VehicleAccess.h"
+#include "C2MapGeometry.h"
+#include "C2TributeAccess.h"
 #include "C2MissionStartObjects.h"
 #include "C2LogicObjectArrays.h"
 #include "C2CampaignStaticDataManager.h"
@@ -112,11 +116,46 @@ namespace NC2Logic
     // Partial original function: FUN_0041e45e; remaining object/area/combat predicates are tracked.
     bool MissionManager_l_CheckGoal(void* manager, const SMissionGoal& goal)
     {
+        const auto* p = goal.parameters;
         switch (goal.type)
         {
         case 0: return true;
+        case 11:
+            for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
+            {
+                const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                const void* point = Human_GetMapPositionRef(human);
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
+            }
+            return false;
+        case 12:
+            for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
+            {
+                const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+                const void* point = Vehicle_GetMapPositionRef(vehicle);
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
+            }
+            return false;
+        case 18: return MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]) == -1;
+        case 19: return MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]) == -1;
+        case 20: return MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]) == -1;
+        case 21: return NXBasics::Runtime_TimeSigned32(p[0]) < 20 && Read<std::uint8_t>(gGameControl, p[0] * 0x4A80u + 8u) != 0;
+        case 22:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            CHumanIterator humans;
+            if (humans.GetFirstHumanId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[3])) != -1) return true;
+            CVehicleIterator vehicles;
+            return vehicles.GetFirstVehicleId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[3])) != -1;
+        }
         case 24: return GameControl_Diplomacy_GetState(gGameControl, NXBasics::Runtime_TimeSigned32(goal.parameters[0]), NXBasics::Runtime_TimeSigned32(goal.parameters[1])) == NXBasics::Runtime_TimeSigned32(goal.parameters[2]);
         case 29: return MissionManager_l_CheckMission(manager, GetMission(manager, goal.parameters[0]), false);
+        case 30:
+        {
+            const auto* tribute = static_cast<const STributeData*>(gTributeManager) + p[0];
+            return tribute->allocated != 0 && tribute->paid != 0;
+        }
         case 31:
         {
             CHumanIterator iterator;
@@ -181,6 +220,11 @@ namespace NC2Logic
         case 18: AIManager_EntryPoint_Condition_ExternalActivate_SetFlag(gAIManager, p[0], p[1], p[2] != 0); break;
         case 19: GameControl_Diplomacy_SetState(gGameControl, nullptr, p[0], p[1], p[2]); break;
         case 20: Write<std::uint8_t>(GetMission(manager, p[0]), 0x24, p[1] != 0); break;
+        case 27:
+            TributeManager_CreateTribute(gTributeManager, p[1], p[2], p[0]);
+            (static_cast<STributeData*>(gTributeManager) + p[0])->descriptionStringId = p[3];
+            break;
+        case 28: TributeManager_AddTribute(gTributeManager, p[0], p[1], p[2]); break;
         case 32: Write(manager, 0x0C, p[0]); Write(manager, 0x10, p[1]); Write<std::uint8_t>(manager, 8, 1); break;
         case 33: Write<std::uint8_t>(manager, 0x14, 1); break;
         case 36:

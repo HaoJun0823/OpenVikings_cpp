@@ -10,6 +10,15 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042a98a; SetPosition returns the destination pointer.
+    void* MapMigPoint_SetPosition(void* packedMigPoint, std::int16_t x, std::int16_t y, bool validate)
+    {
+        std::memcpy(packedMigPoint, &x, 2);
+        std::memcpy(static_cast<std::byte*>(packedMigPoint) + 2, &y, 2);
+        if (validate) MapMigPoint_WrapPosition(packedMigPoint);
+        return packedMigPoint;
+    }
+
     // Original function: FUN_0042aa34; coordinate constructor uses wrapping validation.
     void MapMigPoint_Construct(void* packedMigPoint, std::int16_t x, std::int16_t y, bool validate)
     {

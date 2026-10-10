@@ -1,5 +1,15 @@
 # Windows function mapping progress
 
+## Campaign position/death conditions and tribute checkpoint - 2026-10-10
+
+Eight native goal branches now evaluate human/vehicle mission-ID positions, player human/vehicle radius searches, object/player death and allocated/paid tribute flags. Script CreateTribute/AddTributeGoods now reach four reconstructed native leaves and the existing diplomacy GUI/network payment/stock-removal chain. Complete 3Ch tribute layout is named without changing raw saves or unknown padding. Distinct native SMapMigPoint::SetPosition is reconstructed and used by the player radius search. See [CAMPAIGN_CONDITIONS_AND_TRIBUTES.md](CAMPAIGN_CONDITIONS_AND_TRIBUTES.md).
+
+**4117 / 5062 (81.33%)** source-address coverage, **945** known entries open; **272 cpp / 252 headers**, **2252 naming rows / 57 unfinished boundaries**. Five original entries are newly mapped; the enclosing goal/result dispatchers remain partial and excluded. Eight affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe establish behavior; Mac supplies names only. No build, tests or game run occurred. User-owned untracked CombatTasks remain untouched and excluded.
+
+The refreshed 35-asset audit connects 818 previously missing goal occurrences and 113 result occurrences; story-only changes are 777 and 109. Remaining story source branches: 21 goal types / 185 occurrences and 63 result types / 1,437 occurrences; all assets: 30 / 277 and 69 / 1,560. These are static script counts, not gameplay completion. PlayerDied's predicate is connected; periodic automatic player defeat in 00409BCC and player-leaves/object modification, broader vehicle/AI work and other script actions remain unfinished. See [CAMPAIGN_MAP_ROUTINES.md](CAMPAIGN_MAP_ROUTINES.md).
+
+Next logical block: campaign object creation/removal/ownership and commands, starting with first-map ChangeHousesPlayerId and cruise SendVehicle/SelectHuman; then remaining object/resource/combat predicates and wonder/resource/overlay actions. Follow native helpers through their actual dependencies; preserve still-open engine/weather/drawing boundaries.
+
 ## Campaign result/submap lifecycle checkpoint - 2026-10-10
 
 Windows MissionWon/MissionFailed/AllowMap results now set their original flags, print strings, dispatch local-player jingles and multiplayer trigger leaves, and persist scripted map unlocks. StartSubMission/EndSubMission requests now execute the complete parent save/load/embed/restore/remove/callback orchestration. The mission scan returns false immediately after either transition without accessing a replaced manager. SetImportHumanFlag modifies the original human flag byte for matching mission-check IDs. The existing control override consumer and GUI submap callbacks were verified; no generic character-transfer routine is inferred. Maptype 00510830 is named within its unchanged save layout, and shared string-output 004A30C0 recovers its original external name. See [CAMPAIGN_LIFECYCLE.md](CAMPAIGN_LIFECYCLE.md).

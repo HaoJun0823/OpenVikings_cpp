@@ -32,6 +32,7 @@ namespace NC2Logic
     void MapMagPoint_CutInsideMap(void* packedMagPoint);
     void* MapMigPoint_ConstructFromMag(void* packedMigPoint, const void* packedMagPoint, bool validate);
     void MapMigPoint_Construct(void* packedMigPoint, std::int16_t x, std::int16_t y, bool validate);
+    void* MapMigPoint_SetPosition(void* packedMigPoint, std::int16_t x, std::int16_t y, bool validate);
     bool MapMigPoint_MoveCursorWrapped(void* packedMigPoint, std::uint32_t direction);
     void MapMagPoint_MoveCursorWrapped(void* packedMagPoint, std::uint32_t direction);
     void MapMagPoint_MoveCursorUnwrapped(void* packedMagPoint, std::uint32_t direction);

@@ -12,6 +12,19 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_00419e8e; the script-provided slot is unchecked.
+    void TributeManager_CreateTribute(void* manager, std::uint32_t sourcePlayer, std::uint32_t targetPlayer, std::uint32_t slot)
+    {
+        TributeData_Init(static_cast<STributeData*>(manager) + slot, sourcePlayer, targetPlayer);
+    }
+
+    // Original function: FUN_00419ea9; inactive records do not accept goods.
+    void TributeManager_AddTribute(void* manager, std::uint32_t slot, std::uint32_t good, std::uint32_t amount)
+    {
+        auto* tribute = static_cast<STributeData*>(manager) + slot;
+        if (tribute->allocated != 0) TributeData_AddTribute(tribute, good, amount);
+    }
+
     // Original function: FUN_00419ed5.
     std::uint32_t TributeManager_CountGoodAmountForTribute(std::uint32_t player, std::uint32_t good)
     {
@@ -25,6 +38,34 @@ namespace NC2Logic
         }
         return total;
     }
+    // Original function: FUN_0043e55c; unused goods and padding are deliberately retained.
+    void TributeData_Init(STributeData* tribute, std::uint32_t sourcePlayer, std::uint32_t targetPlayer)
+    {
+        tribute->goodCount = 0;
+        tribute->descriptionStringId = 0xFFFFFFFFu;
+        tribute->sourcePlayer = sourcePlayer;
+        tribute->paid = 1;
+        tribute->targetPlayer = targetPlayer;
+        tribute->allocated = 1;
+    }
+
+    // Original function: FUN_0043e57c; matching goods merge even when all five slots are used.
+    bool TributeData_AddTribute(STributeData* tribute, std::uint32_t good, std::uint32_t amount)
+    {
+        std::uint32_t index = 0;
+        while (index < tribute->goodCount && tribute->goods[index].good != good) ++index;
+        if (index == tribute->goodCount)
+        {
+            if (tribute->goodCount >= 5) return false;
+            tribute->goods[index].good = good;
+            tribute->goods[index].amount = amount;
+            ++tribute->goodCount;
+        }
+        else tribute->goods[index].amount += amount;
+        tribute->paid = 0;
+        return true;
+    }
+
     // Original function: FUN_0043e5cc; the original demand is copied before aggregation.
     bool TributeData_Possible(const void* tribute)
     {
