@@ -9,10 +9,28 @@
 #include "C2OverviewObjectIterators.h"
 #include "XStringArray.h"
 #include "XCrtFileAccess.h"
+#include <cstring>
 
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_004171e7; broadcast targets only allocated players.
+    void MissionOnscreenInfoManager_Info_Set(void* manager, std::uint32_t player, std::uint32_t index, std::uint32_t type, std::uint32_t string, std::uint32_t a, std::uint32_t b, std::uint32_t c, std::uint32_t d, std::uint32_t e, std::uint32_t f, std::uint32_t g, std::uint32_t h)
+    {
+        if (NXBasics::Runtime_TimeSigned32(index) < 0 || NXBasics::Runtime_TimeSigned32(index) >= 5) return;
+        const auto set = [&](std::uint32_t owner)
+        {
+            void* entry = static_cast<std::byte*>(manager) + (owner * 5u + index) * 40u;
+            std::memset(entry, 0, 40);
+            const std::uint32_t values[10] = {type, string, a, b, c, d, e, f, g, h};
+            for (std::uint32_t field = 0; field < 10; ++field) Write(entry, field * 4u, values[field]);
+        };
+        if (player == 0xFFFFFFFFu || player == 20)
+        {
+            for (std::uint32_t owner = 0; owner < 20; ++owner) if (Read<std::uint8_t>(gGameControl, owner * 0x4A80u) != 0) set(owner);
+        }
+        else if (NXBasics::Runtime_TimeSigned32(player) >= 0 && player < 20 && Read<std::uint8_t>(gGameControl, player * 0x4A80u) != 0) set(player);
+    }
     // Original function: FUN_00417323.
     const void* MissionOnscreenInfoManager_Info_GetPtr(const void* manager, std::int32_t player, std::int32_t index)
     {

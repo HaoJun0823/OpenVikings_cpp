@@ -23,6 +23,7 @@
 #include "C2MapGeometry.h"
 #include "C2TributeAccess.h"
 #include "C2MissionStartObjects.h"
+#include "C2MissionOnscreenInfoAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "C2CampaignStaticDataManager.h"
 #include "C2MultiPlayerGoalAccess.h"
@@ -133,6 +134,40 @@ namespace NC2Logic
         switch (goal.type)
         {
         case 0: return true;
+        case 3:
+        {
+            CHouseIterator iterator;
+            std::uint32_t count = 0;
+            bool fulfilled = false;
+            for (auto id = iterator.GetFirstHouseId(p[0]); id != -1; id = iterator.GetNextHouseId())
+            {
+                void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (Read<std::uint32_t>(house, 0x14) != p[1] || Read<std::uint32_t>(house, 0x2C) != 3) continue;
+                ++count;
+                Write(house, 0x7CC, p[3]);
+                if (NXBasics::Runtime_TimeSigned32(count) >= NXBasics::Runtime_TimeSigned32(p[2])) fulfilled = true;
+            }
+            return fulfilled;
+        }
+        case 5:
+        {
+            std::uint32_t count = 0;
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id))
+            {
+                const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                count += House_Stock_GetAmountOfGoods(house, p[1], false);
+                if (NXBasics::Runtime_TimeSigned32(count) >= NXBasics::Runtime_TimeSigned32(p[2])) return true;
+            }
+            return false;
+        }
+        case 10:
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[1]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[1], id))
+            {
+                const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                const void* micro = GameMap_GetConstMapMicroPointPtr(House_GetMapPositionRef(house));
+                if (p[0] >= 16 || (Read<std::uint16_t>(micro, 8) & (1u << p[0])) != 0) return true;
+            }
+            return false;
         case 11:
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
             {
@@ -149,6 +184,28 @@ namespace NC2Logic
                 if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]))) <= p[3]) return true;
             }
             return false;
+        case 16:
+            for (auto humanId = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); humanId != -1; humanId = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], humanId))
+            {
+                const void* point = Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize);
+                for (auto houseId = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[1]); houseId != -1; houseId = MissionCheck_GetNextHouseIdWithMissionCheckId(p[1], houseId))
+                {
+                    const void* target = House_GetMapPositionRef(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize);
+                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))) <= p[2]) return true;
+                }
+            }
+            return false;
+        case 17:
+            for (auto vehicleId = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); vehicleId != -1; vehicleId = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], vehicleId))
+            {
+                const void* point = Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleId) * CVehicleArray::ElementSize);
+                for (auto houseId = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[1]); houseId != -1; houseId = MissionCheck_GetNextHouseIdWithMissionCheckId(p[1], houseId))
+                {
+                    const void* target = House_GetMapPositionRef(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize);
+                    if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))) <= p[2]) return true;
+                }
+            }
+            return false;
         case 18: return MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]) == -1;
         case 19: return MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]) == -1;
         case 20: return MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]) == -1;
@@ -162,7 +219,33 @@ namespace NC2Logic
             CVehicleIterator vehicles;
             return vehicles.GetFirstVehicleId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[3])) != -1;
         }
+        case 23:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+            CHouseIterator iterator;
+            for (auto id = iterator.GetFirstHouseId(p[0]); id != -1; id = iterator.GetNextHouseId())
+            {
+                const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (Read<std::uint32_t>(house, 0x2C) == 3 && Read<std::uint32_t>(house, 0x14) == p[3] && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House_GetMapPositionRef(house)), 6) == continent) return true;
+            }
+            return false;
+        }
         case 24: return GameControl_Diplomacy_GetState(gGameControl, NXBasics::Runtime_TimeSigned32(goal.parameters[0]), NXBasics::Runtime_TimeSigned32(goal.parameters[1])) == NXBasics::Runtime_TimeSigned32(goal.parameters[2]);
+        case 25:
+        {
+            CHumanIterator iterator;
+            std::uint32_t count = 0;
+            for (auto id = iterator.GetFirstHumanId(p[0]); id != -1; id = iterator.GetNextHumanId())
+            {
+                const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                if (!Human_IsAttachedToHomeHouse(human) || !Human_IsAgeAdult(human)) continue;
+                const void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB28) * CHouseArray::ElementSize;
+                if (Read<std::uint32_t>(house, 0x2C) == 3 && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(p[1])) return true;
+            }
+            return false;
+        }
         case 29: return MissionManager_l_CheckMission(manager, GetMission(manager, goal.parameters[0]), false);
         case 30:
         {
@@ -182,6 +265,17 @@ namespace NC2Logic
         }
         case 38: return Read<std::uint8_t>(gGameControl, p[0] * 0x4A80u + p[1] * 56u + p[2] + 0x948u) != 0;
         case 39: return Read<std::uint8_t>(gGameControl, p[0] * 0x4A80u + p[1] * 66u + p[2] + 0x1D4Cu) != 0;
+        case 43:
+        {
+            CHumanIterator iterator;
+            std::uint32_t count = 0;
+            for (auto id = iterator.GetFirstHumanId(p[0]); id != -1; id = iterator.GetNextHumanId())
+            {
+                const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                if (Read<std::uint32_t>(human, 0x18) == p[1] && Human_IsAttachedToWorkHouse(human) && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(p[2])) return true;
+            }
+            return false;
+        }
         case 46: return Read<std::uint8_t>(GetMission(manager, goal.parameters[0]), 0x26) != 0;
         case 50:
         {
@@ -191,6 +285,18 @@ namespace NC2Logic
             for (std::int32_t index = 0; index < count; ++index)
                 if (Read<std::uint8_t>(mission, 0x60u + static_cast<std::uint32_t>(index) * 0x28u) != 0) ++fulfilled;
             return GoalsMatch(Read<std::int32_t>(mission, 0x34), count, fulfilled);
+        }
+        case 55:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[3]), static_cast<std::int16_t>(p[4]), false);
+            return Tool_CountHousesOnMap(p[0], p[1], point, p[5]) >= p[2];
+        }
+        case 56:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[3]), static_cast<std::int16_t>(p[4]), false);
+            return Tool_CountGoodsInHouses(p[0], p[1], point, p[5]) >= p[2];
         }
         default: return false;
         }
@@ -412,6 +518,13 @@ namespace NC2Logic
             }
             break;
         }
+        case 31:
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id))
+            {
+                void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+                if (House_Stock_CanStoreGoodType(house, p[1], false) || House_Stock_CanStoreGoodType(house, p[1], true)) House_Stock_ModifyAmount(house, nullptr, p[1], p[2], false);
+            }
+            break;
         case 32: Write(manager, 0x0C, p[0]); Write(manager, 0x10, p[1]); Write<std::uint8_t>(manager, 8, 1); break;
         case 33: Write<std::uint8_t>(manager, 0x14, 1); break;
         case 34:
@@ -469,6 +582,49 @@ namespace NC2Logic
             if (id != -1) NC2LogicExternals::External_Gui_SelectHuman(id, p[0] != 0);
             break;
         }
+        case 71:
+        {
+            std::int32_t houses[10], count = 0;
+            CHouseIterator iterator;
+            for (auto id = iterator.GetFirstHouseId(); id != -1; id = iterator.GetNextHouseId())
+            {
+                if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0x7CC) != p[0]) continue;
+                houses[count++] = id;
+                if (count == 10) break;
+            }
+            for (std::int32_t index = 0; index < count; ++index)
+            {
+                const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houses[index]) * CHouseArray::ElementSize;
+                const auto player = House_GetPlayerId(house), engineType = Read<std::uint32_t>(house, 0x10);
+                const auto point = Read<std::uint32_t>(House_GetMapPositionRef(house), 0);
+                Logic_EntryPoint_House_Remove(House_GetMapPositionRef(house));
+                Logic_EntryPoint_House_Set(player, engineType, p[1], &point, true, p[0]);
+            }
+            break;
+        }
+        case 75:
+            if (gMissionOnscreenInfoManager != nullptr) MissionOnscreenInfoManager_Info_Set(gMissionOnscreenInfoManager, p[0], p[1], 3, p[2], p[3], p[4], p[5], p[6], p[7], 0, 0, 0);
+            break;
+        case 81:
+        case 87:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[1]), static_cast<std::int16_t>(p[2]), false);
+            std::int32_t houses[100], count = 0;
+            CHouseIterator iterator;
+            for (auto id = iterator.GetFirstHouseId(p[0], &point, p[3]); id != -1; id = iterator.GetNextHouseId())
+            {
+                if (result.type == 87 && Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0x7CC) == p[5]) continue;
+                houses[count++] = id;
+                if (count == 100) break;
+            }
+            const auto delta = NXBasics::Runtime_TimeSigned32(0u - p[4]);
+            for (std::int32_t index = 0; index < count; ++index) House_HitPoints_ModifyValue(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houses[index]) * CHouseArray::ElementSize, delta);
+            break;
+        }
+        case 88:
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id)) House_LandscapeOverlay_SetActive(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NXBasics::Runtime_TimeSigned32(p[1]), p[2] != 0);
+            break;
         case 91:
         {
             std::uint32_t point;
@@ -476,6 +632,9 @@ namespace NC2Logic
             Map_HouseBuildForbiddenFlagTool_SetArea(point, NXBasics::Runtime_TimeSigned32(p[2]), p[3] != 0);
             break;
         }
+        case 93:
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id)) House_SetBehaviourFlag(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, p[1], p[2] != 0);
+            break;
         default: break;
         }
     }

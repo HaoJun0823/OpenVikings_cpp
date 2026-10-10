@@ -12,7 +12,7 @@ The installed Steam Game.exe SHA-256 differs from the assembly-reference Game.ex
 
 The remaining 00433694 branch and complete 00433A9D arrow routine are reconstructed. Defender count comes from the civilian sector list at the door with radius zero. Shots per tick are count/24 plus one while count%24 exceeds tick%24. Native searches run even with a zero shot budget and follow this order: military humans, first-list vehicles, aggressive animals, first-list houses, civilian humans, second-list vehicles, second-list houses. A search pass repeats only if it fired and still has shots left. The native five-nearest/threshold-10 selection and random-call order remain intact.
 
-Weapon 20, optional randomized launch-point graphics, signed low-word y-before-x scatter, staggered map offsets, flight time, callback 0x23 and delayed attacker-type-4 damage scheduling follow Windows. Building shots do not gain a new exploration side effect or moving-target prediction. Destruction, vehicle-site conversion and first-contact reports retain their order before defense. The delayed manager applies real damage; projectile visuals and AI group notification bodies remain open dependencies.
+Weapon 20, optional randomized launch-point graphics, signed low-word y-before-x scatter, staggered map offsets, flight time, callback 0x23 and delayed attacker-type-4 damage scheduling follow Windows. Building shots do not gain a new exploration side effect or moving-target prediction. Destruction, vehicle-site conversion and first-contact reports retain their order before defense. The delayed manager applies real damage. The later particle checkpoint connects projectile/hit/smoke callbacks; broader AI group notification bodies remain open dependencies.
 
 The existing GUI building statistics list was compared with 004B28C8..004B2A48: it already enumerates/sorts 55 types, distinguishes finished/unfinished counts, restores scroll offset, and refreshes its timestamp. It required no behavioral change in this checkpoint.
 
@@ -76,11 +76,11 @@ The existing GUI building statistics list was compared with 004B28C8..004B2A48: 
 | 53 | Pyramide | Wonder | - |
 | 54 | 8te Wunder | Wonder | - |
 
-## Address mapping still open
+## Current completion checkpoint - 2026-10-10
 
-The source-address inventory still has the following known entries in 00430FCE..00434C9F without a unique registered function body: 00431CD3, 00431DC6, 004322B6, 0043264F, 00432740, 0043322F, 00433621, 00433A95, 00433A99, 004341C0, 0043423E, 00434259, 004345F2, 00434B65, 00434C1A. Several are outlined accessors or logic already inlined at reconstructed call sites; this does not make their separate entry mapping complete. 00431CD3/00431DC6 are map-micro registration helpers, not additional building types. This list is not silently counted as finished.
+All 116 known entry candidates in 00430FCE..00434CCF now have registered bodies, including the separately outlined helpers previously listed here. Shared house logic, root/door registration, holy fire, worker/sector access, building map overlays and tooltip/debug drawing are connected. Ten building goal branches and seven building result branches now support stock/construction/discovery/area checks, extension replacement, damage, onscreen counting and overlay/behavior flags. See [BUILDING_COMPLETION.md](BUILDING_COMPLETION.md) for addresses and preserved Windows semantics.
 
-Priority after this checkpoint: remaining building helper entry mappings, visual projectile/hit/smoke callbacks, original AI defense-group notifications, vehicle/sea consumers and mission-specific wonder goals. Generic production, homes, education, automatic well/hive generation and temple effects are connected through their existing common code; runtime confirmation remains pending.
+The existing particle creation/tick/rendering block supplies building projectile/hit/smoke callbacks. General AI notifications, vehicle/sea consumers and remaining nonbuilding campaign predicates/actions are still open. No building type is claimed runtime-verified. Whole-project source-address coverage is 4157 / 5062 (82.12%), not a gameplay-completion percentage.
 
 ## Validation
 

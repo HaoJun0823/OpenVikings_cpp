@@ -109,8 +109,6 @@ namespace NC2Logic
 namespace NC2E2
 {
     // TEMPORARY DUMMY: Windows address 00482DC0; implementation pending.
-    // Naming reference: NC2E2::C2DEngineMap::OverlayPattern_HouseAreaChanged.
-    void __cdecl EngineMap_OverlayPattern_HouseAreaChanged(void const *, bool) {}
 
     // TEMPORARY DUMMY: Windows address 00489DE0; implementation pending.
     // Naming reference: NC2E2::CMacroMapManager::CMacroMapManager.
@@ -145,7 +143,6 @@ void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void *) {}
 
 // TEMPORARY DUMMY: Windows address 004986C5; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_DrawTooltipOverlays.
-void __fastcall Display_l_DE_DrawTooltipOverlays(void *, void *, short const *, NXBasics::CBitmap *, int const *) {}
 
 // TEMPORARY DUMMY: Windows address 004990E4; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_Debug_DrawMapMoveablesDebugInfos.
@@ -153,7 +150,6 @@ void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void *) {}
 
 // TEMPORARY DUMMY: Windows address 0049938D; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_Debug_DrawHousesDebugInfos.
-void __fastcall Display_l_DE_Debug_DrawHousesDebugInfos(void *) {}
 
 // TEMPORARY DUMMY: Windows address 004995D8; implementation pending.
     // Naming reference: NC2E2::C2DEngineDisplay::l_DE_Debug_DrawGridLines.

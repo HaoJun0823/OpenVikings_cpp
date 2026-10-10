@@ -346,6 +346,14 @@ namespace NC2E2
         if (enabled) Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) | ((NC2Logic::Logic_EntryPoint_Random_GetNumber() & 1u) != 0 ? 4u : 8u));
         EngineMap_l_OverlayPattern_RecalculateMacroGridData(micro);
     }
+    // Original function: FUN_00482dc0; clearing a house area consumes no random value.
+    void EngineMap_OverlayPattern_HouseAreaChanged(const void* micro, bool enabled)
+    {
+        auto* entry = const_cast<void*>(EngineMap_GetConstMapMicroPointPtr(micro));
+        Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) & 0xCFu);
+        if (enabled) Write<std::uint8_t>(entry, 2, Read<std::uint8_t>(entry, 2) | ((NC2Logic::Logic_EntryPoint_Random_GetNumber() & 1u) != 0 ? 0x10u : 0x20u));
+        EngineMap_l_OverlayPattern_RecalculateMacroGridData(micro);
+    }
     // Original function: FUN_00482df6.
     void EngineMap_l_OverlayPattern_RecalculateMacroGridData(const void* micro)
     {

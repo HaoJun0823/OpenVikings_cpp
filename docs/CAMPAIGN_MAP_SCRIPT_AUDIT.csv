@@ -124,7 +124,7 @@ _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,221,22,PL4_seen_wikinger,result,20,SetVisible,0041FEB2,24 1,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,225,23,viehzucht,goal,47,NumberOfAnimals,0041F0E3,"0 ""cattle"" 5",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,226,23,viehzucht,goal,6,GoodsGlobal,0041E60B,"0 ""meat"" 1",no
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,227,23,viehzucht,goal,3,BuildHouses,0041E528,"0 ""work animal farm"" 1 0",no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,227,23,viehzucht,goal,3,BuildHouses,0041E528,"0 ""work animal farm"" 1 0",yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,228,23,viehzucht,result,9,PlayCutscene,0041FCFE,7 1,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,229,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""civilist"" 238 422 12 0",yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,230,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""civilist"" 238 422 12 0",yes
@@ -132,7 +132,7 @@ _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,232,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""woman"" 239 420 12 0",yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,233,23,viehzucht,result,1,SetHuman,0041FA1B,"4 ""viking"" ""civilist"" 241 424 12 0",yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,234,23,viehzucht,result,21,ChangeHumanPlayerId,0041FECB,12 0,yes
-_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,238,24,bäckerei,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",no
+_campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,238,24,bäckerei,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,239,24,bäckerei,goal,6,GoodsGlobal,0041E60B,"0 ""candy"" 6",no
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,240,24,bäckerei,result,9,PlayCutscene,0041FCFE,8 1,yes
 _campaign_04_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_01\map.cif,241,24,bäckerei,result,10,ActivateMission,0041FD49,25,yes
@@ -487,7 +487,7 @@ _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,13,0,START,result,10,ActivateMission,0041FD49,2,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,14,0,START,result,20,SetVisible,0041FEB2,2 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,15,0,START,result,9,PlayCutscene,0041FCFE,0 1,yes
-_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,18,1,***maingoal1,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",no
+_campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,18,1,***maingoal1,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,19,1,***maingoal1,goal,6,GoodsGlobal,0041E60B,"0 ""bread"" 5",no
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,20,1,***maingoal1,result,9,PlayCutscene,0041FCFE,12 1,yes
 _campaign_04_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_02\map.cif,24,2,***maingoal2,goal,50,IsMissionDone,0041F1C4,11,yes
@@ -893,7 +893,7 @@ _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaig
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,17,0,START,result,47,1 Open/0 CloseWallGate,00420A6E,6 435 169 0,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,18,0,START,result,47,1 Open/0 CloseWallGate,00420A6E,6 427 171 0,no
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,19,0,START,result,47,1 Open/0 CloseWallGate,00420A6E,6 420 180 0,no
-_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,23,1,***maingoal1,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",no
+_campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,23,1,***maingoal1,goal,3,BuildHouses,0041E528,"0 ""work bakery 01"" 1 0",yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,24,1,***maingoal1,result,9,PlayCutscene,0041FCFE,24 1,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,27,2,***maingoal2,goal,50,IsMissionDone,0041F1C4,31,yes
 _campaign_04_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\_campaign_04_03\map.cif,28,2,***maingoal2,result,0,None,00422DE6,,yes
@@ -1225,7 +1225,7 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,72,7,earthquake1,goal,28,TimeGone,0041F5EA,160,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,73,7,earthquake1,result,62,StartEarthquake,00420F5F,3,no
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,74,7,earthquake1,result,10,ActivateMission,0041FD49,8,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,75,7,earthquake1,result,71,SetHouseExtensionLevel,00421633,9 0,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,75,7,earthquake1,result,71,SetHouseExtensionLevel,00421633,9 0,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,79,8,earthquake1_text,goal,28,TimeGone,0041F5EA,3,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,80,8,earthquake1_text,result,9,PlayCutscene,0041FCFE,27 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,81,8,earthquake1_text,result,10,ActivateMission,0041FD49,18,yes
@@ -1243,16 +1243,16 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,102,11,earthquake3,result,10,ActivateMission,0041FD49,12,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,106,12,earthquake3_text,goal,28,TimeGone,0041F5EA,6,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,107,12,earthquake3_text,result,9,PlayCutscene,0041FCFE,28 1,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,111,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,112,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,113,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,114,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work well 00"" 1 0",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,115,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work pottery 00"" 1 0",no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,111,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,112,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,113,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,114,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work well 00"" 1 0",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,115,13,siedlung,goal,3,BuildHouses,0041E528,"0 ""work pottery 00"" 1 0",yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,116,13,siedlung,result,0,None,00422DE6,,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,121,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 00"" 1 227 121 53",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,122,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 01"" 1 227 121 53",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,123,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 02"" 1 227 121 53",no
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,124,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""headquarters"" 1 227 121 53",no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,121,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 00"" 1 227 121 53",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,122,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 01"" 1 227 121 53",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,123,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 02"" 1 227 121 53",yes
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,124,14,build stock,goal,55,NumberOfHousesInArea,0041F64D,"0 ""headquarters"" 1 227 121 53",yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,125,14,build stock,result,9,PlayCutscene,0041FCFE,33 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,132,15,abbauer,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 341 265 23,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,133,15,abbauer,result,16,ExploreArea,0041FE17,0 341 265 23,yes
@@ -1291,7 +1291,7 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,190,21,LEVEL1,goal,50,IsMissionDone,0041F1C4,19,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,191,21,LEVEL1,goal,50,IsMissionDone,0041F1C4,30,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,192,21,LEVEL1,result,21,ChangeHumanPlayerId,0041FECB,5 3,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,193,21,LEVEL1,result,71,SetHouseExtensionLevel,00421633,9 1,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,193,21,LEVEL1,result,71,SetHouseExtensionLevel,00421633,9 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,199,22,vagabounds,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 538 275 34,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,200,22,vagabounds,result,16,ExploreArea,0041FE17,0 538 275 34,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,201,22,vagabounds,result,27,CreateTribute,00420254,1 0 5 5,yes
@@ -1358,7 +1358,7 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,294,31,LEVEL2,result,20,SetVisible,0041FEB2,44 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,295,31,LEVEL2,result,10,ActivateMission,0041FD49,37,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,296,31,LEVEL2,result,11,DeactivateMission,0041FD62,39,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,297,31,LEVEL2,result,71,SetHouseExtensionLevel,00421633,9 2,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,297,31,LEVEL2,result,71,SetHouseExtensionLevel,00421633,9 2,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,298,31,LEVEL2,result,10,ActivateMission,0041FD49,32,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,302,32,holy_fire,goal,28,TimeGone,0041F5EA,3,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,303,32,holy_fire,result,9,PlayCutscene,0041FCFE,37 1,yes
@@ -1579,7 +1579,7 @@ campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,731,82,WON_LEVEL3 ,result,39,DisableAll,00420534,,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,732,82,WON_LEVEL3 ,result,10,ActivateMission,0041FD49,83,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,733,82,WON_LEVEL3 ,result,12,MissionWon,0041FD66,0,yes
-campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,734,82,WON_LEVEL3 ,result,88,SetHouseOverlayState,00422365,9 0 1,no
+campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,734,82,WON_LEVEL3 ,result,88,SetHouseOverlayState,00422365,9 0 1,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,738,83,wonText,goal,28,TimeGone,0041F5EA,8,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,739,83,wonText,result,10,ActivateMission,0041FD49,84,yes
 campaign_03_01,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_01\map.cif,740,83,wonText,result,9,PlayCutscene,0041FCFE,50 1,yes
@@ -1681,22 +1681,22 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,38,2,under construction,result,20,SetVisible,0041FEB2,7 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,39,2,under construction,result,10,ActivateMission,0041FD49,8,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,40,2,under construction,result,16,ExploreArea,0041FE17,0 359 111 20,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,41,2,under construction,result,75,InfoCountHousesInArea,0042179F,"0 0 20 ""work well 00"" 371 114 50 0",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,41,2,under construction,result,75,InfoCountHousesInArea,0042179F,"0 0 20 ""work well 00"" 371 114 50 0",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,42,2,under construction,result,74,InfoCountGoodsInArea,00421754,"0 1 21 ""wood"" 371 114 50 0",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,43,2,under construction,result,74,InfoCountGoodsInArea,00421754,"0 2 22 ""stone"" 371 114 50 0",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,44,2,under construction,result,74,InfoCountGoodsInArea,00421754,"0 3 23 ""mud"" 371 114 50 0",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,45,2,under construction,result,74,InfoCountGoodsInArea,00421754,"0 4 24 ""tile"" 371 114 50 0",no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,49,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,50,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,51,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,52,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""home level 00"" 1 0",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,49,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",yes
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,50,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",yes
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,51,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",yes
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,52,3,siedlung,goal,3,BuildHouses,0041E528,"0 ""home level 00"" 1 0",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,53,3,siedlung,result,0,None,00422DE6,,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,57,4,goodgoal,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""wood"" 80 371 114 50",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,58,4,goodgoal,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""mud"" 40 371 114 50",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,59,4,goodgoal,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""stone"" 40 371 114 50",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,60,4,goodgoal,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""tile"" 40 371 114 50",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,61,4,goodgoal,result,0,None,00422DE6,,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,65,5,LEVEL1 wells and goods,goal,55,NumberOfHousesInArea,0041F64D,"0 ""work well 00"" 9 371 114 50",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,65,5,LEVEL1 wells and goods,goal,55,NumberOfHousesInArea,0041F64D,"0 ""work well 00"" 9 371 114 50",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,66,5,LEVEL1 wells and goods,goal,50,IsMissionDone,0041F1C4,4,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,67,5,LEVEL1 wells and goods,result,9,PlayCutscene,0041FCFE,4 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,68,5,LEVEL1 wells and goods,result,11,DeactivateMission,0041FD62,6,yes
@@ -1709,7 +1709,7 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,75,5,LEVEL1 wells and goods,result,65,RemoveGoodsFromMapArea,00421000,"""mud"" 40 371 114 50 1 0",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,76,5,LEVEL1 wells and goods,result,65,RemoveGoodsFromMapArea,00421000,"""stone"" 40 371 114 50 1 0",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,77,5,LEVEL1 wells and goods,result,65,RemoveGoodsFromMapArea,00421000,"""tile"" 40 371 114 50 1 0",no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,78,5,LEVEL1 wells and goods,result,71,SetHouseExtensionLevel,00421633,9 1,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,78,5,LEVEL1 wells and goods,result,71,SetHouseExtensionLevel,00421633,9 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,79,5,LEVEL1 wells and goods,result,78,InfoCountAnimalsInArea,0042186D,"0 5 27 ""cattle"" 488 123 70 0",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,80,5,LEVEL1 wells and goods,result,72,InfoClear,00421700,0 0,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,81,5,LEVEL1 wells and goods,result,72,InfoClear,00421700,0 1,no
@@ -1719,11 +1719,11 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,85,5,LEVEL1 wells and goods,result,73,InfoShowString,0042172C,0 0 25,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,86,5,LEVEL1 wells and goods,result,73,InfoShowString,0042172C,0 1 26,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,87,5,LEVEL1 wells and goods,result,78,InfoCountAnimalsInArea,0042186D,"0 2 27 ""cattle"" 488 123 70 0",no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,91,6,wells,goal,55,NumberOfHousesInArea,0041F64D,"0 ""work well 00"" 9 371 114 50",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,91,6,wells,goal,55,NumberOfHousesInArea,0041F64D,"0 ""work well 00"" 9 371 114 50",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,92,6,wells,result,9,PlayCutscene,0041FCFE,2 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,93,6,wells,result,72,InfoClear,00421700,0 0,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,94,6,wells,result,73,InfoShowString,0042172C,0 0 25,no
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,98,7,wellgoal,goal,55,NumberOfHousesInArea,0041F64D,"0 ""work well 00"" 9 371 114 50",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,98,7,wellgoal,goal,55,NumberOfHousesInArea,0041F64D,"0 ""work well 00"" 9 371 114 50",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,99,7,wellgoal,result,0,None,00422DE6,,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,103,8,goods,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""wood"" 80 371 114 50",no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,104,8,goods,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""mud"" 40 371 114 50",no
@@ -1763,7 +1763,7 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,154,13,LEVEL2_txt,goal,28,TimeGone,0041F5EA,3,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,155,13,LEVEL2_txt,result,9,PlayCutscene,0041FCFE,11 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,156,13,LEVEL2_txt,result,23,SendHuman,00420083,8 286 377,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,157,13,LEVEL2_txt,result,71,SetHouseExtensionLevel,00421633,9 2,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,157,13,LEVEL2_txt,result,71,SetHouseExtensionLevel,00421633,9 2,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,158,13,LEVEL2_txt,result,11,DeactivateMission,0041FD62,29,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,159,13,LEVEL2_txt,result,10,ActivateMission,0041FD49,30,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,160,13,LEVEL2_txt,result,10,ActivateMission,0041FD49,41,yes
@@ -1868,11 +1868,11 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,331,29,cattles_found_before level2,result,9,PlayCutscene,0041FCFE,26 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,335,30,LEVEL3 cattles_found,goal,50,IsMissionDone,0041F1C4,28,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,336,30,LEVEL3 cattles_found,goal,50,IsMissionDone,0041F1C4,13,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,337,30,LEVEL3 cattles_found,result,88,SetHouseOverlayState,00422365,9 0 1,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,337,30,LEVEL3 cattles_found,result,88,SetHouseOverlayState,00422365,9 0 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,338,30,LEVEL3 cattles_found,result,9,PlayCutscene,0041FCFE,12 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,339,30,LEVEL3 cattles_found,result,10,ActivateMission,0041FD49,31,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,343,31,,goal,28,TimeGone,0041F5EA,3,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,344,31,,result,88,SetHouseOverlayState,00422365,9 1 1,no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,344,31,,result,88,SetHouseOverlayState,00422365,9 1 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,351,32,p5_nomaden_ seen,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 354 285 35,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,352,32,p5_nomaden_ seen,result,9,PlayCutscene,0041FCFE,9 1,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,353,32,p5_nomaden_ seen,result,16,ExploreArea,0041FE17,0 354 285 35,yes
@@ -1881,10 +1881,10 @@ campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,362,33,p6_bauarb_ seen,result,16,ExploreArea,0041FE17,0 359 51 30,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,369,34,chest_stone,goal,53,ChestNearPos,0041F4DD,367 38 2,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,370,34,chest_stone,result,9,PlayCutscene,0041FCFE,19 1,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,371,34,chest_stone,result,31,AddGoodsToHouses,0042029D,"7 ""stone"" 50",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,371,34,chest_stone,result,31,AddGoodsToHouses,0042029D,"7 ""stone"" 50",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,378,35,chest_gold,goal,53,ChestNearPos,0041F4DD,289 124 2,no
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,379,35,chest_gold,result,9,PlayCutscene,0041FCFE,20 1,yes
-campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,380,35,chest_gold,result,31,AddGoodsToHouses,0042029D,"7 ""coin"" 100",no
+campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,380,35,chest_gold,result,31,AddGoodsToHouses,0042029D,"7 ""coin"" 100",yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,386,36,catapult,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 106 68 17,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,387,36,catapult,result,16,ExploreArea,0041FE17,0 106 68 20,yes
 campaign_03_02,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_02\map.cif,388,36,catapult,result,9,PlayCutscene,0041FCFE,23 1,yes
@@ -2122,7 +2122,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,21,0,StartBriefing,result,91,SetHouseBuildForbiddenArea,004224EE,230 68 7 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,22,0,StartBriefing,result,96,SetImportLandscapeMarker,00422998,218 126 1,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,27,1,MAIN_GOAL,goal,30,PayTribute,0041EDB3,13,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,28,1,MAIN_GOAL,result,71,SetHouseExtensionLevel,00421633,199 3,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,28,1,MAIN_GOAL,result,71,SetHouseExtensionLevel,00421633,199 3,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,29,1,MAIN_GOAL,result,85,SetCameraPosition,004221E0,230 58,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,30,1,MAIN_GOAL,result,10,ActivateMission,0041FD49,4,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,35,2,EXIT,goal,0,True,0041F8F4,,yes
@@ -2693,10 +2693,10 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,964,107,END_SUB_ORACLE,goal,28,TimeGone,0041F5EA,3,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,965,107,END_SUB_ORACLE,result,11,DeactivateMission,0041FD62,42,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,966,107,END_SUB_ORACLE,result,62,StartEarthquake,00420F5F,12,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,967,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 251 216 35 9000,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,968,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 165 185 15 9000,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,969,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 315 196 20 9000,no
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,970,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 225 290 40 9000,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,967,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 251 216 35 9000,yes
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,968,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 165 185 15 9000,yes
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,969,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 315 196 20 9000,yes
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,970,107,END_SUB_ORACLE,result,81,RemoveHPsOfHousesInArea,00421C70,2 225 290 40 9000,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,971,107,END_SUB_ORACLE,result,5,RemoveHumans,0041FC13,1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,972,107,END_SUB_ORACLE,result,5,RemoveHumans,0041FC13,7,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,973,107,END_SUB_ORACLE,result,5,RemoveHumans,0041FC13,9,yes
@@ -2802,7 +2802,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1115,121,Negotiations2,result,10,ActivateMission,0041FD49,122,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1116,121,Negotiations2,result,20,SetVisible,0041FEB2,122 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1120,122,STEP_2,goal,30,PayTribute,0041EDB3,11,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1121,122,STEP_2,result,71,SetHouseExtensionLevel,00421633,199 1,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1121,122,STEP_2,result,71,SetHouseExtensionLevel,00421633,199 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1122,122,STEP_2,result,85,SetCameraPosition,004221E0,229 65,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1123,122,STEP_2,result,9,PlayCutscene,0041FCFE,470 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1124,122,STEP_2,result,27,CreateTribute,00420254,12 0 12 132,yes
@@ -2812,7 +2812,7 @@ campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1128,122,STEP_2,result,10,ActivateMission,0041FD49,123,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1129,122,STEP_2,result,20,SetVisible,0041FEB2,123 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1133,123,STEP_3,goal,30,PayTribute,0041EDB3,12,yes
-campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1134,123,STEP_3,result,71,SetHouseExtensionLevel,00421633,199 2,no
+campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1134,123,STEP_3,result,71,SetHouseExtensionLevel,00421633,199 2,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1135,123,STEP_3,result,85,SetCameraPosition,004221E0,229 61,no
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1136,123,STEP_3,result,9,PlayCutscene,0041FCFE,480 1,yes
 campaign_03_03,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_03\map.cif,1137,123,STEP_3,result,27,CreateTribute,00420254,13 0 12 134,yes
@@ -2970,7 +2970,7 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,30,1,MAIN GOAL,result,72,InfoClear,00421700,0 1,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,31,1,MAIN GOAL,result,72,InfoClear,00421700,0 2,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,32,1,MAIN GOAL,result,72,InfoClear,00421700,0 3,no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,33,1,MAIN GOAL,result,71,SetHouseExtensionLevel,00421633,10 1,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,33,1,MAIN GOAL,result,71,SetHouseExtensionLevel,00421633,10 1,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,34,1,MAIN GOAL,result,26,PlaySound,00420220,57 235 298,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,35,1,MAIN GOAL,result,85,SetCameraPosition,004221E0,235 298,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,36,1,MAIN GOAL,result,10,ActivateMission,0041FD49,4,yes
@@ -3226,13 +3226,13 @@ campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,453,48,Egypts_speed_up,result,10,ActivateMission,0041FD49,48,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,458,49,Earthquake_1,goal,45,RandomTimeGone,0041F5EA,2700,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,459,49,Earthquake_1,result,62,StartEarthquake,00420F5F,3,no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,460,49,Earthquake_1,result,81,RemoveHPsOfHousesInArea,00421C70,0 244 143 90 4500,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,460,49,Earthquake_1,result,81,RemoveHPsOfHousesInArea,00421C70,0 244 143 90 4500,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,461,49,Earthquake_1,result,9,PlayCutscene,0041FCFE,90 0,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,462,49,Earthquake_1,result,10,ActivateMission,0041FD49,49,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,466,50,Earthquake_2,goal,45,RandomTimeGone,0041F5EA,3000,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,467,50,Earthquake_2,result,62,StartEarthquake,00420F5F,4,no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,468,50,Earthquake_2,result,81,RemoveHPsOfHousesInArea,00421C70,0 235 301 90 9000,no
-campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,469,50,Earthquake_2,result,81,RemoveHPsOfHousesInArea,00421C70,1 235 301 90 9000,no
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,468,50,Earthquake_2,result,81,RemoveHPsOfHousesInArea,00421C70,0 235 301 90 9000,yes
+campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,469,50,Earthquake_2,result,81,RemoveHPsOfHousesInArea,00421C70,1 235 301 90 9000,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,470,50,Earthquake_2,result,85,SetCameraPosition,004221E0,245 325,no
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,471,50,Earthquake_2,result,9,PlayCutscene,0041FCFE,95 1,yes
 campaign_03_04,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_04\map.cif,472,50,Earthquake_2,result,69,RemoveLandscapesInArea,004210FD,247 327 7,no
@@ -3553,9 +3553,9 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,20,0,START,result,23,SendHuman,00420083,12 257 128,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,21,0,START,result,91,SetHouseBuildForbiddenArea,004224EE,267 116 20 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,26,1,maingoal,goal,50,IsMissionDone,0041F1C4,51,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,30,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,31,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,32,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,30,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",yes
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,31,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",yes
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,32,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,33,2,siedlung,result,0,None,00422DE6,,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,39,3,start_attack,goal,11,FindPosByHumans,0041E7C7,12 258 128 6,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,40,3,start_attack,result,16,ExploreArea,0041FE17,0 264 121 20,yes
@@ -3567,7 +3567,7 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,46,3,start_attack,result,10,ActivateMission,0041FD49,6,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,50,4,herostrates_erben,goal,0,True,0041F8F4,,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,51,4,herostrates_erben,result,9,PlayCutscene,0041FCFE,7 1,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,52,4,herostrates_erben,result,81,RemoveHPsOfHousesInArea,00421C70,1 268 120 15 65000,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,52,4,herostrates_erben,result,81,RemoveHPsOfHousesInArea,00421C70,1 268 120 15 65000,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,53,4,herostrates_erben,result,16,ExploreArea,0041FE17,0 149 72 45,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,60,5,pl5_herostrates erben,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 153 72 50,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,61,5,pl5_herostrates erben,result,9,PlayCutscene,0041FCFE,25 1,yes
@@ -3786,13 +3786,13 @@ campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,450,50,LEVEL1and2,goal,28,TimeGone,0041F5EA,2,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,451,50,LEVEL1and2,result,91,SetHouseBuildForbiddenArea,004224EE,267 116 20 0,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,452,50,LEVEL1and2,result,3,SetHouse,0041FB38,"0 ""wonder artemis"" 1 0 266 120 7",yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,453,50,LEVEL1and2,result,71,SetHouseExtensionLevel,00421633,7 1,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,453,50,LEVEL1and2,result,71,SetHouseExtensionLevel,00421633,7 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,454,50,LEVEL1and2,result,9,PlayCutscene,0041FCFE,6 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,460,51,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,33,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,461,51,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,35,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,462,51,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,14,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,463,51,LEVEL3 ,result,9,PlayCutscene,0041FCFE,5 1,yes
-campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,464,51,LEVEL3 ,result,71,SetHouseExtensionLevel,00421633,7 2,no
+campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,464,51,LEVEL3 ,result,71,SetHouseExtensionLevel,00421633,7 2,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,465,51,LEVEL3 ,result,10,ActivateMission,0041FD49,52,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,466,51,LEVEL3 ,result,20,SetVisible,0041FEB2,52 1,yes
 campaign_03_05,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_05\map.cif,471,52,WON,goal,11,FindPosByHumans,0041E7C7,1 268 117 35,yes
@@ -4033,9 +4033,9 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,55,4,the_others,result,1,SetHuman,0041FA1B,"0 ""viking"" ""child_male"" 508 362 0 0",yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,56,4,the_others,result,1,SetHuman,0041FA1B,"0 ""viking"" ""child_male"" 511 365 0 0",yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,57,4,the_others,result,22,ChangePlayerPlayerId,0041FF04,7 0,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,61,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,62,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,63,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,61,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",yes
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,62,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",yes
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,63,5,(siedlung),goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,64,5,(siedlung),result,0,None,00422DE6,,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,68,6,building_place,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 82 257 30,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,69,6,building_place,result,9,PlayCutscene,0041FCFE,2 1,yes
@@ -4244,9 +4244,9 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,413,42,* tip3    ,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 355 285 7,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,414,42,* tip3    ,result,9,PlayCutscene,0041FCFE,19 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,415,42,* tip3    ,result,10,ActivateMission,0041FD49,43,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,420,43,* disapp_tribut8,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 02"" 1 353 273 15",no
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,421,43,* disapp_tribut8,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 00"" 1 353 273 15",no
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,422,43,* disapp_tribut8,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 01"" 1 353 273 15",no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,420,43,* disapp_tribut8,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 02"" 1 353 273 15",yes
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,421,43,* disapp_tribut8,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 00"" 1 353 273 15",yes
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,422,43,* disapp_tribut8,goal,55,NumberOfHousesInArea,0041F64D,"0 ""stock 01"" 1 353 273 15",yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,423,43,* disapp_tribut8,result,27,CreateTribute,00420254,8 0 8 10,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,424,43,* disapp_tribut8,result,28,AddTributeGoods,00420282,"8 ""honey"" 15",yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,425,43,* disapp_tribut8,result,10,ActivateMission,0041FD49,35,yes
@@ -4320,18 +4320,18 @@ campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,556,56,LEVEL1,goal,50,IsMissionDone,0041F1C4,26,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,557,56,LEVEL1,result,91,SetHouseBuildForbiddenArea,004224EE,83 254 20 0,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,558,56,LEVEL1,result,3,SetHouse,0041FB38,"1 ""wonder zeus"" 1 0 83 250 7",yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,559,56,LEVEL1,result,71,SetHouseExtensionLevel,00421633,7 0,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,559,56,LEVEL1,result,71,SetHouseExtensionLevel,00421633,7 0,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,560,56,LEVEL1,result,86,SetHumanX,0042220C,"1 ""byzantine"" ""builder"" 84 268 0 1 3",no
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,565,57,LEVEL2,goal,50,IsMissionDone,0041F1C4,16,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,566,57,LEVEL2,goal,50,IsMissionDone,0041F1C4,33,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,567,57,LEVEL2,result,71,SetHouseExtensionLevel,00421633,7 1,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,567,57,LEVEL2,result,71,SetHouseExtensionLevel,00421633,7 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,568,57,LEVEL2,result,9,PlayCutscene,0041FCFE,21 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,574,58,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,56,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,575,58,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,57,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,576,58,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,18,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,577,58,LEVEL3 ,goal,50,IsMissionDone,0041F1C4,33,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,578,58,LEVEL3 ,result,9,PlayCutscene,0041FCFE,22 1,yes
-campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,579,58,LEVEL3 ,result,71,SetHouseExtensionLevel,00421633,7 2,no
+campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,579,58,LEVEL3 ,result,71,SetHouseExtensionLevel,00421633,7 2,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,580,58,LEVEL3 ,result,10,ActivateMission,0041FD49,59,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,581,58,LEVEL3 ,result,20,SetVisible,0041FEB2,59 1,yes
 campaign_03_06,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_06\map.cif,586,59,WON,goal,11,FindPosByHumans,0041E7C7,1 82 256 25,yes
@@ -4598,16 +4598,16 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,31,1,ALL DONE,goal,50,IsMissionDone,0041F1C4,52,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,32,1,ALL DONE,goal,50,IsMissionDone,0041F1C4,57,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,33,1,ALL DONE,result,9,PlayCutscene,0041FCFE,5 1,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,34,1,ALL DONE,result,71,SetHouseExtensionLevel,00421633,7 1,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,34,1,ALL DONE,result,71,SetHouseExtensionLevel,00421633,7 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,35,1,ALL DONE,result,10,ActivateMission,0041FD49,46,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,36,1,ALL DONE,result,10,ActivateMission,0041FD49,65,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,37,1,ALL DONE,result,10,ActivateMission,0041FD49,66,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,38,1,ALL DONE,result,10,ActivateMission,0041FD49,67,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,39,1,ALL DONE,result,10,ActivateMission,0041FD49,68,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,40,1,ALL DONE,result,20,SetVisible,0041FEB2,46 1,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,44,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,45,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,46,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,44,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,45,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,46,2,siedlung,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,47,2,siedlung,result,0,None,00422DE6,,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,51,3,start_pseudo_attack,goal,0,True,0041F8F4,,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,52,3,start_pseudo_attack,result,23,SendHuman,00420083,11 150 338,yes
@@ -4643,17 +4643,17 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,105,8,pyramiden,result,20,SetVisible,0041FEB2,10 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,106,8,pyramiden,result,10,ActivateMission,0041FD49,9,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,107,8,pyramiden,result,20,SetVisible,0041FEB2,9 1,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,112,9,lagerhaus,goal,3,BuildHouses,0041E528,"0 ""stock 00"" 1 0",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,113,9,lagerhaus,goal,3,BuildHouses,0041E528,"0 ""stock 01"" 1 0",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,114,9,lagerhaus,goal,3,BuildHouses,0041E528,"0 ""stock 02"" 1 0",no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,112,9,lagerhaus,goal,3,BuildHouses,0041E528,"0 ""stock 00"" 1 0",yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,113,9,lagerhaus,goal,3,BuildHouses,0041E528,"0 ""stock 01"" 1 0",yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,114,9,lagerhaus,goal,3,BuildHouses,0041E528,"0 ""stock 02"" 1 0",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,115,9,lagerhaus,result,0,None,00422DE6,,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,119,10,goods_delivered,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""stone"" 50 122 320 55",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,120,10,goods_delivered,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""ornament"" 40 122 320 55",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,121,10,goods_delivered,goal,54,NumberOfGoodsInArea,0041F5F3,"0 ""gold"" 70 122 320 55",no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,122,10,goods_delivered,result,9,PlayCutscene,0041FCFE,4 1,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,123,10,goods_delivered,result,71,SetHouseExtensionLevel,00421633,7 1,no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,124,10,goods_delivered,result,71,SetHouseExtensionLevel,00421633,8 1,no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,125,10,goods_delivered,result,71,SetHouseExtensionLevel,00421633,9 1,no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,123,10,goods_delivered,result,71,SetHouseExtensionLevel,00421633,7 1,yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,124,10,goods_delivered,result,71,SetHouseExtensionLevel,00421633,8 1,yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,125,10,goods_delivered,result,71,SetHouseExtensionLevel,00421633,9 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,126,10,goods_delivered,result,73,InfoShowString,0042172C,0 0 23,no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,127,10,goods_delivered,result,72,InfoClear,00421700,0 1,no
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,128,10,goods_delivered,result,72,InfoClear,00421700,0 2,no
@@ -4746,8 +4746,8 @@ campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,288,26,gold_area,result,3,SetHouse,0041FB38,"5 ""saracen tent 01"" 0 1 366 12 0",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,289,26,gold_area,result,3,SetHouse,0041FB38,"5 ""saracen tent 02"" 0 1 357 18 0",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,290,26,gold_area,result,10,ActivateMission,0041FD49,27,yes
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,291,26,gold_area,result,31,AddGoodsToHouses,0042029D,"19 ""gold"" 20",no
-campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,292,26,gold_area,result,31,AddGoodsToHouses,0042029D,"19 ""food_extra"" 20",no
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,291,26,gold_area,result,31,AddGoodsToHouses,0042029D,"19 ""gold"" 20",yes
+campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,292,26,gold_area,result,31,AddGoodsToHouses,0042029D,"19 ""food_extra"" 20",yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,296,27,p5 sarazenen2,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 387 45 10,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,297,27,p5 sarazenen2,result,9,PlayCutscene,0041FCFE,20 1,yes
 campaign_03_07,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_07\map.cif,298,27,p5 sarazenen2,result,35,ChangeHousesPlayerId,00420363,19 0,yes
@@ -4996,7 +4996,7 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,108,11,# rot goods_delivered,result,19,SetDiplomacy,0041FE97,"1 0 ""friend""",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,109,11,# rot goods_delivered,result,23,SendHuman,00420083,11 198 219,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,110,11,# rot goods_delivered,result,10,ActivateMission,0041FD49,12,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,111,11,# rot goods_delivered,result,88,SetHouseOverlayState,00422365,7 1 1,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,111,11,# rot goods_delivered,result,88,SetHouseOverlayState,00422365,7 1 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,112,11,# rot goods_delivered,result,65,RemoveGoodsFromMapArea,00421000,"""ornament"" 30 324 206 75 1 0",no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,113,11,# rot goods_delivered,result,73,InfoShowString,0042172C,0 0 21,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,117,12,pl1_obelisk,goal,28,TimeGone,0041F5EA,2,yes
@@ -5007,7 +5007,7 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,127,13,pl1_attackiert,result,11,DeactivateMission,0041FD62,11,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,128,13,pl1_attackiert,result,20,SetVisible,0041FEB2,11 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,134,14,pl1_dead,goal,21,PlayerDied,0041EBA1,1,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,135,14,pl1_dead,result,88,SetHouseOverlayState,00422365,7 1 1,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,135,14,pl1_dead,result,88,SetHouseOverlayState,00422365,7 1 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,136,14,pl1_dead,result,9,PlayCutscene,0041FCFE,18 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,137,14,pl1_dead,result,72,InfoClear,00421700,0 0,no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,138,14,pl1_dead,result,11,DeactivateMission,0041FD62,11,yes
@@ -5049,9 +5049,9 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,198,19,# all majors on obelisk,result,23,SendHuman,00420083,8 187 236,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,199,19,# all majors on obelisk,result,23,SendHuman,00420083,9 191 221,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,200,19,# all majors on obelisk,result,10,ActivateMission,0041FD49,20,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,201,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 0 1,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,202,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 5 1,no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,203,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 6 1,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,201,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 0 1,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,202,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 5 1,yes
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,203,19,# all majors on obelisk,result,88,SetHouseOverlayState,00422365,7 6 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,207,20,send majors,goal,28,TimeGone,0041F5EA,2,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,208,20,send majors,result,23,SendHuman,00420083,7 186 225,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,209,20,send majors,result,23,SendHuman,00420083,8 187 236,yes
@@ -5080,21 +5080,21 @@ campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,243,23,#_türkis,result,4,SetLandscape,0041FBC6,"193 241 ""norne fat"" 1 1",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,244,23,#_türkis,result,4,SetLandscape,0041FBC6,"195 240 ""norne thin"" 1 1",yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,245,23,#_türkis,result,4,SetLandscape,0041FBC6,"196 242 ""norne thin"" 1 1",yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,246,23,#_türkis,result,88,SetHouseOverlayState,00422365,7 4 1,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,246,23,#_türkis,result,88,SetHouseOverlayState,00422365,7 4 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,253,24,pl6_inselv # blau,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 112 35 35,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,254,24,pl6_inselv # blau,result,9,PlayCutscene,0041FCFE,12 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,255,24,pl6_inselv # blau,result,16,ExploreArea,0041FE17,0 112 35 35,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,256,24,pl6_inselv # blau,result,21,ChangeHumanPlayerId,0041FECB,10 0,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,257,24,pl6_inselv # blau,result,86,SetHumanX,0042220C,"0 ""saracen"" ""civilist"" 204 236 12 1059 3",no
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,258,24,pl6_inselv # blau,result,21,ChangeHumanPlayerId,0041FECB,12 6,yes
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,259,24,pl6_inselv # blau,result,88,SetHouseOverlayState,00422365,7 3 1,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,259,24,pl6_inselv # blau,result,88,SetHouseOverlayState,00422365,7 3 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,260,24,pl6_inselv # blau,result,20,SetVisible,0041FEB2,25 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,265,25,pl6_inselv # lila,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 348 440 32,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,266,25,pl6_inselv # lila,goal,11,FindPosByHumans,0041E7C7,10 346 432 30,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,267,25,pl6_inselv # lila,result,9,PlayCutscene,0041FCFE,13 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,268,25,pl6_inselv # lila,result,16,ExploreArea,0041FE17,0 346 432 35,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,269,25,pl6_inselv # lila,result,86,SetHumanX,0042220C,"6 ""egypt"" ""civilist"" 205 226 13 35 3",no
-campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,270,25,pl6_inselv # lila,result,88,SetHouseOverlayState,00422365,7 2 1,no
+campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,270,25,pl6_inselv # lila,result,88,SetHouseOverlayState,00422365,7 2 1,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,271,25,pl6_inselv # lila,result,11,DeactivateMission,0041FD62,26,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,278,26,pl6_inselv ,goal,22,FindPosByPlayersMapMoveable,0041EBC1,0 348 440 30,yes
 campaign_03_08,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\campaign_03_08\map.cif,279,26,pl6_inselv ,result,9,PlayCutscene,0041FCFE,14 1,yes
@@ -5177,12 +5177,12 @@ tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,27,2,cut 2  ,result,10,ActivateMission,0041FD49,3,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,28,2,cut 2  ,result,20,SetVisible,0041FEB2,3 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,29,2,cut 2  ,result,59,SetGuiMarker,00420E9D,0 0 0,no
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,34,3,home ,goal,25,HumansWithHome,0041ECA8,0 1,no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,34,3,home ,goal,25,HumansWithHome,0041ECA8,0 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,35,3,home ,result,9,PlayCutscene,0041FCFE,3 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,36,3,home ,result,10,ActivateMission,0041FD49,4,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,37,3,home ,result,20,SetVisible,0041FEB2,4 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,38,3,home ,result,35,ChangeHousesPlayerId,00420363,1 0,yes
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,43,4,job+ navigat   ,goal,43,HumanAttachedToWorkHouse,0041F03A,"0 ""farmer"" 1",no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,43,4,job+ navigat   ,goal,43,HumanAttachedToWorkHouse,0041F03A,"0 ""farmer"" 1",yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,44,4,job+ navigat   ,goal,39,GoodProduceable,0041EF72,"0 ""viking"" ""wheat""",yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,45,4,job+ navigat   ,result,9,PlayCutscene,0041FCFE,4 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,46,4,job+ navigat   ,result,1,SetHuman,0041FA1B,"1 ""viking"" ""woman"" 239 156 2 1",yes
@@ -5196,7 +5196,7 @@ tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,58,5,help!+woman,result,23,SendHuman,00420083,2 227 137,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,59,5,help!+woman,result,9,PlayCutscene,0041FCFE,5 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,60,5,help!+woman,result,10,ActivateMission,0041FD49,6,yes
-tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,64,6,pause+dorf,goal,25,HumansWithHome,0041ECA8,0 2,no
+tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,64,6,pause+dorf,goal,25,HumansWithHome,0041ECA8,0 2,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,65,6,pause+dorf,result,9,PlayCutscene,0041FCFE,6 1,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,66,6,pause+dorf,result,16,ExploreArea,0041FE17,0 101 288 79,yes
 tutorial_001,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_001\map.cif,67,6,pause+dorf,result,10,ActivateMission,0041FD49,7,yes
@@ -5272,10 +5272,10 @@ tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,52,4,fisher,result,20,SetVisible,0041FEB2,7 1,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,56,5,ragna,goal,13,FindHumansByHumans,0041E87B,6 5 15,no
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,57,5,ragna,result,0,None,00422DE6,,yes
-tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,61,6,home,goal,25,HumansWithHome,0041ECA8,0 6,no
+tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,61,6,home,goal,25,HumansWithHome,0041ECA8,0 6,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,62,6,home,goal,11,FindPosByHumans,0041E7C7,5 124 187 15,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,63,6,home,result,0,None,00422DE6,,yes
-tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,67,7,woman +child,goal,25,HumansWithHome,0041ECA8,0 6,no
+tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,67,7,woman +child,goal,25,HumansWithHome,0041ECA8,0 6,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,68,7,woman +child,goal,52,NumberOfCivilainsNearPos,0041F397,0 127 189 20 3,no
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,69,7,woman +child,result,9,PlayCutscene,0041FCFE,5 1,yes
 tutorial_002,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_002\map.cif,70,7,woman +child,result,10,ActivateMission,0041FD49,8,yes
@@ -5336,7 +5336,7 @@ tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,41,3,farm ,result,38,EnableHouse,004204FB,"0 ""viking"" ""work farm 00""",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,42,3,farm ,result,10,ActivateMission,0041FD49,4,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,43,3,farm ,result,20,SetVisible,0041FEB2,4 1,yes
-tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,47,4,farmer,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",no
+tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,47,4,farmer,goal,3,BuildHouses,0041E528,"0 ""work farm 00"" 1 0",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,48,4,farmer,result,9,PlayCutscene,0041FCFE,4 1,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,49,4,farmer,result,10,ActivateMission,0041FD49,6,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,50,4,farmer,result,20,SetVisible,0041FEB2,6 1,yes
@@ -5351,7 +5351,7 @@ tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,65,6,mühle,result,10,ActivateMission,0041FD49,7,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,66,6,mühle,result,20,SetVisible,0041FEB2,7 1,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,67,6,mühle,result,30,AllowHouse,00420457,"0 ""viking"" ""work mill 00""",yes
-tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,71,7,müller ,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",no
+tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,71,7,müller ,goal,3,BuildHouses,0041E528,"0 ""work mill 00"" 1 0",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,72,7,müller ,result,9,PlayCutscene,0041FCFE,7 1,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,73,7,müller ,result,10,ActivateMission,0041FD49,8,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,74,7,müller ,result,20,SetVisible,0041FEB2,9 1,yes
@@ -5366,13 +5366,13 @@ tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,89,9,brunnen,result,10,ActivateMission,0041FD49,10,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,90,9,brunnen,result,30,AllowHouse,00420457,"0 ""viking"" ""work well 00""",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,91,9,brunnen,result,9,PlayCutscene,0041FCFE,9 1,yes
-tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,95,10,bäckerei,goal,3,BuildHouses,0041E528,"0 ""work well 00"" 1 0",no
+tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,95,10,bäckerei,goal,3,BuildHouses,0041E528,"0 ""work well 00"" 1 0",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,96,10,bäckerei,result,9,PlayCutscene,0041FCFE,10 1,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,97,10,bäckerei,result,30,AllowHouse,00420457,"0 ""viking"" ""work bakery 00""",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,98,10,bäckerei,result,38,EnableHouse,004204FB,"0 ""viking"" ""work bakery 00""",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,99,10,bäckerei,result,10,ActivateMission,0041FD49,11,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,100,10,bäckerei,result,20,SetVisible,0041FEB2,11 1,yes
-tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,104,11,bäckerei gebaut,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",no
+tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,104,11,bäckerei gebaut,goal,3,BuildHouses,0041E528,"0 ""work bakery 00"" 1 0",yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,105,11,bäckerei gebaut,result,20,SetVisible,0041FEB2,12 1,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,106,11,bäckerei gebaut,result,10,ActivateMission,0041FD49,12,yes
 tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_003\map.cif,107,11,bäckerei gebaut,result,9,PlayCutscene,0041FCFE,11 1,yes
@@ -5388,11 +5388,11 @@ tutorial_003,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,11,0,START ,goal,0,True,0041F8F4,,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,12,0,START ,result,9,PlayCutscene,0041FCFE,0 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,13,0,START ,result,20,SetVisible,0041FEB2,0 1,yes
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,19,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work pottery 02"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,20,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work joinery 03"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,21,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work mason hut 01"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,22,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work animal farm"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,23,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work sewery 01"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,19,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work pottery 02"" 1 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,20,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work joinery 03"" 1 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,21,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work mason hut 01"" 1 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,22,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work animal farm"" 1 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,23,1,all_buildings,goal,3,BuildHouses,0041E528,"0 ""work sewery 01"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,24,1,all_buildings,result,9,PlayCutscene,0041FCFE,14 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,25,1,all_buildings,result,10,ActivateMission,0041FD49,29,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,31,2,potter ,goal,38,JobEnabled,0041EF4C,"0 ""viking"" ""potter""",yes
@@ -5441,41 +5441,41 @@ tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,124,12,sewery2,result,9,PlayCutscene,0041FCFE,13 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,125,12,sewery2,result,10,ActivateMission,0041FD49,25,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,126,12,sewery2,result,20,SetVisible,0041FEB2,25 1,yes
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,129,13,goal_potter,goal,3,BuildHouses,0041E528,"0 ""work pottery 00"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,129,13,goal_potter,goal,3,BuildHouses,0041E528,"0 ""work pottery 00"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,130,13,goal_potter,goal,2,BuildHumans,0041E4D1,"0 ""potter"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,134,14,goal_mason,goal,3,BuildHouses,0041E528,"0 ""work mason hut 00"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,134,14,goal_mason,goal,3,BuildHouses,0041E528,"0 ""work mason hut 00"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,135,14,goal_mason,goal,2,BuildHumans,0041E4D1,"0 ""mason"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,139,15,goal_joinery,goal,3,BuildHouses,0041E528,"0 ""work joinery 00"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,139,15,goal_joinery,goal,3,BuildHouses,0041E528,"0 ""work joinery 00"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,140,15,goal_joinery,goal,2,BuildHumans,0041E4D1,"0 ""joiner"" 1 0",no
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,144,16,goal_sewery,goal,2,BuildHumans,0041E4D1,"0 ""sewer"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,145,16,goal_sewery,goal,3,BuildHouses,0041E528,"0 ""work sewery 00"" 0 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,149,17,goal_mason2,goal,3,BuildHouses,0041E528,"0 ""work mason hut 01"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,145,16,goal_sewery,goal,3,BuildHouses,0041E528,"0 ""work sewery 00"" 0 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,149,17,goal_mason2,goal,3,BuildHouses,0041E528,"0 ""work mason hut 01"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,150,17,goal_mason2,result,9,PlayCutscene,0041FCFE,16 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,151,17,goal_mason2,result,10,ActivateMission,0041FD49,18,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,152,17,goal_mason2,result,20,SetVisible,0041FEB2,18 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,156,18,_marmor,goal,6,GoodsGlobal,0041E60B,"0 ""ornament"" 1",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,160,19,goal_potter2,goal,3,BuildHouses,0041E528,"0 ""work pottery 01"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,160,19,goal_potter2,goal,3,BuildHouses,0041E528,"0 ""work pottery 01"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,161,19,goal_potter2,result,9,PlayCutscene,0041FCFE,15 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,162,19,goal_potter2,result,10,ActivateMission,0041FD49,20,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,163,19,goal_potter2,result,20,SetVisible,0041FEB2,20 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,167,20,_tiles,goal,6,GoodsGlobal,0041E60B,"0 ""tile"" 1",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,168,20,_tiles,result,31,AddGoodsToHouses,0042029D,"1 ""tile"" 2",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,168,20,_tiles,result,31,AddGoodsToHouses,0042029D,"1 ""tile"" 2",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,169,20,_tiles,result,9,PlayCutscene,0041FCFE,19 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,173,21,goal_animal farm,goal,2,BuildHumans,0041E4D1,"0 ""breeder"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,174,21,goal_animal farm,goal,3,BuildHouses,0041E528,"0 ""work animal farm"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,178,22,goal_potter3,goal,3,BuildHouses,0041E528,"0 ""work pottery 02"" 1 0",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,182,23,goal_joinery2,goal,3,BuildHouses,0041E528,"0 ""work joinery 01"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,174,21,goal_animal farm,goal,3,BuildHouses,0041E528,"0 ""work animal farm"" 1 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,178,22,goal_potter3,goal,3,BuildHouses,0041E528,"0 ""work pottery 02"" 1 0",yes
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,182,23,goal_joinery2,goal,3,BuildHouses,0041E528,"0 ""work joinery 01"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,183,23,goal_joinery2,result,9,PlayCutscene,0041FCFE,17 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,184,23,goal_joinery2,result,10,ActivateMission,0041FD49,24,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,185,23,goal_joinery2,result,20,SetVisible,0041FEB2,24 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,189,24,_furmiture,goal,6,GoodsGlobal,0041E60B,"0 ""furniture"" 1",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,194,25,goal_sewery2,goal,3,BuildHouses,0041E528,"0 ""work sewery 01"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,194,25,goal_sewery2,goal,3,BuildHouses,0041E528,"0 ""work sewery 01"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,195,25,goal_sewery2,result,9,PlayCutscene,0041FCFE,18 1,yes
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,199,26,goal_joinery3,goal,3,BuildHouses,0041E528,"0 ""work joinery 02"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,199,26,goal_joinery3,goal,3,BuildHouses,0041E528,"0 ""work joinery 02"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,200,26,goal_joinery3,result,10,ActivateMission,0041FD49,27,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,201,26,goal_joinery3,result,20,SetVisible,0041FEB2,27 1,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,205,27,_handcard,goal,6,GoodsGlobal,0041E60B,"0 ""handcart"" 1",no
-tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,209,28,goal_joinery4,goal,3,BuildHouses,0041E528,"0 ""work joinery 03"" 1 0",no
+tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,209,28,goal_joinery4,goal,3,BuildHouses,0041E528,"0 ""work joinery 03"" 1 0",yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,213,29,EXIT,goal,0,True,0041F8F4,,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,214,29,EXIT,result,16,ExploreArea,0041FE17,0 0 0 0,yes
 tutorial_004,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_004\map.cif,215,29,EXIT,result,39,DisableAll,00420534,,yes
@@ -5490,8 +5490,8 @@ tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,21,1,trader,result,10,ActivateMission,0041FD49,2,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,25,2,check,goal,28,TimeGone,0041F5EA,180,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,26,2,check,result,9,PlayCutscene,0041FCFE,12 1,yes
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,30,3,trading place,goal,5,GoodsInHouses,0041E5C4,"5 ""honey"" 1",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,31,3,trading place,goal,5,GoodsInHouses,0041E5C4,"6 ""honey"" 1",no
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,30,3,trading place,goal,5,GoodsInHouses,0041E5C4,"5 ""honey"" 1",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,31,3,trading place,goal,5,GoodsInHouses,0041E5C4,"6 ""honey"" 1",yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,32,3,trading place,result,9,PlayCutscene,0041FCFE,2 1,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,33,3,trading place,result,10,ActivateMission,0041FD49,4,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,34,3,trading place,result,20,SetVisible,0041FEB2,4 1,yes
@@ -5504,13 +5504,13 @@ tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,44,4,lehmi_steini,result,10,ActivateMission,0041FD49,5,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,48,5,check 2,goal,28,TimeGone,0041F5EA,360,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,49,5,check 2,result,9,PlayCutscene,0041FCFE,13 1,yes
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,53,6,vehicles,goal,5,GoodsInHouses,0041E5C4,"5 ""tool_iron"" 1",no
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,53,6,vehicles,goal,5,GoodsInHouses,0041E5C4,"5 ""tool_iron"" 1",yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,54,6,vehicles,result,9,PlayCutscene,0041FCFE,4 1,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,55,6,vehicles,result,11,DeactivateMission,0041FD62,5,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,61,7,good in vehicle,goal,4,GoodsInVehicles,0041E580,"7 ""tool_wooden"" 5",no
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,62,7,good in vehicle,goal,4,GoodsInVehicles,0041E580,"8 ""tool_wooden"" 5",no
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,63,7,good in vehicle,result,11,DeactivateMission,0041FD62,6,yes
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,68,8,gadgets traded,goal,5,GoodsInHouses,0041E5C4,"5 ""tool_iron"" 5",no
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,68,8,gadgets traded,goal,5,GoodsInHouses,0041E5C4,"5 ""tool_iron"" 5",yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,69,8,gadgets traded,result,9,PlayCutscene,0041FCFE,5 1,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,70,8,gadgets traded,result,10,ActivateMission,0041FD49,9,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,74,9,player 1,goal,28,TimeGone,0041F5EA,3,yes
@@ -5523,17 +5523,17 @@ tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,81,9,player 1,result,10,ActivateMission,0041FD49,11,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,82,9,player 1,result,20,SetVisible,0041FEB2,11 1,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,83,9,player 1,result,41,AddGoodsToAnyStock,004205DF,"0 ""furniture"" 10",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,84,9,player 1,result,31,AddGoodsToHouses,0042029D,"4 ""furniture"" 10",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,85,9,player 1,result,31,AddGoodsToHouses,0042029D,"6 ""furniture"" 10",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,90,10,in between ,goal,5,GoodsInHouses,0041E5C4,"4 ""coin"" 1",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,91,10,in between ,goal,5,GoodsInHouses,0041E5C4,"5 ""coin"" 1",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,92,10,in between ,goal,5,GoodsInHouses,0041E5C4,"6 ""coin"" 1",no
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,84,9,player 1,result,31,AddGoodsToHouses,0042029D,"4 ""furniture"" 10",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,85,9,player 1,result,31,AddGoodsToHouses,0042029D,"6 ""furniture"" 10",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,90,10,in between ,goal,5,GoodsInHouses,0041E5C4,"4 ""coin"" 1",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,91,10,in between ,goal,5,GoodsInHouses,0041E5C4,"5 ""coin"" 1",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,92,10,in between ,goal,5,GoodsInHouses,0041E5C4,"6 ""coin"" 1",yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,93,10,in between ,result,9,PlayCutscene,0041FCFE,8 1,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,94,10,in between ,result,10,ActivateMission,0041FD49,12,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,95,10,in between ,result,20,SetVisible,0041FEB2,12 1,yes
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,100,11,goods traded,goal,5,GoodsInHouses,0041E5C4,"4 ""coin"" 20",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,101,11,goods traded,goal,5,GoodsInHouses,0041E5C4,"5 ""coin"" 20",no
-tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,102,11,goods traded,goal,5,GoodsInHouses,0041E5C4,"6 ""coin"" 20",no
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,100,11,goods traded,goal,5,GoodsInHouses,0041E5C4,"4 ""coin"" 20",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,101,11,goods traded,goal,5,GoodsInHouses,0041E5C4,"5 ""coin"" 20",yes
+tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,102,11,goods traded,goal,5,GoodsInHouses,0041E5C4,"6 ""coin"" 20",yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,103,11,goods traded,result,9,PlayCutscene,0041FCFE,7 1,yes
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,108,12,ship,goal,4,GoodsInVehicles,0041E580,"10 ""flour"" 5",no
 tutorial_005,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_005\map.cif,109,12,ship,result,9,PlayCutscene,0041FCFE,9 1,yes
@@ -5634,10 +5634,10 @@ tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,89,8,soldiers built,goal,2,BuildHumans,0041E4D1,"0 ""soldier_bow_long"" 5 0",no
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,90,8,soldiers built,result,9,PlayCutscene,0041FCFE,10 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,91,8,soldiers built,result,10,ActivateMission,0041FD49,9,yes
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,92,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_wool"" 15",no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,93,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_leather"" 15",no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,94,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_chain"" 15",no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,95,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_plate"" 15",no
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,92,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_wool"" 15",yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,93,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_leather"" 15",yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,94,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_chain"" 15",yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,95,8,soldiers built,result,31,AddGoodsToHouses,0042029D,"7 ""armor_plate"" 15",yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,99,9,catapult+ saraz,goal,28,TimeGone,0041F5EA,35,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,100,9,catapult+ saraz,result,9,PlayCutscene,0041FCFE,11 1,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,101,9,catapult+ saraz,result,10,ActivateMission,0041FD49,10,yes
@@ -5679,8 +5679,8 @@ tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_00
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,151,13,saraz bekämpft,result,1,SetHuman,0041FA1B,"0 ""viking"" ""builder"" 35 238 0 0",yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,152,13,saraz bekämpft,result,1,SetHuman,0041FA1B,"0 ""viking"" ""builder"" 33 239 0 0",yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,153,13,saraz bekämpft,result,20,SetVisible,0041FEB2,23 1,yes
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,158,14,tower/söldner,goal,3,BuildHouses,0041E528,"0 ""tower 00"" 2 0",no
-tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,159,14,tower/söldner,goal,3,BuildHouses,0041E528,"0 ""tower 01"" 5 0",no
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,158,14,tower/söldner,goal,3,BuildHouses,0041E528,"0 ""tower 00"" 2 0",yes
+tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,159,14,tower/söldner,goal,3,BuildHouses,0041E528,"0 ""tower 01"" 5 0",yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,160,14,tower/söldner,result,1,SetHuman,0041FA1B,"0 ""viking"" ""scout"" 253 206 0 0",yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,161,14,tower/söldner,result,16,ExploreArea,0041FE17,0 264 216 52,yes
 tutorial_006,E:\Steam\steamapps\common\Cultures 8th Wonder\data\maps\tutorial_006\map.cif,162,14,tower/söldner,result,10,ActivateMission,0041FD49,17,yes

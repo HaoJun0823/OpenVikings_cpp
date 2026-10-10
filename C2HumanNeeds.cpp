@@ -60,7 +60,7 @@ namespace NC2Logic
         const void* house = House(id);
         if (Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
         if (id != Read<std::uint32_t>(human, 0xB28) && House_GetHouseMainType(house) == 2) return false;
-        return Read<std::uint32_t>(house, 0x14) == 1 || Read<std::int32_t>(house, 0x794) > 0;
+        return Read<std::uint32_t>(house, 0x14) == 1 || House_Religion_IsHolyFireActive(house);
     }
 
     // Original function: FUN_0042cc12.

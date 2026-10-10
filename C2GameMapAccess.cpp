@@ -14,6 +14,24 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00431cd3; Windows-only outlined root registration.
+    void MapMicroPointData_House_SetRoot(void* micro, std::uint32_t house)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(micro, 0) != 0) return;
+        NC2Lifetime::Write<std::uint8_t>(micro, 2, (NC2Lifetime::Read<std::uint8_t>(micro, 2) & 0xFDu) | 1u);
+        NC2Lifetime::Write<std::uint8_t>(micro, 0, 2);
+        NC2Lifetime::Write<std::uint16_t>(micro, 4, static_cast<std::uint16_t>(house));
+    }
+
+    // Original function: FUN_00431dc6; Windows-only outlined door registration.
+    void MapMicroPointData_House_SetDoor(void* micro, std::uint32_t house)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(micro, 0) != 0) return;
+        NC2Lifetime::Write<std::uint8_t>(micro, 2, (NC2Lifetime::Read<std::uint8_t>(micro, 2) & 0xFEu) | 2u);
+        NC2Lifetime::Write<std::uint8_t>(micro, 0, 2);
+        NC2Lifetime::Write<std::uint16_t>(micro, 4, static_cast<std::uint16_t>(house));
+    }
+
     // Original function: FUN_004249ae; the Mac build inlines this predicate.
     bool GameMap_Misc_CanBeUsedAsLandscapeWorkPosition(const void* point)
     {

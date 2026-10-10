@@ -63,6 +63,29 @@ namespace NC2Logic
         return current;
     }
 
+    // Original function: FUN_0042b7ae; all-house iteration retains its radius filter.
+    std::int32_t CHouseIterator::GetFirstHouseId(std::uint32_t playerId, const void* point, std::uint32_t radiusValue)
+    {
+        player = playerId;
+        flags = 3;
+        std::memcpy(center, point, 4);
+        radius = radiusValue;
+        current = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHouseArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return current;
+    }
+
+    // Original function: FUN_0042b7e4; the type filter uses the engine-house ID.
+    std::int32_t CHouseIterator::GetFirstHouseId(std::uint32_t playerId, const void* point, std::uint32_t radiusValue, std::uint32_t engineType)
+    {
+        player = playerId;
+        flags = 7;
+        std::memcpy(center, point, 4);
+        radius = radiusValue;
+        houseType = engineType;
+        current = l_GetNext(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(CHouseArray::sTheObjectPtr->mFirstScanIndex) - 1u));
+        return current;
+    }
+
     // Original function: FUN_0042b821; the boolean selects the second sector head.
     std::int32_t CHouseIterator::GetFirstSectorHouseId(std::uint32_t playerId, const void* point, std::uint32_t radiusValue, bool useSecondList)
     {

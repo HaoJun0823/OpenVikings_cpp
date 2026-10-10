@@ -10,8 +10,8 @@ Address,CurrentName,Status,ReferencingObjects
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,Partial Windows callback; unconditional true restored at 004195D0; 120-tick notification/goal updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-0041E45E,NC2Logic::MissionManager_l_CheckGoal,Partial Windows goal evaluator; native JobEnabled/GoodProduceable flags connected alongside previous position/death/tribute and mission predicates; remaining goals pending; excluded from completion counts,C2MissionExecution.obj
-0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,"Partial Windows result dispatcher; allowances/enables, DisableAll mission groups and house-build forbidden area now connected alongside previous object creation/removal and commands; remaining actions pending; excluded from completion counts",C2MissionExecution.obj
+0041E45E,NC2Logic::MissionManager_l_CheckGoal,"Partial Windows goal evaluator; building construction, discovery, stock, area, home and worker predicates connected; remaining nonbuilding goals pending; excluded from completion counts",C2MissionExecution.obj
+0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,"Partial Windows result dispatcher; building goods, extension replacement, area damage, information, overlay and behaviour flags connected; remaining nonbuilding actions pending; excluded from completion counts",C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00428736,NC2Logic::Game_Checksum_Calculate,Temporary dummy; Windows implementation pending,C2GameTime.obj
 0042DE20,NC2Logic::Animal_Exit,Partial Windows animal exit; landscape-edit external dummy remains; cadaver mapping is real,C2AnimalAccess.obj
@@ -31,8 +31,7 @@ Address,CurrentName,Status,ReferencingObjects
 00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial native step callback; non-AI military enemy searches and pursuit range limits connected; AI target notification at 004631D8 pending; excluded from completion counts,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
-00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; event 27 stock modification connected; remaining building-event contexts retain reconstruction preflight; excluded from completion counts,C2HumanCommandAccess.obj
-004691CE,NC2Logic::Human_l_PerformTaskEvent_Produce,Partial Windows production event; ordinary inputs/output/experience/tool wear connected; animal breeding 004692E9 pending,C2HumanAtomicEvents.obj
+00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; complete native building event-20 context dispatcher enabled and event-27 stock modification connected; broader event audit pending; excluded from completion counts,C2HumanCommandAccess.obj
 0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial native job startup; all civilian ground job selectors and direct/projectile damage connected; remaining vehicle/sea simulation dependencies pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
@@ -40,13 +39,10 @@ Address,CurrentName,Status,ReferencingObjects
 0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows callback; sound 0x17 and local-player jingle 0x18 plus particle/generator branches 0x1C and 0x23..0x27 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
 00480939,NC2LogicExternals::External_Human_SetName,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
-00482DC0,NC2E2::EngineMap_OverlayPattern_HouseAreaChanged,Temporary dummy; Windows implementation pending,C2EngineLifetimeAccess.obj
 00489DE0,NC2E2::MacroMapManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native integration; landscape/house/guide/moveable/construction-marker/particle-line drawing and repair sound connected; complete enclosing-entry audit pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
-004986C5,Display_l_DE_DrawTooltipOverlays,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004995D8,Display_l_DE_Debug_DrawGridLines,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00499AD5,DrawAtom_FishManager_DoDraw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 004E6E44,Runtime_Log10,Partial numeric CRT adapter; positive music-volume values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj

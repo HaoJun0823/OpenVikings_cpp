@@ -108,21 +108,8 @@ namespace NC2Logic
         GameMap_MapMicroPoint_Landscape_Clear(base);
         GameMap_MapMicroPoint_Landscape_Clear(door);
         area->Landscapes_RemoveAll(base);
-        // Windows outlined root/door setters 00431CD3 and 00431DC6 only change empty points.
-        void* rootMicro = GameMap_GetMapMicroPointPtr(base);
-        if (Read<std::uint8_t>(rootMicro, 0) == 0)
-        {
-            Write<std::uint8_t>(rootMicro, 2, static_cast<std::uint8_t>((Read<std::uint8_t>(rootMicro, 2) & 0xFDu) | 1u));
-            Write<std::uint8_t>(rootMicro, 0, 2);
-            Write<std::uint16_t>(rootMicro, 4, static_cast<std::uint16_t>(id));
-        }
-        void* doorMicro = GameMap_GetMapMicroPointPtr(door);
-        if (Read<std::uint8_t>(doorMicro, 0) == 0)
-        {
-            Write<std::uint8_t>(doorMicro, 2, static_cast<std::uint8_t>((Read<std::uint8_t>(doorMicro, 2) & 0xFEu) | 2u));
-            Write<std::uint8_t>(doorMicro, 0, 2);
-            Write<std::uint16_t>(doorMicro, 4, static_cast<std::uint16_t>(id));
-        }
+        MapMicroPointData_House_SetRoot(GameMap_GetMapMicroPointPtr(base), static_cast<std::uint32_t>(id));
+        MapMicroPointData_House_SetDoor(GameMap_GetMapMicroPointPtr(door), static_cast<std::uint32_t>(id));
         House_Misc_Blocks_SetToMap(house);
         House_Misc_ClearLandscapesAndGuides(house);
         House_Misc_MapHeights_Modify(house);
@@ -393,8 +380,7 @@ namespace NC2Logic
         const SSectorGridCursor cursor(Read<std::uint32_t>(house, 0x1C));
         auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
         void* sector = manager->GetSectorData() + (static_cast<std::uint32_t>(cursor.y) * static_cast<std::uint32_t>(manager->GetGridWidth()) + static_cast<std::uint32_t>(cursor.x)) * 0x540u;
-        const auto type = Read<std::uint32_t>(house, 0x14);
-        const auto offset = Read<std::uint32_t>(house, 0x0C) * 64u + ((type == 40 || type == 41 || type == 39 || type == 1) ? 0x28u : 0x10u);
+        const auto offset = House_GetPlayerId(house) * 64u + (House_IsMilitarySectorType(Read<std::uint32_t>(house, 0x14)) ? 0x28u : 0x10u);
         const auto previous = Read<std::int32_t>(sector, offset);
         Write(sector, offset, Read<std::uint32_t>(house, 4));
         Write(house, 0x7A4, previous);
@@ -409,8 +395,7 @@ namespace NC2Logic
         const SSectorGridCursor cursor(Read<std::uint32_t>(house, 0x1C));
         auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
         void* sector = manager->GetSectorData() + (static_cast<std::uint32_t>(cursor.y) * static_cast<std::uint32_t>(manager->GetGridWidth()) + static_cast<std::uint32_t>(cursor.x)) * 0x540u;
-        const auto type = Read<std::uint32_t>(house, 0x14);
-        const auto offset = Read<std::uint32_t>(house, 0x0C) * 64u + ((type == 40 || type == 41 || type == 39 || type == 1) ? 0x28u : 0x10u);
+        const auto offset = House_GetPlayerId(house) * 64u + (House_IsMilitarySectorType(Read<std::uint32_t>(house, 0x14)) ? 0x28u : 0x10u);
         const auto id = Read<std::uint32_t>(house, 4);
         auto previous = Read<std::uint32_t>(sector, offset);
         if (previous == id)

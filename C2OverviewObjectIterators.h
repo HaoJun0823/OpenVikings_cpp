@@ -27,6 +27,8 @@ namespace NC2Logic
         CHouseIterator();
         std::int32_t GetFirstHouseId();
         std::int32_t GetFirstHouseId(std::uint32_t player);
+        std::int32_t GetFirstHouseId(std::uint32_t player, const void* point, std::uint32_t radius);
+        std::int32_t GetFirstHouseId(std::uint32_t player, const void* point, std::uint32_t radius, std::uint32_t engineType);
         std::int32_t GetNextHouseId();
         std::int32_t GetFirstSectorHouseId(std::uint32_t player, const void* point, std::uint32_t radius, bool useSecondList);
         std::int32_t GetNextSectorHouseId();

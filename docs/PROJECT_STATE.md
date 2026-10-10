@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Building helpers, overlays and mission operations - 2026-10-10
+
+The known house-helper block, house-area engine callback and building tooltip/debug passes are now connected. Ten building goal branches and seven result branches add construction/discovery/stock/area checks, extension replacement, damage, onscreen counts, overlay and behavior flags. Native production call order and the building-animation preflight are corrected. All 116 known candidates in 00430FCE..00434CCF are mapped. See [BUILDING_COMPLETION.md](BUILDING_COMPLETION.md) and [BUILDING_LIST.md](BUILDING_LIST.md).
+
+**4157 / 5062 (82.12%)** source-address coverage; **905** known entries open, **272 cpp / 252 headers**, **2291 naming rows / 52 unfinished boundaries**. Eighteen new bodies plus two corrected inventory exclusions/mappings increase coverage by twenty. Fifteen affected/integration units passed Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe determine behavior; Mac supplies names only. No build, tests or game run occurred; untracked CombatTasks remain untouched and excluded.
+
+The 35-asset audit connects 73 formerly missing goal and 49 result occurrences. General AI group notifications, vehicle/sea simulation, other mission cases and runtime building confirmation remain open; this count is not gameplay completion. Next logical block: queued vehicle attachment/detachment and remaining campaign resource/object/combat predicates, following their native dependencies.
+
 ## Campaign allowances and building-restriction checkpoint - 2026-10-10
 
 Eight native result branches now grant job/good/house allowances or availability, deactivate all mission groups and set/clear physical house-build restrictions. Two goal branches read native job/good availability flags. The complete human capability-refresh tree retains experience/sex/behavior checks, soldier/hero equipment differences, message order, callbacks and final job setup/update; the separate original equipment-message body replaces its previous inline copy. Hex-ring build restriction preserves center/edge handling and native bit writes. See [CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md](CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md).

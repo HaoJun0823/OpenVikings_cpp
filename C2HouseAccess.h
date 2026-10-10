@@ -2,6 +2,15 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    std::uint32_t House_GetPlayerId(const void* house);
+    const void* House_GetMapPositionRef(const void* house);
+    const void* House_Door_GetEntryPointRef(const void* house);
+    bool House_Inhabitants_IsHumanAttachedAsWorker(const void* house, std::uint32_t human);
+    void* House_Inhabitants_GetAttachedHumanPtr(void* house, std::uint32_t slot);
+    bool House_Religion_IsHolyFireActive(const void* house);
+    void House_LandscapeOverlay_SetActive(void* house, std::int32_t overlay, bool enabled);
+    bool House_IsMilitarySectorType(std::uint32_t type);
+    void House_SetBehaviourFlag(void* house, std::uint32_t bit, bool enabled);
     void House_Door_GetEntryPoint(const void* house, void* point);
     bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t flags);
     void House_Exit(void* house);

@@ -454,7 +454,9 @@ namespace NC2Logic
         {
             auto* house = WorkHouse(human);
             const auto& good = gStaticGoodTypeStorage.records[id];
-            if (InputsAvailable(house, good) && !House_Stock_IsFullSoon(house, id))
+            const bool inputsAvailable = InputsAvailable(house, good);
+            const bool stockFullSoon = House_Stock_IsFullSoon(house, id);
+            if (inputsAvailable && !stockFullSoon)
             {
                 for (std::uint32_t index = 0; index < good.productionInputCount; ++index) House_Stock_ModifyAmount(house, static_cast<std::uint32_t>(good.productionInputs[index]), -1, 0, false);
                 if (id == 57 || id == 58) Human_l_PerformTaskEvent_Produce_Animal(human);

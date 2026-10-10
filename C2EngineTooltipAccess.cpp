@@ -5,6 +5,9 @@
 #include "C2LogicObjectArrays.h"
 #include "C2EngineObjectData.h"
 #include "C2MapGeometry.h"
+#include "C2GameMapAccess.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2StaticHouseTypeData.h"
 #include "GuiToolsBase.h"
 #include "InGameGuiSupportAccess.h"
 #include "XBitmap.h"
@@ -55,6 +58,18 @@ namespace NC2E2
             bitmap->Text_Print(font, &black, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(textX) + static_cast<std::uint32_t>(shadowX[index])), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(shadowY[index])), text);
         bitmap->Text_Print(font, &white, textX, y, text);
         y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(y) + rowHeight);
+    }
+
+    // Original function: FUN_00498f2a; formatting uses the original bounded runtime.
+    static void Display_DrawTooltipOverlay_StringV(const void* display, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t& y, const char* format, ...)
+    {
+        char text[1000];
+        va_list arguments;
+        va_start(arguments, format);
+        NXBasics::Runtime_FormatString(text, 1000, format, arguments);
+        va_end(arguments);
+        text[999] = 0;
+        Display_DrawTooltipOverlay_String(display, bitmap, x, y, text);
     }
 
     // Original function: FUN_004cd2bb; compare plural good names.
@@ -234,6 +249,58 @@ namespace NC2E2
         std::int32_t point[2];
         Display_MapMigToLocalDisplayPixelCoordinates(display, position, point, true);
         Display_DrawTooltipOverlay_House(display, houseId, showGoods, bitmap, point[0], point[1]);
+    }
+
+    // Original function: FUN_004986c5; row/column offsets retain native DWORD wrapping.
+    void __fastcall Display_l_DE_DrawTooltipOverlays(void* display, void* /*unusedEdx*/, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* origin)
+    {
+        for (std::int32_t row = 0; row < rectangle[3]; ++row)
+        {
+            std::int16_t point[2] = {rectangle[0], static_cast<std::int16_t>(static_cast<std::uint32_t>(rectangle[1]) + static_cast<std::uint32_t>(row))};
+            const auto rowOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, 0x0C) * static_cast<std::uint32_t>(row) + 127u) >> 8;
+            const auto baseY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(origin[1]) + static_cast<std::uint32_t>(rowOffset));
+            const auto baseX = static_cast<std::uint32_t>(origin[0]) + ((static_cast<std::uint16_t>(point[1]) & 1u) + 1u) * Tooltip_ReadField<std::uint32_t>(display, 0x2C);
+            (void)EngineMap_GetConstMapMicroPointPtr(point);
+            const auto* micro = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
+            for (std::int32_t column = 0; column < rectangle[2]; ++column, ++point[0], micro += 0x0E)
+            {
+                const auto player = Tooltip_ReadField<std::uint32_t>(display, 0x7C);
+                if ((Tooltip_ReadField<std::uint8_t>(display, 0x70) & 4u) != 0 && player < 16 && (Tooltip_ReadField<std::uint16_t>(micro, 8) & (1u << player)) == 0) continue;
+                const auto columnOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, 0x10) * static_cast<std::uint32_t>(column) + 127u) >> 8;
+                const auto x = NXBasics::Runtime_TimeSigned32(baseX + static_cast<std::uint32_t>(columnOffset));
+                const auto heightOffset = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeightAtMapMigPoint(point)) * Tooltip_ReadField<std::uint32_t>(display, 0x14) + 127u) >> 8;
+                const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(baseY) - static_cast<std::uint32_t>(heightOffset));
+                if (Tooltip_ReadField<std::uint8_t>(micro, 0) == 2 && (Tooltip_ReadField<std::uint8_t>(micro, 2) & 1u) != 0) Display_DrawTooltipOverlay_House(display, Tooltip_ReadField<std::uint16_t>(micro, 4), true, bitmap, x, y);
+                if (Tooltip_ReadField<std::uint16_t>(micro, 0x0A) == 0xFFFFu) continue;
+                NC2Logic::CMapMoveableIterator iterator;
+                for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId()) Display_DrawTooltipOverlay_MapMoveable(display, static_cast<std::uint32_t>(id), bitmap, x, y);
+            }
+        }
+    }
+
+    // Original function: FUN_0049938d; the debug pass deliberately visits all allocated houses.
+    void __fastcall Display_l_DE_Debug_DrawHousesDebugInfos(void* display)
+    {
+        NC2Logic::CHouseIterator iterator;
+        for (auto id = iterator.GetFirstHouseId(); id != -1; id = iterator.GetNextHouseId())
+        {
+            const void* house = Tooltip_AddressAt(NC2Logic::CHouseArray::mStaticVars, static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize);
+            std::int32_t point[2];
+            Display_MapMigToLocalDisplayPixelCoordinates(display, NC2Logic::House_GetMapPositionRef(house), point, false);
+            auto* bitmap = Tooltip_ReadField<NXBasics::CBitmap*>(display, 0x68);
+            const NXBasics::SColorRGB white(255, 255, 255);
+            bitmap->Draw_Circle(point[0], point[1], 3, white);
+            Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "%d: %s", id, NC2Logic::House_GetHouseTypeDataPtr(house)->debugName);
+            Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "slots: %d", 20);
+            Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "full : %d", NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "home : %d", NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house, 1));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "work : %d", NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house, 2));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "const: %d", NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house, 4));
+            if (NC2Logic::House_Stock_CanStoreGoodType(house, 16, false)) Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "in_food:  %d", NC2Logic::House_Stock_GetAmountOfGoods(house, 16, false));
+            if (NC2Logic::House_Stock_CanStoreGoodType(house, 16, true)) Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "out_food: %d", NC2Logic::House_Stock_GetAmountOfGoods(house, 16, true));
+            if (NC2Logic::House_Stock_CanStoreGoodType(house, 5, false)) Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "in_wood:  %d", NC2Logic::House_Stock_GetAmountOfGoods(house, 5, false));
+            if (NC2Logic::House_Stock_CanStoreGoodType(house, 5, true)) Display_DrawTooltipOverlay_StringV(display, bitmap, point[0], point[1], "out_wood: %d", NC2Logic::House_Stock_GetAmountOfGoods(house, 5, true));
+        }
     }
 
     // Original function: FUN_00498d98; the Windows routine does not read showGoods.

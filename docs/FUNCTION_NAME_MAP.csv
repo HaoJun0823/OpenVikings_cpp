@@ -664,7 +664,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00482614,NC2E2::EngineMap_l_HeightChanged_Callback,NC2E2::C2DEngineMap::l_HeightChanged_Callback,65938,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 004828E5,NC2E2::EngineMap_Brightness_Get,NC2E2::C2DEngineMap::Brightness_Get,66358,Mac symbol; Windows assembly confirms the landscape drawing helper
 00482C00,NC2E2::EngineMap_l_Transitions_Callback,NC2E2::C2DEngineMap::l_Transitions_Callback,66014,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-00482DC0,NC2E2::EngineMap_OverlayPattern_HouseAreaChanged,NC2E2::C2DEngineMap::OverlayPattern_HouseAreaChanged,66903,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+00482DC0,NC2E2::EngineMap_OverlayPattern_HouseAreaChanged,NC2E2::C2DEngineMap::OverlayPattern_HouseAreaChanged,5349,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
 0048571D,NC2E2::E2HumanSoundManager_ClearSeenHumanCounter,NC2E2::CE2HumanSoundManager::ClearSeenHumanCounter,58777,Original Mac name; Windows x86 control flow and object offsets confirmed
 00485735,NC2E2::E2HumanSoundManager_IncreaseSeenCounter,NC2E2::CE2HumanSoundManager::IncreaseSeenCounter,58811,Original Mac name; Windows x86 control flow and object offsets confirmed
 00486336,NC2E2::E2ParticelManager_Construct,NC2E2::CE2ParticelManager::CE2ParticelManager,70029,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -707,9 +707,9 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004966DA,NC2E2::DrawAtom_House_Tool_DoDrawBob,NC2E2::DrawAtom_House_Tool_DoDrawBob,54358,Mac original symbol; full Windows drawing/call/clipping/packed-pixel branches confirmed
 0049710B,NC2E2::DrawAtom_Landscape_Wall_DoDraw,NC2E2::DrawAtom_Landscape_Wall_DoDraw,54763,Mac symbol; Windows assembly confirms the landscape drawing helper
 004972DE,NC2E2::DrawAtom_Landscape_GetBobData,NC2E2::DrawAtom_Landscape_GetBobData,54857,Original Mac name; Windows x86 control flow and object offsets confirmed
-004986C5,Display_l_DE_DrawTooltipOverlays,NC2E2::C2DEngineDisplay::l_DE_DrawTooltipOverlays,48118,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+004986C5,NC2E2::Display_l_DE_DrawTooltipOverlays,NC2E2::C2DEngineDisplay::l_DE_DrawTooltipOverlays,5037,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
 004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,NC2E2::C2DEngineDisplay::l_DE_Debug_DrawMapMoveablesDebugInfos,48835,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0049938D,Display_l_DE_Debug_DrawHousesDebugInfos,NC2E2::C2DEngineDisplay::l_DE_Debug_DrawHousesDebugInfos,48962,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0049938D,NC2E2::Display_l_DE_Debug_DrawHousesDebugInfos,NC2E2::C2DEngineDisplay::l_DE_Debug_DrawHousesDebugInfos,5051,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
 004995D8,Display_l_DE_Debug_DrawGridLines,NC2E2::C2DEngineDisplay::l_DE_Debug_DrawGridLines,49072,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 00499AD5,DrawAtom_FishManager_DoDraw,NC2E2::DrawAtom_FishManager_DoDraw,52433,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0049B30B,NC2E2::DrawAtom_Tool_GetSelectedBrightness,NC2E2::DrawAtom_Tool_GetSelectedBrightness,56690,Original Mac name; Windows x86 control flow and object offsets confirmed
@@ -2274,3 +2274,19 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0044A07C,NC2Logic::Human_UpdatePlayerSpecificStuffAndCaps,NC2Logic::CHuman::UpdatePlayerSpecificStuffAndCaps,8018,"Windows ASM/Game.exe establish behavior, layout and correspondence; Mac header supplies names only; see CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md"
 0045C1EA,NC2Logic::Human_UserMessage_SendToUserMessage_CanEquipNewItem,NC2Logic::CHuman::UserMessage_SendToUserMessage_CanEquipNewItem,8105,"Windows ASM/Game.exe establish behavior, layout and correspondence; Mac header supplies names only; see CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md"
 0044DCAC,NC2Logic::Map_HouseBuildForbiddenFlagTool_SetArea,NC2Logic::Map_HouseBuildForbiddenFlagTool_SetArea,8977,"Windows ASM/Game.exe establish behavior, layout and correspondence; Mac header supplies names only; see CAMPAIGN_ALLOWANCES_AND_BUILD_RESTRICTIONS.md"
+004171E7,NC2Logic::MissionOnscreenInfoManager_Info_Set,NC2Logic::CMissionOnscreenInfoManager::Info_Set,9122,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+004230B4,NC2Logic::House_SetBehaviourFlag,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+0042B7AE,NC2Logic::CHouseIterator::GetFirstHouseId,NC2Logic::CHouseIterator::GetFirstHouseId,7233,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+0042B7E4,NC2Logic::CHouseIterator::GetFirstHouseId,NC2Logic::CHouseIterator::GetFirstHouseId,7234,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+00431CD3,NC2Logic::MapMicroPointData_House_SetRoot,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+00431DC6,NC2Logic::MapMicroPointData_House_SetDoor,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+004322B6,NC2Logic::House_Inhabitants_IsHumanAttachedAsWorker,NC2Logic::CHouse::Inhabitants_IsHumanAttachedAsWorker,7298,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+0043264F,NC2Logic::House_Door_GetEntryPointRef,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+00432740,NC2Logic::House_Inhabitants_GetAttachedHumanPtr,NC2Logic::CHouse::Inhabitants_GetAttachedHumanPtr,7319,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+0043322F,NC2Logic::House_Religion_IsHolyFireActive,NC2Logic::CHouse::Religion_IsHolyFireActive,7341,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+00433621,NC2Logic::House_CanEnableDefenceMode,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+00433A95,NC2Logic::House_GetPlayerId,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+00433A99,NC2Logic::House_GetMapPositionRef,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+00434259,NC2Logic::House_LandscapeOverlay_SetActive,NC2Logic::CHouse::LandscapeOverlay_SetActive,7364,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only
+004345F2,NC2Logic::House_IsMilitarySectorType,,,"Windows-only outlined entry; semantic name established from Windows writes, reads and call sites; no Mac naming correspondence established"
+00498F2A,NC2E2::Display_DrawTooltipOverlay_StringV,NC2E2::C2DEngineDisplay::l_DE_DrawTooltipOverlay_StringV,5044,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies the original name only

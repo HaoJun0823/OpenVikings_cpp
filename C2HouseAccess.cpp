@@ -19,6 +19,53 @@
 #include "C2HumanGoods.h"
 namespace NC2Logic
 {
+    // Original function: FUN_004322b6; homes do not expose worker attachments.
+    bool House_Inhabitants_IsHumanAttachedAsWorker(const void* house, std::uint32_t human)
+    {
+        if (House_GetHouseMainType(house) == 2) return false;
+        const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(const_cast<void*>(house), human);
+        return slot != nullptr && (NC2Lifetime::Read<std::uint8_t>(slot, 0) & 2u) != 0;
+    }
+
+    // Original function: FUN_0043264f; Windows-only outlined door reference.
+    const void* House_Door_GetEntryPointRef(const void* house) { return static_cast<const std::byte*>(house) + 0x24; }
+
+    // Original function: FUN_00432740; the native slot address is unchecked.
+    void* House_Inhabitants_GetAttachedHumanPtr(void* house, std::uint32_t slot)
+    {
+        const auto* attachment = House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot);
+        if (attachment == nullptr) return nullptr;
+        return CHumanArray::mStaticVars + NC2Lifetime::Read<std::uint32_t>(attachment, 4) * CHumanArray::ElementSize;
+    }
+
+    // Original function: FUN_0043322f; the fire counter comparison is signed.
+    bool House_Religion_IsHolyFireActive(const void* house)
+    {
+        return NC2Lifetime::Read<std::uint8_t>(house, 0x7D0) == 0 && NC2Lifetime::Read<std::uint32_t>(house, 0x2C) == 3 && NC2Lifetime::Read<std::int32_t>(house, 0x794) > 0;
+    }
+
+    // Original function: FUN_00433a95; Windows-only outlined owner getter.
+    std::uint32_t House_GetPlayerId(const void* house) { return NC2Lifetime::Read<std::uint32_t>(house, 0x0C); }
+    // Original function: FUN_00433a99; Windows-only outlined map-position reference.
+    const void* House_GetMapPositionRef(const void* house) { return static_cast<const std::byte*>(house) + 0x1C; }
+
+    // Original function: FUN_00434259; native invalid overlay indices are ignored.
+    void House_LandscapeOverlay_SetActive(void* house, std::int32_t overlay, bool enabled)
+    {
+        if (overlay >= 0 && overlay < 10) NC2Lifetime::Write<std::uint8_t>(house, 0x7BCu + static_cast<std::uint32_t>(overlay), enabled);
+    }
+
+    // Original function: FUN_004345f2; Windows-only outlined sector-list predicate.
+    bool House_IsMilitarySectorType(std::uint32_t type) { return type == 40 || type == 41 || type == 39 || type == 1; }
+
+    // Original function: FUN_004230b4; x86 masks the shift count to five bits.
+    void House_SetBehaviourFlag(void* house, std::uint32_t bit, bool enabled)
+    {
+        const auto mask = 1u << (bit & 31u);
+        const auto flags = NC2Lifetime::Read<std::uint32_t>(house, 0x7DC);
+        NC2Lifetime::Write(house, 0x7DC, enabled ? flags | mask : flags & ~mask);
+    }
+
     // Original function: FUN_00434c1a; the engine type supplies the repair threshold.
     bool House_HitPoints_IsDamaged(const void* house)
     {
