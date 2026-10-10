@@ -34,6 +34,8 @@ The refreshed 35-asset script audit connects **73 formerly missing goal occurren
 
 ## Verification and remaining boundaries
 
+Follow-up linker correction: the foreground caller still declared 004986C5 and 0049938D in the global namespace after their real bodies moved into NC2E2. Both declarations now reside in C2EngineDisplayAccess.h inside NC2E2, shared by the caller and implementation; calling conventions and parameter types stay unchanged. The two production units passed Win32 /Zs. No full build/link run was performed. Source-address coverage is unchanged.
+
 Fifteen distinct affected/integration units passed MSVC Win32 /Zs syntax-only checking. Project/filter parity remains 272 cpp / 252 headers; naming addresses are unique, registered files exist and whitespace checks pass. No build, tests or game run occurred. The untracked user-owned C2HumanCombatTasks files are untouched and excluded.
 
 Current whole-project source-address coverage is **4157 / 5062 (82.12%)**, **905** known entries open, **2291** naming rows and **52** explicit unfinished boundaries. Three temporary display/callback dummies are removed. The 21 existing unmatched declaration signatures are unchanged; no raw call lacks a mapped body.

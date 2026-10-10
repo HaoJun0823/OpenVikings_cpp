@@ -36,6 +36,9 @@ namespace NC2E2
     // Original function: FUN_0047c713; destroys resources without freeing the display object.
     void Display_Destruct(void* display);
 
+    void __fastcall Display_l_DE_DrawTooltipOverlays(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* origin);
+    void __fastcall Display_l_DE_Debug_DrawHousesDebugInfos(void* display);
+
     // Original function: FUN_0047c73c
     bool Display_AssignNewDisplayDefinitionValues(void* display, float verticalSpacing, float horizontalSpacing, float heightScale, bool preservePosition);
 

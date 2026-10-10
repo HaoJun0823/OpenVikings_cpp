@@ -33,9 +33,7 @@ extern void __cdecl DrawAtom_FishManager_DoDraw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Rain_Draw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void* display);
 extern void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void* display);
-extern void __fastcall Display_l_DE_DrawTooltipOverlays(void* display, void* unusedEdx, const std::int16_t* rectangle, NXBasics::CBitmap* bitmap, const std::int32_t* point);
 extern void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display);
-extern void __fastcall Display_l_DE_Debug_DrawHousesDebugInfos(void* display);
 extern void __fastcall Display_l_DE_Debug_DrawGridLines(void* display);
 extern void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap* bitmap);
 
