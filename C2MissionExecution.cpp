@@ -10,6 +10,11 @@
 #include "C2HumanWalking.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanCommandAccess.h"
+#include "C2HouseBuildPosition.h"
+#include "C2MapPathfinderSearch.h"
+#include "C2EngineLandscapeAccess.h"
+#include "C2StaticVehicleTypeData.h"
+#include "C2Debug.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2GuideAccess.h"
 #include "C2AISavegameAccess.h"
@@ -193,6 +198,75 @@ namespace NC2Logic
         const auto* p = result.parameters;
         switch (result.type)
         {
+        case 1:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[3]), static_cast<std::int16_t>(p[4]), false);
+            Logic_EntryPoint_Add_Human(p[0], p[1], p[2], &point, p[5], p[6]);
+            break;
+        }
+        case 2:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[3]), static_cast<std::int16_t>(p[4]), false);
+            const auto vehicleId = Logic_EntryPoint_Add_Vehicle(p[0], p[1], p[2], &point, p[5]);
+            if (vehicleId == -1 || p[6] == 0) break;
+            void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleId) * CVehicleArray::ElementSize;
+            const auto* type = Vehicle_GetVehicleTypeDataPtr(vehicle);
+            std::uint32_t entryPoint = 0;
+            Vehicle_Door_GetEntryPoint(vehicle, &entryPoint, 0);
+            if (!MapMigPoint_IsInsideMap(&entryPoint)) break;
+            const auto humanId = Logic_EntryPoint_Add_Human(p[0], p[1], static_cast<std::uint32_t>(type->commanderType), &entryPoint, p[5], 0);
+            if (humanId == -1) break;
+            void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
+            // Windows tests nonzero, including the command's unchanged/failed result 1.
+            if (Human_DoExecuteUserCommand_AttachVehicle(human, vehicleId, Read<std::uint32_t>(vehicle, 8)) != 0 && Human_VehicleMisc_Enter(human) != 0) break;
+            CHumanArray::sTheObjectPtr->FreeHuman(humanId);
+            break;
+        }
+        case 3:
+        {
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[4]), static_cast<std::int16_t>(p[5]), false);
+            const auto engineType = NC2LogicExternals::External_HouseType_GetEngineId(result.text);
+            std::uint32_t search[4] = {p[0], static_cast<std::uint32_t>(engineType), p[2], 0};
+            if (CMapPathfinderElement::SearchOverMap(&point, 12, false, Tool_HouseBuildPointSearchEvaluationFunction, search, false, -1)) Logic_EntryPoint_House_Set(p[0], static_cast<std::uint32_t>(engineType), p[2], search + 3, p[3] != 0, p[6]);
+            else C2Debug_WarningBoxV("Can't set House near Position %d %d!!!", p[4], p[5]);
+            break;
+        }
+        case 4:
+        {
+            Logic_EntryPoint_Edit_Start();
+            const auto engineId = NC2LogicExternals::External_Landscape_GetLandscapeIdByNamePtr(result.text);
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[0]), static_cast<std::int16_t>(p[1]), false);
+            NC2LogicExternals::External_Landscape_SetMapMicroPointLandscape(&point, engineId, p[3], p[4] != 0, -1);
+            Logic_EntryPoint_Edit_Stop();
+            break;
+        }
+        case 5:
+            Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 1);
+            for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
+                Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, 0x0C));
+            Write<std::uint8_t>(&gGameStaticVars, 0x1B0, 0);
+            break;
+        case 6:
+            for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
+                Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, 0x1DC));
+            break;
+        case 7:
+            for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id))
+                Logic_EntryPoint_House_Remove(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize + 0x1C);
+            break;
+        case 8:
+        {
+            Logic_EntryPoint_Edit_Start();
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(p[0]), static_cast<std::int16_t>(p[1]), false);
+            Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 0, 0, -1, 0, -1);
+            Logic_EntryPoint_Edit_Stop();
+            break;
+        }
         case 9:
             if (p[1] != 0) Write(manager, 0, p[0]);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1B, 1, p[0], 0, 0);

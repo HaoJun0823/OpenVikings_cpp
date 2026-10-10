@@ -97,6 +97,28 @@ namespace NC2Logic
         return 1;
     }
 
+    // Original function: FUN_0043d05f; existing connections are detached before target validation.
+    std::uint32_t Human_DoExecuteUserCommand_AttachVehicle(void* human, std::int32_t id, std::uint32_t revision)
+    {
+        // Windows 0042C8FD is an unconditional true eligibility predicate.
+        if (!Human_l_IsAtomicInterruptable(human)) return 0;
+        if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) return 1;
+        if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
+        auto* vehicle = Vehicle(id);
+        if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != revision) return 1;
+        if (!Vehicle_Passengers_AttachHuman(vehicle, Read<std::uint32_t>(human, 4)))
+        {
+            Human_UserMessage_SendToUserMessage_CannotAttachVehicle(human);
+            return 1;
+        }
+        Write<std::uint32_t>(human, 0xB64, 0);
+        Write<std::uint32_t>(human, 0xB70, 0);
+        Write(human, 0xB48, id);
+        Write(human, 0xB4C, Read<std::uint32_t>(vehicle, 8));
+        Queue(human, 25, 0, 0);
+        return 2;
+    }
+
     // Original function: FUN_0043d181; passenger movement and detachment are distinct.
     std::uint32_t Human_DoExecuteUserCommand_DetachVehicle(void* human)
     {

@@ -167,6 +167,22 @@ namespace NC2Logic
     // Original function: FUN_0040b0a0.
     void Logic_EntryPoint_Edit_Stop() { GameMapModifyManager_StopGameMapModify(); }
 
+    // Original function: FUN_0040add6; release the owning object, not just its moveable.
+    void Logic_EntryPoint_FreeMapMoveable(std::uint32_t id)
+    {
+        if (id == 0xFFFFFFFFu) return;
+        const void* moveable = Moveable(id);
+        if (Read<std::uint8_t>(moveable, 0) == 0) return;
+        const auto objectId = Read<std::int32_t>(moveable, 0x54);
+        switch (Read<std::uint32_t>(moveable, 8))
+        {
+        case 1: CHumanArray::sTheObjectPtr->FreeHuman(objectId); break;
+        case 2: CAnimalArray::sTheObjectPtr->FreeAnimal(objectId); break;
+        case 3: CVehicleArray::sTheObjectPtr->FreeVehicle(objectId); break;
+        case 4: MarkerArray_FreeMarker(objectId); break;
+        }
+    }
+
     // Original function: FUN_0040ad73.
     std::int32_t Logic_EntryPoint_Add_Human(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags)
     {

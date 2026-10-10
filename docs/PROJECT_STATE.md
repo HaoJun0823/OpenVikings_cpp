@@ -1,5 +1,15 @@
 # OpenVikings Project State
 
+## Campaign object creation/removal checkpoint - 2026-10-10
+
+Eight native result branches now create and remove humans, vehicles, houses and landscapes. The connected tree preserves optional vehicle commander creation/attachment/entry and failure cleanup, radius-12 nearby house placement with the shared native callback, map-modification scopes and the original removal flag/iteration order. The real owner-dispatch free routine replaces its temporary dummy and also enables normal user delete commands. Human vehicle assignment and its failure-message helper are reconstructed and connected to normal command 38. See [CAMPAIGN_OBJECT_LIFECYCLE.md](CAMPAIGN_OBJECT_LIFECYCLE.md).
+
+**4134 / 5062 (81.67%)** source-address coverage, **928** known entries open; **272 cpp / 252 headers**, **2272 naming rows / 56 unfinished boundaries**. Seven original entries are newly mapped; enclosing result/human command dispatchers remain partial and excluded. Eleven affected/integration units passed MSVC Win32 `/Zs`; project/filter, naming and whitespace checks passed. Windows ASM/Game.exe establish behavior; Mac supplies names only. No build, tests or game run occurred. User-owned untracked CombatTasks remain untouched and excluded.
+
+The refreshed 35-asset audit connects 573 formerly missing result occurrences, 524 in story assets. Remaining story source branches: 21 goal types / 185 occurrences and 47 result types / 678 occurrences; all assets: 30 / 277 and 53 / 726. These are static script counts, not gameplay completion. The removal byte's exact original member name and neighboring unresolved flag bytes, PlayerDied's periodic producer and broader vehicle/AI/weather/drawing remain open. The source parser's existing 21 unmatched declaration signatures are unchanged; the previously documented mapped raw-helper call is not a missing linker body.
+
+Next logical block: job/good/building allowances, enable/disable commands and native restrictions; then queued vehicle attachment/detachment actions and remaining area-resource/combat/wonder conditions/actions. Follow original dependencies and available-command checks.
+
 ## Campaign human movement/docking and owner transfer checkpoint - 2026-10-10
 
 Four native result branches now transfer humans individually or whole-player objects in the original order, send humans to corrected destinations and issue vehicle docking commands. The complete human transfer/reset/constructor tree preserves attachment-dependent exploration, connection detachment flags, callback order and job updates. The distinct vehicle player iterator and AI house-array rebuild/recalculate leaves are reconstructed. Three real outlined helper names remain unresolved and retain their original FUN_ addresses; no fake/link-only helpers were added. See [CAMPAIGN_HUMAN_COMMANDS.md](CAMPAIGN_HUMAN_COMMANDS.md).

@@ -740,6 +740,7 @@ namespace NC2Logic
         case 35: return Human_DoExecuteUserCommand_LearnGood(human, Read<std::uint32_t>(command, 12));
         case 36: return Human_DoExecuteUserCommand_AttachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
         case 37: return Human_DoExecuteUserCommand_DetachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case 38: return Human_DoExecuteUserCommand_AttachVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
         case 39: return Human_DoExecuteUserCommand_DetachVehicle(human);
         case 41:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;

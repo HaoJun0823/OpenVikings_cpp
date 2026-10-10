@@ -9,6 +9,8 @@ namespace NC2Logic
     bool Logic_EntryPoint_IsPlayerInGame(std::int32_t player);
     bool Logic_EntryPoint_IsPlayerNotInMultiPlayerGame(std::int32_t player);
     std::int32_t Logic_EntryPoint_House_GetOnPosition(const void* point);
+    void Logic_EntryPoint_House_Remove(const void* point);
+    void Logic_EntryPoint_FreeMapMoveable(std::uint32_t id);
     void Logic_EntryPoint_Guide_Set(std::uint32_t player, const void* point, std::uint32_t flags);
     std::int32_t Logic_EntryPoint_Add_Human(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags);
     std::int32_t Logic_EntryPoint_Add_Animal(std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags);
@@ -26,7 +28,6 @@ namespace NC2Logic
     bool Human_IsHavingChild(const void* human);
     void Human_Production_SetCounter(void* human, std::uint32_t good, std::uint32_t counter);
 
-    // These object operations remain explicit reconstruction boundaries.
     bool House_Inhabitants_AttachHuman(void* house, std::uint32_t human, std::uint32_t attachmentMask);
     bool House_Inhabitants_DetachHuman(void* house, std::uint32_t human, std::uint32_t attachmentMask);
     std::uint32_t Human_DoExecuteUserCommand_AttachHomeHouse(void* human, std::int32_t house, std::uint32_t revision);

@@ -6,6 +6,7 @@
 #include "C2LogicObjectArrays.h"
 #include "C2MapArea.h"
 #include "C2MapGeometry.h"
+#include "C2MapPathfinderSearch.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2VehicleAccess.h"
 #include "C2VehicleIterator.h"
@@ -13,6 +14,15 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+
+    // Original function: FUN_0044dd43; shared by mission and AI house placement.
+    bool __cdecl Tool_HouseBuildPointSearchEvaluationFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* data)
+    {
+        auto* search = static_cast<std::uint32_t*>(data->userData);
+        if (!Tool_House_IsAllowedToBeBuild(search[0], NXBasics::Runtime_TimeSigned32(search[1]), search[2], Read<std::uint32_t>(point, 0), false, false)) return false;
+        search[3] = Read<std::uint32_t>(point, 0);
+        return true;
+    }
 
     // Original function: FUN_00441151; stage work-area points retain WORD coordinate wrapping.
     bool Tool_House_IsWorkPointOnContinent(const void* point, std::int32_t engineType, std::uint32_t stage, std::uint32_t continent, void* workPoint)

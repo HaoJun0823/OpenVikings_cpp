@@ -14,6 +14,7 @@
 #include "C2LogicObjectArrays.h"
 #include "C2MapArea.h"
 #include "C2MapGeometry.h"
+#include "C2MissionStartObjects.h"
 #include "C2MapSectorAttachment.h"
 #include "C2MapSectorGridCursor.h"
 #include "C2StaticHouseTypeData.h"
@@ -61,6 +62,13 @@ namespace NC2Logic
     {
         if (engineType == 0xFFFFFFFFu) return -1;
         return CHouseArray::sTheObjectPtr->AllocateHouse(player, engineType, stage, point, finished, flags);
+    }
+
+    // Original function: FUN_0040ae62.
+    void Logic_EntryPoint_House_Remove(const void* point)
+    {
+        const auto id = Logic_EntryPoint_House_GetOnPosition(point);
+        if (id != -1) CHouseArray::sTheObjectPtr->FreeHouse(id);
     }
 
     // Original function: FUN_00430fce; the position is a by-value Windows argument.

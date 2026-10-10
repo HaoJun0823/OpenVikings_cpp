@@ -4,6 +4,8 @@
 
 namespace NC2Logic
 {
+    struct SMapPathfinderManagerSearchOverMapCallbackData;
+    bool __cdecl Tool_HouseBuildPointSearchEvaluationFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* data);
     bool Tool_House_IsWorkPointOnContinent(const void* point, std::int32_t engineType, std::uint32_t stage, std::uint32_t continent, void* workPoint);
     bool Tool_House_IsAllowedToBeBuild(std::uint32_t player, std::int32_t engineType, std::uint32_t stage, std::uint32_t point, bool ignoreTerrain, bool checkBioPattern);
     bool Tool_Human_IsAnyOfPlayerAround(std::uint32_t player, const void* point, std::int32_t radius, bool includeVehicles);

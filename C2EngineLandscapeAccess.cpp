@@ -13,6 +13,8 @@
 
 namespace NC2E2
 {
+    // Original function: FUN_00481002.
+    std::int32_t Engine2d_EntryPoint_GetLandscapeIdByNamePtr(const char* name) { return E2StaticDataLandscapesManager_GetLandscapeId(name); }
     // Original function: FUN_004825be; Windows argument order and border rejection.
     bool EngineMap_MapMicroPoint_Landscape_SetType(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player)
     {
@@ -130,6 +132,8 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
+    // Original function: FUN_00480893.
+    std::int32_t External_Landscape_GetLandscapeIdByNamePtr(const char* name) { return NC2E2::Engine2d_EntryPoint_GetLandscapeIdByNamePtr(name); }
     // Original function: FUN_00480877.
     bool External_Landscape_SetMapMicroPointLandscape(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player)
     {

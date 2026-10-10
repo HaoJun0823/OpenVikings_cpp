@@ -7,12 +7,14 @@ namespace NC2E2
 {
     bool EngineMap_MapMicroPoint_Landscape_SetType(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player);
     bool Engine2d_EntryPoint_Edit_SetMapMicroPointLandscape(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player);
+    std::int32_t Engine2d_EntryPoint_GetLandscapeIdByNamePtr(const char* name);
     void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void* manager, void* unusedEdx);
 }
 
 namespace NC2LogicExternals
 {
     bool External_Landscape_SetMapMicroPointLandscape(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player);
+    std::int32_t External_Landscape_GetLandscapeIdByNamePtr(const char* name);
     std::int32_t External_Misc_GetEngineDepotLandscapeId(std::uint32_t tribe, std::uint32_t type);
     std::int32_t External_Misc_GetEngineCadaverLandscapeId(std::uint32_t tribe, std::uint32_t type);
     std::int32_t External_HouseType_GetEngineRuineLandscapeId(std::uint32_t tribe, std::uint32_t type);

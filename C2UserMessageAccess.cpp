@@ -32,6 +32,19 @@ namespace NC2LogicExternals
 
 namespace NC2Logic
 {
+    // Original function: FUN_0045c2e3.
+    void Human_UserMessage_SendToUserMessage_CannotAttachVehicle(void* human)
+    {
+        using namespace NC2Lifetime;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write<std::uint32_t>(message, 0, 41);
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
     // Original function: FUN_0045c243; Windows ignores the requested attachment mask.
     void Human_UserMessage_SendToUserMessage_CannotAttachHouse(void* human, std::uint32_t mask)
     {

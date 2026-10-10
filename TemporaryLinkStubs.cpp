@@ -50,10 +50,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 0040ACE5; implementation pending.
     // Naming reference: NC2Logic::CHouseArray::DoOneGameTick.
 
-    // TEMPORARY DUMMY: Windows address 0040ADD6; implementation pending.
-    // Naming reference: NC2Logic::Logic_EntryPoint_FreeMapMoveable.
-    void __cdecl Logic_EntryPoint_FreeMapMoveable(unsigned int) {}
-
     // TEMPORARY DUMMY: Windows address 0040B183; implementation pending.
     // Naming evidence: Windows only: maximum non-local DirectPlay player latency; no corresponding Mac symbol found.
     unsigned int __cdecl GameTime_Network_GetHighestPlayerLatency(void) { return 0; }
