@@ -656,7 +656,7 @@ namespace NC2InGameGuiMiscWindows
             Write<std::uint32_t>(networkCommand, 8, 0);
             Write<std::uint32_t>(networkCommand, 12, NC2Logic::GameControl_Player_IsNetworkPlayer(NC2Logic::gGameControl, player) ? 1 : 0);
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, networkCommand, true, false);
-            if (Read<std::uint32_t>(&NC2Logic::gGameStaticVars, 0x18) == 1)
+            if (NC2Logic::gGameStaticVars.mapType == 1)
             {
                 auto* info = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(NC2Logic::gGameStaticVars.mapGuid);
                 if (info != nullptr)

@@ -55,7 +55,8 @@ namespace NC2Logic
         unsigned char initialized;
         std::byte unknown001[7];
         SCleanMapGuid mapGuid;                   // +0x008; original 00510820
-        std::byte unknown018[8];
+        std::uint32_t mapType;                   // +0x018; original 00510830, misc_maptype/maptype.
+        std::byte unknown01C[4];
         SGameTimeState gameTime;
         SGameAutosaveState autosave;
         SGameRandomState random;
@@ -80,6 +81,7 @@ namespace NC2Logic
     static_assert(sizeof(SGameRandomState) == 8);
     static_assert(sizeof(SGameStaticVars) == 0x1B8);
     static_assert(offsetof(SGameStaticVars, mapGuid) == 0x08);
+    static_assert(offsetof(SGameStaticVars, mapType) == 0x18);
     static_assert(offsetof(SGameStaticVars, gameTime) == 0x20);
     static_assert(offsetof(SGameStaticVars, autosave) == 0x88);
     static_assert(offsetof(SGameStaticVars, random) == 0x94);

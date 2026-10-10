@@ -15,6 +15,7 @@ namespace NC2Logic
 }
 namespace NC2LogicExternals
 {
+    void External_Misc_SendToUserStringMessage(const char* text, bool unused);
     void External_Misc_SendToUserMessage(const void* message);
     void External_Misc_RemoveUserMessage(std::uint32_t humanId, std::uint32_t type);
 }

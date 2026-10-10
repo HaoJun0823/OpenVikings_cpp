@@ -7,6 +7,16 @@
 #include "C2MapGeometry.h"
 #include "C2HumanMessageAccess.h"
 #include <cstring>
+namespace NC2LogicExternals
+{
+    // Original function: FUN_004a30c0; Windows ignores the second stack argument.
+    void External_Misc_SendToUserStringMessage(const char* text, bool /*unused*/)
+    {
+        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (manager != nullptr) manager->MiscWindows_StringOutputWindow_PrintString(text);
+    }
+}
+
 namespace NC2Logic
 {
     // Original function: FUN_0045c243; Windows ignores the requested attachment mask.

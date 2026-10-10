@@ -1431,4 +1431,8 @@
     <ClCompile Include="C2EngineParticleSimulation.cpp"><Filter>Engine</Filter></ClCompile>
     <ClInclude Include="C2EngineParticleSimulation.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MultiPlayerGoalAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MultiPlayerGoalAccess.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

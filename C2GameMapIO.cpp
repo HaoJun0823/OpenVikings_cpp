@@ -156,7 +156,7 @@ namespace NC2Logic
         if (reader->SearchGroup("logiccontrol") && reader->SearchCommand("mapguid"))
             for (std::uint32_t index = 0; index < 16; ++index) gGameStaticVars.mapGuid.bytes[index] = static_cast<std::uint8_t>(reader->GetInt());
         CleanMapGuid_InitWhenNotSet();
-        if (reader->SearchGroup("misc_maptype") && reader->SearchCommand("maptype")) Write<std::int32_t>(&gGameStaticVars, 0x18, reader->GetInt());
+        if (reader->SearchGroup("misc_maptype") && reader->SearchCommand("maptype")) gGameStaticVars.mapType = static_cast<std::uint32_t>(reader->GetInt());
         if (retainIni)
         {
             if (mapRoot != nullptr) std::strcpy(reinterpret_cast<char*>(&gGameStaticVars) + 0xA0, mapRoot);

@@ -769,4 +769,8 @@
     <ClCompile Include="C2EngineParticleSimulation.cpp" />
     <ClInclude Include="C2EngineParticleSimulation.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2MultiPlayerGoalAccess.cpp" />
+    <ClInclude Include="C2MultiPlayerGoalAccess.h" />
+  </ItemGroup>
 </Project>

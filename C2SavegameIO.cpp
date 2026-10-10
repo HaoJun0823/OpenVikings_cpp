@@ -1,5 +1,6 @@
 #include "C2SavegameIO.h"
 #include "C2SavegamesManager.h"
+#include "C2CleanMapsManager.h"
 #include "C2LifetimeGlobals.h"
 #include "C2IoHelper.h"
 #include "XFile.h"
@@ -322,6 +323,36 @@ namespace NC2Logic
             NXBasics::Runtime_RemoveFile(fullFilename);
         }
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2D, true, 0, 0, 0);
+    }
+
+    // Original function: FUN_0040768a; save/load return values are not checked by Windows.
+    bool SubMap_StartSubMap(std::uint32_t campaignId, std::uint32_t mapId, std::uint32_t pathfinderLimitOverride)
+    {
+        auto* map = gCleanMapsManager->CleanMapList_GetCampaignMapInfoPtr(campaignId, mapId);
+        if (map == nullptr) return false;
+        GameIO_Savegame_Save("sys_temp", nullptr, 8000);
+        gGameControlRuntimeStorage.pathfinderLimitOverridePending = 1;
+        gGameControlRuntimeStorage.pathfinderLimitOverride = pathfinderLimitOverride;
+        GameIO_Cleanmap_Load(map->mapRoot, true, true, false);
+        // Loading replaces the embedded-savegame manager; obtain its current owner now.
+        const bool embedded = EmbeddedSavegameManager_Savegame_DoEmbed(gEmbeddedSavegameManager, "sys_temp");
+        char fullFilename[260];
+        gSavegamesManager->Tool_CreateFullSavegameFilename("sys_temp", fullFilename);
+        NXBasics::Runtime_RemoveFile(fullFilename);
+        if (embedded) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2B, true, 0, 0, 0);
+        return embedded;
+    }
+
+    // Original function: FUN_0040773a; only an absent embedded save returns false.
+    bool SubMap_BackToParent()
+    {
+        if (!EmbeddedSavegameManager_Savegame_RestoreEmbedded(gEmbeddedSavegameManager, "sys_temp")) return false;
+        GameIO_Savegame_Load("sys_temp", false);
+        char fullFilename[260];
+        gSavegamesManager->Tool_CreateFullSavegameFilename("sys_temp", fullFilename);
+        NXBasics::Runtime_RemoveFile(fullFilename);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2C, true, 0, 0, 0);
+        return true;
     }
 
 }

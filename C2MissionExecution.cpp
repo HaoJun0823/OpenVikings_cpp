@@ -5,6 +5,13 @@
 #include "C2GameControlNetwork.h"
 #include "C2GameMapAccess.h"
 #include "C2HumanIterator.h"
+#include "C2MissionStartObjects.h"
+#include "C2LogicObjectArrays.h"
+#include "C2CampaignStaticDataManager.h"
+#include "C2MultiPlayerGoalAccess.h"
+#include "C2SavegameIO.h"
+#include "C2StringAccess.h"
+#include "C2UserMessageAccess.h"
 #include "DSManager.h"
 
 namespace NC2Logic
@@ -34,7 +41,7 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_0041e2ae; submap transition bodies remain pending.
+    // Original function: FUN_0041e2ae; parent restoration takes precedence over submap start.
     bool MissionManager_CheckAllMissionGoals(void* manager)
     {
         Write<std::uint8_t>(manager, 8, 0);
@@ -46,8 +53,19 @@ namespace NC2Logic
             MissionManager_l_CheckMission(manager, mission, true);
             if (Read<std::uint8_t>(manager, 6) != 0) break;
         }
-        // Native SubMap_BackToParent/StartSubMap execution is still an explicit boundary.
-        return Read<std::uint8_t>(manager, 0x14) == 0 && Read<std::uint8_t>(manager, 8) == 0;
+        if (Read<std::uint8_t>(manager, 0x14) != 0)
+        {
+            SubMap_BackToParent();
+            return false;
+        }
+        if (Read<std::uint8_t>(manager, 8) != 0)
+        {
+            const auto campaignId = Read<std::uint32_t>(manager, 0x0C), mapId = Read<std::uint32_t>(manager, 0x10), pathfinderLimitOverride = Read<std::uint32_t>(gGameControl, 0x5D200);
+            SubMap_StartSubMap(campaignId, mapId, pathfinderLimitOverride);
+            // The old mission manager can have been freed by either transition.
+            return false;
+        }
+        return true;
     }
 
     // Original function: FUN_0041e31b; timed goals are handled before the general predicate.
@@ -124,7 +142,7 @@ namespace NC2Logic
         }
     }
 
-    // Partial original function: FUN_0041f9f7; only the named control/briefing cases below are reconstructed.
+    // Partial original function: FUN_0041f9f7; remaining script actions are tracked separately.
     void MissionManager_l_ExecuteResult(void* manager, const SResult& result)
     {
         const auto* p = result.parameters;
@@ -138,6 +156,19 @@ namespace NC2Logic
             break;
         case 10: MissionData_SetMissionActiveFlag(GetMission(manager, p[0]), true); break;
         case 11: MissionData_SetMissionActiveFlag(GetMission(manager, p[0]), false); break;
+        case 12:
+            NC2LogicExternals::External_Misc_SendToUserStringMessage(StringAccess_GetMiscStringPtr(10), false);
+            Write<std::uint8_t>(manager, 4, 1);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, p[0], 6, 0);
+            if (gGameStaticVars.mapType == 4) MultiPlayerGoalManager_ExternalTrigger_WonByMissionManager(gMultiPlayerGoalManager, p[0]);
+            break;
+        case 13:
+            NC2LogicExternals::External_Misc_SendToUserStringMessage(StringAccess_GetMiscStringPtr(11), false);
+            Write<std::uint8_t>(manager, 5, 1);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, p[0], 7, 0);
+            if (gGameStaticVars.mapType == 4) MultiPlayerGoalManager_ExternalTrigger_LostByMissionManager(gMultiPlayerGoalManager, p[0]);
+            break;
+        case 14: gCampaignStaticDataManager->CampaignSubMission_DoAllow(p[0], p[1], true); break;
         case 16:
         {
             // SMapMigPoint::SetPosition(..., false) truncates both coordinates to WORDs.
@@ -152,6 +183,14 @@ namespace NC2Logic
         case 20: Write<std::uint8_t>(GetMission(manager, p[0]), 0x24, p[1] != 0); break;
         case 32: Write(manager, 0x0C, p[0]); Write(manager, 0x10, p[1]); Write<std::uint8_t>(manager, 8, 1); break;
         case 33: Write<std::uint8_t>(manager, 0x14, 1); break;
+        case 36:
+            for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
+            {
+                void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                const auto flags = Read<std::uint8_t>(human, 0xB84);
+                Write<std::uint8_t>(human, 0xB84, p[1] != 0 ? flags | 0x80u : flags & 0x7Fu);
+            }
+            break;
         default: break;
         }
     }

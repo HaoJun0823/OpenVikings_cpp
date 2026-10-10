@@ -21,6 +21,7 @@
 #include "C2WallRoadPathfinder.h"
 #include "C2WallRoadConstruction.h"
 #include "C2TributeAccess.h"
+#include "C2UserMessageAccess.h"
 #include <cstddef>
 #include <cstring>
 namespace NC2Logic
@@ -38,8 +39,6 @@ namespace NC2Logic
     extern void Tool_GlobalDefendMode_Stop(std::uint32_t);
     extern void __fastcall GameControl_Player_LeavesGame(void*, void*, std::uint32_t, bool, bool);
     extern void __fastcall GameControl_Player_LeftGameModifyObjects(void*, void*, std::uint32_t, bool, bool);
-
-    static void PrintNetworkChecksumMessage(const char* text, std::uint32_t unused);
 
     // Original function: FUN_0040ad55; Windows passes the four-byte point by value.
     static std::uint32_t MapMigPoint_CopyValue(const void* point)
@@ -251,7 +250,7 @@ namespace NC2Logic
                 selected = sample;
                 char message[300];
                 NXBasics::Runtime_PrintString(message, ">> NET: CHECKSUM RECEIVED TWICE! (%d:%d)", player, Read<std::uint32_t>(command, 8) / 12u);
-                PrintNetworkChecksumMessage(message, 0);
+                NC2LogicExternals::External_Misc_SendToUserStringMessage(message, false);
                 break;
             }
             if (selected == 0xFFFFFFFFu)
@@ -309,13 +308,6 @@ namespace NC2Logic
         }
         NNetwork::SendDynamicNetworkCommands(&gDynamicNetworkData, packet, size);
         NXBasics::Runtime_Free(packet);
-    }
-
-    // Original function: FUN_004a30c0; the second stack argument is unused.
-    static void PrintNetworkChecksumMessage(const char* text, std::uint32_t /*unused*/)
-    {
-        auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-        if (manager != nullptr) manager->MiscWindows_StringOutputWindow_PrintString(text);
     }
 
     // Original function: FUN_004118f6; command counts in received slots are unchecked.
@@ -396,7 +388,7 @@ namespace NC2Logic
                     if (Read<std::uint32_t>(manager, offset) == 0 || tick >= currentTick - 1440u) continue;
                     char message[300];
                     NXBasics::Runtime_PrintString(message, ">> NET: TOO OLD CHECKSUM! (%d-%d)", players[player], tick / 12u);
-                    PrintNetworkChecksumMessage(message, 0);
+                    NC2LogicExternals::External_Misc_SendToUserStringMessage(message, false);
                     std::memset(static_cast<std::byte*>(manager) + offset, 0, 12);
                 }
             }

@@ -189,7 +189,7 @@ namespace NC2Logic
         ConstructOriginal(0x460, GameAssistantManager_Construct);
         ConstructOriginal(0xFA0, MissionOnscreenInfoManager_Construct);
         CCleanMapsManager::Tool_GenerateNewGuid(&gGameStaticVars.mapGuid);
-        Write<std::uint32_t>(&gGameStaticVars, 0x18, 2);
+        gGameStaticVars.mapType = 2;
         GameTime_Reset(enableTime);
         gGameStaticVars.autosave.intervalTicks = 0;
         gGameInitialized = 1;

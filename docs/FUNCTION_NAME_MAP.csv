@@ -61,7 +61,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0041CBB8,NC2Logic::HumanMerchantArray_l_LogicCallback,NC2Logic::CHumanMerchantArray::l_LogicCallback,206327,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0041CF58,NC2Logic::MissionManager_Construct,NC2Logic::CMissionManager::CMissionManager,214447,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0041D09B,NC2Logic::MissionManager_LoadMissionScript,NC2Logic::CMissionManager::LoadMissionScript,214607,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0041E2AE,NC2Logic::MissionManager_CheckAllMissionGoals,NC2Logic::CMissionManager::CheckAllMissionGoals,216006,Mac symbol; Windows timing/control flow/layout; partial aggregate/predicate/action entries separately inventoried
+0041E2AE,NC2Logic::MissionManager_CheckAllMissionGoals,NC2Logic::CMissionManager::CheckAllMissionGoals,8457,Windows ASM/Game.exe establish behavior and call-site correspondence; Mac header supplies names only; see CAMPAIGN_LIFECYCLE.md
 0041E31B,NC2Logic::MissionManager_l_CheckMission,NC2Logic::CMissionManager::l_CheckMission,216047,Mac symbol; Windows timing/control flow/layout; partial aggregate/predicate/action entries separately inventoried
 0041E45E,NC2Logic::MissionManager_l_CheckGoal,NC2Logic::CMissionManager::l_CheckGoal,216157,Mac symbol; Windows timing/control flow/layout; partial aggregate/predicate/action entries separately inventoried
 0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,NC2Logic::CMissionManager::l_ExecuteResult,217138,Mac symbol; Windows timing/control flow/layout; partial aggregate/predicate/action entries separately inventoried
@@ -1416,7 +1416,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004A2D62,CInGameGuiManager::FrameCall_Register,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A2D71,CInGameGuiManager::FrameCall_UnRegister,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A2D80,CInGameGuiManager::FrameCall_Do,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
-004A30C0,PrintNetworkChecksumMessage,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A30C0,NC2LogicExternals::External_Misc_SendToUserStringMessage,NC2LogicExternals::External_Misc_SendToUserStringMessage,5984,Windows ASM/Game.exe establish behavior and call-site correspondence; Mac header supplies names only; see CAMPAIGN_LIFECYCLE.md
 004A3179,CObjectGroupManager::CObjectGroupManager,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A31F4,~CObjectGroupManager,NC2InGameGuiGroups::CObjectGroupManager::~CObjectGroupManager,6212,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
 004A32C2,CObjectGroupManager::Group_VerifyAllObjects,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
@@ -2242,3 +2242,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0048D54E,NC2E2::E2StaticDataParticelManager_GetParticelId,NC2E2::CE2StaticDataParticelManager::GetParticelId,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 0048D5F2,NC2E2::GFXValencyHandler_AddGraphicsStructureToList,NC2E2::SGFXValencyHandler::AddGraphicsStructureToList,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
 004856B4,NC2E2::E2HumanSoundManager_PlayHumanScreamSound,NC2E2::CE2HumanSoundManager::PlayHumanScreamSound,,Windows ASM/Game.exe establish behavior and correspondence; Mac header supplies names only
+0040768A,NC2Logic::SubMap_StartSubMap,NC2Logic::CGame::SubMap_StartSubMap,8387,Windows ASM/Game.exe establish behavior and call-site correspondence; Mac header supplies names only; see CAMPAIGN_LIFECYCLE.md
+0040773A,NC2Logic::SubMap_BackToParent,NC2Logic::CGame::SubMap_BackToParent,8388,Windows ASM/Game.exe establish behavior and call-site correspondence; Mac header supplies names only; see CAMPAIGN_LIFECYCLE.md
+00419304,NC2Logic::MultiPlayerGoalManager_ExternalTrigger_WonByMissionManager,NC2Logic::CMultiPlayerGoalManager::ExternalTrigger_WonByMissionManager,9137,Windows ASM/Game.exe establish behavior and call-site correspondence; Mac header supplies names only; see CAMPAIGN_LIFECYCLE.md
+00419324,NC2Logic::MultiPlayerGoalManager_ExternalTrigger_LostByMissionManager,NC2Logic::CMultiPlayerGoalManager::ExternalTrigger_LostByMissionManager,9138,Windows ASM/Game.exe establish behavior and call-site correspondence; Mac header supplies names only; see CAMPAIGN_LIFECYCLE.md

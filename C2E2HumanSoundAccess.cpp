@@ -25,6 +25,12 @@ namespace NC2E2
     {
         switch (type)
         {
+        case 0x18:
+        {
+            const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
+            if (display != nullptr && Read<std::uint32_t>(display, 0x7C) == parameter1) NDSManager::CManager::Jingle_Play(parameter2);
+            return true;
+        }
         case 0x1C:
         {
             const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
