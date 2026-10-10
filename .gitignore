@@ -62,6 +62,9 @@ compile_commands.json
 *.bak
 *.swp
 
+# Local analysis scripts and generated scratch artifacts
+/.codex-work/
+
 # vcpkg
 vcpkg_installed/
 
