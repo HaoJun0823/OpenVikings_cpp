@@ -47,7 +47,7 @@ namespace NC2InGameGuiSelection
     static constexpr std::uint32_t gStockPages[7][14] = {{},{1,4,11,12,16,17,18,19,20,21,22,23,43},{2,3,5,24,25,26,27},{6,7,8,9,10,13,14,15},{33,34,35,36,37,38,39,40,41,42},{31,32,28,29,30,45,44,47,46,49,48},{50,51,52,53,54,55}};
     struct SSelectionHouseWindowMostStockGoodsData { std::uint32_t count; struct SEntry { std::uint32_t good; float amount; } entries[68]; };
     static_assert(sizeof(SSelectionHouseWindowMostStockGoodsData) == 0x224);
-    static const char* HouseString(std::uint32_t id) { return CGuiBaseStringsManager::GetStringPtr(8,id); }
+    static const char* HouseString(std::uint32_t id) { return StringTool_GetGameGuiHouseSelectedWindowStringPtr(id); }
     static CStaticToolTipHandler& Tooltips(void* window) { return *std::launder(reinterpret_cast<CStaticToolTipHandler*>(static_cast<std::byte*>(window) + 0x308)); }
     static CDynamicSubButtonsHandler& Buttons(void* window) { return *std::launder(reinterpret_cast<CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x31EC)); }
     static SRectangle Section(void* window, std::uint32_t index) { SRectangle area(0,0,0,0); std::memcpy(&area,static_cast<std::byte*>(window) + 0x8C + index * 16,16); return area; }

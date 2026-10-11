@@ -134,6 +134,11 @@ namespace NC2GuiToolsBase
     std::int32_t StringToolMisc_StringSortCompare(const char* first, const char* second);
 
     char* StringTool_GetMainMenuStringPtr(std::uint32_t stringId);
+    char* StringTool_GetStringPtr(std::int32_t arrayId, std::uint32_t stringId);
+    char* StringTool_GetGameGuiHumanSelectedWindowStringPtr(std::uint32_t stringId);
+    char* StringTool_GetGameGuiHouseSelectedWindowStringPtr(std::uint32_t stringId);
+    char* StringTool_GetGameGuiVehicleSelectedWindowStringPtr(std::uint32_t stringId);
+    char* StringTool_GetWonders001StringPtr(std::uint32_t stringId);
     char* StringTool_GetGameGuiMainStringPtr(std::uint32_t stringId);
     const char* StringTool_GetLogicGoodEquipmentTypeNamePtr(std::uint32_t type);
     const char* StringTool_GetLogicUserCommandsForHumanTypeNamePtr(std::uint32_t type);

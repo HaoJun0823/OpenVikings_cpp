@@ -44,8 +44,8 @@ namespace NC2InGameGuiSelection
     constexpr std::uint32_t gStockPageButtons[7][2] = {{74,30},{73,31},{72,32},{75,33},{76,34},{71,35},{74,36}};
     constexpr std::uint32_t gStockPages[7][14] = {{},{1,4,11,12,16,17,18,19,20,21,22,23,43},{2,3,5,24,25,26,27},{6,7,8,9,10,13,14,15},{33,34,35,36,37,38,39,40,41,42},{31,32,28,29,30,45,44,47,46,49,48},{50,51,52,53,54,55}};
     struct SSelectionVehicleWindowMostStockGoodsData { std::uint32_t count; struct SEntry { std::uint32_t good, amount; } entries[68]; };
-    static const char* VehicleString(std::uint32_t id) { return CGuiBaseStringsManager::GetStringPtr(9, id); }
-    static const char* HumanString(std::uint32_t id) { return CGuiBaseStringsManager::GetStringPtr(7, id); }
+    static const char* VehicleString(std::uint32_t id) { return StringTool_GetGameGuiVehicleSelectedWindowStringPtr(id); }
+    static const char* HumanString(std::uint32_t id) { return StringTool_GetGameGuiHumanSelectedWindowStringPtr(id); }
     static const NXBasics::SColorRGB* White() { return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette) + 0x400); }
     static CStaticToolTipHandler& Tooltips(void* window) { return *std::launder(reinterpret_cast<CStaticToolTipHandler*>(static_cast<std::byte*>(window) + 0x2A4)); }
     static CDynamicSubButtonsHandler& Buttons(void* window) { return *std::launder(reinterpret_cast<CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x3188)); }

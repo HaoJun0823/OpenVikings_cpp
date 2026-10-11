@@ -553,6 +553,36 @@ namespace NC2GuiToolsBase
         return mStaticVars.undefinedString;
     }
 
+    // Original function: FUN_004E1E09; retain the signed table identifier for the native fallback.
+    char* StringTool_GetStringPtr(std::int32_t arrayId, std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(arrayId, stringId);
+    }
+
+    // Original function: FUN_004E1E6D.
+    char* StringTool_GetGameGuiHumanSelectedWindowStringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(7, stringId);
+    }
+
+    // Original function: FUN_004E1E7B.
+    char* StringTool_GetGameGuiHouseSelectedWindowStringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(8, stringId);
+    }
+
+    // Original function: FUN_004E1E89.
+    char* StringTool_GetGameGuiVehicleSelectedWindowStringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(9, stringId);
+    }
+
+    // Original function: FUN_004E1EB3.
+    char* StringTool_GetWonders001StringPtr(std::uint32_t stringId)
+    {
+        return CGuiBaseStringsManager::GetStringPtr(12, stringId);
+    }
+
     // Original function: FUN_004e1e19
     char* StringTool_GetMainMenuStringPtr(std::uint32_t stringId)
     {

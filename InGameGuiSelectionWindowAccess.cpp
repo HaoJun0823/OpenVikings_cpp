@@ -193,7 +193,7 @@ namespace NC2InGameGuiSelection
         };
         static_assert(sizeof(gExperiencePageButtons) + sizeof(gExperiencePages) == 0x2C0);
         struct SSelectionSingleHumanWindowMostExperiencesData { std::uint32_t count; struct SEntry { std::uint32_t job, amount; } entries[78]; };
-        const char* HumanString(std::uint32_t id) { return NC2GuiToolsBase::CGuiBaseStringsManager::GetStringPtr(7, id); }
+        const char* HumanString(std::uint32_t id) { return NC2GuiToolsBase::StringTool_GetGameGuiHumanSelectedWindowStringPtr(id); }
         NC2InGameGuiBase::CStaticToolTipHandler& Tooltips(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CStaticToolTipHandler*>(static_cast<std::byte*>(window) + 0x39C)); }
 
         NC2InGameGuiBase::CDynamicSubButtonsHandler& Buttons(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x3280)); }

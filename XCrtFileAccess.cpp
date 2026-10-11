@@ -3171,6 +3171,36 @@ namespace NXBasics
         ::HeapFree(gRuntimeHeap, 0, memory);
     }
 
+    // Original function: FUN_004E5DDD; this entry always enables the new-handler path.
+    void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes)
+    {
+        return Runtime_AllocateWithNewHandler(requestedBytes, 1);
+    }
+
+    // Original function: FUN_004E5DF0; align the initial bytes, fill DWORDs, then the remaining bytes.
+    void* Runtime_FillMemory(void* destination, std::int32_t value, std::uint32_t byteCount)
+    {
+        if (byteCount == 0) return destination;
+        auto* cursor = static_cast<std::uint8_t*>(destination);
+        const auto byte = static_cast<std::uint8_t>(value);
+        if (byteCount >= 4)
+        {
+            auto alignment = (0u - reinterpret_cast<std::uintptr_t>(cursor)) & 3u;
+            byteCount -= static_cast<std::uint32_t>(alignment);
+            while (alignment-- != 0) *cursor++ = byte;
+            const auto word = static_cast<std::uint32_t>(byte) * 0x01010101u;
+            auto count = byteCount >> 2;
+            byteCount &= 3u;
+            while (count-- != 0)
+            {
+                *reinterpret_cast<std::uint32_t*>(cursor) = word;
+                cursor += 4;
+            }
+        }
+        while (byteCount-- != 0) *cursor++ = byte;
+        return destination;
+    }
+
     // Original function: FUN_004e85fc
     void* Runtime_Allocate(std::uint32_t requestedBytes)
     {

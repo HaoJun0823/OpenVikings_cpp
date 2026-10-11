@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared helpers checkpoint - 2026-10-11
+
+Ten additional Windows entries are reconstructed: three CFile flag methods, five GUI string wrappers and two runtime allocation/fill helpers. The continent link matrix now uses the native always-enabled new-handler allocation path. Windows ASM/Game.exe establish behavior; Mac headers supply naming only. See [SHARED_HELPERS_CHECKPOINT.md](SHARED_HELPERS_CHECKPOINT.md).
+
+Current global inventory **4558/5062 (90.04%)**, **504 open**. System/shared **547/691 (79.16%), 144 open**; GUI **1180/1180** after transparent reassignment of the five implemented GUI wrappers. Engine retains **128 open**, AI **232 open**. The global denominator is unchanged; **19** explicit unfinished boundaries and **289** provisional open assignments remain. [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md) supersedes historical totals below.
+
+Eight changed translation units pass Win32 MSVC `/Zs` without diagnostics. Project/filter membership remains **284 CPP / 260 headers**, with **2660** unique naming rows and **19** unmatched declaration signatures. No build, tests or game run occurred. The user requests continuing **shared/system helpers** until the usage allowance is exhausted; continue this category next, with native string primitives as candidates. The checkpoint was prepared at 99% used allowance; that alone does not establish account exhaustion.
+
 ## Map callback and continent source completion - 2026-10-11
 
 Completed landscape validation, maximum moveable size, walk connections, resistance, full/local continent updates and their native flood-fill/remap helpers. Formation-point routing now follows the native danger-stop behavior and has its military danger dependencies. Five map callback dummies are replaced by concrete bodies. Windows ASM and Game.exe establish behavior; Mac header symbols supply naming only. See [MAP_REMAINDER_COMPLETION.md](MAP_REMAINDER_COMPLETION.md).

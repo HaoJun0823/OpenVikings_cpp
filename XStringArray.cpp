@@ -43,7 +43,7 @@ namespace NXBasics
         mOffsets->Decrypt(1);
 
         std::uint8_t hasStrings;
-        File_Read(file, &hasStrings, 1);
+        static_cast<CFile*>(file)->ReadFlag(&hasStrings);
 
         if (hasStrings != 0)
         {
@@ -82,9 +82,7 @@ namespace NXBasics
 
         if (mStrings != nullptr)
         {
-            // Original function: FUN_0040625c
-            const std::uint8_t hasStrings = 1;
-            File_Write(file, &hasStrings, 1);
+            static_cast<CFile*>(file)->WriteTrueFlag();
 
             mStrings->ChangeBufferSize(mUsedStringBytes, false, 0xEE);
 
@@ -94,9 +92,7 @@ namespace NXBasics
         }
         else
         {
-            // Original function: FUN_00406271
-            const std::uint8_t hasStrings = 0;
-            File_Write(file, &hasStrings, 1);
+            static_cast<CFile*>(file)->WriteFalseFlag();
         }
     }
 

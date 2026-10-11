@@ -2649,3 +2649,13 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00454192,NC2Logic::AIMilitaryManager_Military_GetDangerValueForPosition,NC2Logic::CAIMilitaryManager::Military_GetDangerValueForPosition,9566,"Windows ASM and Game.exe establish behavior, layout and correspondence; Mac header used only for naming"
 00454218,NC2Logic::AIMilitaryManager_Military_GetDangerValueForSector,NC2Logic::CAIMilitaryManager::Military_GetDangerValueForSector,9567,"Windows ASM and Game.exe establish behavior, layout and correspondence; Mac header used only for naming"
 00454367,NC2Logic::AIMilitaryManager_Military_GetCivilianDangerValueForPosition,NC2Logic::CAIMilitaryManager::Military_GetCivilianDangerValueForPosition,9568,"Windows ASM and Game.exe establish behavior, layout and correspondence; Mac header used only for naming"
+00406208,NXBasics::CFile::ReadFlag,NXBasics::CFile::ReadFlag,4508,Windows one-byte Read call; Mac header supplies name only
+0040625C,NXBasics::CFile::WriteTrueFlag,NXBasics::CFile::WriteTrueFlag,4510,Windows writes one byte with value 1; Mac header supplies name only
+00406271,NXBasics::CFile::WriteFalseFlag,NXBasics::CFile::WriteFalseFlag,4511,Windows writes one byte with value 0; Mac header supplies name only
+004E1E09,NC2GuiToolsBase::StringTool_GetStringPtr,NC2GuiToolsBase::StringTool_GetStringPtr,4146,Windows generic string-table forwarding; Mac header supplies name only
+004E1E6D,NC2GuiToolsBase::StringTool_GetGameGuiHumanSelectedWindowStringPtr,NC2GuiToolsBase::StringTool_GetGameGuiHumanSelectedWindowStringPtr,4154,Windows string table 7; Mac header supplies name only
+004E1E7B,NC2GuiToolsBase::StringTool_GetGameGuiHouseSelectedWindowStringPtr,NC2GuiToolsBase::StringTool_GetGameGuiHouseSelectedWindowStringPtr,4155,Windows string table 8; Mac header supplies name only
+004E1E89,NC2GuiToolsBase::StringTool_GetGameGuiVehicleSelectedWindowStringPtr,NC2GuiToolsBase::StringTool_GetGameGuiVehicleSelectedWindowStringPtr,4156,Windows string table 9; Mac header supplies name only
+004E1EB3,NC2GuiToolsBase::StringTool_GetWonders001StringPtr,NC2GuiToolsBase::StringTool_GetWonders001StringPtr,4159,Windows string table 12; Mac header supplies name only
+004E5DDD,NXBasics::Runtime_AllocateWithNewHandler,,,Windows delegates to allocation entry with new-handler argument 1
+004E5DF0,NXBasics::Runtime_FillMemory,,,Windows low-byte fill with initial alignment then DWORDs and remaining bytes

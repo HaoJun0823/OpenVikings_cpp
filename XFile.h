@@ -99,6 +99,10 @@ namespace NXBasics
         // Original function: FUN_004061bc
         void Write(const void* data, std::uint32_t byteCount);
 
+        void ReadFlag(std::uint8_t* destination);
+        void WriteTrueFlag();
+        void WriteFalseFlag();
+
         void __cdecl WriteString(const char* format, ...);
 
         // Original function: FUN_00406286

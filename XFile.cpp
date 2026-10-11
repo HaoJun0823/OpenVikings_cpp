@@ -73,6 +73,26 @@ namespace NXBasics
         File_Write(this, data, byteCount);
     }
 
+    // Original function: FUN_00406208; copy the byte verbatim without boolean normalization.
+    void CFile::ReadFlag(std::uint8_t* destination)
+    {
+        Read(destination, 1);
+    }
+
+    // Original function: FUN_0040625C.
+    void CFile::WriteTrueFlag()
+    {
+        const std::uint8_t value = 1;
+        Write(&value, 1);
+    }
+
+    // Original function: FUN_00406271.
+    void CFile::WriteFalseFlag()
+    {
+        const std::uint8_t value = 0;
+        Write(&value, 1);
+    }
+
     // Original function: FUN_00406216; variadic member uses the x86 cdecl convention.
     void __cdecl CFile::WriteString(const char* format, ...)
     {

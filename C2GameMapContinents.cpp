@@ -384,8 +384,8 @@ namespace NC2Logic
         finalizeUnowned();
         const auto columns = ContinentCount(), rows = work.creationCount;
         const auto bytes = columns * rows * 4u;
-        auto* links = static_cast<std::uint32_t*>(NXBasics::Runtime_Allocate(bytes));
-        std::memset(links, 0, bytes);
+        auto* links = static_cast<std::uint32_t*>(NXBasics::Runtime_AllocateWithNewHandler(bytes));
+        NXBasics::Runtime_FillMemory(links, 0, bytes);
         for (std::uint32_t row = 0; row < rows; ++row)
         {
             const auto& creation = work.creations[row];

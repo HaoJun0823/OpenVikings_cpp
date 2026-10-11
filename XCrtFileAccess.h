@@ -271,6 +271,8 @@ namespace NXBasics
     void Runtime_Free(void* memory);
 
     void* Runtime_Allocate(std::uint32_t requestedBytes);
+    void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes);
+    void* Runtime_FillMemory(void* destination, std::int32_t value, std::uint32_t byteCount);
 
     void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes, std::int32_t useNewHandler);
 
