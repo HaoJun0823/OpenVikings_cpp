@@ -6,6 +6,7 @@
 #include "C2ChecksumTools.h"
 #include "XMemoryChecksum.h"
 #include "C2ObjectMemberConstructors.h"
+#include "C2LifetimeGlobals.h"
 
 #include <cstdarg>
 #include <cstddef>
@@ -15,6 +16,12 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00401be9; no allocation or bounds check.
+    void* GetHousePtr(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; }
+    // Original function: FUN_004020fb; no allocation or bounds check.
+    void* GetVehiclePtr(std::int32_t id) { return CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize; }
+    // Original function: FUN_0040210c; no allocation or bounds check.
+    void* GetMapMoveablePtr(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u; }
     // Original function: FUN_00430f4c.
     std::uint32_t CArrayHandler::Checksum_Calculate()
     {

@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    void* __fastcall GameMapStaticVars_ConstructMembers(void* data, void* unusedEdx);
     void* __fastcall House_ConstructMembers(void* house, void* unusedEdx);
     void* __fastcall Human_ConstructMembers(void* human, void* unusedEdx);
     void* __fastcall Human_Task_ConstructMembers(void* task, void* unusedEdx);

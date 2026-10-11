@@ -9,6 +9,16 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0042c24a; radius filter without a player filter.
+    std::int32_t CHumanIterator::GetFirstHumanId(const void* point, std::int32_t searchRadius)
+    {
+        flags = 2;
+        packedCenter = NC2Lifetime::Read<std::uint32_t>(point, 0);
+        radius = searchRadius;
+        currentAnimalId = l_GetNext(CHumanArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentAnimalId;
+    }
+
     // Original function: FUN_0042c279; corners wrap to WORD before sector conversion.
     std::int32_t CHumanIterator::GetFirstSectorHumanId(std::uint32_t player, std::uint32_t point, std::int32_t searchRadius, bool useSecondList)
     {

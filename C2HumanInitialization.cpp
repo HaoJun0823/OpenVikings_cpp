@@ -140,20 +140,6 @@ namespace NC2Logic
             if (id != -1) MapMoveableArray_FreeMapMoveable(gMapMoveableArrayStorage.manager, id);
             Write<std::uint8_t>(marker, 0, 0);
         }
-        // Original function: FUN_0040badc.
-        void MarkerArray_FreeMarker(std::int32_t id)
-        {
-            void* marker = static_cast<std::byte*>(gMarkerEntries) + id * 0x18;
-            if (Read<std::uint8_t>(marker, 0) != 0 && static_cast<CArrayHandler*>(gMarkerArray)->Element_Free(id, true)) Marker_Exit(marker);
-        }
-        // Original function: FUN_0040ba7d; invalid points retain the original slot reservation.
-        std::int32_t MarkerArray_AllocateMarker(std::uint32_t type, const void* point, std::uint32_t human)
-        {
-            const auto id = static_cast<CArrayHandler*>(gMarkerArray)->Element_Allocate();
-            if (id == -1 || !MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
-            if (!Marker_Init(static_cast<std::byte*>(gMarkerEntries) + id * 0x18, id, type, point, human)) { MarkerArray_FreeMarker(id); return -1; }
-            return id;
-        }
         // Original function: FUN_00438dc5.
         void Marker_MapPosition_Set(void* marker, const void* point)
         {
@@ -161,6 +147,21 @@ namespace NC2Logic
             MapMoveable_Attachment_DetachFromMap(moveable);
             MapMoveable_Attachment_AttachToMap(moveable, point);
         }
+    }
+
+    // Original function: FUN_0040badc.
+    void __fastcall MarkerArray_FreeMarker(void* array, void*, std::int32_t id)
+    {
+        void* marker = static_cast<std::byte*>(gMarkerEntries) + id * 0x18;
+        if (Read<std::uint8_t>(marker, 0) != 0 && static_cast<CArrayHandler*>(array)->Element_Free(id, true)) Marker_Exit(marker);
+    }
+    // Original function: FUN_0040ba7d; invalid points retain the original slot reservation.
+    std::int32_t __fastcall MarkerArray_AllocateMarker(void* array, void*, std::uint32_t type, const void* point, std::uint32_t human)
+    {
+        const auto id = static_cast<CArrayHandler*>(array)->Element_Allocate();
+        if (id == -1 || !MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return -1;
+        if (!Marker_Init(static_cast<std::byte*>(gMarkerEntries) + id * 0x18, id, type, point, human)) { MarkerArray_FreeMarker(array, nullptr, id); return -1; }
+        return id;
     }
 
     // Original function: FUN_0040b09b.
@@ -180,7 +181,7 @@ namespace NC2Logic
         case 1: CHumanArray::sTheObjectPtr->FreeHuman(objectId); break;
         case 2: CAnimalArray::sTheObjectPtr->FreeAnimal(objectId); break;
         case 3: CVehicleArray::sTheObjectPtr->FreeVehicle(objectId); break;
-        case 4: MarkerArray_FreeMarker(objectId); break;
+        case 4: MarkerArray_FreeMarker(gMarkerArray, nullptr, objectId); break;
         }
     }
 
@@ -322,9 +323,9 @@ namespace NC2Logic
         return -1;
     }
     // Original function: FUN_00453558.
-    void Human_WorkCenterMarker_Create(void* human) { MarkerArray_AllocateMarker(1, static_cast<std::byte*>(human) + 0xB30, Read<std::uint32_t>(human, 4)); }
+    void Human_WorkCenterMarker_Create(void* human) { MarkerArray_AllocateMarker(gMarkerArray, nullptr, 1, static_cast<std::byte*>(human) + 0xB30, Read<std::uint32_t>(human, 4)); }
     // Original function: FUN_00453570.
-    void Human_WorkCenterMarker_Remove(void* human) { const auto id = Human_WorkCenterMarker_GetId(human); if (id != -1) MarkerArray_FreeMarker(id); }
+    void Human_WorkCenterMarker_Remove(void* human) { const auto id = Human_WorkCenterMarker_GetId(human); if (id != -1) MarkerArray_FreeMarker(gMarkerArray, nullptr, id); }
     // Original function: FUN_00453587.
     void Human_WorkCenterMarker_Update(void* human)
     {
@@ -333,7 +334,7 @@ namespace NC2Logic
         {
             void* marker = static_cast<std::byte*>(gMarkerEntries) + id * 0x18;
             if (Human_WorkCenterMarker_IsVisible(human)) Marker_MapPosition_Set(marker, static_cast<std::byte*>(human) + 0xB30);
-            else MarkerArray_FreeMarker(Read<std::int32_t>(marker, 4));
+            else MarkerArray_FreeMarker(gMarkerArray, nullptr, Read<std::int32_t>(marker, 4));
         }
         else if (Human_WorkCenterMarker_IsVisible(human)) Human_WorkCenterMarker_Create(human);
     }

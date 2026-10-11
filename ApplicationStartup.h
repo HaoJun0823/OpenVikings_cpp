@@ -58,11 +58,8 @@ namespace NApplicationStartup
         // Original function: FUN_00423112
         +[] ()
         {
-        // Original constructors: FUN_0042311c and FUN_004231bd.
-        for (std::size_t index = 0; index < 250; ++index)
-        {
-            std::memset(DAT_00511570 + 0x44 + index * 0x10, 0, 4);
-        }
+        // Native startup chain: 0042311c calls the map-record member constructor 004231bd.
+        NC2Logic::GameMapStaticVars_ConstructMembers(DAT_00511570 + 0x3C, nullptr);
 
         std::memset(DAT_00511570 + 0xFE0, 0, 0x18);
         std::memset(DAT_00511570 + 0xFFA, 0, 0x10);

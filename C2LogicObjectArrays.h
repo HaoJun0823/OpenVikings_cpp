@@ -182,6 +182,9 @@ namespace NC2Logic
     static_assert(sizeof(CGuideArray) == 0x30);
 
     const void* GetHumanPtr(std::int32_t id);
+    void* GetHousePtr(std::int32_t id);
+    void* GetVehiclePtr(std::int32_t id);
+    void* GetMapMoveablePtr(std::int32_t id);
     bool HumanReference_IsAllocated(const void* reference);
     bool __cdecl ArrayTool_IsObjectAllocated(void* object);
     const void* GetAnimalPtr(std::int32_t id);

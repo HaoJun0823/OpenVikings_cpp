@@ -1,5 +1,6 @@
 #include "C2EngineMapTerrainAccess.h"
 #include "ApplicationGlobals.h"
+#include "C2HumanInitialization.h"
 #include "C2CallbackManager.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
@@ -449,5 +450,52 @@ namespace NC2E2
             C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, parameter1);
         }
         return true;
+    }
+    // Original function: FUN_004829b4.
+    void EngineMap_VertexColorIndex_Set(const void* point, std::int32_t color)
+    {
+        auto* macro = const_cast<void*>(EngineMap_GetConstMapMacroPointPtr(point));
+        if (macro == nullptr) return;
+        NC2Lifetime::Write<std::uint8_t>(macro, 5, static_cast<std::uint8_t>(color));
+        NC2Logic::GameMapModifyManager_GameMapModifiedMacro(0x35, point, 0);
+    }
+    // Original function: FUN_00481068; rings exclude the supplied outer radius.
+    void Engine2d_EntryPoint_Edit_VertexColorIndex_Set(std::uint32_t point, std::int32_t radius, std::int32_t color, bool landOnly)
+    {
+        using namespace NC2Logic;
+        Logic_EntryPoint_Edit_Start();
+        auto set = [&]()
+        {
+            if (landOnly)
+            {
+                if (MapMagPoint_IsBorderPoint(&point)) return;
+                std::uint32_t micro;
+                MapMigPoint_ConstructFromMag(&micro, &point, false);
+                if (NC2Lifetime::Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&micro), 0) != 1) return;
+            }
+            EngineMap_VertexColorIndex_Set(&point, color);
+        };
+        set();
+        for (std::int32_t ring = 1; ring < radius; ++ring)
+        {
+            MapMagPoint_MoveCursorUnwrapped(&point, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+                for (std::int32_t step = 0; step < ring; ++step)
+                {
+                    MapMagPoint_MoveCursorUnwrapped(&point, direction);
+                    if (MapMagPoint_IsInsideMap(&point)) set();
+                }
+        }
+        Logic_EntryPoint_Edit_Stop();
+    }
+}
+namespace NC2LogicExternals
+{
+    // Original function: FUN_004809ee; micro radius is halved before entering the macro-grid editor.
+    void External_VertexColor_SetArea(const void* point, std::uint32_t radius, std::int32_t color, bool landOnly)
+    {
+        std::uint32_t macro;
+        NC2Logic::MapMagPoint_ConstructFromMig(&macro, point, false);
+        NC2E2::Engine2d_EntryPoint_Edit_VertexColorIndex_Set(macro, static_cast<std::int32_t>(radius >> 1), color, landOnly);
     }
 }

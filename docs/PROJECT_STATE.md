@@ -1,5 +1,15 @@
 # OpenVikings Project State
 
+## Missions and campaigns source completion - 2026-10-11
+
+All **24 originally selected open entries** and their required dependencies are connected. The goal/result dispatchers cover all **63 goal IDs / 103 result IDs**, including original timed handling and no-ops. Weather/colors, markers/magic effects, object/resource predicates, teleportation and queued boarding/leaving now reach real native handlers. Windows ASM/Game.exe establish behavior; Mac exports supply names only. See [MISSIONS_CAMPAIGNS_COMPLETION.md](MISSIONS_CAMPAIGNS_COMPLETION.md).
+
+Fresh asset audit: **35 maptype-1 assets**, **1572 goals + 4228 actions**, **zero missing dispatch IDs**. The maintained CSVs and [CAMPAIGN_MAP_ROUTINES.md](CAMPAIGN_MAP_ROUTINES.md) supersede historical missing-case reports. Source coverage does not certify playable campaigns: shared human AI, map and graphics boundaries still remain open.
+
+Corrected mission inventory **73 / 73**; every original 24-entry gap is implemented despite transparent reclassification of shared helpers. Global **4352 / 5063 (85.96%)**, **711 open**, **34** explicit unfinished boundaries; **279 CPP / 259 headers**, **2472** naming rows. [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md) supersedes historical totals below; **523** open entries remain provisionally assigned. Next smallest category: **humans/needs/jobs, 530 / 603, 73 open**.
+
+Nineteen distinct changed/dependent units pass MSVC Win32 `/Zs`; project/filter parity, naming uniqueness, selected-entry/dispatch coverage and whitespace checks pass. The 21 unmatched declaration signatures are unchanged. No build, tests or game run occurred. Music playback and the reported green road pixels remain unverified.
+
 ## Game control, save/load and game-data closure - 2026-10-11
 
 All **29 originally selected open entries** are implemented, together with the complete checksum call tree, concrete list lifetime boundaries, native object/member constructors, tick getter and map-editor wrappers. The game-checksum zero-return dummy is removed. Windows ASM and Game.exe establish behavior; Mac supplies names only. See [GAME_CONTROL_DATA_COMPLETION.md](GAME_CONTROL_DATA_COMPLETION.md).

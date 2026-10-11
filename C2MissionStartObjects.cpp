@@ -18,6 +18,37 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_00449c66.
+    std::int32_t MissionCheck_GetFirstAnimalIdWithMissionCheckId(std::uint32_t missionCheck)
+    {
+        CAnimalIterator iterator;
+        for (auto id = iterator.GetFirstAnimalId(); id != -1; id = iterator.GetNextAnimalId())
+            if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x8C) == missionCheck) return id;
+        return -1;
+    }
+
+    // Original function: FUN_00449caa; retain the live upper bound and allocated-byte filter.
+    std::int32_t MissionCheck_GetNextAnimalIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous)
+    {
+        if (previous == -1) return -1;
+        for (auto id = previous + 1; id <= CAnimalArray::sTheObjectPtr->mLastScanIndex; ++id)
+        {
+            const void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
+            if (Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, 0x8C) == missionCheck) return id;
+        }
+        return -1;
+    }
+
+    // Original function: FUN_00449cf1.
+    std::int32_t MissionCheck_GetNumberOfAnimalsWithMissionCheckId(std::uint32_t missionCheck)
+    {
+        CAnimalIterator iterator;
+        std::int32_t count = 0;
+        for (auto id = iterator.GetFirstAnimalId(); id != -1; id = iterator.GetNextAnimalId())
+            if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x8C) == missionCheck) ++count;
+        return count;
+    }
+
     // Original function: FUN_0040aeda; the player comparison is signed.
     bool Logic_EntryPoint_IsPlayerInGame(std::int32_t player)
     {

@@ -358,7 +358,9 @@
     <ClCompile Include="C2GameMapExploration.cpp" />
     <ClCompile Include="C2MissionScriptData.cpp" />
     <ClInclude Include="C2MissionScriptData.h" />
+    <ClCompile Include="C2ScriptObjectAccess.cpp" />
     <ClCompile Include="C2MissionExecution.cpp" />
+    <ClInclude Include="C2ScriptObjectAccess.h" />
     <ClInclude Include="C2MissionExecution.h" />
     <ClCompile Include="C2SavegameStateAccess.cpp" />
     <ClCompile Include="C2AISavegameAccess.cpp" />

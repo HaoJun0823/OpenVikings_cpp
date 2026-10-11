@@ -11,6 +11,7 @@ namespace NC2Logic
     {
     public:
         CAnimalIterator();
+        std::int32_t GetFirstAnimalId();
         std::int32_t GetFirstAnimalId(std::uint32_t player);
         std::int32_t GetFirstAnimalId(std::uint32_t player, const void* point, std::int32_t radius);
         std::int32_t GetNextAnimalId();

@@ -20,3 +20,13 @@ namespace NC2E2
     bool EngineMap_Misc_GetTrianglePatternDescriptions_AroundWay(const void* packedMicroPoint, std::int32_t direction, const void** descriptions);
     bool EngineMap_Misc_GetTrianglePatternDescriptions_AroundPoint(const void* packedMicroPoint, const void** descriptions);
 }
+
+namespace NC2E2
+{
+    void EngineMap_VertexColorIndex_Set(const void* point, std::int32_t color);
+    void Engine2d_EntryPoint_Edit_VertexColorIndex_Set(std::uint32_t point, std::int32_t radius, std::int32_t color, bool landOnly);
+}
+namespace NC2LogicExternals
+{
+    void External_VertexColor_SetArea(const void* point, std::uint32_t radius, std::int32_t color, bool landOnly);
+}

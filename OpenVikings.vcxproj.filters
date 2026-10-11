@@ -907,9 +907,15 @@
     <ClInclude Include="C2MissionScriptData.h">
       <Filter>Logic</Filter>
     </ClInclude>
+    <ClCompile Include="C2ScriptObjectAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="C2MissionExecution.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClInclude Include="C2ScriptObjectAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
     <ClInclude Include="C2MissionExecution.h">
       <Filter>Logic</Filter>
     </ClInclude>

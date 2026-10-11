@@ -3,12 +3,10 @@ Address,CurrentName,Status,ReferencingObjects
 00408F7B,NC2Logic::AIManager_l_AI_Callback,Partial Windows callback; unconditional true restored at 00408FA3; tick/player-death dispatch pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-0041E45E,NC2Logic::MissionManager_l_CheckGoal,Partial Windows goal evaluator; vehicle-stock goal 60 also connected; remaining mission predicates pending; excluded from completion counts,C2MissionExecution.obj
-0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial Windows result dispatcher; goods-area actions 64/65 also connected; remaining mission actions pending; excluded from completion counts,C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
-0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
+0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..39/41/49..87 connected; native boarding defence rejection connected; remaining military commands and other defence/passenger boundaries pending,C2HumanCommandAccess.obj
 0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs pickup pileup ordinary production map collection and fishing events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
 004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial native startup; task 14 attack connected and task 15 retains native no-op startup; unsupported queued-command leaves remain explicit boundaries,C2HumanTaskAccess.obj
 00450C1D,NC2Logic::GameMap_l_MaxMoveableSize_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
@@ -24,8 +22,6 @@ Address,CurrentName,Status,ReferencingObjects
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows callback; sound 0x17 and local-player jingle 0x18 plus particle/generator branches 0x1C and 0x23..0x27 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
-00480939,NC2LogicExternals::External_Human_SetName,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
-00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,Temporary dummy; Windows implementation pending,C2MissionStartObjects.obj
 00489DE0,NC2E2::MacroMapManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native integration; landscape/house/guide/moveable/construction-marker/particle-line drawing and repair sound connected; complete enclosing-entry audit pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj

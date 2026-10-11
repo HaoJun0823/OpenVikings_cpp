@@ -17,6 +17,8 @@ namespace NC2Logic
 }
 namespace NC2LogicExternals
 {
+    void External_Gui_SetMarker(std::uint32_t index, const std::uint32_t* point);
+    void External_Camera_SetToPosition(const std::uint32_t* point);
     void External_Gui_SelectHuman(std::int32_t humanId, bool followOnly);
     void External_Misc_SendToUserStringMessage(const char* text, bool unused);
     void External_Misc_SendToUserMessage(const void* message);

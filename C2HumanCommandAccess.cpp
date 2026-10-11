@@ -525,13 +525,13 @@ namespace NC2Logic
     static bool IsUserCommandReconstructed(const void* human, const void* command)
     {
         using namespace NC2Lifetime;
-        if (Human_IsDefendingHouse(human, -1)) return false;
         const auto opcode = Read<std::uint8_t>(command, 0);
-        if (Read<std::uint8_t>(human, 0xB51) != 0 && opcode != 17 && (opcode < 21 || opcode > 25) && opcode != 28 && opcode != 30 && opcode != 31 && opcode != 32 && opcode != 34 && opcode != 35 && opcode != 36 && opcode != 37 && opcode != 39 && (opcode < 49 || opcode > 51)) return false;
+        if (Human_IsDefendingHouse(human, -1) && opcode != 38 && opcode != 39) return false;
+        if (Read<std::uint8_t>(human, 0xB51) != 0 && opcode != 17 && (opcode < 21 || opcode > 25) && opcode != 28 && opcode != 30 && opcode != 31 && opcode != 32 && opcode != 34 && opcode != 35 && opcode != 36 && opcode != 37 && opcode != 38 && opcode != 39 && (opcode < 49 || opcode > 51)) return false;
         if (Read<std::uint8_t>(command, 0) >= 52 && Read<std::uint8_t>(command, 0) <= 87) return true;
         switch (Read<std::uint8_t>(command, 0))
         {
-        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 39: case 41: case 49: case 50: case 51: return true;
+        case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 41: case 49: case 50: case 51: return true;
         default: return false;
         }
     }
@@ -640,6 +640,8 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto opcode = Read<std::uint8_t>(command, 0);
+        // Windows 0043BEDE..0043BF05 consumes boarding commands while defending a house.
+        if ((opcode == 38 || opcode == 39) && Human_IsDefendingHouse(human, -1)) return 1;
         // Windows 0043BE95/0043BF0B: these assignment commands request vehicle
         // detachment before their own handler, regardless of the detach result.
         if (Human_IsAttachedToVehicle(human) && (opcode == 28 || opcode == 30 || opcode == 32)) Human_DoExecuteUserCommand_DetachVehicle(human);

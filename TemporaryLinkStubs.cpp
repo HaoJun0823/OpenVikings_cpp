@@ -134,8 +134,4 @@ void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
 
 namespace NC2LogicExternals
 {
-    // TEMPORARY DUMMY: Windows address 00480939; object startup dependency pending.
-    void External_Human_SetName(std::uint32_t, std::uint32_t) {  }
-    // TEMPORARY DUMMY: Windows address 00480975; object startup dependency pending.
-    void External_Human_SetRandomPalettePatch(std::uint32_t, const char*) {  }
 }

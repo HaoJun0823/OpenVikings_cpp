@@ -5,6 +5,8 @@
 
 namespace NC2Logic
 {
+    std::int32_t __fastcall MarkerArray_AllocateMarker(void* array, void* unusedEdx, std::uint32_t type, const void* point, std::uint32_t human);
+    void __fastcall MarkerArray_FreeMarker(void* array, void* unusedEdx, std::int32_t id);
     std::int32_t Marker_PlayerId_Get(const void* marker);
     bool Human_Init(void* human, std::int32_t id, std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags);
     void Human_Exit(void* human);

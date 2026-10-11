@@ -15,6 +15,14 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_004402b3; no player filter is installed.
+    std::int32_t CAnimalIterator::GetFirstAnimalId()
+    {
+        flags = 0;
+        currentAnimalId = l_GetNext(CAnimalArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentAnimalId;
+    }
+
     // Original function: FUN_004402cd; allocation eviction scans in array order.
     std::int32_t CAnimalIterator::GetFirstAnimalId(std::uint32_t player)
     {

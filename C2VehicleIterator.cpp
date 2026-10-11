@@ -7,6 +7,14 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00440ccc; no player filter is installed.
+    std::int32_t CVehicleIterator::GetFirstVehicleId()
+    {
+        flags = 0;
+        currentAnimalId = l_GetNext(CVehicleArray::sTheObjectPtr->mFirstScanIndex - 1);
+        return currentAnimalId;
+    }
+
     // Original function: FUN_00440ce6; this player scan does not initialize a radius filter.
     std::int32_t CVehicleIterator::GetFirstVehicleId(std::uint32_t player)
     {

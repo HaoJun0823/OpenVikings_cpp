@@ -5,6 +5,17 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_004231bd; 250 map records, stride 16, trailing point at +8.
+    void* __fastcall GameMapStaticVars_ConstructMembers(void* data, void*)
+    {
+        for (std::uint32_t index = 0; index < 250; ++index)
+        {
+            Write<std::uint16_t>(data, index * 16u + 10u, 0);
+            Write<std::uint16_t>(data, index * 16u + 8u, 0);
+        }
+        return data;
+    }
+
 
     // Original function: FUN_0040aad7; only the two embedded positions are initialized.
     void* __fastcall House_ConstructMembers(void* house, void* /*unusedEdx*/)

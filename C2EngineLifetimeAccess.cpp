@@ -45,6 +45,8 @@ extern double __cdecl Runtime_Sin(double);
 namespace NC2E2
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_0047dc9e.
+    void* E2MapWeatherManagerSectorManager_GetExistingObjectPtr() { return gE2MapWeatherManagerSectorManager; }
     SStaticDataTextures gStaticDataTextures{};
     NXBasics::CPalette*& gVertexColorsPalette = gStaticPalettes.vertexColorsPalette;
     extern bool __cdecl E2Manager_sl_Callback_Misc(NC2Logic::TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -206,7 +208,7 @@ namespace NC2E2
         return static_cast<std::byte*>(Read<void*>(manager, 8)) + offset;
     }
     // Original function: FUN_0048520f; Weather_SetRectangle receives two points by value.
-    static void E2MapWeatherManagerSectorManager_WeatherSetRectangle(void* manager, std::uint32_t first, std::uint32_t second, std::int32_t type, std::int32_t density)
+    void E2MapWeatherManagerSectorManager_WeatherSetRectangle(void* manager, std::uint32_t first, std::uint32_t second, std::int32_t type, std::int32_t density)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&first);
         NC2Logic::MapMigPoint_ValidatePosition(&second);
@@ -1277,5 +1279,14 @@ namespace NC2E2
         DestroyOwned(gE2StaticDataTexturesManager, E2StaticDataTexturesManager_Destruct);
         DestroyOwned(gE2StaticDataBobManagersManager, E2StaticDataBobManagersManager_Destruct);
         gE2Manager = nullptr;
+    }
+}
+
+namespace NC2LogicExternals
+{
+    // Original function: FUN_004809ab; native duration multiplication wraps at 32 bits.
+    void External_FX_Weather_SetRectangle(std::uint32_t first, std::uint32_t second, bool snow, std::int32_t duration)
+    {
+        if (NC2E2::gE2MapWeatherManagerSectorManager != nullptr) NC2E2::E2MapWeatherManagerSectorManager_WeatherSetRectangle(NC2E2::E2MapWeatherManagerSectorManager_GetExistingObjectPtr(), first, second, snow ? 2 : 1, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(duration) * 100u));
     }
 }

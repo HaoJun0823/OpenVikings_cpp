@@ -22,6 +22,9 @@ namespace NC2Logic
     std::int32_t MissionCheck_GetNextVehicleIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous);
     std::int32_t MissionCheck_GetFirstHouseIdWithMissionCheckId(std::uint32_t missionCheck);
     std::int32_t MissionCheck_GetNextHouseIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous);
+    std::int32_t MissionCheck_GetFirstAnimalIdWithMissionCheckId(std::uint32_t missionCheck);
+    std::int32_t MissionCheck_GetNextAnimalIdWithMissionCheckId(std::uint32_t missionCheck, std::int32_t previous);
+    std::int32_t MissionCheck_GetNumberOfAnimalsWithMissionCheckId(std::uint32_t missionCheck);
     bool Human_IsSexFemale(const void* human);
     bool Human_IsAbleToMarry(const void* human);
     bool Human_IsMarried(const void* human);

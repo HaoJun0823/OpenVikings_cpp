@@ -1,4 +1,6 @@
 #include "C2UserMessageAccess.h"
+#include "WorldDisplayElementAccess.h"
+#include "C2EngineDisplayAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LogicObjectArrays.h"
 #include "InGameGuiManager.h"
@@ -204,5 +206,26 @@ namespace NC2LogicExternals
         const auto player = NC2Lifetime::Read<std::uint32_t>(message, 8);
         if (player != 0xFFFFFFFFu && player != NC2Lifetime::Read<std::uint32_t>(gui, 0)) return;
         static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_Add(message);
+    }
+}
+
+namespace NC2LogicExternals
+{
+    // Original function: FUN_004a30d4.
+    void External_Gui_SetMarker(std::uint32_t index, const std::uint32_t* point)
+    {
+        if (NInGameGuiManager::CInGameGuiManager::sTheObjectPtr != nullptr) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GuiMarker_Set(index, point);
+    }
+    // Original function: FUN_004a3149; ending follow mode precedes the second manager lookup.
+    void External_Camera_SetToPosition(const std::uint32_t* point)
+    {
+        using namespace NC2Lifetime;
+        auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        if (gui == nullptr) return;
+        auto* world = Read<void*>(gui, 4);
+        if (world == nullptr || Read<void*>(world, 0x30) == nullptr) return;
+        NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
+        world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
+        NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, 0x30), point);
     }
 }

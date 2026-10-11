@@ -2428,3 +2428,46 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0044E7AF,NC2Logic::MapFishManager_Checksum_Calculate,NC2Logic::CMapFishManager::Checksum_Calculate,223955,Windows ASM/Game.exe establish behavior; Mac signature supplies naming only; see GAME_CONTROL_DATA_COMPLETION.md
 0044ED88,NC2Logic::GameMapSectorAttachmentManager_Checksum_Calculate,NC2Logic::CGameMapSectorAttachmentManager::Checksum_Calculate,242961,Windows ASM/Game.exe establish behavior; Mac signature supplies naming only; see GAME_CONTROL_DATA_COMPLETION.md
 004509F4,NC2Logic::MapWalkSectorManager_Checksum_Calculate,NC2Logic::CMapWalkSectorManager::Checksum_Calculate,245507,Windows ASM/Game.exe establish behavior; Mac signature supplies naming only; see GAME_CONTROL_DATA_COMPLETION.md
+00401BE9,NC2Logic::GetHousePtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+004020FB,NC2Logic::GetVehiclePtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0040210C,NC2Logic::GetMapMoveablePtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00422FDB,NC2Logic::SResult::GetParameter,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00422FE6,NC2Logic::CallbackManager_GetExistingObjectPtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00422FEC,NC2Logic::MapMicroPoint_GetContinent,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00422FF1,NC2Logic::MapMoveable_GetMarkerPtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423001,NC2Logic::HumanReference_GetHumanId,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423004,NC2Logic::Vehicle_GetMapMoveableId,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042300B,NC2Logic::Vehicle_GetMissionCheckId,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423012,NC2Logic::Vehicle_SetMissionCheckId,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042301F,NC2Logic::Vehicle_IsDocked,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423026,NC2Logic::Vehicle_Passengers_GetAttachedHumanSlotPtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423037,NC2Logic::Vehicle_Passengers_IsCommanderAttached,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042303E,NC2Logic::Vehicle_Passengers_GetNumberOfSlots,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042304A,NC2Logic::Game_GetSuppressDeathStatisticsFlag,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423050,NC2Logic::Game_SetSuppressDeathStatisticsFlag,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042305A,NC2Logic::Game_GetSuppressVehicleWreckFlag,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00423060,NC2Logic::Game_SetSuppressVehicleWreckFlag,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042306A,NC2Logic::House_GetMissionCheckId,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+004230D9,NC2Logic::MarkerArray_GetExistingObjectPtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+004230DF,NC2Logic::Human_GetExplorationRange,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+004230E6,NC2Logic::ArrayObject_GetId,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+004230EA,NC2Logic::Object_GetField10,,,Windows folded field access has multiple owners/meanings; field offset retained without guessing a unique Mac name
+004231BD,NC2Logic::GameMapStaticVars_ConstructMembers,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0042C24A,NC2Logic::CHumanIterator::GetFirstHumanId,NC2Logic::CHumanIterator::GetFirstHumanId,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+004402B3,NC2Logic::CAnimalIterator::GetFirstAnimalId,NC2Logic::CAnimalIterator::GetFirstAnimalId,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00440CCC,NC2Logic::CVehicleIterator::GetFirstVehicleId,NC2Logic::CVehicleIterator::GetFirstVehicleId,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00449C66,NC2Logic::MissionCheck_GetFirstAnimalIdWithMissionCheckId,NC2Logic::MissionCheck_GetFirstAnimalIdWithMissionCheckId,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00449CAA,NC2Logic::MissionCheck_GetNextAnimalIdWithMissionCheckId,NC2Logic::MissionCheck_GetNextAnimalIdWithMissionCheckId,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00449CF1,NC2Logic::MissionCheck_GetNumberOfAnimalsWithMissionCheckId,NC2Logic::MissionCheck_GetNumberOfAnimalsWithMissionCheckId,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00471F57,NC2Logic::Object_GetField08,,,Windows folded field access has multiple owners/meanings; field offset retained without guessing a unique Mac name
+0047DC9E,NC2E2::E2MapWeatherManagerSectorManager_GetExistingObjectPtr,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+00480939,NC2LogicExternals::External_Human_SetName,NC2LogicExternals::External_Human_SetName,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00480975,NC2LogicExternals::External_Human_SetRandomPalettePatch,NC2LogicExternals::External_Human_SetRandomPalettePatch,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+004809AB,NC2LogicExternals::External_FX_Weather_SetRectangle,NC2LogicExternals::External_FX_Weather_SetRectangle,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+004809EE,NC2LogicExternals::External_VertexColor_SetArea,NC2LogicExternals::External_VertexColor_SetArea,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+00481068,NC2E2::Engine2d_EntryPoint_Edit_VertexColorIndex_Set,NC2E2::Engine2d_EntryPoint_Edit_VertexColorIndex_Set,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+004829B4,NC2E2::EngineMap_VertexColorIndex_Set,NC2E2::C2DEngineMap::VertexColorIndex_Set,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+004A30D4,NC2LogicExternals::External_Gui_SetMarker,NC2LogicExternals::External_Gui_SetMarker,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+004A3149,NC2LogicExternals::External_Camera_SetToPosition,NC2LogicExternals::External_Camera_SetToPosition,,Windows ASM/Game.exe establish behavior; Mac export used only for naming
+0040BA7D,NC2Logic::MarkerArray_AllocateMarker,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
+0040BADC,NC2Logic::MarkerArray_FreeMarker,,,Windows ASM/Game.exe and xrefs establish access/layout; semantic name inferred from Windows callers
