@@ -11,6 +11,10 @@ namespace NC2Logic
     void Human_WalkSpeed_Update(void* human, std::uint32_t resistance);
     bool Human_AI_DoNewMapPositionReached(void* human, bool destinationReached);
     bool Human_AI_DoNewMapPositionReached_DestinationNotReached(void* human);
+    void GameAssistantSingleHumanData_System_Init(void* data);
+    void GameAssistantSingleHumanData_CommandHistory_Add(void* data, std::uint32_t command, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t duration);
+    bool GameAssistantSingleHumanData_CommandHistory_IsInArray(void* data, std::uint32_t command);
+    bool GameAssistantSingleHumanData_CommandHistory_IsInArray(void* data, std::uint32_t command, std::uint32_t parameter1, std::uint32_t parameter2);
     void GameAssistantSingleHumanData_CommandHistory_Validate(void* data);
     bool GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(void* data);
     void Map_AnimalTool_ChangePlayerId(std::uint32_t player, const void* point);

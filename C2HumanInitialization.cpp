@@ -5,6 +5,7 @@
 #include "C2HumanEquipment.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanTaskAccess.h"
+#include "C2HumanWalking.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -515,9 +516,7 @@ namespace NC2Logic
             }
             else if (player == 0) Write<std::uint32_t>(human, 0xB84, Read<std::uint32_t>(human, 0xB84) | 1u);
         }
-        // Original SGameAssistantSingleHumanData::System_Init, 0044057D.
-        std::memset(static_cast<std::byte*>(human) + 0xB88, 0, 0xD0);
-        Write<std::uint8_t>(human, 0xB88, 1);
+        GameAssistantSingleHumanData_System_Init(static_cast<std::byte*>(human) + 0xB88);
         return true;
     }
 

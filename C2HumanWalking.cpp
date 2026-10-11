@@ -142,6 +142,67 @@ namespace NC2Logic
         Write(moveable, 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(duration) + 9999u) / duration);
     }
 
+    // Original function: FUN_0044057d.
+    void GameAssistantSingleHumanData_System_Init(void* data)
+    {
+        NXBasics::Runtime_FillMemory(data, 0, 0xD0);
+        Write<std::uint8_t>(data, 0, 1);
+    }
+
+    // Original function: FUN_00440595; first free slot or first strictly earliest expiry.
+    void GameAssistantSingleHumanData_CommandHistory_Add(void* data, std::uint32_t command, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t duration)
+    {
+        GameAssistantSingleHumanData_CommandHistory_Validate(data);
+        std::uint32_t index = 0;
+        while (index < 10 && Read<std::uint32_t>(data, 8u + index * 0x14u) != 0) ++index;
+        if (index == 10)
+        {
+            std::uint32_t earliest = 0xFFFFFFFFu;
+            index = 0xFFFFFFFFu;
+            for (std::uint32_t candidate = 0; candidate < 10; ++candidate)
+            {
+                const auto offset = 8u + candidate * 0x14u;
+                const auto expiry = Read<std::uint32_t>(data, offset + 0x0C) + Read<std::uint32_t>(data, offset + 0x10);
+                if (expiry < earliest) { earliest = expiry; index = candidate; }
+            }
+        }
+        // Keep the native -1 sentinel if all ten expiries equal UINT32_MAX.
+        const auto offset = 8u + index * 0x14u;
+        Write(data, offset, command);
+        Write(data, offset + 4u, parameter1);
+        Write(data, offset + 8u, parameter2);
+        Write(data, offset + 0x0Cu, gGameTime.tick);
+        Write(data, offset + 0x10u, duration * 0x2D0u);
+        Write<std::uint8_t>(data, 4, 1);
+    }
+
+    // Original function: FUN_0044061a.
+    bool GameAssistantSingleHumanData_CommandHistory_IsInArray(void* data, std::uint32_t command)
+    {
+        GameAssistantSingleHumanData_CommandHistory_Validate(data);
+        if (Read<std::uint8_t>(data, 4) == 0) return false;
+        for (std::uint32_t index = 0; index < 10; ++index)
+        {
+            const auto stored = Read<std::uint32_t>(data, 8u + index * 0x14u);
+            if (stored != 0 && stored == command) return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_0044064c.
+    bool GameAssistantSingleHumanData_CommandHistory_IsInArray(void* data, std::uint32_t command, std::uint32_t parameter1, std::uint32_t parameter2)
+    {
+        GameAssistantSingleHumanData_CommandHistory_Validate(data);
+        if (Read<std::uint8_t>(data, 4) == 0) return false;
+        for (std::uint32_t index = 0; index < 10; ++index)
+        {
+            const auto offset = 8u + index * 0x14u;
+            const auto stored = Read<std::uint32_t>(data, offset);
+            if (stored != 0 && stored == command && Read<std::uint32_t>(data, offset + 4u) == parameter1 && Read<std::uint32_t>(data, offset + 8u) == parameter2) return true;
+        }
+        return false;
+    }
+
     // Original function: FUN_004406c4; expiry uses unsigned time addition/comparison.
     void GameAssistantSingleHumanData_CommandHistory_Validate(void* data)
     {

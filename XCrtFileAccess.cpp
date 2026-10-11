@@ -4806,7 +4806,7 @@ namespace NXBasics
         const char* separator = Runtime_FindLastMultibyteCharacter(fileName, '.');
         char* suffix = const_cast<char*>(separator) + 1;
 
-        const std::uint32_t nextValue = Runtime_ParseInteger32(suffix, nullptr, 32, 1u) + 1u;
+        const std::uint32_t nextValue = Runtime_StringToUnsignedLong(suffix, nullptr, 32) + 1u;
 
         if (nextValue >= 0x7FFFu)
         {
@@ -5821,6 +5821,42 @@ namespace NXBasics
         }
     }
 
+    // Original function: FUN_004ea3b4; separate mode-3 realloc cleanup entry.
+    static void Runtime_ReallocateMode3Cleanup()
+    {
+        Runtime_Unlock(9);
+    }
+
+    // Original function: FUN_004ea502; the enclosing C++ comparisons use literal zero.
+    static void Runtime_ReallocateMode2Cleanup()
+    {
+        Runtime_Unlock(9);
+    }
+
+    // Original function: FUN_004ea5c2.
+    static void Runtime_AllocationSizeMode3Cleanup()
+    {
+        Runtime_Unlock(9);
+    }
+
+    // Original function: FUN_004ea63d.
+    static void Runtime_AllocationSizeMode2Cleanup()
+    {
+        Runtime_Unlock(9);
+    }
+
+    // Original function: FUN_004ef445.
+    static void Runtime_AllocateZeroedMode3Cleanup()
+    {
+        Runtime_Unlock(9);
+    }
+
+    // Original function: FUN_004ef4ce.
+    static void Runtime_AllocateZeroedMode2Cleanup()
+    {
+        Runtime_Unlock(9);
+    }
+
     // Original function: FUN_004ea229
     void* Runtime_Reallocate(void* memory, std::uint32_t requestedBytes)
     {
@@ -5899,7 +5935,7 @@ namespace NXBasics
                     }
                     __finally
                     {
-                        Runtime_Unlock(9);
+                        Runtime_ReallocateMode3Cleanup();
                     }
 
                     if (regionAddress == 0)
@@ -5965,7 +6001,7 @@ namespace NXBasics
                     }
                     __finally
                     {
-                        Runtime_Unlock(9);
+                        Runtime_ReallocateMode2Cleanup();
                     }
                 }
                 else
@@ -6009,8 +6045,7 @@ namespace NXBasics
             }
             __finally
             {
-                // Original cleanup helper: FUN_004ea5c2.
-                Runtime_Unlock(9);
+                Runtime_AllocationSizeMode3Cleanup();
             }
 
             if (regionAddress != 0)
@@ -6038,8 +6073,7 @@ namespace NXBasics
             }
             __finally
             {
-                // Original cleanup helper: FUN_004ea63d.
-                Runtime_Unlock(9);
+                Runtime_AllocationSizeMode2Cleanup();
             }
 
             if (entryAddress != 0)
@@ -10450,6 +10484,12 @@ namespace NXBasics
         return value;
     }
 
+    // Original function: FUN_004ef03e; unsigned conversion selects flag 1.
+    std::uint32_t Runtime_StringToUnsignedLong(const char* text, char** endPointer, std::int32_t base)
+    {
+        return Runtime_ParseInteger32(text, endPointer, base, 1);
+    }
+
     // Original function: FUN_004ef055
     const char* Runtime_FindLastMultibyteCharacter(const char* text, std::uint32_t character)
     {
@@ -10758,11 +10798,11 @@ namespace NXBasics
                         }
                         __finally
                         {
-                            Runtime_Unlock(0x09);
+                            Runtime_AllocateZeroedMode3Cleanup();
                         }
 
                         if (allocation != nullptr)
-                            std::memset(allocation, 0, requestedBytes);
+                            Runtime_FillMemory(allocation, 0, requestedBytes);
                     }
                 }
                 else if (heapMode == 2)
@@ -10777,11 +10817,11 @@ namespace NXBasics
                         }
                         __finally
                         {
-                            Runtime_Unlock(0x09);
+                            Runtime_AllocateZeroedMode2Cleanup();
                         }
 
                         if (allocation != nullptr)
-                            std::memset(allocation, 0, allocationBytes);
+                            Runtime_FillMemory(allocation, 0, allocationBytes);
                     }
                 }
 

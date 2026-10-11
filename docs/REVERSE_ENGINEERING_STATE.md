@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared command-history and heap cleanup entries - 2026-10-11
+
+Eleven further Windows entries are reconstructed: four history helpers, six distinct heap cleanup tails and unsigned long conversion. Identified history entries move from shared to the game assistant without removing any address. The enclosing assistant callbacks remain unfinished. See [SHARED_HISTORY_HEAP_COMPLETION.md](SHARED_HISTORY_HEAP_COMPLETION.md).
+
+Current global inventory **4611/5062 (91.09%)**, **451 open**. System/shared **594/686 (86.59%), 92 open**; engine **127 open**, AI **232 open**. **19** explicit unfinished boundaries and **288** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2713** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Three affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared point, list and font initialization helpers - 2026-10-11
 
 Five further Windows entries are reconstructed and connected; two existing operator bodies are recognized after correcting the private inventory parser. The seven-address increase therefore comprises five implementations and two counting corrections. See [SHARED_GEOMETRY_COMPLETION.md](SHARED_GEOMETRY_COMPLETION.md).

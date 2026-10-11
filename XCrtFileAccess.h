@@ -501,6 +501,8 @@ namespace NXBasics
 
     std::int32_t Runtime_StringToLong(const char* text, char** endPointer, std::int32_t base);
 
+    std::uint32_t Runtime_StringToUnsignedLong(const char* text, char** endPointer, std::int32_t base);
+
     std::uint32_t Runtime_ParseInteger32(const char* text, char** endPointer, std::int32_t base, std::uint32_t flags);
 
     std::int32_t Runtime_RemoveTemporaryStreams();
