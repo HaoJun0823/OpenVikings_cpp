@@ -3171,6 +3171,121 @@ namespace NXBasics
         ::HeapFree(gRuntimeHeap, 0, memory);
     }
 
+    // Shared native copy tail at 004E5C91, entered by both string-copy and string-append.
+    static void Runtime_CopyStringTail(char* destination, const char* source)
+    {
+        while ((reinterpret_cast<std::uintptr_t>(source) & 3u) != 0)
+        {
+            const auto byte = static_cast<std::uint8_t>(*source++);
+            *destination++ = static_cast<char>(byte);
+            if (byte == 0) return;
+        }
+
+        for (;;)
+        {
+            std::uint32_t word;
+            std::memcpy(&word, source, sizeof(word));
+            source += 4;
+            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            if (possibleZero != 0)
+            {
+                if ((word & 0xFFu) == 0)
+                {
+                    *destination = '\0';
+                    return;
+                }
+                if ((word & 0xFF00u) == 0)
+                {
+                    const auto lowWord = static_cast<std::uint16_t>(word);
+                    std::memcpy(destination, &lowWord, sizeof(lowWord));
+                    return;
+                }
+                if ((word & 0xFF0000u) == 0)
+                {
+                    const auto lowWord = static_cast<std::uint16_t>(word);
+                    std::memcpy(destination, &lowWord, sizeof(lowWord));
+                    destination[2] = '\0';
+                    return;
+                }
+                if ((word & 0xFF000000u) == 0)
+                {
+                    std::memcpy(destination, &word, sizeof(word));
+                    return;
+                }
+            }
+            std::memcpy(destination, &word, sizeof(word));
+            destination += 4;
+        }
+    }
+
+    // Original function: FUN_004E5C20.
+    char* Runtime_CopyString(char* destination, const char* source)
+    {
+        Runtime_CopyStringTail(destination, source);
+        return destination;
+    }
+
+    // Original function: FUN_004E5C30; locate the destination terminator before entering the shared copy tail.
+    char* Runtime_AppendString(char* destination, const char* source)
+    {
+        char* cursor = destination;
+        while ((reinterpret_cast<std::uintptr_t>(cursor) & 3u) != 0)
+        {
+            if (*cursor == '\0')
+            {
+                Runtime_CopyStringTail(cursor, source);
+                return destination;
+            }
+            ++cursor;
+        }
+
+        for (;;)
+        {
+            std::uint32_t word;
+            std::memcpy(&word, cursor, sizeof(word));
+            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            if (possibleZero != 0)
+            {
+                for (std::uint32_t byte = 0; byte < 4; ++byte)
+                {
+                    if (((word >> (byte * 8u)) & 0xFFu) == 0)
+                    {
+                        Runtime_CopyStringTail(cursor + byte, source);
+                        return destination;
+                    }
+                }
+            }
+            cursor += 4;
+        }
+    }
+
+    // Original function: FUN_004E5D10; the aligned word reads stay within the current x86 page.
+    std::uint32_t Runtime_StringLength(const char* text)
+    {
+        const char* cursor = text;
+        while ((reinterpret_cast<std::uintptr_t>(cursor) & 3u) != 0)
+        {
+            if (*cursor == '\0') return static_cast<std::uint32_t>(cursor - text);
+            ++cursor;
+        }
+
+        for (;;)
+        {
+            std::uint32_t word;
+            std::memcpy(&word, cursor, sizeof(word));
+            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            if (possibleZero != 0)
+            {
+                for (std::uint32_t byte = 0; byte < 4; ++byte)
+                {
+                    if (((word >> (byte * 8u)) & 0xFFu) == 0)
+                        return static_cast<std::uint32_t>(cursor - text) + byte;
+                }
+            }
+            cursor += 4;
+        }
+    }
+
     // Original function: FUN_004E5DDD; this entry always enables the new-handler path.
     void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes)
     {
@@ -3198,6 +3313,385 @@ namespace NXBasics
             }
         }
         while (byteCount-- != 0) *cursor++ = byte;
+        return destination;
+    }
+
+    // Original function: FUN_004E5E70; compare the requested low byte before testing the terminator.
+    char* Runtime_FindCharacter(const char* text, std::int32_t character)
+    {
+        const auto sought = static_cast<std::uint8_t>(character);
+        const char* cursor = text;
+        while ((reinterpret_cast<std::uintptr_t>(cursor) & 3u) != 0)
+        {
+            const auto byte = static_cast<std::uint8_t>(*cursor);
+            if (byte == sought) return const_cast<char*>(cursor);
+            if (byte == 0) return nullptr;
+            ++cursor;
+        }
+
+        const auto repeated = static_cast<std::uint32_t>(sought) * 0x01010101u;
+        for (;;)
+        {
+            std::uint32_t word;
+            std::memcpy(&word, cursor, sizeof(word));
+            const auto difference = word ^ repeated;
+            const auto possibleMatch = ((difference + 0x7EFEFEFFu) ^ ~difference) & 0x81010100u;
+            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            if (possibleMatch != 0 || possibleZero != 0)
+            {
+                for (std::uint32_t offset = 0; offset < 4; ++offset)
+                {
+                    const auto byte = static_cast<std::uint8_t>(word >> (offset * 8u));
+                    if (byte == sought) return const_cast<char*>(cursor + offset);
+                    if (byte == 0) return nullptr;
+                }
+            }
+            cursor += 4;
+        }
+    }
+
+    // Original function: FUN_004E6170; this CRT memcpy also copies overlapping ranges backward.
+    void* Runtime_CopyMemory(void* destination, const void* source, std::uint32_t byteCount)
+    {
+        if (byteCount == 0) return destination;
+        auto* output = static_cast<std::uint8_t*>(destination);
+        const auto* input = static_cast<const std::uint8_t*>(source);
+        const auto outputAddress = reinterpret_cast<std::uintptr_t>(output);
+        const auto inputAddress = reinterpret_cast<std::uintptr_t>(input);
+        if (outputAddress > inputAddress && outputAddress < inputAddress + byteCount)
+        {
+            output += byteCount;
+            input += byteCount;
+            if (byteCount >= 4)
+            {
+                auto alignment = reinterpret_cast<std::uintptr_t>(output) & 3u;
+                byteCount -= static_cast<std::uint32_t>(alignment);
+                while (alignment-- != 0) *--output = *--input;
+                while (byteCount >= 4)
+                {
+                    std::uint32_t word;
+                    input -= 4;
+                    output -= 4;
+                    std::memcpy(&word, input, sizeof(word));
+                    std::memcpy(output, &word, sizeof(word));
+                    byteCount -= 4;
+                }
+            }
+            while (byteCount-- != 0) *--output = *--input;
+        }
+        else
+        {
+            if (byteCount >= 4)
+            {
+                auto alignment = (0u - outputAddress) & 3u;
+                byteCount -= static_cast<std::uint32_t>(alignment);
+                while (alignment-- != 0) *output++ = *input++;
+                while (byteCount >= 4)
+                {
+                    std::uint32_t word;
+                    std::memcpy(&word, input, sizeof(word));
+                    std::memcpy(output, &word, sizeof(word));
+                    input += 4;
+                    output += 4;
+                    byteCount -= 4;
+                }
+            }
+            while (byteCount-- != 0) *output++ = *input++;
+        }
+        return destination;
+    }
+
+    // Original function: FUN_004E66A0; copy at most the bound, then pad after a terminator.
+    char* Runtime_CopyStringN(char* destination, const char* source, std::uint32_t byteCount)
+    {
+        char* cursor = destination;
+        while (byteCount != 0 && (reinterpret_cast<std::uintptr_t>(source) & 3u) != 0)
+        {
+            const auto byte = static_cast<std::uint8_t>(*source++);
+            *cursor++ = static_cast<char>(byte);
+            --byteCount;
+            if (byte == 0)
+            {
+                Runtime_FillMemory(cursor, 0, byteCount);
+                return destination;
+            }
+        }
+
+        while (byteCount >= 4)
+        {
+            std::uint32_t word;
+            std::memcpy(&word, source, sizeof(word));
+            source += 4;
+            const auto possibleZero = ((word + 0x7EFEFEFFu) ^ ~word) & 0x81010100u;
+            bool terminated = false;
+            if (possibleZero != 0)
+            {
+                for (std::uint32_t offset = 0; offset < 4; ++offset)
+                {
+                    if (((word >> (offset * 8u)) & 0xFFu) == 0)
+                    {
+                        word &= offset == 0 ? 0u : (1u << (offset * 8u)) - 1u;
+                        terminated = true;
+                        break;
+                    }
+                }
+            }
+            std::memcpy(cursor, &word, sizeof(word));
+            cursor += 4;
+            byteCount -= 4;
+            if (terminated)
+            {
+                Runtime_FillMemory(cursor, 0, byteCount);
+                return destination;
+            }
+        }
+
+        while (byteCount != 0)
+        {
+            const char byte = *source++;
+            *cursor++ = byte;
+            --byteCount;
+            if (byte == '\0')
+            {
+                Runtime_FillMemory(cursor, 0, byteCount);
+                break;
+            }
+        }
+        return destination;
+    }
+
+    // Original function: FUN_004E71F0; retain this separate native memmove entry and its direction branch.
+    void* Runtime_MoveMemory(void* destination, const void* source, std::uint32_t byteCount)
+    {
+        if (byteCount == 0) return destination;
+        auto* output = static_cast<std::uint8_t*>(destination);
+        const auto* input = static_cast<const std::uint8_t*>(source);
+        const auto outputAddress = reinterpret_cast<std::uintptr_t>(output);
+        const auto inputAddress = reinterpret_cast<std::uintptr_t>(input);
+        if (outputAddress > inputAddress && outputAddress < inputAddress + byteCount)
+        {
+            output += byteCount;
+            input += byteCount;
+            if (byteCount >= 4)
+            {
+                auto alignment = reinterpret_cast<std::uintptr_t>(output) & 3u;
+                byteCount -= static_cast<std::uint32_t>(alignment);
+                while (alignment-- != 0) *--output = *--input;
+                while (byteCount >= 4)
+                {
+                    std::uint32_t word;
+                    input -= 4;
+                    output -= 4;
+                    std::memcpy(&word, input, sizeof(word));
+                    std::memcpy(output, &word, sizeof(word));
+                    byteCount -= 4;
+                }
+            }
+            while (byteCount-- != 0) *--output = *--input;
+        }
+        else
+        {
+            if (byteCount >= 4)
+            {
+                auto alignment = (0u - outputAddress) & 3u;
+                byteCount -= static_cast<std::uint32_t>(alignment);
+                while (alignment-- != 0) *output++ = *input++;
+                while (byteCount >= 4)
+                {
+                    std::uint32_t word;
+                    std::memcpy(&word, input, sizeof(word));
+                    std::memcpy(output, &word, sizeof(word));
+                    input += 4;
+                    output += 4;
+                    byteCount -= 4;
+                }
+            }
+            while (byteCount-- != 0) *output++ = *input++;
+        }
+        return destination;
+    }
+
+    // Original function: FUN_004E7A70; scan the first string up to the bound before comparing.
+    std::int32_t Runtime_CompareStringsN(const char* first, const char* second, std::uint32_t byteCount)
+    {
+        if (byteCount == 0) return 0;
+        std::uint32_t compareCount = 0;
+        do
+        {
+            ++compareCount;
+            if (first[compareCount - 1] == '\0') break;
+        } while (compareCount < byteCount);
+        for (std::uint32_t offset = 0; offset < compareCount; ++offset)
+        {
+            const auto left = static_cast<std::uint8_t>(first[offset]);
+            const auto right = static_cast<std::uint8_t>(second[offset]);
+            if (left != right) return left < right ? -1 : 1;
+        }
+        return 0;
+    }
+
+    // Original function: FUN_004E7BF8; preserve NEG wraparound for INT32_MIN.
+    std::int32_t Runtime_AbsoluteInteger(std::int32_t value)
+    {
+        const auto magnitude = value < 0 ? 0u - static_cast<std::uint32_t>(value) : static_cast<std::uint32_t>(value);
+        std::int32_t result;
+        std::memcpy(&result, &magnitude, sizeof(result));
+        return result;
+    }
+
+    // Original function: FUN_004E7C10; return the native comparison sign, not the byte difference.
+    std::int32_t Runtime_CompareMemory(const void* first, const void* second, std::uint32_t byteCount)
+    {
+        const auto* left = static_cast<const std::uint8_t*>(first);
+        const auto* right = static_cast<const std::uint8_t*>(second);
+        if (((reinterpret_cast<std::uintptr_t>(left) | reinterpret_cast<std::uintptr_t>(right)) & 3u) == 0)
+        {
+            while (byteCount >= 4)
+            {
+                std::uint32_t leftWord, rightWord;
+                std::memcpy(&leftWord, left, sizeof(leftWord));
+                std::memcpy(&rightWord, right, sizeof(rightWord));
+                if (leftWord != rightWord)
+                {
+                    for (std::uint32_t offset = 0; offset < 4; ++offset)
+                    {
+                        const auto leftByte = static_cast<std::uint8_t>(leftWord >> (offset * 8u));
+                        const auto rightByte = static_cast<std::uint8_t>(rightWord >> (offset * 8u));
+                        if (leftByte != rightByte) return leftByte < rightByte ? -1 : 1;
+                    }
+                }
+                left += 4;
+                right += 4;
+                byteCount -= 4;
+            }
+        }
+        while (byteCount-- != 0)
+        {
+            if (*left != *right) return *left < *right ? -1 : 1;
+            ++left;
+            ++right;
+        }
+        return 0;
+    }
+
+    // Original function: FUN_004E8010; empty patterns return the input and one-byte patterns use strchr.
+    char* Runtime_FindSubstring(const char* text, const char* pattern)
+    {
+        if (*pattern == '\0') return const_cast<char*>(text);
+        if (pattern[1] == '\0') return Runtime_FindCharacter(text, static_cast<std::uint8_t>(*pattern));
+        for (const char* candidate = text; *candidate != '\0'; ++candidate)
+        {
+            if (*candidate != *pattern) continue;
+            const char* cursor = candidate + 1;
+            const char* sought = pattern + 1;
+            while (*sought != '\0' && *cursor == *sought)
+            {
+                ++cursor;
+                ++sought;
+            }
+            if (*sought == '\0') return const_cast<char*>(candidate);
+        }
+        return nullptr;
+    }
+
+    // Original function: FUN_004E8960; compare unsigned bytes and return the native sign.
+    std::int32_t Runtime_CompareStrings(const char* first, const char* second)
+    {
+        if ((reinterpret_cast<std::uintptr_t>(first) & 1u) != 0)
+        {
+            const auto left = static_cast<std::uint8_t>(*first++);
+            const auto right = static_cast<std::uint8_t>(*second++);
+            if (left != right) return left < right ? -1 : 1;
+            if (left == 0) return 0;
+        }
+        if ((reinterpret_cast<std::uintptr_t>(first) & 2u) != 0)
+        {
+            std::uint16_t word;
+            std::memcpy(&word, first, sizeof(word));
+            for (std::uint32_t offset = 0; offset < 2; ++offset)
+            {
+                const auto left = static_cast<std::uint8_t>(word >> (offset * 8u));
+                const auto right = static_cast<std::uint8_t>(second[offset]);
+                if (left != right) return left < right ? -1 : 1;
+                if (left == 0) return 0;
+            }
+            first += 2;
+            second += 2;
+        }
+        for (;;)
+        {
+            std::uint32_t word;
+            std::memcpy(&word, first, sizeof(word));
+            for (std::uint32_t offset = 0; offset < 4; ++offset)
+            {
+                const auto left = static_cast<std::uint8_t>(word >> (offset * 8u));
+                const auto right = static_cast<std::uint8_t>(second[offset]);
+                if (left != right) return left < right ? -1 : 1;
+                if (left == 0) return 0;
+            }
+            first += 4;
+            second += 4;
+        }
+    }
+
+    // Original function: FUN_004E8A12.
+    wchar_t* Runtime_AppendWideString(wchar_t* destination, const wchar_t* source)
+    {
+        wchar_t* cursor = destination;
+        while (*cursor != L'\0') ++cursor;
+        wchar_t character;
+        do
+        {
+            character = *source++;
+            *cursor++ = character;
+        } while (character != L'\0');
+        return destination;
+    }
+
+    // Original function: FUN_004E8A3C.
+    wchar_t* Runtime_CopyWideString(wchar_t* destination, const wchar_t* source)
+    {
+        wchar_t* cursor = destination;
+        wchar_t character;
+        do
+        {
+            character = *source++;
+            *cursor++ = character;
+        } while (character != L'\0');
+        return destination;
+    }
+
+    // Original function: FUN_004E8A70; a zero bound leaves the destination untouched.
+    char* Runtime_AppendStringN(char* destination, const char* source, std::uint32_t byteCount)
+    {
+        if (byteCount == 0) return destination;
+        char* cursor = destination + Runtime_StringLength(destination);
+        while (byteCount-- != 0)
+        {
+            const char byte = *source++;
+            *cursor++ = byte;
+            if (byte == '\0') return destination;
+        }
+        *cursor = '\0';
+        return destination;
+    }
+
+    // Original function: FUN_004E90C0; the bound counts native 16-bit wchar_t units.
+    wchar_t* Runtime_CopyWideStringN(wchar_t* destination, const wchar_t* source, std::uint32_t characterCount)
+    {
+        static_assert(sizeof(wchar_t) == 2, "The native wide-string entry requires Windows wchar_t.");
+        wchar_t* cursor = destination;
+        while (characterCount != 0)
+        {
+            const wchar_t character = *source++;
+            *cursor++ = character;
+            --characterCount;
+            if (character == L'\0')
+            {
+                while (characterCount-- != 0) *cursor++ = L'\0';
+                break;
+            }
+        }
         return destination;
     }
 
@@ -4075,7 +4569,7 @@ namespace NXBasics
     {
         char* fileName = temporaryStream != 0 ? gRuntimeTemporaryStreamFileName : gRuntimeTemporaryFileName;
 
-        std::strcpy(fileName, OriginalStrings::WindowsRootPath);
+        Runtime_CopyString(fileName, OriginalStrings::WindowsRootPath);
 
         // Preserve the original fixed offset instead of searching for the terminator.
         char* destination = fileName + 1;
@@ -4089,7 +4583,7 @@ namespace NXBasics
 
         // At radix 32, the existing converter preserves all unsigned input bits.
         Runtime_LongToString(Runtime_TimeSigned32(static_cast<std::uint32_t>(GetCurrentProcessId())), destination, 32);
-        std::strcat(fileName, OriginalStrings::Dot);
+        Runtime_AppendString(fileName, OriginalStrings::Dot);
     }
 
     // Original function: FUN_004e972c
@@ -4108,7 +4602,7 @@ namespace NXBasics
         char convertedValue[4];
 
         Runtime_LongToString(static_cast<std::int32_t>(nextValue), convertedValue, 32);
-        std::strcpy(suffix, convertedValue);
+        Runtime_CopyString(suffix, convertedValue);
 
         return 0;
     }
@@ -5848,7 +6342,7 @@ namespace NXBasics
             return;
         }
 
-        if (gRuntimePreviousTimeZoneEnvironment != nullptr && std::strcmp(environmentValue, gRuntimePreviousTimeZoneEnvironment) == 0)
+        if (gRuntimePreviousTimeZoneEnvironment != nullptr && Runtime_CompareStrings(environmentValue, gRuntimePreviousTimeZoneEnvironment) == 0)
         {
             Runtime_Unlock(0x0C);
             return;
@@ -5870,7 +6364,7 @@ namespace NXBasics
         // The original releases the environment lock before parsing the original pointer.
         Runtime_Unlock(0x0C);
 
-        std::strncpy(gRuntimeTimeZoneNames[0], environmentValue, 3u);
+        Runtime_CopyStringN(gRuntimeTimeZoneNames[0], environmentValue, 3u);
         gRuntimeTimeZoneNames[0][3] = '\0';
 
         // The original assumes that the standard name occupies at least three bytes.
@@ -5928,7 +6422,7 @@ namespace NXBasics
 
         if (gRuntimeDaylightEnabled != 0)
         {
-            std::strncpy(gRuntimeTimeZoneNames[1], cursor, 3u);
+            Runtime_CopyStringN(gRuntimeTimeZoneNames[1], cursor, 3u);
             gRuntimeTimeZoneNames[1][3] = '\0';
         }
         else
@@ -6613,8 +7107,8 @@ namespace NXBasics
         if (offset == 0)
             return;
 
-        const std::size_t byteCount = std::strlen(text) + 1;
-        std::memmove(text + offset, text, byteCount);
+        const std::uint32_t byteCount = Runtime_StringLength(text) + 1u;
+        Runtime_MoveMemory(text + offset, text, byteCount);
     }
 
     // Original function: FUN_004ebdc2
@@ -6906,7 +7400,7 @@ namespace NXBasics
 
             // Original function: FUN_004e7a70
             // Preserve the original comparison length, including the literal's NUL.
-            if (std::strncmp("__GLOBAL_HEAP_SELECTED", selection, 0x16u) == 0)
+            if (Runtime_CompareStringsN("__GLOBAL_HEAP_SELECTED", selection, 0x16u) == 0)
             {
                 selectedEntry = selection;
             }
@@ -6918,13 +7412,12 @@ namespace NXBasics
                 uppercaseAscii(executablePath);
 
                 // Original function: FUN_004e8010
-                selectedEntry = std::strstr(selection, executablePath);
+                selectedEntry = Runtime_FindSubstring(selection, executablePath);
             }
 
             if (selectedEntry != nullptr)
             {
-                // Original function: FUN_004e5e70
-                char* comma = std::strchr(selectedEntry, ',');
+                char* comma = Runtime_FindCharacter(selectedEntry, ',');
 
                 if (comma != nullptr)
                 {
@@ -7015,26 +7508,26 @@ namespace NXBasics
         if (gRuntimeErrorOutputMode == 1 || (gRuntimeErrorOutputMode == 0 && gRuntimeApplicationType == 1))
         {
             DWORD written;
-            WriteFile(GetStdHandle(STD_ERROR_HANDLE), message, static_cast<DWORD>(std::strlen(message)), &written, nullptr);
+            WriteFile(GetStdHandle(STD_ERROR_HANDLE), message, Runtime_StringLength(message), &written, nullptr);
         }
         else if (errorCode != 252)
         {
             char path[261] = {};
             if (GetModuleFileNameA(nullptr, path, 260) == 0)
-                std::strcpy(path, "<program name unknown>");
+                Runtime_CopyString(path, "<program name unknown>");
             // One extra zero byte makes legacy Win32 truncation safe for strlen.
             char* shortPath = path;
-            const std::size_t length = std::strlen(path);
+            const std::uint32_t length = Runtime_StringLength(path);
             if (length + 1 > 60)
             {
                 shortPath += length - 59;
                 std::memcpy(shortPath, "...", 3);
             }
             char buffer[160];
-            std::strcpy(buffer, "Runtime Error!\n\nProgram: ");
-            std::strcat(buffer, shortPath);
-            std::strcat(buffer, "\n\n");
-            std::strcat(buffer, message);
+            Runtime_CopyString(buffer, "Runtime Error!\n\nProgram: ");
+            Runtime_AppendString(buffer, shortPath);
+            Runtime_AppendString(buffer, "\n\n");
+            Runtime_AppendString(buffer, message);
             Runtime_ShowErrorDialog(buffer, "Microsoft Visual C++ Runtime Library", 0x12010);
         }
     }
@@ -7392,7 +7885,7 @@ namespace NXBasics
     {
         if (gRuntimeIsMultibyteCodePage == 0)
         {
-            return std::strncpy(destination, source, byteCount);
+            return Runtime_CopyStringN(destination, source, byteCount);
         }
 
         Runtime_Lock(0x19);
@@ -9572,12 +10065,12 @@ namespace NXBasics
             return nullptr;
         }
 
-        const std::uint32_t requiredBytes = static_cast<std::uint32_t>(std::strlen(source)) + 1u;
+        const std::uint32_t requiredBytes = Runtime_StringLength(source) + 1u;
         char* result = static_cast<char*>(Runtime_Allocate(requiredBytes));
 
         if (result != nullptr)
         {
-            std::strcpy(result, source);
+            Runtime_CopyString(result, source);
         }
 
         return result;
@@ -10459,8 +10952,8 @@ namespace NXBasics
         }
         else
         {
-            const std::size_t byteCount = std::strlen(buffer + 1) + 1;
-            std::memmove(buffer, buffer + 1, byteCount);
+            const std::uint32_t byteCount = Runtime_StringLength(buffer + 1) + 1u;
+            Runtime_MoveMemory(buffer, buffer + 1, byteCount);
         }
     }
 

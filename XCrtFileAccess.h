@@ -271,6 +271,22 @@ namespace NXBasics
     void Runtime_Free(void* memory);
 
     void* Runtime_Allocate(std::uint32_t requestedBytes);
+    char* Runtime_CopyString(char* destination, const char* source);
+    char* Runtime_AppendString(char* destination, const char* source);
+    std::uint32_t Runtime_StringLength(const char* text);
+    char* Runtime_FindCharacter(const char* text, std::int32_t character);
+    char* Runtime_CopyStringN(char* destination, const char* source, std::uint32_t byteCount);
+    std::int32_t Runtime_CompareStringsN(const char* first, const char* second, std::uint32_t byteCount);
+    char* Runtime_AppendStringN(char* destination, const char* source, std::uint32_t byteCount);
+    char* Runtime_FindSubstring(const char* text, const char* pattern);
+    wchar_t* Runtime_CopyWideStringN(wchar_t* destination, const wchar_t* source, std::uint32_t characterCount);
+    std::int32_t Runtime_AbsoluteInteger(std::int32_t value);
+    std::int32_t Runtime_CompareMemory(const void* first, const void* second, std::uint32_t byteCount);
+    void* Runtime_CopyMemory(void* destination, const void* source, std::uint32_t byteCount);
+    void* Runtime_MoveMemory(void* destination, const void* source, std::uint32_t byteCount);
+    std::int32_t Runtime_CompareStrings(const char* first, const char* second);
+    wchar_t* Runtime_CopyWideString(wchar_t* destination, const wchar_t* source);
+    wchar_t* Runtime_AppendWideString(wchar_t* destination, const wchar_t* source);
     void* Runtime_AllocateWithNewHandler(std::uint32_t requestedBytes);
     void* Runtime_FillMemory(void* destination, std::int32_t value, std::uint32_t byteCount);
 

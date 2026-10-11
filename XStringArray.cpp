@@ -140,7 +140,7 @@ namespace NXBasics
             mOffsets->ChangeBufferSize(mOffsetCapacity * std::uint32_t{ 4 }, true, 0xFF);
         }
 
-        const std::uint32_t byteCount = static_cast<std::uint32_t>(std::strlen(text)) + std::uint32_t{ 1 };
+        const std::uint32_t byteCount = Runtime_StringLength(text) + std::uint32_t{ 1 };
 
         if (mStrings == nullptr)
         {
@@ -158,7 +158,7 @@ namespace NXBasics
         }
 
         std::memcpy(mOffsets->mData + stringId * std::uint32_t{ 4 }, &mUsedStringBytes, sizeof(mUsedStringBytes));
-        std::strcpy(reinterpret_cast<char*>(mStrings->mData + mUsedStringBytes), text);
+        Runtime_CopyString(reinterpret_cast<char*>(mStrings->mData + mUsedStringBytes), text);
 
         mUsedStringBytes += byteCount;
         ++mStringCount;

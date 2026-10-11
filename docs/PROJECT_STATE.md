@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared string and memory primitives - 2026-10-11
+
+Sixteen further Windows CRT entries have concrete separate definitions: narrow/wide string primitives, unsigned comparison signs, absolute integer value and both overlap-safe native memory-copy entries. Confirmed callers use the recovered helpers. Windows ASM/Game.exe establish all behavior; Mac library symbols supply naming only. See [SHARED_STRING_MEMORY_COMPLETION.md](SHARED_STRING_MEMORY_COMPLETION.md) and its native-entry CSV.
+
+Current global inventory **4574/5062 (90.36%)**, **488 open**. System/shared **563/691 (81.48%), 128 open**; engine **551/679, 128 open**; AI **77/309, 232 open**; GUI remains **1180/1180**. No denominator entries are removed or reassigned in this block. **19** explicit unfinished boundaries and **289** provisional open assignments remain.
+
+XCrtFileAccess, XFile and XStringArray pass Win32 MSVC `/Zs` without diagnostics. Project/filter membership remains **284 CPP / 260 headers**; **2676** unique naming rows and **18** unmatched declaration signatures. No build, tests or game run occurred. The account allowance reset during this task; the user requests continuing **shared/system helpers**, so continue that category next. Private analysis and handoff remain in ignored `.codex-work/`.
+
 ## Shared helpers checkpoint - 2026-10-11
 
 Ten additional Windows entries are reconstructed: three CFile flag methods, five GUI string wrappers and two runtime allocation/fill helpers. The continent link matrix now uses the native always-enabled new-handler allocation path. Windows ASM/Game.exe establish behavior; Mac headers supply naming only. See [SHARED_HELPERS_CHECKPOINT.md](SHARED_HELPERS_CHECKPOINT.md).

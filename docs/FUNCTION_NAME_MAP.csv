@@ -2659,3 +2659,19 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004E1EB3,NC2GuiToolsBase::StringTool_GetWonders001StringPtr,NC2GuiToolsBase::StringTool_GetWonders001StringPtr,4159,Windows string table 12; Mac header supplies name only
 004E5DDD,NXBasics::Runtime_AllocateWithNewHandler,,,Windows delegates to allocation entry with new-handler argument 1
 004E5DF0,NXBasics::Runtime_FillMemory,,,Windows low-byte fill with initial alignment then DWORDs and remaining bytes
+004E5C20,NXBasics::Runtime_CopyString,_strcpy,16005,Windows ASM/Game.exe: Source-alignment byte prefix; shared native copy tail; return original destination; Mac header supplies library name only
+004E5C30,NXBasics::Runtime_AppendString,_strcat,16002,Windows ASM/Game.exe: Destination terminator scan before the shared copy tail; return original destination; Mac header supplies library name only
+004E5D10,NXBasics::Runtime_StringLength,_strlen,16010,Windows ASM/Game.exe: Byte prefix to DWORD alignment; native zero-byte detector and byte-position selection; Mac header supplies library name only
+004E5E70,NXBasics::Runtime_FindCharacter,_strchr,16003,Windows ASM/Game.exe: Search the low byte; compare requested byte before the NUL test; aligned word scanning; Mac header supplies library name only
+004E6170,NXBasics::Runtime_CopyMemory,_memcpy,15932,Windows ASM/Game.exe: Windows overlap direction branch; destination alignment; DWORD and byte tails; destination return; Mac header supplies library name only
+004E66A0,NXBasics::Runtime_CopyStringN,_strncpy,16013,Windows ASM/Game.exe: Bounded byte/DWORD copy with zero padding after NUL; no access for zero bound; Mac header supplies library name only
+004E71F0,NXBasics::Runtime_MoveMemory,_memmove,15933,Windows ASM/Game.exe: Separate Windows direction/alignment/copy entry; preserve overlapping range contents; Mac header supplies library name only
+004E7A70,NXBasics::Runtime_CompareStringsN,_strncmp,16012,Windows ASM/Game.exe: Pre-scan first string through NUL or bound; unsigned comparison sign -1/0/+1; Mac header supplies library name only
+004E7BF8,NXBasics::Runtime_AbsoluteInteger,,,Windows ASM/Game.exe: Signed test and wrapping 32-bit NEG including INT32_MIN
+004E7C10,NXBasics::Runtime_CompareMemory,_memcmp,15931,"Windows ASM/Game.exe: Unsigned lexicographic byte comparison; native result is -1/0/+1, not subtraction; Mac header supplies library name only"
+004E8010,NXBasics::Runtime_FindSubstring,_strstr,16015,Windows ASM/Game.exe: Empty pattern returns original input; one-byte pattern enters strchr; longer-pattern search; Mac header supplies library name only
+004E8960,NXBasics::Runtime_CompareStrings,_strcmp,16004,Windows ASM/Game.exe: Unsigned byte comparison; first-source alignment then DWORDs; native sign result; Mac header supplies library name only
+004E8A12,NXBasics::Runtime_AppendWideString,,,Windows ASM/Game.exe: Native 16-bit destination NUL scan then source copy including terminator
+004E8A3C,NXBasics::Runtime_CopyWideString,_wcscpy,16031,Windows ASM/Game.exe: Native 16-bit source copy including terminator; original destination return; Mac header supplies library name only
+004E8A70,NXBasics::Runtime_AppendStringN,,,Windows ASM/Game.exe: Zero bound leaves destination untouched; bounded append guarantees terminator without padding
+004E90C0,NXBasics::Runtime_CopyWideStringN,_wcsncpy,16038,Windows ASM/Game.exe: Bound counts 16-bit units; copy then zero padding; zero bound performs no access; Mac header supplies library name only

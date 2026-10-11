@@ -102,7 +102,7 @@ namespace NXBasics
         Runtime_FormatString(text, 999, format, arguments);
         va_end(arguments);
         text[999] = '\0';
-        Write(text, static_cast<std::uint32_t>(std::strlen(text)));
+        Write(text, Runtime_StringLength(text));
     }
 
     // Original function: FUN_00406286
