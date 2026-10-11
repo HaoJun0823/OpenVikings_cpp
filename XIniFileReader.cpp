@@ -3,7 +3,7 @@
 #include "XCrtFileAccess.h"
 #include "XFile.h"
 #include "XMemory.h"
-#include "XMKeyManager.h"
+#include "XList.h"
 #include "XStorableIO.h"
 #include "XStringArray.h"
 
@@ -15,6 +15,41 @@
 
 namespace NXBasics
 {
+    struct SIniFileReaderDefine
+    {
+        char name[100];
+        char replacement[200];
+    };
+    static_assert(sizeof(SIniFileReaderDefine) == 0x12C);
+    static_assert(offsetof(SIniFileReaderDefine, replacement) == 0x64);
+
+    template<typename T> class CList;
+    template<> class CList<SIniFileReaderDefine> final : public CListBase
+    {
+    public:
+        explicit CList(bool deleteObjects) : CListBase(deleteObjects) {}
+        ~CList() override;
+        void* Delete(std::uint32_t flags);
+    protected:
+        // Original shared callback: LAB_00479e17; definitions have no payload destructor.
+        void l_DeleteData(void* value) override { Runtime_Free(value); }
+    };
+    static_assert(sizeof(CList<SIniFileReaderDefine>) == 0x14);
+
+    // Original function: FUN_004259d6; the definition list has its own native vtable and destructor.
+    CList<SIniFileReaderDefine>::~CList()
+    {
+        if (mDeleteObjects != 0) DeleteAllElements();
+    }
+
+    // Original function: FUN_00425a19.
+    void* CList<SIniFileReaderDefine>::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CList();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
 
     bool CIniFileReader::IsLoaded() const
     {
@@ -466,9 +501,7 @@ namespace NXBasics
     // Original function: FUN_004253e0
     void CIniFileReader::l_LoadIniFile(const char* fileName, const char* preliminaryFileName)
     {
-        // Original list destructor: FUN_004259d6
-        // Original value destruction: LAB_00479e17
-        NXSysKeyManager::CKeyEntryList definitions(true);
+        CList<SIniFileReaderDefine> definitions(true);
 
         if (preliminaryFileName != nullptr)
         {
@@ -479,17 +512,8 @@ namespace NXBasics
     }
 
     // Original function: FUN_00425429
-    void CIniFileReader::l_DoLoadIniFile(const char* fileName, NXSysKeyManager::CKeyEntryListBase& definitions)
+    void CIniFileReader::l_DoLoadIniFile(const char* fileName, CListBase& definitions)
     {
-        struct SIniFileReaderDefine
-        {
-            char name[100];
-            char replacement[200];
-        };
-
-        static_assert(sizeof(SIniFileReaderDefine) == 0x12C);
-        static_assert(offsetof(SIniFileReaderDefine, replacement) == 0x64);
-
         CMemory* memory;
 
         {
@@ -679,7 +703,7 @@ namespace NXBasics
                     *replacementOutput = '\0';
                 }
 
-                definitions.PushBack(definition);
+                definitions.InsertAtEnd(definition);
                 continue;
             }
 
@@ -796,7 +820,7 @@ namespace NXBasics
                     *nameOutput = '\0';
 
                     SIniFileReaderDefine* matchingDefinition = nullptr;
-                    NXSysKeyManager::CKeyEntryListBase::Iterator iterator(definitions);
+                    CListBase::Iterator iterator(definitions);
 
                     for (auto* definition = static_cast<SIniFileReaderDefine*>(iterator.First()); definition != nullptr; definition = static_cast<SIniFileReaderDefine*>(iterator.Next()))
                     {
@@ -848,7 +872,7 @@ namespace NXBasics
             }
         }
 
-        delete memory;
+        memory->Delete(1);
     }
 
     // Original function: FUN_004258eb

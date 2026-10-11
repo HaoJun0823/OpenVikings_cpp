@@ -105,8 +105,8 @@ namespace NXSysKeyManager
         explicit CKeyEntryList(std::uint8_t destroyValues);
 
         // Original function: FUN_00479dfa
-        // FUN_00479e24 is the corresponding scalar deleting destructor.
         ~CKeyEntryList() override;
+        void* Delete(std::uint32_t flags);
 
     protected:
         // Original code: LAB_00479e17

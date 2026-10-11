@@ -1,4 +1,5 @@
 #include "XBobManager.h"
+#include "XCrtFileAccess.h"
 #include "XFileAccess.h"
 #include "XMemory.h"
 #include "XStorableIO.h"
@@ -8,24 +9,33 @@
 
 namespace NXBasics
 {
-    // Original function: FUN_00439905; deleting wrapper: FUN_004398e9.
+    // Original function: FUN_004398e9.
+    void* CBobManager::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CBobManager();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
+    // Original function: FUN_00439905.
     CBobManager::~CBobManager()
     {
         if (mBobDataMemory != nullptr)
         {
-            delete mBobDataMemory;
+            mBobDataMemory->Delete(1);
             mBobDataMemory = nullptr;
         }
 
         if (mPackedLineDataMemory != nullptr)
         {
-            delete mPackedLineDataMemory;
+            mPackedLineDataMemory->Delete(1);
             mPackedLineDataMemory = nullptr;
         }
 
         if (mLineControlMemory != nullptr)
         {
-            delete mLineControlMemory;
+            mLineControlMemory->Delete(1);
             mLineControlMemory = nullptr;
         }
 

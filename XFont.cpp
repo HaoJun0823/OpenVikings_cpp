@@ -8,12 +8,21 @@
 
 namespace NXBasics
 {
-    // Original function: FUN_00439690; deleting wrapper: FUN_00439674.
+    // Original function: FUN_00439674.
+    void* CFont::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CFont();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
+    // Original function: FUN_00439690.
     CFont::~CFont()
     {
         if (mBobManager != nullptr)
         {
-            delete mBobManager;
+            mBobManager->Delete(1);
             mBobManager = nullptr;
         }
     }

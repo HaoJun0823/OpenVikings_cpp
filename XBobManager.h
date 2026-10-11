@@ -20,8 +20,9 @@ namespace NXBasics
         // Original function: FUN_0043997d
         CBobManager(void* file, std::uint32_t version);
 
-        // Original function: FUN_00439905; deleting wrapper: FUN_004398e9.
+        // Original function: FUN_00439905.
         virtual ~CBobManager();
+        void* Delete(std::uint32_t flags);
 
         // Original function: LAB_00439be7
         std::uint32_t Storable_GetId() override

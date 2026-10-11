@@ -315,6 +315,15 @@ namespace NXSysKeyManager
         // The base destructor runs automatically afterward.
     }
 
+    // Original function: FUN_00479e24; member-list destruction normally keeps its storage.
+    void* CKeyEntryList::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CKeyEntryList();
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(result);
+        return result;
+    }
+
     // Original function: FUN_0048d143
     void* CKeyEntryListBase::Iterator::First()
     {

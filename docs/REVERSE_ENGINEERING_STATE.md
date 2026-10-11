@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared scalar resource and typed-list lifetimes - 2026-10-11
+
+Seven additional Windows entries now have distinct resource/list lifetime boundaries. The INI definition list uses its own evidenced type and destructor, and all seven storable factory allocation branches invoke the original new-handler allocation family. Resource and keyboard-list ownership determines category assignments without removing any native entry. See [SHARED_RESOURCE_LISTS_COMPLETION.md](SHARED_RESOURCE_LISTS_COMPLETION.md).
+
+Current global inventory **4652/5062 (91.90%)**, **410 open**. System/shared **615/670 (91.79%), 55 open**; engine **127 open**, AI **228 open**. **19** explicit unfinished boundaries and **287** provisional open assignments remain. Project/filter membership **285 CPP / 261 headers**, **2756** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Eleven primary and integrating units pass MSVC Win32 /Zs without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared file ownership counting and exception leaves - 2026-10-11
 
 Four Windows entries are implemented. BMP file allocation/destruction uses the matching reconstructed runtime heap, compiler pure virtual slots use the original configured fatal path, and directory counting/local-unwind leaves preserve Windows sequencing. The particle loader and legacy FS-chain unwind parent remain unresolved. See [SHARED_FILE_EXCEPTION_COMPLETION.md](SHARED_FILE_EXCEPTION_COMPLETION.md).

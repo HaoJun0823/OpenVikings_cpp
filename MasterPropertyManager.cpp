@@ -427,6 +427,15 @@ namespace NMasterPropertyManager
         NXBasics::Runtime_Free(property);
     }
 
+    // Original function: FUN_004e1d1d; scalar deletion is separate from the ordinary list destructor.
+    void* CPropertyManager::SObjectVars::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~SObjectVars();
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(result);
+        return result;
+    }
+
     // Original function: FUN_004e1d00
     CPropertyManager::SObjectVars::~SObjectVars()
     {

@@ -31,8 +31,9 @@ namespace NXBasics
         // Original function: FUN_0042f88a
         explicit CMemory(const char* fileName);
 
-        // Original function: FUN_0042f8f4; deleting wrapper: FUN_0042f82f.
+        // Original function: FUN_0042f8f4.
         virtual ~CMemory();
+        void* Delete(std::uint32_t flags);
 
         // Original function: FUN_0042f91a
         CMemory(void* file, std::uint32_t version);

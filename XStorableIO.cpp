@@ -17,8 +17,9 @@
 namespace NXBasics
 {
     // Original allocation/free family used by the CStorable factory and deleting wrappers.
-    void* CStorable::operator new(std::size_t size) { return Runtime_Allocate(static_cast<std::uint32_t>(size)); }
-    void* CStorable::operator new(std::size_t size, const std::nothrow_t&) noexcept { return Runtime_Allocate(static_cast<std::uint32_t>(size)); }
+    // Windows factory 00410715 calls 004E5DDD in each of its seven allocation branches.
+    void* CStorable::operator new(std::size_t size) { return Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(size)); }
+    void* CStorable::operator new(std::size_t size, const std::nothrow_t&) noexcept { return Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(size)); }
     void CStorable::operator delete(void* allocation) noexcept { Runtime_Free(allocation); }
     void CStorable::operator delete(void* allocation, const std::nothrow_t&) noexcept { Runtime_Free(allocation); }
 

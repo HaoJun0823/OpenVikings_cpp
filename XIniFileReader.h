@@ -3,13 +3,9 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace NXSysKeyManager
-{
-    class CKeyEntryListBase;
-}
-
 namespace NXBasics
 {
+    class CListBase;
     class CStringArray;
 
     class CIniFileReader
@@ -87,7 +83,7 @@ namespace NXBasics
         void l_LoadIniFile(const char* fileName, const char* preliminaryFileName);
 
         // Original function: FUN_00425429
-        void l_DoLoadIniFile(const char* fileName, NXSysKeyManager::CKeyEntryListBase& definitions);
+        void l_DoLoadIniFile(const char* fileName, CListBase& definitions);
 
         // Original function: FUN_004258eb
         void l_CopyCurrentLineIntoBuffer();

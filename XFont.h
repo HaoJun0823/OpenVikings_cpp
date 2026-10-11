@@ -16,8 +16,9 @@ namespace NXBasics
         // Original function: FUN_004397ea
         CFont(void* file, std::uint32_t version);
 
-        // Original function: FUN_00439690; deleting wrapper: FUN_00439674.
+        // Original function: FUN_00439690.
         virtual ~CFont();
+        void* Delete(std::uint32_t flags);
 
         // Original function: LAB_0043983c
         std::uint32_t Storable_GetId() override

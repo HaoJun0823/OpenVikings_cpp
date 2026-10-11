@@ -75,6 +75,7 @@ namespace NMasterPropertyManager
 
 			// Original function: FUN_004e1d00
 			~SObjectVars() override;
+			void* Delete(std::uint32_t flags);
 
 		protected:
 			// Original function: LAB_00479e17

@@ -27,6 +27,15 @@ namespace NXBasics
         l_AllocateMemory(size);
     }
 
+    // Original function: FUN_0042f82f; preserve the separate scalar deletion entry and returned pointer.
+    void* CMemory::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CMemory();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
     // Original function: FUN_0042f84b
     CMemory::CMemory(std::uint32_t size, std::uint8_t fillValue) : mSize(0), mData(nullptr)
     {
