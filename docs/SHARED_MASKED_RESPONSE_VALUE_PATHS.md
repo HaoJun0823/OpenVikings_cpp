@@ -1,5 +1,7 @@
 # Windows masked-response and decomposition value paths - 2026-10-11
 
+Subsequent checkpoint: the modeled comparison is replaced with actual compiler-generated FLD/FCOMP, and decomposition 004F198A is complete. The masked-response entry remains partial through hardware generation 004F2024. See [SHARED_X87_COMPARISON_COMPLETION.md](SHARED_X87_COMPARISON_COMPLETION.md). The historical evidence below describes the preceding checkpoint.
+
 Windows control flow and value operations for **004F1DA2** (`Runtime_HandleMaskedMathException`) and **004F198A** (`Runtime_DecomposeDouble`) are now translated. **Both entries remain explicitly partial and excluded from completion counts.** The former's link-only dummy is removed. Hardware exception generator **004F2024** is now the isolated link-only boundary in `TemporaryLinkStubs.cpp`. No existing public numeric adapter is connected to this incomplete tree. Shared source coverage remains **632/670 (94.33%), 38 open**; global coverage remains **4676/5063 (92.36%), 387 open**. There are **22** tracked unfinished entries. Translating these additional bodies is not represented as two completed functions.
 
 ## Masked response

@@ -11062,33 +11062,19 @@ namespace NXBasics
         Runtime_SetMathErrno(error->type);
     }
 
-    // Reconstruction helper for the native binary64 FCOMP-zero branches.
-    // Hardware exception generation/resumption remains unresolved and excludes its enclosing entries.
-    static std::uint16_t Runtime_CompareBinary64WithZero(double value)
+    // Original data: 004F3348; the volatile operand selects the native memory-operand comparison.
+    static const volatile double gRuntimeComparisonZero = 0.0;
+
+    static std::uint16_t Runtime_CompareBinary64WithZero(const volatile double* value)
     {
-        volatile double stored = Runtime_LoadBinary64ToX87(&value);
-        std::uint64_t bits = 0;
-        const auto* source = reinterpret_cast<const volatile unsigned char*>(&stored);
-        for (std::uint32_t index = 0; index < sizeof(stored); ++index) bits |= static_cast<std::uint64_t>(source[index]) << (index * 8);
-        const auto magnitude = bits & UINT64_C(0x7FFFFFFFFFFFFFFF);
-        const bool unordered = magnitude > UINT64_C(0x7FF0000000000000);
-        if (unordered) Runtime_RaiseX87Exceptions(1);
-        const std::uint16_t condition = unordered ? 0x4500 : magnitude == 0 ? 0x4000 : (bits >> 63) != 0 ? 0x100 : 0;
-        alignas(16) std::byte state[512];
-        _fxsave(state);
-        std::uint16_t status;
-        std::memcpy(&status, state + 2, sizeof(status));
-        status = static_cast<std::uint16_t>((status & ~0x4700u) | condition);
-        std::memcpy(state + 2, &status, sizeof(status));
-        _fxrstor(state);
-        return condition;
+        return static_cast<std::uint16_t>(Runtime_CompareDoubleX87(value, &gRuntimeComparisonZero) & 0x4700u);
     }
 
-    // Partial original function: FUN_004f198a; FCOMP exception/resumption is still open.
+    // Original function: FUN_004f198a; comparisons execute on the x87 unit, including NaN exceptions.
     // Integer normalization and the unusual infinity/zero result policy follow Windows exactly.
     double __cdecl Runtime_DecomposeDouble(double value, std::int32_t* exponent)
     {
-        const auto comparison = Runtime_CompareBinary64WithZero(value);
+        const auto comparison = Runtime_CompareBinary64WithZero(&value);
         std::int32_t outputExponent = 0;
         double result = 0.0;
         if ((comparison & 0x4000u) == 0)
@@ -11097,7 +11083,7 @@ namespace NXBasics
             std::memcpy(&bits, &value, sizeof(bits));
             if ((bits & UINT64_C(0x7FF0000000000000)) == 0 && (bits & UINT64_C(0x000FFFFFFFFFFFFF)) != 0)
             {
-                const bool negative = (Runtime_CompareBinary64WithZero(value) & 0x100u) != 0;
+                const bool negative = (Runtime_CompareBinary64WithZero(&value) & 0x100u) != 0;
                 outputExponent = -1021;
                 while ((bits & UINT64_C(0x0010000000000000)) == 0)
                 {
@@ -11121,7 +11107,7 @@ namespace NXBasics
         return Runtime_LoadBinary64ToX87(&stored);
     }
 
-    // Partial original function: FUN_004f1da2; ordered x87 raising and comparison resumption remain open.
+    // Partial original function: FUN_004f1da2; ordered x87 exception generation remains open.
     bool Runtime_HandleMaskedMathException(std::uint32_t flags, volatile double* result, std::uint32_t controlWord)
     {
         auto remaining = flags & 0x1Fu;
@@ -11138,7 +11124,7 @@ namespace NXBasics
         else if ((flags & 1u) != 0 && (controlWord & 8u) != 0)
         {
             Runtime_RaiseX87Exceptions(8);
-            const bool positive = Runtime_CompareBinary64WithZero(Runtime_LoadBinary64ToX87(result)) == 0;
+            const bool positive = Runtime_CompareBinary64WithZero(result) == 0;
             const auto rounding = controlWord & 0xC00u;
             const bool infinity = rounding == 0 || (rounding == 0x400 && !positive) || (rounding == 0x800 && positive);
             std::uint64_t bits = infinity ? UINT64_C(0x7FF0000000000000) : UINT64_C(0x7FEFFFFFFFFFFFFF);
@@ -11152,7 +11138,7 @@ namespace NXBasics
         {
             bool inexact = (flags & 0x10u) != 0;
             double stored = Runtime_LoadBinary64ToX87(result);
-            if ((Runtime_CompareBinary64WithZero(stored) & 0x4000u) != 0)
+            if ((Runtime_CompareBinary64WithZero(&stored) & 0x4000u) != 0)
             {
                 inexact = true;
             }
@@ -11168,7 +11154,7 @@ namespace NXBasics
                 }
                 else
                 {
-                    const bool negative = (Runtime_CompareBinary64WithZero(mantissa) & 0x100u) != 0;
+                    const bool negative = (Runtime_CompareBinary64WithZero(&mantissa) & 0x100u) != 0;
                     std::uint64_t bits;
                     std::memcpy(&bits, &mantissa, sizeof(bits));
                     bits = (bits & UINT64_C(0x000FFFFFFFFFFFFF)) | UINT64_C(0x0010000000000000);
@@ -11236,18 +11222,9 @@ namespace NXBasics
         const bool zero = (bits & UINT64_C(0x7FFFFFFFFFFFFFFF)) == 0;
         if (exponent == 0 && !zero) return negative ? 0x10 : 0x80;
 
-        // Only finite normal values and signed zero reach the native FCOMP here.
-        // Reproduce its waiting load and raw C0/C1/C2/C3 effect without SSE comparison.
-        volatile double stored = Runtime_LoadBinary64ToX87(&value);
-        static_cast<void>(stored);
-        alignas(16) std::byte state[512];
-        _fxsave(state);
-        std::uint16_t status;
-        std::memcpy(&status, state + 2, sizeof(status));
-        status = static_cast<std::uint16_t>((status & ~0x4700u) | (zero ? 0x4000u : negative ? 0x100u : 0u));
-        std::memcpy(state + 2, &status, sizeof(status));
-        _fxrstor(state);
-        return zero ? (negative ? 0x20 : 0x40) : (negative ? 8 : 0x100);
+        // Only finite normal values and signed zero reach the original memory-operand FCOMP.
+        const auto comparison = Runtime_CompareBinary64WithZero(&value);
+        return (comparison & 0x4000u) != 0 ? (negative ? 0x20 : 0x40) : (negative ? 8 : 0x100);
     }
 
     // Original function: FUN_004f1aef; preserve caller-supplied record bytes and handler updates.

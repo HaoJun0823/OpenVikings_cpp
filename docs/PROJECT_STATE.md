@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Native x87 comparison and complete decomposition - 2026-10-11
+
+Original decomposition 004F198A is complete through real compiler-generated FLD/FCOMP and its implemented exponent child. The same hardware primitive replaces modeled classifier/response flags. Ordered generation 004F2024 and its masked-response parent remain excluded; public numeric adapters stay partial. The requested full 670-entry category is not yet complete. See [SHARED_X87_COMPARISON_COMPLETION.md](SHARED_X87_COMPARISON_COMPLETION.md).
+
+Current global inventory **4677/5063 (92.38%)**, **386 open**. System/shared **633/670 (94.48%), 37 open**; engine **124 open**, AI **225 open**. **21** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **287 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five primary/integrating units pass MSVC Win32 C++17 syntax-only checks, with required IA32/strict flags for XCrtMath.cpp; private unlinked compiler listings verify its native comparison with both /Od and /O2. Fresh inventory, project/filter membership, naming uniqueness and whitespace checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared masked-response and decomposition value paths; hardware boundary remains open - 2026-10-11
 
 Windows value/control flow for 004F1DA2 and 004F198A is now translated, including exception priority, directed overflow, underflow shifts and unusual infinity/zero decomposition. Both bodies remain explicitly partial and excluded from completion counts because actual x87 generation and comparison exception/resumption are unresolved. The old masked-response dummy is replaced; 004F2024 is now the isolated link-only boundary. Numeric public adapters remain partial and unconnected; no functional completion claim is made. See [SHARED_MASKED_RESPONSE_VALUE_PATHS.md](SHARED_MASKED_RESPONSE_VALUE_PATHS.md).

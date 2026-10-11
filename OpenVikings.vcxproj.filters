@@ -336,6 +336,9 @@
     <ClCompile Include="XCrtFileAccess.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>
+    <ClCompile Include="XCrtMath.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
     <ClCompile Include="C2AnimalIterator.cpp">
       <Filter>Engine\Iterators</Filter>
     </ClCompile>

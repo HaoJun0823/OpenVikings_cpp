@@ -1,5 +1,7 @@
 # Shared control, classification and global unwind - 2026-10-11
 
+Subsequent checkpoint: the modeled comparison is replaced with actual compiler-generated FLD/FCOMP, and decomposition 004F198A is complete. The masked-response entry remains partial through hardware generation 004F2024. See [SHARED_X87_COMPARISON_COMPLETION.md](SHARED_X87_COMPARISON_COMPLETION.md). The historical evidence below describes the preceding checkpoint.
+
 Five original Windows entries are completed in four C++ bindings. The shared inventory becomes **631/670 (94.18%), 39 open**; globally **4675/5063 (92.34%), 388 open**. These are implementation-entry counts, not gameplay verification or a claim that the whole shared block is finished. The exact current remainder is [SHARED_CURRENT_OPEN_ENTRIES.csv](SHARED_CURRENT_OPEN_ENTRIES.csv).
 
 | Windows entry | Binding | Established behavior |

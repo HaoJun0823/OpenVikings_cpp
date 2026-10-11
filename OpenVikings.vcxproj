@@ -109,6 +109,10 @@
     <ClCompile Include="XBTokenList.cpp" />
     <ClCompile Include="XCPU.cpp" />
     <ClCompile Include="XCrtFileAccess.cpp" />
+    <ClCompile Include="XCrtMath.cpp">
+      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
+      <FloatingPointModel>Strict</FloatingPointModel>
+    </ClCompile>
     <ClCompile Include="XDiagnostics.cpp" />
     <ClCompile Include="XFile.cpp" />
     <ClCompile Include="XFont.cpp" />
