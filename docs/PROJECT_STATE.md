@@ -1,5 +1,15 @@
 # OpenVikings Project State
 
+## Game control, save/load and game-data closure - 2026-10-11
+
+All **29 originally selected open entries** are implemented, together with the complete checksum call tree, concrete list lifetime boundaries, native object/member constructors, tick getter and map-editor wrappers. The game-checksum zero-return dummy is removed. Windows ASM and Game.exe establish behavior; Mac supplies names only. See [GAME_CONTROL_DATA_COMPLETION.md](GAME_CONTROL_DATA_COMPLETION.md).
+
+The corrected disjoint category inventory is **454 / 454** for game control/save-data. Original selected entries assigned elsewhere were also implemented; no gap was hidden by reclassification. Fresh totals are **4309 / 5063 (85.11%)**, **754** open, **38** explicit unfinished boundaries, **278 cpp / 258 headers**, and **2429** unique naming rows. The expanded checksum tree adds one known entry. [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md) supersedes historical category totals below; 554 open entries remain provisionally assigned. Next smallest open category: missions/campaigns, **64 / 88**, twenty-four open.
+
+Nineteen changed/dependent units passed MSVC Win32 `/Zs`. Project/filter registration, naming uniqueness and whitespace checks passed; the 21 existing unmatched declaration signatures remain unchanged. No build, tests or game run occurred. Source coverage does not certify runtime equivalence.
+
+Pending graphics report: green road pixels absent from the original. Cause remains unverified; do not infer intended moss or an original defect from the screenshot. Inspect Windows texture/blending/color conversion evidence in the graphics block.
+
 ## Landscape captions and refreshed category inventory - 2026-10-11
 
 The magical chest's `Kartenname` caption is corrected by using miscellaneous text table 2 in the shared landscape-caption helper, matching Windows calls 004BE5A0/004BE5FC to 004E1E35. German assets confirm ID 113 is `Magische Kiste` in table 2 and `Kartenname` in table 1. Hover and selected landscape windows share the fix; all fourteen landscape captions use the correct lookup. See [LANDSCAPE_TOOLTIP_TEXT_TABLE.md](LANDSCAPE_TOOLTIP_TEXT_TABLE.md).

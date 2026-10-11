@@ -29,7 +29,15 @@ namespace NC2Logic
         const char* Tool_GetMapDescriptionPtr() const;
     };
 
-    struct SCleanMapListTag {};
+    class CCleanMapInfoList final : public NXBasics::CListBase
+    {
+    public:
+        explicit CCleanMapInfoList(bool deleteObjects) : CListBase(deleteObjects) {}
+        ~CCleanMapInfoList() override;
+        void* Delete(std::uint32_t flags);
+    protected:
+        void l_DeleteData(void* data) override { NXBasics::Runtime_Free(data); }
+    };
 
     class CCleanMapsManager
     {
@@ -43,7 +51,7 @@ namespace NC2Logic
         static void Tool_GenerateNewGuid(SCleanMapGuid* guid);
 
         std::uint32_t mMapTypeCounts[7];          // +0x00; slot zero remains unused
-        NC2Lifetime::CRuntimeOwnedList<SCleanMapListTag> mMaps; // +0x1C
+        CCleanMapInfoList mMaps; // +0x1C
 
     private:
         void l_CleanMapList_FreeAll();

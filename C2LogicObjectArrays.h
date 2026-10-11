@@ -29,6 +29,7 @@ namespace NC2Logic
 
         std::int32_t Element_Allocate();
         bool Element_Free(std::int32_t index, bool clearElement);
+        std::uint32_t Checksum_Calculate();
 
         // Original function: FUN_00430f23
         void l_Element_Clear(std::int32_t index);
@@ -53,6 +54,7 @@ namespace NC2Logic
 
     private:
         std::byte* l_Element_GetPtr(std::uint32_t index);
+        std::uint32_t l_Element_CalculateChecksum(std::int32_t index);
     };
 
     static_assert(sizeof(void*) == 4, "Logic object arrays require an x86 build");

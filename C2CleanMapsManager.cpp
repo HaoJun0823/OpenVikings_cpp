@@ -15,6 +15,17 @@ namespace NC2Logic
 {
     using namespace NXBasics;
 
+    // Original function: FUN_00416be5; CList<SCleanMapInfoData> destructor.
+    CCleanMapInfoList::~CCleanMapInfoList() { if (mDeleteObjects != 0) DeleteAllElements(); }
+    // Original function: FUN_00416c02; native scalar deleting-destructor adapter.
+    void* CCleanMapInfoList::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CCleanMapInfoList();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
     // Original function: FUN_004163b7.
     CCleanMapsManager::CCleanMapsManager() : mMaps(false)
     {

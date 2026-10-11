@@ -17,6 +17,12 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_0041cd08; distinct Windows outlined access, Mac build inlines it.
+    void* Human_l_GetMerchantDataPtr(const void* human)
+    {
+        if (!Human_IsJobTrader(human)) return nullptr;
+        return NC2Lifetime::Read<std::byte*>(gHumanMerchantArray, 0x30) + static_cast<std::uint32_t>(NC2Lifetime::Read<std::int32_t>(human, 0xB44)) * 0xC4u;
+    }
     // Original function: FUN_00436B16; Windows outlined trader-only merchant reference.
     void* Human_GetMerchantDataPtr(const void* human) { return Human_IsJobTrader(human) ? HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, NC2Lifetime::Read<std::int32_t>(human, 0xB44)) : nullptr; }
     // Original function: FUN_0044B958.

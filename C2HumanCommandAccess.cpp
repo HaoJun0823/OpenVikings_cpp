@@ -755,7 +755,7 @@ namespace NC2Logic
         case 51: // Inlined at 0043C340: select a trade agreement without validation.
         {
             if (!Human_IsJobTrader(human)) return 1;
-            void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+            void* merchant = Human_l_GetMerchantDataPtr(human);
             const auto packed = Read<std::uint32_t>(command, 12);
             void* data = nullptr;
             if (opcode == 50)

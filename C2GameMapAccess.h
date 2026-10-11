@@ -22,6 +22,9 @@ namespace NC2Logic
     const void* GameMap_GetConstMapMacroPointPtr(std::int16_t x, std::int16_t y);
     const void* GameMap_GetConstMapMacroPointPtr(const void* packedMagPoint);
     void* GameMap_GetMapMacroPointPtr(const void* packedMagPoint);
+    bool GameMap_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern);
+    bool Logic_EntryPoint_Edit_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern);
+    void Logic_EntryPoint_Edit_MapMicroPoint_Road_Set(const void* point, bool enabled);
 
     // Original function: FUN_004237d2
     const void* GameMap_GetConstMapMicroPointPtr(const void* packedMigPoint);

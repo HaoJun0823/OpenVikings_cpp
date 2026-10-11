@@ -7,6 +7,7 @@
 #include "C2SavegameIO.h"
 #include "C2CallbackManager.h"
 #include "C2GameState.h"
+#include "C2GameChecksum.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -21,14 +22,14 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_0040aeb7.
+    std::uint32_t Logic_EntryPoint_GameTime_GetTick() { return gGameTime.tick; }
+
     // Original function: FUN_0040aece; Windows returns the stored double in ST(0).
     double Logic_EntryPoint_GameTime_GetSpeed()
     {
         return gGameTime.speed;
     }
-
-    // Original subsystem updates/command processing are separate unresolved bodies.
-    extern std::uint32_t Game_Checksum_Calculate();
 
     extern void __fastcall HouseArray_DoOneGameTick(void*, void* unusedEdx);
     extern void __fastcall HouseArray_DoOneGameSecond(void*, void* unusedEdx);

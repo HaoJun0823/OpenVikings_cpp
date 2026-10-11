@@ -35,6 +35,7 @@ namespace NC2Logic
     bool Human_IsJobTrader(const void* human);
     void* HumanMerchantArray_GetMerchantDataPtr(const void* manager, std::int32_t id);
     void* Human_GetMerchantDataPtr(const void* human);
+    void* Human_l_GetMerchantDataPtr(const void* human);
     void* MerchantData_GetHouseDataPtr(void* merchant, std::uint32_t index);
     bool MerchantHouseData_IsValid(const void* houseData);
     bool Human_IsJobCarrier(const void* human);

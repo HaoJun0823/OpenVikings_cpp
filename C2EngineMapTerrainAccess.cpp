@@ -73,6 +73,29 @@ namespace
 
 namespace NC2Logic
 {
+    // Original function: FUN_0040b0a5.
+    bool Logic_EntryPoint_Edit_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern)
+    {
+        if (gGameMapModifyNestingDepth == 0) return false;
+        return GameMap_MapMacroPoint_TrianglePattern_SetType(point, triangleA, pattern);
+    }
+    // Original function: FUN_0040b0f2; the native entry discards the setter result.
+    void Logic_EntryPoint_Edit_MapMicroPoint_Road_Set(const void* point, bool enabled)
+    {
+        if (gGameMapModifyNestingDepth != 0) GameMap_MapMicroPoint_Road_Set(point, enabled);
+    }
+    // Original function: FUN_004238a6; compare the full pattern ID before storing its low byte.
+    bool GameMap_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern)
+    {
+        auto* macro = GameMap_GetMapMacroPointPtr(point);
+        if (macro == nullptr || MapMagPoint_IsBorderPoint(point)) return false;
+        const auto offset = triangleA ? 0u : 1u;
+        if (Read<std::uint8_t>(macro, offset) == pattern) return false;
+        Write<std::uint8_t>(macro, offset, static_cast<std::uint8_t>(pattern));
+        GameMapModifyManager_GameMapModifiedMacro(11, point, 0);
+        return true;
+    }
+
     // Original function: FUN_0042430f.
     const void* GameMap_GetTrianglePatternDescriptionA(const void* point)
     {

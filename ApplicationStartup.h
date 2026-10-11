@@ -1,4 +1,5 @@
 #pragma once
+#include "C2ObjectMemberConstructors.h"
 
 #include "ApplicationGlobals.h"
 #include "C2MapGeometry.h"
@@ -51,11 +52,7 @@ namespace NApplicationStartup
         // Original function: FUN_0041ae34
         +[] ()
         {
-        // Original constructor: FUN_0041ae3e.
-        NC2Logic::gGuideManagerStaticVars.modifiedAreaMinimum[1] = 0;
-        NC2Logic::gGuideManagerStaticVars.modifiedAreaMinimum[0] = 0;
-        NC2Logic::gGuideManagerStaticVars.modifiedAreaMaximum[1] = 0;
-        NC2Logic::gGuideManagerStaticVars.modifiedAreaMaximum[0] = 0;
+        NC2Logic::ConstructPointMembers(&NC2Logic::gGuideManagerStaticVars, nullptr);
     },
 
         // Original function: FUN_00423112

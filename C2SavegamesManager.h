@@ -36,7 +36,15 @@ namespace NC2Logic
         void Tool_CreateSavegameButtonName(char* destination) const;
     };
 
-    struct SSavegameListTag {};
+    class CSavegameInfoList final : public NXBasics::CListBase
+    {
+    public:
+        explicit CSavegameInfoList(bool deleteObjects) : CListBase(deleteObjects) {}
+        ~CSavegameInfoList() override;
+        void* Delete(std::uint32_t flags);
+    protected:
+        void l_DeleteData(void* data) override { NXBasics::Runtime_Free(data); }
+    };
 
     class CSavegamesManager
     {
@@ -54,7 +62,7 @@ namespace NC2Logic
         std::uint32_t mNextUniqueId;             // +0x00
         std::uint32_t mSavegameType;             // +0x04
         std::uint32_t mSortType;                 // +0x08
-        NC2Lifetime::CRuntimeOwnedList<SSavegameListTag> mSavegames; // +0x0C
+        CSavegameInfoList mSavegames; // +0x0C
 
     private:
         void l_SavegameList_FreeAll();

@@ -3,14 +3,41 @@
 #include "C2LifetimeAccess.h"
 #include "C2IoHelper.h"
 #include "XCrtFileAccess.h"
+#include "C2ChecksumTools.h"
+#include "XMemoryChecksum.h"
+#include "C2ObjectMemberConstructors.h"
 
 #include <cstdarg>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 
 namespace NC2Logic
 {
+    // Original function: FUN_00430f4c.
+    std::uint32_t CArrayHandler::Checksum_Calculate()
+    {
+        std::uint32_t checksum = 0x43211234u;
+        Tool_Checksum_CalculateAndCombine(&checksum, reinterpret_cast<const std::byte*>(this) + 4, 0x18);
+        auto index = mFirstScanIndex;
+        while (index <= mLastScanIndex)
+        {
+            Tool_Checksum_Combine(&checksum, l_Element_CalculateChecksum(index));
+            index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u);
+        }
+        return checksum;
+    }
+
+    // Original function: FUN_00430f93.
+    std::uint32_t CArrayHandler::l_Element_CalculateChecksum(std::int32_t index)
+    {
+        auto* entry = l_Element_GetPtr(static_cast<std::uint32_t>(index));
+        if (!mIsAllocated(entry)) return 0xF0F00000u;
+        if (mElementChecksum != nullptr) return mElementChecksum(entry);
+        return NXBasics::XB_GetMemoryChecksum(entry, mElementSize);
+    }
+
     // Original function: FUN_00430e3d; allocation reserves a slot without setting its object flag.
     std::int32_t CArrayHandler::Element_Allocate()
     {
@@ -78,6 +105,20 @@ namespace NC2Logic
     }
 
     template<typename T>
+    static void Array_ConstructMembers(std::byte* entries, std::uint32_t count)
+    {
+        if (entries == nullptr) return;
+        for (std::uint32_t index = 0; index < count; ++index)
+        {
+            auto* entry = entries + index * T::ElementSize;
+            if constexpr (std::is_same_v<T, CHouseArray>) House_ConstructMembers(entry, nullptr);
+            else if constexpr (std::is_same_v<T, CHumanArray>) Human_ConstructMembers(entry, nullptr);
+            else if constexpr (std::is_same_v<T, CVehicleArray>) Vehicle_ConstructMembers(entry, nullptr);
+            else if constexpr (std::is_same_v<T, CAnimalArray>) Animal_ConstructMembers(entry, nullptr);
+        }
+    }
+
+    template<typename T>
     static void Array_Construct(T* array)
     {
         T::sTheObjectPtr = array;
@@ -89,7 +130,7 @@ namespace NC2Logic
 
         T::mStaticVars = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(allocationSize, 1));
 
-        // The original element constructors only clear fields that are overwritten by this clear.
+        Array_ConstructMembers<T>(T::mStaticVars, T::InitialCapacity);
         std::memset(T::mStaticVars, 0, allocationSize);
 
         array->System_InitArray(T::InitialCapacity, T::mStaticVars, T::ElementSize, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);
@@ -127,7 +168,7 @@ namespace NC2Logic
 
         T::mStaticVars = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(allocationSize, 1));
 
-        // The original element constructors only clear fields that are overwritten by this clear.
+        Array_ConstructMembers<T>(T::mStaticVars, capacity);
         std::memset(T::mStaticVars, 0, allocationSize);
 
         array->IO_InitAndLoadArray(T::mStaticVars, io, ArrayTool_IsObjectAllocated, nullptr, nullptr, nullptr);

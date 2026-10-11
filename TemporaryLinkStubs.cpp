@@ -56,10 +56,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.
     bool __cdecl GameMap_l_ValidateLandscapes_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
 
-    // TEMPORARY DUMMY: Windows address 00428736; implementation pending.
-    // Naming reference: NC2Logic::CGame::Checksum_Calculate.
-    unsigned int __cdecl Game_Checksum_Calculate(void) { return 0; }
-
     // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
     // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.
     bool __cdecl GameMap_l_MaxMoveableSize_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }

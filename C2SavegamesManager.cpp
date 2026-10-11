@@ -8,6 +8,17 @@ namespace NC2Logic
 {
     using namespace NXBasics;
 
+    // Original function: FUN_0041637e; CList<SSavegameInfoData> destructor.
+    CSavegameInfoList::~CSavegameInfoList() { if (mDeleteObjects != 0) DeleteAllElements(); }
+    // Original function: FUN_0041639b; native scalar deleting-destructor adapter.
+    void* CSavegameInfoList::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CSavegameInfoList();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
     // Original function: FUN_00415df6.
     CSavegamesManager::CSavegamesManager() : mSavegames(false)
     {

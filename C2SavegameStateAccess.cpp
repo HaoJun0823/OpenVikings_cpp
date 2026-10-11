@@ -13,15 +13,22 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
-    // Windows member-construction tree: 0041CF8D and 0041CFB0.
-    static void MissionManager_ConstructMembers(void* manager)
+    // Original function: FUN_0041cfb0; CMissionData member construction.
+    static void* MissionData_ConstructMembers(void* record)
+    {
+        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x18u + index * 0x28u, 0, 0x28);
+        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x4CCu + index * 0x4Cu, 0, 0x4C);
+        return record;
+    }
+    // Original function: FUN_0041cf8d.
+    static void* MissionManager_ConstructMembers(void* manager)
     {
         for (std::uint32_t index = 0; index < 150; ++index)
         {
             auto* record = static_cast<std::byte*>(manager) + 0x40 + index * 0xDD8;
-            std::memset(record + 0x18, 0, 30 * 0x28);
-            std::memset(record + 0x4CC, 0, 30 * 0x4C);
+            MissionData_ConstructMembers(record);
         }
+        return manager;
     }
     extern bool __cdecl AIManager_l_AI_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl GameAssistantManager_ls_LogicCallback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);

@@ -4,6 +4,7 @@
 
 namespace NC2Logic
 {
+    std::uint32_t Logic_EntryPoint_GameTime_GetTick();
     inline constexpr std::uint32_t cSpeedOptionArray[7] = {0, 1, 12, 24, 36, 48, 60};
     inline constexpr std::uint32_t cAutosaveOptionArray[4] = {0, 3600, 10800, 21600};
     void Autosave_Start(std::uint32_t intervalTicks);

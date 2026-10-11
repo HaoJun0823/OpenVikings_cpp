@@ -89,7 +89,25 @@ namespace NC2Logic
     extern bool __cdecl GameMap_l_MaxMoveableSize_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl MapFishManager_l_FishManager_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
 
-    struct SUserCommandListTag {};
+    class CUserNetworkCommandList final : public NXBasics::CListBase
+    {
+    public:
+        explicit CUserNetworkCommandList(bool deleteObjects) : CListBase(deleteObjects) {}
+        ~CUserNetworkCommandList() override;
+        void* Delete(std::uint32_t flags);
+    protected:
+        void l_DeleteData(void* data) override { NXBasics::Runtime_Free(data); }
+    };
+    // Original function: FUN_00411b6d; CList<SUserNetworkCommand> destructor.
+    CUserNetworkCommandList::~CUserNetworkCommandList() { if (mDeleteObjects != 0) DeleteAllElements(); }
+    // Original function: FUN_00411b8a; native scalar deleting-destructor adapter.
+    void* CUserNetworkCommandList::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CUserNetworkCommandList();
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(result);
+        return result;
+    }
 
     // Original function: FUN_004121a9; CStaticDependenciesManager constructor.
     void* __fastcall StaticDependenciesManager_Construct(void* manager, void* /*unusedEdx*/)
@@ -259,15 +277,14 @@ namespace NC2Logic
     {
         for (std::uint32_t offset : {0x964u, 0x978u, 0x98Cu})
         {
-            ::new (static_cast<std::byte*>(manager) + offset) CRuntimeOwnedList<SUserCommandListTag>(false);
+            ::new (static_cast<std::byte*>(manager) + offset) CUserNetworkCommandList(false);
         }
         gUserNetworkCommandManager = manager;
         std::memset(manager, 0, 0x964);
         return manager;
     }
 
-    // Original function: FUN_00411b6d.
-    static void UserCommandList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SUserCommandListTag>*>(list)->~CRuntimeOwnedList(); }
+    static void UserCommandList_Destruct(void* list) { static_cast<CUserNetworkCommandList*>(list)->~CUserNetworkCommandList(); }
 
     // Original function: FUN_00410d8d. Destruction reverses the three member lists.
     static void UserCommandQueues_Destruct(void* queues)
