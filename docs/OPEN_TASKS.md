@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Complete IEEE exception-record leaf and handler updates - 2026-10-11
+
+The entire Windows IEEE exception-record routine is reconstructed through its completed raw-status/clear/load children and RaiseException. Caller-supplied bytes, exception-code priority, handler updates and original post-handler precision masks are retained. Masked response, raw hardware control writer and enclosing dispatch remain open. See [SHARED_IEEE_EXCEPTION_COMPLETION.md](SHARED_IEEE_EXCEPTION_COMPLETION.md).
+
+Current global inventory **4668/5063 (92.20%)**, **395 open**. System/shared **626/670 (93.43%), 44 open**; engine **126 open**, AI **225 open**. **19** explicit unfinished boundaries and **285** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2812** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Three Win32 C++17 syntax-only consumers pass without diagnostics; complete record offsets, registered-source inventory, project/filter parity, naming uniqueness and whitespace are checked. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Binary64 exponent field and alternate native notification - 2026-10-11
 
 The exponent-field helper retains its original pre-load high-word capture, x87 binary64 load/store boundary and wrapped field edit. The alternate notification entry keeps its direct code input distinct from the frame-reading entry. This newly identified genuine native entry grows the denominator from 5062 to 5063; all previous addresses remain. See [SHARED_EXPONENT_NOTIFICATION_COMPLETION.md](SHARED_EXPONENT_NOTIFICATION_COMPLETION.md).

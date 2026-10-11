@@ -102,6 +102,25 @@ namespace NXBasics
         std::uint32_t frame;
     };
 
+    struct RuntimeMathExceptionValue
+    {
+        double value;
+        std::byte valueTail[8];
+        std::uint32_t flags;
+        std::byte reserved[4];
+    };
+
+    struct RuntimeMathExceptionRecord
+    {
+        std::uint32_t controlAndOperation;
+        std::uint32_t cause;
+        std::uint32_t enable;
+        std::uint32_t status;
+        RuntimeMathExceptionValue operand1;
+        RuntimeMathExceptionValue operand2;
+        RuntimeMathExceptionValue result;
+    };
+
     struct RuntimeFormatStream
     {
         char* position;		            // +0x00
@@ -550,6 +569,7 @@ namespace NXBasics
 
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask);
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent);
+    void Runtime_RaiseMathException(volatile RuntimeMathExceptionRecord* record, volatile std::uint32_t* controlWord, std::uint32_t flags, std::uint32_t operation, const volatile double* argument, volatile double* result);
     std::int32_t Runtime_ReadX87StatusRaw();
     std::int32_t Runtime_ClearX87StatusRaw();
 
@@ -1245,6 +1265,16 @@ namespace NXBasics
     static_assert(offsetof(RuntimeNonLocalGotoNotification, destination) == 4);
     static_assert(offsetof(RuntimeNonLocalGotoNotification, code) == 8);
     static_assert(offsetof(RuntimeNonLocalGotoNotification, frame) == 0x0C);
+
+    static_assert(sizeof(RuntimeMathExceptionValue) == 0x18);
+    static_assert(offsetof(RuntimeMathExceptionValue, flags) == 0x10);
+    static_assert(sizeof(RuntimeMathExceptionRecord) == 0x58);
+    static_assert(offsetof(RuntimeMathExceptionRecord, cause) == 4);
+    static_assert(offsetof(RuntimeMathExceptionRecord, enable) == 8);
+    static_assert(offsetof(RuntimeMathExceptionRecord, status) == 0x0C);
+    static_assert(offsetof(RuntimeMathExceptionRecord, operand1) == 0x10);
+    static_assert(offsetof(RuntimeMathExceptionRecord, operand2) == 0x28);
+    static_assert(offsetof(RuntimeMathExceptionRecord, result) == 0x40);
 
     static_assert(offsetof(RuntimeExceptionAction, action) == 0x08);
 

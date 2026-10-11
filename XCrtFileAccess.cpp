@@ -11015,6 +11015,95 @@ namespace NXBasics
         return Runtime_LoadBinary64ToX87(&result);
     }
 
+    // Original function: FUN_004f1aef; preserve caller-supplied record bytes and handler updates.
+    void Runtime_RaiseMathException(volatile RuntimeMathExceptionRecord* record, volatile std::uint32_t* controlWord, std::uint32_t flags, std::uint32_t operation, const volatile double* argument, volatile double* result)
+    {
+        record->cause = 0;
+        record->enable = 0;
+        record->status = 0;
+        std::uint32_t exceptionCode = flags;
+        const auto lowFlags = static_cast<std::uint8_t>(flags);
+        if ((lowFlags & 0x10u) != 0)
+        {
+            exceptionCode = 0xC000008Fu;
+            record->cause |= 1u;
+        }
+        if ((lowFlags & 2u) != 0)
+        {
+            exceptionCode = 0xC0000093u;
+            record->cause |= 2u;
+        }
+        if ((lowFlags & 1u) != 0)
+        {
+            exceptionCode = 0xC0000091u;
+            record->cause |= 4u;
+        }
+        if ((lowFlags & 4u) != 0)
+        {
+            exceptionCode = 0xC000008Eu;
+            record->cause |= 8u;
+        }
+        if ((lowFlags & 8u) != 0)
+        {
+            exceptionCode = 0xC0000090u;
+            record->cause |= 0x10u;
+        }
+        record->enable = (record->enable & ~0x10u) | ((~*controlWord & 1u) << 4);
+        record->enable = (record->enable & ~8u) | ((~*controlWord & 4u) << 1);
+        record->enable = (record->enable & ~4u) | ((~*controlWord >> 1) & 4u);
+        record->enable = (record->enable & ~2u) | ((~*controlWord >> 3) & 2u);
+        record->enable = (record->enable & ~1u) | ((~*controlWord >> 5) & 1u);
+        const auto status = static_cast<std::uint32_t>(Runtime_ReadX87StatusRaw());
+        if ((status & 1u) != 0) record->status |= 0x10u;
+        if ((status & 4u) != 0) record->status |= 8u;
+        if ((status & 8u) != 0) record->status |= 4u;
+        if ((status & 0x10u) != 0) record->status |= 2u;
+        if ((status & 0x20u) != 0) record->status |= 1u;
+        switch (*controlWord & 0xC00u)
+        {
+            case 0: record->controlAndOperation &= ~3u; break;
+            case 0x400: record->controlAndOperation = (record->controlAndOperation & ~2u) | 1u; break;
+            case 0x800: record->controlAndOperation = (record->controlAndOperation & ~1u) | 2u; break;
+            case 0xC00: record->controlAndOperation |= 3u; break;
+        }
+        switch (*controlWord & 0x300u)
+        {
+            case 0: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFEBu) | 8u; break;
+            case 0x200: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFE7u) | 4u; break;
+            case 0x300: record->controlAndOperation &= 0xFFFFFFE3u; break;
+        }
+        record->controlAndOperation = (record->controlAndOperation & 0xFFFE001Fu) | ((operation & 0xFFFu) << 5);
+        record->operand1.flags |= 1u;
+        record->operand1.flags = (record->operand1.flags & 0xFFFFFFE3u) | 2u;
+        record->operand1.value = Runtime_LoadBinary64ToX87(argument);
+        record->result.flags |= 1u;
+        record->result.flags = (record->result.flags & 0xFFFFFFE3u) | 2u;
+        record->result.value = Runtime_LoadBinary64ToX87(result);
+        static_cast<void>(Runtime_ClearX87StatusRaw());
+        const ULONG_PTR exceptionArgument = reinterpret_cast<ULONG_PTR>(record);
+        RaiseException(exceptionCode, 0, 1, &exceptionArgument);
+        if ((record->enable & 0x10u) != 0) *controlWord &= 0xFFFFFFFEu;
+        if ((record->enable & 8u) != 0) *controlWord &= 0xFFFFFFFBu;
+        if ((record->enable & 4u) != 0) *controlWord &= 0xFFFFFFF7u;
+        if ((record->enable & 2u) != 0) *controlWord &= 0xFFFFFFEFu;
+        if ((record->enable & 1u) != 0) *controlWord &= 0xFFFFFFDFu;
+        switch (record->controlAndOperation & 3u)
+        {
+            case 0: *controlWord &= 0xFFFFF3FFu; break;
+            case 1: *controlWord = (*controlWord & 0xFFFFF7FFu) | 0x400u; break;
+            case 2: *controlWord = (*controlWord & 0xFFFFFBFFu) | 0x800u; break;
+            case 3: *controlWord |= 0xC00u; break;
+        }
+        // These original precision cases deliberately use the rounding mask, not a corrected PC mask.
+        switch ((record->controlAndOperation >> 2) & 7u)
+        {
+            case 0: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x300u; break;
+            case 1: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x200u; break;
+            case 2: *controlWord &= 0xFFFFF3FFu; break;
+        }
+        *result = Runtime_LoadBinary64ToX87(&record->result.value);
+    }
+
     #pragma fenv_access(off)
     #pragma float_control(pop)
 
