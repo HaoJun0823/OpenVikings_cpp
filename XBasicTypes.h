@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 
 namespace NXBasics
 {
@@ -13,10 +14,17 @@ namespace NXBasics
         std::int32_t x;
         std::int32_t y;
 
+        SPoint() noexcept = default;
+
+        // Original constructor: 00439842; memberwise copy of both coordinates.
+        SPoint(const SPoint& other) noexcept = default;
+
         void PlaceInside(const SRectangle& rectangle) noexcept;
         bool IsInside(const SRectangle& rectangle) const noexcept;
     };
     static_assert(sizeof(SPoint) == 8);
+    static_assert(std::is_aggregate_v<SPoint>);
+    static_assert(std::is_trivially_copy_constructible_v<SPoint>);
 
     std::int32_t __cdecl operator==(const SPoint& first, const SPoint& second) noexcept;
 

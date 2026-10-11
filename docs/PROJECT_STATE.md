@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Explicit geometry copies and defaulted-definition inventory correction - 2026-10-11
+
+SPoint now explicitly binds its original trivial copy through a first-declaration defaulted constructor. C++17 aggregate initialization is retained. The already defaulted SRectangle copy is now correctly recognized as a definition; its provisional engine assignment becomes shared geometry. One new binding and one counting correction add two global mapped entries. See [SHARED_GEOMETRY_COPY_COMPLETION.md](SHARED_GEOMETRY_COPY_COMPLETION.md).
+
+Current global inventory **4663/5062 (92.12%)**, **399 open**. System/shared **621/669 (92.83%), 48 open**; engine **126 open**, AI **225 open**. **19** explicit unfinished boundaries and **285** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2811** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Seven Win32 C++17 syntax-only consumers pass; InGameGuiManager retains its five existing C4805 warnings. Project/filter and naming parity are verified. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Complete audit of remaining shared runtime entries - 2026-10-11
 
 All 49 remaining shared entries are individually identified and grouped using Windows control-flow evidence. Complete math descriptor/name-table regions, raw exception constants and legacy compiler boundaries are documented. Naming recovery adds no implementation completion; existing partial adapters remain open. See [SHARED_RUNTIME_REMAINDER_AUDIT.md](SHARED_RUNTIME_REMAINDER_AUDIT.md).

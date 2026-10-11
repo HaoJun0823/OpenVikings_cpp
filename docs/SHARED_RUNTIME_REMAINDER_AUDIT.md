@@ -1,6 +1,6 @@
 # Remaining shared/runtime Windows entries - 2026-10-11
 
-The fresh production inventory leaves **49 shared/system entries** open, at **619/668 (92.66%)**. Global completion remains **4661/5062**, **401 open**. This audit recovers identities, calling boundaries and data dependencies; it does **not** claim another implemented function, remove any address, substitute guessed math operations, or promote the existing partial numeric adapters. The complete entry-by-entry inventory is [SHARED_RUNTIME_REMAINDER_AUDIT.csv](SHARED_RUNTIME_REMAINDER_AUDIT.csv).
+Historical checkpoint before the geometry-copy completion: the production inventory leaves **49 shared/system entries** open, at **619/668 (92.66%)**. Global completion remains **4661/5062**, **401 open**. This audit recovers identities, calling boundaries and data dependencies; it does **not** claim another implemented function, remove any address, substitute guessed math operations, or promote the existing partial numeric adapters. The complete entry-by-entry inventory is [SHARED_RUNTIME_REMAINDER_AUDIT.csv](SHARED_RUNTIME_REMAINDER_AUDIT.csv).
 
 | Block | Open entries | Required work |
 | --- | ---: | --- |
@@ -13,6 +13,8 @@ The fresh production inventory leaves **49 shared/system entries** open, at **61
 | Binary64 decomposition/classification | 4 | Exponent rewriting, frexp, rounding and fpclass with original x87 effects |
 | Math-error/IEEE records | 3 | Masked response, OS exception record and default error dispatch |
 | Waiting status/control/exception raising | 3 | FWAIT delivery, raw control bits and ordered hardware exception creation |
+
+The point-copy entry is subsequently closed by [SHARED_GEOMETRY_COPY_COMPLETION.md](SHARED_GEOMETRY_COPY_COMPLETION.md), leaving 48 shared entries open. The CSV below preserves this earlier 49-entry snapshot.
 
 ## Complete decoded math data regions
 
