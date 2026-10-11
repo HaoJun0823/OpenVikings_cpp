@@ -54,15 +54,9 @@ namespace NXSys2DApp
             return mDepth;
         }
 
-        std::int32_t GetWindowOffsetX() const
-        {
-            return mFullscreen ? 0 : mWindowOffsetX;
-        }
+        std::int32_t GetWindowOffsetX() const;
 
-        std::int32_t GetWindowOffsetY() const
-        {
-            return mFullscreen ? 0 : mWindowOffsetY;
-        }
+        std::int32_t GetWindowOffsetY() const;
 
         bool IsFullscreen() const
         {

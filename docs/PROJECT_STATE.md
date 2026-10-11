@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared DirectDraw palette and window ownership - 2026-10-11
+
+Four previously unmapped entries are explicit: palette allocation, two existing offset getters and the destructor forwarding entry. Windows palette initialization and display allocation/free ownership are corrected. The separate display-deletion body remains mapped; no native addresses are removed. See [SHARED_DISPLAY_COMPLETION.md](SHARED_DISPLAY_COMPLETION.md).
+
+Current global inventory **4627/5062 (91.41%)**, **435 open**. System/shared **607/683 (88.87%), 76 open**; engine **127 open**, AI **232 open**. **19** explicit unfinished boundaries and **288** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2731** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Three affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared mantissa and list ownership block - 2026-10-11
 
 Eight previously unmapped entries are now explicit or correctly counted. Three mantissa and two byte-classification helpers are connected. Two math-error leaves are available while their enclosing FPU paths remain open. Keyboard/INI list ownership is corrected throughout; its existing value-free entry moves to GUI without increasing the global count. See [SHARED_MANTISSA_LIST_COMPLETION.md](SHARED_MANTISSA_LIST_COMPLETION.md).

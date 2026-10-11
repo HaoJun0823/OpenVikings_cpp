@@ -18,7 +18,6 @@ namespace NXSys2DApp
         // Original function: FUN_0047b662
         LRESULT HandleWindowMessage(HWND windowHandle, UINT message, WPARAM wParam, LPARAM lParam);
 
-        // Original function: FUN_0047b868
         ~CWindow();
 
         // Original function: FUN_0047b888
@@ -56,6 +55,8 @@ namespace NXSys2DApp
         }
 
     private:
+        void l_DeleteDisplay();
+
         static constexpr const char* WindowClassName = "Funatics Software Application Window";
 
         // Original function: FUN_0047b638

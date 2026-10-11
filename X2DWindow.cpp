@@ -2,6 +2,7 @@
 
 #include "X2DApplication.h"
 #include "X2DDisplay.h"
+#include "XCrtFileAccess.h"
 #include "XMMouseManager.h"
 
 #include <Windows.h>
@@ -18,10 +19,13 @@ namespace NXSys2DApp
         mInitialized(false),
         mPadding07{},
 
-        mDisplay(new (std::nothrow) CDDDisplay(fullscreen)),
+        mDisplay(nullptr),
         mInstance(instance),
         mShowCommand(showCommand)
     {
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(CDDDisplay));
+        if (allocation != nullptr) mDisplay = ::new(allocation) CDDDisplay(fullscreen);
+
         WNDCLASSA windowClass{};
         windowClass.style = CS_HREDRAW | CS_VREDRAW;
         windowClass.lpfnWndProc = &CWindow::WindowProcedure;
@@ -41,7 +45,7 @@ namespace NXSys2DApp
         ShowWindow(mWindowHandle, mShowCommand);
         UpdateWindow(mWindowHandle);
 
-        if (mDisplay == nullptr || !mDisplay->StartUp(mWindowHandle, width, height, depth))
+        if (!mDisplay->StartUp(mWindowHandle, width, height, depth))
         {
             OutputDebugStringA("NXSys2DApp::CWindow::CWindow\n Could not initialize the display.\r\n");
 
@@ -209,11 +213,22 @@ namespace NXSys2DApp
         }
     }
 
-    // Original function: FUN_0047b868
+    // Original function: FUN_0047b633; the native destructor forwards to 0047B868.
     CWindow::~CWindow()
     {
-        delete mDisplay;
-        mDisplay = nullptr;
+        l_DeleteDisplay();
+    }
+
+    // Original function: FUN_0047b868; preserve capture, destruction, free and clear order.
+    void CWindow::l_DeleteDisplay()
+    {
+        CDDDisplay* display = mDisplay;
+        if (display != nullptr)
+        {
+            display->~CDDDisplay();
+            NXBasics::Runtime_Free(display);
+            mDisplay = nullptr;
+        }
     }
 
     // Original function: FUN_0047b888

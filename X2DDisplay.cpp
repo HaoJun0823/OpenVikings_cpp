@@ -19,6 +19,15 @@
 
 namespace
 {
+    // Original function: FUN_0047c309; four trailing allocation bytes remain untouched.
+    LOGPALETTE* DDDisplay_AllocatePaletteData()
+    {
+        auto* palette = static_cast<LOGPALETTE*>(NXBasics::Runtime_Allocate(0x408));
+        palette->palVersion = 0x0300;
+        palette->palNumEntries = 0x0100;
+        return palette;
+    }
+
     using DirectDrawCreateExFunction = HRESULT(WINAPI*)(GUID* driverGuid, void** directDraw, REFIID interfaceId, IUnknown* outerUnknown);
 
     /*
@@ -71,7 +80,7 @@ namespace NXSys2DApp
     {
         ShutDown();
 
-        std::free(mPaletteData);
+        NXBasics::Runtime_Free(mPaletteData);
         mPaletteData = nullptr;
 
         mInitialized = false;
@@ -85,31 +94,15 @@ namespace NXSys2DApp
         mHeight = height;
         mDepth = depth;
 
-        if (mPaletteData == nullptr)
-        {
-            /*
-             * The original allocates 0x408 bytes, although a LOGPALETTE
-             * containing 256 PALETTEENTRY values only requires 0x404.
-             */
-            mPaletteData = static_cast<LOGPALETTE*>(std::malloc(0x408));
-
-            if (mPaletteData == nullptr)
-            {
-                mInitialized = false;
-                return false;
-            }
-        }
-
-        mPaletteData->palVersion = 0x0300;
-        mPaletteData->palNumEntries = 0x0100;
+        mPaletteData = DDDisplay_AllocatePaletteData();
 
         for (std::uint32_t index = 0; index < 256; ++index)
         {
             PALETTEENTRY& entry = mPaletteData->palPalEntry[index];
 
-            entry.peRed = static_cast<BYTE>(index);
-            entry.peGreen = static_cast<BYTE>(index);
-            entry.peBlue = static_cast<BYTE>(index);
+            entry.peBlue = 0;
+            entry.peGreen = 0;
+            entry.peRed = 0;
             entry.peFlags = 0;
         }
 
@@ -711,6 +704,18 @@ namespace NXSys2DApp
         IDirectDrawSurface7* surface;
         NXBasics::SRectangle rectangle{0, 0, 0, 0};
     };
+
+    // Original function: FUN_0047b9b4.
+    std::int32_t CDDDisplay::GetWindowOffsetX() const
+    {
+        return mFullscreen ? 0 : mWindowOffsetX;
+    }
+
+    // Original function: FUN_0047b9c1.
+    std::int32_t CDDDisplay::GetWindowOffsetY() const
+    {
+        return mFullscreen ? 0 : mWindowOffsetY;
+    }
 
     // Original function: FUN_0047b9ce. Bitmap origin fields do not affect placement.
     void CDDDisplay::BitmapToScreen(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
