@@ -916,6 +916,9 @@
     <ClCompile Include="C2SavegameStateAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2AIMovementMessages.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClCompile Include="C2AISavegameAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
@@ -923,6 +926,9 @@
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2SavegameStateAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIMovementMessages.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2AISavegameAccess.h">

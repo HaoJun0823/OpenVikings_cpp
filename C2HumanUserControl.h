@@ -18,4 +18,6 @@ namespace NC2Logic
     bool Logic_UserControl_GetHumanCommands(std::int32_t id, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3);
     void Human_UserControl_GetCommands(const void* human, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3);
     bool Human_IsAbleToHaveWorkHouse(const void* human);
+    bool Human_UserControl_CanChangeJob(const void* human);
+    bool Human_UserControl_CanChooseJob(const void* human);
 }

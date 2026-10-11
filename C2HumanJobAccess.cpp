@@ -17,6 +17,19 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00436B16; Windows outlined trader-only merchant reference.
+    void* Human_GetMerchantDataPtr(const void* human) { return Human_IsJobTrader(human) ? HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, NC2Lifetime::Read<std::int32_t>(human, 0xB44)) : nullptr; }
+    // Original function: FUN_0044B958.
+    bool Human_Production_IsInfinite(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 11; }
+    // Original function: FUN_0044B96C.
+    bool Human_Production_IsStopped(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 0; }
+    // Original function: FUN_0044B97F.
+    bool Human_Production_IsForbidden(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 12; }
+    // Original function: FUN_0044B993.
+    bool Human_Production_IsIncapable(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 13; }
+    // Original function: FUN_0044B9A7.
+    bool Human_Production_IsImpossible(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 14; }
+
     // Original function: FUN_0042c8e6.
     bool Human_IsForcedToHaveFinishedWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint8_t>(gStaticJobTypeData, NC2Lifetime::Read<std::uint32_t>(human, 0x18) * 0x88u + 0x84u) != 0; }
     using namespace NC2Lifetime;
@@ -212,7 +225,7 @@ namespace NC2Logic
         return false;
     }
 
-    // Original fraction overload: FUN_0044b871; round at five decimal tenths.
+    // Original function: FUN_0044B871; round at five decimal tenths.
     void Human_Production_DidProduceGoods(void* human, std::int32_t amount, std::int32_t fraction)
     {
         if (fraction >= 5) amount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(amount) + 1u);
@@ -970,7 +983,7 @@ namespace NC2Logic
             else for (std::uint32_t i = 0; i < enables.goodCount; ++i) if (Human_IsAbleToProduceGoodNow(human, static_cast<std::uint32_t>(enables.goods[i]))) { Human_Production_SetCounter(human, static_cast<std::uint32_t>(enables.goods[i]), 0); break; }
         }
         const auto current = Read<std::uint32_t>(human, 0x1C);
-        if (current != 0 && Read<std::uint8_t>(human, 0x195u + current) != 0 && Human_Production_GetCounter(human, current) != 0) return;
+        if (current != 0 && Read<std::uint8_t>(human, 0x195u + current) != 0 && !Human_Production_IsStopped(human, current)) return;
         if (preferred == 0) return;
         std::uint32_t selected = preferred;
         if (!Human_IsAbleToProduceGoodNow(human, preferred))

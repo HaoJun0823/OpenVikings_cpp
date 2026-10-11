@@ -7,6 +7,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanUserControl.h"
 #include "C2HumanEquipment.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MissionStartObjects.h"
@@ -43,7 +44,6 @@ namespace NC2InGameGuiMiscWindows
     static char* Text(std::uint32_t id) { return StringTool_GetGameGuiHumanListWindowStringPtr(id); }
     static bool Filter(std::uint32_t index) { return Read<std::uint8_t>(gHumanListWindowStatics, index) != 0; }
     static std::uint32_t Modifiers() { return Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0); }
-    static bool CanChangeJob(const void* human) { return (Read<std::uint32_t>(human, 0xB84) & 0x40u) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human); } // Outlined Windows predicate 00436A68; original Mac name unresolved.
     static void* __fastcall HumanListWindow_Delete(void* window, void*, std::uint32_t flags);
     static bool __fastcall HumanListWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     static void __fastcall HumanListWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle);
@@ -164,7 +164,7 @@ namespace NC2InGameGuiMiscWindows
             if (Filter(13) && (!Human_IsAgeAdult(human) || !Human_IsJobSoldier(human) || Human_IsJobHero(human) || Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)], Read<std::uint32_t>(human, 0xAE4) * 0xC4u + 0x24) != 0)) continue;
             const auto job = Read<std::uint32_t>(gHumanListWindowStatics, 0x10), possible = Read<std::uint32_t>(gHumanListWindowStatics, 0x14);
             if (job != 0 && Read<std::uint32_t>(human, 0x18) != job) continue;
-            if (possible != 0 && Read<std::uint32_t>(human, 0x18) != possible && (!CanChangeJob(human) || !Human_IsAllowedToDoJob(human, possible) || !Human_IsAbleToDoJob(human, possible))) continue;
+            if (possible != 0 && Read<std::uint32_t>(human, 0x18) != possible && (!Human_UserControl_CanChangeJob(human) || !Human_IsAllowedToDoJob(human, possible) || !Human_IsAbleToDoJob(human, possible))) continue;
             ids[count++] = id; if (count == 500) break;
         }
         if (count > 1) for (auto end = static_cast<std::int32_t>(count) - 1; end >= 0; --end) for (std::int32_t index = 0; index < end; ++index) if (HumanListWindow_ls_HumanSortFunction(ids[index], ids[index + 1])) { const auto old = ids[index]; ids[index] = ids[index + 1]; ids[index + 1] = old; }
@@ -367,7 +367,7 @@ namespace NC2InGameGuiMiscWindows
         {
             const auto* human = Human(id); if (Human_IsJobHero(human) || Read<std::uint32_t>(human, 0x14) != tribe) continue;
             if (Read<std::uint32_t>(human, 0x18) == job) return true;
-            if (Read<std::uint8_t>(window, 0x74) == 0 && CanChangeJob(human) && Human_IsAllowedToDoJob(human, job)) return true;
+            if (Read<std::uint8_t>(window, 0x74) == 0 && Human_UserControl_CanChangeJob(human) && Human_IsAllowedToDoJob(human, job)) return true;
         }
         return false;
     }

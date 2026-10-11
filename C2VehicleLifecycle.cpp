@@ -246,7 +246,7 @@ namespace NC2Logic
         return -1;
     }
 
-    // Original function: FUN_00436e8d; landscape editing remains an external boundary.
+    // Original function: FUN_00436E8D; landscape editing is reconstructed and connected.
     void Vehicle_Exit(void* vehicle)
     {
         if (Read<std::int32_t>(vehicle, 0x1DC) != -1 && Vehicle_Door_IsEntryPointOnLand(vehicle, 0)) Vehicle_Passengers_MoveAllOut(vehicle, true);
@@ -286,7 +286,7 @@ namespace NC2Logic
                         for (std::uint32_t step = 0; step < ring; ++step) { MapMigPoint_MoveCursorUnwrapped(point, direction); wreck(true); }
                 }
             }
-            if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && type != 3 && type != 4)
+            if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && Read<std::uint32_t>(vehicle, 0x1E8) != 4 && Read<std::uint32_t>(vehicle, 0x1E8) != 3)
                 for (std::uint32_t good = 0; good < 66; ++good)
                 {
                     if (!Vehicle_Stock_CanStoreGoodType(vehicle, good)) continue;

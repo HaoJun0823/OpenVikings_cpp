@@ -7,20 +7,16 @@ Address,CurrentName,Status,ReferencingObjects
 0041F9F7,NC2Logic::MissionManager_l_ExecuteResult,Partial Windows result dispatcher; goods-area actions 64/65 also connected; remaining mission actions pending; excluded from completion counts,C2MissionExecution.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00428736,NC2Logic::Game_Checksum_Calculate,Temporary dummy; Windows implementation pending,C2GameTime.obj
-00436E8D,NC2Logic::Vehicle_Exit,Partial Windows vehicle exit; landscape-edit external dummy remains,C2VehicleLifecycle.obj
 0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
 0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
 0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..35/39/41/52..87 connected; remaining military/vehicle commands and defence/passenger boundaries pending,C2HumanCommandAccess.obj
 0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs pickup pileup ordinary production map collection and fishing events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
 004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial native startup; task 14 attack connected and task 15 retains native no-op startup; unsupported queued-command leaves remain explicit boundaries,C2HumanTaskAccess.obj
-00443807,NC2Logic::Human_CurrentTask_DoFailure,Partial native failure; tasks 14 and non-AI 15 connected including landscape-neighbor retry; AI pursuit NoWayFound notification still held; excluded from completion counts,C2HumanTaskAccess.obj
-00445DA5,NC2Logic::Human_l_FailTask_Goto,Partial Windows goto failure; messages complete; AI NoWayFound notification pending,C2HumanTaskAccess.obj
 00450C1D,NC2Logic::GameMap_l_MaxMoveableSize_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00450E8C,NC2Logic::GameMap_l_WalkFlagSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004511C5,NC2Logic::GameMap_l_ResistanceSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004513C1,NC2Logic::GameMap_l_Continents_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00462CD5,NC2Logic::Human_AI_DoNewMapPositionReached,Partial Windows position callback; civilian exploration/wear/speed/scout animal ownership complete; military destination continuation pending,C2MapMoveableAccess.obj
-00463043,NC2Logic::Human_AI_DoNewMapPositionReached_DestinationNotReached,Partial native step callback; non-AI military enemy searches and pursuit range limits connected; AI target notification at 004631D8 pending; excluded from completion counts,C2HumanWalking.obj
 00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
 00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
 00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; complete native building event-20 context dispatcher enabled and event-27 stock modification connected; broader event audit pending; excluded from completion counts,C2HumanCommandAccess.obj
@@ -41,5 +37,4 @@ Address,CurrentName,Status,ReferencingObjects
 004E8774,Runtime_Sin,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 004E8824,Runtime_Cos,Partial numeric CRT adapter; finite clock/rotation values and native x87 control save/restore connected; original math-error hooks and exceptional status behavior unresolved; excluded from completion counts,XCrtFileAccess.obj
 00473102,NC2Logic::AISinglePlayerHandler_Messages_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
-004732D2,NC2Logic::AISinglePlayerHandler_Messages_SoldierAttacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
 004293FC,NC2Logic::AIHighLevelHandler_Message_Soldier_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj

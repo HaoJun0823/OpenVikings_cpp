@@ -134,4 +134,5 @@ namespace NC2Logic
     static_assert(offsetof(SStaticTribeTypeStorage, owner) == 0x0C);
     static_assert(offsetof(SStaticTribeTypeStorage, tokens) == 0x10);
     static_assert(sizeof(CStaticTribeTypeDataManager) == 1);
+    const char* StaticTribeTypeData_GetNamePtr(std::int32_t tribe);
 }

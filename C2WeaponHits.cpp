@@ -1,4 +1,5 @@
 #include "C2MilitaryDamage.h"
+#include "C2AIMovementMessages.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
 #include "C2GameControlNetwork.h"
@@ -25,9 +26,8 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
-    // The three original AI notification bodies remain isolated link boundaries.
+    // The attacked-point and high-level notification bodies remain isolated link boundaries.
     extern void __fastcall AISinglePlayerHandler_Messages_Attacked(void* handler, void* unusedEdx, const void* point);
-    extern void __fastcall AISinglePlayerHandler_Messages_SoldierAttacked(void* handler, void* unusedEdx, std::uint32_t human, const void* target);
     extern void __fastcall AIHighLevelHandler_Message_Soldier_Attacked(void* handler, void* unusedEdx, const void* target);
 
     namespace

@@ -54,7 +54,7 @@ namespace NC2InGameGuiSelectedAction
             }
             Close(window); return nullptr;
         }
-        void* Merchant(void* human) { return human != nullptr && NC2Logic::Human_IsJobTrader(human) ? NC2Logic::HumanMerchantArray_GetMerchantDataPtr(NC2Logic::gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)) : nullptr; }
+        void* Merchant(void* human) { return human != nullptr ? NC2Logic::Human_GetMerchantDataPtr(human) : nullptr; }
         // Original function: FUN_004cd9fd.
         bool l_Merchant_IsRouteValid(void* window)
         {

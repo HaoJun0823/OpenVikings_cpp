@@ -48,10 +48,6 @@ namespace NC2Logic
     // Naming reference: NC2Logic::C2AISinglePlayerHandler::Messages_Attacked.
     void __fastcall AISinglePlayerHandler_Messages_Attacked(void*, void*, const void*) {}
 
-    // TEMPORARY DUMMY: Windows address 004732D2; AI soldier-group retargeting pending.
-    // Naming reference: NC2Logic::C2AISinglePlayerHandler::Messages_SoldierAttacked.
-    void __fastcall AISinglePlayerHandler_Messages_SoldierAttacked(void*, void*, unsigned int, const void*) {}
-
     // TEMPORARY DUMMY: Windows address 004293FC; high-level military notification pending.
     // Naming reference: NC2Logic::C2AIHighLevelHandler::Message_Soldier_Attacked.
     void __fastcall AIHighLevelHandler_Message_Soldier_Attacked(void*, void*, const void*) {}

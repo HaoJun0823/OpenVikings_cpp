@@ -1,4 +1,5 @@
 #include "C2MissionExecution.h"
+#include "C2HumanChest.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2GameState.h"
@@ -419,6 +420,17 @@ namespace NC2Logic
         case 17: CCallbackManager::sTheObjectPtr->ExecuteCallback(0x2F, 1, 0, 0, 0); break;
         case 18: AIManager_EntryPoint_Condition_ExternalActivate_SetFlag(gAIManager, p[0], p[1], p[2] != 0); break;
         case 19: GameControl_Diplomacy_SetState(gGameControl, nullptr, p[0], p[1], p[2]); break;
+        case 51: Tool_MapChest_SetRandomChestOnRandomPosition(p[0]); break;
+        case 100:
+        {
+            const auto mask = p[0];
+            const auto y = p[2];
+            const auto x = p[1];
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(x), static_cast<std::int16_t>(y), false);
+            Tool_MapChest_SetRandomChestOnPosition(mask, &point);
+            break;
+        }
         case 20: Write<std::uint8_t>(GetMission(manager, p[0]), 0x24, p[1] != 0); break;
         case 21:
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))

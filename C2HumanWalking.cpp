@@ -1,4 +1,5 @@
 #include "C2HumanWalking.h"
+#include "C2AIMovementMessages.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanNeeds.h"
@@ -319,7 +320,7 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_00463043; AI target notification at 004631D8 remains pending.
+    // Original function: FUN_00463043; AI self-defence consumes the found target before civilian transitions.
     bool Human_AI_DoNewMapPositionReached_DestinationNotReached(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return true;
@@ -348,12 +349,11 @@ namespace NC2Logic
             return true;
         }
         if ((mode != 1 && mode != 2) || TargetData_IsValid(primary)) return true;
-        // AI handlers consume a target notification instead of the direct civilian transition.
-        if (Human_GetPlayerType(human) == 2) return true;
         std::uint32_t target[3]{};
-        const auto* source = mode == 2 ? static_cast<const void*>(static_cast<const std::byte*>(human) + 0xB30) : Human_GetMapPositionRef(human);
+        const auto* source = mode == 2 && Human_GetPlayerType(human) != 2 ? static_cast<const void*>(static_cast<const std::byte*>(human) + 0xB30) : Human_GetMapPositionRef(human);
         if (Human_l_CheckForEnemyTarget(human, source, 0, 18, target))
         {
+            if (Human_GetPlayerType(human) == 2) { AIManager_Message_StartSelfDefence(gAIManager, Read<std::uint32_t>(human, 0x10), Read<std::uint32_t>(human, 4), target); return true; }
             for (std::uint32_t index = 0; index < 3; ++index) Write(human, 0xB70u + index * 4u, target[index]);
             Write<std::uint32_t>(human, 0x36C, 2);
             return false;

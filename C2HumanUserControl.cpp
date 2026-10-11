@@ -15,6 +15,10 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_00436A68; Windows command-24 predicate, no separate Mac export established.
+    bool Human_UserControl_CanChangeJob(const void* human) { return (Read<std::uint32_t>(human, 0xB84) & 0x40u) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human); }
+    // Original function: FUN_00436A97; Windows command-26 predicate, no separate Mac export established.
+    bool Human_UserControl_CanChooseJob(const void* human) { return !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0; }
     // Original function: FUN_0040b01f; failed allocation checks leave the output untouched.
     bool Logic_UserControl_GetHumanCommands(std::int32_t id, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3)
     {
@@ -62,8 +66,7 @@ namespace NC2Logic
             }
             commands->AddCommand(2); commands->AddCommand(12);
             if (Human_IsJobHero(human)) return;
-            // Windows outlined predicate 00436A97; its separate Mac identity is unresolved.
-            if (!(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0) commands->AddCommand(26);
+            if (Human_UserControl_CanChooseJob(human)) commands->AddCommand(26);
             commands->AddCommand(3); commands->AddCommand(4);
             if (Human_IsAbleToTalk(human)) commands->AddCommand(5);
             if (Human_IsAbleToPray(human)) commands->AddCommand(6);
@@ -75,8 +78,7 @@ namespace NC2Logic
             }
             commands->AddCommand(10);
             if (Human_IsAttachedToHomeHouse(human)) commands->AddCommand(11);
-            // Windows outlined predicate 00436A68; retain its flag/sex/age checks inline.
-            if (sameTribe && (Read<std::uint32_t>(human, 0xB84) & 0x40u) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human)) commands->AddCommand(24);
+            if (sameTribe && Human_UserControl_CanChangeJob(human)) commands->AddCommand(24);
             if (Human_IsAbleToHaveWorkHouse(human))
             {
                 if (Human_UserControl_GetNextJobType(human) == 7) commands->AddCommand(20);
@@ -118,8 +120,8 @@ namespace NC2Logic
         commands->AddCommand(3); commands->AddCommand(4);
         if (Human_IsAbleToTalk(human)) commands->AddCommand(5);
         if (Human_IsAbleToPray(human)) commands->AddCommand(6);
-        if (!(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0) commands->AddCommand(26);
-        if (sameTribe && (Read<std::uint32_t>(human, 0xB84) & 0x40u) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human)) commands->AddCommand(24);
+        if (Human_UserControl_CanChooseJob(human)) commands->AddCommand(26);
+        if (sameTribe && Human_UserControl_CanChangeJob(human)) commands->AddCommand(24);
         if (Human_IsAgeAdult(human) && sameTribe)
         {
             if (!Human_UserControl_IsCommandTypeInQueue(human, 13) && !Human_UserControl_IsCommandTypeInQueue(human, 14) && Read<std::uint32_t>(human, 0x368) != 5 && Human_IsAbleToMarryNow(human)) commands->AddCommand(7);

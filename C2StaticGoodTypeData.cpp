@@ -14,6 +14,9 @@ namespace NC2Logic
     SStaticGoodTypeData*& gStaticGoodTypeData = gStaticGoodTypeStorage.records;
     CStaticGoodTypeDataManager*& gStaticGoodTypeDataManager = gStaticGoodTypeStorage.owner;
 
+    // Original function: FUN_0044CEEF; Windows outlined unchecked static-data reference.
+    const SStaticGoodTypeData* StaticGoodTypeData_GetPtr(std::uint32_t good) { return gStaticGoodTypeData + good; }
+
     namespace
     {
         // Original function: FUN_00415549, an empty token-list exit callback.

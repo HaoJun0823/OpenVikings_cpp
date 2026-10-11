@@ -6,6 +6,7 @@ namespace NC2Logic
     const void* House_GetMapPositionRef(const void* house);
     const void* House_Door_GetEntryPointRef(const void* house);
     bool House_Inhabitants_IsHumanAttachedAsWorker(const void* house, std::uint32_t human);
+    bool House_Inhabitants_IsFreeWorkSlotAvailable(const void* house, std::uint32_t job);
     void* House_Inhabitants_GetAttachedHumanPtr(void* house, std::uint32_t slot);
     bool House_Religion_IsHolyFireActive(const void* house);
     void House_LandscapeOverlay_SetActive(void* house, std::int32_t overlay, bool enabled);

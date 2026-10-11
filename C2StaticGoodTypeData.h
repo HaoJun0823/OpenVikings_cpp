@@ -82,4 +82,5 @@ namespace NC2Logic
     static_assert(offsetof(SStaticGoodTypeStorage, records) == 8);
     static_assert(offsetof(SStaticGoodTypeStorage, owner) == 0x0C);
     static_assert(offsetof(SStaticGoodTypeStorage, tokens) == 0x10);
+    const SStaticGoodTypeData* StaticGoodTypeData_GetPtr(std::uint32_t good);
 }

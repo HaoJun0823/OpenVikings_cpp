@@ -362,9 +362,11 @@
     <ClInclude Include="C2MissionExecution.h" />
     <ClCompile Include="C2SavegameStateAccess.cpp" />
     <ClCompile Include="C2AISavegameAccess.cpp" />
+    <ClCompile Include="C2AIMovementMessages.cpp" />
     <ClInclude Include="C2SavegameIO.h" />
     <ClInclude Include="C2SavegameStateAccess.h" />
     <ClInclude Include="C2AISavegameAccess.h" />
+    <ClInclude Include="C2AIMovementMessages.h" />
     <ClInclude Include="C2MapGuid.h" />
   </ItemGroup>
   <ItemGroup>

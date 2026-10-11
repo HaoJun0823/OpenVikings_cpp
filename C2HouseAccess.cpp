@@ -19,6 +19,15 @@
 #include "C2HumanGoods.h"
 namespace NC2Logic
 {
+    // Original function: FUN_00434CE6; the capacity comparison is unsigned.
+    bool House_Inhabitants_IsFreeWorkSlotAvailable(const void* house, std::uint32_t job)
+    {
+        const auto* data = gStaticHouseTypeStorage.records + NC2Lifetime::Read<std::uint32_t>(house, 0x14);
+        std::int32_t worker = 0;
+        while (worker < data->workerCount && static_cast<std::uint32_t>(data->workers[worker].jobType) != job) ++worker;
+        if (worker == data->workerCount) return false;
+        return static_cast<std::uint32_t>(House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job)) < static_cast<std::uint32_t>(data->workers[worker].unknown04);
+    }
     // Original function: FUN_004322b6; homes do not expose worker attachments.
     bool House_Inhabitants_IsHumanAttachedAsWorker(const void* house, std::uint32_t human)
     {

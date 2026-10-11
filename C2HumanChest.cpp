@@ -1,4 +1,5 @@
 #include "C2HumanChest.h"
+#include "C2EngineLandscapeAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanEquipment.h"
 #include "C2HumanGoods.h"
@@ -171,5 +172,76 @@ namespace NC2Logic
         }
         Human_Target_Reset(human);
         Human_StopCurrentGoodCirculationMode(human);
+    }
+
+    // Original function: FUN_0044D9C9; Game.exe 0044DA31 maps the eleven categories to these ranges.
+    std::uint32_t Tool_MapChest_GetMapChestTypeFromRandomType(std::uint32_t type)
+    {
+        if (type > 10) return 0;
+        static constexpr std::uint32_t minimum[11] = { 94, 52, 91, 20, 51, 0, 1, 7, 90, 24, 96 };
+        static constexpr std::uint32_t maximum[11] = { 95, 52, 91, 20, 72, 0, 6, 12, 90, 25, 96 };
+        return minimum[type] + Game_Random_GetNumber() % (maximum[type] - minimum[type] + 1u);
+    }
+
+    namespace
+    {
+        // Shared translation of the identical native category-selection loops; not a separate original entry.
+        std::uint32_t SelectRandomChest(std::uint32_t mask)
+        {
+            std::uint32_t count = 0;
+            for (std::uint32_t type = 0; type < 11; ++type) if ((mask & (1u << type)) != 0) ++count;
+            if (count == 0) return 0;
+            auto selected = Game_Random_GetNumber() % count;
+            for (std::uint32_t type = 0; type < 11; ++type)
+                if ((mask & (1u << type)) != 0) { if (selected == 0) return Tool_MapChest_GetMapChestTypeFromRandomType(type); --selected; }
+            return 0;
+        }
+    }
+
+    // Original function: FUN_0044D79E; six attempts, Y randomization precedes X.
+    void Tool_MapChest_SetRandomChestOnRandomPosition(std::uint32_t mask)
+    {
+        const auto engine = NC2LogicExternals::External_Landscape_GetLandscapeIdByNamePtr("chest wooden");
+        const auto chest = SelectRandomChest(mask);
+        if (chest == 0) return;
+        for (std::int32_t attempt = 0; attempt < 6; ++attempt)
+        {
+            const auto height = GameMap_GetHeight(), width = GameMap_GetWidth();
+            const auto y = Game_Random_GetNumber() % static_cast<std::uint32_t>(height);
+            const auto x = Game_Random_GetNumber() % static_cast<std::uint32_t>(width);
+            std::uint32_t point;
+            MapMigPoint_SetPosition(&point, static_cast<std::int16_t>(x), static_cast<std::int16_t>(y), false);
+            if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(&point)) != 1 || !Tool_Map_GetNotBlockedPosition(&point, true)) continue;
+            auto neighbor = point;
+            MapMigPoint_MoveCursorUnwrapped(neighbor, 4);
+            bool valid = true;
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
+                if (!MapMigPoint_IsInsideMap(&neighbor) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&neighbor), 0xC) & 0x80u) != 0) valid = false;
+            }
+            if (!valid) continue;
+            Logic_EntryPoint_Edit_Start();
+            Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 85, chest, engine, 1, -1);
+            Logic_EntryPoint_Edit_Stop();
+            return;
+        }
+    }
+
+    // Original function: FUN_0044D8F5; all four attempts restart from the supplied point.
+    void Tool_MapChest_SetRandomChestOnPosition(std::uint32_t mask, const void* source)
+    {
+        const auto engine = NC2LogicExternals::External_Landscape_GetLandscapeIdByNamePtr("chest wooden");
+        const auto chest = SelectRandomChest(mask);
+        if (chest == 0) return;
+        for (std::int32_t attempt = 0; attempt < 4; ++attempt)
+        {
+            auto point = Read<std::uint32_t>(source, 0);
+            if (MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(&point)) != 1 || !Tool_Map_GetNotBlockedPosition(&point, true)) continue;
+            Logic_EntryPoint_Edit_Start();
+            Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 85, chest, engine, 1, -1);
+            Logic_EntryPoint_Edit_Stop();
+            return;
+        }
     }
 }

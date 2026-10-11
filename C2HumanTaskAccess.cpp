@@ -1,4 +1,6 @@
 #include "C2HumanTaskAccess.h"
+#include "C2AIMovementMessages.h"
+#include "C2MilitaryTargetSearch.h"
 #include "C2HumanGoodieTasks.h"
 #include "C2HumanNeeds.h"
 #include "C2HumanCommandAccess.h"
@@ -200,12 +202,15 @@ namespace NC2Logic
         }
     }
 
-    // Partial original function: FUN_00445da5; AI NoWayFound notification remains pending.
+    // Original function: FUN_00445DA5; the user message precedes the AI notification.
     void Human_l_FailTask_Goto(void* human)
     {
         switch (Read<std::uint32_t>(human, 0x374))
         {
-        case 1: Human_UserMessage_SendToUserMessage(human, 3); return;
+        case 1:
+            Human_UserMessage_SendToUserMessage(human, 3);
+            if (Human_GetPlayerType(human) == 2) AIManager_Message_NoWayFound(gAIManager, Read<std::uint32_t>(human, 0xC), static_cast<const std::byte*>(human) + 0xA6C);
+            return;
         case 3: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); return;
         case 4: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); return;
         case 5: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); return;
@@ -286,14 +291,10 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0xAD0, 0);
     }
 
-    // Partial original function: FUN_00443807; civilian needs, family, goods and equipment recovery.
-    // The AI NoWayFound notification remains pending.
+    // Original function: FUN_00443807; AI pursuit retries and failure notifications retain native order.
     void Human_CurrentTask_DoFailure(void* human)
     {
         const auto task = Read<std::uint32_t>(human, 0x368);
-        // The AI pursuit failure notification at 00443B3C remains a boundary.
-        if (task == 15 && Human_GetPlayerType(human) == 2 && Read<std::uint32_t>(human, 0x370) == 0 && TargetData_GetTargetType(static_cast<const std::byte*>(human) + 0xB64) != 6) return;
-        if ((task == 2 || task == 4 || task == 23) && Read<std::uint32_t>(human, 0x374) == 1 && Human_GetPlayerType(human) == 2) return;
         if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
         Write(human, 0x380, Read<std::uint32_t>(human, 0x380) + 1u);
         bool doJob = true, checkUrgent = true;
@@ -305,12 +306,34 @@ namespace NC2Logic
             if (Read<std::uint32_t>(human, 0x370) != 0 || (!TargetData_IsValid(target) && !TargetData_IsValid(static_cast<std::byte*>(human) + 0xB70))) Human_l_FailTask_Attack(human);
             else
             {
-                const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)];
-                if (TargetData_GetTargetType(target) == 6 && weapon.maximumRange == 1 && TargetData_MapPos_NextAttackPoint(target))
+                const auto type = TargetData_GetTargetType(target);
+                if (type == 6)
                 {
+                    const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)];
+                    if (weapon.maximumRange == 1 && TargetData_MapPos_NextAttackPoint(target))
+                    {
+                        std::uint32_t point = 0;
+                        TargetData_MapPos_GetAttackPosition(target, &point);
+                        if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                    }
+                }
+                else if (Human_GetPlayerType(human) == 2)
+                {
+                    Write<std::uint32_t>(human, 0xB70, 0);
                     std::uint32_t point = 0;
-                    TargetData_MapPos_GetAttackPosition(target, &point);
-                    if (Human_l_StartAtomicWalk(human, &point, &point)) { Write<std::uint32_t>(human, 0x368, 15); Write<std::uint32_t>(human, 0x36C, 1); return; }
+                    if (Tool_GetOneOfNearestEnemyLandscapes(Read<std::uint32_t>(human, 0x10), Human_GetMapPositionRef(human), 0, 18, true, 1, 0, &point))
+                    {
+                        Write(target, 4, point);
+                        Write<std::uint32_t>(target, 0, 6);
+                        Write<std::uint32_t>(human, 0x368, 14);
+                        Write<std::uint32_t>(human, 0x36C, 0);
+                        return;
+                    }
+                    if (TargetData_IsValid(target))
+                    {
+                        TargetData_GetMapPosition(target, &point);
+                        AIManager_Message_NoWayFoundToEnemy(gAIManager, Read<std::uint32_t>(human, 0xC), &point);
+                    }
                 }
                 Human_UserMessage_SendToUserMessage(human, 3);
                 Write<std::uint32_t>(human, 0xB64, 0);

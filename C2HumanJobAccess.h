@@ -34,6 +34,7 @@ namespace NC2Logic
     bool Human_IsJobBreeder(const void* human);
     bool Human_IsJobTrader(const void* human);
     void* HumanMerchantArray_GetMerchantDataPtr(const void* manager, std::int32_t id);
+    void* Human_GetMerchantDataPtr(const void* human);
     void* MerchantData_GetHouseDataPtr(void* merchant, std::uint32_t index);
     bool MerchantHouseData_IsValid(const void* houseData);
     bool Human_IsJobCarrier(const void* human);
@@ -73,6 +74,11 @@ namespace NC2Logic
     void Human_Production_DidProduceGoods(void* human, std::int32_t amount, std::int32_t fraction);
     void Human_Production_CouldNotProduceCurrentGood(void* human);
     std::uint32_t Human_Production_GetCounter(const void* human, std::uint32_t good);
+    bool Human_Production_IsInfinite(const void* human, std::uint32_t good);
+    bool Human_Production_IsStopped(const void* human, std::uint32_t good);
+    bool Human_Production_IsForbidden(const void* human, std::uint32_t good);
+    bool Human_Production_IsIncapable(const void* human, std::uint32_t good);
+    bool Human_Production_IsImpossible(const void* human, std::uint32_t good);
     void Human_ChangeProducedGoodType(void* human, std::uint32_t good);
     bool House_Production_IsAbleToProduceGood(const void* house, std::uint32_t good, bool primary);
 

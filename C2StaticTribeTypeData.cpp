@@ -13,6 +13,9 @@ namespace NC2Logic
     SStaticTribeTypeData*& gStaticTribeTypeData = gStaticTribeTypeStorage.records;
     CStaticTribeTypeDataManager*& gStaticTribeTypeDataManager = gStaticTribeTypeStorage.owner;
 
+    // Original function: FUN_0044CF00; the upper-bound check is signed, negative ids remain unchecked.
+    const char* StaticTribeTypeData_GetNamePtr(std::int32_t tribe) { return tribe > 42 ? "<error>" : gStaticTribeTypeData[tribe].name; }
+
     namespace
     {
         // Original function: FUN_00414172, an empty token-list exit callback.

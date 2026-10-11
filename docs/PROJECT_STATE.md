@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Vehicle remainder and AI movement messages - 2026-10-11
+
+All nineteen originally selected open entries are reconstructed, together with fourteen required AI boundaries. Failed-way/pursuit and self-defence messages now reach real handlers, single-soldier attacks and replacement-position searches. Three enclosing human recovery/step boundaries are complete; the SoldierAttacked dummy is removed. Chest category/placement tools connect mission results 51/100, and human permission/production/static-data helpers have distinct native bodies. Vehicle exit is fully re-audited and its obsolete landscape-dummy exclusion removed. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [VEHICLE_REMAINDER_COMPLETION.md](VEHICLE_REMAINDER_COMPLETION.md).
+
+The corrected vehicle inventory is **170 / 170 (100%)**: the earlier **169 / 188** selection is fully implemented, and eighteen provisional entries now belong to human, AI or shared-data integration. No unimplemented entry is hidden by reclassification. Global source-address coverage is **4267 / 5062 (84.29%)**, **795** known entries open; **276 cpp / 256 headers**, **2388** unique naming rows and **39** explicit unfinished entries. Thirty-six mapped addresses are added and five exclusions removed.
+
+Sixteen unique changed/integration units passed Win32 `/Zs`; project/filter parity, naming uniqueness, all nineteen selected boundaries, thematic totals and whitespace checks passed. No build, tests or game run occurred. Counts do not confirm live vehicle/AI behavior; broader AI update/repair and notification trees, mission dispatchers and other partial human branches remain open. Actual music playback remains unverified. User-owned CombatTasks remain untouched and excluded. Next smallest identified topic: missions/campaigns (**61 / 86**, twenty-five open), then game-control/data (**437 / 466**, twenty-nine open).
+
 ## Common movement/combat/object entry completion - 2026-10-11
 
 All seventeen originally selected open entries are reconstructed, together with twenty-five required vehicle dependencies. Human, animal and vehicle ticks remain distinct native methods; turning is gated by its flag, walking updates map/sector attachment halfway through a step, and deletion is dispatched after each individual object tick. Vehicle commands, AI, docking, passenger transfer, attack searches and projectile events are connected. Missions now use vehicle-stock goal 60 and goods-area results 64/65. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [COMMON_MOVEMENT_VEHICLE_COMPLETION.md](COMMON_MOVEMENT_VEHICLE_COMPLETION.md).

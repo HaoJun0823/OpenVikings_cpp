@@ -280,8 +280,7 @@ namespace NC2InGameGuiSelection
         void* l_Misc_GetSelectedMerchantDataPtr()
         {
             const void* human = l_Misc_GetSelectedHumanPtr();
-            if (human == nullptr || !NC2Logic::Human_IsJobTrader(human)) return nullptr;
-            return NC2Logic::HumanMerchantArray_GetMerchantDataPtr(NC2Logic::gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+            return human != nullptr ? NC2Logic::Human_GetMerchantDataPtr(human) : nullptr;
         }
         // Original function: FUN_004aeb29; compact valid routes into two GUI rows.
         void l_SubTabs_Trader_UpdateButtons(void* window)
@@ -1027,7 +1026,7 @@ namespace NC2InGameGuiSelection
                 {
                     Write<std::uint8_t>(window, 0x72, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human) && !NC2Logic::Human_IsJobScout(human) && !NC2Logic::Human_IsJobTrader(human) && Read<std::uint32_t>(human, 0x18) != 6);
                     // Native 00436A97 has no established semantic name yet.
-                    Write<std::uint8_t>(window, 0x74, !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0 && !NC2Logic::Human_IsJobHero(human));
+                    Write<std::uint8_t>(window, 0x74, NC2Logic::Human_UserControl_CanChooseJob(human) && !NC2Logic::Human_IsJobHero(human));
                     Write<std::uint8_t>(window, 0x75, NC2Logic::Human_IsJobTrader(human));
                 }
                 else
@@ -1124,7 +1123,7 @@ namespace NC2InGameGuiSelection
             Write<std::uint8_t>(window, 0x72, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human) && !NC2Logic::Human_IsJobScout(human) && !NC2Logic::Human_IsJobTrader(human) && Read<std::uint32_t>(human, 0x18) != 6);
             Write<std::uint8_t>(window, 0x73, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human));
             // Native 00436A97: inspect the enable byte and the Odin exception.
-            Write<std::uint8_t>(window, 0x74, !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0 && !NC2Logic::Human_IsJobHero(human));
+            Write<std::uint8_t>(window, 0x74, NC2Logic::Human_UserControl_CanChooseJob(human) && !NC2Logic::Human_IsJobHero(human));
             Write<std::uint8_t>(window, 0x75, NC2Logic::Human_IsJobTrader(human));
         }
         if (gSelectionSingleHumanWindowStatics[0] != std::byte{0}) std::memcpy(static_cast<std::byte*>(window) + 0x76, gSelectionSingleHumanWindowStatics + 1, 6);
