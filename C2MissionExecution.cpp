@@ -1480,18 +1480,4 @@ namespace NC2Logic
         }
     }
 
-    // Original function: FUN_0042a5a0.
-    bool AIManager_EntryPoint_Condition_ExternalActivate_SetFlag(void* manager, std::uint32_t player, std::uint32_t index, bool active)
-    {
-        void* handler = Read<void*>(manager, player * 4u);
-        return handler != nullptr && AISinglePlayerHandler_EntryPoint_Condition_ExternalActivate_SetFlag(handler, index, active);
-    }
-
-    // Original function: FUN_004593c6; only ExternalActivate condition records accept a flag.
-    bool AISinglePlayerHandler_EntryPoint_Condition_ExternalActivate_SetFlag(void* handler, std::uint32_t index, bool active)
-    {
-        if (index >= 100 || Read<std::uint32_t>(handler, index * 0x48u + 0x18u) != 11) return false;
-        Write<std::uint8_t>(handler, index * 0x48u + 0x24u, active);
-        return true;
-    }
 }

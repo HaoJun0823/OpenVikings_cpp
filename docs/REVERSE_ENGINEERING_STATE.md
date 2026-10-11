@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared inventory AI condition and limit helpers - 2026-10-11
+
+Ten Windows entries form a complete condition/limit helper block, with all twelve condition branches and subordinate record helpers. Six previously unassigned shared/system entries are identified as AI; four entries were already assigned to AI. Existing external-activation mission callers are preserved. The parent AI scheduler remains unfinished. See [SHARED_AI_CONDITIONS_COMPLETION.md](SHARED_AI_CONDITIONS_COMPLETION.md).
+
+Current global inventory **4641/5062 (91.68%)**, **421 open**. System/shared **607/673 (90.19%), 66 open**; engine **127 open**, AI **228 open**. **19** explicit unfinished boundaries and **287** provisional open assignments remain. Project/filter membership **285 CPP / 261 headers**, **2745** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Two affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared forced-exit and iterator helpers - 2026-10-11
 
 Four previously unmapped entries are explicit: forced human/animal exit, existing shared iterator initialization and a proven trivial static cleanup callback. Both house human callers now use forced Exit rather than ordinary Leave. Established ownership moves one entry to humans and three to animals; the global denominator is unchanged. See [SHARED_EXIT_ITERATOR_COMPLETION.md](SHARED_EXIT_ITERATOR_COMPLETION.md).
