@@ -3,6 +3,9 @@
 
 namespace NC2Logic
 {
+    std::uint32_t Human_Inventory_GetGoodInSlot(const void* human, std::uint32_t slot);
+    std::uint32_t Human_GetCarriedGood(const void* human);
+    std::int32_t Human_GetPercentageConditionOfTool(const void* human);
     bool Human_IsAbleToEquipGoodNow(const void* human, std::uint32_t good, bool anyPlayer);
     void Human_ClearCarriedGood(void* human);
     std::uint32_t Tool_GoodEquipmentType_Convert(std::uint32_t good);

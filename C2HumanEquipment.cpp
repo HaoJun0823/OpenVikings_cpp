@@ -23,6 +23,18 @@
 
 namespace NC2Logic
 {
+    // Original function: FUN_00438C96; Windows does not validate the slot.
+    std::uint32_t Human_Inventory_GetGoodInSlot(const void* human, std::uint32_t slot) { return NC2Lifetime::Read<std::uint32_t>(human, 0xAF4 + slot * 8u); }
+    // Original function: FUN_00438CA4.
+    std::uint32_t Human_GetCarriedGood(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0xAD4); }
+    // Original function: FUN_00438CAB; both native tool divisors are 10000.
+    std::int32_t Human_GetPercentageConditionOfTool(const void* human)
+    {
+        if (Human_GetEquipmentType_Tool(human) == 31) return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(human, 0xAE0) * 100u) / 10000;
+        if (Human_GetEquipmentType_Tool(human) == 32) return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(human, 0xAE0) * 100u) / 10000;
+        return 0;
+    }
+
     using namespace NC2Lifetime;
     // Original function: FUN_00438cec; shared carried-good callback leaf.
     void Human_ClearCarriedGood(void* human) { Write<std::uint32_t>(human, 0xAD4, 0); CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0); }

@@ -530,6 +530,10 @@
     <ClCompile Include="C2HumanScout.cpp" />
     <ClCompile Include="C2HumanChest.cpp" />
     <ClCompile Include="C2VehicleLifecycle.cpp" />
+    <ClCompile Include="C2VehicleSimulation.cpp" />
+    <ClInclude Include="C2VehicleSimulation.h" />
+    <ClCompile Include="C2MapResourceTools.cpp" />
+    <ClInclude Include="C2MapResourceTools.h" />
     <ClCompile Include="C2HumanWorkCommands.cpp" />
     <ClCompile Include="C2GuideAccess.cpp" />
     <ClInclude Include="C2MapPathfinderSectorSearch.h" />

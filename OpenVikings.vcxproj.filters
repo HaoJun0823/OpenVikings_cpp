@@ -1180,6 +1180,10 @@
     <ClCompile Include="C2HumanScout.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2HumanChest.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2VehicleLifecycle.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2VehicleSimulation.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2VehicleSimulation.h"><Filter>Logic</Filter></ClInclude>
+    <ClCompile Include="C2MapResourceTools.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2MapResourceTools.h"><Filter>Logic</Filter></ClInclude>
     <ClCompile Include="C2HumanWorkCommands.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2GuideAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2MapPathfinderSectorSearch.h"><Filter>Logic</Filter></ClInclude>

@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Common movement/combat/object entry completion - 2026-10-11
+
+All seventeen originally selected open entries are reconstructed, together with twenty-five required vehicle dependencies. Human, animal and vehicle ticks remain distinct native methods; turning is gated by its flag, walking updates map/sector attachment halfway through a step, and deletion is dispatched after each individual object tick. Vehicle commands, AI, docking, passenger transfer, attack searches and projectile events are connected. Missions now use vehicle-stock goal 60 and goods-area results 64/65. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [COMMON_MOVEMENT_VEHICLE_COMPLETION.md](COMMON_MOVEMENT_VEHICLE_COMPLETION.md).
+
+The revised common movement/combat/object inventory is **91 / 91 (100%)**. The earlier **82 / 99** selection is fully implemented: twelve provisional entries now belong to vehicles, humans or resources; four newly reconstructed military entries join the common block. This denominator correction marks no unimplemented entry as complete. Global source-address coverage is **4231 / 5062 (83.58%)**, **831** known entries open; **275 cpp / 255 headers**, **2357** unique naming rows and **44** explicit unfinished entries. Forty-two addresses are newly mapped and the completed object-array tick exclusion is removed.
+
+Twelve affected/integration units passed MSVC Win32 `/Zs`; project/filter parity, unique naming rows, all seventeen selected boundaries, thematic totals and whitespace checks passed. No build, tests or game run occurred. Coverage is not runtime combat/vehicle confirmation; enclosing human AI/command and mission dispatchers remain excluded where partial, and music playback remains unverified. User-owned CombatTasks remain untouched and excluded. Next smallest identified topic: vehicles/ships/passengers (**169 / 188**, nineteen open), followed by missions/campaigns (**61 / 86**, twenty-five open).
+
 ## Network/multiplayer entry completion - 2026-10-11
 
 The next smallest identified topic is complete: network/multiplayer **164 / 164 (100%)**, formerly 148 / 164. Multiplayer goal loading/evaluation, victory/defeat notifications, delayed removal commands, maximum DirectPlay latency and seven distinct packet/list/slot boundaries are connected. The existing-singleton getter and the original no-op token exit callback are reconstructed. Three required game-control dependencies also have complete native flows: periodic player-death production, player departure and object modification. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [NETWORK_MULTIPLAYER_COMPLETION.md](NETWORK_MULTIPLAYER_COMPLETION.md).

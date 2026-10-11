@@ -6,6 +6,8 @@
 #include "C2HumanNeeds.h"
 #include "C2HumanWalking.h"
 #include "C2VehicleAccess.h"
+#include "C2VehicleSimulation.h"
+#include "C2MissionStartObjects.h"
 #include "C2MapGeometry.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2GameMapAccess.h"
@@ -52,9 +54,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(moveable, 0) != 0 && array->Element_Free(id, true)) MapMoveable_Exit(moveable);
     }
 
-    // Partial original function: FUN_0040bd33. Human conditions precede turning,
-    // walking and AI; animal conditions and civilian tasks are also connected.
-    // Vehicle ticks and creature combat callbacks remain tracked boundaries.
+    // Original function: FUN_0040BD33; deletion follows each individual tick.
     void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* /*unusedEdx*/)
     {
         auto* handler = static_cast<CArrayHandler*>(array);
@@ -62,85 +62,225 @@ namespace NC2Logic
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
             if (Read<std::uint8_t>(moveable, 0) == 0) continue;
-            const auto type = Read<std::uint32_t>(moveable, 8);
-            if (type < 1u || type > 3u) continue;
-            void* human = type == 1u ? CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize : nullptr;
-            void* animal = type == 2u ? CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CAnimalArray::ElementSize : nullptr;
-            if (human != nullptr) Human_AI_DoUpdateConditions(human);
-            if (animal != nullptr) Animal_DoUpdateConditions(animal);
-            if (Read<std::uint8_t>(moveable, 0x10) != 0)
-            {
-                if (!MapMoveable_Attachment_PerformTurn(moveable)) goto finishCreatureTick;
-                if (Read<std::int32_t>(moveable, 0x28) != -1)
-                {
-                    // Identical mechanical walking branches at 004390C2, 00439234,
-                    // and 0043939B. Walking ticks do not perform atomic tasks.
-                    if (Read<std::uint8_t>(moveable, 0x2C) != 0)
-                    {
-                        const auto progress = Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48);
-                        Write(moveable, 0x34, progress);
-                        if (Read<std::uint8_t>(moveable, 0x38) == 0 && progress >= 5000u)
-                        {
-                            Write<std::uint8_t>(moveable, 0x38, 1);
-                            MapMoveable_l_Attachment_DetachFromGameMap(moveable);
-                            auto point = Read<std::uint32_t>(moveable, 0x12);
-                            MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
-                            Write(moveable, 0x12, point);
-                            MapMoveable_l_Attachment_AttachToGameMap(moveable);
-                            const SSectorGridCursor sector(point);
-                            const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
-                            if (sector.x != previous.x || sector.y != previous.y)
-                            {
-                                MapMoveable_Attachment_DetachFromSectorMap(moveable);
-                                MapMoveable_Attachment_AttachToSectorMap(moveable);
-                            }
-                        }
-                        if (progress >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
-                        goto finishCreatureTick;
-                    }
-                    if (human != nullptr || animal != nullptr)
-                    {
-                        auto direction = MapPathfinderElement_GetNextDirection(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)));
-                        if (direction == -4) goto finishCreatureTick;
-                        if (direction >= 0)
-                        {
-                            if (!(human != nullptr ? Human_AI_DoNewMapPositionReached(human, false) : Animal_DoNewMapPositionReached(animal, false)))
-                            {
-                                MapMoveable_Pathfinder_Stop(moveable);
-                                direction = -3;
-                            }
-                            if (direction != -3)
-                            {
-                                Write<std::uint8_t>(moveable, 0x2C, 1);
-                                Write(moveable, 0x30, direction);
-                                Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x48));
-                                Write<std::uint8_t>(moveable, 0x38, 0);
-                                MapMoveable_Attachment_StartTurn(moveable, direction);
-                            }
-                        }
-                        else if (direction == -2) { if (human != nullptr) Human_AI_DoNewMapPositionReached(human, true); else Animal_DoNewMapPositionReached(animal, true); }
-                        else if (direction == -1) { if (human != nullptr) Human_AI_DoPathfinderFailed(human); else Animal_DoPathfinderFailed(animal); }
-                        else if (direction == -3) { if (human != nullptr) Human_AI_DoPathfinderStopped(human); else Animal_DoPathfinderStopped(animal); }
-                    }
-                    else if (Read<std::uint32_t>(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28)), 4) != 0) goto finishCreatureTick;
-                }
-            }
-            if (human != nullptr)
-            {
-                Human_AI_DoUpdateAI(human);
-                if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(human, 0x10), Human_GetMapPositionRef(human));
-                GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(human) + 0xB88);
-            }
-            else if (animal != nullptr)
-            {
-                Animal_DoUpdateAI(animal);
-                if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(animal, 0x10), Animal_GetMapPositionRef(animal));
-            }
-        finishCreatureTick:
-            // Windows 0040BD5B / human branch of DeleteObjectWithMapMoveable (0040ADD6).
-            if (human != nullptr && Read<std::uint8_t>(moveable, 0x0C) != 0) CHumanArray::sTheObjectPtr->FreeHuman(Read<std::int32_t>(moveable, 0x54));
-            else if (animal != nullptr && Read<std::uint8_t>(moveable, 0x0C) != 0) CAnimalArray::sTheObjectPtr->FreeAnimal(Read<std::int32_t>(moveable, 0x54));
+            MapMoveable_DoOneGameTick(moveable);
+            if (Read<std::uint8_t>(moveable, 0x0C) != 0) Logic_EntryPoint_FreeMapMoveable(static_cast<std::uint32_t>(id));
         }
+    }
+
+    // Original function: FUN_0043902B.
+    void MapMoveable_DoOneGameTick(void* moveable)
+    {
+        const auto id = Read<std::uint32_t>(moveable, 0x54);
+        switch (Read<std::uint32_t>(moveable, 8))
+        {
+        case 1: MapMoveable_DoOneGameTick_Human(moveable, CHumanArray::mStaticVars + id * CHumanArray::ElementSize); return;
+        case 2: MapMoveable_DoOneGameTick_Animal(moveable, CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize); return;
+        case 3: MapMoveable_DoOneGameTick_Vehicle(moveable, CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize); return;
+        }
+    }
+
+    // Original function: FUN_00439079; preserve its distinct native boundary.
+    void MapMoveable_DoOneGameTick_Human(void* moveable, void* creature)
+    {
+        Human_AI_DoUpdateConditions(creature);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        {
+            if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
+            const auto id = Read<std::int32_t>(moveable, 0x28);
+            if (id != -1)
+            {
+                auto* pathfinder = GetUnsafePathfinderPtr(id);
+                if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                {
+                    Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48));
+                    if (Read<std::uint8_t>(moveable, 0x38) == 0 && Read<std::uint32_t>(moveable, 0x34) >= 5000u)
+                    {
+                        Write<std::uint8_t>(moveable, 0x38, 1);
+                        MapMoveable_l_Attachment_DetachFromGameMap(moveable);
+                        auto point = Read<std::uint32_t>(moveable, 0x12);
+                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                        Write(moveable, 0x12, point);
+                        MapMoveable_l_Attachment_AttachToGameMap(moveable);
+                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+                        const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                        if (sector.x != previous.x || sector.y != previous.y)
+                        {
+                            MapMoveable_Attachment_DetachFromSectorMap(moveable);
+                            MapMoveable_Attachment_AttachToSectorMap(moveable);
+                        }
+                    }
+                    if (Read<std::uint32_t>(moveable, 0x34) >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                    return;
+                }
+                auto direction = MapPathfinderElement_GetNextDirection(pathfinder);
+                if (direction == -4) return;
+                if (direction >= 0)
+                {
+                    if (!Human_AI_DoNewMapPositionReached(creature, false))
+                    {
+                        MapMoveable_Pathfinder_Stop(moveable);
+                        direction = -3;
+                    }
+                    if (direction != -3)
+                    {
+                        const auto turning = Read<std::uint32_t>(moveable, 0x4C);
+                        const auto speed = Read<std::uint32_t>(moveable, 0x48);
+                        Write<std::uint8_t>(moveable, 0x2C, 1);
+                        Write(moveable, 0x30, direction);
+                        Write(moveable, 0x34, speed);
+                        Write<std::uint8_t>(moveable, 0x38, 0);
+                        if (turning == 0) Write(moveable, 0x20, direction);
+                        else if (direction != Read<std::int32_t>(moveable, 0x20))
+                        {
+                            Write<std::uint8_t>(moveable, 0x39, 1);
+                            Write<std::uint32_t>(moveable, 0x3C, 0);
+                            Write(moveable, 0x40, direction);
+                        }
+                    }
+                }
+                else if (direction == -2) Human_AI_DoNewMapPositionReached(creature, true);
+                else if (direction == -1) Human_AI_DoPathfinderFailed(creature);
+                else if (direction == -3) Human_AI_DoPathfinderStopped(creature);
+            }
+        }
+        Human_AI_DoUpdateAI(creature);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + 0x12);
+        GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(creature) + 0xB88);
+    }
+
+    // Original function: FUN_004391EB; preserve its distinct native boundary.
+    void MapMoveable_DoOneGameTick_Animal(void* moveable, void* creature)
+    {
+        Animal_DoUpdateConditions(creature);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        {
+            if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
+            const auto id = Read<std::int32_t>(moveable, 0x28);
+            if (id != -1)
+            {
+                auto* pathfinder = GetUnsafePathfinderPtr(id);
+                if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                {
+                    Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48));
+                    if (Read<std::uint8_t>(moveable, 0x38) == 0 && Read<std::uint32_t>(moveable, 0x34) >= 5000u)
+                    {
+                        Write<std::uint8_t>(moveable, 0x38, 1);
+                        MapMoveable_l_Attachment_DetachFromGameMap(moveable);
+                        auto point = Read<std::uint32_t>(moveable, 0x12);
+                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                        Write(moveable, 0x12, point);
+                        MapMoveable_l_Attachment_AttachToGameMap(moveable);
+                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+                        const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                        if (sector.x != previous.x || sector.y != previous.y)
+                        {
+                            MapMoveable_Attachment_DetachFromSectorMap(moveable);
+                            MapMoveable_Attachment_AttachToSectorMap(moveable);
+                        }
+                    }
+                    if (Read<std::uint32_t>(moveable, 0x34) >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                    return;
+                }
+                auto direction = MapPathfinderElement_GetNextDirection(pathfinder);
+                if (direction == -4) return;
+                if (direction >= 0)
+                {
+                    if (!Animal_DoNewMapPositionReached(creature, false))
+                    {
+                        MapMoveable_Pathfinder_Stop(moveable);
+                        direction = -3;
+                    }
+                    if (direction != -3)
+                    {
+                        const auto turning = Read<std::uint32_t>(moveable, 0x4C);
+                        const auto speed = Read<std::uint32_t>(moveable, 0x48);
+                        Write<std::uint8_t>(moveable, 0x2C, 1);
+                        Write(moveable, 0x30, direction);
+                        Write(moveable, 0x34, speed);
+                        Write<std::uint8_t>(moveable, 0x38, 0);
+                        if (turning == 0) Write(moveable, 0x20, direction);
+                        else if (direction != Read<std::int32_t>(moveable, 0x20))
+                        {
+                            Write<std::uint8_t>(moveable, 0x39, 1);
+                            Write<std::uint32_t>(moveable, 0x3C, 0);
+                            Write(moveable, 0x40, direction);
+                        }
+                    }
+                }
+                else if (direction == -2) Animal_DoNewMapPositionReached(creature, true);
+                else if (direction == -1) Animal_DoPathfinderFailed(creature);
+                else if (direction == -3) Animal_DoPathfinderStopped(creature);
+            }
+        }
+        Animal_DoUpdateAI(creature);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + 0x12);
+    }
+
+    // Original function: FUN_00439352; preserve its distinct native boundary.
+    void MapMoveable_DoOneGameTick_Vehicle(void* moveable, void* creature)
+    {
+        Vehicle_DoUpdateConditions(creature);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        {
+            if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
+            const auto id = Read<std::int32_t>(moveable, 0x28);
+            if (id != -1)
+            {
+                auto* pathfinder = GetUnsafePathfinderPtr(id);
+                if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                {
+                    Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48));
+                    if (Read<std::uint8_t>(moveable, 0x38) == 0 && Read<std::uint32_t>(moveable, 0x34) >= 5000u)
+                    {
+                        Write<std::uint8_t>(moveable, 0x38, 1);
+                        MapMoveable_l_Attachment_DetachFromGameMap(moveable);
+                        auto point = Read<std::uint32_t>(moveable, 0x12);
+                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                        Write(moveable, 0x12, point);
+                        MapMoveable_l_Attachment_AttachToGameMap(moveable);
+                        const SSectorGridCursor sector(Read<std::uint32_t>(moveable, 0x12));
+                        const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                        if (sector.x != previous.x || sector.y != previous.y)
+                        {
+                            MapMoveable_Attachment_DetachFromSectorMap(moveable);
+                            MapMoveable_Attachment_AttachToSectorMap(moveable);
+                        }
+                    }
+                    if (Read<std::uint32_t>(moveable, 0x34) >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                    return;
+                }
+                auto direction = MapPathfinderElement_GetNextDirection(pathfinder);
+                if (direction == -4) return;
+                if (direction >= 0)
+                {
+                    if (!Vehicle_DoNewMapPositionReached(creature, false))
+                    {
+                        MapMoveable_Pathfinder_Stop(moveable);
+                        direction = -3;
+                    }
+                    if (direction != -3)
+                    {
+                        const auto turning = Read<std::uint32_t>(moveable, 0x4C);
+                        const auto speed = Read<std::uint32_t>(moveable, 0x48);
+                        Write<std::uint8_t>(moveable, 0x2C, 1);
+                        Write(moveable, 0x30, direction);
+                        Write(moveable, 0x34, speed);
+                        Write<std::uint8_t>(moveable, 0x38, 0);
+                        if (turning == 0) Write(moveable, 0x20, direction);
+                        else if (direction != Read<std::int32_t>(moveable, 0x20))
+                        {
+                            Write<std::uint8_t>(moveable, 0x39, 1);
+                            Write<std::uint32_t>(moveable, 0x3C, 0);
+                            Write(moveable, 0x40, direction);
+                        }
+                    }
+                }
+                else if (direction == -2) Vehicle_DoNewMapPositionReached(creature, true);
+                else if (direction == -1) Vehicle_DoPathfinderFailed(creature);
+            }
+        }
+        Vehicle_DoUpdateAI(creature);
+        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x1E0), static_cast<std::byte*>(moveable) + 0x12);
     }
 
     // Original function: FUN_0041cef8.

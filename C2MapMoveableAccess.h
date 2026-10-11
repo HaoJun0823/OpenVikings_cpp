@@ -26,6 +26,10 @@ namespace NC2Logic
     bool MapMoveable_Pathfinder_Stop(void* moveable);
     bool MapMoveable_Attachment_PerformTurn(void* moveable);
     void __fastcall MapMoveableArray_DoOneGameTick(void* array, void* unusedEdx);
+    void MapMoveable_DoOneGameTick(void* moveable);
+    void MapMoveable_DoOneGameTick_Human(void* moveable, void* human);
+    void MapMoveable_DoOneGameTick_Animal(void* moveable, void* animal);
+    void MapMoveable_DoOneGameTick_Vehicle(void* moveable, void* vehicle);
     void MapMoveable_Attachment_DetachFromMap(void* moveable);
     void MapMoveable_l_Attachment_AttachToGameMap(void* moveable);
     void MapMoveable_l_Attachment_DetachFromGameMap(void* moveable);

@@ -2,6 +2,7 @@
 #include "C2DefaultInteraction.h"
 #include "C2HouseAccess.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanEquipment.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanTaskAccess.h"
 #include "C2LifetimeAccess.h"
@@ -679,17 +680,17 @@ namespace NC2Logic
                     }
                 }
                 const auto drop = [&](std::uint32_t good) { Map_GoodTool_PutOnMap(good, 1, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0), 10, true); };
-                if (Read<std::uint32_t>(human, 0xAD4) != 0) drop(Read<std::uint32_t>(human, 0xAD4));
+                if (Read<std::uint32_t>(human, 0xAD4) != 0) drop(Human_GetCarriedGood(human));
                 // Windows multiplies as a DWORD before signed division; preserve overflow bits.
                 const auto percentage = [&](std::uint32_t offset) { return NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, offset) * 100u) / 10000; };
                 if (Read<std::uint32_t>(human, 0xAEC) != 0 && Read<std::uint32_t>(human, 0xADC) != 0 && percentage(0xADC) >= 90) drop(Read<std::uint32_t>(human, 0xAEC));
                 const auto tool = Read<std::uint32_t>(human, 0xAF0);
-                if (tool != 0 && Read<std::uint32_t>(human, 0xAE0) != 0 && (tool == 31 || tool == 32) && percentage(0xAE0) >= 90) drop(tool);
+                if (tool != 0 && Read<std::uint32_t>(human, 0xAE0) != 0 && (tool == 31 || tool == 32) && Human_GetPercentageConditionOfTool(human) >= 90) drop(tool);
                 const auto armor = Read<std::uint32_t>(human, 0xAE8);
                 if (armor != 0) drop(Read<std::uint32_t>(gStaticArmorTypeData, armor * 0x34u + 0x24u));
                 const auto weaponGood = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)], Read<std::uint32_t>(human, 0xAE4) * 0xC4u + 0x24u);
                 if (weaponGood != 0 && Human_IsJobSoldier(human)) drop(weaponGood);
-                for (std::uint32_t slot = 0; slot < 4; ++slot) if (Read<std::uint32_t>(human, 0xAF4u + slot * 8u) != 0 && Read<std::int32_t>(human, 0xAF8u + slot * 8u) > 0 && Human_l_Item_IsItemUnused(human, slot)) drop(Read<std::uint32_t>(human, 0xAF4u + slot * 8u));
+                for (std::uint32_t slot = 0; slot < 4; ++slot) if (Read<std::uint32_t>(human, 0xAF4u + slot * 8u) != 0 && Read<std::int32_t>(human, 0xAF8u + slot * 8u) > 0 && Human_l_Item_IsItemUnused(human, slot)) drop(Human_Inventory_GetGoodInSlot(human, slot));
             }
         }
         Human_WorkCenterMarker_Remove(human);

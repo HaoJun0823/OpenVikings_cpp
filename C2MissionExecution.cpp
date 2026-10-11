@@ -21,6 +21,7 @@
 #include "C2GuideAccess.h"
 #include "C2AISavegameAccess.h"
 #include "C2MapGeometry.h"
+#include "C2MapResourceTools.h"
 #include "C2TributeAccess.h"
 #include "C2MissionStartObjects.h"
 #include "C2MissionOnscreenInfoAccess.h"
@@ -300,6 +301,12 @@ namespace NC2Logic
             std::uint32_t point;
             MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[3]), static_cast<std::int16_t>(p[4]), false);
             return Tool_CountGoodsInHouses(p[0], p[1], point, p[5]) >= p[2];
+        }
+        case 60:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[4]), static_cast<std::int16_t>(p[5]), false);
+            return Tool_CountGoodsInVehicles(p[0], p[1], p[2], point, p[6]) >= p[3];
         }
         default: return false;
         }
@@ -601,6 +608,20 @@ namespace NC2Logic
             const auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]);
             // Windows 00420FA7 tests the mission-check ID, not the second script parameter.
             if (id != -1) NC2LogicExternals::External_Gui_SelectHuman(id, p[0] != 0);
+            break;
+        }
+        case 64:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[2]), static_cast<std::int16_t>(p[3]), false);
+            Tool_AddGoodsToMapArea(p[0], NXBasics::Runtime_TimeSigned32(p[1]), point, p[4], p[5] != 0, p[6]);
+            break;
+        }
+        case 65:
+        {
+            std::uint32_t point;
+            MapMigPoint_Construct(&point, static_cast<std::int16_t>(p[2]), static_cast<std::int16_t>(p[3]), false);
+            Tool_RemoveGoodsFromMapArea(p[0], NXBasics::Runtime_TimeSigned32(p[1]), point, p[4], p[5] != 0, p[6]);
             break;
         }
         case 71:

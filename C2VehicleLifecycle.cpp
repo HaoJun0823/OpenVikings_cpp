@@ -66,7 +66,7 @@ namespace NC2Logic
         const void* Slot(const void* vehicle, std::uint32_t offset, std::uint32_t index) { return static_cast<const std::byte*>(vehicle) + offset + index * 12u; }
         std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
 
-        // Original constructor: FUN_0043b0d9. The callback retains the initial output point.
+        // The callback retains the initial output point.
         struct SVehiclePointSearch
         {
             const SStaticVehicleTypeData* type;
@@ -76,7 +76,19 @@ namespace NC2Logic
             std::uint32_t bestDistance;
             std::uint32_t minimumDistance;
             std::uint32_t sourceDistance;
-            SVehiclePointSearch(const SStaticVehicleTypeData* data, const void* from, void* to) : type(data), source(from), output(to), initialPoint(Read<std::uint32_t>(to, 0)), bestDistance(Distance(from, to)), minimumDistance(0) {}
+            // Original function: FUN_0043B0D9; the last DWORD belongs to callers.
+            SVehiclePointSearch(const SStaticVehicleTypeData* data, const void* from, void* to)
+            {
+                type = data;
+                output = to;
+                source = from;
+                Write<std::uint16_t>(&initialPoint, 2, 0);
+                Write<std::uint16_t>(&initialPoint, 0, 0);
+                const auto distance = Distance(from, to);
+                minimumDistance = 0;
+                bestDistance = distance;
+                initialPoint = Read<std::uint32_t>(to, 0);
+            }
         };
         static_assert(sizeof(SVehiclePointSearch) == 0x1C);
 
