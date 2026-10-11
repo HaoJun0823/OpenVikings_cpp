@@ -19,6 +19,13 @@ namespace NC2InGameGuiBase
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_004a91e6; folded singleton getter, original method name unresolved.
+    NXBaseGui::CDesktop* GetDesktopPtr() { return NXBaseGui::CDesktop::sTheObjectPtr; }
+    // Original function: FUN_004a91ec; folded static-field getter, original method name unresolved.
+    std::int32_t GetDisplayWidth() { return NInGameGuiManager::CInGameGuiManager::mStaticVars.displayWidth; }
+    // Original function: FUN_004a91f2; folded static-field getter, original method name unresolved.
+    std::int32_t GetDisplayHeight() { return NInGameGuiManager::CInGameGuiManager::mStaticVars.displayHeight; }
+
     // Original function: FUN_004c9313; this shared wrapper destroys the base window.
     void* __fastcall BaseToolWindow_Delete(void* window, void*, std::uint32_t flags)
     {
@@ -107,7 +114,7 @@ namespace NC2InGameGuiBase
         {
             desktop->Window_HideAll(nullptr);
             desktop->Element_HideAll(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, 4)));
-            desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, 0x44)));
+            desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(manager->MiscWindows_OverviewWindow_GetPtr()));
             desktop->Window_UnHide(static_cast<NXBaseGui::CBaseWindow*>(Read<void*>(manager, 8)));
             desktop->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(manager, 4)));
         }

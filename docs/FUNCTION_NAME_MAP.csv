@@ -1374,7 +1374,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004A1EA9,CInGameGuiManager::MiscWindows_GlobalGameSettingsWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A1F09,CInGameGuiManager::MiscWindows_DiplomacyWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A1F3D,CInGameGuiManager::MiscWindows_DiplomacyWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
-004A1F8A,CInGameGuiManager::MiscWindows_HumanListWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+004A1F8E,CInGameGuiManager::MiscWindows_HumanListWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A1FD0,CInGameGuiManager::MiscWindows_HumanListWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A202F,CInGameGuiManager::MiscWindows_StatisticsWindow_Toggle,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004A2063,CInGameGuiManager::MiscWindows_StatisticsWindow_Open,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
@@ -2535,3 +2535,85 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00473944,NC2Logic::AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid,NC2Logic::C2AISinglePlayerHandler::l_Vehicles_IsSubTaskTargetValid,6902,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 004757A6,NC2Logic::Human_l_StartTask_ExecuteJob_Tool_FillTemple,NC2Logic::CHuman::l_StartTask_ExecuteJob_Tool_FillTemple,7960,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
 004759AB,NC2Logic::Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch,NC2Logic::CHuman::l_StartTask_ExecuteJob_Tool_FillTemple_Fetch,7962,Windows ASM/Game.exe establish behavior and correspondence; Mac header symbol used only for naming
+00476BE4,slAITowerManagerSearchBuildPos,NC2Logic::slAITowerManagerSearchBuildPos,9631,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00476C43,AITowerManager_DoOneLogicGameTick,NC2Logic::CAITowerManager::DoOneLogicGameTick,9632,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00476D4B,SHouseBuild::IsValid,NC2Logic::SHouseBuild::IsValid,9599,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00476D89,SHouseBuild::IsValidCheck,NC2Logic::SHouseBuild::IsValidCheck,9600,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00476DC5,SHouseBuild::BuildHouse,NC2Logic::SHouseBuild::BuildHouse,9601,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00476E5D,SHouseUpgrade::IsValid,NC2Logic::SHouseUpgrade::IsValid,9602,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00476EA4,SHouseUpgrade::UpgradeHouse,NC2Logic::SHouseUpgrade::UpgradeHouse,9603,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00478398,CList<NXBaseGui::CBaseElement>::~CList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004783C6,CList<NXBaseGui::CBaseWindow>::~CList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004783E3,CList<NXBaseGui::CBaseElement>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004783FF,CList<NXBaseGui::CBaseWindow>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+0047867A,BaseWindow_AddToCloseList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004789EB,BaseElement_MouseEnteredArea,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+00478A3B,BaseElement_CanBeActivated,NXBaseGui::CBaseElement::BE_CanBeActivated,4788,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00478A4F,BaseElement_CanBePressed,NXBaseGui::CBaseElement::BE_CanBePressed,4785,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+004A0BC5,CInGameGuiManager::ActivateDesktop,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A2997,CInGameGuiManager::MiscWindows_OverviewWindow_GetPtr,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A2EE2,CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>::~CList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A2EFF,CList<NC2InGameGuiWorldElement::CWorldDisplayElement>::~CList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A2F1C,CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A2F38,CList<NC2InGameGuiWorldElement::CWorldDisplayElement>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A70E8,SelectionHouseWindow_Vars_Construct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A91E6,GetDesktopPtr,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A91EC,GetDisplayWidth,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A91F2,GetDisplayHeight,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004A98C9,SelectionSingleVehicleWindow_Vars_Construct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004AB9A5,SelectionSingleHumanWindow_Vars_Construct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B1758,HumanListJobSelectionWindow_Construct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B1D91,StatisticsWindow_Vars_Construct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B2F88,StatisticsShadow_Exit,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B3757,MarkerWhite_Exit,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B3758,MarkerBlack_Exit,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B428B,CMessageManager::PresentationWindow_Closed,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B4A4C,UnselectAll,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B66E5,Selection_SelectEngineLandscapeType,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B84B4,CList<NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>::~CList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B84D1,CList<NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B86AB,MissionOnscreenInfoStaticGuiWindow_Message,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B9C5F,ClockColourExit255,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B9C60,ClockColourExit200,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B9C61,ClockColourExit150,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B9C62,ClockColourExit100,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004B9D73,CStaticToolTipHandler::AddV,NC2InGameGuiBase::CStaticToolTipHandler::AddV,5683,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+004BAB58,GetInputManagerPtr,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004BB8FB,TooltipShadow_Exit,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CA427,HighlightHumanAttachment,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CAB5F,HighlightVehicleCoast,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CBC49,LineHandlerList_DeleteData,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CBC64,CRuntimeOwnedList<NHyperLinkTextSystem::SLineListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CBC80,CRuntimeOwnedList<NHyperLinkTextSystem::SLineListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CBC9D,CRuntimeOwnedList<NHyperLinkTextSystem::SLineEntityListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CBCB9,CRuntimeOwnedList<NHyperLinkTextSystem::SLineEntityListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CEF5F,OverviewAnimalType10Color_Destruct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CEF60,OverviewAnimalType19Color_Destruct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CF4E6,OverviewGreyColor_Destruct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CF4E7,OverviewBrownColor_Destruct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004CF4E8,OverviewBlackColor_Destruct,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D09AA,MessagePresentationWindow_l_GuiElements_Update,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D0AB0,MessagePresentationWindow_ChangeToMessage,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D1C37,MicroEntityList_DeleteData,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D1C5D,CRuntimeOwnedList<NHyperLinkTextSystem::SMicroEntityListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D1C79,CRuntimeOwnedList<NHyperLinkTextSystem::SMicroEntityListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D1CAF,CDataContainer::SVars::SVars,NHyperLinkTextSystem::CDataContainer::SVars::SVars,9953,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+004D1DD0,CDataContainer::SVars::~SVars,NHyperLinkTextSystem::CDataContainer::SVars::~SVars,9944,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+004D20FA,CRuntimeOwnedList<NHyperLinkTextSystem::SFontListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D2117,CRuntimeOwnedList<NHyperLinkTextSystem::SBitmapListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D2134,CRuntimeOwnedList<NHyperLinkTextSystem::SPaletteListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D2151,CRuntimeOwnedList<NHyperLinkTextSystem::STextFileListTag>::~CRuntimeOwnedList,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D216E,CRuntimeOwnedList<NHyperLinkTextSystem::SFontListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D218A,CRuntimeOwnedList<NHyperLinkTextSystem::SBitmapListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D21A6,CRuntimeOwnedList<NHyperLinkTextSystem::SPaletteListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D21C2,CRuntimeOwnedList<NHyperLinkTextSystem::STextFileListTag>::Delete,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004D31AF,CGuiManager::Exploration_Set,NC2MainMenuGuiManager::CGuiManager::Exploration_Set,9721,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00453BD4,AIVillage_IsPointInside,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+004544FB,AI_IsEnemyObjectAround,,,Windows ASM/Game.exe establish behavior; semantic source name or native template specialization; separate Mac naming correspondence unresolved
+0045742D,AIGoodManager_IsProducingGood,NC2Logic::CAIGoodManager::IsProducingGood,9517,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00471CF6,AIVillageManager_House_BuildHouse,NC2Logic::CAIVillageManager::House_BuildHouse,9651,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00471E59,slAIVillageManagerSearchBuildPos,NC2Logic::slAIVillageManagerSearchBuildPos,9653,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00471F5B,AIVillageManager_l_House_GetPossibleBuildPosition,NC2Logic::CAIVillageManager::l_House_GetPossibleBuildPosition,9650,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+0047261F,AIVillageManager_House_TryToUpgradeHouse,NC2Logic::CAIVillageManager::House_TryToUpgradeHouse,9649,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+004729FF,AIHouseManager_Tower_IsPointInDefendRange,NC2Logic::CAIHouseManager::Tower_IsPointInDefendRange,9558,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"
+00472A5A,AIHouseManager_Tower_IsHouseInDefendRange,NC2Logic::CAIHouseManager::Tower_IsHouseInDefendRange,9559,"Windows ASM/Game.exe establish behavior, offsets, lifetime and call order; Mac header supplies naming only"

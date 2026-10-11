@@ -349,8 +349,7 @@ namespace NC2InGameGuiBaseListBox
         std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, 4)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, 8)), Read<std::int32_t>(element, 0x34))};
         void* child = l_FindElementOnPosition(element, local, false);
         if (child == nullptr) return false;
-        const auto flags = Read<std::uint32_t>(child, 0x18);
-        if ((flags & 0x400u) != 0 || (flags & 2u) == 0) return false;
+        if (!BaseElement_CanBePressed(child)) return false;
         if (child != Read<void*>(element, 0x48)) return true;
         using TPressed = bool(__thiscall*)(void*, const std::int32_t*);
         return Virtual<TPressed>(child, 6)(child, local);
@@ -379,7 +378,7 @@ namespace NC2InGameGuiBaseListBox
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
             const auto flags = Read<std::uint32_t>(child, 0x18);
-            if (!includeDisabled && ((flags & 0x400u) != 0 || (flags & 1u) == 0)) continue;
+            if (!includeDisabled && !BaseElement_CanBeActivated(child)) continue;
             if ((flags & 0x200u) != 0) continue;
             const auto rectangle = BaseElement_GetRectangle(child);
             if (point[0] < rectangle.x || point[0] > Subtract(Add(rectangle.x, rectangle.width), 1) || point[1] < rectangle.y || point[1] > Subtract(Add(rectangle.y, rectangle.height), 1)) continue;

@@ -25,6 +25,9 @@ namespace NXBaseGui
     void __fastcall BaseElement_DeActivate(void* element);
     bool __fastcall BaseElement_ButtonPressed(void* element, void* unusedEdx, const std::int32_t* point);
     bool __fastcall BaseElement_ButtonReleased(void* element);
+    void BaseElement_MouseEnteredArea(void* element);
+    bool BaseElement_CanBeActivated(const void* element);
+    bool BaseElement_CanBePressed(const void* element);
     bool __fastcall BaseElement_Message_Handle(void* element, void* unusedEdx, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4);
     void __fastcall BaseElement_ParentToLocalPosition(void* element, void* unusedEdx, std::int32_t* point);
     void* __fastcall BaseElement_FindElementOnPosition(void* element, void* unusedEdx, const std::int32_t* point, bool includeDisabled);

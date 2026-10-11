@@ -193,9 +193,7 @@ namespace NXBaseGui
         Read<TConvert*>(window, 0)[11](window, localPoint);
         void* hit = BaseWindow_FindElementOnPosition(window, localPoint, false);
         if (hit == nullptr) return false;
-        const auto flags = Read<std::uint32_t>(hit, 0x18);
-        // BE_CanBePressed (00478A4F) rejects disabled elements before bit 1.
-        if ((flags & 0x400u) != 0 || (flags & 2u) == 0) return false;
+        if (!BaseElement_CanBePressed(hit)) return false;
         if (hit != Read<void*>(window, 0x64)) return true;
         using TPress = bool(__thiscall*)(void*, const std::int32_t*);
         return Read<TPress*>(hit, 0)[6](hit, localPoint);
@@ -260,6 +258,9 @@ namespace NXBaseGui
     {
         if ((Read<std::uint32_t>(window, 0x18) & 0x200u) != 0) BaseElement_InternalUnHide(window);
     }
+
+    // Original function: FUN_0047867a; the desktop handles a null window.
+    void BaseWindow_AddToCloseList(void* window) { CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<CBaseWindow*>(window)); }
 
     // Original function: FUN_00478aa3; CBaseElement::BE_Internal_Element_Hide.
     void BaseElement_InternalHide(void* element)

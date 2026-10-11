@@ -28,8 +28,8 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d2bdd; SObjectVars destruction.
     void GuiObjectVars_Destruct(void* manager)
     {
-        ElementList(manager, 0x1C)->~CList();
-        ElementList(manager, 8)->~CList();
+        NXBasics::CList<NXBaseGui::CBaseElement>::Delete(ElementList(manager, 0x1C), 0);
+        NXBasics::CList<NXBaseGui::CBaseElement>::Delete(ElementList(manager, 8), 0);
     }
 
     // Original function: FUN_004d32ff.

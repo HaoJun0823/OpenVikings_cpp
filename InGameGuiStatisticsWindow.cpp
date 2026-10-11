@@ -33,8 +33,12 @@ namespace NC2InGameGuiMiscWindows
     static const NXBasics::SRectangle gEntityControllerArea(4, 50, 124, 24), gTimeScaleArea(4, 400, 100, 16);
     struct SJobCount { std::uint32_t job; std::int32_t count; };
     static SJobCount gStatisticsJobCounts[56]{}; // Complete scratch array 00569230..005693EF.
-    // Windows 005693F0..005693F7 holds an initialization flag and this black color; its exit callback 004B2F88 is empty.
-    static const NXBasics::SColorRGB gStatisticsTextShadow(0, 0, 0);
+    // Complete lazy color region 005693F0..005693F7.
+    struct SStatisticsShadowState { std::uint32_t initialized = 0; NXBasics::SColorRGB color{0, 0, 0}; };
+    static SStatisticsShadowState gStatisticsShadow;
+    static_assert(sizeof(SStatisticsShadowState) == 8);
+    // Original function: FUN_004b2f88; the native color destructor is empty.
+    static int __cdecl StatisticsShadow_Exit() { return 0; }
     static std::uint32_t Page() { return Read<std::uint32_t>(gStatisticsWindowStatics, 0); }
     static std::uint32_t LocalPlayer() { return NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(); }
     static const NXBasics::SColorRGB* White() { return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette) + 0x400); }
@@ -51,12 +55,18 @@ namespace NC2InGameGuiMiscWindows
     }
     // Original function: FUN_004b1ba6.
     const char* SStatisticsEntityDescription::GetNamePtr() const { return good != 0 ? StringAccess_GetGoodNamePtr(good, 2) : CGuiBaseStringsManager::GetStringPtr(textArray, textId); }
+    // Original function: FUN_004b1d91; the embedded receiver starts at window +0x88.
+    static void* StatisticsWindow_Vars_Construct(void* vars)
+    {
+        for (std::uint32_t index = 0; index < 12; ++index) ::new(static_cast<std::byte*>(vars) + 0x24 + index * 4) NXBasics::SColorRGB;
+        return vars;
+    }
     // Original function: FUN_004b1bc5; Windows CStatisticsWindow allocation 0x26C.
     void* StatisticsWindow_Construct(void* window)
     {
         const auto& display = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(display.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(display.displayHeight) - 420u) / 2, 500, 420);
-        BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x1FC); Write(window, 0, gStatisticsWindowVirtualTable.data());
+        BaseToolWindow_Construct(window, &area); StatisticsWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x88); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x1FC); Write(window, 0, gStatisticsWindowVirtualTable.data());
         const NXBasics::SColorRGB colors[12] = {{255,49,56}, {248,155,44}, {252,241,43}, {89,211,106}, {0,153,211}, {0,114,188}, {46,49,146}, {146,39,143}, {0,0,0}, {255,255,255}, {128,128,128}, {64,28,0}};
         std::memcpy(static_cast<std::byte*>(window) + 0xAC, colors, sizeof(colors)); StatisticsWindow_l_GuiButtons_Add(window);
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; manager->FrameCall_Register(window); manager->Misc_GameTime_Stop_LargeWindowOpened(); return window;
@@ -250,7 +260,8 @@ namespace NC2InGameGuiMiscWindows
             {
                 auto area = StatisticsWindow_l_Tool_GetEntityControllerButtonArea(index); area.x += area.width + 2; area.width = 24; if (entity->enabled != 0) bitmap->Draw_Box(area, colors[index % 12]);
                 char caption[20]; NXBasics::Runtime_PrintString(caption, "%d", entity->GetNumber(current)); const auto x = area.x + 22 - NXBasics::Font_GetPixelWidth(font, caption); const auto y = area.y + 3;
-                constexpr std::int32_t shadowX[4] = {-1,1,0,0}, shadowY[4] = {0,0,-1,1}; for (std::uint32_t shadow = 0; shadow < 4; ++shadow) bitmap->Text_Print(font, &gStatisticsTextShadow, x + shadowX[shadow], y + shadowY[shadow], caption); bitmap->Text_Print(font, White(), x, y, caption);
+                if ((gStatisticsShadow.initialized & 1u) == 0) { gStatisticsShadow.initialized |= 1u; gStatisticsShadow.color.SetColors(0, 0, 0); NXBasics::Runtime_AtExit(StatisticsShadow_Exit); }
+                constexpr std::int32_t shadowX[4] = {-1,1,0,0}, shadowY[4] = {0,0,-1,1}; for (std::uint32_t shadow = 0; shadow < 4; ++shadow) bitmap->Text_Print(font, &gStatisticsShadow.color, x + shadowX[shadow], y + shadowY[shadow], caption); bitmap->Text_Print(font, White(), x, y, caption);
             }
         }
         if (entities == nullptr) return;

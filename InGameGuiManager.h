@@ -48,6 +48,8 @@ namespace NInGameGuiManager
         void Desktop_Open(std::int32_t width, std::int32_t height, std::uint32_t depth);
         void Desktop_Close();
         void MiscWindows_OverviewWindow_Open();
+        void* MiscWindows_OverviewWindow_GetPtr() const;
+        void ActivateDesktop();
         void ObservationWindow_CreateNewOne();
         void ObservationWindow_Register(void* window);
         void ObservationWindow_UnRegister(void* window);

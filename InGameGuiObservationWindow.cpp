@@ -111,6 +111,10 @@ namespace NC2InGameGuiWorldWindow
 
 namespace NInGameGuiManager
 {
+    // Original function: FUN_004a0bc5.
+    void CInGameGuiManager::ActivateDesktop() { NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(NC2Lifetime::Read<void*>(this, 4))); }
+    // Original function: FUN_004a2997.
+    void* CInGameGuiManager::MiscWindows_OverviewWindow_GetPtr() const { return NC2Lifetime::Read<void*>(this, 0x44); }
     // Original function: FUN_004a0bf2.
     void CInGameGuiManager::ObservationWindow_CreateNewOne() { auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x8C, 1); NC2InGameGuiBase::BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(allocation == nullptr ? nullptr : NC2InGameGuiWorldWindow::WorldObserveDisplayWindow_Construct(allocation)), false); }
     // Original function: FUN_004a0c17.

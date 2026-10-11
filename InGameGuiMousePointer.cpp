@@ -1,4 +1,4 @@
-﻿#include "InGameGuiMousePointer.h"
+#include "InGameGuiMousePointer.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiSelectionWindowAccess.h"
@@ -29,6 +29,12 @@
 namespace NC2InGameGuiManager
 {
     using namespace NC2Lifetime;
+    // Complete lazy tooltip-shadow region 0056944C..00569453.
+    struct STooltipShadowState { std::uint32_t initialized = 0; NXBasics::SColorRGB color{0, 0, 0}; };
+    static STooltipShadowState gTooltipShadow;
+    static_assert(sizeof(STooltipShadowState) == 8);
+    // Original function: FUN_004bb8fb; the native color destructor is empty.
+    static int __cdecl TooltipShadow_Exit() { return 0; }
     // Original function: FUN_004bb7c4. Outline offsets are the complete 004F7000..004F701F region.
     void gToolTip_PrintStringSingleLine(NXBasics::CBitmap* bitmap, std::int32_t* point, const char* text, bool bright)
     {
@@ -42,9 +48,9 @@ namespace NC2InGameGuiManager
             NXBasics::CBitmap reference(bitmap, rectangle);
             NC2GuiToolsBase::DrawTool_FillArea(nullptr, &reference, &rectangle, 2);
         }
-        static const NXBasics::SColorRGB black(0, 0, 0);
+        if ((gTooltipShadow.initialized & 1u) == 0) { gTooltipShadow.initialized |= 1u; gTooltipShadow.color.SetColors(0, 0, 0); NXBasics::Runtime_AtExit(TooltipShadow_Exit); }
         constexpr std::int32_t offsetX[4]{-1, 1, 0, 0}, offsetY[4]{0, 0, -1, 1};
-        for (std::uint32_t i = 0; i < 4; ++i) bitmap->Text_Print(font, &black, rectangle.x + 2 + offsetX[i], rectangle.y + offsetY[i], text);
+        for (std::uint32_t i = 0; i < 4; ++i) bitmap->Text_Print(font, &gTooltipShadow.color, rectangle.x + 2 + offsetX[i], rectangle.y + offsetY[i], text);
         const auto* palette = bright ? resources.fontWhitePalette : resources.fontDimmedPalette;
         const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(palette) + 0x400);
         bitmap->Text_Print(font, color, rectangle.x + 2, rectangle.y, text);
@@ -229,6 +235,14 @@ void* __fastcall InGameGuiManagerMousePointer_Construct(void* pointer)
 
 namespace NC2InGameGuiWorldGameCursor
 {
+    // Complete lazy marker-color region 005693F8..00569403.
+    struct SMarkerColorState { NXBasics::SColorRGB white{0, 0, 0}; std::uint32_t initialized = 0; NXBasics::SColorRGB black{0, 0, 0}; };
+    static SMarkerColorState gMarkerColors;
+    static_assert(sizeof(SMarkerColorState) == 12);
+    // Original function: FUN_004b3757.
+    static int __cdecl MarkerWhite_Exit() { return 0; }
+    // Original function: FUN_004b3758.
+    static int __cdecl MarkerBlack_Exit() { return 0; }
     // Original function: FUN_004b3264; complete road/wall vector previews.
     bool __cdecl IGG_DrawWorldGameCursor_LogicCallback(std::uint32_t type, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
     {
@@ -248,11 +262,13 @@ namespace NC2InGameGuiWorldGameCursor
             NXBasics::BobManager_PrintBob(bobManager, 0xBAu + (timeGetTime() / 150u) % 6u, bitmap, pixel[0], pixel[1], palette);
         };
         for (std::uint32_t index = 0; index < 10; ++index) { std::uint32_t position; manager->GuiMarker_Get(index, &position); if (NC2Logic::MapMigPoint_IsInsideMap(&position) && position != 0) marker(&position); }
-        static const NXBasics::SColorRGB black(0, 0, 0), white(255, 255, 255);
+
         if (mode != 0 && Read<std::uint8_t>(input, 0xABA) != 0)
         {
+            if ((gMarkerColors.initialized & 1u) == 0) { gMarkerColors.initialized |= 1u; gMarkerColors.black.SetColors(0, 0, 0); NXBasics::Runtime_AtExit(MarkerBlack_Exit); }
+            if ((gMarkerColors.initialized & 2u) == 0) { gMarkerColors.initialized |= 2u; gMarkerColors.white.SetColors(255, 255, 255); NXBasics::Runtime_AtExit(MarkerWhite_Exit); }
             const auto* position = static_cast<const std::byte*>(input) + 0xABC;
-            NC2E2::DE_Debug_DrawMicroGridMarker(display, position, &black, &white, 5, false);
+            NC2E2::DE_Debug_DrawMicroGridMarker(display, position, &gMarkerColors.black, &gMarkerColors.white, 5, false);
             if (mode == 12) { std::int32_t pixel[2]; NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, pixel, false); NC2E2::DrawAtom_House_Tool_DoDrawEngineHouseType(NC2InGameGuiInputManager::Selection_GetSelectedEngineHouseTypeId(input), NC2InGameGuiInputManager::Selection_GetSelectedEngineHouseExtensionLevel(input), Read<NXBasics::CBitmap*>(display, 0x68), pixel[0], pixel[1], -1, false, true); }
         }
         if (mode == 15 || mode == 17)
@@ -280,7 +296,7 @@ namespace NC2InGameGuiWorldGameCursor
                 for (auto direction = path.GetNextDirection(); direction >= 0; direction = path.GetNextDirection())
                 {
                     NC2Logic::MapMigPoint_MoveCursorUnwrapped(current, static_cast<std::uint32_t>(direction));
-                    if (NC2Logic::MapMigPoint_IsInsideMap(&previous)) NC2E2::DE_Debug_DrawMicroGridLine(display, &current, &previous, &black);
+                    if (NC2Logic::MapMigPoint_IsInsideMap(&previous)) NC2E2::DE_Debug_DrawMicroGridLine(display, &current, &previous, &gMarkerColors.black);
                     drawSign(); previous = current;
                 }
             }

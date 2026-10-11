@@ -11,6 +11,7 @@ namespace NC2InGameGuiBase
     public:
         CStaticToolTipHandler();
         ~CStaticToolTipHandler();
+        bool AddV(const NXBasics::SRectangle& rectangle, const char* format, ...);
         void ClearAll();
         bool Add(const NXBasics::SRectangle& rectangle, const char* text);
         const char* Get(const std::int32_t* point) const;

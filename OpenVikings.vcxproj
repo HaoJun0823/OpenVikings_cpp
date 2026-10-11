@@ -787,4 +787,12 @@
     <ClCompile Include="C2MultiPlayerGoalAccess.cpp" />
     <ClInclude Include="C2MultiPlayerGoalAccess.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XGuiLists.cpp" />
+    <ClCompile Include="HyperLinkTextSystemLifetime.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2AIBuildingAccess.cpp" />
+    <ClInclude Include="C2AIBuildingAccess.h" />
+  </ItemGroup>
 </Project>

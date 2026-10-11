@@ -2,6 +2,7 @@
 #include "C2LifetimeAccess.h"
 #include "XCrtFileAccess.h"
 #include "XGuiDesktop.h"
+#include "XGuiWindowAccess.h"
 
 #include <cstring>
 
@@ -115,8 +116,7 @@ namespace NXBaseGui
         if ((Read<std::uint8_t>(element, 0x18) & 8u) != 0)
         {
             auto* parent = Read<CBaseWindow*>(element, 0x20);
-            // Original adapter 0047867A forwards to the existing deferred close list.
-            if (parent != nullptr) CDesktop::sTheObjectPtr->Window_AddToCloseList(parent);
+            BaseWindow_AddToCloseList(parent);
         }
         Write<std::uint32_t>(element, 0x14, 1);
         using TPressedAction = void(__thiscall*)(void*);
@@ -126,6 +126,17 @@ namespace NXBaseGui
 
     // Original function: FUN_00478a36; ret 14h establishes five stack DWORDs.
     bool __fastcall BaseElement_Message_Handle(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t) { return false; }
+
+    // Original function: FUN_004789eb; entering while the button is down restores pressed state.
+    void BaseElement_MouseEnteredArea(void* element)
+    {
+        Write<std::uint8_t>(element, 0x19, Read<std::uint8_t>(element, 0x19) | 1u);
+        if (BaseElement_CanBePressed(element) && Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) != 0 && Read<std::uint32_t>(element, 0x14) == 1) Write<std::uint32_t>(element, 0x14, 2);
+    }
+    // Original function: FUN_00478a3b.
+    bool BaseElement_CanBeActivated(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & 0x400u) == 0 && (flags & 1u) != 0; }
+    // Original function: FUN_00478a4f.
+    bool BaseElement_CanBePressed(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & 0x400u) == 0 && (flags & 2u) != 0; }
 
     // Original function: FUN_00478a65; unsigned subtraction preserves x86 wraparound.
     void __fastcall BaseElement_ParentToLocalPosition(void* element, void*, std::int32_t* point)

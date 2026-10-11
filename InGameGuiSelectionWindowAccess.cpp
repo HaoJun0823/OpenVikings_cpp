@@ -33,6 +33,7 @@
 #include "XPalette.h"
 
 #include <cstring>
+#include <cstdarg>
 #include <new>
 
 extern void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* display, void* unusedEdx, std::uint32_t moveableId, std::int32_t* point);
@@ -42,7 +43,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b9d0c; full Windows storage, including text padding.
     CStaticToolTipHandler::CStaticToolTipHandler() { std::memset(this, 0, sizeof(*this)); }
     // Original function: FUN_004b9d23.
-    CStaticToolTipHandler::~CStaticToolTipHandler() = default;
+    CStaticToolTipHandler::~CStaticToolTipHandler() {}
     // Original function: FUN_004b9d24.
     void CStaticToolTipHandler::ClearAll() { mCount = 0; }
     // Original function: FUN_004b9d28; the terminator follows the 100 copied bytes.
@@ -55,6 +56,17 @@ namespace NC2InGameGuiBase
         entry.text[100] = '\0';
         ++mCount;
         return true;
+    }
+    // Original function: FUN_004b9d73; the native temporary buffer holds 100 bytes.
+    bool CStaticToolTipHandler::AddV(const NXBasics::SRectangle& rectangle, const char* format, ...)
+    {
+        char text[100];
+        va_list arguments;
+        va_start(arguments, format);
+        NXBasics::Runtime_FormatString(text, 100, format, arguments);
+        va_end(arguments);
+        text[99] = '\0';
+        return Add(rectangle, text);
     }
     // Original function: FUN_004b9da3; later rectangles take precedence.
     const char* CStaticToolTipHandler::Get(const std::int32_t* point) const
@@ -360,8 +372,8 @@ namespace NC2InGameGuiSelection
                 std::memcpy(static_cast<std::byte*>(window) + 0x80 + index * 16u, &rectangle, sizeof(rectangle));
             }
             const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
-            const SRectangle rectangle(state.displayWidth - width, state.displayHeight - height, width, height);
-            NXBaseGui::CDesktop::sTheObjectPtr->Window_ChangeAreaRectangle(static_cast<NXBaseGui::CBaseWindow*>(window), rectangle);
+            const SRectangle rectangle(NC2InGameGuiBase::GetDisplayWidth() - width, NC2InGameGuiBase::GetDisplayHeight() - height, width, height);
+            NC2InGameGuiBase::GetDesktopPtr()->Window_ChangeAreaRectangle(static_cast<NXBaseGui::CBaseWindow*>(window), rectangle);
             NXBaseGui::BaseWindow_Element_DeleteAll(window);
             std::memset(static_cast<std::byte*>(window) + 0x104, 0, 0x2C);
             Buttons(window).AllButtonsHaveBeenRemoved();
@@ -453,11 +465,8 @@ namespace NC2InGameGuiSelection
             auto colorIndex = static_cast<std::uint32_t>(percent) * 255u / 100u;
             if (colorIndex > 255u) colorIndex = 255u;
             bitmap->Draw_Box(bar, *reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(palette) + 4 + colorIndex * 4u));
-            char text[100];
-            if (hitpoints) NXBasics::Runtime_PrintStringN(text, 100, "%s %d/%d", HumanString(label), current, maximum);
-            else NXBasics::Runtime_PrintStringN(text, 100, "%s %d%%", HumanString(label), percent);
-            text[99] = '\0';
-            Tooltips(window).Add(SRectangle(x, y, width, 12), text);
+            if (hitpoints) Tooltips(window).AddV(SRectangle(x, y, width, 12), "%s %d/%d", HumanString(label), current, maximum);
+            else Tooltips(window).AddV(SRectangle(x, y, width, 12), "%s %d%%", HumanString(label), percent);
         }
 
         // Inlined equipment presentation in 004ADAAB..004AE0A7.
@@ -1065,10 +1074,11 @@ namespace NC2InGameGuiSelection
         }
         // Original function: FUN_004bf2f4.
         bool __fastcall SelectionSingleHumanWindow_True(void*) { return true; }
-        // Original destructor: FUN_004ab9b7; close the owned popup before unregistering.
-        // Original deleting wrapper: FUN_004ab989.
-        void* __fastcall SelectionSingleHumanWindow_Delete(void* window, void*, std::uint32_t flags)
+        extern const std::uintptr_t gSingleHumanWindowVirtualTable[19];
+        // Original function: FUN_004ab9b7; close the owned popup before unregistering.
+        void SelectionSingleHumanWindow_Destruct(void* window)
         {
+            Write(window, 0, gSingleHumanWindowVirtualTable + 0);
             auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
             if (void* popup = Read<void*>(window, 0x3D74)) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(static_cast<NXBaseGui::CBaseWindow*>(popup));
             NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
@@ -1078,6 +1088,11 @@ namespace NC2InGameGuiSelection
             Tooltips(window).~CStaticToolTipHandler();
             Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
             NXBaseGui::BaseWindow_Destruct(window);
+        }
+        // Original function: FUN_004ab989.
+        void* __fastcall SelectionSingleHumanWindow_Delete(void* window, void*, std::uint32_t flags)
+        {
+            SelectionSingleHumanWindow_Destruct(window);
             if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
             return window;
         }
@@ -1106,12 +1121,14 @@ namespace NC2InGameGuiSelection
         static_assert(sizeof(gSingleHumanWindowVirtualTable) == 0x4C);
     }
 
+    // Original function: FUN_004ab9a5; the receiver is the embedded SVars at window +0x70.
+    static void* SelectionSingleHumanWindow_Vars_Construct(void* vars) { ::new(static_cast<std::byte*>(vars) + 0x32C) NC2InGameGuiBase::CStaticToolTipHandler; return vars; }
     // Original function: FUN_004ab7f1; native embedded constructors precede the storage reset.
     void* SelectionSingleHumanWindow_Construct(void* window)
     {
         const SRectangle rectangle(0, 0, 1, 1);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        ::new(static_cast<std::byte*>(window) + 0x39C) NC2InGameGuiBase::CStaticToolTipHandler;
+        SelectionSingleHumanWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x70);
         ::new(static_cast<std::byte*>(window) + 0x3280) NC2InGameGuiBase::CDynamicSubButtonsHandler;
         Write(window, 0, gSingleHumanWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 0x3D08);

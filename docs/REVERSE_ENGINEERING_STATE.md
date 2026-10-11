@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Menus, GUI and input source completion - 2026-10-11
+
+All **77 originally selected open entries** and **nine direct dependencies** have concrete Windows-based C++ bodies. Ship input highlighting now uses the native mode table (19 coast, 20 work center, 21 movement, 22 enemy landscapes). GUI/hyperlink list ownership, embedded constructors, human-window deletion, message-window reuse, input/desktop access, formatted tooltips and lazy color callbacks are completed. The seven provisional GUI entries for tower/build/upgrade AI are also reconstructed with their local dependencies; the enclosing AI update remains open. Mac headers supply naming only. See [GUI_REMAINDER_COMPLETION.md](GUI_REMAINDER_COMPLETION.md) and its preserved per-entry selection.
+
+Corrected GUI inventory **1175/1175**; all original 77 gaps are implemented. The false epilogue entry **004A1F8A** is removed in favor of the real toggle start **004A1F8E**. Global **4511/5062 (89.11%)**, **551 open**, **24** explicit unfinished boundaries; **282 CPP / 260 headers**, **2618** unique naming rows and **376** provisionally assigned open entries. [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md) supersedes historical totals. Next smallest category: **maps/resources/pathfinding, 167/259, 92 open**.
+
+Twenty-six changed units pass MSVC Win32 `/Zs`, with five existing byte/bool warnings. Project/filter parity, naming uniqueness, original selection/direct-callee coverage, category sums and whitespace checks pass. Unmatched declaration signatures decrease from 21 to **19**. No build, tests or game run occurred. Window behavior, human/AI gameplay, campaign playthroughs, music playback and green road rendering remain unverified or open in their respective blocks.
+
 ## Human needs/jobs/commands source completion - 2026-10-11
 
 All **73 originally selected open entries**, plus vehicle-AI search dependency **0047354B**, are reconstructed or re-audited against Windows ASM/Game.exe. Command IDs **4..87**, all **36** atomic-event IDs and **47** job IDs have native branches. Artificial command/event/task yields are removed. Trader/carrier vehicle eligibility and the common carrier failure continuation are corrected; priest work uses the real temple-fill tree; social needs use adult conversation searches. Mac exports supply names only. See [HUMAN_ROUTINES_COMPLETION.md](HUMAN_ROUTINES_COMPLETION.md) and its per-entry/dispatch CSVs.

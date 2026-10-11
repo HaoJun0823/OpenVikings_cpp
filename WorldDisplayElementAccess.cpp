@@ -62,7 +62,7 @@ namespace NC2InGameGuiWorldElement
         NC2E2::DisplayDescription_MakeValidWorldPixelPosition(display, point);
         std::uint32_t mapPoint = 0;
         NC2E2::DisplayDescription_WorldPixelToMapMigCoordinates(display, point, &mapPoint);
-        NC2InGameGuiInputManager::Cursor_SetPosition(NC2InGameGuiInputManager::gInputManager, &mapPoint);
+        NC2InGameGuiInputManager::Cursor_SetPosition(NC2InGameGuiInputManager::GetInputManagerPtr(), &mapPoint);
     }
 
     // Original function: FUN_004babe0; complete single/group human and vehicle preparation.
@@ -108,7 +108,7 @@ namespace NC2InGameGuiWorldElement
         }
         Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
         std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 0x14); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 0x14);
-        const auto* input = NC2InGameGuiInputManager::gInputManager;
+        const auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
         auto* command = static_cast<std::byte*>(element) + 0x1CC;
         auto* secondary = static_cast<std::byte*>(element) + 0x1E0;
         const auto modifier = []() { return (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0; };
@@ -174,7 +174,7 @@ namespace NC2InGameGuiWorldElement
         using namespace NC2Lifetime;
         auto* command = static_cast<std::byte*>(element) + 0x1CC;
         if (Read<std::uint8_t>(command, 0) == 0) return false;
-        if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 1)
+        if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 1)
         {
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
             if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
@@ -186,9 +186,9 @@ namespace NC2InGameGuiWorldElement
                 if (address != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(command, 0x10) && Read<std::uint32_t>(house, 0x14) == 38) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanLearnJobWindow_Open();
             }
         }
-        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 2)
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 2)
         {
-            auto* input = NC2InGameGuiInputManager::gInputManager;
+            auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
             const auto count = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanNumber(input);
             for (std::uint32_t i = 0; i < count; ++i)
             {
@@ -199,14 +199,14 @@ namespace NC2InGameGuiWorldElement
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
             }
         }
-        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 4)
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 4)
         {
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
             if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
         }
-        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::gInputManager, 4) == 5)
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 5)
         {
-            auto* input = NC2InGameGuiInputManager::gInputManager;
+            auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
             const auto count = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehiclesNumber(input);
             for (std::uint32_t i = 0; i < count; ++i)
             {
@@ -223,7 +223,7 @@ namespace NC2InGameGuiWorldElement
     bool WorldDisplayElement_l_TryToBringUpActionButtonsForObjectUnderMouse(void* element)
     {
         using namespace NC2Lifetime;
-        auto* input = NC2InGameGuiInputManager::gInputManager;
+        auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
         const auto type = Read<std::uint32_t>(element, 0x38), selection = Read<std::uint32_t>(input, 4);
         const bool matches = (type == 1 && selection == 1 && NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input) == Read<std::int32_t>(element, 0x40)) || (type == 3 && selection == 4 && NC2InGameGuiInputManager::Selection_GetSelectedSingleVehicleId(input) == Read<std::int32_t>(element, 0x50)) || (type == 4 && selection == 6 && Read<std::int32_t>(input, 0xA78) == Read<std::int32_t>(element, 0x60));
         if (!matches) return false;
@@ -240,7 +240,7 @@ namespace NC2InGameGuiWorldElement
         else if (type == 3) player = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, 0x50) * NC2Logic::CVehicleArray::ElementSize + 0x1E0);
         else if (type == 4) player = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, Read<std::uint32_t>(element, 0x60) * NC2Logic::CHouseArray::ElementSize + 0x0C);
         else return false;
-        if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::gInputManager, static_cast<std::byte*>(element) + 0x38, true, false, false)) return false;
+        if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::GetInputManagerPtr(), static_cast<std::byte*>(element) + 0x38, true, false, false)) return false;
         manager->Selection_ActionButtons_BringUp(); NC2GuiToolsBase::FXTool_ClickConfirm(); return true;
     }
     // Original function: FUN_004bb035; Windows scales directional scrolling by the measured frame rate.

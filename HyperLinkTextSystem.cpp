@@ -13,6 +13,7 @@
 
 #include <mmsystem.h>
 #include <new>
+#include <type_traits>
 
 namespace NHyperLinkTextSystem
 {
@@ -44,7 +45,11 @@ namespace NHyperLinkTextSystem
         }
         template<class T> void DestroyOriginal(T* object)
         {
-            if (object != nullptr) { object->~T(); Runtime_Free(object); }
+            if (object != nullptr)
+            {
+                if constexpr (std::is_base_of_v<CListBase, T>) T::Delete(object, 1);
+                else { object->~T(); Runtime_Free(object); }
+            }
         }
         void* FindResource(CListBase& list, const char* filename)
         {
@@ -96,19 +101,19 @@ namespace NHyperLinkTextSystem
 
     // Original function: FUN_004d1c96. Native list vtables retain their payload deleters;
     // the Windows zeroed list state is reproduced by their non-owning constructors.
-    CDataContainer::CDataContainer() : fonts(false), bitmaps(false), palettes(false), textFiles(false) {}
+    CDataContainer::CDataContainer() {}
 
     // Original function: FUN_004d1cfb; resources are released before the four list owners.
     CDataContainer::~CDataContainer()
     {
-        for (auto* list : { static_cast<CListBase*>(&fonts), static_cast<CListBase*>(&bitmaps), static_cast<CListBase*>(&palettes), static_cast<CListBase*>(&textFiles) })
+        for (auto* list : { static_cast<CListBase*>(&vars.fonts), static_cast<CListBase*>(&vars.bitmaps), static_cast<CListBase*>(&vars.palettes), static_cast<CListBase*>(&vars.textFiles) })
             while (void* entry = list->l_Base_GetStartElement())
             {
                 list->l_Base_RemoveElement(entry);
-                if (list != &textFiles)
+                if (list != &vars.textFiles)
                 {
                     DeleteStorable(Read<void*>(entry, 0x104));
-                    if (list == &bitmaps) DeleteStorable(Read<void*>(entry, 0x108));
+                    if (list == &vars.bitmaps) DeleteStorable(Read<void*>(entry, 0x108));
                 }
                 Runtime_Free(entry);
             }
@@ -117,19 +122,19 @@ namespace NHyperLinkTextSystem
     // Original function: FUN_004d1df4.
     CFont* CDataContainer::GetFontPtr(const char* filename)
     {
-        if (void* entry = FindResource(fonts, filename)) return Read<CFont*>(entry, 0x104);
+        if (void* entry = FindResource(vars.fonts, filename)) return Read<CFont*>(entry, 0x104);
         if (!CFile::FileSystem_Tool_FileExists(filename, true)) return nullptr;
         void* entry = AllocateResource(0x108, filename);
         auto* font = static_cast<CFont*>(XB_Storable_LoadObject(filename));
         Write(entry, 0x104, font);
-        fonts.InsertAtEnd(entry);
+        vars.fonts.InsertAtEnd(entry);
         return font;
     }
 
     // Original function: FUN_004d1e95.
     CBitmap* CDataContainer::GetBitmapPtr(const char* filename)
     {
-        if (void* entry = FindResource(bitmaps, filename)) return Read<CBitmap*>(entry, 0x104);
+        if (void* entry = FindResource(vars.bitmaps, filename)) return Read<CBitmap*>(entry, 0x104);
         if (!CFile::FileSystem_Tool_FileExists(filename, true)) return nullptr;
         void* entry = AllocateResource(0x10C, filename);
         CPicture picture(filename);
@@ -138,40 +143,40 @@ namespace NHyperLinkTextSystem
         auto* palette = picture.ExtractPalette();
         Write(entry, 0x108, palette);
         bitmap->SetPalettePtr(palette);
-        bitmaps.InsertAtEnd(entry);
+        vars.bitmaps.InsertAtEnd(entry);
         return bitmap;
     }
 
     // Original function: FUN_004d1f69.
     CPalette* CDataContainer::GetPalettePtr(const char* filename)
     {
-        if (void* entry = FindResource(palettes, filename)) return Read<CPalette*>(entry, 0x104);
+        if (void* entry = FindResource(vars.palettes, filename)) return Read<CPalette*>(entry, 0x104);
         if (!CFile::FileSystem_Tool_FileExists(filename, true)) return nullptr;
         void* entry = AllocateResource(0x108, filename);
         CPicture picture(filename);
         auto* palette = picture.ExtractPalette();
         Write(entry, 0x104, palette);
-        palettes.InsertAtEnd(entry);
+        vars.palettes.InsertAtEnd(entry);
         return palette;
     }
 
     // Original function: FUN_004d2020; a missing file returns zero, also the first valid ID.
     std::uint32_t CDataContainer::GetTextFileId(const char* filename)
     {
-        CListBase::Iterator iterator(textFiles);
+        CListBase::Iterator iterator(vars.textFiles);
         std::uint32_t index = 0;
         for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next(), ++index)
             if (Runtime_CompareStringsIgnoreCase(static_cast<const char*>(entry), filename) == 0) return index;
         if (!CFile::FileSystem_Tool_FileExists(filename, true)) return 0;
-        textFiles.InsertAtEnd(AllocateResource(0x104, filename));
-        return textFiles.GetCount() - 1;
+        vars.textFiles.InsertAtEnd(AllocateResource(0x104, filename));
+        return vars.textFiles.GetCount() - 1;
     }
 
     // Original function: FUN_004d20b7.
     const char* CDataContainer::GetTextFilePtr(std::uint32_t id)
     {
-        if (id >= textFiles.GetCount()) return nullptr;
-        CListBase::Iterator iterator(textFiles);
+        if (id >= vars.textFiles.GetCount()) return nullptr;
+        CListBase::Iterator iterator(vars.textFiles);
         std::uint32_t index = 0;
         for (void* entry = iterator.First(); entry != nullptr; entry = iterator.Next(), ++index)
             if (index == id) return static_cast<const char*>(entry);
@@ -198,9 +203,7 @@ namespace NHyperLinkTextSystem
     {
         while (auto* entity = static_cast<SMicroEntity*>(entities->l_Base_RemoveFromStart()))
         {
-            if (entity->type == 2) Runtime_Free(entity->content.text);
-            entity->type = 0;
-            Runtime_Free(entity);
+            MicroEntityList_DeleteData(entity);
         }
     }
 
@@ -639,7 +642,7 @@ namespace NHyperLinkTextSystem
     // Original function: FUN_004cbc24.
     void CDisplayManager::l_DeleteAllLineHandlers()
     {
-        while (auto* line = static_cast<SDisplayManagerLineHandler*>(lines->l_Base_RemoveFromStart())) DestroyOriginal(line);
+        while (void* line = lines->l_Base_RemoveFromStart()) LineHandlerList_DeleteData(line);
     }
 }
 

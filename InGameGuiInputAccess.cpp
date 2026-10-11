@@ -29,6 +29,8 @@ namespace
 
 namespace NC2InGameGuiInputManager
 {
+    // Original function: FUN_004bab58; folded singleton getter, original method name unresolved.
+    void* GetInputManagerPtr() { return gInputManager; }
     // Original function: FUN_004b74ba.
     std::int32_t Selection_GetSelectedSingleAnimalId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 3 ? Input_Read<std::int32_t>(manager, 0x974) : -1; }
     // Original function: FUN_004b7585.

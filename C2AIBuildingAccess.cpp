@@ -1,0 +1,241 @@
+#include "C2AIBuildingAccess.h"
+#include "C2EngineDisplayAccess.h"
+#include "C2EngineTerrainData.h"
+#include "C2GameMapAccess.h"
+#include "C2HouseAccess.h"
+#include "C2HouseUserControl.h"
+#include "C2HouseBuildPosition.h"
+#include "C2HumanWalking.h"
+#include "C2LifetimeAccess.h"
+#include "C2LifetimeGlobals.h"
+#include "C2LogicObjectArrays.h"
+#include "C2MapGeometry.h"
+#include "C2MilitaryTargetSearch.h"
+#include "C2MissionStartObjects.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2StaticGoodTypeData.h"
+#include "C2StaticTrianglePatternTypeData.h"
+
+namespace NC2Logic
+{
+    using namespace NC2Lifetime;
+    namespace
+    {
+        // Stack descriptor 00471F5B: all offsets and widths come from Windows stores.
+        struct SBuildSearch { void* village; std::int32_t engineType; std::uint32_t stage; std::uint8_t checkTerrain; std::byte padding[3]; void* output; std::uint32_t userData; };
+        static_assert(sizeof(SBuildSearch) == 0x18);
+        void* House(std::int32_t id) { return CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize; }
+        std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))); }
+    }
+
+    // Original function: FUN_00453bd4; the inlined original method name remains unresolved.
+    bool AIVillage_IsPointInside(const void* village, const void* point) { return Distance(point, static_cast<const std::byte*>(village) + 0xC) < Read<std::uint32_t>(village, 0x10); }
+
+    // Original function: FUN_004544fb; both moveable lists precede houses and animals.
+    bool AI_IsEnemyObjectAround(std::uint32_t player, const void* point, std::uint32_t radius)
+    {
+        if (Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, true, 1, 0, true, false) != -1) return true;
+        if (Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, true, 1, 0, false, false) != -1) return true;
+        if (Tool_GetOneOfNextEnemyHousesInRange(player, point, 0, radius, true, 1, 0) != -1) return true;
+        return Tool_Animals_GetOneOfNextEnemyInRange(player, point, 0, radius, true, false, 1, 0) != -1;
+    }
+
+    // Original function: FUN_0045742d; need counters increase recursively even after a failed input.
+    bool AIGoodManager_IsProducingGood(void* manager, std::uint32_t good, bool includeInputs)
+    {
+        auto* entry = static_cast<std::byte*>(manager) + good * 0x28u;
+        if (!includeInputs) return Read<std::uint8_t>(entry, 0) != 0;
+        Write(entry, 0xC, Read<std::uint32_t>(entry, 0xC) + 1u);
+        const auto* definition = StaticGoodTypeData_GetPtr(good);
+        bool available = true;
+        for (std::uint32_t index = 0; index < definition->distinctProductionInputCount; ++index)
+            if (!AIGoodManager_IsProducingGood(manager, static_cast<std::uint32_t>(definition->distinctProductionInputs[index]), true)) available = false;
+        if (!available) return false;
+        return Read<std::uint8_t>(entry, 0) != 0;
+    }
+
+    // Original function: FUN_00471cf6; the five distinct status codes are retained.
+    std::int32_t AIVillageManager_House_BuildHouse(void* village, std::uint32_t logicType, const void* source, bool disableOnFailure, MapSearchCallback callback, std::uint32_t userData)
+    {
+        if (Read<std::uint8_t>(village, 0x25u + logicType) == 0) return 0;
+        const auto player = Read<std::int32_t>(village, 8);
+        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * 0x4A80u + 0xC) : 1u;
+        std::uint32_t stage;
+        const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, logicType, &stage);
+        if (engineType == -1) return 0;
+        auto* build = reinterpret_cast<SHouseBuild*>(static_cast<std::byte*>(village) + 0xCC4);
+        if (build->IsValid()) return -2;
+        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
+        bool available = true;
+        for (std::uint32_t level = 0; level < stage + 1u; ++level)
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0x48u + level * 0x40u); ++index)
+                if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + 0x274, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
+        if (!available) return -1;
+        std::uint32_t point = 0;
+        if (!AIVillageManager_l_House_GetPossibleBuildPosition(village, source, engineType, stage, &point, false, callback, userData))
+        {
+            if (disableOnFailure) Write<std::uint8_t>(village, 0x25u + logicType, 0);
+            return 0;
+        }
+        if (AI_IsEnemyObjectAround(static_cast<std::uint32_t>(player), &point, 30)) return -3;
+        build->BuildHouse(static_cast<std::uint32_t>(player), &point, static_cast<std::uint32_t>(engineType), stage, false);
+        return 1;
+    }
+
+    // Original function: FUN_00471e59; optional macro terrain checks follow the cumulative six-step ring.
+    bool __cdecl slAIVillageManagerSearchBuildPos(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* data)
+    {
+        const auto& search = *static_cast<const SBuildSearch*>(data->userData);
+        if (!AIVillage_IsPointInside(search.village, point)) return false;
+        if (search.checkTerrain != 0)
+        {
+            std::uint32_t macro;
+            MapMagPoint_ConstructFromMig(&macro, point, false);
+            const auto check = [](const void* position)
+            {
+                const void* terrain = GameMap_GetConstMapMacroPointPtr(position);
+                return Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, 0)], 3) != 0 && Read<std::uint8_t>(&gStaticTrianglePatternTypes[Read<std::uint8_t>(terrain, 1)], 3) != 0;
+            };
+            if (!check(&macro)) return false;
+            MapMagPoint_MoveCursorUnwrapped(&macro, 4);
+            for (std::uint32_t direction = 0; direction < 6; ++direction)
+            {
+                MapMagPoint_MoveCursorUnwrapped(&macro, direction);
+                if (MapMagPoint_IsInsideMap(&macro) && !check(&macro)) return false;
+            }
+        }
+        if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, 0), false, false)) return false;
+        Write(search.output, 0, Read<std::uint32_t>(point, 0));
+        return true;
+    }
+
+    // Original function: FUN_00471f5b; snapping mutates the local source, never the caller's point.
+    bool AIVillageManager_l_House_GetPossibleBuildPosition(void* village, const void* source, std::int32_t engineType, std::uint32_t stage, void* output, bool checkTerrain, MapSearchCallback callback, std::uint32_t userData)
+    {
+        SBuildSearch search{village, engineType, stage, static_cast<std::uint8_t>(checkTerrain), {}, output, userData};
+        auto point = Read<std::uint32_t>(source, 0);
+        Tool_Map_GetNotBlockedPosition(&point, true);
+        return CMapPathfinderElement::SearchOverMap(&point, Read<std::uint32_t>(village, 0x10), true, callback == nullptr ? slAIVillageManagerSearchBuildPos : callback, &search, false, Read<std::int32_t>(village, 8));
+    }
+
+    // Original function: FUN_0047261f; every next-stage material is checked before returning -1.
+    std::int32_t AIVillageManager_House_TryToUpgradeHouse(void* village, void* house)
+    {
+        if (!House_Construction_CanBeUpgraded(house)) return 0;
+        auto* upgrade = reinterpret_cast<SHouseUpgrade*>(static_cast<std::byte*>(village) + 0xCD0);
+        if (upgrade->IsValid()) return -2;
+        const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
+        const auto level = Read<std::uint32_t>(house, 0x20) + 1u;
+        bool available = true;
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0x48u + level * 0x40u); ++index)
+            if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + 0x274, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
+        if (!available) return -1;
+        upgrade->UpgradeHouse(house);
+        return 1;
+    }
+
+    // Original function: FUN_004729ff; a distance of exactly twenty lies outside the defend range.
+    bool AIHouseManager_Tower_IsPointInDefendRange(const void* manager, const void* point)
+    {
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, 0xC0); ++index)
+            if (Distance(point, static_cast<const std::byte*>(manager) + 0xC4u + index * 4u) < 20) return true;
+        return false;
+    }
+    // Original function: FUN_00472a5a.
+    bool AIHouseManager_Tower_IsHouseInDefendRange(const void* manager, const void* house) { return AIHouseManager_Tower_IsPointInDefendRange(manager, static_cast<const std::byte*>(house) + 0x1C); }
+
+    // Original function: FUN_00476be4; tower candidates also reject already defended points.
+    bool __cdecl slAITowerManagerSearchBuildPos(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* data)
+    {
+        const auto& search = *static_cast<const SBuildSearch*>(data->userData);
+        if (!AIVillage_IsPointInside(search.village, point)) return false;
+        if (AIHouseManager_Tower_IsPointInDefendRange(static_cast<const std::byte*>(search.village) + 0x1C, point)) return false;
+        if (!Tool_House_IsAllowedToBeBuild(Read<std::uint32_t>(search.village, 8), search.engineType, search.stage, Read<std::uint32_t>(point, 0), false, false)) return false;
+        Write(search.output, 0, Read<std::uint32_t>(point, 0));
+        return true;
+    }
+
+    // Original function: FUN_00476c43; a build attempt finishes this tick, even on a failed status.
+    void AITowerManager_DoOneLogicGameTick(void* manager, std::uint32_t player, void* houseManager, void* village)
+    {
+        const auto build = Read<SHouseBuild>(village, 0xCC4);
+        if (build.IsValidCheck()) return;
+        auto last = Read<std::int32_t>(manager, 0);
+        if (last != -1 && Read<std::uint8_t>(House(last), 0) == 0) { Write<std::int32_t>(manager, 0, -1); last = -1; }
+        CHouseIterator iterator;
+        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
+        {
+            if (last != -1) { if (last <= id) { Write<std::int32_t>(manager, 0, -1); last = -1; } continue; }
+            auto* house = House(id);
+            const auto type = Read<std::uint32_t>(house, 0x14);
+            if (type == 40 || type == 41) AIVillageManager_House_TryToUpgradeHouse(village, house);
+            else if (type == 1) continue;
+            if (AIHouseManager_Tower_IsHouseInDefendRange(houseManager, house)) continue;
+            const auto* point = static_cast<const std::byte*>(house) + 0x24;
+            const auto result = AIVillageManager_House_BuildHouse(village, 41, point, false, slAITowerManagerSearchBuildPos, 0);
+            if (result == -3 || result == -2) Write(manager, 0, id - 1);
+            else if (result >= -1 && result <= 0)
+            {
+                const auto fallback = AIVillageManager_House_BuildHouse(village, 40, point, false, slAITowerManagerSearchBuildPos, 0);
+                if (fallback == -2 || fallback == -1) Write(manager, 0, id - 1);
+            }
+            Write(manager, 0, id);
+            return;
+        }
+    }
+
+    // Original function: FUN_00476d4b; failed validation clears the original active flag.
+    bool SHouseBuild::IsValid()
+    {
+        if (active == 0) return false;
+        if (houseId != -1)
+        {
+            const void* house = House(houseId);
+            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == uniqueId && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x2C) != 3) return true;
+        }
+        active = 0;
+        return false;
+    }
+    // Original function: FUN_00476d89; this check deliberately leaves the flag untouched.
+    bool SHouseBuild::IsValidCheck() const
+    {
+        if (active == 0 || houseId == -1) return false;
+        const void* house = House(houseId);
+        return Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == uniqueId && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x2C) != 3;
+    }
+    // Original function: FUN_00476dc5; future stock is modified before construction stock.
+    void SHouseBuild::BuildHouse(std::uint32_t player, const void* point, std::uint32_t engineType, std::uint32_t stage, bool fillConstructionStock)
+    {
+        const auto id = Logic_EntryPoint_House_Set(player, engineType, stage, point, false, 0);
+        if (id == -1) return;
+        void* house = House(id);
+        houseId = id; uniqueId = Read<std::uint32_t>(house, 8); active = 1;
+        if (!fillConstructionStock) return;
+        const auto* definition = static_cast<const std::byte*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10))) + 0x48;
+        auto remaining = stage + 1u;
+        do
+        {
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0); ++index)
+            {
+                const auto good = Read<std::uint32_t>(definition, 4u + index * 4u);
+                House_Stock_ModifyFutureAmount(house, good, 1, true);
+                House_Stock_ModifyAmount(house, nullptr, good, 1, true);
+            }
+            definition += 0x40;
+        } while (--remaining != 0);
+    }
+    // Original function: FUN_00476e5d; reaching the requested stage retires the upgrade.
+    bool SHouseUpgrade::IsValid()
+    {
+        if (active == 0) return false;
+        if (houseId != -1)
+        {
+            const void* house = House(houseId);
+            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == uniqueId && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x20) != stage && Read<std::uint32_t>(house, 0x2C) != 3) return true;
+        }
+        active = 0;
+        return false;
+    }
+    // Original function: FUN_00476ea4; active is set after starting construction.
+    void SHouseUpgrade::UpgradeHouse(void* house) { stage = Read<std::uint32_t>(house, 0x20) + 1u; houseId = Read<std::int32_t>(house, 4); uniqueId = Read<std::uint32_t>(house, 8); House_Construction_UpgradeStart(house, nullptr); active = 1; }
+}

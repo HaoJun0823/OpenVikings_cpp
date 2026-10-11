@@ -33,6 +33,7 @@ namespace NC2InGameGuiMessages
         void* Message_GetPtr(std::uint32_t uniqueId) const;
         void MiniButton_Removed(std::uint32_t uniqueId);
         void PresentationWindow_Open(std::uint32_t uniqueId);
+        void PresentationWindow_Closed();
         void Message_RemoveAllForHuman(std::uint32_t humanId);
         void System_Update();
         void MessagePriority_Toggle();

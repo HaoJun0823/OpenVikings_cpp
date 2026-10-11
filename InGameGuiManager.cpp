@@ -61,9 +61,9 @@ namespace
     // Original function: FUN_004a0167; end all three placement-constructed list lifetimes in native order.
     void InGameGuiManagerGuiElementPtr_Destruct(void* object)
     {
-        std::launder(reinterpret_cast<NXBasics::CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>*>(static_cast<std::byte*>(object) + 0x70))->~CList();
-        std::launder(reinterpret_cast<NXBasics::CList<NC2InGameGuiWorldElement::CWorldDisplayElement>*>(static_cast<std::byte*>(object) + 0x5C))->~CList();
-        std::launder(reinterpret_cast<NXBasics::CList<NXBaseGui::CBaseElement>*>(static_cast<std::byte*>(object) + 0x48))->~CList();
+        NXBasics::CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>::Delete(std::launder(reinterpret_cast<NXBasics::CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>*>(static_cast<std::byte*>(object) + 0x70)), 0);
+        NXBasics::CList<NC2InGameGuiWorldElement::CWorldDisplayElement>::Delete(std::launder(reinterpret_cast<NXBasics::CList<NC2InGameGuiWorldElement::CWorldDisplayElement>*>(static_cast<std::byte*>(object) + 0x5C)), 0);
+        NXBasics::CList<NXBaseGui::CBaseElement>::Delete(std::launder(reinterpret_cast<NXBasics::CList<NXBaseGui::CBaseElement>*>(static_cast<std::byte*>(object) + 0x48)), 0);
     }
 
     // Original function: FUN_004a00a8; ten pairs of 16-bit map coordinates.
@@ -246,7 +246,7 @@ namespace NInGameGuiManager
         // the embedded element; its original base-element vtable is retained.
         InGameGuiManagerDefaultMessageHandlerElement_Delete(mDisplayObject, nullptr, 0);
 
-        std::launder(reinterpret_cast<NXBasics::CList<NXBaseGui::CBaseElement>*>(mLegacyState + 0xB8))->~CList();
+        NXBasics::CList<NXBaseGui::CBaseElement>::Delete(std::launder(reinterpret_cast<NXBasics::CList<NXBaseGui::CBaseElement>*>(mLegacyState + 0xB8)), 0);
         InGameGuiManagerGuiElementPtr_Destruct(mLegacyState + 4);
     }
 

@@ -1457,4 +1457,12 @@
     <ClCompile Include="C2MultiPlayerGoalAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2MultiPlayerGoalAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="XGuiLists.cpp"><Filter>GUI</Filter></ClCompile>
+    <ClCompile Include="HyperLinkTextSystemLifetime.cpp"><Filter>GUI</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C2AIBuildingAccess.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClInclude Include="C2AIBuildingAccess.h"><Filter>Logic</Filter></ClInclude>
+  </ItemGroup>
 </Project>

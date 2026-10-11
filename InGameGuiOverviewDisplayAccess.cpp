@@ -100,8 +100,11 @@ namespace NC2InGameGuiOverviewDisplay
 
     // Original no-op destruction callbacks: FUN_004cf4e8, FUN_004cf4e7, FUN_004cf4e6.
     // The runtime ignores callback return values; its interface uses int callbacks.
+    // Original function: FUN_004cf4e8; the native RET callback has no side effects.
     static int __cdecl OverviewBlackColor_Destruct() { return 0; }
+    // Original function: FUN_004cf4e7; the native RET callback has no side effects.
     static int __cdecl OverviewBrownColor_Destruct() { return 0; }
+    // Original function: FUN_004cf4e6; the native RET callback has no side effects.
     static int __cdecl OverviewGreyColor_Destruct() { return 0; }
 
     static void OverviewDisplay_InitializeTerrainColors()
@@ -200,7 +203,9 @@ namespace NC2InGameGuiOverviewDisplay
     }
 
     // Original no-op callbacks: FUN_004cef60 (type 19), FUN_004cef5f (type 10).
+    // Original function: FUN_004cef60; the native RET callback has no side effects.
     static int __cdecl OverviewAnimalType19Color_Destruct() { return 0; }
+    // Original function: FUN_004cef5f; the native RET callback has no side effects.
     static int __cdecl OverviewAnimalType10Color_Destruct() { return 0; }
 
     // Original virtual entry: FUN_004ce533.

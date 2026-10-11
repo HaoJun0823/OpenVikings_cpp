@@ -68,11 +68,25 @@ namespace NC2InGameGuiMessages
 
         NC2InGameGuiBase::CDynamicSubButtonsHandler& Buttons(void* window) { return *std::launder(reinterpret_cast<NC2InGameGuiBase::CDynamicSubButtonsHandler*>(static_cast<std::byte*>(window) + 0x74)); }
 
+        // Original function: FUN_004d09aa; remove controls before resetting the button registry.
+        void MessagePresentationWindow_l_GuiElements_Update(void* window)
+        {
+            NXBaseGui::BaseWindow_Element_DeleteAll(window);
+            Buttons(window).AllButtonsHaveBeenRemoved();
+            MessagePresentationWindow_l_GuiElements_Add(window);
+        }
+        // Original function: FUN_004d0ab0; an unchanged message still performs selection.
+        void MessagePresentationWindow_ChangeToMessage(void* window, std::uint32_t uniqueId)
+        {
+            if (Read<std::uint32_t>(window, 0x70) != uniqueId) { Write(window, 0x70, uniqueId); MessagePresentationWindow_l_GuiElements_Update(window); }
+            MessagePresentationWindow_l_Misc_Select(window);
+        }
+
         // Original function: FUN_004d0975; queued closure clears the owner's pointer.
         void* __fastcall MessagePresentationWindow_Delete(void* window, void*, std::uint32_t flags)
         {
             Write(window, 0, gMessagePresentationWindowVirtualTable + 0);
-            Write<void*>(gMessageManager, 0xC, nullptr);
+            Manager()->PresentationWindow_Closed();
             Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
             NXBaseGui::BaseWindow_Destruct(window);
             if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
@@ -207,20 +221,16 @@ namespace NC2InGameGuiMessages
         }
     }
 
+    // Original function: FUN_004b428b.
+    void CMessageManager::PresentationWindow_Closed() { Write<void*>(this, 0xC, nullptr); }
+
     // Original function: FUN_004b4247; one presentation window is reused.
     void CMessageManager::PresentationWindow_Open(std::uint32_t uniqueId)
     {
         auto* window = Read<void*>(this, 0xC);
         if (window != nullptr)
         {
-            // Original functions: FUN_004d0ab0/004d09aa.
-            if (Read<std::uint32_t>(window, 0x70) != uniqueId)
-            {
-                Write(window, 0x70, uniqueId); NXBaseGui::BaseWindow_Element_DeleteAll(window);
-                Buttons(window).AllButtonsHaveBeenRemoved();
-                MessagePresentationWindow_l_GuiElements_Add(window);
-            }
-            MessagePresentationWindow_l_Misc_Select(window);
+            MessagePresentationWindow_ChangeToMessage(window, uniqueId);
             return;
         }
         auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(0xB68, 1);

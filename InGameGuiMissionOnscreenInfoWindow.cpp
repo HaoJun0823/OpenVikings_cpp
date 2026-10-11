@@ -25,6 +25,7 @@ namespace NC2InGameGuiMiscWindows
     using namespace NC2GuiToolsBase;
     static void MissionOnscreenInfoStaticGuiWindow_Destruct(void* window);
     static void* __fastcall MissionOnscreenInfoStaticGuiWindow_Delete(void* window, void*, std::uint32_t flags);
+    // Original function: FUN_004b86ab.
     static bool __fastcall MissionOnscreenInfoStaticGuiWindow_Message(void*, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t) { return message == 0x1000 && command == 0x7D1; } // FUN_004b86ab.
     static bool __fastcall MissionOnscreenInfoStaticGuiWindow_IsHit(void*, void*, const void*) { return false; } // Folded FUN_004b8659.
     static void __fastcall MissionOnscreenInfoStaticGuiWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle);

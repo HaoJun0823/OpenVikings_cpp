@@ -314,6 +314,15 @@ namespace NC2InGameGuiMiscWindows
         textButton(NXBasics::SRectangle(332, 396, 164, 18), Text(3), Text(4), 10017, false, false);
     }
 
+    // Original function: FUN_004b1758; native job chooser allocation is 0x78 bytes.
+    static void* HumanListJobSelectionWindow_Construct(void* window, void* owner, bool currentJob)
+    {
+        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
+        const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 340u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 260u) / 2, 340, 260);
+        BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, 0, gHumanListJobSelectionVirtualTable.data()); Write(window, 0x70, owner); Write<std::uint8_t>(window, 0x74, currentJob);
+        HumanListJobSelectionWindow_l_GuiButtons_Add(window); return window;
+    }
+
     // Original function: FUN_004b10b3; an existing job chooser is reused and brought to front.
     void HumanListWindow_l_JobSelectionWindow_Open(void* window, bool currentJob)
     {
@@ -326,11 +335,7 @@ namespace NC2InGameGuiMiscWindows
         auto* memory = NXBasics::Runtime_AllocateWithNewHandler(0x78, 1); void* subwindow = nullptr;
         if (memory != nullptr)
         {
-            // Original function: FUN_004b1758; CHumanListJobSelectionWindow allocation 0x78.
-            const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
-            const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 340u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 260u) / 2, 340, 260);
-            BaseToolWindow_Construct(memory, &rectangle); std::memset(static_cast<std::byte*>(memory) + 0x70, 0, 8); Write(memory, 0, gHumanListJobSelectionVirtualTable.data()); Write(memory, 0x70, window); Write<std::uint8_t>(memory, 0x74, currentJob);
-            HumanListJobSelectionWindow_l_GuiButtons_Add(memory); subwindow = memory;
+            subwindow = HumanListJobSelectionWindow_Construct(memory, window, currentJob);
         }
         Write(window, 0x1014, subwindow); BaseToolDesktop_AddWindow(reinterpret_cast<NXBaseGui::CBaseWindow*>(subwindow), false);
     }
@@ -397,7 +402,7 @@ namespace NC2InGameGuiMiscWindows
 
 namespace NInGameGuiManager
 {
-    // Original function: FUN_004a1f8a.
+    // Original function: FUN_004a1f8e; 004A1F8A belongs to the preceding function epilogue.
     void CInGameGuiManager::MiscWindows_HumanListWindow_Toggle(std::uint32_t job, std::uint32_t possibleJob)
     {
         auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr; auto* window = desktop->Message_SendToAllWindows(0x7E4, job, possibleJob, 0);

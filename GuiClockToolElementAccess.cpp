@@ -93,10 +93,14 @@ namespace NC2InGameGuiBase
         return element;
     }
     // Original empty exit callbacks are distinct entries.
-    static int __cdecl ClockColourExit255() { return 0; } // FUN_004b9c5f.
-    static int __cdecl ClockColourExit200() { return 0; } // FUN_004b9c60.
-    static int __cdecl ClockColourExit150() { return 0; } // FUN_004b9c61.
-    static int __cdecl ClockColourExit100() { return 0; } // FUN_004b9c62.
+    // Original function: FUN_004b9c5f.
+    static int __cdecl ClockColourExit255() { return 0; }
+    // Original function: FUN_004b9c60.
+    static int __cdecl ClockColourExit200() { return 0; }
+    // Original function: FUN_004b9c61.
+    static int __cdecl ClockColourExit150() { return 0; }
+    // Original function: FUN_004b9c62.
+    static int __cdecl ClockColourExit100() { return 0; }
     // Complete lazy colour region 00569438..0056944B.
     struct SClockColourState
     {

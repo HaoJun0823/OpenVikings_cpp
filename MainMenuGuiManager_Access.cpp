@@ -176,7 +176,7 @@ namespace NC2MainMenuGuiWorldElement
         }
         Write(element, 0x30, display);
         NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->ScreenGuiElement_FrameCall_Register(element);
-        E2Manager_Inform_SetExplorationState(false);
+        NC2MainMenuGuiManager::CGuiManager::sTheObjectPtr->Exploration_Set(false);
         MainMenuWorldDisplayElement_l_Tool_DarkenBitmap_Init(element);
         return element;
     }
@@ -290,4 +290,10 @@ namespace NC2InGameGuiBase
         Write<char*>(element, 0x44, nullptr);
         if (text != nullptr) Write(element, 0x44, NXBasics::StringDuplicate(text));
     }
+}
+
+namespace NC2MainMenuGuiManager
+{
+    // Original function: FUN_004d31af.
+    void CGuiManager::Exploration_Set(bool enabled) { E2Manager_Inform_SetExplorationState(enabled); }
 }

@@ -22,6 +22,30 @@ namespace NHyperLinkTextSystem
     struct SLineListTag {};
     struct SLineEntityListTag {};
 
+}
+
+namespace NC2Lifetime
+{
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::SLineListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::SLineListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::SLineEntityListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::SLineEntityListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::SMicroEntityListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::SMicroEntityListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::SFontListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::SFontListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::SBitmapListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::SBitmapListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::SPaletteListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::SPaletteListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> CRuntimeOwnedList<NHyperLinkTextSystem::STextFileListTag>::~CRuntimeOwnedList();
+    template<> void* CRuntimeOwnedList<NHyperLinkTextSystem::STextFileListTag>::Delete(CRuntimeOwnedList* list, std::uint32_t flags);
+    template<> void CRuntimeOwnedList<NHyperLinkTextSystem::SLineListTag>::l_DeleteData(void* data);
+    template<> void CRuntimeOwnedList<NHyperLinkTextSystem::SMicroEntityListTag>::l_DeleteData(void* data);
+}
+
+namespace NHyperLinkTextSystem
+{
     class CDataContainer
     {
     public:
@@ -33,10 +57,15 @@ namespace NHyperLinkTextSystem
         std::uint32_t GetTextFileId(const char* filename);
         const char* GetTextFilePtr(std::uint32_t id);
 
-        NC2Lifetime::CRuntimeOwnedList<SFontListTag> fonts;
-        NC2Lifetime::CRuntimeOwnedList<SBitmapListTag> bitmaps;
-        NC2Lifetime::CRuntimeOwnedList<SPaletteListTag> palettes;
-        NC2Lifetime::CRuntimeOwnedList<STextFileListTag> textFiles;
+        struct SVars
+        {
+            SVars();
+            ~SVars();
+            NC2Lifetime::CRuntimeOwnedList<SFontListTag> fonts;
+            NC2Lifetime::CRuntimeOwnedList<SBitmapListTag> bitmaps;
+            NC2Lifetime::CRuntimeOwnedList<SPaletteListTag> palettes;
+            NC2Lifetime::CRuntimeOwnedList<STextFileListTag> textFiles;
+        } vars;
     };
 
     struct SMicroEntity
@@ -50,6 +79,9 @@ namespace NHyperLinkTextSystem
         } data;
         SMicroEntity(const char* text, std::int32_t length);
     };
+
+    void __stdcall MicroEntityList_DeleteData(void* data);
+    void __stdcall LineHandlerList_DeleteData(void* data);
 
     class CEntityManager
     {

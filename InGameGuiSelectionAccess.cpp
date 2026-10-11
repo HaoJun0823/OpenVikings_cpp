@@ -270,7 +270,7 @@ namespace NC2InGameGuiInputManager
                 else if (mode == 25) Highlighting_Animals_Update(manager, true, false);
                 else Highlighting_Vehicles_Update(manager, true, false);
             }
-            NXBaseGui::CDesktop::sTheObjectPtr->Element_Activate(static_cast<NXBaseGui::CBaseElement*>(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4)));
+            NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->ActivateDesktop();
             if (mode == 0) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Exploration_Set(true);
         }
         Write<std::uint8_t>(manager, 0xABA, 0); Write<std::int32_t>(manager, 0, mode);
@@ -288,6 +288,21 @@ namespace NC2InGameGuiInputManager
         else if (mode == 0) Selection_UnselectAll(manager);
         else if (mode > 0 && mode <= 28) InputMode_Set(manager, 0);
         NC2InGameGuiBase::BaseToolDesktop_SelectionActiveChanged();
+    }
+
+    // Original function: FUN_004b4a4c; reset selection before leaving the input mode.
+    void UnselectAll(void* manager) { Selection_UnselectAll(manager); InputMode_Set(manager, 0); }
+
+    // Original function: FUN_004b66e5; coordinates are two WORDs, not a pointer identity.
+    bool Selection_SelectEngineLandscapeType(void* manager, std::uint32_t type, std::uint32_t valency, const void* point, std::int32_t player)
+    {
+        if (Read<std::uint32_t>(manager, 4) == 9 && Read<std::uint32_t>(manager, 0xA98) == type && Read<std::uint32_t>(manager, 0xA9C) == valency && Read<std::uint32_t>(manager, 0xAA0) == Read<std::uint32_t>(point, 0) && Read<std::int32_t>(manager, 0xAA4) == player) return false;
+        UnselectAll(manager);
+        Write(manager, 0xA98, type); Write<std::uint32_t>(manager, 4, 9); Write(manager, 0xA9C, valency);
+        Write(manager, 0xAB0, Read<std::uint32_t>(manager, 0xAB0) + 1u);
+        Write(manager, 0xAA0, Read<std::uint32_t>(point, 0)); Write(manager, 0xAA4, player);
+        InGameGuiManager_Selection_UpdateWindows(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
+        return true;
     }
 
     // Original function: FUN_004b5eb1.
@@ -359,11 +374,7 @@ namespace NC2InGameGuiInputManager
             break;
         }
         case 9:
-            if (Read<std::uint32_t>(manager, 4) != 9 || Read<std::uint32_t>(manager, 0xA98) != first || Read<std::uint32_t>(manager, 0xA9C) != second || Read<std::uint32_t>(manager, 0xAA0) != third || Read<std::int32_t>(manager, 0xAA4) != static_cast<std::int32_t>(fourth))
-            {
-                Selection_UnselectAll(manager); InputMode_Set(manager, 0); Write<std::uint32_t>(manager, 4, 9);
-                Write(manager, 0xA98, first); Write(manager, 0xA9C, second); Write(manager, 0xAA0, third); Write(manager, 0xAA4, static_cast<std::int32_t>(fourth)); Changed(manager);
-            }
+            Selection_SelectEngineLandscapeType(manager, first, second, &third, NXBasics::Runtime_TimeSigned32(fourth));
             break;
         default: if (!keepSelection) Selection_UnselectAll(manager); return false;
         }
@@ -604,6 +615,56 @@ namespace NC2InGameGuiInputManager
             return ls_Highlighting_Update_Tool_CalculationMapIntoHighlightFlags(rectangle);
         }
 
+        // Original function: FUN_004ca427; merchant queries precede the house-area scan.
+        bool HighlightHumanAttachment(const std::int16_t* rectangle, std::uint32_t mode)
+        {
+            const auto id = Selection_GetSelectedSingleHumanId(gInputManager);
+            const void* human = Human(id);
+            std::uint32_t position = 0;
+            if (!NC2Logic::Human_GetMapPosition(human, &position)) return HighlightInvalidArea(rectangle);
+            void* merchant = NC2Logic::Human_GetMerchantDataPtr(human);
+            return UpdateHighlightArea(rectangle, [id, merchant, mode](const void* point) -> std::uint8_t
+            {
+                const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+                if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return 1;
+                const auto houseId = Read<std::uint16_t>(micro, 4);
+                void* house = House(houseId);
+                bool valid = false;
+                switch (mode)
+                {
+                case 4: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsHomie(house, id); break;
+                case 5: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsWorker(house, id); break;
+                case 6: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsStudent(house, id); break;
+                case 7: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id); break;
+                case 8: valid = merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, houseId); break;
+                case 9: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, 8)); break;
+                }
+                return valid ? 3 : 1;
+            });
+        }
+
+        // Original function: FUN_004cab5f; the six-step ring starts one step in direction four.
+        bool HighlightVehicleCoast(const std::int16_t* rectangle)
+        {
+            const auto player = Player();
+            const void* vehicle = Vehicle(Selection_GetSelectedSingleVehicleId(gInputManager));
+            const auto continent = Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(NC2Logic::Vehicle_GetMapPositionRef(vehicle)), 6);
+            return UpdateHighlightArea(rectangle, [player, continent](const void* point) -> std::uint8_t
+            {
+                if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(player, point)) return 1;
+                const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+                if (NC2Logic::GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, 6)) != 1 || (Read<std::uint8_t>(micro, 0xC) & 0x80u) != 0) return 1;
+                auto cursor = Read<std::uint32_t>(point, 0);
+                NC2Logic::MapMigPoint_MoveCursorUnwrapped(cursor, 4);
+                for (std::uint32_t direction = 0; direction < 6; ++direction)
+                {
+                    NC2Logic::MapMigPoint_MoveCursorUnwrapped(cursor, direction);
+                    if (!NC2Logic::MapMigPoint_IsBorderPoint(&cursor) && Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&cursor), 6) == continent) return 3;
+                }
+                return 1;
+            });
+        }
+
         // Original function: FUN_004ca5c5; this outlined helper uses the GUI player, not the selection owner.
         bool HighlightEnemyHouses(const std::int16_t* rectangle)
         {
@@ -721,48 +782,13 @@ namespace NC2InGameGuiInputManager
         if (mode == 16) return HighlightWallStart(rectangle);
         if (mode == 17) return HighlightWallEnd(rectangle);
         if (mode == 18) return HighlightWallGate(rectangle);
-        if (mode == 19) return HighlightVehicleWorkCenter(rectangle);
-        if (mode == 20) return HighlightVehicleMovement(rectangle);
-        if (mode == 21 || mode == 22) return HighlightEnemyLandscapes(rectangle);
+        if (mode == 19) return HighlightVehicleCoast(rectangle);
+        if (mode == 20) return HighlightVehicleWorkCenter(rectangle);
+        if (mode == 21) return HighlightVehicleMovement(rectangle);
+        if (mode == 22) return HighlightEnemyLandscapes(rectangle);
         if (mode >= 23 && mode <= 28) return HighlightInvalidArea(rectangle);
         if (mode < 4 || mode > 9) return false;
-        const auto id = Selection_GetSelectedSingleHumanId(manager);
-        const void* human = Human(static_cast<std::uint32_t>(id));
-        std::uint32_t position;
-        const bool positioned = NC2Logic::Human_GetMapPosition(human, &position);
-        if (!positioned) return HighlightInvalidArea(rectangle);
-        void* merchant = positioned && NC2Logic::Human_IsJobTrader(human) ? NC2Logic::HumanMerchantArray_GetMerchantDataPtr(NC2Logic::gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)) : nullptr;
-        bool changed = false;
-        const auto right = static_cast<std::int16_t>(rectangle[0] + rectangle[2] - 1), bottom = static_cast<std::int16_t>(rectangle[1] + rectangle[3] - 1);
-        for (std::int32_t y = rectangle[1]; y <= bottom; ++y)
-            for (std::int32_t x = rectangle[0]; x <= right; ++x)
-            {
-                const std::int16_t point[2]{static_cast<std::int16_t>(x), static_cast<std::int16_t>(y)};
-                auto* engine = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
-                auto flags = Read<std::uint8_t>(engine, 2);
-                std::uint8_t mark = positioned ? 1 : 0;
-                if (positioned)
-                {
-                    const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
-                    if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 1u) != 0)
-                    {
-                        const auto houseId = Read<std::uint16_t>(micro, 4);
-                        bool valid = false;
-                        switch (mode)
-                        {
-                        case 4: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsHomie(House(houseId), id); break;
-                        case 5: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsWorker(House(houseId), id); break;
-                        case 6: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsStudent(House(houseId), id); break;
-                        case 7: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsBuilder(House(houseId), id); break;
-                        case 8: valid = merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, houseId); break;
-                        case 9: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(House(houseId), 8)); break;
-                        }
-                        if (valid) mark = 3;
-                    }
-                }
-                if ((flags & 3u) != mark) { Write<std::uint8_t>(engine, 2, (flags & 0xFCu) | mark); changed = true; }
-            }
-        return changed;
+        return HighlightHumanAttachment(rectangle, mode);
     }
 
     // Original function: FUN_004b767e; all point modes 1..22 use the native five target rings.

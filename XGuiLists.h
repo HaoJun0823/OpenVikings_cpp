@@ -30,14 +30,8 @@ namespace NXBasics
         explicit CList(bool deleteObjects) : CListBase(deleteObjects)
         {}
 
-        // CBaseElement: FUN_00478398; deleting destructor: FUN_004783e3.
-        // CBaseWindow: FUN_004783c6; deleting destructor: FUN_004783ff.
-        // Distinct template specializations retain the distinct native list types.
-        ~CList() override
-        {
-            if (mDeleteObjects != 0)
-                DeleteAllElements();
-        }
+        ~CList() override;
+        static void* Delete(CList* list, std::uint32_t flags);
 
     protected:
         // Original function shared by the verified GUI specializations: LAB_004783b5
@@ -53,6 +47,17 @@ namespace NXBasics
             methods[0](data, 1u);
         }
     };
+
+    template<> CList<NXBaseGui::CBaseElement>::~CList();
+    template<> void* CList<NXBaseGui::CBaseElement>::Delete(CList* list, std::uint32_t flags);
+    template<> CList<NXBaseGui::CBaseWindow>::~CList();
+    template<> void* CList<NXBaseGui::CBaseWindow>::Delete(CList* list, std::uint32_t flags);
+    template<> CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>::~CList();
+    template<> void* CList<NC2InGameGuiWorldWindow::CWorldObserveDisplayWindow>::Delete(CList* list, std::uint32_t flags);
+    template<> CList<NC2InGameGuiWorldElement::CWorldDisplayElement>::~CList();
+    template<> void* CList<NC2InGameGuiWorldElement::CWorldDisplayElement>::Delete(CList* list, std::uint32_t flags);
+    template<> CList<NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>::~CList();
+    template<> void* CList<NC2InGameGuiOverviewDisplay::CWorldOverviewBitmapGuiElement>::Delete(CList* list, std::uint32_t flags);
 
     static_assert(sizeof(CList<NXBaseGui::CBaseElement>) == 0x14);
     static_assert(sizeof(CList<NXBaseGui::CBaseWindow>) == 0x14);

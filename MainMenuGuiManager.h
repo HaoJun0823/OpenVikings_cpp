@@ -69,6 +69,7 @@ namespace NC2MainMenuGuiManager
         inline static CGuiManager* sTheObjectPtr = nullptr;
         inline static SGuiManagerStaticVars mStaticVars{};
 
+        void Exploration_Set(bool enabled);
         void System_UpdateGui();
         void EngineWorldDisplayGuiElement_CenterDisplay() const;
         bool StringInput_HandleKeys(std::uint32_t key, char character);

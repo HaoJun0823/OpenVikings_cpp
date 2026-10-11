@@ -170,7 +170,7 @@ namespace NXBaseGui
             auto* list = std::launder(reinterpret_cast<TList*>(objectBytes + offset));
 
             // Qualified destruction bypasses the cleared virtual-table pointer.
-            list->NXBasics::CList<CBaseElement>::~CList();
+            TList::Delete(list, 0);
         };
 
         const auto destroyWindowList = [objectBytes] (std::size_t offset)
@@ -180,7 +180,7 @@ namespace NXBaseGui
             auto* list = std::launder(reinterpret_cast<TList*>(objectBytes + offset));
 
             // Qualified destruction bypasses the cleared virtual-table pointer.
-            list->NXBasics::CList<CBaseWindow>::~CList();
+            TList::Delete(list, 0);
         };
 
         destroyWindowList(0x118);
@@ -613,7 +613,7 @@ namespace NXBaseGui
         for (void* element = iterator.First(); element != nullptr; element = iterator.Next())
         {
             const auto flags = Read<std::uint32_t>(element, 0x18);
-            if (!includeDisabled && ((flags & 0x400u) != 0 || (flags & 1u) == 0)) continue;
+            if (!includeDisabled && !BaseElement_CanBeActivated(element)) continue;
             if ((flags & 0x200u) != 0 || (messageMask != 0 && (Read<std::uint32_t>(element, 0x1C) & messageMask) == 0)) continue;
             if (!DesktopPointInside(point, element)) continue;
             std::int32_t localPoint[2] = {point[0], point[1]};
@@ -779,10 +779,7 @@ namespace NXBaseGui
                     {
                         if (mMouseOverElement != nullptr) BaseElement_MouseLeftArea(mMouseOverElement);
                         mMouseOverElement = hit;
-                        // Original mouse-enter body 004789EB.
-                        Write<std::uint8_t>(hit, 0x19, Read<std::uint8_t>(hit, 0x19) | 1u);
-                        const auto flags = Read<std::uint32_t>(hit, 0x18);
-                        if ((flags & 0x400u) == 0 && (flags & 2u) != 0 && CDesktop::sTheObjectPtr->mUnknown012C[0] != std::byte{0} && Read<std::uint32_t>(hit, 0x14) == 1) Write<std::uint32_t>(hit, 0x14, 2);
+                        BaseElement_MouseEnteredArea(hit);
                     }
                 }
                 else if (mMouseOverElement != nullptr)
