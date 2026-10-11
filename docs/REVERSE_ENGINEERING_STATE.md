@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Landscape captions and refreshed category inventory - 2026-10-11
+
+The magical chest's `Kartenname` caption is corrected by using miscellaneous text table 2 in the shared landscape-caption helper, matching Windows calls 004BE5A0/004BE5FC to 004E1E35. German assets confirm ID 113 is `Magische Kiste` in table 2 and `Kartenname` in table 1. Hover and selected landscape windows share the fix; all fourteen landscape captions use the correct lookup. See [LANDSCAPE_TOOLTIP_TEXT_TABLE.md](LANDSCAPE_TOOLTIP_TEXT_TABLE.md).
+
+Fresh registered-source/Windows entry counting confirms **4267 / 5062 (84.29%)**, **795** open, **39** explicit unfinished boundaries; **276 cpp / 256 headers** and **2388** unique naming rows. All eight open categories and seven categories with zero inventory gaps are listed in [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md); 591 open entries have provisional thematic assignments. Counts are source coverage, not verified gameplay completion. Next smallest open topic remains missions/campaigns, **61 / 86**, twenty-five open.
+
+Three affected/caller units passed MSVC Win32 `/Zs`; project/filter parity, naming uniqueness and whitespace checks passed. No build, tests or game run occurred. The obsolete untracked CombatTasks draft was previously archived intact under ignored `.codex-work/archive/human-combat-tasks-2026-10-11/`; historical statements that it remains in the root are superseded.
+
 ## Vehicle remainder and AI movement messages - 2026-10-11
 
 All nineteen originally selected open entries are reconstructed, together with fourteen required AI boundaries. Failed-way/pursuit and self-defence messages now reach real handlers, single-soldier attacks and replacement-position searches. Three enclosing human recovery/step boundaries are complete; the SoldierAttacked dummy is removed. Chest category/placement tools connect mission results 51/100, and human permission/production/static-data helpers have distinct native bodies. Vehicle exit is fully re-audited and its obsolete landscape-dummy exclusion removed. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [VEHICLE_REMAINDER_COMPLETION.md](VEHICLE_REMAINDER_COMPLETION.md).

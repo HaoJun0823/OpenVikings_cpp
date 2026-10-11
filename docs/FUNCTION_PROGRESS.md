@@ -1,5 +1,13 @@
 # Windows function mapping progress
 
+## Landscape captions and refreshed category inventory - 2026-10-11
+
+The magical chest's `Kartenname` caption is corrected by using miscellaneous text table 2 in the shared landscape-caption helper, matching Windows calls 004BE5A0/004BE5FC to 004E1E35. German assets confirm ID 113 is `Magische Kiste` in table 2 and `Kartenname` in table 1. Hover and selected landscape windows share the fix; all fourteen landscape captions use the correct lookup. See [LANDSCAPE_TOOLTIP_TEXT_TABLE.md](LANDSCAPE_TOOLTIP_TEXT_TABLE.md).
+
+Fresh registered-source/Windows entry counting confirms **4267 / 5062 (84.29%)**, **795** open, **39** explicit unfinished boundaries; **276 cpp / 256 headers** and **2388** unique naming rows. All eight open categories and seven categories with zero inventory gaps are listed in [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md); 591 open entries have provisional thematic assignments. Counts are source coverage, not verified gameplay completion. Next smallest open topic remains missions/campaigns, **61 / 86**, twenty-five open.
+
+Three affected/caller units passed MSVC Win32 `/Zs`; project/filter parity, naming uniqueness and whitespace checks passed. No build, tests or game run occurred. The obsolete untracked CombatTasks draft was previously archived intact under ignored `.codex-work/archive/human-combat-tasks-2026-10-11/`; historical statements that it remains in the root are superseded.
+
 ## Completion of topics with fewer than ten open entries - 2026-10-10
 
 The selected small topics are complete in the identified native-entry inventory: roads/palisades/guides **114 / 114**, animals **65 / 65**. Both distinct construction-manager checksum methods and their three shared checksum leaves are reconstructed; animal position copying and leader work-center references are connected to their native callers. The shared zero-coordinate point constructor is reconstructed and connected at all three constructor-array xrefs. The Animal_Exit unfinished entry was stale: its landscape-edit subtree is real and its complete Windows exit flow was re-audited before removing the exclusion.

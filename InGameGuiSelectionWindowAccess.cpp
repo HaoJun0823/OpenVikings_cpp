@@ -1162,7 +1162,7 @@ namespace NC2InGameGuiSelection
         else if (type == 83 || type == 84) stringId = 111;
         else if (type == 85) stringId = 112;
         else if (type == 86) stringId = 113;
-        if (stringId != 0) std::strcpy(output, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(stringId));
+        if (stringId != 0) std::strcpy(output, NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(stringId));
         if (isResource != nullptr && (stringId == 100 || (stringId >= 102 && stringId <= 105))) *isResource = true;
     }
 }
