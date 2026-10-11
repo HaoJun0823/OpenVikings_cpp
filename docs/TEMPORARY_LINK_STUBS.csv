@@ -1,5 +1,7 @@
 Address,CurrentName,Status,ReferencingObjects
-004F1DA2,NXBasics::Runtime_HandleMaskedMathException,Temporary link-only dummy; native masked response and x87 status-generation dependencies remain unresolved; excluded from completion counts,XCrtFileAccess.obj
+004F1DA2,NXBasics::Runtime_HandleMaskedMathException,Partial Windows masked-response body; priority and value paths translated; hardware exception-generation child and comparison resumption remain open; excluded from completion counts,XCrtFileAccess.obj
+004F198A,NXBasics::Runtime_DecomposeDouble,Partial Windows decomposition body; native value/normalization paths translated; FCOMP exception generation/resumption remains open; excluded from completion counts,XCrtFileAccess.obj
+004F2024,NXBasics::Runtime_RaiseX87Exceptions,Temporary link-only dummy; ordered native x87 exception generation remains unresolved; excluded from completion counts,XCrtFileAccess.obj
 0040822E,NC2Logic::AIManager_IO_InitFromScript,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 00408F7B,NC2Logic::AIManager_l_AI_Callback,Partial Windows callback; unconditional true restored at 00408FA3; tick/player-death dispatch pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared masked-response and decomposition value paths; hardware boundary remains open - 2026-10-11
+
+Windows value/control flow for 004F1DA2 and 004F198A is now translated, including exception priority, directed overflow, underflow shifts and unusual infinity/zero decomposition. Both bodies remain explicitly partial and excluded from completion counts because actual x87 generation and comparison exception/resumption are unresolved. The old masked-response dummy is replaced; 004F2024 is now the isolated link-only boundary. Numeric public adapters remain partial and unconnected; no functional completion claim is made. See [SHARED_MASKED_RESPONSE_VALUE_PATHS.md](SHARED_MASKED_RESPONSE_VALUE_PATHS.md).
+
+Current global inventory **4676/5063 (92.36%)**, **387 open**. System/shared **632/670 (94.33%), 38 open**; engine **124 open**, AI **225 open**. **22** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+XCrtFileAccess.cpp, TemporaryLinkStubs.cpp, XMemory.cpp and XFile.cpp pass MSVC Win32 C++17 /Zs without diagnostics; fresh inventory, project/filter parity, unique-name and whitespace checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared math-error dispatcher body and explicit masked-response boundary - 2026-10-11
 
 Windows 004F046B now has its native error record, type/flag mapping, optional IEEE child, raw control restoration and default-hook/errno order translated. Its immediate masked-response child 004F1DA2 remains an isolated link-only dummy excluded from completion counts; the existing public numeric adapters remain partial and unconnected. This checkpoint counts a translated parent body, not completion of the math-error tree. See [SHARED_MATH_ERROR_DISPATCH.md](SHARED_MATH_ERROR_DISPATCH.md).

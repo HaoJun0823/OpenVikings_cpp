@@ -11062,6 +11062,137 @@ namespace NXBasics
         Runtime_SetMathErrno(error->type);
     }
 
+    // Reconstruction helper for the native binary64 FCOMP-zero branches.
+    // Hardware exception generation/resumption remains unresolved and excludes its enclosing entries.
+    static std::uint16_t Runtime_CompareBinary64WithZero(double value)
+    {
+        volatile double stored = Runtime_LoadBinary64ToX87(&value);
+        std::uint64_t bits = 0;
+        const auto* source = reinterpret_cast<const volatile unsigned char*>(&stored);
+        for (std::uint32_t index = 0; index < sizeof(stored); ++index) bits |= static_cast<std::uint64_t>(source[index]) << (index * 8);
+        const auto magnitude = bits & UINT64_C(0x7FFFFFFFFFFFFFFF);
+        const bool unordered = magnitude > UINT64_C(0x7FF0000000000000);
+        if (unordered) Runtime_RaiseX87Exceptions(1);
+        const std::uint16_t condition = unordered ? 0x4500 : magnitude == 0 ? 0x4000 : (bits >> 63) != 0 ? 0x100 : 0;
+        alignas(16) std::byte state[512];
+        _fxsave(state);
+        std::uint16_t status;
+        std::memcpy(&status, state + 2, sizeof(status));
+        status = static_cast<std::uint16_t>((status & ~0x4700u) | condition);
+        std::memcpy(state + 2, &status, sizeof(status));
+        _fxrstor(state);
+        return condition;
+    }
+
+    // Partial original function: FUN_004f198a; FCOMP exception/resumption is still open.
+    // Integer normalization and the unusual infinity/zero result policy follow Windows exactly.
+    double __cdecl Runtime_DecomposeDouble(double value, std::int32_t* exponent)
+    {
+        const auto comparison = Runtime_CompareBinary64WithZero(value);
+        std::int32_t outputExponent = 0;
+        double result = 0.0;
+        if ((comparison & 0x4000u) == 0)
+        {
+            std::uint64_t bits;
+            std::memcpy(&bits, &value, sizeof(bits));
+            if ((bits & UINT64_C(0x7FF0000000000000)) == 0 && (bits & UINT64_C(0x000FFFFFFFFFFFFF)) != 0)
+            {
+                const bool negative = (Runtime_CompareBinary64WithZero(value) & 0x100u) != 0;
+                outputExponent = -1021;
+                while ((bits & UINT64_C(0x0010000000000000)) == 0)
+                {
+                    bits <<= 1;
+                    --outputExponent;
+                }
+                bits &= ~UINT64_C(0x0010000000000000);
+                if (negative) bits |= UINT64_C(0x8000000000000000);
+                double normalized;
+                std::memcpy(&normalized, &bits, sizeof(normalized));
+                result = Runtime_SetDoubleExponentField(Runtime_LoadBinary64ToX87(&normalized), 0);
+            }
+            else
+            {
+                result = Runtime_SetDoubleExponentField(Runtime_LoadBinary64ToX87(&value), 0);
+                outputExponent = static_cast<std::int32_t>((bits >> 52) & 0x7FFu) - 0x3FE;
+            }
+        }
+        volatile double stored = Runtime_LoadBinary64ToX87(&result);
+        *exponent = outputExponent;
+        return Runtime_LoadBinary64ToX87(&stored);
+    }
+
+    // Partial original function: FUN_004f1da2; ordered x87 raising and comparison resumption remain open.
+    bool Runtime_HandleMaskedMathException(std::uint32_t flags, volatile double* result, std::uint32_t controlWord)
+    {
+        auto remaining = flags & 0x1Fu;
+        if ((flags & 8u) != 0 && (controlWord & 1u) != 0)
+        {
+            Runtime_RaiseX87Exceptions(1);
+            remaining &= ~8u;
+        }
+        else if ((flags & 4u) != 0 && (controlWord & 4u) != 0)
+        {
+            Runtime_RaiseX87Exceptions(4);
+            remaining &= ~4u;
+        }
+        else if ((flags & 1u) != 0 && (controlWord & 8u) != 0)
+        {
+            Runtime_RaiseX87Exceptions(8);
+            const bool positive = Runtime_CompareBinary64WithZero(Runtime_LoadBinary64ToX87(result)) == 0;
+            const auto rounding = controlWord & 0xC00u;
+            const bool infinity = rounding == 0 || (rounding == 0x400 && !positive) || (rounding == 0x800 && positive);
+            std::uint64_t bits = infinity ? UINT64_C(0x7FF0000000000000) : UINT64_C(0x7FEFFFFFFFFFFFFF);
+            if (!positive) bits |= UINT64_C(0x8000000000000000);
+            double replacement;
+            std::memcpy(&replacement, &bits, sizeof(replacement));
+            *result = Runtime_LoadBinary64ToX87(&replacement);
+            remaining &= ~1u;
+        }
+        else if ((flags & 2u) != 0 && (controlWord & 0x10u) != 0)
+        {
+            bool inexact = (flags & 0x10u) != 0;
+            double stored = Runtime_LoadBinary64ToX87(result);
+            if ((Runtime_CompareBinary64WithZero(stored) & 0x4000u) != 0)
+            {
+                inexact = true;
+            }
+            else
+            {
+                std::int32_t exponent;
+                double mantissa = Runtime_DecomposeDouble(Runtime_LoadBinary64ToX87(&stored), &exponent);
+                exponent -= 0x600;
+                if (exponent < -1074)
+                {
+                    mantissa = 0.0;
+                    inexact = true;
+                }
+                else
+                {
+                    const bool negative = (Runtime_CompareBinary64WithZero(mantissa) & 0x100u) != 0;
+                    std::uint64_t bits;
+                    std::memcpy(&bits, &mantissa, sizeof(bits));
+                    bits = (bits & UINT64_C(0x000FFFFFFFFFFFFF)) | UINT64_C(0x0010000000000000);
+                    for (auto count = -1021 - exponent; count > 0; --count)
+                    {
+                        if ((bits & 1u) != 0) inexact = true;
+                        bits >>= 1;
+                    }
+                    if (negative) bits |= UINT64_C(0x8000000000000000);
+                    std::memcpy(&mantissa, &bits, sizeof(mantissa));
+                }
+                *result = Runtime_LoadBinary64ToX87(&mantissa);
+            }
+            if (inexact) Runtime_RaiseX87Exceptions(0x10);
+            remaining &= ~2u;
+        }
+        if ((flags & 0x10u) != 0 && (controlWord & 0x20u) != 0)
+        {
+            Runtime_RaiseX87Exceptions(0x20);
+            remaining &= ~0x10u;
+        }
+        return remaining == 0;
+    }
+
     // Original function: FUN_004f1907; retain the original high word before the x87 load/store.
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent)
     {

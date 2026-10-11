@@ -27,9 +27,8 @@ namespace NC2Logic { class CIoHelper; }
 
 namespace NXBasics
 {
-    // TEMPORARY DUMMY: Windows address 004F1DA2; masked x87 response is unresolved.
-    // Returning false leaves the reconstructed dispatcher on its explicit IEEE exception path.
-    bool Runtime_HandleMaskedMathException(std::uint32_t, volatile double*, std::uint32_t) { return false; }
+    // TEMPORARY DUMMY: Windows address 004F2024; ordered hardware exception operations are unresolved.
+    void Runtime_RaiseX87Exceptions(std::uint32_t) {}
 }
 
 namespace NC2Logic
