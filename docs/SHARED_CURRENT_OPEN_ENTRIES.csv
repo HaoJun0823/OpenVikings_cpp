@@ -13,13 +13,10 @@ Address,CurrentName,Group,Implemented,WindowsEvidence,AuditedOpenChildren,Audite
 004EB501,NXBasics::Runtime_ClassifyX87IntegerParity,Shared x87 kernels and continuations,False,"FRNDINT compare, half-value compare, 0 noninteger/1 odd/2 even; leaves original x87 value",,
 004EB570,NXBasics::Runtime_DispatchUnaryX87Math,Shared x87 kernels and continuations,False,Select CW from operation byte; FXAM status maps through 50C76C; dispatch header+10 four-way table,,
 004EB5D7,NXBasics::Runtime_DispatchBinaryX87Math,Shared x87 kernels and continuations,False,FXAM both values; combine two classification offsets; dispatch header+10 sixteen-way table,,
-004EB729,NXBasics::Runtime_MarkMathDomainError,Shared x87 kernels and continuations,False,Parent-frame error byte -90 becomes1; test CL; no ordinary independent C++ frame,,
 004EB76C,NXBasics::Runtime_HandleMathNaN,Shared x87 kernels and continuations,False,EAX high payload quiet bit80000: return7 unchanged; otherwise FADD zero and return1,,
 004EB785,NXBasics::Runtime_LoadMathArgumentByPointer,Shared x87 kernels and continuations,False,EDX pointer; ordinary FLD or compose special 80-bit temporary; return high DWORD/register flags,,
 004EB8D0,NXBasics::Runtime_DispatchBinaryX87MathError,Shared x87 kernels and continuations,False,Capture second parent-stack argument then join 4EB8F0 shared error record builder,,
 004EB8E7,NXBasics::Runtime_DispatchUnaryX87MathError,Shared x87 kernels and continuations,False,Build type/name/arguments/result record from EAX/ECX/EDX/x87 and parent stack; 4F046B; restore saved CW,,
-004EC63C,NXBasics::Runtime_GlobalUnwind,Compiler and unwind,False,"Save frame/registers; RtlUnwind(target frame, internal return address 4EC654, NULL, NULL)",,
-004EC654,NXBasics::Runtime_GlobalUnwind_Return,Compiler and unwind,False,Continuation inside 4EC63C restores saved registers/frame; not an independent void callback,,
 004EC67E,NXBasics::Runtime_LocalUnwind,Compiler and unwind,False,Temporary FS registration; walk 12-byte scope entries; update try-level before notification and termination callback; restore registration,,
 004ED17C,NXBasics::Runtime_PrepareArcTrigRoot,Shared x87 kernels and continuations,False,fabs input; sqrt((1-input)*(1+input)); negative result jumps parent domain-error path,,
 004ED1AC,NXBasics::Runtime_ReplaceX87ValueWithHalfPi,Shared x87 kernels and continuations,False,Pop x87 value and FLD 80-bit constant50C75A; x87-stack entry,,
@@ -39,7 +36,5 @@ Address,CurrentName,Group,Implemented,WindowsEvidence,AuditedOpenChildren,Audite
 004F046B,NXBasics::Runtime_DispatchMathError,Math error and IEEE records,False,"Map error types, try masked response4F1DA2, optional IEEE raise4F1AEF, restoreCW, default math hook/errno order","004F1DA2,004F2001","004F1AEF,004F1FE1,004F1FB9"
 004F198A,NXBasics::Runtime_DecomposeDouble,Binary64 decomposition and classification,False,"frexp-style zero/normal/denormal handling; normalize mantissa, write exponent, call4F1907",,004F1907
 004F1A4B,NXBasics::Runtime_RoundDouble,Binary64 decomposition and classification,False,FLD/FRNDINT under active x87 rounding mode,,
-004F1A5D,NXBasics::Runtime_ClassifyDouble,Binary64 decomposition and classification,False,"FLD/FSTP plus integer field classification, including NaN quieting/status effects",,
 004F1DA2,NXBasics::Runtime_HandleMaskedMathException,Math error and IEEE records,False,Masked exception priority; directed overflow values; denormal underflow shifts; 4F2024 status raising,"004F198A,004F2024",
-004F2001,NXBasics::Runtime_ControlX87Raw,Waiting x87 status and exception operations,False,"FWAIT, FNSTCW; combine input/mask into low control WORD, FLDCW; signed prior WORD return",,
 004F2024,NXBasics::Runtime_RaiseX87Exceptions,Waiting x87 status and exception operations,False,"Ordered flag branches: invalid integer conversion, overflowing store, underflowing store, divide-by-zero, inexact pi store",,

@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared control, classification and global unwind - 2026-10-11
+
+Five original Windows entries are closed: raw x87 control, binary64 classification, the domain-error byte/condition leaf and the verified existing compiler global-unwind body including its internal return. The abstract control wrapper uses the same raw state mechanism. Modern local unwind and stack probing have different Windows behavior and remain open; no math adapter is promoted. See [SHARED_CONTROL_CLASSIFICATION_UNWIND.md](SHARED_CONTROL_CLASSIFICATION_UNWIND.md).
+
+Current global inventory **4675/5063 (92.34%)**, **388 open**. System/shared **631/670 (94.18%), 39 open**; engine **124 open**, AI **225 open**. **19** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Four primary/integrating units pass MSVC Win32 /Zs without diagnostics; static release/debug and installed CRT bodies are inspected read-only, and a private unlinked compiler listing checks intrinsic lowering. Project/filter and naming parity are verified. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Road texture discrepancy resolved as modified asset - 2026-10-11
 
 The user confirmed that the green road-terrain pixels are present in a manipulated PCX texture; the original texture has no such green pixels. This resolves the reported discrepancy as a difference in the supplied asset, not evidence of intended moss, an original-game defect, or a renderer defect. Per the user's instruction, do not pursue a rendering correction for this report. No texture restoration, production-code change, build or game run was performed; function counts remain unchanged. This finding is user-confirmed, not independently verified against the original PCX.

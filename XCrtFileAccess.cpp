@@ -14,6 +14,9 @@
 #include <immintrin.h>
 #include <xmmintrin.h>
 
+// The existing x86 VCRUNTIME supplies the verified legacy unwind calling convention.
+extern "C" void __cdecl _global_unwind2(void* targetFrame);
+
 // Original function: FUN_004e7bef; bind compiler-generated pure virtual slots to the original fatal path.
 extern "C" int __cdecl _purecall()
 {
@@ -7782,6 +7785,13 @@ namespace NXBasics
         return 1;
     }
 
+    // Original function: FUN_004ec63c; delegate to the verified existing x86 CRT body.
+    // Original entry: FUN_004ec654; internal continuation in that body's saved-frame epilogue.
+    void Runtime_GlobalUnwind(void* targetFrame)
+    {
+        _global_unwind2(targetFrame);
+    }
+
     // Original function: FUN_004ec65c; the containing legacy FS-chain unwind routine remains unresolved.
     EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* /*context*/, void** dispatcherContext)
     {
@@ -10956,6 +10966,13 @@ namespace NXBasics
         return exponent == 0x7FF00000u ? high : exponent;
     }
 
+    // Original function: FUN_004eb729; the parent-frame byte and CL input are explicit.
+    bool Runtime_MarkMathDomainError(std::uint8_t* error, std::uint8_t sign)
+    {
+        *error = 1;
+        return sign != 0;
+    }
+
     // Original function: FUN_004eb923; change only the legacy precision-control bits.
     std::uint32_t Runtime_SetDoublePrecision()
     {
@@ -10998,6 +11015,14 @@ namespace NXBasics
         return *value;
     }
 
+    // The existing CRT query supplies FWAIT; FXSAVE retains the raw x87 fields and SSE state.
+    static void Runtime_CaptureWaitingX87State(void* state)
+    {
+        unsigned int ignoredControl;
+        ::__control87_2(0, 0, &ignoredControl, nullptr);
+        _fxsave(state);
+    }
+
     // Original function: FUN_004f1907; retain the original high word before the x87 load/store.
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent)
     {
@@ -11013,6 +11038,46 @@ namespace NXBasics
         double result;
         std::memcpy(&result, &resultBits, sizeof(result));
         return Runtime_LoadBinary64ToX87(&result);
+    }
+
+    // Original function: FUN_004f1a5d; retain the original sign before any x87 load/store.
+    std::uint32_t Runtime_ClassifyDouble(double value)
+    {
+        std::uint64_t bits;
+        std::memcpy(&bits, &value, sizeof(bits));
+        const auto exponent = bits & UINT64_C(0x7FF0000000000000);
+        if (exponent == UINT64_C(0x7FF0000000000000))
+        {
+            // The Win32 return/store quiets signaling NaNs before the integer-only child.
+            volatile double stored = Runtime_LoadBinary64ToX87(&value);
+            double classified;
+            const auto* source = reinterpret_cast<const volatile unsigned char*>(&stored);
+            auto* destination = reinterpret_cast<unsigned char*>(&classified);
+            for (std::uint32_t index = 0; index < sizeof(classified); ++index) destination[index] = source[index];
+            switch (Runtime_ClassifySpecialDouble(classified))
+            {
+                case 1: return 0x200;
+                case 2: return 4;
+                case 3: return 2;
+                default: return 1;
+            }
+        }
+        const bool negative = (bits >> 63) != 0;
+        const bool zero = (bits & UINT64_C(0x7FFFFFFFFFFFFFFF)) == 0;
+        if (exponent == 0 && !zero) return negative ? 0x10 : 0x80;
+
+        // Only finite normal values and signed zero reach the native FCOMP here.
+        // Reproduce its waiting load and raw C0/C1/C2/C3 effect without SSE comparison.
+        volatile double stored = Runtime_LoadBinary64ToX87(&value);
+        static_cast<void>(stored);
+        alignas(16) std::byte state[512];
+        _fxsave(state);
+        std::uint16_t status;
+        std::memcpy(&status, state + 2, sizeof(status));
+        status = static_cast<std::uint16_t>((status & ~0x4700u) | (zero ? 0x4000u : negative ? 0x100u : 0u));
+        std::memcpy(state + 2, &status, sizeof(status));
+        _fxrstor(state);
+        return zero ? (negative ? 0x20 : 0x40) : (negative ? 8 : 0x100);
     }
 
     // Original function: FUN_004f1aef; preserve caller-supplied record bytes and handler updates.
@@ -11135,16 +11200,31 @@ namespace NXBasics
         return status;
     }
 
+    // Original function: FUN_004f2001; raw WORD update and signed previous WORD return.
+    std::int32_t Runtime_ControlX87Raw(std::uint32_t newControl, std::uint32_t mask)
+    {
+        alignas(16) std::byte state[512];
+        Runtime_CaptureWaitingX87State(state);
+        std::int16_t previous;
+        std::memcpy(&previous, state, sizeof(previous));
+        const auto next = static_cast<std::uint16_t>((static_cast<std::uint16_t>(previous) & ~mask) | (newControl & mask));
+        std::memcpy(state, &next, sizeof(next));
+        _fxrstor(state);
+        return previous;
+    }
+
     // Original function: FUN_004f053b
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask)
     {
-        // The CRT uses the same abstract bits as the original decode/encode pair.
-        // A null SSE output restricts both calls to the x87 unit.
-        unsigned int previousControl;
-        ::__control87_2(0, 0, &previousControl, nullptr);
+        alignas(16) std::byte state[512];
+        Runtime_CaptureWaitingX87State(state);
+        std::uint16_t previousWord;
+        std::memcpy(&previousWord, state, sizeof(previousWord));
+        const auto previousControl = Runtime_DecodeX87ControlWord(previousWord);
         const std::uint32_t updatedControl = (previousControl & ~mask) | (newControl & mask);
-        const std::uint32_t hardwareControl = Runtime_DecodeX87ControlWord(Runtime_EncodeX87ControlWord(updatedControl));
-        ::__control87_2(hardwareControl, _MCW_EM | _MCW_RC | _MCW_PC | _MCW_IC, &previousControl, nullptr);
+        const auto updatedWord = Runtime_EncodeX87ControlWord(updatedControl);
+        std::memcpy(state, &updatedWord, sizeof(updatedWord));
+        _fxrstor(state);
         return updatedControl;
     }
 

@@ -375,6 +375,8 @@ namespace NXBasics
     std::uint32_t Runtime_ClassifyCharacter(std::int32_t character, std::uint32_t mask);
     std::uint32_t Runtime_ClassifySpecialDouble(double value);
     std::uint32_t Runtime_GetMathArgumentTag(double value);
+    bool Runtime_MarkMathDomainError(std::uint8_t* error, std::uint8_t sign);
+    std::uint32_t Runtime_ClassifyDouble(double value);
     std::int32_t Runtime_ClassifyMultibyteByte(std::uint32_t character, std::uint32_t characterMask, std::uint32_t multibyteMask);
     std::int32_t Runtime_IsMultibyteLeadByte(std::uint32_t character);
     void Runtime_SetMathErrno(std::int32_t errorType);
@@ -470,6 +472,7 @@ namespace NXBasics
 
     int Runtime_InitializeHeap(std::int32_t enableSerialization);
     EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* context, void** dispatcherContext);
+    void Runtime_GlobalUnwind(void* targetFrame);
     std::uint32_t Runtime_NotifyNonLocalGoto(std::uint32_t destination, const void* originalFrame);
     std::uint32_t Runtime_NotifyNonLocalGotoWithCode(std::uint32_t destination, std::uint32_t code, const void* originalFrame);
 
@@ -572,6 +575,7 @@ namespace NXBasics
     void Runtime_RaiseMathException(volatile RuntimeMathExceptionRecord* record, volatile std::uint32_t* controlWord, std::uint32_t flags, std::uint32_t operation, const volatile double* argument, volatile double* result);
     std::int32_t Runtime_ReadX87StatusRaw();
     std::int32_t Runtime_ClearX87StatusRaw();
+    std::int32_t Runtime_ControlX87Raw(std::uint32_t newControl, std::uint32_t mask);
 
     std::uint32_t Runtime_ControlFloatingPoint(std::uint32_t newControl, std::uint32_t mask);
 
