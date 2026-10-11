@@ -393,7 +393,7 @@ namespace NHyperLinkTextSystem
         auto* list = currentLine->entities;
         if (list->GetCount() != 0)
         {
-            auto* last = Read<SDisplayManagerLineEntity*>(Read<void*>(list, 0x0C), 4);
+            auto* last = static_cast<SDisplayManagerLineEntity*>(list->l_Base_GetEndElement());
             if (last->entity->type == 2 && font != nullptr) x = Subtract(x, Font_GetCharacterWidth(font, 'i'));
             CListBase::Iterator iterator(*list);
             if (alignment == 2 || alignment == 3)
@@ -634,7 +634,7 @@ namespace NHyperLinkTextSystem
             if (lineHeight < entityHeight) lineHeight = entityHeight;
         }
         l_Create_NewLine();
-        auto* last = Read<SDisplayManagerLineHandler*>(Read<void*>(lines, 0x0C), 4);
+        auto* last = static_cast<SDisplayManagerLineHandler*>(lines->l_Base_GetEndElement());
         maximumY = Add(last->y, Subtract(last->height, height));
         if (maximumY < 0) maximumY = 0;
     }

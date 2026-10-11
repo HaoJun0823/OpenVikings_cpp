@@ -250,6 +250,15 @@ namespace NXBasics
         return mFirst->data;
     }
 
+    // Original function: FUN_00439e51; count controls access to the last node.
+    void* CListBase::l_Base_GetEndElement() const
+    {
+        if (mCount == 0)
+            return nullptr;
+
+        return mLast->data;
+    }
+
     void CListBase::operator delete(void* allocation) noexcept
     {
         Runtime_Free(allocation);

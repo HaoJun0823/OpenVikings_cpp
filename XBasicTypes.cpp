@@ -3,6 +3,34 @@
 
 namespace NXBasics
 {
+    // Original function: FUN_00439855.
+    std::int32_t __cdecl operator==(const SPoint& first, const SPoint& second) noexcept
+    {
+        return first.x == second.x && first.y == second.y ? 1 : 0;
+    }
+
+    // Original function: FUN_00439872; clamp near endpoints before wrapped far endpoints.
+    void SPoint::PlaceInside(const SRectangle& rectangle) noexcept
+    {
+        if (x < rectangle.x) x = rectangle.x;
+        if (y < rectangle.y) y = rectangle.y;
+        const std::int32_t right = Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(rectangle.width) - 1u);
+        if (x > right) x = right;
+        const std::int32_t bottom = Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.height) - 1u);
+        if (y > bottom) y = bottom;
+    }
+
+    // Original function: FUN_004398af; inclusive signed comparisons with DWORD wrapping.
+    bool SPoint::IsInside(const SRectangle& rectangle) const noexcept
+    {
+        if (x < rectangle.x) return false;
+        const std::int32_t right = Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(rectangle.width) - 1u);
+        if (x > right) return false;
+        if (y < rectangle.y) return false;
+        const std::int32_t bottom = Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.height) - 1u);
+        return y <= bottom;
+    }
+
     // Original function: FUN_0041055a.
     void SRectangle::CombineWith(const SRectangle& other) noexcept
     {

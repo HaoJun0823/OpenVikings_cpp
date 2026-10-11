@@ -133,10 +133,9 @@ namespace NXBaseGui
         NXBasics::CListBase::Iterator iterator(*WindowList(window, 0x50));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            const auto x = Read<std::int32_t>(child, 4), y = Read<std::int32_t>(child, 8);
-            const auto right = static_cast<std::int32_t>(Read<std::uint32_t>(child, 4) + Read<std::uint32_t>(child, 0xC) - 1u);
-            const auto bottom = static_cast<std::int32_t>(Read<std::uint32_t>(child, 8) + Read<std::uint32_t>(child, 0x10) - 1u);
-            if (point[0] < x || point[0] > right || point[1] < y || point[1] > bottom) continue;
+            const NXBasics::SPoint position{point[0], point[1]};
+            const NXBasics::SRectangle rectangle(Read<std::int32_t>(child, 4), Read<std::int32_t>(child, 8), Read<std::int32_t>(child, 0xC), Read<std::int32_t>(child, 0x10));
+            if (!position.IsInside(rectangle)) continue;
             std::int32_t localPoint[2] = {point[0], point[1]};
             using TConvert = void(__thiscall*)(void*, std::int32_t*);
             Read<TConvert*>(child, 0)[11](child, localPoint);

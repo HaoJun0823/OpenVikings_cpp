@@ -35,6 +35,8 @@ namespace NXBasics
         void Storable_SaveData(void* file) override;
 
     private:
+        void l_InitObject();
+
         std::byte mSerializedData[0x08];           // +0x04; field semantics unresolved.
         std::int32_t mCharacterSpacing;           // +0x0C
         CBobManager* mBobManager;                 // +0x10; owned.

@@ -2,6 +2,7 @@
 #include "XMMouseManager.h"
 #include "XSystemMouseCursor.h"
 #include "XCrtFileAccess.h"
+#include "XBasicTypes.h"
 
 #include <Windows.h>
 
@@ -419,10 +420,11 @@ namespace NXSysMouseManager
 
             if (mMouseAreaEnabled)
             {
-                mMouseX = (std::max)(mMouseX, mMouseAreaX);
-                mMouseY = (std::max)(mMouseY, mMouseAreaY);
-                mMouseX = (std::min)(mMouseX, mMouseAreaX + mMouseAreaWidth - 1);
-                mMouseY = (std::min)(mMouseY, mMouseAreaY + mMouseAreaHeight - 1);
+                NXBasics::SPoint position{mMouseX, mMouseY};
+                const NXBasics::SRectangle rectangle(mMouseAreaX, mMouseAreaY, mMouseAreaWidth, mMouseAreaHeight);
+                position.PlaceInside(rectangle);
+                mMouseX = position.x;
+                mMouseY = position.y;
             }
 
             mStateChanged = true;

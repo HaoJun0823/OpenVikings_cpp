@@ -1,0 +1,11 @@
+# Shared point, list and font initialization helpers - 2026-10-11
+
+Five further original entries are reconstructed and two existing operators are now correctly included in the inventory. See [SHARED_GEOMETRY_NATIVE_ENTRIES.csv](SHARED_GEOMETRY_NATIVE_ENTRIES.csv). Windows assembly and Game.exe establish behavior; Mac header declarations supply names only.
+
+SPoint equality compares x then y and returns 1/0. Containment uses inclusive signed bounds with DWORD wraparound in x+width-1 and y+height-1. PlaceInside performs near-edge clamps before far-edge clamps, retaining behavior for zero/negative dimensions and wrapped endpoints. Mouse state updating calls this helper at native 004797D9. The point remains an aggregate with its original eight-byte layout; no copy constructor or unrelated layout migration is introduced. Existing overview and GUI window containment paths now call the recovered member instead of repeating its calculation.
+
+CListBase::l_Base_GetEndElement checks the original count and returns the last node's data. No additional null guard changes inconsistent-list behavior. Both original hypertext callers (004CB2C0 and 004CBBDE) use the member. CFont::l_InitObject performs the original three zero fills covering +4..+17 and is called before its constructor's stream reads. Ownership of the bob manager and borrowed palette is unchanged.
+
+The private inventory parser previously omitted operator== and operator++ signatures. Existing rectangle equality (0041037F) and the tribute iterator (004F288C) were checked against Windows instructions and are recognized without changing either body. These two entries are an inventory correction, not newly implemented functions. The denominator remains 5062. Rectangle equality moves from its provisional engine assignment to shared basics; font initialization moves from shared to engine; the tribute iterator moves from shared to missions. Every original address remains present.
+
+Seven affected/integrating production units pass MSVC Win32 /Zs without diagnostics. Project/filter parity and naming uniqueness pass. No build, tests or game run occurred. Native point copy and deleting-destructor entries remain separate unresolved inventory targets rather than being claimed through guessed wrappers.

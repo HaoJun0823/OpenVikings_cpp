@@ -6,12 +6,19 @@
 
 namespace NXBasics
 {
+    struct SRectangle;
+
     struct SPoint
     {
         std::int32_t x;
         std::int32_t y;
+
+        void PlaceInside(const SRectangle& rectangle) noexcept;
+        bool IsInside(const SRectangle& rectangle) const noexcept;
     };
     static_assert(sizeof(SPoint) == 8);
+
+    std::int32_t __cdecl operator==(const SPoint& first, const SPoint& second) noexcept;
 
     struct SColorModifier
     {

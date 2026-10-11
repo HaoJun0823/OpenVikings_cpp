@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared point, list and font initialization helpers - 2026-10-11
+
+Five further Windows entries are reconstructed and connected; two existing operator bodies are recognized after correcting the private inventory parser. The seven-address increase therefore comprises five implementations and two counting corrections. See [SHARED_GEOMETRY_COMPLETION.md](SHARED_GEOMETRY_COMPLETION.md).
+
+Current global inventory **4600/5062 (90.87%)**, **462 open**. System/shared **587/690 (85.07%), 103 open**; engine **127 open**, AI **232 open**. Category assignment changes retain all original addresses: rectangle equality to shared basics, font initialization to engine and tribute iteration to missions. **19** explicit unfinished boundaries and **288** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2702** unique naming rows and **18** unmatched declaration signatures.
+
+Seven affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared DWORD-pair integer helpers - 2026-10-11
 
 Five further Windows entries are reconstructed: unsigned 64-bit multiply/divide/remainder with native callee cleanup, backward byte-string search and bit-only special-double classification. Formatter and transparency call sites use the recovered arithmetic entries; the original non-multibyte fallback calls the recovered backward search. Windows ASM/Game.exe establish behavior; Mac supplies strrchr naming only. See [SHARED_INTEGER_COMPLETION.md](SHARED_INTEGER_COMPLETION.md).

@@ -189,9 +189,8 @@ namespace NC2InGameGuiOverviewDisplay
 
     static bool OverviewDisplay_IsPointInsideBitmap(const std::int32_t* point, const NXBasics::CBitmap* bitmap)
     {
-        // SPoint::IsInside, FUN_004398af, includes the wrapped far endpoints.
-        const auto& rectangle = bitmap->GetRectangle();
-        return point[0] >= rectangle.x && point[1] >= rectangle.y && point[0] <= OverviewDisplay_Subtract(OverviewDisplay_Add(rectangle.x, rectangle.width), 1) && point[1] <= OverviewDisplay_Subtract(OverviewDisplay_Add(rectangle.y, rectangle.height), 1);
+        const NXBasics::SPoint position{point[0], point[1]};
+        return position.IsInside(bitmap->GetRectangle());
     }
 
     static NXBasics::SColorRGB OverviewDisplay_GetPulseColor()

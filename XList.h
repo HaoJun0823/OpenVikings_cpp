@@ -56,6 +56,8 @@ namespace NXBasics
         // Original function: FUN_00439e41
         void* l_Base_GetStartElement() const;
 
+        void* l_Base_GetEndElement() const;
+
         static void operator delete(void* allocation) noexcept;
 
     protected:
