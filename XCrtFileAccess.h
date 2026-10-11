@@ -94,6 +94,14 @@ namespace NXBasics
         std::uint32_t action;
     };
 
+    struct RuntimeNonLocalGotoNotification
+    {
+        std::uint32_t signature;
+        std::uint32_t destination;
+        std::uint32_t code;
+        std::uint32_t frame;
+    };
+
     struct RuntimeFormatStream
     {
         char* position;		            // +0x00
@@ -443,6 +451,7 @@ namespace NXBasics
 
     int Runtime_InitializeHeap(std::int32_t enableSerialization);
     EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* context, void** dispatcherContext);
+    std::uint32_t Runtime_NotifyNonLocalGoto(std::uint32_t destination, const void* originalFrame);
 
     void Runtime_WriteErrorBanner();
 
@@ -539,6 +548,7 @@ namespace NXBasics
     std::int32_t Runtime_SetModeNoLock(std::uint32_t descriptor, std::int32_t mode);
 
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask);
+    std::int32_t Runtime_ReadX87StatusRaw();
     std::int32_t Runtime_ClearX87StatusRaw();
 
     std::uint32_t Runtime_ControlFloatingPoint(std::uint32_t newControl, std::uint32_t mask);
@@ -831,6 +841,9 @@ namespace NXBasics
 
     // Original data: 0050c9ec.
     extern std::int32_t gRuntimeExceptionActionCount;
+
+    // Original data: 0050c9f4 through 0050ca03.
+    extern volatile RuntimeNonLocalGotoNotification gRuntimeNonLocalGotoNotification;
 
     // Original table: 0050ca08..0050ca98 (exclusive).
     extern const RuntimeFatalMessage gRuntimeFatalMessages[];
@@ -1225,6 +1238,11 @@ namespace NXBasics
     static_assert(offsetof(RuntimeDescriptorRecord, lock) == 0x0C);
 
     static_assert(sizeof(RuntimeExceptionAction) == 0x0C);
+
+    static_assert(sizeof(RuntimeNonLocalGotoNotification) == 0x10);
+    static_assert(offsetof(RuntimeNonLocalGotoNotification, destination) == 4);
+    static_assert(offsetof(RuntimeNonLocalGotoNotification, code) == 8);
+    static_assert(offsetof(RuntimeNonLocalGotoNotification, frame) == 0x0C);
 
     static_assert(offsetof(RuntimeExceptionAction, action) == 0x08);
 

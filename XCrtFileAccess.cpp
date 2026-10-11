@@ -551,6 +551,9 @@ namespace NXBasics
     // Original data: 0050c9ec.
     std::int32_t gRuntimeExceptionActionCount = 10;
 
+    // Original data: 0050c9f4 through 0050ca03; complete native notification record.
+    volatile RuntimeNonLocalGotoNotification gRuntimeNonLocalGotoNotification{0x19930520u, 0, 0, 0};
+
     // Original table: 0050ca08..0050ca98 (exclusive).
     const RuntimeFatalMessage gRuntimeFatalMessages[] = {
         {2, "R6002\r\n- floating point not loaded\r\n"},				  // 0050ca08; text 004fbde8.
@@ -7787,6 +7790,17 @@ namespace NXBasics
         return ExceptionCollidedUnwind;
     }
 
+    // Original function: FUN_004ec712; original EAX/EBP inputs are explicit in the C++ binding.
+    std::uint32_t Runtime_NotifyNonLocalGoto(std::uint32_t destination, const void* originalFrame)
+    {
+        std::uint32_t code;
+        std::memcpy(&code, static_cast<const std::byte*>(originalFrame) + 8, sizeof(code));
+        gRuntimeNonLocalGotoNotification.code = code;
+        gRuntimeNonLocalGotoNotification.destination = destination;
+        gRuntimeNonLocalGotoNotification.frame = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(originalFrame));
+        return destination;
+    }
+
     // Original function: FUN_004ec80c.
     void Runtime_WriteErrorBanner()
     {
@@ -10963,6 +10977,19 @@ namespace NXBasics
         destination->value = value;
         destination->consumedCharacters = consumed;
         return destination;
+    }
+
+    // Original function: FUN_004f1fe4; deliver pending exceptions before reading the raw signed status.
+    std::int32_t Runtime_ReadX87StatusRaw()
+    {
+        // The verified x86 CRT query executes FWAIT/FNSTCW without changing control or SSE state.
+        unsigned int ignoredControl;
+        ::__control87_2(0, 0, &ignoredControl, nullptr);
+        alignas(16) std::byte state[512];
+        _fxsave(state);
+        std::int16_t status;
+        std::memcpy(&status, state + 2, sizeof(status));
+        return status;
     }
 
     // Original function: FUN_004f1ff2; capture the raw signed status before nonwaiting exception clear.

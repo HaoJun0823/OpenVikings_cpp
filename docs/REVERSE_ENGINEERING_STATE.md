@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared notification and waiting raw x87 status - 2026-10-11
+
+The original non-local-goto notification has explicit recompiled register/frame inputs and its complete native record; enclosing unwind routines remain open. The waiting status reader uses a verified existing zero-mask x87-only CRT query before raw FXSAVE capture, preserving pending exception delivery and SSE state. See [SHARED_NOTIFICATION_STATUS_COMPLETION.md](SHARED_NOTIFICATION_STATUS_COMPLETION.md).
+
+Current global inventory **4665/5062 (92.16%)**, **397 open**. System/shared **623/669 (93.12%), 46 open**; engine **126 open**, AI **225 open**. **19** explicit unfinished boundaries and **285** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2811** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Four Win32 syntax-only consumers pass without diagnostics. Installed Debug/Release x86 CRT waiting query paths are inspected read-only; project/filter and naming parity are verified. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Explicit geometry copies and defaulted-definition inventory correction - 2026-10-11
 
 SPoint now explicitly binds its original trivial copy through a first-declaration defaulted constructor. C++17 aggregate initialization is retained. The already defaulted SRectangle copy is now correctly recognized as a definition; its provisional engine assignment becomes shared geometry. One new binding and one counting correction add two global mapped entries. See [SHARED_GEOMETRY_COPY_COMPLETION.md](SHARED_GEOMETRY_COPY_COMPLETION.md).
