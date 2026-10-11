@@ -22,6 +22,7 @@
 #include "C2StaticAtomicAnimationData.h"
 #include "C2VehicleAccess.h"
 #include "C2VehicleAnimalPassengers.h"
+#include "XCrtFileAccess.h"
 
 namespace NC2Logic
 {
@@ -227,6 +228,9 @@ namespace NC2Logic
         SBirthCandidates gAnimalBirthCandidates;
         static_assert(offsetof(SBirthCandidates, initialized) == 0x18);
 
+        // Original function: FUN_0042f2ac; the six trivial point records need no cleanup.
+        int __cdecl AnimalBirthCandidates_OnExit() { return 0; }
+
         // Original function: FUN_0042ef98.
         void Animal_l_MoveBirthPoint(void* animal)
         {
@@ -236,7 +240,12 @@ namespace NC2Logic
             auto* birth = static_cast<std::byte*>(animal) + 0x2C;
             const auto birthRadius = BirthDistance(animal), stayRadius = StayDistance(animal);
             if (Distance(current, work) >= birthRadius + stayRadius) { FindBirthPoint(current, work, birth, birthRadius >> 1); return; }
-            if ((gAnimalBirthCandidates.initialized & 1u) == 0) { gAnimalBirthCandidates.initialized |= 1u; for (auto& point : gAnimalBirthCandidates.points) point = 0; }
+            if ((gAnimalBirthCandidates.initialized & 1u) == 0)
+            {
+                gAnimalBirthCandidates.initialized |= 1u;
+                for (auto& point : gAnimalBirthCandidates.points) point = 0;
+                NXBasics::Runtime_AtExit(AnimalBirthCandidates_OnExit);
+            }
             const auto leaderRadius = LeaderDistance(animal);
             if (Distance(current, birth) >= 30u) { FindBirthPoint(current, work, birth, 30); return; }
             const auto* micro = GameMap_GetConstMapMicroPointPtr(birth);

@@ -1,0 +1,13 @@
+# Shared forced-exit and iterator helpers - 2026-10-11
+
+Four previously unmapped entries are explicit. See [SHARED_EXIT_ITERATOR_NATIVE_ENTRIES.csv](SHARED_EXIT_ITERATOR_NATIVE_ENTRIES.csv). Their established owners move four entries from the shared/system inventory to humans (one) and animals (three); the global denominator is unchanged. Extracting two already inlined leaves adds traceable boundaries, not new gameplay features.
+
+Human HouseMisc_Exit at 00441A63 is distinct from the ordinary animation-driven HouseMisc_Leave at 00441A39. Building destruction at 004312F3 and final deletion at 004313E6 call Exit. If the current atomic +AB8 differs from 1, it resets the atomic, interrupts the task, sets +A61 then +A60, advances the task machine and sets the current map moveable state +20 to 2. It always clears +B50, including the atomic-1 branch. Previous C++ invoked ordinary Leave, missing task interruption/advancement. Both callers now use the exact exit sequence, with the moveable resolved after task advancement as in Windows. Atomic animation event callers continue using ordinary Leave.
+
+Animal HouseMisc_Exit at 0042F6A2 clears only +94 and remains connected to building destruction. The Windows original does not call this animal helper from final building deletion; that asymmetry is preserved. Names are cross-checked against the Mac header only; offsets, branches and sequencing come exclusively from Windows.
+
+The common iterator initialization at 00440CAD is extracted from CAnimalIterator's constructor. Game.exe bytes show WORD stores at +0A then +08; the text assembly export misdecodes the first as a DWORD because decoding began in preceding table data. Six DWORD stores clear the sector coordinates at +10..+24. Flags, selection, radius and current ID stay untouched; this is returned in EAX. The separate constructor 004402A3 calls that helper and then sets +28 to -1. The current project's shared animal/human iterator layout is retained; the helper's name describes Windows-confirmed initialization and is not presented as a recovered Mac member name.
+
+The first initialization of the six shared animal birth-point candidates registers native 0042F2AC through Runtime_AtExit after setting the guard and clearing the points. That native callback is a proven RET-only leaf, not a link dummy. It needs no payload cleanup; the host callback signature's ignored return is zero. Previous C++ omitted the registration entirely.
+
+Six affected/integrating units pass MSVC Win32 /Zs without diagnostics. No build, tests or game run occurred. Interactive building demolition with sleeping/working inhabitants still needs user validation.

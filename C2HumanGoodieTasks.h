@@ -23,6 +23,7 @@ namespace NC2Logic
     bool Human_l_StartAtomicWalk(void* human, std::int32_t moveableId, std::uint32_t distance);
     bool Human_l_StartAtomicWalkAndWait(void* human, const void* point);
     bool Human_HouseMisc_Leave(void* human);
+    void Human_HouseMisc_Exit(void* human);
     void Human_l_StartTask_WaitForOtherHuman(void* human);
     void Human_l_StartTask_Listen(void* human, std::uint32_t direction);
     void Human_l_StartTask_GoHome(void* human);

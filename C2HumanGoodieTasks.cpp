@@ -1,4 +1,5 @@
 #include "C2HumanGoodieTasks.h"
+#include "C2HumanAtomicEvents.h"
 #include "C2CallbackManager.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2GameMapAccess.h"
@@ -236,6 +237,21 @@ namespace NC2Logic
         Write<std::uint32_t>(Moveable(human), 0x20, 2);
         Write<std::uint8_t>(human, 0xB50, 0);
         return true;
+    }
+
+    // Original function: FUN_00441a63; forced house exit is distinct from animation-driven Leave.
+    void Human_HouseMisc_Exit(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xAB8) != 1)
+        {
+            Human_l_ResetAtomic(human);
+            Human_CurrentTask_DoInterrupt(human);
+            Write<std::uint8_t>(human, 0xA61, 1);
+            Write<std::uint8_t>(human, 0xA60, 1);
+            Human_AI_DoUpdateTaskMachine(human);
+            Write<std::uint32_t>(Moveable(human), 0x20, 2);
+        }
+        Write<std::uint8_t>(human, 0xB50, 0);
     }
 
     // Original function: FUN_0045c82f.

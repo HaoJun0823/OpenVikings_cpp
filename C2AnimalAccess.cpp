@@ -326,6 +326,9 @@ namespace NC2Logic
 
     // Original function: FUN_0042e9e8.
     std::uint32_t Animal_GetCurrentAtomicAnimationLengthInTicks(const void* animal) { return NC2Lifetime::Read<std::uint32_t>(gStaticAtomicAnimationData, NC2Lifetime::Read<std::uint32_t>(animal, 0x78) * 0x138u + 0x34); }
+    // Original function: FUN_0042f6a2; forced house exit only clears the hidden byte.
+    void Animal_HouseMisc_Exit(void* animal) { Write<std::uint8_t>(animal, 0x94, 0); }
+
     // Original function: FUN_0042f6aa; animal type IDs index the native biased table.
     std::uint32_t Animal_HitPoints_GetMaximum(const void* animal)
     {

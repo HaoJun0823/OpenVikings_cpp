@@ -29,6 +29,7 @@ namespace NC2Logic
         std::int32_t currentAnimalId;
 
     private:
+        CAnimalIterator* l_InitIteratorFields();
         std::int32_t l_GetNext(std::int32_t previousAnimalId);
         std::int32_t l_GetNextSectorAnimalId(std::int32_t previousAnimalId);
     };

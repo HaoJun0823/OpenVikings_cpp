@@ -1,4 +1,5 @@
 #include "C2HouseAccess.h"
+#include "C2AnimalAccess.h"
 #include "C2CallbackManager.h"
 #include "C2Debug.h"
 #include "C2EngineDisplayAccess.h"
@@ -157,11 +158,10 @@ namespace NC2Logic
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
             const auto type = Read<std::uint32_t>(moveable, 8);
-            if (type == 1) Human_HouseMisc_Leave(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
+            if (type == 1) Human_HouseMisc_Exit(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
             else if (type == 2)
             {
-                // Windows Animal::HouseMisc_Exit, outlined at 0042F6A2.
-                Write<std::uint8_t>(CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CAnimalArray::ElementSize, 0x94, 0);
+                Animal_HouseMisc_Exit(CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CAnimalArray::ElementSize);
             }
             else if (type != 3 && type != 4) C2Debug_WarningBox("unknown map moveable type on house\xB4s door point!");
             id = Read<std::int32_t>(moveable, 0x24);
@@ -193,7 +193,7 @@ namespace NC2Logic
         while (id != -1)
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * 0x58u;
-            if (Read<std::uint32_t>(moveable, 8) == 1) Human_HouseMisc_Leave(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
+            if (Read<std::uint32_t>(moveable, 8) == 1) Human_HouseMisc_Exit(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, 0x54) * CHumanArray::ElementSize);
             id = Read<std::int32_t>(moveable, 0x24);
         }
         if (Read<std::uint8_t>(house, 0x28) != 0)

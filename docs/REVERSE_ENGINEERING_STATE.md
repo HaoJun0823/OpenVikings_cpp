@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared forced-exit and iterator helpers - 2026-10-11
+
+Four previously unmapped entries are explicit: forced human/animal exit, existing shared iterator initialization and a proven trivial static cleanup callback. Both house human callers now use forced Exit rather than ordinary Leave. Established ownership moves one entry to humans and three to animals; the global denominator is unchanged. See [SHARED_EXIT_ITERATOR_COMPLETION.md](SHARED_EXIT_ITERATOR_COMPLETION.md).
+
+Current global inventory **4631/5062 (91.49%)**, **431 open**. System/shared **607/679 (89.40%), 72 open**; engine **127 open**, AI **232 open**. **19** explicit unfinished boundaries and **288** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2735** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Six affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared DirectDraw palette and window ownership - 2026-10-11
 
 Four previously unmapped entries are explicit: palette allocation, two existing offset getters and the destructor forwarding entry. Windows palette initialization and display allocation/free ownership are corrected. The separate display-deletion body remains mapped; no native addresses are removed. See [SHARED_DISPLAY_COMPLETION.md](SHARED_DISPLAY_COMPLETION.md).

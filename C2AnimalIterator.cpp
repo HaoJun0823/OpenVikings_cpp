@@ -72,12 +72,23 @@ namespace NC2Logic
     // Original function: FUN_004402a3
     CAnimalIterator::CAnimalIterator()
     {
-        // Inline initialization performed by 00440cad.
-        packedCenter = 0;
-        firstSector = {};
-        lastSector = {};
-        currentSector = {};
+        l_InitIteratorFields();
         currentAnimalId = -1;
+    }
+
+    // Original function: FUN_00440cad; shared field initialization leaves flags, selection, radius and current ID untouched.
+    CAnimalIterator* CAnimalIterator::l_InitIteratorFields()
+    {
+        // Game.exe has WORD stores at +0Ah then +08h; the text export misdecodes the first store.
+        NC2Lifetime::Write<std::uint16_t>(this, 0x0A, 0);
+        NC2Lifetime::Write<std::uint16_t>(this, 0x08, 0);
+        firstSector.x = 0;
+        firstSector.y = 0;
+        lastSector.x = 0;
+        lastSector.y = 0;
+        currentSector.x = 0;
+        currentSector.y = 0;
+        return this;
     }
 
     // Original function: FUN_00440329
