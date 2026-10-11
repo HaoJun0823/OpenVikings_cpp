@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Current shared remainder and masked-response dependency audit - 2026-10-11
+
+The fresh 44-entry shared remainder is exported separately from historical snapshots. Windows priority, hardware flag mapping, directed overflow and underflow normalization/discarded-bit behavior are audited for the next concrete math-error dependency tree. No additional implementation count or provisional numeric promotion is added. See [SHARED_CURRENT_REMAINDER.md](SHARED_CURRENT_REMAINDER.md).
+
+Current global inventory **4668/5063 (92.20%)**, **395 open**. System/shared **626/670 (93.43%), 44 open**; engine **126 open**, AI **225 open**. **19** explicit unfinished boundaries and **285** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2812** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+The preceding three syntax-only consumers passed without diagnostics. Current category sums, naming uniqueness, project/filter parity and whitespace checks pass; this checkpoint adds evidence only. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Complete IEEE exception-record leaf and handler updates - 2026-10-11
 
 The entire Windows IEEE exception-record routine is reconstructed through its completed raw-status/clear/load children and RaiseException. Caller-supplied bytes, exception-code priority, handler updates and original post-handler precision masks are retained. Masked response, raw hardware control writer and enclosing dispatch remain open. See [SHARED_IEEE_EXCEPTION_COMPLETION.md](SHARED_IEEE_EXCEPTION_COMPLETION.md).
