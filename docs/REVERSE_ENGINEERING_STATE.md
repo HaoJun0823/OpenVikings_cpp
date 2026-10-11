@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Road texture discrepancy resolved as modified asset - 2026-10-11
+
+The user confirmed that the green road-terrain pixels are present in a manipulated PCX texture; the original texture has no such green pixels. This resolves the reported discrepancy as a difference in the supplied asset, not evidence of intended moss, an original-game defect, or a renderer defect. Per the user's instruction, do not pursue a rendering correction for this report. No texture restoration, production-code change, build or game run was performed; function counts remain unchanged. This finding is user-confirmed, not independently verified against the original PCX.
+
 ## Scout appearance, breeder continuation and particle bounds - 2026-10-11
 
 The Windows job/armor graphics entries and their registered callback branches are connected. Three breeder dispatch calls now follow the native fetch continuations, addressing the branch identified in the user's "Trostloses Erwachen" pause stack. Particle rendering and expired-arrow placement use the existing checked map accessor for out-of-map coordinates; this invalid-input safeguard is explicitly distinguished from the original unchecked Windows paths. See [SCOUT_BREEDER_PARTICLE_REGRESSIONS.md](SCOUT_BREEDER_PARTICLE_REGRESSIONS.md).
@@ -228,7 +232,7 @@ The corrected disjoint category inventory is **454 / 454** for game control/save
 
 Nineteen changed/dependent units passed MSVC Win32 `/Zs`. Project/filter registration, naming uniqueness and whitespace checks passed; the 21 existing unmatched declaration signatures remain unchanged. No build, tests or game run occurred. Source coverage does not certify runtime equivalence.
 
-Pending graphics report: green road pixels absent from the original. Cause remains unverified; do not infer intended moss or an original defect from the screenshot. Inspect Windows texture/blending/color conversion evidence in the graphics block.
+Resolved graphics report (2026-10-11): the user identified the green road pixels in a manipulated PCX. The original texture has no green pixels. This is an asset difference; no renderer correction is requested.
 
 ## Landscape captions and refreshed category inventory - 2026-10-11
 

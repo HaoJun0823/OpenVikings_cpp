@@ -72,4 +72,4 @@ The tick getter and two map-editor entry points are reconstructed. Triangle edit
 
 ## Remaining limits
 
-This closes the selected native-entry source inventory, not all runtime behavior of other categories. Human command/task dispatchers, mission predicates/results, map-validation and AI callbacks remain explicitly partial in their own categories. No build, tests or game run occurred. The user's report of green pixels in road rendering is recorded separately as an unverified graphics discrepancy; there is no evidence to treat it as intentional moss or an original-game defect.
+This closes the selected native-entry source inventory, not all runtime behavior of other categories. Human command/task dispatchers, mission predicates/results, map-validation and AI callbacks remain explicitly partial in their own categories. No build, tests or game run occurred. Resolved graphics report (2026-10-11): the user identified the green road pixels in a manipulated PCX. The original texture has no green pixels. This is an asset difference; no renderer correction is requested.

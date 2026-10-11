@@ -1,5 +1,9 @@
 # Windows function mapping progress
 
+## Road texture discrepancy resolved as modified asset - 2026-10-11
+
+The user confirmed that the green road-terrain pixels are present in a manipulated PCX texture; the original texture has no such green pixels. This resolves the reported discrepancy as a difference in the supplied asset, not evidence of intended moss, an original-game defect, or a renderer defect. Per the user's instruction, do not pursue a rendering correction for this report. No texture restoration, production-code change, build or game run was performed; function counts remain unchanged. This finding is user-confirmed, not independently verified against the original PCX.
+
 ## Game control, save/load and game-data closure - 2026-10-11
 
 All **29 originally selected open entries** are implemented, together with the complete checksum call tree, concrete list lifetime boundaries, native object/member constructors, tick getter and map-editor wrappers. The game-checksum zero-return dummy is removed. Windows ASM and Game.exe establish behavior; Mac supplies names only. See [GAME_CONTROL_DATA_COMPLETION.md](GAME_CONTROL_DATA_COMPLETION.md).
@@ -8,7 +12,7 @@ The corrected disjoint category inventory is **454 / 454** for game control/save
 
 Nineteen changed/dependent units passed MSVC Win32 `/Zs`. Project/filter registration, naming uniqueness and whitespace checks passed; the 21 existing unmatched declaration signatures remain unchanged. No build, tests or game run occurred. Source coverage does not certify runtime equivalence.
 
-Pending graphics report: green road pixels absent from the original. Cause remains unverified; do not infer intended moss or an original defect from the screenshot. Inspect Windows texture/blending/color conversion evidence in the graphics block.
+Resolved graphics report (2026-10-11): the user identified the green road pixels in a manipulated PCX. The original texture has no green pixels. This is an asset difference; no renderer correction is requested.
 
 ## Landscape captions and refreshed category inventory - 2026-10-11
 
