@@ -1,0 +1,11 @@
+# Shared application-entry and text-wrapper block - 2026-10-11
+
+Four additional native entries have explicit source bodies: two text helpers, the previously embedded Windows application-entry lambda and the progress-bar cleanup lambda. The latter was already a functional no-op and is not a new gameplay feature. See [SHARED_STARTUP_GUI_NATIVE_ENTRIES.csv](SHARED_STARTUP_GUI_NATIVE_ENTRIES.csv).
+
+Windows WinMain at 00403487 returns with RET 0x10. The callback type and explicit WindowsApplicationEntry now use WINAPI/__stdcall. Its 0x168-byte master control allocation uses original 004E5DDD (Runtime_AllocateWithNewHandler with handler enabled) and placement construction. Shutdown calls the destructor followed by Runtime_Free, matching 0040350D/00403513 and preserving the allocation family. Earlier code used standard nothrow new/delete. Loop update and shutdown reload the singleton as native instructions do. Mutex failure, startup state, message-loop conditions and zero return remain as established from Windows. This corrects allocation ownership and callback ABI; it does not claim a game run.
+
+The progress-bar color callback at 0040272B contains only RET. Its existing hosted onexit adaptation now has an explicit named function; the added zero callback return is ignored by the existing onexit contract. There is no guessed work in this original no-op.
+
+Dark-font-color access returns white palette +0x194. All three text-element drawing branches use the recovered accessor. Formatted wrapping retains the native 1000-byte local buffer, forces its final byte to NUL, forwards to ordinary wrapping, and returns that routine's height. Windows 004D0CF8 consumes EAX to position following message content; the Mac header's void return is used solely to identify the name, not behavior. Corresponding formatted message calls use this helper directly.
+
+The two identified GUI helpers move from shared to GUI without dropping addresses. Five affected/integrating units pass MSVC Win32 /Zs without diagnostics. Project/filter parity and naming uniqueness pass. No build, tests or game run occurred. The hosted startup still delegates compiler-owned static initialization to the compiler CRT as previously documented.

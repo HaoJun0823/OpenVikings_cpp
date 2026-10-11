@@ -10,7 +10,7 @@
 
 namespace NXBasics
 {
-    using RuntimeApplicationEntry = int(__cdecl*)(HINSTANCE, HINSTANCE, LPSTR, int);
+    using RuntimeApplicationEntry = int(WINAPI*)(HINSTANCE, HINSTANCE, LPSTR, int);
 
     inline int Runtime_RunApplication(RuntimeApplicationEntry applicationEntry, RuntimeVoidCallback* applicationBegin, RuntimeVoidCallback* applicationEnd);
     inline int Runtime_FilterException(std::uint32_t exceptionCode, EXCEPTION_POINTERS* information);

@@ -134,8 +134,7 @@ namespace NC2InGameGuiMessages
             if (type == 19 || type == 21)
             {
                 const auto* item = type == 19 ? NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(message, 0x38), 1) : NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x208), 1);
-                NXBasics::Runtime_PrintStringN(text, 1000, "%s %s - %s", name, NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(type == 19 ? 38 : 40), item);
-                NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 4, 20, 436, resources.font12, color, text);
+                NC2GuiToolsBase::DrawTool_PrintStringWrappingV(bitmap, 4, 20, 436, resources.font12, color, "%s %s - %s", name, NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(type == 19 ? 38 : 40), item);
                 return;
             }
             if (type != 18)
@@ -144,16 +143,14 @@ namespace NC2InGameGuiMessages
                 NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 4, 20, 436, resources.font12, color, text);
                 return;
             }
-            NXBasics::Runtime_PrintStringN(text, 1000, "%s %s", name, NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(33));
-            y = NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 4, 20, 436, resources.font12, color, text) + 20;
+            y = NC2GuiToolsBase::DrawTool_PrintStringWrappingV(bitmap, 4, 20, 436, resources.font12, color, "%s %s", name, NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(33)) + 20;
             const std::uint32_t offsets[4]{0x140, 0x34, 0x204, 0x2E4};
             for (std::uint32_t category = 0; category < 4; ++category)
             {
                 const auto offset = offsets[category], count = Read<std::uint32_t>(message, offset);
                 if (count == 0) continue;
                 y += 12;
-                NXBasics::Runtime_PrintStringN(text, 1000, "%s:", NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(34u + category));
-                NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 4, y, 436, resources.font08, color, text);
+                NC2GuiToolsBase::DrawTool_PrintStringWrappingV(bitmap, 4, y, 436, resources.font08, color, "%s:", NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(34u + category));
                 for (std::uint32_t i = 0; i < count; ++i)
                 {
                     const auto id = Read<std::uint32_t>(message, offset + 4u + i * 4u);

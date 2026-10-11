@@ -37,6 +37,13 @@ namespace NC2LogicExternals
 
 namespace NMasterControlProgram
 {
+    // Original function: FUN_0040272b; trivial progress-bar color cleanup callback.
+    // The hosted onexit callback result is ignored; native code contains only RET.
+    static int __cdecl ProgressBarBackgroundColor_Destruct()
+    {
+        return 0;
+    }
+
     // Original function: FUN_00402761; CD identification wrapper.
     char FindGameCDDrive()
     {
@@ -538,12 +545,7 @@ namespace NMasterControlProgram
 
             backgroundColor = NXBasics::SColorRGB(108, 100, 83);
 
-            // Original callback at 0x0040272B contains only RET.
-            // Adapt to the reconstructed onexit signature; the result is ignored.
-            NXBasics::Runtime_AtExit(+[] () -> int
-            {
-                return 0;
-            });
+            NXBasics::Runtime_AtExit(ProgressBarBackgroundColor_Destruct);
         }
 
         temporaryBitmap->Fill(backgroundColor);

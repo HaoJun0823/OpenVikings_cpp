@@ -90,7 +90,7 @@ namespace NC2InGameGuiBase
         if (Read<std::uint8_t>(element, 0xFA) != 0) NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, 2);
         const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
         auto* font = Read<std::uint8_t>(element, 0xFB) != 0 ? resources.font08 : resources.font10;
-        const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + (Read<std::uint8_t>(element, 0xFD) != 0 ? 0x194 : 0x400));
+        const auto* color = Read<std::uint8_t>(element, 0xFD) != 0 ? NC2GuiToolsBase::DrawTool_GetDarkFontColorRef() : NC2GuiToolsBase::DrawTool_GetFontColorRef();
         const char* caption = static_cast<const char*>(element) + 0x30;
         if (Read<std::uint8_t>(element, 0xFC) != 0)
         {

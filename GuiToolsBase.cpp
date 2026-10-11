@@ -227,6 +227,12 @@ namespace NC2GuiToolsBase
         return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette) + 0x400);
     }
 
+    // Original function: FUN_004e2656; palette color at byte offset 0x194.
+    const NXBasics::SColorRGB* DrawTool_GetDarkFontColorRef()
+    {
+        return reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette) + 0x194);
+    }
+
     // Original scratch region 0056988C..005698F7: 100-byte word and terminator;
     // seven following padding bytes have no exported references.
     static char gWrappingWordBuffer[0x6C]{};
@@ -291,6 +297,18 @@ namespace NC2GuiToolsBase
             currentX += lastHeight;
             lastHeight = lineHeight;
         }
+    }
+
+    // Original function: FUN_004e2b45; callers use the wrapping height retained in EAX.
+    std::int32_t __cdecl DrawTool_PrintStringWrappingV(NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t width, NXBasics::CFont* font, const NXBasics::SColorRGB* color, const char* format, ...)
+    {
+        char text[1000];
+        va_list arguments;
+        va_start(arguments, format);
+        NXBasics::Runtime_FormatString(text, sizeof(text), format, arguments);
+        va_end(arguments);
+        text[999] = '\0';
+        return DrawTool_PrintStringWrapping(bitmap, x, y, width, font, color, text);
     }
 
     // Original function: FUN_004e2994; terminate the original 1000-byte formatting buffer.

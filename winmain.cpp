@@ -39,26 +39,17 @@ namespace
             CloseHandle(g_singleInstanceMutex);
         }
     }
-}
 
-// Hosted entry for the reconstructed startup at FUN_004e709e.
-int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
-{
-    // The reconstructed startup obtains these values from the Win32 APIs.
-    (void) instance;
-    (void) previousInstance;
-    (void) commandLine;
-    (void) showCommand;
-
-    // Original function: FUN_00403487
-    const auto applicationEntry = +[] (HINSTANCE applicationInstance, HINSTANCE applicationPreviousInstance, LPSTR applicationCommandLine, int applicationShowCommand) -> int
+    // Original function: FUN_00403487; the native WinMain entry uses RET 0x10.
+    int WINAPI WindowsApplicationEntry(HINSTANCE applicationInstance, HINSTANCE applicationPreviousInstance, LPSTR applicationCommandLine, int applicationShowCommand)
     {
         if (!InitializeSingleInstanceGuard("weltwunder"))
         {
             return 0;
         }
 
-        new (std::nothrow) NMasterControlProgram::CMasterControlProgram(applicationInstance, applicationPreviousInstance, applicationCommandLine, applicationShowCommand);
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(NMasterControlProgram::CMasterControlProgram));
+        if (allocation != nullptr) ::new(allocation) NMasterControlProgram::CMasterControlProgram(applicationInstance, applicationPreviousInstance, applicationCommandLine, applicationShowCommand);
 
         auto* masterControlProgram = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
 
@@ -70,21 +61,32 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance,
                 {
                     break;
                 }
-            } while (!masterControlProgram->System_Update());
+            } while (!NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->System_Update());
 
-            masterControlProgram->System_ProgramState_EndCurrent();
+            NMasterControlProgram::CMasterControlProgram::sTheObjectPtr->System_ProgramState_EndCurrent();
         }
 
         auto* object = NMasterControlProgram::CMasterControlProgram::sTheObjectPtr;
 
         if (object != nullptr)
         {
-            delete object;
+            object->~CMasterControlProgram();
+            NXBasics::Runtime_Free(object);
         }
 
         ReleaseSingleInstanceGuard();
         return 0;
-    };
+    }
+}
 
-    return NXBasics::Runtime_RunApplication(applicationEntry, NApplicationStartup::gApplicationInitializers, NApplicationStartup::gApplicationInitializers + NApplicationStartup::ApplicationInitializerCount);
+// Hosted entry for the reconstructed startup at FUN_004e709e.
+int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE previousInstance, _In_ LPSTR commandLine, _In_ int showCommand)
+{
+    // The reconstructed startup obtains these values from the Win32 APIs.
+    (void) instance;
+    (void) previousInstance;
+    (void) commandLine;
+    (void) showCommand;
+
+    return NXBasics::Runtime_RunApplication(WindowsApplicationEntry, NApplicationStartup::gApplicationInitializers, NApplicationStartup::gApplicationInitializers + NApplicationStartup::ApplicationInitializerCount);
 }

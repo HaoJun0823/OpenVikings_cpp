@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared application-entry and text-wrapper block - 2026-10-11
+
+Two text helpers are reconstructed; the existing entry and cleanup lambdas now have explicit bodies. Windows entry allocation/free ownership and stdcall are corrected. The identified text helpers move into GUI without dropping addresses. See [SHARED_STARTUP_GUI_COMPLETION.md](SHARED_STARTUP_GUI_COMPLETION.md).
+
+Current global inventory **4615/5062 (91.17%)**, **447 open**. System/shared **596/684 (87.13%), 88 open**; engine **127 open**, AI **232 open**. **19** explicit unfinished boundaries and **288** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2717** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared command-history and heap cleanup entries - 2026-10-11
 
 Eleven further Windows entries are reconstructed: four history helpers, six distinct heap cleanup tails and unsigned long conversion. Identified history entries move from shared to the game assistant without removing any address. The enclosing assistant callbacks remain unfinished. See [SHARED_HISTORY_HEAP_COMPLETION.md](SHARED_HISTORY_HEAP_COMPLETION.md).
