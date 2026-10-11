@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Binary64 exponent field and alternate native notification - 2026-10-11
+
+The exponent-field helper retains its original pre-load high-word capture, x87 binary64 load/store boundary and wrapped field edit. The alternate notification entry keeps its direct code input distinct from the frame-reading entry. This newly identified genuine native entry grows the denominator from 5062 to 5063; all previous addresses remain. See [SHARED_EXPONENT_NOTIFICATION_COMPLETION.md](SHARED_EXPONENT_NOTIFICATION_COMPLETION.md).
+
+Current global inventory **4667/5063 (92.18%)**, **396 open**. System/shared **625/670 (93.28%), 45 open**; engine **126 open**, AI **225 open**. **19** explicit unfinished boundaries and **285** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2812** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Three Win32 C++17 syntax-only consumers pass without diagnostics; project/filter and naming parity are verified. The scanner preprocessor correction restores only the previously implemented raw status reader and removes no mapped entry. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared notification and waiting raw x87 status - 2026-10-11
 
 The original non-local-goto notification has explicit recompiled register/frame inputs and its complete native record; enclosing unwind routines remain open. The waiting status reader uses a verified existing zero-mask x87-only CRT query before raw FXSAVE capture, preserving pending exception delivery and SSE state. See [SHARED_NOTIFICATION_STATUS_COMPLETION.md](SHARED_NOTIFICATION_STATUS_COMPLETION.md).

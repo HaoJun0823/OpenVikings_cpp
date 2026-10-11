@@ -452,6 +452,7 @@ namespace NXBasics
     int Runtime_InitializeHeap(std::int32_t enableSerialization);
     EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* context, void** dispatcherContext);
     std::uint32_t Runtime_NotifyNonLocalGoto(std::uint32_t destination, const void* originalFrame);
+    std::uint32_t Runtime_NotifyNonLocalGotoWithCode(std::uint32_t destination, std::uint32_t code, const void* originalFrame);
 
     void Runtime_WriteErrorBanner();
 
@@ -548,6 +549,7 @@ namespace NXBasics
     std::int32_t Runtime_SetModeNoLock(std::uint32_t descriptor, std::int32_t mode);
 
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask);
+    double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent);
     std::int32_t Runtime_ReadX87StatusRaw();
     std::int32_t Runtime_ClearX87StatusRaw();
 

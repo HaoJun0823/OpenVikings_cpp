@@ -7790,6 +7790,15 @@ namespace NXBasics
         return ExceptionCollidedUnwind;
     }
 
+    // Original function: FUN_004ec709; the alternate entry takes its code from ECX, not frame memory.
+    std::uint32_t Runtime_NotifyNonLocalGotoWithCode(std::uint32_t destination, std::uint32_t code, const void* originalFrame)
+    {
+        gRuntimeNonLocalGotoNotification.code = code;
+        gRuntimeNonLocalGotoNotification.destination = destination;
+        gRuntimeNonLocalGotoNotification.frame = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(originalFrame));
+        return destination;
+    }
+
     // Original function: FUN_004ec712; original EAX/EBP inputs are explicit in the C++ binding.
     std::uint32_t Runtime_NotifyNonLocalGoto(std::uint32_t destination, const void* originalFrame)
     {
@@ -10978,6 +10987,36 @@ namespace NXBasics
         destination->consumedCharacters = consumed;
         return destination;
     }
+
+    #pragma float_control(precise, on, push)
+    #pragma float_control(except, on)
+    #pragma fenv_access(on)
+
+    // A non-inlined Win32 cdecl double return uses ST(0), preserving the required x87 load.
+    static __declspec(noinline) double __cdecl Runtime_LoadBinary64ToX87(const volatile double* value)
+    {
+        return *value;
+    }
+
+    // Original function: FUN_004f1907; retain the original high word before the x87 load/store.
+    double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent)
+    {
+        std::uint16_t originalHighWord;
+        std::memcpy(&originalHighWord, reinterpret_cast<const std::byte*>(&value) + 6, sizeof(originalHighWord));
+        volatile double storedValue = Runtime_LoadBinary64ToX87(&value);
+        const auto* storedBytes = reinterpret_cast<const volatile unsigned char*>(&storedValue);
+        std::uint64_t resultBits = 0;
+        for (std::uint32_t index = 0; index < sizeof(storedValue); ++index)
+            resultBits |= static_cast<std::uint64_t>(storedBytes[index]) << (index * 8);
+        const auto newHighWord = static_cast<std::uint16_t>(((static_cast<std::uint32_t>(exponent) + 0x3FEu) << 4) | (originalHighWord & 0x800Fu));
+        resultBits = (resultBits & UINT64_C(0x0000FFFFFFFFFFFF)) | (static_cast<std::uint64_t>(newHighWord) << 48);
+        double result;
+        std::memcpy(&result, &resultBits, sizeof(result));
+        return Runtime_LoadBinary64ToX87(&result);
+    }
+
+    #pragma fenv_access(off)
+    #pragma float_control(pop)
 
     // Original function: FUN_004f1fe4; deliver pending exceptions before reading the raw signed status.
     std::int32_t Runtime_ReadX87StatusRaw()
