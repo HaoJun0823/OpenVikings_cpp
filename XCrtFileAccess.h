@@ -129,6 +129,16 @@ namespace NXBasics
         char digits[24];			  // +0x04
     };
 
+    struct RuntimeDoubleParseResult
+    {
+        std::uint32_t flags;
+        std::uint32_t consumedCharacters;
+        std::byte reserved08[8];
+        double value;
+    };
+    static_assert(sizeof(RuntimeDoubleParseResult) == 0x18);
+    static_assert(offsetof(RuntimeDoubleParseResult, value) == 0x10);
+
     using RuntimeNewHandler = int(__cdecl*)(std::uint32_t);
 
     struct RuntimeMultibyteProfile
@@ -337,6 +347,7 @@ namespace NXBasics
 
     std::uint32_t Runtime_ClassifyCharacter(std::int32_t character, std::uint32_t mask);
     std::uint32_t Runtime_ClassifySpecialDouble(double value);
+    std::uint32_t Runtime_GetMathArgumentTag(double value);
     std::int32_t Runtime_ClassifyMultibyteByte(std::uint32_t character, std::uint32_t characterMask, std::uint32_t multibyteMask);
     std::int32_t Runtime_IsMultibyteLeadByte(std::uint32_t character);
     void Runtime_SetMathErrno(std::int32_t errorType);
@@ -550,6 +561,7 @@ namespace NXBasics
     int Runtime_Extended12ToFloat(const std::uint32_t* source, void* destination);
 
     int Runtime_ParseDouble(void* destination, const char* text);
+    RuntimeDoubleParseResult* Runtime_ParseDoubleResult(RuntimeDoubleParseResult* destination, const char* text);
 
     int Runtime_ParseFloat(void* destination, const char* text);
 

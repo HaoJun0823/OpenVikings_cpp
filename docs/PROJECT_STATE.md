@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared numeric input and conversion records - 2026-10-11
+
+Two additional original Windows leaves are reconstructed. Decimal conversion now preserves its status and consumed-length record through the existing string-to-double caller; integer-only math argument tagging is available for the still-open x87 continuations. See [SHARED_NUMERIC_RECORDS_COMPLETION.md](SHARED_NUMERIC_RECORDS_COMPLETION.md).
+
+Current global inventory **4660/5062 (92.06%)**, **402 open**. System/shared **618/668 (92.51%), 50 open**; engine **127 open**, AI **225 open**. **19** explicit unfinished boundaries and **286** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2764** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Four primary and integrating units pass MSVC Win32 /Zs without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared AI task entries and precision wrapper - 2026-10-11
 
 Six additional original Windows entries are reconstructed: the five-entry AI task/default-position call tree and the separate precision-setting startup wrapper. AI parser and scheduler parents remain unresolved. Category assignments follow the owning AI block without removing any address. See [SHARED_TASK_PRECISION_COMPLETION.md](SHARED_TASK_PRECISION_COMPLETION.md).

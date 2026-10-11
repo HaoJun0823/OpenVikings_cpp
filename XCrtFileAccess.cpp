@@ -2961,22 +2961,10 @@ namespace NXBasics
             ++text;
         }
 
-        // Original helper: FUN_004ed0b7.
-        // Only its binary64 result is consumed by FUN_004e82a6.
-        std::uint32_t extended[3]{};
-        const char* endPointer = nullptr;
-
-        const int parseFlags = Runtime_ParseExtended12(extended, &endPointer, text, 0, 0, 0, 0);
-
-        if ((parseFlags & 4) != 0)
-        {
-            return 0.0;
-        }
-
-        double value;
-        Runtime_Extended12ToDouble(extended, &value);
-
-        return value;
+        // The Windows caller reads the complete string before invoking its result-record helper.
+        static_cast<void>(Runtime_StringLength(text));
+        RuntimeDoubleParseResult result;
+        return Runtime_ParseDoubleResult(&result, text)->value;
     }
 
     // Original function: FUN_004e8354
@@ -10939,10 +10927,45 @@ namespace NXBasics
         return (previousFlags & 0x80u) != 0 ? 0x4000 : 0x8000;
     }
 
+    // Original function: FUN_004eb7c8; integer-only tagging does not evaluate the floating-point argument.
+    std::uint32_t Runtime_GetMathArgumentTag(double value)
+    {
+        std::uint32_t high;
+        std::memcpy(&high, reinterpret_cast<const std::byte*>(&value) + 4, sizeof(high));
+        const auto exponent = high & 0x7FF00000u;
+        return exponent == 0x7FF00000u ? high : exponent;
+    }
+
     // Original function: FUN_004eb923; change only the legacy precision-control bits.
     std::uint32_t Runtime_SetDoublePrecision()
     {
         return Runtime_ControlFloatingPoint(0x00010000u, 0x00030000u);
+    }
+
+    // Original function: FUN_004ed0b7; leave reserved result bytes untouched.
+    RuntimeDoubleParseResult* Runtime_ParseDoubleResult(RuntimeDoubleParseResult* destination, const char* text)
+    {
+        std::uint32_t extended[3];
+        const char* end;
+        const auto parseFlags = Runtime_ParseExtended12(extended, &end, text, 0, 0, 0, 0);
+        std::uint32_t flags = 0;
+        double value;
+        if ((parseFlags & 4) != 0)
+        {
+            flags = 0x200;
+            value = 0.0;
+        }
+        else
+        {
+            const auto conversionStatus = Runtime_Extended12ToDouble(extended, &value);
+            if ((parseFlags & 2) != 0 || conversionStatus == 1) flags = 0x80;
+            if ((parseFlags & 1) != 0 || conversionStatus == 2) flags |= 0x100;
+        }
+        const auto consumed = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(end) - reinterpret_cast<std::uintptr_t>(text));
+        destination->flags = flags;
+        destination->value = value;
+        destination->consumedCharacters = consumed;
+        return destination;
     }
 
     // Original function: FUN_004f053b
