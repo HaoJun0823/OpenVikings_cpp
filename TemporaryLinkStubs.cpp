@@ -18,11 +18,19 @@
 #include "C2HumanInitialization.h"
 #include "C2UserNetworkCommandAccess.h"
 #include "InGameGuiInputAccess.h"
+#include "XCrtFileAccess.h"
 
 #include <cstring>
 
 namespace NXBasics { class CBitmap; class CIniFileReader; struct SRectangle; }
 namespace NC2Logic { class CIoHelper; }
+
+namespace NXBasics
+{
+    // TEMPORARY DUMMY: Windows address 004F1DA2; masked x87 response is unresolved.
+    // Returning false leaves the reconstructed dispatcher on its explicit IEEE exception path.
+    bool Runtime_HandleMaskedMathException(std::uint32_t, volatile double*, std::uint32_t) { return false; }
+}
 
 namespace NC2Logic
 {

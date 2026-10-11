@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared math-error dispatcher body and explicit masked-response boundary - 2026-10-11
+
+Windows 004F046B now has its native error record, type/flag mapping, optional IEEE child, raw control restoration and default-hook/errno order translated. Its immediate masked-response child 004F1DA2 remains an isolated link-only dummy excluded from completion counts; the existing public numeric adapters remain partial and unconnected. This checkpoint counts a translated parent body, not completion of the math-error tree. See [SHARED_MATH_ERROR_DISPATCH.md](SHARED_MATH_ERROR_DISPATCH.md).
+
+Current global inventory **4676/5063 (92.36%)**, **387 open**. System/shared **632/670 (94.33%), 38 open**; engine **124 open**, AI **225 open**. **20** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+XCrtFileAccess.cpp, TemporaryLinkStubs.cpp, XMemory.cpp and XFile.cpp pass MSVC Win32 C++17 /Zs without diagnostics; fresh inventory, project/filter parity, unique-name and whitespace checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared control, classification and global unwind - 2026-10-11
 
 Five original Windows entries are closed: raw x87 control, binary64 classification, the domain-error byte/condition leaf and the verified existing compiler global-unwind body including its internal return. The abstract control wrapper uses the same raw state mechanism. Modern local unwind and stack probing have different Windows behavior and remain open; no math adapter is promoted. See [SHARED_CONTROL_CLASSIFICATION_UNWIND.md](SHARED_CONTROL_CLASSIFICATION_UNWIND.md).

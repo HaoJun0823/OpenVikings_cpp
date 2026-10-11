@@ -11023,6 +11023,45 @@ namespace NXBasics
         _fxsave(state);
     }
 
+    // Original data: 0050F250; all three Windows xrefs are zero/nonzero reads.
+    // Game.exe initializes this DWORD to 0x2694; its original semantic name is unresolved.
+    static volatile std::uint32_t DAT_0050f250 = 0x2694;
+
+    // Original function: FUN_004f046b; the masked-response child remains explicitly unresolved.
+    void Runtime_DispatchMathError(std::uint32_t operation, RuntimeMathError* error, const std::uint16_t* savedControl)
+    {
+        volatile std::uint32_t controlWord = *savedControl;
+        std::uint32_t flags = 0;
+        switch (error->type)
+        {
+            case 1: case 5: flags = 8; break;
+            case 2: flags = 4; break;
+            case 3: flags = 0x11; break;
+            case 4: flags = 0x12; break;
+            case 7: error->type = 1; break;
+            case 8: flags = 0x10; break;
+        }
+        if (flags != 0 && !Runtime_HandleMaskedMathException(flags, &error->result, controlWord))
+        {
+            // The native stack record is not zeroed; unused bytes retain their contents.
+            volatile RuntimeMathExceptionRecord record;
+            if (operation == 0x10 || operation == 0x16 || operation == 0x1D)
+            {
+                const auto previousFlags = record.operand2.flags;
+                record.operand2.value = Runtime_LoadBinary64ToX87(&error->argument2);
+                record.operand2.flags = (previousFlags & 0xFFFFFFE3u) | 3u;
+            }
+            else
+            {
+                record.operand2.flags &= 0xFFFFFFFEu;
+            }
+            Runtime_RaiseMathException(&record, &controlWord, flags, operation, &error->argument1, &error->result);
+        }
+        static_cast<void>(Runtime_ControlX87Raw(controlWord, 0xFFFF));
+        if (error->type != 8 && DAT_0050f250 == 0 && Runtime_DefaultMathError(error) != 0) return;
+        Runtime_SetMathErrno(error->type);
+    }
+
     // Original function: FUN_004f1907; retain the original high word before the x87 load/store.
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent)
     {

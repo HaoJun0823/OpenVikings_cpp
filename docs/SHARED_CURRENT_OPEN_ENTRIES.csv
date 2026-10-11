@@ -33,8 +33,7 @@ Address,CurrentName,Group,Implemented,WindowsEvidence,AuditedOpenChildren,Audite
 004F00EC,NXBasics::Runtime_RemainderX87Adjusted,Adjusted divide and remainder,False,"Capture x87 operands, denormal scaling/workspace flags, call4EFEE6 or directFPREM",,
 004F019E,NXBasics::Runtime_RemainderNearestExtended80Adjusted,Adjusted divide and remainder,False,"FPREM1 kernel; scales operands, saves/reinstates quotient condition bits4300",,
 004F03A4,NXBasics::Runtime_RemainderNearestX87Adjusted,Adjusted divide and remainder,False,Capture operands and scaled denormal case; call4F019E or directFPREM,,
-004F046B,NXBasics::Runtime_DispatchMathError,Math error and IEEE records,False,"Map error types, try masked response4F1DA2, optional IEEE raise4F1AEF, restoreCW, default math hook/errno order","004F1DA2,004F2001","004F1AEF,004F1FE1,004F1FB9"
 004F198A,NXBasics::Runtime_DecomposeDouble,Binary64 decomposition and classification,False,"frexp-style zero/normal/denormal handling; normalize mantissa, write exponent, call4F1907",,004F1907
 004F1A4B,NXBasics::Runtime_RoundDouble,Binary64 decomposition and classification,False,FLD/FRNDINT under active x87 rounding mode,,
-004F1DA2,NXBasics::Runtime_HandleMaskedMathException,Math error and IEEE records,False,Masked exception priority; directed overflow values; denormal underflow shifts; 4F2024 status raising,"004F198A,004F2024",
+004F1DA2,NXBasics::Runtime_HandleMaskedMathException,Math error and IEEE records,False,Masked exception priority; directed overflow values; denormal underflow shifts; 4F2024 status raising; now an isolated link-only dummy for the translated dispatcher; not functionally complete,"004F198A,004F2024",
 004F2024,NXBasics::Runtime_RaiseX87Exceptions,Waiting x87 status and exception operations,False,"Ordered flag branches: invalid integer conversion, overflowing store, underflowing store, divide-by-zero, inexact pi store",,

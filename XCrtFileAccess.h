@@ -121,6 +121,20 @@ namespace NXBasics
         RuntimeMathExceptionValue result;
     };
 
+    struct RuntimeMathError
+    {
+        std::int32_t type;
+        const char* name;
+        double argument1;
+        double argument2;
+        double result;
+    };
+
+    static_assert(sizeof(RuntimeMathError) == 0x20);
+    static_assert(offsetof(RuntimeMathError, argument1) == 8);
+    static_assert(offsetof(RuntimeMathError, argument2) == 0x10);
+    static_assert(offsetof(RuntimeMathError, result) == 0x18);
+
     struct RuntimeFormatStream
     {
         char* position;		            // +0x00
@@ -571,6 +585,8 @@ namespace NXBasics
     std::int32_t Runtime_SetModeNoLock(std::uint32_t descriptor, std::int32_t mode);
 
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask);
+    void Runtime_DispatchMathError(std::uint32_t operation, RuntimeMathError* error, const std::uint16_t* savedControl);
+    bool Runtime_HandleMaskedMathException(std::uint32_t flags, volatile double* result, std::uint32_t controlWord);
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent);
     void Runtime_RaiseMathException(volatile RuntimeMathExceptionRecord* record, volatile std::uint32_t* controlWord, std::uint32_t flags, std::uint32_t operation, const volatile double* argument, volatile double* result);
     std::int32_t Runtime_ReadX87StatusRaw();
