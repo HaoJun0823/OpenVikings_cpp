@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Shared AI task entries and precision wrapper - 2026-10-11
+
+Six additional original Windows entries are reconstructed: the five-entry AI task/default-position call tree and the separate precision-setting startup wrapper. AI parser and scheduler parents remain unresolved. Category assignments follow the owning AI block without removing any address. See [SHARED_TASK_PRECISION_COMPLETION.md](SHARED_TASK_PRECISION_COMPLETION.md).
+
+Current global inventory **4658/5062 (92.02%)**, **404 open**. System/shared **616/668 (92.22%), 52 open**; engine **127 open**, AI **225 open**. **19** explicit unfinished boundaries and **286** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2762** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Primary and GUI integration units pass MSVC Win32 /Zs; InGameGuiManager retains its five existing C4805 warnings. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared scalar resource and typed-list lifetimes - 2026-10-11
 
 Seven additional Windows entries now have distinct resource/list lifetime boundaries. The INI definition list uses its own evidenced type and destructor, and all seven storable factory allocation branches invoke the original new-handler allocation family. Resource and keyboard-list ownership determines category assignments without removing any native entry. See [SHARED_RESOURCE_LISTS_COMPLETION.md](SHARED_RESOURCE_LISTS_COMPLETION.md).

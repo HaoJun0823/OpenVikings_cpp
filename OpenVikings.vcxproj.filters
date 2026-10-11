@@ -933,6 +933,9 @@
     <ClCompile Include="C2AIConditions.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2AITaskAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClInclude Include="C2SavegameIO.h">
       <Filter>Logic</Filter>
     </ClInclude>
@@ -946,6 +949,9 @@
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2AIConditions.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AITaskAccess.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2MapGuid.h">

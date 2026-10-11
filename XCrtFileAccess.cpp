@@ -2025,13 +2025,12 @@ namespace NXBasics
     }
 
     // Original function: FUN_004e6efc
-    // Includes the precision-setting wrapper FUN_004eb923.
     void Runtime_InitializeFloatingPoint()
     {
         Runtime_InitializeFloatCallbacks();
 
         gRuntimePentiumFdivAdjustment = Runtime_GetPentiumDivisionAdjustment();
-        Runtime_ControlFloatingPoint(0x00010000u, 0x00030000u);
+        Runtime_SetDoublePrecision();
 
         // FNClEX affects only x87; retain any SSE status across the CRT clear.
         const bool hasSse = ::IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE) != FALSE;
@@ -10938,6 +10937,12 @@ namespace NXBasics
         }
 
         return (previousFlags & 0x80u) != 0 ? 0x4000 : 0x8000;
+    }
+
+    // Original function: FUN_004eb923; change only the legacy precision-control bits.
+    std::uint32_t Runtime_SetDoublePrecision()
+    {
+        return Runtime_ControlFloatingPoint(0x00010000u, 0x00030000u);
     }
 
     // Original function: FUN_004f053b

@@ -225,6 +225,7 @@ namespace NXBasics
     std::uint32_t Runtime_GetFileSize(std::uint32_t descriptor);
 
     void Runtime_InitializeFloatingPoint();
+    std::uint32_t Runtime_SetDoublePrecision();
 
     void Runtime_InitializeFloatCallbacks();
 
