@@ -995,7 +995,7 @@ namespace NXBasics
         Runtime_ConvertFloatGeneral(value, buffer, precision, uppercase);
     }
 
-    // Original function: ___add_12
+    // Original function: FUN_004f209b; existing ___add_12 reconstruction.
     void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source)
     {
         if (Runtime_Add32WithCarry(destination[0], source[0], &destination[0]) != 0)
@@ -1008,6 +1008,54 @@ namespace NXBasics
             ++destination[2];
 
         Runtime_Add32WithCarry(destination[2], source[2], &destination[2]);
+    }
+
+    // Original function: FUN_004f07cc; sequential DWORD loads/stores preserve overlap behavior.
+    void Runtime_Copy96(std::uint32_t* destination, const std::uint32_t* source)
+    {
+        for (std::uint32_t index = 0; index < 3; ++index) destination[index] = source[index];
+    }
+
+    // Original function: FUN_004f07e7.
+    void Runtime_Zero96(std::uint32_t* value)
+    {
+        value[0] = 0;
+        value[1] = 0;
+        value[2] = 0;
+    }
+
+    // Original function: FUN_004f07f3; stop at the first nonzero DWORD.
+    std::int32_t Runtime_IsZero96(const std::uint32_t* value)
+    {
+        for (std::uint32_t index = 0; index < 3; ++index) if (value[index] != 0) return 0;
+        return 1;
+    }
+
+    // Original function: FUN_004f0cab; the fallback uses the fixed character table.
+    std::int32_t Runtime_ClassifyMultibyteByte(std::uint32_t character, std::uint32_t characterMask, std::uint32_t multibyteMask)
+    {
+        const auto byte = static_cast<std::uint8_t>(character);
+        if ((gRuntimeMultibyteTypes[byte + 1u] & static_cast<std::uint8_t>(multibyteMask)) != 0) return 1;
+        return characterMask != 0 && (gRuntimeCharacterTypeStorage[byte + 1u] & characterMask) != 0 ? 1 : 0;
+    }
+
+    // Original function: FUN_004f0c9a.
+    std::int32_t Runtime_IsMultibyteLeadByte(std::uint32_t character)
+    {
+        return Runtime_ClassifyMultibyteByte(character, 0, 4);
+    }
+
+    // Original function: FUN_004f1fb9; other signed error types leave errno untouched.
+    void Runtime_SetMathErrno(std::int32_t errorType)
+    {
+        if (errorType == 1) *Runtime_GetErrnoPointer() = 0x21;
+        else if (errorType == 2 || errorType == 3) *Runtime_GetErrnoPointer() = 0x22;
+    }
+
+    // Original function: FUN_004f1fe1; the default callback ignores the exception record.
+    std::int32_t Runtime_DefaultMathError(const void* /*exception*/)
+    {
+        return 0;
     }
 
     // Reconstruction helper; no separate original function.
@@ -11038,7 +11086,6 @@ namespace NXBasics
     }
 
     // Original function: FUN_004f089b.
-    // FUN_004f07cc, FUN_004f07e7 and FUN_004f07f3 are folded into local copy/zero checks.
     int Runtime_Extended12ToBinary(const std::uint32_t* source, void* destination, const RuntimeBinaryFormat& format)
     {
         const auto* bytes = reinterpret_cast<const unsigned char*>(source);
@@ -11054,23 +11101,24 @@ namespace NXBasics
         int status = 0;
         if (exponent == -0x3fff)
         {
-            if ((mantissa[0] | mantissa[1] | mantissa[2]) != 0)
+            if (Runtime_IsZero96(mantissa) == 0)
                 status = 2;
-            mantissa[0] = mantissa[1] = mantissa[2] = 0;
+            Runtime_Zero96(mantissa);
         }
         else
         {
-            const std::uint32_t original[3] = { mantissa[0], mantissa[1], mantissa[2] };
+            std::uint32_t original[3];
+            Runtime_Copy96(original, mantissa);
             if (Runtime_RoundMantissa(mantissa, format.precision) != 0)
                 ++exponent;
             if (exponent < format.minimumExponent - format.precision)
             {
-                mantissa[0] = mantissa[1] = mantissa[2] = 0;
+                Runtime_Zero96(mantissa);
                 status = 2;
             }
             else if (exponent <= format.minimumExponent)
             {
-                std::memcpy(mantissa, original, sizeof(mantissa));
+                Runtime_Copy96(mantissa, original);
                 Runtime_ShiftMantissaRight(mantissa, format.minimumExponent - exponent);
                 Runtime_RoundMantissa(mantissa, format.precision);
                 Runtime_ShiftMantissaRight(mantissa, format.exponentBits + 1);
@@ -11078,8 +11126,8 @@ namespace NXBasics
             }
             else if (exponent >= format.maximumExponent)
             {
+                Runtime_Zero96(mantissa);
                 mantissa[0] = 0x80000000u;
-                mantissa[1] = mantissa[2] = 0;
                 Runtime_ShiftMantissaRight(mantissa, format.exponentBits);
                 field = format.bias + format.maximumExponent;
                 status = 1;

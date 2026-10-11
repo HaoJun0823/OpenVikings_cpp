@@ -244,8 +244,7 @@ namespace NXBasics
 
             while (*cursor != '"' && *cursor != 0)
             {
-                // Original helpers: FUN_004f0c9a -> FUN_004f0cab.
-                if ((gRuntimeMultibyteTypes[*cursor + 1u] & 4u) != 0)
+                if (Runtime_IsMultibyteLeadByte(*cursor) != 0)
                 {
                     ++cursor;
                 }

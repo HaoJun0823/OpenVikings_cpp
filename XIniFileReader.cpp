@@ -628,8 +628,8 @@ namespace NXBasics
                     continue;
                 }
 
-                auto* definition = new (std::nothrow) SIniFileReaderDefine;
-                std::memset(definition, 0, sizeof(*definition));
+                auto* definition = ::new(Runtime_AllocateWithNewHandler(sizeof(SIniFileReaderDefine))) SIniFileReaderDefine;
+                Runtime_FillMemory(definition, 0, sizeof(*definition));
 
                 char* nameOutput = definition->name;
                 char character;

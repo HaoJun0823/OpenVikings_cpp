@@ -1,0 +1,10 @@
+Address,CurrentName,Status,WindowsEvidence
+004F07CC,NXBasics::Runtime_Copy96,Explicit recovered helper,Copy three DWORDs in forward order; retain sequential overlap semantics
+004F07E7,NXBasics::Runtime_Zero96,Explicit recovered helper,Three ordered DWORD zero stores
+004F07F3,NXBasics::Runtime_IsZero96,Explicit recovered helper,"Return 0 at first nonzero DWORD, otherwise 1"
+004F0C9A,NXBasics::Runtime_IsMultibyteLeadByte,Implemented,Forward character and masks 0/4 to byte classifier
+004F0CAB,NXBasics::Runtime_ClassifyMultibyteByte,Implemented,Truncate character/multibyte mask to bytes; check multibyte table first; optional mask of fixed WORD table; return 1/0
+004F1FB9,NXBasics::Runtime_SetMathErrno,Implemented leaf; enclosing path open,"Signed error type 1 sets runtime errno 0x21, types 2/3 set 0x22, all others leave it unchanged"
+004F1FE1,NXBasics::Runtime_DefaultMathError,Implemented leaf; enclosing path open,"Native xor EAX,EAX and RET; ignore exception record and return 0"
+004F209B,NXBasics::Runtime_Add96,Existing implementation; inventory correction,Existing low/middle/high DWORD carry sequence agrees with 4F207A calls; now has missing original-address marker
+00479E17,NXSysKeyManager::CKeyEntryList::DestroyValue,Corrected existing value-free entry,Call 4E5E48 on stored value; no payload destructor; native RET 4

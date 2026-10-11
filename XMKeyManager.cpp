@@ -1,4 +1,5 @@
 #include "XMKeyManager.h"
+#include "XCrtFileAccess.h"
 
 #include <Windows.h>
 #include <mmsystem.h>
@@ -37,8 +38,7 @@ namespace NXSysKeyManager
             {
                 previous->next = node->next;
 
-                // Nodes are allocated by the existing native PushBack().
-                ::operator delete(static_cast<void*>(node));
+                NXBasics::Runtime_Free(node);
                 --mCount;
                 return value;
             }
@@ -71,7 +71,7 @@ namespace NXSysKeyManager
     // Original function: FUN_00479d42
     void CKeyManager::PushKey(std::uint8_t keyCode, std::uint8_t auxiliaryCode, bool state)
     {
-        SKeyMessage* message = new SKeyMessage;
+        auto* message = ::new(NXBasics::Runtime_AllocateWithNewHandler(sizeof(SKeyMessage))) SKeyMessage;
 
         message->keyCode = keyCode;
         message->auxiliaryCode = auxiliaryCode;
@@ -111,10 +111,9 @@ namespace NXSysKeyManager
         void* value = mEntries.PopFront();
 
         // Copy all 12 bytes, including padding, as in the original.
-        std::memcpy(&message, value, sizeof(message));
+        NXBasics::Runtime_CopyMemory(&message, value, sizeof(message));
 
-        // Original: FUN_004e5e48(value).
-        ::operator delete(value);
+        NXBasics::Runtime_Free(value);
 
         return message.state != 0 ? 1 : 2;
     }
@@ -132,12 +131,10 @@ namespace NXSysKeyManager
     CKeyEntryList::CKeyEntryList(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues)
     {}
 
-    // Original: FUN_004e5e48(value).
+    // Original function: LAB_00479e17; the stored value has no destructor call.
     void CKeyEntryList::DestroyValue(void* value)
     {
-        // Original code: LAB_00479e17
-        // No destructor is called for the stored object.
-        ::operator delete(value);
+        NXBasics::Runtime_Free(value);
     }
 
     CKeyEntryListBase::Iterator::Iterator(CKeyEntryListBase& list) : mList(&list), mPosition(nullptr), mStarted(0)
@@ -177,7 +174,8 @@ namespace NXSysKeyManager
     // Original function: FUN_00439c8b
     void CKeyEntryListBase::PushBack(void* value)
     {
-        SKeyEntryNode* node = new (std::nothrow) SKeyEntryNode;
+        void* allocation = NXBasics::Runtime_AllocateWithNewHandler(sizeof(SKeyEntryNode));
+        auto* node = allocation == nullptr ? nullptr : ::new(allocation) SKeyEntryNode;
 
         if (node != nullptr)
         {
@@ -220,8 +218,7 @@ namespace NXSysKeyManager
             mFirst = nextNode;
         }
 
-        // Original: FUN_004e5e48(removedNode).
-        ::operator delete(static_cast<void*>(removedNode));
+        NXBasics::Runtime_Free(removedNode);
 
         --mCount;
 
@@ -257,7 +254,7 @@ namespace NXSysKeyManager
             previous->next = nullptr;
         }
 
-        ::operator delete(static_cast<void*>(mLast));
+        NXBasics::Runtime_Free(mLast);
 
         const std::uint32_t count = mCount;
         mLast = previous;

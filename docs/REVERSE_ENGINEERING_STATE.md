@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Shared mantissa and list ownership block - 2026-10-11
+
+Eight previously unmapped entries are now explicit or correctly counted. Three mantissa and two byte-classification helpers are connected. Two math-error leaves are available while their enclosing FPU paths remain open. Keyboard/INI list ownership is corrected throughout; its existing value-free entry moves to GUI without increasing the global count. See [SHARED_MANTISSA_LIST_COMPLETION.md](SHARED_MANTISSA_LIST_COMPLETION.md).
+
+Current global inventory **4623/5062 (91.33%)**, **439 open**. System/shared **603/683 (88.29%), 80 open**; engine **127 open**, AI **232 open**. **19** explicit unfinished boundaries and **288** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2726** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Four affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared application-entry and text-wrapper block - 2026-10-11
 
 Two text helpers are reconstructed; the existing entry and cleanup lambdas now have explicit bodies. Windows entry allocation/free ownership and stdcall are corrected. The identified text helpers move into GUI without dropping addresses. See [SHARED_STARTUP_GUI_COMPLETION.md](SHARED_STARTUP_GUI_COMPLETION.md).

@@ -336,6 +336,10 @@ namespace NXBasics
 
     std::uint32_t Runtime_ClassifyCharacter(std::int32_t character, std::uint32_t mask);
     std::uint32_t Runtime_ClassifySpecialDouble(double value);
+    std::int32_t Runtime_ClassifyMultibyteByte(std::uint32_t character, std::uint32_t characterMask, std::uint32_t multibyteMask);
+    std::int32_t Runtime_IsMultibyteLeadByte(std::uint32_t character);
+    void Runtime_SetMathErrno(std::int32_t errorType);
+    std::int32_t Runtime_DefaultMathError(const void* exception);
 
     void Runtime_InitializeCrt(RuntimeVoidCallback* applicationBegin, RuntimeVoidCallback* applicationEnd);
 
@@ -593,6 +597,9 @@ namespace NXBasics
     const char* Runtime_FindMultibyteCharacter(const char* text, std::uint32_t character);
 
     void Runtime_Add96(std::uint32_t* destination, const std::uint32_t* source);
+    void Runtime_Copy96(std::uint32_t* destination, const std::uint32_t* source);
+    void Runtime_Zero96(std::uint32_t* value);
+    std::int32_t Runtime_IsZero96(const std::uint32_t* value);
 
     std::int32_t Runtime_TimeSigned32(std::uint32_t bits);
 
