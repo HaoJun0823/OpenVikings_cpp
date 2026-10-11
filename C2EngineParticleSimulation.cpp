@@ -441,8 +441,9 @@ namespace NC2E2
             {
                 if (Read<std::uint8_t>(particle, 0x12D) == 0 && Read<std::uint32_t>(particle, 0x128) == static_cast<std::uint32_t>(gStaticParticelStorage.munitionIds[1]))
                 {
-                    const void* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(At(particle, 0x78));
-                    if ((Read<std::uint8_t>(micro, 0xC) & 0x80u) == 0 && Read<std::uint16_t>(micro, 0xA) == 0xFFFFu && !(Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::int8_t>(micro, 4) != -1))
+                    // An expired projectile may have crossed the map boundary on its last movement tick.
+                    const void* micro = NC2Logic::GameMap_GetMapMicroPointPtr(At(particle, 0x78));
+                    if (micro != nullptr && (Read<std::uint8_t>(micro, 0xC) & 0x80u) == 0 && Read<std::uint16_t>(micro, 0xA) == 0xFFFFu && !(Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::int8_t>(micro, 4) != -1))
                     {
                         // The original clears only the low DWORD of the pixel-Y double.
                         Write<std::uint32_t>(particle, 0x48, 0); Write<std::uint8_t>(particle, 0x12D, 0);

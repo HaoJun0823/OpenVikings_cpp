@@ -73,9 +73,9 @@ namespace NC2Logic
         if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 2: Human_l_StartTask_ExecuteJob_Tool_CollectWantedGood(human); return;
+        case 2: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
         case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
+        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human); return;
         case 0: break;
         default: return;
         }
@@ -130,7 +130,7 @@ namespace NC2Logic
         {
             Write(human, 0xAD0, output);
             Write<std::uint32_t>(human, 0xACC, 5);
-            Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
+            Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human);
         };
         if (House_Stock_IsFullSoon(house, 21)) { flush(21); return; }
         const auto secondaryGood = good == 57 ? 10u : 9u;

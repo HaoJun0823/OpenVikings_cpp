@@ -183,7 +183,10 @@ namespace NC2E2
                 if (Read<std::uint32_t>(manager, 0x2F0270) == index) Write(manager, 0x2F0270, previous);
                 continue;
             }
-            if ((Read<std::uint32_t>(display, 0x70) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) { previous = index; continue; }
+            // Deferred movement can carry a previously visible particle outside the map.
+            // Use the original checked accessor before visibility and brightness lookups.
+            const auto* micro = NC2Logic::GameMap_GetMapMicroPointPtr(point);
+            if (micro == nullptr || ((Read<std::uint32_t>(display, 0x70) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, 8) & (1u << player)) == 0)) { previous = index; continue; }
             if (Read<std::uint8_t>(particle, 0x12C) != 0) E2ParticelManager_l_DrawParticel(manager, display, particle);
             else
             {

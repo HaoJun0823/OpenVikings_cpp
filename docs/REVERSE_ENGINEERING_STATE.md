@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Scout appearance, breeder continuation and particle bounds - 2026-10-11
+
+The Windows job/armor graphics entries and their registered callback branches are connected. Three breeder dispatch calls now follow the native fetch continuations, addressing the branch identified in the user's "Trostloses Erwachen" pause stack. Particle rendering and expired-arrow placement use the existing checked map accessor for out-of-map coordinates; this invalid-input safeguard is explicitly distinguished from the original unchecked Windows paths. See [SCOUT_BREEDER_PARTICLE_REGRESSIONS.md](SCOUT_BREEDER_PARTICLE_REGRESSIONS.md).
+
+Current inventory: **4670/5063 (92.24%)**, **393 open**; engine **556/680, 124 open**, shared **626/670, 44 open**, AI **96/321, 225 open**. The enclosing graphics callback remains partial. Project/filter parity is 286 CPP / 262 headers; naming inventory is 2814 unique rows. There remain 19 explicitly partial boundaries, 283 provisional assignments and 17 unmatched declaration signatures.
+
+All five changed C++ units pass Win32 C++17 syntax-only checks without diagnostics. No build, tests or gameplay run occurred. Scout appearance and the map hang need a user retest; the exact crashed particle coordinates are unavailable. Hostile Frank music on Die Rebellion is traced to supplied map data: visually Frankish players 3/4 are configured as Viking tribe 1. The user explicitly chose to retain the map data and then confirmed the original Windows executable plays the same music. This music report is resolved as original behavior; no music or map-data change is applied. Pre-existing particle-source formatting is preserved separately from the functional patch.
+
 ## Current shared remainder and masked-response dependency audit - 2026-10-11
 
 The fresh 44-entry shared remainder is exported separately from historical snapshots. Windows priority, hardware flag mapping, directed overflow and underflow normalization/discarded-bit behavior are audited for the next concrete math-error dependency tree. No additional implementation count or provisional numeric promotion is added. See [SHARED_CURRENT_REMAINDER.md](SHARED_CURRENT_REMAINDER.md).

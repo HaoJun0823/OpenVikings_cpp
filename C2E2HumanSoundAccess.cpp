@@ -2,6 +2,7 @@
 #include "C2E2StaticDataSoundFX.h"
 #include "C2EngineDisplayManager.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2EngineMoveableDrawing.h"
 #include "C2EngineParticleSimulation.h"
 #include "C2HouseAccess.h"
 #include "C2GameState.h"
@@ -25,6 +26,8 @@ namespace NC2E2
     {
         switch (type)
         {
+        case 0x1F: E2DynamicDataHumanManager_HumanJobChanged(parameter1, parameter2, parameter3); return true;
+        case 0x20: E2DynamicDataHumanManager_HumanArmorChanged(parameter1, parameter2); return true;
         case 0x18:
         {
             const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();

@@ -16,6 +16,7 @@
 #include "C2VehicleAccess.h"
 #include "C2HumanJobAccess.h"
 #include "C2HumanInitialization.h"
+#include "C2HumanEquipment.h"
 #include "C2EngineLandscapeDrawing.h"
 #include "C2E2StaticDataTerrain.h"
 #include "C2E2AnimalSoundManager.h"
@@ -468,6 +469,48 @@ namespace NC2E2
         }
         Write<std::uint32_t>(dynamic, 0, 0xFFFFFFFFu);
         Write<std::uint32_t>(dynamic, 4, 0xFFFFFFFFu);
+    }
+
+    // Original function: FUN_00480576; keep the appearance variant when the new job supports it.
+    void E2DynamicDataHumanManager_HumanJobChanged(std::uint32_t humanId, std::uint32_t oldJob, std::uint32_t newJob)
+    {
+        if (oldJob == 0) return;
+        const auto* human = NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize;
+        auto* dynamic = gDynamicDataHumans.entries + humanId * 0x8C8u;
+        if (const auto* graphics = StaticHumanMisc_JobGraphicsChange_GetDataPtr(Read<std::uint32_t>(human, 0x14), newJob))
+        {
+            const auto bodyCount = Read<std::uint32_t>(graphics, 8);
+            if (bodyCount != 0)
+            {
+                std::uint32_t index = 0;
+                while (index < bodyCount && Read<std::uint32_t>(graphics, 0xC + index * 12u) != Read<std::uint32_t>(dynamic, 0x3C)) ++index;
+                if (index == bodyCount) index = 0;
+                Write(dynamic, 0x28, Read<void*>(graphics, 0x10 + index * 12u));
+                Write(dynamic, 0x30, Read<void*>(graphics, 0x14 + index * 12u));
+            }
+            const auto headCount = Read<std::uint32_t>(graphics, 0x48);
+            if (headCount != 0)
+            {
+                std::uint32_t index = 0;
+                while (index < headCount && Read<std::uint32_t>(graphics, 0x4C + index * 8u) != Read<std::uint32_t>(dynamic, 0x40)) ++index;
+                if (index == headCount) index = 0;
+                Write(dynamic, 0x2C, Read<void*>(graphics, 0x50 + index * 8u));
+            }
+            const auto patch = Read<std::uint32_t>(graphics, 0x74);
+            if (patch != 0xFFFFFFFFu) StaticHumanMisc_RandomPalette_Execute(patch, HumanBody(dynamic), HumanHead(dynamic), false);
+        }
+        if (NC2Logic::Human_IsJobSoldier(human)) E2DynamicDataHumanManager_HumanArmorChanged(humanId, NC2Logic::Human_Equipment_GetArmorType(human));
+    }
+
+    // Original function: FUN_00480676; armor patches follow the job patch.
+    void E2DynamicDataHumanManager_HumanArmorChanged(std::uint32_t humanId, std::uint32_t armor)
+    {
+        char name[100];
+        NXBasics::Runtime_PrintString(name, "human_armor_%3.3d", NXBasics::Runtime_TimeSigned32(armor));
+        const auto patch = StaticHumanMisc_RandomPalette_GetPatchId(name);
+        if (patch == -1) return;
+        auto* dynamic = gDynamicDataHumans.entries + humanId * 0x8C8u;
+        StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), HumanBody(dynamic), HumanHead(dynamic), false);
     }
 
     // Original function: FUN_0049b337; original static colours have no destructor work.

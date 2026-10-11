@@ -6,7 +6,7 @@ Address,CurrentName,Status,ReferencingObjects
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows callback; sound 0x17 and local-player jingle 0x18 plus particle/generator branches 0x1C and 0x23..0x27 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
+0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows callback; sound 0x17 and local-player jingle 0x18 plus particle/generator branches 0x1C and 0x23..0x27 plus job/armor graphics 0x1F/0x20 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
 00489DE0,NC2E2::MacroMapManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
 004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native integration; landscape/house/guide/moveable/construction-marker/particle-line drawing and repair sound connected; complete enclosing-entry audit pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
