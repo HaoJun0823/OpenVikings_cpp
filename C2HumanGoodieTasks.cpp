@@ -11,6 +11,7 @@
 #include "C2HumanTaskAccess.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2LifetimeAccess.h"
+#include "C2ObjectMemberConstructors.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapArea.h"
@@ -92,7 +93,10 @@ namespace NC2Logic
     // Original function: FUN_0045eaa9; native attempts sample with replacement.
     bool Human_FindDamagedWallNearWorkCenter(const void* human, void* realPosition, void* workPosition)
     {
-        SDamagedWallSearch data{ Read<std::uint32_t>(human, 0x10), 0, {} };
+        SDamagedWallSearch data;
+        SearchDamagedWall_ConstructMembers(&data);
+        data.player = Read<std::uint32_t>(human, 0x10);
+        data.count = 0;
         CMapPathfinderElement::SearchOverMap(static_cast<const std::byte*>(human) + 0xB30, 5, false, slHumanSearchDamagedWallFunction, &data, true, static_cast<std::int32_t>(data.player));
         for (std::uint32_t attempt = 0; attempt < data.count * 2u; ++attempt)
         {
@@ -114,7 +118,7 @@ namespace NC2Logic
         void* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * 0x58u; }
         const void* Position(const void* human) { return Human_GetMapPositionRef(human); }
 
-        struct NearbyPoints { std::uint32_t count = 0; std::uint32_t points[8]{}; };
+        struct NearbyPoints { NearbyPoints() { SearchNearbyMapPoints_ConstructMembers(this); } std::uint32_t count = 0; std::uint32_t points[8]; };
         static_assert(sizeof(NearbyPoints) == 0x24);
         struct SleepLandscapes { std::uint32_t landscapeType = 4; std::uint32_t unresolved04 = 0; std::uint32_t count = 0; std::uint32_t points[10]{}; };
         static_assert(sizeof(SleepLandscapes) == 0x34);
@@ -352,7 +356,7 @@ namespace NC2Logic
             Write<std::uint8_t>(human, 0x444, 0);
         }
         if (Human_IsAgeBaby(human)) Human_l_StartTask_Goodie_Helper_Baby(human);
-        else if (Read<std::uint32_t>(human, 0x18) == 3 || Read<std::uint32_t>(human, 0x18) == 4) Human_l_StartTask_Goodie_Helper_Child(human);
+        else if (Human_IsAgeChild(human)) Human_l_StartTask_Goodie_Helper_Child(human);
         else Human_l_StartTask_Goodie_Helper_TalkToAny(human);
     }
 
@@ -424,9 +428,9 @@ namespace NC2Logic
                 }
             }
         }
-        // CanSleepAtMapWorkPosition (0042C8FD) always returns true. The real-position
-        // predicate (0042D271) calls the nullable map accessor, then returns true too.
-        GameMap_GetMapMicroPointPtr(Position(human));
+        // Windows folds CanSleepAtMapWorkPosition and IsAbleToUseVehicle into the same unconditional predicate.
+        Human_IsAbleToUseVehicle(human);
+        Human_CanSleepAtMapRealPosition(Position(human));
         Write(realPosition, 0, Read<std::uint32_t>(Position(human), 0));
         Write(workPosition, 0, Read<std::uint32_t>(Position(human), 0));
         return true;
@@ -536,4 +540,36 @@ namespace NC2Logic
 
     // Original function: FUN_0046a7fe.
     void Human_l_FailTask_Goodie(void* human) { Write<std::uint32_t>(human, 0xAD0, 0); }
+    // Original function: FUN_0045e014.
+    void* Human_FindHumanToTalkInTalkRange_Adult(const void* human)
+    {
+        CHumanIterator iterator;
+        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, 0x10), Position(human), 1); id != -1; id = iterator.GetNextHumanId())
+        {
+            void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
+            if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
+            // Windows retains one candidate and still consumes random % 1.
+            Game_Random_GetNumber();
+            return other;
+        }
+        return nullptr;
+    }
+
+    // Original function: FUN_0045e0dd.
+    void* Human_FindHumanToTalkInSearchRange_Adult(const void* human)
+    {
+        CHumanIterator iterator;
+        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, 0x10), Position(human), 10); id != -1; id = iterator.GetNextHumanId())
+        {
+            void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
+            if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
+            Game_Random_GetNumber();
+            return other;
+        }
+        return nullptr;
+    }
+
+
 }

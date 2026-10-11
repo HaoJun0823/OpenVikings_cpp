@@ -203,4 +203,8 @@ namespace NC2Logic
             return false;
         }
     }
+
+    // Original function: FUN_00443134; Windows outlined map target setter.
+    void TargetData_SetMapPosition(void* target, const void* point) { NC2Lifetime::Write(target, 4, NC2Lifetime::Read<std::int16_t>(point, 0)); NC2Lifetime::Write(target, 6, NC2Lifetime::Read<std::int16_t>(point, 2)); }
+
 }

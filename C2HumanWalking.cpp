@@ -9,6 +9,7 @@
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
+#include "C2ObjectMemberConstructors.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
@@ -32,7 +33,7 @@ namespace NC2Logic
 
     namespace
     {
-        struct FreeMapPoints { std::uint32_t count = 0; std::uint32_t points[8]{}; };
+        struct FreeMapPoints { FreeMapPoints() { SearchNearbyMapPoints_ConstructMembers(this); } std::uint32_t count = 0; std::uint32_t points[8]; };
         struct VehicleFreeMapPoints { std::uint32_t minimumDistance; FreeMapPoints candidates; };
 
         bool IsFreeForStationaryMoveables(const void* point)
@@ -281,7 +282,7 @@ namespace NC2Logic
         }
     }
 
-    // Partial original function: FUN_00462cd5; the military destination continuation is pending.
+    // Original function: FUN_00462cd5; civilian and military destination continuations are connected.
     bool Human_AI_DoNewMapPositionReached(void* human, bool destinationReached)
     {
         Write(human, 0x384, Read<std::uint32_t>(human, 0x384) + 1u);
@@ -314,7 +315,7 @@ namespace NC2Logic
                 Write<std::int32_t>(human, 0xADC, remaining < 0 ? 0 : remaining > 10000 ? 10000 : remaining);
             }
         }
-        else if (Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, 0xB84) & 1u) == 0) Write(human, 0xAA8, Read<std::uint32_t>(human, 0xAA8) - resistance);
+        else if (!Human_AI_IsIgnoringNeeds(human)) Write(human, 0xAA8, Read<std::uint32_t>(human, 0xAA8) - resistance);
         if (!destinationReached) return Human_AI_DoNewMapPositionReached_DestinationNotReached(human);
         Human_AI_DoNewMapPositionReached_DestinationReached(human);
         return true;

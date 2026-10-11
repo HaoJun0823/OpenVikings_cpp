@@ -306,7 +306,7 @@ namespace NC2Logic
         }
         else
         {
-            if (Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x83u) != 0) return false;
+            if (Human_IsForcedToHaveWorkHouse(human)) return false;
             if (Human_IsJobBuilder(human) && !Human_IsAttachedToRoadPoint(human) && !Human_IsAttachedToWallPoint(human)) return false;
         }
         return Read<std::uint8_t>(human, 0xB51) == 0;

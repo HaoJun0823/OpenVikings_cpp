@@ -8,6 +8,7 @@
 #include "C2GameState.h"
 #include "C2LogicObjectArrays.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanEquipment.h"
 #include "C2HumanInitialization.h"
 #include "C2EngineObjectData.h"
 #include "C2EngineDrawingAccess.h"
@@ -130,6 +131,6 @@ namespace NC2InGameGuiSelection
     static bool __fastcall SelectionMultipleHumanElement_ToolTip_Available(void* element, void*, const char** output)
     {
         std::int32_t point[2]; std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point)); BaseElement_GlobalToLocalCoordinates(element, point); const auto* status = Tooltips(element)->Get(point); if (status != nullptr) { *output = status; return true; } const auto id = Read<std::int32_t>(element, 0x2C); if (id == -1) return false; const auto* human = Human(id); auto* caption = reinterpret_cast<char*>(element) + 0x30; std::strcpy(caption, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * 0x8C8 + 0x85C);
-        if (!NC2Logic::Human_IsJobHero(human)) { std::strcat(caption, " - "); std::strcat(caption, Read<std::uint32_t>(human, 0x14) == 2 && Read<std::uint32_t>(human, 0x18) == 47 ? CGuiBaseStringsManager::GetStringPtr(12, 31) : NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, 0x18), 1)); } if (Read<std::uint32_t>(human, 0x1C) != 0) { std::strcat(caption, " ("); std::strcat(caption, NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(human, 0x1C), 1)); std::strcat(caption, ")"); } *output = caption; return true;
+        if (!NC2Logic::Human_IsJobHero(human)) { std::strcat(caption, " - "); std::strcat(caption, Read<std::uint32_t>(human, 0x14) == 2 && Read<std::uint32_t>(human, 0x18) == 47 ? CGuiBaseStringsManager::GetStringPtr(12, 31) : NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, 0x18), 1)); } if (Read<std::uint32_t>(human, 0x1C) != 0) { std::strcat(caption, " ("); std::strcat(caption, NC2Logic::Human_GetReallyProducedGoodType_GetGuiNamePtr(human)); std::strcat(caption, ")"); } *output = caption; return true;
     }
 }

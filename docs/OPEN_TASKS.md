@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Human needs/jobs/commands source completion - 2026-10-11
+
+All **73 originally selected open entries**, plus vehicle-AI search dependency **0047354B**, are reconstructed or re-audited against Windows ASM/Game.exe. Command IDs **4..87**, all **36** atomic-event IDs and **47** job IDs have native branches. Artificial command/event/task yields are removed. Trader/carrier vehicle eligibility and the common carrier failure continuation are corrected; priest work uses the real temple-fill tree; social needs use adult conversation searches. Mac exports supply names only. See [HUMAN_ROUTINES_COMPLETION.md](HUMAN_ROUTINES_COMPLETION.md) and its per-entry/dispatch CSVs.
+
+Corrected human inventory **584/584**: the former **530/603** selection has all 73 gaps filled, with nineteen identified shared/GUI/vehicle/AI entries transparently reassigned. Global **4426/5063 (87.42%)**, **637 open**, **24** explicit unfinished boundaries; **279 CPP / 259 headers**, **2536** unique naming rows; **459** open entries provisionally assigned. [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md) supersedes historical totals. Next smallest category: **menus/GUI/input, 1106/1183, 77 open**.
+
+Twenty-three distinct changed units pass Win32 `/Zs`; project/filter parity, naming uniqueness, native selected-entry/callee/dispatch coverage, thematic totals and whitespace checks pass. The **21** unmatched declaration signatures are unchanged. No build, tests or game run occurred. The enclosing AI manager update, campaign playthroughs, music playback and green road rendering remain unverified or open in their respective blocks.
+
 ## Missions and campaigns source completion - 2026-10-11
 
 All **24 originally selected open entries** and their required dependencies are connected. The goal/result dispatchers cover all **63 goal IDs / 103 result IDs**, including original timed handling and no-ops. Weather/colors, markers/magic effects, object/resource predicates, teleportation and queued boarding/leaving now reach real native handlers. Windows ASM/Game.exe establish behavior; Mac exports supply names only. See [MISSIONS_CAMPAIGNS_COMPLETION.md](MISSIONS_CAMPAIGNS_COMPLETION.md).

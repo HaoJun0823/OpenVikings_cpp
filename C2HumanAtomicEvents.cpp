@@ -4,6 +4,7 @@
 #include "C2HumanGoodieTasks.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanNeeds.h"
 #include "C2VehicleAccess.h"
 #include "C2HumanGoods.h"
 #include "C2HumanProduction.h"
@@ -32,8 +33,6 @@ namespace NC2Logic
         void* TargetHuman(const void* human) { return CHumanArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CHumanArray::ElementSize; }
         void AddAttribute(void* human, std::uint32_t offset, std::uint32_t amount) { Write(human, offset, Read<std::uint32_t>(human, offset) + amount); }
 
-        // Windows 00463AD2; age/ignore-needs predicate.
-        bool CanChangeNeeds(const void* human) { return Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, 0xB84) & 1u) == 0; }
     }
 
     // Original function: FUN_0042c93f.
@@ -66,31 +65,7 @@ namespace NC2Logic
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, sound, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), 0);
     }
 
-    // Implementation boundary: advance animations only when their event leaves
-    // are connected. Weapon-hit event 25 includes delayed projectile damage.
-    bool Human_AreAtomicEventsReconstructed(const void* human, const SStaticAtomicAnimationData& animation)
-    {
-        for (std::uint32_t index = 0; index < animation.eventCount; ++index)
-        {
-            const auto type = static_cast<std::uint32_t>(animation.events[index].type);
-            if (type < 1u || type > 36u) continue; // Original default is a no-op.
-            switch (type)
-            {
-            case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
-            case 14: case 17: case 22: case 23: case 25: case 26: case 34: case 35: case 36:
-                break;
-            case 11: case 12: case 24: case 27: case 28: case 29: case 30: case 31: case 32: break;
-            case 13: case 15: case 16: case 18: case 19: break;
-            case 21: break;
-            case 20: break;
-            case 33: break;
-            default: return false;
-            }
-        }
-        return true;
-    }
-
-    // Partial original function: FUN_00468678; complete selector table 00468AD8..
+    // Original function: FUN_00468678; complete selector table 00468AD8..
     // 00468B67. Building events use the complete native context dispatcher.
     void Human_l_PerformTaskEvent(void* human, const SStaticAtomicAnimationEventData& event)
     {
@@ -98,7 +73,7 @@ namespace NC2Logic
         switch (event.type)
         {
         case 1:
-            if (CanChangeNeeds(human))
+            if (!Human_AI_IsIgnoringNeeds(human))
             {
                 auto delta = amount;
                 if (Human_IsInHomeHouse(human))
@@ -110,7 +85,7 @@ namespace NC2Logic
             }
             return;
         case 2:
-            if (CanChangeNeeds(human)) AddAttribute(human, 0xAA8, Human_IsInHomeHouse(human) ? amount * 2u : amount);
+            if (!Human_AI_IsIgnoringNeeds(human)) AddAttribute(human, 0xAA8, Human_IsInHomeHouse(human) ? amount * 2u : amount);
             return;
         case 3:
         {
@@ -126,14 +101,14 @@ namespace NC2Logic
                 Human_l_ResetAtomic(human);
                 return;
             }
-            if (CanChangeNeeds(human)) AddAttribute(human, 0xAB0, amount);
+            if (!Human_AI_IsIgnoringNeeds(human)) AddAttribute(human, 0xAB0, amount);
             return;
         }
         case 4:
-            if (CanChangeNeeds(human)) AddAttribute(human, 0xAB4, amount);
+            if (!Human_AI_IsIgnoringNeeds(human)) AddAttribute(human, 0xAB4, amount);
             return;
         case 5:
-            if (CanChangeNeeds(human) && (event.parameter > 0 || (Read<std::uint32_t>(human, 0xB84) & 8u) == 0)) AddAttribute(human, 0xAA0, amount);
+            if (!Human_AI_IsIgnoringNeeds(human) && (event.parameter > 0 || (Read<std::uint32_t>(human, 0xB84) & 8u) == 0)) AddAttribute(human, 0xAA0, amount);
             return;
         case 6: case 7:
             NXBasics::ReportWarning("l_PerformTaskEvent_SendHitpoints: not implemented yet!");

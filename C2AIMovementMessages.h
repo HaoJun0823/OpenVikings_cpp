@@ -19,4 +19,11 @@ namespace NC2Logic
     void AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(void* handler, std::uint32_t slot);
     void __fastcall AISinglePlayerHandler_Messages_SoldierAttacked(void* handler, void* unusedEdx, std::uint32_t human, const void* target);
     bool AISingleSoldier_Tool_IsSelfDefending(const void* soldier);
+
+    bool AISinglePlayerHandler_l_Vehicles_Let_AttackHuman(void* handler, std::uint32_t slot, std::uint32_t target, bool defence);
+    bool AISinglePlayerHandler_l_Vehicles_Let_AttackVehicle(void* handler, std::uint32_t slot, std::uint32_t target, bool defence);
+    bool AISinglePlayerHandler_l_Vehicles_Let_AttackHouse(void* handler, std::uint32_t slot, std::uint32_t target);
+    bool AISinglePlayerHandler_l_Vehicles_CheckForEnemys(void* handler, std::uint32_t slot, const void* point, std::uint32_t radius, bool houses, bool civilians, bool restrictCandidates, bool defence);
+    void AISinglePlayerHandler_l_Vehicles_WorkOnAttachedTasks(void* handler);
+    bool AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(const void* handler, std::uint32_t slot);
 }

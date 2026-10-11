@@ -11,4 +11,6 @@ namespace NC2Logic
     std::uint32_t TargetData_GetUniqueId(const void* target);
     void TargetData_GetMapPosition(const void* target, void* point);
     std::int32_t TargetData_GetPlayerId(const void* target);
+
+    void TargetData_SetMapPosition(void* target, const void* point);
 }

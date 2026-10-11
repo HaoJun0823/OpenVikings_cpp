@@ -6,6 +6,7 @@
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanMessageAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
 #include "C2HouseAccess.h"
@@ -36,6 +37,7 @@
 #include "C2HumanVehicleJobs.h"
 #include "C2HumanHuntingJobs.h"
 #include "C2HumanAttackTasks.h"
+#include "C2Debug.h"
 #include "C2StaticActorTypeDataAccess.h"
 
 namespace NC2Logic
@@ -65,8 +67,7 @@ namespace NC2Logic
     // Original function: FUN_004369c8.
     bool Human_UserControl_IsExecutingUserCommand(const void* human) { return Read<std::uint32_t>(human, 0x368) == 4 || Human_UserControl_IsPriorityCommandInQueue(human); }
 
-    // Partial original function: FUN_004433d1. Civilian needs, family, equipment and goodies
-    // and scout/attack tasks are connected; remaining vehicle task trees are pending.
+    // Original function: FUN_004433d1; all native task startup branches are connected.
     void Human_CurrentTask_DoStartUp(void* human)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return;
@@ -107,7 +108,6 @@ namespace NC2Logic
         if (task == 3) { Human_l_StartTask_GoHome(human); return; }
         if (task == 17) { Human_l_StartTask_Equip_DropItem(human, Read<std::uint32_t>(human, 0xAD0)); return; }
         if (task != 1 && task != 8 && task != 9) return;
-        if (!Human_CanExecuteQueuedCommands(human)) return;
         if (Human_DoExecuteNextUserCommand(human))
         {
             Write<std::uint32_t>(human, 0x37C, 0);
@@ -164,13 +164,7 @@ namespace NC2Logic
             if (task == 23) Human_Target_Reset(human);
             Human_l_FinishTask_Goto(human);
         }
-        else if (task == 4)
-        {
-            const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x2C) == 3) Human_HouseMisc_Enter(human);
-            Write<std::uint32_t>(human, 0x36C, 0);
-            Write<std::uint32_t>(human, 0x368, 1);
-        }
+        else if (task == 4) Human_l_FinishTask_GotoAndWait(human);
         else if (task == 24) Write<std::uint32_t>(human, 0x36C, 0);
         else if (task == 7) Human_l_FinishTask_FulfillNeeds(human);
         else if (task >= 25 && task <= 29) Human_l_FinishTask_Goodie(human);
@@ -264,21 +258,7 @@ namespace NC2Logic
             case 8: Human_UserMessage_SendToUserMessage(human, 9); break;
             case 9: Human_UserMessage_SendToUserMessage(human, 10); break;
             case 10: break; // Windows 0045BFEC returns without emitting a message.
-            case 11:
-            {
-                const auto good = Read<std::uint32_t>(human, 0x1C);
-                if (Read<std::uint32_t>(gGameControl, 0x5D200) == 2 && (good == 16 || good == 17 || good == 19 || good == 20 || good == 21 || good == 23)) break;
-                // Original message function: FUN_0045bfef.
-                std::byte message[0x304];
-                ToUserMessage_Construct(message);
-                Write<std::uint32_t>(message, 0, 13);
-                Write(message, 0x10, Read<std::uint32_t>(human, 4));
-                Write(message, 8, Read<std::uint32_t>(human, 0x10));
-                Write(message, 0x30, good);
-                ToUserMessage_FinishMessage(message);
-                NC2LogicExternals::External_Misc_SendToUserMessage(message);
-                break;
-            }
+            case 11: Human_UserMessage_SendToUserMessage_MustWaitForGood(human); break;
             case 13:
                 Human_UserMessage_SendToUserMessage(human, 14);
                 if (Human_IsAttachedToLearnHouse(human)) House_Inhabitants_DetachHuman(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, Read<std::uint32_t>(human, 4), 8);
@@ -540,8 +520,7 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x36C, 0);
     }
 
-    // Partial original function: FUN_0046c39e; household, learning, indoor production, collection, farming, fishing, social jobs, builders, ground military and idle jobs.
-    // Hunter work is connected; the remaining vehicle-dependent dispatch is pending.
+    // Original function: FUN_0046c39e; complete native job selector and common vehicle continuation.
     void Human_l_StartTask_ExecuteJob(void* human)
     {
         Write<std::uint32_t>(human, 0x370, 0);
@@ -564,7 +543,7 @@ namespace NC2Logic
         }
         if (Human_IsAttachedToLearnHouse(human)) { Human_l_StartTask_ExerciseJob(human); return; }
         const auto attached = Human_IsAttachedToWorkHouse(human);
-        if ((Read<std::uint8_t>(JobData(human), 0x83) != 0 && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, 0x2C) != 3))
+        if ((Human_IsForcedToHaveWorkHouse(human) && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, 0x2C) != 3))
         {
             Write<std::uint32_t>(human, 0x36C, 3);
             Write<std::uint32_t>(human, 0x374, 2);
@@ -592,7 +571,7 @@ namespace NC2Logic
                 if (target == 2)
                 {
                     Write(human, 0xAD0, Read<std::uint32_t>(human, 0xA78));
-                    if (Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(human) + 0xA6C, static_cast<std::byte*>(human) + 0xA70, false)) return;
+                    if (Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(human) + 0xA6C, static_cast<std::byte*>(human) + 0xA70, false)) { Human_IsJobTrader(human); return; }
                 }
                 else if (Human_l_StartAtomicWalk(human, static_cast<std::byte*>(human) + 0xA6C, static_cast<std::byte*>(human) + 0xA70)) { Write(human, 0xA68, target); return; }
                 Human_Target_Reset(human);
@@ -602,7 +581,7 @@ namespace NC2Logic
         {
             const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
             const auto vehicleJob = Read<std::uint32_t>(vehicle, 0x1EC);
-            if (!(Human_IsJobCarrier(human) && (vehicleJob == 50 || vehicleJob == 51)) && !Human_IsJobTrader(human))
+            if (!(Human_IsJobTrader(human) && (vehicleJob == 50 || vehicleJob == 51)) && !Human_IsJobCarrier(human))
             {
                 Write<std::uint32_t>(human, 0x368, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
                 Write<std::uint32_t>(human, 0x36C, 0);
@@ -612,40 +591,40 @@ namespace NC2Logic
         const auto job = Read<std::uint32_t>(human, 0x18);
         switch (job)
         {
-        case 5: Human_l_StartTask_ExecuteJob_Woman(human); return;
-        case 7: Human_l_StartTask_ExecuteJob_Builder(human); return;
-        case 8: Human_l_StartTask_ExecuteJob_Collector(human); return;
-        case 9: case 10: Human_l_StartTask_ExecuteJob_Carpenter(human); return;
-        case 15: Human_l_StartTask_ExecuteJob_Hunter(human); return;
-        case 16: Human_l_StartTask_ExecuteJob_Breeder(human); return;
-        case 18: Human_l_StartTask_ExecuteJob_Farmer(human); return;
-        case 22: Human_l_StartTask_ExecuteJob_Fisher(human); return;
-        case 24: Human_l_StartTask_ExecuteJob_Carrier(human); return;
-        case 25:
-            Human_l_StartTask_ExecuteJob_Trader(human);
-            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, 0x36C) == 3 && Read<std::uint32_t>(human, 0x374) == 2)
-            {
-                Write<std::uint32_t>(human, 0x368, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
-                Write<std::uint32_t>(human, 0x36C, 0);
-            }
-            return;
-        case 28: Human_l_StartTask_ExecuteJob_Jester(human); return;
-        case 29: Human_l_StartTask_ExecuteJob_HerbGuy(human); return;
-        case 30: Human_l_StartTask_ExecuteJob_Druid(human); return;
+        case 5: Human_l_StartTask_ExecuteJob_Woman(human); break;
+        case 7: Human_l_StartTask_ExecuteJob_Builder(human); break;
+        case 8: Human_l_StartTask_ExecuteJob_Collector(human); break;
+        case 9: case 10: Human_l_StartTask_ExecuteJob_Carpenter(human); break;
+        case 15: Human_l_StartTask_ExecuteJob_Hunter(human); break;
+        case 16: Human_l_StartTask_ExecuteJob_Breeder(human); break;
+        case 18: Human_l_StartTask_ExecuteJob_Farmer(human); break;
+        case 22: Human_l_StartTask_ExecuteJob_Fisher(human); break;
+        case 24: Human_l_StartTask_ExecuteJob_Carrier(human); break;
+        case 25: Human_l_StartTask_ExecuteJob_Trader(human); break;
+        case 28: Human_l_StartTask_ExecuteJob_Jester(human); break;
+        case 29: Human_l_StartTask_ExecuteJob_HerbGuy(human); break;
+        case 30: Human_l_StartTask_ExecuteJob_Druid(human); break;
         case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47:
             Human_l_StartTask_ExecuteJob_Soldier(human);
-            return;
+            break;
         case 11: case 12: case 13: case 14: case 17: case 19: case 20: case 21:
             Human_l_StartTask_ExecuteJob_Tool_GoodProducer(human);
-            return;
+            break;
         case 1: case 2: case 3: case 4:
-            Write<std::uint32_t>(human, 0x37C, 10); // Original constant 004F3C34.
-            [[fallthrough]];
+            Write<std::uint32_t>(human, 0x368, 1);
+            Write<std::uint32_t>(human, 0x36C, 0);
+            Write<std::uint32_t>(human, 0x37C, 10); // Windows constant 004F3C34.
+            break;
         case 6: case 23: case 26: case 27:
             Write<std::uint32_t>(human, 0x368, 1);
             Write<std::uint32_t>(human, 0x36C, 0);
             break;
-        default: return;
+        default: C2Debug_WarningBox("human creature is trying to start execution of invalid job type!!!"); break;
+        }
+        if (Human_IsAttachedToVehicle(human) && Human_IsJobCarrier(human) && Read<std::uint32_t>(human, 0x36C) == 3 && Read<std::uint32_t>(human, 0x374) == 2)
+        {
+            Write<std::uint32_t>(human, 0x368, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+            Write<std::uint32_t>(human, 0x36C, 0);
         }
     }
 
@@ -657,8 +636,7 @@ namespace NC2Logic
         if (Human_l_IsAtomicInterruptable(human)) Human_AI_DoUpdateTaskMachine(human);
     }
 
-    // Partial original function: FUN_00463362. Supported finish/start transitions
-    // run in one tick. Pending dispatch leaves state intact and yields instead of spinning.
+    // Original function: FUN_00463362; native transitions continue until an active task is reached.
     void Human_AI_DoUpdateTaskMachine(void* human)
     {
         if (Read<std::uint32_t>(human, 0xACC) != 0 && Read<std::uint32_t>(human, 0xA68) != 0 && !Human_Target_IsValid(human))
@@ -686,7 +664,6 @@ namespace NC2Logic
         }
         for (;;)
         {
-            const auto task = Read<std::uint32_t>(human, 0x368);
             const auto status = Read<std::uint32_t>(human, 0x36C);
             if (status == 1)
             {
@@ -698,8 +675,6 @@ namespace NC2Logic
             if (status == 0) Human_CurrentTask_DoStartUp(human);
             else if (status == 2) Human_CurrentTask_DoFinish(human);
             else if (status == 3) Human_CurrentTask_DoFailure(human);
-            else return;
-            if (Read<std::uint32_t>(human, 0x368) == task && Read<std::uint32_t>(human, 0x36C) == status) return;
         }
     }
 }

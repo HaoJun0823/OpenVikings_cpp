@@ -34,6 +34,8 @@ namespace NC2Logic
         static_assert(sizeof(SArrowCallbackStorage) == 0x28);
         static_assert(offsetof(SArrowCallbackStorage, flightTicks) == 0x20);
         static_assert(offsetof(SArrowCallbackStorage, initialized) == 0x24);
+        // Original function: FUN_0046ba2c; registered Windows static exit callback has an empty body.
+        int __cdecl HumanArrowCallback_OnExit() { return 0; }
         SArrowCallbackStorage gHumanArrowCallbackStorage{};
         std::uint32_t Distance(const void* source, const void* target) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), Read<std::int16_t>(target, 0), Read<std::int16_t>(target, 2))); }
     }
@@ -164,8 +166,7 @@ namespace NC2Logic
         }
         const auto ticks = (Distance(&position, &source) << 3) / static_cast<std::uint32_t>(weapon.speed);
         auto& callback = gHumanArrowCallbackStorage;
-        // The registered Windows exit function 0046BA2C is empty; the POD static needs no cleanup.
-        if ((callback.initialized & 1u) == 0) { callback.initialized |= 1u; callback.source = 0; callback.target = 0; }
+        if ((callback.initialized & 1u) == 0) { callback.initialized |= 1u; callback.source = 0; callback.target = 0; NXBasics::Runtime_RegisterOnExit(HumanArrowCallback_OnExit); }
         callback.source = source;
         callback.target = position;
         callback.sourceHeight = height;

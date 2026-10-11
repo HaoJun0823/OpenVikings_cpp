@@ -43,4 +43,10 @@ namespace NC2Logic
     void Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(void* human, std::uint32_t good);
     void Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(void* human, std::uint32_t good);
     void Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(void* human, std::uint32_t good);
+
+    bool Human_IsAbleToDoGoodie(const void* human);
+    bool Human_CanSleepAtMapRealPosition(const void* point);
+    bool Human_AI_IsIgnoringNeeds(const void* human);
+    bool Human_IsCarryingFood(const void* human);
+    bool Human_IsCarryingGoodExceptFood(const void* human);
 }

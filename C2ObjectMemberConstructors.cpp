@@ -95,4 +95,10 @@ namespace NC2Logic
         std::memset(static_cast<std::byte*>(animal) + 0x38, 0, 12);
         return animal;
     }
+
+    // Original function: FUN_0045d3e1; count is initialized separately by callers.
+    void* SearchNearbyMapPoints_ConstructMembers(void* data) { for (std::uint32_t offset = 4; offset < 0x24; offset += 4) { NC2Lifetime::Write<std::uint16_t>(data, offset + 2, 0); NC2Lifetime::Write<std::uint16_t>(data, offset, 0); } return data; }
+    // Original function: FUN_0045eb8c; player and count are initialized separately by callers.
+    void* SearchDamagedWall_ConstructMembers(void* data) { for (std::uint32_t offset = 8; offset < 0x30; offset += 4) { NC2Lifetime::Write<std::uint16_t>(data, offset + 2, 0); NC2Lifetime::Write<std::uint16_t>(data, offset, 0); } return data; }
+
 }

@@ -1,6 +1,9 @@
 #include "C2AIMovementMessages.h"
 #include "C2GameControlNetwork.h"
 #include "C2GameMapAccess.h"
+#include "C2VehicleAccess.h"
+#include "C2MilitaryTargetSearch.h"
+#include "C2InteractionTargetAccess.h"
 #include "C2GameState.h"
 #include "C2HumanCommandAccess.h"
 #include "C2InteractionTargetAccess.h"
@@ -309,4 +312,123 @@ namespace NC2Logic
     {
         if (auto* handler = Read<void*>(manager, player * 4u)) AISinglePlayerHandler_Messages_Soldier_StartSelfDefence(handler, human, target);
     }
+    // Original function: FUN_004736e2.
+    bool AISinglePlayerHandler_l_Vehicles_Let_AttackHuman(void* handler, std::uint32_t slot, std::uint32_t target, bool defence)
+    {
+        (void)defence; // The Windows argument is unused.
+        auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        auto* enemy = CHumanArray::mStaticVars + target * CHumanArray::ElementSize;
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 16), 3);
+        std::byte command[20]{};
+        Write<std::uint8_t>(command, 0, 104);
+        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, 0x1E0)));
+        Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+        Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+        Write(command, 12, target);
+        Write(command, 16, Read<std::uint32_t>(enemy, 8));
+        Vehicle_DoAddNewUserCommand(vehicle, command);
+        Write<std::uint32_t>(entry, 12, 1);
+        Write(entry, 24, Read<std::uint32_t>(enemy, 8));
+        Write(entry, 20, target);
+        Write<std::uint32_t>(entry, 16, 1);
+        return true;
+    }
+
+    // Original function: FUN_00473788.
+    bool AISinglePlayerHandler_l_Vehicles_Let_AttackVehicle(void* handler, std::uint32_t slot, std::uint32_t target, bool defence)
+    {
+        (void)defence; // The Windows argument is unused.
+        auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        auto* enemy = CVehicleArray::mStaticVars + target * CVehicleArray::ElementSize;
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 480), 3);
+        std::byte command[20]{};
+        Write<std::uint8_t>(command, 0, 46);
+        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, 0x1E0)));
+        Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+        Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+        Write(command, 12, target);
+        Write(command, 16, Read<std::uint32_t>(enemy, 8));
+        Vehicle_DoAddNewUserCommand(vehicle, command);
+        Write<std::uint32_t>(entry, 12, 1);
+        Write(entry, 24, Read<std::uint32_t>(enemy, 8));
+        Write(entry, 20, target);
+        Write<std::uint32_t>(entry, 16, 2);
+        return true;
+    }
+
+    // Original function: FUN_00473833.
+    bool AISinglePlayerHandler_l_Vehicles_Let_AttackHouse(void* handler, std::uint32_t slot, std::uint32_t target)
+    {
+        auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        auto* enemy = CHouseArray::mStaticVars + target * CHouseArray::ElementSize;
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 12), 3);
+        std::byte command[20]{};
+        Write<std::uint8_t>(command, 0, 44);
+        Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, 0x1E0)));
+        Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+        Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+        Write(command, 12, target);
+        Write(command, 16, Read<std::uint32_t>(enemy, 8));
+        Vehicle_DoAddNewUserCommand(vehicle, command);
+        Write<std::uint32_t>(entry, 12, 1);
+        Write(entry, 24, Read<std::uint32_t>(enemy, 8));
+        Write(entry, 20, target);
+        Write<std::uint32_t>(entry, 16, 4);
+        return true;
+    }
+
+    // Original function: FUN_0047354b; retain Windows target search order and all four flags.
+    bool AISinglePlayerHandler_l_Vehicles_CheckForEnemys(void* handler, std::uint32_t slot, const void* point, std::uint32_t radius, bool houses, bool civilians, bool restrictCandidates, bool defence)
+    {
+        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto limit = restrictCandidates ? 1u : 5u, threshold = restrictCandidates ? 0u : 3u;
+        auto target = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, true, limit, threshold, false, false);
+        if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackVehicle(handler, slot, static_cast<std::uint32_t>(target), defence)) return true;
+        target = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, true, limit, threshold, true, false);
+        if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackHuman(handler, slot, static_cast<std::uint32_t>(target), defence)) return true;
+        if (houses)
+        {
+            target = Tool_GetOneOfNextEnemyHousesInRange(player, point, 0, radius, true, restrictCandidates ? 1u : 3u, restrictCandidates ? 0u : 5u);
+            if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackHouse(handler, slot, static_cast<std::uint32_t>(target))) return true;
+        }
+        if (civilians)
+        {
+            target = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, false, limit, threshold, true, false);
+            if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackHuman(handler, slot, static_cast<std::uint32_t>(target), defence)) return true;
+            target = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, false, limit, threshold, false, false);
+            if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackVehicle(handler, slot, static_cast<std::uint32_t>(target), defence)) return true;
+        }
+        if (houses && civilians)
+        {
+            target = Tool_GetOneOfNextEnemyHousesInRange(player, point, 0, radius, false, limit, restrictCandidates ? 0u : 10u);
+            if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackHouse(handler, slot, static_cast<std::uint32_t>(target))) return true;
+        }
+        return false;
+    }
+
+    // Original function: FUN_004738dd.
+    void AISinglePlayerHandler_l_Vehicles_WorkOnAttachedTasks(void* handler)
+    {
+        for (std::uint32_t slot = 0; slot < Read<std::uint32_t>(handler, 0x5CB4); ++slot)
+        {
+            const auto* entry = static_cast<const std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
+            const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+            const auto* point = Vehicle_GetMapPositionRef(vehicle);
+            if (Read<std::uint32_t>(entry, 8) == 0xFFFFFFFFu && !AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(handler, slot)) AISinglePlayerHandler_l_Vehicles_CheckForEnemys(handler, slot, point, 30, true, false, true, true);
+        }
+    }
+
+    // Original function: FUN_00473944.
+    bool AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(const void* handler, std::uint32_t slot)
+    {
+        const auto* entry = static_cast<const std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
+        const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        const auto* target = entry + 16;
+        if (Read<std::uint32_t>(entry, 12) != 1 || !TargetData_IsValid(target)) return false;
+        return Read<std::uint32_t>(vehicle, 0x528) == Read<std::uint32_t>(target, 8) && Read<std::uint32_t>(vehicle, 0x524) == Read<std::uint32_t>(target, 4) && Read<std::uint32_t>(vehicle, 0x520) == Read<std::uint32_t>(target, 0);
+    }
+
 }

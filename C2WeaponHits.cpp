@@ -107,7 +107,10 @@ namespace NC2Logic
         const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
         auto damage = static_cast<std::uint32_t>(data.damageValues[6]) * 200u / (200u - (power > 100u ? 100u : power));
         if (damage == 0) return false;
-        const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
+        std::uint32_t attacker[3]{};
+        if (attackerType == 6) { std::uint32_t point; MapMigPoint_AssignLong(&point, attackerId); TargetData_SetMapPosition(attacker, &point); }
+        else { attacker[1] = attackerId; attacker[2] = attackerRevision; }
+        attacker[0] = attackerType;
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
         const auto player = Read<std::uint32_t>(vehicle, 0x1E0);
         damage = HalfForDifficulty(damage, player);

@@ -6,6 +6,7 @@
 #include "C2HouseAccess.h"
 #include "C2HumanIterator.h"
 #include "C2HumanJobAccess.h"
+#include "C2HumanEquipment.h"
 #include "C2MissionStartObjects.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineDrawingAccess.h"
@@ -67,7 +68,7 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004cc2c1.
     static bool __fastcall SelectionHouseInhabitantsElement_ToolTip_Available(void* element,void*,const char** output)
     {
-        const auto index = Read<std::int32_t>(element,0x80C); if (index == -1) return false; const auto* slot = Slot(element,index); const auto id = Read<std::int32_t>(slot,0); const auto* human = Human(id); auto* house = House(Read<std::int32_t>(element,0x2C)); const auto flags = Read<std::uint32_t>(slot,4); auto* text = reinterpret_cast<char*>(element) + 0x810; std::strcpy(text,reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * 0x8C8 + 0x85C); std::strcat(text," - "); std::strcat(text,NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(human,0x18),1)); if (Read<std::uint32_t>(human,0x1C)) { std::strcat(text," ("); std::strcat(text,NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(human,0x1C),1)); std::strcat(text,")"); }
+        const auto index = Read<std::int32_t>(element,0x80C); if (index == -1) return false; const auto* slot = Slot(element,index); const auto id = Read<std::int32_t>(slot,0); const auto* human = Human(id); auto* house = House(Read<std::int32_t>(element,0x2C)); const auto flags = Read<std::uint32_t>(slot,4); auto* text = reinterpret_cast<char*>(element) + 0x810; std::strcpy(text,reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * 0x8C8 + 0x85C); std::strcat(text," - "); std::strcat(text,NC2Logic::StringAccess_GetJobNamePtr(Read<std::uint32_t>(human,0x18),1)); if (Read<std::uint32_t>(human,0x1C)) { std::strcat(text," ("); std::strcat(text,NC2Logic::Human_GetReallyProducedGoodType_GetGuiNamePtr(human)); std::strcat(text,")"); }
         if (flags & 2u) { std::strcat(text," - "); std::strcat(text,NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(340)); } if (flags & 4u) { std::strcat(text," - "); std::strcat(text,NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(341)); }
         if (flags & 1u) { std::uint32_t families[20]; NC2Logic::House_Inhabitants_GetNumberOfFamiliesLivingInHome(house,families); const auto slotId = NC2Logic::House_Inhabitants_GetAttachedHumanSlotIdByHumanId(house,id); if (slotId != -1) { char family[100]; NXBasics::Runtime_PrintString(family,"%s %d",NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(342),families[slotId] + 1); std::strcat(text," - "); std::strcat(text,family); } const auto spouse = Read<std::int32_t>(human,0xB20); if (spouse != -1 && Read<std::int32_t>(Human(spouse),0xB28) == Read<std::int32_t>(element,0x2C)) std::strcat(text," **"); }
         if (!flags && !Read<std::uint8_t>(slot,16)) { std::strcat(text," ("); std::strcat(text,NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(343)); std::strcat(text,")"); } *output = text; return true;

@@ -2,6 +2,8 @@
 #include "C2HouseAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
+#include "C2HumanNeeds.h"
+#include "C2HumanMessageAccess.h"
 #include "C2CallbackManager.h"
 #include "C2GameControlStartup.h"
 #include "C2LifetimeAccess.h"
@@ -247,24 +249,11 @@ namespace NC2Logic
         // Original message functions: FUN_0045c608 and FUN_0045c667.
         if (Read<std::uint32_t>(human, 0x21Cu + good * 4u) == 0 && good != 0)
         {
-            std::byte message[0x304];
-            ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 24);
-            Write(message, 0x10, Read<std::uint32_t>(human, 4));
-            Write(message, 8, Read<std::uint32_t>(human, 0x10));
-            Write(message, 0x30, good);
-            ToUserMessage_FinishMessage(message);
-            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+            Human_UserMessage_SendToUserMessage_DidProduceOneGood(human, good);
         }
         if (!Human_Production_Rotate(human))
         {
-            std::byte message[0x304];
-            ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 25);
-            Write(message, 0x10, Read<std::uint32_t>(human, 4));
-            Write(message, 8, Read<std::uint32_t>(human, 0x10));
-            ToUserMessage_FinishMessage(message);
-            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+            Human_UserMessage_SendToUserMessage_DidProduceAllGoods(human);
         }
     }
 
@@ -272,28 +261,13 @@ namespace NC2Logic
     void Human_Production_CouldNotProduceCurrentGood(void* human)
     {
         const auto good = Read<std::uint32_t>(human, 0x1C);
-        // Original message function: FUN_0045c6b5.
         if (good != 0)
         {
-            std::byte message[0x304];
-            ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 26);
-            Write(message, 0x10, Read<std::uint32_t>(human, 4));
-            Write(message, 8, Read<std::uint32_t>(human, 0x10));
-            Write(message, 0x30, good);
-            ToUserMessage_FinishMessage(message);
-            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+            Human_UserMessage_SendToUserMessage_CouldNotProduceOneGood(human, good);
         }
         if (!Human_Production_Rotate(human))
         {
-            // Original message function: FUN_0045c714.
-            std::byte message[0x304];
-            ToUserMessage_Construct(message);
-            Write<std::uint32_t>(message, 0, 27);
-            Write(message, 0x10, Read<std::uint32_t>(human, 4));
-            Write(message, 8, Read<std::uint32_t>(human, 0x10));
-            ToUserMessage_FinishMessage(message);
-            NC2LogicExternals::External_Misc_SendToUserMessage(message);
+            Human_UserMessage_SendToUserMessage_CouldNotProduceAnyGoods(human);
         }
     }
 
@@ -1003,4 +977,33 @@ namespace NC2Logic
         Write(human, 0x218, selected);
         Write(human, 0x1C, selected);
     }
+
+    // Original function: FUN_0042c584.
+    bool Human_IsAgeChild(const void* human) { const auto job = Read<std::uint32_t>(human, 0x18); return job == 3 || job == 4; }
+    // Original function: FUN_0042c5b4.
+    bool Human_IsJobCivilist(const void* human) { return Read<std::uint32_t>(human, 0x18) == 6; }
+    // Original function: FUN_0042c5c8.
+    bool Human_IsJobWorker(const void* human) { const auto job = Read<std::int32_t>(human, 0x18); return job >= 8 && job <= 30; }
+    // Original function: FUN_0042c66c.
+    bool Human_IsAttachedToWorkHouse2(const void* human) { return Read<std::uint32_t>(human, 0xB3C) != 0xFFFFFFFFu; }
+    // Original function: FUN_0042c865.
+    bool Human_IsProducingNothing(const void* human) { return Read<std::uint32_t>(human, 0x1C) == 0; }
+    // Original function: FUN_0042c86e.
+    bool Human_IsProducingFood(const void* human) { return TGoodTypes_IsFood(Read<std::uint32_t>(human, 0x1C)); }
+    // Original function: FUN_0042c88b.
+    bool Human_IsProducingMultipleGoods(const void* human)
+    {
+        std::uint32_t count = 0;
+        for (std::uint32_t good = 0; good < 66; ++good) { const auto amount = Read<std::int32_t>(human, 0x21Cu + good * 4u); if (amount > 0 && amount <= 11 && ++count >= 2) return true; }
+        return false;
+    }
+    // Original function: FUN_0042c8cf.
+    bool Human_IsForcedToHaveWorkHouse(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, 0x18) * 0x88u + 0x83u) != 0; }
+    // Original function: FUN_0042c8fd; Windows accepts every job.
+    bool Human_IsAbleToUseVehicle(const void* human) { (void)human; return true; }
+    // Original function: FUN_0042c96c.
+    bool Human_IsDoingNothing(const void* human) { return Read<std::uint32_t>(human, 0x36C) != 1 || Read<std::uint32_t>(human, 0x368) == 1; }
+    // Original function: FUN_00460320.
+    const void* Human_GetWorkCenterPointRef(const void* human) { return static_cast<const std::byte*>(human) + 0xB30; }
+
 }

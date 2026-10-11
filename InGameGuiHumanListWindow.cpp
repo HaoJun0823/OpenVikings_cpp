@@ -232,7 +232,7 @@ namespace NC2InGameGuiMiscWindows
         if (Human_IsJobHero(human)) std::strcat(caption, CGuiBaseStringsManager::GetStringPtr(7, 120));
         else if (Read<std::uint32_t>(human, 0x14) == 2 && Read<std::uint32_t>(human, 0x18) == 47) std::strcat(caption, CGuiBaseStringsManager::GetStringPtr(12, 31));
         else std::strcat(caption, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, 0x18), 1));
-        if (Read<std::uint32_t>(human, 0x1C) != 0) { std::strcat(caption, " ("); std::strcat(caption, StringAccess_GetGoodNamePtr(Read<std::uint32_t>(human, 0x1C), 1)); std::strcat(caption, ")"); }
+        if (Read<std::uint32_t>(human, 0x1C) != 0) { std::strcat(caption, " ("); std::strcat(caption, NC2Logic::Human_GetReallyProducedGoodType_GetGuiNamePtr(human)); std::strcat(caption, ")"); }
         if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && !Human_IsJobHero(human) && !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32))
         {
             char detail[100];

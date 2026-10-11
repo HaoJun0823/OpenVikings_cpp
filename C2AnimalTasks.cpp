@@ -10,6 +10,7 @@
 #include "C2HumanWalking.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2LifetimeAccess.h"
+#include "C2ObjectMemberConstructors.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
@@ -88,7 +89,7 @@ namespace NC2Logic
             for (; id != -1; id = iterator.GetNextAnimalId()) Animal_SetLeaderId(Animal(static_cast<std::uint32_t>(id)), Read<std::uint32_t>(animal, 4));
         }
 
-        struct SNearbyPoints { std::uint32_t count = 0; std::uint32_t points[8]{}; };
+        struct SNearbyPoints { SNearbyPoints() { SearchNearbyMapPoints_ConstructMembers(this); } std::uint32_t count = 0; std::uint32_t points[8]; };
         struct SLandPoints
         {
             // Original constructor: FUN_0046158c.

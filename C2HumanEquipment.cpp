@@ -165,14 +165,14 @@ namespace NC2Logic
             const auto condition = good == 30 ? 0xADC : 0xAE0;
             if (Read<std::int32_t>(human, condition) < 10000) Done(human);
             else Human_SetCarriedGood(human, good);
-            Write<std::uint32_t>(human, good == 30 ? 0xAEC : 0xAF0, 0);
+            if (good == 30) Human_Equipment_ResetShoeType(human); else Human_Equipment_ResetToolType(human);
             Write<std::uint32_t>(human, condition, 0);
             return;
         }
         switch (Tool_GoodEquipmentType_Convert(Read<std::uint32_t>(human, 0xAD0)))
         {
         case 1: Human_Equipment_SetWeaponType(human, 1); Human_SetCarriedGood(human, good); return;
-        case 2: Human_Equipment_SetArmorType(human, 0); Human_SetCarriedGood(human, good); return;
+        case 2: Human_Equipment_ResetArmorType(human); Human_SetCarriedGood(human, good); return;
         case 5:
         {
             const auto last = Human_UserControl_GetLastCommandType(human);
@@ -299,9 +299,9 @@ namespace NC2Logic
     // Original function: FUN_0046bd8d; the equipped predicate checks armor type, not its good id.
     void Human_l_StartTask_Equip_Armor(void* human, std::uint32_t armor)
     {
-        if (Read<std::uint32_t>(human, 0xAE8) != 0)
+        if (Human_Equipment_GetArmorType(human) != 0)
         {
-            if (Read<std::uint32_t>(human, 0xAE8) != armor) { Queue(human, 82, Read<std::uint32_t>(human, 0xAD0), 0); Queue(human, 73, Human_GetEquipmentType_Armor(human), 0); }
+            if (Human_Equipment_GetArmorType(human) != armor) { Queue(human, 82, Read<std::uint32_t>(human, 0xAD0), 0); Queue(human, 73, Human_GetEquipmentType_Armor(human), 0); }
             Done(human);
             return;
         }
@@ -349,8 +349,8 @@ namespace NC2Logic
             if (slot == -1) { Done(human); return; }
             if (!Human_l_Item_IsItemUnused(human, slot)) { Human_l_Item_Clear(human, slot); Done(human); return; }
         }
-        else if (kind == 4 && Read<std::int32_t>(human, 0xADC) < 10000) { Write<std::uint32_t>(human, 0xAEC, 0); Write<std::uint32_t>(human, 0xADC, 0); Done(human); return; }
-        else if (kind == 3 && (Read<std::uint32_t>(human, 0xAD0) == 31 || Read<std::uint32_t>(human, 0xAD0) == 32) && Read<std::int32_t>(human, 0xAE0) < 10000) { Write<std::uint32_t>(human, 0xAF0, 0); Write<std::uint32_t>(human, 0xAE0, 0); Done(human); return; }
+        else if (kind == 4 && Read<std::int32_t>(human, 0xADC) < 10000) { Human_Equipment_ResetShoeType(human); Write<std::uint32_t>(human, 0xADC, 0); Done(human); return; }
+        else if (kind == 3 && (Read<std::uint32_t>(human, 0xAD0) == 31 || Read<std::uint32_t>(human, 0xAD0) == 32) && Read<std::int32_t>(human, 0xAE0) < 10000) { Human_Equipment_ResetToolType(human); Write<std::uint32_t>(human, 0xAE0, 0); Done(human); return; }
         std::uint32_t real = 0, work = 0;
         if (!Human_FindConsumerNearWorkCenter(human, good, &real, &work) && !Human_FindPilePointNearby(human, good, &real, &work)) { Human_Target_Reset(human); Fail(human, 7); return; }
         Human_Target_SetTargetPositions(human, &real, &work);
@@ -407,8 +407,8 @@ namespace NC2Logic
         if (failure == 3) Human_UserMessage_SendToUserMessage_CannotFindEquipment(human);
         else if (failure == 12) Human_UserMessage_SendToUserMessage_BackpackIsFull(human);
         const auto good = Read<std::uint32_t>(human, 0xAD0);
-        if (good == 30) Write<std::uint32_t>(human, 0xAEC, 0);
-        else if (good == 31 || good == 32) Write<std::uint32_t>(human, 0xAF0, 0);
+        if (good == 30) Human_Equipment_ResetShoeType(human);
+        else if (good == 31 || good == 32) Human_Equipment_ResetToolType(human);
         Write<std::uint32_t>(human, 0xAD0, 0);
     }
 
@@ -417,8 +417,10 @@ namespace NC2Logic
     {
         if (good == 30) return Human_CanEquipShoes(human);
         if (good == 31 || good == 32) return Human_CanEquipToolIron(human);
-        if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human)) return false;
-        return gStaticGoodTypeStorage.records[good].armorType != 0 || gStaticGoodTypeStorage.records[good].weaponType != 0;
+        const auto& data = gStaticGoodTypeStorage.records[good];
+        if (data.armorType != 0) return Human_CanEquipArmorType(human, good);
+        if (data.weaponType != 0) return Human_CanEquipArmorType(human, good); // Same folded Windows permission entry.
+        return false;
     }
 
     // Original function: FUN_0046c369.
@@ -430,4 +432,22 @@ namespace NC2Logic
         Write(human, 0xAD0, good);
         Write<std::uint32_t>(human, 0x368, 16);
     }
+
+    // Original function: FUN_0042d31a.
+    bool Human_HasEquippedWeapon(const void* human) { return static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)].goodType != 0; }
+    // Original function: FUN_0042d33c.
+    bool Human_HasEquippedArmor(const void* human) { return Read<std::uint32_t>(human, 0xAE8) != 0; }
+    // Original function: FUN_0042d3ff; the native routine names the stored good without conversion.
+    const char* Human_GetReallyProducedGoodType_GetGuiNamePtr(const void* human) { return StringAccess_GetGoodNamePtr(Read<std::uint32_t>(human, 0x1C), 1); }
+    // Original function: FUN_0042d453.
+    std::uint32_t Human_Equipment_GetArmorType(const void* human) { return Read<std::uint32_t>(human, 0xAE8); }
+    // Original function: FUN_0042d461; condition is retained.
+    void Human_Equipment_ResetShoeType(void* human) { Write<std::uint32_t>(human, 0xAEC, 0); }
+    // Original function: FUN_0042d469; condition is retained.
+    void Human_Equipment_ResetToolType(void* human) { Write<std::uint32_t>(human, 0xAF0, 0); }
+    // Original function: FUN_0042d48b.
+    void Human_Equipment_ResetArmorType(void* human) { Write<std::uint32_t>(human, 0xAE8, 0); CCallbackManager::sTheObjectPtr->ExecuteCallback(0x20, true, Read<std::uint32_t>(human, 4), 0, 0); }
+    // Original function: FUN_0042d6e8; Windows folds the armor and weapon permission entries.
+    bool Human_CanEquipArmorType(const void* human, std::uint32_t good) { (void)good; const auto job = Read<std::int32_t>(human, 0x18); return (job >= 31 && job <= 41) || (job >= 42 && job <= 47); }
+
 }

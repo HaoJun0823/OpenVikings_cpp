@@ -90,4 +90,16 @@ namespace NC2Logic
     void Human_l_AssignWorkHouse(void* human, std::uint32_t house);
     std::int32_t HumanMerchantArray_AllocateMerchant(void* manager, std::uint32_t human);
     void HumanMerchantArray_FreeMerchant(void* manager, std::int32_t id);
+
+    bool Human_IsAgeChild(const void* human);
+    bool Human_IsJobCivilist(const void* human);
+    bool Human_IsJobWorker(const void* human);
+    bool Human_IsAttachedToWorkHouse2(const void* human);
+    bool Human_IsProducingNothing(const void* human);
+    bool Human_IsProducingFood(const void* human);
+    bool Human_IsProducingMultipleGoods(const void* human);
+    bool Human_IsForcedToHaveWorkHouse(const void* human);
+    bool Human_IsAbleToUseVehicle(const void* human);
+    bool Human_IsDoingNothing(const void* human);
+    const void* Human_GetWorkCenterPointRef(const void* human);
 }

@@ -122,7 +122,7 @@ namespace NC2Logic
             return data.count == 1;
         }
 
-        // Original outlined function: FUN_0045d6a3; no separate Mac name recovered.
+        // Original function: FUN_0045d6a3; no separate Mac name recovered.
         void AdjustPileSearchPosition(void* point)
         {
             auto* micro = GameMap_GetConstMapMicroPointPtr(point);
@@ -145,7 +145,7 @@ namespace NC2Logic
             return false;
         }
 
-        // Original outlined function: FUN_0045d622; no separate Mac name recovered.
+        // Original function: FUN_0045d622; no separate Mac name recovered.
         void AdjustPickupWorkPosition(void* point)
         {
             auto* micro = GameMap_GetConstMapMicroPointPtr(point);
@@ -1108,10 +1108,7 @@ namespace NC2Logic
             }
             else
             {
-                // Original function: FUN_0042d709; this lookup also checks the owner.
-                const auto id = Logic_EntryPoint_House_GetOnPosition(Human_GetMapPositionRef(human));
-                auto* house = id == -1 ? nullptr : House(static_cast<std::uint32_t>(id));
-                if (house != nullptr && (Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 12) != Read<std::uint32_t>(human, 0x10))) house = nullptr;
+                auto* house = Human_GetHousePtrAtMapPosition(human, Human_GetMapPositionRef(human));
                 if (house != nullptr)
                 {
                     if ((House_Stock_CanStoreGoodType(house, good, true) || House_Stock_CanStoreGoodType(house, good, false)) && House_Stock_HasDemandForGood(house, good))
@@ -1300,4 +1297,20 @@ namespace NC2Logic
         }
         Human_Target_ResetSecondaryTarget(human);
     }
+
+    // Original function: FUN_0042cec4.
+    std::uint32_t Human_Target_GetType(const void* human) { return Read<std::uint32_t>(human, 0xA68); }
+    // Original function: FUN_0042cf47.
+    const void* Human_Target_GetWorkPositionRef(const void* human) { return static_cast<const std::byte*>(human) + 0xA70; }
+    // Original function: FUN_0042cf4e.
+    const void* Human_Target_GetRealPositionRef(const void* human) { return static_cast<const std::byte*>(human) + 0xA6C; }
+    // Original function: FUN_0042d709.
+    void* Human_GetHousePtrAtMapPosition(const void* human, const void* point)
+    {
+        const auto id = Logic_EntryPoint_House_GetOnPosition(point);
+        if (id == -1) return nullptr;
+        auto* house = House(static_cast<std::uint32_t>(id));
+        return Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 12) == Read<std::uint32_t>(human, 0x10) ? house : nullptr;
+    }
+
 }

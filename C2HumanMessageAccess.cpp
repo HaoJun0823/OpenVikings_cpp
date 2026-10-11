@@ -4,6 +4,7 @@
 #include "C2LogicObjectArrays.h"
 #include "C2MapMoveableAccess.h"
 #include "C2HumanJobAccess.h"
+#include "C2UserMessageAccess.h"
 
 namespace NC2Logic
 {
@@ -91,4 +92,72 @@ namespace NC2Logic
             return false;
         }
     }
+    // Original function: FUN_0045bfef.
+    void Human_UserMessage_SendToUserMessage_MustWaitForGood(void* human)
+    {
+        const auto good = Read<std::uint32_t>(human, 0x1C);
+        if (Read<std::uint32_t>(gGameControl, 0x5D200) == 2 && (good == 16 || good == 17 || good == 19 || good == 20 || good == 21 || good == 23)) return;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 13);
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045c608.
+    void Human_UserMessage_SendToUserMessage_DidProduceOneGood(void* human, std::uint32_t good)
+    {
+        if (good == 0) return;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 24);
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045c667.
+    void Human_UserMessage_SendToUserMessage_DidProduceAllGoods(void* human)
+    {
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 25);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045c6b5.
+    void Human_UserMessage_SendToUserMessage_CouldNotProduceOneGood(void* human, std::uint32_t good)
+    {
+        if (good == 0) return;
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 26);
+        Write(message, 0x30, good);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+    // Original function: FUN_0045c714.
+    void Human_UserMessage_SendToUserMessage_CouldNotProduceAnyGoods(void* human)
+    {
+        std::byte message[0x304];
+        ToUserMessage_Construct(message);
+        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 8, Read<std::uint32_t>(human, 0x10));
+        Write<std::uint32_t>(message, 0, 27);
+        ToUserMessage_FinishMessage(message);
+        NC2LogicExternals::External_Misc_SendToUserMessage(message);
+    }
+
+
 }

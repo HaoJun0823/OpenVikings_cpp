@@ -1,6 +1,7 @@
 #include "C2HumanSocialJobs.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
+#include "C2HouseAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanGoodieTasks.h"
 #include "C2HumanInitialization.h"
@@ -134,7 +135,7 @@ namespace NC2Logic
     // Original function: FUN_0046f2b2.
     void Human_l_StartTask_ExecuteJob_Druid_Priest(void* human)
     {
-        if (!Human_Target_HasTarget(human) || Read<std::uint32_t>(human, 0xA68) != 7) Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human);
+        if (!Human_Target_HasTarget(human) || Read<std::uint32_t>(human, 0xA68) != 7) Human_l_StartTask_ExecuteJob_Tool_FillTemple(human);
         if (IsWorking(human)) return;
         Human_l_StartTask_ExecuteJob_Druid_Healer(human);
         if (!IsWorking(human)) Fail(human, 2);
@@ -169,4 +170,66 @@ namespace NC2Logic
         Human_l_StartAtomicAnimation(human, 18, Human_Target_GetDirectionTo(human));
         Write<std::uint32_t>(human, 0x36C, 1);
     }
+
+    // Original function: FUN_004757a6; the Windows entry contains dispatch, delivery and collection.
+    void Human_l_StartTask_ExecuteJob_Tool_FillTemple(void* human)
+    {
+        if (Read<std::uint32_t>(human, 0xACC) == 0) { Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch(human); return; }
+        if (Read<std::uint32_t>(human, 0xAD4) == 0)
+        {
+            if (Human_IsAtTargetPoint(human))
+            {
+                if (Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human)) return;
+                Human_Target_Reset(human);
+                Human_StopCurrentGoodCirculationMode(human);
+            }
+            else { Human_StopCurrentGoodCirculationMode(human); Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch(human); }
+            return;
+        }
+        std::uint32_t real = 0, work = 0;
+        if (Human_IsAtTargetPoint(human))
+        {
+            auto* house = Human_GetHousePtrAtTargetPosition(human);
+            if (house != nullptr)
+            {
+                if (!House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0xAD4), false) || House_Stock_IsFull(house, Read<std::uint32_t>(human, 0xAD4))) { Human_Target_Reset(human); return; }
+            }
+            else
+            {
+                if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, 0xAD4), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
+                if (!Map_GoodTool_CanBePutOnMap(Read<std::uint32_t>(human, 0xAD4), Human_Target_GetRealPositionRef(human)))
+                {
+                    if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
+                    Write<std::uint32_t>(human, 0x36C, 3);
+                    return;
+                }
+            }
+            Human_l_StartAtomicAnimation(human, 23, 6);
+            Write<std::uint32_t>(human, 0x36C, 1);
+            return;
+        }
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0xAD4), false) && House_Stock_HasDemandForGood(house, Read<std::uint32_t>(human, 0xAD4)) && Human_l_StartAtomicWalk(human, house + 0x1C, house + 0x24)) return;
+        if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, 0xAD4), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
+        if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
+        Write<std::uint32_t>(human, 0x36C, 3);
+    }
+
+    // Original function: FUN_004759ab.
+    void Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch(void* human)
+    {
+        Human_Target_Reset(human);
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+        if (House_Stock_HasDemandForGood(house, 15))
+        {
+            std::uint32_t real = 0, work = 0;
+            if (Human_FindGood_Complex(human, 15, &real, &work, Human_GetWorkCenterPointRef(human)))
+            {
+                Write<std::uint32_t>(human, 0xAD0, 15);
+                if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
+            }
+        }
+        Fail(human, 2);
+    }
+
 }

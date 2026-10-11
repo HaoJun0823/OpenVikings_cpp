@@ -69,4 +69,9 @@ namespace NC2Logic
     void Human_Target_RestoreSecondaryTarget(void* human);
     bool Human_FindGoodsDemandedForBuildVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source);
 
+
+    std::uint32_t Human_Target_GetType(const void* human);
+    const void* Human_Target_GetWorkPositionRef(const void* human);
+    const void* Human_Target_GetRealPositionRef(const void* human);
+    void* Human_GetHousePtrAtMapPosition(const void* human, const void* point);
 }

@@ -4,20 +4,10 @@ Address,CurrentName,Status,ReferencingObjects
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-0043BD97,NC2Logic::Human_DoExecuteNextUserCommand,Partial native command dispatch; reconstructed commands execute in priority order; unsupported commands remain held by staging guard,C2HumanTaskAccess.obj
-0043BE40,NC2Logic::Human_DoExecuteAllPriorityUserCommandsWhichDoNotInterrupt,Partial Windows priority execution; supported commands run in native order; unsupported commands retain slots,C2HumanWalking.obj
-0043BED3,NC2Logic::Human_DoExecuteUserCommand,Partial Windows commands; 4..39/41/49..87 connected; native boarding defence rejection connected; remaining military commands and other defence/passenger boundaries pending,C2HumanCommandAccess.obj
-0044314A,NC2Logic::Human_CurrentTask_DoPerform,Partial Windows atomic performance; needs pickup pileup ordinary production map collection and fishing events connected; untranslated entire event sets held,C2MapMoveableAccess.obj
-004433D1,NC2Logic::Human_CurrentTask_DoStartUp,Partial native startup; task 14 attack connected and task 15 retains native no-op startup; unsupported queued-command leaves remain explicit boundaries,C2HumanTaskAccess.obj
 00450C1D,NC2Logic::GameMap_l_MaxMoveableSize_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 00450E8C,NC2Logic::GameMap_l_WalkFlagSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004511C5,NC2Logic::GameMap_l_ResistanceSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 004513C1,NC2Logic::GameMap_l_Continents_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-00462CD5,NC2Logic::Human_AI_DoNewMapPositionReached,Partial Windows position callback; civilian exploration/wear/speed/scout animal ownership complete; military destination continuation pending,C2MapMoveableAccess.obj
-00463362,NC2Logic::Human_AI_DoUpdateTaskMachine,Partial Windows task machine; goods/needs/equipment/queue/failure transitions connected; unsupported task trees yield without consuming state,C2HumanTaskAccess.obj
-00463678,NC2Logic::Human_AI_DoUpdateConditions,Partial Windows conditions/aging/items/messages; home/work detach now real; death cleanup has remaining external dummy dependencies,C2MapMoveableAccess.obj
-00468678,NC2Logic::Human_l_PerformTaskEvent,Partial Windows events; complete native building event-20 context dispatcher enabled and event-27 stock modification connected; broader event audit pending; excluded from completion counts,C2HumanCommandAccess.obj
-0046C39E,NC2Logic::Human_l_StartTask_ExecuteJob,Partial native job startup; all civilian ground job selectors and direct/projectile damage connected; remaining vehicle/sea simulation dependencies pending,C2HumanTaskAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

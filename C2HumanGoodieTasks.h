@@ -37,4 +37,7 @@ namespace NC2Logic
     void Human_l_StartTask_Goodie_Helper_PlayWithAnimal(void* human);
     void Human_l_FinishTask_Goodie(void* human);
     void Human_l_FailTask_Goodie(void* human);
+
+    void* Human_FindHumanToTalkInTalkRange_Adult(const void* human);
+    void* Human_FindHumanToTalkInSearchRange_Adult(const void* human);
 }

@@ -72,7 +72,7 @@ namespace NC2Logic
         {
             if (!Human_VehicleMisc_Enter(human)) { Write<std::uint32_t>(human, 0x36C, 3); return; }
             const auto circulation = Read<std::uint32_t>(human, 0xACC);
-            const bool bringing = circulation == 4 || (circulation == 5 && Read<std::uint32_t>(human, 0xAD4) != 0);
+            const bool bringing = Human_IsBringingCarriedGood(human);
             if (!bringing && circulation != 5 && circulation != 2) { Write<std::uint32_t>(human, 0x36C, 2); return; }
             if (!Human_l_StartAtomicAnimation(human, bringing ? 23 : 22, -1)) { Write<std::uint32_t>(human, 0x36C, 3); return; }
             TargetVehicle(human);
@@ -325,4 +325,8 @@ namespace NC2Logic
         }
         Write<std::uint32_t>(human, 0x36C, 3);
     }
+
+    // Original function: FUN_004464a9; Windows outlined delivery predicate, name inferred from callers.
+    bool Human_IsBringingCarriedGood(const void* human) { const auto mode = Read<std::uint32_t>(human, 0xACC); return mode == 4 || (mode == 5 && Read<std::uint32_t>(human, 0xAD4) != 0); }
+
 }

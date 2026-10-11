@@ -27,7 +27,6 @@ namespace NC2Logic
     {
         void* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         void AddAttribute(void* human, std::uint32_t offset, std::uint32_t amount) { Write(human, offset, Read<std::uint32_t>(human, offset) + amount); }
-        bool IsIgnoringNeeds(const void* human) { return !Human_IsAgeAdult(human) || (Read<std::uint32_t>(human, 0xB84) & 1u) != 0; } // Windows 00463AD2.
     }
 
     // Original function: FUN_0042cb08.
@@ -253,7 +252,7 @@ namespace NC2Logic
     {
         if (!Human_l_IsAtomicInterruptable(human) || Human_UserControl_IsExecutingUserCommand(human) || Read<std::uint8_t>(human, 0xA61) != 0) return;
         Write<std::uint8_t>(human, 0xA61, 1);
-        if (IsIgnoringNeeds(human)) { Write<std::uint32_t>(human, 0x370, 0); return; }
+        if (Human_AI_IsIgnoringNeeds(human)) { Write<std::uint32_t>(human, 0x370, 0); return; }
         std::uint32_t need = 0;
         const auto alreadyFulfilling = [human](std::uint32_t type) { return Read<std::uint32_t>(human, 0x370) == type && Read<std::uint32_t>(human, 0x368) == 7 && Read<std::uint32_t>(human, 0x36C) == 1; };
         if (!Human_IsDefendingHouse(human, -1))
@@ -294,7 +293,7 @@ namespace NC2Logic
         switch (need)
         {
         case 1:
-            repeat = Read<std::int32_t>(human, 0xAA8) <= 2000 || (Read<std::uint32_t>(human, 0xAD4) != 0 && TGoodTypes_IsFood(Read<std::uint32_t>(human, 0xAD4)));
+            repeat = Read<std::int32_t>(human, 0xAA8) <= 2000 || Human_IsCarryingFood(human);
             message = 0x1C;
             break;
         case 2: repeat = Read<std::int32_t>(human, 0xAAC) <= 2000; message = 0x1D; break;
@@ -323,7 +322,7 @@ namespace NC2Logic
     void Human_l_StartTask_FulfillNeeds_Food(void* human)
     {
         const auto good = Read<std::uint32_t>(human, 0xAD4);
-        if (good != 0 && !TGoodTypes_IsFood(good)) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
+        if (Human_IsCarryingGoodExceptFood(human)) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (good != 0)
         {
             if (Read<std::uint32_t>(human, 0xACC) != 0) Human_StopCurrentGoodCirculationMode(human);
@@ -515,7 +514,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (Read<std::uint8_t>(human, 0xB51) == 0)
         {
-            void* other = Human_FindHumanToTalkInTalkRange_Any(human);
+            void* other = Human_FindHumanToTalkInTalkRange_Adult(human);
             if (other != nullptr && Human_StartWaitingForOtherHuman(other))
             {
                 Human_Target_SetTargetPositions(human, Human_GetMapPositionRef(other), Human_GetMapPositionRef(human));
@@ -528,7 +527,7 @@ namespace NC2Logic
                 Write<std::uint32_t>(human, 0x36C, 1);
                 return;
             }
-            other = Human_FindHumanToTalkInSearchRange_Any(human);
+            other = Human_FindHumanToTalkInSearchRange_Adult(human);
             if (other != nullptr && Human_StartWaitingForOtherHuman(other))
             {
                 Human_StopWaitingForOtherHuman(other);
@@ -638,12 +637,10 @@ namespace NC2Logic
         return true;
     }
 
-    // Partial original function: FUN_00463678. Windows conditions/aging/item and
-    // message order are translated; death cleanup still has unresolved dependencies
-    // and keeps the owning tick excluded from completion.
+    // Original function: FUN_00463678; native conditions, aging and death notification order.
     void Human_AI_DoUpdateConditions(void* human)
     {
-        if (IsIgnoringNeeds(human))
+        if (Human_AI_IsIgnoringNeeds(human))
         {
             if (Read<std::int32_t>(human, 0xAA0) < static_cast<std::int32_t>(Human_GetHumanAttributeMaximum_Hitpoints(human))) AddAttribute(human, 0xAA0, 1);
         }
@@ -734,4 +731,16 @@ namespace NC2Logic
         if (Read<std::int32_t>(human, 0xAAC) <= 1000) Human_UserMessage_SendToUserMessage(human, 0x1D);
         if (Read<std::int32_t>(human, 0xAB4) <= 1000 && Human_IsJobNeedingReligion(human)) Human_UserMessage_SendToUserMessage(human, 0x1F);
     }
+
+    // Original function: FUN_0042cb74.
+    bool Human_IsAbleToDoGoodie(const void* human) { const auto job = Read<std::int32_t>(human, 0x18); return !((job >= 31 && job <= 41) || (job >= 42 && job <= 47)); }
+    // Original function: FUN_0042d271; Windows retains the lookup and permits sleep unconditionally.
+    bool Human_CanSleepAtMapRealPosition(const void* point) { GameMap_GetMapMicroPointPtr(point); return true; }
+    // Original function: FUN_00463ad2; Windows outlined predicate, semantic name inferred from its callers.
+    bool Human_AI_IsIgnoringNeeds(const void* human) { return !Human_IsAgeAdult(human) || (Read<std::uint32_t>(human, 0xB84) & 1u) != 0; }
+    // Original function: FUN_0047033c; Windows outlined cargo predicate.
+    bool Human_IsCarryingFood(const void* human) { const auto good = Read<std::uint32_t>(human, 0xAD4); return good != 0 && TGoodTypes_IsFood(good); }
+    // Original function: FUN_00470358; Windows outlined cargo predicate.
+    bool Human_IsCarryingGoodExceptFood(const void* human) { const auto good = Read<std::uint32_t>(human, 0xAD4); return good != 0 && !TGoodTypes_IsFood(good); }
+
 }

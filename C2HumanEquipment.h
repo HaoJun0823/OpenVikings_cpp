@@ -38,4 +38,13 @@ namespace NC2Logic
     void Human_l_FailTask_Drop(void* human);
     std::uint32_t Human_DoExecuteUserCommand_Equipment_Change(void* human, std::uint32_t good, std::int32_t slot);
     std::uint32_t Human_DoExecuteUserCommand_Equipment_Drop(void* human, std::uint32_t good, std::int32_t slot);
+
+    bool Human_HasEquippedWeapon(const void* human);
+    bool Human_HasEquippedArmor(const void* human);
+    const char* Human_GetReallyProducedGoodType_GetGuiNamePtr(const void* human);
+    std::uint32_t Human_Equipment_GetArmorType(const void* human);
+    void Human_Equipment_ResetShoeType(void* human);
+    void Human_Equipment_ResetToolType(void* human);
+    void Human_Equipment_ResetArmorType(void* human);
+    bool Human_CanEquipArmorType(const void* human, std::uint32_t good);
 }
