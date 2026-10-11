@@ -1,0 +1,47 @@
+# Remaining shared/runtime Windows entries - 2026-10-11
+
+The fresh production inventory leaves **49 shared/system entries** open, at **619/668 (92.66%)**. Global completion remains **4661/5062**, **401 open**. This audit recovers identities, calling boundaries and data dependencies; it does **not** claim another implemented function, remove any address, substitute guessed math operations, or promote the existing partial numeric adapters. The complete entry-by-entry inventory is [SHARED_RUNTIME_REMAINDER_AUDIT.csv](SHARED_RUNTIME_REMAINDER_AUDIT.csv).
+
+| Block | Open entries | Required work |
+| --- | ---: | --- |
+| Point copy | 1 | Explicit binding of the original copy-constructor entry; current implicit copies already preserve point values |
+| Compiler stack/unwind | 5 | Compiler register/stack ABI, unwind continuation and legacy scope callbacks |
+| Public and x87 math entries | 9 | log10, sin, cos, atan and atan2, including x87 input and continuation paths |
+| Shared x87 kernels/continuations | 14 | Classification dispatch, extended loads, error records, arc-trig root and completion frames |
+| Power exceptional values | 2 | Infinity cases and integer parity under original rounding/status behavior |
+| Adjusted divide/remainder | 8 | Four extended division entries and four FPREM/FPREM1 entries |
+| Binary64 decomposition/classification | 4 | Exponent rewriting, frexp, rounding and fpclass with original x87 effects |
+| Math-error/IEEE records | 3 | Masked response, OS exception record and default error dispatch |
+| Waiting status/control/exception raising | 3 | FWAIT delivery, raw control bits and ordered hardware exception creation |
+
+## Complete decoded math data regions
+
+Windows math operation metadata and the two complete discovered descriptors are retained in [SHARED_MATH_OPERATIONS_AUDIT.csv](SHARED_MATH_OPERATIONS_AUDIT.csv) and [SHARED_MATH_DESCRIPTORS_AUDIT.csv](SHARED_MATH_DESCRIPTORS_AUDIT.csv). Original pointer fields remain original Windows addresses in evidence files; they are not runtime pointers into the reimplementation.
+
+The contiguous region **0050F178..0050F24F** contains 27 DWORD operation-ID/string-pointer pairs, not code or an array of function pointers. All 27 pointed NUL-terminated strings are decoded. It covers exp, pow, log, log10, sinh, cosh, tanh, asin, acos, atan, atan2, sqrt, sin, cos, tan, ceil, floor, fabs, modf, ldexp, _cabs, _hypot, fmod, frexp, _y0, _y1 and _yn in native order. The IDs agree with the installed Windows SDK's `_FP_OPERATION_CODE` definitions; actual values and pointers come from Game.exe. No direct table consumer was established by text xrefs, so this is a complete data-layout decode, not proof that a new dispatch algorithm should use the table.
+
+The descriptor at **0050C72A** has raw prefix byte 3, the string `exp` starting at +1, argument-count byte 1 at +0xD, operation byte 0x14 at +0xE, and four callback addresses starting at +0x10. The descriptor at **0050CC50** has raw prefix byte 5, `atan2`, argument count 2, operation 0x10 and sixteen callback addresses. Windows dispatchers 004EB570/004EB5D7 consume their +0x10 callback regions; completion 004ED2BA reads argument count and operation ID. The prefix resembles a string length, but no reader was established; byte +0xF remains unexplained. Both bytes are retained raw rather than being given an unsupported semantic field name. All four/sixteen callback targets are recorded, including internal continuations. This does not turn each continuation into an independent C++ function.
+
+The complete 16-byte **0050C76C..0050C77B** classification-offset map is `08 04 08 08 08 04 08 08 00 04 0C 08 00 04 0C 08`. Unary dispatch uses one selected offset; binary dispatch combines two selected offsets after FXAM/status-byte manipulation. This must retain x87 NaN/empty/unsupported classification behavior rather than substituting a binary64-only classifier.
+
+Adjacent binary64 constants at **0050F150..0050F177** are positive infinity, negative quiet NaN, maximum finite positive binary64, minimum positive normal binary64 and negative zero. **0050F250** is an original DWORD initialized to **0x2694**, not zero or boolean one. Its three established reads decide whether argument capture/custom math-error processing is bypassed. Its broader policy identity remains unresolved; do not invent a zero default. The following 80-bit constants are kept distinct: **0050F254** has significand `8000000000000000` and exponent `4410`; **0050F260** has significand `8000000000000001` and exponent `3000`, with two padding bytes between each native constant slot. 004F2024 uses them for invalid integer conversion, overflowing binary64 store and underflowing binary64 store.
+
+The contiguous zero-initialized BSS DWORDs **0056998C..00569993** are also distinct. The first gates math-error completion paths; the second is the existing Pentium division-adjustment field, initialized by 004E6EFC. Neither should be merged with 0050F250.
+
+## Important native distinctions
+
+**004E8300 is atan2**, established by descriptor 0050CC50 and operation ID 0x10. The neighbouring 004E830A enters the same operation through an x87-stack path; it is not a second public C++ atan2 signature. **004EFEE6/004F00EC use FPREM**, and **004F019E/004F03A4 use FPREM1** in their adjusted paths. Their shared mantissa/workaround data does not make them division functions. Quotient condition bits 0x4300 are saved/reinstated by the nearest-remainder kernel. The final zero-denominator/direct fallbacks are recorded separately; do not flatten them to a guessed `%`, fmod or remainder call.
+
+The **004F1AEF** layout matches the Windows SDK's **0x58-byte `_FPIEEE_RECORD`**: packed control/operation DWORD at +0, Cause/Enable/Status at +4/+8/+0xC, operand values at +0x10/+0x28 and result at +0x40, with validity/format DWORDs at +0x20/+0x38/+0x50. It intentionally does not zero the entire record. Pending status comes from the waiting raw reader; nonwaiting clear occurs before `RaiseException`, and handler changes to control/result are applied afterward. Original post-handler precision cases use literal mask `FFFFF3FF`, including where an intuitive rewrite would choose a different precision mask. That native behavior must not be silently corrected.
+
+At **004EC63C**, RtlUnwind receives target frame, internal continuation 004EC654 and two null arguments. The continuation restores a frame already established by its parent; an independent ordinary callback has the wrong stack. **004EC67E** installs a temporary FS exception registration, updates both its local registration state and caller try-level before each termination callback, notifies before invoking a no-filter callback, then restores FS. At **004EC712**, actual Game.exe bytes `8B 4D 08` read the notification code from **EBP+8**; the immediately pushed `0x101` is consumed by RET 4 but is not the source of that read. The four-DWORD data region 0050C9F4 has signature 0x19930520 followed by destination/code/frame fields. Replacing this with a guessed ordinary callback or using the pushed code would change original behavior.
+
+The stack probe **004E7D40** consumes size in EAX and rewrites ESP/return-address placement. Ordinary allocation or a normal C++ function call does not represent that compiler ABI. The current compiler handles its own generated stack probes/unwind paths; this does not establish an explicit reimplementation binding for these original entries.
+
+## ASM-free adapter boundary
+
+The nonwaiting clear **004F1FF2** is now genuinely implemented and excluded from this remaining list; see [SHARED_X87_STATUS_CLEAR.md](SHARED_X87_STATUS_CLEAR.md). FXSAVE captures raw status without waiting; `_clearfp` provides the original FNCLEX action after the host API implementation was checked, and MXCSR is preserved. The separate **004F1FE4** starts with FWAIT, and **004F2001** does too. Using FXSAVE alone for either would omit pending hardware-exception delivery. An abstract `_statusfp` value also lacks TOP and condition codes. No such approximation is counted complete.
+
+Original game behavior, bytes and call order are established from Windows. Mac is used only for the SPoint constructor name; no private Windows CRT behavior is inferred from it. SDK headers and API documentation establish adapter types/contracts, not original control flow. Relevant OS/compiler references are [Microsoft RtlUnwind](https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-rtlunwind), [Microsoft x86 intrinsics](https://learn.microsoft.com/en-us/cpp/intrinsics/x86-intrinsics-list), [Microsoft `_clearfp`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/clear87-clearfp), and [Intel x87 instruction reference](https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-2a-manual.pdf).
+
+This is a documentation/naming checkpoint. No new implementation counts, production builds, tests or game run are added. Private PE extraction and research scripts remain in ignored `.codex-work/`.

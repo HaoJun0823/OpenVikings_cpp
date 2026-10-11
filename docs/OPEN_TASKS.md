@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Complete audit of remaining shared runtime entries - 2026-10-11
+
+All 49 remaining shared entries are individually identified and grouped using Windows control-flow evidence. Complete math descriptor/name-table regions, raw exception constants and legacy compiler boundaries are documented. Naming recovery adds no implementation completion; existing partial adapters remain open. See [SHARED_RUNTIME_REMAINDER_AUDIT.md](SHARED_RUNTIME_REMAINDER_AUDIT.md).
+
+Current global inventory **4661/5062 (92.08%)**, **401 open**. System/shared **619/668 (92.66%), 49 open**; engine **127 open**, AI **225 open**. **19** explicit unfinished boundaries and **286** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2811** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Read-only Windows instruction/Game.exe data and SDK/API contract checks cover the remaining entries; no source syntax checks were repeated for this documentation-only block. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Raw x87 nonwaiting status clear - 2026-10-11
 
 Original entry 004F1FF2 now returns the complete signed raw status and clears x87 exceptions without waiting, through documented intrinsics and the verified existing host CRT API. Startup is connected, MXCSR remains preserved, and waiting status/control and IEEE math-dispatch parents stay open. See [SHARED_X87_STATUS_CLEAR.md](SHARED_X87_STATUS_CLEAR.md).
