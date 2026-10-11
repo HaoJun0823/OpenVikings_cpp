@@ -866,7 +866,7 @@ namespace NXBasics
     // Original data: 0056b710.
     RuntimeOnExitCallback* gRuntimeOnExitBegin = nullptr;
 
-    // Original functions: FUN_004e5f2c; forwarding wrapper: FUN_004e5fb7.
+    // Original function: FUN_004e5f2c.
     std::int32_t Runtime_StringToInteger(const char* text)
     {
         const auto* cursor = reinterpret_cast<const std::uint8_t*>(text);
@@ -912,6 +912,12 @@ namespace NXBasics
         std::int32_t result;
         std::memcpy(&result, &value, sizeof(result));
         return result;
+    }
+
+    // Original function: FUN_004E5FB7; the int conversion delegates to the native long conversion.
+    std::int32_t Runtime_Atoi(const char* text)
+    {
+        return Runtime_StringToInteger(text);
     }
 
     // Original function: LAB_004eb9f6
@@ -1015,40 +1021,21 @@ namespace NXBasics
     // Function definitions (original-address order; unaddressed helpers last)
 
     // Original function: FUN_00410bca.
-    // Includes the direct classification path of FUN_004e7cbc.
     bool Runtime_IsLetter(char character)
     {
         const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
         const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
 
-        if (gRuntimeMaxMultibyteLength > 1)
-        {
-            return Runtime_ClassifyCharacter(signedCharacter, 0x0103u) != 0;
-        }
-
-        const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
-
-        std::uint16_t classification;
-        std::memcpy(&classification, classificationTable + signedCharacter * 2, sizeof(classification));
-
-        return (classification & 0x0103) != 0;
+        return Runtime_ClassifyLetter(signedCharacter) != 0;
     }
 
     // Original function: FUN_00410bdd.
-    // Includes the direct classification path of FUN_004e7cea.
     bool Runtime_IsDigit(char character)
     {
         const std::uint8_t byteValue = static_cast<std::uint8_t>(character);
         const std::int32_t signedCharacter = byteValue < 0x80 ? static_cast<std::int32_t>(byteValue) : static_cast<std::int32_t>(byteValue) - 0x100;
 
-        if (gRuntimeMaxMultibyteLength > 1)
-        {
-            return Runtime_ClassifyCharacter(signedCharacter, 0x04u) != 0;
-        }
-
-        const auto* classificationTable = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
-
-        return (classificationTable[signedCharacter * 2] & 0x04) != 0;
+        return Runtime_ClassifyDigit(signedCharacter) != 0;
     }
 
     // Original function: FUN_00410bf0
@@ -1103,7 +1090,7 @@ namespace NXBasics
     // Original function: FUN_004e5fc2
     RuntimeOnExitCallback Runtime_RegisterOnExit(RuntimeOnExitCallback callback)
     {
-        Runtime_Lock(0x0D);
+        Runtime_LockOnExit();
 
         const std::uint32_t capacity = Runtime_GetAllocationSize(gRuntimeOnExitBegin);
         const std::uint32_t usedBytes = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(gRuntimeOnExitEnd) - reinterpret_cast<std::uintptr_t>(gRuntimeOnExitBegin));
@@ -1115,7 +1102,7 @@ namespace NXBasics
 
             if (replacement == nullptr)
             {
-                Runtime_Unlock(0x0D);
+                Runtime_UnlockOnExit();
                 return nullptr;
             }
 
@@ -1128,7 +1115,7 @@ namespace NXBasics
 
         *gRuntimeOnExitEnd++ = callback;
 
-        Runtime_Unlock(0x0D);
+        Runtime_UnlockOnExit();
         return callback;
     }
 
@@ -3109,6 +3096,30 @@ namespace NXBasics
         return current;
     }
 
+    // Original function: FUN_004E857D; cleanup for the free path in small-block heap mode 3.
+    static void Runtime_FreeMode3Cleanup()
+    {
+        Runtime_Unlock(0x09);
+    }
+
+    // Original function: FUN_004E85D5; cleanup for the free path in small-block heap mode 2.
+    static void Runtime_FreeMode2Cleanup()
+    {
+        Runtime_Unlock(0x09);
+    }
+
+    // Original function: FUN_004E86A1; cleanup for the allocation path in small-block heap mode 3.
+    static void Runtime_AllocateMode3Cleanup()
+    {
+        Runtime_Unlock(0x09);
+    }
+
+    // Original function: FUN_004E8700; cleanup for the allocation path in small-block heap mode 2.
+    static void Runtime_AllocateMode2Cleanup()
+    {
+        Runtime_Unlock(0x09);
+    }
+
     // Original function: FUN_004e8513
     void Runtime_Free(void* memory)
     {
@@ -3134,7 +3145,7 @@ namespace NXBasics
             }
             __finally
             {
-                Runtime_Unlock(0x09);
+                Runtime_FreeMode3Cleanup();
             }
 
             if (heapRecord != 0)
@@ -3160,7 +3171,7 @@ namespace NXBasics
             }
             __finally
             {
-                Runtime_Unlock(0x09);
+                Runtime_FreeMode2Cleanup();
             }
 
             if (allocationRecord != 0)
@@ -3511,6 +3522,15 @@ namespace NXBasics
         return destination;
     }
 
+    // Original function: FUN_004E7081; preserve the 32-bit pointer subtraction and arithmetic shift.
+    std::uint32_t Runtime_WideStringLength(const wchar_t* text)
+    {
+        const wchar_t* cursor = text;
+        while (*cursor != L'\0') ++cursor;
+        const auto span = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(cursor) - reinterpret_cast<std::uintptr_t>(text) + 2u);
+        return ((span >> 1) | (span & 0x80000000u)) - 1u;
+    }
+
     // Original function: FUN_004E7A70; scan the first string up to the bound before comparing.
     std::int32_t Runtime_CompareStringsN(const char* first, const char* second, std::uint32_t byteCount)
     {
@@ -3572,6 +3592,24 @@ namespace NXBasics
             ++right;
         }
         return 0;
+    }
+
+    // Original function: FUN_004E7CBC; retain the native mask result before caller boolean normalization.
+    std::uint32_t Runtime_ClassifyLetter(std::int32_t character)
+    {
+        if (gRuntimeMaxMultibyteLength > 1) return Runtime_ClassifyCharacter(character, 0x103u);
+        const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+        std::uint16_t classification;
+        std::memcpy(&classification, characterTypes + static_cast<std::ptrdiff_t>(character) * 2, sizeof(classification));
+        return classification & 0x103u;
+    }
+
+    // Original function: FUN_004E7CEA; the single-byte table path reads only its low flags byte.
+    std::uint32_t Runtime_ClassifyDigit(std::int32_t character)
+    {
+        if (gRuntimeMaxMultibyteLength > 1) return Runtime_ClassifyCharacter(character, 4u);
+        const auto* characterTypes = reinterpret_cast<const std::uint8_t*>(gRuntimeCharacterTypes);
+        return characterTypes[static_cast<std::ptrdiff_t>(character) * 2] & 4u;
     }
 
     // Original function: FUN_004E8010; empty patterns return the input and one-byte patterns use strchr.
@@ -3731,8 +3769,7 @@ namespace NXBasics
                 }
                 __finally
                 {
-                    // Original cleanup funclet: 004e86a1.
-                    Runtime_Unlock(0x09);
+                    Runtime_AllocateMode3Cleanup();
                 }
                 if (allocation != nullptr)
                     return allocation;
@@ -3750,8 +3787,7 @@ namespace NXBasics
                 }
                 __finally
                 {
-                    // Original cleanup funclet: 004e8700.
-                    Runtime_Unlock(0x09);
+                    Runtime_AllocateMode2Cleanup();
                 }
                 if (allocation != nullptr)
                     return allocation;
@@ -3885,6 +3921,12 @@ namespace NXBasics
         stream->remainingBytes = 0;
         stream->position = stream->buffer;
         return result;
+    }
+
+    // Original function: FUN_004E8D80; return the number of successfully flushed streams.
+    std::int32_t Runtime_FlushAllStreams()
+    {
+        return Runtime_FlushStreams(1);
     }
 
     // Original function: FUN_004e8d89
@@ -4089,13 +4131,20 @@ namespace NXBasics
         return duplicate;
     }
 
-    // Original function: FUN_004e907b
-    char* Runtime_LongToString(std::int32_t value, char* destination, std::int32_t radix)
+    // Original function: FUN_004E8FF2.
+    char* Runtime_IntegerToString(std::int32_t value, char* destination, std::int32_t radix)
+    {
+        Runtime_ConvertIntegerToString(static_cast<std::uint32_t>(value), destination, static_cast<std::uint32_t>(radix), radix == 10 && value < 0 ? 1 : 0);
+        return destination;
+    }
+
+    // Original function: FUN_004E901F; the native digit helper does not validate the radix.
+    void Runtime_ConvertIntegerToString(std::uint32_t value, char* destination, std::uint32_t radix, std::int32_t writeMinus)
     {
         char* output = destination;
-        std::uint32_t magnitude = static_cast<std::uint32_t>(value);
+        std::uint32_t magnitude = value;
 
-        if (radix == 10 && value < 0)
+        if (writeMinus != 0)
         {
             *output++ = '-';
 
@@ -4104,15 +4153,12 @@ namespace NXBasics
             magnitude = std::uint32_t{ 0 } - magnitude;
         }
 
-        // Original conversion helper: FUN_004e901f.
-        // The original does not validate the radix.
         char* firstDigit = output;
-        const std::uint32_t base = static_cast<std::uint32_t>(radix);
 
         do
         {
-            const std::uint32_t digit = magnitude % base;
-            magnitude /= base;
+            const std::uint32_t digit = magnitude % radix;
+            magnitude /= radix;
 
             *output++ = static_cast<char>(digit + (digit > 9u ? 0x57u : 0x30u));
         } while (magnitude != 0);
@@ -4127,7 +4173,19 @@ namespace NXBasics
             *firstDigit++ = *lastDigit;
             *lastDigit-- = saved;
         }
+    }
 
+    // Original function: FUN_004e907b.
+    char* Runtime_LongToString(std::int32_t value, char* destination, std::int32_t radix)
+    {
+        Runtime_ConvertIntegerToString(static_cast<std::uint32_t>(value), destination, static_cast<std::uint32_t>(radix), radix == 10 && value < 0 ? 1 : 0);
+        return destination;
+    }
+
+    // Original function: FUN_004E90A5; unsigned conversion never writes the signed prefix.
+    char* Runtime_UnsignedLongToString(std::uint32_t value, char* destination, std::int32_t radix)
+    {
+        Runtime_ConvertIntegerToString(value, destination, static_cast<std::uint32_t>(radix), 0);
         return destination;
     }
 
@@ -5541,8 +5599,7 @@ namespace NXBasics
     // Original function: FUN_004ea158
     void Runtime_PerformExit(std::int32_t exitCode, std::int32_t quickExit, std::int32_t returnToCaller)
     {
-        // Original lock/unlock helpers: FUN_004ea1fd and FUN_004ea206.
-        Runtime_Lock(13);
+        Runtime_LockOnExit();
 
         if (gRuntimeProcessExitStarted == 1)
             ::TerminateProcess(::GetCurrentProcess(), static_cast<UINT>(exitCode));
@@ -5577,12 +5634,24 @@ namespace NXBasics
 
         if (returnToCaller != 0)
         {
-            Runtime_Unlock(13);
+            Runtime_UnlockOnExit();
             return;
         }
 
         gRuntimeProcessExitStarted = 1;
         ::ExitProcess(static_cast<UINT>(exitCode));
+    }
+
+    // Original function: FUN_004EA1FD; the on-exit table uses CRT lock 13.
+    void Runtime_LockOnExit()
+    {
+        Runtime_Lock(0x0D);
+    }
+
+    // Original function: FUN_004EA206.
+    void Runtime_UnlockOnExit()
+    {
+        Runtime_Unlock(0x0D);
     }
 
     // Original function: FUN_004ea20f.
@@ -9553,8 +9622,7 @@ namespace NXBasics
     // Original function: FUN_004ee716
     void Runtime_PreTerminateStreams()
     {
-        // Original forwarding wrapper FUN_004e8d80 calls the flush helper with 1.
-        Runtime_FlushStreams(1);
+        Runtime_FlushAllStreams();
 
         if (gRuntimeCleanupReturnsToCaller != 0)
             Runtime_CloseAllStreams();

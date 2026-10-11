@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Shared runtime wrappers and cleanup - 2026-10-11
+
+Fourteen further Windows entries are explicit and connected: integer/string formatting and decimal forwarding, raw letter/digit classification, wide-string length, flush-all, on-exit locks and four separate heap cleanup leaves. Existing structured exception handling and caller boolean normalization are retained. Windows ASM/Game.exe establish behavior; available Mac library names are naming references only. See [SHARED_RUNTIME_WRAPPERS_COMPLETION.md](SHARED_RUNTIME_WRAPPERS_COMPLETION.md).
+
+Current global inventory **4588/5062 (90.64%)**, **474 open**. System/shared **577/691 (83.50%), 114 open**; engine **128 open**, AI **232 open**. The denominator is unchanged. **19** explicit unfinished boundaries and **289** provisional open assignments remain. Project/filter membership **284 CPP / 260 headers**, **2690** unique naming rows and **18** unmatched declaration signatures.
+
+Four affected/integrating units pass Win32 MSVC `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; the account allowance reset during this task and remains available. Private tooling and handoff stay in ignored `.codex-work/`.
+
 ## Shared string and memory primitives - 2026-10-11
 
 Sixteen further Windows CRT entries have concrete separate definitions: narrow/wide string primitives, unsigned comparison signs, absolute integer value and both overlap-safe native memory-copy entries. Confirmed callers use the recovered helpers. Windows ASM/Game.exe establish all behavior; Mac library symbols supply naming only. See [SHARED_STRING_MEMORY_COMPLETION.md](SHARED_STRING_MEMORY_COMPLETION.md) and its native-entry CSV.

@@ -183,6 +183,15 @@ namespace NXBasics
     bool Runtime_IsPropertyNameCharacter(char character);
 
     std::int32_t Runtime_StringToInteger(const char* text);
+    std::int32_t Runtime_Atoi(const char* text);
+    std::uint32_t Runtime_WideStringLength(const wchar_t* text);
+    std::uint32_t Runtime_ClassifyLetter(std::int32_t character);
+    std::uint32_t Runtime_ClassifyDigit(std::int32_t character);
+    char* Runtime_IntegerToString(std::int32_t value, char* destination, std::int32_t radix);
+    void Runtime_ConvertIntegerToString(std::uint32_t value, char* destination, std::uint32_t radix, std::int32_t writeMinus);
+    char* Runtime_UnsignedLongToString(std::uint32_t value, char* destination, std::int32_t radix);
+    void Runtime_LockOnExit();
+    void Runtime_UnlockOnExit();
 
     RuntimeOnExitCallback Runtime_RegisterOnExit(RuntimeOnExitCallback callback);
 
@@ -301,6 +310,7 @@ namespace NXBasics
     std::int32_t Runtime_FlushStreamBuffer(RuntimeFormatStream* stream);
 
     std::int32_t Runtime_FlushStreams(std::int32_t mode);
+    std::int32_t Runtime_FlushAllStreams();
 
     char* Runtime_GetEnvironmentVariable(const char* name);
 

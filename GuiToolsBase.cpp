@@ -377,12 +377,12 @@ namespace NC2GuiToolsBase
 
                     if (first != nullptr)
                     {
-                        const std::int32_t goodId = NXBasics::Runtime_StringToInteger(first);
+                        const std::int32_t goodId = NXBasics::Runtime_Atoi(first);
                         const char* second = argumentAfter(first, ',');
 
                         if (second != nullptr)
                         {
-                            const std::int32_t variant = NXBasics::Runtime_StringToInteger(second);
+                            const std::int32_t variant = NXBasics::Runtime_Atoi(second);
                             const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(NC2Logic::gStaticGoodTypeData));
                             const std::uint32_t address = baseAddress + static_cast<std::uint32_t>(goodId) * 0xD0u;
                             const auto* good = reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
@@ -405,12 +405,12 @@ namespace NC2GuiToolsBase
 
                     if (first != nullptr)
                     {
-                        const std::int32_t houseId = NXBasics::Runtime_StringToInteger(first);
+                        const std::int32_t houseId = NXBasics::Runtime_Atoi(first);
                         const char* second = argumentAfter(first, ',');
 
                         if (second != nullptr)
                         {
-                            const std::int32_t variant = NXBasics::Runtime_StringToInteger(second);
+                            const std::int32_t variant = NXBasics::Runtime_Atoi(second);
                             NC2E2::DrawAtom_House_Tool_DoDrawEngineHouseType(houseId, static_cast<std::uint32_t>(variant), bitmap, signedValue(currentX), signedValue(currentY), -1, true, false);
                         }
                     }
@@ -420,14 +420,14 @@ namespace NC2GuiToolsBase
                     const char* argument = argumentAfter(cursor, ':');
 
                     if (argument != nullptr)
-                        currentX = static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(NXBasics::Runtime_StringToInteger(argument));
+                        currentX = static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(NXBasics::Runtime_Atoi(argument));
                 }
                 else if (matches("sety", 4))
                 {
                     const char* argument = argumentAfter(cursor, ':');
 
                     if (argument != nullptr)
-                        currentY = static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(NXBasics::Runtime_StringToInteger(argument));
+                        currentY = static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(NXBasics::Runtime_Atoi(argument));
                 }
                 else if (matches("setfontcolor", 12))
                 {
@@ -435,17 +435,17 @@ namespace NC2GuiToolsBase
 
                     if (first != nullptr)
                     {
-                        const std::int32_t red = NXBasics::Runtime_StringToInteger(first);
+                        const std::int32_t red = NXBasics::Runtime_Atoi(first);
                         const char* second = argumentAfter(first, ',');
 
                         if (second != nullptr)
                         {
-                            const std::int32_t green = NXBasics::Runtime_StringToInteger(second);
+                            const std::int32_t green = NXBasics::Runtime_Atoi(second);
                             const char* third = argumentAfter(second, ',');
 
                             if (third != nullptr)
                             {
-                                const std::int32_t blue = NXBasics::Runtime_StringToInteger(third);
+                                const std::int32_t blue = NXBasics::Runtime_Atoi(third);
                                 currentColor.red = static_cast<std::uint8_t>(red);
                                 currentColor.green = static_cast<std::uint8_t>(green);
                                 currentColor.blue = static_cast<std::uint8_t>(blue);
