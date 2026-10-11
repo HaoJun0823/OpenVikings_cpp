@@ -28,7 +28,21 @@ namespace NC2Logic
 
     // Original function: FUN_004237d2
     const void* GameMap_GetConstMapMicroPointPtr(const void* packedMigPoint);
+    const void* GameMap_GetConstMapMicroPointPtr(std::int16_t x, std::int16_t y);
     void* GameMap_GetMapMicroPointPtr(const void* packedMigPoint);
+    void* GameMap_GetMapMicroPointPtr(std::uint32_t index);
+    void GameMap_MapMacroPoint_Height_Set(const void* point, std::int32_t height);
+    void GameMap_MapMacroPoint_Height_Modify(const void* point, std::int32_t delta);
+    void GameMap_l_MaxMoveableSize_UpdatePoint(const void* point);
+    bool GameMap_l_MaxMoveableSize_CheckForSize(std::uint32_t point, std::uint32_t size, std::uint32_t continent);
+    void GameMap_l_WalkFlagSet_Update(const void* point);
+    void GameMap_l_WalkFlagSet_ClearConnections(std::uint32_t point);
+    void GameMap_l_WalkFlagSet_CalculateConnections(const void* point);
+    void GameMap_l_WalkFlagSet_SetConnection(std::uint32_t point, std::uint32_t direction);
+    void GameMap_l_ResistanceSet_Calculate(const void* point);
+    void GameMap_l_Continents_RecalculateAll();
+    void GameMap_l_Continents_UpdateArea(const void* first, const void* end);
+    std::uint32_t GameMap_Continent_CalculateContinentType(const void* point);
     void MapMicroPointData_House_SetRoot(void* micro, std::uint32_t house);
     void MapMicroPointData_House_SetDoor(void* micro, std::uint32_t house);
     bool GameMap_Misc_IsLandscapeAllowedOnPattern(const void* point, std::uint32_t landscape);

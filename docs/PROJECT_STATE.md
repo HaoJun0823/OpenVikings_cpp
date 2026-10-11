@@ -1,5 +1,15 @@
 # OpenVikings Project State
 
+## Map callback and continent source completion - 2026-10-11
+
+Completed landscape validation, maximum moveable size, walk connections, resistance, full/local continent updates and their native flood-fill/remap helpers. Formation-point routing now follows the native danger-stop behavior and has its military danger dependencies. Five map callback dummies are replaced by concrete bodies. Windows ASM and Game.exe establish behavior; Mac header symbols supply naming only. See [MAP_REMAINDER_COMPLETION.md](MAP_REMAINDER_COMPLETION.md).
+
+The original 92-entry selection is preserved in [MAP_REMAINDER_NATIVE_ENTRIES.csv](MAP_REMAINDER_NATIVE_ENTRIES.csv): **34 map entries plus three AI dependencies implemented; 55 individually identified AI entries remain open**. Reclassification does not complete those 55 entries. Corrected maps **201/201**, computer AI **77/309 (232 open)**. Global **4548/5062 (89.85%)**, **514 open**, **19** explicit unfinished boundaries, **289** provisionally assigned open entries. No native denominator entry was removed. [OPEN_CATEGORY_OVERVIEW.md](OPEN_CATEGORY_OVERVIEW.md) supersedes historical totals.
+
+Fourteen affected/integrating units pass Win32 MSVC `/Zs`. Project/filter parity covers **284 CPP / 260 headers**, **2650** unique naming rows and **19** unmatched declaration signatures. Original-selection accounting, category sums and whitespace checks pass. No build, tests or game run occurred. Live continent edits/splits/merges and navigation remain unverified; earlier green road pixels, campaign playthroughs and audio playback also remain unverified. Private tools and detailed inventories stay in ignored `.codex-work/`.
+
+Next smallest open category: **engine/graphics/weather/particles, 551/679, 128 open**; then system/shared helpers (154) and AI (232). Do not describe the 55 reclassified AI entries as complete.
+
 ## Menus, GUI and input source completion - 2026-10-11
 
 All **77 originally selected open entries** and **nine direct dependencies** have concrete Windows-based C++ bodies. Ship input highlighting now uses the native mode table (19 coast, 20 work center, 21 movement, 22 enemy landscapes). GUI/hyperlink list ownership, embedded constructors, human-window deletion, message-window reuse, input/desktop access, formatted tooltips and lazy color callbacks are completed. The seven provisional GUI entries for tower/build/upgrade AI are also reconstructed with their local dependencies; the enclosing AI update remains open. Mac headers supply naming only. See [GUI_REMAINDER_COMPLETION.md](GUI_REMAINDER_COMPLETION.md) and its preserved per-entry selection.

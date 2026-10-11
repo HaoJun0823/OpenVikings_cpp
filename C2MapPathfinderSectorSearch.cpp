@@ -442,4 +442,13 @@ namespace NC2Logic
         return (GameMap_CalculationMap_GetValue(source) & 0x1FF) != 0;
     }
 
+
+    // Original function: FUN_0044F14C; outlined member construction, no search-state initialization.
+    void CMapPathfinderSpecialSectorSearchElement::ConstructMembers(void* pathfinder)
+    {
+        MapMigPoint_ConstructZero(static_cast<std::byte*>(pathfinder) + 0x20);
+        MapMigPoint_ConstructZero(static_cast<std::byte*>(pathfinder) + 0x24);
+        MapMigRectangle_ConstructZero(reinterpret_cast<std::int16_t*>(static_cast<std::byte*>(pathfinder) + 0x28));
+    }
+
 }

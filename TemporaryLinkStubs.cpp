@@ -51,27 +51,6 @@ namespace NC2Logic
     // TEMPORARY DUMMY: Windows address 004293FC; high-level military notification pending.
     // Naming reference: NC2Logic::C2AIHighLevelHandler::Message_Soldier_Attacked.
     void __fastcall AIHighLevelHandler_Message_Soldier_Attacked(void*, void*, const void*) {}
-
-    // TEMPORARY DUMMY: Windows address 00424AE9; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::l_ValidateLandscapes_Callback.
-    bool __cdecl GameMap_l_ValidateLandscapes_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 00450C1D; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::l_MaxMoveableSize_Callback.
-    bool __cdecl GameMap_l_MaxMoveableSize_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 00450E8C; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::l_WalkFlagSet_Callback.
-    bool __cdecl GameMap_l_WalkFlagSet_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 004511C5; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::l_ResistanceSet_Callback.
-    bool __cdecl GameMap_l_ResistanceSet_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
-    // TEMPORARY DUMMY: Windows address 004513C1; implementation pending.
-    // Naming reference: NC2Logic::CGameMap::l_Continents_Callback.
-    bool __cdecl GameMap_l_Continents_Callback(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int) { return false; }
-
 }
 
 namespace NC2E2

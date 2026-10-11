@@ -14,6 +14,7 @@ namespace NC2Logic
         inline static std::int32_t sGridHeight = 0;
 
         SSectorGridCursor() = default;
+        SSectorGridCursor(const SSectorGridCursor& source);
         explicit SSectorGridCursor(std::uint32_t packedMigPoint);
         SSectorGridCursor(std::int32_t column, std::int32_t row);
 

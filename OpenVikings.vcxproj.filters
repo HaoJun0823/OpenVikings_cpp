@@ -378,6 +378,8 @@
     <ClCompile Include="C2AnimalAccess.cpp">
       <Filter>Engine\Animals</Filter>
     </ClCompile>
+    <ClCompile Include="C2GameMapContinents.cpp"><Filter>Logic</Filter></ClCompile>
+    <ClCompile Include="C2GameMapConnectivity.cpp"><Filter>Logic</Filter></ClCompile>
     <ClCompile Include="C2GameMapAccess.cpp">
       <Filter>Engine\Map</Filter>
     </ClCompile>

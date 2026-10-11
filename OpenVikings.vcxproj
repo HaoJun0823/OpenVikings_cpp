@@ -43,6 +43,8 @@
     <ClCompile Include="C2EngineLandscapeDrawing.cpp" />
     <ClCompile Include="C2EngineMoveableDrawing.cpp" />
     <ClCompile Include="C2EngineTooltipAccess.cpp" />
+    <ClCompile Include="C2GameMapContinents.cpp" />
+    <ClCompile Include="C2GameMapConnectivity.cpp" />
     <ClCompile Include="C2GameMapAccess.cpp" />
     <ClCompile Include="C2IoHelper.cpp" />
     <ClCompile Include="C2LanguageTools.cpp" />

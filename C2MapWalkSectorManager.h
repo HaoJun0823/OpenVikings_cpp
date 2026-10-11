@@ -85,6 +85,7 @@ namespace NC2Logic
         static bool WayPossible(const SSectorGridCursor& source, const SSectorGridCursor& destination, std::uint32_t clearance, bool land, std::int32_t player);
         static SMapWalkSectorData* l_GetNextSectorPtr(const SSectorGridCursor& source, const SSectorGridCursor& destination, std::uint32_t clearance, bool land, SMapWalkSectorData*& second, std::uint32_t radius, const void* sourcePoint, std::int32_t player);
         static bool GetNextSectorBasePoint(const void* source, const void* destination, std::uint32_t clearance, bool land, void* firstPoint, void* secondPoint, std::uint32_t radius, std::int32_t player);
+        static bool __stdcall AI_Military_GetFormPoint(std::int32_t player, const void* source, const void* destination, void* output);
         static void IO_Savegame_DoSave(CIoHelper& io);
         explicit CMapWalkSectorManager(CIoHelper& io);
         static bool IO_Cleanmap_Load(CIoHelper& io);

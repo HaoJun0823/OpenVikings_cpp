@@ -6,6 +6,7 @@ namespace NC2Logic
     class CMapPathfinderSpecialSectorSearchElement
     {
     public:
+        static void ConstructMembers(void* pathfinder);
         static void Init(void* pathfinder);
         static void StartPathfinder(void* pathfinder, const void* source, const void* destination, std::uint32_t radius, bool useResistance, const std::int16_t* rectangle);
         static std::int32_t GetNextDirection(void* pathfinder);

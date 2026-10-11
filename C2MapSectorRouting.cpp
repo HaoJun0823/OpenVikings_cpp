@@ -9,6 +9,12 @@
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
+#include "C2HumanEquipment.h"
+#include "C2HumanCommandAccess.h"
+#include "C2LogicObjectArrays.h"
+#include "C2VehicleAccess.h"
+#include "C2VehicleLifecycle.h"
+#include "XCrtFileAccess.h"
 
 namespace NC2Logic
 {
@@ -286,5 +292,103 @@ namespace NC2Logic
             budget = remaining;
         } while (budget > 17u);
         return (Sectors_CalculationMap_GetValue(source) & 0xFFFFu) != 0;
+    }
+
+    // Original function: FUN_00450A4D; select the last low-danger interior base point on the native route.
+    bool __stdcall CMapWalkSectorManager::AI_Military_GetFormPoint(std::int32_t player, const void* source, const void* destination, void* output)
+    {
+        SBasePointSearch data{}; data.land = 1;
+        if (!CMapPathfinderElement::SearchOverMap(source, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
+        const SSectorGridCursor from(data.point);
+        auto* sourceSector = GetLandSectorDataPtr(from);
+        if (sourceSector->calculated == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(source), 6) != sourceSector->continentId) return false;
+        if (!CMapPathfinderElement::SearchOverMap(destination, 50, true, slWalkSectorBasePointSearch, &data, true, player)) return false;
+        if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&data.point), 6) != sourceSector->continentId) return false;
+        const SSectorGridCursor target(data.point);
+        if ((target.x == from.x && target.y == from.y) || GetLandSectorDataPtr(target)->continentId != sourceSector->continentId) return false;
+        if (!WayPossible(from, target, 0, true, player)) return false;
+        auto cursor = from;
+        SMapWalkSectorData* selected = nullptr;
+        for (;;)
+        {
+            const auto value = Sectors_CalculationMap_GetValue(cursor);
+            if ((value & 0xFF0000u) == 0) break;
+            std::uint32_t directions[8], count = 0;
+            for (std::uint32_t direction = 0; direction < 8; ++direction) if ((value & (0x10000u << direction)) != 0) directions[count++] = direction;
+            cursor.MoveCursorUnwrapped(directions[Game_Random_GetNumber() % count]);
+            if (!cursor.IsInsideMap()) continue;
+            auto* sector = GetLandSectorDataPtr(cursor);
+            if (AIMilitaryManager_Military_GetDangerValueForPosition(sector->basePoints, player) >= 10) break;
+            selected = sector;
+        }
+        if (selected == nullptr) return false;
+        Write(output, 0, selected->basePoints[0]);
+        return true;
+    }
+
+    // Original function: FUN_00454192; four square-sector rings, with signed division by radius squared.
+    std::int32_t AIMilitaryManager_Military_GetDangerValueForPosition(const void* point, std::int32_t player)
+    {
+        SSectorGridCursor cursor(Read<std::uint32_t>(point, 0));
+        auto total = static_cast<std::uint32_t>(AIMilitaryManager_Military_GetDangerValueForSector(cursor, player));
+        for (std::uint32_t radius = 1; radius < 5; ++radius)
+        {
+            cursor.MoveCursorUnwrapped(5);
+            for (std::uint32_t direction = 0; direction < 8; direction += 2)
+                for (std::uint32_t step = 0; step < radius * 2u; ++step)
+                {
+                    cursor.MoveCursorUnwrapped(direction);
+                    if (cursor.IsInsideMap()) total += static_cast<std::uint32_t>(AIMilitaryManager_Military_GetDangerValueForSector(cursor, player) / static_cast<std::int32_t>(radius * radius));
+                }
+        }
+        return NXBasics::Runtime_TimeSigned32(total);
+    }
+
+    // Original function: FUN_00454218; score hostile/neutral caches and traverse their native human/vehicle lists.
+    std::int32_t AIMilitaryManager_Military_GetDangerValueForSector(const SSectorGridCursor& cursor, std::int32_t player)
+    {
+        const auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
+        const auto index = static_cast<std::uint32_t>(manager->GetGridWidth()) * static_cast<std::uint32_t>(cursor.y) + static_cast<std::uint32_t>(cursor.x);
+        const auto* sector = manager->GetSectorData() + index * 0x540u;
+        std::uint32_t total = 0;
+        for (std::int32_t other = 0; other < 21; ++other)
+        {
+            if (other == 20) { total += Read<std::uint32_t>(sector, 0x53C) * 10u; continue; }
+            if (Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * 0x4A80u) == 0) continue;
+            const auto state = GameControl_Diplomacy_GetState(gGameControl, player, other);
+            const auto* data = sector + static_cast<std::uint32_t>(other) * 0x40u;
+            if (state == 3)
+            {
+                total += (Read<std::uint32_t>(data, 0x14) + Read<std::uint32_t>(data, 0x2C) * 8u) * 5u + Read<std::uint32_t>(data, 4);
+                for (auto id = Read<std::int32_t>(data, 0x18); id != -1;)
+                {
+                    const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+                    total += 10;
+                    const auto armor = Human_Equipment_GetArmorType(human);
+                    const auto weapon = Human_Equipment_GetWeaponType(human);
+                    if (armor != 0) total += 10;
+                    if (weapon != 1) total += 10;
+                    if (weapon == 8) total += 10;
+                    id = Read<std::int32_t>(human, 0xB58);
+                }
+                for (auto id = Read<std::int32_t>(data, 0x20); id != -1;)
+                {
+                    const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
+                    total += Vehicle_Passengers_IsCommanderInVehicle(vehicle) ? 50u : 10u;
+                    id = Read<std::int32_t>(vehicle, 0x514);
+                }
+            }
+            else if (state == 2)
+            {
+                total += (Read<std::uint32_t>(data, 0x24) * 5u + Read<std::uint32_t>(data, 0x2C) * 4u + Read<std::uint32_t>(data, 0x3C) + Read<std::uint32_t>(data, 0x1C)) * 5u + Read<std::uint32_t>(data, 0x14) * 3u;
+            }
+        }
+        return NXBasics::Runtime_TimeSigned32(total);
+    }
+
+    // Original function: FUN_00454367; distinct fixed-radius overload.
+    std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player)
+    {
+        return AIMilitaryManager_Military_GetCivilianDangerValueForPosition(point, player, 5);
     }
 }

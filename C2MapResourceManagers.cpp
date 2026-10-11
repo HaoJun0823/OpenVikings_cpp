@@ -22,7 +22,14 @@ namespace NC2Logic
         // Original byte: 00550E60; set by fish-relevant map modification callbacks.
         std::uint8_t gFishSwarmValidationNeeded = 0;
 
-        struct SBioRegrowSearch { std::uint32_t count; std::uint32_t points[20]; };
+        struct SBioRegrowSearch
+        {
+            std::uint32_t count;
+            std::uint32_t points[20];
+            SBioRegrowSearch();
+        };
+        // Original function: FUN_00426E15; the count is subsequently cleared by the caller.
+        SBioRegrowSearch::SBioRegrowSearch() { for (auto& point : points) MapMigPoint_ConstructZero(&point); }
         // Original function: FUN_00426c11.
         bool __cdecl ls_BioRegrow_PathfinderCallback(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
@@ -187,7 +194,8 @@ namespace NC2Logic
     {
         if (Game_Random_GetNumber() % 100u < 10u) return;
         if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6)) != 1) return;
-        SBioRegrowSearch data{};
+        SBioRegrowSearch data;
+        std::memset(&data, 0, sizeof(data));
         CMapPathfinderElement::SearchOverMap(point, 12, false, ls_BioRegrow_PathfinderCallback, &data, false, -1);
         if (data.count == 0) return;
         const auto selected = Game_Random_GetNumber() % data.count;

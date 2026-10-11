@@ -551,4 +551,44 @@ namespace NC2Logic
 
         std::memcpy(packedMigPoint, coordinates, sizeof(coordinates));
     }
+
+    // Original function: FUN_0042ABAC; PE bytes resolve an overlapping disassembly line.
+    bool MapMigPoint_MoveCursorWrappedEast(void* point)
+    {
+        auto* x = static_cast<std::int16_t*>(point);
+        *x = static_cast<std::int16_t>(*x + 1);
+        if (*x != gMapPointDimensions.microWidth) return false;
+        *x = 0;
+        return true;
+    }
+    // Original function: FUN_0042ABC5.
+    bool MapMigPoint_MoveCursorWrappedWest(void* point)
+    {
+        auto* x = static_cast<std::int16_t*>(point);
+        *x = static_cast<std::int16_t>(*x - 1);
+        if (*x >= 0) return false;
+        *x = static_cast<std::int16_t>(static_cast<std::uint32_t>(gMapPointDimensions.microWidth) - 1u);
+        return true;
+    }
+    // Original function: FUN_0042AE54.
+    void* MapMigRectangle_ConstructZero(std::int16_t* rectangle)
+    {
+        rectangle[3] = 0; rectangle[2] = 0; rectangle[1] = 0; rectangle[0] = 0;
+        return rectangle;
+    }
+    // Original function: FUN_0042AE68.
+    void* MapMigRectangle_Construct(std::int16_t* rectangle, std::int16_t x, std::int16_t y, std::int16_t width, std::int16_t height)
+    {
+        rectangle[0] = x; rectangle[1] = y; rectangle[2] = width; rectangle[3] = height;
+        MapMigRectangle_CutInsideMap(rectangle);
+        return rectangle;
+    }
+    // Original function: FUN_0042AF72.
+    void* MapMagPoint_Construct(void* point, std::int16_t x, std::int16_t y, bool validate)
+    {
+        std::memcpy(point, &x, 2); std::memcpy(static_cast<std::byte*>(point) + 2, &y, 2);
+        if (validate) MapMagPoint_ValidatePosition(point);
+        return point;
+    }
+
 }

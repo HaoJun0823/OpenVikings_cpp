@@ -81,4 +81,8 @@ namespace NC2Logic
             --distance;
         }
     }
+
+    // Original function: FUN_0044FA93.
+    SSectorGridCursor::SSectorGridCursor(const SSectorGridCursor& source) : x(source.x), y(source.y) {}
+
 }

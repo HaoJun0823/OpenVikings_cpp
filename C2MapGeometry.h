@@ -5,6 +5,11 @@
 namespace NC2Logic
 {
     void* MapMigPoint_ConstructZero(void* packedMigPoint);
+    bool MapMigPoint_MoveCursorWrappedEast(void* point);
+    bool MapMigPoint_MoveCursorWrappedWest(void* point);
+    void* MapMagPoint_Construct(void* point, std::int16_t x, std::int16_t y, bool validate);
+    void* MapMigRectangle_ConstructZero(std::int16_t* rectangle);
+    void* MapMigRectangle_Construct(std::int16_t* rectangle, std::int16_t x, std::int16_t y, std::int16_t width, std::int16_t height);
     std::uint32_t VE_MicroPoint_GetMicroPointCount(std::uint32_t radius);
     std::uint32_t VE_HexagonDirection_OppositeDirection(std::uint32_t direction);
     std::int32_t VE_HexagonDirection_DirectionToTurn(std::uint32_t source, std::uint32_t target, bool includeVertical);

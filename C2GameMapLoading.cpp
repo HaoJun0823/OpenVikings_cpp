@@ -15,7 +15,7 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
-    // Existing map validation callbacks remain separately tracked reconstruction boundaries.
+    // Native map-validation callback order is shared by construction and loading.
     extern bool __cdecl GameMap_l_ValidateLandscapes_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl GameMap_l_Continents_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     extern bool __cdecl GameMap_l_ResistanceSet_Callback(TCallbackTypes, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);

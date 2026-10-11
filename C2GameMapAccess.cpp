@@ -441,4 +441,44 @@ namespace NC2Logic
         const std::uint8_t secondHeight = readHeight(macroX, macroY);
         return static_cast<std::uint8_t>((static_cast<std::uint32_t>(firstHeight) + secondHeight) / 2u);
     }
+
+    // Original function: FUN_004237F3; distinct coordinate overload with signed bounds.
+    const void* GameMap_GetConstMapMicroPointPtr(std::int16_t x, std::int16_t y)
+    {
+        const auto width = GameMap_GetWidth();
+        if (x < 0 || x >= width || y < 0 || y >= GameMap_GetHeight()) return nullptr;
+        const auto base = NC2Lifetime::Read<std::uint32_t>(DAT_00511570, 0x34);
+        return reinterpret_cast<const void*>(base + static_cast<std::uint32_t>(y * width + x) * 14u);
+    }
+    // Original function: FUN_0042388D; distinct linear-index overload.
+    void* GameMap_GetMapMicroPointPtr(std::uint32_t index)
+    {
+        if (index >= NC2Lifetime::Read<std::uint32_t>(DAT_00511570, 12)) return nullptr;
+        return reinterpret_cast<void*>(NC2Lifetime::Read<std::uint32_t>(DAT_00511570, 0x34) + index * 14u);
+    }
+    // Original function: FUN_00423EEC.
+    void GameMap_MapMacroPoint_Height_Set(const void* point, std::int32_t height)
+    {
+        auto* macro = GameMap_GetMapMacroPointPtr(point);
+        if (macro == nullptr || MapMagPoint_IsBorderPoint(point)) return;
+        if (height < 0) height = 0;
+        if (static_cast<std::uint32_t>(height) > 250u) height = 250;
+        if (NC2Lifetime::Read<std::uint8_t>(macro, 2) == height) return;
+        NC2Lifetime::Write<std::uint8_t>(macro, 2, static_cast<std::uint8_t>(height));
+        GameMapModifyManager_GameMapModifiedMacro(13, point, 0);
+    }
+    // Original function: FUN_00423F4C; wrapped DWORD addition is interpreted as signed before clipping.
+    void GameMap_MapMacroPoint_Height_Modify(const void* point, std::int32_t delta)
+    {
+        auto* macro = GameMap_GetMapMacroPointPtr(point);
+        if (macro == nullptr || MapMagPoint_IsBorderPoint(point)) return;
+        const auto previous = NC2Lifetime::Read<std::uint8_t>(macro, 2);
+        auto height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + static_cast<std::uint32_t>(delta));
+        if (height < 0) height = 0;
+        if (static_cast<std::uint32_t>(height) > 250u) height = 250;
+        if (previous == height) return;
+        NC2Lifetime::Write<std::uint8_t>(macro, 2, static_cast<std::uint8_t>(height));
+        GameMapModifyManager_GameMapModifiedMacro(13, point, 0);
+    }
+
 }

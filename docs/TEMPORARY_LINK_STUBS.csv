@@ -3,11 +3,6 @@ Address,CurrentName,Status,ReferencingObjects
 00408F7B,NC2Logic::AIManager_l_AI_Callback,Partial Windows callback; unconditional true restored at 00408FA3; tick/player-death dispatch pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 0040EEFA,Bitmap_ZoomIn,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-00424AE9,NC2Logic::GameMap_l_ValidateLandscapes_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-00450C1D,NC2Logic::GameMap_l_MaxMoveableSize_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-00450E8C,NC2Logic::GameMap_l_WalkFlagSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-004511C5,NC2Logic::GameMap_l_ResistanceSet_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
-004513C1,NC2Logic::GameMap_l_Continents_Callback,Temporary dummy; Windows implementation pending,C2LogicLifetimeAccess.obj
 0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj

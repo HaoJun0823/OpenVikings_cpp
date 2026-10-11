@@ -23,21 +23,11 @@ namespace NC2Logic
         return GameMap_MapMicroPoint_Landscape_SetType(point, type, valency, engineId, static_cast<std::uint8_t>(parameter) != 0, player);
     }
 
-    // Original function: FUN_004248b0, including the terrain classification at 00451503.
+    // Original function: FUN_004248b0.
     bool GameMap_Misc_IsLandscapeAllowedOnPattern(const void* point, std::uint32_t landscape)
     {
         const auto& type = gStaticLandscapeTypeStorage.records[landscape];
-        const void* patterns[6];
-        std::uint32_t kind = 0;
-        if (GameMap_Misc_GetTrianglePatternDescriptions_AroundPoint(point, patterns))
-        {
-            for (std::uint32_t i = 0; i < 6; ++i) if (Read<std::uint8_t>(patterns[i], 4) != 0) { kind = 1; break; }
-            if (kind == 0)
-            {
-                kind = 2;
-                for (std::uint32_t i = 0; i < 6; ++i) if (Read<std::uint8_t>(patterns[i], 5) == 0) { kind = 0; break; }
-            }
-        }
+        const auto kind = GameMap_Continent_CalculateContinentType(point);
         return type.allowedOnEverything != 0 || (type.allowedOnLand != 0 && kind == 1) || (type.allowedOnWater != 0 && kind == 2);
     }
 

@@ -47,6 +47,9 @@ namespace NC2Logic
     };
 
     std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForSector(const SSectorGridCursor& cursor, std::int32_t player);
+    std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player);
+    std::int32_t AIMilitaryManager_Military_GetDangerValueForPosition(const void* point, std::int32_t player);
+    std::int32_t AIMilitaryManager_Military_GetDangerValueForSector(const SSectorGridCursor& cursor, std::int32_t player);
     std::int32_t AIMilitaryManager_Military_GetCivilianDangerValueForPosition(const void* point, std::int32_t player, std::uint32_t radius);
 
     static_assert(sizeof(void*) == 4);

@@ -1,4 +1,5 @@
 #pragma once
+#include "C2MapPathfinderSectorSearch.h"
 #include "C2ObjectMemberConstructors.h"
 
 #include "ApplicationGlobals.h"
@@ -81,7 +82,7 @@ namespace NApplicationStartup
         // Original constructors: FUN_0044f111, FUN_0044f14c and FUN_0042ae54.
         auto& staticVars = NC2Logic::CMapWalkSectorManager::mStaticVars;
         auto* workspace = staticVars.specialSectorSearchWorkspace;
-        std::memset(workspace + 0x20, 0, 0x10);
+        NC2Logic::CMapPathfinderSpecialSectorSearchElement::ConstructMembers(workspace);
 
         for (std::size_t index = 0; index < 250; ++index)
         {
