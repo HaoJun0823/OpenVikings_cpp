@@ -3120,6 +3120,162 @@ namespace NXBasics
         Runtime_Unlock(0x09);
     }
 
+    struct RuntimeUInt64Words
+    {
+        std::uint32_t low;
+        std::uint32_t high;
+    };
+
+    static RuntimeUInt64Words Runtime_SplitUInt64(std::uint64_t value)
+    {
+        RuntimeUInt64Words words;
+        static_assert(sizeof(words) == sizeof(value), "Native integer words require eight bytes.");
+        std::memcpy(&words, &value, sizeof(words));
+        return words;
+    }
+
+    static std::uint64_t Runtime_PackUInt64(RuntimeUInt64Words words)
+    {
+        std::uint64_t value;
+        std::memcpy(&value, &words, sizeof(value));
+        return value;
+    }
+
+    // DWORD multiplication is split into 16-bit products to avoid compiler 64-bit helpers.
+    static RuntimeUInt64Words Runtime_MultiplyWords(std::uint32_t first, std::uint32_t second)
+    {
+        const auto firstLow = first & 0xFFFFu, firstHigh = first >> 16;
+        const auto secondLow = second & 0xFFFFu, secondHigh = second >> 16;
+        const auto lowProduct = firstLow * secondLow;
+        const auto firstMiddle = firstHigh * secondLow + (lowProduct >> 16);
+        const auto secondMiddle = firstLow * secondHigh + (firstMiddle & 0xFFFFu);
+        return { (secondMiddle << 16) | (lowProduct & 0xFFFFu), firstHigh * secondHigh + (firstMiddle >> 16) + (secondMiddle >> 16) };
+    }
+
+    // Native DIV receives a high DWORD smaller than the nonzero divisor.
+    static std::uint32_t Runtime_DivideWordsByWord(std::uint32_t high, std::uint32_t low, std::uint32_t divisor, std::uint32_t* remainder)
+    {
+        std::uint32_t quotient = 0;
+        for (std::int32_t bit = 31; bit >= 0; --bit)
+        {
+            const auto carry = high >> 31;
+            high = (high << 1) | ((low >> bit) & 1u);
+            if (carry != 0 || high >= divisor)
+            {
+                high -= divisor;
+                quotient |= 1u << bit;
+            }
+        }
+        *remainder = high;
+        return quotient;
+    }
+
+    // Original function: FUN_004E8320; modulo-2^64 product and native callee stack cleanup.
+    std::uint64_t __stdcall Runtime_MultiplyUInt64(std::uint64_t first, std::uint64_t second)
+    {
+        const auto left = Runtime_SplitUInt64(first), right = Runtime_SplitUInt64(second);
+        auto product = Runtime_MultiplyWords(left.low, right.low);
+        if ((left.high | right.high) != 0)
+            product.high += left.high * right.low + left.low * right.high;
+        return Runtime_PackUInt64(product);
+    }
+
+    // Original function: FUN_004EEC30; normalize, estimate, then correct an excessive quotient.
+    std::uint64_t __stdcall Runtime_DivideUInt64(std::uint64_t numerator, std::uint64_t denominator)
+    {
+        const auto dividend = Runtime_SplitUInt64(numerator), divisor = Runtime_SplitUInt64(denominator);
+        if (divisor.high == 0)
+        {
+            // These DWORD operations retain the native integer divide-by-zero path.
+            const auto quotientHigh = dividend.high / divisor.low;
+            const auto remainderHigh = dividend.high % divisor.low;
+            std::uint32_t remainder;
+            const auto quotientLow = Runtime_DivideWordsByWord(remainderHigh, dividend.low, divisor.low, &remainder);
+            return Runtime_PackUInt64({ quotientLow, quotientHigh });
+        }
+
+        auto scaledDivisor = divisor, scaledDividend = dividend;
+        do
+        {
+            scaledDivisor.low = (scaledDivisor.low >> 1) | (scaledDivisor.high << 31);
+            scaledDivisor.high >>= 1;
+            scaledDividend.low = (scaledDividend.low >> 1) | (scaledDividend.high << 31);
+            scaledDividend.high >>= 1;
+        } while (scaledDivisor.high != 0);
+        std::uint32_t remainder;
+        auto quotient = Runtime_DivideWordsByWord(scaledDividend.high, scaledDividend.low, scaledDivisor.low, &remainder);
+        auto product = Runtime_MultiplyWords(quotient, divisor.low);
+        const auto upperProduct = quotient * divisor.high;
+        const auto overflow = product.high > 0xFFFFFFFFu - upperProduct;
+        product.high += upperProduct;
+        if (overflow || product.high > dividend.high || (product.high == dividend.high && product.low > dividend.low))
+            --quotient;
+        return Runtime_PackUInt64({ quotient, 0 });
+    }
+
+    // Original function: FUN_004EECA0; retain the independent remainder entry and correction branch.
+    std::uint64_t __stdcall Runtime_RemainderUInt64(std::uint64_t numerator, std::uint64_t denominator)
+    {
+        const auto dividend = Runtime_SplitUInt64(numerator), divisor = Runtime_SplitUInt64(denominator);
+        if (divisor.high == 0)
+        {
+            const auto remainderHigh = dividend.high % divisor.low;
+            std::uint32_t remainder;
+            Runtime_DivideWordsByWord(remainderHigh, dividend.low, divisor.low, &remainder);
+            return Runtime_PackUInt64({ remainder, 0 });
+        }
+
+        auto scaledDivisor = divisor, scaledDividend = dividend;
+        do
+        {
+            scaledDivisor.low = (scaledDivisor.low >> 1) | (scaledDivisor.high << 31);
+            scaledDivisor.high >>= 1;
+            scaledDividend.low = (scaledDividend.low >> 1) | (scaledDividend.high << 31);
+            scaledDividend.high >>= 1;
+        } while (scaledDivisor.high != 0);
+        std::uint32_t remainder;
+        const auto quotient = Runtime_DivideWordsByWord(scaledDividend.high, scaledDividend.low, scaledDivisor.low, &remainder);
+        auto product = Runtime_MultiplyWords(quotient, divisor.low);
+        const auto upperProduct = quotient * divisor.high;
+        const auto overflow = product.high > 0xFFFFFFFFu - upperProduct;
+        product.high += upperProduct;
+        if (overflow || product.high > dividend.high || (product.high == dividend.high && product.low > dividend.low))
+        {
+            const auto borrow = product.low < divisor.low ? 1u : 0u;
+            product.low -= divisor.low;
+            product.high -= divisor.high + borrow;
+        }
+        const auto borrow = dividend.low < product.low ? 1u : 0u;
+        return Runtime_PackUInt64({ dividend.low - product.low, dividend.high - product.high - borrow });
+    }
+
+    // Original function: FUN_004F18E0; search backward through the terminator and every string byte.
+    char* Runtime_FindLastCharacter(const char* text, std::int32_t character)
+    {
+        const auto sought = static_cast<std::uint8_t>(character);
+        const char* cursor = text;
+        while (*cursor != '\0') ++cursor;
+        for (;;)
+        {
+            if (static_cast<std::uint8_t>(*cursor) == sought) return const_cast<char*>(cursor);
+            if (cursor == text) return nullptr;
+            --cursor;
+        }
+    }
+
+    // Original function: FUN_004F1930; classify the original bits without floating-point arithmetic.
+    std::uint32_t Runtime_ClassifySpecialDouble(double value)
+    {
+        RuntimeUInt64Words words;
+        std::memcpy(&words, &value, sizeof(words));
+        if (words.high == 0x7FF00000u && words.low == 0) return 1;
+        if (words.high == 0xFFF00000u && words.low == 0) return 2;
+        const auto upper = (words.high >> 16) & 0x7FF8u;
+        if (upper == 0x7FF8u) return 3;
+        if (upper == 0x7FF0u && ((words.high & 0x7FFFFu) != 0 || words.low != 0)) return 4;
+        return 0;
+    }
+
     // Original function: FUN_004e8513
     void Runtime_Free(void* memory)
     {
@@ -5304,8 +5460,8 @@ namespace NXBasics
                                             break;
                                         }
 
-                                        std::uint32_t digit = static_cast<std::uint32_t>(value % radix) + 0x30u;
-                                        value /= radix;
+                                        std::uint32_t digit = static_cast<std::uint32_t>(Runtime_RemainderUInt64(value, radix)) + 0x30u;
+                                        value = Runtime_DivideUInt64(value, radix);
 
                                         if (digit > 0x39u)
                                         {
@@ -10301,22 +10457,7 @@ namespace NXBasics
 
         if (gRuntimeIsMultibyteCodePage == 0)
         {
-            const auto target = static_cast<std::uint8_t>(character);
-
-            for (const char* current = text; ; ++current)
-            {
-                const auto value = static_cast<std::uint8_t>(*current);
-
-                if (value == target)
-                {
-                    result = current;
-                }
-
-                if (value == 0)
-                {
-                    return result;
-                }
-            }
+            return Runtime_FindLastCharacter(text, static_cast<std::uint8_t>(character));
         }
 
         Runtime_Lock(0x19);

@@ -176,7 +176,7 @@ namespace NXBasics
 
         __m64 TransparencyFactors(std::uint32_t value)
         {
-            const auto repeated = static_cast<std::uint64_t>(value) * 0x100000001ull;
+            const auto repeated = Runtime_MultiplyUInt64(value, 0x100000001ull);
             __m64 factors;
             std::memcpy(&factors, &repeated, sizeof(factors));
             return factors;
@@ -449,8 +449,8 @@ namespace NXBasics
         if (table == nullptr) return;
         const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? 0x07E007E0u : 0x03E003E0u) : 0xFF00u;
         const bool mmx = CPU_HasMMX();
-        const auto alpha = TransparencyFactors(strength * 0x10001u);
         const auto inverse = TransparencyFactors(0x01000100u - strength * 0x10001u);
+        const auto alpha = TransparencyFactors(strength * 0x10001u);
         DrawBobRuns(bobManager, bitmap, region, 1, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool unchecked, std::uint32_t, std::uint32_t, std::uint32_t pixel, std::uint32_t count)
         {
             if (mmx && unchecked)

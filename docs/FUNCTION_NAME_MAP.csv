@@ -2689,3 +2689,8 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004E90A5,NXBasics::Runtime_UnsignedLongToString,,,Windows ASM/Game.exe: Unsigned wrapper calls digit conversion with minus flag zero
 004EA1FD,NXBasics::Runtime_LockOnExit,,,Windows ASM/Game.exe: Acquire CRT lock 13; on-exit registration and process-exit callers
 004EA206,NXBasics::Runtime_UnlockOnExit,,,Windows ASM/Game.exe: Release CRT lock 13; failure/returning cleanup callers
+004E8320,NXBasics::Runtime_MultiplyUInt64,,,Windows ASM/Game.exe: Native low-64-bit product; high/low DWORD cross-products; callee pops 16 bytes
+004EEC30,NXBasics::Runtime_DivideUInt64,,,Windows ASM/Game.exe: Unsigned division: low-divisor fast branch or right normalization; quotient estimate and carry/comparison correction; callee pops 16 bytes
+004EECA0,NXBasics::Runtime_RemainderUInt64,,,Windows ASM/Game.exe: Unsigned remainder: normalized quotient estimate; product correction and DWORD borrow subtraction; callee pops 16 bytes
+004F18E0,NXBasics::Runtime_FindLastCharacter,_strrchr,16014,Windows ASM/Game.exe: Initial terminator scan then backward low-byte search including NUL; original pointer or null; Mac header supplies library name only
+004F1930,NXBasics::Runtime_ClassifySpecialDouble,,,Windows ASM/Game.exe: Pure DWORD/WORD inspection: positive infinity 1; negative infinity 2; quiet NaN 3; signaling NaN 4; other values 0

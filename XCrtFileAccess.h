@@ -28,6 +28,9 @@
 namespace NXBasics
 {
     std::int64_t Runtime_TruncateDoubleToInt64(double value);
+    std::uint64_t __stdcall Runtime_MultiplyUInt64(std::uint64_t first, std::uint64_t second);
+    std::uint64_t __stdcall Runtime_DivideUInt64(std::uint64_t numerator, std::uint64_t denominator);
+    std::uint64_t __stdcall Runtime_RemainderUInt64(std::uint64_t numerator, std::uint64_t denominator);
 
     // Types and callback signatures (dependency order; original field layout preserved)
 
@@ -284,6 +287,7 @@ namespace NXBasics
     char* Runtime_AppendString(char* destination, const char* source);
     std::uint32_t Runtime_StringLength(const char* text);
     char* Runtime_FindCharacter(const char* text, std::int32_t character);
+    char* Runtime_FindLastCharacter(const char* text, std::int32_t character);
     char* Runtime_CopyStringN(char* destination, const char* source, std::uint32_t byteCount);
     std::int32_t Runtime_CompareStringsN(const char* first, const char* second, std::uint32_t byteCount);
     char* Runtime_AppendStringN(char* destination, const char* source, std::uint32_t byteCount);
@@ -331,6 +335,7 @@ namespace NXBasics
     std::uint32_t Runtime_FormatReadArgument16(va_list* arguments);
 
     std::uint32_t Runtime_ClassifyCharacter(std::int32_t character, std::uint32_t mask);
+    std::uint32_t Runtime_ClassifySpecialDouble(double value);
 
     void Runtime_InitializeCrt(RuntimeVoidCallback* applicationBegin, RuntimeVoidCallback* applicationEnd);
 

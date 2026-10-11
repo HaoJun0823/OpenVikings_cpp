@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Shared DWORD-pair integer helpers - 2026-10-11
+
+Five further Windows entries are reconstructed: unsigned 64-bit multiply/divide/remainder with native callee cleanup, backward byte-string search and bit-only special-double classification. Formatter and transparency call sites use the recovered arithmetic entries; the original non-multibyte fallback calls the recovered backward search. Windows ASM/Game.exe establish behavior; Mac supplies strrchr naming only. See [SHARED_INTEGER_COMPLETION.md](SHARED_INTEGER_COMPLETION.md).
+
+Current global inventory **4593/5062 (90.73%)**, **469 open**. System/shared **582/691 (84.23%), 109 open**; engine **128 open**, AI **232 open**. **19** explicit unfinished boundaries and **289** provisional open assignments remain; no denominator entries are removed or reassigned. Project/filter membership **284 CPP / 260 headers**, **2695** unique naming rows and **18** unmatched declaration signatures.
+
+XCrtFileAccess and XBobRenderingEffects pass Win32 MSVC `/Zs` without diagnostics. No build, tests or game run occurred. Exception contexts, FPU error/status and runtime gameplay remain unverified; the existing incomplete math adapters are not counted complete. Continue shared/system helpers as requested. Private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared runtime wrappers and cleanup - 2026-10-11
 
 Fourteen further Windows entries are explicit and connected: integer/string formatting and decimal forwarding, raw letter/digit classification, wide-string length, flush-all, on-exit locks and four separate heap cleanup leaves. Existing structured exception handling and caller boolean normalization are retained. Windows ASM/Game.exe establish behavior; available Mac library names are naming references only. See [SHARED_RUNTIME_WRAPPERS_COMPLETION.md](SHARED_RUNTIME_WRAPPERS_COMPLETION.md).
