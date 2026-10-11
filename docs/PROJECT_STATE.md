@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Verified adjusted divide and remainder backend - 2026-10-11
+
+Five outer x87 entries now bind verified exported system CRT bodies, with all eight original code regions and the full 94-byte constant region compared after relocation. Native 80-bit operands, control/status operations and remainder fallbacks are retained without authored assembly. Three internal kernels remain open for standalone recompiled frame interfaces; scalar rounding, power special values, transcendental/error paths and two compiler entries remain unfinished. See [SHARED_ADJUSTED_MATH_BACKEND.md](SHARED_ADJUSTED_MATH_BACKEND.md).
+
+Current global inventory **4682/5063 (92.47%)**, **381 open**. System/shared **638/670 (95.22%), 32 open**; engine **124 open**, AI **225 open**. **21** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **287 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five primary/integrating units pass MSVC Win32 C++17 syntax-only checks; private unlinked /Od and /O2 listings verify five non-inlined wrappers add no floating instructions. Fresh inventory, project/filter parity, naming uniqueness and whitespace checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Native x87 comparison and complete decomposition - 2026-10-11
 
 Original decomposition 004F198A is complete through real compiler-generated FLD/FCOMP and its implemented exponent child. The same hardware primitive replaces modeled classifier/response flags. Ordered generation 004F2024 and its masked-response parent remain excluded; public numeric adapters stay partial. The requested full 670-entry category is not yet complete. See [SHARED_X87_COMPARISON_COMPLETION.md](SHARED_X87_COMPARISON_COMPLETION.md).

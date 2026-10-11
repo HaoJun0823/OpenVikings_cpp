@@ -2036,6 +2036,8 @@ namespace NXBasics
     {
         Runtime_InitializeFloatCallbacks();
 
+        if (!Runtime_InitializeAdjustedMathBackend()) Runtime_FloatSupportUnavailable();
+
         gRuntimePentiumFdivAdjustment = Runtime_GetPentiumDivisionAdjustment();
         Runtime_SetDoublePrecision();
 

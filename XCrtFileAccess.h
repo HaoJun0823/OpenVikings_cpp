@@ -589,6 +589,13 @@ namespace NXBasics
     bool Runtime_HandleMaskedMathException(std::uint32_t flags, volatile double* result, std::uint32_t controlWord);
     double __cdecl Runtime_DecomposeDouble(double value, std::int32_t* exponent);
     std::uint16_t Runtime_CompareDoubleX87(const volatile double* left, const volatile double* right);
+    bool Runtime_InitializeAdjustedMathBackend();
+    // Low-level operations require live ST(0)/ST(1) operands; no binary64 argument/return conversion.
+    void __cdecl Runtime_DivideX87ForwardAdjusted();
+    void __cdecl Runtime_DivideX87ReversedAdjusted();
+    std::uint32_t __cdecl Runtime_DivideX87ReversedPreserveEax(std::uint32_t originalEax);
+    void __cdecl Runtime_RemainderX87Adjusted();
+    void __cdecl Runtime_RemainderNearestX87Adjusted();
     void Runtime_RaiseX87Exceptions(std::uint32_t flags);
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent);
     void Runtime_RaiseMathException(volatile RuntimeMathExceptionRecord* record, volatile std::uint32_t* controlWord, std::uint32_t flags, std::uint32_t operation, const volatile double* argument, volatile double* result);
