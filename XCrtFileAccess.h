@@ -430,6 +430,7 @@ namespace NXBasics
     std::int32_t Runtime_SelectHeapMode();
 
     int Runtime_InitializeHeap(std::int32_t enableSerialization);
+    EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* context, void** dispatcherContext);
 
     void Runtime_WriteErrorBanner();
 

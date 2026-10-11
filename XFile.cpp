@@ -17,7 +17,16 @@ namespace NXBasics
         File_Initialize(this, fileName, openForReading);
     }
 
-    // Original function: FUN_00405eda; deleting wrapper: FUN_00405eb8.
+    // Original function: FUN_00405eb8; dynamic CFile allocations use the reconstructed runtime heap.
+    void* CFile::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CFile();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
+    // Original function: FUN_00405eda.
     CFile::~CFile()
     {
         Close();
@@ -311,6 +320,6 @@ namespace NXBasics
     // Original function: FUN_004e5e48
     void CFile::operator delete(void* allocation) noexcept
     {
-        ::operator delete(allocation);
+        Runtime_Free(allocation);
     }
 }

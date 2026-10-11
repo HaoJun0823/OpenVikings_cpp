@@ -1,5 +1,13 @@
 # Open Tasks
 
+## Shared file ownership counting and exception leaves - 2026-10-11
+
+Four Windows entries are implemented. BMP file allocation/destruction uses the matching reconstructed runtime heap, compiler pure virtual slots use the original configured fatal path, and directory counting/local-unwind leaves preserve Windows sequencing. The particle loader and legacy FS-chain unwind parent remain unresolved. See [SHARED_FILE_EXCEPTION_COMPLETION.md](SHARED_FILE_EXCEPTION_COMPLETION.md).
+
+Current global inventory **4645/5062 (91.76%)**, **417 open**. System/shared **611/673 (90.79%), 62 open**; engine **127 open**, AI **228 open**. **19** explicit unfinished boundaries and **287** provisional open assignments remain. Project/filter membership **285 CPP / 261 headers**, **2749** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Seven affected/integrating units pass MSVC Win32 `/Zs` without diagnostics. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared inventory AI condition and limit helpers - 2026-10-11
 
 Ten Windows entries form a complete condition/limit helper block, with all twelve condition branches and subordinate record helpers. Six previously unassigned shared/system entries are identified as AI; four entries were already assigned to AI. Existing external-activation mission callers are preserved. The parent AI scheduler remains unfinished. See [SHARED_AI_CONDITIONS_COMPLETION.md](SHARED_AI_CONDITIONS_COMPLETION.md).

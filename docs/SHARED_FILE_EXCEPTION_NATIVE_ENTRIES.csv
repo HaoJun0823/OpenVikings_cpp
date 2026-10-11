@@ -1,0 +1,5 @@
+Address,CurrentName,MacName,WindowsEvidence
+00405EB8,NXBasics::CFile::Delete,NXBasics::CFile::~CFile,Close via distinct ordinary destructor 405EDA; flags&1 frees through 4E5E48; return captured this
+00440240,NXBasics::DirectoryScanner_GetNumberOfMatchingFiles,NXBasics::CDirectoryScanner::GetNumberOfMatchingFiles,"Clear stack 0x434; GetFirstMatchingFile, count while success and GetNextMatchingFile, Stop, return DWORD-wrapped count"
+004E7BEF,_purecall,,"Compiler pure virtual function slot calls Runtime_FatalExit at 4E71A6 with code 0x19; preserve configured fatal callback, not direct ExitProcess"
+004EC65C,NXBasics::Runtime_LocalUnwindHandler,,cdecl four args; ExceptionFlags+4 &6 absent return1; otherwise dispatcher context receives establisher frame and return3; arg3 unused

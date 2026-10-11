@@ -13,6 +13,13 @@
 #include <Windows.h>
 #include <xmmintrin.h>
 
+// Original function: FUN_004e7bef; bind compiler-generated pure virtual slots to the original fatal path.
+extern "C" int __cdecl _purecall()
+{
+    NXBasics::Runtime_FatalExit(0x19);
+    return 0;
+}
+
 // Partial original function: FUN_004e6e44; numeric CRT adapter for native logarithm calculation.
 // Original math-error hooks and exceptional x87 status behavior remain unresolved.
 double __cdecl Runtime_Log10(double value)
@@ -7786,6 +7793,14 @@ namespace NXBasics
         }
 
         return 1;
+    }
+
+    // Original function: FUN_004ec65c; the containing legacy FS-chain unwind routine remains unresolved.
+    EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* /*context*/, void** dispatcherContext)
+    {
+        if ((exception->ExceptionFlags & 6u) == 0) return ExceptionContinueSearch;
+        *dispatcherContext = establisherFrame;
+        return ExceptionCollidedUnwind;
     }
 
     // Original function: FUN_004ec80c.

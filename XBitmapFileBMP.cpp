@@ -44,8 +44,8 @@ namespace NXBasics
         Write(info, 20, imageBytes);
         std::byte header[14]{};
         Write<std::uint16_t>(header, 0, 0x4D42); Write(header, 2, imageBytes + 54u); Write<std::uint32_t>(header, 10, 54);
-        if (mFile != nullptr) { delete mFile; mFile = nullptr; }
-        void* memory = Runtime_Allocate(sizeof(CFile));
+        if (mFile != nullptr) { mFile->Delete(1); mFile = nullptr; }
+        void* memory = Runtime_AllocateWithNewHandler(sizeof(CFile));
         mFile = memory == nullptr ? nullptr : new (memory) CFile(filename, false);
         mFile->OpenForWriting(true);
         mFile->Write(header, sizeof(header)); mFile->Write(info, sizeof(info));
@@ -54,6 +54,6 @@ namespace NXBasics
     // Original function: FUN_00498697; repeated closes are explicitly supported.
     void CBitmapFileBMP::Close()
     {
-        if (mFile != nullptr) { delete mFile; mFile = nullptr; }
+        if (mFile != nullptr) { mFile->Delete(1); mFile = nullptr; }
     }
 }

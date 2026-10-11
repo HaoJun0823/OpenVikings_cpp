@@ -366,4 +366,14 @@ namespace NXBasics
             state->entryIndex = 0;
         }
     }
+    // Original function: FUN_00440240; count every matching entry, then stop the local search.
+    inline std::int32_t DirectoryScanner_GetNumberOfMatchingFiles(const char* path, const char* extension, bool directoriesOnly)
+    {
+        SDirectoryScannerState scanner;
+        Runtime_FillMemory(&scanner, 0, sizeof(scanner));
+        std::uint32_t count = 0;
+        for (bool found = DirectoryScanner_GetFirstMatchingFile(&scanner, path, extension, directoriesOnly); found; found = DirectoryScanner_GetNextMatchingFile(&scanner)) ++count;
+        DirectoryScanner_Stop(&scanner);
+        return Runtime_TimeSigned32(count);
+    }
 }

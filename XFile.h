@@ -83,6 +83,7 @@ namespace NXBasics
 
         // Original function: FUN_00405eda; deleting wrapper: FUN_00405eb8.
         virtual ~CFile();
+        void* Delete(std::uint32_t flags);
 
         // Original function: FUN_00405ee5
         bool OpenForReading(bool reportErrors, bool searchPaths);
@@ -114,7 +115,6 @@ namespace NXBasics
         // Original function: FUN_0040635a
         std::uint32_t GetSize() const;
 
-        // Original function: FUN_004e5e48
         static void operator delete(void* allocation) noexcept;
 
         // Original data: 0050f758; Mac symbol: NXBasics::CFile::mStaticVars.
