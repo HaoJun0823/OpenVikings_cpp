@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Raw x87 nonwaiting status clear - 2026-10-11
+
+Original entry 004F1FF2 now returns the complete signed raw status and clears x87 exceptions without waiting, through documented intrinsics and the verified existing host CRT API. Startup is connected, MXCSR remains preserved, and waiting status/control and IEEE math-dispatch parents stay open. See [SHARED_X87_STATUS_CLEAR.md](SHARED_X87_STATUS_CLEAR.md).
+
+Current global inventory **4661/5062 (92.08%)**, **401 open**. System/shared **619/668 (92.66%), 49 open**; engine **127 open**, AI **225 open**. **19** explicit unfinished boundaries and **286** provisional open assignments remain. Project/filter membership **286 CPP / 262 headers**, **2765** unique naming rows and **18** unmatched declaration signatures. No native address is removed from the denominator.
+
+Three primary and integrating units pass MSVC Win32 /Zs without diagnostics; debug/release host CRT API machine code was inspected read-only. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Shared numeric input and conversion records - 2026-10-11
 
 Two additional original Windows leaves are reconstructed. Decimal conversion now preserves its status and consumed-length record through the existing string-to-double caller; integer-only math argument tagging is available for the still-open x87 continuations. See [SHARED_NUMERIC_RECORDS_COMPLETION.md](SHARED_NUMERIC_RECORDS_COMPLETION.md).

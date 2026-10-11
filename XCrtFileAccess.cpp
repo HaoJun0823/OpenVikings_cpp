@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <new>
 #include <Windows.h>
+#include <immintrin.h>
 #include <xmmintrin.h>
 
 // Original function: FUN_004e7bef; bind compiler-generated pure virtual slots to the original fatal path.
@@ -2032,11 +2033,7 @@ namespace NXBasics
         gRuntimePentiumFdivAdjustment = Runtime_GetPentiumDivisionAdjustment();
         Runtime_SetDoublePrecision();
 
-        // FNClEX affects only x87; retain any SSE status across the CRT clear.
-        const bool hasSse = ::IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE) != FALSE;
-        const unsigned int savedSseControl = hasSse ? _mm_getcsr() : 0u;
-        ::_clearfp();
-        if (hasSse) _mm_setcsr(savedSseControl);
+        Runtime_ClearX87StatusRaw();
     }
 
     // Original function: FUN_004e6f13
@@ -10966,6 +10963,21 @@ namespace NXBasics
         destination->value = value;
         destination->consumedCharacters = consumed;
         return destination;
+    }
+
+    // Original function: FUN_004f1ff2; capture the raw signed status before nonwaiting exception clear.
+    std::int32_t Runtime_ClearX87StatusRaw()
+    {
+        // FXSAVE does not wait or change x87 state; the current Win32 target already requires SSE2.
+        alignas(16) std::byte state[512];
+        _fxsave(state);
+        std::int16_t status;
+        std::memcpy(&status, state + 2, sizeof(status));
+        const auto savedSseControl = _mm_getcsr();
+        // The x86 CRT performs FNSTSW/FNCLEX; its abstract return value omits TOP and condition flags.
+        static_cast<void>(::_clearfp());
+        _mm_setcsr(savedSseControl);
+        return status;
     }
 
     // Original function: FUN_004f053b

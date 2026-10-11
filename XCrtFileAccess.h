@@ -539,6 +539,7 @@ namespace NXBasics
     std::int32_t Runtime_SetModeNoLock(std::uint32_t descriptor, std::int32_t mode);
 
     std::uint32_t Runtime_ControlX87(std::uint32_t newControl, std::uint32_t mask);
+    std::int32_t Runtime_ClearX87StatusRaw();
 
     std::uint32_t Runtime_ControlFloatingPoint(std::uint32_t newControl, std::uint32_t mask);
 
