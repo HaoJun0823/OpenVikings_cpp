@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanAtomicEvents.h"
 #include "C2HumanWeaponEvents.h"
 #include "C2HumanCommandAccess.h"
@@ -84,7 +85,7 @@ namespace NC2Logic
         const auto amount = static_cast<std::uint32_t>(event.parameter);
         switch (event.type)
         {
-        case 1:
+        case SwitchIds::AtomicAnimationEvent::ModifyStamina:
             if (!Human_AI_IsIgnoringNeeds(human))
             {
                 auto delta = amount;
@@ -96,10 +97,10 @@ namespace NC2Logic
                 AddAttribute(human, 0xAAC, delta);
             }
             return;
-        case 2:
+        case SwitchIds::AtomicAnimationEvent::ModifyFood:
             if (!Human_AI_IsIgnoringNeeds(human)) AddAttribute(human, 0xAA8, Human_IsInHomeHouse(human) ? amount * 2u : amount);
             return;
-        case 3:
+        case SwitchIds::AtomicAnimationEvent::ModifySocial:
         {
             const auto action = Read<std::uint32_t>(human, 0xAB8);
             if ((action == 14 || action == 15) && !Human_Target_IsValid(human) && Human_l_IsAtomicInterruptable(human))
@@ -116,31 +117,31 @@ namespace NC2Logic
             if (!Human_AI_IsIgnoringNeeds(human)) AddAttribute(human, 0xAB0, amount);
             return;
         }
-        case 4:
+        case SwitchIds::AtomicAnimationEvent::ModifyReligion:
             if (!Human_AI_IsIgnoringNeeds(human)) AddAttribute(human, 0xAB4, amount);
             return;
-        case 5:
+        case SwitchIds::AtomicAnimationEvent::ModifyHitpoints:
             if (!Human_AI_IsIgnoringNeeds(human) && (event.parameter > 0 || (Read<std::uint32_t>(human, 0xB84) & 8u) == 0)) AddAttribute(human, 0xAA0, amount);
             return;
-        case 6: case 7:
+        case SwitchIds::AtomicAnimationEvent::StopGoodCirculationUnsupported: case SwitchIds::AtomicAnimationEvent::StopGoodCirculationUnsupportedAlias:
             NXBasics::ReportWarning("l_PerformTaskEvent_SendHitpoints: not implemented yet!");
             Human_StopCurrentGoodCirculationMode(human);
             return;
-        case 8: Human_l_PerformTaskEvent_SendSocial(human, event.parameter); return;
-        case 9: Human_l_PerformTaskEvent_SendReligion(human, event.parameter); return;
-        case 10: Human_l_PerformTaskEvent_SendHitpoints(human, event.parameter); return;
-        case 11: Human_l_PerformTaskEvent_Pickup(human); return;
-        case 12: Human_l_PerformTaskEvent_Pileup(human); return;
-        case 13: Human_l_PerformTaskEvent_SplitUp(human); return;
-        case 15: Human_l_PerformTaskEvent_Transform(human); return;
-        case 16: Human_l_PerformTaskEvent_Plant(human); return;
-        case 18: Human_l_PerformTaskEvent_Grow(human); return;
-        case 19: Human_l_PerformTaskEvent_CatchFish(human); return;
-        case 21: Human_l_PerformTaskEvent_Produce(human); return;
-        case 20: Human_l_PerformTaskEvent_Build(human); return;
-        case 24: Human_l_PerformTaskEvent_GiveBirth(human); return;
-        case 25: Human_l_PerformTaskEvent_Attack(human); return;
-        case 27:
+        case SwitchIds::AtomicAnimationEvent::SendSocial: Human_l_PerformTaskEvent_SendSocial(human, event.parameter); return;
+        case SwitchIds::AtomicAnimationEvent::SendReligion: Human_l_PerformTaskEvent_SendReligion(human, event.parameter); return;
+        case SwitchIds::AtomicAnimationEvent::SendHitpoints: Human_l_PerformTaskEvent_SendHitpoints(human, event.parameter); return;
+        case SwitchIds::AtomicAnimationEvent::Pickup: Human_l_PerformTaskEvent_Pickup(human); return;
+        case SwitchIds::AtomicAnimationEvent::Pileup: Human_l_PerformTaskEvent_Pileup(human); return;
+        case SwitchIds::AtomicAnimationEvent::SplitUp: Human_l_PerformTaskEvent_SplitUp(human); return;
+        case SwitchIds::AtomicAnimationEvent::Transform: Human_l_PerformTaskEvent_Transform(human); return;
+        case SwitchIds::AtomicAnimationEvent::Plant: Human_l_PerformTaskEvent_Plant(human); return;
+        case SwitchIds::AtomicAnimationEvent::Grow: Human_l_PerformTaskEvent_Grow(human); return;
+        case SwitchIds::AtomicAnimationEvent::CatchFish: Human_l_PerformTaskEvent_CatchFish(human); return;
+        case SwitchIds::AtomicAnimationEvent::Produce: Human_l_PerformTaskEvent_Produce(human); return;
+        case SwitchIds::AtomicAnimationEvent::Build: Human_l_PerformTaskEvent_Build(human); return;
+        case SwitchIds::AtomicAnimationEvent::GiveBirth: Human_l_PerformTaskEvent_GiveBirth(human); return;
+        case SwitchIds::AtomicAnimationEvent::Attack: Human_l_PerformTaskEvent_Attack(human); return;
+        case SwitchIds::AtomicAnimationEvent::ModifyWorkHouseStock:
         {
             if (Human_IsAttachedToWorkHouse(human))
             {
@@ -162,19 +163,19 @@ namespace NC2Logic
                 else if (Read<std::uint32_t>(human, HumanAtomicActionOffset) == WeaponExerciseAction) Human_l_JobTraining_Exercise(human, amount);
             }
             return;
-        case 30: Human_l_PerformTaskEvent_ChangeGold(human, event.parameter); return;
-        case 31: Human_l_PerformTaskEvent_ChangeWealth(human, event.parameter); return;
-        case 32: Human_l_PerformTaskEvent_DidProduceOneGood(human); return;
-        case 33: Human_l_PerformTaskEvent_OpenChest(human); return;
-        case 14: C2Debug_WarningBox("cAtomicAnimationEventTypeMerge not handled yet!"); return;
-        case 17: C2Debug_WarningBox("cAtomicAnimationEventTypeShrink not handled yet!"); return;
-        case 22: Human_HouseMisc_Leave(human); return;
-        case 23: Human_HouseMisc_Enter(human); return;
-        case 34: Human_l_PerformTaskEvent_PlaySoundFX(human, amount); return;
-        case 35:
+        case SwitchIds::AtomicAnimationEvent::ChangeGold: Human_l_PerformTaskEvent_ChangeGold(human, event.parameter); return;
+        case SwitchIds::AtomicAnimationEvent::ChangeWealth: Human_l_PerformTaskEvent_ChangeWealth(human, event.parameter); return;
+        case SwitchIds::AtomicAnimationEvent::DidProduceOneGood: Human_l_PerformTaskEvent_DidProduceOneGood(human); return;
+        case SwitchIds::AtomicAnimationEvent::OpenChest: Human_l_PerformTaskEvent_OpenChest(human); return;
+        case SwitchIds::AtomicAnimationEvent::Merge: C2Debug_WarningBox("cAtomicAnimationEventTypeMerge not handled yet!"); return;
+        case SwitchIds::AtomicAnimationEvent::Shrink: C2Debug_WarningBox("cAtomicAnimationEventTypeShrink not handled yet!"); return;
+        case SwitchIds::AtomicAnimationEvent::LeaveHouse: Human_HouseMisc_Leave(human); return;
+        case SwitchIds::AtomicAnimationEvent::EnterHouse: Human_HouseMisc_Enter(human); return;
+        case SwitchIds::AtomicAnimationEvent::PlaySoundFX: Human_l_PerformTaskEvent_PlaySoundFX(human, amount); return;
+        case SwitchIds::AtomicAnimationEvent::ChangeMiscPalette:
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x22, true, Read<std::uint32_t>(human, 4), amount, 0);
             return;
-        case 36:
+        case SwitchIds::AtomicAnimationEvent::HouseParticleEffect:
         {
             std::uint32_t position;
             if (Human_IsInHomeHouse(human)) position = Read<std::uint32_t>(House(Read<std::uint32_t>(human, 0xB28)), 0x1C);

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XSystemManager.h"
 #include "OriginalStrings.h"
 #include "XBasicTypes.h"
@@ -310,18 +311,18 @@ namespace NXBasics
 
         switch (mDepth)
         {
-        case 0:
+        case SwitchIds::BitmapDepth::Indexed8:
             XB_Tool_Byte_FillBlock(pixels, static_cast<std::uint32_t>(mRectangle.width), mRectangle.height, mRowPixelCount, colorIndex);
             break;
 
-        case 1:
+        case SwitchIds::BitmapDepth::HighColor16:
         {
             const std::uint16_t packedColor = GetHighColorWord(colorIndex);
             Fill(packedColor);
             break;
         }
 
-        case 2:
+        case SwitchIds::BitmapDepth::TrueColor32:
         {
             const std::uint32_t packedColor = GetTrueColorWord(colorIndex);
             Fill(packedColor);
@@ -361,7 +362,7 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-        case 0:
+        case SwitchIds::BitmapDepth::Indexed8:
         {
             void* palette = mPalette;
 
@@ -375,14 +376,14 @@ namespace NXBasics
             break;
         }
 
-        case 1:
+        case SwitchIds::BitmapDepth::HighColor16:
         {
             const std::uint16_t packedColor = g16BitPixelConverter->PackColor(color);
             Fill(packedColor);
             break;
         }
 
-        case 2:
+        case SwitchIds::BitmapDepth::TrueColor32:
         {
             const std::uint32_t packedColor = g32BitPixelConverter->PackColor(color);
             Fill(packedColor);
@@ -835,9 +836,9 @@ namespace NXBasics
         const auto index = static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x);
         switch (mDepth)
         {
-            case 0: *BitmapPixelAddress(mRawMemory, index) = color; break;
-            case 1: *BitmapPixelAddress(mHighColorMemory, index) = GetHighColorWord(color); break;
-            case 2: *BitmapPixelAddress(mTrueColorMemory, index) = GetTrueColorWord(color); break;
+            case SwitchIds::BitmapDepth::Indexed8: *BitmapPixelAddress(mRawMemory, index) = color; break;
+            case SwitchIds::BitmapDepth::HighColor16: *BitmapPixelAddress(mHighColorMemory, index) = GetHighColorWord(color); break;
+            case SwitchIds::BitmapDepth::TrueColor32: *BitmapPixelAddress(mTrueColorMemory, index) = GetTrueColorWord(color); break;
         }
     }
 
@@ -862,9 +863,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0: Draw_SetPixel(x, y, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
-            case 1: Draw_SetPixel(x, y, g16BitPixelConverter->PackColor(color)); break;
-            case 2: Draw_SetPixel(x, y, g32BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::Indexed8: Draw_SetPixel(x, y, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case SwitchIds::BitmapDepth::HighColor16: Draw_SetPixel(x, y, g16BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::TrueColor32: Draw_SetPixel(x, y, g32BitPixelConverter->PackColor(color)); break;
         }
     }
 
@@ -873,9 +874,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0: Draw_HorizontalLine(x, y, length, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
-            case 1: Draw_HorizontalLine(x, y, length, g16BitPixelConverter->PackColor(color)); break;
-            case 2: Draw_HorizontalLine(x, y, length, g32BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::Indexed8: Draw_HorizontalLine(x, y, length, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case SwitchIds::BitmapDepth::HighColor16: Draw_HorizontalLine(x, y, length, g16BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::TrueColor32: Draw_HorizontalLine(x, y, length, g32BitPixelConverter->PackColor(color)); break;
         }
     }
 
@@ -884,9 +885,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0: Draw_Line(x1, y1, x2, y2, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
-            case 1: Draw_Line(x1, y1, x2, y2, g16BitPixelConverter->PackColor(color)); break;
-            case 2: Draw_Line(x1, y1, x2, y2, g32BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::Indexed8: Draw_Line(x1, y1, x2, y2, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case SwitchIds::BitmapDepth::HighColor16: Draw_Line(x1, y1, x2, y2, g16BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::TrueColor32: Draw_Line(x1, y1, x2, y2, g32BitPixelConverter->PackColor(color)); break;
         }
     }
 
@@ -895,9 +896,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0: Draw_Circle(x, y, radius, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
-            case 1: Draw_Circle(x, y, radius, g16BitPixelConverter->PackColor(color)); break;
-            case 2: Draw_Circle(x, y, radius, g32BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::Indexed8: Draw_Circle(x, y, radius, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case SwitchIds::BitmapDepth::HighColor16: Draw_Circle(x, y, radius, g16BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::TrueColor32: Draw_Circle(x, y, radius, g32BitPixelConverter->PackColor(color)); break;
         }
     }
 
@@ -906,9 +907,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0: *BitmapPixelAddress(mRawMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color); break;
-            case 1: { const auto packed = g16BitPixelConverter->PackColor(color); *BitmapPixelAddress(mHighColorMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = packed; break; }
-            case 2: { const auto packed = g32BitPixelConverter->PackColor(color); *BitmapPixelAddress(mTrueColorMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = packed; break; }
+            case SwitchIds::BitmapDepth::Indexed8: *BitmapPixelAddress(mRawMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color); break;
+            case SwitchIds::BitmapDepth::HighColor16: { const auto packed = g16BitPixelConverter->PackColor(color); *BitmapPixelAddress(mHighColorMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = packed; break; }
+            case SwitchIds::BitmapDepth::TrueColor32: { const auto packed = g32BitPixelConverter->PackColor(color); *BitmapPixelAddress(mTrueColorMemory, static_cast<std::uint32_t>(y) * mRowPixelCount + static_cast<std::uint32_t>(x)) = packed; break; }
         }
     }
 
@@ -1209,7 +1210,7 @@ namespace NXBasics
 
         switch (mDepth)
         {
-        case 0:
+        case SwitchIds::BitmapDepth::Indexed8:
         {
             const std::uint32_t rowPixelCount = mRowPixelCount;
             const std::uint32_t pixelOffset = rowPixelCount * static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.x);
@@ -1220,7 +1221,7 @@ namespace NXBasics
             break;
         }
 
-        case 1:
+        case SwitchIds::BitmapDepth::HighColor16:
         {
             const std::uint32_t pixelOffset = mRowPixelCount * static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.x);
             const std::uint32_t byteOffset = pixelOffset * 2u;
@@ -1233,7 +1234,7 @@ namespace NXBasics
             break;
         }
 
-        case 2:
+        case SwitchIds::BitmapDepth::TrueColor32:
         {
             const std::uint32_t pixelOffset = mRowPixelCount * static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(rectangle.x);
             const std::uint32_t byteOffset = pixelOffset * 4u;
@@ -1305,9 +1306,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-        case 0: Draw_Box(rectangle, static_cast<std::uint8_t>(Palette_FindMatchingColor(mPalette == nullptr ? NXBasics::CXBSystemManager::sPalettePtr : mPalette, color))); break;
-        case 1: Draw_Box(rectangle, g16BitPixelConverter->PackColor(color)); break;
-        case 2: Draw_Box(rectangle, g32BitPixelConverter->PackColor(color)); break;
+        case SwitchIds::BitmapDepth::Indexed8: Draw_Box(rectangle, static_cast<std::uint8_t>(Palette_FindMatchingColor(mPalette == nullptr ? NXBasics::CXBSystemManager::sPalettePtr : mPalette, color))); break;
+        case SwitchIds::BitmapDepth::HighColor16: Draw_Box(rectangle, g16BitPixelConverter->PackColor(color)); break;
+        case SwitchIds::BitmapDepth::TrueColor32: Draw_Box(rectangle, g32BitPixelConverter->PackColor(color)); break;
         }
     }
 
@@ -1379,7 +1380,7 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0:
+            case SwitchIds::BitmapDepth::Indexed8:
                 {
                     const void* palette = mPalette != nullptr ? mPalette : CXBSystemManager::sPalettePtr;
                     const std::uint8_t colorIndex = Palette_FindMatchingColor(palette, color);
@@ -1387,14 +1388,14 @@ namespace NXBasics
                     break;
                 }
 
-            case 1:
+            case SwitchIds::BitmapDepth::HighColor16:
                 {
                     const std::uint16_t packedColor = g16BitPixelConverter->PackColor(color);
                     Draw_Rectangle(rectangle, packedColor);
                     break;
                 }
 
-            case 2:
+            case SwitchIds::BitmapDepth::TrueColor32:
                 {
                     const std::uint32_t packedColor = g32BitPixelConverter->PackColor(color);
                     Draw_Rectangle(rectangle, packedColor);
@@ -1465,7 +1466,7 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-        case 0:
+        case SwitchIds::BitmapDepth::Indexed8:
         {
             void* palette = mPalette;
 
@@ -1479,14 +1480,14 @@ namespace NXBasics
             break;
         }
 
-        case 1:
+        case SwitchIds::BitmapDepth::HighColor16:
         {
             const std::uint16_t packedColor = g16BitPixelConverter->PackColor(color);
             Draw_VerticalLine(x, y, length, packedColor);
             break;
         }
 
-        case 2:
+        case SwitchIds::BitmapDepth::TrueColor32:
         {
             const std::uint32_t packedColor = g32BitPixelConverter->PackColor(color);
             Draw_VerticalLine(x, y, length, packedColor);
@@ -1975,9 +1976,9 @@ namespace NXBasics
     {
         switch (mDepth)
         {
-            case 0: Draw_FilledCircle(x, y, radius, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
-            case 1: Draw_FilledCircle(x, y, radius, g16BitPixelConverter->PackColor(color)); break;
-            case 2: Draw_FilledCircle(x, y, radius, g32BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::Indexed8: Draw_FilledCircle(x, y, radius, Palette_FindMatchingColor(mPalette != nullptr ? mPalette : NXBasics::CXBSystemManager::sPalettePtr, color)); break;
+            case SwitchIds::BitmapDepth::HighColor16: Draw_FilledCircle(x, y, radius, g16BitPixelConverter->PackColor(color)); break;
+            case SwitchIds::BitmapDepth::TrueColor32: Draw_FilledCircle(x, y, radius, g32BitPixelConverter->PackColor(color)); break;
         }
     }
 }

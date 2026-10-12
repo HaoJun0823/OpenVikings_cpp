@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
@@ -76,9 +77,9 @@ namespace NC2E2
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<MiscLandscapeTokenList_AtExit>(landscapeTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case 0x6C747274: Write(entry, 0, reader.GetInt()); break;
-                    case 0x6C6C7479: Write(entry, 4, reader.GetInt()); break;
-                    case 0x6C6E616D: Write(entry, 8, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString())); break;
+                    case SwitchIds::MiscLandscapeToken::LogicTribeType: Write(entry, 0, reader.GetInt()); break;
+                    case SwitchIds::MiscLandscapeToken::LogicLandscapeType: Write(entry, 4, reader.GetInt()); break;
+                    case SwitchIds::MiscLandscapeToken::LandscapeName: Write(entry, 8, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString())); break;
                     }
         }
         gStaticMiscLandscapeGroupCount = reader.GetNumberOfGroups("tribehouseLinkData");
@@ -94,9 +95,9 @@ namespace NC2E2
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<MiscHouseLandscapeTokenList_AtExit>(groupTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case 0x6C747274: Write(entry, 0, reader.GetInt()); break;
-                    case 0x6C687479: Write(entry, 4, reader.GetInt()); break;
-                    case 0x6C6E616D:
+                    case SwitchIds::MiscHouseLandscapeToken::LogicTribeType: Write(entry, 0, reader.GetInt()); break;
+                    case SwitchIds::MiscHouseLandscapeToken::LogicHouseType: Write(entry, 4, reader.GetInt()); break;
+                    case SwitchIds::MiscHouseLandscapeToken::LandscapeName:
                     {
                         const auto index = Read<std::uint32_t>(entry, 8);
                         Write(choices, index * 8u, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString()));

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XBobRendering.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
@@ -566,15 +567,15 @@ namespace NXBasics
 
 		switch (depth)
 		{
-			case 0:
+			case SwitchIds::BitmapDepth::Indexed8:
 				ReportWarning("NXBasics::CBobManager::PrintBob_Shadow\n\nUnsupported bitmap depth!");
 				break;
 
-			case 1:
+			case SwitchIds::BitmapDepth::HighColor16:
 				BobManager_PrintBob_Shadow16(bobManager, bobId, bitmap, x, y, 0);
 				break;
 
-			case 2:
+			case SwitchIds::BitmapDepth::TrueColor32:
 				BobManager_PrintBob_Shadow32(bobManager, bobId, bitmap, x, y, 0);
 				break;
 		}
@@ -587,19 +588,19 @@ namespace NXBasics
 		{
 			switch (mode)
 			{
-				case 0:
+				case SwitchIds::BobShadowMode::Darken:
 					{
 						const std::byte* table = ShadowPointer(g16BitPixelConverter, 8);
 						return ShadowRead<std::uint16_t>(table, static_cast<std::uint32_t>(pixel) * 2u);
 					}
 
-				case 1:
+				case SwitchIds::BobShadowMode::Grayscale:
 					return g16BitPixelConverter->ApplyShadowMode1(pixel);
 
-				case 2:
+				case SwitchIds::BobShadowMode::HalfColorBrighten:
 					return g16BitPixelConverter->ApplyShadowMode2(pixel);
 
-				case 3:
+				case SwitchIds::BobShadowMode::SaturatingBrighten:
 					return g16BitPixelConverter->ApplyShadowMode3(pixel);
 			}
 

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2DelayedActionManager.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2GameMapAccess.h"
@@ -137,16 +138,16 @@ namespace NC2Logic
             const auto object = Read<std::uint32_t>(moveable, 0x54);
             switch (Read<std::uint32_t>(moveable, 8))
             {
-            case 1:
+            case SwitchIds::MapMoveableType::Human:
                 if ((Read<std::uint32_t>(Human(object), 0x10) == action->player && weapon.hitSelf == 0) || Human_Misc_IsHidden(Human(object))) break;
                 if (!Add(targets, 1, Read<std::uint32_t>(Human(object), 4))) return;
                 break;
-            case 2: if (!Add(targets, 3, Read<std::uint32_t>(Animal(object), 4))) return; break;
-            case 3:
+            case SwitchIds::MapMoveableType::Animal: if (!Add(targets, 3, Read<std::uint32_t>(Animal(object), 4))) return; break;
+            case SwitchIds::MapMoveableType::Vehicle:
                 if (Read<std::uint32_t>(Vehicle(object), 0x1E0) == action->player && weapon.hitSelf == 0) break;
                 if (!Contains(targets, 2, Read<std::uint32_t>(Vehicle(object), 4)) && !Add(targets, 2, Read<std::uint32_t>(Vehicle(object), 4))) return;
                 break;
-            case 4: break;
+            case SwitchIds::MapMoveableType::Marker: break;
             default: return;
             }
         }
@@ -219,11 +220,11 @@ namespace NC2Logic
             bool result = false;
             switch (target.type)
             {
-            case 1: result = Human_Military_StartGettingHitByWeapon(Human(target.id), &action->sourcePosition, action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0, true); break;
-            case 2: result = Vehicle_Military_StartGettingHitByWeapon(Vehicle(target.id), action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0); break;
-            case 3: result = Animal_Military_StartGettingHitByWeapon(Animal(target.id), action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0, true); break;
-            case 4: result = House_Military_StartGettingHitByWeapon(House(target.id), action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0); break;
-            case 5: result = Tool_HitLandscapeOnPoint(action->player, action->tribe, action->weapon, &target.id); break;
+            case SwitchIds::DamageTargetType::Human: result = Human_Military_StartGettingHitByWeapon(Human(target.id), &action->sourcePosition, action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0, true); break;
+            case SwitchIds::DamageTargetType::Vehicle: result = Vehicle_Military_StartGettingHitByWeapon(Vehicle(target.id), action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0); break;
+            case SwitchIds::DamageTargetType::Animal: result = Animal_Military_StartGettingHitByWeapon(Animal(target.id), action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0, true); break;
+            case SwitchIds::DamageTargetType::House: result = House_Military_StartGettingHitByWeapon(House(target.id), action->tribe, action->weapon, action->attackerId, action->attackerRevision, action->attackerType, 0); break;
+            case SwitchIds::DamageTargetType::Landscape: result = Tool_HitLandscapeOnPoint(action->player, action->tribe, action->weapon, &target.id); break;
             }
             if (result) hit = true;
         }

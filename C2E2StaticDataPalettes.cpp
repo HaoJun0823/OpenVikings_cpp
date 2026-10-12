@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataPalettes.h"
 #include "C2LifetimeGlobals.h"
 #include "XBTokenList.h"
@@ -72,16 +73,16 @@ namespace NC2E2
                     NXBasics::CTokenList tokens(gPaletteTokenState.table256);
                     switch (tokens.FindToken(reader.GetCurrentName()))
                     {
-                        case 0x65646E61u:
+                        case SwitchIds::PaletteToken::EditName:
                             std::strncpy(entry->name, reader.GetString(), 29);
                             break;
-                        case 0x67667866u:
+                        case SwitchIds::PaletteToken::Gfxfile:
                         {
                             NXBasics::CPicture picture(reader.GetString());
                             entry->palette = picture.ExtractPalette();
                             break;
                         }
-                        case 0x67667870u:
+                        case SwitchIds::PaletteToken::GfxPreshade:
                         {
                             if (entry->palette == nullptr) break;
                             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x7D78, 1);
@@ -107,7 +108,7 @@ namespace NC2E2
                             }
                             break;
                         }
-                        case 0x67667872u:
+                        case SwitchIds::PaletteToken::GfxRemapToPreshaded:
                         {
                             if (entry->palette == nullptr) break;
                             const std::int32_t id = E2StaticDataPalettesManager_GetPalette256Id(reader.GetString());
@@ -144,10 +145,10 @@ namespace NC2E2
                     NXBasics::CTokenList tokens(gPaletteTokenState.table16);
                     switch (tokens.FindToken(reader.GetCurrentName()))
                     {
-                        case 0x65646E61u:
+                        case SwitchIds::Palette16Token::EditName:
                             std::strncpy(entry->name, reader.GetString(), 29);
                             break;
-                        case 0x67667863u:
+                        case SwitchIds::Palette16Token::GfxColorRange:
                         {
                             entry->palette256Id = E2StaticDataPalettesManager_GetPalette256Id(reader.GetString());
                             if (entry->palette256Id == -1) break;

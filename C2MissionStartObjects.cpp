@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2MissionStartObjects.h"
 #include "C2GuideAccess.h"
 #include "C2MissionScriptData.h"
@@ -264,7 +265,7 @@ namespace NC2Logic
                 const auto token = NXBasics::XB_Token_FindTokenInArray(sObjectTokenArray, reader->GetCurrentName());
                 switch (token)
                 {
-                case 0x7368756D: case 0x73766568: case 0x73616E69:
+                case SwitchIds::MissionStartToken::SetHuman: case SwitchIds::MissionStartToken::SetVehicle: case SwitchIds::MissionStartToken::SetAnimal:
                 {
                     kind = 0;
                     const auto player = reader->GetInt();
@@ -292,7 +293,7 @@ namespace NC2Logic
                     if (kind == 1 && type >= 1 && type <= 4) Write<std::uint32_t>(Human(currentId), 0xAA4, Game_Random_GetNumber() % 720u + (type <= 2 ? 0u : 1440u));
                     break;
                 }
-                case 0x73686F75:
+                case SwitchIds::MissionStartToken::SetHouse:
                 {
                     kind = 0;
                     const auto player = reader->GetInt();
@@ -307,7 +308,7 @@ namespace NC2Logic
                     if (id != -1) { currentId = id; currentRevision = Read<std::uint32_t>(House(currentId), 8); kind = 4; }
                     break;
                 }
-                case 0x73677569:
+                case SwitchIds::MissionStartToken::Setguide:
                 {
                     kind = 0;
                     const auto player = reader->GetInt();
@@ -317,7 +318,7 @@ namespace NC2Logic
                     Logic_EntryPoint_Guide_Set(player, point, 0);
                     break;
                 }
-                case 0x61676F64:
+                case SwitchIds::MissionStartToken::Addgoods:
                 {
                     if ((kind != 4 && kind != 2) || currentId == 0xFFFFFFFFu) break;
                     const auto good = ReadGood(*reader);
@@ -330,7 +331,7 @@ namespace NC2Logic
                     }
                     break;
                 }
-                case 0x6174686F:
+                case SwitchIds::MissionStartToken::AttachToHouse:
                 {
                     if (kind != 1 || currentId == 0xFFFFFFFFu) break;
                     std::int16_t point[2];
@@ -339,13 +340,13 @@ namespace NC2Logic
                     if (house == -1) break;
                     switch (reader->GetInt())
                     {
-                    case 1: Human_DoExecuteUserCommand_AttachHomeHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
-                    case 2: Human_DoExecuteUserCommand_AttachWorkHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
-                    case 4: Human_DoExecuteUserCommand_AttachBuildHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
+                    case SwitchIds::HouseAttachmentMask::Home: Human_DoExecuteUserCommand_AttachHomeHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
+                    case SwitchIds::HouseAttachmentMask::Worker: Human_DoExecuteUserCommand_AttachWorkHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
+                    case SwitchIds::HouseAttachmentMask::Builder: Human_DoExecuteUserCommand_AttachBuildHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
                     }
                     break;
                 }
-                case 0x61747665:
+                case SwitchIds::MissionStartToken::AttachToVehicle:
                 {
                     if (kind != 1 || currentId == 0xFFFFFFFFu) break;
                     std::int16_t point[2];
@@ -364,10 +365,10 @@ namespace NC2Logic
                     }
                     break;
                 }
-                case 0x6D697665:
+                case SwitchIds::MissionStartToken::MoveInToVehicle:
                     if (kind == 1 && currentId != 0xFFFFFFFFu) Human_VehicleMisc_Enter(Human(currentId));
                     break;
-                case 0x73706764:
+                case SwitchIds::MissionStartToken::Setproducedgood:
                 {
                     if (kind != 1 || currentId == 0xFFFFFFFFu) break;
                     auto good = ReadGood(*reader);
@@ -384,7 +385,7 @@ namespace NC2Logic
                     Write<std::uint32_t>(human, 0x38C, 0);
                     break;
                 }
-                case 0x73657870:
+                case SwitchIds::MissionStartToken::Setexpierence:
                 {
                     if (kind != 1 || currentId == 0xFFFFFFFFu || Human_IsJobHero(Human(currentId))) break;
                     const auto job = static_cast<std::uint32_t>(reader->GetInt());
@@ -395,7 +396,7 @@ namespace NC2Logic
                     Human_UpdateCurrentJobType(Human(currentId));
                     break;
                 }
-                case 0x6D617272:
+                case SwitchIds::MissionStartToken::Marry:
                 {
                     void* woman = FindFamilyHuman(*reader, true, false);
                     if (woman == nullptr) break;
@@ -423,7 +424,7 @@ namespace NC2Logic
                     if (Human_IsHavingChild(woman)) AssignHome(Human(Read<std::uint32_t>(woman, 0xB24)), Read<std::uint32_t>(woman, 0xB28));
                     break;
                 }
-                case 0x636F776F:
+                case SwitchIds::MissionStartToken::ChildOfWoman:
                 {
                     void* child = FindFamilyHuman(*reader, false, true);
                     if (child == nullptr) break;

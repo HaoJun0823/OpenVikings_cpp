@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2VehicleSimulation.h"
 #include "C2VehicleAccess.h"
 #include "C2VehicleLifecycle.h"
@@ -159,9 +160,9 @@ namespace NC2Logic
                 {
                     switch (Read<std::uint32_t>(vehicle, 0x53C))
                     {
-                    case 1: Vehicle_l_Military_CheckForEnemys(vehicle, Vehicle_GetMapPositionRef(vehicle), 0, 40); break;
-                    case 2: Vehicle_l_Military_CheckForEnemys(vehicle, At(vehicle, 0x1D6), 0, 40); break;
-                    case 3: Vehicle_l_Military_CheckForEnemys(vehicle, At(vehicle, 0x1D6), Weapon(vehicle).minimumRange, Weapon(vehicle).maximumRange); break;
+                    case SwitchIds::VehicleMilitaryMode::SearchAroundPosition: Vehicle_l_Military_CheckForEnemys(vehicle, Vehicle_GetMapPositionRef(vehicle), 0, 40); break;
+                    case SwitchIds::VehicleMilitaryMode::SearchAroundTarget: Vehicle_l_Military_CheckForEnemys(vehicle, At(vehicle, 0x1D6), 0, 40); break;
+                    case SwitchIds::VehicleMilitaryMode::SearchWithinWeaponRange: Vehicle_l_Military_CheckForEnemys(vehicle, At(vehicle, 0x1D6), Weapon(vehicle).minimumRange, Weapon(vehicle).maximumRange); break;
                     }
                 }
                 if ((TargetData_IsValid(At(vehicle, 0x520)) || TargetData_IsValid(At(vehicle, 0x52C))) && (Read<std::uint32_t>(vehicle, 0x1C8) == 0 || Read<std::uint32_t>(vehicle, 0x1C8) == 2))
@@ -173,12 +174,12 @@ namespace NC2Logic
         }
         switch (Read<std::uint32_t>(vehicle, 0x1C8))
         {
-        case 1:
+        case SwitchIds::VehicleTask::Dock:
             if (Read<std::uint32_t>(vehicle, 0x4FC) != 0) return;
             SendVehicleMessage(vehicle, 0x32);
             Write<std::uint32_t>(vehicle, 0x1C8, 0);
             break;
-        case 2:
+        case SwitchIds::VehicleTask::Attack:
             if (TargetData_IsValid(At(vehicle, 0x520)) || TargetData_IsValid(At(vehicle, 0x52C)))
             {
                 if (Vehicle_l_Passengers_MoveIn(vehicle)) return;
@@ -186,15 +187,15 @@ namespace NC2Logic
             }
             else Write<std::uint32_t>(vehicle, 0x1C8, 0);
             break;
-        case 3:
+        case SwitchIds::VehicleTask::WaitForPassengers:
             if (Vehicle_l_Passengers_MoveIn(vehicle)) Write<std::uint32_t>(vehicle, 0x1C8, 0);
             break;
-        case 4:
+        case SwitchIds::VehicleTask::GetDraggingAnimal:
             if (!Vehicle_Passengers_NeedsDraggingAnimal(vehicle)) Write<std::uint32_t>(vehicle, 0x1C8, 0);
             else if (!Vehicle_Passengers_IsHavingDraggingAnimal(vehicle)) Vehicle_Passengers_TryToGetDraggingAnimal(vehicle);
             break;
-        case 5: Write<std::uint32_t>(vehicle, 0x1C8, 0); break;
-        case 6: Vehicle_l_StartAtomicAttachToVehicle(vehicle); return;
+        case SwitchIds::VehicleTask::Interrupted: Write<std::uint32_t>(vehicle, 0x1C8, 0); break;
+        case SwitchIds::VehicleTask::AttachToVehicle: Vehicle_l_StartAtomicAttachToVehicle(vehicle); return;
         }
         Vehicle_l_StartAtomicIdle(vehicle);
     }

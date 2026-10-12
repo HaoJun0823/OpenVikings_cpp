@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2AIManagerAccess.h"
 #include "C2AIConditions.h"
 #include "C2AISinglePlayerAccess.h"
@@ -59,7 +60,7 @@ namespace NC2Logic
                 // Unknown commands consume no parameters in the Windows parser.
                 switch (token)
                 {
-                case 0x61696174: case 0x61696268: case 0x61696378: case 0x61696379: case 0x61696465: case 0x61696470:
+                case SwitchIds::AIToken::AIMainTaskAttack: case SwitchIds::AIToken::AIMainTaskBuildHouse: case SwitchIds::AIToken::AIMainTaskCreateCreatures: case SwitchIds::AIToken::AIMainTaskChangeDiplomacy: case SwitchIds::AIToken::AIMainTaskDefend: case SwitchIds::AIToken::AIMainTaskSelfDestroyPlayer:
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;
@@ -95,7 +96,7 @@ namespace NC2Logic
                     AIManager_EntryPoint_MainTask_Add(manager, player, task);
                     break;
                 }
-                case 0x61696363: case 0x61696364: case 0x61696365: case 0x61696368: case 0x6169636F: case 0x61696370: case 0x61696372: case 0x61696373: case 0x61696374: case 0x6169637A: case 0x61696E73: case 0x61736374:
+                case SwitchIds::AIToken::AISetConditionOnConditions: case SwitchIds::AIToken::AISetConditionOnDiplomacyChange: case SwitchIds::AIToken::AISetConditionOnExternal: case SwitchIds::AIToken::AISetConditionOnHouseInRange: case SwitchIds::AIToken::AISetConditionTrue: case SwitchIds::AIToken::AISetConditionOnPlayerDead: case SwitchIds::AIToken::AISetConditionOnCreatureInRange: case SwitchIds::AIToken::AISetConditionOnPlayerSeen: case SwitchIds::AIToken::AISetConditionOnTime: case SwitchIds::AIToken::AISetConditionOnConditionChangeDelayed: case SwitchIds::AIToken::AISetConditionOnNumberOfSoldiers: case SwitchIds::AIToken::AISetConditionOnTimer:
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;
@@ -139,7 +140,7 @@ namespace NC2Logic
                     AIManager_EntryPoint_Condition_Set(manager, player, index, condition);
                     break;
                 }
-                case 0x6169756C: case 0x61696D75: case 0x61697364: case 0x61696473: case 0x68616964: case 0x68646372: case 0x68646762: case 0x68646862: case 0x68646865: case 0x68646875: case 0x68646D69: case 0x68647262:
+                case SwitchIds::AIToken::AIUnitLimit: case SwitchIds::AIToken::AIMaxUnitLimit: case SwitchIds::AIToken::AISoldiersDefaultPosition: case SwitchIds::AIToken::AIDisable: case SwitchIds::AIToken::HAIDisable: case SwitchIds::AIToken::HAIDisableCollectResources: case SwitchIds::AIToken::HAIDisableGuideBuild: case SwitchIds::AIToken::HAIDisableHouseBuild: case SwitchIds::AIToken::HAIDisableHomeExpansion: case SwitchIds::AIToken::HAIDisableHouseUpgrade: case SwitchIds::AIToken::HAIDisableMilitary: case SwitchIds::AIToken::HAIDisableRoadBuild:
                 {
                     const auto player = reader->GetInt();
                     if (!IsScriptPlayerActive(player)) break;

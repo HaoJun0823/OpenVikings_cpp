@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2AIConstruction.h"
 #include "C2MapResourceManagers.h"
 #include "C2CallbackManager.h"
@@ -560,16 +561,16 @@ namespace NC2Logic
     {
         switch (type)
         {
-        case 1:
+        case SwitchIds::CallbackType::GameTick:
             if (parameter1 % 2160u == 0)
                 static_cast<CMapFishManager*>(gMapFishManager)->l_FishReproduction();
             break;
-        case 0x31: gFishSwarmValidationNeeded = 0; break;
-        case 0x32:
+        case SwitchIds::CallbackType::BeginMapChanges: gFishSwarmValidationNeeded = 0; break;
+        case SwitchIds::CallbackType::EndMapChanges:
             if (gFishSwarmValidationNeeded != 0)
                 static_cast<CMapFishManager*>(gMapFishManager)->RemoveInvalidSwarms();
             break;
-        case 0x33:
+        case SwitchIds::CallbackType::MapPointChanged:
             if (parameter1 == 0x0B || parameter1 == 0x0E)
                 gFishSwarmValidationNeeded = 1;
             break;

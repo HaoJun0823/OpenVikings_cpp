@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticActorTypeDataAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2Debug.h"
@@ -61,23 +62,23 @@ namespace NC2Logic
                 }
                 switch (NXBasics::XB_Token_FindTokenInArray(gAnimalTypeTokens, reader.GetCurrentName()))
                 {
-                case 0x61676772u: record->aggressive = reader.GetInt() != 0; break;
-                case 0x67616E67u: record->getAngry = reader.GetInt() != 0; break;
-                case 0x6174696Du: record->angryGameTime = reader.GetInt(); break;
-                case 0x77617272u: record->warrantable = reader.GetInt() != 0; break;
-                case 0x6D786C64u: record->maximumLeaderDistance = reader.GetInt(); break;
-                case 0x736C6561u: record->searchForLeader = reader.GetInt() != 0; break;
-                case 0x6D786473u: record->maximumDistanceToStayPoint = reader.GetInt(); break;
-                case 0x6D786462u: record->maximumDistanceToBirthPoint = reader.GetInt(); break;
-                case 0x6D786773u: record->maximumGroupSize = reader.GetInt(); break;
-                case 0x6D786373u: record->maximumCadaverSize = reader.GetInt(); break;
-                case 0x63616266u: record->catchable = reader.GetInt() != 0; break;
-                case 0x6D737064u: record->moveSpeed = reader.GetInt(); break;
-                case 0x72756E73u: record->runSpeed = reader.GetInt(); break;
-                case 0x6967686Fu: record->ignoreHouses = reader.GetInt() != 0; break;
-                case 0x68697462u: record->hitPointsBaby = reader.GetInt(); break;
-                case 0x68697461u: record->hitPointsAdult = reader.GetInt(); break;
-                case 0x636E6261u: record->cannotBeAttacked = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::Aggressive: record->aggressive = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::GetAngry: record->getAngry = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::AngryGameTime: record->angryGameTime = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::Warrantable: record->warrantable = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::MaximumLeaderDistance: record->maximumLeaderDistance = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::SearchForLeader: record->searchForLeader = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::MaximumDistanceToStayPoint: record->maximumDistanceToStayPoint = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::MaximumDistanceToBirthPoint: record->maximumDistanceToBirthPoint = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::MaximumGroupSize: record->maximumGroupSize = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::Maximumcadaversize: record->maximumCadaverSize = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::Catchable: record->catchable = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::MoveSpeed: record->moveSpeed = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::Runspeed: record->runSpeed = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::IgnoreHouses: record->ignoreHouses = reader.GetInt() != 0; break;
+                case SwitchIds::AnimalTypeToken::HitpointsBABY: record->hitPointsBaby = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::HitpointsAdult: record->hitPointsAdult = reader.GetInt(); break;
+                case SwitchIds::AnimalTypeToken::Cannotbeattacked: record->cannotBeAttacked = reader.GetInt() != 0; break;
                 }
             }
         }
@@ -118,12 +119,12 @@ namespace NC2Logic
                 }
                 switch (reinterpret_cast<NXBasics::CTokenList*>(gArmorTypeTokenList)->FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65u: std::strncpy(record->name, reader.GetString(), 29); break;
-                case 0x6D61696Eu: record->mainType = reader.GetInt(); break;
-                case 0x676F6F64u: record->goodType = reader.GetInt(); break;
-                case 0x6D617479u: record->materialType = reader.GetInt(); break;
-                case 0x626C766Cu: record->blockingValue = reader.GetInt(); break;
-                case 0x77656967u: record->weight = reader.GetInt(); break;
+                case SwitchIds::ArmorTypeToken::Name: std::strncpy(record->name, reader.GetString(), 29); break;
+                case SwitchIds::ArmorTypeToken::Maintype: record->mainType = reader.GetInt(); break;
+                case SwitchIds::ArmorTypeToken::GoodType: record->goodType = reader.GetInt(); break;
+                case SwitchIds::ArmorTypeToken::MaterialType: record->materialType = reader.GetInt(); break;
+                case SwitchIds::ArmorTypeToken::BlockingValue: record->blockingValue = reader.GetInt(); break;
+                case SwitchIds::ArmorTypeToken::Weight: record->weight = reader.GetInt(); break;
                 }
             }
         }
@@ -172,8 +173,8 @@ namespace NC2Logic
                 }
                 switch (reinterpret_cast<NXBasics::CTokenList*>(gExperienceTypeTokenList)->FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65u: std::strncpy(record->name, reader.GetString(), 29); break;
-                case 0x676F6F64u:
+                case SwitchIds::JobExperienceToken::Name: std::strncpy(record->name, reader.GetString(), 29); break;
+                case SwitchIds::JobExperienceToken::Good:
                     while (reader.GetTypeOfNextParameter() == 3)
                     {
                         const auto good = reader.GetInt();
@@ -182,9 +183,9 @@ namespace NC2Logic
                         else break;
                     }
                     break;
-                case 0x65787066u: record->experienceFactor = reader.GetInt(); break;
-                case 0x6272636Eu: record->baseRepeatCounter = reader.GetInt(); break;
-                case 0x6A6F62u:
+                case SwitchIds::JobExperienceToken::ExperienceFactor: record->experienceFactor = reader.GetInt(); break;
+                case SwitchIds::JobExperienceToken::Baserepeatcounter: record->baseRepeatCounter = reader.GetInt(); break;
+                case SwitchIds::JobExperienceToken::Job:
                 {
                     record->job = reader.GetInt();
                     auto* list = reinterpret_cast<SJobExperienceTypeList*>(static_cast<std::byte*>(gStaticHumanJobExperienceTable00510A3C) + static_cast<std::uint32_t>(record->job) * 0x2Cu);
@@ -259,23 +260,23 @@ namespace NC2Logic
                 const auto token = reinterpret_cast<NXBasics::CTokenList*>(gWeaponTypeTokenList)->FindToken(reader.GetCurrentName());
                 switch (token)
                 {
-                case 0x6E616D65u: std::strncpy(record->name, reader.GetString(), 29); break;
-                case 0x6D61696Eu: record->mainType = reader.GetInt(); break;
-                case 0x676F6F64u: record->goodType = reader.GetInt(); break;
-                case 0x77656967u: record->weight = reader.GetInt(); break;
-                case 0x6D696E72u: record->minimumRange = reader.GetInt(); break;
-                case 0x6D617872u: record->maximumRange = reader.GetInt(); break;
-                case 0x6A6F6274u: record->jobType = reader.GetInt(); break;
-                case 0x7072746Eu: record->hasMunition = 1; record->munitionType = reader.GetInt(); break;
-                case 0x646D6774u: record->damageType = reader.GetInt(); break;
-                case 0x61746174u: record->atomicActionType = reader.GetInt(); break;
-                case 0x73706564u: record->speed = reader.GetInt(); break;
-                case 0x68697473u: record->hitSelf = reader.GetInt() != 0; break;
-                case 0x6372736Du: record->createsSmoke = reader.GetInt() != 0; break;
-                case 0x736D6C66u: record->smokeLifetime = reader.GetInt(); break;
-                case 0x646D766Cu:
-                case 0x73686974u:
-                case 0x736E6874u:
+                case SwitchIds::WeaponTypeToken::Name: std::strncpy(record->name, reader.GetString(), 29); break;
+                case SwitchIds::WeaponTypeToken::Maintype: record->mainType = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::GoodType: record->goodType = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::Weight: record->weight = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::MinimumRange: record->minimumRange = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::MaximumRange: record->maximumRange = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::JobType: record->jobType = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::MunitionType: record->hasMunition = 1; record->munitionType = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::DamageType: record->damageType = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::AtomicActionType: record->atomicActionType = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::Speed: record->speed = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::Hitself: record->hitSelf = reader.GetInt() != 0; break;
+                case SwitchIds::WeaponTypeToken::Createsmoke: record->createsSmoke = reader.GetInt() != 0; break;
+                case SwitchIds::WeaponTypeToken::Smokelifetime: record->smokeLifetime = reader.GetInt(); break;
+                case SwitchIds::WeaponTypeToken::Damagevalue:
+                case SwitchIds::WeaponTypeToken::SoundtypeHit:
+                case SwitchIds::WeaponTypeToken::SoundtypeNohit:
                 {
                     const auto index = static_cast<std::uint32_t>(reader.GetInt());
                     const auto value = reader.GetInt();
@@ -332,15 +333,15 @@ namespace NC2Logic
                     const auto token = reinterpret_cast<NXBasics::CTokenList*>(gJobTypeTokenList)->FindToken(reader.GetCurrentName());
                     switch (token)
                     {
-                    case 0x6E616D65u: std::strncpy(record->name, reader.GetString(), 29); break;
-                    case 0x616C6C61u:
-                    case 0x666F6261u:
+                    case SwitchIds::JobTypeToken::Name: std::strncpy(record->name, reader.GetString(), 29); break;
+                    case SwitchIds::JobTypeToken::Allowatomic:
+                    case SwitchIds::JobTypeToken::Forbidatomic:
                     {
                         const auto offset = 0x24u + static_cast<std::uint32_t>(reader.GetInt());
                         reinterpret_cast<std::uint8_t*>(record)[offset] = token == 0x616C6C61u;
                         break;
                     }
-                    case 0x62617361u:
+                    case SwitchIds::JobTypeToken::Baseatomics:
                     {
                         const auto base = reader.GetInt();
                         if (base > 0 && base < 56 && record->baseAtomics == 0)
@@ -351,14 +352,14 @@ namespace NC2Logic
                         }
                         break;
                     }
-                    case 0x6E72656Cu: record->needsReligion = reader.GetInt() != 0; break;
-                    case 0x6967686Fu: record->ignoresHomeHouse = reader.GetInt() != 0; break;
-                    case 0x63687768u: record->canHaveWorkHouse = reader.GetInt() != 0; break;
-                    case 0x6D687768u: record->mustHaveWorkHouse = reader.GetInt() != 0; break;
-                    case 0x6D686677u: record->mustHaveFinishedWorkHouse = reader.GetInt() != 0; break;
-                    case 0x75636370u: record->userCanChangeProduction = reader.GetInt() != 0; break;
-                    case 0x75636177u: record->userShouldAttachWorkPlaceAfterJobChange = reader.GetInt() != 0; break;
-                    case 0x63627472u: record->canBeTrained = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::NeedsReligionFlag: record->needsReligion = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::IgnoresHomeHouseFlag: record->ignoresHomeHouse = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::CanHaveWorkHouseFlag: record->canHaveWorkHouse = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::MustHaveWorkHouseFlag: record->mustHaveWorkHouse = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::MustHaveFinishedWorkHouseFlag: record->mustHaveFinishedWorkHouse = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::UserCanChangeProductionFlag: record->userCanChangeProduction = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::UserShouldAttachWorkPlaceAfterJobChangeFlag: record->userShouldAttachWorkPlaceAfterJobChange = reader.GetInt() != 0; break;
+                    case SwitchIds::JobTypeToken::CanBeTrainedFlag: record->canBeTrained = reader.GetInt() != 0; break;
                     }
                 }
             }

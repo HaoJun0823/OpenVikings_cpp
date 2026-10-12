@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticTrianglePatternTypeData.h"
 #include "C2EngineTerrainData.h"
 #include "C2LifetimeGlobals.h"
@@ -77,16 +78,16 @@ namespace NC2Logic
             {
                 switch (TrianglePatternTokens().FindToken(reader.GetCurrentName()))
                 {
-                case 0x68756D77: record.humanCanWalkOn = reader.GetInt() != 0; break;
-                case 0x68636262: record.houseCanBeBuiltOn = reader.GetInt() != 0; break;
-                case 0x62696F63: record.bioCanGrowOn = reader.GetInt() != 0; break;
-                case 0x62696F70: record.bioCanPlantOn = reader.GetInt() != 0; break;
-                case 0x69736C61: record.isLand = reader.GetInt() != 0; break;
-                case 0x69737761: record.isWater = reader.GetInt() != 0; break;
-                case 0x6973626F: record.isBorder = reader.GetInt() != 0; break;
-                case 0x72657369: record.moveResistance = static_cast<std::uint32_t>(reader.GetInt()); break;
-                case 0x6E616D65: std::strncpy(record.debugName, reader.GetString(), 29); break;
-                case 0x64626763:
+                case SwitchIds::TrianglePatternToken::Humancanwalkon: record.humanCanWalkOn = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::Housecanbebuildon: record.houseCanBeBuiltOn = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::BioCanGrowOn: record.bioCanGrowOn = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::Biocanplanton: record.bioCanPlantOn = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::IsLand: record.isLand = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::IsWater: record.isWater = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::IsBorder: record.isBorder = reader.GetInt() != 0; break;
+                case SwitchIds::TrianglePatternToken::MoveResistance: record.moveResistance = static_cast<std::uint32_t>(reader.GetInt()); break;
+                case SwitchIds::TrianglePatternToken::Debugname: std::strncpy(record.debugName, reader.GetString(), 29); break;
+                case SwitchIds::TrianglePatternToken::DebugColor:
                 {
                     const auto red = static_cast<std::uint8_t>(reader.GetInt());
                     const auto green = static_cast<std::uint8_t>(reader.GetInt());

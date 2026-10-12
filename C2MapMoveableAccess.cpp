@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2MapMoveableAccess.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalTasks.h"
@@ -75,9 +76,9 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(moveable, 0x54);
         switch (Read<std::uint32_t>(moveable, 8))
         {
-        case 1: MapMoveable_DoOneGameTick_Human(moveable, CHumanArray::mStaticVars + id * CHumanArray::ElementSize); return;
-        case 2: MapMoveable_DoOneGameTick_Animal(moveable, CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize); return;
-        case 3: MapMoveable_DoOneGameTick_Vehicle(moveable, CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize); return;
+        case SwitchIds::MapMoveableType::Human: MapMoveable_DoOneGameTick_Human(moveable, CHumanArray::mStaticVars + id * CHumanArray::ElementSize); return;
+        case SwitchIds::MapMoveableType::Animal: MapMoveable_DoOneGameTick_Animal(moveable, CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize); return;
+        case SwitchIds::MapMoveableType::Vehicle: MapMoveable_DoOneGameTick_Vehicle(moveable, CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize); return;
         }
     }
 
@@ -404,10 +405,10 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(moveable, 0x54);
         switch (Read<std::uint32_t>(moveable, 8))
         {
-        case 1: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, 8);
-        case 2: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
-        case 3: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, 8);
-        case 4: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);
+        case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, 8);
+        case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
+        case SwitchIds::MapMoveableType::Vehicle: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, 8);
+        case SwitchIds::MapMoveableType::Marker: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);
         default: return 0xFFFFFFFFu;
         }
     }

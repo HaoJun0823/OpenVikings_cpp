@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanHuntingJobs.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
@@ -58,10 +59,10 @@ namespace NC2Logic
     {
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 0: Human_l_StartTask_ExecuteJob_Hunter_TryToCollect(human); return;
-        case 2: Human_l_StartTask_ExecuteJob_Hunter_Collect(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Write<std::uint32_t>(human, 0x374, 0); Write<std::uint32_t>(human, 0x36C, 3); return;
+        case SwitchIds::GoodCirculationMode::None: Human_l_StartTask_ExecuteJob_Hunter_TryToCollect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Hunter_Collect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Write<std::uint32_t>(human, 0x374, 0); Write<std::uint32_t>(human, 0x36C, 3); return;
         default: return;
         }
     }

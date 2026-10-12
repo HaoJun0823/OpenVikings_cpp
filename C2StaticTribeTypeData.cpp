@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticTribeTypeData.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2LifetimeAccess.h"
@@ -140,41 +141,41 @@ namespace NC2Logic
             {
                 switch (TribeTokens().FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65: std::strncpy(record.name, reader.GetString(), 29); break;
-                case 0x616C6A6F: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 56) record.allowedJobs[id] = 1; break; }
-                case 0x616C676F: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 66) record.allowedGoods[id] = 1; break; }
-                case 0x616C6571: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 66) record.allowedEquipment[id] = 1; break; }
-                case 0x616C686F: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 55) record.allowedHouses[id] = 1; break; }
-                case 0x616C7665: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 7) record.allowedVehicles[id] = 1; break; }
-                case 0x6E666A6F: readExperienceRequirement(0x519C, 56); break;
-                case 0x6E66676F: readExperienceRequirement(0x55FC, 66); break;
-                case 0x6E66686F: readExperienceRequirement(0x5B24, 55); break;
-                case 0x6E667665: readExperienceRequirement(0x5F70, 7); break;
-                case 0x6E666571: readExperienceRequirement(0x5FFC, 66); break;
-                case 0x6E666172: readExperienceRequirement(0x6524, 5); break;
-                case 0x6E667765: readExperienceRequirement(0x6588, 22); break;
-                case 0x66686E6A: readBuildRequirement(0x14B38, 55, 0, 8, 56); break;
-                case 0x66686E67: readBuildRequirement(0x14B38, 55, 4, 0xD0, 66); break;
-                case 0x66766E6A: readBuildRequirement(0x1A2E0, 7, 0, 8, 56); break;
-                case 0x66766E67: readBuildRequirement(0x1A2E0, 7, 4, 0xD0, 66); break;
-                case 0x6A656A6F: readJobEnables(0, 0x10, 56, false, false); break;
-                case 0x6A65676F: readJobEnables(4, 0xD8, 66, false, true); break;
-                case 0x6A65686F: readJobEnables(8, 0x1A0, 55, false, false); break;
-                case 0x6A657665: readJobEnables(0x0C, 0x268, 7, false, false); break;
-                case 0x6A656571: readJobEnables(0x334, 0x338, 55, true, false); break;
-                case 0x74726A6F:
+                case SwitchIds::TribeTypeToken::Name: std::strncpy(record.name, reader.GetString(), 29); break;
+                case SwitchIds::TribeTypeToken::AllowJob: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 56) record.allowedJobs[id] = 1; break; }
+                case SwitchIds::TribeTypeToken::AllowGood: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 66) record.allowedGoods[id] = 1; break; }
+                case SwitchIds::TribeTypeToken::AllowEquip: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 66) record.allowedEquipment[id] = 1; break; }
+                case SwitchIds::TribeTypeToken::AllowHouse: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 55) record.allowedHouses[id] = 1; break; }
+                case SwitchIds::TribeTypeToken::AllowVehicle: { const auto id = static_cast<std::uint32_t>(reader.GetInt()); if (id < 7) record.allowedVehicles[id] = 1; break; }
+                case SwitchIds::TribeTypeToken::NeedForJob: readExperienceRequirement(0x519C, 56); break;
+                case SwitchIds::TribeTypeToken::NeedForGood: readExperienceRequirement(0x55FC, 66); break;
+                case SwitchIds::TribeTypeToken::NeedForHouse: readExperienceRequirement(0x5B24, 55); break;
+                case SwitchIds::TribeTypeToken::NeedForVehicle: readExperienceRequirement(0x5F70, 7); break;
+                case SwitchIds::TribeTypeToken::NeedForEquipment: readExperienceRequirement(0x5FFC, 66); break;
+                case SwitchIds::TribeTypeToken::NeedForArmor: readExperienceRequirement(0x6524, 5); break;
+                case SwitchIds::TribeTypeToken::NeedForWeapon: readExperienceRequirement(0x6588, 22); break;
+                case SwitchIds::TribeTypeToken::ToBuildHouseNeedJob: readBuildRequirement(0x14B38, 55, 0, 8, 56); break;
+                case SwitchIds::TribeTypeToken::ToBuildHouseNeedGood: readBuildRequirement(0x14B38, 55, 4, 0xD0, 66); break;
+                case SwitchIds::TribeTypeToken::ToBuildVehicleNeedJob: readBuildRequirement(0x1A2E0, 7, 0, 8, 56); break;
+                case SwitchIds::TribeTypeToken::ToBuildVehicleNeedGood: readBuildRequirement(0x1A2E0, 7, 4, 0xD0, 66); break;
+                case SwitchIds::TribeTypeToken::JobEnablesJob: readJobEnables(0, 0x10, 56, false, false); break;
+                case SwitchIds::TribeTypeToken::JobEnablesGood: readJobEnables(4, 0xD8, 66, false, true); break;
+                case SwitchIds::TribeTypeToken::JobEnablesHouse: readJobEnables(8, 0x1A0, 55, false, false); break;
+                case SwitchIds::TribeTypeToken::JobEnablesVehicle: readJobEnables(0x0C, 0x268, 7, false, false); break;
+                case SwitchIds::TribeTypeToken::JobEnablesEquipment: readJobEnables(0x334, 0x338, 55, true, false); break;
+                case SwitchIds::TribeTypeToken::TrainForJob:
                 {
                     const auto id = static_cast<std::uint32_t>(reader.GetInt());
                     if (id < 56) record.jobTraining[id] = static_cast<std::uint32_t>(reader.GetInt());
                     break;
                 }
-                case 0x7472676F:
+                case SwitchIds::TribeTypeToken::TrainForGood:
                 {
                     const auto id = static_cast<std::uint32_t>(reader.GetInt());
                     if (id < 66) record.goodTraining[id] = static_cast<std::uint32_t>(reader.GetInt());
                     break;
                 }
-                case 0x6A64676F:
+                case SwitchIds::TribeTypeToken::JobDefaultGood:
                 {
                     const auto job = reader.GetInt();
                     const auto good = reader.GetInt();
@@ -183,14 +184,14 @@ namespace NC2Logic
                     Write<std::int32_t>(&record, 0x14928u + static_cast<std::uint32_t>(good) * 8u, job);
                     break;
                 }
-                case 0x66676E68:
+                case SwitchIds::TribeTypeToken::ToProduceGoodNeedHouse:
                 {
                     const auto good = reader.GetInt();
                     const auto house = reader.GetInt();
                     if (good < 66 && house < 55) Write<std::int32_t>(&record, 0x1492Cu + static_cast<std::uint32_t>(good) * 8u, house);
                     break;
                 }
-                case 0x7361746F:
+                case SwitchIds::TribeTypeToken::SetAtomic:
                 {
                     const auto job = static_cast<std::uint32_t>(reader.GetInt());
                     const auto state = static_cast<std::uint32_t>(reader.GetInt());

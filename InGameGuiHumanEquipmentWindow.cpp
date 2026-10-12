@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiHumanEquipmentWindow.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiInputAccess.h"
@@ -137,11 +138,11 @@ namespace NC2InGameGuiSelectedAction
             if (slot != -1) return static_cast<std::uint8_t>(static_cast<std::uint32_t>(slot) + (drop ? 0x4Bu : 0x54u));
             switch (category)
             {
-            case 1: return drop ? 0x48 : 0x51;
-            case 2: return drop ? 0x49 : 0x52;
-            case 3: return drop ? 0x47 : 0x50;
-            case 4: return drop ? 0x46 : 0x4F;
-            case 5: return drop ? 0x4A : 0x53;
+            case SwitchIds::GoodEquipmentCategory::Weapon: return drop ? 0x48 : 0x51;
+            case SwitchIds::GoodEquipmentCategory::Armor: return drop ? 0x49 : 0x52;
+            case SwitchIds::GoodEquipmentCategory::Tool: return drop ? 0x47 : 0x50;
+            case SwitchIds::GoodEquipmentCategory::Shoes: return drop ? 0x46 : 0x4F;
+            case SwitchIds::GoodEquipmentCategory::Item: return drop ? 0x4A : 0x53;
             default: return 0;
             }
         }

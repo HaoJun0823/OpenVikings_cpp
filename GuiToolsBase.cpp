@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 
 #include "C2EngineDrawingAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -62,12 +63,12 @@ namespace NC2GuiToolsBase
         {
             switch (static_cast<unsigned char>(character))
             {
-            case 0xC4: character = 'A'; break;
-            case 0xD6: character = 'O'; break;
-            case 0xDC: character = 'U'; break;
-            case 0xE4: character = 'a'; break;
-            case 0xF6: character = 'o'; break;
-            case 0xFC: character = 'u'; break;
+            case SwitchIds::Latin1Character::UppercaseAUmlaut: character = 'A'; break;
+            case SwitchIds::Latin1Character::UppercaseOUmlaut: character = 'O'; break;
+            case SwitchIds::Latin1Character::UppercaseUUmlaut: character = 'U'; break;
+            case SwitchIds::Latin1Character::LowercaseAUmlaut: character = 'a'; break;
+            case SwitchIds::Latin1Character::LowercaseOUmlaut: character = 'o'; break;
+            case SwitchIds::Latin1Character::LowercaseUUmlaut: character = 'u'; break;
             }
         };
         normalize(left[0]);

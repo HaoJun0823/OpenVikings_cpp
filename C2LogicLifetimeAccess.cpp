@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2GuideAccess.h"
 #include "C2GameState.h"
@@ -44,18 +45,18 @@ namespace NC2Logic
         std::uint32_t offset;
         switch (command)
         {
-        case 10: offset = 0; break;
-        case 11: offset = 4; break;
-        case 20: offset = 8; break;
-        case 21: offset = 12; break;
-        case 22: offset = 16; break;
-        case 23: offset = 20; break;
-        case 30: Write<std::uint8_t>(manager, base + 0x18, value != 0); return;
-        case 31: Write<std::uint8_t>(manager, base + 0x19, value != 0); return;
-        case 32: Write<std::uint8_t>(manager, base + 0x1A, value != 0); return;
-        case 33: Write<std::uint8_t>(manager, base + 0x1B, value != 0); return;
-        case 40: Write<std::uint8_t>(manager, base + 0x1C, value != 0); return;
-        case 41: Write<std::uint8_t>(manager, base + 0x1D, value != 0); return;
+        case SwitchIds::GameAssistantCommand::RequestBoys: offset = 0; break;
+        case SwitchIds::GameAssistantCommand::RequestGirls: offset = 4; break;
+        case SwitchIds::GameAssistantCommand::RequestUnarmedSoldiers: offset = 8; break;
+        case SwitchIds::GameAssistantCommand::RequestSpearmen: offset = 12; break;
+        case SwitchIds::GameAssistantCommand::RequestArchers: offset = 16; break;
+        case SwitchIds::GameAssistantCommand::RequestSwordsmen: offset = 20; break;
+        case SwitchIds::GameAssistantCommand::EquipCivilianShoes: Write<std::uint8_t>(manager, base + 0x18, value != 0); return;
+        case SwitchIds::GameAssistantCommand::EquipCivilianWoodenTools: Write<std::uint8_t>(manager, base + 0x19, value != 0); return;
+        case SwitchIds::GameAssistantCommand::EquipCivilianIronTools: Write<std::uint8_t>(manager, base + 0x1A, value != 0); return;
+        case SwitchIds::GameAssistantCommand::EquipCivilianMead: Write<std::uint8_t>(manager, base + 0x1B, value != 0); return;
+        case SwitchIds::GameAssistantCommand::EquipSoldierShoes: Write<std::uint8_t>(manager, base + 0x1C, value != 0); return;
+        case SwitchIds::GameAssistantCommand::EquipSoldierMead: Write<std::uint8_t>(manager, base + 0x1D, value != 0); return;
         default: return;
         }
         const auto previous = Read<std::uint32_t>(manager, base + offset);

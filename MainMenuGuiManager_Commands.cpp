@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "MainMenuGuiManager.h"
 #include "C2CleanMapsManager.h"
 #include "C2CampaignStaticDataManager.h"
@@ -317,7 +318,7 @@ namespace NC2MainMenuGuiManager
                     NXBasics::CTokenList tokens(gMultiplayerMapTokenState.table);
                     switch (tokens.FindToken(reader.GetCurrentName()))
                     {
-                        case 0x706C6F70u:
+                        case SwitchIds::CampaignMenuToken::Playeroption:
                         {
                             const auto slot = reader.GetInt();
                             if (slot >= 20) break;
@@ -330,7 +331,7 @@ namespace NC2MainMenuGuiManager
                             Write(this, (static_cast<std::uint32_t>(slot) + 0xF3u) * 0x10u, flags);
                             break;
                         }
-                        case 0x7068696Du:
+                        case SwitchIds::CampaignMenuToken::Playerhideinmenu:
                         {
                             const auto slot = reader.GetInt();
                             if (slot < 20)
@@ -340,7 +341,7 @@ namespace NC2MainMenuGuiManager
                             }
                             break;
                         }
-                        case 0x7066636Fu:
+                        case SwitchIds::CampaignMenuToken::Playerfixcolors:
                             Write<std::uint8_t>(this, 0x1068, reader.GetInt() != 0);
                             break;
                     }
@@ -417,84 +418,84 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
     auto failNetwork = [gui, &changeScreen](const char* error) { changeScreen(18, true); gui->Debug_ErrorString_Add(error); };
     switch (command)
     {
-        case 0x1388: changeScreen(2); break;
-        case 0x1389:
+        case SwitchIds::MainMenuCommand::ShowExitConfirmation: changeScreen(2); break;
+        case SwitchIds::MainMenuCommand::ExitGame:
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("game_start_post_picture_sequence", false, 0, nullptr);
             master->System_ProgramState_ChangeNextTimePossible(TProgramState::TitleScreen, false);
             break;
-        case 0x138A: changeScreen(1); break;
-        case 0x138B: changeScreen(3); break;
-        case 0x138C: changeScreen(9); break;
-        case 0x138D:
+        case SwitchIds::MainMenuCommand::ShowMainMenu: changeScreen(1); break;
+        case SwitchIds::MainMenuCommand::ShowSinglePlayerMenu: changeScreen(3); break;
+        case SwitchIds::MainMenuCommand::ShowMultiplayerCallsign: changeScreen(9); break;
+        case SwitchIds::MainMenuCommand::PlayIntro:
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("intro_skip");
             master->System_ProgramState_ChangeNextTimePossible(TProgramState::TitleScreen, false);
             break;
-        case 0x138E: break;
-        case 0x138F: changeScreen(22); break;
-        case 0x1390: if (MainMenu_HasGameCD()) changeScreen(1); break;
-        case 0x1391: CGuiManager::mStaticVars.unknown005694d8[0] = std::byte{1}; changeScreen(1); break;
-        case 0x1392: changeScreen(4); break;
-        case 0x1393: changeScreen(5); break;
-        case 0x1394: changeScreen(8); break;
-        case 0x1395: changeScreen(6); break;
-        case 0x1396:
-        case 0x1397:
+        case SwitchIds::MainMenuCommand::InternetLobby: break;
+        case SwitchIds::MainMenuCommand::ShowCredits: changeScreen(22); break;
+        case SwitchIds::MainMenuCommand::MainMenuAfterCdCheck: if (MainMenu_HasGameCD()) changeScreen(1); break;
+        case SwitchIds::MainMenuCommand::DisableSinglePlayer: CGuiManager::mStaticVars.unknown005694d8[0] = std::byte{1}; changeScreen(1); break;
+        case SwitchIds::MainMenuCommand::ShowMapList: changeScreen(4); break;
+        case SwitchIds::MainMenuCommand::ShowCampaignMap: changeScreen(5); break;
+        case SwitchIds::MainMenuCommand::ShowTutorialMapList: changeScreen(8); break;
+        case SwitchIds::MainMenuCommand::ShowLoadGame: changeScreen(6); break;
+        case SwitchIds::MainMenuCommand::StartSelectedMap:
+        case SwitchIds::MainMenuCommand::StartSelectedCampaignMap:
             startup()->Reset();
             Write<std::uint32_t>(startup(), 0, 1);
             std::memcpy(reinterpret_cast<std::byte*>(startup()) + 4, reinterpret_cast<const void*>(static_cast<std::uintptr_t>(data)), 16);
             if (command == 0x1397) changeScreen(7);
             else master->System_ProgramState_ChangeNextTimePossible(TProgramState::Game, false);
             break;
-        case 0x1398:
+        case SwitchIds::MainMenuCommand::LoadSelectedSavegame:
             startup()->Reset();
             Write<std::uint32_t>(startup(), 0, 2);
             Write(startup(), 0x14, data);
             master->System_ProgramState_ChangeNextTimePossible(TProgramState::Game, false);
             break;
-        case 0x1399: NC2Logic::gSavegamesManager->SortType_Set(2); gui->Screen_UpdateGui(); break;
-        case 0x139A: NC2Logic::gSavegamesManager->SortType_Set(1); gui->Screen_UpdateGui(); break;
-        case 0x139B: NC2Logic::gSavegamesManager->SortType_Set(3); gui->Screen_UpdateGui(); break;
-        case 0x139C: Write<std::uint32_t>(master, 0x148, 0); gui->Screen_UpdateGui(); break;
-        case 0x139D: Write<std::uint32_t>(master, 0x148, 1); gui->Screen_UpdateGui(); break;
-        case 0x139E: Write<std::uint32_t>(master, 0x148, 2); gui->Screen_UpdateGui(); break;
-        case 0x139F: master->System_ProgramState_ChangeNextTimePossible(TProgramState::PreIngameFmv, false); break;
-        case 0x13A0: changeScreen(1, true); break;
-        case 0x13A1:
+        case SwitchIds::MainMenuCommand::SortSavegamesByDate: NC2Logic::gSavegamesManager->SortType_Set(2); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::SortSavegamesByMapName: NC2Logic::gSavegamesManager->SortType_Set(1); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::SortSavegamesBySlot: NC2Logic::gSavegamesManager->SortType_Set(3); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::DifficultyNormal: Write<std::uint32_t>(master, 0x148, 0); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::DifficultyEasy: Write<std::uint32_t>(master, 0x148, 1); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::DifficultyEasiest: Write<std::uint32_t>(master, 0x148, 2); gui->Screen_UpdateGui(); break;
+        case SwitchIds::MainMenuCommand::StartPreGameVideo: master->System_ProgramState_ChangeNextTimePossible(TProgramState::PreIngameFmv, false); break;
+        case SwitchIds::MainMenuCommand::ReturnMainMenuAndShutDownNetwork: changeScreen(1, true); break;
+        case SwitchIds::MainMenuCommand::ConfirmCallsign:
             if (std::strlen(NNetwork::Network_GetCallsign()) == 0) gui->textInput.StartEditing();
             else changeScreen(10);
             break;
-        case 0x13A2:
+        case SwitchIds::MainMenuCommand::SelectServiceProvider:
             if (gui->Network_SelectServiceProvider(data)) changeScreen(11);
             else failNetwork("Could not switch into select host or client mode");
             break;
-        case 0x13A3:
+        case SwitchIds::MainMenuCommand::HostSession:
             if (gui->Network_HostDefaultSession()) changeScreen(14);
             else failNetwork("Could not switch into select host or client mode");
             break;
-        case 0x13A4:
+        case SwitchIds::MainMenuCommand::PrepareJoinSession:
             if (gui->Network_GetSelectedServiceProvider() == nullptr) failNetwork("No service provider selected");
             else if (gui->Network_SelectedProviderIsTcpIp()) changeScreen(12);
             else if (gui->Network_StartSessionSearch(gui->Network_GetSessionName())) changeScreen(13);
             else failNetwork("Could not switch to enum sessions mode");
             break;
-        case 0x13A5:
+        case SwitchIds::MainMenuCommand::SearchSessions:
             if (gui->Network_StartSessionSearch(gui->Network_GetSessionName())) changeScreen(13);
             else failNetwork("Could not switch to enum sessions mode");
             break;
-        case 0x13A6:
+        case SwitchIds::MainMenuCommand::JoinSelectedSession:
             if (gui->Network_JoinSession(data)) changeScreen(14);
             else failNetwork("Could not switch into wait for game start mode");
             break;
-        case 0x13A7: gui->Network_SetLobbySelection(1, true); break;
-        case 0x13A8: gui->Network_SetLobbySelection(2, true); break;
-        case 0x13A9: gui->Network_SetLobbySelection(0, true); break;
-        case 0x13AA: gui->Network_SelectMap(*reinterpret_cast<const NC2Logic::SCleanMapGuid*>(static_cast<std::uintptr_t>(data))); gui->Network_SetLobbySelection(0, true); break;
-        case 0x13AB: gui->Network_SetLobbyDifficulty(0); break;
-        case 0x13AC: gui->Network_SetLobbyDifficulty(1); break;
-        case 0x13AD: gui->Network_SetLobbyDifficulty(2); break;
-        case 0x13AE: gui->Network_SelectSavegame(data); gui->Network_SetLobbySelection(0, true); break;
-        case 0x13AF: gui->Network_SetAllowConnections(!gui->Network_AllowsConnections()); break;
-        case 0x13B0:
+        case SwitchIds::MainMenuCommand::LobbySelectMap: gui->Network_SetLobbySelection(1, true); break;
+        case SwitchIds::MainMenuCommand::LobbySelectSavegame: gui->Network_SetLobbySelection(2, true); break;
+        case SwitchIds::MainMenuCommand::LobbyShowPlayers: gui->Network_SetLobbySelection(0, true); break;
+        case SwitchIds::MainMenuCommand::LobbyChooseMap: gui->Network_SelectMap(*reinterpret_cast<const NC2Logic::SCleanMapGuid*>(static_cast<std::uintptr_t>(data))); gui->Network_SetLobbySelection(0, true); break;
+        case SwitchIds::MainMenuCommand::LobbyDifficultyNormal: gui->Network_SetLobbyDifficulty(0); break;
+        case SwitchIds::MainMenuCommand::LobbyDifficultyEasy: gui->Network_SetLobbyDifficulty(1); break;
+        case SwitchIds::MainMenuCommand::LobbyDifficultyEasiest: gui->Network_SetLobbyDifficulty(2); break;
+        case SwitchIds::MainMenuCommand::LobbyChooseSavegame: gui->Network_SelectSavegame(data); gui->Network_SetLobbySelection(0, true); break;
+        case SwitchIds::MainMenuCommand::ToggleConnections: gui->Network_SetAllowConnections(!gui->Network_AllowsConnections()); break;
+        case SwitchIds::MainMenuCommand::StartNetworkGame:
         {
             char error[200];
             if (!gui->Network_CanStartGame(error)) gui->Chat_AddText(2, error);
@@ -506,11 +507,11 @@ bool __fastcall MainMenuGuiManagerDefaultMessageHandlerElement_XGui_BE_Message_H
             }
             break;
         }
-        case 0x13B1: gui->Network_SelectPlayer(data); break;
-        case 0x13B2: if (NNetwork::Network_IsHost()) gui->Network_KickSelectedPlayer(); break;
-        case 0x13B3: if (NNetwork::Network_IsHost()) gui->Network_AssignSelectedPlayer(data); break;
-        case 0x13B4: if (NNetwork::Network_IsHost()) gui->Network_ChangePlayerType(data); break;
-        case 0x13B5: if (NNetwork::Network_IsHost()) gui->Network_ChangePlayerColor(data); break;
+        case SwitchIds::MainMenuCommand::SelectNetworkPlayer: gui->Network_SelectPlayer(data); break;
+        case SwitchIds::MainMenuCommand::KickPlayer: if (NNetwork::Network_IsHost()) gui->Network_KickSelectedPlayer(); break;
+        case SwitchIds::MainMenuCommand::AssignPlayerSlot: if (NNetwork::Network_IsHost()) gui->Network_AssignSelectedPlayer(data); break;
+        case SwitchIds::MainMenuCommand::ChangePlayerType: if (NNetwork::Network_IsHost()) gui->Network_ChangePlayerType(data); break;
+        case SwitchIds::MainMenuCommand::ChangePlayerColor: if (NNetwork::Network_IsHost()) gui->Network_ChangePlayerColor(data); break;
     }
     return true;
 }

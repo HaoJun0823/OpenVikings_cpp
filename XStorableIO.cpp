@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XBitmap.h"
 #include "XBobManager.h"
 #include "XDiagnostics.h"
@@ -34,25 +35,25 @@ namespace NXBasics
 
         switch (objectId)
         {
-        case 0x3E9:
+        case SwitchIds::StorableObjectId::Memory:
             return new (std::nothrow) CMemory(file, version);
 
-        case 0x3F3:
+        case SwitchIds::StorableObjectId::Bitmap:
             return new (std::nothrow) CBitmap(file, version);
 
-        case 0x3F4:
+        case SwitchIds::StorableObjectId::BobManager:
             return new (std::nothrow) CBobManager(file, version);
 
-        case 0x3F5:
+        case SwitchIds::StorableObjectId::Font:
             return new (std::nothrow) CFont(file, version);
 
-        case 0x3F6:
+        case SwitchIds::StorableObjectId::Palette:
             return new (std::nothrow) CPalette(file, version);
 
-        case 0x3F7:
+        case SwitchIds::StorableObjectId::RemapTable:
             return new (std::nothrow) CRemapTable(file, version);
 
-        case 0x3FD:
+        case SwitchIds::StorableObjectId::StringArray:
             return new (std::nothrow) CStringArray(file, version);
 
         default:

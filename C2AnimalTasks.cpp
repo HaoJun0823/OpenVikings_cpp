@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2AnimalTasks.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalMilitaryTasks.h"
@@ -416,11 +417,11 @@ namespace NC2Logic
             Animal_l_Speed_Normal(animal);
             switch (Read<std::uint32_t>(animal, 0x1C))
             {
-            case 1: Write<std::uint32_t>(animal, 0x1C, Animal_IsAttachedToVehicle(animal) ? 1u : 5u); break;
-            case 2: case 4: case 5: case 7: Write<std::uint32_t>(animal, 0x1C, 5); break;
-            case 3: case 9: case 10: Write<std::uint32_t>(animal, 0x1C, 1); break;
-            case 6: Write(animal, 0x28, Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0)); Animal_l_CalculateFoodValue(animal); Write<std::uint32_t>(animal, 0x1C, 5); break;
-            case 8: Write<std::uint32_t>(animal, 0x1C, 8); break;
+            case SwitchIds::AnimalTask::Idle: Write<std::uint32_t>(animal, 0x1C, Animal_IsAttachedToVehicle(animal) ? 1u : 5u); break;
+            case SwitchIds::AnimalTask::IdleAlternate: case SwitchIds::AnimalTask::RunAway: case SwitchIds::AnimalTask::Stay: case SwitchIds::AnimalTask::Eat: Write<std::uint32_t>(animal, 0x1C, 5); break;
+            case SwitchIds::AnimalTask::FollowLeader: case SwitchIds::AnimalTask::InteractWithVehicle: case SwitchIds::AnimalTask::InteractWithHouse: Write<std::uint32_t>(animal, 0x1C, 1); break;
+            case SwitchIds::AnimalTask::GotoNextPoint: Write(animal, 0x28, Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0)); Animal_l_CalculateFoodValue(animal); Write<std::uint32_t>(animal, 0x1C, 5); break;
+            case SwitchIds::AnimalTask::Attack: Write<std::uint32_t>(animal, 0x1C, 8); break;
             default: return;
             }
             Write<std::uint32_t>(animal, 0x20, 0);
@@ -626,15 +627,15 @@ namespace NC2Logic
             if (status != 0) return;
             switch (Read<std::uint32_t>(animal, 0x1C))
             {
-            case 1: case 2: Animal_l_StartTask_Idle(animal); break;
-            case 3: Animal_l_StartTask_FollowLeader(animal); break;
-            case 4: Animal_l_StartTask_RunAway(animal); break;
-            case 5: Animal_l_StartTask_Stay(animal); break;
-            case 6: Animal_l_StartTask_GotoNextPoint(animal); break;
-            case 7: Animal_l_StartTask_Eat(animal); break;
-            case 8: Animal_l_StartTask_Attack(animal); break;
-            case 9: Animal_l_StartTask_InteractWithVehicle(animal); break;
-            case 10: Animal_l_StartTask_InteractWithHouse(animal); break;
+            case SwitchIds::AnimalTask::Idle: case SwitchIds::AnimalTask::IdleAlternate: Animal_l_StartTask_Idle(animal); break;
+            case SwitchIds::AnimalTask::FollowLeader: Animal_l_StartTask_FollowLeader(animal); break;
+            case SwitchIds::AnimalTask::RunAway: Animal_l_StartTask_RunAway(animal); break;
+            case SwitchIds::AnimalTask::Stay: Animal_l_StartTask_Stay(animal); break;
+            case SwitchIds::AnimalTask::GotoNextPoint: Animal_l_StartTask_GotoNextPoint(animal); break;
+            case SwitchIds::AnimalTask::Eat: Animal_l_StartTask_Eat(animal); break;
+            case SwitchIds::AnimalTask::Attack: Animal_l_StartTask_Attack(animal); break;
+            case SwitchIds::AnimalTask::InteractWithVehicle: Animal_l_StartTask_InteractWithVehicle(animal); break;
+            case SwitchIds::AnimalTask::InteractWithHouse: Animal_l_StartTask_InteractWithHouse(animal); break;
             default: return; // Explicit untranslated task boundary; never spin here.
             }
         }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2EngineParticleDrawing.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDrawingAccess.h"
@@ -86,14 +87,14 @@ namespace NC2E2
 		const auto speed = Read<double>(particle, 0xA0);
 		switch (mode)
 		{
-			case 1:
+			case SwitchIds::ParticleMotionMode::Linear:
 				Write(particle, 0x28, Read<double>(particle, 0x28) - ticks * Read<double>(particle, 0xC8));
 				Write(particle, 0x30, Read<double>(particle, 0x30) - ticks * Read<double>(particle, 0xD8));
 				Write(particle, 0x38, height - ticks * Read<double>(particle, 0xD0));
 				Write(particle, 0x40, Read<double>(particle, 0x40) + ticks * Read<double>(particle, 0xE0));
 				Write(particle, 0x48, Read<double>(particle, 0x48) + ticks * Read<double>(particle, 0xE8));
 				break;
-			case 2:
+			case SwitchIds::ParticleMotionMode::Parabolic:
 				{
 					Write(particle, 0x28, Read<double>(particle, 0x28) - ticks * Read<double>(particle, 0xC8));
 					Write(particle, 0x30, Read<double>(particle, 0x30) - ticks * Read<double>(particle, 0xD8));
@@ -108,12 +109,12 @@ namespace NC2E2
 					if (height > 1.0) Write(particle, 0x38, 1.0);
 					break;
 				}
-			case 3: case 5:
+			case SwitchIds::ParticleMotionMode::Rise: case SwitchIds::ParticleMotionMode::RiseAlternate:
 				height += ticks * speed;
 				Write(particle, 0x38, height);
 				if (height > 1.0) Write<std::uint8_t>(particle, 4, 0);
 				break;
-			case 4: case 6:
+			case SwitchIds::ParticleMotionMode::Fall: case SwitchIds::ParticleMotionMode::FallWithGroundRefresh:
 				if (mode == 6) ParticelObject_RefreshGroundHeight(particle);
 				height -= ticks * speed;
 				Write(particle, 0x38, height);
@@ -125,7 +126,7 @@ namespace NC2E2
 					else Write(particle, 0x38, Read<double>(particle, 0x80));
 				}
 				break;
-			case 7:
+			case SwitchIds::ParticleMotionMode::FollowGround:
 				ParticelObject_RefreshGroundHeight(particle);
 				if (Read<double>(particle, 0x80) > height)
 				{

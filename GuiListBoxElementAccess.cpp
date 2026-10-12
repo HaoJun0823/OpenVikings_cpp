@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "GuiListBoxElementAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -476,11 +477,11 @@ void __cdecl Tool_Options_FillSavegameListboxForLoading(void* list, void* handle
             const char* caption = "";
             switch (type)
             {
-            case 1: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x84); break;
-            case 2: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x85); break;
-            case 3: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x86); break;
-            case 4: caption = "Develop: undo savegames"; break;
-            case 5: caption = "Develop: temp savegames"; break;
+            case SwitchIds::SavegameListType::System: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x84); break;
+            case SwitchIds::SavegameListType::User: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x85); break;
+            case SwitchIds::SavegameListType::Autosave: caption = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x86); break;
+            case SwitchIds::SavegameListType::DeveloperUndo: caption = "Develop: undo savegames"; break;
+            case SwitchIds::SavegameListType::DeveloperTemporary: caption = "Develop: temp savegames"; break;
             }
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(0x100, 1);
             void* heading = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextElement_Construct(allocation, nullptr, &rectangle, caption, false, false);

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2EngineDrawingAccess.h"
@@ -82,19 +83,19 @@ namespace NC2InGameGuiMessages
             {
                 switch (Read<std::int32_t>(NC2Logic::CVehicleArray::mStaticVars, vehicle * NC2Logic::CVehicleArray::ElementSize + 0x1E8))
                 {
-                case 1: MessageMiniButton_IconPrint(button, bitmap, 0x5D); return;
-                case 2: case 6: MessageMiniButton_IconPrint(button, bitmap, 0x5E); return;
-                case 3: case 4: MessageMiniButton_IconPrint(button, bitmap, 0x5C); return;
-                case 5: MessageMiniButton_IconPrint(button, bitmap, 0x5F); return;
+                case SwitchIds::VehicleType::Handcart: MessageMiniButton_IconPrint(button, bitmap, 0x5D); return;
+                case SwitchIds::VehicleType::Oxcart: case SwitchIds::VehicleType::OxcartFrame: MessageMiniButton_IconPrint(button, bitmap, 0x5E); return;
+                case SwitchIds::VehicleType::SmallShip: case SwitchIds::VehicleType::LargeShip: MessageMiniButton_IconPrint(button, bitmap, 0x5C); return;
+                case SwitchIds::VehicleType::Catapult: MessageMiniButton_IconPrint(button, bitmap, 0x5F); return;
                 }
             }
             switch (Read<std::uint32_t>(record, 8))
             {
-            case 0x2F: case 0x30: MessageMiniButton_IconPrint(button, bitmap, 0x59); break;
-            case 0x31: MessageMiniButton_IconPrint(button, bitmap, 0x5A); break;
-            case 0x3B: case 0x3E: MessageMiniButton_IconPrint(button, bitmap, 0x57); break;
-            case 0x3C: case 0x3D: MessageMiniButton_IconPrint(button, bitmap, 0x58); break;
-            case 0x3F: MessageMiniButton_IconPrint(button, bitmap, 0x5B); break;
+            case SwitchIds::UserMessage::HouseFinished: case SwitchIds::UserMessage::HouseUpgradeFinished: MessageMiniButton_IconPrint(button, bitmap, 0x59); break;
+            case SwitchIds::UserMessage::HouseAttacked: MessageMiniButton_IconPrint(button, bitmap, 0x5A); break;
+            case SwitchIds::UserMessage::HeroDied: case SwitchIds::UserMessage::PlayerDied: MessageMiniButton_IconPrint(button, bitmap, 0x57); break;
+            case SwitchIds::UserMessage::PlayerSeen: case SwitchIds::UserMessage::DiplomacyChanged: MessageMiniButton_IconPrint(button, bitmap, 0x58); break;
+            case SwitchIds::UserMessage::SpecialItemFound: MessageMiniButton_IconPrint(button, bitmap, 0x5B); break;
             }
         }
 

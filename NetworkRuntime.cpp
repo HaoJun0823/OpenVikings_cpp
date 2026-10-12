@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include <winsock2.h>
 #include <Windows.h>
 
@@ -1361,12 +1362,12 @@ namespace NNetwork
 
         switch (bytes[0])
         {
-            case 2:
+            case SwitchIds::NetworkPacket::AllowConnections:
                 buffer.dwBufferSize = 2;
                 sendFlags = 0x22u;
                 break;
 
-            case 3:
+            case SwitchIds::NetworkPacket::Chat:
                 {
                     std::uint32_t length = 0;
 
@@ -1378,7 +1379,7 @@ namespace NNetwork
                     break;
                 }
 
-            case 4:
+            case SwitchIds::NetworkPacket::DynamicData:
                 {
                     std::uint32_t payloadSize;
                     std::memcpy(&payloadSize, bytes + 4, sizeof(payloadSize));
@@ -1388,32 +1389,32 @@ namespace NNetwork
                     break;
                 }
 
-            case 5:
+            case SwitchIds::NetworkPacket::Commands:
                 buffer.dwBufferSize = static_cast<std::uint32_t>(bytes[8]) + 0x0Cu;
                 sendFlags = 0x28u;
                 break;
 
-            case 6:
+            case SwitchIds::NetworkPacket::PlayerInfo:
                 buffer.dwBufferSize = 0x0Cu;
                 sendFlags = 0x2Cu;
                 break;
 
-            case 7:
+            case SwitchIds::NetworkPacket::ConnectionProbe:
                 buffer.dwBufferSize = 2;
                 sendFlags = 0x24u;
                 break;
 
-            case 8:
+            case SwitchIds::NetworkPacket::PrepareCommandBuffers:
                 buffer.dwBufferSize = 2;
                 sendFlags = 0x88u;
                 break;
 
-            case 9:
+            case SwitchIds::NetworkPacket::RequestCommands:
                 buffer.dwBufferSize = 0x10u;
                 sendFlags = 0x88u;
                 break;
 
-            case 10:
+            case SwitchIds::NetworkPacket::ConvertCommands:
                 CommandPacket_Construct(convertedPacket);
                 std::memcpy(convertedPacket + 4, bytes + 4, 4);
                 convertedPacket[8] = bytes[8];
@@ -1424,24 +1425,24 @@ namespace NNetwork
                 sendFlags = 0x88u;
                 break;
 
-            case 11:
+            case SwitchIds::NetworkPacket::FileTransferAnnouncement:
                 buffer.dwBufferSize = 0x118u;
                 sendFlags = 0x20u;
                 break;
 
-            case 12:
+            case SwitchIds::NetworkPacket::FileTransferAccept:
                 buffer.dwBufferSize = 0x18u;
                 break;
 
-            case 13:
+            case SwitchIds::NetworkPacket::FileTransferRequestHeader:
                 buffer.dwBufferSize = 0x14u;
                 break;
 
-            case 14:
+            case SwitchIds::NetworkPacket::FileTransferHeader:
                 buffer.dwBufferSize = 0x1Cu;
                 break;
 
-            case 15:
+            case SwitchIds::NetworkPacket::FileTransferData:
                 buffer.dwBufferSize = 0x818u;
                 sendFlags = DPNSEND_SYNC;
                 break;
@@ -2204,7 +2205,7 @@ namespace NNetwork
 
                 switch (packet[0])
                 {
-                    case 3:
+                    case SwitchIds::NetworkPacket::Chat:
                         {
                             log("Update(): Incoming chat message");
 
@@ -2217,11 +2218,11 @@ namespace NNetwork
                             break;
                         }
 
-                    case 4:
+                    case SwitchIds::NetworkPacket::DynamicData:
                         StoreDynamicDataMessage(data, message);
                         break;
 
-                    case 5:
+                    case SwitchIds::NetworkPacket::Commands:
                         {
                             const std::uint32_t tick = readDword(packet + 4);
                             SDynamicSlotArray* buffer = nullptr;
@@ -2258,7 +2259,7 @@ namespace NNetwork
                             break;
                         }
 
-                    case 9:
+                    case SwitchIds::NetworkPacket::RequestCommands:
                         {
                             log("Update(): Message request detected");
 
@@ -2904,7 +2905,7 @@ namespace NNetwork
         {
             switch (node->state)
             {
-                case 0:
+                case SwitchIds::FileTransferState::Announce:
                     {
                         CDPNet* network = GetNetworkInstance();
                         std::uint8_t packet[0x118];
@@ -2931,20 +2932,20 @@ namespace NNetwork
                         break;
                     }
 
-                case 1:
-                case 5:
-                case 7:
-                case 10:
-                case 12:
-                case 14:
+                case SwitchIds::FileTransferState::Completed:
+                case SwitchIds::FileTransferState::AwaitingAccept:
+                case SwitchIds::FileTransferState::AwaitingHeaderRequest:
+                case SwitchIds::FileTransferState::AwaitingHeader:
+                case SwitchIds::FileTransferState::ReceivingBlocks:
+                case SwitchIds::FileTransferState::Invalid:
                     break;
 
-                case 4:
+                case SwitchIds::FileTransferState::Aborted:
                     OutputDebugStringA("CFileTransferManager::ProcessJobList(): Job aborted -> change state to 'invalid'.\n");
                     node->state = 14;
                     break;
 
-                case 6:
+                case SwitchIds::FileTransferState::OpenSource:
                     {
                         NXBasics::RuntimeFormatStream* source = NXBasics::Runtime_OpenStream(node->fileName, "rb");
 
@@ -2973,7 +2974,7 @@ namespace NNetwork
                         break;
                     }
 
-                case 8:
+                case SwitchIds::FileTransferState::RequestHeader:
                     {
                         CDPNet* network = GetNetworkInstance();
                         std::uint8_t packet[0x14];
@@ -2996,7 +2997,7 @@ namespace NNetwork
                         break;
                     }
 
-                case 13:
+                case SwitchIds::FileTransferState::SendingBlocks:
                     {
                         std::uint8_t data[0x800] = {};
                         const std::uint32_t byteCount = NXBasics::Runtime_ReadStream(data, 1u, sizeof(data), node->stream);
@@ -3046,7 +3047,7 @@ namespace NNetwork
     {
         switch (packet[0])
         {
-            case 11:
+            case SwitchIds::NetworkPacket::FileTransferAnnouncement:
                 {
                     auto* node = static_cast<SFileTransferNode*>(NXBasics::Runtime_AllocateWithNewHandler(sizeof(SFileTransferNode), 1));
 
@@ -3079,7 +3080,7 @@ namespace NNetwork
                     return;
                 }
 
-            case 12:
+            case SwitchIds::NetworkPacket::FileTransferAccept:
                 {
                     EnterCriticalSection(&critical);
 
@@ -3095,7 +3096,7 @@ namespace NNetwork
                     return;
                 }
 
-            case 13:
+            case SwitchIds::NetworkPacket::FileTransferRequestHeader:
                 {
                     EnterCriticalSection(&critical);
 
@@ -3151,7 +3152,7 @@ namespace NNetwork
                     return;
                 }
 
-            case 14:
+            case SwitchIds::NetworkPacket::FileTransferHeader:
                 {
                     EnterCriticalSection(&critical);
 
@@ -3184,7 +3185,7 @@ namespace NNetwork
                     return;
                 }
 
-            case 15:
+            case SwitchIds::NetworkPacket::FileTransferData:
                 {
                     EnterCriticalSection(&critical);
 

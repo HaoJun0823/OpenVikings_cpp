@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanChest.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2HumanCommandAccess.h"
@@ -104,30 +105,30 @@ namespace NC2Logic
         {
             switch (reward)
             {
-            case 20: goods(16, large ? 48 : 30); break;
-            case 21: goods(45, large ? 18 : 12); break;
-            case 22: goods(47, large ? 18 : 12); break;
-            case 23: goods(49, large ? 18 : 12); break;
-            case 24: goods(35, large ? 9 : 6); break;
-            case 25: goods(36, large ? 9 : 6); break;
-            case 26: goods(30, large ? 9 : 6); break;
-            case 50: case 51: special(2, 0); break;
-            case 52: special(3, 41); break;
-            case 53: special(3, 37); break;
-            case 54: special(3, 39); break;
-            case 55: special(3, 9); break;
-            case 56: special(3, 3); break;
-            case 57: special(3, 6); break;
-            case 60: special(3, 10); break;
-            case 61: special(3, 12); break;
-            case 62: special(3, 13); break;
-            case 63: special(3, 14); break;
-            case 64: special(3, 1); break;
-            case 65: special(3, 38); break;
-            case 70: Tool_TechTree_EnableGoodProduction(player, 1, 42); special(4, 32); addHuman(13); break;
-            case 71: Tool_TechTree_EnableGoodProduction(player, 1, 15); special(4, 35); addHuman(30); break;
-            case 72: Tool_TechTree_EnableGoodProduction(player, 1, 8); special(4, 33); addHuman(14); break;
-            case 73:
+            case SwitchIds::ChestReward::Food: goods(16, large ? 48 : 30); break;
+            case SwitchIds::ChestReward::LargeFoodPotions: goods(45, large ? 18 : 12); break;
+            case SwitchIds::ChestReward::LargeStaminaPotions: goods(47, large ? 18 : 12); break;
+            case SwitchIds::ChestReward::LargeHealingPotions: goods(49, large ? 18 : 12); break;
+            case SwitchIds::ChestReward::ChainArmor: goods(35, large ? 9 : 6); break;
+            case SwitchIds::ChestReward::PlateArmor: goods(36, large ? 9 : 6); break;
+            case SwitchIds::ChestReward::Shoes: goods(30, large ? 9 : 6); break;
+            case SwitchIds::ChestReward::LetterOfIndulgence: case SwitchIds::ChestReward::PlaceHouse: special(2, 0); break;
+            case SwitchIds::ChestReward::PlaceWatchtower: special(3, 41); break;
+            case SwitchIds::ChestReward::PlaceTemple: special(3, 37); break;
+            case SwitchIds::ChestReward::PlaceBarracks: special(3, 39); break;
+            case SwitchIds::ChestReward::PlaceStockhouse: special(3, 9); break;
+            case SwitchIds::ChestReward::PlaceSmallHome: special(3, 3); break;
+            case SwitchIds::ChestReward::PlaceLargeHome: special(3, 6); break;
+            case SwitchIds::ChestReward::PlaceWell: special(3, 10); break;
+            case SwitchIds::ChestReward::PlaceFarm: special(3, 12); break;
+            case SwitchIds::ChestReward::PlaceMill: special(3, 13); break;
+            case SwitchIds::ChestReward::PlaceBakery: special(3, 14); break;
+            case SwitchIds::ChestReward::PlaceHeadquarters: special(3, 1); break;
+            case SwitchIds::ChestReward::PlaceSchool: special(3, 38); break;
+            case SwitchIds::ChestReward::SmithyAndSmith: Tool_TechTree_EnableGoodProduction(player, 1, 42); special(4, 32); addHuman(13); break;
+            case SwitchIds::ChestReward::AlchemyHutAndDruid: Tool_TechTree_EnableGoodProduction(player, 1, 15); special(4, 35); addHuman(30); break;
+            case SwitchIds::ChestReward::MintAndCoinMaker: Tool_TechTree_EnableGoodProduction(player, 1, 8); special(4, 33); addHuman(14); break;
+            case SwitchIds::ChestReward::AdvancedAlchemyHutAndDruid:
             {
                 for (const auto good : {15u, 44u, 46u, 48u}) Tool_TechTree_EnableGoodProduction(player, 1, good);
                 special(4, 36);
@@ -140,14 +141,14 @@ namespace NC2Logic
                 }
                 break;
             }
-            case 74: Tool_TechTree_EnableGoodProduction(player, 1, 37); special(4, 27); addHuman(10); break;
-            case 89: Logic_EntryPoint_Add_Vehicle(player, 1, 5, point, 0); break;
-            case 90: for (std::uint32_t n = 0; n < 5; ++n) Logic_EntryPoint_Add_Animal(20, 20, 49, point, 0, 0); break;
-            case 92: for (std::uint32_t n = 0; n < 3; ++n) addHuman(6); break;
-            case 93: for (std::uint32_t n = 0; n < 3; ++n) addHuman(5); break;
-            case 94: for (std::uint32_t n = 0; n < 3; ++n) addHuman(35); break;
-            case 95: for (std::uint32_t n = 0; n < 3; ++n) addHuman(41); break;
-            case 96: for (std::uint32_t n = 0; n < 3; ++n) Logic_EntryPoint_Add_Animal(20, 25, 49, point, 0, 0); break;
+            case SwitchIds::ChestReward::WeaponsHutAndArmorer: Tool_TechTree_EnableGoodProduction(player, 1, 37); special(4, 27); addHuman(10); break;
+            case SwitchIds::ChestReward::Catapult: Logic_EntryPoint_Add_Vehicle(player, 1, 5, point, 0); break;
+            case SwitchIds::ChestReward::Wolves: for (std::uint32_t n = 0; n < 5; ++n) Logic_EntryPoint_Add_Animal(20, 20, 49, point, 0, 0); break;
+            case SwitchIds::ChestReward::Civilians: for (std::uint32_t n = 0; n < 3; ++n) addHuman(6); break;
+            case SwitchIds::ChestReward::Women: for (std::uint32_t n = 0; n < 3; ++n) addHuman(5); break;
+            case SwitchIds::ChestReward::Swordsmen: for (std::uint32_t n = 0; n < 3; ++n) addHuman(35); break;
+            case SwitchIds::ChestReward::Archers: for (std::uint32_t n = 0; n < 3; ++n) addHuman(41); break;
+            case SwitchIds::ChestReward::Lions: for (std::uint32_t n = 0; n < 3; ++n) Logic_EntryPoint_Add_Animal(20, 25, 49, point, 0, 0); break;
             default: break;
             }
         }

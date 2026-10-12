@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanInitialization.h"
 #include "C2DefaultInteraction.h"
 #include "C2HouseAccess.h"
@@ -179,10 +180,10 @@ namespace NC2Logic
         const auto objectId = Read<std::int32_t>(moveable, 0x54);
         switch (Read<std::uint32_t>(moveable, 8))
         {
-        case 1: CHumanArray::sTheObjectPtr->FreeHuman(objectId); break;
-        case 2: CAnimalArray::sTheObjectPtr->FreeAnimal(objectId); break;
-        case 3: CVehicleArray::sTheObjectPtr->FreeVehicle(objectId); break;
-        case 4: MarkerArray_FreeMarker(gMarkerArray, nullptr, objectId); break;
+        case SwitchIds::MapMoveableType::Human: CHumanArray::sTheObjectPtr->FreeHuman(objectId); break;
+        case SwitchIds::MapMoveableType::Animal: CAnimalArray::sTheObjectPtr->FreeAnimal(objectId); break;
+        case SwitchIds::MapMoveableType::Vehicle: CVehicleArray::sTheObjectPtr->FreeVehicle(objectId); break;
+        case SwitchIds::MapMoveableType::Marker: MarkerArray_FreeMarker(gMarkerArray, nullptr, objectId); break;
         }
     }
 
@@ -264,9 +265,9 @@ namespace NC2Logic
         std::int32_t engineId;
         switch (Read<std::uint8_t>(micro, 2))
         {
-        case 82: engineId = NC2LogicExternals::External_Misc_GetEngineWallElementLandscapeId(); break;
-        case 83: engineId = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(0, true); break;
-        case 84: engineId = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(0, false); break;
+        case SwitchIds::WallLandscapeType::Wall: engineId = NC2LogicExternals::External_Misc_GetEngineWallElementLandscapeId(); break;
+        case SwitchIds::WallLandscapeType::GateOpen: engineId = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(0, true); break;
+        case SwitchIds::WallLandscapeType::GateClosed: engineId = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(0, false); break;
         default: return false;
         }
         return Read<std::uint8_t>(micro, 3) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(engineId), 4);
@@ -436,13 +437,13 @@ namespace NC2Logic
             Write<std::uint8_t>(human, 0xB60, 1);
             switch (job)
             {
-            case 31: Write<std::uint32_t>(human, 0xAE4, 1); break;
-            case 32: Write<std::uint32_t>(human, 0xAE4, 4); break;
-            case 33: Write<std::uint32_t>(human, 0xAE4, 5); Write<std::uint8_t>(human, 0x17D, 1); break;
-            case 34: Write<std::uint32_t>(human, 0xAE4, 7); break;
-            case 35: Write<std::uint32_t>(human, 0xAE4, 8); Write<std::uint8_t>(human, 0x17F, 1); break;
-            case 40: Write<std::uint32_t>(human, 0xAE4, 16); break;
-            case 41: Write<std::uint32_t>(human, 0xAE4, 17); Write<std::uint8_t>(human, 0x185, 1); break;
+            case SwitchIds::HumanJob::SoldierUnarmed: Write<std::uint32_t>(human, 0xAE4, 1); break;
+            case SwitchIds::HumanJob::SoldierSpearWooden: Write<std::uint32_t>(human, 0xAE4, 4); break;
+            case SwitchIds::HumanJob::SoldierSpearIron: Write<std::uint32_t>(human, 0xAE4, 5); Write<std::uint8_t>(human, 0x17D, 1); break;
+            case SwitchIds::HumanJob::SoldierSwordShort: Write<std::uint32_t>(human, 0xAE4, 7); break;
+            case SwitchIds::HumanJob::SoldierSwordLong: Write<std::uint32_t>(human, 0xAE4, 8); Write<std::uint8_t>(human, 0x17F, 1); break;
+            case SwitchIds::HumanJob::SoldierBowShort: Write<std::uint32_t>(human, 0xAE4, 16); break;
+            case SwitchIds::HumanJob::SoldierBowLong: Write<std::uint32_t>(human, 0xAE4, 17); Write<std::uint8_t>(human, 0x185, 1); break;
             default: job = 31; Write<std::uint32_t>(human, 0xAE4, 1); break;
             }
         }
@@ -452,11 +453,11 @@ namespace NC2Logic
             Write<std::uint8_t>(human, 0xB60, 1);
             switch (job)
             {
-            case 43: Write<std::uint32_t>(human, 0xAE4, 6); Write<std::uint32_t>(human, 0xAE8, 4); break;
-            case 44: Write<std::uint32_t>(human, 0xAE4, 9); Write<std::uint32_t>(human, 0xAE8, 3); break;
-            case 45: Write<std::uint32_t>(human, 0xAE4, 12); Write<std::uint32_t>(human, 0xAE8, 3); break;
-            case 46: Write<std::uint32_t>(human, 0xAE4, 15); Write<std::uint32_t>(human, 0xAE8, 3); break;
-            case 47: Write<std::uint32_t>(human, 0xAE4, 18); Write<std::uint32_t>(human, 0xAE8, 2); break;
+            case SwitchIds::HumanJob::HeroSpearSIEGFRIED: Write<std::uint32_t>(human, 0xAE4, 6); Write<std::uint32_t>(human, 0xAE8, 4); break;
+            case SwitchIds::HumanJob::HeroSwordBJARNI: Write<std::uint32_t>(human, 0xAE4, 9); Write<std::uint32_t>(human, 0xAE8, 3); break;
+            case SwitchIds::HumanJob::HeroSaberHATSCHI: Write<std::uint32_t>(human, 0xAE4, 12); Write<std::uint32_t>(human, 0xAE8, 3); break;
+            case SwitchIds::HumanJob::HeroAxe: Write<std::uint32_t>(human, 0xAE4, 15); Write<std::uint32_t>(human, 0xAE8, 3); break;
+            case SwitchIds::HumanJob::HeroineBowXENA: Write<std::uint32_t>(human, 0xAE4, 18); Write<std::uint32_t>(human, 0xAE8, 2); break;
             default: job = 42; Write<std::uint32_t>(human, 0xAE4, 3); Write<std::uint32_t>(human, 0xAE8, 1); break;
             }
             const auto experience = Read<std::uint32_t>(human, 0x13C);

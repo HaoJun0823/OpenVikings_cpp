@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2DefaultInteraction.h"
 #include "C2AnimalAccess.h"
 #include "C2EngineLandscapeAccess.h"
@@ -90,7 +91,7 @@ namespace NC2Logic
         const auto sendTo = [&]() { return Human_UserControl_GetDefaultInteractionCommand_TrySendTo(human, command, point, false, modifier); };
         switch (Read<std::uint32_t>(target, 0))
         {
-        case 1:
+        case SwitchIds::MapObjectUnderCursor::Human:
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
             if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) { Prepare(command, 43, human, targetId, Read<std::uint32_t>(other, 8)); return 41; }
@@ -98,7 +99,7 @@ namespace NC2Logic
             // Windows queries the active target's continent and still returns no command.
             Continent(Human_GetMapPositionRef(other)); return 0;
         }
-        case 2:
+        case SwitchIds::MapObjectUnderCursor::Animal:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
             const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0xC) * 0x58u;
@@ -107,14 +108,14 @@ namespace NC2Logic
             if (available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false)) { Prepare(command, 45, human, targetId, Read<std::uint32_t>(animal, 8)); return 43; }
             return 0;
         }
-        case 3:
+        case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
             if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, 0x1E0)) == 3) { Prepare(command, 46, human, targetId, Read<std::uint32_t>(vehicle, 8)); return 44; }
             if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, 8)); return 12; }
             return 0;
         }
-        case 4:
+        case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
             const auto houseCommand = [&](std::uint8_t opcode, std::uint32_t action) { Prepare(command, opcode, human, targetId, Read<std::uint32_t>(house, 8)); return action; };
@@ -143,8 +144,8 @@ namespace NC2Logic
             if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, 0xB34)) return houseCommand(28, 16);
             return 0;
         }
-        case 5: return sendTo();
-        case 6:
+        case SwitchIds::MapObjectUnderCursor::Guide: return sendTo();
+        case SwitchIds::MapObjectUnderCursor::Landscape:
         {
             if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 47, human, MapMigPoint_GetLong(point)); return 45; }
             if (Continent(point) != continent) return 0;
@@ -182,7 +183,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(target, 0x40) == player && type >= 82 && type <= 83 && Human_IsJobBuilder(human) && Read<std::uint32_t>(target, 0x3C) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38)), 4)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             return sendTo();
         }
-        case 7: case 8:
+        case SwitchIds::MapObjectUnderCursor::RoadBuildPlace: case SwitchIds::MapObjectUnderCursor::WallBuildPlace:
         {
             if (Continent(point) != continent) return 0;
             if (available.IsCommandAllowed(20))
@@ -192,7 +193,7 @@ namespace NC2Logic
             }
             return sendTo();
         }
-        case 9:
+        case SwitchIds::MapObjectUnderCursor::Position:
         {
             if (Continent(point) != continent) return 0;
             if (modifier)
@@ -219,25 +220,25 @@ namespace NC2Logic
         };
         switch (Read<std::uint32_t>(target, 0))
         {
-        case 1:
+        case SwitchIds::MapObjectUnderCursor::Human:
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
             if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) return commitTarget(41, 43, targetId, other);
             return false;
         }
-        case 2:
+        case SwitchIds::MapObjectUnderCursor::Animal:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
             return available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false) && commitTarget(43, 45, targetId, animal);
         }
-        case 3:
+        case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
             if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, 0x1E0)) == 3) return commitTarget(44, 46, targetId, vehicle);
             if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, 8)); *action = 12; return true; }
             return false;
         }
-        case 4:
+        case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
             if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3) return commitTarget(42, 44, targetId, house);
@@ -247,7 +248,7 @@ namespace NC2Logic
             if (available.IsCommandAllowed(10) && House_Inhabitants_CanHumanBeAttachedAsHomie(house, id) && targetId != Read<std::uint32_t>(human, 0xB28)) return commitTarget(10, 26, targetId, house);
             return false;
         }
-        case 6:
+        case SwitchIds::MapObjectUnderCursor::Landscape:
         {
             const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38));
             if (available.IsCommandAllowed(26))
@@ -313,21 +314,21 @@ namespace NC2Logic
         const auto* point = static_cast<const std::byte*>(target) + 4;
         switch (Read<std::uint32_t>(target, 0))
         {
-        case 1:
+        case SwitchIds::MapObjectUnderCursor::Human:
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
             if (Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, 0x10)) == 3) { Prepare(command, 104, vehicle, targetId, Read<std::uint32_t>(human, 8)); return 5; }
             break;
         }
-        case 2: case 5: case 6: case 9: break;
-        case 3:
+        case SwitchIds::MapObjectUnderCursor::Animal: case SwitchIds::MapObjectUnderCursor::Guide: case SwitchIds::MapObjectUnderCursor::Landscape: case SwitchIds::MapObjectUnderCursor::Position: break;
+        case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
             if (available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x1E0)) == 3) { Prepare(command, 107, vehicle, targetId, Read<std::uint32_t>(other, 8)); return 7; }
             if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanVehicleBeAttached(other, Read<std::uint32_t>(vehicle, 4))) { Prepare(command, 113, vehicle, targetId, Read<std::uint32_t>(other, 8)); return 12; }
             break;
         }
-        case 4:
+        case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
             if (available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3) { Prepare(command, 105, vehicle, targetId, Read<std::uint32_t>(house, 8)); return 6; }
@@ -363,25 +364,25 @@ namespace NC2Logic
         };
         switch (Read<std::uint32_t>(target, 0))
         {
-        case 1:
+        case SwitchIds::MapObjectUnderCursor::Human:
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
             return Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, 0x10)) == 3 && commitTarget(5, 104, targetId, human);
         }
-        case 3:
+        case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
             return available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x1E0)) == 3 && commitTarget(7, 107, targetId, other);
         }
-        case 4:
+        case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
             return available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3 && commitTarget(6, 105, targetId, house);
         }
-        case 6:
+        case SwitchIds::MapObjectUnderCursor::Landscape:
             if (available.IsCommandAllowed(8) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }
             [[fallthrough]];
-        case 9:
+        case SwitchIds::MapObjectUnderCursor::Position:
             if (modifier && available.IsCommandAllowed(8)) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }
             return false;
         default: return false;

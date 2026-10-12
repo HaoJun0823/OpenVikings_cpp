@@ -1587,4 +1587,8 @@
     <ClCompile Include="C2AIBuildingAccess.cpp"><Filter>Logic</Filter></ClCompile>
     <ClInclude Include="C2AIBuildingAccess.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SwitchIdentifiers.h"><Filter>Core\Types</Filter></ClInclude>
+    <ClInclude Include="XResultIdentifiers.h"><Filter>Diagnostics</Filter></ClInclude>
+  </ItemGroup>
 </Project>

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XGuiElementAccess.h"
 #include "C2GameState.h"
 #include "C2LifetimeGlobals.h"
@@ -116,7 +117,7 @@ namespace NC2InGameGuiWorldElement
         using namespace NC2InGameGuiInputManager;
         switch (Read<std::uint32_t>(input, 4))
         {
-        case 1:
+        case SwitchIds::SelectionType::SingleHuman:
         {
             const auto id = Selection_GetSelectedSingleHumanId(input);
             if (Read<std::uint32_t>(target, 0) == 1 && Read<std::int32_t>(target, 8) == id) return;
@@ -124,7 +125,7 @@ namespace NC2InGameGuiWorldElement
             Write(element, 0x1C4, NC2Logic::Human_UserControl_GetDefaultInteractionCommand_SingleHuman(human, target, command, secondary, modifier()));
             return;
         }
-        case 2:
+        case SwitchIds::SelectionType::MultipleHumans:
         {
             const auto count = Selection_GetSelectedMultipleHumanNumber(input);
             for (std::uint32_t i = 0; i < count; ++i)
@@ -140,7 +141,7 @@ namespace NC2InGameGuiWorldElement
             }
             return;
         }
-        case 4:
+        case SwitchIds::SelectionType::SingleVehicle:
         {
             const auto id = Selection_GetSelectedSingleVehicleId(input);
             if (Read<std::uint32_t>(target, 0) == 3 && Read<std::int32_t>(target, 0x18) == id) return;
@@ -148,7 +149,7 @@ namespace NC2InGameGuiWorldElement
             Write(element, 0x1C8, NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(vehicle, target, command, secondary, modifier()));
             return;
         }
-        case 5:
+        case SwitchIds::SelectionType::MultipleVehicles:
         {
             const auto count = Selection_GetSelectedMultipleVehiclesNumber(input);
             for (std::uint32_t i = 0; i < count; ++i)

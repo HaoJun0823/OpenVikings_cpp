@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2MultiPlayerGoalAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -97,8 +98,8 @@ namespace NC2Logic
                 bool lost = false;
                 switch (Read<std::uint32_t>(goal, 0))
                 {
-                case 1: lost = Read<std::uint8_t>(gGameControl, player * 0x4A80u + 8) != 0; break;
-                case 2:
+                case SwitchIds::MultiplayerGoal::Survive: lost = Read<std::uint8_t>(gGameControl, player * 0x4A80u + 8) != 0; break;
+                case SwitchIds::MultiplayerGoal::CollectGoods:
                 {
                     std::byte goods[0x88]{};
                     Tool_PlayerStatistics_CountGoods(player, goods);
@@ -111,15 +112,15 @@ namespace NC2Logic
                     won = pair == Read<std::int32_t>(goal, 4);
                     break;
                 }
-                case 3:
+                case SwitchIds::MultiplayerGoal::Population:
                 {
                     std::uint16_t counts[10]{};
                     Tool_PlayerStatistics_CountHumans(player, counts);
                     won = static_cast<std::uint32_t>(counts[Read<std::uint8_t>(goal, 8) != 0 ? 9 : 0]) >= Read<std::uint32_t>(goal, 4);
                     break;
                 }
-                case 4: won = Read<std::uint8_t>(goal, 4 + player) != 0; break;
-                case 5: lost = Read<std::uint8_t>(goal, 4 + player) != 0; break;
+                case SwitchIds::MultiplayerGoal::PlayersWin: won = Read<std::uint8_t>(goal, 4 + player) != 0; break;
+                case SwitchIds::MultiplayerGoal::PlayersLose: lost = Read<std::uint8_t>(goal, 4 + player) != 0; break;
                 }
                 if (won)
                 {

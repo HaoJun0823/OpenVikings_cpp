@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2EngineObjectData.h"
@@ -40,16 +41,16 @@ namespace NC2InGameGuiMessages
         const auto good = [&]() { return StringAccess_GetGoodNamePtr(Read<std::uint32_t>(message, 0x30), 1); };
         switch (type)
         {
-        case 4: case 5: case 6:
+        case SwitchIds::UserMessage::CannotFindGood: case SwitchIds::UserMessage::CannotFindBuildGood: case SwitchIds::UserMessage::CannotFindHomeGood:
             Runtime_PrintString(output, "%s %s", name, text(type + 15));
             if (Read<std::uint32_t>(message, 0x30) != 0) { std::strcat(output, " - "); std::strcat(output, good()); }
             return;
-        case 12: Runtime_PrintString(output, "%s %s - %s", name, text(26), good()); return;
-        case 13:
+        case SwitchIds::UserMessage::MustWaitForGood: Runtime_PrintString(output, "%s %s - %s", name, text(26), good()); return;
+        case SwitchIds::UserMessage::ProductionStockFull:
             if (Read<std::uint32_t>(message, 0x30) == 0) Runtime_PrintString(output, "%s %s", name, text(28));
             else { char format[200]; Runtime_PrintString(format, "%%s %s", text(27)); Runtime_PrintString(output, format, name, good()); }
             return;
-        case 18:
+        case SwitchIds::UserMessage::ExperienceUnlocks:
         {
             Runtime_PrintString(output, "%s %s:", name, text(33));
             const auto limit = capacity - 40u;
@@ -70,28 +71,28 @@ namespace NC2InGameGuiMessages
             }
             return;
         }
-        case 19: case 23: Runtime_PrintString(output, "%s %s - %s", name, text(type == 19 ? 38 : 42), good()); return;
-        case 20: Runtime_PrintString(output, "%s %s - %s", name, text(39), StringAccess_GetJobNamePtr(Read<std::uint32_t>(message, 0x13C), 1)); return;
-        case 21: Runtime_PrintString(output, "%s %s - %s", name, text(40), StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1)); return;
-        case 22: case 43: Runtime_PrintString(output, "%s %s - %s", name, text(type == 22 ? 41 : 57), StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, 0x2E0))); return;
-        case 24: case 26: Runtime_PrintString(output, "%s %s %s", name, text(type == 24 ? 43 : 45), good()); return;
-        case 44: case 45: Runtime_PrintString(output, "%s %s: %s - %s", name, text(58), good(), text(type == 44 ? 59 : 60)); return;
-        case 47: case 48:
+        case SwitchIds::UserMessage::GoodProductionUnlocked: case SwitchIds::UserMessage::EquipmentUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(type == 19 ? 38 : 42), good()); return;
+        case SwitchIds::UserMessage::JobUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(39), StringAccess_GetJobNamePtr(Read<std::uint32_t>(message, 0x13C), 1)); return;
+        case SwitchIds::UserMessage::HouseUnlocked: Runtime_PrintString(output, "%s %s - %s", name, text(40), StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1)); return;
+        case SwitchIds::UserMessage::VehicleUnlocked: case SwitchIds::UserMessage::CannotEnterVehicle: Runtime_PrintString(output, "%s %s - %s", name, text(type == 22 ? 41 : 57), StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, 0x2E0))); return;
+        case SwitchIds::UserMessage::ProductionAmountCompleted: case SwitchIds::UserMessage::CannotProduceWantedGood: Runtime_PrintString(output, "%s %s %s", name, text(type == 24 ? 43 : 45), good()); return;
+        case SwitchIds::UserMessage::CannotFindEquipment: case SwitchIds::UserMessage::BackpackFull: Runtime_PrintString(output, "%s %s: %s - %s", name, text(58), good(), text(type == 44 ? 59 : 60)); return;
+        case SwitchIds::UserMessage::HouseFinished: case SwitchIds::UserMessage::HouseUpgradeFinished:
         {
             const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(message, 0x18) * CHouseArray::ElementSize;
             Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, 0x14), 1), text(type == 47 ? 90 : 91)); return;
         }
-        case 49: Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1), text(92)); return;
-        case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: case 58:
+        case SwitchIds::UserMessage::HouseAttacked: Runtime_PrintString(output, "%s %s", StringAccess_GetHouseNamePtr(Read<std::uint32_t>(message, 0x200), 1), text(92)); return;
+        case SwitchIds::UserMessage::VehicleNoWay: case SwitchIds::UserMessage::VehicleNoCommander: case SwitchIds::UserMessage::VehicleAttacked: case SwitchIds::UserMessage::VehicleNoDraggingAnimal: case SwitchIds::UserMessage::VehicleNoPassengerSpace: case SwitchIds::UserMessage::VehicleCannotAttach: case SwitchIds::UserMessage::VehicleCannotReachShip: case SwitchIds::UserMessage::VehicleCannotDetach: case SwitchIds::UserMessage::VehicleNeedsCarrier:
             Runtime_PrintString(output, "%s %s", StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(message, 0x2E0)), text(type + 50)); return;
-        case 59:
+        case SwitchIds::UserMessage::HeroDied:
         {
             const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(message, 0x14));
             if (dead != nullptr) Runtime_PrintString(output, "%s %s", static_cast<const char*>(dead) + 4, text(120));
             else std::strcpy(output, text(121));
             return;
         }
-        case 60: case 61: case 62:
+        case SwitchIds::UserMessage::PlayerSeen: case SwitchIds::UserMessage::DiplomacyChanged: case SwitchIds::UserMessage::PlayerDied:
         {
             const auto player = Read<std::int32_t>(message, 0xC);
             const auto* playerName = GameControl_Names_GetPlayerTribeNamePtr(gGameControl, player);
@@ -107,7 +108,7 @@ namespace NC2InGameGuiMessages
             }
             return;
         }
-        case 63:
+        case SwitchIds::UserMessage::SpecialItemFound:
         {
             char item[200];
             NC2GuiToolsBase::StringTool_GetLogicSpecialItemNamePtr(Read<std::uint32_t>(message, 0x2FC), Read<std::int32_t>(message, 0x300), item);

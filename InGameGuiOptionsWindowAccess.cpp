@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiOptionsWindowAccess.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -181,7 +182,7 @@ namespace NC2InGameGuiMiscWindows
         auto* properties = NMasterPropertyManager::CPropertyManager::sTheObjectPtr;
         switch (Read<std::uint32_t>(window, 0x70))
         {
-        case 0:
+        case SwitchIds::OptionsPage::Game:
         {
             NXBasics::SRectangle rectangle(104, 150, 292, 60);
             addButton(rectangle, 0x25, 0x32C8, false, false);
@@ -209,7 +210,7 @@ namespace NC2InGameGuiMiscWindows
             }
             break;
         }
-        case 1:
+        case SwitchIds::OptionsPage::General:
         {
             text({4, 70, 492, 14}, 0x28);
             const auto scroll = manager->Options_ScrollSpeed_Get();
@@ -223,7 +224,7 @@ namespace NC2InGameGuiMiscWindows
             button({250, 226, 244, 18}, 0x37, 0x32D5, true, tooltipsOff);
             break;
         }
-        case 2:
+        case SwitchIds::OptionsPage::Graphics:
         {
             text({4, 70, 492, 14}, 0x38);
             const NXBasics::SRectangle rectangle(4, 86, 468, 160);
@@ -249,7 +250,7 @@ namespace NC2InGameGuiMiscWindows
             button({250, 348, 244, 18}, 0x3F, 0x277F, true, !softwareMouse);
             break;
         }
-        case 3:
+        case SwitchIds::OptionsPage::Sound:
         {
             std::int32_t y = 70;
             auto* sound = NDSManager::CManager::sTheObjectPtr;
@@ -318,7 +319,7 @@ namespace NC2InGameGuiMiscWindows
             }
             break;
         }
-        case 4:
+        case SwitchIds::OptionsPage::Load:
         {
             if (NC2Logic::gGameStaticVars.networkGame != 0) break;
             text({4, 70, 492, 14}, 0x6E);
@@ -330,7 +331,7 @@ namespace NC2InGameGuiMiscWindows
             addList(rectangle, list);
             break;
         }
-        case 5:
+        case SwitchIds::OptionsPage::Save:
         {
             text({4, 70, 492, 14}, 0x75);
             const NXBasics::SRectangle rectangle(4, 86, 468, 240);
@@ -421,26 +422,26 @@ namespace NC2InGameGuiMiscWindows
         bool update = true;
         switch (command)
         {
-        case 0x7EE:
+        case SwitchIds::OptionsWindowCommand::UpdateGameSpeed:
             update = Read<std::uint32_t>(window, 0x74) != 0xFFFFFFFFu && Read<std::uint32_t>(window, 0x74) != static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed));
             break;
-        case 0x2774: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(0); break;
-        case 0x2775: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(1); break;
-        case 0x2776: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(2); break;
-        case 0x277E: manager->Options_Scrolling_SetSoftwareMouseFlag(true, true); break;
-        case 0x277F: manager->Options_Scrolling_SetSoftwareMouseFlag(false, true); break;
-        case 0x27D8: manager->Options_ScrollSpeed_Set(0, true); break;
-        case 0x27D9: manager->Options_ScrollSpeed_Set(1, true); break;
-        case 0x27DA: manager->Options_ScrollSpeed_Set(2, true); break;
-        case 0x27EC: manager->Options_Scrolling_SetThirdMouseButtonScrollFlag(Read<std::uint8_t>(manager, 0xE2) == 0, true); break;
-        case 0x27ED: manager->Options_Scrolling_SetBorderScrollFlag(Read<std::uint8_t>(manager, 0xE3) == 0, true); break;
-        case 0x2968:
-        case 0x2969:
-        case 0x296A:
+        case SwitchIds::OptionsWindowCommand::DetailLow: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(0); break;
+        case SwitchIds::OptionsWindowCommand::DetailMedium: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(1); break;
+        case SwitchIds::OptionsWindowCommand::DetailHigh: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(2); break;
+        case SwitchIds::OptionsWindowCommand::SoftwareMouse: manager->Options_Scrolling_SetSoftwareMouseFlag(true, true); break;
+        case SwitchIds::OptionsWindowCommand::HardwareMouse: manager->Options_Scrolling_SetSoftwareMouseFlag(false, true); break;
+        case SwitchIds::OptionsWindowCommand::ScrollSlow: manager->Options_ScrollSpeed_Set(0, true); break;
+        case SwitchIds::OptionsWindowCommand::ScrollNormal: manager->Options_ScrollSpeed_Set(1, true); break;
+        case SwitchIds::OptionsWindowCommand::ScrollFast: manager->Options_ScrollSpeed_Set(2, true); break;
+        case SwitchIds::OptionsWindowCommand::ToggleThirdMouseButtonScroll: manager->Options_Scrolling_SetThirdMouseButtonScrollFlag(Read<std::uint8_t>(manager, 0xE2) == 0, true); break;
+        case SwitchIds::OptionsWindowCommand::ToggleBorderScroll: manager->Options_Scrolling_SetBorderScrollFlag(Read<std::uint8_t>(manager, 0xE3) == 0, true); break;
+        case SwitchIds::OptionsWindowCommand::SoundQualityLow:
+        case SwitchIds::OptionsWindowCommand::SoundQualityMedium:
+        case SwitchIds::OptionsWindowCommand::SoundQualityHigh:
             if (sound != nullptr) { sound->Quality_Set(static_cast<std::int32_t>(command - 0x2968)); properties->Options_Save_InGame(); }
             break;
-        case 0x296B:
-        case 0x296C:
+        case SwitchIds::OptionsWindowCommand::SoundVolumeDown:
+        case SwitchIds::OptionsWindowCommand::SoundVolumeUp:
             if (sound != nullptr)
             {
                 const auto volume = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(sound, 0x10) + (command == 0x296B ? static_cast<std::uint32_t>(-10) : 10u));
@@ -450,44 +451,44 @@ namespace NC2InGameGuiMiscWindows
                 NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, Read<void*>(Read<void*>(manager, 4), 0x30));
             }
             break;
-        case 0x296D:
-        case 0x296E:
+        case SwitchIds::OptionsWindowCommand::JinglesOn:
+        case SwitchIds::OptionsWindowCommand::JinglesOff:
             properties->Property_Add("fx_jingles_off", true, command == 0x296D ? 0 : 1, nullptr);
             properties->Options_Save_InGame();
             break;
-        case 0x2972:
-        case 0x2973:
-        case 0x2974:
+        case SwitchIds::OptionsWindowCommand::MusicOff:
+        case SwitchIds::OptionsWindowCommand::DirectMusic:
+        case SwitchIds::OptionsWindowCommand::CdMusic:
             properties->Property_Add("music_mode", true, static_cast<std::int32_t>(command - 0x2971), nullptr);
             properties->Options_Save_InGame();
             NC2E2::WorldMusic_Update(NC2Logic::gGameTime.tick);
             NC2E2::WorldMusic_UpdateCdTrack();
             break;
-        case 0x29CC:
-        case 0x29CD:
-        case 0x29CE:
+        case SwitchIds::OptionsWindowCommand::PreviewNeutralMusic:
+        case SwitchIds::OptionsWindowCommand::PreviewPositiveMusic:
+        case SwitchIds::OptionsWindowCommand::PreviewNegativeMusic:
             if (gDirectMusicManager != nullptr) NDMManager::ProcessEvent(gDirectMusicManager, 10, command == 0x29CC ? 4 : command == 0x29CD ? 5 : 6, 2);
             break;
-        case 0x29D6: NDSManager::CManager::Jingle_Play(2); break;
-        case 0x29D7: NDSManager::CManager::Jingle_Play(1); break;
-        case 0x29E0:
-        case 0x29E1:
+        case SwitchIds::OptionsWindowCommand::PreviewBirthJingle: NDSManager::CManager::Jingle_Play(2); break;
+        case SwitchIds::OptionsWindowCommand::PreviewMarriageJingle: NDSManager::CManager::Jingle_Play(1); break;
+        case SwitchIds::OptionsWindowCommand::MusicVolumeDown:
+        case SwitchIds::OptionsWindowCommand::MusicVolumeUp:
             if (gDirectMusicManager != nullptr)
             {
                 NDMManager::MainVolume_Set(gDirectMusicManager, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NDMManager::MainVolume_Get(gDirectMusicManager)) + (command == 0x29E0 ? static_cast<std::uint32_t>(-10) : 10u)));
                 properties->Options_Save_InGame();
             }
             break;
-        case 0x2A30:
+        case SwitchIds::OptionsWindowCommand::StartCdTrack:
             if (cd == nullptr) update = false;
             else cd->StartTrack(param2);
             break;
-        case 0x2A31:
+        case SwitchIds::OptionsWindowCommand::StopCdTrack:
             if (cd == nullptr) update = false;
             else cd->StopTrack();
             break;
-        case 0x2A32:
-        case 0x2A33:
+        case SwitchIds::OptionsWindowCommand::CdVolumeDown:
+        case SwitchIds::OptionsWindowCommand::CdVolumeUp:
             if (cd == nullptr) update = false;
             else
             {
@@ -497,10 +498,10 @@ namespace NC2InGameGuiMiscWindows
                 cd->SetVolume(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percent) * 0xFFFFu) / 100));
             }
             break;
-        case 0x2AF8: NC2Logic::gSavegamesManager->SortType_Set(2); break;
-        case 0x2AF9: NC2Logic::gSavegamesManager->SortType_Set(1); break;
-        case 0x2AFA: NC2Logic::gSavegamesManager->SortType_Set(3); break;
-        case 0x2B02:
+        case SwitchIds::OptionsWindowCommand::SortSavegamesByDate: NC2Logic::gSavegamesManager->SortType_Set(2); break;
+        case SwitchIds::OptionsWindowCommand::SortSavegamesByMapName: NC2Logic::gSavegamesManager->SortType_Set(1); break;
+        case SwitchIds::OptionsWindowCommand::SortSavegamesBySlot: NC2Logic::gSavegamesManager->SortType_Set(3); break;
+        case SwitchIds::OptionsWindowCommand::LoadSavegame:
         {
             auto* info = NC2Logic::gSavegamesManager->GetSavegameInfoPtrByUniqueId(param2);
             if (info != nullptr)
@@ -512,7 +513,7 @@ namespace NC2InGameGuiMiscWindows
             update = false;
             break;
         }
-        case 0x2B03:
+        case SwitchIds::OptionsWindowCommand::SaveGame:
         {
             char filename[100];
             NXBasics::Runtime_PrintString(filename, "user_%3.3d", param2);
@@ -522,18 +523,18 @@ namespace NC2InGameGuiMiscWindows
             update = false;
             break;
         }
-        case 0x32C8: manager->MiscWindows_GameSafetyBoxWindow_Open(1); update = false; break;
-        case 0x32C9:
+        case SwitchIds::OptionsWindowCommand::ConfirmQuit: manager->MiscWindows_GameSafetyBoxWindow_Open(1); update = false; break;
+        case SwitchIds::OptionsWindowCommand::ConfirmRestart:
             manager->MiscWindows_GameSafetyBoxWindow_Open(3);
             NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window));
             update = false;
             break;
-        case 0x32D2: manager->Options_GuiMisc_SetExpertFlag(false, true); break;
-        case 0x32D3: manager->Options_GuiMisc_SetExpertFlag(true, true); break;
-        case 0x32D4: manager->Options_GuiMisc_SetTooltipsOffFlag(false, true); break;
-        case 0x32D5: manager->Options_GuiMisc_SetTooltipsOffFlag(true, true); break;
-        case 0x32DC: manager->Options_GuiMisc_SetMainMode(0, true); break;
-        case 0x32DD: manager->Options_GuiMisc_SetMainMode(1, true); break;
+        case SwitchIds::OptionsWindowCommand::ExpertModeOff: manager->Options_GuiMisc_SetExpertFlag(false, true); break;
+        case SwitchIds::OptionsWindowCommand::ExpertModeOn: manager->Options_GuiMisc_SetExpertFlag(true, true); break;
+        case SwitchIds::OptionsWindowCommand::TooltipsOn: manager->Options_GuiMisc_SetTooltipsOffFlag(false, true); break;
+        case SwitchIds::OptionsWindowCommand::TooltipsOff: manager->Options_GuiMisc_SetTooltipsOffFlag(true, true); break;
+        case SwitchIds::OptionsWindowCommand::GuiDetailedHoverHints: manager->Options_GuiMisc_SetMainMode(0, true); break;
+        case SwitchIds::OptionsWindowCommand::GuiCompactHoverHints: manager->Options_GuiMisc_SetMainMode(1, true); break;
         default: update = false; break;
         }
         if (update) rebuild();

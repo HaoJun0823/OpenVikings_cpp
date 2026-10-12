@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanTaskAccess.h"
 #include "C2AIMovementMessages.h"
 #include "C2MilitaryTargetSearch.h"
@@ -88,10 +89,10 @@ namespace NC2Logic
             Write<std::uint32_t>(human, 0x378, 0);
             switch (Read<std::uint32_t>(human, 0x370))
             {
-            case 1: Human_l_StartTask_FulfillNeeds_Food(human); break;
-            case 2: Human_l_StartTask_FulfillNeeds_Stamina(human); break;
-            case 3: Human_l_StartTask_FulfillNeeds_Social(human); break;
-            case 4: Human_l_StartTask_FulfillNeeds_Religion(human); break;
+            case SwitchIds::HumanNeed::Food: Human_l_StartTask_FulfillNeeds_Food(human); break;
+            case SwitchIds::HumanNeed::Stamina: Human_l_StartTask_FulfillNeeds_Stamina(human); break;
+            case SwitchIds::HumanNeed::Social: Human_l_StartTask_FulfillNeeds_Social(human); break;
+            case SwitchIds::HumanNeed::Religion: Human_l_StartTask_FulfillNeeds_Religion(human); break;
             default: break;
             }
             return;
@@ -201,15 +202,15 @@ namespace NC2Logic
     {
         switch (Read<std::uint32_t>(human, 0x374))
         {
-        case 1:
+        case SwitchIds::HumanTaskFailure::NoWay:
             Human_UserMessage_SendToUserMessage(human, 3);
             if (Human_GetPlayerType(human) == 2) AIManager_Message_NoWayFound(gAIManager, Read<std::uint32_t>(human, 0xC), static_cast<const std::byte*>(human) + 0xA6C);
             return;
-        case 3: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); return;
-        case 4: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); return;
-        case 5: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); return;
-        case 6: Human_UserMessage_SendToUserMessage(human, 7); return;
-        case 7: Human_UserMessage_SendToUserMessage(human, 8); return;
+        case SwitchIds::HumanTaskFailure::CannotFindGood: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); return;
+        case SwitchIds::HumanTaskFailure::CannotFindBuildGood: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); return;
+        case SwitchIds::HumanTaskFailure::CannotFindHomeGood: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); return;
+        case SwitchIds::HumanTaskFailure::NoTargetHuman: Human_UserMessage_SendToUserMessage(human, 7); return;
+        case SwitchIds::HumanTaskFailure::NoWorkPoint: Human_UserMessage_SendToUserMessage(human, 8); return;
         default: Human_UserMessage_SendToUserMessage(human, 2); return;
         }
     }
@@ -229,9 +230,9 @@ namespace NC2Logic
             Write<std::uint32_t>(human, 0x380, 0);
             switch (Read<std::uint32_t>(human, 0x374))
             {
-            case 0: if (!Human_IsAttachedToLearnHouse(human)) Human_UserMessage_SendToUserMessage(human, 2); break;
-            case 1: Human_UserMessage_SendToUserMessage(human, 3); break;
-            case 2:
+            case SwitchIds::HumanTaskFailure::NoWork: if (!Human_IsAttachedToLearnHouse(human)) Human_UserMessage_SendToUserMessage(human, 2); break;
+            case SwitchIds::HumanTaskFailure::NoWay: Human_UserMessage_SendToUserMessage(human, 3); break;
+            case SwitchIds::HumanTaskFailure::WorkHouseUnavailable:
                 if (Human_IsJobBuilder(human))
                 {
                     std::uint32_t real = 0, work = 0;
@@ -250,21 +251,21 @@ namespace NC2Logic
                     if (id == 0xFFFFFFFFu || Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, 0x2C) != 2) Human_UserMessage_SendToUserMessage(human, 11);
                 }
                 break;
-            case 3: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); break;
-            case 4: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); break;
-            case 5: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); break;
-            case 6: Human_UserMessage_SendToUserMessage(human, 7); break;
-            case 7: Human_UserMessage_SendToUserMessage(human, 8); break;
-            case 8: Human_UserMessage_SendToUserMessage(human, 9); break;
-            case 9: Human_UserMessage_SendToUserMessage(human, 10); break;
-            case 10: break; // Windows 0045BFEC returns without emitting a message.
-            case 11: Human_UserMessage_SendToUserMessage_MustWaitForGood(human); break;
-            case 13:
+            case SwitchIds::HumanTaskFailure::CannotFindGood: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, 0xAD0)); break;
+            case SwitchIds::HumanTaskFailure::CannotFindBuildGood: Human_UserMessage_SendToUserMessage_CannotFindGood_ForBuild(human, Read<std::uint32_t>(human, 0xAD0)); break;
+            case SwitchIds::HumanTaskFailure::CannotFindHomeGood: Human_UserMessage_SendToUserMessage_CannotFindGood_ForHome(human, Read<std::uint32_t>(human, 0xAD0)); break;
+            case SwitchIds::HumanTaskFailure::NoTargetHuman: Human_UserMessage_SendToUserMessage(human, 7); break;
+            case SwitchIds::HumanTaskFailure::NoWorkPoint: Human_UserMessage_SendToUserMessage(human, 8); break;
+            case SwitchIds::HumanTaskFailure::NoVehicleBuildPlace: Human_UserMessage_SendToUserMessage(human, 9); break;
+            case SwitchIds::HumanTaskFailure::VehicleBuildPlaceOccupied: Human_UserMessage_SendToUserMessage(human, 10); break;
+            case SwitchIds::HumanTaskFailure::Silent: break; // Windows 0045BFEC returns without emitting a message.
+            case SwitchIds::HumanTaskFailure::MustWaitForGood: Human_UserMessage_SendToUserMessage_MustWaitForGood(human); break;
+            case SwitchIds::HumanTaskFailure::CannotAffordTraining:
                 Human_UserMessage_SendToUserMessage(human, 14);
                 if (Human_IsAttachedToLearnHouse(human)) House_Inhabitants_DetachHuman(CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize, Read<std::uint32_t>(human, 4), 8);
                 break;
-            case 14: Human_UserMessage_SendToUserMessage(human, 15); break;
-            case 15: Human_UserMessage_SendToUserMessage(human, 16); break;
+            case SwitchIds::HumanTaskFailure::VehicleUnavailable: Human_UserMessage_SendToUserMessage(human, 15); break;
+            case SwitchIds::HumanTaskFailure::TraderHouseUnavailable: Human_UserMessage_SendToUserMessage(human, 16); break;
             default: Human_UserMessage_SendToUserMessage(human, 2); break;
             }
         }
@@ -591,31 +592,31 @@ namespace NC2Logic
         const auto job = Read<std::uint32_t>(human, 0x18);
         switch (job)
         {
-        case 5: Human_l_StartTask_ExecuteJob_Woman(human); break;
-        case 7: Human_l_StartTask_ExecuteJob_Builder(human); break;
-        case 8: Human_l_StartTask_ExecuteJob_Collector(human); break;
-        case 9: case 10: Human_l_StartTask_ExecuteJob_Carpenter(human); break;
-        case 15: Human_l_StartTask_ExecuteJob_Hunter(human); break;
-        case 16: Human_l_StartTask_ExecuteJob_Breeder(human); break;
-        case 18: Human_l_StartTask_ExecuteJob_Farmer(human); break;
-        case 22: Human_l_StartTask_ExecuteJob_Fisher(human); break;
-        case 24: Human_l_StartTask_ExecuteJob_Carrier(human); break;
-        case 25: Human_l_StartTask_ExecuteJob_Trader(human); break;
-        case 28: Human_l_StartTask_ExecuteJob_Jester(human); break;
-        case 29: Human_l_StartTask_ExecuteJob_HerbGuy(human); break;
-        case 30: Human_l_StartTask_ExecuteJob_Druid(human); break;
-        case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 40: case 41: case 42: case 43: case 44: case 45: case 46: case 47:
+        case SwitchIds::HumanJob::Woman: Human_l_StartTask_ExecuteJob_Woman(human); break;
+        case SwitchIds::HumanJob::Builder: Human_l_StartTask_ExecuteJob_Builder(human); break;
+        case SwitchIds::HumanJob::Collector: Human_l_StartTask_ExecuteJob_Collector(human); break;
+        case SwitchIds::HumanJob::Joiner: case SwitchIds::HumanJob::Armorer: Human_l_StartTask_ExecuteJob_Carpenter(human); break;
+        case SwitchIds::HumanJob::Hunter: Human_l_StartTask_ExecuteJob_Hunter(human); break;
+        case SwitchIds::HumanJob::Breeder: Human_l_StartTask_ExecuteJob_Breeder(human); break;
+        case SwitchIds::HumanJob::Farmer: Human_l_StartTask_ExecuteJob_Farmer(human); break;
+        case SwitchIds::HumanJob::Fisher: Human_l_StartTask_ExecuteJob_Fisher(human); break;
+        case SwitchIds::HumanJob::Carrier: Human_l_StartTask_ExecuteJob_Carrier(human); break;
+        case SwitchIds::HumanJob::Trader: Human_l_StartTask_ExecuteJob_Trader(human); break;
+        case SwitchIds::HumanJob::Jester: Human_l_StartTask_ExecuteJob_Jester(human); break;
+        case SwitchIds::HumanJob::HerbMushGuy: Human_l_StartTask_ExecuteJob_HerbGuy(human); break;
+        case SwitchIds::HumanJob::Druid: Human_l_StartTask_ExecuteJob_Druid(human); break;
+        case SwitchIds::HumanJob::SoldierUnarmed: case SwitchIds::HumanJob::SoldierSpearWooden: case SwitchIds::HumanJob::SoldierSpearIron: case SwitchIds::HumanJob::SoldierSwordShort: case SwitchIds::HumanJob::SoldierSwordLong: case SwitchIds::HumanJob::SoldierSaberShort: case SwitchIds::HumanJob::SoldierSaberLong: case SwitchIds::HumanJob::SoldierAxeSmall: case SwitchIds::HumanJob::SoldierAxeBig: case SwitchIds::HumanJob::SoldierBowShort: case SwitchIds::HumanJob::SoldierBowLong: case SwitchIds::HumanJob::HeroUnarmed: case SwitchIds::HumanJob::HeroSpearSIEGFRIED: case SwitchIds::HumanJob::HeroSwordBJARNI: case SwitchIds::HumanJob::HeroSaberHATSCHI: case SwitchIds::HumanJob::HeroAxe: case SwitchIds::HumanJob::HeroineBowXENA:
             Human_l_StartTask_ExecuteJob_Soldier(human);
             break;
-        case 11: case 12: case 13: case 14: case 17: case 19: case 20: case 21:
+        case SwitchIds::HumanJob::Potter: case SwitchIds::HumanJob::Mason: case SwitchIds::HumanJob::Smith: case SwitchIds::HumanJob::CoinMaker: case SwitchIds::HumanJob::Sewer: case SwitchIds::HumanJob::Miller: case SwitchIds::HumanJob::Baker: case SwitchIds::HumanJob::Brewer:
             Human_l_StartTask_ExecuteJob_Tool_GoodProducer(human);
             break;
-        case 1: case 2: case 3: case 4:
+        case SwitchIds::HumanJob::BabyFemale: case SwitchIds::HumanJob::BabyMale: case SwitchIds::HumanJob::ChildFemale: case SwitchIds::HumanJob::ChildMale:
             Write<std::uint32_t>(human, 0x368, 1);
             Write<std::uint32_t>(human, 0x36C, 0);
             Write<std::uint32_t>(human, 0x37C, 10); // Windows constant 004F3C34.
             break;
-        case 6: case 23: case 26: case 27:
+        case SwitchIds::HumanJob::Civilist: case SwitchIds::HumanJob::FisherSea: case SwitchIds::HumanJob::TraderSea: case SwitchIds::HumanJob::Scout:
             Write<std::uint32_t>(human, 0x368, 1);
             Write<std::uint32_t>(human, 0x36C, 0);
             break;

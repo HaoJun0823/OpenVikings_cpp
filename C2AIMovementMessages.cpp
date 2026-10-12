@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2AIMovementMessages.h"
 #include "C2GameControlNetwork.h"
 #include "C2GameMapAccess.h"
@@ -369,10 +370,10 @@ namespace NC2Logic
         if (slot == -1 || AISingleSoldier_Tool_IsSelfDefending(Soldier(handler, static_cast<std::uint32_t>(slot))) || !AISinglePlayerHandler_l_SingleSoldier_CheckIfIsInTaskRange(handler, static_cast<std::uint32_t>(slot), true)) return;
         switch (TargetData_GetTargetType(target))
         {
-        case 1: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHuman(handler, slot, TargetData_GetObjectId(target), true); break;
-        case 2: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackVehicle(handler, slot, TargetData_GetObjectId(target), true); break;
-        case 3: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackAnimal(handler, slot, TargetData_GetObjectId(target), true); break;
-        case 4: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::Human: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHuman(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::Vehicle: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackVehicle(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::Animal: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackAnimal(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::House: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, slot, TargetData_GetObjectId(target), true); break;
         }
     }
 
@@ -384,10 +385,10 @@ namespace NC2Logic
         if (slot == -1 || AISingleSoldier_Tool_IsSelfDefending(Soldier(handler, static_cast<std::uint32_t>(slot))) || AISinglePlayerHandler_l_SingleSoldier_CheckIfIsInTaskRange(handler, static_cast<std::uint32_t>(slot), true)) return;
         switch (TargetData_GetTargetType(target))
         {
-        case 1: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHuman(handler, slot, TargetData_GetObjectId(target), true); break;
-        case 2: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackVehicle(handler, slot, TargetData_GetObjectId(target), true); break;
-        case 3: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackAnimal(handler, slot, TargetData_GetObjectId(target), true); break;
-        case 4: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::Human: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHuman(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::Vehicle: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackVehicle(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::Animal: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackAnimal(handler, slot, TargetData_GetObjectId(target), true); break;
+        case SwitchIds::TargetType::House: AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, slot, TargetData_GetObjectId(target), true); break;
         }
     }
 

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanWeaponEvents.h"
 #include "C2AnimalAccess.h"
 #include "C2DelayedActionManager.h"
@@ -59,13 +60,13 @@ namespace NC2Logic
             void* object = nullptr;
             switch (type)
             {
-            case 6:
+            case SwitchIds::TargetType::Landscape:
                 TargetData_GetMapPosition(target, &position);
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
                 if (weapon.hasMunition == 0) hit = Tool_HitLandscapeOnPoint(Read<std::uint32_t>(human, 0x10), tribe, weaponId, &position);
                 break;
-            case 4:
+            case SwitchIds::TargetType::House:
                 object = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
                 if (!House_Military_GetNextFreeAttackPoint(object, Human_GetMapPositionRef(human), &position, human, false)) continue;
                 distance = Distance(&position, Human_GetMapPositionRef(human));
@@ -79,7 +80,7 @@ namespace NC2Logic
                     MapMigPoint_AddOffset(&position, x, y);
                 }
                 break;
-            case 3:
+            case SwitchIds::TargetType::Animal:
                 object = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
                 position = MapMigPoint_GetLong(Animal_GetMapPositionRef(object));
                 distance = Distance(&position, Human_GetMapPositionRef(human));
@@ -87,7 +88,7 @@ namespace NC2Logic
                 if (weapon.hasMunition == 0) hit = Animal_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, Human_GetExperienceForEquippedWeapon(human), true);
                 else moveableId = Read<std::uint32_t>(object, 12);
                 break;
-            case 2:
+            case SwitchIds::TargetType::Vehicle:
                 object = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
                 if (!Vehicle_Military_GetAttackPoint(object, Human_GetMapPositionRef(human), &position, nullptr, false))
                 {
@@ -101,7 +102,7 @@ namespace NC2Logic
                 if (weapon.hasMunition == 0) hit = Vehicle_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, 0);
                 else moveableId = Read<std::uint32_t>(object, 0x1DC);
                 break;
-            case 1:
+            case SwitchIds::TargetType::Human:
                 object = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
                 position = MapMigPoint_GetLong(Human_GetMapPositionRef(object));
                 distance = Distance(&position, Human_GetMapPositionRef(human));

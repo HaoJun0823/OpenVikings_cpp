@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "StringInputHandler.h"
 #include "XCrtFileAccess.h"
 #include "XFontMetrics.h"
@@ -88,7 +89,7 @@ namespace NC2InGameGuiBaseTextInputElement
 
         switch (key)
         {
-            case 0x08:
+            case SwitchIds::VirtualKey::Backspace:
                 {
                     // Backspace.
                     if (length != 0 && mCursorPosition != 0)
@@ -102,7 +103,7 @@ namespace NC2InGameGuiBaseTextInputElement
                     return 2;
                 }
 
-            case 0x0D:
+            case SwitchIds::VirtualKey::Return:
                 {
                     // Return.
                     if (mContinuousEditing == 0)
@@ -113,7 +114,7 @@ namespace NC2InGameGuiBaseTextInputElement
                     return 3;
                 }
 
-            case 0x1B:
+            case SwitchIds::VirtualKey::Escape:
                 {
                     // Escape does not reset the cursor.
                     if (mContinuousEditing != 0)
@@ -128,17 +129,17 @@ namespace NC2InGameGuiBaseTextInputElement
                     return 4;
                 }
 
-            case 0x23:
+            case SwitchIds::VirtualKey::End:
                 // End.
                 mCursorPosition = length;
                 return 2;
 
-            case 0x24:
+            case SwitchIds::VirtualKey::Home:
                 // Home.
                 mCursorPosition = 0;
                 return 2;
 
-            case 0x25:
+            case SwitchIds::VirtualKey::Left:
                 // Left.
                 if (length != 0 && mCursorPosition != 0)
                 {
@@ -147,7 +148,7 @@ namespace NC2InGameGuiBaseTextInputElement
 
                 return 2;
 
-            case 0x27:
+            case SwitchIds::VirtualKey::Right:
                 // Right.
                 if (mCursorPosition < length)
                 {
@@ -156,7 +157,7 @@ namespace NC2InGameGuiBaseTextInputElement
 
                 return 2;
 
-            case 0x2E:
+            case SwitchIds::VirtualKey::Delete:
                 {
                     // Delete preserves the original lack of a cursor-range check.
                     if (length != 0)

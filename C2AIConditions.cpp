@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2AIConditions.h"
 #include "C2AnimalAccess.h"
 #include "C2GameControlNetwork.h"
@@ -119,9 +120,9 @@ namespace NC2Logic
         std::uint8_t active = 0;
         switch (type)
         {
-        case 1: active = 1; break;
-        case 2: active = gGameTime.tick >= Read<std::uint32_t>(condition, 0x18); break;
-        case 3:
+        case SwitchIds::AICondition::True: active = 1; break;
+        case SwitchIds::AICondition::GameTime: active = gGameTime.tick >= Read<std::uint32_t>(condition, 0x18); break;
+        case SwitchIds::AICondition::LogicalCombination:
         {
             const auto operation = Read<std::uint32_t>(condition, 0x18);
             if (operation == 4)
@@ -145,7 +146,7 @@ namespace NC2Logic
             else return false;
             break;
         }
-        case 4:
+        case SwitchIds::AICondition::TimeSinceConditionChange:
         {
             const auto index = Read<std::uint32_t>(condition, 0x18);
             const void* reference = static_cast<const std::byte*>(handler) + index * 0x48u + 0x0Cu;
@@ -156,8 +157,8 @@ namespace NC2Logic
             }
             break;
         }
-        case 5: active = static_cast<std::uint32_t>(GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(condition, 0x18), Read<std::int32_t>(condition, 0x1C))) == Read<std::uint32_t>(condition, 0x20); break;
-        case 6:
+        case SwitchIds::AICondition::Diplomacy: active = static_cast<std::uint32_t>(GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(condition, 0x18), Read<std::int32_t>(condition, 0x1C))) == Read<std::uint32_t>(condition, 0x20); break;
+        case SwitchIds::AICondition::MapMoveableNearPosition:
         {
             std::uint32_t center;
             MapMigPoint_Construct(&center, Read<std::int16_t>(condition, 0x18), Read<std::int16_t>(condition, 0x1A), false);
@@ -201,7 +202,7 @@ namespace NC2Logic
             }
             break;
         }
-        case 7:
+        case SwitchIds::AICondition::HouseNearPosition:
         {
             std::uint32_t center;
             MapMigPoint_Construct(&center, Read<std::int16_t>(condition, 0x18), Read<std::int16_t>(condition, 0x1A), false);
@@ -221,14 +222,14 @@ namespace NC2Logic
             }
             break;
         }
-        case 8: active = Read<std::uint8_t>(gGameControl, Read<std::uint32_t>(condition, 0x18) * 0x4A80u + Read<std::uint32_t>(condition, 0x1C) + 0x45F8u); break;
-        case 9:
+        case SwitchIds::AICondition::ExternalFlag: active = Read<std::uint8_t>(gGameControl, Read<std::uint32_t>(condition, 0x18) * 0x4A80u + Read<std::uint32_t>(condition, 0x1C) + 0x45F8u); break;
+        case SwitchIds::AICondition::PlayerHasNoHumans:
             if (gGameTime.tick <= 720) return false;
             active = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(condition, 0x18)), 0) == 0;
             break;
-        case 10: active = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(condition, 0x1C)), 0x12) >= Read<std::uint32_t>(condition, 0x18); break;
-        case 11: active = Read<std::uint8_t>(condition, 0x18); break;
-        case 12:
+        case SwitchIds::AICondition::SoldierCount: active = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(condition, 0x1C)), 0x12) >= Read<std::uint32_t>(condition, 0x18); break;
+        case SwitchIds::AICondition::ActivatedFlag: active = Read<std::uint8_t>(condition, 0x18); break;
+        case SwitchIds::AICondition::Periodic:
             if (Read<std::uint8_t>(condition, 0) != 0) active = Read<std::uint32_t>(condition, 4) + Read<std::uint32_t>(condition, 0x1C) > gGameTime.tick;
             else if (Read<std::uint32_t>(condition, 4) != 0xFFFFFFFFu) active = Read<std::uint32_t>(condition, 8) + Read<std::uint32_t>(condition, 0x20) < gGameTime.tick;
             else active = Read<std::uint32_t>(condition, 0x14) + Read<std::uint32_t>(condition, 0x18) < gGameTime.tick;

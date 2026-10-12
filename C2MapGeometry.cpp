@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2GameMapAccess.h"
 #include "C2MapGeometry.h"
 #include "C2LifetimeGlobals.h"
@@ -235,10 +236,10 @@ namespace NC2Logic
         std::int32_t alignedX = x;
         switch (static_cast<std::uint16_t>(y) & 3u)
         {
-        case 0: alignedX &= ~1; break;
-        case 1: alignedX = (alignedX + 1) & ~1; break;
-        case 2: alignedX = ((alignedX - 1) & ~1) + 1; break;
-        case 3: alignedX = (alignedX & ~1) + 1; break;
+        case SwitchIds::GridRowAlignment::AlignDownEven: alignedX &= ~1; break;
+        case SwitchIds::GridRowAlignment::AlignUpEven: alignedX = (alignedX + 1) & ~1; break;
+        case SwitchIds::GridRowAlignment::AlignDownOdd: alignedX = ((alignedX - 1) & ~1) + 1; break;
+        case SwitchIds::GridRowAlignment::AlignUpOdd: alignedX = (alignedX & ~1) + 1; break;
         }
         *resultX = static_cast<std::int16_t>(alignedX);
         *resultY = static_cast<std::int16_t>(y & ~1);

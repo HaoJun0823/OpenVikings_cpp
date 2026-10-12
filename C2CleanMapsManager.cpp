@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2CleanMapsManager.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LogicIOAccess.h"
@@ -188,7 +189,7 @@ namespace NC2Logic
             {
                 switch (tokens.FindToken(reader.GetCurrentName()))
                 {
-                case 0x6D617074:
+                case SwitchIds::CleanMapToken::MapType:
                 {
                     const auto type = static_cast<std::uint32_t>(reader.GetInt());
                     if (type > 0 && type < 7)
@@ -198,14 +199,14 @@ namespace NC2Logic
                     }
                     break;
                 }
-                case 0x6D616369:
+                case SwitchIds::CleanMapToken::Mapcampaignid:
                     if ((info.mapTypes & 2u) != 0)
                     {
                         info.campaignId = static_cast<std::uint32_t>(reader.GetInt());
                         info.campaignMapId = static_cast<std::uint32_t>(reader.GetInt());
                     }
                     break;
-                case 0x6D6D6F6E:
+                case SwitchIds::CleanMapToken::Mapmultiplayeronly:
                     info.multiplayerOnly = 1;
                     break;
                 }

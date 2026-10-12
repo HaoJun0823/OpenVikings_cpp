@@ -1,5 +1,15 @@
 # Open Tasks
 
+## Numeric case labels replaced - 2026-10-12
+
+All **2764/2764 numeric case labels** in **234 switches / 110 registered source files** now use scoped semantic constants. There are **2365 constants in 144 domains**, in `SwitchIdentifiers.h` and `XResultIdentifiers.h`. See [CASE_IDENTIFIERS.md](CASE_IDENTIFIERS.md) and [CASE_IDENTIFIER_MAP.csv](CASE_IDENTIFIER_MAP.csv).
+
+Values and literal types are preserved. Reversing the case replacements and added includes reproduces all 110 prior source files exactly: switch selectors, branches, default handling, call order and fallthrough are unchanged. The registered source scan has **0 remaining numeric case expressions**. Project/filter parity is **307 CPP / 283 headers**; the function-name map remains **3151 unique addresses**.
+
+Windows ASM/Game.exe checks verify all **600 DirectX + 100 DirectDraw** result-to-string mappings and **2324 instruction byte sequences**. Mission name tables and loader token evidence are recorded separately from names inferred from current Windows call sites/layout. Some original private names remain unresolved, including atomic events 6/7; their constants describe the existing warning/stop effect rather than inventing event identities. Mac behavior/values were not used. All **111 affected/integrating C++ units** pass MSVC Win32 C++17 syntax-only checks. No build, tests or game run occurred.
+
+Next naming work: other numeric comparisons/assignments and unexplained object fields. Runtime validation remains separate from source/naming completion.
+
 ## User-authorized removal of initialization-only globals - 2026-10-12
 
 The user explicitly requested removal of 0050F620, 005114B0, 00554D20 and 00555110 after reviewing their sole initialization uses. Their declarations and zero writes are removed, including the clear-only startup callback at 00471615. This is a documented user-authorized departure from the original Windows writes; their original purposes remain unknown. Remaining application callbacks keep their relative order; the table now contains one null plus 20 callbacks. Object layouts and other startup operations are unchanged.

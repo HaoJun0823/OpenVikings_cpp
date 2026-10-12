@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanMapCollection.h"
 #include "C2GameMapAccess.h"
 #include "C2EngineMapTerrainAccess.h"
@@ -93,7 +94,7 @@ namespace NC2Logic
         if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 0:
+        case SwitchIds::GoodCirculationMode::None:
             if (Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
             if (House_Stock_IsFullSoon(WorkHouse(human), good))
             {
@@ -104,9 +105,9 @@ namespace NC2Logic
             }
             Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human);
             return;
-        case 2: Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
         }
     }
 
@@ -117,10 +118,10 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0xAD0, 22);
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 0: Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(human); return;
-        case 2: Human_l_StartTask_ExecuteJob_Fisher_Collect(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Fail(human, 0); return;
+        case SwitchIds::GoodCirculationMode::None: Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Fisher_Collect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Fail(human, 0); return;
         }
     }
 
@@ -161,7 +162,7 @@ namespace NC2Logic
         if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 0:
+        case SwitchIds::GoodCirculationMode::None:
             if (Human_IsForcedToHaveFinishedWorkHouse(human) && Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
             if (!House_Stock_CanStoreGoodType(WorkHouse(human), good, true)) { Fail(human, 2); return; }
             if (House_Stock_IsFullSoon(WorkHouse(human), good))
@@ -173,9 +174,9 @@ namespace NC2Logic
             }
             Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human);
             return;
-        case 2: Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return;
         }
     }
 

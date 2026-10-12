@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SwitchIdentifiers.h"
+
 #include "XFile.h"
 #include "XCrtFileAccess.h"
 
@@ -104,7 +106,7 @@ namespace NXBasics
         {
             switch (state->mode)
             {
-                case 1:
+                case SwitchIds::DirectoryScanMode::FileSystemFirst:
                     {
                         char searchPattern[0x104];
 
@@ -132,7 +134,7 @@ namespace NXBasics
                         break;
                     }
 
-                case 2:
+                case SwitchIds::DirectoryScanMode::FileSystemNext:
                     {
                         std::int32_t searchHandle;
                         std::memcpy(&searchHandle, state->nativeSearchState, sizeof(searchHandle));
@@ -155,7 +157,7 @@ namespace NXBasics
                         break;
                     }
 
-                case 3:
+                case SwitchIds::DirectoryScanMode::LibraryFirst:
                     if (!DirectoryScanner_LibrarySearching_GetNext(scanner, true))
                     {
                         state->mode = 0;
@@ -165,7 +167,7 @@ namespace NXBasics
                     state->mode = 4;
                     return true;
 
-                case 4:
+                case SwitchIds::DirectoryScanMode::LibraryNext:
                     if (!DirectoryScanner_LibrarySearching_GetNext(scanner, false))
                     {
                         state->mode = 0;

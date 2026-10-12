@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SwitchIdentifiers.h"
+
 #include "XCrtFileAccess.h"
 
 #include <cstdarg>
@@ -156,31 +158,31 @@ namespace NXBasics
 
             switch (entry->exceptionCode)
             {
-                case 0xC000008Eu:
+                case SwitchIds::WindowsException::FloatingPointDivideByZero:
                     floatingPointCode = 0x83;
                     break;
 
-                case 0xC0000090u:
+                case SwitchIds::WindowsException::FloatingPointInvalidOperation:
                     floatingPointCode = 0x81;
                     break;
 
-                case 0xC0000091u:
+                case SwitchIds::WindowsException::FloatingPointOverflow:
                     floatingPointCode = 0x84;
                     break;
 
-                case 0xC0000093u:
+                case SwitchIds::WindowsException::FloatingPointUnderflow:
                     floatingPointCode = 0x85;
                     break;
 
-                case 0xC000008Du:
+                case SwitchIds::WindowsException::FloatingPointDenormalOperand:
                     floatingPointCode = 0x82;
                     break;
 
-                case 0xC000008Fu:
+                case SwitchIds::WindowsException::FloatingPointInexactResult:
                     floatingPointCode = 0x86;
                     break;
 
-                case 0xC0000092u:
+                case SwitchIds::WindowsException::FloatingPointStackCheck:
                     floatingPointCode = 0x8A;
                     break;
             }

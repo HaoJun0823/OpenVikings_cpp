@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HouseAccess.h"
 #include "C2GameState.h"
 #include "C2E2AmbientSoundManagerAccess.h"
@@ -975,7 +976,7 @@ namespace NC2E2
     {
         switch (type)
         {
-        case 2:
+        case SwitchIds::CallbackType::MapLifetime:
             if (static_cast<std::uint16_t>(param1) != 0)
             {
                 void* map = NXBasics::Runtime_Allocate(1);
@@ -990,7 +991,7 @@ namespace NC2E2
                 C2DEngineDisplayManager::sTheObjectPtr->InformThatMapXtructed();
             }
             break;
-        case 3:
+        case SwitchIds::CallbackType::HumanManagerLifetime:
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
@@ -998,8 +999,8 @@ namespace NC2E2
             }
             else DestroyOwned(gDynamicDataHumans.manager, E2DynamicDataHumanManager_Destruct);
             break;
-        case 4: E2DynamicDataHumanManager_HumanXtructed(param1, param2 != 0, param3 != 0); break;
-        case 5:
+        case SwitchIds::CallbackType::HumanLifetime: E2DynamicDataHumanManager_HumanXtructed(param1, param2 != 0, param3 != 0); break;
+        case SwitchIds::CallbackType::AnimalManagerLifetime:
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
@@ -1007,8 +1008,8 @@ namespace NC2E2
             }
             else DestroyOwned(gDynamicDataAnimals.manager, E2DynamicDataAnimalManager_Destruct);
             break;
-        case 6: E2DynamicDataAnimalManager_AnimalXtructed(param1, param2 != 0); break;
-        case 7:
+        case SwitchIds::CallbackType::AnimalLifetime: E2DynamicDataAnimalManager_AnimalXtructed(param1, param2 != 0); break;
+        case SwitchIds::CallbackType::VehicleManagerLifetime:
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
@@ -1016,8 +1017,8 @@ namespace NC2E2
             }
             else DestroyOwned(gDynamicDataVehicles.manager, E2DynamicDataVehicleManager_Destruct);
             break;
-        case 8: E2DynamicDataVehicleManager_VehicleXtructed(param1, param2 != 0); break;
-        case 9:
+        case SwitchIds::CallbackType::VehicleLifetime: E2DynamicDataVehicleManager_VehicleXtructed(param1, param2 != 0); break;
+        case SwitchIds::CallbackType::HouseManagerLifetime:
             if (param1 != 0)
             {
                 void* manager = NXBasics::Runtime_Allocate(1);
@@ -1025,7 +1026,7 @@ namespace NC2E2
             }
             else DestroyOwned(gDynamicDataHouses.manager, E2DynamicDataHouseManager_Destruct);
             break;
-        case 10:
+        case SwitchIds::CallbackType::HouseLifetime:
         {
             const bool created = param2 != 0;
             E2DynamicDataHouseManager_HouseXtructed(param1, created);
@@ -1128,27 +1129,27 @@ namespace NC2E2
             {
                 switch (tokenList.FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65: std::strcpy(reinterpret_cast<char*>(record), reader.GetString()); break;
-                case 0x67656E65: Write(record, 0x20, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
-                case 0x6D617867: Write(record, 0x28, reader.GetInt()); break;
-                case 0x6D61786C: Write(record, 0x24, reader.GetInt()); break;
-                case 0x706D6F76: Write(record, 0x30, reader.GetInt()); break;
-                case 0x70737064:
+                case SwitchIds::ParticleGeneratorToken::Name: std::strcpy(reinterpret_cast<char*>(record), reader.GetString()); break;
+                case SwitchIds::ParticleGeneratorToken::Generate: Write(record, 0x20, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
+                case SwitchIds::ParticleGeneratorToken::MaxGoneLifeTime: Write(record, 0x28, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::MaxLifeTime: Write(record, 0x24, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::Particelmove: Write(record, 0x30, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::Particelspeed:
                 {
                     const auto first = reader.GetInt(), second = reader.GetInt(), third = reader.GetInt();
                     Write(record, 0x3C, first); Write(record, 0x38, second); Write(record, 0x34, third);
                     break;
                 }
-                case 0x75736568: Write<std::uint8_t>(record, 0x40, reader.GetInt() != 0); break;
-                case 0x75736577: if (reader.GetInt() != 0) Write<std::uint8_t>(record, 0x48, 1); break;
-                case 0x73657461:
+                case SwitchIds::ParticleGeneratorToken::Usemapheights: Write<std::uint8_t>(record, 0x40, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleGeneratorToken::Usewind: if (reader.GetInt() != 0) Write<std::uint8_t>(record, 0x48, 1); break;
+                case SwitchIds::ParticleGeneratorToken::SetArea:
                 {
                     const auto first = reader.GetInt(), second = reader.GetInt();
                     Write(record, 0x60, first); Write(record, 0x5C, second); Write<std::uint8_t>(record, 0x58, 1);
                     break;
                 }
-                case 0x67726463: Write<std::uint8_t>(record, 0x64, reader.GetInt() != 0); break;
-                case 0x6867746F: Write(record, 0x44, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::Groundcollision: Write<std::uint8_t>(record, 0x64, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleGeneratorToken::HeightOffset: Write(record, 0x44, reader.GetInt()); break;
                 }
             }
         }
@@ -1238,9 +1239,9 @@ namespace NC2E2
         const auto value = Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.controllingPlayer * 0x4A80u + 0x4610u);
         switch (gWorldMusicState.eventVariant)
         {
-        case 4: if (value <= -50) return 6; if (value >= 50) return 5; break;
-        case 5: if (value > 0) return 5; break;
-        case 6: if (value < 0) return 6; break;
+        case SwitchIds::MusicEventVariant::Neutral: if (value <= -50) return 6; if (value >= 50) return 5; break;
+        case SwitchIds::MusicEventVariant::Positive: if (value > 0) return 5; break;
+        case SwitchIds::MusicEventVariant::Negative: if (value < 0) return 6; break;
         }
         return 4;
     }
@@ -1307,21 +1308,21 @@ namespace NC2E2
         };
         switch (type)
         {
-        case 1:
+        case SwitchIds::CallbackType::GameTick:
             if (!inTransition()) WorldMusic_Update(param1);
             break;
-        case 2:
+        case SwitchIds::CallbackType::MapLifetime:
             gWorldMusicState.selectedPlayer = 0xFFFFFFFFu;
             gWorldMusicState.eventVariant = 4;
             gWorldMusicState.changePending = 0;
             gWorldMusicState.changeAtGameTime = 0;
             break;
-        case 0x13:
+        case SwitchIds::CallbackType::LoadCleanmap:
             WorldMusic_LoadMusicType();
             WorldMusic_UpdateCdTrack();
             break;
-        case 0x16: WorldMusic_UpdateCdTrack(); break;
-        case 0x28:
+        case SwitchIds::CallbackType::LoadDone: WorldMusic_UpdateCdTrack(); break;
+        case SwitchIds::CallbackType::PlayerAttackedByPlayer:
             if (inTransition() || NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetIntegerValue("music_mode") != 2) break;
             if (param1 != gWorldMusicState.controllingPlayer && param2 != gWorldMusicState.controllingPlayer) break;
             if (gWorldMusicState.changePending != 0)
@@ -1347,15 +1348,15 @@ namespace NC2E2
     {
         switch (type)
         {
-        case 2:
+        case SwitchIds::CallbackType::MapLifetime:
             if (static_cast<std::uint16_t>(param1) != 0)
             {
                 AmbientSoundManager_AllocateMemory(gE2AmbientSoundManager);
                 Write<std::uint32_t>(gE2AmbientSoundManager, 0x60, 0);
             }
             break;
-        case 0x16: AmbientSoundManager_RecalculateAllAmbientSoundSector(gE2AmbientSoundManager); break;
-        case 0x31:
+        case SwitchIds::CallbackType::LoadDone: AmbientSoundManager_RecalculateAllAmbientSoundSector(gE2AmbientSoundManager); break;
+        case SwitchIds::CallbackType::BeginMapChanges:
             Write<std::int16_t>(&gAmbientSoundChangeState, 6, 0);
             Write<std::int16_t>(&gAmbientSoundChangeState, 4, 0);
             gAmbientSoundChangeState.landscapesChanged = 0;
@@ -1363,7 +1364,7 @@ namespace NC2E2
             Write<std::int16_t>(&gAmbientSoundChangeState, 2, 32000);
             Write<std::int16_t>(&gAmbientSoundChangeState, 0, 32000);
             break;
-        case 0x32:
+        case SwitchIds::CallbackType::EndMapChanges:
             if (Read<std::int16_t>(&gAmbientSoundChangeState, 0) != 32000)
             {
                 const NC2Logic::SSectorGridCursor first(Read<std::uint32_t>(&gAmbientSoundChangeState, 0));
@@ -1380,7 +1381,7 @@ namespace NC2E2
                 }
             }
             break;
-        case 0x33:
+        case SwitchIds::CallbackType::MapPointChanged:
             if (param1 == 0x0A) gAmbientSoundChangeState.landscapesChanged = 1;
             else if (param1 == 0x0B) break;
             else gAmbientSoundChangeState.patternsChanged = 1;

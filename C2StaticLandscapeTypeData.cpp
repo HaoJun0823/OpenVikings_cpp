@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticLandscapeTypeData.h"
 #include "C2LifetimeGlobals.h"
 #include "XCrtFileAccess.h"
@@ -73,13 +74,13 @@ namespace NC2Logic
             {
                 switch (LandscapeTokens().FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65: std::strncpy(record.name, reader.GetString(), 29); break;
-                case 0x616C6C6C: record.allowedOnLand = reader.GetInt() != 0; break;
-                case 0x616C6C77: record.allowedOnWater = reader.GetInt() != 0; break;
-                case 0x616C6C65: record.allowedOnEverything = reader.GetInt() != 0; break;
-                case 0x6D617876: record.maximumValency = static_cast<std::uint32_t>(reader.GetInt()); break;
-                case 0x706C6964: record.playerIdAllowed = reader.GetInt() != 0; break;
-                case 0x7472616E:
+                case SwitchIds::LogicLandscapeToken::Name: std::strncpy(record.name, reader.GetString(), 29); break;
+                case SwitchIds::LogicLandscapeToken::Allowedonland: record.allowedOnLand = reader.GetInt() != 0; break;
+                case SwitchIds::LogicLandscapeToken::Allowedonwater: record.allowedOnWater = reader.GetInt() != 0; break;
+                case SwitchIds::LogicLandscapeToken::Allowedoneverything: record.allowedOnEverything = reader.GetInt() != 0; break;
+                case SwitchIds::LogicLandscapeToken::MaximumValency: record.maximumValency = static_cast<std::uint32_t>(reader.GetInt()); break;
+                case SwitchIds::LogicLandscapeToken::Playeridallowed: record.playerIdAllowed = reader.GetInt() != 0; break;
+                case SwitchIds::LogicLandscapeToken::Transition:
                 {
                     if (record.transitionCount == 5) break;
                     auto& transition = record.transitions[record.transitionCount];
@@ -92,7 +93,7 @@ namespace NC2Logic
                     ++record.transitionCount;
                     break;
                 }
-                case 0x64626763:
+                case SwitchIds::LogicLandscapeToken::DebugColor:
                 {
                     const auto red = static_cast<std::uint8_t>(reader.GetInt());
                     const auto green = static_cast<std::uint8_t>(reader.GetInt());

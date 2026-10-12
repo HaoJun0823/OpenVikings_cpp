@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XPicture.h"
 #include "XBitmap.h"
 #include "XCrtFileAccess.h"
@@ -59,15 +60,15 @@ namespace NXBasics
 
         switch (format)
         {
-            case 0:
+            case SwitchIds::PictureFileType::Pcx:
                 l_UnPackPCX(memory);
                 break;
 
-            case 1:
+            case SwitchIds::PictureFileType::Bmp:
                 l_UnPackBMP(memory);
                 break;
 
-            case 2:
+            case SwitchIds::PictureFileType::Unknown:
                 ReportFatalError("NXBasics::CPicture::CPicture\n\nunknown GFX format: %s", extension);
                 break;
         }
@@ -300,19 +301,19 @@ namespace NXBasics
         {
             switch (bitsPerPixel)
             {
-                case 8:
+                case SwitchIds::PixelBitCount::Indexed8:
                     mBitmap = l_DecodeUnpacked8(header, pixelData);
                     return;
 
-                case 16:
+                case SwitchIds::PixelBitCount::HighColor16:
                     mBitmap = l_DecodeUnpacked16(header, pixelData);
                     return;
 
-                case 24:
+                case SwitchIds::PixelBitCount::Rgb24:
                     mBitmap = l_DecodeUnpacked24(header, pixelData);
                     return;
 
-                case 32:
+                case SwitchIds::PixelBitCount::TrueColor32:
                     mBitmap = l_DecodeUnpacked32(header, pixelData);
                     return;
             }
@@ -461,15 +462,15 @@ namespace NXBasics
 
             switch (value)
             {
-                case 0:
+                case SwitchIds::BmpRleEscape::EndOfLine:
                     --row;
                     x = 0;
                     break;
 
-                case 1:
+                case SwitchIds::BmpRleEscape::EndOfBitmap:
                     return bitmap;
 
-                case 2:
+                case SwitchIds::BmpRleEscape::Delta:
                     {
                         const std::uint32_t deltaX = pixelData[sourceOffset++];
                         const std::uint32_t deltaY = pixelData[sourceOffset++];

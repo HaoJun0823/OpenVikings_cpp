@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataAnimalSounds.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "DSManager.h"
@@ -72,7 +73,7 @@ namespace NC2E2
 
                 switch (command)
                 {
-                    case 0x656E6773u:
+                    case SwitchIds::AnimalSoundToken::EngineSoundGroup:
                         {
                             auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
                             const char* soundName = reader.GetString();
@@ -80,15 +81,15 @@ namespace NC2E2
                             break;
                         }
 
-                    case 0x6C747274u:
+                    case SwitchIds::AnimalSoundToken::LogicTribeType:
                         entry->logicTribeType = reader.GetInt();
                         break;
 
-                    case 0x6D696E63u:
+                    case SwitchIds::AnimalSoundToken::MinCount:
                         entry->minimumCount = static_cast<std::uint32_t>(reader.GetInt());
                         break;
 
-                    case 0x70726F62u:
+                    case SwitchIds::AnimalSoundToken::Probability:
                         entry->probabilityThreshold = static_cast<std::uint32_t>(reader.GetInt());
                         break;
                 }

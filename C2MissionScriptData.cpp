@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2MissionScriptData.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -392,12 +393,12 @@ namespace NC2Logic_MissionTool
         {
             switch (parameterType)
             {
-            case 3: return NC2Logic::Logic_EntryPoint_GetTribeType(reader.GetString());
-            case 4: return NC2Logic::Logic_EntryPoint_GetJobType(reader.GetString());
-            case 5: return NC2Logic::Logic_EntryPoint_GetVehicleType(reader.GetString());
-            case 6: return NC2Logic::Logic_EntryPoint_GetGoodType(reader.GetString());
-            case 15: return NC2Logic::Logic_EntryPoint_GetHouseType(reader.GetString());
-            case 25: return NC2Logic::Logic_EntryPoint_GetDiplomacyState(reader.GetString());
+            case SwitchIds::MissionParameterType::Tribe: return NC2Logic::Logic_EntryPoint_GetTribeType(reader.GetString());
+            case SwitchIds::MissionParameterType::Job: return NC2Logic::Logic_EntryPoint_GetJobType(reader.GetString());
+            case SwitchIds::MissionParameterType::Vehicle: return NC2Logic::Logic_EntryPoint_GetVehicleType(reader.GetString());
+            case SwitchIds::MissionParameterType::Good: return NC2Logic::Logic_EntryPoint_GetGoodType(reader.GetString());
+            case SwitchIds::MissionParameterType::House: return NC2Logic::Logic_EntryPoint_GetHouseType(reader.GetString());
+            case SwitchIds::MissionParameterType::DiplomacyState: return NC2Logic::Logic_EntryPoint_GetDiplomacyState(reader.GetString());
             }
         }
         // Unrecognized string parameter kinds are not consumed by the original.
@@ -518,16 +519,16 @@ namespace NC2Logic
             {
                 switch (NXBasics::XB_Token_FindTokenInArray(sMissionTokenArray, reader->GetCurrentName()))
                 {
-                case 0x61637469:
+                case SwitchIds::MissionScriptToken::Active:
                 {
                     const bool active = reader->GetInt() != 0;
                     Write<std::uint8_t>(mission, 0x2C, active);
                     MissionData_SetMissionActiveFlag(mission, active);
                     break;
                 }
-                case 0x64656275: std::strncpy(reinterpret_cast<char*>(mission), reader->GetString(), 30); break;
-                case 0x64657363: Write<std::int32_t>(mission, 0x30, reader->GetInt()); break;
-                case 0x676F616C:
+                case SwitchIds::MissionScriptToken::DebugInfo: std::strncpy(reinterpret_cast<char*>(mission), reader->GetString(), 30); break;
+                case SwitchIds::MissionScriptToken::Description: Write<std::int32_t>(mission, 0x30, reader->GetInt()); break;
+                case SwitchIds::MissionScriptToken::Goal:
                 {
                     SMissionGoal goal{};
                     NC2Logic_MissionTool::Mission_Tool_ReadGoalData(*reader, goal);
@@ -536,7 +537,7 @@ namespace NC2Logic
                     Write<std::uint32_t>(mission, 0x38, count + 1u);
                     break;
                 }
-                case 0x72657375:
+                case SwitchIds::MissionScriptToken::Result:
                 {
                     SResult result{};
                     NC2Logic_MissionTool::Mission_Tool_ReadResultData(*reader, result);
@@ -545,8 +546,8 @@ namespace NC2Logic
                     Write<std::uint32_t>(mission, 0x4EC, count + 1u);
                     break;
                 }
-                case 0x73756363: Write<std::int32_t>(mission, 0x34, reader->GetInt()); break;
-                case 0x76697369: Write<std::uint8_t>(mission, 0x24, reader->GetInt() != 0); break;
+                case SwitchIds::MissionScriptToken::Successfullif: Write<std::int32_t>(mission, 0x34, reader->GetInt()); break;
+                case SwitchIds::MissionScriptToken::Visible: Write<std::uint8_t>(mission, 0x24, reader->GetInt() != 0); break;
                 }
             }
         }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanWorkCommands.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanInitialization.h"
@@ -183,21 +184,21 @@ namespace NC2Logic
             {
                 switch (job)
                 {
-                case 31: Queue(human, 54, WeaponGood(human), 0xFFFFFFFFu); break;
-                case 32: Queue(human, 63, 39, 0xFFFFFFFFu); break;
-                case 33: Queue(human, 63, 40, 0xFFFFFFFFu); break;
-                case 34: Queue(human, 63, 41, 0xFFFFFFFFu); break;
-                case 35: Queue(human, 63, 42, 0xFFFFFFFFu); break;
-                case 40: Queue(human, 63, 37, 0xFFFFFFFFu); break;
-                case 41: Queue(human, 63, 38, 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierUnarmed: Queue(human, 54, WeaponGood(human), 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierSpearWooden: Queue(human, 63, 39, 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierSpearIron: Queue(human, 63, 40, 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierSwordShort: Queue(human, 63, 41, 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierSwordLong: Queue(human, 63, 42, 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierBowShort: Queue(human, 63, 37, 0xFFFFFFFFu); break;
+                case SwitchIds::HumanJob::SoldierBowLong: Queue(human, 63, 38, 0xFFFFFFFFu); break;
                 default: break;
                 }
                 switch (Human_Equipment_GetWeaponType(human))
                 {
-                case 1: job = 31; break; case 4: job = 32; break; case 5: job = 33; break;
-                case 7: job = 34; break; case 8: job = 35; break; case 10: job = 36; break;
-                case 11: job = 37; break; case 13: job = 38; break; case 14: job = 39; break;
-                case 16: job = 40; break; case 17: job = 41; break; default: break;
+                case SwitchIds::WeaponType::Unarmed: job = 31; break; case SwitchIds::WeaponType::WoodenSpear: job = 32; break; case SwitchIds::WeaponType::IronSpear: job = 33; break;
+                case SwitchIds::WeaponType::ShortSword: job = 34; break; case SwitchIds::WeaponType::LongSword: job = 35; break; case SwitchIds::WeaponType::ShortSaber: job = 36; break;
+                case SwitchIds::WeaponType::LongSaber: job = 37; break; case SwitchIds::WeaponType::SmallAxe: job = 38; break; case SwitchIds::WeaponType::LargeAxe: job = 39; break;
+                case SwitchIds::WeaponType::ShortBow: job = 40; break; case SwitchIds::WeaponType::LongBow: job = 41; break; default: break;
                 }
             }
         }

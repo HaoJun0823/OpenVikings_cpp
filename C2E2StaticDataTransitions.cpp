@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataTerrain.h"
 #include "C2E2StaticDataGroups.h"
 #include "C2LifetimeGlobals.h"
@@ -63,8 +64,8 @@ namespace NC2E2
                 NXBasics::CTokenList tokens(gPointTypeTokenTable);
                 switch (tokens.FindToken(reader.GetCurrentName()))
                 {
-                    case 0x6E616D65: std::strncpy(point->name, reader.GetString(), 39); break;
-                    case 0x70617467:
+                    case SwitchIds::TransitionPointToken::Name: std::strncpy(point->name, reader.GetString(), 39); break;
+                    case SwitchIds::TransitionPointToken::Patterngroup:
                         if (point->groupCount != 5) point->groupIds[point->groupCount++] = StaticDataGroups_FindIndex(gE2StaticDataPatternManager, reader.GetString());
                         break;
                 }
@@ -92,14 +93,14 @@ namespace NC2E2
                 NXBasics::CTokenList tokens(gTransitionTokenTable);
                 switch (tokens.FindToken(reader.GetCurrentName()))
                 {
-                    case 0x6E616D65: std::strncpy(entry->name, reader.GetString(), 39); break;
-                    case 0x706F6974: entry->pointTypeId = E2StaticDataTransitionsManager_l_GetPointTypeId(reader.GetString()); break;
-                    case 0x74657874: entry->textureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString()); break;
-                    case 0x74657861: entry->alphaTextureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString()); break;
-                    case 0x636F6F61:
+                    case SwitchIds::TransitionToken::Name: std::strncpy(entry->name, reader.GetString(), 39); break;
+                    case SwitchIds::TransitionToken::PointType: entry->pointTypeId = E2StaticDataTransitionsManager_l_GetPointTypeId(reader.GetString()); break;
+                    case SwitchIds::TransitionToken::GfxTexture: entry->textureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString()); break;
+                    case SwitchIds::TransitionToken::Gfxtexturealpha: entry->alphaTextureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString()); break;
+                    case SwitchIds::TransitionToken::GfxCoordsA:
                         if (countA != 6) { for (auto& coordinate : entry->coordinatesA[countA]) coordinate = reader.GetInt(); ++countA; }
                         break;
-                    case 0x636F6F62:
+                    case SwitchIds::TransitionToken::GfxCoordsB:
                         if (countB != 6) { for (auto& coordinate : entry->coordinatesB[countB]) coordinate = reader.GetInt(); ++countB; }
                         break;
                 }

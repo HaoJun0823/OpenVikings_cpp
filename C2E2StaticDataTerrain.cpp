@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataTerrain.h"
 #include "C2E2StaticDataGroups.h"
 #include "C2EngineLifetimeAccess.h"
@@ -120,26 +121,26 @@ namespace NC2E2
                     NXBasics::CTokenList tokens(gPatternTokenState.table);
                     switch (tokens.FindToken(reader.GetCurrentName()))
                     {
-                        case 0x65646E61u:
+                        case SwitchIds::PatternToken::EditName:
                             std::strncpy(entry->name, reader.GetString(), 39);
                             break;
-                        case 0x65646772u:
+                        case SwitchIds::PatternToken::EditGroups:
                             while (reader.GetTypeOfNextParameter() == 2 && entry->groupCount != 3)
                             {
                                 const std::int32_t id = StaticDataGroups_AddName(manager, reader.GetString());
                                 entry->groupIds[entry->groupCount++] = id;
                             }
                             break;
-                        case 0x6C6F7479u:
+                        case SwitchIds::PatternToken::Logictype:
                             entry->logicType = reader.GetInt();
                             break;
-                        case 0x67667874u:
+                        case SwitchIds::PatternToken::GfxTexture:
                             entry->textureId = E2StaticDataTexturesManager_GetTextureId(gE2StaticDataTexturesManager, nullptr, reader.GetString());
                             break;
-                        case 0x67667861u:
+                        case SwitchIds::PatternToken::GfxCoordsA:
                             for (std::int32_t& coordinate : entry->coordinatesA) coordinate = reader.GetInt();
                             break;
-                        case 0x67667862u:
+                        case SwitchIds::PatternToken::GfxCoordsB:
                             for (std::int32_t& coordinate : entry->coordinatesB) coordinate = reader.GetInt();
                             break;
                     }
@@ -203,32 +204,32 @@ namespace NC2E2
                 const std::uint32_t command = tokens.FindToken(reader.GetCurrentName());
                 switch (command)
                 {
-                    case 0x65646E61u:
+                    case SwitchIds::LandscapeToken::EditName:
                         std::strncpy(entry->name, reader.GetString(), 39);
                         break;
-                    case 0x65646772u:
+                    case SwitchIds::LandscapeToken::EditGroups:
                         while (reader.GetTypeOfNextParameter() == 2 && entry->groupCount != 3)
                         {
                             const std::int32_t id = StaticDataGroups_AddName(manager, reader.GetString());
                             entry->groupIds[entry->groupCount++] = id;
                         }
                         break;
-                    case 0x6C6F7479u:
+                    case SwitchIds::LandscapeToken::Logictype:
                         entry->logicType = reader.GetInt();
                         break;
-                    case 0x6C6F7661u:
+                    case SwitchIds::LandscapeToken::LogicMaximumValency:
                         entry->maximumValency = reader.GetInt();
                         break;
-                    case 0x6C6F776Fu:
+                    case SwitchIds::LandscapeToken::LogicIsWorkable:
                         entry->isWorkable = reader.GetInt() != 0;
                         break;
-                    case 0x6C6F7075u:
+                    case SwitchIds::LandscapeToken::LogicIsPileableOnMap:
                         entry->isPileableOnMap = reader.GetInt() != 0;
                         break;
-                    case 0x6C6F7762u:
-                    case 0x6C6F6262u:
-                    case 0x6C6F7761u:
-                    case 0x6C6F6161u:
+                    case SwitchIds::LandscapeToken::LogicWalkBlockArea:
+                    case SwitchIds::LandscapeToken::LogicBuildBlockArea:
+                    case SwitchIds::LandscapeToken::Logicworkarea:
+                    case SwitchIds::LandscapeToken::LogicAdditionalAttachPointArea:
                     {
                         const std::uint32_t areaGroup = command == 0x6C6F7762u ? 0u : command == 0x6C6F6262u ? 1u : command == 0x6C6F7761u ? 2u : 3u;
                         const std::uint32_t valency = areaGroup == 3 ? 0u : static_cast<std::uint32_t>(reader.GetInt());
@@ -242,7 +243,7 @@ namespace NC2E2
                         ++area.count;
                         break;
                     }
-                    case 0x67667862u:
+                    case SwitchIds::LandscapeToken::Gfxboblibs:
                     {
                         const char* fileName = reader.GetString();
                         if (std::strlen(fileName) != 0) entry->bobManagers[0] = E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, fileName);
@@ -253,7 +254,7 @@ namespace NC2E2
                         }
                         break;
                     }
-                    case 0x67667866u:
+                    case SwitchIds::LandscapeToken::GfxFrames:
                     {
                         const std::uint32_t valency = static_cast<std::uint32_t>(reader.GetInt());
                         if (valency > 100) break;
@@ -262,20 +263,20 @@ namespace NC2E2
                             frames.frames[frames.count++] = reader.GetInt();
                         break;
                     }
-                    case 0x67667870u:
+                    case SwitchIds::LandscapeToken::GfxPalette:
                         entry->paletteId = E2StaticDataPalettesManager_GetPalette256Id(reader.GetString());
                         break;
-                    case 0x67667873u:
+                    case SwitchIds::LandscapeToken::GfxStatic:
                         entry->isStatic = reader.GetInt() != 0;
                         if (entry->isStatic != 0) entry->unresolved78 = 0;
                         break;
-                    case 0x67667861u:
+                    case SwitchIds::LandscapeToken::GfxLoopAnimation:
                         entry->loopAnimation = reader.GetInt() != 0;
                         break;
-                    case 0x67667875u:
+                    case SwitchIds::LandscapeToken::GfxShadingFactor:
                         entry->shadingFactor = static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(reader.GetDouble() * 256.0));
                         break;
-                    case 0x67667874u:
+                    case SwitchIds::LandscapeToken::GfxTransition:
                     {
                         if (pending->count == 4) break;
                         SLandscapeTransitionWorkEntry& transition = pending->entries[pending->count];
@@ -285,14 +286,14 @@ namespace NC2E2
                         ++pending->count;
                         break;
                     }
-                    case 0x67667878u:
+                    case SwitchIds::LandscapeToken::GfxUserFxMatrix:
                         entry->userFxMatrix = reader.GetInt() != 0;
                         break;
-                    case 0x67667864u:
+                    case SwitchIds::LandscapeToken::GfxDynamicBackground:
                         entry->dynamicBackground = reader.GetInt() != 0;
                         if (entry->dynamicBackground != 0) entry->unresolved78 = 0;
                         break;
-                    case 0x67667876u:
+                    case SwitchIds::LandscapeToken::GfxDrawVoidEver:
                         entry->drawVoidEver = reader.GetInt() != 0;
                         break;
                 }

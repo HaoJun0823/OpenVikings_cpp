@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2HumanSoundAccess.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2EngineDisplayManager.h"
@@ -30,7 +31,7 @@ namespace NC2E2
     {
         switch (type)
         {
-        case 0x1D:
+        case SwitchIds::CallbackType::HouseWalkAreaChanged:
         {
             const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
             if (NC2Logic::House_GetHouseMainType(house) == 6) return true;
@@ -62,10 +63,10 @@ namespace NC2E2
             C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, 0xFFFFFFFFu);
             return true;
         }
-        case 0x1E:
+        case SwitchIds::CallbackType::ResetHouseDynamicGraphics:
             std::memset(static_cast<std::byte*>(gDynamicDataHouses.entries) + parameter1 * 0xD0u, 0, 0xCC);
             return true;
-        case 0x21:
+        case SwitchIds::CallbackType::HumanPaletteChanged:
         {
             std::int32_t patch;
             if (parameter2 == 2)
@@ -88,7 +89,7 @@ namespace NC2E2
             }
             return true;
         }
-        case 0x22:
+        case SwitchIds::CallbackType::HumanMiscPaletteChanged:
         {
             char name[128];
             NXBasics::Runtime_PrintString(name, "human_misc_%3.3d", parameter2);
@@ -100,15 +101,15 @@ namespace NC2E2
             }
             return true;
         }
-        case 0x1F: E2DynamicDataHumanManager_HumanJobChanged(parameter1, parameter2, parameter3); return true;
-        case 0x20: E2DynamicDataHumanManager_HumanArmorChanged(parameter1, parameter2); return true;
-        case 0x18:
+        case SwitchIds::CallbackType::HumanJobChanged: E2DynamicDataHumanManager_HumanJobChanged(parameter1, parameter2, parameter3); return true;
+        case SwitchIds::CallbackType::HumanArmorChanged: E2DynamicDataHumanManager_HumanArmorChanged(parameter1, parameter2); return true;
+        case SwitchIds::CallbackType::PlayPlayerJingle:
         {
             const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
             if (display != nullptr && Read<std::uint32_t>(display, 0x7C) == parameter1) NDSManager::CManager::Jingle_Play(parameter2);
             return true;
         }
-        case 0x1C:
+        case SwitchIds::CallbackType::UpdateHouseOverlayParticles:
         {
             const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
             NC2Logic::House_GetHouseTypeDataPtr(house);
@@ -131,16 +132,16 @@ namespace NC2E2
             else E2ParticelManager_DestroyGenerator(gE2ParticelManager, Read<std::uint32_t>(house, 8));
             return true;
         }
-        case 0x23:
+        case SwitchIds::CallbackType::CreateMunitionParticle:
         {
             const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
             E2ParticelManager_CreateMunitionParticel(gE2ParticelManager, data, Read<std::uint32_t>(data, 8), static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 0xC, static_cast<const std::byte*>(data) + 0x14, Read<std::uint32_t>(data, 0x1C), Read<std::uint32_t>(data, 0x20));
             return true;
         }
-        case 0x24: E2ParticelManager_CreateFallingSmokeParticel(gE2ParticelManager, &parameter1, parameter2, parameter3); return true;
-        case 0x25: E2ParticelManager_StartParticelEffect(gE2ParticelManager, parameter1, &parameter2, parameter3); return true;
-        case 0x26: E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, parameter1, &parameter2, &parameter3, 0); return true;
-        case 0x27:
+        case SwitchIds::CallbackType::CreateFallingSmokeParticle: E2ParticelManager_CreateFallingSmokeParticel(gE2ParticelManager, &parameter1, parameter2, parameter3); return true;
+        case SwitchIds::CallbackType::StartParticleEffect: E2ParticelManager_StartParticelEffect(gE2ParticelManager, parameter1, &parameter2, parameter3); return true;
+        case SwitchIds::CallbackType::StartDirectionalParticleEffect: E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, parameter1, &parameter2, &parameter3, 0); return true;
+        case SwitchIds::CallbackType::StartDirectionalParticleEffectFromRecord:
         {
             const void* data = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(parameter1));
             E2ParticelManager_StartParticelEffectIntoDirection(gE2ParticelManager, 1, static_cast<const std::byte*>(data) + 4, static_cast<const std::byte*>(data) + 8, Read<std::uint32_t>(data, 0x14));

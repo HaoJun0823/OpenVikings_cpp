@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2LifetimeGlobals.h"
 #include "C2E2StaticDataGroups.h"
@@ -143,7 +144,7 @@ namespace NC2E2
 
                     switch (command)
                     {
-                        case 0x6C737479u:
+                        case SwitchIds::SoundFxToken::LogicSoundType:
                             {
                                 const std::uint32_t recordIndex = staticSoundCount - 1u;
                                 const std::uint32_t type = static_cast<std::uint32_t>(reader.GetInt());
@@ -153,11 +154,11 @@ namespace NC2E2
                                 break;
                             }
 
-                        case 0x6E616D65u:
+                        case SwitchIds::SoundFxToken::Name:
                             std::strcpy(reinterpret_cast<char*>(record), reader.GetString());
                             break;
 
-                        case 0x73667864u:
+                        case SwitchIds::SoundFxToken::SFX:
                             {
                                 const char* soundFileName = reader.GetString();
 
@@ -201,11 +202,11 @@ namespace NC2E2
 
                     switch (command)
                     {
-                        case 0x6D747970u:
+                        case SwitchIds::HumanMiscSoundToken::MusicType:
                             writeWord(record, static_cast<std::uint32_t>(reader.GetInt()));
                             break;
 
-                        case 0x73667864u:
+                        case SwitchIds::HumanMiscSoundToken::SFX:
                             {
                                 char* soundFileName = reinterpret_cast<char*>(record + 4);
                                 std::strcpy(soundFileName, reader.GetString());
@@ -241,7 +242,7 @@ namespace NC2E2
 
                     switch (command)
                     {
-                        case 0x6C6E6467u:
+                        case SwitchIds::AmbientSoundToken::LandscapeGroup:
                             {
                                 const char* groupName = reader.GetString();
                                 const std::uint32_t recordIndex = ambientSoundCount - 1u;
@@ -251,11 +252,11 @@ namespace NC2E2
                                 break;
                             }
 
-                        case 0x6E616D65u:
+                        case SwitchIds::AmbientSoundToken::Name:
                             std::strcpy(reinterpret_cast<char*>(record), reader.GetString());
                             break;
 
-                        case 0x70677270u:
+                        case SwitchIds::AmbientSoundToken::PatternGroup:
                             {
                                 const char* groupName = reader.GetString();
                                 const std::uint32_t recordIndex = ambientSoundCount - 1u;
@@ -265,7 +266,7 @@ namespace NC2E2
                                 break;
                             }
 
-                        case 0x73667864u:
+                        case SwitchIds::AmbientSoundToken::SFX:
                             {
                                 char* soundFileName = reinterpret_cast<char*>(soundData);
                                 std::strcpy(soundFileName, reader.GetString());

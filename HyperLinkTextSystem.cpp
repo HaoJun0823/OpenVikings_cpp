@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "HyperLinkTextSystem.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "XBitmap.h"
@@ -234,16 +235,16 @@ namespace NHyperLinkTextSystem
                 bool append = false;
                 switch (token)
                 {
-                case 0x666F6E74:
+                case SwitchIds::HyperlinkToken::Font:
                     if (auto* font = resources->GetFontPtr(argument)) { entity = Controller(1, reinterpret_cast<std::uint32_t>(font)); append = true; }
                     break;
-                case 0x636F6C6F:
+                case SwitchIds::HyperlinkToken::Color:
                     if (auto* palette = resources->GetPalettePtr(argument)) { entity = Controller(2, reinterpret_cast<std::uint32_t>(palette)); append = true; }
                     break;
-                case 0x70696374: case 0x69636F6E:
+                case SwitchIds::HyperlinkToken::Picture: case SwitchIds::HyperlinkToken::Icon:
                     if (auto* bitmap = resources->GetBitmapPtr(argument)) { entity = Image(bitmap, token == 0x69636F6E, false); append = true; }
                     break;
-                case 0x75706963: case 0x7569636F:
+                case SwitchIds::HyperlinkToken::UserPicture: case SwitchIds::HyperlinkToken::UserIcon:
                 {
                     std::uint32_t values[4]{};
                     char* number = argument;
@@ -260,14 +261,14 @@ namespace NHyperLinkTextSystem
                     append = true;
                     break;
                 }
-                case 0x626C636B: case 0x78737461: case 0x78656E64: case 0x616E6368: case 0x6C6A6D70:
+                case SwitchIds::HyperlinkToken::BlockAlignment: case SwitchIds::HyperlinkToken::XStart: case SwitchIds::HyperlinkToken::XEnd: case SwitchIds::HyperlinkToken::Anchor: case SwitchIds::HyperlinkToken::LocalJump:
                 {
                     const std::uint32_t controller = token == 0x626C636B ? 3 : token == 0x78737461 ? 4 : token == 0x78656E64 ? 5 : token == 0x616E6368 ? 6 : 7;
                     entity = Controller(controller, Runtime_StringToInteger(argument));
                     append = true;
                     break;
                 }
-                case 0x676A6D70:
+                case SwitchIds::HyperlinkToken::GlobalJump:
                     if (char* comma = std::strchr(argument, ','))
                     {
                         *comma = '\0';
@@ -278,7 +279,7 @@ namespace NHyperLinkTextSystem
                         append = true;
                     }
                     break;
-                case 0x696E636C:
+                case SwitchIds::HyperlinkToken::Include:
                     if (argument != nullptr)
                         if (char* comma = std::strchr(argument, ','))
                         {
@@ -289,7 +290,7 @@ namespace NHyperLinkTextSystem
                             AddTextFile(filename, block, Runtime_StringToInteger(second + 1) != 0);
                         }
                     break;
-                case 0x6F736362:
+                case SwitchIds::HyperlinkToken::OnscreenCallback:
                 {
                     const auto a = Runtime_StringToInteger(argument);
                     char* comma = std::strchr(argument, ',');
@@ -565,13 +566,13 @@ namespace NHyperLinkTextSystem
             {
                 switch (entity->content.controller)
                 {
-                case 0: l_Create_NewLine(); break;
-                case 1: font = reinterpret_cast<CFont*>(entity->data.values[0]); break;
-                case 2: palette = reinterpret_cast<CPalette*>(entity->data.values[0]); break;
-                case 3: alignment = entity->data.values[0]; break;
-                case 4: alignment = 0; xStart = entity->data.values[0] <= static_cast<std::uint32_t>(width) ? entity->data.values[0] : width; x = xStart; break;
-                case 5: xEnd = entity->data.values[0] <= static_cast<std::uint32_t>(width) ? entity->data.values[0] : width; break;
-                case 6: case 9:
+                case SwitchIds::HyperlinkController::NewLine: l_Create_NewLine(); break;
+                case SwitchIds::HyperlinkController::Font: font = reinterpret_cast<CFont*>(entity->data.values[0]); break;
+                case SwitchIds::HyperlinkController::Palette: palette = reinterpret_cast<CPalette*>(entity->data.values[0]); break;
+                case SwitchIds::HyperlinkController::Alignment: alignment = entity->data.values[0]; break;
+                case SwitchIds::HyperlinkController::XStart: alignment = 0; xStart = entity->data.values[0] <= static_cast<std::uint32_t>(width) ? entity->data.values[0] : width; x = xStart; break;
+                case SwitchIds::HyperlinkController::XEnd: xEnd = entity->data.values[0] <= static_cast<std::uint32_t>(width) ? entity->data.values[0] : width; break;
+                case SwitchIds::HyperlinkController::Anchor: case SwitchIds::HyperlinkController::OnscreenCallback:
                 {
                     auto* entry = static_cast<SDisplayManagerLineEntity*>(Runtime_AllocateWithNewHandler(0x2C, 1));
                     currentLine->entities->InsertAtEnd(entry);
@@ -579,8 +580,8 @@ namespace NHyperLinkTextSystem
                     entry->entity = entity;
                     break;
                 }
-                case 7: jump = 1; textFile = 0xFFFFFFFFu; anchor = entity->data.values[0]; break;
-                case 8: jump = 1; textFile = entity->data.values[1]; anchor = entity->data.values[0]; break;
+                case SwitchIds::HyperlinkController::LocalJump: jump = 1; textFile = 0xFFFFFFFFu; anchor = entity->data.values[0]; break;
+                case SwitchIds::HyperlinkController::GlobalJump: jump = 1; textFile = entity->data.values[1]; anchor = entity->data.values[0]; break;
                 default: break;
                 }
                 continue;

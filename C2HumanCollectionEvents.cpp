@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanCollectionEvents.h"
 #include "C2Debug.h"
 #include "C2EngineLandscapeAccess.h"
@@ -57,9 +58,9 @@ namespace NC2Logic
             std::int32_t landscape = 0;
             switch (good)
             {
-            case 4: landscape = 27; break;
-            case 13: landscape = 33; break;
-            case 14: landscape = 36; break;
+            case SwitchIds::GoodType::Wheat: landscape = 27; break;
+            case SwitchIds::GoodType::Herb: landscape = 33; break;
+            case SwitchIds::GoodType::Mushroom: landscape = 36; break;
             default:
                 C2Debug_WarningBoxV("Production of this good is not possible at all: %s", gStaticGoodTypeStorage.records[good].name);
                 Write<std::uint32_t>(human, 0x36C, 3);

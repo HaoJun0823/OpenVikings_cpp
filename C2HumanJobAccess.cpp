@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanJobAccess.h"
 #include "C2HouseAccess.h"
 #include "C2HumanCommandAccess.h"
@@ -460,13 +461,13 @@ namespace NC2Logic
         const auto weapon = Read<std::int32_t>(human, 0xAE4);
         switch (job)
         {
-        case 31: return weapon < 4 || weapon > 17;
-        case 32: return weapon == 4;
-        case 33: return weapon == 5;
-        case 34: return weapon == 7;
-        case 35: return weapon == 8;
-        case 40: return weapon == 16;
-        case 41: return weapon == 17;
+        case SwitchIds::HumanJob::SoldierUnarmed: return weapon < 4 || weapon > 17;
+        case SwitchIds::HumanJob::SoldierSpearWooden: return weapon == 4;
+        case SwitchIds::HumanJob::SoldierSpearIron: return weapon == 5;
+        case SwitchIds::HumanJob::SoldierSwordShort: return weapon == 7;
+        case SwitchIds::HumanJob::SoldierSwordLong: return weapon == 8;
+        case SwitchIds::HumanJob::SoldierBowShort: return weapon == 16;
+        case SwitchIds::HumanJob::SoldierBowLong: return weapon == 17;
         default: return true;
         }
     }

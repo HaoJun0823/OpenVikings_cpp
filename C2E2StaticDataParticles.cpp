@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataParticles.h"
 #include "C2E2StaticDataPalettes.h"
 #include "C2EngineLifetimeAccess.h"
@@ -78,17 +79,17 @@ namespace NC2E2
                 {
                     switch (NXBasics::XB_Token_FindTokenInArray(gParticleTokens, reader.GetCurrentName()))
                     {
-                    case 0x6E616D65: { const char* name = reader.GetString(); if (*name != '\0') std::strcpy(static_cast<char*>(entry), name); break; }
-                    case 0x70616C65: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, 0x2C, E2StaticDataPalettesManager_GetPalette256Id(name)); break; }
-                    case 0x626F626D: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, 0x28, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name)); break; }
-                    case 0x6D617876: Write(entry, 0x38, reader.GetInt()); break;
-                    case 0x616E696D: Write<std::uint8_t>(entry, 0x30, reader.GetInt() != 0); break;
-                    case 0x626F6274: Write(entry, 0x40, reader.GetInt()); break;
-                    case 0x776D7479: gStaticParticelStorage.munitionIds[reader.GetInt()] = gStaticParticelStorage.count - 1; break;
-                    case 0x76696469: Write<std::uint8_t>(entry, 0x31, reader.GetInt() != 0); break;
-                    case 0x73706563: Write(entry, 0x44, reader.GetInt()); break;
-                    case 0x73706964: Write<std::uint8_t>(entry, 0x20, 1); Write(entry, 0x24, reader.GetInt()); break;
-                    case 0x67667866:
+                    case SwitchIds::ParticleToken::Name: { const char* name = reader.GetString(); if (*name != '\0') std::strcpy(static_cast<char*>(entry), name); break; }
+                    case SwitchIds::ParticleToken::Palette: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, 0x2C, E2StaticDataPalettesManager_GetPalette256Id(name)); break; }
+                    case SwitchIds::ParticleToken::Bobmanager: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, 0x28, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name)); break; }
+                    case SwitchIds::ParticleToken::MaxValency: Write(entry, 0x38, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::Animloop: Write<std::uint8_t>(entry, 0x30, reader.GetInt() != 0); break;
+                    case SwitchIds::ParticleToken::Bobtype: Write(entry, 0x40, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::MunitionType: gStaticParticelStorage.munitionIds[reader.GetInt()] = gStaticParticelStorage.count - 1; break;
+                    case SwitchIds::ParticleToken::ValencyIsDirection: Write<std::uint8_t>(entry, 0x31, reader.GetInt() != 0); break;
+                    case SwitchIds::ParticleToken::SpecialType: Write(entry, 0x44, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::SpawnparticelId: Write<std::uint8_t>(entry, 0x20, 1); Write(entry, 0x24, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::GfxFrames:
                     {
                         SParticelFrames frames{};
                         frames.valency = static_cast<std::uint32_t>(reader.GetInt());
@@ -164,17 +165,17 @@ namespace NC2E2
                 auto* entry = effects + index * 0x34u;
                 switch (NXBasics::XB_Token_FindTokenInArray(gEffectTokens, reader.GetCurrentName()))
                 {
-                case 0x706E616D: Write(entry, 0, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
-                case 0x6C696665: Write(entry, 4, reader.GetInt()); break;
-                case 0x736C6966: Write(entry, 8, reader.GetInt()); break;
-                case 0x6D6F7665: Write(entry, 0xC, reader.GetInt()); break;
-                case 0x70737064: Write(entry, 0x10, reader.GetInt()); Write(entry, 0x14, reader.GetInt()); Write(entry, 0x18, reader.GetInt()); break;
-                case 0x75736568: Write<std::uint8_t>(entry, 0x1C, reader.GetInt() != 0); break;
-                case 0x75736577: Write<std::uint8_t>(entry, 0x1D, reader.GetInt() != 0); break;
-                case 0x64686569: Write(entry, 0x20, reader.GetInt()); break;
-                case 0x7069786F: Write(entry, 0x24, reader.GetInt()); Write(entry, 0x28, reader.GetInt()); break;
-                case 0x64626F74: Write<std::uint8_t>(entry, 0x2C, reader.GetInt() != 0); break;
-                case 0x6D69676F: Write<std::uint16_t>(entry, 0x2E, static_cast<std::uint16_t>(reader.GetInt())); Write<std::uint16_t>(entry, 0x30, static_cast<std::uint16_t>(reader.GetInt())); break;
+                case SwitchIds::ParticleEffectToken::Particelname: Write(entry, 0, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
+                case SwitchIds::ParticleEffectToken::LifeTime: Write(entry, 4, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::StartLifeTime: Write(entry, 8, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Movement: Write(entry, 0xC, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Particelspeed: Write(entry, 0x10, reader.GetInt()); Write(entry, 0x14, reader.GetInt()); Write(entry, 0x18, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Usemapheights: Write<std::uint8_t>(entry, 0x1C, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleEffectToken::Usewind: Write<std::uint8_t>(entry, 0x1D, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleEffectToken::Deltaheight: Write(entry, 0x20, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::PixelOffset: Write(entry, 0x24, reader.GetInt()); Write(entry, 0x28, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Drawbottom: Write<std::uint8_t>(entry, 0x2C, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleEffectToken::MigPointoffset: Write<std::uint16_t>(entry, 0x2E, static_cast<std::uint16_t>(reader.GetInt())); Write<std::uint16_t>(entry, 0x30, static_cast<std::uint16_t>(reader.GetInt())); break;
                 }
             }
         }

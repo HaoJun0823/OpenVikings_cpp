@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
@@ -77,15 +78,15 @@ namespace NC2Logic
             {
                 switch (HouseTokens().FindToken(reader.GetCurrentName()))
                 {
-                case 0x6C6F6D74: record.mainType = reader.GetInt(); break;
-                case 0x6C687369: if (record.mainType == 2) record.homeSize = reader.GetInt(); break;
-                case 0x6C737369: if (record.mainType == 4 && (type == 0x26 || type == 0x27)) record.schoolSize = reader.GetInt(); break;
-                case 0x6C696366: record.ignoreContinents = reader.GetInt() != 0; break;
-                case 0x6C767479: record.vehicleType = reader.GetInt(); break;
-                case 0x6C65646D: record.canEnableDefenceMode = reader.GetInt() != 0; break;
-                case 0x6C626970: record.buildOnBioPattern = reader.GetInt() != 0; break;
-                case 0x6462676E: std::strncpy(record.debugName, reader.GetString(), 49); break;
-                case 0x64626763:
+                case SwitchIds::HouseTypeToken::Logicmaintype: record.mainType = reader.GetInt(); break;
+                case SwitchIds::HouseTypeToken::LogicHomeSize: if (record.mainType == 2) record.homeSize = reader.GetInt(); break;
+                case SwitchIds::HouseTypeToken::LogicSchoolSize: if (record.mainType == 4 && (type == 0x26 || type == 0x27)) record.schoolSize = reader.GetInt(); break;
+                case SwitchIds::HouseTypeToken::Logicignorecontinentsflag: record.ignoreContinents = reader.GetInt() != 0; break;
+                case SwitchIds::HouseTypeToken::LogicVehicleType: record.vehicleType = reader.GetInt(); break;
+                case SwitchIds::HouseTypeToken::Logiccanenabledefencemode: record.canEnableDefenceMode = reader.GetInt() != 0; break;
+                case SwitchIds::HouseTypeToken::Logicbuildonbiopattern: record.buildOnBioPattern = reader.GetInt() != 0; break;
+                case SwitchIds::HouseTypeToken::Debugname: std::strncpy(record.debugName, reader.GetString(), 49); break;
+                case SwitchIds::HouseTypeToken::DebugColor:
                 {
                     const auto red = static_cast<std::uint8_t>(reader.GetInt());
                     const auto green = static_cast<std::uint8_t>(reader.GetInt());
@@ -93,7 +94,7 @@ namespace NC2Logic
                     record.debugColor.SetColors(red, green, blue);
                     break;
                 }
-                case 0x6C776F72:
+                case SwitchIds::HouseTypeToken::LogicWorker:
                     if (record.workerCount != 10)
                     {
                         const std::int32_t jobType = reader.GetInt();
@@ -103,7 +104,7 @@ namespace NC2Logic
                         record.workerCount = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(record.workerCount) + 1u);
                     }
                     break;
-                case 0x6C73746F:
+                case SwitchIds::HouseTypeToken::LogicStock:
                     if (record.stockCount != 66)
                     {
                         const std::int32_t goodType = reader.GetInt();
@@ -120,7 +121,7 @@ namespace NC2Logic
                         ++record.stockCount;
                     }
                     break;
-                case 0x6C70726F:
+                case SwitchIds::HouseTypeToken::LogicProduction:
                     if (record.productionCount != 20)
                     {
                         const std::int32_t goodType = reader.GetInt();

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2VehicleAccess.h"
 #include "C2VehicleLifecycle.h"
 #include "C2InteractionTargetAccess.h"
@@ -211,11 +212,11 @@ namespace NC2Logic
             bool halveDistance = false;
             if (direction == 6)
             {
-                switch (offset) { case 0: direction = 6; halveDistance = true; break; case 1: direction = 5; break; case 2: direction = 1; break; case 3: direction = 7; halveDistance = true; break; case 4: direction = 2; break; case 5: direction = 4; break; }
+                switch (offset) { case SwitchIds::VehicleDoorTurn::Straight: direction = 6; halveDistance = true; break; case SwitchIds::VehicleDoorTurn::ClockwiseStep: direction = 5; break; case SwitchIds::VehicleDoorTurn::ClockwiseTwoSteps: direction = 1; break; case SwitchIds::VehicleDoorTurn::Opposite: direction = 7; halveDistance = true; break; case SwitchIds::VehicleDoorTurn::CounterclockwiseTwoSteps: direction = 2; break; case SwitchIds::VehicleDoorTurn::CounterclockwiseStep: direction = 4; break; }
             }
             else
             {
-                switch (offset) { case 0: direction = 7; halveDistance = true; break; case 1: direction = 2; break; case 2: direction = 4; break; case 3: direction = 6; halveDistance = true; break; case 4: direction = 5; break; case 5: direction = 1; break; }
+                switch (offset) { case SwitchIds::VehicleDoorTurn::Straight: direction = 7; halveDistance = true; break; case SwitchIds::VehicleDoorTurn::ClockwiseStep: direction = 2; break; case SwitchIds::VehicleDoorTurn::ClockwiseTwoSteps: direction = 4; break; case SwitchIds::VehicleDoorTurn::Opposite: direction = 6; halveDistance = true; break; case SwitchIds::VehicleDoorTurn::CounterclockwiseTwoSteps: direction = 5; break; case SwitchIds::VehicleDoorTurn::CounterclockwiseStep: direction = 1; break; }
             }
             // Windows combines SAR by one with the signed IDIV remainder.
             if (halveDistance) distance = (distance >> 1) + distance % 2;
@@ -258,15 +259,15 @@ namespace NC2Logic
         using NC2Lifetime::Write;
         switch (Read<std::uint8_t>(command, 0))
         {
-        case 0x65:
+        case SwitchIds::UserCommand::VehicleGotoAndWait:
         {
             if (Read<std::uint32_t>(vehicle, 0x4FC) != 1) return false;
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 12));
             return point == Read<std::uint32_t>(vehicle, 0x1D2);
         }
-        case 0x6D:
-        case 0x6E:
+        case SwitchIds::UserCommand::SetVehicleWantedAmount:
+        case SwitchIds::UserCommand::ResetVehicleWantedAmounts:
         {
             if (Read<std::uint8_t>(command, 0) == 0x6D) Vehicle_Stock_SetWantedAmount(vehicle, Read<std::uint32_t>(command, 12), Read<std::uint32_t>(command, 16));
             else for (std::uint32_t good = 1; good < 66; ++good) Vehicle_Stock_SetWantedAmount(vehicle, good, 0);
@@ -284,8 +285,8 @@ namespace NC2Logic
             }
             return true;
         }
-        case 0x6F: Write(vehicle, 0x53C, Read<std::uint32_t>(command, 12)); return true;
-        case 0x73: return Read<std::uint32_t>(vehicle, 0x1C8) == 6;
+        case SwitchIds::UserCommand::SetVehicleMilitaryMode: Write(vehicle, 0x53C, Read<std::uint32_t>(command, 12)); return true;
+        case SwitchIds::UserCommand::VehicleAttachToVehicle: return Read<std::uint32_t>(vehicle, 0x1C8) == 6;
         default: return false;
         }
     }

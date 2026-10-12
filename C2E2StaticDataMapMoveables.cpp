@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataMapMoveables.h"
 #include "C2E2StaticDataPalettes.h"
 #include "C2E2StaticDataTerrain.h"
@@ -155,14 +156,14 @@ namespace NC2E2
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch ((tokens == gAnimalJobTokens ? GetLazyTokenList<AnimalJobTokenList_AtExit>(tokens) : GetLazyTokenList<VehicleJobTokenList_AtExit>(tokens)).FindToken(reader.GetCurrentName()))
                     {
-                    case 0x6C6F7472: Write<std::uint32_t>(record, 0, static_cast<std::uint32_t>(reader.GetInt())); break;
-                    case 0x6C6F6A6F:
-                    case 0x6C6F7665: Write<std::uint32_t>(record, 4, static_cast<std::uint32_t>(reader.GetInt())); break;
-                    case 0x67666262:
+                    case SwitchIds::AnimalVehicleJobToken::LogicTribe: Write<std::uint32_t>(record, 0, static_cast<std::uint32_t>(reader.GetInt())); break;
+                    case SwitchIds::AnimalVehicleJobToken::LogicJob:
+                    case SwitchIds::AnimalVehicleJobToken::LogicVehicle: Write<std::uint32_t>(record, 4, static_cast<std::uint32_t>(reader.GetInt())); break;
+                    case SwitchIds::AnimalVehicleJobToken::Gfxbobmanagerbody:
                         Write(record, 8, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
                         Write(record, 12, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
                         break;
-                    case 0x67667062:
+                    case SwitchIds::AnimalVehicleJobToken::GfxPaletteBody:
                     {
                         const auto used = Read<std::uint32_t>(record, 0x10);
                         if (used == 5) break;
@@ -205,9 +206,9 @@ namespace NC2E2
                         while (reader.GetNextCommandLineInGroup() != nullptr)
                             switch (GetLazyTokenList<SequenceTokenList_AtExit>(gSequenceTokens).FindToken(reader.GetCurrentName()))
                             {
-                            case 0x696C6962: std::strncpy(library->imageLibrary, reader.GetString(), 99); break;
-                            case 0x736C6962: std::strncpy(library->shadowLibrary, reader.GetString(), 99); break;
-                            case 0x736571:
+                            case SwitchIds::AnimationSequenceToken::Imagelib: std::strncpy(library->imageLibrary, reader.GetString(), 99); break;
+                            case SwitchIds::AnimationSequenceToken::Shadowlib: std::strncpy(library->shadowLibrary, reader.GetString(), 99); break;
+                            case SwitchIds::AnimationSequenceToken::Sequence:
                                 std::strncpy(library->sequences[sequence].name, reader.GetString(), 99);
                                 library->sequences[sequence++].firstBob = reader.GetInt();
                                 break;
@@ -234,16 +235,16 @@ namespace NC2E2
                             const auto token = GetLazyTokenList<AnimationTokenList_AtExit>(gAnimationTokens).FindToken(reader.GetCurrentName());
                             switch (token)
                             {
-                            case 0x6C6F7472: if (animation->tribe == 0) animation->tribe = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6C6F6A6F: animation->job = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6C6F6174: if (animation->tribe != 0 && animation->job != 0) animation->action = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6C6F6973: animation->inHouseSubId = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6766786D:
+                            case SwitchIds::HumanAnimationToken::LogicTribe: if (animation->tribe == 0) animation->tribe = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanAnimationToken::LogicJob: animation->job = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanAnimationToken::LogicAtomicAction: if (animation->tribe != 0 && animation->job != 0) animation->action = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanAnimationToken::LogicInHouseAtomicSubId: animation->inHouseSubId = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanAnimationToken::Gfxanimmode:
                                 animation->animationMode = reader.GetInt();
                                 if (animation->animationMode >= 0 && animation->animationMode <= 1) { animation->bodySequenceOrPartCount = 0; animation->headSequenceOrPartAddress = 0xFFFFFFFFu; }
                                 break;
-                            case 0x67667862:
-                            case 0x67667868:
+                            case SwitchIds::HumanAnimationToken::Gfxbobseqbody:
+                            case SwitchIds::HumanAnimationToken::Gfxbobseqhead:
                                 if (animation->animationMode == 0 || animation->animationMode == 1)
                                 {
                                     const auto sequence = static_cast<std::uint32_t>(SearchBobSequence(manager, reader.GetString()));
@@ -251,14 +252,14 @@ namespace NC2E2
                                     else animation->headSequenceOrPartAddress = sequence;
                                 }
                                 break;
-                            case 0x67667866:
+                            case SwitchIds::HumanAnimationToken::GfxAnimFrameList:
                                 if ((animation->animationMode == 0 || animation->animationMode == 1) && !gotDirectionFrames)
                                 {
                                     while (reader.GetTypeOfNextParameter() == 3 && frameCount != 500) frames[frameCount++] = static_cast<std::uint32_t>(reader.GetInt());
                                     gotFrames = true;
                                 }
                                 break;
-                            case 0x67667864:
+                            case SwitchIds::HumanAnimationToken::Gfxanimframelistdir:
                                 if ((animation->animationMode == 0 || animation->animationMode == 1) && !gotFrames)
                                 {
                                     const auto direction = static_cast<std::uint32_t>(reader.GetInt());
@@ -266,10 +267,10 @@ namespace NC2E2
                                     gotDirectionFrames = true;
                                 }
                                 break;
-                            case 0x67666877:
-                            case 0x67666861:
-                            case 0x6766686F:
-                            case 0x6766686C:
+                            case SwitchIds::HumanAnimationToken::GfxInHouseWalk:
+                            case SwitchIds::HumanAnimationToken::Gfxinhouseanim:
+                            case SwitchIds::HumanAnimationToken::Gfxinhouseoverlaybob:
+                            case SwitchIds::HumanAnimationToken::GfxInHouseOverlayLandscape:
                                 if (animation->animationMode == 2 && partCount != 50)
                                 {
                                     auto& part = parts[partCount];
@@ -322,14 +323,14 @@ namespace NC2E2
                             const auto token = GetLazyTokenList<WalkTokenList_AtExit>(gWalkTokens).FindToken(reader.GetCurrentName());
                             switch (token)
                             {
-                            case 0x6C6F7472: walk->tribe = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6C6F6A6F: walk->job = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6C6F676F: walk->good = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x6C6F7773: walk->walkSpeed = static_cast<std::uint32_t>(reader.GetInt()); break;
-                            case 0x67667862: walk->bodySequence = SearchBobSequence(manager, reader.GetString()); break;
-                            case 0x67667868: walk->headSequence = SearchBobSequence(manager, reader.GetString()); break;
-                            case 0x67667866:
-                            case 0x67667874:
+                            case SwitchIds::HumanWalkAnimationToken::LogicTribe: walk->tribe = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanWalkAnimationToken::LogicJob: walk->job = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanWalkAnimationToken::LogicGoodType: walk->good = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanWalkAnimationToken::LogicWalkSpeed: walk->walkSpeed = static_cast<std::uint32_t>(reader.GetInt()); break;
+                            case SwitchIds::HumanWalkAnimationToken::Gfxbobseqbody: walk->bodySequence = SearchBobSequence(manager, reader.GetString()); break;
+                            case SwitchIds::HumanWalkAnimationToken::Gfxbobseqhead: walk->headSequence = SearchBobSequence(manager, reader.GetString()); break;
+                            case SwitchIds::HumanWalkAnimationToken::GfxWalkFrameList:
+                            case SwitchIds::HumanWalkAnimationToken::Gfxturnframelist:
                             {
                                 const auto direction = static_cast<std::uint32_t>(reader.GetInt());
                                 auto& count = token == 0x67667866 ? walkCounts[direction] : turnCounts[direction];

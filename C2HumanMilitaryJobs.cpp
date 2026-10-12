@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanMilitaryJobs.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanGoodieTasks.h"
@@ -108,9 +109,9 @@ namespace NC2Logic
             std::uint32_t searchPosition = 0, minimumDistance = 0, maximumDistance = 0, landscapeDistance = 5;
             switch (Human_GetMilitaryMode(human))
             {
-            case 1: searchPosition = Read<std::uint32_t>(position, 0); maximumDistance = landscapeDistance = 18; break;
-            case 2: searchPosition = Read<std::uint32_t>(workCenter, 0); maximumDistance = 18; break;
-            case 3: searchPosition = Read<std::uint32_t>(position, 0); minimumDistance = static_cast<std::uint32_t>(weapon->minimumRange); maximumDistance = landscapeDistance = static_cast<std::uint32_t>(weapon->maximumRange); break;
+            case SwitchIds::HumanMilitaryMode::SearchAroundPosition: searchPosition = Read<std::uint32_t>(position, 0); maximumDistance = landscapeDistance = 18; break;
+            case SwitchIds::HumanMilitaryMode::SearchAroundWorkCenter: searchPosition = Read<std::uint32_t>(workCenter, 0); maximumDistance = 18; break;
+            case SwitchIds::HumanMilitaryMode::SearchWithinWeaponRange: searchPosition = Read<std::uint32_t>(position, 0); minimumDistance = static_cast<std::uint32_t>(weapon->minimumRange); maximumDistance = landscapeDistance = static_cast<std::uint32_t>(weapon->maximumRange); break;
             default: break;
             }
             if (!TargetData_IsValid(primary))

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2CallbackManager.h"
 #include "C2CleanMapsManager.h"
 #include "C2SavegamesManager.h"
@@ -482,7 +483,7 @@ namespace NC2MainMenuGuiManager
 
 		switch (currentScreen)
 		{
-			case 9:
+			case SwitchIds::MainMenuScreen::EnterCallsign:
 				if (shutDownNetwork)
 				{
 					NNetwork::Network_ShutDown();
@@ -499,22 +500,22 @@ namespace NC2MainMenuGuiManager
 				textInput.Exit();
 				break;
 
-			case 10:
-			case 11:
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-			case 19:
-			case 20:
+			case SwitchIds::MainMenuScreen::SelectServiceProvider:
+			case SwitchIds::MainMenuScreen::HostOrJoin:
+			case SwitchIds::MainMenuScreen::EnterSessionName:
+			case SwitchIds::MainMenuScreen::SessionList:
+			case SwitchIds::MainMenuScreen::Lobby:
+			case SwitchIds::MainMenuScreen::PlayerConfiguration:
+			case SwitchIds::MainMenuScreen::AutoHost:
+			case SwitchIds::MainMenuScreen::AutoJoin:
 				if (shutDownNetwork)
 					NNetwork::Network_ShutDown();
 
 				textInput.Exit();
 				break;
 
-			case 16:
-			case 17:
+			case SwitchIds::MainMenuScreen::FileUpload:
+			case SwitchIds::MainMenuScreen::FileDownload:
 				if (fileTransferManager != nullptr)
 				{
 					fileTransferManager->~CFileTransferManager();
@@ -527,7 +528,7 @@ namespace NC2MainMenuGuiManager
 
 				break;
 
-			case 18:
+			case SwitchIds::MainMenuScreen::NetworkError:
 				if (shutDownNetwork)
 					NNetwork::Network_ShutDown();
 
@@ -551,7 +552,7 @@ namespace NC2MainMenuGuiManager
 
 		switch (screen)
 		{
-			case 9:
+			case SwitchIds::MainMenuScreen::EnterCallsign:
 				if (!StartNetworkForMenu(this))
 				{
 					currentScreen = 18;
@@ -565,7 +566,7 @@ namespace NC2MainMenuGuiManager
 				textInput.SetString(NNetwork::Network_GetCallsign());
 				break;
 
-			case 10:
+			case SwitchIds::MainMenuScreen::SelectServiceProvider:
 				if (!Network_EnumerateServiceProviders())
 				{
 					currentScreen = 18;
@@ -574,12 +575,12 @@ namespace NC2MainMenuGuiManager
 
 				break;
 
-			case 12:
+			case SwitchIds::MainMenuScreen::EnterSessionName:
 				std::memset(sessionSearchData, 0, sizeof(sessionSearchData));
 				textInput.Init(100u, false, true, 0u, 0u);
 				break;
 
-			case 14:
+			case SwitchIds::MainMenuScreen::Lobby:
 				{
 					textInput.Init(60u, true, true, 0u, 0u);
 
@@ -608,12 +609,12 @@ namespace NC2MainMenuGuiManager
 					break;
 				}
 
-			case 15:
+			case SwitchIds::MainMenuScreen::PlayerConfiguration:
 				std::memset(reinterpret_cast<std::byte*>(this) + 0xEEC, 0, 0x24);
 				break;
 
-			case 16:
-			case 17:
+			case SwitchIds::MainMenuScreen::FileUpload:
+			case SwitchIds::MainMenuScreen::FileDownload:
 				{
 					std::memset(reinterpret_cast<std::byte*>(this) + 0xEEC, 0, 0x24);
 
@@ -728,7 +729,7 @@ namespace NC2MainMenuGuiManager
 					return;
 				}
 
-			case 19:
+			case SwitchIds::MainMenuScreen::AutoHost:
 				if (!Network_AutoHost())
 				{
 					currentScreen = 18;
@@ -742,7 +743,7 @@ namespace NC2MainMenuGuiManager
 
 				break;
 
-			case 20:
+			case SwitchIds::MainMenuScreen::AutoJoin:
 				{
 					const auto session = NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_GetStringValuePtr("multiplayer_auto_join");
 
@@ -951,7 +952,7 @@ namespace NC2MainMenuGuiManager
 
 		switch (currentScreen)
 		{
-			case 10:
+			case SwitchIds::MainMenuScreen::SelectServiceProvider:
 				{
 					if ((networkFlags & 1u) == 0)
 					{
@@ -981,13 +982,13 @@ namespace NC2MainMenuGuiManager
 					return;
 				}
 
-			case 11:
+			case SwitchIds::MainMenuScreen::HostOrJoin:
 				if ((networkFlags & 1u) == 0)
 					fail("Wrong network state while selecting host or client");
 
 				return;
 
-			case 13:
+			case SwitchIds::MainMenuScreen::SessionList:
 				if ((networkFlags & 4u) == 0)
 				{
 					fail("Wrong network state while searching sessions");
@@ -1189,7 +1190,7 @@ namespace NC2MainMenuGuiManager
 
 			switch (messageType)
 			{
-				case 1:
+				case SwitchIds::MenuNetworkMessage::LobbyData:
 					{
 						if (!NNetwork::Network_IsHost())
 							std::memcpy(lobbyData, message.payload + 8, sizeof(lobbyData));
@@ -1255,7 +1256,7 @@ namespace NC2MainMenuGuiManager
 						break;
 					}
 
-				case 2:
+				case SwitchIds::MenuNetworkMessage::RequestLobbyData:
 					{
 						std::uint32_t response[0x168 / sizeof(std::uint32_t)] = {};
 						auto* responseBytes = reinterpret_cast<std::byte*>(response);
@@ -1271,17 +1272,17 @@ namespace NC2MainMenuGuiManager
 						break;
 					}
 
-				case 3:
+				case SwitchIds::MenuNetworkMessage::Disconnected:
 					Screen_ChangeTo(0x15, true);
 					break;
 
-				case 4:
+				case SwitchIds::MenuNetworkMessage::StartUpload:
 					if (!NNetwork::Network_IsHost())
 						Screen_ChangeTo(0x10, false);
 
 					break;
 
-				case 5:
+				case SwitchIds::MenuNetworkMessage::StartDownload:
 					if (!NNetwork::Network_IsHost())
 						Screen_ChangeTo(0x11, false);
 

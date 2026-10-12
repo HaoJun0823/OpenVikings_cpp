@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanTransportJobs.h"
 #include "C2Debug.h"
 #include "C2GameMapAccess.h"
@@ -149,9 +150,9 @@ namespace NC2Logic
         }
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 2: Human_l_StartTask_ExecuteJob_Carrier_Collect(human); break;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); break;
-        case 5:
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Carrier_Collect(human); break;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); break;
+        case SwitchIds::GoodCirculationMode::FlushStock:
             if (Read<std::uint32_t>(human, 0xAD4) == 0) Human_l_StartTask_ExecuteJob_Carrier_FlushStock(human);
             else Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
             break;

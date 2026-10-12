@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiBaseAccess.h"
 #include "InGameGuiOverviewHandler.h"
@@ -332,9 +333,9 @@ namespace NC2InGameGuiMessages
         if (type - 1u > 62u) return 0;
         switch (priorityModeByType[type - 1u])
         {
-        case 0: return 1;
-        case 1: return 2;
-        case 2: return job == 8 ? 1 : 0;
+        case SwitchIds::MessagePriorityMode::Normal: return 1;
+        case SwitchIds::MessagePriorityMode::Elevated: return 2;
+        case SwitchIds::MessagePriorityMode::ScoutOnly: return job == 8 ? 1 : 0;
         default: return 0;
         }
     }

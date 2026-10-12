@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "DirectXErrorText.h"
 #include "OriginalStrings.h"
 #include <new>
@@ -415,11 +416,11 @@ namespace NNetwork
 
                     switch (packet[0])
                     {
-                        case 2:
+                        case SwitchIds::NetworkPacket::AllowConnections:
                             GetNetworkInstance()->allowConnections = packet[1];
                             return S_OK;
 
-                        case 6:
+                        case SwitchIds::NetworkPacket::PlayerInfo:
                             {
                                 if ((GetNetworkInstance()->flags & 0x08u) == 0)
                                 {
@@ -439,14 +440,14 @@ namespace NNetwork
                                 return S_OK;
                             }
 
-                        case 7:
+                        case SwitchIds::NetworkPacket::ConnectionProbe:
                             return S_OK;
 
-                        case 11:
-                        case 12:
-                        case 13:
-                        case 14:
-                        case 15:
+                        case SwitchIds::NetworkPacket::FileTransferAnnouncement:
+                        case SwitchIds::NetworkPacket::FileTransferAccept:
+                        case SwitchIds::NetworkPacket::FileTransferRequestHeader:
+                        case SwitchIds::NetworkPacket::FileTransferHeader:
+                        case SwitchIds::NetworkPacket::FileTransferData:
                             {
                                 CFileTransferManager* fileTransferManager = CFileTransferManager::GetInstance();
 

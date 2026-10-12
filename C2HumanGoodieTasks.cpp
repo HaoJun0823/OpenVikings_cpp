@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanGoodieTasks.h"
 #include "C2HumanAtomicEvents.h"
 #include "C2CallbackManager.h"
@@ -381,13 +382,13 @@ namespace NC2Logic
     {
         switch (Read<std::uint32_t>(human, 0x368))
         {
-        case 24: Write(human, 0x368, (Game_Random_GetNumber() & 1u) + 25u); return;
-        case 25:
+        case SwitchIds::HumanTask::ChooseGoodie: Write(human, 0x368, (Game_Random_GetNumber() & 1u) + 25u); return;
+        case SwitchIds::HumanTask::GoodieIdle:
             Human_l_StartAtomicAnimation(human, 5, -1);
             Write<std::uint32_t>(human, 0x368, 25);
             Write<std::uint32_t>(human, 0x36C, 1);
             return;
-        case 26: Human_l_StartTask_Goodie_Helper_WalkAround(human); return;
+        case SwitchIds::HumanTask::GoodieWalkAround: Human_l_StartTask_Goodie_Helper_WalkAround(human); return;
         default: Write<std::uint32_t>(human, 0x368, 24); return;
         }
     }
@@ -397,16 +398,16 @@ namespace NC2Logic
     {
         switch (Read<std::uint32_t>(human, 0x368))
         {
-        case 24: Write(human, 0x368, Game_Random_GetNumber() % 5u + 25u); return;
-        case 25:
+        case SwitchIds::HumanTask::ChooseGoodie: Write(human, 0x368, Game_Random_GetNumber() % 5u + 25u); return;
+        case SwitchIds::HumanTask::GoodieIdle:
             Human_l_StartAtomicAnimation(human, 5, -1);
             Write<std::uint32_t>(human, 0x368, 25);
             Write<std::uint32_t>(human, 0x36C, 1);
             return;
-        case 26: Human_l_StartTask_Goodie_Helper_WalkAround(human); return;
-        case 27: Human_l_StartTask_Goodie_Helper_Sleep(human); return;
-        case 28: Human_l_StartTask_Goodie_Helper_TalkToAny(human); return;
-        case 29: Human_l_StartTask_Goodie_Helper_PlayWithAnimal(human); return;
+        case SwitchIds::HumanTask::GoodieWalkAround: Human_l_StartTask_Goodie_Helper_WalkAround(human); return;
+        case SwitchIds::HumanTask::GoodieSleep: Human_l_StartTask_Goodie_Helper_Sleep(human); return;
+        case SwitchIds::HumanTask::GoodieTalkToAny: Human_l_StartTask_Goodie_Helper_TalkToAny(human); return;
+        case SwitchIds::HumanTask::GoodiePlayWithAnimal: Human_l_StartTask_Goodie_Helper_PlayWithAnimal(human); return;
         default: Write<std::uint32_t>(human, 0x368, 24); return;
         }
     }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanEquipment.h"
 #include "C2CallbackManager.h"
 #include "C2HouseAccess.h"
@@ -171,9 +172,9 @@ namespace NC2Logic
         }
         switch (Tool_GoodEquipmentType_Convert(Read<std::uint32_t>(human, 0xAD0)))
         {
-        case 1: Human_Equipment_SetWeaponType(human, 1); Human_SetCarriedGood(human, good); return;
-        case 2: Human_Equipment_ResetArmorType(human); Human_SetCarriedGood(human, good); return;
-        case 5:
+        case SwitchIds::GoodEquipmentCategory::Weapon: Human_Equipment_SetWeaponType(human, 1); Human_SetCarriedGood(human, good); return;
+        case SwitchIds::GoodEquipmentCategory::Armor: Human_Equipment_ResetArmorType(human); Human_SetCarriedGood(human, good); return;
+        case SwitchIds::GoodEquipmentCategory::Item:
         {
             const auto last = Human_UserControl_GetLastCommandType(human);
             auto slot = last >= 74 && last <= 78 ? Read<std::int32_t>(LastCommand(human), 0x10) : -1;

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2CallbackManager.h"
@@ -107,11 +108,11 @@ namespace NC2InGameGuiGroups
         auto* input = gInputManager;
         switch (Read<std::uint32_t>(input, 4))
         {
-        case 1: l_Group_AddHuman(group, Selection_GetSelectedSingleHumanId(input)); break;
-        case 2: for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleHumanNumber(input); ++i) l_Group_AddHuman(group, Selection_GetSelectedMultipleHumanId(input, i)); break;
-        case 4: l_Group_AddVehicle(group, Selection_GetSelectedSingleVehicleId(input)); break;
-        case 5: for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleVehiclesNumber(input); ++i) l_Group_AddVehicle(group, Selection_GetSelectedMultipleVehicleId(input, i)); break;
-        case 6: l_Group_AddHouse(group, Selection_GetSelectedHouseId(input)); break;
+        case SwitchIds::SelectionType::SingleHuman: l_Group_AddHuman(group, Selection_GetSelectedSingleHumanId(input)); break;
+        case SwitchIds::SelectionType::MultipleHumans: for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleHumanNumber(input); ++i) l_Group_AddHuman(group, Selection_GetSelectedMultipleHumanId(input, i)); break;
+        case SwitchIds::SelectionType::SingleVehicle: l_Group_AddVehicle(group, Selection_GetSelectedSingleVehicleId(input)); break;
+        case SwitchIds::SelectionType::MultipleVehicles: for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleVehiclesNumber(input); ++i) l_Group_AddVehicle(group, Selection_GetSelectedMultipleVehicleId(input, i)); break;
+        case SwitchIds::SelectionType::House: l_Group_AddHouse(group, Selection_GetSelectedHouseId(input)); break;
         default: break;
         }
     }
@@ -136,9 +137,9 @@ namespace NC2InGameGuiGroups
             const auto id = Read<std::int32_t>(group, 8u + i * 12u);
             switch (Read<std::uint32_t>(group, 4u + i * 12u))
             {
-            case 1: Selection_SelectAddSingleHuman(gInputManager, id); break;
-            case 2: Selection_SelectAddSingleVehicle(gInputManager, id); break;
-            case 3: Selection_SelectHouse(gInputManager, id); break;
+            case SwitchIds::ObjectGroupType::Human: Selection_SelectAddSingleHuman(gInputManager, id); break;
+            case SwitchIds::ObjectGroupType::Vehicle: Selection_SelectAddSingleVehicle(gInputManager, id); break;
+            case SwitchIds::ObjectGroupType::House: Selection_SelectHouse(gInputManager, id); break;
             default: break;
             }
         }
@@ -187,9 +188,9 @@ namespace NC2InGameGuiGroups
             const auto id = Read<std::int32_t>(group, 8u + i * 12u);
             switch (Read<std::uint32_t>(group, 4u + i * 12u))
             {
-            case 1: selected = Selection_IsHumanSelected(gInputManager, id); break;
-            case 2: selected = Selection_IsVehicleSelected(gInputManager, id); break;
-            case 3: selected = Selection_IsHouseSelected(gInputManager, id); break;
+            case SwitchIds::ObjectGroupType::Human: selected = Selection_IsHumanSelected(gInputManager, id); break;
+            case SwitchIds::ObjectGroupType::Vehicle: selected = Selection_IsVehicleSelected(gInputManager, id); break;
+            case SwitchIds::ObjectGroupType::House: selected = Selection_IsHouseSelected(gInputManager, id); break;
             default: continue;
             }
             if (!selected) return false;
@@ -207,9 +208,9 @@ namespace NC2InGameGuiGroups
             const void* position;
             switch (Read<std::uint32_t>(group, 4u + i * 12u))
             {
-            case 1: position = NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize); break;
-            case 2: position = NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize); break;
-            case 3: position = NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize + 0x1C; break;
+            case SwitchIds::ObjectGroupType::Human: position = NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize); break;
+            case SwitchIds::ObjectGroupType::Vehicle: position = NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize); break;
+            case SwitchIds::ObjectGroupType::House: position = NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize + 0x1C; break;
             default: continue;
             }
             x += Read<std::int16_t>(position, 0); y += Read<std::int16_t>(position, 2); ++count;
@@ -239,9 +240,9 @@ namespace NC2InGameGuiGroups
         std::uint32_t playerOffset;
         switch (Read<std::uint32_t>(object, 0))
         {
-        case 1: entity = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize; playerOffset = 0x10; break;
-        case 2: entity = NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize; playerOffset = 0x1E0; break;
-        case 3: entity = NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize; playerOffset = 0x0C; break;
+        case SwitchIds::ObjectGroupType::Human: entity = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize; playerOffset = 0x10; break;
+        case SwitchIds::ObjectGroupType::Vehicle: entity = NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize; playerOffset = 0x1E0; break;
+        case SwitchIds::ObjectGroupType::House: entity = NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize; playerOffset = 0x0C; break;
         default: return false;
         }
         return Read<std::uint8_t>(entity, 0) != 0 && Read<std::uint32_t>(entity, 8) == Read<std::uint32_t>(object, 8) && Read<std::int32_t>(entity, playerOffset) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();

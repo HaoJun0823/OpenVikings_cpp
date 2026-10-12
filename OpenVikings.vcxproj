@@ -849,4 +849,8 @@
     <ClCompile Include="C2AIBuildingAccess.cpp" />
     <ClInclude Include="C2AIBuildingAccess.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SwitchIdentifiers.h" />
+    <ClInclude Include="XResultIdentifiers.h" />
+  </ItemGroup>
 </Project>

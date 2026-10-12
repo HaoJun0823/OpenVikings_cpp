@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiOverviewHandler.h"
 #include "C2CallbackManager.h"
 #include "C2MapGeometry.h"
@@ -68,7 +69,7 @@ namespace NC2InGameGuiOverviewDisplay
         auto& state = mStaticVars;
         switch (type)
         {
-        case 0x33:
+        case SwitchIds::CallbackType::MapPointChanged:
         {
             const std::int16_t x = Overview_LowSignedWord(param2);
             const std::int16_t y = Overview_LowSignedWord(param2 >> 16);
@@ -78,7 +79,7 @@ namespace NC2InGameGuiOverviewDisplay
             if (y > state.changedAreaMaximum[1]) state.changedAreaMaximum[1] = y;
             break;
         }
-        case 0x32:
+        case SwitchIds::CallbackType::EndMapChanges:
             if (state.changedAreaMinimum[0] != 32000)
             {
                 for (std::int16_t& coordinate : state.changedAreaMinimum)
@@ -90,13 +91,13 @@ namespace NC2InGameGuiOverviewDisplay
                 sTheObjectPtr->System_UpdateAllElements();
             }
             break;
-        case 0x31:
+        case SwitchIds::CallbackType::BeginMapChanges:
             state.changedAreaMaximum[1] = 0;
             state.changedAreaMaximum[0] = 0;
             state.changedAreaMinimum[1] = 32000;
             state.changedAreaMinimum[0] = 32000;
             break;
-        case 0x0D:
+        case SwitchIds::CallbackType::MapAreaChanged:
             state.changedAreaMinimum[1] = Overview_LowSignedWord(param2 >> 16);
             state.changedAreaMaximum[0] = Overview_LowSignedWord(param2 + param3);
             state.changedAreaMaximum[1] = Overview_LowSignedWord((param3 >> 16) + static_cast<std::uint16_t>(state.changedAreaMinimum[1]));
@@ -109,7 +110,7 @@ namespace NC2InGameGuiOverviewDisplay
             sTheObjectPtr->System_UpdateAllElements();
             sTheObjectPtr->System_RedrawAllElements();
             break;
-        case 2:
+        case SwitchIds::CallbackType::MapLifetime:
             if (static_cast<std::uint16_t>(param1) != 0)
             {
                 state.fullRebuildRequested = true;
@@ -119,7 +120,7 @@ namespace NC2InGameGuiOverviewDisplay
                 sTheObjectPtr->System_RedrawAllElements();
             }
             break;
-        case 1:
+        case SwitchIds::CallbackType::GameTick:
             ++state.redrawFrameCounter;
             if (NXBasics::Runtime_TimeSigned32(state.redrawFrameCounter) >= 12)
             {

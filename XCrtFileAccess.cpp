@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XCrtFileAccess.h"
 #include "OriginalStrings.h"
 
@@ -1428,15 +1429,15 @@ namespace NXBasics
 
         switch (flags & 3u)
         {
-            case 0:
+            case SwitchIds::FileAccessMode::ReadOnly:
                 desiredAccess = GENERIC_READ;
                 break;
 
-            case 1:
+            case SwitchIds::FileAccessMode::WriteOnly:
                 desiredAccess = GENERIC_WRITE;
                 break;
 
-            case 2:
+            case SwitchIds::FileAccessMode::ReadWrite:
                 desiredAccess = GENERIC_READ | GENERIC_WRITE;
                 break;
 
@@ -1448,19 +1449,19 @@ namespace NXBasics
 
         switch (shareMode)
         {
-            case 0x10:
+            case SwitchIds::FileSharingMode::Exclusive:
                 sharing = 0;
                 break;
 
-            case 0x20:
+            case SwitchIds::FileSharingMode::DenyWrite:
                 sharing = FILE_SHARE_READ;
                 break;
 
-            case 0x30:
+            case SwitchIds::FileSharingMode::DenyRead:
                 sharing = FILE_SHARE_WRITE;
                 break;
 
-            case 0x40:
+            case SwitchIds::FileSharingMode::DenyNone:
                 sharing = FILE_SHARE_READ | FILE_SHARE_WRITE;
                 break;
 
@@ -1472,26 +1473,26 @@ namespace NXBasics
 
         switch (flags & 0x700u)
         {
-            case 0x000:
-            case 0x400:
+            case SwitchIds::FileCreationFlags::Existing:
+            case SwitchIds::FileCreationFlags::ExclusiveWithoutCreate:
                 creationDisposition = OPEN_EXISTING;
                 break;
 
-            case 0x100:
+            case SwitchIds::FileCreationFlags::Create:
                 creationDisposition = OPEN_ALWAYS;
                 break;
 
-            case 0x200:
-            case 0x600:
+            case SwitchIds::FileCreationFlags::Truncate:
+            case SwitchIds::FileCreationFlags::TruncateExclusive:
                 creationDisposition = TRUNCATE_EXISTING;
                 break;
 
-            case 0x300:
+            case SwitchIds::FileCreationFlags::CreateTruncate:
                 creationDisposition = CREATE_ALWAYS;
                 break;
 
-            case 0x500:
-            case 0x700:
+            case SwitchIds::FileCreationFlags::CreateExclusive:
+            case SwitchIds::FileCreationFlags::CreateTruncateExclusive:
                 creationDisposition = CREATE_NEW;
                 break;
 
@@ -2942,14 +2943,14 @@ namespace NXBasics
 
         switch (signalNumber)
         {
-            case 2:
+            case SwitchIds::RuntimeSignal::Interrupt:
                 actionSlot = &gRuntimeInterruptSignalAction;
                 usesGlobalLock = true;
                 break;
 
-            case 4:
-            case 8:
-            case 11:
+            case SwitchIds::RuntimeSignal::IllegalInstruction:
+            case SwitchIds::RuntimeSignal::FloatingPoint:
+            case SwitchIds::RuntimeSignal::SegmentationViolation:
                 {
                     threadBytes = reinterpret_cast<std::uint8_t*>(Runtime_GetThreadData());
 
@@ -2960,17 +2961,17 @@ namespace NXBasics
                     break;
                 }
 
-            case 15:
+            case SwitchIds::RuntimeSignal::Terminate:
                 actionSlot = &gRuntimeTerminateSignalAction;
                 usesGlobalLock = true;
                 break;
 
-            case 21:
+            case SwitchIds::RuntimeSignal::Break:
                 actionSlot = &gRuntimeBreakSignalAction;
                 usesGlobalLock = true;
                 break;
 
-            case 22:
+            case SwitchIds::RuntimeSignal::Abort:
                 actionSlot = &gRuntimeAbortSignalAction;
                 usesGlobalLock = true;
                 break;
@@ -5018,11 +5019,11 @@ namespace NXBasics
 
             switch (state)
             {
-                case 0:
+                case SwitchIds::PrintFormatState::Literal:
                     writeLiteral();
                     break;
 
-                case 1:
+                case SwitchIds::PrintFormatState::BeginConversion:
                     precision = UINT32_C(0xFFFFFFFF);
                     uppercaseFloat = 0;
                     suppressOutput = false;
@@ -5032,7 +5033,7 @@ namespace NXBasics
                     wideText = false;
                     break;
 
-                case 2:
+                case SwitchIds::PrintFormatState::Flags:
                     switch (character)
                     {
                         case ' ':
@@ -5057,7 +5058,7 @@ namespace NXBasics
                     }
                     break;
 
-                case 3:
+                case SwitchIds::PrintFormatState::Width:
                     if (character == '*')
                     {
                         width = Runtime_FormatReadArgument32(&argumentCursor);
@@ -5074,11 +5075,11 @@ namespace NXBasics
                     }
                     break;
 
-                case 4:
+                case SwitchIds::PrintFormatState::BeginPrecision:
                     precision = 0;
                     break;
 
-                case 5:
+                case SwitchIds::PrintFormatState::Precision:
                     if (character == '*')
                     {
                         precision = Runtime_FormatReadArgument32(&argumentCursor);
@@ -5094,7 +5095,7 @@ namespace NXBasics
                     }
                     break;
 
-                case 6:
+                case SwitchIds::PrintFormatState::LengthModifier:
                     switch (character)
                     {
                         case 'h':
@@ -5124,7 +5125,7 @@ namespace NXBasics
                     }
                     break;
 
-                case 7:
+                case SwitchIds::PrintFormatState::Conversion:
                     {
                         switch (character)
                         {
@@ -6216,15 +6217,15 @@ namespace NXBasics
                 {
                     switch (descriptor)
                     {
-                        case 0:
+                        case SwitchIds::StandardFileDescriptor::Input:
                             ::SetStdHandle(STD_INPUT_HANDLE, handle);
                             break;
 
-                        case 1:
+                        case SwitchIds::StandardFileDescriptor::Output:
                             ::SetStdHandle(STD_OUTPUT_HANDLE, handle);
                             break;
 
-                        case 2:
+                        case SwitchIds::StandardFileDescriptor::Error:
                             ::SetStdHandle(STD_ERROR_HANDLE, handle);
                             break;
                     }
@@ -6264,15 +6265,15 @@ namespace NXBasics
                         // The original ignores the return value of SetStdHandle.
                         switch (descriptor)
                         {
-                            case 0u:
+                            case SwitchIds::StandardFileDescriptor::InputUnsigned:
                                 ::SetStdHandle(STD_INPUT_HANDLE, nullptr);
                                 break;
 
-                            case 1u:
+                            case SwitchIds::StandardFileDescriptor::OutputUnsigned:
                                 ::SetStdHandle(STD_OUTPUT_HANDLE, nullptr);
                                 break;
 
-                            case 2u:
+                            case SwitchIds::StandardFileDescriptor::ErrorUnsigned:
                                 ::SetStdHandle(STD_ERROR_HANDLE, nullptr);
                                 break;
                         }
@@ -8058,15 +8059,15 @@ namespace NXBasics
 
         switch (requestedCodePage)
         {
-            case -2:
+            case SwitchIds::CodePageSelector::Oem:
                 gRuntimeSystemCodePageRequested = 1;
                 return GetOEMCP();
 
-            case -3:
+            case SwitchIds::CodePageSelector::Ansi:
                 gRuntimeSystemCodePageRequested = 1;
                 return GetACP();
 
-            case -4:
+            case SwitchIds::CodePageSelector::Current:
                 gRuntimeSystemCodePageRequested = 1;
                 return gRuntimeCodePage;
 
@@ -8080,13 +8081,13 @@ namespace NXBasics
     {
         switch (codePage)
         {
-            case 932:
+            case SwitchIds::CodePageId::JapaneseShiftJis:
                 return 0x0411;
-            case 936:
+            case SwitchIds::CodePageId::SimplifiedChinese:
                 return 0x0804;
-            case 949:
+            case SwitchIds::CodePageId::Korean:
                 return 0x0412;
-            case 950:
+            case SwitchIds::CodePageId::TraditionalChinese:
                 return 0x0404;
             default:
                 return 0;
@@ -10998,12 +10999,12 @@ namespace NXBasics
         std::uint32_t flags = 0;
         switch (error->type)
         {
-            case 1: case 5: flags = 8; break;
-            case 2: flags = 4; break;
-            case 3: flags = 0x11; break;
-            case 4: flags = 0x12; break;
-            case 7: error->type = 1; break;
-            case 8: flags = 0x10; break;
+            case SwitchIds::MathErrorType::Domain: case SwitchIds::MathErrorType::TotalLoss: flags = 8; break;
+            case SwitchIds::MathErrorType::Singularity: flags = 4; break;
+            case SwitchIds::MathErrorType::Overflow: flags = 0x11; break;
+            case SwitchIds::MathErrorType::Underflow: flags = 0x12; break;
+            case SwitchIds::MathErrorType::DomainAlias: error->type = 1; break;
+            case SwitchIds::MathErrorType::Inexact: flags = 0x10; break;
         }
         if (flags != 0 && !Runtime_HandleMaskedMathException(flags, &error->result, controlWord))
         {
@@ -11176,9 +11177,9 @@ namespace NXBasics
             for (std::uint32_t index = 0; index < sizeof(classified); ++index) destination[index] = source[index];
             switch (Runtime_ClassifySpecialDouble(classified))
             {
-                case 1: return 0x200;
-                case 2: return 4;
-                case 3: return 2;
+                case SwitchIds::SpecialDoubleClass::PositiveInfinity: return 0x200;
+                case SwitchIds::SpecialDoubleClass::NegativeInfinity: return 4;
+                case SwitchIds::SpecialDoubleClass::QuietNaN: return 2;
                 default: return 1;
             }
         }
@@ -11237,16 +11238,16 @@ namespace NXBasics
         if ((status & 0x20u) != 0) record->status |= 1u;
         switch (*controlWord & 0xC00u)
         {
-            case 0: record->controlAndOperation &= ~3u; break;
-            case 0x400: record->controlAndOperation = (record->controlAndOperation & ~2u) | 1u; break;
-            case 0x800: record->controlAndOperation = (record->controlAndOperation & ~1u) | 2u; break;
-            case 0xC00: record->controlAndOperation |= 3u; break;
+            case SwitchIds::X87RoundingControl::Nearest: record->controlAndOperation &= ~3u; break;
+            case SwitchIds::X87RoundingControl::Down: record->controlAndOperation = (record->controlAndOperation & ~2u) | 1u; break;
+            case SwitchIds::X87RoundingControl::Up: record->controlAndOperation = (record->controlAndOperation & ~1u) | 2u; break;
+            case SwitchIds::X87RoundingControl::TowardZero: record->controlAndOperation |= 3u; break;
         }
         switch (*controlWord & 0x300u)
         {
-            case 0: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFEBu) | 8u; break;
-            case 0x200: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFE7u) | 4u; break;
-            case 0x300: record->controlAndOperation &= 0xFFFFFFE3u; break;
+            case SwitchIds::X87PrecisionControl::Single24: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFEBu) | 8u; break;
+            case SwitchIds::X87PrecisionControl::Double53: record->controlAndOperation = (record->controlAndOperation & 0xFFFFFFE7u) | 4u; break;
+            case SwitchIds::X87PrecisionControl::Extended64: record->controlAndOperation &= 0xFFFFFFE3u; break;
         }
         record->controlAndOperation = (record->controlAndOperation & 0xFFFE001Fu) | ((operation & 0xFFFu) << 5);
         record->operand1.flags |= 1u;
@@ -11265,17 +11266,17 @@ namespace NXBasics
         if ((record->enable & 1u) != 0) *controlWord &= 0xFFFFFFDFu;
         switch (record->controlAndOperation & 3u)
         {
-            case 0: *controlWord &= 0xFFFFF3FFu; break;
-            case 1: *controlWord = (*controlWord & 0xFFFFF7FFu) | 0x400u; break;
-            case 2: *controlWord = (*controlWord & 0xFFFFFBFFu) | 0x800u; break;
-            case 3: *controlWord |= 0xC00u; break;
+            case SwitchIds::MathRecordRounding::Nearest: *controlWord &= 0xFFFFF3FFu; break;
+            case SwitchIds::MathRecordRounding::Down: *controlWord = (*controlWord & 0xFFFFF7FFu) | 0x400u; break;
+            case SwitchIds::MathRecordRounding::Up: *controlWord = (*controlWord & 0xFFFFFBFFu) | 0x800u; break;
+            case SwitchIds::MathRecordRounding::TowardZero: *controlWord |= 0xC00u; break;
         }
         // These original precision cases deliberately use the rounding mask, not a corrected PC mask.
         switch ((record->controlAndOperation >> 2) & 7u)
         {
-            case 0: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x300u; break;
-            case 1: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x200u; break;
-            case 2: *controlWord &= 0xFFFFF3FFu; break;
+            case SwitchIds::MathRecordPrecision::Extended64: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x300u; break;
+            case SwitchIds::MathRecordPrecision::Double53: *controlWord = (*controlWord & 0xFFFFF3FFu) | 0x200u; break;
+            case SwitchIds::MathRecordPrecision::Single24: *controlWord &= 0xFFFFF3FFu; break;
         }
         *result = Runtime_LoadBinary64ToX87(&record->result.value);
     }
@@ -11367,11 +11368,11 @@ namespace NXBasics
 
         switch (controlWord & 0x0300u)
         {
-            case 0x0000u:
+            case SwitchIds::X87PrecisionControl::Single24Unsigned:
                 control |= 0x00020000u;
                 break;
 
-            case 0x0200u:
+            case SwitchIds::X87PrecisionControl::Double53Unsigned:
                 control |= 0x00010000u;
                 break;
 
@@ -11407,11 +11408,11 @@ namespace NXBasics
 
         switch (control & 0x00030000u)
         {
-            case 0x00000000u:
+            case SwitchIds::RuntimePrecisionControl::Extended64:
                 controlWord |= 0x0300u;
                 break;
 
-            case 0x00010000u:
+            case SwitchIds::RuntimePrecisionControl::Double53:
                 controlWord |= 0x0200u;
                 break;
 
@@ -11796,8 +11797,8 @@ namespace NXBasics
             unsigned char c = static_cast<unsigned char>(*cursor++);
             switch (state)
             {
-                case 0:
-                case 2:
+                case SwitchIds::DecimalParseState::Start:
+                case SwitchIds::DecimalParseState::AfterSign:
                     if (isNonzeroDigit(c))
                     {
                         state = 3;
@@ -11818,7 +11819,7 @@ namespace NXBasics
                         done = true;
                     }
                     break;
-                case 1:
+                case SwitchIds::DecimalParseState::LeadingIntegerZeros:
                     sawDigits = true;
                     if (c == '0')
                         break;
@@ -11834,7 +11835,7 @@ namespace NXBasics
                         break;
                     }
                     goto exponentMarker;
-                case 3:
+                case SwitchIds::DecimalParseState::IntegerDigits:
                     sawDigits = true;
                     while (isDigit(c))
                     {
@@ -11850,7 +11851,7 @@ namespace NXBasics
                         break;
                     }
                     goto exponentMarker;
-                case 4:
+                case SwitchIds::DecimalParseState::FractionDigits:
                     sawDigits = sawDecimal = true;
                     if (count == 0)
                         while (c == '0')
@@ -11868,7 +11869,7 @@ namespace NXBasics
                         c = static_cast<unsigned char>(*cursor++);
                     }
                     goto exponentMarker;
-                case 5:
+                case SwitchIds::DecimalParseState::LeadingDecimalPoint:
                     sawDecimal = true;
                     if (isDigit(c))
                     {
@@ -11881,7 +11882,7 @@ namespace NXBasics
                         done = true;
                     }
                     break;
-                case 6:
+                case SwitchIds::DecimalParseState::ExponentMarker:
                     backup = cursor - 2;
                     if (c == '+' || c == '-')
                     {
@@ -11890,7 +11891,7 @@ namespace NXBasics
                         break;
                     }
                     [[fallthrough]];
-                case 7:
+                case SwitchIds::DecimalParseState::ExponentDigitsStart:
                     if (isNonzeroDigit(c))
                     {
                         state = 9;
@@ -11904,7 +11905,7 @@ namespace NXBasics
                         done = true;
                     }
                     break;
-                case 8:
+                case SwitchIds::DecimalParseState::ExponentZeros:
                     sawExponent = true;
                     while (c == '0')
                         c = static_cast<unsigned char>(*cursor++);
@@ -11919,7 +11920,7 @@ namespace NXBasics
                         done = true;
                     }
                     break;
-                case 9:
+                case SwitchIds::DecimalParseState::ExponentDigits:
                     sawExponent = true;
                     while (isDigit(c))
                     {
@@ -11936,7 +11937,7 @@ namespace NXBasics
                     --cursor;
                     done = true;
                     break;
-                case 11:
+                case SwitchIds::DecimalParseState::BareExponentSign:
                     if (allowBareExponent == 0)
                     {
                         --cursor;

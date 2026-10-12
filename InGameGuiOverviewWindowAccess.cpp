@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiTextToolElementAccess.h"
 #include "XBitmap.h"
@@ -57,10 +58,10 @@ namespace NC2InGameGuiOverviewDisplay
         if (message != 0x800) return false;
         switch (param1)
         {
-        case 10000:
+        case SwitchIds::OverviewWindowCommand::Close:
             NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window));
             break;
-        case 10001:
+        case SwitchIds::OverviewWindowCommand::CycleViewMode:
         {
             std::uint32_t mode = OverviewWindow_Read<std::uint32_t>(window, 0x70) + 1u;
             OverviewWindow_Write(window, 0x70, mode);
@@ -69,13 +70,13 @@ namespace NC2InGameGuiOverviewDisplay
             WorldOverviewStaticWindow_UpdateDisplayFlag(window);
             break;
         }
-        case 10005:
+        case SwitchIds::OverviewWindowCommand::ToggleLargeOverview:
             NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_LargeOverviewWindow_Toggle();
             break;
-        case 10010:
+        case SwitchIds::OverviewWindowCommand::ZoomOut:
             WorldOverviewElement_ModifyZoom(OverviewWindow_Read<void*>(window, 0x74), -1);
             break;
-        case 10011:
+        case SwitchIds::OverviewWindowCommand::ZoomIn:
             WorldOverviewElement_ModifyZoom(OverviewWindow_Read<void*>(window, 0x74), 1);
             break;
         }

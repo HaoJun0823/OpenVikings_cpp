@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanSocialJobs.h"
 #include "C2GameMapAccess.h"
 #include "C2GameState.h"
@@ -72,10 +73,10 @@ namespace NC2Logic
     {
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 0: Human_l_StartTask_ExecuteJob_Jester_TryToJest(human); return;
-        case 2: Human_l_StartTask_ExecuteJob_Jester_Collect(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Fail(human, 0); return;
+        case SwitchIds::GoodCirculationMode::None: Human_l_StartTask_ExecuteJob_Jester_TryToJest(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Jester_Collect(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Fail(human, 0); return;
         }
     }
 

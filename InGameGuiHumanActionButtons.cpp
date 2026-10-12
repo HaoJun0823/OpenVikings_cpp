@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiHumanActionButtons.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiInputAccess.h"
@@ -118,11 +119,11 @@ void __fastcall InGameGuiManager_l_Selection_ActionButtons_BringUp(void* manager
         const auto span = static_cast<std::int32_t>(groups[group] * 16);
         switch (group)
         {
-        case 0: x += 16 - span; y += 100; dx = 32; bendY = -5; break;
-        case 1: x += span - 16; y -= 100; dx = -32; bendY = 5; break;
-        case 2: x += 100; y += 16 - span; dy = 32; bendX = -5; break;
-        case 3: x -= 100; y += span - 16; dy = -32; bendX = 5; break;
-        case 4: x -= 68; y += span - 16; dy = -32; bendX = 5; break;
+        case SwitchIds::ActionButtonArc::Bottom: x += 16 - span; y += 100; dx = 32; bendY = -5; break;
+        case SwitchIds::ActionButtonArc::Top: x += span - 16; y -= 100; dx = -32; bendY = 5; break;
+        case SwitchIds::ActionButtonArc::Right: x += 100; y += 16 - span; dy = 32; bendX = -5; break;
+        case SwitchIds::ActionButtonArc::Left: x -= 100; y += span - 16; dy = -32; bendX = 5; break;
+        case SwitchIds::ActionButtonArc::InnerLeft: x -= 68; y += span - 16; dy = -32; bendX = 5; break;
         }
         std::uint32_t ordinal = 0;
         for (std::int32_t index = 0; index < commands.count; ++index)
@@ -163,12 +164,12 @@ namespace NC2InGameGuiManager
         std::uint8_t opcode;
         switch (action)
         {
-        case 3: opcode = 7; break; case 4: opcode = 8; break; case 5: opcode = 9; break; case 6: opcode = 10; break;
-        case 7: opcode = 13; break; case 8: opcode = 15; break; case 9: opcode = 16; break; case 11: opcode = 27; break;
-        case 13: opcode = 39; break; case 17: opcode = 29; break; case 19: opcode = 33; break; case 21: opcode = 31; break;
-        case 32: opcode = 20; break; case 35: case 36: case 37: case 38: opcode = 41; break;
-        case 39: case 40: opcode = 42; break; case 48: opcode = 5; break; case 49: opcode = 6; break;
-        case 54: opcode = 12; break; case 55: opcode = 11; break; default: return false;
+        case SwitchIds::HumanGuiAction::Eat: opcode = 7; break; case SwitchIds::HumanGuiAction::Sleep: opcode = 8; break; case SwitchIds::HumanGuiAction::Talk: opcode = 9; break; case SwitchIds::HumanGuiAction::Pray: opcode = 10; break;
+        case SwitchIds::HumanGuiAction::Marry: opcode = 13; break; case SwitchIds::HumanGuiAction::GetBoy: opcode = 15; break; case SwitchIds::HumanGuiAction::GetGirl: opcode = 16; break; case SwitchIds::HumanGuiAction::DetachHomeHouse: opcode = 27; break;
+        case SwitchIds::HumanGuiAction::DetachVehicle: opcode = 39; break; case SwitchIds::HumanGuiAction::DetachWorkHouse: opcode = 29; break; case SwitchIds::HumanGuiAction::DetachLearnHouse: opcode = 33; break; case SwitchIds::HumanGuiAction::DetachBuildHouse: opcode = 31; break;
+        case SwitchIds::HumanGuiAction::ExploreAreaAndReset: opcode = 20; break; case SwitchIds::HumanGuiAction::MilitaryAggressive: case SwitchIds::HumanGuiAction::MilitaryDefensive: case SwitchIds::HumanGuiAction::MilitaryIgnore: case SwitchIds::HumanGuiAction::MilitaryFlee: opcode = 41; break;
+        case SwitchIds::HumanGuiAction::AggressionOn: case SwitchIds::HumanGuiAction::AggressionOff: opcode = 42; break; case SwitchIds::HumanGuiAction::GoAway: opcode = 5; break; case SwitchIds::HumanGuiAction::GoHome: opcode = 6; break;
+        case SwitchIds::HumanGuiAction::Cheer: opcode = 12; break; case SwitchIds::HumanGuiAction::Goodie: opcode = 11; break; default: return false;
         }
         std::byte command[20]{}; Write(command, 0, opcode); Write(command, 4, id); Write(command, 0x0C, first); Write(command, 0x10, second);
         NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
@@ -181,7 +182,7 @@ namespace NC2InGameGuiManager
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         std::uint32_t first = action >= 35 && action <= 38 ? action - 34 : action == 39 ? 1 : 0;
         std::int32_t mode = -1;
-        switch (action) { case 41: mode = 23; break; case 42: mode = 10; break; case 43: mode = 25; break; case 44: mode = 26; break; case 45: mode = 22; break; }
+        switch (action) { case SwitchIds::HumanGuiAction::AttackHuman: mode = 23; break; case SwitchIds::HumanGuiAction::AttackHouse: mode = 10; break; case SwitchIds::HumanGuiAction::AttackAnimal: mode = 25; break; case SwitchIds::HumanGuiAction::AttackVehicle: mode = 26; break; case SwitchIds::HumanGuiAction::AttackMapPosition: mode = 22; break; }
         bool remove = true;
         if (mode != -1) InputMode_Set(Input(), mode);
         else if (Read<std::uint32_t>(Input(), 4) == 1)
@@ -189,14 +190,14 @@ namespace NC2InGameGuiManager
             const auto id = Selection_GetSelectedSingleHumanId(Input());
             switch (action)
             {
-            case 2: mode = 1; break; case 10: mode = 4; break; case 12: mode = 27; break; case 16: mode = 5; break;
-            case 18: mode = 6; break; case 20: mode = 7; break; case 22: mode = 8; break; case 23: mode = 9; break;
-            case 24: manager->MiscWindows_HumanChangeJobWindow_Open(); break;
-            case 25: manager->MiscWindows_HumanChangeProducedGoodWindow_Open(); break;
-            case 26: manager->MiscWindows_HumanChangeEquippedGoodsWindow_Open(6, -1); break;
-            case 27: manager->MiscWindows_HumanLearnJobWindow_Open(); break;
-            case 28: mode = 2; break; case 29: mode = 3; break; case 31: mode = 13; break;
-            case 32: remove = ls_Tool_SendSimpleHumanNetworkCommand(32, id, 0xFFFFFFFFu, 1); break;
+            case SwitchIds::HumanGuiAction::GotoAndWait: mode = 1; break; case SwitchIds::HumanGuiAction::AttachHomeHouse: mode = 4; break; case SwitchIds::HumanGuiAction::AttachVehicle: mode = 27; break; case SwitchIds::HumanGuiAction::AttachWorkHouse: mode = 5; break;
+            case SwitchIds::HumanGuiAction::AttachLearnHouse: mode = 6; break; case SwitchIds::HumanGuiAction::AttachBuildHouse: mode = 7; break; case SwitchIds::HumanGuiAction::AttachTradeHouse: mode = 8; break; case SwitchIds::HumanGuiAction::DetachTradeHouse: mode = 9; break;
+            case SwitchIds::HumanGuiAction::ChangeJob: manager->MiscWindows_HumanChangeJobWindow_Open(); break;
+            case SwitchIds::HumanGuiAction::ChangeProducedGood: manager->MiscWindows_HumanChangeProducedGoodWindow_Open(); break;
+            case SwitchIds::HumanGuiAction::ChangeEquippedGoods: manager->MiscWindows_HumanChangeEquippedGoodsWindow_Open(6, -1); break;
+            case SwitchIds::HumanGuiAction::LearnJob: manager->MiscWindows_HumanLearnJobWindow_Open(); break;
+            case SwitchIds::HumanGuiAction::SetWorkCenter: mode = 2; break; case SwitchIds::HumanGuiAction::SetWorkArea: mode = 3; break; case SwitchIds::HumanGuiAction::ExploreArea: mode = 13; break;
+            case SwitchIds::HumanGuiAction::ExploreAreaAndReset: remove = ls_Tool_SendSimpleHumanNetworkCommand(32, id, 0xFFFFFFFFu, 1); break;
             default: remove = ls_Tool_SendSimpleHumanNetworkCommand(action, id, first, 0); break;
             }
             if (mode != -1) InputMode_Set(Input(), mode);

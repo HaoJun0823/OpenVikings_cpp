@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanMessageAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -58,34 +59,34 @@ namespace NC2Logic
         if (Human_GetPlayerType(human) == 2 || (Read<std::uint32_t>(human, 0xB84) & 0x10u) != 0 || gGameTime.tick < 1u) return true;
         switch (Read<std::uint32_t>(message, 0))
         {
-        case 2: case 3: case 4: case 5: case 6: case 7: case 8:
+        case SwitchIds::UserMessage::NoWork: case SwitchIds::UserMessage::NoWay: case SwitchIds::UserMessage::CannotFindGood: case SwitchIds::UserMessage::CannotFindBuildGood: case SwitchIds::UserMessage::CannotFindHomeGood: case SwitchIds::UserMessage::NoTargetHuman: case SwitchIds::UserMessage::NoWorkPoint:
             return Human_IsDoingSomething(human) && !Human_IsAboutToWalk(human) && Read<std::uint32_t>(human, 0x368) != 0x17;
-        case 9: case 10: case 11: case 12: case 13:
+        case SwitchIds::UserMessage::NoVehicleBuildPlace: case SwitchIds::UserMessage::VehicleBuildPlaceOccupied: case SwitchIds::UserMessage::TaskCannotBeCompleted: case SwitchIds::UserMessage::MustWaitForGood: case SwitchIds::UserMessage::ProductionStockFull:
             return Human_IsWorking(human);
-        case 14:
+        case SwitchIds::UserMessage::CannotAffordTraining:
             return (Read<std::uint32_t>(human, 0xAB8) == 89 || Read<std::uint32_t>(human, 0xAB8) == 90) && Read<std::uint32_t>(human, 0x36C) == 2;
-        case 15:
+        case SwitchIds::UserMessage::VehicleRequired:
             return Human_IsAttachedToVehicle(human);
-        case 16:
+        case SwitchIds::UserMessage::TradeAgreementRequired:
             return !Human_IsJobTrader(human) || Read<std::uint32_t>(HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)), 4) != 0xFFFFFFFFu;
-        case 28:
+        case SwitchIds::UserMessage::Hungry:
             if (Read<std::int32_t>(human, 0xAA8) <= 0 || Read<std::int32_t>(human, 0xAA0) <= Human_GetHumanAttributeMargin_Hitpoints(human)) return true;
             // Read-only Windows thresholds: food fulfillment 004f3b58 = 2000, critical food 004f3b68 = 1000.
             return (Read<std::uint32_t>(human, 0xAB8) == 10 || Read<std::uint32_t>(human, 0xAB8) == 11) && Read<std::int32_t>(human, 0xAA8) > 2000 && Read<std::int32_t>(human, 0xAA8) > 1000;
-        case 29:
+        case SwitchIds::UserMessage::Tired:
             // Read-only stamina fulfillment threshold at 004f3b64 = 2000.
             return Read<std::uint32_t>(human, 0xAB8) == 8 && Read<std::int32_t>(human, 0xAAC) > 2000;
-        case 30:
+        case SwitchIds::UserMessage::Bored:
             // Read-only social fulfillment threshold at 004f3b60 = 2000.
             return (Read<std::uint32_t>(human, 0xAB8) == 14 || Read<std::uint32_t>(human, 0xAB8) == 15) && (Read<std::int32_t>(human, 0xAB0) > 2000 || !Human_IsJobNeedingSocial(human));
-        case 31:
+        case SwitchIds::UserMessage::WantsToPray:
             // Read-only religion fulfillment threshold at 004f3b5c = 2000.
             return Read<std::uint32_t>(human, 0xAB8) == 12 && (Read<std::int32_t>(human, 0xAB4) > 2000 || !Human_IsJobNeedingReligion(human));
-        case 32:
+        case SwitchIds::UserMessage::Starving:
             return (Read<std::uint32_t>(human, 0xAB8) == 10 || Read<std::uint32_t>(human, 0xAB8) == 11) && Read<std::int32_t>(human, 0xAA8) > 0;
-        case 33:
+        case SwitchIds::UserMessage::WillDieSoon:
             return Read<std::int32_t>(human, 0xAA0) > Human_GetHumanAttributeMargin_Hitpoints(human) || (Read<std::uint32_t>(human, 0xB84) & 8u) != 0;
-        case 39: case 40:
+        case SwitchIds::UserMessage::NoMarriagePartner: case SwitchIds::UserMessage::NoWayToMarriagePartner:
             return Human_IsAboutToMarry(human) || Human_IsMarried(human);
         default:
             return false;

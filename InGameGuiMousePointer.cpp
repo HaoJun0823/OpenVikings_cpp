@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiMousePointer.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiInputAccess.h"
@@ -188,7 +189,7 @@ namespace NC2InGameGuiManager
                             else if (scheme == 0)
                             {
                                 std::uint32_t stringId = 0;
-                                switch (selection) { case 3: stringId = 64; break; case 4: stringId = 65; break; case 8: stringId = 66; break; case 9: stringId = 67; break; case 10: stringId = 68; break; case 11: stringId = 69; break; }
+                                switch (selection) { case SwitchIds::SelectionType::SingleAnimal: stringId = 64; break; case SwitchIds::SelectionType::SingleVehicle: stringId = 65; break; case SwitchIds::SelectionType::Guide: stringId = 66; break; case SwitchIds::SelectionType::Landscape: stringId = 67; break; case SwitchIds::SelectionType::RoadBuildPlace: stringId = 68; break; case SwitchIds::SelectionType::WallBuildPlace: stringId = 69; break; }
                                 if (stringId != 0) ls_PrintString(bitmap, point, NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(stringId), true);
                             }
                         }

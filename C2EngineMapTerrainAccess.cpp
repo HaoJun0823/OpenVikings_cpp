@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2EngineMapTerrainAccess.h"
 #include "ApplicationGlobals.h"
 #include "C2HumanInitialization.h"
@@ -41,28 +42,28 @@ namespace
         using namespace NC2Logic;
         switch (offset)
         {
-            case 0:
+            case SwitchIds::MicroGridOffset::Origin:
                 switch (direction)
                 {
-                    case 0: output[0] = getB(point); MapMagPoint_MoveCursorUnwrapped(point, 5); output[1] = getA(point); break;
-                    case 1: output[0] = getB(point); output[1] = getA(point); break;
-                    case 2: output[0] = getA(point); MapMagPoint_MoveCursorUnwrappedWest(point); output[1] = getB(point); break;
-                    case 3: MapMagPoint_MoveCursorUnwrappedWest(point); output[0] = getB(point); MapMagPoint_MoveCursorUnwrapped(point, 5); output[1] = getA(point); break;
-                    case 4: MapMagPoint_MoveCursorUnwrapped(point, 4); output[0] = getA(point); output[1] = getB(point); break;
-                    case 5: MapMagPoint_MoveCursorUnwrapped(point, 4); output[0] = getB(point); MapMagPoint_MoveCursorUnwrappedEast(point); output[1] = getA(point); break;
+                    case SwitchIds::HexagonDirection::East: output[0] = getB(point); MapMagPoint_MoveCursorUnwrapped(point, 5); output[1] = getA(point); break;
+                    case SwitchIds::HexagonDirection::SouthEast: output[0] = getB(point); output[1] = getA(point); break;
+                    case SwitchIds::HexagonDirection::SouthWest: output[0] = getA(point); MapMagPoint_MoveCursorUnwrappedWest(point); output[1] = getB(point); break;
+                    case SwitchIds::HexagonDirection::West: MapMagPoint_MoveCursorUnwrappedWest(point); output[0] = getB(point); MapMagPoint_MoveCursorUnwrapped(point, 5); output[1] = getA(point); break;
+                    case SwitchIds::HexagonDirection::NorthWest: MapMagPoint_MoveCursorUnwrapped(point, 4); output[0] = getA(point); output[1] = getB(point); break;
+                    case SwitchIds::HexagonDirection::NorthEast: MapMagPoint_MoveCursorUnwrapped(point, 4); output[0] = getB(point); MapMagPoint_MoveCursorUnwrappedEast(point); output[1] = getA(point); break;
                 }
                 break;
-            case 1:
+            case SwitchIds::MicroGridOffset::East:
                 if (direction == 0 || direction == 3) { output[0] = getB(point); MapMagPoint_MoveCursorUnwrapped(point, 5); output[1] = getA(point); }
                 else if (direction == 1 || direction == 2) output[0] = output[1] = getB(point);
                 else if (direction == 4 || direction == 5) { MapMagPoint_MoveCursorUnwrapped(point, 5); output[0] = output[1] = getA(point); }
                 break;
-            case 2:
+            case SwitchIds::MicroGridOffset::SouthWest:
                 if (direction == 0 || direction == 1) output[0] = output[1] = getA(point);
                 else if (direction == 2 || direction == 5) { output[0] = getA(point); MapMagPoint_MoveCursorUnwrappedWest(point); output[1] = getB(point); }
                 else if (direction == 3 || direction == 4) { MapMagPoint_MoveCursorUnwrappedWest(point); output[0] = output[1] = getB(point); }
                 break;
-            case 3:
+            case SwitchIds::MicroGridOffset::SouthEast:
                 if (direction == 0 || direction == 5) output[0] = output[1] = getB(point);
                 else if (direction == 1 || direction == 4) { output[0] = getA(point); output[1] = getB(point); }
                 else if (direction == 2 || direction == 3) output[0] = output[1] = getA(point);
@@ -278,9 +279,9 @@ namespace NC2E2
         const auto first = Read<std::uint8_t>(EngineMap_GetConstMapMacroPointPtr(macro), 4);
         switch (static_cast<std::uint16_t>(offset[0]) | (static_cast<std::uint16_t>(offset[1]) << 1))
         {
-        case 0: return first;
-        case 1: ++macro[0]; break;
-        case 2: if ((macro[1] & 1) == 0) --macro[0]; ++macro[1]; break;
+        case SwitchIds::MicroGridOffset::Origin: return first;
+        case SwitchIds::MicroGridOffset::East: ++macro[0]; break;
+        case SwitchIds::MicroGridOffset::SouthWest: if ((macro[1] & 1) == 0) --macro[0]; ++macro[1]; break;
         default: if ((macro[1] & 1) != 0) ++macro[0]; ++macro[1]; break;
         }
         return (first + Read<std::uint8_t>(EngineMap_GetConstMapMacroPointPtr(macro), 4)) / 2u;

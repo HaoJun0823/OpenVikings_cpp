@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanProduction.h"
 #include "C2HumanAnimalJobs.h"
 #include "C2Debug.h"
@@ -84,14 +85,14 @@ namespace NC2Logic
         std::uint32_t job = 0, good = 0;
         switch (Read<std::uint32_t>(house, 0x14))
         {
-        case 38:
+        case SwitchIds::TrainingHouseType::School:
         {
             const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, Read<std::uint32_t>(human, 4));
             job = Read<std::uint32_t>(slot, 8);
             good = Read<std::uint32_t>(slot, 12);
             break;
         }
-        case 39:
+        case SwitchIds::TrainingHouseType::Barracks:
         {
             auto weapon = Read<std::uint32_t>(human, 0xAE4);
             if (weapon == 19) weapon = 1;
@@ -201,10 +202,10 @@ namespace NC2Logic
         if (!Human_IsAbleToProduceGoodNow(human, Read<std::uint32_t>(human, 0x1C))) { Fail(human, 0); return; }
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 2: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human); return;
-        case 0: break;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human); return;
+        case SwitchIds::GoodCirculationMode::None: break;
         default: return;
         }
         if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }

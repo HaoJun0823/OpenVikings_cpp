@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanMerchantAccess.h"
 #include "C2HumanAtomicEvents.h"
@@ -61,11 +62,11 @@ namespace NC2Logic
         if (!Human_Target_IsValid(human)) return false;
         switch (Read<std::uint32_t>(human, 0xA68))
         {
-        case 1: case 3: case 4: case 5:
+        case SwitchIds::InteractionTargetType::Position: case SwitchIds::InteractionTargetType::RoadBuildPlace: case SwitchIds::InteractionTargetType::WallBuildPlace: case SwitchIds::InteractionTargetType::House:
             return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, 0xA70);
-        case 2:
+        case SwitchIds::InteractionTargetType::Landscape:
             return Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(human, 0xA70) && Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, 0xA74);
-        case 6:
+        case SwitchIds::InteractionTargetType::Vehicle:
         {
             const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize;
             std::uint32_t entry = 0;
@@ -74,7 +75,7 @@ namespace NC2Logic
             if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return false;
             return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == entry;
         }
-        case 7: case 8: return true;
+        case SwitchIds::InteractionTargetType::Human: case SwitchIds::InteractionTargetType::Animal: return true;
         default: return false;
         }
     }
@@ -127,10 +128,10 @@ namespace NC2Logic
         const auto houseById = [](std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; };
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 1:
+        case SwitchIds::GoodCirculationMode::FetchForSelf:
             if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
             break;
-        case 2:
+        case SwitchIds::GoodCirculationMode::FillStockFetch:
         {
             if (Read<std::uint32_t>(human, 0xA68) == 8) break;
             auto* house = Human_GetTargetHousePtr(human);
@@ -143,11 +144,11 @@ namespace NC2Logic
             if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB34)), Read<std::uint32_t>(human, 0xAD0), -1, true);
             break;
         }
-        case 3:
+        case SwitchIds::GoodCirculationMode::FetchForHome:
             if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), 1, false);
             if (Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), -1, true);
             break;
-        case 4:
+        case SwitchIds::GoodCirculationMode::FillStockBringAway:
         {
             if (Read<std::uint32_t>(human, 0xA68) == 8) break;
             if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD0), -1, true);
@@ -161,7 +162,7 @@ namespace NC2Logic
             else if (Human_IsJobWoman(human) && Human_IsAttachedToHomeHouse(human)) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, 0xB28)), Read<std::uint32_t>(human, 0xAD0), -1, true);
             break;
         }
-        case 5:
+        case SwitchIds::GoodCirculationMode::FlushStock:
             if (Read<std::uint32_t>(human, 0xAD4) != 0)
             {
                 if (auto* house = Human_GetTargetHousePtr(human)) House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, 0xAD4), -1, false);
@@ -237,22 +238,22 @@ namespace NC2Logic
         const auto task = Read<std::uint32_t>(human, 0x368);
         switch (task)
         {
-        case 2: case 4: case 23: case 24: case 25: case 26: case 27: case 28: case 29:
+        case SwitchIds::HumanTask::Goto: case SwitchIds::HumanTask::GotoAndWait: case SwitchIds::HumanTask::GotoAndResetTarget: case SwitchIds::HumanTask::ChooseGoodie: case SwitchIds::HumanTask::GoodieIdle: case SwitchIds::HumanTask::GoodieWalkAround: case SwitchIds::HumanTask::GoodieSleep: case SwitchIds::HumanTask::GoodieTalkToAny: case SwitchIds::HumanTask::GoodiePlayWithAnimal:
             Write<std::uint32_t>(human, 0x36C, 2);
             return;
-        case 5: case 13:
+        case SwitchIds::HumanTask::Marry: case SwitchIds::HumanTask::ReceiveLoveOrEnterHome:
             if (Read<std::uint32_t>(human, 0x36C) == 1) Write<std::uint32_t>(human, 0x36C, 2);
             return;
-        case 7:
+        case SwitchIds::HumanTask::FulfillNeeds:
             if (Read<std::uint32_t>(human, 0x36C) != 1) return;
             switch (Read<std::uint32_t>(human, 0x370))
             {
-            case 1: Write<std::uint32_t>(human, 0x36C, 0); return;
-            case 2:
+            case SwitchIds::HumanNeed::Food: Write<std::uint32_t>(human, 0x36C, 0); return;
+            case SwitchIds::HumanNeed::Stamina:
                 if (Human_GetLandscapeTypeAtTargetPosition(human) == 4) Write<std::uint32_t>(human, 0x36C, 2);
                 else { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 3); }
                 return;
-            case 3:
+            case SwitchIds::HumanNeed::Social:
             {
                 CMapMoveableIterator iterator;
                 for (auto id = iterator.GetFirstMapMoveableId(Human_GetMapPositionRef(human)); id != -1; id = iterator.GetNextMapMoveableId())
@@ -268,10 +269,10 @@ namespace NC2Logic
                 Write<std::uint32_t>(human, 0x374, 6);
                 return;
             }
-            case 4: Write<std::uint32_t>(human, 0x36C, 2); return;
+            case SwitchIds::HumanNeed::Religion: Write<std::uint32_t>(human, 0x36C, 2); return;
             default: return;
             }
-        case 14: case 15:
+        case SwitchIds::HumanTask::Attack: case SwitchIds::HumanTask::ApproachAttackTarget:
         {
             Human_Target_Reset(human);
             const auto* weapons = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)]);
@@ -317,7 +318,7 @@ namespace NC2Logic
     {
         switch (opcode)
         {
-        case 3: case 4: case 13: case 17: case 21: case 22: case 23: case 26: case 27: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 41: case 42: case 43: case 44: case 45: case 46: case 47: case 48: case 49: case 50: case 51: return true;
+        case SwitchIds::UserCommand::Stop: case SwitchIds::UserCommand::GotoAndWait: case SwitchIds::UserCommand::Marry: case SwitchIds::UserCommand::SetWorkCenter: case SwitchIds::UserCommand::ChangeJob: case SwitchIds::UserCommand::ChangeProducedGood: case SwitchIds::UserCommand::ChangeProduction: case SwitchIds::UserCommand::AttachHomeHouse: case SwitchIds::UserCommand::DetachHomeHouse: case SwitchIds::UserCommand::AttachWorkHouse: case SwitchIds::UserCommand::DetachWorkHouse: case SwitchIds::UserCommand::AttachBuildHouse: case SwitchIds::UserCommand::DetachBuildHouse: case SwitchIds::UserCommand::AttachLearnHouse: case SwitchIds::UserCommand::DetachLearnHouse: case SwitchIds::UserCommand::LearnJob: case SwitchIds::UserCommand::LearnGood: case SwitchIds::UserCommand::AttachTradeHouse: case SwitchIds::UserCommand::DetachTradeHouse: case SwitchIds::UserCommand::AttachVehicle: case SwitchIds::UserCommand::DetachVehicle: case SwitchIds::UserCommand::SetMilitaryMode: case SwitchIds::UserCommand::SetMilitaryAggressiveFlag: case SwitchIds::UserCommand::AttackHuman: case SwitchIds::UserCommand::AttackHouse: case SwitchIds::UserCommand::AttackAnimal: case SwitchIds::UserCommand::AttackVehicle: case SwitchIds::UserCommand::AttackMapPosition: case SwitchIds::UserCommand::StartAttack: case SwitchIds::UserCommand::ResetTraderImportFlags: case SwitchIds::UserCommand::ConfigureTradeGood: case SwitchIds::UserCommand::SelectTradeAgreement: return true;
         default: return false;
         }
     }
@@ -327,7 +328,7 @@ namespace NC2Logic
     {
         switch (opcode)
         {
-        case 3: case 4: case 13: case 21: case 22: case 25: case 28: case 29: case 30: case 31: case 32: case 33: case 34: case 35: case 36: case 37: case 38: case 39: case 43: case 44: case 45: case 46: case 47: case 48: return true;
+        case SwitchIds::UserCommand::Stop: case SwitchIds::UserCommand::GotoAndWait: case SwitchIds::UserCommand::Marry: case SwitchIds::UserCommand::ChangeJob: case SwitchIds::UserCommand::ChangeProducedGood: case SwitchIds::UserCommand::RestartJobExecution: case SwitchIds::UserCommand::AttachWorkHouse: case SwitchIds::UserCommand::DetachWorkHouse: case SwitchIds::UserCommand::AttachBuildHouse: case SwitchIds::UserCommand::DetachBuildHouse: case SwitchIds::UserCommand::AttachLearnHouse: case SwitchIds::UserCommand::DetachLearnHouse: case SwitchIds::UserCommand::LearnJob: case SwitchIds::UserCommand::LearnGood: case SwitchIds::UserCommand::AttachTradeHouse: case SwitchIds::UserCommand::DetachTradeHouse: case SwitchIds::UserCommand::AttachVehicle: case SwitchIds::UserCommand::DetachVehicle: case SwitchIds::UserCommand::AttackHuman: case SwitchIds::UserCommand::AttackHouse: case SwitchIds::UserCommand::AttackAnimal: case SwitchIds::UserCommand::AttackVehicle: case SwitchIds::UserCommand::AttackMapPosition: case SwitchIds::UserCommand::StartAttack: return true;
         default: return false;
         }
     }
@@ -377,20 +378,20 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0x380, 0);
         switch (Read<std::uint32_t>(human, 0x368))
         {
-        case 2:
-        case 8:
+        case SwitchIds::HumanTask::Goto:
+        case SwitchIds::HumanTask::ExecuteJob:
             std::memcpy(static_cast<std::byte*>(human) + 0xA84, static_cast<const std::byte*>(human) + 0xA68, 28);
             Write(human, 0xA94, Read<std::uint32_t>(human, 0xAD0));
             Write(human, 0xAD8, Read<std::uint32_t>(human, 0xACC));
             break;
-        case 3:
+        case SwitchIds::HumanTask::GoHome:
             Human_DoAddNewUserCommand(human, 6, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
-        case 4:
+        case SwitchIds::HumanTask::GotoAndWait:
             Write<std::uint32_t>(human, 0xA84, 1);
             Write(human, 0xA88, Read<std::uint32_t>(human, 0xA6C));
             break;
-        case 5:
+        case SwitchIds::HumanTask::Marry:
         {
             const auto otherId = Read<std::uint32_t>(human, 0xB1C);
             if (otherId != 0xFFFFFFFFu)
@@ -402,20 +403,20 @@ namespace NC2Logic
             Human_DoAddNewUserCommand(human, 14, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
         }
-        case 11:
+        case SwitchIds::HumanTask::GetBoy:
             Human_DoAddNewUserCommand(human, 15, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
-        case 12:
+        case SwitchIds::HumanTask::GetGirl:
             Human_DoAddNewUserCommand(human, 16, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             break;
-        case 16:
-        case 17:
+        case SwitchIds::HumanTask::Equip:
+        case SwitchIds::HumanTask::DropItem:
             Write(human, 0x390u + Read<std::uint32_t>(human, 0xA5C) * 20u, static_cast<std::uint8_t>(Human_UserControl_GetLastCommandType(human)));
             break;
-        case 18:
+        case SwitchIds::HumanTask::OpenChest:
             Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<const std::byte*>(human) + 0xA70), 0);
             break;
-        case 20:
+        case SwitchIds::HumanTask::ExploreArea:
             Human_DoAddNewUserCommand(human, 20, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<const std::byte*>(human) + 0xB30), 0);
             break;
         default: break;
@@ -496,11 +497,11 @@ namespace NC2Logic
     {
         switch (NC2Lifetime::Read<std::uint8_t>(command, 0))
         {
-        case 6: case 13: case 14: return Human_IsJobSoldier(human) || Human_IsJobScout(human) || Human_IsJobTrader(human);
-        case 28: case 29: return Human_IsJobBuilder(human);
-        case 30: case 31: return !Human_IsJobBuilder(human);
-        case 36: case 37: return !Human_IsJobTrader(human);
-        case 19: case 20: return !Human_IsJobScout(human);
+        case SwitchIds::UserCommand::GoHome: case SwitchIds::UserCommand::Marry: case SwitchIds::UserCommand::MarryAlternate: return Human_IsJobSoldier(human) || Human_IsJobScout(human) || Human_IsJobTrader(human);
+        case SwitchIds::UserCommand::AttachWorkHouse: case SwitchIds::UserCommand::DetachWorkHouse: return Human_IsJobBuilder(human);
+        case SwitchIds::UserCommand::AttachBuildHouse: case SwitchIds::UserCommand::DetachBuildHouse: return !Human_IsJobBuilder(human);
+        case SwitchIds::UserCommand::AttachTradeHouse: case SwitchIds::UserCommand::DetachTradeHouse: return !Human_IsJobTrader(human);
+        case SwitchIds::UserCommand::ExploreArea: case SwitchIds::UserCommand::ExploreAreaAndUpdateCenter: return !Human_IsJobScout(human);
         default: { const auto opcode = NC2Lifetime::Read<std::uint8_t>(command, 0); return opcode < 4 || opcode > 87; }
         }
     }
@@ -817,46 +818,46 @@ namespace NC2Logic
         if ((opcode >= 61 && opcode <= 69) || (opcode >= 79 && opcode <= 87)) return Human_DoExecuteUserCommand_Equipment_Change(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
         switch (opcode)
         {
-        case 4:
+        case SwitchIds::UserCommand::GotoAndWait:
         {
             Write<std::uint8_t>(human, 0x728, 0);
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 0x0C));
             return Human_DoExecuteUserCommand_GotoAndWait(human, &point);
         }
-        case 5:
+        case SwitchIds::UserCommand::GoAway:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 12));
             return Human_DoExecuteUserCommand_GoAway(human, &point, Read<std::uint32_t>(command, 16));
         }
-        case 6: // DoExecuteUserCommand_GoHome, inlined at 0043BF80.
+        case SwitchIds::UserCommand::GoHome: // DoExecuteUserCommand_GoHome, inlined at 0043BF80.
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write<std::uint32_t>(human, 0x368, 3);
             Write<std::uint32_t>(human, 0x36C, 0);
             return 2;
-        case 7: return Human_DoExecuteUserCommand_Eat(human);
-        case 8: return Human_DoExecuteUserCommand_Sleep(human);
-        case 9: return Human_DoExecuteUserCommand_Talk(human);
-        case 10: return Human_DoExecuteUserCommand_Pray(human);
-        case 11: return Human_DoExecuteUserCommand_Goodie(human, Read<std::int32_t>(command, 12));
-        case 12: return Human_DoExecuteUserCommand_Cheer(human, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8));
-        case 13: case 14: return Human_DoExecuteUserCommand_Marry(human);
-        case 15: return Human_DoExecuteUserCommand_GetBoy(human);
-        case 16: return Human_DoExecuteUserCommand_GetGirl(human);
-        case 17:
+        case SwitchIds::UserCommand::Eat: return Human_DoExecuteUserCommand_Eat(human);
+        case SwitchIds::UserCommand::Sleep: return Human_DoExecuteUserCommand_Sleep(human);
+        case SwitchIds::UserCommand::Talk: return Human_DoExecuteUserCommand_Talk(human);
+        case SwitchIds::UserCommand::Pray: return Human_DoExecuteUserCommand_Pray(human);
+        case SwitchIds::UserCommand::Goodie: return Human_DoExecuteUserCommand_Goodie(human, Read<std::int32_t>(command, 12));
+        case SwitchIds::UserCommand::Cheer: return Human_DoExecuteUserCommand_Cheer(human, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8));
+        case SwitchIds::UserCommand::Marry: case SwitchIds::UserCommand::MarryAlternate: return Human_DoExecuteUserCommand_Marry(human);
+        case SwitchIds::UserCommand::GetBoy: return Human_DoExecuteUserCommand_GetBoy(human);
+        case SwitchIds::UserCommand::GetGirl: return Human_DoExecuteUserCommand_GetGirl(human);
+        case SwitchIds::UserCommand::SetWorkCenter:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 12));
             return Human_DoExecuteUserCommand_SetWorkCenter(human, &point);
         }
-        case 18:
+        case SwitchIds::UserCommand::OpenChest:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 12));
             return Human_DoExecuteUserCommand_OpenChest(human, &point);
         }
-        case 19: case 20:
+        case SwitchIds::UserCommand::ExploreArea: case SwitchIds::UserCommand::ExploreAreaAndUpdateCenter:
         {
             if (opcode == 20 && Read<std::uint32_t>(command, 16) != 0)
             {
@@ -868,52 +869,52 @@ namespace NC2Logic
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 12));
             return opcode == 19 ? Human_DoExecuteUserCommand_BuildGuide(human, &point) : Human_DoExecuteUserCommand_ExploreArea(human, &point);
         }
-        case 26: return Human_DoExecuteUserCommand_AttachHomeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 21: return Human_DoExecuteUserCommand_ChangeJob(human, Read<std::int32_t>(command, 12));
-        case 22: return Human_DoExecuteUserCommand_ChangeProducedGood(human, Read<std::uint32_t>(command, 12));
-        case 23: return Human_DoExecuteUserCommand_ChangeProduction(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
-        case 24: return Human_DoExecuteUserCommand_SetJob(human, Read<std::uint32_t>(command, 12));
-        case 25: return Human_DoExecuteUserCommand_RestartJobExecution(human);
-        case 27: return Human_DoExecuteUserCommand_DetachHomeHouse(human);
-        case 28: return Human_DoExecuteUserCommand_AttachWorkHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 29: return Human_DoExecuteUserCommand_DetachWorkHouse(human);
-        case 30: return Human_DoExecuteUserCommand_AttachBuildHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 31: return Human_DoExecuteUserCommand_DetachBuildHouse(human);
-        case 32: return Human_DoExecuteUserCommand_AttachLearnHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 33: return Human_DoExecuteUserCommand_DetachLearnHouse(human);
-        case 34: return Human_DoExecuteUserCommand_LearnJob(human, Read<std::uint32_t>(command, 12));
-        case 35: return Human_DoExecuteUserCommand_LearnGood(human, Read<std::uint32_t>(command, 12));
-        case 36: return Human_DoExecuteUserCommand_AttachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 37: return Human_DoExecuteUserCommand_DetachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 38: return Human_DoExecuteUserCommand_AttachVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 39: return Human_DoExecuteUserCommand_DetachVehicle(human);
-        case 40: return Human_DoExecuteUserCommand_MoveInsideVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 41:
+        case SwitchIds::UserCommand::AttachHomeHouse: return Human_DoExecuteUserCommand_AttachHomeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::ChangeJob: return Human_DoExecuteUserCommand_ChangeJob(human, Read<std::int32_t>(command, 12));
+        case SwitchIds::UserCommand::ChangeProducedGood: return Human_DoExecuteUserCommand_ChangeProducedGood(human, Read<std::uint32_t>(command, 12));
+        case SwitchIds::UserCommand::ChangeProduction: return Human_DoExecuteUserCommand_ChangeProduction(human, Read<std::uint32_t>(command, 12), Read<std::int32_t>(command, 16));
+        case SwitchIds::UserCommand::AssignJob: return Human_DoExecuteUserCommand_SetJob(human, Read<std::uint32_t>(command, 12));
+        case SwitchIds::UserCommand::RestartJobExecution: return Human_DoExecuteUserCommand_RestartJobExecution(human);
+        case SwitchIds::UserCommand::DetachHomeHouse: return Human_DoExecuteUserCommand_DetachHomeHouse(human);
+        case SwitchIds::UserCommand::AttachWorkHouse: return Human_DoExecuteUserCommand_AttachWorkHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::DetachWorkHouse: return Human_DoExecuteUserCommand_DetachWorkHouse(human);
+        case SwitchIds::UserCommand::AttachBuildHouse: return Human_DoExecuteUserCommand_AttachBuildHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::DetachBuildHouse: return Human_DoExecuteUserCommand_DetachBuildHouse(human);
+        case SwitchIds::UserCommand::AttachLearnHouse: return Human_DoExecuteUserCommand_AttachLearnHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::DetachLearnHouse: return Human_DoExecuteUserCommand_DetachLearnHouse(human);
+        case SwitchIds::UserCommand::LearnJob: return Human_DoExecuteUserCommand_LearnJob(human, Read<std::uint32_t>(command, 12));
+        case SwitchIds::UserCommand::LearnGood: return Human_DoExecuteUserCommand_LearnGood(human, Read<std::uint32_t>(command, 12));
+        case SwitchIds::UserCommand::AttachTradeHouse: return Human_DoExecuteUserCommand_AttachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::DetachTradeHouse: return Human_DoExecuteUserCommand_DetachTradeHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::AttachVehicle: return Human_DoExecuteUserCommand_AttachVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::DetachVehicle: return Human_DoExecuteUserCommand_DetachVehicle(human);
+        case SwitchIds::UserCommand::MoveInsideVehicle: return Human_DoExecuteUserCommand_MoveInsideVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::SetMilitaryMode:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write(human, 0xB5C, Read<std::uint32_t>(command, 0x0C));
             if (Read<std::uint32_t>(command, 0x0C) == 3) Write<std::uint32_t>(human, 0xB70, 0);
             return 2;
-        case 42:
+        case SwitchIds::UserCommand::SetMilitaryAggressiveFlag:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write<std::uint8_t>(human, 0xB60, Read<std::uint32_t>(command, 12) != 0);
             // The subsequent native call 0045BFEC is a folded RET 4 no-op.
             return 2;
-        case 43: return Human_DoExecuteUserCommand_AttackHuman(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 44: return Human_DoExecuteUserCommand_AttackHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 45: return Human_DoExecuteUserCommand_AttackAnimal(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 46: return Human_DoExecuteUserCommand_AttackVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
-        case 47: return Human_DoExecuteUserCommand_AttackMapPosition(human, Read<std::uint32_t>(command, 12));
-        case 48:
+        case SwitchIds::UserCommand::AttackHuman: return Human_DoExecuteUserCommand_AttackHuman(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::AttackHouse: return Human_DoExecuteUserCommand_AttackHouse(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::AttackAnimal: return Human_DoExecuteUserCommand_AttackAnimal(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::AttackVehicle: return Human_DoExecuteUserCommand_AttackVehicle(human, Read<std::int32_t>(command, 12), Read<std::uint32_t>(command, 16));
+        case SwitchIds::UserCommand::AttackMapPosition: return Human_DoExecuteUserCommand_AttackMapPosition(human, Read<std::uint32_t>(command, 12));
+        case SwitchIds::UserCommand::StartAttack:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
             Write<std::uint32_t>(human, 0x368, 14);
             Write<std::uint32_t>(human, 0x36C, 0);
             return 2;
-        case 49: // Inlined at 0043C2B2: enqueue restart before resetting flags.
+        case SwitchIds::UserCommand::ResetTraderImportFlags: // Inlined at 0043C2B2: enqueue restart before resetting flags.
             Human_DoAddNewUserCommand(human, 25, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             Human_l_Trader_ResetImportFlags(human);
             return 1;
-        case 50: // Inlined at 0043C2D9: house id, good and flag share parameter 1.
-        case 51: // Inlined at 0043C340: select a trade agreement without validation.
+        case SwitchIds::UserCommand::ConfigureTradeGood: // Inlined at 0043C2D9: house id, good and flag share parameter 1.
+        case SwitchIds::UserCommand::SelectTradeAgreement: // Inlined at 0043C340: select a trade agreement without validation.
         {
             if (!Human_IsJobTrader(human)) return 1;
             void* merchant = Human_l_GetMerchantDataPtr(human);

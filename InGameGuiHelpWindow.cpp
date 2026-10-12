@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiHelpWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -152,27 +153,27 @@ namespace NC2InGameGuiMiscWindows
         std::uint32_t field = 0, count = 0;
         switch (command)
         {
-        case 10011: Write(window, 0x3AC, param2); break;
-        case 10012: Write<std::int32_t>(window, 0x3AC, -1); break;
-        case 10013: field = 0x3AC; count = Read<std::uint32_t>(window, 0x84); break;
-        case 10014: field = 0x3AC; count = Read<std::uint32_t>(window, 0x84); break;
-        case 10015:
-        case 20001:
+        case SwitchIds::HelpWindowCommand::SelectJob: Write(window, 0x3AC, param2); break;
+        case SwitchIds::HelpWindowCommand::ClearJobSelection: Write<std::int32_t>(window, 0x3AC, -1); break;
+        case SwitchIds::HelpWindowCommand::PreviousJob: field = 0x3AC; count = Read<std::uint32_t>(window, 0x84); break;
+        case SwitchIds::HelpWindowCommand::NextJob: field = 0x3AC; count = Read<std::uint32_t>(window, 0x84); break;
+        case SwitchIds::HelpWindowCommand::ShowHouseForJob:
+        case SwitchIds::HelpWindowCommand::OpenHouseInfo:
         {
             Write<std::uint32_t>(window, 0x70, 2);
             std::int32_t slot = -1;
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(window, 0x3B0); ++index) if (Read<std::uint32_t>(window, 0x3B4u + index * 4u) == param2) { slot = index; break; }
             Write(window, 0x548, slot); break;
         }
-        case 10016: Write(window, 0x548, param2); break;
-        case 10017: Write<std::int32_t>(window, 0x548, -1); break;
-        case 10018: field = 0x548; count = Read<std::uint32_t>(window, 0x3B0); break;
-        case 10019: field = 0x548; count = Read<std::uint32_t>(window, 0x3B0); break;
-        case 10020: Write(window, 0x554, param2); break;
-        case 10021: Write<std::int32_t>(window, 0x554, -1); break;
-        case 10022: field = 0x554; count = Read<std::uint32_t>(window, 0x54C); break;
-        case 10023: field = 0x554; count = Read<std::uint32_t>(window, 0x54C); break;
-        case 20000:
+        case SwitchIds::HelpWindowCommand::SelectHouse: Write(window, 0x548, param2); break;
+        case SwitchIds::HelpWindowCommand::ClearHouseSelection: Write<std::int32_t>(window, 0x548, -1); break;
+        case SwitchIds::HelpWindowCommand::PreviousHouse: field = 0x548; count = Read<std::uint32_t>(window, 0x3B0); break;
+        case SwitchIds::HelpWindowCommand::NextHouse: field = 0x548; count = Read<std::uint32_t>(window, 0x3B0); break;
+        case SwitchIds::HelpWindowCommand::SelectGood: Write(window, 0x554, param2); break;
+        case SwitchIds::HelpWindowCommand::ClearGoodSelection: Write<std::int32_t>(window, 0x554, -1); break;
+        case SwitchIds::HelpWindowCommand::PreviousGood: field = 0x554; count = Read<std::uint32_t>(window, 0x54C); break;
+        case SwitchIds::HelpWindowCommand::NextGood: field = 0x554; count = Read<std::uint32_t>(window, 0x54C); break;
+        case SwitchIds::HelpWindowCommand::OpenJobInfo:
         {
             Write<std::uint32_t>(window, 0x70, 1);
             std::int32_t slot = -1;

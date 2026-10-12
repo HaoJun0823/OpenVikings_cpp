@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticVehicleTypeData.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
@@ -80,24 +81,24 @@ namespace NC2Logic
             {
                 switch (VehicleTokens().FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65: std::strncpy(record.name, reader.GetString(), 29); break;
-                case 0x6C73697A: record.logicSize = reader.GetInt(); break;
-                case 0x7374736C: record.stockSlots = reader.GetInt(); break;
-                case 0x64726164: record.debugRadius = reader.GetInt(); break;
-                case 0x70736C74: record.passengerSlots = reader.GetInt(); break;
-                case 0x6C67636D: record.commanderType = reader.GetInt(); break;
-                case 0x76736C74: record.vehicleSlots = reader.GetInt(); break;
-                case 0x6C646174: record.draggingAnimalTribe = reader.GetInt(); break;
-                case 0x6C747674: record.transformVehicleType = reader.GetInt(); break;
-                case 0x73746F76:
+                case SwitchIds::VehicleTypeToken::Name: std::strncpy(record.name, reader.GetString(), 29); break;
+                case SwitchIds::VehicleTypeToken::LogicSize: record.logicSize = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::StockSlots: record.stockSlots = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::DebugRadius: record.debugRadius = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::PassengerSlots: record.passengerSlots = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::LogicCommander: record.commanderType = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::VehicleSlots: record.vehicleSlots = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::LogicDraggingAnimalTribe: record.draggingAnimalTribe = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::LogicTransformVehicleType: record.transformVehicleType = reader.GetInt(); break;
+                case SwitchIds::VehicleTypeToken::StockVector:
                     record.stockVectorX = reader.GetInt();
                     record.stockVectorY = reader.GetInt();
                     break;
-                case 0x70617376:
+                case SwitchIds::VehicleTypeToken::PassengerVector:
                     record.passengerVectorX = reader.GetInt();
                     record.passengerVectorY = reader.GetInt();
                     break;
-                case 0x6C67676F:
+                case SwitchIds::VehicleTypeToken::LogicGood:
                 {
                     const std::int32_t goodType = reader.GetInt();
                     if (goodType < 1 || goodType > 55) break;
@@ -106,14 +107,14 @@ namespace NC2Logic
                     ++record.goodTypeCount;
                     break;
                 }
-                case 0x6C677073:
+                case SwitchIds::VehicleTypeToken::LogicPassenger:
                 {
                     const std::int32_t passengerType = reader.GetInt();
                     // Retain the original unchecked signed index as wrapped byte addressing.
                     NC2Lifetime::Write<std::uint8_t>(&record, 0x184u + static_cast<std::uint32_t>(passengerType), 1);
                     break;
                 }
-                case 0x64626763:
+                case SwitchIds::VehicleTypeToken::DebugColor:
                 {
                     const auto red = static_cast<std::uint8_t>(reader.GetInt());
                     const auto green = static_cast<std::uint8_t>(reader.GetInt());

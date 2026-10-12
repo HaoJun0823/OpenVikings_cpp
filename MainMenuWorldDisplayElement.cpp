@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "MainMenuWorldDisplayElement.h"
 #include "MainMenuGuiManager.h"
 #include "C2CampaignStaticDataManager.h"
@@ -205,12 +206,12 @@ bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void* element
     {
         switch (command)
         {
-        case 0x7D2: NC2E2::Display_AssignNewDisplayDefinitionValues(Read<void*>(element, 0x30), Read<float>(&param1, 0), Read<float>(&param2, 0), Read<float>(&param3, 0), true); break;
-        case 0x7D3: NC2E2::DE_ToDraw_ToggleFlagset(Read<void*>(element, 0x30), param1); break;
-        case 0x7D5:
+        case SwitchIds::WorldDisplayCommand::AssignDisplayDefinition: NC2E2::Display_AssignNewDisplayDefinitionValues(Read<void*>(element, 0x30), Read<float>(&param1, 0), Read<float>(&param2, 0), Read<float>(&param3, 0), true); break;
+        case SwitchIds::WorldDisplayCommand::ToggleDrawFlags: NC2E2::DE_ToDraw_ToggleFlagset(Read<void*>(element, 0x30), param1); break;
+        case SwitchIds::WorldDisplayCommand::ScrollByPixelDelta:
             if ((Read<std::uint32_t>(element, 0x18) & 0x200u) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
             break;
-        case 0x7D7:
+        case SwitchIds::WorldDisplayCommand::ToggleZoom:
             if (Read<std::uint8_t>(Read<void*>(element, 0x30), 0x6C) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, 0x30), false);
             break;
         }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
 #include "CDAudioManager.h"
 #include "DMManager.h"
@@ -51,20 +52,20 @@ namespace NMasterControlProgram
     {
         switch (mProgramState)
         {
-        case 5:
+        case SwitchIds::ProgramState::TitleScreen:
             System_ProgramState_TitleScreen_ShutDown();
             break;
 
-        case 8:
+        case SwitchIds::ProgramState::MainMenu:
             System_ProgramState_MainMenu_ShutDown();
             break;
 
-        case 11:
-        case 12:
+        case SwitchIds::ProgramState::Game:
+        case SwitchIds::ProgramState::GameAlternate:
             System_ProgramState_Game_ShutDown();
             break;
 
-        case 15:
+        case SwitchIds::ProgramState::PreIngameFmv:
             System_ProgramState_PreIngameFmv_ShutDown();
             break;
         }
@@ -100,20 +101,20 @@ namespace NMasterControlProgram
     {
         switch (mProgramState)
         {
-        case 5:
+        case SwitchIds::ProgramState::TitleScreen:
             System_ProgramState_TitleScreen_Update();
             break;
 
-        case 8:
+        case SwitchIds::ProgramState::MainMenu:
             System_ProgramState_MainMenu_Update();
             break;
 
-        case 11:
-        case 12:
+        case SwitchIds::ProgramState::Game:
+        case SwitchIds::ProgramState::GameAlternate:
             System_ProgramState_Game_Update();
             break;
 
-        case 15:
+        case SwitchIds::ProgramState::PreIngameFmv:
             System_ProgramState_PreIngameFmv_Update();
             break;
         }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2AIGlobalGoods.h"
 #include "C2AIBuildingAccess.h"
 #include "C2AIObjectAccess.h"
@@ -83,11 +84,11 @@ namespace NC2Logic
                 else if (Read<std::int32_t>(Good(manager, good), 0) == -1) Write(Good(manager, good), 0, id);
                 switch (action)
                 {
-                case 1: AIGoodManager_ImportThisGoodType(goods, good); AIGoodManager_SetTraderBringFlag(goods, good, true); break;
-                case 2: AIGoodManager_SetTraderBringFlag(goods, good, true); break;
-                case 3: AIGoodManager_StopProduction(goods, good); break;
-                case 4: AIGoodManager_IsProducingGood(goods, good, true); break;
-                case 5: AIGoodManager_SetTraderBringFlag(goods, good, false); break;
+                case SwitchIds::AIGoodAction::ImportAndBring: AIGoodManager_ImportThisGoodType(goods, good); AIGoodManager_SetTraderBringFlag(goods, good, true); break;
+                case SwitchIds::AIGoodAction::Bring: AIGoodManager_SetTraderBringFlag(goods, good, true); break;
+                case SwitchIds::AIGoodAction::StopProduction: AIGoodManager_StopProduction(goods, good); break;
+                case SwitchIds::AIGoodAction::StartProduction: AIGoodManager_IsProducingGood(goods, good, true); break;
+                case SwitchIds::AIGoodAction::StopBringing: AIGoodManager_SetTraderBringFlag(goods, good, false); break;
                 default: break;
                 }
             }

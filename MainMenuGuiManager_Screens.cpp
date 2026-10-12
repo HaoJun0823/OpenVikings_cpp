@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2EngineDisplayAccess.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiTextToolElementAccess.h"
@@ -110,7 +111,7 @@ namespace NC2MainMenuGuiManager
         };
         switch (currentScreen)
         {
-        case 1:
+        case SwitchIds::MainMenuScreen::MainMenu:
         {
             auto rectangle = content;
             void* element = CreateButton(rectangle, 0, 1, 0x138B, owner, StringTool_GetMainMenuStringPtr);
@@ -122,12 +123,12 @@ namespace NC2MainMenuGuiManager
             button(back, 0xA, 0xB, 0x1388);
             break;
         }
-        case 2:
+        case SwitchIds::MainMenuScreen::ExitConfirmation:
             heading(title, 0x1E);
             button(content, 0x1F, 0x20, 0x1389);
             button(back, 0x14, 0x15, 0x138A);
             break;
-        case 3:
+        case SwitchIds::MainMenuScreen::SinglePlayerMenu:
         {
             heading(title, 0x28);
             auto rectangle = content;
@@ -138,8 +139,8 @@ namespace NC2MainMenuGuiManager
             button(back, 0x14, 0x15, 0x138A);
             break;
         }
-        case 4:
-        case 8:
+        case SwitchIds::MainMenuScreen::MapList:
+        case SwitchIds::MainMenuScreen::TutorialMapList:
         {
             heading(title, currentScreen == 4 ? 0x32 : 0x14, currentScreen == 4 ? StringTool_GetMainMenuStringPtr : StringTool_GetOdin001StringPtr);
             if (NC2Logic::gCleanMapsManager != nullptr)
@@ -187,7 +188,7 @@ namespace NC2MainMenuGuiManager
             returnToMain();
             break;
         }
-        case 5:
+        case SwitchIds::MainMenuScreen::CampaignMap:
         {
             if (NC2Logic::gCleanMapsManager != nullptr)
             {
@@ -216,7 +217,7 @@ namespace NC2MainMenuGuiManager
             returnToMain();
             break;
         }
-        case 6:
+        case SwitchIds::MainMenuScreen::LoadGame:
         {
             heading(title, 0x35);
             if (NC2Logic::gSavegamesManager != nullptr)
@@ -238,7 +239,7 @@ namespace NC2MainMenuGuiManager
             returnToMain();
             break;
         }
-        case 7:
+        case SwitchIds::MainMenuScreen::DifficultyOptions:
         {
             heading(title, 0x1A, StringTool_GetOdin001StringPtr);
             auto rectangle = content;
@@ -253,8 +254,8 @@ namespace NC2MainMenuGuiManager
             returnToMain();
             break;
         }
-        case 9:
-        case 12:
+        case SwitchIds::MainMenuScreen::EnterCallsign:
+        case SwitchIds::MainMenuScreen::EnterSessionName:
         {
             heading(title, currentScreen == 9 ? 0x48 : 0x50);
             auto rectangle = content; rectangle.y = AddCoordinate(rectangle.y, 120);
@@ -263,7 +264,7 @@ namespace NC2MainMenuGuiManager
             networkBack();
             break;
         }
-        case 10:
+        case SwitchIds::MainMenuScreen::SelectServiceProvider:
         {
             heading(title, 0x4A);
             auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 100);
@@ -277,7 +278,7 @@ namespace NC2MainMenuGuiManager
             networkBack();
             break;
         }
-        case 11:
+        case SwitchIds::MainMenuScreen::HostOrJoin:
         {
             heading(title, 0x4B);
             auto rectangle = content;
@@ -287,7 +288,7 @@ namespace NC2MainMenuGuiManager
             networkBack();
             break;
         }
-        case 13:
+        case SwitchIds::MainMenuScreen::SessionList:
         {
             heading(title, 0x52);
             auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 200);
@@ -307,7 +308,7 @@ namespace NC2MainMenuGuiManager
             networkBack();
             break;
         }
-        case 14:
+        case SwitchIds::MainMenuScreen::Lobby:
         {
             if (lobbyValue == 2)
             {
@@ -463,7 +464,7 @@ namespace NC2MainMenuGuiManager
             networkBack();
             break;
         }
-        case 15:
+        case SwitchIds::MainMenuScreen::PlayerConfiguration:
         {
             heading(title, 0x82); auto rectangle = content; heading(rectangle, 0x83);
             rectangle.y = AddCoordinate(rectangle.y, rectangle.height);
@@ -477,11 +478,11 @@ namespace NC2MainMenuGuiManager
             }
             break;
         }
-        case 16: heading(title, 0x8C); break;
-        case 17: heading(title, 0x23, StringTool_GetOdin001StringPtr); break;
-        case 18: heading(title, 0xA0); networkBack(); break;
-        case 21: heading(title, 0x8D); networkBack(); break;
-        case 22:
+        case SwitchIds::MainMenuScreen::FileUpload: heading(title, 0x8C); break;
+        case SwitchIds::MainMenuScreen::FileDownload: heading(title, 0x23, StringTool_GetOdin001StringPtr); break;
+        case SwitchIds::MainMenuScreen::NetworkError: heading(title, 0xA0); networkBack(); break;
+        case SwitchIds::MainMenuScreen::Disconnected: heading(title, 0x8D); networkBack(); break;
+        case SwitchIds::MainMenuScreen::Credits:
         {
             SRectangle rectangle{AddCoordinate(AddCoordinate(mStaticVars.displayWidth, -800) / 2, 168), AddCoordinate(AddCoordinate(mStaticVars.displayHeight, -600) / 2, 115), 444, 357};
             rectangle.Inflate(-3, -3);
@@ -492,7 +493,7 @@ namespace NC2MainMenuGuiManager
             button(back, 0x14, 0x15, 0x138A);
             break;
         }
-        case 23:
+        case SwitchIds::MainMenuScreen::InsertGameCd:
         {
             heading(title, 0xAF); auto rectangle = content; rectangle.y = AddCoordinate(rectangle.y, 100);
             for (std::uint32_t index = 0; index < 2; ++index)

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
 #include "C2GameMapIO.h"
 #include "C2GameMapAccess.h"
@@ -103,28 +104,28 @@ namespace NC2Logic
 
             switch (marker)
             {
-            case 0x6C61636Fu: io->IO_File_ReadBinary(gGameMapStaticStorage + 0x3C, 0xFA4); break;
-            case 0x6C61666Du:
+            case SwitchIds::LogicMapChunk::Continents: io->IO_File_ReadBinary(gGameMapStaticStorage + 0x3C, 0xFA4); break;
+            case SwitchIds::LogicMapChunk::CleanFishManager:
                 static_cast<CMapFishManager*>(gMapFishManager)->IO_Cleanmap_Load(*io);
                 static_cast<CMapFishManager*>(gMapFishManager)->RemoveInvalidSwarms();
                 break;
-            case 0x6C617377u: CMapWalkSectorManager::IO_Cleanmap_Load(*io); break;
-            case 0x6C6D6865u: readMacroBytePlane(2); break;
-            case 0x6C6D7061u: readMacroBytePlane(0); break;
-            case 0x6C6D7062u: readMacroBytePlane(1); break;
-            case 0x6C6D636Fu: readMicroBytePlane(6); break;
-            case 0x6C6D7477u: readMicroBytePlane(7); break;
-            case 0x6C6D6D73u: readMicroFlagPlane(0x0C, 0x07, 0); break;
-            case 0x6C6D7072u: readMicroFlagPlane(0x0C, 0x78, 3); break;
-            case 0x6C6D7762u: readMicroFlagPlane(0x0C, 0x80, 7); break;
-            case 0x6C6D6262u: readMicroFlagPlane(0x0D, 0x01, 0); break;
-            case 0x6C6D726Fu: readMicroFlagPlane(0x0D, 0x02, 1); break;
-            case 0x6C6D7362u: readMicroFlagPlane(0x0D, 0x10, 4); break;
-            case 0x6C6D6866u: readMicroFlagPlane(0x0D, 0x20, 5); break;
-            case 0x736D6578u: readMicroWordPlane(8); break;
-            case 0x736D666Du: readMicroWordPlane(0x0A); break;
-            case 0x6C6D6C70u:
-            case 0x6C6D6C76u:
+            case SwitchIds::LogicMapChunk::CleanWalkSectors: CMapWalkSectorManager::IO_Cleanmap_Load(*io); break;
+            case SwitchIds::LogicMapChunk::MacroHeight: readMacroBytePlane(2); break;
+            case SwitchIds::LogicMapChunk::MacroPatternA: readMacroBytePlane(0); break;
+            case SwitchIds::LogicMapChunk::MacroPatternB: readMacroBytePlane(1); break;
+            case SwitchIds::LogicMapChunk::MicroContinent: readMicroBytePlane(6); break;
+            case SwitchIds::LogicMapChunk::MicroWalkConnections: readMicroBytePlane(7); break;
+            case SwitchIds::LogicMapChunk::MicroMaximumMoveableSize: readMicroFlagPlane(0x0C, 0x07, 0); break;
+            case SwitchIds::LogicMapChunk::MicroPathResistance: readMicroFlagPlane(0x0C, 0x78, 3); break;
+            case SwitchIds::LogicMapChunk::MicroWalkingBlocked: readMicroFlagPlane(0x0C, 0x80, 7); break;
+            case SwitchIds::LogicMapChunk::MicroBuildingBlocked: readMicroFlagPlane(0x0D, 0x01, 0); break;
+            case SwitchIds::LogicMapChunk::MicroRoad: readMicroFlagPlane(0x0D, 0x02, 1); break;
+            case SwitchIds::LogicMapChunk::MicroSectorBasePoint: readMicroFlagPlane(0x0D, 0x10, 4); break;
+            case SwitchIds::LogicMapChunk::MicroHouseBuildForbidden: readMicroFlagPlane(0x0D, 0x20, 5); break;
+            case SwitchIds::LogicMapChunk::Exploration: readMicroWordPlane(8); break;
+            case SwitchIds::LogicMapChunk::Fog: readMicroWordPlane(0x0A); break;
+            case SwitchIds::LogicMapChunk::LandscapePlayer:
+            case SwitchIds::LogicMapChunk::LandscapeValency:
                 io->IO_File_ReadAndUnpackBinary(scratch, microCount);
                 for (std::uint32_t index = 0; index < microCount; ++index)
                 {
@@ -133,7 +134,7 @@ namespace NC2Logic
                         record[marker == 0x6C6D6C70u ? 4 : 3] = scratch[index];
                 }
                 break;
-            case 0x6C6D6C74u:
+            case SwitchIds::LogicMapChunk::LandscapeType:
                 io->IO_File_ReadAndUnpackBinary(scratch, microCount);
                 for (std::uint32_t index = 0; index < microCount; ++index)
                 {
@@ -147,9 +148,9 @@ namespace NC2Logic
                     }
                 }
                 break;
-            case 0x6C6D616Fu:
-            case 0x736D6775u:
-            case 0x736D686Fu:
+            case SwitchIds::LogicMapChunk::AttachedObjects:
+            case SwitchIds::LogicMapChunk::Guides:
+            case SwitchIds::LogicMapChunk::Houses:
                 io->IO_File_ReadAndUnpackBinary(scratch, microCount * 2u);
                 for (std::uint32_t index = 0; index < microCount; ++index)
                 {
@@ -179,13 +180,13 @@ namespace NC2Logic
                     }
                 }
                 break;
-            case 0x7361616Du: ConstructMapManager<CGameMapSectorAttachmentManager>(*io); break;
-            case 0x73616772u: ConstructMapManager<CMapBioRegrowManager>(*io); break;
-            case 0x73617377u: ConstructMapManager<CMapWalkSectorManager>(*io); break;
-            case 0x7361746Du: ConstructMapManager<CMapLandscapeAutoTransitionManager>(*io); break;
-            case 0x7366696Du: ConstructMapManager<CMapFishManager>(*io); break;
-            case 0x73726F64u: ConstructMapManager<CRoadBuildManager>(*io); break;
-            case 0x73726F77u: ConstructMapManager<CWallBuildManager>(*io); break;
+            case SwitchIds::LogicMapChunk::SectorAttachments: ConstructMapManager<CGameMapSectorAttachmentManager>(*io); break;
+            case SwitchIds::LogicMapChunk::BioRegrowth: ConstructMapManager<CMapBioRegrowManager>(*io); break;
+            case SwitchIds::LogicMapChunk::WalkSectors: ConstructMapManager<CMapWalkSectorManager>(*io); break;
+            case SwitchIds::LogicMapChunk::AutoTransitions: ConstructMapManager<CMapLandscapeAutoTransitionManager>(*io); break;
+            case SwitchIds::LogicMapChunk::FishManager: ConstructMapManager<CMapFishManager>(*io); break;
+            case SwitchIds::LogicMapChunk::RoadBuildManager: ConstructMapManager<CRoadBuildManager>(*io); break;
+            case SwitchIds::LogicMapChunk::WallBuildManager: ConstructMapManager<CWallBuildManager>(*io); break;
             default: io->IO_File_Chunk_Skip(); break;
             }
         }

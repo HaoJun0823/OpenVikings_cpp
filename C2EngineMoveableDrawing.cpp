@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2E2StaticDataHumanMisc.h"
 #include "C2E2StaticDataPalettes.h"
@@ -38,7 +39,7 @@ namespace NC2E2
         using namespace NC2Lifetime;
         switch (type)
         {
-        case 0xE:
+        case SwitchIds::CallbackType::HumanDisplayStateChanged:
         {
             auto* data = gDynamicDataHumans.entries + id * 0x8C8u;
             if ((flags & 2u) != 0) Write<std::uint8_t>(data, 0x8C4, flags & 1u);
@@ -46,14 +47,14 @@ namespace NC2E2
             if ((flags & 0x20u) != 0) Write<std::uint8_t>(data, 0x8C0, (flags >> 4) & 1u);
             break;
         }
-        case 0xF: case 0x10:
+        case SwitchIds::CallbackType::AnimalDisplayStateChanged: case SwitchIds::CallbackType::VehicleDisplayStateChanged:
         {
             auto* data = (type == 0xF ? gDynamicDataAnimals.entries : gDynamicDataVehicles.entries) + id * 0x44u;
             if ((flags & 2u) != 0) Write<std::uint8_t>(data, 0x40, flags & 1u);
             if ((flags & 8u) != 0) Write<std::uint8_t>(data, 0x41, (flags >> 2) & 1u);
             break;
         }
-        case 0x11:
+        case SwitchIds::CallbackType::HouseDisplayStateChanged:
             if ((flags & 2u) != 0) Write<std::uint8_t>(gDynamicDataHouses.entries + id * 0xD0u, 0xCC, flags & 1u);
             break;
         default: break;

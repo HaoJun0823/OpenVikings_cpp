@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "XPack.h"
 
 #include <cstddef>
@@ -92,9 +93,9 @@ namespace NXBasics
             return false;
         switch (ReadPackedLong(packedBlock, 4))
         {
-        case 0x726C6538u: return XB_Pack_Simple8BitRLEUnPack(packedBlock, destination, destinationBytes);
-        case 0x726C6536u: return XB_Pack_Simple16BitRLEUnPack(packedBlock, destination, destinationBytes);
-        case 0x6E6F6E65u:
+        case SwitchIds::PackingType::Rle8: return XB_Pack_Simple8BitRLEUnPack(packedBlock, destination, destinationBytes);
+        case SwitchIds::PackingType::Rle16: return XB_Pack_Simple16BitRLEUnPack(packedBlock, destination, destinationBytes);
+        case SwitchIds::PackingType::None:
         {
             const std::uint32_t unpackedBytes = ReadPackedLong(packedBlock, 8);
             if (destinationBytes < unpackedBytes)
@@ -208,9 +209,9 @@ namespace NXBasics
     {
         switch (packingType)
         {
-        case 0x726C6538: return XB_Pack_Simple8BitRLEPack(source, sourceBytes, destination, destinationBytes);
-        case 0x726C6536: return XB_Pack_Simple16BitRLEPack(source, sourceBytes, destination, destinationBytes);
-        case 0x6E6F6E65:
+        case SwitchIds::PackingType::Rle8Signed: return XB_Pack_Simple8BitRLEPack(source, sourceBytes, destination, destinationBytes);
+        case SwitchIds::PackingType::Rle16Signed: return XB_Pack_Simple16BitRLEPack(source, sourceBytes, destination, destinationBytes);
+        case SwitchIds::PackingType::NoneSigned:
         {
             const std::uint32_t header[4] = {0x5870636B, packingType, sourceBytes, sourceBytes + 16u};
             std::memcpy(destination, header, sizeof(header));

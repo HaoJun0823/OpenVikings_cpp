@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanScout.h"
 #include "C2GuideAccess.h"
 #include "C2HumanCommandAccess.h"
@@ -138,9 +139,9 @@ namespace NC2Logic
     {
         switch (Read<std::uint32_t>(human, 0x374))
         {
-        case 1: Human_UserMessage_SendToUserMessage(human, 3); return;
-        case 7: Human_UserMessage_SendToUserMessage(human, 8); return;
-        case 2:
+        case SwitchIds::HumanTaskFailure::NoWay: Human_UserMessage_SendToUserMessage(human, 3); return;
+        case SwitchIds::HumanTaskFailure::NoWorkPoint: Human_UserMessage_SendToUserMessage(human, 8); return;
+        case SwitchIds::HumanTaskFailure::WorkHouseUnavailable:
         {
             const auto houseId = Read<std::int32_t>(human, 0xB34);
             if (houseId == -1 || Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::intptr_t>(houseId) * CHouseArray::ElementSize, 0x2C) != 2) Human_UserMessage_SendToUserMessage(human, 11);

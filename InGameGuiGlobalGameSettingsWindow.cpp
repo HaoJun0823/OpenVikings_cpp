@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiGlobalGameSettingsWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -123,30 +124,30 @@ namespace NC2InGameGuiMiscWindows
         bool refresh = false;
         switch (command)
         {
-        case 10300: assistantCommand = 10; value = -1; break;
-        case 10301: assistantCommand = 10; value = 1; break;
-        case 10310: assistantCommand = 11; value = -1; break;
-        case 10311: assistantCommand = 11; value = 1; break;
-        case 10320: assistantCommand = 20; value = -1; break;
-        case 10321: assistantCommand = 20; value = 1; break;
-        case 10322: assistantCommand = 21; value = -1; break;
-        case 10323: assistantCommand = 21; value = 1; break;
-        case 10324: assistantCommand = 22; value = -1; break;
-        case 10325: assistantCommand = 22; value = 1; break;
-        case 10326: assistantCommand = 23; value = -1; break;
-        case 10327: assistantCommand = 23; value = 1; break;
-        case 10340: assistantCommand = 30; refresh = true; break;
-        case 10341: assistantCommand = 30; value = 1; refresh = true; break;
-        case 10350: assistantCommand = 31; refresh = true; break;
-        case 10351: assistantCommand = 31; value = 1; refresh = true; break;
-        case 10360: assistantCommand = 32; refresh = true; break;
-        case 10361: assistantCommand = 32; value = 1; refresh = true; break;
-        case 10370: assistantCommand = 33; refresh = true; break;
-        case 10371: assistantCommand = 33; value = 1; refresh = true; break;
-        case 10440: assistantCommand = 40; refresh = true; break;
-        case 10441: assistantCommand = 40; value = 1; refresh = true; break;
-        case 10470: assistantCommand = 41; refresh = true; break;
-        case 10471: assistantCommand = 41; value = 1; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::DecreaseRequestBoys: assistantCommand = 10; value = -1; break;
+        case SwitchIds::GlobalGameSettingsCommand::IncreaseRequestBoys: assistantCommand = 10; value = 1; break;
+        case SwitchIds::GlobalGameSettingsCommand::DecreaseRequestGirls: assistantCommand = 11; value = -1; break;
+        case SwitchIds::GlobalGameSettingsCommand::IncreaseRequestGirls: assistantCommand = 11; value = 1; break;
+        case SwitchIds::GlobalGameSettingsCommand::DecreaseRequestUnarmedSoldiers: assistantCommand = 20; value = -1; break;
+        case SwitchIds::GlobalGameSettingsCommand::IncreaseRequestUnarmedSoldiers: assistantCommand = 20; value = 1; break;
+        case SwitchIds::GlobalGameSettingsCommand::DecreaseRequestSpearmen: assistantCommand = 21; value = -1; break;
+        case SwitchIds::GlobalGameSettingsCommand::IncreaseRequestSpearmen: assistantCommand = 21; value = 1; break;
+        case SwitchIds::GlobalGameSettingsCommand::DecreaseRequestArchers: assistantCommand = 22; value = -1; break;
+        case SwitchIds::GlobalGameSettingsCommand::IncreaseRequestArchers: assistantCommand = 22; value = 1; break;
+        case SwitchIds::GlobalGameSettingsCommand::DecreaseRequestSwordsmen: assistantCommand = 23; value = -1; break;
+        case SwitchIds::GlobalGameSettingsCommand::IncreaseRequestSwordsmen: assistantCommand = 23; value = 1; break;
+        case SwitchIds::GlobalGameSettingsCommand::DisableEquipCivilianShoes: assistantCommand = 30; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::EnableEquipCivilianShoes: assistantCommand = 30; value = 1; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::DisableEquipCivilianWoodenTools: assistantCommand = 31; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::EnableEquipCivilianWoodenTools: assistantCommand = 31; value = 1; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::DisableEquipCivilianIronTools: assistantCommand = 32; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::EnableEquipCivilianIronTools: assistantCommand = 32; value = 1; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::DisableEquipCivilianMead: assistantCommand = 33; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::EnableEquipCivilianMead: assistantCommand = 33; value = 1; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::DisableEquipSoldierShoes: assistantCommand = 40; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::EnableEquipSoldierShoes: assistantCommand = 40; value = 1; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::DisableEquipSoldierMead: assistantCommand = 41; refresh = true; break;
+        case SwitchIds::GlobalGameSettingsCommand::EnableEquipSoldierMead: assistantCommand = 41; value = 1; refresh = true; break;
         default: return true;
         }
         packet[0] = std::byte{0x85};

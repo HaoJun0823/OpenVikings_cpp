@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2LifetimeGlobals.h"
 #include "C2EngineLandscapeAccess.h"
@@ -82,22 +83,22 @@ namespace NC2Logic
             {
                 switch (GoodTokens().FindToken(reader.GetCurrentName()))
                 {
-                case 0x6E616D65: std::strncpy(record.name, reader.GetString(), 29); break;
-                case 0x6C616E64: record.landscapeType = reader.GetInt(); break;
-                case 0x77656170: if (record.weaponType == 0) record.weaponType = reader.GetInt(); break;
-                case 0x61726D6F: if (record.armorType == 0) record.armorType = reader.GetInt(); break;
-                case 0x70696E70: record.isInputGood = reader.GetInt() != 0; break;
-                case 0x70686F75: record.isProducedInHouse = reader.GetInt() != 0; break;
-                case 0x706D6170: record.isProducedOnMap = reader.GetInt() != 0; break;
-                case 0x62696F6C: record.isBioLandscape = reader.GetInt() != 0; break;
-                case 0x6C686172: record.landscapeToHarvest = reader.GetInt(); break;
-                case 0x6C706963: record.landscapeToPickup = reader.GetInt(); break;
-                case 0x6C73746F: record.landscapeToStore = reader.GetInt(); break;
-                case 0x61686172: record.atomicForHarvesting = reader.GetInt(); break;
-                case 0x6163756C: record.atomicForCultivating = reader.GetInt(); break;
-                case 0x61706C61: record.atomicForPlanting = reader.GetInt(); break;
-                case 0x6170726F: record.atomicForProduction = reader.GetInt(); break;
-                case 0x696E676F:
+                case SwitchIds::GoodToken::Name: std::strncpy(record.name, reader.GetString(), 29); break;
+                case SwitchIds::GoodToken::LandscapeType: record.landscapeType = reader.GetInt(); break;
+                case SwitchIds::GoodToken::WeaponType: if (record.weaponType == 0) record.weaponType = reader.GetInt(); break;
+                case SwitchIds::GoodToken::ArmorType: if (record.armorType == 0) record.armorType = reader.GetInt(); break;
+                case SwitchIds::GoodToken::IsInputGoodFlag: record.isInputGood = reader.GetInt() != 0; break;
+                case SwitchIds::GoodToken::IsProducedInHouseFlag: record.isProducedInHouse = reader.GetInt() != 0; break;
+                case SwitchIds::GoodToken::IsProducedOnMapFlag: record.isProducedOnMap = reader.GetInt() != 0; break;
+                case SwitchIds::GoodToken::IsBioLandscapeFlag: record.isBioLandscape = reader.GetInt() != 0; break;
+                case SwitchIds::GoodToken::LandscapeToHarvest: record.landscapeToHarvest = reader.GetInt(); break;
+                case SwitchIds::GoodToken::LandscapeToPickup: record.landscapeToPickup = reader.GetInt(); break;
+                case SwitchIds::GoodToken::LandscapeToStore: record.landscapeToStore = reader.GetInt(); break;
+                case SwitchIds::GoodToken::AtomicForHarvesting: record.atomicForHarvesting = reader.GetInt(); break;
+                case SwitchIds::GoodToken::AtomicForCultivating: record.atomicForCultivating = reader.GetInt(); break;
+                case SwitchIds::GoodToken::AtomicForPlanting: record.atomicForPlanting = reader.GetInt(); break;
+                case SwitchIds::GoodToken::AtomicForProduction: record.atomicForProduction = reader.GetInt(); break;
+                case SwitchIds::GoodToken::ProductionInputGoods:
                     while (reader.GetTypeOfNextParameter() == 3)
                     {
                         if (record.productionInputCount >= 10 || record.distinctProductionInputCount >= 10) break;

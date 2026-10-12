@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanNeeds.h"
 #include "C2HumanAtomicEvents.h"
 #include "C2HumanGoodieTasks.h"
@@ -201,15 +202,15 @@ namespace NC2Logic
         const auto offset = 0xAF4u + static_cast<std::uint32_t>(slot) * 8u;
         switch (Read<std::uint32_t>(human, offset))
         {
-        case 43: AddAttribute(human, 0xAA8, 5000); AddAttribute(human, 0xAAC, 5000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case 44: AddAttribute(human, 0xAA8, 10000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case 45: AddAttribute(human, 0xAA8, 10000); AddAttribute(human, offset + 4, 0u - 20u); break;
-        case 46: AddAttribute(human, 0xAAC, 10000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case 47: AddAttribute(human, 0xAAC, 10000); AddAttribute(human, offset + 4, 0u - 20u); break;
-        case 48: AddAttribute(human, 0xAA0, 2000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case 49: AddAttribute(human, 0xAA0, 2000); AddAttribute(human, offset + 4, 0u - 20u); break;
-        case 50: AddAttribute(human, 0xAA8, 4000); break;
-        case 51: AddAttribute(human, 0xAAC, 4000); break;
+        case SwitchIds::GoodType::Mead: AddAttribute(human, 0xAA8, 5000); AddAttribute(human, 0xAAC, 5000); AddAttribute(human, offset + 4, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionFoodSmall: AddAttribute(human, 0xAA8, 10000); AddAttribute(human, offset + 4, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionFoodBig: AddAttribute(human, 0xAA8, 10000); AddAttribute(human, offset + 4, 0u - 20u); break;
+        case SwitchIds::GoodType::PotionStaminaSmall: AddAttribute(human, 0xAAC, 10000); AddAttribute(human, offset + 4, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionStaminaBig: AddAttribute(human, 0xAAC, 10000); AddAttribute(human, offset + 4, 0u - 20u); break;
+        case SwitchIds::GoodType::PotionHealSmall: AddAttribute(human, 0xAA0, 2000); AddAttribute(human, offset + 4, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionHealBig: AddAttribute(human, 0xAA0, 2000); AddAttribute(human, offset + 4, 0u - 20u); break;
+        case SwitchIds::GoodType::AmuletFood: AddAttribute(human, 0xAA8, 4000); break;
+        case SwitchIds::GoodType::AmuletStamina: AddAttribute(human, 0xAAC, 4000); break;
         default: break;
         }
         if (Read<std::int32_t>(human, offset + 4) <= 0) Write<std::uint32_t>(human, offset, 0);
@@ -292,13 +293,13 @@ namespace NC2Logic
         std::uint32_t message = 0;
         switch (need)
         {
-        case 1:
+        case SwitchIds::HumanNeed::Food:
             repeat = Read<std::int32_t>(human, 0xAA8) <= 2000 || Human_IsCarryingFood(human);
             message = 0x1C;
             break;
-        case 2: repeat = Read<std::int32_t>(human, 0xAAC) <= 2000; message = 0x1D; break;
-        case 3: repeat = Read<std::int32_t>(human, 0xAB0) <= 2000 && Human_IsJobNeedingSocial(human); message = 0x1E; break;
-        case 4: repeat = Read<std::int32_t>(human, 0xAB4) <= 2000 && Human_IsJobNeedingReligion(human); message = 0x1F; break;
+        case SwitchIds::HumanNeed::Stamina: repeat = Read<std::int32_t>(human, 0xAAC) <= 2000; message = 0x1D; break;
+        case SwitchIds::HumanNeed::Social: repeat = Read<std::int32_t>(human, 0xAB0) <= 2000 && Human_IsJobNeedingSocial(human); message = 0x1E; break;
+        case SwitchIds::HumanNeed::Religion: repeat = Read<std::int32_t>(human, 0xAB4) <= 2000 && Human_IsJobNeedingReligion(human); message = 0x1F; break;
         default: break;
         }
         if (need == 1) Write<std::uint32_t>(human, 0xA64, 0);

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HouseAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2LifetimeAccess.h"
@@ -308,10 +309,10 @@ namespace NC2Logic
     {
         switch (mask)
         {
-        case 1: return House_Inhabitants_CanHumanBeAttachedAsHomie(house, human);
-        case 2: return House_Inhabitants_CanHumanBeAttachedAsWorker(house, human);
-        case 4: return House_Inhabitants_CanHumanBeAttachedAsBuilder(house, human);
-        case 8: return House_Inhabitants_CanHumanBeAttachedAsStudent(house, human);
+        case SwitchIds::HouseAttachmentMask::Home: return House_Inhabitants_CanHumanBeAttachedAsHomie(house, human);
+        case SwitchIds::HouseAttachmentMask::Worker: return House_Inhabitants_CanHumanBeAttachedAsWorker(house, human);
+        case SwitchIds::HouseAttachmentMask::Builder: return House_Inhabitants_CanHumanBeAttachedAsBuilder(house, human);
+        case SwitchIds::HouseAttachmentMask::Student: return House_Inhabitants_CanHumanBeAttachedAsStudent(house, human);
         default: return false;
         }
     }
@@ -494,9 +495,9 @@ namespace NC2Logic
             auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
             switch (attachmentMask)
             {
-            case 1: Human_DetachFromHomeHouse(human); break;
-            case 2: case 4: Human_DetachFromWorkHouse(human); break;
-            case 8:
+            case SwitchIds::HouseAttachmentMask::Home: Human_DetachFromHomeHouse(human); break;
+            case SwitchIds::HouseAttachmentMask::Worker: case SwitchIds::HouseAttachmentMask::Builder: Human_DetachFromWorkHouse(human); break;
+            case SwitchIds::HouseAttachmentMask::Student:
                 Human_DetachFromWorkHouse(human);
                 Write<std::uint32_t>(slot, 8, 0);
                 Write<std::uint32_t>(slot, 12, 0);

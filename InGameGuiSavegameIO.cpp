@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiMissionInfoWindow.h"
@@ -177,20 +178,20 @@ namespace NInGameGuiManager
         {
             switch (io->mReadHeader.marker)
             {
-            case 0x58647372:
+            case SwitchIds::GuiSavegameChunk::DisplayPosition:
             {
                 const auto point = io->IO_File_ReadLong();
                 NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(sTheObjectPtr->GetDesktop(), 0x30), &point);
                 break;
             }
-            case 0x58737461: StatisticsWindow_IO_Savegame_Load(io); break;
-            case 0x5868756C: HumanListWindow_IO_Savegame_Load(io); break;
-            case 0x58646970: DiplomacyWindow_IO_Savegame_Load(io); break;
-            case 0x586D6D61: static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->IO_Savegame_Load(io); break;
-            case 0x586F676D: static_cast<NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->IO_Savegame_Load(io); break;
-            case 0x5864686D: static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->IO_Savegame_Load(io); break;
-            case 0x586D6268: MissionInfoWindow_MissionBriefingHistory_IO_Savegame_Load(io); break;
-            case 0x586D6C65: static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->MessagePriority_Set(io->IO_File_ReadLong()); break;
+            case SwitchIds::GuiSavegameChunk::StatisticsWindow: StatisticsWindow_IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::HumanListWindow: HumanListWindow_IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::DiplomacyWindow: DiplomacyWindow_IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::Messages: static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::ObjectGroups: static_cast<NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::DeadHumanData: static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::MissionBriefingHistory: MissionInfoWindow_MissionBriefingHistory_IO_Savegame_Load(io); break;
+            case SwitchIds::GuiSavegameChunk::MessagePriority: static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->MessagePriority_Set(io->IO_File_ReadLong()); break;
             default: io->IO_File_Chunk_Skip(); break;
             }
         }

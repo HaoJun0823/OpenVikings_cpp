@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiSupportAccess.h"
@@ -138,10 +139,10 @@ namespace NC2InGameGuiInputManager
         {
             switch (type)
             {
-            case 0xE: l_Selection_Inform_Human(id, revision, selected); break;
-            case 0xF: l_Selection_Inform_Animal(id, revision, selected); break;
-            case 0x10: l_Selection_Inform_Vehicle(id, revision, selected); break;
-            case 0x11: l_Selection_Inform_House(id, revision, selected); break;
+            case SwitchIds::CallbackType::HumanDisplayStateChanged: l_Selection_Inform_Human(id, revision, selected); break;
+            case SwitchIds::CallbackType::AnimalDisplayStateChanged: l_Selection_Inform_Animal(id, revision, selected); break;
+            case SwitchIds::CallbackType::VehicleDisplayStateChanged: l_Selection_Inform_Vehicle(id, revision, selected); break;
+            case SwitchIds::CallbackType::HouseDisplayStateChanged: l_Selection_Inform_House(id, revision, selected); break;
             default: break;
             }
         }
@@ -314,13 +315,13 @@ namespace NC2InGameGuiInputManager
         {
             switch (Read<std::uint32_t>(object, 0))
             {
-            case 1: id = Read<std::int32_t>(object, 8); if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
-            case 2: id = Read<std::int32_t>(object, 0x10); if (Read<std::uint32_t>(Animal(id), 0x10) == Player()) action = 3; break;
-            case 3: id = Read<std::int32_t>(object, 0x18); if (Read<std::uint32_t>(Vehicle(id), 0x1E0) == Player()) action = 4; break;
-            case 4: id = Read<std::int32_t>(object, 0x28); action = 6; break;
-            case 5: id = Read<std::int32_t>(object, 0x30); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
-            case 6: id = Read<std::int32_t>(object, 0x38); *second = Read<std::uint32_t>(object, 0x3C); *third = Read<std::uint32_t>(object, 4); *fourth = Read<std::uint32_t>(object, 0x40); action = 9; break;
-            case 7: case 8:
+            case SwitchIds::MapObjectUnderCursor::Human: id = Read<std::int32_t>(object, 8); if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
+            case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, 0x10); if (Read<std::uint32_t>(Animal(id), 0x10) == Player()) action = 3; break;
+            case SwitchIds::MapObjectUnderCursor::Vehicle: id = Read<std::int32_t>(object, 0x18); if (Read<std::uint32_t>(Vehicle(id), 0x1E0) == Player()) action = 4; break;
+            case SwitchIds::MapObjectUnderCursor::House: id = Read<std::int32_t>(object, 0x28); action = 6; break;
+            case SwitchIds::MapObjectUnderCursor::Guide: id = Read<std::int32_t>(object, 0x30); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
+            case SwitchIds::MapObjectUnderCursor::Landscape: id = Read<std::int32_t>(object, 0x38); *second = Read<std::uint32_t>(object, 0x3C); *third = Read<std::uint32_t>(object, 4); *fourth = Read<std::uint32_t>(object, 0x40); action = 9; break;
+            case SwitchIds::MapObjectUnderCursor::RoadBuildPlace: case SwitchIds::MapObjectUnderCursor::WallBuildPlace:
             {
                 const bool road = Read<std::uint32_t>(object, 0) == 7;
                 const auto* point = static_cast<const std::byte*>(object) + 4;
@@ -341,9 +342,9 @@ namespace NC2InGameGuiInputManager
                 id = Read<std::int32_t>(moveable, 0x54);
                 switch (Read<std::uint32_t>(moveable, 8))
                 {
-                case 1: if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
-                case 2: if (Read<std::uint32_t>(Animal(id), 0x10) == Player() || Read<std::uint32_t>(Animal(id), 0x10) == 20) action = 3; break;
-                case 3: if (Read<std::uint32_t>(Vehicle(id), 0x1E0) == Player() || Read<std::int32_t>(Vehicle(id), 0x1E0) == -1) action = 4; break;
+                case SwitchIds::MapMoveableType::Human: if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
+                case SwitchIds::MapMoveableType::Animal: if (Read<std::uint32_t>(Animal(id), 0x10) == Player() || Read<std::uint32_t>(Animal(id), 0x10) == 20) action = 3; break;
+                case SwitchIds::MapMoveableType::Vehicle: if (Read<std::uint32_t>(Vehicle(id), 0x1E0) == Player() || Read<std::int32_t>(Vehicle(id), 0x1E0) == -1) action = 4; break;
                 default: break;
                 }
             }
@@ -361,19 +362,19 @@ namespace NC2InGameGuiInputManager
         const auto id = static_cast<std::int32_t>(first);
         switch (action)
         {
-        case 1: if (add) Selection_SelectAddSingleHuman(manager, id); else if (remove) UnSelect_Human(manager, id); else Selection_SelectSingleHuman(manager, id); break;
-        case 3: Selection_SelectSingleAnimal(manager, id); break;
-        case 4: if (add) Selection_SelectAddSingleVehicle(manager, id); else if (remove) UnSelect_Vehicle(manager, id); else Selection_SelectSingleVehicle(manager, id); break;
-        case 6: Selection_SelectHouse(manager, id); break;
-        case 8: Selection_SelectGuide(manager, id); break;
-        case 10: case 11:
+        case SwitchIds::SelectionAction::Human: if (add) Selection_SelectAddSingleHuman(manager, id); else if (remove) UnSelect_Human(manager, id); else Selection_SelectSingleHuman(manager, id); break;
+        case SwitchIds::SelectionAction::Animal: Selection_SelectSingleAnimal(manager, id); break;
+        case SwitchIds::SelectionAction::Vehicle: if (add) Selection_SelectAddSingleVehicle(manager, id); else if (remove) UnSelect_Vehicle(manager, id); else Selection_SelectSingleVehicle(manager, id); break;
+        case SwitchIds::SelectionAction::House: Selection_SelectHouse(manager, id); break;
+        case SwitchIds::SelectionAction::Guide: Selection_SelectGuide(manager, id); break;
+        case SwitchIds::SelectionAction::RoadBuildPlace: case SwitchIds::SelectionAction::WallBuildPlace:
         {
             std::uint32_t point; NC2Logic::MapMigPoint_AssignLong(&point, first);
             if (action == 10) Selection_SelectRoadBuildPlace(manager, &point);
             else Selection_SelectWallBuildPlace(manager, &point);
             break;
         }
-        case 9:
+        case SwitchIds::SelectionAction::Landscape:
             Selection_SelectEngineLandscapeType(manager, first, second, &third, NXBasics::Runtime_TimeSigned32(fourth));
             break;
         default: if (!keepSelection) Selection_UnselectAll(manager); return false;
@@ -386,16 +387,16 @@ namespace NC2InGameGuiInputManager
     {
         switch (Read<std::uint32_t>(manager, 4))
         {
-        case 1: Inform(0xE, Read<std::uint32_t>(manager, 8), Read<std::uint32_t>(manager, 0xC), false); break;
-        case 2:
+        case SwitchIds::SelectionType::SingleHuman: Inform(0xE, Read<std::uint32_t>(manager, 8), Read<std::uint32_t>(manager, 0xC), false); break;
+        case SwitchIds::SelectionType::MultipleHumans:
             for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0x10); ++i) Inform(0xE, Read<std::uint32_t>(manager, 0x14u + i * 8u), Read<std::uint32_t>(manager, 0x18u + i * 8u), false);
             break;
-        case 3: Inform(0xF, Read<std::uint32_t>(manager, 0x974), Read<std::uint32_t>(manager, 0x978), false); break;
-        case 4: Inform(0x10, Read<std::uint32_t>(manager, 0x97C), Read<std::uint32_t>(manager, 0x980), false); break;
-        case 5:
+        case SwitchIds::SelectionType::SingleAnimal: Inform(0xF, Read<std::uint32_t>(manager, 0x974), Read<std::uint32_t>(manager, 0x978), false); break;
+        case SwitchIds::SelectionType::SingleVehicle: Inform(0x10, Read<std::uint32_t>(manager, 0x97C), Read<std::uint32_t>(manager, 0x980), false); break;
+        case SwitchIds::SelectionType::MultipleVehicles:
             for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0x984); ++i) Inform(0x10, Read<std::uint32_t>(manager, 0x988u + i * 8u), Read<std::uint32_t>(manager, 0x98Cu + i * 8u), false);
             break;
-        case 6: Inform(0x11, Read<std::uint32_t>(manager, 0xA78), Read<std::uint32_t>(manager, 0xA7C), false); break;
+        case SwitchIds::SelectionType::House: Inform(0x11, Read<std::uint32_t>(manager, 0xA78), Read<std::uint32_t>(manager, 0xA7C), false); break;
         default: break;
         }
         Write<std::uint32_t>(manager, 4, 0);
@@ -491,15 +492,15 @@ namespace NC2InGameGuiInputManager
         bool valid = true;
         switch (mode)
         {
-        case 1: valid = IsLive(Human(Read<std::uint32_t>(manager, 8)), Read<std::uint32_t>(manager, 0xC)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10) == Player(); break;
-        case 2: ValidateGroup(manager, false); return;
-        case 3: valid = IsLive(Animal(Read<std::uint32_t>(manager, 0x974)), Read<std::uint32_t>(manager, 0x978)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, 0x974)), 0x10) == Player(); break;
-        case 4: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, 0x97C)), Read<std::uint32_t>(manager, 0x980)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0) == Player(); break;
-        case 5: ValidateGroup(manager, true); return;
-        case 6: valid = IsLive(House(Read<std::uint32_t>(manager, 0xA78)), Read<std::uint32_t>(manager, 0xA7C)); break;
-        case 8: valid = IsLive(Guide(Read<std::uint32_t>(manager, 0xA90)), Read<std::uint32_t>(manager, 0xA94), 0x10) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, 0xA90)), 4) == Player(); break;
-        case 10: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gRoadBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAA8) != nullptr; break;
-        case 11: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gWallBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAAC) != nullptr; break;
+        case SwitchIds::SelectionType::SingleHuman: valid = IsLive(Human(Read<std::uint32_t>(manager, 8)), Read<std::uint32_t>(manager, 0xC)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10) == Player(); break;
+        case SwitchIds::SelectionType::MultipleHumans: ValidateGroup(manager, false); return;
+        case SwitchIds::SelectionType::SingleAnimal: valid = IsLive(Animal(Read<std::uint32_t>(manager, 0x974)), Read<std::uint32_t>(manager, 0x978)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, 0x974)), 0x10) == Player(); break;
+        case SwitchIds::SelectionType::SingleVehicle: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, 0x97C)), Read<std::uint32_t>(manager, 0x980)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0) == Player(); break;
+        case SwitchIds::SelectionType::MultipleVehicles: ValidateGroup(manager, true); return;
+        case SwitchIds::SelectionType::House: valid = IsLive(House(Read<std::uint32_t>(manager, 0xA78)), Read<std::uint32_t>(manager, 0xA7C)); break;
+        case SwitchIds::SelectionType::Guide: valid = IsLive(Guide(Read<std::uint32_t>(manager, 0xA90)), Read<std::uint32_t>(manager, 0xA94), 0x10) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, 0xA90)), 4) == Player(); break;
+        case SwitchIds::SelectionType::RoadBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gRoadBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAA8) != nullptr; break;
+        case SwitchIds::SelectionType::WallBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gWallBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAAC) != nullptr; break;
         default: break;
         }
         if (!valid) ResetInvalid(manager);
@@ -632,12 +633,12 @@ namespace NC2InGameGuiInputManager
                 bool valid = false;
                 switch (mode)
                 {
-                case 4: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsHomie(house, id); break;
-                case 5: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsWorker(house, id); break;
-                case 6: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsStudent(house, id); break;
-                case 7: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id); break;
-                case 8: valid = merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, houseId); break;
-                case 9: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, 8)); break;
+                case SwitchIds::InputMode::AttachHomeHouse: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsHomie(house, id); break;
+                case SwitchIds::InputMode::AttachWorkHouse: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsWorker(house, id); break;
+                case SwitchIds::InputMode::AttachLearnHouse: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsStudent(house, id); break;
+                case SwitchIds::InputMode::AttachBuildHouse: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id); break;
+                case SwitchIds::InputMode::AttachTradeHouse: valid = merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, houseId); break;
+                case SwitchIds::InputMode::DetachTradeHouse: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, 8)); break;
                 }
                 return valid ? 3 : 1;
             });
@@ -836,10 +837,10 @@ namespace NC2InGameGuiInputManager
         {
             switch (Read<std::uint32_t>(manager, 4))
             {
-            case 1: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10);
-            case 2: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), 0x10);
-            case 4: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0);
-            case 5: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : 0xFFFFFFFFu), 0x1E0);
+            case SwitchIds::SelectionType::SingleHuman: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10);
+            case SwitchIds::SelectionType::MultipleHumans: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), 0x10);
+            case SwitchIds::SelectionType::SingleVehicle: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0);
+            case SwitchIds::SelectionType::MultipleVehicles: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : 0xFFFFFFFFu), 0x1E0);
             default: return -1;
             }
         }
@@ -1249,11 +1250,11 @@ bool __cdecl InputManager_ls_Callback_Logic(unsigned int type, unsigned int, uns
     {
         switch (type)
         {
-        case 4: UnSelect_Human(manager, id); break;
-        case 6: UnSelect_Animal(manager, id); break;
-        case 8: UnSelect_Vehicle(manager, id); break;
-        case 10: UnSelect_House(manager, id); break;
-        case 12: UnSelect_Guide(manager, id); break;
+        case SwitchIds::CallbackType::HumanLifetime: UnSelect_Human(manager, id); break;
+        case SwitchIds::CallbackType::AnimalLifetime: UnSelect_Animal(manager, id); break;
+        case SwitchIds::CallbackType::VehicleLifetime: UnSelect_Vehicle(manager, id); break;
+        case SwitchIds::CallbackType::HouseLifetime: UnSelect_House(manager, id); break;
+        case SwitchIds::CallbackType::GuideLifetime: UnSelect_Guide(manager, id); break;
         default: break;
         }
     }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "NetworkShutdown.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
@@ -1162,35 +1163,35 @@ namespace NC2E2
 
         switch (type)
         {
-            case 1:
+            case SwitchIds::LogicObjectType::Human:
                 table = NC2Logic::CHumanArray::mStaticVars;
                 stride = NC2Logic::CHumanArray::ElementSize;
                 indexOffset = 0x08;
                 identityOffset = 0x08;
                 break;
 
-            case 2:
+            case SwitchIds::LogicObjectType::Animal:
                 table = NC2Logic::CAnimalArray::mStaticVars;
                 stride = NC2Logic::CAnimalArray::ElementSize;
                 indexOffset = 0x10;
                 identityOffset = 0x08;
                 break;
 
-            case 3:
+            case SwitchIds::LogicObjectType::Vehicle:
                 table = NC2Logic::CVehicleArray::mStaticVars;
                 stride = NC2Logic::CVehicleArray::ElementSize;
                 indexOffset = 0x18;
                 identityOffset = 0x08;
                 break;
 
-            case 4:
+            case SwitchIds::LogicObjectType::House:
                 table = NC2Logic::CHouseArray::mStaticVars;
                 stride = NC2Logic::CHouseArray::ElementSize;
                 indexOffset = 0x28;
                 identityOffset = 0x08;
                 break;
 
-            case 5:
+            case SwitchIds::LogicObjectType::Guide:
                 table = NC2Logic::CGuideArray::mStaticVars;
                 stride = NC2Logic::CGuideArray::ElementSize;
                 indexOffset = 0x30;

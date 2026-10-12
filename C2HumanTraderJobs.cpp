@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanTraderJobs.h"
 #include "C2Debug.h"
 #include "C2GameMapAccess.h"
@@ -387,17 +388,17 @@ namespace NC2Logic
             std::uint32_t excess = 0;
             switch (Human_l_Trader_Foreign_CheckGoods(human, current, agreement, &excess))
             {
-            case 0:
+            case SwitchIds::TraderGoodsCheck::Unavailable:
                 Write(human, 0xAD0, Read<std::uint32_t>(agreement, 8));
                 Fail(human, 3);
                 ResetTradeAmounts(merchant);
                 MerchantData_NextHouse(merchant);
                 return;
-            case 1:
+            case SwitchIds::TraderGoodsCheck::FetchFromHouse:
                 if (!Human_l_Trader_MoveVehicleNearHouse(human, current)) TraderFetchFromHouse(human, current, Read<std::uint32_t>(agreement, 8));
                 return;
-            case 2: MerchantData_NextHouse(merchant); return;
-            case 3:
+            case SwitchIds::TraderGoodsCheck::VisitNextHouse: MerchantData_NextHouse(merchant); return;
+            case SwitchIds::TraderGoodsCheck::FetchExcessFromVehicle:
                 if (!Human_l_Trader_MoveVehicleNearHouse(human, current)) TraderFetchFromVehicle(human, excess);
                 return;
             default: break;

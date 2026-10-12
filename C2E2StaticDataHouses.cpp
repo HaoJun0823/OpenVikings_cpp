@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataHouses.h"
 #include "C2E2StaticDataPalettes.h"
 #include "C2E2StaticDataTerrain.h"
@@ -192,10 +193,10 @@ namespace NC2E2
                 const auto token = tokens.FindToken(reader.GetCurrentName());
                 switch (token)
                 {
-                    case 0x65646E61u: std::strncpy(reinterpret_cast<char*>(entry), reader.GetString(), 29); break;
-                    case 0x65646772u: std::strncpy(reinterpret_cast<char*>(entry) + 0x1E, reader.GetString(), 29); break;
-                    case 0x6C6F7474u: Write(entry, 0x50, reader.GetInt()); break;
-                    case 0x6C6F6D73u:
+                    case SwitchIds::HouseGraphicsToken::EditName: std::strncpy(reinterpret_cast<char*>(entry), reader.GetString(), 29); break;
+                    case SwitchIds::HouseGraphicsToken::EditGroups: std::strncpy(reinterpret_cast<char*>(entry) + 0x1E, reader.GetString(), 29); break;
+                    case SwitchIds::HouseGraphicsToken::LogicTribeType: Write(entry, 0x50, reader.GetInt()); break;
+                    case SwitchIds::HouseGraphicsToken::LogicMaximumSize:
                     {
                         auto size = static_cast<std::uint32_t>(reader.GetInt());
                         if (size > 5) size = 5;
@@ -203,7 +204,7 @@ namespace NC2E2
                         for (std::uint32_t stage = 0; stage < size; ++stage) Write<std::uint32_t>(entry, 0x1D8 + stage * 4, 1000);
                         break;
                     }
-                    case 0x6C6F7479u: case 0x6C686974u: case 0x67667866u:
+                    case SwitchIds::HouseGraphicsToken::Logictype: case SwitchIds::HouseGraphicsToken::LogicHitpoints: case SwitchIds::HouseGraphicsToken::Gfxbobid:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -211,8 +212,8 @@ namespace NC2E2
                         Write(entry, offset + stage * 4, reader.GetInt());
                         break;
                     }
-                    case 0x6C6F6262u: ReadAreaRow(reader, buildArea); break;
-                    case 0x6C6F7762u: case 0x6C6F7761u:
+                    case SwitchIds::HouseGraphicsToken::LogicBuildBlockArea: ReadAreaRow(reader, buildArea); break;
+                    case SwitchIds::HouseGraphicsToken::LogicWalkBlockArea: case SwitchIds::HouseGraphicsToken::Logicconstructionworkarea:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -220,8 +221,8 @@ namespace NC2E2
                         break;
                     }
                     // This table entry has no matching Windows switch branch.
-                    case 0x6C6F6161u: break;
-                    case 0x6C6F6367u:
+                    case SwitchIds::HouseGraphicsToken::LogicAdditionalAttachPointArea: break;
+                    case SwitchIds::HouseGraphicsToken::Logicconstructiongoods:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -235,7 +236,7 @@ namespace NC2E2
                         }
                         break;
                     }
-                    case 0x6C6F6470u:
+                    case SwitchIds::HouseGraphicsToken::Logicdoorpoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -244,7 +245,7 @@ namespace NC2E2
                         NC2Logic::MapMigPoint_Construct(entry + 0x1C4 + stage * 4, x, y, false);
                         break;
                     }
-                    case 0x61736461u:
+                    case SwitchIds::HouseGraphicsToken::ArrowSlotData:
                     {
                         const auto count = Read<std::uint32_t>(entry, 0x1EC);
                         const auto offset = 0x1F0u + count * 12u;
@@ -254,7 +255,7 @@ namespace NC2E2
                         Write(entry, 0x1EC, count + 1u);
                         break;
                     }
-                    case 0x67667862u:
+                    case SwitchIds::HouseGraphicsToken::Gfxboblibs:
                     {
                         const char* name = reader.GetString();
                         if (std::strlen(name) != 0) Write(entry, 0x214, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name));
@@ -262,7 +263,7 @@ namespace NC2E2
                         if (std::strlen(name) != 0) Write(entry, 0x218, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name));
                         break;
                     }
-                    case 0x67667870u:
+                    case SwitchIds::HouseGraphicsToken::GfxPalette:
                     {
                         while (reader.GetTypeOfNextParameter() == 2)
                         {
@@ -275,8 +276,8 @@ namespace NC2E2
                         }
                         break;
                     }
-                    case 0x67667875u: Write<std::uint32_t>(entry, 0x234, static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(reader.GetDouble() * 256.0))); break;
-                    case 0x67667864u:
+                    case SwitchIds::HouseGraphicsToken::GfxShadingFactor: Write<std::uint32_t>(entry, 0x234, static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(reader.GetDouble() * 256.0))); break;
+                    case SwitchIds::HouseGraphicsToken::Gfxdoorbobid:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -285,7 +286,7 @@ namespace NC2E2
                         Write<std::uint8_t>(entry, 0x258 + stage * 12, 1);
                         break;
                     }
-                    case 0x67667863u:
+                    case SwitchIds::HouseGraphicsToken::Gfxbobconstructionlayer:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         const bool flag = reader.GetInt() != 0;
@@ -306,7 +307,7 @@ namespace NC2E2
                         Write(entry, offset, count + 1u);
                         break;
                     }
-                    case 0x6766786Fu:
+                    case SwitchIds::HouseGraphicsToken::GfxOverlay:
                     {
                         if (overlayIndex >= Read<std::uint32_t>(entry, 0x490)) break;
                         auto* overlay = Read<std::byte*>(entry, 0x494) + overlayIndex * 0xE4u;
@@ -328,7 +329,7 @@ namespace NC2E2
                         ++overlayIndex;
                         break;
                     }
-                    case 0x6766786Cu:
+                    case SwitchIds::HouseGraphicsToken::GfxOverlayLandscape:
                     {
                         const auto stage = reader.GetInt();
                         if (stage < 0 || stage >= Read<std::int32_t>(entry, 0x54)) break;
@@ -342,7 +343,7 @@ namespace NC2E2
                         Write(entry, offset + 12, E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString()));
                         break;
                     }
-                    case 0x6778666Cu: case 0x67786673u:
+                    case SwitchIds::HouseGraphicsToken::GfxFlagPoint: case SwitchIds::HouseGraphicsToken::Gfxsoldierflagpoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -352,7 +353,7 @@ namespace NC2E2
                         Write(entry, offset + 4, reader.GetInt());
                         break;
                     }
-                    case 0x67786669u: case 0x67786866u:
+                    case SwitchIds::HouseGraphicsToken::GfxFirePoint: case SwitchIds::HouseGraphicsToken::GfxHolyFirePoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;
@@ -366,7 +367,7 @@ namespace NC2E2
                         ++index;
                         break;
                     }
-                    case 0x6778736Du:
+                    case SwitchIds::HouseGraphicsToken::GfxSmokePoint:
                     {
                         const auto stage = static_cast<std::uint32_t>(reader.GetInt());
                         if (stage >= Read<std::uint32_t>(entry, 0x54)) break;

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "InGameGuiManager_MessageHandlers.h"
 #include "C2LifetimeAccess.h"
 #include "InGameGuiHumanActionButtons.h"
@@ -217,12 +218,12 @@ static void DefaultHandler_VehicleCommand(std::uint32_t action)
     using namespace NC2InGameGuiInputManager;
     auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
     std::int32_t mode = -1;
-    switch (action) { case 2: mode = 20; break; case 5: mode = 24; break; case 6: mode = 11; break; case 7: mode = 28; break; case 8: mode = 21; break; }
+    switch (action) { case SwitchIds::VehicleGuiAction::SetWorkCenter: mode = 20; break; case SwitchIds::VehicleGuiAction::AttackHuman: mode = 24; break; case SwitchIds::VehicleGuiAction::AttackHouse: mode = 11; break; case SwitchIds::VehicleGuiAction::AttackVehicle: mode = 28; break; case SwitchIds::VehicleGuiAction::AttackMapPosition: mode = 21; break; }
     if (mode != -1) { InputMode_Set(gInputManager, mode); manager->l_Selection_RemoveAllGuiElements(); return; }
     const auto queue = [&](std::int32_t id, bool single)
     {
         std::uint8_t opcode = 0;
-        switch (action) { case 1: opcode = 0x64; break; case 3: opcode = 0x66; break; case 9: case 10: case 11: opcode = 0x6F; break; case 13: if (single) opcode = 0x72; break; case 14: if (single) opcode = 0x6E; break; }
+        switch (action) { case SwitchIds::VehicleGuiAction::GotoAndWait: opcode = 0x64; break; case SwitchIds::VehicleGuiAction::Stop: opcode = 0x66; break; case SwitchIds::VehicleGuiAction::MilitaryAggressive: case SwitchIds::VehicleGuiAction::MilitaryDefensive: case SwitchIds::VehicleGuiAction::MilitaryIgnore: opcode = 0x6F; break; case SwitchIds::VehicleGuiAction::DetachVehicle: if (single) opcode = 0x72; break; case SwitchIds::VehicleGuiAction::ResetWantedAmounts: if (single) opcode = 0x6E; break; }
         if (opcode == 0) return;
         std::byte packet[20]{}; Write(packet, 0, opcode); Write(packet, 4, id); if (opcode == 0x6F) Write(packet, 0xC, action - 8); NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, packet); manager->l_Selection_RemoveAllGuiElements();
     };

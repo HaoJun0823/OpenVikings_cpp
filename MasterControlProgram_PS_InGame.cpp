@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
 #include "C2LogicObjectArrays.h"
 #include "C2E2AmbientSoundManagerAccess.h"
@@ -42,35 +43,35 @@ std::uint32_t GetNetworkMessageStringId(std::uint32_t messageType)
 {
     switch (messageType)
     {
-    case 1:
+    case SwitchIds::NetworkEvent::Error:
         return 0x59;
 
-    case 2:
+    case SwitchIds::NetworkEvent::PlayerJoined:
         return 0x58;
 
-    case 3:
-    case 4:
-    case 5:
-    case 6:
-    case 7:
+    case SwitchIds::NetworkEvent::PlayerLeft:
+    case SwitchIds::NetworkEvent::PlayerKicked:
+    case SwitchIds::NetworkEvent::ConnectionLost:
+    case SwitchIds::NetworkEvent::HostTerminatedSession:
+    case SwitchIds::NetworkEvent::PlayerLostConnection:
         return 0x57;
 
-    case 8:
+    case SwitchIds::NetworkEvent::HostMigrated:
         return 0x5A;
 
-    case 9:
+    case SwitchIds::NetworkEvent::PlayerStoppedResponding:
         return 0x5B;
 
-    case 10:
+    case SwitchIds::NetworkEvent::HostUnavailable:
         return 0x5C;
 
-    case 11:
+    case SwitchIds::NetworkEvent::RecoverMissingCommands:
         return 0x5D;
 
-    case 12:
+    case SwitchIds::NetworkEvent::Timeout:
         return 0x5E;
 
-    case 13:
+    case SwitchIds::NetworkEvent::HostHandlingUnresponsivePlayer:
         return 0x5F;
 
     default:
@@ -175,12 +176,12 @@ namespace NMasterControlProgram
 
                     switch (record.type)
                     {
-                    case 1:
+                    case SwitchIds::NetworkApplicationMessage::ChatText:
                         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_StringOutputWindow_PrintString(receivedText);
                         NC2GuiToolsBase::FXTool_Chat();
                         break;
 
-                    case 2:
+                    case SwitchIds::NetworkApplicationMessage::DebugHumanCommand:
                     {
                         const int controllingPlayerId = NXBasics::Runtime_StringToInteger(receivedText);
 
@@ -240,15 +241,15 @@ namespace NMasterControlProgram
             {
                 switch (currentMessage->eventType)
                 {
-                case 1:
+                case SwitchIds::NetworkEvent::Error:
                     System_ProgramState_ChangeNextTimePossible(TProgramState::MainMenu, false);
                     break;
 
-                case 3:
-                case 4:
-                case 5:
-                case 6:
-                case 7:
+                case SwitchIds::NetworkEvent::PlayerLeft:
+                case SwitchIds::NetworkEvent::PlayerKicked:
+                case SwitchIds::NetworkEvent::ConnectionLost:
+                case SwitchIds::NetworkEvent::HostTerminatedSession:
+                case SwitchIds::NetworkEvent::PlayerLostConnection:
                 {
                     const std::uint32_t playerId = currentMessage->playerId;
                     const std::uint32_t currentPlayerId = NNetwork::Network_GetLocalPlayerId();
@@ -266,8 +267,8 @@ namespace NMasterControlProgram
                     break;
                 }
 
-                case 9:
-                case 13:
+                case SwitchIds::NetworkEvent::PlayerStoppedResponding:
+                case SwitchIds::NetworkEvent::HostHandlingUnresponsivePlayer:
                     NC2Logic::GameTime_SetNetworkWaitFlag(true);
                     break;
                 }

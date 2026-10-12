@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2HumanAnimalJobs.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
@@ -73,10 +74,10 @@ namespace NC2Logic
         if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
         switch (Read<std::uint32_t>(human, 0xACC))
         {
-        case 2: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
-        case 4: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
-        case 5: Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human); return;
-        case 0: break;
+        case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
+        case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
+        case SwitchIds::GoodCirculationMode::FlushStock: Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human); return;
+        case SwitchIds::GoodCirculationMode::None: break;
         default: return;
         }
         if (Read<std::uint32_t>(human, 0xAD4) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }

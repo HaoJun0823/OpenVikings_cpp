@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2E2StaticDataHumanMisc.h"
 #include "C2E2StaticDataPalettes.h"
 #include "C2E2StaticDataTerrain.h"
@@ -165,9 +166,9 @@ namespace NC2E2
                         const auto token = GetLazyTokenList<JobBaseTokenList_AtExit>(gJobBaseTokens).FindToken(reader.GetCurrentName());
                         switch (token)
                         {
-                        case 0x6C6F7472: Write(record, 0, reader.GetInt()); break;
-                        case 0x6C6F6A6F: Write(record, 4, reader.GetInt()); break;
-                        case 0x67666262:
+                        case SwitchIds::HumanJobGraphicsToken::LogicTribe: Write(record, 0, reader.GetInt()); break;
+                        case SwitchIds::HumanJobGraphicsToken::LogicJob: Write(record, 4, reader.GetInt()); break;
+                        case SwitchIds::HumanJobGraphicsToken::Gfxbobmanagerbody:
                         {
                             const auto count = Read<std::uint32_t>(record, 8);
                             if (count == 5) break;
@@ -178,7 +179,7 @@ namespace NC2E2
                             Write(record, 8, count + 1u);
                             break;
                         }
-                        case 0x67666268:
+                        case SwitchIds::HumanJobGraphicsToken::Gfxbobmanagerhead:
                         {
                             const auto count = Read<std::uint32_t>(record, 0x48);
                             if (count == 5) break;
@@ -187,9 +188,9 @@ namespace NC2E2
                             Write(record, 0x48, count + 1u);
                             break;
                         }
-                        case 0x67667062:
-                        case 0x67667068:
-                        case 0x67667072:
+                        case SwitchIds::HumanJobGraphicsToken::Gfxpalettebasebody:
+                        case SwitchIds::HumanJobGraphicsToken::Gfxpalettebasehead:
+                        case SwitchIds::HumanJobGraphicsToken::GfxPaletteRandom:
                         {
                             const auto countOffset = token == 0x67667062 ? 0x74u : token == 0x67667068 ? 0x8Cu : 0xA4u;
                             const auto count = Read<std::uint32_t>(record, countOffset);
@@ -214,9 +215,9 @@ namespace NC2E2
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<JobChangeTokenList_AtExit>(gJobChangeTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case 0x6C6F7472: Write(record, 0, reader.GetInt()); break;
-                    case 0x6C6F6A6F: Write(record, 4, reader.GetInt()); break;
-                    case 0x67666262:
+                    case SwitchIds::HumanJobChangeToken::LogicTribe: Write(record, 0, reader.GetInt()); break;
+                    case SwitchIds::HumanJobChangeToken::LogicJob: Write(record, 4, reader.GetInt()); break;
+                    case SwitchIds::HumanJobChangeToken::Gfxbobmanagerbody:
                     {
                         const auto count = Read<std::uint32_t>(record, 8);
                         if (count == 5) break;
@@ -227,7 +228,7 @@ namespace NC2E2
                         Write(record, 8, count + 1u);
                         break;
                     }
-                    case 0x67666268:
+                    case SwitchIds::HumanJobChangeToken::Gfxbobmanagerhead:
                     {
                         const auto count = Read<std::uint32_t>(record, 0x48);
                         if (count == 5) break;
@@ -236,7 +237,7 @@ namespace NC2E2
                         Write(record, 0x48, count + 1u);
                         break;
                     }
-                    case 0x67667072: Write(record, 0x74, StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString())); break;
+                    case SwitchIds::HumanJobChangeToken::GfxPaletteRandom: Write(record, 0x74, StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString())); break;
                     }
             }
         }
@@ -253,8 +254,8 @@ namespace NC2E2
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch (GetLazyTokenList<HumanNameTokenList_AtExit>(gNameTokens).FindToken(reader.GetCurrentName()))
                     {
-                    case 0x6C6F7472: tribe = reader.GetInt(); if (tribe < 0 || tribe >= 8) tribe = -1; break;
-                    case 0x6E616D65:
+                    case SwitchIds::HumanNameToken::LogicTribe: tribe = reader.GetInt(); if (tribe < 0 || tribe >= 8) tribe = -1; break;
+                    case SwitchIds::HumanNameToken::Name:
                         if (tribe >= 0)
                         {
                             const bool female = reader.GetInt() != 0;

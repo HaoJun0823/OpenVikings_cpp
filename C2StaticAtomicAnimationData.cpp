@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2LifetimeGlobals.h"
 #include "XCrtFileAccess.h"
@@ -69,13 +70,13 @@ namespace NC2Logic
                 const auto token = AtomicAnimationTokens().FindToken(reader.GetCurrentName());
                 switch (token)
                 {
-                case 0x6E616D65: std::strncpy(record->name, reader.GetString(), 49); break;
-                case 0x6C656E67: record->length = reader.GetInt(); break;
-                case 0x696E7465: record->interruptable = reader.GetInt() != 0; break;
-                case 0x73746164: record->startDirection = reader.GetInt(); break;
-                case 0x656E6464: record->endDirection = reader.GetInt(); break;
-                case 0x6576656E:
-                case 0x65766578:
+                case SwitchIds::AtomicAnimationToken::Name: std::strncpy(record->name, reader.GetString(), 49); break;
+                case SwitchIds::AtomicAnimationToken::Length: record->length = reader.GetInt(); break;
+                case SwitchIds::AtomicAnimationToken::Interruptable: record->interruptable = reader.GetInt() != 0; break;
+                case SwitchIds::AtomicAnimationToken::StartDirection: record->startDirection = reader.GetInt(); break;
+                case SwitchIds::AtomicAnimationToken::EndDirection: record->endDirection = reader.GetInt(); break;
+                case SwitchIds::AtomicAnimationToken::Event:
+                case SwitchIds::AtomicAnimationToken::EventX:
                 {
                     if (record->eventCount == 20) break;
                     std::int32_t time;

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2SavegameIO.h"
 #include "C2SavegamesManager.h"
 #include "C2CleanMapsManager.h"
@@ -61,16 +62,16 @@ namespace NC2Logic
         {
             switch (io.mReadHeader.marker)
             {
-            case 0x49436973:
+            case SwitchIds::SavegameInfoChunk::InfoText:
                 std::strncpy(header->info, io.IO_File_ReadString(), 200);
                 break;
-            case 0x49436D6E:
+            case SwitchIds::SavegameInfoChunk::MapName:
                 std::strncpy(header->mapName, io.IO_File_ReadString(), 200);
                 break;
-            case 0x49436367:
+            case SwitchIds::SavegameInfoChunk::MapGuid:
                 io.IO_File_ReadBinary(&header->mapGuid, 16);
                 break;
-            case 0x49436D70:
+            case SwitchIds::SavegameInfoChunk::MultiplayerPlayers:
             {
                 header->multiplayer = 1;
                 // Original entries end at a negative index, without an upper-bound check.
@@ -83,14 +84,14 @@ namespace NC2Logic
                 }
                 break;
             }
-            case 0x49437469:
+            case SwitchIds::SavegameInfoChunk::CreationTime:
                 for (auto& field : header->creationTimeFields)
                     field = io.IO_File_ReadLong();
                 break;
-            case 0x49437369:
+            case SwitchIds::SavegameInfoChunk::SlotId:
                 header->slotId = static_cast<std::int32_t>(io.IO_File_ReadLong());
                 break;
-            case 0x49437878:
+            case SwitchIds::SavegameInfoChunk::EndInfoHeader:
                 return static_cast<std::int32_t>(version);
             default:
                 io.IO_File_Chunk_Skip();
@@ -237,23 +238,23 @@ namespace NC2Logic
         {
             switch (io->mReadHeader.marker)
             {
-            case 0x7832616D: LoadOriginalManager(0x460, GameAssistantManager_ConstructFromSavegame, io); break;
-            case 0x78646161: LoadNativeArray<CAnimalArray>(io); break;
-            case 0x7864616D: LoadOriginalManager(0x34, DelayedActionManager_ConstructFromSavegame, io); break;
-            case 0x78646178: LoadOriginalManager(0xA0, AIManager_ConstructFromSavegame, io); break;
-            case 0x78646573: LoadOriginalManager(8, EmbeddedSavegameManager_ConstructFromSavegame, io); break;
-            case 0x78646778: LoadOriginalManager(0x1368, GuideManager_ConstructFromSavegame, io); break;
-            case 0x78646861: LoadNativeArray<CHouseArray>(io); break;
-            case 0x78646870: LoadOriginalManager(0xAA0, HappinessManager_ConstructFromSavegame, io); break;
-            case 0x78646875: LoadNativeArray<CHumanArray>(io); break;
-            case 0x78646D61: LoadOriginalManager(0x5D8, HumanMerchantArray_ConstructFromSavegame, io); break;
-            case 0x78646D6D: LoadOriginalManager(0x30, MapMoveableArray_ConstructFromSavegame, io); break;
-            case 0x78646D78: LoadOriginalManager(0x81CAC, MissionManager_ConstructFromSavegame, io); break;
-            case 0x78646E61: LoadOriginalManager(0x30, MarkerArray_ConstructFromSavegame, io); break;
-            case 0x7864706D: LoadOriginalManager(0x30, MapPathfinderManager_ConstructFromSavegame, io); break;
-            case 0x78647478: LoadOriginalManager(0x960, TributeManager_ConstructFromSavegame, io); break;
-            case 0x78647661: LoadNativeArray<CVehicleArray>(io); break;
-            case 0x7867616D:
+            case SwitchIds::SavegameChunk::GameAssistant: LoadOriginalManager(0x460, GameAssistantManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Animals: LoadNativeArray<CAnimalArray>(io); break;
+            case SwitchIds::SavegameChunk::DelayedActions: LoadOriginalManager(0x34, DelayedActionManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::AI: LoadOriginalManager(0xA0, AIManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::EmbeddedSavegame: LoadOriginalManager(8, EmbeddedSavegameManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Guides: LoadOriginalManager(0x1368, GuideManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Houses: LoadNativeArray<CHouseArray>(io); break;
+            case SwitchIds::SavegameChunk::Happiness: LoadOriginalManager(0xAA0, HappinessManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Humans: LoadNativeArray<CHumanArray>(io); break;
+            case SwitchIds::SavegameChunk::Merchants: LoadOriginalManager(0x5D8, HumanMerchantArray_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::MapMoveables: LoadOriginalManager(0x30, MapMoveableArray_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Missions: LoadOriginalManager(0x81CAC, MissionManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Markers: LoadOriginalManager(0x30, MarkerArray_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Pathfinders: LoadOriginalManager(0x30, MapPathfinderManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Tributes: LoadOriginalManager(0x960, TributeManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::Vehicles: LoadNativeArray<CVehicleArray>(io); break;
+            case SwitchIds::SavegameChunk::GameState:
             {
                 io->IO_File_ReadBinary(&gGameStaticVars.mapGuid, 0x98);
                 gGameStaticVars.networkGame = static_cast<std::uint8_t>(network);
@@ -267,11 +268,11 @@ namespace NC2Logic
                 }
                 break;
             }
-            case 0x7867636F: LoadOriginalManager(0x5D204, GameControl_ConstructFromSavegame, io); break;
-            case 0x78676D61: LoadOriginalManager(1, GameMap_ConstructFromSavegame, io); break;
-            case 0x786D7367: LoadOriginalManager(0x740, MultiPlayerGoalManager_ConstructFromSavegame, io); break;
-            case 0x786F6D69: LoadOriginalManager(0xFA0, MissionOnscreenInfoManager_ConstructFromSavegame, io); break;
-            case 0x7870736D: LoadOriginalManager(0xA8, PlayerStatisticManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::GameControl: LoadOriginalManager(0x5D204, GameControl_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::GameMap: LoadOriginalManager(1, GameMap_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::MultiplayerGoals: LoadOriginalManager(0x740, MultiPlayerGoalManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::MissionOnscreenInfo: LoadOriginalManager(0xFA0, MissionOnscreenInfoManager_ConstructFromSavegame, io); break;
+            case SwitchIds::SavegameChunk::PlayerStatistics: LoadOriginalManager(0xA8, PlayerStatisticManager_ConstructFromSavegame, io); break;
             default: io->IO_File_Chunk_Skip(); break;
             }
         }

@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2EngineMapIO.h"
 #include "C2EngineMacroMaps.h"
 #include "ApplicationGlobals.h"
@@ -151,20 +152,20 @@ namespace NC2E2
         {
             switch (io->mReadHeader.marker)
             {
-            case 0x656D6272: ReadBytePlane(io, false, 4); break;
-            case 0x656D7663: ReadBytePlane(io, false, 5); break;
-            case 0x656D6D31: ReadBytePlane(io, false, 6); break;
-            case 0x656D6D69: ReadBytePlane(io, true, 2); break;
-            case 0x65617064: ReadNames(io, patterns, E2StaticDataPatternManager_GetPatternId); break;
-            case 0x65617464: ReadNames(io, transitions, E2StaticDataTransitionsManager_GetTransitionId); break;
-            case 0x65616C64: ReadNames(io, landscapes, E2StaticDataLandscapesManager_GetLandscapeId); break;
-            case 0x656D7061: ReadPatternPlane(io, patterns, 0, borderId); break;
-            case 0x656D7062: ReadPatternPlane(io, patterns, 2, borderId); break;
-            case 0x656D7431: ReadTransitionPlane(io, transitions, 7); break;
-            case 0x656D7432: ReadTransitionPlane(io, transitions, 8); break;
-            case 0x656D7433: ReadTransitionPlane(io, transitions, 9); break;
-            case 0x656D7434: ReadTransitionPlane(io, transitions, 10); break;
-            case 0x656D6C61: ReadLandscapePlane(io, landscapes); break;
+            case SwitchIds::EngineMapChunk::MacroBrightness: ReadBytePlane(io, false, 4); break;
+            case SwitchIds::EngineMapChunk::MacroVertexColor: ReadBytePlane(io, false, 5); break;
+            case SwitchIds::EngineMapChunk::MacroFlags: ReadBytePlane(io, false, 6); break;
+            case SwitchIds::EngineMapChunk::MicroFlags: ReadBytePlane(io, true, 2); break;
+            case SwitchIds::EngineMapChunk::PatternNames: ReadNames(io, patterns, E2StaticDataPatternManager_GetPatternId); break;
+            case SwitchIds::EngineMapChunk::TransitionNames: ReadNames(io, transitions, E2StaticDataTransitionsManager_GetTransitionId); break;
+            case SwitchIds::EngineMapChunk::LandscapeNames: ReadNames(io, landscapes, E2StaticDataLandscapesManager_GetLandscapeId); break;
+            case SwitchIds::EngineMapChunk::PatternA: ReadPatternPlane(io, patterns, 0, borderId); break;
+            case SwitchIds::EngineMapChunk::PatternB: ReadPatternPlane(io, patterns, 2, borderId); break;
+            case SwitchIds::EngineMapChunk::TransitionFirst: ReadTransitionPlane(io, transitions, 7); break;
+            case SwitchIds::EngineMapChunk::TransitionSecond: ReadTransitionPlane(io, transitions, 8); break;
+            case SwitchIds::EngineMapChunk::TransitionThird: ReadTransitionPlane(io, transitions, 9); break;
+            case SwitchIds::EngineMapChunk::TransitionFourth: ReadTransitionPlane(io, transitions, 10); break;
+            case SwitchIds::EngineMapChunk::Landscapes: ReadLandscapePlane(io, landscapes); break;
             default: io->IO_File_Chunk_Skip(); break;
             }
         }
@@ -347,14 +348,14 @@ namespace NC2E2
         {
             switch (io->mReadHeader.marker)
             {
-            case 0x4444616E: DynamicDataAnimalManager_IO_Savegame_Load(io); break;
-            case 0x4444686D: DynamicDataHumanManager_IO_Savegame_Load(io); break;
-            case 0x4444686F: DynamicDataHouseManager_IO_Savegame_Load(io); break;
-            case 0x44447665: DynamicDataVehicleManager_IO_Savegame_Load(io); break;
-            case 0x4D754D61: WorldMusic_IO_Savegame_Load(io); break;
-            case 0x50614D61: E2ParticelManager_IO_Savegame_Load(gE2ParticelManager, io); break;
-            case 0x57684D61: E2MapWeatherManagerSectorManager_IO_Savegame_Load(gE2MapWeatherManagerSectorManager, io); break;
-            case 0x58456D61: EngineMap_IO_Savegame_Load(io); break;
+            case SwitchIds::EngineSavegameChunk::DynamicAnimals: DynamicDataAnimalManager_IO_Savegame_Load(io); break;
+            case SwitchIds::EngineSavegameChunk::DynamicHumans: DynamicDataHumanManager_IO_Savegame_Load(io); break;
+            case SwitchIds::EngineSavegameChunk::DynamicHouses: DynamicDataHouseManager_IO_Savegame_Load(io); break;
+            case SwitchIds::EngineSavegameChunk::DynamicVehicles: DynamicDataVehicleManager_IO_Savegame_Load(io); break;
+            case SwitchIds::EngineSavegameChunk::WorldMusic: WorldMusic_IO_Savegame_Load(io); break;
+            case SwitchIds::EngineSavegameChunk::Particles: E2ParticelManager_IO_Savegame_Load(gE2ParticelManager, io); break;
+            case SwitchIds::EngineSavegameChunk::Weather: E2MapWeatherManagerSectorManager_IO_Savegame_Load(gE2MapWeatherManagerSectorManager, io); break;
+            case SwitchIds::EngineSavegameChunk::EngineMap: EngineMap_IO_Savegame_Load(io); break;
             default: return;
             }
         }
@@ -366,11 +367,11 @@ namespace NC2E2
         auto* io = reinterpret_cast<CIoHelper*>(static_cast<std::uintptr_t>(param1));
         switch (type)
         {
-        case 0x12: EngineMap_IO_Cleanmap_Save(io); break;
-        case 0x13: EngineMap_IO_Cleanmap_Load(io); break;
-        case 0x14: E2Manager_l_IO_Savegame_Save(io); break;
-        case 0x15: E2Manager_l_IO_Savegame_Load(io); break;
-        case 0x16:
+        case SwitchIds::CallbackType::SaveCleanmap: EngineMap_IO_Cleanmap_Save(io); break;
+        case SwitchIds::CallbackType::LoadCleanmap: EngineMap_IO_Cleanmap_Load(io); break;
+        case SwitchIds::CallbackType::SaveSavegame: E2Manager_l_IO_Savegame_Save(io); break;
+        case SwitchIds::CallbackType::LoadSavegame: E2Manager_l_IO_Savegame_Load(io); break;
+        case SwitchIds::CallbackType::LoadDone:
             EngineMap_PostLoad_RebuildIfRequired();
             C2DEngineDisplayManager::sTheObjectPtr->InformThatLoadDone();
             break;

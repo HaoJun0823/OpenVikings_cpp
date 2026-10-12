@@ -1,3 +1,4 @@
+#include "SwitchIdentifiers.h"
 #include "C2UserNetworkCommandAccess.h"
 #include "C2GuideAccess.h"
 #include "C2GameState.h"
@@ -65,20 +66,20 @@ namespace NC2Logic
             if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(command, 8)) return;
             switch (opcode)
             {
-            case 0x5A: House_Misc_Destroy_House(house, nullptr); break;
-            case 0x5B: House_Construction_UpgradeStart(house, nullptr); break;
-            case 0x5C: House_Construction_UpgradeStop(house, nullptr); break;
-            case 0x5D: House_HomeQualityEnhancer_SetAllowedFlag(house, Read<std::uint32_t>(command, 12), Read<std::uint32_t>(command, 16) != 0); break;
-            case 0x5E: House_Production_SetStoppedFlag(house, Read<std::uint32_t>(command, 12) != 0); break;
-            case 0x5F:
+            case SwitchIds::UserCommand::DestroyHouse: House_Misc_Destroy_House(house, nullptr); break;
+            case SwitchIds::UserCommand::StartHouseUpgrade: House_Construction_UpgradeStart(house, nullptr); break;
+            case SwitchIds::UserCommand::StopHouseUpgrade: House_Construction_UpgradeStop(house, nullptr); break;
+            case SwitchIds::UserCommand::SetHomeQualityEnhancerAllowed: House_HomeQualityEnhancer_SetAllowedFlag(house, Read<std::uint32_t>(command, 12), Read<std::uint32_t>(command, 16) != 0); break;
+            case SwitchIds::UserCommand::SetHouseProductionStopped: House_Production_SetStoppedFlag(house, Read<std::uint32_t>(command, 12) != 0); break;
+            case SwitchIds::UserCommand::ChangeHouseProductionCounter:
             {
                 auto delta = Read<std::uint32_t>(command, 16);
                 if (Read<std::uint32_t>(command, 12) == 0) delta = 0u - delta;
                 House_Production_ChangeCounter(house, static_cast<std::int32_t>(delta));
                 break;
             }
-            case 0x60: House_Stock_SetMinimumValue(house, Read<std::uint32_t>(command, 12), Read<std::uint32_t>(command, 16)); break;
-            case 0x61: House_SetDefenceModeFlag(house, Read<std::uint32_t>(command, 12) != 0); break;
+            case SwitchIds::UserCommand::SetHouseStockMinimum: House_Stock_SetMinimumValue(house, Read<std::uint32_t>(command, 12), Read<std::uint32_t>(command, 16)); break;
+            case SwitchIds::UserCommand::SetHouseDefenceMode: House_SetDefenceModeFlag(house, Read<std::uint32_t>(command, 12) != 0); break;
             default: House_DoNewUserCommand(house, command); break;
             }
             return;
@@ -93,7 +94,7 @@ namespace NC2Logic
         }
         switch (opcode)
         {
-        case 0x75:
+        case SwitchIds::UserCommand::PlaceBuildItem:
         {
             const auto player = Read<std::uint8_t>(command, 1);
             std::uint32_t point;
@@ -119,7 +120,7 @@ namespace NC2Logic
             }
             return;
         }
-        case 0x76:
+        case SwitchIds::UserCommand::BuildRoad:
         {
             const auto player = Read<std::uint8_t>(command, 1);
             std::uint32_t start, end;
@@ -135,14 +136,14 @@ namespace NC2Logic
             }
             return;
         }
-        case 0x77:
+        case SwitchIds::UserCommand::ClearRoadBuildArea:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
             RoadBuildManager_ClearRoadBuildFlagArea(gRoadBuildManager, nullptr, Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8));
             return;
         }
-        case 0x78:
+        case SwitchIds::UserCommand::BuildWall:
         {
             const auto player = Read<std::uint8_t>(command, 1);
             std::uint32_t start, end;
@@ -158,54 +159,54 @@ namespace NC2Logic
             }
             return;
         }
-        case 0x79:
+        case SwitchIds::UserCommand::ClearWallBuildArea:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
             WallBuildManager_ClearWallBuildFlagArea(gWallBuildManager, nullptr, Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8));
             return;
         }
-        case 0x7A:
+        case SwitchIds::UserCommand::RemoveWallGate:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
             MapTool_WallGate_Remove(Read<std::uint8_t>(command, 1), MapMigPoint_CopyValue(&point), Read<std::uint32_t>(command, 8));
             return;
         }
-        case 0x7B:
+        case SwitchIds::UserCommand::SetWallGate:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
             MapTool_WallGate_SetIntoWall(Read<std::uint8_t>(command, 1), &point);
             return;
         }
-        case 0x7C:
+        case SwitchIds::UserCommand::SetWallGateState:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
             MapTool_WallGate_SetState(Read<std::uint8_t>(command, 1), &point, Read<std::uint32_t>(command, 8) != 0);
             return;
         }
-        case 0x7D:
+        case SwitchIds::UserCommand::InsertGuide:
         {
             std::uint32_t point;
             MapMigPoint_AssignLong(&point, Read<std::uint32_t>(command, 4));
             GuideManager_InsertGuideAtPosition(gGuideManager, nullptr, Read<std::uint8_t>(command, 1), &point, 0);
             return;
         }
-        case 0x7E:
+        case SwitchIds::UserCommand::RemoveGuide:
         {
             const auto id = Read<std::uint32_t>(command, 4);
             const auto* guide = CGuideArray::mStaticVars + id * CGuideArray::ElementSize;
             if (Read<std::uint8_t>(guide, 0) != 0 && Read<std::uint32_t>(guide, 0x10) == Read<std::uint32_t>(command, 8)) GuideManager_RemoveGuide(gGuideManager, nullptr, id);
             return;
         }
-        case 0x7F: GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), Read<std::uint32_t>(command, 12)); return;
-        case 0x80: TributeData_Pay(static_cast<std::byte*>(gTributeManager) + Read<std::uint32_t>(command, 12) * 0x3Cu, nullptr); return;
-        case 0x81:
-        case 0x82:
-        case 0x83:
-        case 0x84:
+        case SwitchIds::UserCommand::SetDiplomacy: GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), Read<std::uint32_t>(command, 12)); return;
+        case SwitchIds::UserCommand::PayTribute: TributeData_Pay(static_cast<std::byte*>(gTributeManager) + Read<std::uint32_t>(command, 12) * 0x3Cu, nullptr); return;
+        case SwitchIds::UserCommand::EquipShoesForPlayer:
+        case SwitchIds::UserCommand::EquipWoodenToolsForPlayer:
+        case SwitchIds::UserCommand::EquipIronToolsForPlayer:
+        case SwitchIds::UserCommand::EquipMeadForPlayer:
         {
             const auto player = Read<std::uint8_t>(command, 1);
             CHumanIterator iterator;
@@ -227,17 +228,17 @@ namespace NC2Logic
             }
             return;
         }
-        case 0x85:
+        case SwitchIds::UserCommand::GameAssistantInput:
             if (gGameAssistantManager != nullptr) GameAssistantManager_UserInput_Save(gGameAssistantManager, Read<std::uint8_t>(command, 1), Read<std::int32_t>(command, 4), Read<std::int32_t>(command, 8));
             return;
-        case 0x86:
+        case SwitchIds::UserCommand::SetGlobalDefendMode:
             if (Read<std::uint32_t>(command, 4) != 0) Tool_GlobalDefendMode_Start(Read<std::uint8_t>(command, 1));
             else Tool_GlobalDefendMode_Stop(Read<std::uint8_t>(command, 1));
             return;
-        case 0x87: GameTime_SetSpeed(static_cast<double>(Read<std::uint32_t>(command, 4))); return;
-        case 0x88: GameControl_Player_LeavesGame(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
-        case 0x89: GameControl_Player_LeftGameModifyObjects(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
-        case 0x8A:
+        case SwitchIds::UserCommand::SetGameSpeed: GameTime_SetSpeed(static_cast<double>(Read<std::uint32_t>(command, 4))); return;
+        case SwitchIds::UserCommand::PlayerLeavesGame: GameControl_Player_LeavesGame(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
+        case SwitchIds::UserCommand::ModifyObjectsAfterPlayerLeaves: GameControl_Player_LeftGameModifyObjects(gGameControl, nullptr, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8) != 0, Read<std::uint32_t>(command, 12) != 0); return;
+        case SwitchIds::UserCommand::RecordNetworkLatency:
         {
             const auto player = GameTime_Network_GetPlayerByNetworkId(Read<std::uint32_t>(command, 12));
             if (player == -1) return;
@@ -271,7 +272,7 @@ namespace NC2Logic
             Write(manager, offset + 8, Read<std::uint32_t>(command, 12));
             return;
         }
-        case 0x8B:
+        case SwitchIds::UserCommand::SetNetworkFrequency:
         {
             auto frequency = Read<std::int32_t>(command, 4);
             if (frequency < 1) frequency = 1;
