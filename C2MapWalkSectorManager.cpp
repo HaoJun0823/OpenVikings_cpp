@@ -104,8 +104,8 @@ namespace NC2Logic
     {
         std::int16_t macroWidth;
         std::int16_t macroHeight;
-        std::memcpy(&macroWidth, DAT_00511570 + 0x04, sizeof(macroWidth));
-        std::memcpy(&macroHeight, DAT_00511570 + 0x06, sizeof(macroHeight));
+        std::memcpy(&macroWidth, gGameMapStaticStorage + 0x04, sizeof(macroWidth));
+        std::memcpy(&macroHeight, gGameMapStaticStorage + 0x06, sizeof(macroHeight));
 
         mStaticVars.gridWidth = (static_cast<std::int32_t>(macroWidth) + 9) / 10;
         SSectorGridCursor::sGridWidth = mStaticVars.gridWidth;
@@ -279,7 +279,7 @@ namespace NC2Logic
         }
 
         std::uint32_t continentCount;
-        std::memcpy(&continentCount, DAT_00511570 + 0x3C, sizeof(continentCount));
+        std::memcpy(&continentCount, gGameMapStaticStorage + 0x3C, sizeof(continentCount));
         std::uint32_t landContinent = 0;
         std::uint32_t waterContinent = 0;
         // The Windows counter is a byte, including its original wraparound.

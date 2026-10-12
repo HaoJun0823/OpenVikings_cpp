@@ -1,0 +1,22 @@
+Address,CurrentName,WidthBytes,Owner,Status,WindowsEvidence
+0050F250,NXBasics::gRuntimeMathErrorArgumentsAndHookBypass,4,CRT math dispatch,Renamed descriptive,"Three read-only xrefs at 004ED202/004ED23F/004F051A bypass argument capture or hook; Game.exe initial DWORD 0x2694; original CRT policy identity unresolved"
+0050F620,DAT_0050f620,1,Master program initialization,Unresolved,Only individual reference 0040102D passes one byte to zeroing; no purpose established
+00510838,NC2Logic::gGameTime.tick,4,Game static variables,Alias removed,Clock DWORD updated by game ticks and saved/loaded; callers now address existing field directly
+00510848,NC2Logic::gGameTime.speed,8,Game static variables,Alias removed,Binary64 game speed used by clock/control and savegame paths; callers now address existing field directly
+0051089D,NC2Logic::gGameTime.maximizeSpeed,1,Game static variables,Alias removed,One-byte maximize-speed state used by clock/control; callers now address existing field directly
+005109BC,NC2Logic::gGameStaticVars.retainedMapIni,4,Game static variables,Member renamed,Owned CIniFileReader pointer retained by map loading and deleted at shutdown; offset 0x1A4 unchanged
+005109C0,NC2Logic::gGameStaticVars.mapFileLibrary,4,Game static variables,Member renamed,Owned registered map-library pointer loaded for archive maps and deregistered/deleted at shutdown; offset 0x1A8 unchanged
+005109C4,NC2Logic::gGameStaticVars.networkGame,1,Game static variables,Member renamed,Startup/savegame network-mode byte checked by network/time/GUI paths; offset 0x1AC unchanged
+005114B0,NC2Logic::DAT_005114b0,1,Clean map manager initialization,Unresolved,Only individual reference 004163E1 passes one byte to zeroing; no purpose established
+00511570,gGameMapStaticStorage,4108,Logic game map,Region renamed,Complete 00511570..0051257B region includes dimensions/rectangles/map owners and 250 continent records; raw aligned storage retained
+00554D20,DAT_00554d20,4,AI/village initialization,Unresolved,Only individual reference 00471615 clears DWORD; no purpose established
+00554D98,gStaticMapModifiedBounds,8,Static display map,Region renamed,Complete 00554D98..00554D9F region holds two signed 16-bit min/max coordinate pairs
+00555110,DAT_00555110,1,Display manager initialization,Unresolved,Only individual reference 004811D2 passes one byte to zeroing; no purpose established
+00568358,gEngineMapStaticStorage,28,Engine map,Region renamed,Complete 00568358..00568373 region contains macro/micro owners and dirty bounds and missing-resource flag/padding
+00569078,gFishScatterYFrequency,8,Fish drawing,Renamed,Startup 00499AC2 computes 7189/pi; 00499AD5 scatter Y sine use at 00499E22
+00569080,gFishHorizontalMotionFrequency,8,Fish drawing,Renamed,Startup 00499A63 computes pi times original binary64 factor; horizontal fish sine phases
+00569088,gFishScatterXFrequency,8,Fish drawing,Renamed,Startup 00499AAF computes 10874/pi; 00499AD5 scatter X sine use at 00499DE1
+00569090,gFishSecondaryVerticalMotionFrequency,8,Fish drawing,Renamed,Startup 00499A9C computes pi times original binary64 factor; secondary vertical fish phases
+00569098,gFishSecondaryHorizontalMotionFrequency,8,Fish drawing,Renamed,Startup 00499A76 computes pi times original binary64 factor; secondary horizontal fish phases
+005690A0,gFishVerticalMotionFrequency,8,Fish drawing,Renamed,Startup 00499A89 computes pi times original binary64 factor; vertical fish sine phases
+0056998C,NXBasics::gRuntimeMathErrorCompletionBypass,4,CRT x87 math completion,Renamed descriptive,Nine read-only native xrefs bypass completion/error processing when nonzero; original CRT policy identity unresolved; zero initializer retained

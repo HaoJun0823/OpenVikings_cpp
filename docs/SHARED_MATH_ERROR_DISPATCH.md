@@ -1,5 +1,7 @@
 # Windows math-error dispatcher - 2026-10-11
 
+Later naming checkpoint (2026-10-12): 0050F250 and 0056998C now use descriptive names for their proven native bypass effects. Their original CRT policy identities remain unresolved; widths, values, volatile access and behavior are unchanged. Historical DAT labels below refer to the same storage. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).
+
 The body of **004F046B**, `NXBasics::Runtime_DispatchMathError`, is translated from Windows ASM/Game.exe. At this initial parent checkpoint its immediate child **004F1DA2 was a temporary link-only dummy**. It is subsequently replaced with a partial body; see [SHARED_MASKED_RESPONSE_VALUE_PATHS.md](SHARED_MASKED_RESPONSE_VALUE_PATHS.md). That child remains excluded from completion counts, with hardware generation 004F2024 now the isolated dummy. This is a reconstructed parent body, not a completed, connected or functionally validated math-error tree. The existing numeric log10/sin/cos adapters remain partial and do not call this new dispatcher. Their exceptional behavior is not promoted to complete.
 
 The 0x20-byte native error record has signed type at +0, name pointer at +4, binary64 argument1/argument2/result at +8/+0x10/+0x18. Compile-time size and offset checks enforce the Win32 layout. No richer unknown union, allocation or ownership is invented. The name is descriptive of the Windows-proven record; the Mac private CRT counterpart is not established.

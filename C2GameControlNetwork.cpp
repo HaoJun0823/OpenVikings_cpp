@@ -23,7 +23,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto offset = player * 0x4A80u;
-        if (gGameStaticVars.DAT_005109c4 != 0 && Read<std::uint32_t>(gameControl, offset + 4) == 1 && Read<std::uint32_t>(gameControl, offset + 0x14) != 0)
+        if (gGameStaticVars.networkGame != 0 && Read<std::uint32_t>(gameControl, offset + 4) == 1 && Read<std::uint32_t>(gameControl, offset + 0x14) != 0)
         {
             Write<std::uint32_t>(gameControl, offset + 0x14, 0);
             Write<std::uint32_t>(gameControl, offset + 4, 2);
@@ -165,12 +165,12 @@ namespace NC2Logic
     // Original function: FUN_0040b250.
     std::int32_t GameTime_Network_GetPlayerByNetworkId(std::uint32_t networkId)
     {
-        return gGameStaticVars.DAT_005109c4 != 0 ? GameControl_GetPlayerByNetworkId(gGameControl, networkId) : -1;
+        return gGameStaticVars.networkGame != 0 ? GameControl_GetPlayerByNetworkId(gGameControl, networkId) : -1;
     }
     // Original function: FUN_0040a55f; the signed upper bound has no lower-bound check.
     bool GameControl_Player_IsNetworkPlayer(const void* gameControl, std::int32_t player)
     {
-        if (gGameStaticVars.DAT_005109c4 == 0 || player >= 20) return false;
+        if (gGameStaticVars.networkGame == 0 || player >= 20) return false;
         const auto offset = static_cast<std::uint32_t>(player) * 0x4A80u;
         return NC2Lifetime::Read<std::uint8_t>(gameControl, offset) != 0 && NC2Lifetime::Read<std::uint32_t>(gameControl, offset + 4) == 1;
     }

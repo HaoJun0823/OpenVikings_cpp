@@ -39,8 +39,8 @@ namespace NC2E2
 			return At(gStaticParticelStorage.entries, id * 0x48u);
 		}
 
-		// Original function: FUN_00487017; original position-helper name unresolved.
-		void FUN_00487017(const void* position, std::int32_t* pixel, const void* display)
+		// Original function: FUN_00487017; world-pixel projection without vertical height displacement.
+		void ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(const void* position, std::int32_t* pixel, const void* display)
 		{
 			const auto vertical = Truncate(static_cast<double>(Read<float>(display, 0)) * NC2Logic::GameMap_GetHeight());
 			const auto horizontal = Truncate(static_cast<double>(Read<float>(display, 4)) * NC2Logic::GameMap_GetWidth());
@@ -49,9 +49,9 @@ namespace NC2E2
 		}
 
 		// Original function: FUN_00486f91; height-aware position projection.
-		void FUN_00486f91(const void* position, std::int32_t* pixel, const void* display)
+		void ParticelPosition_ToWorldPixelCoordinates(const void* position, std::int32_t* pixel, const void* display)
 		{
-			FUN_00487017(position, pixel, display);
+			ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(position, pixel, display);
 			const auto height = static_cast<std::uint16_t>(static_cast<std::uint8_t>(Truncate(Read<double>(position, 0x10) * 250.0)));
 			// Original inline height conversion: FUN_004821b3.
 			const auto bits = Read<std::uint32_t>(display, 0x14) * height + 127u;
@@ -152,7 +152,7 @@ namespace NC2E2
 	{
 		if (Read<std::uint32_t>(particle, 0x110) == 0) return;
 		const bool direction = Read<std::uint8_t>(particle, 0x18) != 0 && display != nullptr;
-		if (direction) FUN_00486f91(At(particle, 0x28), reinterpret_cast<std::int32_t*>(At(particle, 0x88)), display);
+		if (direction) ParticelPosition_ToWorldPixelCoordinates(At(particle, 0x28), reinterpret_cast<std::int32_t*>(At(particle, 0x88)), display);
 		else LogicParticelObject_CalculateValency(particle);
 		void* data = StaticParticle(Read<std::uint32_t>(particle, 0x128));
 		void* frames = ParticelGraphics_GetValency(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
@@ -171,7 +171,7 @@ namespace NC2E2
 		LogicParticelObject_Move(particle);
 		if (!direction) return;
 		std::int32_t current[2], previous[2];
-		FUN_00486f91(At(particle, 0x28), current, display);
+		ParticelPosition_ToWorldPixelCoordinates(At(particle, 0x28), current, display);
 		std::memcpy(previous, At(particle, 0x88), sizeof(previous));
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, current, true);
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, previous, true);
@@ -251,8 +251,8 @@ namespace NC2E2
 	void E2ParticelManager_l_DrawParticel(void* /*manager*/, void* display, void* particle)
 	{
 		std::int32_t pixel[2];
-		if (Read<std::uint8_t>(particle, 0x20) != 0) FUN_00486f91(At(particle, 0x28), pixel, display);
-		else FUN_00487017(At(particle, 0x28), pixel, display);
+		if (Read<std::uint8_t>(particle, 0x20) != 0) ParticelPosition_ToWorldPixelCoordinates(At(particle, 0x28), pixel, display);
+		else ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(At(particle, 0x28), pixel, display);
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, pixel, false);
 		auto* bitmap = Read<NXBasics::CBitmap*>(display, 0x68);
 		const auto id = Read<std::uint32_t>(particle, 0x128);

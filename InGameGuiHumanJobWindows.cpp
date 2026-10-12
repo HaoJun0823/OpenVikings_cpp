@@ -232,7 +232,7 @@ namespace NC2InGameGuiSelectedAction
             const auto id = SelectedId(); const char* text = TextInput(window)->GetString();
             if (std::strlen(text) == 0) return;
             NC2E2::DynamicHuman_SetName(static_cast<std::byte*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8, text);
-            if (NC2Logic::gGameStaticVars.DAT_005109c4 == 0 || !NNetwork::Network_IsInSession()) return;
+            if (NC2Logic::gGameStaticVars.networkGame == 0 || !NNetwork::Network_IsInSession()) return;
             char formatted[100];
             NXBasics::Runtime_PrintStringN(formatted, sizeof(formatted), "%d:%d:%d:%s", Read<std::int32_t>(Human(id), 0x10), id, Read<std::uint32_t>(Human(id), 8), text);
             // The first UTF-16 code unit is the original rename record discriminator.

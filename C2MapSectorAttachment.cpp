@@ -79,8 +79,8 @@ namespace NC2Logic
     {
         std::int16_t macroWidth;
         std::int16_t macroHeight;
-        std::memcpy(&macroWidth, DAT_00511570 + 0x04, sizeof(macroWidth));
-        std::memcpy(&macroHeight, DAT_00511570 + 0x06, sizeof(macroHeight));
+        std::memcpy(&macroWidth, gGameMapStaticStorage + 0x04, sizeof(macroWidth));
+        std::memcpy(&macroHeight, gGameMapStaticStorage + 0x06, sizeof(macroHeight));
 
         mGridWidth = static_cast<std::int32_t>(macroWidth) / 10;
         mGridHeight = static_cast<std::int32_t>(macroHeight) / 10;

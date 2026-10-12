@@ -37,29 +37,29 @@ namespace NC2Logic
 
     using namespace NC2Lifetime;
 
-    // Original function: FUN_00438c79; the original constructor name remains unresolved.
-    static void FUN_00438C79(void* data)
+    // Original function: FUN_00438c79; one mode byte and 66 per-good enable flags.
+    static void Human_ProductionGoodEnableFlags_Construct(void* data)
     {
         std::memset(static_cast<std::byte*>(data) + 1, 0, 66);
         Write<std::uint8_t>(data, 1, 1);
         Write<std::uint8_t>(data, 0, 0);
     }
 
-    // Original function: FUN_0044b5e1; the original constructor name remains unresolved.
-    static void FUN_0044B5E1(void* data)
+    // Original function: FUN_0044b5e1; one mode byte and seven enable flags; exact domain unresolved.
+    static void SevenEntryEnableFlags_Construct(void* data)
     {
         std::memset(static_cast<std::byte*>(data) + 1, 0, 7);
         Write<std::uint8_t>(data, 1, 1);
         Write<std::uint8_t>(data, 0, 0);
     }
 
-    // Original function: FUN_0044b590; native name unresolved, reset ranges confirmed from Windows.
-    static void FUN_0044B590(void* human, std::int32_t player)
+    // Original function: FUN_0044b590; reset job, production and equipment capabilities for the new player.
+    static void Human_SetPlayerIdAndResetCapabilities(void* human, std::int32_t player)
     {
         Write(human, 0x10, player);
         std::memset(static_cast<std::byte*>(human) + 0x15C, 0, 0x38);
-        FUN_00438C79(static_cast<std::byte*>(human) + 0x194);
-        FUN_0044B5E1(static_cast<std::byte*>(human) + 0x1D7);
+        Human_ProductionGoodEnableFlags_Construct(static_cast<std::byte*>(human) + 0x194);
+        SevenEntryEnableFlags_Construct(static_cast<std::byte*>(human) + 0x1D7);
         std::memset(static_cast<std::byte*>(human) + 0x1E0, 0, 0x38);
         Human_SetupPlayerSpecificStuff(human);
     }
@@ -84,7 +84,7 @@ namespace NC2Logic
             MapMoveable_Attachment_DetachFromMap(moveable);
             wasAttached = true;
         }
-        FUN_0044B590(human, player);
+        Human_SetPlayerIdAndResetCapabilities(human, player);
         void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
         Write<std::int32_t>(pathfinder, 0x24, -1);
         Write<std::int32_t>(pathfinder, 0x1C, -1);
@@ -415,7 +415,7 @@ namespace NC2Logic
         Human_WorkCenterMarker_Update(human);
         Write<std::uint32_t>(human, 0xADC, 0);
         Write<std::uint32_t>(human, 0xAE0, 0);
-        FUN_00438C79(static_cast<std::byte*>(human) + 0x194);
+        Human_ProductionGoodEnableFlags_Construct(static_cast<std::byte*>(human) + 0x194);
         std::memset(static_cast<std::byte*>(human) + 0x24, 0, 0x138);
         std::memset(static_cast<std::byte*>(human) + 0x15C, 0, 0x38);
         Write<std::uint8_t>(human, 0x15Cu + job, 1);
@@ -510,7 +510,7 @@ namespace NC2Logic
         }
         if (Read<std::uint32_t>(gGameControl, 0x5D200) == 2)
         {
-            if (gGameStaticVars.DAT_005109c4 != 0)
+            if (gGameStaticVars.networkGame != 0)
             {
                 if (static_cast<std::int32_t>(player) < 20 && Read<std::uint32_t>(gGameControl, player * 0x4A80u + 4u) == 1) Write<std::uint32_t>(human, 0xB84, Read<std::uint32_t>(human, 0xB84) | 1u);
             }

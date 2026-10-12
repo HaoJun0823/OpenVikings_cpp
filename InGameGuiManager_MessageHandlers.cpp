@@ -92,7 +92,7 @@ namespace
         if (character == 0) return;
         auto* history = gInGameKeyboardHistory.characters; std::memmove(history + 1, history, 19); history[20] = 0; history[0] = static_cast<char>(character);
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; bool matched = false;
-        if (NC2Logic::gGameStaticVars.DAT_005109c4 == 0 && std::strncmp(history, "nalamkcug", 9) == 0) { manager->Exploration_Toggle(); matched = true; }
+        if (NC2Logic::gGameStaticVars.networkGame == 0 && std::strncmp(history, "nalamkcug", 9) == 0) { manager->Exploration_Toggle(); matched = true; }
         if (std::strncmp(history, "pamagem", 7) == 0 && !NNetwork::Network_IsInSession()) { NXBasics::CFile::FileSystem_Tool_CreateDirectory("mapshots"); char filename[200]; NXBasics::Runtime_PrintString(filename, "mapshots\\small_%4.4d.bmp", gInGameKeyboardHistory.smallMapCounter++); NC2E2::Tool_SaveWorldAsBMP(filename, 25); matched = true; }
         if (std::strncmp(history, "paminim", 7) == 0 && !NNetwork::Network_IsInSession()) { NXBasics::CFile::FileSystem_Tool_CreateDirectory("mapshots"); char filename[200]; NXBasics::Runtime_PrintString(filename, "mapshots\\verybig_%4.4d.bmp", gInGameKeyboardHistory.largeMapCounter++); NC2E2::Tool_SaveWorldAsBMP(filename, 100); matched = true; }
         if (std::strncmp(history, "netsaklam", 9) == 0) { auto* world = manager->GetDesktop(); auto variant = NC2Lifetime::Read<std::uint32_t>(world, 0x238) + 1u; if (variant == 4) variant = 0; NC2InGameGuiWorldElement::WorldDisplayElement_DarkenBitmap_Init(world, variant); matched = true; }
@@ -126,10 +126,10 @@ namespace
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; auto* desktop = NXBaseGui::CDesktop::sTheObjectPtr;
         if (manager->MiscWindows_HumanChangeNameWindow_SendKey(key, static_cast<char>(character))) return true;
         if (manager->MiscWindows_ConstructionSelectionWindow_SendKey(key, static_cast<char>(character))) return true;
-        if (gGameStaticVars.DAT_005109c4 != 0 && NNetwork::Network_IsInSession())
+        if (gGameStaticVars.networkGame != 0 && NNetwork::Network_IsInSession())
         {
             auto* input = manager->GetStringInputHandler(); const auto result = input->WorkOnKey(key, static_cast<char>(character));
-            if (result == 3) { const auto* text = input->GetString(); if (std::strlen(text) != 0) { char caption[100]; NXBasics::Runtime_PrintString(caption, "%s> %s", NNetwork::Network_GetCallsign(), text); wchar_t record[128]{}; NNetwork::CopyNetworkAnsiToWide(record + 1, caption, -1); record[0] = 1; if (gGameStaticVars.DAT_005109c4 != 0 && NNetwork::Network_IsInSession()) NNetwork::SendDynamicNetworkChatMessage(&gDynamicNetworkData, 0, record); FXTool_Chat(); } input->SetString(""); }
+            if (result == 3) { const auto* text = input->GetString(); if (std::strlen(text) != 0) { char caption[100]; NXBasics::Runtime_PrintString(caption, "%s> %s", NNetwork::Network_GetCallsign(), text); wchar_t record[128]{}; NNetwork::CopyNetworkAnsiToWide(record + 1, caption, -1); record[0] = 1; if (gGameStaticVars.networkGame != 0 && NNetwork::Network_IsInSession()) NNetwork::SendDynamicNetworkChatMessage(&gDynamicNetworkData, 0, record); FXTool_Chat(); } input->SetString(""); }
             if (input->mEditing != 0) manager->MiscWindows_StringOutputWindow_Open(); if (result != 0 && result != 1) return true;
         }
         if (manager->Selection_CheckKey_Action(key, static_cast<char>(character))) return true;

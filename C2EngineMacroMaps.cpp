@@ -785,8 +785,8 @@ namespace NC2E2
     // Original function: FUN_00483e58; the flag is cleared only after rebuilding.
     void EngineMap_PostLoad_RebuildIfRequired()
     {
-        if (Read<std::uint8_t>(DAT_00568358, 0x18) == 0) return;
+        if (Read<std::uint8_t>(gEngineMapStaticStorage, 0x18) == 0) return;
         MapIO_RebuildCurrentMapViaMacroMap(0, 0);
-        Write<std::uint8_t>(DAT_00568358, 0x18, 0);
+        Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 0);
     }
 }

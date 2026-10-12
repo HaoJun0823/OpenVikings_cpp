@@ -966,8 +966,8 @@ namespace NC2E2
     {
         Unregister(EngineMap_l_Transitions_Callback, 0, {0x33, 0x32, 0x31});
         Unregister(EngineMap_l_HeightChanged_Callback, 0, {0x33, 0x32, 0x31});
-        FreeAndClearField(DAT_00568358, 0);
-        FreeAndClearField(DAT_00568358, 4);
+        FreeAndClearField(gEngineMapStaticStorage, 0);
+        FreeAndClearField(gEngineMapStaticStorage, 4);
         gEngineMap = nullptr;
     }
     // Original function: FUN_0047e679, CE2Manager::sl_Callback_SomethingInLogicXtructed.
@@ -1065,9 +1065,9 @@ namespace NC2E2
             if (static_cast<std::uint16_t>(param1) != 0) E2MapWeatherManagerSectorManager_CreateSectorData(gE2MapWeatherManagerSectorManager);
             else E2MapWeatherManagerSectorManager_FreeSectorData(gE2MapWeatherManagerSectorManager);
         }
-        else if (type == 0x16 && DAT_005109bc != nullptr)
+        else if (type == 0x16 && NC2Logic::gGameStaticVars.retainedMapIni != nullptr)
         {
-            E2MapWeatherManagerSectorManager_InitDataFromMapIni(gE2MapWeatherManagerSectorManager, DAT_005109bc);
+            E2MapWeatherManagerSectorManager_InitDataFromMapIni(gE2MapWeatherManagerSectorManager, NC2Logic::gGameStaticVars.retainedMapIni);
         }
         return true;
     }
@@ -1080,8 +1080,8 @@ namespace NC2E2
         Write<std::uint32_t>(state, 0x48, horizontal);
         const std::uint32_t vertical = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % 5;
         Write<std::uint32_t>(state, 0x4C, vertical);
-        const double horizontalScale = (static_cast<double>(horizontal) * 0.01) * (1.0 / Read<std::int16_t>(DAT_00511570, 0));
-        const double verticalScale = (static_cast<double>(vertical) * 0.01) * (1.0 / Read<std::int16_t>(DAT_00511570, 2));
+        const double horizontalScale = (static_cast<double>(horizontal) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, 0));
+        const double verticalScale = (static_cast<double>(vertical) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, 2));
         Write<double>(state, 0x18, horizontalScale);
         Write<double>(state, 0x20, verticalScale);
         const std::int32_t angle = NXBasics::Runtime_Rand() % 361;
@@ -1294,7 +1294,7 @@ namespace NC2E2
     static void WorldMusic_LoadMusicType()
     {
         gWorldMusicState.musicType = 0;
-        auto* reader = DAT_005109bc;
+        auto* reader = NC2Logic::gGameStaticVars.retainedMapIni;
         if (reader != nullptr && reader->SearchGroup("misc_music") && reader->SearchCommand("musictype")) gWorldMusicState.musicType = static_cast<std::uint32_t>(reader->GetInt());
     }
     // Original function: FUN_00485d7a; Windows music callback.
@@ -1326,13 +1326,13 @@ namespace NC2E2
             if (param1 != gWorldMusicState.controllingPlayer && param2 != gWorldMusicState.controllingPlayer) break;
             if (gWorldMusicState.changePending != 0)
             {
-                gWorldMusicState.changeAtGameTime = DAT_00510838 + 120u;
+                gWorldMusicState.changeAtGameTime = NC2Logic::gGameTime.tick + 120u;
                 break;
             }
             {
                 const std::uint32_t player = param1 == gWorldMusicState.controllingPlayer ? param2 : param1;
                 const std::int32_t tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, player * 0x4A80u + 0x0C) : 1;
-                gWorldMusicState.changeAtGameTime = DAT_00510838 + 120u;
+                gWorldMusicState.changeAtGameTime = NC2Logic::gGameTime.tick + 120u;
                 gWorldMusicState.changePending = 1;
                 const std::int32_t event = tribe == 2 ? 7 : tribe == 3 ? 8 : tribe == 4 ? 9 : 6;
                 NDMManager::ProcessEvent(gDirectMusicManager, event, 0, 2);

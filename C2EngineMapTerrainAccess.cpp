@@ -166,10 +166,10 @@ namespace NC2E2
     // Original function: FUN_004832dc; clear flags in descending index order.
     void EngineMap_Highlighting_Clear()
     {
-        auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(DAT_00511570, 12) - 1u);
+        auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(gGameMapStaticStorage, 12) - 1u);
         while (index >= 0)
         {
-            void* data = Read<void*>(DAT_00568358, 4);
+            void* data = Read<void*>(gEngineMapStaticStorage, 4);
             const auto offset = static_cast<std::uint32_t>(index) * 4u + 2u;
             Write<std::uint8_t>(data, offset, Read<std::uint8_t>(data, offset) & 0xFCu);
             --index;
@@ -216,13 +216,13 @@ namespace NC2E2
     void* __fastcall EngineMap_Construct(void* manager, void* /*unusedEdx*/)
     {
         gEngineMap = manager;
-        std::memset(DAT_00568358, 0, sizeof(DAT_00568358));
-        const auto macroCount = Read<std::uint32_t>(DAT_00511570, 8), microCount = Read<std::uint32_t>(DAT_00511570, 12);
+        std::memset(gEngineMapStaticStorage, 0, sizeof(gEngineMapStaticStorage));
+        const auto macroCount = Read<std::uint32_t>(gGameMapStaticStorage, 8), microCount = Read<std::uint32_t>(gGameMapStaticStorage, 12);
         auto* macro = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(macroCount * 12u, 1));
-        Write(DAT_00568358, 0, macro);
+        Write(gEngineMapStaticStorage, 0, macro);
         std::memset(macro, 0, macroCount * 12u);
         auto* micro = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(microCount * 4u, 1));
-        Write(DAT_00568358, 4, micro);
+        Write(gEngineMapStaticStorage, 4, micro);
         std::memset(micro, 0, microCount * 4u);
         for (std::uint32_t i = 0; i < microCount; ++i) Write<std::uint16_t>(micro, i * 4u, 0xFFFF);
         Point point{};
@@ -292,10 +292,10 @@ namespace NC2E2
         {
             if (type == 0x31)
             {
-                Write<std::uint16_t>(DAT_00568358, offset + 6, 0);
-                Write<std::uint16_t>(DAT_00568358, offset + 4, 0);
-                Write<std::uint16_t>(DAT_00568358, offset + 2, 32000);
-                Write<std::uint16_t>(DAT_00568358, offset, 32000);
+                Write<std::uint16_t>(gEngineMapStaticStorage, offset + 6, 0);
+                Write<std::uint16_t>(gEngineMapStaticStorage, offset + 4, 0);
+                Write<std::uint16_t>(gEngineMapStaticStorage, offset + 2, 32000);
+                Write<std::uint16_t>(gEngineMapStaticStorage, offset, 32000);
             }
             else if (type == 0x33 && (heights ? parameter1 == 13 || parameter1 == 11 : parameter1 == 0x33))
             {
@@ -303,15 +303,15 @@ namespace NC2E2
                 NC2Logic::MapMigPoint_AssignLong(point, parameter2);
                 for (unsigned i = 0; i != 2; ++i)
                 {
-                    if (point[i] < Read<std::int16_t>(DAT_00568358, offset + i * 2)) Write(DAT_00568358, offset + i * 2, point[i]);
-                    if (point[i] > Read<std::int16_t>(DAT_00568358, offset + 4 + i * 2)) Write(DAT_00568358, offset + 4 + i * 2, point[i]);
+                    if (point[i] < Read<std::int16_t>(gEngineMapStaticStorage, offset + i * 2)) Write(gEngineMapStaticStorage, offset + i * 2, point[i]);
+                    if (point[i] > Read<std::int16_t>(gEngineMapStaticStorage, offset + 4 + i * 2)) Write(gEngineMapStaticStorage, offset + 4 + i * 2, point[i]);
                 }
             }
-            else if (type == 0x32 && Read<std::int16_t>(DAT_00568358, offset) != 32000)
+            else if (type == 0x32 && Read<std::int16_t>(gEngineMapStaticStorage, offset) != 32000)
             {
                 Point first, last, point{};
-                NC2Logic::MapMagPoint_ConstructFromMig(first, DAT_00568358 + offset, false);
-                NC2Logic::MapMagPoint_ConstructFromMig(last, DAT_00568358 + offset + 4, false);
+                NC2Logic::MapMagPoint_ConstructFromMig(first, gEngineMapStaticStorage + offset, false);
+                NC2Logic::MapMagPoint_ConstructFromMig(last, gEngineMapStaticStorage + offset + 4, false);
                 for (unsigned i = 0; i != 2; ++i) { first[i] = static_cast<std::int16_t>(first[i] - 3); last[i] = static_cast<std::int16_t>(last[i] + 3); }
                 NC2Logic::MapMagPoint_CutInsideMap(first);
                 NC2Logic::MapMagPoint_CutInsideMap(last);
@@ -441,8 +441,8 @@ namespace NC2E2
         std::int16_t rectangle[4];
         if (type == 0x31)
         {
-            Write<std::int16_t>(DAT_00554d98, 0, 32000); Write<std::int16_t>(DAT_00554d98, 2, 32000);
-            Write<std::int16_t>(DAT_00554d98, 4, 0); Write<std::int16_t>(DAT_00554d98, 6, 0);
+            Write<std::int16_t>(gStaticMapModifiedBounds, 0, 32000); Write<std::int16_t>(gStaticMapModifiedBounds, 2, 32000);
+            Write<std::int16_t>(gStaticMapModifiedBounds, 4, 0); Write<std::int16_t>(gStaticMapModifiedBounds, 6, 0);
         }
         else if (type == 0x33)
         {
@@ -452,18 +452,18 @@ namespace NC2E2
             {
                 for (unsigned axis = 0; axis != 2; ++axis)
                 {
-                    if (point[axis] < Read<std::int16_t>(DAT_00554d98, axis * 2)) Write(DAT_00554d98, axis * 2, point[axis]);
-                    if (point[axis] > Read<std::int16_t>(DAT_00554d98, axis * 2 + 4)) Write(DAT_00554d98, axis * 2 + 4, point[axis]);
+                    if (point[axis] < Read<std::int16_t>(gStaticMapModifiedBounds, axis * 2)) Write(gStaticMapModifiedBounds, axis * 2, point[axis]);
+                    if (point[axis] > Read<std::int16_t>(gStaticMapModifiedBounds, axis * 2 + 4)) Write(gStaticMapModifiedBounds, axis * 2 + 4, point[axis]);
                 }
             }
             if (parameter1 == 12) EngineMap_OverlayPattern_RoadChanged(point, parameter3 != 0);
         }
-        else if (type == 0x32 && Read<std::int16_t>(DAT_00554d98, 0) != 32000)
+        else if (type == 0x32 && Read<std::int16_t>(gStaticMapModifiedBounds, 0) != 32000)
         {
-            rectangle[0] = static_cast<std::int16_t>(Read<std::int16_t>(DAT_00554d98, 0) - 2);
-            rectangle[1] = static_cast<std::int16_t>(Read<std::int16_t>(DAT_00554d98, 2) - 2);
-            rectangle[2] = static_cast<std::int16_t>(Read<std::int16_t>(DAT_00554d98, 4) - Read<std::int16_t>(DAT_00554d98, 0) + 4);
-            rectangle[3] = static_cast<std::int16_t>(Read<std::int16_t>(DAT_00554d98, 6) - Read<std::int16_t>(DAT_00554d98, 2) + 4);
+            rectangle[0] = static_cast<std::int16_t>(Read<std::int16_t>(gStaticMapModifiedBounds, 0) - 2);
+            rectangle[1] = static_cast<std::int16_t>(Read<std::int16_t>(gStaticMapModifiedBounds, 2) - 2);
+            rectangle[2] = static_cast<std::int16_t>(Read<std::int16_t>(gStaticMapModifiedBounds, 4) - Read<std::int16_t>(gStaticMapModifiedBounds, 0) + 4);
+            rectangle[3] = static_cast<std::int16_t>(Read<std::int16_t>(gStaticMapModifiedBounds, 6) - Read<std::int16_t>(gStaticMapModifiedBounds, 2) + 4);
             NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
             C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, 0xFFFFFFFFu);
         }

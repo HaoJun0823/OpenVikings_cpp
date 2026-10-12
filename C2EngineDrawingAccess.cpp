@@ -277,7 +277,7 @@ namespace NC2E2
         }
         else if (readByte(graphic, 0x7B) != 0)
         {
-            frameValue = DAT_00510838 + animationValue;
+            frameValue = NC2Logic::gGameTime.tick + animationValue;
 
             if (gE2ParticelGeneratorStorage.unresolved00 != 0)
                 frameValue = ::timeGetTime() / 83u + animationValue;

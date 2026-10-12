@@ -285,7 +285,7 @@ namespace NC2Logic
     // Original function: FUN_00411829; decoded directly from Windows PE bytes.
     void __fastcall UserNetworkCommandManager_SendCommands(void* manager, void* /*unusedEdx*/)
     {
-        if (gGameStaticVars.DAT_005109c4 == 0) return;
+        if (gGameStaticVars.networkGame == 0) return;
         auto* system = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0x964);
         auto* deferred = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0x978);
         auto* ordinary = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + 0x98C);
@@ -314,7 +314,7 @@ namespace NC2Logic
     bool __fastcall UserNetworkCommandManager_ReceiveCommands(void* manager, void* /*unusedEdx*/)
     {
         using namespace NC2Lifetime;
-        if (gGameStaticVars.DAT_005109c4 == 0) return true;
+        if (gGameStaticVars.networkGame == 0) return true;
         NNetwork::UpdateDynamicNetwork(&gDynamicNetworkData, false);
         NNetwork::SDynamicSlot* slots = nullptr;
         std::uint32_t slotCount = 0;
@@ -400,7 +400,7 @@ namespace NC2Logic
     void __fastcall UserNetworkCommandManager_AddCommand(void* manager, void* /*unusedEdx*/, const void* command, bool systemCommand, bool deferred)
     {
         if (*static_cast<const std::uint8_t*>(command) == 0) return;
-        if (gGameStaticVars.DAT_005109c4 == 0)
+        if (gGameStaticVars.networkGame == 0)
         {
             UserNetworkCommandManager_Execute(manager, nullptr, command);
             return;

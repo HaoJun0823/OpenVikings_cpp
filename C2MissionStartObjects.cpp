@@ -58,7 +58,7 @@ namespace NC2Logic
     // Original function: FUN_00409d1b.
     static bool GameControl_IsPlayerNotInMultiPlayerGame(const void* control, std::int32_t player)
     {
-        if (gGameStaticVars.DAT_005109c4 == 0) return false;
+        if (gGameStaticVars.networkGame == 0) return false;
         return player >= 20 || Read<std::uint8_t>(control, static_cast<std::uint32_t>(player) * 0x4A80u) == 0;
     }
 

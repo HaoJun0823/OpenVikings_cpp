@@ -36,4 +36,8 @@ Source closure does not establish live equivalence or absence of bugs. Build/lin
 
 The user traced green road pixels to a modified PCX; the original texture has no such pixels. No renderer correction is requested for that report. Original player/music data for Die Rebellion remain preserved: the user confirmed the same music in the original executable.
 
-Project/filter parity is **307 CPP / 281 headers**, with **3149** unique naming records and **17** unchanged unmatched declaration signatures. All **24 affected C++ units** pass MSVC Win32 C++17 syntax-only checks. Native source inventories, unique naming, dummy replacement, project/filter registration and whitespace checks pass. No build, tests or game run occurred. Private tooling and full inventories remain in ignored `.codex-work/`.
+Project/filter parity is **307 CPP / 281 headers**, with **3151** unique naming records and **15** freshly counted unmatched declaration signatures (parser diagnostics, not linker results). All **24 affected C++ units** pass MSVC Win32 C++17 syntax-only checks. Native source inventories, unique naming, dummy replacement, project/filter registration and whitespace checks pass. No build, tests or game run occurred. Private tooling and full inventories remain in ignored `.codex-work/`.
+
+## Naming checkpoint - 2026-10-12
+
+All five active FUN identifiers and 17 of 21 DAT identities are cleaned. All remaining DAT members of the game-state struct are named; four globals have only proven initialization and remain unresolved. Registered production identifiers are FUN 0 / DAT 4 / PTR 0 / UNK 0; address comments remain. This does not change reconstruction counts or establish runtime equivalence. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).

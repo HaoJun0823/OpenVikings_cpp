@@ -62,9 +62,9 @@ namespace NC2Logic
         SGameRandomState random;
         std::uint32_t uniqueIdCounter;
         std::byte unknown0A0[0x104];
-        NXBasics::CIniFileReader* DAT_005109bc;
-        void* DAT_005109c0;
-        std::uint8_t DAT_005109c4;
+        NXBasics::CIniFileReader* retainedMapIni;    // +0x1A4; original 005109BC, owned until game shutdown.
+        void* mapFileLibrary;                      // +0x1A8; original 005109C0, owned registered map archive.
+        std::uint8_t networkGame;                  // +0x1AC; original 005109C4, startup/savegame network mode.
         std::uint8_t networkWait;                    // +0x1AD; original 005109C5.
         std::byte unknown1AE[0x0A];
     };
@@ -86,16 +86,8 @@ namespace NC2Logic
     static_assert(offsetof(SGameStaticVars, autosave) == 0x88);
     static_assert(offsetof(SGameStaticVars, random) == 0x94);
     static_assert(offsetof(SGameStaticVars, uniqueIdCounter) == 0x9C);
-    static_assert(offsetof(SGameStaticVars, DAT_005109bc) == 0x1A4);
-    static_assert(offsetof(SGameStaticVars, DAT_005109c0) == 0x1A8);
-    static_assert(offsetof(SGameStaticVars, DAT_005109c4) == 0x1AC);
+    static_assert(offsetof(SGameStaticVars, retainedMapIni) == 0x1A4);
+    static_assert(offsetof(SGameStaticVars, mapFileLibrary) == 0x1A8);
+    static_assert(offsetof(SGameStaticVars, networkGame) == 0x1AC);
     static_assert(offsetof(SGameStaticVars, networkWait) == 0x1AD);
 }
-
-// Compatibility aliases for existing callers; the clock fields now have named storage.
-// Remaining game-loader/network fields retain their original labels.
-inline std::uint32_t& DAT_00510838 = NC2Logic::gGameTime.tick;
-inline double& DAT_00510848 = NC2Logic::gGameTime.speed;
-inline std::uint8_t& DAT_0051089d = NC2Logic::gGameTime.maximizeSpeed;
-inline NXBasics::CIniFileReader*& DAT_005109bc = NC2Logic::gGameStaticVars.DAT_005109bc;
-inline void*& DAT_005109c0 = NC2Logic::gGameStaticVars.DAT_005109c0;

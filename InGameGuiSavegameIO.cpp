@@ -110,7 +110,7 @@ namespace NC2InGameGuiGroups
     {
         if (io->mReadHeader.marker == 0x586F676D && io->mReadHeader.version == 2)
         {
-            if (NC2Logic::gGameStaticVars.DAT_005109c4 == 0) { io->IO_File_ReadBinary(this, 0x2F0C); return; }
+            if (NC2Logic::gGameStaticVars.networkGame == 0) { io->IO_File_ReadBinary(this, 0x2F0C); return; }
             std::memset(this, 0, 0x2F0C);
         }
         io->IO_File_Chunk_Skip();

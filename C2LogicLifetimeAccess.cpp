@@ -614,7 +614,7 @@ namespace NC2Logic
         DestroyOwned(gMapLandscapeAutoTransitionManager, MapLandscapeAutoTransitionManager_Destruct);
         DestroyOwned(CGameMapSectorAttachmentManager::sTheObjectPtr, [](CGameMapSectorAttachmentManager* manager) { manager->~CGameMapSectorAttachmentManager(); });
         DestroyOwned(CMapWalkSectorManager::sTheObjectPtr, [](CMapWalkSectorManager* manager) { manager->~CMapWalkSectorManager(); });
-        std::memset(DAT_00511570, 0, sizeof(DAT_00511570));
+        std::memset(gGameMapStaticStorage, 0, sizeof(gGameMapStaticStorage));
         gMapPointDimensions.macroWidth = 0;
         gMapPointDimensions.macroHeight = 0;
         gMapPointDimensions.microWidth = 0;
@@ -650,16 +650,16 @@ namespace NC2Logic
         DestroyOwned(gMissionManager, MissionManager_Destruct);
         DestroyOwned(gGameMap, GameMap_Destruct);
         DestroyOwned(gGameControl, GameControl_Destruct);
-        if (DAT_005109bc != nullptr)
+        if (NC2Logic::gGameStaticVars.retainedMapIni != nullptr)
         {
-            DestroyOwned(DAT_005109bc, [](NXBasics::CIniFileReader* reader) { reader->~CIniFileReader(); });
-            DAT_005109bc = nullptr;
+            DestroyOwned(NC2Logic::gGameStaticVars.retainedMapIni, [](NXBasics::CIniFileReader* reader) { reader->~CIniFileReader(); });
+            NC2Logic::gGameStaticVars.retainedMapIni = nullptr;
         }
-        if (DAT_005109c0 != nullptr)
+        if (NC2Logic::gGameStaticVars.mapFileLibrary != nullptr)
         {
-            NXBasics::CFile::FileSystem_FileLibrary_Remove(DAT_005109c0);
-            DestroyOwned(DAT_005109c0, NXBasics::Archive_Destroy);
-            DAT_005109c0 = nullptr;
+            NXBasics::CFile::FileSystem_FileLibrary_Remove(NC2Logic::gGameStaticVars.mapFileLibrary);
+            DestroyOwned(NC2Logic::gGameStaticVars.mapFileLibrary, NXBasics::Archive_Destroy);
+            NC2Logic::gGameStaticVars.mapFileLibrary = nullptr;
         }
         gGameControlStartupData.Reset();
         UserNetworkCommandManager_EmptyQueue(gUserNetworkCommandManager);

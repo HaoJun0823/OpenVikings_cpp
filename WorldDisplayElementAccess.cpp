@@ -780,7 +780,7 @@ namespace NC2InGameGuiWorldElement
         }
 
         // The original branch also accepts an unordered comparison.
-        if (!(DAT_00510848 >= 0.01) || NC2Logic::gGameStaticVars.networkWait != 0)
+        if (!(NC2Logic::gGameTime.speed >= 0.01) || NC2Logic::gGameStaticVars.networkWait != 0)
             bitmap->Tool_Darken();
 
         if (WorldDisplayElement_MouseSelectingArea_IsAreaValid(element))
@@ -807,7 +807,7 @@ namespace NC2InGameGuiWorldElement
         void* display = readPointer(element, 0x30);
 
         // Original double at 004f6ff8: 120.0.
-        if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 120.0) && DAT_0051089d == 0)
+        if (readByte(display, 0x6C) != 0 && !(NC2Logic::gGameTime.speed >= 120.0) && NC2Logic::gGameTime.maximizeSpeed == 0)
         {
             NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, display);
             NC2E2::CE2AnimalSoundManager::sTheObjectPtr->PlayAnimalSounds(readPointer(element, 0x30));
@@ -816,7 +816,7 @@ namespace NC2InGameGuiWorldElement
 
         display = readPointer(element, 0x30);
 
-        if (readByte(display, 0x6C) != 0 && !(DAT_00510848 >= 0.01))
+        if (readByte(display, 0x6C) != 0 && !(NC2Logic::gGameTime.speed >= 0.01))
         {
             char text[200];
             NXBasics::Runtime_PrintString(text, "* %s *", NC2GuiToolsBase::StringTool_GetUpdate103StringPtr(20));

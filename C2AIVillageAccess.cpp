@@ -534,7 +534,7 @@ namespace NC2Logic
         void AIHouseManager_DoOneLogicTick(void* manager, std::uint32_t player, const void* center, std::uint32_t radius)
         {
             AIHouseManager_l_UpdateHouseList(manager, player, center, radius);
-            if ((gGameTime.tick / 12) % 60 == 0 && gGameStaticVars.DAT_005109c4 != 0) AIHouseManager_l_OpenChestsNearHouses(player, center, radius);
+            if ((gGameTime.tick / 12) % 60 == 0 && gGameStaticVars.networkGame != 0) AIHouseManager_l_OpenChestsNearHouses(player, center, radius);
         }
     }
     // Original function: FUN_0047149a.

@@ -1,5 +1,15 @@
 # Reverse-Engineering State
 
+## Production symbol naming checkpoint - 2026-10-12
+
+All **5/5 active FUN identifiers** and **17/21 DAT identities** at the start of this pass are renamed or replaced by direct access to existing named fields. All three remaining DAT members of `SGameStaticVars` are named. Four initialization-only globals remain explicitly unresolved; a zero write does not establish their purpose. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md) and [DATA_SYMBOL_NAME_MAP.csv](DATA_SYMBOL_NAME_MAP.csv).
+
+Registered production identifiers: **FUN 0, DAT 4, PTR 0, UNK 0**, excluding comments and literals. Original-address comments remain. Windows ASM/Game.exe establish the effects and region ownership; these five helper names and the two CRT bypass names are conservative descriptions, not claimed original private symbols. The seven-entry flag domain and original CRT policy identities remain unresolved. Function bodies, signatures, storage and lifetimes are unchanged.
+
+The known-entry source inventory remains **5063/5063**, with **0 tracked unfinished implementations**. Project/filter parity remains **307 CPP / 281 headers**; the function-name map has **3151 unique addresses**. Fresh declaration heuristics report **15 unmatched signatures**; earlier diagnostic counts are historical and do not represent linker results. **40 C++ units** pass Win32 syntax-only checks. Rename-only token comparison and **4373 native instruction byte comparisons** pass. No build, tests or game run occurred. Private tooling remains ignored in `.codex-work/`.
+
+Next naming/layout work: investigate the four initialization-only globals when further evidence becomes available, and continue through other unnamed regions and unexplained member offsets. Runtime equivalence validation remains separate from source/name inventory closure.
+
 ## Computer AI and game assistant remainder completed - 2026-10-12
 
 All **225/225** entries open at the preceding checkpoint now have native C++ implementations, including the complete manager/parser callbacks, village/resource/production tree, worker requests, roads/walls/guides, military/soldier/vehicle tasks and every assistant phase. Five former dummy/partial boundaries are removed. See [AI_REMAINDER_COMPLETION.md](AI_REMAINDER_COMPLETION.md) and [AI_REMAINDER_NATIVE_ENTRIES.csv](AI_REMAINDER_NATIVE_ENTRIES.csv).

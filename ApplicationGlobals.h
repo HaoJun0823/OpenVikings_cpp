@@ -43,13 +43,16 @@ inline void* gDirectMusicManager = nullptr;
 // They are not declarations of complete reconstructed game classes.
 
 // Original data: DAT_00511570; the next global begins at 0051257c.
-alignas(4) inline std::byte DAT_00511570[0x100C]{};
+// Game-map dimensions, rectangles, owned map buffers, continent records and static tail.
+// The region owner is established; its remaining field layout stays explicit raw storage.
+alignas(4) inline std::byte gGameMapStaticStorage[0x100C]{};
 
-// Original data: DAT_00554d20.
+// Original data: DAT_00554d20; only the DWORD clear at 00471615 is established.
+// Its semantic role remains unresolved.
 inline std::uint32_t DAT_00554d20 = 0;
 
 // Complete static-display dirty bounds 00554D98..00554D9F: min X/Y, max X/Y.
-alignas(4) inline std::byte DAT_00554d98[8]{};
+alignas(4) inline std::byte gStaticMapModifiedBounds[8]{};
 
 namespace NC2E2
 {
@@ -65,26 +68,26 @@ namespace NC2E2
 
 // Complete engine-map region 00568358..00568373: macro/micro owners, two
 // dirty bounds at +0x08/+0x10, missing-resource flag at +0x18 and padding.
-alignas(4) inline std::byte DAT_00568358[0x1C]{};
+alignas(4) inline std::byte gEngineMapStaticStorage[0x1C]{};
 
 
 // Original data: DAT_00569078.
-inline double DAT_00569078 = 0.0;
+inline double gFishScatterYFrequency = 0.0;
 
 // Original data: DAT_00569080.
-inline double DAT_00569080 = 0.0;
+inline double gFishHorizontalMotionFrequency = 0.0;
 
 // Original data: DAT_00569088.
-inline double DAT_00569088 = 0.0;
+inline double gFishScatterXFrequency = 0.0;
 
 // Original data: DAT_00569090.
-inline double DAT_00569090 = 0.0;
+inline double gFishSecondaryVerticalMotionFrequency = 0.0;
 
 // Original data: DAT_00569098.
-inline double DAT_00569098 = 0.0;
+inline double gFishSecondaryHorizontalMotionFrequency = 0.0;
 
 // Original data: DAT_005690a0.
-inline double DAT_005690a0 = 0.0;
+inline double gFishVerticalMotionFrequency = 0.0;
 
 namespace NC2InGameGuiMiscWindows
 {

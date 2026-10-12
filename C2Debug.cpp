@@ -27,7 +27,7 @@ namespace NC2Logic
     {
         if (NXSys2DApp::CApplication::sTheObjectPtr->IsFullscreen()) NXSys2DApp::CApplication::sTheObjectPtr->ToggleFullscreen();
         ClipCursor(nullptr);
-        if (gGame != nullptr && gGameInitialized != 0 && gGameStaticVars.DAT_005109c4 == 0) GameTime_SetSpeed(0.0);
+        if (gGame != nullptr && gGameInitialized != 0 && gGameStaticVars.networkGame == 0) GameTime_SetSpeed(0.0);
         NXSysMisc::XWS_WarningBox(message);
     }
 }

@@ -96,13 +96,13 @@ namespace NC2E2
     const void* EngineMap_GetConstMapMacroPointPtr(std::int16_t x, std::int16_t y)
     {
         if (x < 0 || x >= static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth()) || y < 0 || y >= static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight())) return nullptr;
-        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(DAT_00568358, 0)) + (static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u);
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(gEngineMapStaticStorage, 0)) + (static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u);
     }
     // Original function: FUN_004824a5.
     const void* EngineMap_GetConstMapMicroPointPtr(std::int16_t x, std::int16_t y)
     {
         if (x < 0 || x >= NC2Logic::GameMap_GetWidth() || y < 0 || y >= NC2Logic::GameMap_GetHeight()) return nullptr;
-        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(DAT_00568358, 4)) + (static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 4u);
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(gEngineMapStaticStorage, 4)) + (static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 4u);
     }
 
     // Original function: FUN_00483f80.
@@ -226,7 +226,7 @@ namespace NC2E2
         std::memcpy(coordinates, point, sizeof(coordinates));
         const auto index = static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(coordinates[1]) + static_cast<std::uint32_t>(coordinates[0]);
         void* entries;
-        std::memcpy(&entries, DAT_00568358, sizeof(entries));
+        std::memcpy(&entries, gEngineMapStaticStorage, sizeof(entries));
         return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + index * 12u);
     }
     // Original function: FUN_0048251f; C2DEngineMap::GetConstMapMicroPointPtr.
@@ -237,7 +237,7 @@ namespace NC2E2
         std::memcpy(coordinates, point, sizeof(coordinates));
         const auto index = static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(coordinates[1]) + static_cast<std::uint32_t>(coordinates[0]);
         void* entries;
-        std::memcpy(&entries, DAT_00568358 + 4, sizeof(entries));
+        std::memcpy(&entries, gEngineMapStaticStorage + 4, sizeof(entries));
         return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + index * 4u);
     }
     // Original function: FUN_00481198.
@@ -1589,7 +1589,7 @@ namespace NC2E2
     // Original function: FUN_00491099; DirectMusic is disabled for a network game or active session.
     bool Tool_Sound_IsDMUsable()
     {
-        return gDirectMusicManager != nullptr && NC2Logic::gGameStaticVars.DAT_005109c4 == 0 && !NNetwork::Network_IsInSession();
+        return gDirectMusicManager != nullptr && NC2Logic::gGameStaticVars.networkGame == 0 && !NNetwork::Network_IsInSession();
     }
 }
 

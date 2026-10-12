@@ -97,10 +97,10 @@ namespace NC2Logic
     // Original function: FUN_00424d9d; the native map object argument is unused.
     void __fastcall GameMap_Checksum_Calculate(void* /*map*/, void* /*unusedEdx*/, SGameChecksum* output)
     {
-        output->components[4] = Tool_Checksum_Calculate(DAT_00511570, 0x30);
-        output->components[5] = Tool_Checksum_Calculate(Read<const void*>(DAT_00511570, 0x30), Read<std::uint32_t>(DAT_00511570, 8) * 3u);
-        output->components[6] = Tool_Checksum_Calculate(Read<const void*>(DAT_00511570, 0x34), Read<std::uint32_t>(DAT_00511570, 0x0C) * 14u);
-        output->components[7] = Tool_Checksum_Calculate(DAT_00511570 + 0x3C, 0xFA4);
+        output->components[4] = Tool_Checksum_Calculate(gGameMapStaticStorage, 0x30);
+        output->components[5] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, 0x30), Read<std::uint32_t>(gGameMapStaticStorage, 8) * 3u);
+        output->components[6] = Tool_Checksum_Calculate(Read<const void*>(gGameMapStaticStorage, 0x34), Read<std::uint32_t>(gGameMapStaticStorage, 0x0C) * 14u);
+        output->components[7] = Tool_Checksum_Calculate(gGameMapStaticStorage + 0x3C, 0xFA4);
     }
 
     // Original function: FUN_00428736.

@@ -160,7 +160,7 @@ namespace NC2Logic
         if (retainIni)
         {
             if (mapRoot != nullptr) std::strcpy(reinterpret_cast<char*>(&gGameStaticVars) + 0xA0, mapRoot);
-            DAT_005109bc = reader;
+            NC2Logic::gGameStaticVars.retainedMapIni = reader;
         }
 
         {
@@ -180,7 +180,7 @@ namespace NC2Logic
             {
                 // Free these before the stack I/O helper and file, as in Windows.
                 ReleaseIni(reader);
-                DAT_005109bc = nullptr;
+                NC2Logic::gGameStaticVars.retainedMapIni = nullptr;
                 ReleaseLibrary(library);
                 return false;
             }
@@ -198,8 +198,8 @@ namespace NC2Logic
         DebugReportLoadedHumans(mapRoot, libraryFilename);
 #endif
         if (rootMode) NXBasics::CFile::FileSystem_SystemPathName_Clear("$maproot$");
-        if (libraryMode) DAT_005109c0 = library;
-        if (reader != DAT_005109bc) ReleaseIni(reader);
+        if (libraryMode) NC2Logic::gGameStaticVars.mapFileLibrary = library;
+        if (reader != NC2Logic::gGameStaticVars.retainedMapIni) ReleaseIni(reader);
         if (enableTime) GameTime_Reset(true);
         return true;
     }

@@ -63,7 +63,7 @@ namespace NC2E2
         if (initialized == 0)
             return;
 
-        const std::uint32_t update = DAT_00510838;
+        const std::uint32_t update = NC2Logic::gGameTime.tick;
 
         if (lastUpdate == update)
             return;

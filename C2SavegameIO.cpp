@@ -136,7 +136,7 @@ namespace NC2Logic
         io->IO_Tool_Chunk_StartCreation(0x49436367, 1);
         io->IO_Memory_WriteBinary(&gGameStaticVars.mapGuid, 16);
         io->IO_Tool_Chunk_FinishAndWrite();
-        if (gGameStaticVars.DAT_005109c4 != 0)
+        if (gGameStaticVars.networkGame != 0)
         {
             io->IO_Tool_Chunk_StartCreation(0x49436D70, 1);
             for (std::uint32_t player = 0; player < 20; ++player)
@@ -256,13 +256,13 @@ namespace NC2Logic
             case 0x7867616D:
             {
                 io->IO_File_ReadBinary(&gGameStaticVars.mapGuid, 0x98);
-                gGameStaticVars.DAT_005109c4 = static_cast<std::uint8_t>(network);
+                gGameStaticVars.networkGame = static_cast<std::uint8_t>(network);
                 auto* map = gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(gGameStaticVars.mapGuid);
                 if (map != nullptr && map->userMap != 0)
                 {
                     void* library = NXBasics::Runtime_AllocateWithNewHandler(0x14, 1);
                     if (library != nullptr) library = NXBasics::Archive_Initialize(library, map->archiveFilename);
-                    gGameStaticVars.DAT_005109c0 = library;
+                    gGameStaticVars.mapFileLibrary = library;
                     NXBasics::CFile::FileSystem_FileLibrary_Add(library);
                 }
                 break;

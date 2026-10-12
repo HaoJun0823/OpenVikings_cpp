@@ -1,5 +1,7 @@
 # x87 dispatch, completion and public math entries - 2026-10-12
 
+Later naming checkpoint (2026-10-12): 0050F250 and 0056998C now use descriptive names for their proven native bypass effects. Their original CRT policy identities remain unresolved; widths, values, volatile access and behavior are unchanged. Historical DAT labels below refer to the same storage. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).
+
 Subsequent checkpoint: both remaining compiler entries are implemented; the shared block is 670/670 and the requested final block 32/32. See [SHARED_COMPILER_COMPLETION.md](SHARED_COMPILER_COMPLETION.md). The following numerical checkpoint remains historical evidence.
 
 Fifteen further Windows entries are implemented in `XCrtMath.cpp`: the two completion continuations, two preparation helpers, unary/binary classification dispatch, and nine public/x87 math entries. **30 of the requested 32 entries are implemented; two remain open.** Shared/system inventory is **668/670 (99.70%), two open**; global inventory is **4712/5063 (93.07%), 351 open**. The remaining compiler entries are **004E7D40** and **004EC67E**. No address is removed from the denominator and no dummy is promoted.

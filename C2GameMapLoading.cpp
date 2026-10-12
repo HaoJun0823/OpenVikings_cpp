@@ -66,11 +66,11 @@ namespace NC2Logic
         {
             const std::uint32_t marker = io->mReadHeader.marker;
             // Each chunk reacquires the current static pointers, as the original does.
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* macroPoints = Read<std::byte*>(DAT_00511570, 0x30);
-            auto* microPoints = Read<std::byte*>(DAT_00511570, 0x34);
-            const std::uint32_t macroCount = Read<std::uint32_t>(DAT_00511570, 8);
-            const std::uint32_t microCount = Read<std::uint32_t>(DAT_00511570, 0x0C);
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* macroPoints = Read<std::byte*>(gGameMapStaticStorage, 0x30);
+            auto* microPoints = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            const std::uint32_t macroCount = Read<std::uint32_t>(gGameMapStaticStorage, 8);
+            const std::uint32_t microCount = Read<std::uint32_t>(gGameMapStaticStorage, 0x0C);
 
             const auto readMacroBytePlane = [&](std::uint32_t offset)
             {
@@ -103,7 +103,7 @@ namespace NC2Logic
 
             switch (marker)
             {
-            case 0x6C61636Fu: io->IO_File_ReadBinary(DAT_00511570 + 0x3C, 0xFA4); break;
+            case 0x6C61636Fu: io->IO_File_ReadBinary(gGameMapStaticStorage + 0x3C, 0xFA4); break;
             case 0x6C61666Du:
                 static_cast<CMapFishManager*>(gMapFishManager)->IO_Cleanmap_Load(*io);
                 static_cast<CMapFishManager*>(gMapFishManager)->RemoveInvalidSwarms();

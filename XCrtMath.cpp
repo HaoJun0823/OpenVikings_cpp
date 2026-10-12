@@ -509,8 +509,8 @@ namespace NXBasics
     }
 
     // Original data: 0056998C; zero-filled DWORD, with nine read-only Windows xrefs.
-    // Its semantic name remains unresolved; the original gate is retained separately.
-    static volatile std::uint32_t DAT_0056998c;
+    // Nonzero bypasses the native error-completion branches; the original CRT policy name is unresolved.
+    static volatile std::uint32_t gRuntimeMathErrorCompletionBypass;
     // Original data: 004FC1D0..004FC1FF, complete six-double scaling region.
     static const volatile RuntimeBinary64Words gRuntimeCompletionConstants[6] =
     {
@@ -531,7 +531,7 @@ namespace NXBasics
     // computation. The explicit frame preserves the original caller-owned error record.
     __declspec(noinline) void __cdecl Runtime_CompleteX87Math(RuntimeX87MathCompletionFrame* frame)
     {
-        if (DAT_0056998c == 0)
+        if (gRuntimeMathErrorCompletionBypass == 0)
         {
             volatile double sample;
             Runtime_StoreX87TopWithoutPop(&sample);
@@ -654,14 +654,14 @@ namespace NXBasics
     // from 004ED2BA. Preserve the Windows branch even when the mask is set.
     static void Runtime_FinishUnaryX87Math(RuntimeBinary64Words argument, const char* name, std::uint32_t operation, std::uint16_t savedControl)
     {
-        if (DAT_0056998c == 0 && savedControl != 0x027Fu && (savedControl & 0x20u) != 0 && (Runtime_ReadX87StatusRaw() & 0x20u) != 0)
+        if (gRuntimeMathErrorCompletionBypass == 0 && savedControl != 0x027Fu && (savedControl & 0x20u) != 0 && (Runtime_ReadX87StatusRaw() & 0x20u) != 0)
             Runtime_DispatchUnaryX87MathError(8, name, operation, argument, savedControl);
         else if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, 0xFFFFu));
     }
 
     static void Runtime_FailUnaryX87Math(std::int32_t type, RuntimeBinary64Words argument, const char* name, std::uint32_t operation, std::uint16_t savedControl)
     {
-        if (DAT_0056998c == 0) Runtime_DispatchUnaryX87MathError(type, name, operation, argument, savedControl);
+        if (gRuntimeMathErrorCompletionBypass == 0) Runtime_DispatchUnaryX87MathError(type, name, operation, argument, savedControl);
         else if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, 0xFFFFu));
     }
 

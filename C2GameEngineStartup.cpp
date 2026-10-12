@@ -162,7 +162,7 @@ namespace NC2Logic
         gGameRandomState.currentState = 0x18273645;
         gGameStaticVars.uniqueIdCounter = 1;
         GameTime_Reset(false);
-        gGameStaticVars.DAT_005109c4 = static_cast<std::uint8_t>(networkGame);
+        gGameStaticVars.networkGame = static_cast<std::uint8_t>(networkGame);
         ConstructOriginal(0x5D204, GameControl_Construct, iniFile);
         ConstructOriginal(0x1, GameMap_Construct, width, height);
         ConstructOriginal(0x81CAC, MissionManager_Construct);
@@ -223,7 +223,7 @@ namespace NC2Logic
     // Original function: FUN_00407c5b; the network-game flag suppresses this operation.
     void GameTime_MaximizeGameSpeed_SetFlag(bool enabled)
     {
-        if (gGameStaticVars.DAT_005109c4 != 0) return;
+        if (gGameStaticVars.networkGame != 0) return;
         GameTime_SetSpeed(enabled ? 1.0 : 12.0);
         gGameTime.maximizeSpeed = static_cast<std::uint8_t>(enabled);
     }
@@ -270,7 +270,7 @@ namespace NC2E2
     {
         gE2Manager = manager;
         std::memset(manager, 0, 1);
-        std::memset(DAT_00554d98, 0, sizeof(DAT_00554d98));
+        std::memset(gStaticMapModifiedBounds, 0, sizeof(gStaticMapModifiedBounds));
         gDesktopOwnedBobBitmap = nullptr;
         ConstructOriginal(0x1C, E2StaticDataBobManagersManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();

@@ -132,7 +132,7 @@ namespace NC2InGameGuiEntryPoints
     // Original function: FUN_004a2fb7.
     bool C2IGG_EntryPoint_PlayerCenterPosition_Get(std::uint32_t playerId, std::uint32_t* mapPoint)
     {
-        auto* reader = DAT_005109bc;
+        auto* reader = NC2Logic::gGameStaticVars.retainedMapIni;
         if (reader != nullptr && reader->SearchGroup("misc_startpositions"))
         {
             while (reader->GetNextCommandLineInGroup() != nullptr)

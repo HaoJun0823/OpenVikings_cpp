@@ -10987,8 +10987,9 @@ namespace NXBasics
     }
 
     // Original data: 0050F250; all three Windows xrefs are zero/nonzero reads.
-    // Game.exe initializes this DWORD to 0x2694; its original semantic name is unresolved.
-    static volatile std::uint32_t DAT_0050f250 = 0x2694;
+    // Game.exe initializes this DWORD to 0x2694; nonzero bypasses argument capture and the math-error hook.
+    // The descriptive name records the three native branch effects, not an original CRT policy name.
+    static volatile std::uint32_t gRuntimeMathErrorArgumentsAndHookBypass = 0x2694;
 
     // Original function: FUN_004f046b; the masked-response and hardware generation children are connected.
     void Runtime_DispatchMathError(std::uint32_t operation, RuntimeMathError* error, const std::uint16_t* savedControl)
@@ -11021,7 +11022,7 @@ namespace NXBasics
             Runtime_RaiseMathException(&record, &controlWord, flags, operation, &error->argument1, &error->result);
         }
         static_cast<void>(Runtime_ControlX87Raw(controlWord, 0xFFFF));
-        if (error->type != 8 && DAT_0050f250 == 0 && Runtime_DefaultMathError(error) != 0) return;
+        if (error->type != 8 && gRuntimeMathErrorArgumentsAndHookBypass == 0 && Runtime_DefaultMathError(error) != 0) return;
         Runtime_SetMathErrno(error->type);
     }
 

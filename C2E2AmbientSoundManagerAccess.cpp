@@ -384,7 +384,7 @@ namespace NC2E2
     // Original function: FUN_0047fb9d; CE2AmbientSoundManager::l_PlayLandscapeAmbientSounds.
     static void AmbientSoundManager_PlayLandscapeAmbientSounds(void* manager, const NC2Logic::SSectorGridCursor& first, const NC2Logic::SSectorGridCursor& last, const std::int16_t* rectangle, const void* display)
     {
-        if (!Ambient_SoundDeviceIsReady() || Ambient_ReadField<std::uint32_t>(manager, 0x60) == DAT_00510838)
+        if (!Ambient_SoundDeviceIsReady() || Ambient_ReadField<std::uint32_t>(manager, 0x60) == NC2Logic::gGameTime.tick)
             return;
 
         const std::int32_t centerX = rectangle[0] + (static_cast<std::int32_t>(rectangle[2]) >> 1);
@@ -425,7 +425,7 @@ namespace NC2E2
                 }
             }
         }
-        std::memcpy(static_cast<std::byte*>(manager) + 0x60, &DAT_00510838, sizeof(DAT_00510838));
+        std::memcpy(static_cast<std::byte*>(manager) + 0x60, &NC2Logic::gGameTime.tick, sizeof(NC2Logic::gGameTime.tick));
     }
 
     // Original function: FUN_0047fae2; CE2AmbientSoundManager::UpdateAmbientSounds.

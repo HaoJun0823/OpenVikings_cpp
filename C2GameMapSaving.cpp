@@ -15,8 +15,8 @@ namespace NC2Logic
         void WriteMapSize(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C73697A, 1);
-            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(DAT_00511570, 4))));
-            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(DAT_00511570, 6))));
+            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(gGameMapStaticStorage, 4))));
+            io->IO_Memory_WriteLong(static_cast<std::uint32_t>(static_cast<std::int32_t>(Read<std::int16_t>(gGameMapStaticStorage, 6))));
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -24,14 +24,14 @@ namespace NC2Logic
         void WriteMacroHeights(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6865, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x30);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 8); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x30);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 8); ++index)
             {
                 auto* record = records + index * 3u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 2)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 8) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 8) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -39,14 +39,14 @@ namespace NC2Logic
         void WriteMacroPatternA(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D7061, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x30);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 8); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x30);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 8); ++index)
             {
                 auto* record = records + index * 3u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 8) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 8) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -54,14 +54,14 @@ namespace NC2Logic
         void WriteMacroPatternB(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D7062, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x30);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 8); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x30);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 8); ++index)
             {
                 auto* record = records + index * 3u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 1)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 8) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 8) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -69,14 +69,14 @@ namespace NC2Logic
         void WriteLandscapeTypes(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6C74, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0) == 1 && Read<std::uint8_t>(record, 2) != 0 ? Read<std::uint8_t>(record, 2) : 0));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -84,14 +84,14 @@ namespace NC2Logic
         void WriteLandscapeValues(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6C76, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0) == 1 && Read<std::uint8_t>(record, 2) != 0 ? Read<std::uint8_t>(record, 3) : 0));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -99,14 +99,14 @@ namespace NC2Logic
         void WriteLandscapePlayers(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6C70, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 0) == 1 && Read<std::uint8_t>(record, 2) != 0 ? Read<std::uint8_t>(record, 4) : 0xFF));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -114,14 +114,14 @@ namespace NC2Logic
         void WriteContinents(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D636F, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 6)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -129,14 +129,14 @@ namespace NC2Logic
         void WriteWalkTypes(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D7477, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 7)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -144,14 +144,14 @@ namespace NC2Logic
         void WriteMaximumMoveableSizes(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6D73, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 12) & 7));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -159,14 +159,14 @@ namespace NC2Logic
         void WriteResistance(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D7072, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 12) >> 3) & 15));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -174,14 +174,14 @@ namespace NC2Logic
         void WriteWalkBlocked(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D7762, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 12) >> 7));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -189,14 +189,14 @@ namespace NC2Logic
         void WriteBuildBlocked(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6262, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>(Read<std::uint8_t>(record, 13) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -204,14 +204,14 @@ namespace NC2Logic
         void WriteRoads(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D726F, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 13) >> 1) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -219,14 +219,14 @@ namespace NC2Logic
         void WriteSpecialBlocked(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D7362, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 13) >> 4) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -234,14 +234,14 @@ namespace NC2Logic
         void WriteAtomicObjects(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D616F, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, 0) == 4 ? Read<std::uint16_t>(record, 2) : 0));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 2u, 0x726C6536);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, 0x726C6536);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -249,14 +249,14 @@ namespace NC2Logic
         void WriteHeightFlags(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C6D6866, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint8_t>(scratch, index * 1u, static_cast<std::uint8_t>((Read<std::uint8_t>(record, 13) >> 5) & 1));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 1u, 0x726C6538);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 1u, 0x726C6538);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -264,14 +264,14 @@ namespace NC2Logic
         void WriteHouses(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x736D686F, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, 0) == 2 ? (Read<std::uint16_t>(record, 4) | ((Read<std::uint8_t>(record, 2) & 1) << 15) | ((Read<std::uint8_t>(record, 2) & 2) << 13)) : 0xFFFF));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 2u, 0x726C6536);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, 0x726C6536);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -279,14 +279,14 @@ namespace NC2Logic
         void WriteGuides(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x736D6775, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint8_t>(record, 0) == 3 ? Read<std::uint16_t>(record, 2) : 0xFFFF));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 2u, 0x726C6536);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, 0x726C6536);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -294,14 +294,14 @@ namespace NC2Logic
         void WriteExtraValues(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x736D6578, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, 8)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 2u, 0x726C6536);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, 0x726C6536);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -309,14 +309,14 @@ namespace NC2Logic
         void WriteFishAndMoveables(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x736D666D, 1);
-            auto* scratch = Read<std::byte*>(DAT_00511570, 0x38);
-            auto* records = Read<std::byte*>(DAT_00511570, 0x34);
-            for (std::uint32_t index = 0; index < Read<std::uint32_t>(DAT_00511570, 12); ++index)
+            auto* scratch = Read<std::byte*>(gGameMapStaticStorage, 0x38);
+            auto* records = Read<std::byte*>(gGameMapStaticStorage, 0x34);
+            for (std::uint32_t index = 0; index < Read<std::uint32_t>(gGameMapStaticStorage, 12); ++index)
             {
                 auto* record = records + index * 14u;
                 Write<std::uint16_t>(scratch, index * 2u, static_cast<std::uint16_t>(Read<std::uint16_t>(record, 10)));
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(DAT_00511570, 12) * 2u, 0x726C6536);
+            io->IO_Memory_PackAndWriteBinary(scratch, Read<std::uint32_t>(gGameMapStaticStorage, 12) * 2u, 0x726C6536);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -324,7 +324,7 @@ namespace NC2Logic
         void WriteContinentData(CIoHelper* io)
         {
             io->IO_Tool_Chunk_StartCreation(0x6C61636F, 1);
-            io->IO_Memory_WriteBinary(DAT_00511570 + 0x3C, 0xFA4);
+            io->IO_Memory_WriteBinary(gGameMapStaticStorage + 0x3C, 0xFA4);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
     }

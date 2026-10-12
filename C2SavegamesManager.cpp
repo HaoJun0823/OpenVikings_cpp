@@ -42,7 +42,7 @@ namespace NC2Logic
     void CSavegamesManager::SavegameList_Update(std::uint32_t savegameType, bool force)
     {
         if (savegameType == 0)
-            savegameType = gGameStaticVars.DAT_005109c4 != 0 ? 2u : 1u;
+            savegameType = gGameStaticVars.networkGame != 0 ? 2u : 1u;
         if (mSavegameType != savegameType || force)
         {
             mSavegameType = savegameType;
@@ -155,7 +155,7 @@ namespace NC2Logic
     // Original function: FUN_004161c5.
     const char* CSavegamesManager::Tool_GetCurrentPlayerSavegameDirectoryNamePtr() const
     {
-        const char* player = gGameStaticVars.DAT_005109c4 == 0 && mSavegameType != 2 ? Player_GetSystemPlayerFileSystemName() : "multiplayer";
+        const char* player = gGameStaticVars.networkGame == 0 && mSavegameType != 2 ? Player_GetSystemPlayerFileSystemName() : "multiplayer";
         Runtime_PrintString(gCurrentPlayerSavegameDirectory, "%s\\%s\\%s\\", IO_Tool_GetPlayerDataDirectoryNamePtr(), player, "savegames");
         return gCurrentPlayerSavegameDirectory;
     }

@@ -320,7 +320,7 @@ namespace NC2InGameGuiMiscWindows
         }
         case 4:
         {
-            if (NC2Logic::gGameStaticVars.DAT_005109c4 != 0) break;
+            if (NC2Logic::gGameStaticVars.networkGame != 0) break;
             text({4, 70, 492, 14}, 0x6E);
             const std::uint32_t sortTypes[3] = {2, 1, 3};
             for (std::uint32_t index = 0; index < 3; ++index) button({4 + static_cast<std::int32_t>(index) * 164, 86, 162, 18}, 0x6F + index * 2, 0x2AF8 + index, true, NC2Logic::gSavegamesManager->mSortType == sortTypes[index], nullptr, nullptr, 0x70 + index * 2);

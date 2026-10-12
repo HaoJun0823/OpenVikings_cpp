@@ -34,9 +34,9 @@ namespace NC2Logic
         static_assert(sizeof(SContinentChangeWork) == 0x3078);
         static_assert(offsetof(SContinentChangeWork, samePoints) == 0x3EC);
         static_assert(offsetof(SContinentChangeWork, creations) == 0xFA8);
-        std::uint32_t ContinentCount() { return Read<std::uint32_t>(DAT_00511570, 0x3C); }
-        void SetContinentCount(std::uint32_t value) { Write(DAT_00511570, 0x3C, value); }
-        std::byte* Continent(std::uint32_t id) { return DAT_00511570 + 0x40u + id * 16u; }
+        std::uint32_t ContinentCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 0x3C); }
+        void SetContinentCount(std::uint32_t value) { Write(gGameMapStaticStorage, 0x3C, value); }
+        std::byte* Continent(std::uint32_t id) { return gGameMapStaticStorage + 0x40u + id * 16u; }
         std::uint32_t PointContinent(const void* point) { return Read<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), 6); }
         void SetPointContinent(const void* point, std::uint32_t id) { Write<std::uint8_t>(GameMap_GetMapMicroPointPtr(point), 6, static_cast<std::uint8_t>(id)); }
         bool InChangedArea(const void* point, const void* first, const void* end)

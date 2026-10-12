@@ -95,7 +95,7 @@ namespace NC2Logic
     void GameTime_DoOneGameTick()
     {
         if (gGameInitialized == 0) return;
-        if (gGameStaticVars.DAT_005109c4 != 0)
+        if (gGameStaticVars.networkGame != 0)
         {
             const std::uint32_t speed = static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(gGameTime.speed));
             if (gGameTime.tick % (speed * 30u) == 0)
@@ -131,7 +131,7 @@ namespace NC2Logic
     // Original function: FUN_004079cf; separate initialization entry.
     void GameTime_ResetNetworkSynchronization()
     {
-        if (gGameStaticVars.DAT_005109c4 != 0)
+        if (gGameStaticVars.networkGame != 0)
         {
             NNetwork::AdvanceDynamicNetworkTick(&gDynamicNetworkData);
             UserNetworkCommandManager_SendCommands(gUserNetworkCommandManager, nullptr);
@@ -150,7 +150,7 @@ namespace NC2Logic
     static bool GameTime_IsATickToGo()
     {
         const std::uint32_t now = timeGetTime();
-        if (gGameStaticVars.DAT_005109c4 != 0)
+        if (gGameStaticVars.networkGame != 0)
         {
             if (NNetwork::Network_IsHost())
             {

@@ -60,10 +60,10 @@ namespace NApplicationStartup
         +[] ()
         {
         // Native startup chain: 0042311c calls the map-record member constructor 004231bd.
-        NC2Logic::GameMapStaticVars_ConstructMembers(DAT_00511570 + 0x3C, nullptr);
+        NC2Logic::GameMapStaticVars_ConstructMembers(gGameMapStaticStorage + 0x3C, nullptr);
 
-        std::memset(DAT_00511570 + 0xFE0, 0, 0x18);
-        std::memset(DAT_00511570 + 0xFFA, 0, 0x10);
+        std::memset(gGameMapStaticStorage + 0xFE0, 0, 0x18);
+        std::memset(gGameMapStaticStorage + 0xFFA, 0, 0x10);
     },
 
         // Original function: FUN_004477ce
@@ -102,7 +102,7 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_0047dca9.
-        std::memset(DAT_00554d98, 0, sizeof(DAT_00554d98));
+        std::memset(gStaticMapModifiedBounds, 0, sizeof(gStaticMapModifiedBounds));
     },
 
         // Original function: FUN_0047f3a7
@@ -116,7 +116,7 @@ namespace NApplicationStartup
         +[] ()
         {
         // Original constructor: FUN_0048221c.
-        std::memset(DAT_00568358 + 8, 0, 0x10);
+        std::memset(gEngineMapStaticStorage + 8, 0, 0x10);
     },
 
         // Original function: FUN_0048acd4
@@ -133,37 +133,37 @@ namespace NApplicationStartup
         // Original function: FUN_00499a63
         +[] ()
         {
-            DAT_00569080 = gOriginalMathOperands[0] * gOriginalMathOperands[1];
+            gFishHorizontalMotionFrequency = gOriginalMathOperands[0] * gOriginalMathOperands[1];
         },
 
         // Original function: FUN_00499a76
         +[] ()
         {
-            DAT_00569098 = gOriginalMathOperands[0] * gOriginalMathOperands[2];
+            gFishSecondaryHorizontalMotionFrequency = gOriginalMathOperands[0] * gOriginalMathOperands[2];
         },
 
         // Original function: FUN_00499a89
         +[] ()
         {
-            DAT_005690a0 = gOriginalMathOperands[0] * gOriginalMathOperands[3];
+            gFishVerticalMotionFrequency = gOriginalMathOperands[0] * gOriginalMathOperands[3];
         },
 
         // Original function: FUN_00499a9c
         +[] ()
         {
-            DAT_00569090 = gOriginalMathOperands[0] * gOriginalMathOperands[4];
+            gFishSecondaryVerticalMotionFrequency = gOriginalMathOperands[0] * gOriginalMathOperands[4];
         },
 
         // Original function: FUN_00499aaf
         +[] ()
         {
-            DAT_00569088 = gOriginalMathOperands[5] / gOriginalMathOperands[0];
+            gFishScatterXFrequency = gOriginalMathOperands[5] / gOriginalMathOperands[0];
         },
 
         // Original function: FUN_00499ac2
         +[] ()
         {
-            DAT_00569078 = gOriginalMathOperands[6] / gOriginalMathOperands[0];
+            gFishScatterYFrequency = gOriginalMathOperands[6] / gOriginalMathOperands[0];
         },
 
         // Original function: FUN_004b1b44
