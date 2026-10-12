@@ -30,7 +30,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0040B502,NC2Logic::AllocateHuman,NC2Logic::CHumanArray::AllocateHuman,205895,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0040B5AA,NC2Logic::FreeHuman,NC2Logic::CHumanArray::FreeHuman,205935,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0040BD33,NC2Logic::MapMoveableArray_DoOneGameTick,NC2Logic::CMapMoveableArray::DoOneGameTick,236710,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0040EEFA,Bitmap_ZoomIn,NXBasics::CBitmap::ZoomIn,15025,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0040EEFA,NXBasics::CBitmap::ZoomIn,NXBasics::CBitmap::ZoomIn,15027,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,NC2Logic::CGameAssistantManager::ls_LogicCallback,150512,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0041910B,NC2Logic::MultiPlayerGoalManager_IO_LoadGoals,NC2Logic::CMultiPlayerGoalManager::IO_LoadGoals,251409,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 004195A4,NC2Logic::MultiPlayerGoalManager_l_LogicCallback,NC2Logic::CMultiPlayerGoalManager::l_LogicCallback,251260,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -2820,3 +2820,9 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 00484F85,NC2E2::E2MapWeatherManagerSectorManager_Sand_GetDensity,NC2E2::CE2MapWeatherManagerSectorManager::Sand_GetDensity,68997,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0048534A,NC2E2::E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage,NC2E2::CE2MapWeatherManagerSectorManager::l_Coordinates_GetInSectorXPercentage,68791,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0048538F,NC2E2::E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage,NC2E2::CE2MapWeatherManagerSectorManager::l_Coordinates_GetInSectorYPercentage,68824,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0040C5E5,NXBasics::CBitmap::Delete,NXBasics::CBitmap::~CBitmap,4236,Windows scalar deleting-destructor flag wrapper; ordinary destructor/name correspondence only from Mac header
+0040C682,NXBasics::CBitmap::CBitmap,NXBasics::CBitmap::CBitmap,9840,Windows source-bitmap/coordinate constructor identifies overload; Mac symbol used only for naming
+0040D1F8,NXBasics::CBitmap::CopyIntoBitmap_HalfSize,NXBasics::CBitmap::CopyIntoBitmap_HalfSize,11311,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0040D3F8,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized,11908,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0040F522,NXBasics::CBitmap::GetUnclippedPixelPtr,NXBasics::CBitmap::GetUnclippedPixelPtr,15885,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00410601,NXBasics::SRectangle::IsInside,NXBasics::SRectangle::IsInside,37284,Windows inclusive endpoint predicate identifies correspondence; Mac symbol used only for naming

@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Graphics engine bitmap zoom and half-size copy checkpoint - 2026-10-12
+
+Seven native bitmap/rectangle entries are reconstructed, including in-place zoom and ordinary/optimized half-size copies. The ZoomIn dummy is removed; the existing display update now calls the original half-size entry instead of FitIn. Engine inventory is **570/677 (84.19%), 107 open**; the rectangle predicate moves from the provisional graphics region to shared basics. See [ENGINE_BITMAP_COMPLETION.md](ENGINE_BITMAP_COMPLETION.md).
+
+Current global inventory **4731/5063 (93.44%)**, **332 open**. System/shared **673/673 (100.00%), 0 open**; engine **107 open**, AI **225 open**. **12** explicit unfinished boundaries and **270** provisional open assignments remain. Project/filter membership **290 CPP / 264 headers**, **2827** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Four integrating units pass MSVC Win32 C++17 syntax-only checks without diagnostics. Static Windows/Game.exe audits verify 994 original instructions; naming, dummy removal and project/filter parity checks pass. No build, tests or game run occurred. Continue the graphics engine as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Windows weather drawing completed - 2026-10-12
 
 Ten native entries now implement rain, snow and sand drawing, sector density interpolation and the original local random seed initialization; three drawing dummies are removed. See [ENGINE_WEATHER_COMPLETION.md](ENGINE_WEATHER_COMPLETION.md).

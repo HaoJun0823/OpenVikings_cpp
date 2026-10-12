@@ -1,0 +1,8 @@
+Address,CurrentName,Source,WindowsEvidence,MacSymbol,Status
+0040C5E5,NXBasics::CBitmap::Delete,XBitmap.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::CBitmap::~CBitmap,Complete source reconstruction; gameplay unverified
+0040C682,NXBasics::CBitmap::CBitmap,XBitmap.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::CBitmap::CBitmap,Complete source reconstruction; gameplay unverified
+0040D1F8,NXBasics::CBitmap::CopyIntoBitmap_HalfSize,XBitmap.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::CBitmap::CopyIntoBitmap_HalfSize,Complete source reconstruction; gameplay unverified
+0040D3F8,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized,XBitmap.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized,Complete source reconstruction; gameplay unverified
+0040EEFA,NXBasics::CBitmap::ZoomIn,XBitmap.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::CBitmap::ZoomIn,Complete source reconstruction; gameplay unverified
+0040F522,NXBasics::CBitmap::GetUnclippedPixelPtr,XBitmap.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::CBitmap::GetUnclippedPixelPtr,Complete source reconstruction; gameplay unverified
+00410601,NXBasics::SRectangle::IsInside,XBasicTypes.cpp,Complete Windows ASM/Game.exe range; see ENGINE_BITMAP_COMPLETION.md,NXBasics::SRectangle::IsInside,Complete source reconstruction; gameplay unverified

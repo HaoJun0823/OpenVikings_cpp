@@ -21,11 +21,13 @@ namespace NXBasics
 
         CBitmap(std::int32_t width, std::int32_t height, std::int32_t depth);
         CBitmap(CBitmap* sourceBitmap, const SRectangle& rectangle);
+        CBitmap(CBitmap* sourceBitmap, std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height);
 
         // Original function: FUN_0040c6dc
         CBitmap(void* file, std::uint32_t version);
 
         virtual ~CBitmap();
+        void* Delete(std::uint32_t flags);
 
         // Original function: FUN_0040ee8c
         void SetPalettePtr(CPalette* palette);
@@ -43,6 +45,10 @@ namespace NXBasics
         void CopyIntoBitmap_ColorKeyed(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY, std::uint8_t colorKey) const;
         std::uint32_t Storable_GetId() override;
         void CopyIntoBitmap_FitIn(CBitmap* destination) const;
+        void CopyIntoBitmap_HalfSize(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const;
+        void CopyIntoBitmap_HalfSize_Optimized(CBitmap* destination) const;
+        void ZoomIn() const;
+        void* GetUnclippedPixelPtr(std::int32_t x, std::int32_t y) const;
         void FillWithBitmap(CBitmap* sourceBitmap, std::int32_t x, std::int32_t y);
         void FillWithBitmap(const SRectangle& rectangle, CBitmap* sourceBitmap, std::int32_t x, std::int32_t y);
 

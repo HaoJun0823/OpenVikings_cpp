@@ -49,6 +49,15 @@ namespace NXBasics
         return 0x3F3;
     }
 
+    // Original function: FUN_0040c5e5.
+    void* CBitmap::Delete(std::uint32_t flags)
+    {
+        auto* result = this;
+        this->~CBitmap();
+        if ((flags & 1u) != 0) Runtime_Free(result);
+        return result;
+    }
+
     // Original function: FUN_0040c601
     CBitmap::CBitmap(const SRectangle& rectangle, std::int32_t depth) : mRectangle(0, 0, 0, 0)
     {
@@ -68,6 +77,14 @@ namespace NXBasics
     CBitmap::CBitmap(CBitmap* sourceBitmap, const SRectangle& rectangle) : mRectangle(0, 0, 0, 0)
     {
         l_InitObject();
+        l_ConstructVirtual(sourceBitmap, rectangle);
+    }
+
+    // Original function: FUN_0040c682.
+    CBitmap::CBitmap(CBitmap* sourceBitmap, std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height) : mRectangle(0, 0, 0, 0)
+    {
+        l_InitObject();
+        const SRectangle rectangle(x, y, width, height);
         l_ConstructVirtual(sourceBitmap, rectangle);
     }
 
@@ -590,6 +607,96 @@ namespace NXBasics
             }
             sourceIndex += mRowPixelCount;
             destinationIndex += destination->mRowPixelCount;
+        }
+    }
+
+    // Original function: FUN_0040d1f8.
+    void CBitmap::CopyIntoBitmap_HalfSize(CBitmap* destination, std::int32_t destinationX, std::int32_t destinationY) const
+    {
+        if (mDepth != destination->mDepth || mRawMemory == nullptr || destination->mRawMemory == nullptr) return;
+        const SRectangle bounds(0, 0, destination->mRectangle.width, destination->mRectangle.height);
+        SRectangle area(destinationX, destinationY, mRectangle.width / 2, mRectangle.height / 2);
+        std::int32_t sourceY = 0, sourceX = 0;
+        if (area.y < 0) { sourceY = Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(area.y)); area.y = 0; }
+        if (area.x < 0) { sourceX = Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(area.x)); area.x = 0; }
+        // Windows checks full containment here; it does not clip the far edges.
+        if (!area.IsInside(bounds)) return;
+        std::uint32_t sourceIndex = (mRowPixelCount * static_cast<std::uint32_t>(sourceY) + static_cast<std::uint32_t>(sourceX)) * 2u;
+        std::uint32_t destinationIndex = destination->mRowPixelCount * static_cast<std::uint32_t>(area.y) + static_cast<std::uint32_t>(area.x);
+        for (std::int32_t row = sourceY; row < area.height; ++row)
+        {
+            // Retain the original additional sourceX offset and destination gap.
+            for (std::int32_t column = sourceX; column < area.width; ++column)
+            {
+                const auto sourcePixel = sourceIndex + static_cast<std::uint32_t>(column) * 2u;
+                const auto destinationPixel = destinationIndex + static_cast<std::uint32_t>(column);
+                if (mDepth == 0) *BitmapPixelAddress(destination->mRawMemory, destinationPixel) = *BitmapPixelAddress(mRawMemory, sourcePixel);
+                else if (mDepth == 1) *BitmapPixelAddress(destination->mHighColorMemory, destinationPixel) = *BitmapPixelAddress(mHighColorMemory, sourcePixel);
+                else if (mDepth == 2) *BitmapPixelAddress(destination->mTrueColorMemory, destinationPixel) = *BitmapPixelAddress(mTrueColorMemory, sourcePixel);
+                else return;
+            }
+            sourceIndex += mRowPixelCount * 2u;
+            destinationIndex += destination->mRowPixelCount;
+        }
+    }
+
+    // Original function: FUN_0040d3f8; the packed-copy path keeps its original look-ahead reads.
+    void CBitmap::CopyIntoBitmap_HalfSize_Optimized(CBitmap* destination) const
+    {
+        const auto sourceWidth = static_cast<std::uint32_t>(mRectangle.width);
+        const auto destinationWidth = static_cast<std::uint32_t>(destination->mRectangle.width);
+        if (sourceWidth != destinationWidth * 2u || static_cast<std::uint32_t>(mRectangle.height) != static_cast<std::uint32_t>(destination->mRectangle.height) * 2u || mDepth != destination->mDepth || (mDepth != 1 && mDepth != 2) || (sourceWidth & 63u) != 0 || (static_cast<std::uint32_t>(mRectangle.height) & 1u) != 0)
+        {
+            CopyIntoBitmap_HalfSize(destination, 0, 0);
+            return;
+        }
+        if (mDepth == 1)
+        {
+            auto* source = mHighColorMemory;
+            auto* target = destination->mHighColorMemory;
+            std::uint32_t sourceIndex = 0, destinationIndex = 0;
+            auto rows = static_cast<std::uint32_t>(destination->mRectangle.height);
+            const auto groupsPerRow = static_cast<std::uint32_t>(destination->mRectangle.width / 8);
+            do
+            {
+                auto groups = groupsPerRow;
+                do
+                {
+                    // These are real original MOV reads, rather than CPU prefetch hints.
+                    (void)*reinterpret_cast<const volatile std::uint32_t*>(BitmapPixelAddress(source, sourceIndex + 64u));
+                    (void)*reinterpret_cast<const volatile std::uint32_t*>(BitmapPixelAddress(target, destinationIndex + 32u));
+                    for (std::uint32_t pair = 0; pair < 4; ++pair)
+                    {
+                        std::uint32_t packed;
+                        std::memcpy(&packed, BitmapPixelAddress(source, sourceIndex + 1u), sizeof(packed));
+                        packed = (packed & 0xFFFF0000u) | *BitmapPixelAddress(source, sourceIndex);
+                        std::memcpy(BitmapPixelAddress(target, destinationIndex), &packed, sizeof(packed));
+                        sourceIndex += 4u;
+                        destinationIndex += 2u;
+                    }
+                } while (--groups != 0);
+                sourceIndex += mRowPixelCount * 2u - sourceWidth;
+                destinationIndex += destination->mRowPixelCount - destinationWidth;
+            } while (--rows != 0);
+        }
+        else
+        {
+            std::uint32_t sourceIndex = 0, destinationIndex = 0;
+            auto rows = static_cast<std::uint32_t>(destination->mRectangle.height);
+            const auto groupsPerRow = static_cast<std::uint32_t>(destination->mRectangle.width / 2);
+            do
+            {
+                auto groups = groupsPerRow;
+                do
+                {
+                    *BitmapPixelAddress(destination->mTrueColorMemory, destinationIndex++) = *BitmapPixelAddress(mTrueColorMemory, sourceIndex);
+                    sourceIndex += 2u;
+                    *BitmapPixelAddress(destination->mTrueColorMemory, destinationIndex++) = *BitmapPixelAddress(mTrueColorMemory, sourceIndex);
+                    sourceIndex += 2u;
+                } while (--groups != 0);
+                sourceIndex += mRowPixelCount * 2u - sourceWidth;
+                destinationIndex += destination->mRowPixelCount - destinationWidth;
+            } while (--rows != 0);
         }
     }
 
@@ -1602,6 +1709,68 @@ namespace NXBasics
         }
 
         return Palette_GetTrueColorTablePtr(palette);
+    }
+
+    template<typename T>
+    static void ZoomBitmapPixels(T* pixels, std::int32_t width, std::int32_t height, std::uint32_t stride)
+    {
+        const auto quarterWidth = width / 4;
+        const auto quarterHeight = height / 4;
+        const auto halfWidth = static_cast<std::uint32_t>(width / 2);
+        const auto halfHeight = static_cast<std::uint32_t>(height / 2);
+        const auto pixel = [pixels](std::uint32_t index) { return BitmapPixelAddress(pixels, index); };
+        for (std::int32_t row = 0; row < quarterHeight; ++row)
+        {
+            for (std::int32_t column = 0; column < quarterWidth; ++column)
+            {
+                const auto x = static_cast<std::uint32_t>(column);
+                const auto y = static_cast<std::uint32_t>(row);
+                const auto sourceTopLeft = (static_cast<std::uint32_t>(quarterHeight) + y) * stride + static_cast<std::uint32_t>(quarterWidth) + x;
+                const auto sourceBottomLeft = (static_cast<std::uint32_t>(quarterHeight) + halfHeight - 1u - y) * stride + static_cast<std::uint32_t>(quarterWidth) + x;
+                const auto sourceTopRight = sourceTopLeft + halfWidth - 1u - x * 2u;
+                const auto sourceBottomRight = sourceBottomLeft + halfWidth - 1u - x * 2u;
+                const auto topLeft = y * 2u * stride + x * 2u;
+                const auto topRight = y * 2u * stride + static_cast<std::uint32_t>(width) - 1u - x * 2u;
+                const auto bottomLeft = (static_cast<std::uint32_t>(height) - 2u - y * 2u) * stride + x * 2u;
+                const auto bottomRight = (static_cast<std::uint32_t>(height) - 2u - y * 2u) * stride + static_cast<std::uint32_t>(width) - 1u - x * 2u;
+                // Preserve the four quadrants' original read/write order for aliasing.
+                *pixel(topLeft + stride + 1u) = *pixel(sourceTopLeft);
+                *pixel(topLeft + stride) = *pixel(topLeft + stride + 1u);
+                *pixel(topLeft + 1u) = *pixel(topLeft + stride);
+                *pixel(topLeft) = *pixel(topLeft + stride);
+                *pixel(topRight + stride - 1u) = *pixel(sourceTopRight);
+                *pixel(topRight + stride) = *pixel(topRight + stride - 1u);
+                *pixel(topRight - 1u) = *pixel(topRight + stride);
+                *pixel(topRight) = *pixel(topRight + stride);
+                *pixel(bottomLeft + stride + 1u) = *pixel(sourceBottomLeft);
+                *pixel(bottomLeft + stride) = *pixel(bottomLeft + stride + 1u);
+                *pixel(bottomLeft + 1u) = *pixel(bottomLeft + stride);
+                *pixel(bottomLeft) = *pixel(bottomLeft + stride);
+                *pixel(bottomRight + stride - 1u) = *pixel(sourceBottomRight);
+                *pixel(bottomRight + stride) = *pixel(bottomRight + stride - 1u);
+                *pixel(bottomRight - 1u) = *pixel(bottomRight + stride);
+                *pixel(bottomRight) = *pixel(bottomRight + stride);
+            }
+        }
+    }
+
+    // Original function: FUN_0040eefa; pixels change in place, bitmap fields do not.
+    void CBitmap::ZoomIn() const
+    {
+        if (mRawMemory == nullptr) return;
+        if (mDepth == 0) ZoomBitmapPixels(mRawMemory, mRectangle.width, mRectangle.height, mRowPixelCount);
+        else if (mDepth == 1) ZoomBitmapPixels(mHighColorMemory, mRectangle.width, mRectangle.height, mRowPixelCount);
+        else if (mDepth == 2) ZoomBitmapPixels(mTrueColorMemory, mRectangle.width, mRectangle.height, mRowPixelCount);
+    }
+
+    // Original function: FUN_0040f522; no memory or coordinate validation.
+    void* CBitmap::GetUnclippedPixelPtr(std::int32_t x, std::int32_t y) const
+    {
+        const auto index = mRowPixelCount * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x);
+        if (mDepth == 0) return BitmapPixelAddress(mRawMemory, index);
+        if (mDepth == 1) return BitmapPixelAddress(mHighColorMemory, index);
+        if (mDepth == 2) return BitmapPixelAddress(mTrueColorMemory, index);
+        return nullptr;
     }
 
     // Original function: FUN_0040f56f

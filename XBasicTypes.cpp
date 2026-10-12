@@ -39,6 +39,18 @@ namespace NXBasics
         if (other.y < y) { height = AddWrapped(height, SubtractWrapped(y, other.y)); y = other.y; }
         if (AddWrapped(other.y, other.height) > AddWrapped(y, height)) height = SubtractWrapped(AddWrapped(other.y, other.height), y);
     }
+    // Original function: FUN_00410601; inclusive endpoints use DWORD wrapping.
+    bool SRectangle::IsInside(const SRectangle& other) const noexcept
+    {
+        if (x < other.x || y < other.y) return false;
+        const auto right = SubtractWrapped(AddWrapped(x, width), 1);
+        const auto otherRight = SubtractWrapped(AddWrapped(other.x, other.width), 1);
+        if (right > otherRight) return false;
+        const auto bottom = SubtractWrapped(AddWrapped(y, height), 1);
+        const auto otherBottom = SubtractWrapped(AddWrapped(other.y, other.height), 1);
+        return bottom <= otherBottom;
+    }
+
     // Original function: FUN_0040f80a; RGB modification retains the fourth byte.
     void SColorRGB::Modify(const SColorModifier& modifier) noexcept
     {

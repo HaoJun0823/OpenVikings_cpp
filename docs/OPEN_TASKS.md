@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Graphics engine bitmap checkpoint - 2026-10-12
+
+Seven native bitmap/rectangle entries are reconstructed and the ZoomIn dummy is removed. Display_UpdateDisplay now calls the original optimized half-size copy rather than FitIn. Current inventory: **4731/5063 (93.44%), 332 open**; engine **570/677, 107 open**, AI **96/321, 225 open**, shared/system **673/673**. See [ENGINE_BITMAP_COMPLETION.md](ENGINE_BITMAP_COMPLETION.md) for original border, look-ahead and empty-dimension behavior and verification limits. The original observations are registered as OA164.
+
+Continue with remaining graphics-engine initialization and its rendering dependencies. No build or game run is authorized by this checkpoint.
+
 ## Graphics engine weather checkpoint - 2026-10-12
 
 Rain, snow and sand rendering and their density/random helpers are reconstructed: ten native entries, three dummies removed. Current source inventory: **4724/5063 (93.30%), 339 open**; engine **564/678, 114 open**, AI **96/321, 225 open**. CRandom's two proven general-helper entries move out of the provisional graphics region; shared/system stays complete at **672/672**. See [ENGINE_WEATHER_COMPLETION.md](ENGINE_WEATHER_COMPLETION.md) for Windows evidence and floating-point/live-validation limits.

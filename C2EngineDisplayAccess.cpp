@@ -33,7 +33,6 @@ extern bool __cdecl C2IGG_EntryPoint_InputManager_Highlighting_Update(const std:
 extern void __cdecl DrawAtom_FishManager_DoDraw(void* display);
 extern void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display);
 extern void __fastcall Display_l_DE_Debug_DrawGridLines(void* display);
-extern void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap* bitmap);
 
 namespace NC2E2
 {
@@ -1377,7 +1376,7 @@ namespace NC2E2
             area.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.height) & 0xFFFCu);
             NXBasics::CBitmap window(bitmap, area);
             for (std::int32_t step = 0; step < Display_ReadField<std::int32_t>(display, 0x78); ++step)
-                Bitmap_ZoomIn(&window);
+                window.ZoomIn();
         }
     }
 
@@ -1393,7 +1392,7 @@ namespace NC2E2
         auto* workBitmap = Display_ReadField<NXBasics::CBitmap*>(display, 0x68);
         auto* outputBitmap = Display_ReadField<NXBasics::CBitmap*>(display, 0x64);
         if (workBitmap != outputBitmap)
-            workBitmap->CopyIntoBitmap_FitIn(outputBitmap);
+            workBitmap->CopyIntoBitmap_HalfSize_Optimized(outputBitmap);
     }
 
     // Original function: FUN_00485bf0; semantic name derived from Windows xrefs.

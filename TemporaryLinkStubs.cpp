@@ -68,9 +68,6 @@ namespace NC2E2
 }
 
 
-// TEMPORARY DUMMY: Windows address 0040EEFA; implementation pending.
-    // Naming reference: NXBasics::CBitmap::ZoomIn.
-void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap *) {}
 
 
 

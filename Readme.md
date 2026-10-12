@@ -1493,6 +1493,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 
 | ID | Finding | Original reference |
 | --- | --- | --- |
+| [OA164](#oa164) | Bitmap half-size border offsets, look-ahead reads and unchecked empty fast loops | 0040D1F8, 0040D3F8 |
 | [OA163](#oa163) | School working-experience side effect; gameplay trigger user-reported | 00468961, 00442420, 00473C9B |
 | [OA-001](#oa001) | Equal size returns null in heap mode 2 | 004EE5C5 |
 | [OA-002](#oa002) | Zero-length memset call | 004EE299 |
@@ -1647,6 +1648,14 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA152](#oa152) | Human goodie startup, conversation/waiting and sleep/work-area search | 00443D74, 00443E79, 00444E46, 0045C82F, 0045C984, 00460B31, 0046A407..0046A805 |
 | [OA153](#oa153) | Windows civilian goods, household work, equipment and freeze recovery | 0041BB51..0041BDE1, 004320CA, 0043C486, 0043C7CF, 00468B91, 00468D91, 0046BA57..0046C39D, 0046C7BE, 00473EC6..00475FCE |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
+
+<a id="oa164"></a>
+
+### OA164 - Bitmap half-size copies retain unusual borders and unchecked fast-path reads
+
+- **Windows evidence:** 0040D1F8 uses full inclusive rectangle containment, retains the extra sourceX offset and destination gap for negative X, and does not clip far edges. 0040D3F8 reads source+128 and destination+64 through actual DWORD MOV instructions in its 16-bit loop; fast-path group and row counters decrement without empty-dimension guards. The complete instruction ranges match original Windows Game.exe bytes.
+- **Assessment:** These memory accesses and control paths are confirmed original observations. Possible allocation-boundary faults and empty-dimension underflow depend on callers and storage; no live failure trigger has been reproduced.
+- **Decision / status:** Preserved / original observation; Renewed: open. Verify callers and storage boundaries before any intentional correction after faithful reconstruction. See [ENGINE_BITMAP_COMPLETION.md](docs/ENGINE_BITMAP_COMPLETION.md). No build or gameplay reproduction occurred.
 
 <a id="oa163"></a>
 
