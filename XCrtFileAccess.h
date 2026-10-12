@@ -634,6 +634,53 @@ namespace NXBasics
     // Error entries consume the current extended ST(0) and leave the updated result there.
     void __cdecl Runtime_DispatchBinaryX87MathError(std::int32_t type, const char* name, std::uint32_t operation, RuntimeBinary64Words argument1, RuntimeBinary64Words argument2, std::uint16_t savedControl);
     void __cdecl Runtime_DispatchUnaryX87MathError(std::int32_t type, const char* name, std::uint32_t operation, RuntimeBinary64Words argument, std::uint16_t savedControl);
+    // Explicit replacement for the completion continuation's caller-owned frame.
+    struct RuntimeX87MathCompletionFrame
+    {
+        std::uint16_t savedControl;
+        std::int8_t errorCode;
+        std::uint8_t flags;
+        const char* name;
+        std::int8_t operation;
+        std::uint8_t argumentCount;
+        RuntimeBinary64Words argument1;
+        RuntimeBinary64Words argument2;
+        RuntimeMathError error;
+    };
+    void __cdecl Runtime_CompleteStackArgumentMath(RuntimeX87MathCompletionFrame* frame);
+    void __cdecl Runtime_CompleteX87Math(RuntimeX87MathCompletionFrame* frame);
+
+    struct RuntimeX87PreparationFrame
+    {
+        std::uint32_t signs;
+        std::uint16_t status;
+        std::int8_t errorCode;
+        std::uint8_t roundedIntegerStatus;
+        bool escaped;
+    };
+    void __cdecl Runtime_PrepareExponentialFraction(RuntimeX87PreparationFrame* frame);
+    void __cdecl Runtime_PrepareArcTrigRoot(RuntimeX87PreparationFrame* frame);
+    void __cdecl Runtime_Log10X87(RuntimeBinary64Words argument);
+    void __cdecl Runtime_SinX87(RuntimeBinary64Words argument);
+    void __cdecl Runtime_CosX87(RuntimeBinary64Words argument);
+    void __cdecl Runtime_AtanX87(RuntimeBinary64Words argument);
+    double __cdecl Runtime_Atan(double value);
+    double __cdecl Runtime_Atan2(double y, double x);
+    struct RuntimeX87DispatchFrame;
+    using RuntimeX87MathCallback = void(__cdecl*)(RuntimeX87DispatchFrame*, std::uint32_t);
+    struct RuntimeX87DispatchFrame
+    {
+        std::uint16_t savedControl;
+        std::uint16_t activeControl;
+        std::uint16_t status;
+        std::int8_t errorCode;
+        std::uint8_t operation;
+        std::uint32_t signs;
+        const RuntimeX87MathCallback* callbacks;
+        void* userData;
+    };
+    void __cdecl Runtime_DispatchUnaryX87Math(RuntimeX87DispatchFrame* frame);
+    void __cdecl Runtime_DispatchBinaryX87Math(RuntimeX87DispatchFrame* frame);
     void __cdecl Runtime_ReplaceX87ValueWithHalfPi();
     void __cdecl Runtime_LoadMathArgumentExtended80(RuntimeBinary64Words argument);
     double __cdecl Runtime_RoundDouble(RuntimeBinary64Words argument);

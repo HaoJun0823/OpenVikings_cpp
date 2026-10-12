@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## x87 dispatch, completion and public math entries - 2026-10-12
+
+Fifteen further Windows entries now connect completion, preparation, both classifiers and nine public/x87 math entries. Native operations, Windows special/error policy and all sixteen atan2 callbacks are connected; the original positive-zero axis behavior is preserved. Thirty of the requested 32 entries are implemented; only the two compiler entries remain open. See [SHARED_X87_DISPATCH_COMPLETION.md](SHARED_X87_DISPATCH_COMPLETION.md).
+
+Current global inventory **4712/5063 (93.07%)**, **351 open**. System/shared **668/670 (99.70%), 2 open**; engine **124 open**, AI **225 open**. **16** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **287 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five integrating units pass Win32 syntax-only checks. Private unlinked /Od and /O2 listings verify instruction selection, retained returns, finite flags/arguments, protected frames, EBX preservation/reloads, escape cleanup and atan2 order; all 30 code identities, complete literals, CFG metadata, inventory, project/filter and naming checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Unary and binary x87 math-error entries - 2026-10-12
 
 Windows entries 004EB8D0 and 004EB8E7 now have separate C++ definitions and their shared record phase connected to the project dispatcher. Checked native branch register contracts supply one hardware FSTP m64 and plain FLD m64 before conditional final control restoration, without added FP spills or CRT copies while operands are live. Fifteen of the requested 32 entries are implemented; 17 remain open and their enclosing numeric parents are not promoted. See [SHARED_X87_ERROR_ENTRY_COMPLETION.md](SHARED_X87_ERROR_ENTRY_COMPLETION.md).

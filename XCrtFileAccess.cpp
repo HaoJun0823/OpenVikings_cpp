@@ -24,42 +24,6 @@ extern "C" int __cdecl _purecall()
     return 0;
 }
 
-// Partial original function: FUN_004e6e44; numeric CRT adapter for native logarithm calculation.
-// Original math-error hooks and exceptional x87 status behavior remain unresolved.
-double __cdecl Runtime_Log10(double value)
-{
-    constexpr std::uint32_t mask = _MCW_EM | _MCW_RC | _MCW_PC | _MCW_IC;
-    const auto saved = NXBasics::Runtime_ControlX87(0, 0);
-    NXBasics::Runtime_ControlX87(NXBasics::Runtime_DecodeX87ControlWord(0x027F), mask);
-    const double result = std::log10(value);
-    NXBasics::Runtime_ControlX87(saved, mask);
-    return result;
-}
-
-// Partial original function: FUN_004e8774; numeric CRT adapter for native FSIN and range reduction.
-// Original math-error hooks and exceptional x87 status behavior remain unresolved.
-double __cdecl Runtime_Sin(double value)
-{
-    constexpr std::uint32_t mask = _MCW_EM | _MCW_RC | _MCW_PC | _MCW_IC;
-    const auto saved = NXBasics::Runtime_ControlX87(0, 0);
-    NXBasics::Runtime_ControlX87(NXBasics::Runtime_DecodeX87ControlWord(0x027F), mask);
-    const double result = std::sin(value);
-    NXBasics::Runtime_ControlX87(saved, mask);
-    return result;
-}
-
-// Partial original function: FUN_004e8824; numeric CRT adapter for native FCOS and range reduction.
-// Original math-error hooks and exceptional x87 status behavior remain unresolved.
-double __cdecl Runtime_Cos(double value)
-{
-    constexpr std::uint32_t mask = _MCW_EM | _MCW_RC | _MCW_PC | _MCW_IC;
-    const auto saved = NXBasics::Runtime_ControlX87(0, 0);
-    NXBasics::Runtime_ControlX87(NXBasics::Runtime_DecodeX87ControlWord(0x027F), mask);
-    const double result = std::cos(value);
-    NXBasics::Runtime_ControlX87(saved, mask);
-    return result;
-}
-
 // Original data: 005699e0; initially empty name buffer.
 char gRuntimeTemporaryFileName[16]{};
 

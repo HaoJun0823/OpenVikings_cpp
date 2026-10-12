@@ -1,27 +1,27 @@
 Address,CurrentName,State,ProductionSource,WindowsEvidence
-004E6E44,Runtime_Log10,Open,,"Stack binary64 loader 4EB785, falls into logarithm x87 continuation; existing numeric adapter stays partial"
-004E6E4D,NXBasics::Runtime_Log10X87,Open,,"x87 value/EAX tag/parent stack; FYL2X, special/negative/zero paths, CW restoration and error dispatch"
+004E6E44,Runtime_Log10,Implemented,XCrtMath.cpp,"Stack binary64 loader 4EB785, falls into logarithm x87 continuation"
+004E6E4D,NXBasics::Runtime_Log10X87,Implemented,XCrtMath.cpp,"x87 value/EAX tag/parent stack; FYL2X, special/negative/zero paths, CW restoration and error dispatch"
 004E7D40,NXBasics::Runtime_ProbeStack,Open,,"EAX size, page probes, rewrites ESP and moves return address; compiler-special entry"
-004E8300,NXBasics::Runtime_Atan2,Open,,"Descriptor 50CC50 says atan2, operation16, two args; enter 4ED26B, not pow"
-004E8774,Runtime_Sin,Open,,"Stack binary64 loader, fall into FSIN continuation; existing numeric adapter stays partial"
-004E877D,NXBasics::Runtime_SinX87,Open,,FSIN; C2 reduction loops FPREM1 with 80-bit period; exception/CW handling
-004E8824,Runtime_Cos,Open,,"Stack binary64 loader, fall into FCOS continuation; existing numeric adapter stays partial"
-004E882D,NXBasics::Runtime_CosX87,Open,,FCOS; C2 reduction loops FPREM1 with 80-bit period; exception/CW handling
-004E88D4,NXBasics::Runtime_Atan,Open,,"Stack binary64 loader, fall into 4E88DD"
-004E88DD,NXBasics::Runtime_AtanX87,Open,,FLD1/FPATAN; signed half-pi infinity handling; NaN/error/CW handling
-004EB4BE,NXBasics::Runtime_PrepareExponentialFraction,Open,,"80-bit threshold compare, FRNDINT, subtract integer part, fabs/F2XM1; parent frame/status/register dependencies"
+004E8300,NXBasics::Runtime_Atan2,Implemented,XCrtMath.cpp,"Descriptor 50CC50 says atan2, operation16, two args; enter 4ED26B, not pow"
+004E8774,Runtime_Sin,Implemented,XCrtMath.cpp,"Stack binary64 loader, fall into FSIN continuation"
+004E877D,NXBasics::Runtime_SinX87,Implemented,XCrtMath.cpp,FSIN; C2 reduction loops FPREM1 with 80-bit period; exception/CW handling
+004E8824,Runtime_Cos,Implemented,XCrtMath.cpp,"Stack binary64 loader, fall into FCOS continuation"
+004E882D,NXBasics::Runtime_CosX87,Implemented,XCrtMath.cpp,FCOS; C2 reduction loops FPREM1 with 80-bit period; exception/CW handling
+004E88D4,NXBasics::Runtime_Atan,Implemented,XCrtMath.cpp,"Stack binary64 loader, fall into 4E88DD"
+004E88DD,NXBasics::Runtime_AtanX87,Implemented,XCrtMath.cpp,FLD1/FPATAN; signed half-pi infinity handling; NaN/error/CW handling
+004EB4BE,NXBasics::Runtime_PrepareExponentialFraction,Implemented,XCrtMath.cpp,"80-bit threshold compare, FRNDINT, subtract integer part, fabs/F2XM1; parent frame/status/register dependencies"
 004EB501,NXBasics::Runtime_ClassifyX87IntegerParity,Implemented,XCrtMath.cpp,"Whole native leaf and referenced constants audited from Windows; startup full-body/constant fingerprints, no DLL RVA or authored instructions; explicit integer/register/ambient-x87 interfaces verified in compiler listings"
-004EB570,NXBasics::Runtime_DispatchUnaryX87Math,Open,,Select CW from operation byte; FXAM status maps through 50C76C; dispatch header+10 four-way table
-004EB5D7,NXBasics::Runtime_DispatchBinaryX87Math,Open,,FXAM both values; combine two classification offsets; dispatch header+10 sixteen-way table
+004EB570,NXBasics::Runtime_DispatchUnaryX87Math,Implemented,XCrtMath.cpp,Select CW from operation byte; FXAM status maps through 50C76C; dispatch header+10 four-way table
+004EB5D7,NXBasics::Runtime_DispatchBinaryX87Math,Implemented,XCrtMath.cpp,FXAM both values; combine two classification offsets; dispatch header+10 sixteen-way table
 004EB76C,NXBasics::Runtime_HandleMathNaN,Implemented,XCrtMath.cpp,"Whole native leaf and referenced constants audited from Windows; startup full-body/constant fingerprints, no DLL RVA or authored instructions; explicit integer/register/ambient-x87 interfaces verified in compiler listings"
 004EB785,NXBasics::Runtime_LoadMathArgumentByPointer,Implemented,XCrtMath.cpp,"Whole native leaf and referenced constants audited from Windows; startup full-body/constant fingerprints, no DLL RVA or authored instructions; explicit integer/register/ambient-x87 interfaces verified in compiler listings"
 004EB8D0,NXBasics::Runtime_DispatchBinaryX87MathError,Implemented,XCrtMath.cpp,"Windows error entries and shared label 004EB8F0: separate binary/unary slot writes, one real FSTP m64, project math-error dispatcher, plain FLD m64 before conditional original CW restoration; explicit register/parent-stack inputs and retained ambient ST0; whole checked native branch ABI and /Od-/O2 integer bridges"
 004EB8E7,NXBasics::Runtime_DispatchUnaryX87MathError,Implemented,XCrtMath.cpp,"Windows error entries and shared label 004EB8F0: separate binary/unary slot writes, one real FSTP m64, project math-error dispatcher, plain FLD m64 before conditional original CW restoration; explicit register/parent-stack inputs and retained ambient ST0; whole checked native branch ABI and /Od-/O2 integer bridges"
 004EC67E,NXBasics::Runtime_LocalUnwind,Open,,Temporary FS registration; walk 12-byte scope entries; update try-level before notification and termination callback; restore registration
-004ED17C,NXBasics::Runtime_PrepareArcTrigRoot,Open,,fabs input; sqrt((1-input)*(1+input)); negative result jumps parent domain-error path
+004ED17C,NXBasics::Runtime_PrepareArcTrigRoot,Implemented,XCrtMath.cpp,fabs input; sqrt((1-input)*(1+input)); negative result jumps parent domain-error path
 004ED1AC,NXBasics::Runtime_ReplaceX87ValueWithHalfPi,Implemented,XCrtMath.cpp,"Whole native leaf and referenced constants audited from Windows; startup full-body/constant fingerprints, no DLL RVA or authored instructions; explicit integer/register/ambient-x87 interfaces verified in compiler listings"
-004ED2B3,NXBasics::Runtime_CompleteStackArgumentMath,Open,,Clear frame flag bit0 at -2C8 and fall into4ED2BA; continuation shares existing frame
-004ED2BA,NXBasics::Runtime_CompleteX87Math,Open,,"Saved frame/descriptor/CW, error flags and scaled under/overflow; construct error record then4F046B"
+004ED2B3,NXBasics::Runtime_CompleteStackArgumentMath,Implemented,XCrtMath.cpp,Clear frame flag bit0 at -2C8 and fall into4ED2BA; continuation shares existing frame
+004ED2BA,NXBasics::Runtime_CompleteX87Math,Implemented,XCrtMath.cpp,"Saved frame/descriptor/CW, error flags and scaled under/overflow; construct error record then4F046B"
 004ED41E,NXBasics::Runtime_LoadMathArgumentExtended80,Implemented,XCrtMath.cpp,"Whole native leaf and referenced constants audited from Windows; startup full-body/constant fingerprints, no DLL RVA or authored instructions; explicit integer/register/ambient-x87 interfaces verified in compiler listings"
 004EF54A,NXBasics::Runtime_HandlePowInfinityCases,Implemented,XCrtMath.cpp,"Complete Windows scalar control/value flow in C++; real x87 comparisons, loads/stores, FCHS and FDIV2; native active-mode rounding; unhandled pow cases preserve output and return 0"
 004EF67A,NXBasics::Runtime_ClassifyDoubleIntegerParity,Implemented,XCrtMath.cpp,"Complete Windows scalar control/value flow in C++; real x87 comparisons, loads/stores, FCHS and FDIV2; native active-mode rounding; unhandled pow cases preserve output and return 0"
