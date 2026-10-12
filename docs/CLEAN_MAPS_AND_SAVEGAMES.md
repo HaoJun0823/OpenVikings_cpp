@@ -57,7 +57,7 @@ Game_Construct uses both native constructors with the original 0x30/0x20 allocat
 | --- | --- |
 | 005113A8..005114AB | Complete 260-byte savegame directory buffer; constructor clearing and path formatter confirm purpose/extent |
 | 005114AC | Typed canonical CSavegamesManager owner |
-| 005114B0 | One-byte clean-map static region; only constructor clearing is established, so DAT_005114b0 remains explicit |
+| 005114B0 | One-byte clean-map static region with only constructor clearing established; storage and clear removed at user request on 2026-10-12; original purpose remains unknown |
 | 005114B4 | Typed canonical CCleanMapsManager owner |
 | 00510820..0051082F | Current map GUID within the existing complete CGame static record, now a typed field at +0x08 |
 | 004F37B0..004F37CF | Full map-type token table, including its null terminator |

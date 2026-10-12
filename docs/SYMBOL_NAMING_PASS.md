@@ -1,5 +1,15 @@
 # Production symbol naming - 2026-10-12
 
+## User-authorized removal of unused globals - 2026-10-12
+
+After the naming checkpoint below, the user explicitly requested removal of the four globals with initialization-only references. Their declarations and zero writes are now removed. The clear-only application initializer at 00471615 is also removed; the table contains one leading null and 20 callbacks (21 entries), preserving the relative order of every remaining callback. Constructor fields, object layouts, allocation ownership and other startup operations are unchanged.
+
+This is an intentional departure from the original Windows writes, authorized by the user. The original purpose of each slot remains unknown; removal does not claim a recovered semantic identity. Registered production identifiers now contain **0 active FUN / DAT / PTR / UNK** names. Seven changed/integrating C++ units pass Win32 syntax-only checks. No build, tests or game run occurred. The following naming checkpoint and its four unresolved entries describe the preceding historical state; [DATA_SYMBOL_NAME_MAP.csv](DATA_SYMBOL_NAME_MAP.csv) records their removal.
+
+Controlled code-token comparison confirms that only the four declarations/clears, their clear-only callback and the initializer count changed. Fresh source coverage remains **5063/5063**, with zero tracked unfinished implementations; project/filter parity remains **307 CPP / 281 headers**, with **3151** unique function-name rows and **15** declaration-parser diagnostics.
+
+## Historical naming checkpoint
+
 All **5/5 active `FUN_` identifiers** and **17/21 active `DAT_` identities** found at the start of this pass are replaced. All three remaining `DAT_` members of `SGameStaticVars` are named. Four globals remain explicitly unresolved because the supplied Windows export establishes only their initialization, not their purpose. Original-address comments remain for traceability and are excluded from active identifier counts.
 
 This is a naming change. Function bodies, signatures, calling conventions, allocation ownership, storage widths, alignment, initialization values/order and object offsets are preserved. Five obsolete reference aliases are removed; their callers address the same established game-state fields directly. No native entry is added or counted as newly reconstructed.

@@ -27,7 +27,8 @@ namespace NApplicationStartup
     };
 
     // Original range: 004fe000 through 004fe057.
-    // One leading null entry followed by 21 application initializers.
+    // One leading null entry followed by 20 application initializers.
+    // User-authorized cleanup omits the write-only global initializer at 00471615.
     inline NXBasics::RuntimeVoidCallback gApplicationInitializers[] =
     {
         nullptr,
@@ -91,12 +92,6 @@ namespace NApplicationStartup
 
         std::memset(staticVars.floodFillPoints, 0, sizeof(staticVars.floodFillPoints));
     },
-
-        // Original function: FUN_00471615
-        +[] ()
-        {
-            DAT_00554d20 = 0;
-        },
 
         // Original function: FUN_0047dca4
         +[] ()
@@ -200,5 +195,5 @@ namespace NApplicationStartup
 
     inline constexpr std::size_t ApplicationInitializerCount = sizeof(gApplicationInitializers) / sizeof(gApplicationInitializers[0]);
 
-    static_assert(ApplicationInitializerCount == 22);
+    static_assert(ApplicationInitializerCount == 21);
 }

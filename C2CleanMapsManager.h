@@ -60,8 +60,6 @@ namespace NC2Logic
         SCleanMapInfoData* l_CleanMapList_GetPtrByGuid(const SCleanMapGuid& guid);
     };
 
-    // Complete one-byte static region at 005114B0; only its constructor clear is known.
-    inline std::uint8_t DAT_005114b0 = 0;
     static_assert(sizeof(SCleanMapInfoData) == 0x48C);
     static_assert(offsetof(SCleanMapInfoData, guid) == 0x110);
     static_assert(offsetof(SCleanMapInfoData, mapName) == 0x12C);

@@ -1,5 +1,11 @@
 # OpenVikings Project State
 
+## User-authorized removal of initialization-only globals - 2026-10-12
+
+The user explicitly requested removal of 0050F620, 005114B0, 00554D20 and 00555110 after reviewing their sole initialization uses. Their declarations and zero writes are removed, including the clear-only startup callback at 00471615. This is a documented user-authorized departure from the original Windows writes; their original purposes remain unknown. Remaining application callbacks keep their relative order; the table now contains one null plus 20 callbacks. Object layouts and other startup operations are unchanged.
+
+Registered production identifiers: **FUN 0, DAT 0, PTR 0, UNK 0**, excluding comments/literals. Seven changed/integrating C++ units pass Win32 syntax-only checks. No build, tests or game run occurred. The preceding naming checkpoint below is historical; the four globals are now removed rather than an open naming task. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md) and [DATA_SYMBOL_NAME_MAP.csv](DATA_SYMBOL_NAME_MAP.csv).
+
 ## Production symbol naming checkpoint - 2026-10-12
 
 All **5/5 active FUN identifiers** and **17/21 DAT identities** at the start of this pass are renamed or replaced by direct access to existing named fields. All three remaining DAT members of `SGameStaticVars` are named. Four initialization-only globals remain explicitly unresolved; a zero write does not establish their purpose. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md) and [DATA_SYMBOL_NAME_MAP.csv](DATA_SYMBOL_NAME_MAP.csv).

@@ -31,10 +31,6 @@ namespace NC2Logic
     static_assert(offsetof(SGuideManagerStaticVars, modifiedAreaMaximum) == 8);
 }
 
-// Original data: 0050F620. Only the one-byte clear at 0040102D is established.
-// No additional Windows references or matching Mac identity were found.
-inline std::byte DAT_0050f620{};
-
 // Original global: DAT_0050f698.
 // Written by the original constructor at 00403538 and cleared at 004035ad.
 inline void* gDirectMusicManager = nullptr;
@@ -46,10 +42,6 @@ inline void* gDirectMusicManager = nullptr;
 // Game-map dimensions, rectangles, owned map buffers, continent records and static tail.
 // The region owner is established; its remaining field layout stays explicit raw storage.
 alignas(4) inline std::byte gGameMapStaticStorage[0x100C]{};
-
-// Original data: DAT_00554d20; only the DWORD clear at 00471615 is established.
-// Its semantic role remains unresolved.
-inline std::uint32_t DAT_00554d20 = 0;
 
 // Complete static-display dirty bounds 00554D98..00554D9F: min X/Y, max X/Y.
 alignas(4) inline std::byte gStaticMapModifiedBounds[8]{};

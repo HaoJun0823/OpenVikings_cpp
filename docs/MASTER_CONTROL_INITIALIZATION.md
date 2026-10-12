@@ -14,6 +14,8 @@ One previously missing original entry, the record constructor, is added. The alr
 
 ## `0050F620` is not the property manager
 
+Subsequent user-authorized cleanup (2026-10-12): this initialization-only byte and its constructor clear are removed. Its original purpose remains unknown; the following text records the prior reconstruction evidence. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).
+
 The Windows export contains only the one-byte clear addressed by `0040102D`. No further reads, writes or matching Mac symbol establish this slot's purpose. It now has explicit one-byte storage under the original `DAT_0050f620` name. It is unresolved and must not receive a guessed semantic name. The following `0050F621..0050F623` bytes have no established accesses; the next known owner is the MasterControlProgram singleton at `0050F624`.
 
 The actual property-manager singleton is `005697EC`, already represented by `CPropertyManager::sTheObjectPtr`. The earlier handoff description of a property-manager region around `0050F620` was an incorrect inference and has been corrected.

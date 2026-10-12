@@ -31,7 +31,6 @@ namespace NC2Logic
     {
         gCleanMapsManager = this;
         std::memset(mMapTypeCounts, 0, sizeof(mMapTypeCounts));
-        DAT_005114b0 = 0;
         l_CleanMapList_Update();
     }
 

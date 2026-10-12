@@ -41,3 +41,7 @@ Project/filter parity is **307 CPP / 281 headers**, with **3151** unique naming 
 ## Naming checkpoint - 2026-10-12
 
 All five active FUN identifiers and 17 of 21 DAT identities are cleaned. All remaining DAT members of the game-state struct are named; four globals have only proven initialization and remain unresolved. Registered production identifiers are FUN 0 / DAT 4 / PTR 0 / UNK 0; address comments remain. This does not change reconstruction counts or establish runtime equivalence. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).
+
+## Subsequent user-authorized cleanup - 2026-10-12
+
+The four initialization-only globals and their writes are removed at explicit user request, including the standalone clear-only startup callback. Active FUN / DAT / PTR / UNK identifier counts are now all zero. Original slot purposes remain unknown. This intentionally departs from the original writes; it is not a newly reconstructed function or evidence of live equivalence. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).

@@ -9,9 +9,6 @@
 #include <cstdint>
 #include <cstring>
 
-// Original data: DAT_00555110; meaning not yet established.
-std::uint8_t DAT_00555110 = 0;
-
 namespace NC2E2
 {
     // ABI adapter for the typed InformThatStaticMapChanged overload.
@@ -31,8 +28,6 @@ namespace NC2E2
         mDestroyValues = 0;
         std::memset(mPadding11, 0, sizeof(mPadding11));
         mActiveDisplay = nullptr;
-
-        DAT_00555110 = 0;
     }
 
     // Original function: FUN_004811e3.

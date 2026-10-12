@@ -57,7 +57,6 @@ namespace NMasterControlProgram
         sTheObjectPtr = this;
 
         std::memset(this, 0, 0x168);
-        std::memset(&DAT_0050f620, 0, 1);
 
         mProgramState = 3;
         mWantedProgramState = 0;
