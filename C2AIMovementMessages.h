@@ -26,4 +26,8 @@ namespace NC2Logic
     bool AISinglePlayerHandler_l_Vehicles_CheckForEnemys(void* handler, std::uint32_t slot, const void* point, std::uint32_t radius, bool houses, bool civilians, bool restrictCandidates, bool defence);
     void AISinglePlayerHandler_l_Vehicles_WorkOnAttachedTasks(void* handler);
     bool AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(const void* handler, std::uint32_t slot);
+    bool AISinglePlayerHandler_l_Soldiers_AttachToTower(void* handler, std::int32_t houseId);
+    void AISinglePlayerHandler_l_Soldiers_AttachToTowers(void* handler);
+    void* AISinglePlayerHandler_l_SingleSoldier_GetBestSoldier(void* handler, const void* point, std::uint32_t radius);
+    void __fastcall AISinglePlayerHandler_Messages_Attacked(void* handler, void* unusedEdx, const void* point);
 }

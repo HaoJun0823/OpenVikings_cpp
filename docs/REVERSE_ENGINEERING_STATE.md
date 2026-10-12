@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Computer AI and game assistant remainder completed - 2026-10-12
+
+All **225/225** entries open at the preceding checkpoint now have native C++ implementations, including the complete manager/parser callbacks, village/resource/production tree, worker requests, roads/walls/guides, military/soldier/vehicle tasks and every assistant phase. Five former dummy/partial boundaries are removed. See [AI_REMAINDER_COMPLETION.md](AI_REMAINDER_COMPLETION.md) and [AI_REMAINDER_NATIVE_ENTRIES.csv](AI_REMAINDER_NATIVE_ENTRIES.csv).
+
+Current global inventory **5063/5063 (100.00%), 0 open**, with **0 explicit unfinished boundaries** and **0 provisional open assignments**. The former 321-entry AI set is fully implemented; the corrected disjoint category is **319/319**, because the shared vector-constructor loop and fish-manager member constructor move to their proven owners. Shared/system is **681/681**, map/resources **206/206**; no address leaves the global denominator. Project/filter membership **307 CPP / 281 headers**, **3149** unique naming rows and **17** unchanged unmatched declaration signatures.
+
+All **24 affected C++ units** pass MSVC Win32 C++17 syntax-only checks without diagnostics. Windows ASM/Game.exe instruction comparisons, final branch/call-order review, native-entry/name inventories, dummy removal and project/filter parity checks pass. No build, tests or game run occurred. These are source reconstruction counts, not proof of runtime equivalence. The next logical work is build/link and live validation of campaign AI, village production/home assignment, military tasks, walls/gates/guides and assistant phases. Private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Graphics engine remainder completed - 2026-10-12
 
 All 107 previously open engine entries now have native implementations. The current engine category is 665/665; twelve completed basic, fish-iterator and moveable-position entries move to their proven owners. No address is removed. Macro maps, manager callbacks, debug/fish drawing and all related lifetimes are connected; seven unfinished engine boundaries are removed. See [ENGINE_REMAINDER_COMPLETION.md](ENGINE_REMAINDER_COMPLETION.md).

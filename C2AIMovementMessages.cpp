@@ -15,10 +15,112 @@
 #include "C2MapWalkSectorManager.h"
 #include "C2VehicleAccess.h"
 #include "XCrtFileAccess.h"
+#include "C2HouseAccess.h"
+#include "C2HouseUserControl.h"
+#include "C2HumanInitialization.h"
+#include "C2HumanJobAccess.h"
+#include "C2HumanIterator.h"
+#include "C2OverviewObjectIterators.h"
+#include "C2StaticHouseTypeData.h"
 
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+
+    // Original function: FUN_0045b0ed.
+    bool AISinglePlayerHandler_l_Soldiers_AttachToTower(void* handler, std::int32_t houseId)
+    {
+        auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
+        const auto type = Read<std::uint32_t>(house, 20);
+        if ((type != 40 && type != 41) || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 44) != 3) return false;
+        const auto* definition = House_GetHouseTypeDataPtr(house);
+        // Windows initializes the sixteen job flags 27..42 used by the tower definitions.
+        std::byte local[0x44];
+        NXBasics::Runtime_FillMemory(local + 0x2C, 0, 16);
+        auto* flags = local + 0x11;
+        for (std::int32_t i = 0; i < definition->workerCount; ++i)
+        {
+            const auto job = definition->workers[i].jobType;
+            if (job == 24) continue;
+            const auto wanted = Read<std::uint8_t>(house, 0x7D8) != 0 ? definition->workers[i].unknown04 : 1;
+            const auto attached = House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job);
+            if (attached < wanted) { flags[job] = std::byte{1}; continue; }
+            if (attached <= wanted) continue;
+            for (std::uint32_t slot = 0; slot < 20; ++slot)
+            {
+                const auto* inhabitant = House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot);
+                if (Read<std::uint8_t>(inhabitant, 0) == 0) continue;
+                auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(inhabitant, 4) * CHumanArray::ElementSize;
+                if (Read<std::int32_t>(human, 24) != job) continue;
+                Human_DoAddNewUserCommand(human, 29, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 16)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+                break;
+            }
+        }
+        bool changed = false;
+        CHumanIterator iterator;
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(House_Door_GetEntryPointRef(house), 0), 20, true); id != -1; id = iterator.GetNextSectorHumanId())
+        {
+            auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || !Human_IsJobSoldier(human)) continue;
+            const auto job = Read<std::uint32_t>(human, 24);
+            if (flags[job] == std::byte{0}) continue;
+            Human_DoAddNewUserCommand(human, 28, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(house, 4), Read<std::uint32_t>(house, 8));
+            flags[job] = std::byte{0}; changed = true;
+        }
+        return changed;
+    }
+    // Original function: FUN_0045b058.
+    void AISinglePlayerHandler_l_Soldiers_AttachToTowers(void* handler)
+    {
+        auto cursor = Read<std::int32_t>(handler, 0xAD40);
+        if (cursor != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(cursor) * CHouseArray::ElementSize, 0) == 0) Write<std::int32_t>(handler, 0xAD40, -1);
+        std::uint32_t origin;
+        MapMigPoint_SetPosition(&origin, 0, 0, false);
+        CHouseIterator iterator;
+        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, 0), &origin, 10000); id != -1; id = iterator.GetNextHouseId())
+        {
+            cursor = Read<std::int32_t>(handler, 0xAD40);
+            if (cursor == -1)
+            {
+                if (AISinglePlayerHandler_l_Soldiers_AttachToTower(handler, id)) { Write(handler, 0xAD40, id); return; }
+            }
+            else if (id >= cursor) Write<std::int32_t>(handler, 0xAD40, -1);
+        }
+    }
+    // Original function: FUN_0045b295; the iterator and native flags determine candidate eligibility.
+    void* AISinglePlayerHandler_l_SingleSoldier_GetBestSoldier(void* handler, const void* point, std::uint32_t radius)
+    {
+        void* best = nullptr;
+        std::uint32_t distance = 10000;
+        CHumanIterator iterator;
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(point, 0), radius, true); id != -1; id = iterator.GetNextSectorHumanId())
+        {
+            auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
+            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human)) continue;
+            const auto* position = Human_GetMapPositionRef(human);
+            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
+            if (candidate < distance) { distance = candidate; best = human; }
+        }
+        return best;
+    }
+    // Original function: FUN_00473102; Windows radius 004F4308 is 40.
+    void __fastcall AISinglePlayerHandler_Messages_Attacked(void* handler, void* /*unusedEdx*/, const void* point)
+    {
+        Write(handler, 0xAD44, gGameTime.tick);
+        CHouseIterator iterator;
+        const auto player = Read<std::uint32_t>(handler, 0);
+        for (auto id = iterator.GetFirstSectorHouseId(player, point, 40, true); id != -1; id = iterator.GetNextSectorHouseId())
+        {
+            auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+            if (!House_CanEnableDefenceMode(house)) continue;
+            House_SetDefenceModeFlag(house, true); AISinglePlayerHandler_l_Soldiers_AttachToTower(handler, id);
+        }
+        for (auto id = iterator.GetFirstSectorHouseId(player, point, 40, false); id != -1; id = iterator.GetNextSectorHouseId())
+        {
+            auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
+            if (House_CanEnableDefenceMode(house)) House_SetDefenceModeFlag(house, true);
+        }
+    }
     namespace
     {
         // Complete native static region 00554D4C..00554D57: last point, initialization byte/padding, last tick.

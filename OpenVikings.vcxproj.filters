@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <ItemGroup>
     <Filter Include="Application">
@@ -942,6 +942,54 @@
     <ClCompile Include="C2AITaskAccess.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
+    <ClCompile Include="C2AIObjectAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIResourceAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIVillageAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIAssistantAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AISinglePlayerAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AISoldierAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIHighLevelAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIGuideAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIRoadAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIAnimalDiplomacy.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIHumanRequests.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIProduction.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIMilitaryAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIConstruction.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIManagerAccess.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
+    <ClCompile Include="C2AIGlobalGoods.cpp">
+      <Filter>Logic</Filter>
+    </ClCompile>
     <ClInclude Include="C2SavegameIO.h">
       <Filter>Logic</Filter>
     </ClInclude>
@@ -958,6 +1006,54 @@
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2AITaskAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIObjectAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIResourceAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIVillageAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIAssistantAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AISinglePlayerAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AISoldierAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIHighLevelAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIGuideAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIRoadAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIAnimalDiplomacy.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIHumanRequests.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIProduction.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIMilitaryAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIConstruction.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIManagerAccess.h">
+      <Filter>Logic</Filter>
+    </ClInclude>
+    <ClInclude Include="C2AIGlobalGoods.h">
       <Filter>Logic</Filter>
     </ClInclude>
     <ClInclude Include="C2MapGuid.h">

@@ -3,6 +3,7 @@
 
 namespace NC2Logic
 {
+    bool Human_IsAboutToMarry(const void* human);
     bool Human_UserMessage_IsInvalid(const void* human, const void* message);
 
     void Human_UserMessage_SendToUserMessage_MustWaitForGood(void* human);

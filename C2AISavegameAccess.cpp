@@ -6,6 +6,8 @@
 #include "C2MapSectorGridCursor.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2LogicObjectArrays.h"
+#include "C2AIConstruction.h"
+#include "C2AIGuideAccess.h"
 #include "XFile.h"
 namespace NC2Logic
 {
@@ -54,10 +56,11 @@ namespace NC2Logic
             io->IO_Memory_WriteBinary(guides, 0x18);
         }
 
-        // Original function: FUN_00428a97. The prefix/member constructor writes
-        // are all overwritten by these clears before any external observation.
+        // Original function: FUN_00428a97.
         void* C2AIHighLevelHandler_ConstructFromSavegame(void* handler, CIoHelper* io)
         {
+            AIHighLevelHandler_Vars_Construct(handler);
+            AIGuideManager_Construct(static_cast<std::byte*>(handler) + 0xAA18);
             std::memset(handler, 0, 0xAA18);
             auto* guides = static_cast<std::byte*>(handler) + 0xAA18;
             std::memset(guides, 0, 0x24);
@@ -66,30 +69,34 @@ namespace NC2Logic
             return handler;
         }
 
-        // Original function: FUN_0042894d; subordinate constructors have no
-        // allocations and only write bytes subsequently covered by these clears.
+        // Original function: FUN_0042894d.
         void* C2AIHighLevelHandler_Construct(void* handler)
         {
+            AIHighLevelHandler_Vars_Construct(handler);
+            AIGuideManager_Construct(static_cast<std::byte*>(handler) + 0xAA18);
             std::memset(handler, 0, 0xAA18);
             std::memset(static_cast<std::byte*>(handler) + 0xAA18, 0, 0x24);
             return handler;
         }
 
-        // Original function: FUN_004295c2.
-        void AIGuideManager_CalcVars_CreateGuideCalcArray(void* grid)
+    }
+    // Original function: FUN_004295c2.
+    void AIGuideManager_CalcVars_CreateGuideCalcArray(void* grid)
+    {
+        if (Read<std::int32_t>(grid, 0) == SSectorGridCursor::sGridWidth && Read<std::int32_t>(grid, 4) == SSectorGridCursor::sGridHeight) return;
+        if (Read<void*>(grid, 8) != nullptr)
         {
-            if (Read<std::int32_t>(grid, 0) == SSectorGridCursor::sGridWidth && Read<std::int32_t>(grid, 4) == SSectorGridCursor::sGridHeight) return;
-            if (Read<void*>(grid, 8) != nullptr)
-            {
-                NXBasics::Runtime_Free(Read<void*>(grid, 8));
-                Write<void*>(grid, 8, nullptr);
-            }
-            Write(grid, 4, SSectorGridCursor::sGridHeight);
-            Write(grid, 0, SSectorGridCursor::sGridWidth);
-            const auto bytes = static_cast<std::uint32_t>(SSectorGridCursor::sGridWidth) * static_cast<std::uint32_t>(SSectorGridCursor::sGridHeight) * 12u;
-            Write(grid, 8, NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+            NXBasics::Runtime_Free(Read<void*>(grid, 8));
+            Write<void*>(grid, 8, nullptr);
         }
+        Write(grid, 4, SSectorGridCursor::sGridHeight);
+        Write(grid, 0, SSectorGridCursor::sGridWidth);
+        const auto bytes = static_cast<std::uint32_t>(SSectorGridCursor::sGridWidth) * static_cast<std::uint32_t>(SSectorGridCursor::sGridHeight) * 12u;
+        Write(grid, 8, NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+    }
 
+    namespace
+    {
         // Original function: FUN_0042958f.
         void AIGuideManager_Init(void* guides)
         {
@@ -111,10 +118,10 @@ namespace NC2Logic
             Write<std::uint8_t>(handler, 0x1A, 1);
         }
 
-        // Original function: FUN_004294cf. Member constructors write only bytes
-        // covered by the two clears, so no separate storage is created for them.
+        // Original function: FUN_004294cf.
         void C2AISinglePlayerHandler_Init(void* handler, std::uint32_t player, bool enabled)
         {
+            AISinglePlayerHandler_Construct(handler);
             std::memset(handler, 0, 0xAD48);
             std::memset(static_cast<std::byte*>(handler) + 0xAD48, 0, 0x320);
             Write<std::uint32_t>(handler, 0xAD40, 0xFFFFFFFF);
@@ -198,7 +205,7 @@ namespace NC2Logic
                 if (io->IO_File_ReadByte() != 0)
                 {
                     void* single = NXBasics::Runtime_AllocateWithNewHandler(0xB068, 1);
-                    if (single != nullptr) std::memset(static_cast<std::byte*>(single) + 0xAD48, 0, 0x320);
+                    if (single != nullptr) AISinglePlayerHandler_Construct(single);
                     Write(manager, player * 4, single);
                     io->IO_File_ReadBinary(single, version == 3 ? 0xA5B8 : 0xB068);
                     if (version == 3) io->IO_File_Skip(0x3C08);

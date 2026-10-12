@@ -118,7 +118,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0042c5aa.
-    static bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0x18) == 5; }
+    bool Human_IsJobWoman(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, 0x18) == 5; }
 
     // Original function: FUN_00441cb4; all five Windows circulation modes release their reservations.
     void Human_StopCurrentGoodCirculationMode(void* human)

@@ -1,5 +1,13 @@
 # OpenVikings
 
+## Computer AI and game assistant remainder completed - 2026-10-12
+
+All **225/225** entries open at the preceding checkpoint now have native C++ implementations, including the complete manager/parser callbacks, village/resource/production tree, worker requests, roads/walls/guides, military/soldier/vehicle tasks and every assistant phase. Five former dummy/partial boundaries are removed. See [AI_REMAINDER_COMPLETION.md](docs/AI_REMAINDER_COMPLETION.md) and [AI_REMAINDER_NATIVE_ENTRIES.csv](docs/AI_REMAINDER_NATIVE_ENTRIES.csv).
+
+Current global inventory **5063/5063 (100.00%), 0 open**, with **0 explicit unfinished boundaries** and **0 provisional open assignments**. The former 321-entry AI set is fully implemented; the corrected disjoint category is **319/319**, because the shared vector-constructor loop and fish-manager member constructor move to their proven owners. Shared/system is **681/681**, map/resources **206/206**; no address leaves the global denominator. Project/filter membership **307 CPP / 281 headers**, **3149** unique naming rows and **17** unchanged unmatched declaration signatures.
+
+All **24 affected C++ units** pass MSVC Win32 C++17 syntax-only checks without diagnostics. Windows ASM/Game.exe instruction comparisons, final branch/call-order review, native-entry/name inventories, dummy removal and project/filter parity checks pass. No build, tests or game run occurred. These are source reconstruction counts, not proof of runtime equivalence. The next logical work is build/link and live validation of campaign AI, village production/home assignment, military tasks, walls/gates/guides and assistant phases. Private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Common movement/combat/object entry completion - 2026-10-11
 
 All seventeen originally selected open entries are reconstructed, together with twenty-five required vehicle dependencies. Human, animal and vehicle ticks remain distinct native methods; turning is gated by its flag, walking updates map/sector attachment halfway through a step, and deletion is dispatched after each individual object tick. Vehicle commands, AI, docking, passenger transfer, attack searches and projectile events are connected. Missions now use vehicle-stock goal 60 and goods-area results 64/65. Windows ASM/Game.exe establish behavior; Mac supplies names only. See [COMMON_MOVEMENT_VEHICLE_COMPLETION.md](docs/COMMON_MOVEMENT_VEHICLE_COMPLETION.md).
@@ -24,7 +32,7 @@ A later **Renewed** phase may intentionally correct original defects, modernize 
 
 Last handoff update: **2026-10-04**.
 
-## Compilable checkpoint - temporary implementations
+## Historical compilable checkpoint - temporary implementations
 
 Debug|Win32 and Release|Win32 passed with zero linker errors at checkpoint a77fd47. Startup and heap-ownership work is committed as 7b8b8f2. The user subsequently rebuilt in Visual Studio and reached the main menu, with fragmented text and a black world background. The following font correction has static verification only; see [MENU_RENDERING_AUDIT.md](docs/MENU_RENDERING_AUDIT.md). At the user's explicit request, [TemporaryLinkStubs.cpp](TemporaryLinkStubs.cpp) now supplies 118 temporary unfinished implementations (including partial entries); [the complete replacement queue](docs/TEMPORARY_LINK_STUBS.csv) lists every original address and referencing object. These functions do nothing or return zero/false/nullptr. The build is not a verified functional game; dummies remain unfinished work and are excluded from reconstruction-completion figures.
 
@@ -1493,6 +1501,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 
 | ID | Finding | Original reference |
 | --- | --- | --- |
+| [OA166](#oa166) | Native AI record overlaps, target-query order and task-count assumptions | 004552F1, 00455CF4, 004559DE, 0045998E |
 | [OA165](#oa165) | Macro-map placement/capture quirks and unchecked palette-event IDs | 00489C84, 0048823E, 004935BA, 0047EC5B |
 | [OA164](#oa164) | Bitmap half-size border offsets, look-ahead reads and unchecked empty fast loops | 0040D1F8, 0040D3F8 |
 | [OA163](#oa163) | School working-experience side effect; gameplay trigger user-reported | 00468961, 00442420, 00473C9B |
@@ -1651,6 +1660,12 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa164"></a>
+
+<a id="oa166"></a>
+
+### OA166 - Native AI layout and task-allocation observations
+
+Windows ASM/Game.exe confirm military secondary-type storage at the next record boundary (004552F1), enemy-index use in the current-target comparison (00455CF4), the repeated first house-sector query on target-search failure (004559DE), overlapping target-constructor fills (0042940E), the catcher search using the guide-manager point (00428BB2), and low-level allocation without a candidate-count clamp in its first weighted stage (0045998E). The reconstruction preserves these instructions and their native caller assumptions. They are confirmed original observations; consequences for gameplay, valid-input reachability and failure reproduction remain unverified. Intentional behavior changes belong to the later Renewed phase. See [AI_REMAINDER_COMPLETION.md](docs/AI_REMAINDER_COMPLETION.md).
 
 ### OA165 - Native macro-map and palette-event observations
 

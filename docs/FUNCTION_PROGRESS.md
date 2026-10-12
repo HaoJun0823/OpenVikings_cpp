@@ -1,5 +1,13 @@
 # Windows function mapping progress
 
+## Computer AI and game assistant remainder completed - 2026-10-12
+
+All **225/225** entries open at the preceding checkpoint now have native C++ implementations, including the complete manager/parser callbacks, village/resource/production tree, worker requests, roads/walls/guides, military/soldier/vehicle tasks and every assistant phase. Five former dummy/partial boundaries are removed. See [AI_REMAINDER_COMPLETION.md](AI_REMAINDER_COMPLETION.md) and [AI_REMAINDER_NATIVE_ENTRIES.csv](AI_REMAINDER_NATIVE_ENTRIES.csv).
+
+Current global inventory **5063/5063 (100.00%), 0 open**, with **0 explicit unfinished boundaries** and **0 provisional open assignments**. The former 321-entry AI set is fully implemented; the corrected disjoint category is **319/319**, because the shared vector-constructor loop and fish-manager member constructor move to their proven owners. Shared/system is **681/681**, map/resources **206/206**; no address leaves the global denominator. Project/filter membership **307 CPP / 281 headers**, **3149** unique naming rows and **17** unchanged unmatched declaration signatures.
+
+All **24 affected C++ units** pass MSVC Win32 C++17 syntax-only checks without diagnostics. Windows ASM/Game.exe instruction comparisons, final branch/call-order review, native-entry/name inventories, dummy removal and project/filter parity checks pass. No build, tests or game run occurred. These are source reconstruction counts, not proof of runtime equivalence. The next logical work is build/link and live validation of campaign AI, village production/home assignment, military tasks, walls/gates/guides and assistant phases. Private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Road texture discrepancy resolved as modified asset - 2026-10-11
 
 The user confirmed that the green road-terrain pixels are present in a manipulated PCX texture; the original texture has no such green pixels. This resolves the reported discrepancy as a difference in the supplied asset, not evidence of intended moss, an original-game defect, or a renderer defect. Per the user's instruction, do not pursue a rendering correction for this report. No texture restoration, production-code change, build or game run was performed; function counts remain unchanged. This finding is user-confirmed, not independently verified against the original PCX.

@@ -45,11 +45,10 @@ namespace NC2Logic
         // Original function: FUN_0042c9f0.
         bool Human_IsWorking(const void* human) { return Read<std::uint32_t>(human, 0x368) == 8 && Read<std::uint32_t>(human, 0x36C) == 1; }
 
-        // Original function: FUN_0042ca88.
-        bool Human_IsAboutToMarry(const void* human) { return Read<std::uint32_t>(human, 0xB1C) != 0xFFFFFFFFu; }
-
-
     }
+
+    // Original function: FUN_0042ca88.
+    bool Human_IsAboutToMarry(const void* human) { return Read<std::uint32_t>(human, 0xB1C) != 0xFFFFFFFFu; }
 
     // Original function: FUN_0045c37f; complete Windows selector table 0045c5cd..0045c607.
     bool Human_UserMessage_IsInvalid(const void* human, const void* message)

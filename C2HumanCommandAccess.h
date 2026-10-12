@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace NC2Logic
 {
+    bool Human_IsJobWoman(const void* human);
     bool Human_IsAtTargetPoint(const void* human);
     bool Human_IsAtWorkCenter(const void* human);
     bool Human_Target_HasTarget(const void* human);

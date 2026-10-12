@@ -15,6 +15,7 @@ namespace NC2Logic
     void House_Door_GetEntryPoint(const void* house, void* point);
     bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t flags);
     void House_Exit(void* house);
+    void __fastcall House_Misc_Destroy_House(void* house, void* unusedEdx);
     void House_l_Inhabitants_Reset(void* house);
     void House_Inhabitants_DetachAllHumans(void* house);
     void House_Inhabitants_DetachAllHumans(void* house, std::uint32_t mask);

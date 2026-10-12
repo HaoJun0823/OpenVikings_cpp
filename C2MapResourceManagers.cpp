@@ -1,3 +1,4 @@
+#include "C2AIConstruction.h"
 #include "C2MapResourceManagers.h"
 #include "C2CallbackManager.h"
 #include "C2GameMapAccess.h"
@@ -385,6 +386,7 @@ namespace NC2Logic
     // Original function: FUN_0044e610.
     CMapFishManager::CMapFishManager()
     {
+        MapFishManager_ConstructMembers(this);
         gMapFishManager = this;
         std::memset(this, 0, sizeof(*this));
         l_RegisterCallbacks();
@@ -414,6 +416,7 @@ namespace NC2Logic
     // Original function: FUN_0044e762.
     CMapFishManager::CMapFishManager(CIoHelper& io)
     {
+        MapFishManager_ConstructMembers(this);
         gFishSwarmValidationNeeded = 0;
         gMapFishManager = this;
         std::memset(this, 0, sizeof(*this));

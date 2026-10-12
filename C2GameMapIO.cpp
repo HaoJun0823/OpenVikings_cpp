@@ -20,8 +20,8 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
-    // Script-manager bodies remain separately tracked reconstruction boundaries.
-    extern void __fastcall AIManager_IO_InitFromScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
+    // Script managers retain their separate native dispatch entries.
+    extern bool __fastcall AIManager_IO_InitFromScript(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall HumanMerchantArray_CleanMap_LoadTradeAgreements(void*, void* unusedEdx, NXBasics::CIniFileReader*);
     extern void __fastcall MultiPlayerGoalManager_IO_LoadGoals(void*, void* unusedEdx, NXBasics::CIniFileReader*);
 

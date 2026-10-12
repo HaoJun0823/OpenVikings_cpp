@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -378,12 +378,44 @@
     <ClCompile Include="C2AISavegameAccess.cpp" />
     <ClCompile Include="C2AIConditions.cpp" />
     <ClCompile Include="C2AITaskAccess.cpp" />
+    <ClCompile Include="C2AIObjectAccess.cpp" />
+    <ClCompile Include="C2AIResourceAccess.cpp" />
+    <ClCompile Include="C2AIVillageAccess.cpp" />
+    <ClCompile Include="C2AIAssistantAccess.cpp" />
+    <ClCompile Include="C2AISinglePlayerAccess.cpp" />
+    <ClCompile Include="C2AISoldierAccess.cpp" />
+    <ClCompile Include="C2AIHighLevelAccess.cpp" />
+    <ClCompile Include="C2AIGuideAccess.cpp" />
+    <ClCompile Include="C2AIRoadAccess.cpp" />
+    <ClCompile Include="C2AIAnimalDiplomacy.cpp" />
+    <ClCompile Include="C2AIHumanRequests.cpp" />
+    <ClCompile Include="C2AIProduction.cpp" />
+    <ClCompile Include="C2AIMilitaryAccess.cpp" />
+    <ClCompile Include="C2AIConstruction.cpp" />
+    <ClCompile Include="C2AIManagerAccess.cpp" />
+    <ClCompile Include="C2AIGlobalGoods.cpp" />
     <ClCompile Include="C2AIMovementMessages.cpp" />
     <ClInclude Include="C2SavegameIO.h" />
     <ClInclude Include="C2SavegameStateAccess.h" />
     <ClInclude Include="C2AISavegameAccess.h" />
     <ClInclude Include="C2AIConditions.h" />
     <ClInclude Include="C2AITaskAccess.h" />
+    <ClInclude Include="C2AIObjectAccess.h" />
+    <ClInclude Include="C2AIResourceAccess.h" />
+    <ClInclude Include="C2AIVillageAccess.h" />
+    <ClInclude Include="C2AIAssistantAccess.h" />
+    <ClInclude Include="C2AISinglePlayerAccess.h" />
+    <ClInclude Include="C2AISoldierAccess.h" />
+    <ClInclude Include="C2AIHighLevelAccess.h" />
+    <ClInclude Include="C2AIGuideAccess.h" />
+    <ClInclude Include="C2AIRoadAccess.h" />
+    <ClInclude Include="C2AIAnimalDiplomacy.h" />
+    <ClInclude Include="C2AIHumanRequests.h" />
+    <ClInclude Include="C2AIProduction.h" />
+    <ClInclude Include="C2AIMilitaryAccess.h" />
+    <ClInclude Include="C2AIConstruction.h" />
+    <ClInclude Include="C2AIManagerAccess.h" />
+    <ClInclude Include="C2AIGlobalGoods.h" />
     <ClInclude Include="C2AIMovementMessages.h" />
     <ClInclude Include="C2MapGuid.h" />
   </ItemGroup>
