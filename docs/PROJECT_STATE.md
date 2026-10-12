@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Unary and binary x87 math-error entries - 2026-10-12
+
+Windows entries 004EB8D0 and 004EB8E7 now have separate C++ definitions and their shared record phase connected to the project dispatcher. Checked native branch register contracts supply one hardware FSTP m64 and plain FLD m64 before conditional final control restoration, without added FP spills or CRT copies while operands are live. Fifteen of the requested 32 entries are implemented; 17 remain open and their enclosing numeric parents are not promoted. See [SHARED_X87_ERROR_ENTRY_COMPLETION.md](SHARED_X87_ERROR_ENTRY_COMPLETION.md).
+
+Current global inventory **4697/5063 (92.77%)**, **366 open**. System/shared **653/670 (97.46%), 17 open**; engine **124 open**, AI **225 open**. **19** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **287 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five integrating units pass Win32 C++17 syntax-only checks. Private unlinked /Od and /O2 listings verify both error entries, exact store/dispatch/load/control order, FP-free raw copies and existing numeric primitives/workspaces; read-only containing-leaf/branch comparisons, inventory, naming, project/filter and whitespace checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Scalar math, hardware generation and extended-frame bindings - 2026-10-12
 
 Thirteen of the requested 32 entries are implemented: native rounding, both parity paths, pow special values, NaN handling, distinct loaders, half-pi, separate extended80 kernels and the masked-response hardware child. The generator dummy is removed. Nineteen entries remain open; the complete 32-entry closure audit retains the requested scope. Private CRT leaves require checked complete code/data identities and remain unavailable if those checks fail; startup does not newly depend on their availability. See [SHARED_SCALAR_MATH_BACKEND.md](SHARED_SCALAR_MATH_BACKEND.md).

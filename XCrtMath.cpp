@@ -26,6 +26,8 @@ namespace NXBasics
     using RuntimeStackX87Loader = void(__cdecl*)(RuntimeBinary64Words);
     using RuntimeRoundOperation = double(__cdecl*)(RuntimeBinary64Words);
     using RuntimeExceptionOperation = void(__cdecl*)(std::uint32_t);
+    using RuntimeRetainedX87Value = double(__cdecl*)();
+    using RuntimePlainX87Loader = void(__fastcall*)(std::uint32_t, const volatile double*);
     static RuntimeIntegerX87Operation gRuntimeX87IntegerParity;
     static RuntimeIntegerX87Operation gRuntimeQuietMathNaN;
     static RuntimePointerX87Loader gRuntimePointerX87Loader;
@@ -33,6 +35,8 @@ namespace NXBasics
     static RuntimeX87Operation gRuntimeX87HalfPi;
     static RuntimeRoundOperation gRuntimeRound;
     static RuntimeExceptionOperation gRuntimeRaiseExceptions;
+    static RuntimeRetainedX87Value gRuntimeRetainedX87Value;
+    static RuntimePlainX87Loader gRuntimePlainX87Loader;
     using RuntimeDivideKernel = void(__cdecl*)(RuntimeDivideFrame);
     using RuntimeRemainderKernel = void(__fastcall*)(std::uint32_t, std::uint32_t);
     static RuntimeDivideKernel gRuntimeDivideKernel;
@@ -206,7 +210,12 @@ namespace NXBasics
         gRuntimeX87IntegerParity = reinterpret_cast<RuntimeIntegerX87Operation>(const_cast<unsigned char*>(scalarLeaves[2]));
         // Offset 13 is the verified signaling-NaN branch of this complete checked body.
         gRuntimeQuietMathNaN = scalarLeaves[3] == nullptr ? nullptr : reinterpret_cast<RuntimeIntegerX87Operation>(const_cast<unsigned char*>(scalarLeaves[3] + 13));
+        // The quiet branch returns EAX = 7 and retains ST(0) as its secondary FP output.
+        // Declaring that output as an x86 double return lets the caller issue the real FSTP m64.
+        gRuntimeRetainedX87Value = scalarLeaves[3] == nullptr ? nullptr : reinterpret_cast<RuntimeRetainedX87Value>(const_cast<unsigned char*>(scalarLeaves[3] + 7));
         gRuntimePointerX87Loader = reinterpret_cast<RuntimePointerX87Loader>(const_cast<unsigned char*>(scalarLeaves[4]));
+        // Offset 15 is FLD m64 [EDX]; RET, without the loader's special-value reconstruction.
+        gRuntimePlainX87Loader = scalarLeaves[4] == nullptr ? nullptr : reinterpret_cast<RuntimePlainX87Loader>(const_cast<unsigned char*>(scalarLeaves[4] + 15));
         gRuntimeStackX87Loader = reinterpret_cast<RuntimeStackX87Loader>(const_cast<unsigned char*>(scalarLeaves[5]));
         gRuntimeX87HalfPi = reinterpret_cast<RuntimeX87Operation>(const_cast<unsigned char*>(scalarLeaves[6]));
         gRuntimeDivideKernel = reinterpret_cast<RuntimeDivideKernel>(const_cast<unsigned char*>(scalarLeaves[7]));
@@ -236,6 +245,60 @@ namespace NXBasics
     __declspec(noinline) std::uint32_t __cdecl Runtime_LoadMathArgumentByPointer(const RuntimeBinary64Words* argument)
     {
         return Runtime_RequireMathLeaf(gRuntimePointerX87Loader)(0, argument);
+    }
+
+    // Instruction primitive, not another original entry. The checked native branch retains
+    // the ambient ST(0); MSVC stores its secondary FP output once, using FSTP m64.
+    __declspec(noinline) static void Runtime_StoreX87TopToBinary64(volatile double* destination)
+    {
+        *destination = Runtime_RequireMathLeaf(gRuntimeRetainedX87Value)();
+    }
+
+    // Instruction primitive, not another original entry. This also evaluates signaling NaNs
+    // and subnormals through the real FLD m64, instead of synthesizing an extended encoding.
+    __declspec(noinline) static void Runtime_LoadX87TopFromBinary64(const volatile double* source)
+    {
+        Runtime_RequireMathLeaf(gRuntimePlainX87Loader)(0, source);
+    }
+
+    // Argument slots are copied as bytes, without evaluating their NaN encodings or
+    // calling an ordinary CRT copy routine while other x87 operands may still be live.
+    __declspec(noinline) static void Runtime_CopyMathArgumentWords(volatile double* destination, const RuntimeBinary64Words* source)
+    {
+        auto* output = reinterpret_cast<volatile unsigned char*>(destination);
+        const auto* input = reinterpret_cast<const volatile unsigned char*>(source);
+        for (std::uint32_t index = 0; index < sizeof(*source); ++index) output[index] = input[index];
+    }
+
+    // Shared label 004EB8F0, not a separate original function. The result load precedes
+    // control restoration; returning void retains the extended ST(0) without another spill.
+    __declspec(noinline) static void Runtime_CompleteX87MathErrorRecord(RuntimeMathError* error, const char* name, std::uint32_t operation, RuntimeBinary64Words argument, std::uint16_t savedControl)
+    {
+        Runtime_StoreX87TopToBinary64(&error->result);
+        error->name = name;
+        Runtime_CopyMathArgumentWords(&error->argument1, &argument);
+        Runtime_DispatchMathError(operation, error, &savedControl);
+        Runtime_LoadX87TopFromBinary64(&error->result);
+        if (savedControl != 0x027Fu) static_cast<void>(Runtime_ControlX87Raw(savedControl, 0xFFFFu));
+    }
+
+    // Original function: FUN_004eb8d0; EAX/ECX/EDX and the parent-stack inputs are explicit.
+    // Argument 2 is copied before the result is stored, as in the native binary entry.
+    __declspec(noinline) void __cdecl Runtime_DispatchBinaryX87MathError(std::int32_t type, const char* name, std::uint32_t operation, RuntimeBinary64Words argument1, RuntimeBinary64Words argument2, std::uint16_t savedControl)
+    {
+        RuntimeMathError error;
+        error.type = type;
+        Runtime_CopyMathArgumentWords(&error.argument2, &argument2);
+        Runtime_CompleteX87MathErrorRecord(&error, name, operation, argument1, savedControl);
+    }
+
+    // Original function: FUN_004eb8e7; the unary entry leaves the argument-2 slot untouched.
+    // The caller supplies a unary operation; the common dispatcher does not evaluate that slot.
+    __declspec(noinline) void __cdecl Runtime_DispatchUnaryX87MathError(std::int32_t type, const char* name, std::uint32_t operation, RuntimeBinary64Words argument, std::uint16_t savedControl)
+    {
+        RuntimeMathError error;
+        error.type = type;
+        Runtime_CompleteX87MathErrorRecord(&error, name, operation, argument, savedControl);
     }
 
     // Original function: FUN_004ed1ac; pop one value and load the original 80-bit half-pi.

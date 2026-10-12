@@ -1,5 +1,7 @@
 # Shared scalar math and extended-frame completion - 2026-10-12
 
+Subsequent checkpoint: both error entries 004EB8D0/004EB8E7 are implemented in [SHARED_X87_ERROR_ENTRY_COMPLETION.md](SHARED_X87_ERROR_ENTRY_COMPLETION.md), bringing the requested block to 15/32 and shared inventory to 653/670, 17 open. The counts below describe the preceding scalar checkpoint; the containing-leaf availability limits still apply to the two added branch bindings.
+
 **13 of the requested 32 entries are completed. Finishing all 32 remains outstanding.** Shared/system inventory is **651/670 (97.16%), 19 open**; global inventory is **4695/5063 (92.73%), 368 open**. No address is removed from the denominator. [SHARED_32_ENTRY_CLOSURE_AUDIT.csv](SHARED_32_ENTRY_CLOSURE_AUDIT.csv) retains all original 32 entries and their disposition; the current open-only list has 19 rows.
 
 ## Implemented block

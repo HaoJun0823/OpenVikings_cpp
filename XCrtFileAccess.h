@@ -631,6 +631,9 @@ namespace NXBasics
     std::uint32_t __cdecl Runtime_ClassifyX87IntegerParity();
     std::uint32_t __cdecl Runtime_HandleMathNaN(std::uint32_t highArgumentWord);
     std::uint32_t __cdecl Runtime_LoadMathArgumentByPointer(const RuntimeBinary64Words* argument);
+    // Error entries consume the current extended ST(0) and leave the updated result there.
+    void __cdecl Runtime_DispatchBinaryX87MathError(std::int32_t type, const char* name, std::uint32_t operation, RuntimeBinary64Words argument1, RuntimeBinary64Words argument2, std::uint16_t savedControl);
+    void __cdecl Runtime_DispatchUnaryX87MathError(std::int32_t type, const char* name, std::uint32_t operation, RuntimeBinary64Words argument, std::uint16_t savedControl);
     void __cdecl Runtime_ReplaceX87ValueWithHalfPi();
     void __cdecl Runtime_LoadMathArgumentExtended80(RuntimeBinary64Words argument);
     double __cdecl Runtime_RoundDouble(RuntimeBinary64Words argument);

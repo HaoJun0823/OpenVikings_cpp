@@ -12,8 +12,6 @@ Address,CurrentName,Group,Implemented,WindowsEvidence,AuditedOpenChildren,Audite
 004EB4BE,NXBasics::Runtime_PrepareExponentialFraction,Shared x87 kernels and continuations,False,"80-bit threshold compare, FRNDINT, subtract integer part, fabs/F2XM1; parent frame/status/register dependencies",,
 004EB570,NXBasics::Runtime_DispatchUnaryX87Math,Shared x87 kernels and continuations,False,Select CW from operation byte; FXAM status maps through 50C76C; dispatch header+10 four-way table,,
 004EB5D7,NXBasics::Runtime_DispatchBinaryX87Math,Shared x87 kernels and continuations,False,FXAM both values; combine two classification offsets; dispatch header+10 sixteen-way table,,
-004EB8D0,NXBasics::Runtime_DispatchBinaryX87MathError,Shared x87 kernels and continuations,False,Capture second parent-stack argument then join 4EB8F0 shared error record builder,,
-004EB8E7,NXBasics::Runtime_DispatchUnaryX87MathError,Shared x87 kernels and continuations,False,Build type/name/arguments/result record from EAX/ECX/EDX/x87 and parent stack; 4F046B; restore saved CW,,
 004EC67E,NXBasics::Runtime_LocalUnwind,Compiler and unwind,False,Temporary FS registration; walk 12-byte scope entries; update try-level before notification and termination callback; restore registration,,
 004ED17C,NXBasics::Runtime_PrepareArcTrigRoot,Shared x87 kernels and continuations,False,fabs input; sqrt((1-input)*(1+input)); negative result jumps parent domain-error path,,
 004ED2B3,NXBasics::Runtime_CompleteStackArgumentMath,Shared x87 kernels and continuations,False,Clear frame flag bit0 at -2C8 and fall into4ED2BA; continuation shares existing frame,,
