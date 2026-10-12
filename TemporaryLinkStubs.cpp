@@ -25,12 +25,6 @@
 namespace NXBasics { class CBitmap; class CIniFileReader; struct SRectangle; }
 namespace NC2Logic { class CIoHelper; }
 
-namespace NXBasics
-{
-    // TEMPORARY DUMMY: Windows address 004F2024; ordered hardware exception operations are unresolved.
-    void Runtime_RaiseX87Exceptions(std::uint32_t) {}
-}
-
 namespace NC2Logic
 {
 

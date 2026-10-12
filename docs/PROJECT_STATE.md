@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Scalar math, hardware generation and extended-frame bindings - 2026-10-12
+
+Thirteen of the requested 32 entries are implemented: native rounding, both parity paths, pow special values, NaN handling, distinct loaders, half-pi, separate extended80 kernels and the masked-response hardware child. The generator dummy is removed. Nineteen entries remain open; the complete 32-entry closure audit retains the requested scope. Private CRT leaves require checked complete code/data identities and remain unavailable if those checks fail; startup does not newly depend on their availability. See [SHARED_SCALAR_MATH_BACKEND.md](SHARED_SCALAR_MATH_BACKEND.md).
+
+Current global inventory **4695/5063 (92.73%)**, **368 open**. System/shared **651/670 (97.16%), 19 open**; engine **124 open**, AI **225 open**. **19** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **287 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five integrating units pass Win32 C++17 syntax-only checks. Private unlinked /Od and /O2 outputs verify numeric primitives, FP-free bridges and native ESP workspaces; read-only code/data comparisons, fresh inventory, naming, project/filter parity and whitespace checks pass. No build, tests or game run occurred. Continue shared/system helpers as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Verified adjusted divide and remainder backend - 2026-10-11
 
 Five outer x87 entries now bind verified exported system CRT bodies, with all eight original code regions and the full 94-byte constant region compared after relocation. Native 80-bit operands, control/status operations and remainder fallbacks are retained without authored assembly. Three internal kernels remain open for standalone recompiled frame interfaces; scalar rounding, power special values, transcendental/error paths and two compiler entries remain unfinished. See [SHARED_ADJUSTED_MATH_BACKEND.md](SHARED_ADJUSTED_MATH_BACKEND.md).

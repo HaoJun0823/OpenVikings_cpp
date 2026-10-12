@@ -199,6 +199,44 @@ namespace NXBasics
         int bias;            // +0x14
     };
 
+    struct RuntimeBinary64Words
+    {
+        std::uint32_t low;
+        std::uint32_t high;
+    };
+    static_assert(sizeof(RuntimeBinary64Words) == 8);
+
+    struct RuntimeExtended80Slot
+    {
+        std::uint32_t low;
+        std::uint32_t high;
+        std::uint16_t signExponent;
+        std::uint16_t reserved;
+    };
+    static_assert(sizeof(RuntimeExtended80Slot) == 12);
+
+    struct RuntimeDivideFrame
+    {
+        RuntimeExtended80Slot denominator;
+        RuntimeExtended80Slot numerator;
+        std::uint32_t savedControl;
+        std::uint32_t adjustedControl;
+    };
+    static_assert(sizeof(RuntimeDivideFrame) == 32);
+
+    struct RuntimeRemainderFrame
+    {
+        RuntimeExtended80Slot denominator;
+        RuntimeExtended80Slot savedDenominator;
+        RuntimeExtended80Slot dividend;
+        std::uint32_t savedControl;
+        std::uint32_t adjustedControl;
+        std::uint32_t status;
+    };
+    static_assert(sizeof(RuntimeRemainderFrame) == 48);
+    static_assert(offsetof(RuntimeRemainderFrame, dividend) == 24);
+    static_assert(offsetof(RuntimeRemainderFrame, savedControl) == 36);
+
     using RuntimeVoidCallback = void(__cdecl*)();
 
     using RuntimeOnExitCallback = int(__cdecl*)();
@@ -590,12 +628,23 @@ namespace NXBasics
     double __cdecl Runtime_DecomposeDouble(double value, std::int32_t* exponent);
     std::uint16_t Runtime_CompareDoubleX87(const volatile double* left, const volatile double* right);
     bool Runtime_InitializeAdjustedMathBackend();
+    std::uint32_t __cdecl Runtime_ClassifyX87IntegerParity();
+    std::uint32_t __cdecl Runtime_HandleMathNaN(std::uint32_t highArgumentWord);
+    std::uint32_t __cdecl Runtime_LoadMathArgumentByPointer(const RuntimeBinary64Words* argument);
+    void __cdecl Runtime_ReplaceX87ValueWithHalfPi();
+    void __cdecl Runtime_LoadMathArgumentExtended80(RuntimeBinary64Words argument);
+    double __cdecl Runtime_RoundDouble(RuntimeBinary64Words argument);
+    std::uint32_t __cdecl Runtime_ClassifyDoubleIntegerParity(RuntimeBinary64Words argument);
+    std::int32_t __cdecl Runtime_HandlePowInfinityCases(RuntimeBinary64Words base, RuntimeBinary64Words exponent, volatile double* result);
     // Low-level operations require live ST(0)/ST(1) operands; no binary64 argument/return conversion.
     void __cdecl Runtime_DivideX87ForwardAdjusted();
     void __cdecl Runtime_DivideX87ReversedAdjusted();
     std::uint32_t __cdecl Runtime_DivideX87ReversedPreserveEax(std::uint32_t originalEax);
     void __cdecl Runtime_RemainderX87Adjusted();
     void __cdecl Runtime_RemainderNearestX87Adjusted();
+    void __cdecl Runtime_DivideExtended80Adjusted(RuntimeDivideFrame frame);
+    void __cdecl Runtime_RemainderExtended80Adjusted(RuntimeRemainderFrame* frame, std::uint32_t flags);
+    void __cdecl Runtime_RemainderNearestExtended80Adjusted(RuntimeRemainderFrame* frame, std::uint32_t flags);
     void Runtime_RaiseX87Exceptions(std::uint32_t flags);
     double __cdecl Runtime_SetDoubleExponentField(double value, std::int32_t exponent);
     void Runtime_RaiseMathException(volatile RuntimeMathExceptionRecord* record, volatile std::uint32_t* controlWord, std::uint32_t flags, std::uint32_t operation, const volatile double* argument, volatile double* result);

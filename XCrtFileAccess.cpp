@@ -11029,7 +11029,7 @@ namespace NXBasics
     // Game.exe initializes this DWORD to 0x2694; its original semantic name is unresolved.
     static volatile std::uint32_t DAT_0050f250 = 0x2694;
 
-    // Original function: FUN_004f046b; the masked-response child remains explicitly unresolved.
+    // Original function: FUN_004f046b; the masked-response and hardware generation children are connected.
     void Runtime_DispatchMathError(std::uint32_t operation, RuntimeMathError* error, const std::uint16_t* savedControl)
     {
         volatile std::uint32_t controlWord = *savedControl;
@@ -11109,7 +11109,7 @@ namespace NXBasics
         return Runtime_LoadBinary64ToX87(&stored);
     }
 
-    // Partial original function: FUN_004f1da2; ordered x87 exception generation remains open.
+    // Original function: FUN_004f1da2; the ordered hardware exception child is connected.
     bool Runtime_HandleMaskedMathException(std::uint32_t flags, volatile double* result, std::uint32_t controlWord)
     {
         auto remaining = flags & 0x1Fu;
