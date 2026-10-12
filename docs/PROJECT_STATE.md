@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Complete shared compiler entries and 670-entry block - 2026-10-12
+
+The last two compiler entries now bind fully checked legacy runtime bodies through compiler-generated raw tail jumps. Original stack probes, equality-based scope walk, collision handler, inherited frames and shared native notification storage are preserved. All 670 shared entries and all 32 requested final entries are implemented; deployment and exceptional-runtime validation limits remain explicit. See [SHARED_COMPILER_COMPLETION.md](SHARED_COMPILER_COMPLETION.md).
+
+Current global inventory **4714/5063 (93.11%)**, **349 open**. System/shared **670/670 (100.00%), 0 open**; engine **124 open**, AI **225 open**. **16** explicit unfinished boundaries and **283** provisional open assignments remain. Project/filter membership **288 CPP / 262 headers**, **2814** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Six integrating units pass Win32 syntax-only checks. Private unlinked /Od and /O2 listings verify raw tail jumps with GS/CFG; full native identities, branch equivalence, relocated children, notification storage, inventory, naming and project/filter checks pass. No build, tests or game run occurred. The shared/system block is closed; next remaining blocks are engine and computer AI; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## x87 dispatch, completion and public math entries - 2026-10-12
 
 Fifteen further Windows entries now connect completion, preparation, both classifiers and nine public/x87 math entries. Native operations, Windows special/error policy and all sixteen atan2 callbacks are connected; the original positive-zero axis behavior is preserved. Thirty of the requested 32 entries are implemented; only the two compiler entries remain open. See [SHARED_X87_DISPATCH_COMPLETION.md](SHARED_X87_DISPATCH_COMPLETION.md).

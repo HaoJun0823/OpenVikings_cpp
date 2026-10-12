@@ -109,6 +109,12 @@
     <ClCompile Include="XBTokenList.cpp" />
     <ClCompile Include="XCPU.cpp" />
     <ClCompile Include="XCrtFileAccess.cpp" />
+    <ClCompile Include="XCrtCompiler.cpp">
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+    </ClCompile>
     <ClCompile Include="XCrtMath.cpp">
       <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
       <FloatingPointModel>Strict</FloatingPointModel>

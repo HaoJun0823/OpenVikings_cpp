@@ -1,3 +1,1 @@
 Address,CurrentName,Group,Implemented,WindowsEvidence,AuditedOpenChildren,AuditedCompletedChildren
-004E7D40,NXBasics::Runtime_ProbeStack,Compiler and unwind,False,"EAX size, page probes, rewrites ESP and moves return address; compiler-special entry",,
-004EC67E,NXBasics::Runtime_LocalUnwind,Compiler and unwind,False,Temporary FS registration; walk 12-byte scope entries; update try-level before notification and termination callback; restore registration,,

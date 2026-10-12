@@ -336,6 +336,9 @@
     <ClCompile Include="XCrtFileAccess.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>
+    <ClCompile Include="XCrtCompiler.cpp">
+      <Filter>Runtime</Filter>
+    </ClCompile>
     <ClCompile Include="XCrtMath.cpp">
       <Filter>Runtime</Filter>
     </ClCompile>

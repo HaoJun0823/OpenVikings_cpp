@@ -523,6 +523,11 @@ namespace NXBasics
     std::int32_t Runtime_SelectHeapMode();
 
     int Runtime_InitializeHeap(std::int32_t enableSerialization);
+    bool Runtime_InitializeCompilerBackend();
+    // Raw x86 compiler entry: size is in EAX; no ordinary C++ argument/return ABI.
+    void __cdecl Runtime_ProbeStack();
+    // Raw x86 funclet entry: the original frame pointer is inherited in EBP.
+    void __cdecl Runtime_LocalUnwind(void* registration, std::int32_t stopLevel);
     EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* context, void** dispatcherContext);
     void Runtime_GlobalUnwind(void* targetFrame);
     std::uint32_t Runtime_NotifyNonLocalGoto(std::uint32_t destination, const void* originalFrame);
@@ -994,7 +999,7 @@ namespace NXBasics
     extern std::int32_t gRuntimeExceptionActionCount;
 
     // Original data: 0050c9f4 through 0050ca03.
-    extern volatile RuntimeNonLocalGotoNotification gRuntimeNonLocalGotoNotification;
+    extern volatile RuntimeNonLocalGotoNotification& gRuntimeNonLocalGotoNotification;
 
     // Original table: 0050ca08..0050ca98 (exclusive).
     extern const RuntimeFatalMessage gRuntimeFatalMessages[];

@@ -518,9 +518,6 @@ namespace NXBasics
     // Original data: 0050c9ec.
     std::int32_t gRuntimeExceptionActionCount = 10;
 
-    // Original data: 0050c9f4 through 0050ca03; complete native notification record.
-    volatile RuntimeNonLocalGotoNotification gRuntimeNonLocalGotoNotification{0x19930520u, 0, 0, 0};
-
     // Original table: 0050ca08..0050ca98 (exclusive).
     const RuntimeFatalMessage gRuntimeFatalMessages[] = {
         {2, "R6002\r\n- floating point not loaded\r\n"},				  // 0050ca08; text 004fbde8.
@@ -7758,7 +7755,7 @@ namespace NXBasics
         _global_unwind2(targetFrame);
     }
 
-    // Original function: FUN_004ec65c; the containing legacy FS-chain unwind routine remains unresolved.
+    // Original function: FUN_004ec65c; C++ form of the verified native handler used by local unwind.
     EXCEPTION_DISPOSITION __cdecl Runtime_LocalUnwindHandler(EXCEPTION_RECORD* exception, void* establisherFrame, CONTEXT* /*context*/, void** dispatcherContext)
     {
         if ((exception->ExceptionFlags & 6u) == 0) return ExceptionContinueSearch;
