@@ -73,18 +73,6 @@ namespace NC2E2
 void __fastcall Bitmap_ZoomIn(NXBasics::CBitmap *) {}
 
 
-// TEMPORARY DUMMY: Windows address 0047D37B; implementation pending.
-    // Naming reference: NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw.
-void __fastcall Display_l_DE_SpecialOverlay_Rain_Draw(void *) {}
-
-// TEMPORARY DUMMY: Windows address 0047D64A; implementation pending.
-    // Naming reference: NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Snow_Draw.
-void __fastcall Display_l_DE_SpecialOverlay_Snow_Draw(void *) {}
-
-// TEMPORARY DUMMY: Windows address 0047D918; implementation pending.
-    // Naming reference: NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw.
-void __fastcall Display_l_DE_SpecialOverlay_Sand_Draw(void *) {}
-
 
 
 // TEMPORARY DUMMY: Windows address 004990E4; implementation pending.

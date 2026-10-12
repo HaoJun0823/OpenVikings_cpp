@@ -1,5 +1,13 @@
 # Reverse-Engineering State
 
+## Windows weather drawing completed - 2026-10-12
+
+Ten native entries now implement rain, snow and sand drawing, sector density interpolation and the original local random seed initialization; three drawing dummies are removed. See [ENGINE_WEATHER_COMPLETION.md](ENGINE_WEATHER_COMPLETION.md).
+
+Current global inventory **4724/5063 (93.30%)**, **339 open**. System/shared **672/672 (100.00%), 0 open**; engine **114 open**, AI **225 open**. **13** explicit unfinished boundaries and **276** provisional open assignments remain. Project/filter membership **290 CPP / 264 headers**, **2821** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+Five integrating units pass MSVC Win32 syntax-only checks. Static Windows/Game.exe instruction and table audits, distinct naming, dummy removal and project/filter checks pass. No build, tests or game run occurred. Continue the graphics engine as requested; private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Complete shared compiler entries and 670-entry block - 2026-10-12
 
 The last two compiler entries now bind fully checked legacy runtime bodies through compiler-generated raw tail jumps. Original stack probes, equality-based scope walk, collision handler, inherited frames and shared native notification storage are preserved. All 670 shared entries and all 32 requested final entries are implemented; deployment and exceptional-runtime validation limits remain explicit. See [SHARED_COMPILER_COMPLETION.md](SHARED_COMPILER_COMPLETION.md).

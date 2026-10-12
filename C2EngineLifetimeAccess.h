@@ -7,6 +7,9 @@ namespace NC2E2
     void* E2MapWeatherManagerSectorManager_GetExistingObjectPtr();
     extern void* gE2Manager;
     void E2MapWeatherManagerSectorManager_WeatherSetRectangle(void* manager, std::uint32_t first, std::uint32_t second, std::int32_t type, std::int32_t density);
+    std::int32_t E2MapWeatherManagerSectorManager_Snow_GetDensity(void* manager, std::uint32_t point, bool ignoreDark, std::int32_t playerId);
+    std::int32_t E2MapWeatherManagerSectorManager_Rain_GetDensity(void* manager, std::uint32_t point, bool ignoreDark, std::int32_t playerId);
+    std::int32_t E2MapWeatherManagerSectorManager_Sand_GetDensity(void* manager, std::uint32_t point, bool ignoreDark, std::int32_t playerId);
     void E2Manager_Destruct(void* manager);
     void* __fastcall E2MapWeatherManagerSectorManager_Construct(void* manager, void* unusedEdx);
     void* __fastcall E2StaticDataTexturesManager_Construct(void* manager, void* unusedEdx);

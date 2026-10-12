@@ -637,9 +637,9 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0047D14D,NC2E2::Display_DE_ObjectsToMark_Human_GetMarkType,NC2E2::C2DEngineDisplay::DE_ObjectsToMark_Human_GetMarkType,46622,Original Mac name; Windows x86 control flow and object offsets confirmed
 0047D1C7,NC2E2::Display_DE_ObjectsToMark_Animal_GetMarkType,NC2E2::C2DEngineDisplay::DE_ObjectsToMark_Animal_GetMarkType,46661,Original Mac name; Windows x86 control flow and object offsets confirmed
 0047D241,NC2E2::Display_DE_ObjectsToMark_Vehicle_GetMarkType,NC2E2::C2DEngineDisplay::DE_ObjectsToMark_Vehicle_GetMarkType,46700,Original Mac name; Windows x86 control flow and object offsets confirmed
-0047D37B,Display_l_DE_SpecialOverlay_Rain_Draw,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw,46779,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0047D64A,Display_l_DE_SpecialOverlay_Snow_Draw,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Snow_Draw,46929,Mac symbol; Windows call sequence/layout identifies the corresponding routine
-0047D918,Display_l_DE_SpecialOverlay_Sand_Draw,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw,47068,Mac symbol; Windows call sequence/layout identifies the corresponding routine
+0047D37B,NC2E2::Display_l_DE_SpecialOverlay_Rain_Draw,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Rain_Draw,46781,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0047D64A,NC2E2::Display_l_DE_SpecialOverlay_Snow_Draw,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Snow_Draw,46931,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0047D918,NC2E2::Display_l_DE_SpecialOverlay_Sand_Draw,NC2E2::C2DEngineDisplay::l_DE_SpecialOverlay_Sand_Draw,47070,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0047E669,E2Manager_Inform_SetExplorationState,NC2E2::CE2Manager::Inform_SetExplorationState,65599,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0047E936,NC2E2::E2Manager_sl_Callback_ObjectDisplayStateInLogicChanged,NC2E2::CE2Manager::sl_Callback_ObjectDisplayStateInLogicChanged,64817,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 0047EA9F,NC2E2::E2Manager_sl_Callback_MapIO,NC2E2::CE2Manager::sl_Callback_MapIO,64875,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -2813,3 +2813,10 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 004EC709,NXBasics::Runtime_NotifyNonLocalGotoWithCode,,,"Windows Game.exe alternate entry keeps ECX code and EAX destination/EBP frame; ordered code/destination/frame writes at50C9F4 record; distinct recompiled explicit-input binding, not merged with frame+8 entry004EC712; newly identified native address, no Mac CRT counterpart established"
 00480576,NC2E2::E2DynamicDataHumanManager_HumanJobChanged,NC2E2::CE2DynamicDataHumanManager::HumanJobChanged,5166,Windows ASM/Game.exe establish behavior and correspondence; Mac header used only for naming
 00480676,NC2E2::E2DynamicDataHumanManager_HumanArmorChanged,NC2E2::CE2DynamicDataHumanManager::HumanArmorChanged,5167,Windows ASM/Game.exe establish behavior and correspondence; Mac header used only for naming
+00410C2D,NXBasics::CRandom::CRandom,NXBasics::CRandom::CRandom,36590,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00410C3F,NXBasics::CRandom::SetSeed,NXBasics::CRandom::SetSeed,36601,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00484D77,NC2E2::E2MapWeatherManagerSectorManager_Snow_GetDensity,NC2E2::CE2MapWeatherManagerSectorManager::Snow_GetDensity,68634,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00484E80,NC2E2::E2MapWeatherManagerSectorManager_Rain_GetDensity,NC2E2::CE2MapWeatherManagerSectorManager::Rain_GetDensity,68889,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+00484F85,NC2E2::E2MapWeatherManagerSectorManager_Sand_GetDensity,NC2E2::CE2MapWeatherManagerSectorManager::Sand_GetDensity,68997,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0048534A,NC2E2::E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage,NC2E2::CE2MapWeatherManagerSectorManager::l_Coordinates_GetInSectorXPercentage,68791,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
+0048538F,NC2E2::E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage,NC2E2::CE2MapWeatherManagerSectorManager::l_Coordinates_GetInSectorYPercentage,68824,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming

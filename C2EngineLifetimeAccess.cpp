@@ -207,6 +207,101 @@ namespace NC2E2
         const std::uint32_t offset = (static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u;
         return static_cast<std::byte*>(Read<void*>(manager, 8)) + offset;
     }
+    // Original function: FUN_0048534a.
+    static std::int32_t E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(const void* manager, const void* point)
+    {
+        const auto x = static_cast<std::int32_t>(Read<std::int16_t>(point, 0));
+        const auto sector = (x - 5) / 10;
+        if (sector < 0 || sector >= Read<std::int32_t>(manager, 0)) return 0;
+        const auto percentage = (x - sector * 10 - 5) * 100 / 10;
+        return percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
+    }
+
+    // Original function: FUN_0048538f.
+    static std::int32_t E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage(const void* manager, const void* point)
+    {
+        const auto y = static_cast<std::int32_t>(Read<std::int16_t>(point, 2));
+        const auto sector = (y - 5) / 10;
+        if (sector < 0 || sector >= Read<std::int32_t>(manager, 4)) return 0;
+        const auto percentage = (y - sector * 10 - 5) * 100 / 10;
+        return percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
+    }
+
+    // Original function: FUN_00484d77; the Windows body does not read ignoreDark or playerId.
+    std::int32_t E2MapWeatherManagerSectorManager_Snow_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
+    {
+        NC2Logic::MapMigPoint_ValidatePosition(&point);
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - 5) / 10;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - 5) / 10;
+        const auto width = Read<std::int32_t>(manager, 0);
+        const auto height = Read<std::int32_t>(manager, 4);
+        const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
+        const auto sectorY = y < 0 ? 0 : y >= height ? height - 1 : y;
+        const auto percentageX = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(manager, &point);
+        const auto percentageY = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage(manager, &point);
+        const auto* first = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY);
+        const auto* second = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY);
+        const auto* third = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY + 1);
+        const auto* fourth = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY + 1);
+        // x86 IMUL/ADD/SUB wrap at 32 bits before each signed division by 100.
+        const auto topLeft = Read<std::uint32_t>(first, 4);
+        const auto bottomLeft = Read<std::uint32_t>(third, 4);
+        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, 4) - topLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
+        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, 4) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
+        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / 100));
+        return density < 0 ? 0 : density >= 10000 ? 10000 : density;
+    }
+
+    // Original function: FUN_00484e80; the Windows body does not read ignoreDark or playerId.
+    std::int32_t E2MapWeatherManagerSectorManager_Rain_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
+    {
+        NC2Logic::MapMigPoint_ValidatePosition(&point);
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - 5) / 10;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - 5) / 10;
+        const auto width = Read<std::int32_t>(manager, 0);
+        const auto height = Read<std::int32_t>(manager, 4);
+        const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
+        const auto sectorY = y < 0 ? 0 : y >= height ? height - 1 : y;
+        const auto percentageX = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(manager, &point);
+        const auto percentageY = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage(manager, &point);
+        const auto* first = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY);
+        const auto* second = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY);
+        const auto* third = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY + 1);
+        const auto* fourth = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY + 1);
+        // x86 IMUL/ADD/SUB wrap at 32 bits before each signed division by 100.
+        const auto topLeft = Read<std::uint32_t>(first, 0);
+        const auto bottomLeft = Read<std::uint32_t>(third, 0);
+        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, 0) - topLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
+        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, 0) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
+        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / 100));
+        return density < 0 ? 0 : density >= 10000 ? 10000 : density;
+    }
+
+    // Original function: FUN_00484f85; the Windows body does not read ignoreDark or playerId.
+    std::int32_t E2MapWeatherManagerSectorManager_Sand_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
+    {
+        NC2Logic::MapMigPoint_ValidatePosition(&point);
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - 5) / 10;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - 5) / 10;
+        const auto width = Read<std::int32_t>(manager, 0);
+        const auto height = Read<std::int32_t>(manager, 4);
+        const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
+        const auto sectorY = y < 0 ? 0 : y >= height ? height - 1 : y;
+        const auto percentageX = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(manager, &point);
+        const auto percentageY = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage(manager, &point);
+        const auto* first = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY);
+        const auto* second = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY);
+        const auto* third = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY + 1);
+        const auto* fourth = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY + 1);
+        // x86 IMUL/ADD/SUB wrap at 32 bits before each signed division by 100.
+        const auto topLeft = Read<std::uint32_t>(first, 8);
+        const auto bottomLeft = Read<std::uint32_t>(third, 8);
+        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, 8) - topLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
+        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, 8) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
+        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / 100));
+        return density < 0 ? 0 : density >= 10000 ? 10000 : density;
+    }
+
     // Original function: FUN_0048520f; Weather_SetRectangle receives two points by value.
     void E2MapWeatherManagerSectorManager_WeatherSetRectangle(void* manager, std::uint32_t first, std::uint32_t second, std::int32_t type, std::int32_t density)
     {

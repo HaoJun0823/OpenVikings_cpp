@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Graphics engine weather checkpoint - 2026-10-12
+
+Rain, snow and sand rendering and their density/random helpers are reconstructed: ten native entries, three dummies removed. Current source inventory: **4724/5063 (93.30%), 339 open**; engine **564/678, 114 open**, AI **96/321, 225 open**. CRandom's two proven general-helper entries move out of the provisional graphics region; shared/system stays complete at **672/672**. See [ENGINE_WEATHER_COMPLETION.md](ENGINE_WEATHER_COMPLETION.md) for Windows evidence and floating-point/live-validation limits.
+
+Continue the graphics engine with bitmap ZoomIn (0040EEFA) and its related storage/drawing operations, followed by remaining engine initialization and enclosing rendering callbacks. No build or game run is authorized by this checkpoint.
+
 ## Roadmap after 100% reconstruction - 2026-10-11
 
 User-requested follow-up checklist for the phase after the faithful Windows reconstruction reaches 100%. These tasks do not change the current reconstruction priorities or completion counts. Modernization belongs to the subsequent Renewed phase.

@@ -789,6 +789,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C2EngineParticleDrawing.cpp" />
+    <ClCompile Include="C2EngineWeatherDrawing.cpp" />
+    <ClInclude Include="C2EngineWeatherDrawing.h" />
+    <ClCompile Include="XRandom.cpp" />
+    <ClInclude Include="XRandom.h" />
     <ClInclude Include="C2EngineParticleDrawing.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1463,6 +1463,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C2EngineParticleDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClCompile Include="C2EngineWeatherDrawing.cpp"><Filter>Engine</Filter></ClCompile>
+    <ClInclude Include="C2EngineWeatherDrawing.h"><Filter>Engine</Filter></ClInclude>
+    <ClCompile Include="XRandom.cpp"><Filter>Core</Filter></ClCompile>
+    <ClInclude Include="XRandom.h"><Filter>Core</Filter></ClInclude>
     <ClInclude Include="C2EngineParticleDrawing.h"><Filter>Engine</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
