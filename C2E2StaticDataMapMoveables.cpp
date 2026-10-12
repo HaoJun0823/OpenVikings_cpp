@@ -12,6 +12,31 @@
 
 namespace NC2E2
 {
+    // Original function: FUN_0048cc8f; the original destructor is an empty RET.
+    static void __cdecl SequenceTokenList_AtExit() {}
+    // Original function: FUN_0048cc8e; the original destructor is an empty RET.
+    static void __cdecl AnimationTokenList_AtExit() {}
+    // Original function: FUN_0048cc8d; the original destructor is an empty RET.
+    static void __cdecl WalkTokenList_AtExit() {}
+    // Original function: FUN_0048cc8c; the original destructor is an empty RET.
+    static void __cdecl AnimalJobTokenList_AtExit() {}
+    // Original function: FUN_0048cc8b; the original destructor is an empty RET.
+    static void __cdecl VehicleJobTokenList_AtExit() {}
+    // Original function: FUN_0048d026; the original destructor is an empty RET.
+    static void __cdecl AnimationSelectionRandom_AtExit() {}
+    template<void (__cdecl* AtExit)()> static NXBasics::CTokenList& GetLazyTokenList(const NXBasics::SToken* tokens)
+    {
+        static bool initialized = false;
+        alignas(NXBasics::CTokenList) static std::byte storage[sizeof(NXBasics::CTokenList)];
+        if (!initialized)
+        {
+            initialized = true;
+            ::new (storage) NXBasics::CTokenList(tokens);
+            NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AtExit));
+        }
+        return *reinterpret_cast<NXBasics::CTokenList*>(storage);
+    }
+
     namespace
     {
         using NC2Lifetime::Read;
@@ -37,12 +62,25 @@ namespace NC2E2
         NC2Logic::SGameRandomState gAnimationSelectionRandom{};
         bool gAnimationSelectionRandomInitialized = false; // Original initialization bit 005689BD & 1.
 
+        // Original function: FUN_0048cce2; the preceding count is not initialized here.
+        void* StaticMoveableAnimation_Construct(void* group)
+        {
+            ::new (static_cast<std::byte*>(group) + 4) AnimationList(false);
+            return group;
+        }
+        // Original function: FUN_0048ccfd.
+        void* StaticMoveableShadow_Construct(void* group)
+        {
+            ::new (static_cast<std::byte*>(group) + 4) WalkList(false);
+            return group;
+        }
+
         // Original function: FUN_0048cc90; SFastAnimationDataAccess constructor.
         void FastAnimationDataAccess_Construct(void* groups)
         {
             for (std::uint32_t tribe = 0; tribe < 42; ++tribe)
                 for (std::uint32_t job = 0; job < 56; ++job)
-                    ::new (static_cast<std::byte*>(groups) + 8 + tribe * 0x544u + job * 0x18u) AnimationList(false);
+                    StaticMoveableAnimation_Construct(static_cast<std::byte*>(groups) + 4 + tribe * 0x544u + job * 0x18u);
         }
 
         // Original function: FUN_0048ccb9; SFastWalkDataAccess constructor.
@@ -50,7 +88,7 @@ namespace NC2E2
         {
             for (std::uint32_t tribe = 0; tribe < 42; ++tribe)
                 for (std::uint32_t job = 0; job < 56; ++job)
-                    ::new (static_cast<std::byte*>(groups) + 8 + tribe * 0x544u + job * 0x18u) WalkList(false);
+                    StaticMoveableShadow_Construct(static_cast<std::byte*>(groups) + 4 + tribe * 0x544u + job * 0x18u);
         }
 
         template<class T> T* Allocate(std::uint32_t count)
@@ -115,7 +153,7 @@ namespace NC2E2
             auto* record = records;
             for (char* group = reader.GetFirstGroup("jobgraphics"); group != nullptr; group = reader.GetNextGroup("jobgraphics"), record += 0x28)
                 while (reader.GetNextCommandLineInGroup() != nullptr)
-                    switch (NXBasics::XB_Token_FindTokenInArray(tokens, reader.GetCurrentName()))
+                    switch ((tokens == gAnimalJobTokens ? GetLazyTokenList<AnimalJobTokenList_AtExit>(tokens) : GetLazyTokenList<VehicleJobTokenList_AtExit>(tokens)).FindToken(reader.GetCurrentName()))
                     {
                     case 0x6C6F7472: Write<std::uint32_t>(record, 0, static_cast<std::uint32_t>(reader.GetInt())); break;
                     case 0x6C6F6A6F:
@@ -165,7 +203,7 @@ namespace NC2E2
                         reader.SetCurrentLineToGroupStart();
                         std::uint32_t sequence = 0;
                         while (reader.GetNextCommandLineInGroup() != nullptr)
-                            switch (NXBasics::XB_Token_FindTokenInArray(gSequenceTokens, reader.GetCurrentName()))
+                            switch (GetLazyTokenList<SequenceTokenList_AtExit>(gSequenceTokens).FindToken(reader.GetCurrentName()))
                             {
                             case 0x696C6962: std::strncpy(library->imageLibrary, reader.GetString(), 99); break;
                             case 0x736C6962: std::strncpy(library->shadowLibrary, reader.GetString(), 99); break;
@@ -193,7 +231,7 @@ namespace NC2E2
                         bool gotFrames = false, gotDirectionFrames = false;
                         while (reader.GetNextCommandLineInGroup() != nullptr)
                         {
-                            const auto token = NXBasics::XB_Token_FindTokenInArray(gAnimationTokens, reader.GetCurrentName());
+                            const auto token = GetLazyTokenList<AnimationTokenList_AtExit>(gAnimationTokens).FindToken(reader.GetCurrentName());
                             switch (token)
                             {
                             case 0x6C6F7472: if (animation->tribe == 0) animation->tribe = static_cast<std::uint32_t>(reader.GetInt()); break;
@@ -281,7 +319,7 @@ namespace NC2E2
                         std::uint32_t walkFrames[8][200], turnFrames[8][200], walkCounts[8]{}, turnCounts[8]{};
                         while (reader.GetNextCommandLineInGroup() != nullptr)
                         {
-                            const auto token = NXBasics::XB_Token_FindTokenInArray(gWalkTokens, reader.GetCurrentName());
+                            const auto token = GetLazyTokenList<WalkTokenList_AtExit>(gWalkTokens).FindToken(reader.GetCurrentName());
                             switch (token)
                             {
                             case 0x6C6F7472: walk->tribe = static_cast<std::uint32_t>(reader.GetInt()); break;
@@ -342,7 +380,7 @@ namespace NC2E2
         if (next == nullptr || next->action != action) return record;
         std::uint32_t count = 1;
         do { choices[count++] = next; if (count == 10) break; next = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.Next()); } while (next != nullptr && next->action == action);
-        if (!gAnimationSelectionRandomInitialized) { gAnimationSelectionRandomInitialized = true; gAnimationSelectionRandom.currentState = 0x5432ACE0u; gAnimationSelectionRandom.seed = 0x5432ACE0u; }
+        if (!gAnimationSelectionRandomInitialized) { gAnimationSelectionRandomInitialized = true; gAnimationSelectionRandom.currentState = 0x5432ACE0u; gAnimationSelectionRandom.seed = 0x5432ACE0u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AnimationSelectionRandom_AtExit)); }
         return choices[NC2Logic::Random_Get(gAnimationSelectionRandom) % count];
     }
 

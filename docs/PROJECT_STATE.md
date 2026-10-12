@@ -1,5 +1,13 @@
 # OpenVikings Project State
 
+## Graphics engine remainder completed - 2026-10-12
+
+All 107 previously open engine entries now have native implementations. The current engine category is 665/665; twelve completed basic, fish-iterator and moveable-position entries move to their proven owners. No address is removed. Macro maps, manager callbacks, debug/fish drawing and all related lifetimes are connected; seven unfinished engine boundaries are removed. See [ENGINE_REMAINDER_COMPLETION.md](ENGINE_REMAINDER_COMPLETION.md).
+
+Current global inventory **4838/5063 (95.56%)**, **225 open**. System/shared **680/680 (100.00%), 0 open**; engine **0 open**, AI **225 open**. **5** explicit unfinished boundaries and **170** provisional open assignments remain. Project/filter membership **291 CPP / 265 headers**, **2929** unique naming rows and **17** unmatched declaration signatures. No native address is removed from the denominator.
+
+All 22 affected C++ units pass MSVC Win32 C++17 syntax-only checks without diagnostics. Windows ASM/Game.exe byte comparisons, complete enclosing-renderer review, native-entry/name inventories and project/filter parity checks pass. No build, tests or game run occurred. The next reconstruction block is AI/assistant; live validation remains separate. Private tooling/handoff stays in ignored `.codex-work/`.
+
 ## Graphics engine bitmap zoom and half-size copy checkpoint - 2026-10-12
 
 Seven native bitmap/rectangle entries are reconstructed, including in-place zoom and ordinary/optimized half-size copies. The ZoomIn dummy is removed; the existing display update now calls the original half-size entry instead of FitIn. Engine inventory is **570/677 (84.19%), 107 open**; the rectangle predicate moves from the provisional graphics region to shared basics. See [ENGINE_BITMAP_COMPLETION.md](ENGINE_BITMAP_COMPLETION.md).

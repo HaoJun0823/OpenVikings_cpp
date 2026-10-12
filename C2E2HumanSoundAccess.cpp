@@ -15,17 +15,91 @@
 #include "C2VehicleAccess.h"
 #include "DSManager.h"
 #include "XCrtFileAccess.h"
+#include "C2E2StaticDataHumanMisc.h"
+#include "C2EngineObjectData.h"
+#include "C2EngineMapTerrainAccess.h"
+#include "C2MapArea.h"
+#include "C2MissionStartObjects.h"
 
 namespace NC2E2
 {
     using NC2Lifetime::Read;
 
-    // Original function: FUN_0047ec5b; sound and particle branches are connected.
-    // Other manager events remain unfinished; Windows returns true for ignored events.
+    // Original function: FUN_0047ec5b.
     bool __cdecl E2Manager_sl_Callback_Misc(std::uint32_t type, std::uint32_t, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t parameter3)
     {
         switch (type)
         {
+        case 0x1D:
+        {
+            const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
+            if (NC2Logic::House_GetHouseMainType(house) == 6) return true;
+            const auto* area = static_cast<const NC2Logic::CMapArea*>(NC2Logic::House_Misc_WalkBlockArea_GetPtr(house));
+            const auto root = Read<std::uint32_t>(house, 0x1C);
+            for (std::uint32_t rowIndex = 0; rowIndex < area->rowCount; ++rowIndex)
+            {
+                const auto* row = area->rows + rowIndex;
+                std::uint32_t point;
+                NC2Logic::MapMigPoint_ConstructOffset(&point, &root, row->x, row->y, false);
+                for (std::uint32_t column = 0; column < row->width; ++column)
+                {
+                    if (NC2Logic::MapMigPoint_IsInsideMap(&point))
+                    {
+                        EngineMap_OverlayPattern_HouseAreaChanged(&point, false);
+                        auto neighbor = point;
+                        NC2Logic::MapMigPoint_MoveCursorUnwrapped(neighbor, 4);
+                        for (std::uint32_t direction = 0; direction < 6; ++direction)
+                        {
+                            if (NC2Logic::MapMigPoint_IsInsideMap(&neighbor)) EngineMap_OverlayPattern_HouseAreaChanged(&neighbor, false);
+                            NC2Logic::MapMigPoint_MoveCursorUnwrapped(neighbor, direction);
+                        }
+                    }
+                    NC2Lifetime::Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
+                }
+            }
+            std::int16_t rectangle[4];
+            NC2Logic::MapMigRectangle_Construct(rectangle, static_cast<std::int16_t>(Read<std::uint16_t>(&root, 0) - 20u), static_cast<std::int16_t>(Read<std::uint16_t>(&root, 2) - 20u), 40, 40);
+            C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, 0xFFFFFFFFu);
+            return true;
+        }
+        case 0x1E:
+            std::memset(static_cast<std::byte*>(gDynamicDataHouses.entries) + parameter1 * 0xD0u, 0, 0xCC);
+            return true;
+        case 0x21:
+        {
+            std::int32_t patch;
+            if (parameter2 == 2)
+            {
+                const void* human = NC2Logic::GetHumanPtr(static_cast<std::int32_t>(parameter1));
+                if ((Read<std::uint32_t>(human, 0xB84) & 0x400u) != 0) return true;
+                patch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, 0x10), NC2Logic::Human_IsSexFemale(human));
+            }
+            else if (parameter2 == 1)
+            {
+                // Windows dereferences the null result for an out-of-range good ID.
+                const void* good = static_cast<std::int32_t>(parameter3) < 66 ? static_cast<const std::byte*>(gStaticGoodData) + parameter3 * 4u : nullptr;
+                patch = Read<std::int32_t>(good, 0);
+            }
+            else return true;
+            if (patch != -1)
+            {
+                auto* human = static_cast<std::byte*>(gDynamicDataHumans.entries) + parameter1 * 0x8C8u;
+                StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), reinterpret_cast<NXBasics::CPalette*>(human + 0x44), reinterpret_cast<NXBasics::CPalette*>(human + 0x450), false);
+            }
+            return true;
+        }
+        case 0x22:
+        {
+            char name[128];
+            NXBasics::Runtime_PrintString(name, "human_misc_%3.3d", parameter2);
+            const auto patch = StaticHumanMisc_RandomPalette_GetPatchId(name);
+            if (patch != -1)
+            {
+                auto* human = static_cast<std::byte*>(gDynamicDataHumans.entries) + parameter1 * 0x8C8u;
+                StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), reinterpret_cast<NXBasics::CPalette*>(human + 0x44), reinterpret_cast<NXBasics::CPalette*>(human + 0x450), false);
+            }
+            return true;
+        }
         case 0x1F: E2DynamicDataHumanManager_HumanJobChanged(parameter1, parameter2, parameter3); return true;
         case 0x20: E2DynamicDataHumanManager_HumanArmorChanged(parameter1, parameter2); return true;
         case 0x18:

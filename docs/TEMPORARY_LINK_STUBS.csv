@@ -2,12 +2,5 @@ Address,CurrentName,Status,ReferencingObjects
 0040822E,NC2Logic::AIManager_IO_InitFromScript,Temporary dummy; Windows implementation pending,C2GameMapIO.obj
 00408F7B,NC2Logic::AIManager_l_AI_Callback,Partial Windows callback; unconditional true restored at 00408FA3; tick/player-death dispatch pending; excluded from completion counts,C2LogicLifetimeAccess.obj
 00418D3B,NC2Logic::GameAssistantManager_ls_LogicCallback,Partial Windows callback; unconditional true restored at 00418D76; 12-tick assistant updates pending; excluded from completion counts,C2LogicLifetimeAccess.obj
-0047EC5B,NC2E2::E2Manager_sl_Callback_Misc,Partial Windows callback; sound 0x17 and local-player jingle 0x18 plus particle/generator branches 0x1C and 0x23..0x27 plus job/armor graphics 0x1F/0x20 complete; other engine callbacks pending; excluded from completion counts,C2E2HumanSoundAccess.obj
-00489DE0,NC2E2::MacroMapManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-0048AB5C,NC2E2::E2StaticDataGoodManager_Construct,Temporary dummy; Windows implementation pending,C2GameEngineStartup.obj
-004911D5,NC2E2::Display_l_DE_DrawLandscapeAndCreaturesField,Partial native integration; landscape/house/guide/moveable/construction-marker/particle-line drawing and repair sound connected; complete enclosing-entry audit pending; excluded from completion counts,C2EngineDisplayAccess.obj; C2EngineGroundDrawing.obj
-004990E4,Display_l_DE_Debug_DrawMapMoveablesDebugInfos,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-004995D8,Display_l_DE_Debug_DrawGridLines,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
-00499AD5,DrawAtom_FishManager_DoDraw,Temporary dummy; Windows implementation pending,C2EngineDisplayAccess.obj
 00473102,NC2Logic::AISinglePlayerHandler_Messages_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj
 004293FC,NC2Logic::AIHighLevelHandler_Message_Soldier_Attacked,Temporary dummy; original AI group notification pending; excluded from completion counts,C2WeaponHits.obj

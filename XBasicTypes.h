@@ -89,6 +89,9 @@ namespace NXBasics
         void CombineWith(const SRectangle& other) noexcept;
         void Inflate(std::int32_t horizontal, std::int32_t vertical) noexcept;
         bool IsInside(const SRectangle& other) const noexcept;
+        void MovePosition(std::int32_t horizontal, std::int32_t vertical) noexcept;
+        bool CutInsideX(const SRectangle& other) noexcept;
+        void MakeSizeLongAlligned() noexcept;
 
         // Original function: FUN_0041046d
         void CutInside(const SRectangle& other) noexcept
@@ -189,6 +192,8 @@ namespace NXBasics
         std::uint8_t reserved;  // +0x03
 
         SColorRGB() noexcept;
+        SColorRGB(const SColorRGB& other) noexcept;
+        std::uint32_t GetGolorsAsLong() const noexcept;
         void SetColors(std::uint8_t redValue, std::uint8_t greenValue, std::uint8_t blueValue) noexcept;
         void Modify(const SColorModifier& modifier) noexcept;
 

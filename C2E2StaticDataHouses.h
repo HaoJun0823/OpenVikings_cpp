@@ -7,6 +7,8 @@
 
 namespace NC2E2
 {
+    std::int32_t StaticDataHouses_GetHouseId(const char* name);
+    std::int32_t StaticDataHouses_GetNextHouseId(std::int32_t previous, std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage);
     // Complete Windows singleton region 00568A58..00568A6F.
     struct SStaticHouseStorage
     {

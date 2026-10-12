@@ -254,6 +254,10 @@ namespace NC2E2
         if (frames.headBobManager != nullptr && frames.headBobId != 0xFFFFFFFFu) output->AddBob(frames.headBobManager, frames.headBobId, AddOffset(offsetX, walkingX), AddOffset(offsetY, walkingY));
     }
 
+    // Original function: FUN_004951a3; the original destructor is an empty RET.
+    static void __cdecl HumanGroupWhiteColor_AtExit() {}
+    // Original function: FUN_004951a2; the original destructor is an empty RET.
+    static void __cdecl HumanGroupBlackColor_AtExit() {}
     // Original function: FUN_00493656; full type-specific sprite and status dispatch.
     void DrawAtom_MapMoveable_DoDraw(std::uint32_t moveableId, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, const void* display, bool centered, std::int32_t playerId)
     {
@@ -405,6 +409,9 @@ namespace NC2E2
         const auto group = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman(Read<std::uint32_t>(human, 4));
         if (group == -1) return;
         static const NXBasics::SColorRGB white(255, 255, 255), black(0, 0, 0);
+        static std::uint8_t initialized = 0;
+        if ((initialized & 1u) == 0) { initialized |= 1u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(HumanGroupWhiteColor_AtExit)); }
+        if ((initialized & 2u) == 0) { initialized |= 2u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(HumanGroupBlackColor_AtExit)); }
         auto* font = Read<NXBasics::CFont*>(display, 0x924);
         const auto labelX = AddOffset(x, 8), labelY = AddOffset(y, -5);
         bitmap->Text_PrintV(font, &black, AddOffset(labelX, -1), labelY, "%d", AddOffset(group, 1));
@@ -513,12 +520,23 @@ namespace NC2E2
         StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), HumanBody(dynamic), HumanHead(dynamic), false);
     }
 
+    // Original function: FUN_0049b3ed; the original destructor is an empty RET.
+    static void __cdecl MarkingWhiteColor_AtExit() {}
+    // Original function: FUN_0049b3ec; the original destructor is an empty RET.
+    static void __cdecl MarkingGreyColor_AtExit() {}
+    // Original function: FUN_0049b3eb; the original destructor is an empty RET.
+    static void __cdecl MarkingFallbackColor_AtExit() {}
+
     // Original function: FUN_0049b337; original static colours have no destructor work.
     const NXBasics::SColorRGB* DrawAtom_Tool_GetMarkingColorRef(std::uint32_t markingType, std::int32_t playerId)
     {
         static const NXBasics::SColorRGB white(255, 255, 255);
         static const NXBasics::SColorRGB grey(170, 170, 170);
         static const NXBasics::SColorRGB fallback(255, 0, 255);
+        static std::uint8_t initialized = 0;
+        if ((initialized & 1u) == 0) { initialized |= 1u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(MarkingWhiteColor_AtExit)); }
+        if ((initialized & 2u) == 0) { initialized |= 2u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(MarkingGreyColor_AtExit)); }
+        if ((initialized & 4u) == 0) { initialized |= 4u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(MarkingFallbackColor_AtExit)); }
         if (markingType == 1) return &white;
         if (markingType == 2) return &grey;
         if (markingType == 3) return Tool_PlayerColors_GetColorRef(playerId);

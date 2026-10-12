@@ -20,7 +20,7 @@ namespace NC2E2
         static_cast<C2DEngineDisplayManager*>(manager)->InformThatStaticMapChanged(static_cast<const std::int16_t*>(rectangle), static_cast<std::uint32_t>(playerId));
     }
     // Original function: FUN_004811ae
-    C2DEngineDisplayManager::C2DEngineDisplayManager() : CKeyEntryListBase(0), mActiveDisplay(nullptr)
+    C2DEngineDisplayManager::C2DEngineDisplayManager() : CDisplayObjectList(0), mActiveDisplay(nullptr)
     {
         sTheObjectPtr = this;
 
@@ -35,15 +35,27 @@ namespace NC2E2
         DAT_00555110 = 0;
     }
 
-    // Original function: FUN_004811e3; list teardown: FUN_004813e8.
+    // Original function: FUN_004811e3.
     C2DEngineDisplayManager::~C2DEngineDisplayManager()
     {
         sTheObjectPtr = nullptr;
+    }
 
+    // Original function: FUN_004813e8. The base destructor releases the list nodes.
+    CDisplayObjectList::~CDisplayObjectList()
+    {
         if (mDestroyValues != 0)
         {
             ClearOwnedEntries();
         }
+    }
+
+    // Original function: FUN_00481420.
+    void* __fastcall CDisplayObjectList::Delete(CDisplayObjectList* list, void* /*unusedEdx*/, std::uint32_t flags)
+    {
+        list->CDisplayObjectList::~CDisplayObjectList();
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(list);
+        return list;
     }
 
     // Original function: FUN_004811ef
@@ -139,7 +151,7 @@ namespace NC2E2
     }
 
     // Original function: FUN_00481405
-    void C2DEngineDisplayManager::DestroyValue(void* value)
+    void CDisplayObjectList::DestroyValue(void* value)
     {
         if (value == nullptr)
         {

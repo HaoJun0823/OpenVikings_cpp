@@ -4,6 +4,8 @@
 
 namespace NC2E2
 {
+    void EngineMap_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern);
+    void EngineMap_Highlighting_Clear();
     const void* Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr(const void* packedMacroPoint, bool firstTriangle);
     void Engine2d_EntryPoint_Tool_GetPatternDescriptionsAroundPoint(const void* packedMicroPoint, const void** descriptions);
     void* __fastcall EngineMap_Construct(void* manager, void* unusedEdx);

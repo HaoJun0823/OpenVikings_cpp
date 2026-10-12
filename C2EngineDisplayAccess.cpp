@@ -2,6 +2,7 @@
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
 #include "C2EngineDisplayAccess.h"
+#include "C2MapMoveableAccess.h"
 #include "C2EngineLandscapeDrawing.h"
 #include "C2EngineParticleDrawing.h"
 #include "C2EngineWeatherDrawing.h"
@@ -36,6 +37,111 @@ extern void __fastcall Display_l_DE_Debug_DrawGridLines(void* display);
 
 namespace NC2E2
 {
+    // Original function: FUN_0047c6fb; thirty packed map points at stride 0x48.
+    static void* DisplaySecondaryObjectReferences_Construct(void* references)
+    {
+        for (std::uint32_t index = 0; index < 30; ++index)
+        {
+            NC2Lifetime::Write<std::uint16_t>(references, index * 0x48u + 0x12, 0);
+            NC2Lifetime::Write<std::uint16_t>(references, index * 0x48u + 0x10, 0);
+        }
+        return references;
+    }
+
+    // Original function: FUN_0047cc5b.
+    void DE_Highlighting_SetState(void* display, bool enabled)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(display, 0x74) == static_cast<std::uint8_t>(enabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(display, 0x74, enabled);
+        NC2Lifetime::Write<std::uint8_t>(display, 0x978, 1);
+    }
+
+    // Original function: FUN_0047ce8e; a missing point returns zero.
+    std::uint32_t DE_Hightlighting_GetHighlightBrightness(const void* display, const void* point)
+    {
+        if (NC2Lifetime::Read<std::uint8_t>(display, 0x74) != 0)
+        {
+            const void* data = EngineMap_GetConstMapMicroPointPtr(point);
+            if (data == nullptr) return 0;
+            const auto flags = NC2Lifetime::Read<std::uint8_t>(data, 2);
+            if ((flags & 1u) != 0) return ((flags & 2u) | 1u) << 6;
+        }
+        return 128;
+    }
+
+    // Original function: FUN_00480fe3; unchecked native array access.
+    const void* Engine2d_EntryPoint_GetPatternDataPtr(std::uint32_t type) { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticPatternStorage.entries) + type * 0x70u); }
+    // Original function: FUN_00480ff1; unchecked native array access.
+    const void* Engine2d_EntryPoint_GetLandscapeDataPtr(std::uint32_t type) { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticLandscapeStorage.entries) + type * 0x8Cu); }
+
+    // Original function: FUN_00481a47; two point copies precede the dimensions.
+    void* S2DEngineDisplayRectangle_Copy(void* destination, const void* source)
+    {
+        NC2Lifetime::Write(destination, 0, NC2Lifetime::Read<std::uint32_t>(source, 0));
+        NC2Lifetime::Write(destination, 4, NC2Lifetime::Read<std::uint32_t>(source, 4));
+        NC2Lifetime::Write(destination, 8, NC2Lifetime::Read<std::uint32_t>(source, 8));
+        NC2Lifetime::Write(destination, 12, NC2Lifetime::Read<std::uint32_t>(source, 12));
+        NC2Lifetime::Write(destination, 16, NC2Lifetime::Read<std::uint32_t>(source, 16));
+        NC2Lifetime::Write(destination, 20, NC2Lifetime::Read<std::uint32_t>(source, 20));
+        return destination;
+    }
+
+    // Original function: FUN_004821b3; wrapped multiply/add precedes signed shift.
+    std::int32_t DED_MapHeightToPixelHeight(const void* description, std::int16_t height)
+    {
+        return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(description, 0x14) * static_cast<std::uint32_t>(height) + 127u) >> 8;
+    }
+
+    // Original function: FUN_0048245d.
+    const void* EngineMap_GetConstMapMacroPointPtr(std::int16_t x, std::int16_t y)
+    {
+        if (x < 0 || x >= static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth()) || y < 0 || y >= static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroHeight())) return nullptr;
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(DAT_00568358, 0)) + (static_cast<std::uint32_t>(static_cast<std::int16_t>(NC2Logic::GameMap_GetMacroWidth())) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u);
+    }
+    // Original function: FUN_004824a5.
+    const void* EngineMap_GetConstMapMicroPointPtr(std::int16_t x, std::int16_t y)
+    {
+        if (x < 0 || x >= NC2Logic::GameMap_GetWidth() || y < 0 || y >= NC2Logic::GameMap_GetHeight()) return nullptr;
+        return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Lifetime::Read<void*>(DAT_00568358, 4)) + (static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 4u);
+    }
+
+    // Original function: FUN_00483f80.
+    bool DisplayObjectReference_Tool_IsHouse(const void* reference, std::uint32_t id)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 4 && NC2Lifetime::Read<std::uint32_t>(reference, 0x28) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x2C) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, id * 0x7E0u + 8u);
+    }
+    // Original function: FUN_00483fad.
+    bool DisplayObjectReference_Tool_IsHuman(const void* reference, std::uint32_t id)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 1 && NC2Lifetime::Read<std::uint32_t>(reference, 8) == id && NC2Lifetime::Read<std::uint32_t>(reference, 12) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, id * 0xC58u + 8u);
+    }
+    // Original function: FUN_00483fda.
+    bool DisplayObjectReference_Tool_IsAnimal(const void* reference, std::uint32_t id)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 2 && NC2Lifetime::Read<std::uint32_t>(reference, 0x10) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x14) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CAnimalArray::mStaticVars, id * 0x98u + 8u);
+    }
+    // Original function: FUN_00484007.
+    bool DisplayObjectReference_Tool_IsVehicle(const void* reference, std::uint32_t id)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 3 && NC2Lifetime::Read<std::uint32_t>(reference, 0x18) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x1C) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, id * 0x54Cu + 8u);
+    }
+    // Original function: FUN_00484034.
+    bool DisplayObjectReference_Tool_IsGuide(const void* reference, std::uint32_t id)
+    {
+        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 5 && NC2Lifetime::Read<std::uint32_t>(reference, 0x30) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x34) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CGuideArray::mStaticVars, id * 0x184u + 0x10u);
+    }
+
+    // Original function: FUN_00484b95; distinct native forwarding entry.
+    static bool DisplayMarkedObject_Tool_IsHouse(const void* reference, std::uint32_t id) { return DisplayObjectReference_Tool_IsHouse(reference, id); }
+    // Original function: FUN_00484ba1.
+    static bool DisplayMarkedObject_Tool_IsHuman(const void* reference, std::uint32_t id) { return DisplayObjectReference_Tool_IsHuman(reference, id); }
+    // Original function: FUN_00484bad.
+    static bool DisplayMarkedObject_Tool_IsAnimal(const void* reference, std::uint32_t id) { return DisplayObjectReference_Tool_IsAnimal(reference, id); }
+    // Original function: FUN_00484bb9.
+    static bool DisplayMarkedObject_Tool_IsVehicle(const void* reference, std::uint32_t id) { return DisplayObjectReference_Tool_IsVehicle(reference, id); }
+    // Original function: FUN_00484bc5.
+    static bool DisplayMarkedObject_Tool_IsGuide(const void* reference, std::uint32_t id) { return DisplayObjectReference_Tool_IsGuide(reference, id); }
+
     // Original function: FUN_0047cfea.
     void Display_DE_ObjectsToMark_AddSecondaryHuman(void* display, std::uint32_t markType, std::uint32_t humanId)
     {
@@ -64,7 +170,7 @@ namespace NC2E2
     static std::uint32_t GetMoveableMarkType(const void* display, std::uint32_t id, std::uint32_t type, std::uint32_t idOffset, const std::byte* objects, std::uint32_t stride)
     {
         using NC2Lifetime::Read;
-        const auto matches = [=](const void* reference) { return Read<std::uint32_t>(reference, 0) == type && Read<std::uint32_t>(reference, idOffset) == id && Read<std::uint32_t>(reference, idOffset + 4) == Read<std::uint32_t>(objects + id * stride, 8); };
+        const auto matches = [=](const void* reference) { return type == 1 ? DisplayMarkedObject_Tool_IsHuman(reference, id) : type == 2 ? DisplayMarkedObject_Tool_IsAnimal(reference, id) : DisplayMarkedObject_Tool_IsVehicle(reference, id); };
         const void* primary = Read<void*>(display, 0xA8);
         if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, 0x44);
         const auto count = Read<std::int32_t>(display, 0xAC);
@@ -81,8 +187,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         const auto* primary = Read<void*>(display, 0xA8);
-        const auto* house = NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize;
-        if (primary != nullptr && Read<std::uint32_t>(primary, 0) == 4 && Read<std::uint32_t>(primary, 0x28) == houseId && Read<std::uint32_t>(primary, 0x2C) == Read<std::uint32_t>(house, 8)) return Read<std::uint32_t>(primary, 0x44);
+        if (primary != nullptr && DisplayMarkedObject_Tool_IsHouse(primary, houseId)) return Read<std::uint32_t>(primary, 0x44);
         for (std::int32_t index = 0; index < Read<std::int32_t>(display, 0xAC); ++index)
         {
             const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
@@ -102,8 +207,7 @@ namespace NC2E2
     std::uint32_t Display_DE_ObjectsToMark_Guide_GetMarkType(const void* display, std::uint32_t guideId)
     {
         using NC2Lifetime::Read;
-        const auto* guide = NC2Logic::CGuideArray::mStaticVars + guideId * NC2Logic::CGuideArray::ElementSize;
-        const auto matches = [=](const void* reference) { return Read<std::uint32_t>(reference, 0) == 5 && Read<std::uint32_t>(reference, 0x30) == guideId && Read<std::uint32_t>(reference, 0x34) == Read<std::uint32_t>(guide, 0x10); };
+        const auto matches = [=](const void* reference) { return DisplayMarkedObject_Tool_IsGuide(reference, guideId); };
         const auto* primary = Read<void*>(display, 0xA8);
         if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, 0x44);
         for (std::int32_t index = 0; index < Read<std::int32_t>(display, 0xAC); ++index)
@@ -155,12 +259,19 @@ namespace NC2E2
         return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(gStaticHumanMiscData) + 0x58u + playerColorId * 0x58u);
     }
 
+    // Original function: FUN_0048b441; the original destructor is an empty RET.
+    static void __cdecl InvalidPlayerColor_AtExit() {}
+    // Original function: FUN_0048b440; the original destructor is an empty RET.
+    static void __cdecl NeutralPlayerColor_AtExit() {}
     // Original function: FUN_0048b3a1; the two exit callbacks are empty.
     const NXBasics::SColorRGB* StaticHumanMisc_ColorIds_GetPlayerColorRef(std::int32_t playerId)
     {
         // Four-byte colors at 00568964 and 00568974; lazy flag bits at 0056895C.
         static const NXBasics::SColorRGB invalid(255, 0, 255);
         static const NXBasics::SColorRGB neutral(80, 80, 80);
+        static std::uint8_t initialized = 0;
+        if ((initialized & 1u) == 0) { initialized |= 1u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(InvalidPlayerColor_AtExit)); }
+        if ((initialized & 2u) == 0) { initialized |= 2u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(NeutralPlayerColor_AtExit)); }
         if (playerId == 20) return &neutral;
         if (playerId >= 20) return &invalid;
         const void* player = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * 0x4A80u);
@@ -514,13 +625,7 @@ namespace NC2E2
 
         DisplayDescription_Construct(display);
 
-        // Original function: FUN_0047c6fb, applied to the subobject at +0xA4.
-        for (std::uint32_t index = 0; index < 30; ++index)
-        {
-            const std::size_t entryOffset = 0xA4u + index * 0x48u;
-            Display_WriteField<std::uint16_t>(display, entryOffset + 0x12, 0);
-            Display_WriteField<std::uint16_t>(display, entryOffset + 0x10, 0);
-        }
+        DisplaySecondaryObjectReferences_Construct(displayBytes + 0xA4);
 
         // Original function: FUN_0042ae54, applied to the rectangle at +0x97A.
         Display_WriteField<std::uint16_t>(display, 0x980, 0);
@@ -1131,6 +1236,8 @@ namespace NC2E2
         Display_WriteField(display, 0x940, endTime);
     }
 
+    // Original function: FUN_0047dc9d; the original destructor is an empty RET.
+    static void __cdecl EarthquakeRandom_AtExit() {}
     // Original function: FUN_0047dbf3; l_DE_SpecialFX_Earthquake_Update.
     static void Display_UpdateEarthquake(void* display)
     {
@@ -1148,6 +1255,8 @@ namespace NC2E2
         // Original lazy CRandom at 00554d90, guarded by 00554d88.
         // 00410c3f leaves this fixed seed unchanged (its bit count is in [8,24]).
         static NC2Logic::SGameRandomState random{ 0x5432ACE0u, 0x5432ACE0u };
+        static bool initialized = false;
+        if (!initialized) { initialized = true; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(EarthquakeRandom_AtExit)); }
         const std::uint32_t dx = NC2Logic::Random_Get(random) % 41u - 20u;
         const std::uint32_t dy = NC2Logic::Random_Get(random) % 21u - 10u;
         Display_WriteField(display, 0x94C, Display_ReadField<std::uint32_t>(display, 0x94C) + dx);
@@ -1449,7 +1558,7 @@ void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* displa
         if (Read<std::uint8_t>(vehicle, 0x548) != 0)
             moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(vehicle, 0x540)), 0x1DC));
     }
-    const void* position = static_cast<const std::byte*>(moveable) + 0x12;
+    const void* position = NC2Logic::MapMoveable_GetMapPositionRef(moveable);
     NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, point, false);
     if (Read<std::uint8_t>(moveable, 0x2C) != 0 && Read<std::uint8_t>(moveable, 0x39) == 0)
     {

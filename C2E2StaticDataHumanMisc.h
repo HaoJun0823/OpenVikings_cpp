@@ -6,6 +6,7 @@ namespace NXBasics { class CPalette; }
 
 namespace NC2E2
 {
+    void* __fastcall E2StaticDataGoodManager_Construct(void* manager, void* unusedEdx);
     void* __fastcall E2StaticDataHumanMiscManager_Construct(void* manager, void* unusedEdx);
     std::int32_t StaticHumanMisc_RandomPalette_GetPatchId(const char* name);
     void StaticHumanMisc_RandomPalette_Execute(std::uint32_t patchId, NXBasics::CPalette* body, NXBasics::CPalette* head, bool deterministic);

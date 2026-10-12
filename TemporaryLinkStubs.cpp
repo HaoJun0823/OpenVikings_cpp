@@ -54,36 +54,6 @@ namespace NC2Logic
     void __fastcall AIHighLevelHandler_Message_Soldier_Attacked(void*, void*, const void*) {}
 }
 
-namespace NC2E2
-{
-    // TEMPORARY DUMMY: Windows address 00489DE0; implementation pending.
-    // Naming reference: NC2E2::CMacroMapManager::CMacroMapManager.
-    void * __fastcall MacroMapManager_Construct(void *, void *) { return nullptr; }
-
-
-    // TEMPORARY DUMMY: Windows address 0048AB5C; implementation pending.
-    // Naming reference: NC2E2::CE2StaticDataGoodManager::CE2StaticDataGoodManager.
-    void * __fastcall E2StaticDataGoodManager_Construct(void *, void *) { return nullptr; }
-
-}
-
-
-
-
-
-
-// TEMPORARY DUMMY: Windows address 004990E4; implementation pending.
-    // Naming reference: NC2E2::C2DEngineDisplay::l_DE_Debug_DrawMapMoveablesDebugInfos.
-void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void *) {}
-
-// TEMPORARY DUMMY: Windows address 004995D8; implementation pending.
-    // Naming reference: NC2E2::C2DEngineDisplay::l_DE_Debug_DrawGridLines.
-void __fastcall Display_l_DE_Debug_DrawGridLines(void *) {}
-
-// TEMPORARY DUMMY: Windows address 00499AD5; implementation pending.
-    // Naming reference: NC2E2::DrawAtom_FishManager_DoDraw.
-void __cdecl DrawAtom_FishManager_DoDraw(void *) {}
-
 // TEMPORARY DUMMY: Windows address 004A002D; implementation pending.
     // Naming reference: NC2InGameGuiManager::CGuiManager::CGuiManager.
 

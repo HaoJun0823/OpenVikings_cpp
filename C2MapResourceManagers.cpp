@@ -17,6 +17,37 @@ namespace NC2Logic
 {
     using namespace NC2Lifetime;
 
+    // Original function: FUN_0049eb44; mode and radius are deliberately untouched.
+    CFishSwarmIterator::CFishSwarmIterator() : mPoint(0), mIndex(-1) {}
+
+    // Original function: FUN_0049eb55; false retains the current mode.
+    std::int32_t CFishSwarmIterator::GetFirstFishSwarmId(bool populatedOnly)
+    {
+        if (populatedOnly) mMode = 1;
+        mIndex = l_GetNext(-1);
+        return mIndex;
+    }
+    // Original function: FUN_0049eb75.
+    std::int32_t CFishSwarmIterator::GetNextFishSwarmId()
+    {
+        if (mIndex == -1) return -1;
+        mIndex = l_GetNext(mIndex);
+        return mIndex;
+    }
+    // Original function: FUN_0049eb91.
+    std::int32_t CFishSwarmIterator::l_GetNext(std::int32_t previous)
+    {
+        auto index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u);
+        while (index < static_cast<CMapFishManager*>(gMapFishManager)->mSwarmCount)
+        {
+            const auto& swarm = static_cast<CMapFishManager*>(gMapFishManager)->mSwarms[index];
+            if ((mMode & 1u) != 0 && swarm.fishCount == 0) { index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u); continue; }
+            if ((mMode & 2u) == 0 || static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(swarm.x, swarm.y, Read<std::int16_t>(&mPoint, 0), Read<std::int16_t>(&mPoint, 2))) <= mRadius) return index;
+            index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u);
+        }
+        return -1;
+    }
+
     namespace
     {
         // Original byte: 00550E60; set by fish-relevant map modification callbacks.

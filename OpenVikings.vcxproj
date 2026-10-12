@@ -503,6 +503,8 @@
     <ClCompile Include="C2EngineMapTerrainAccess.cpp" />
     <ClInclude Include="C2EngineMapTerrainAccess.h" />
     <ClCompile Include="C2EngineMapIO.cpp" />
+    <ClCompile Include="C2EngineMacroMaps.cpp" />
+    <ClInclude Include="C2EngineMacroMaps.h" />
     <ClInclude Include="C2EngineMapIO.h" />
     <ClCompile Include="C2E2StaticDataTransitions.cpp" />
   </ItemGroup>

@@ -24,6 +24,7 @@ namespace NXBasics
 
         void operator=(const CPalette& other);
         void Modify(const SColorModifier& modifier);
+        void l_MakeAllColorsBlack();
 
         // Original function: LAB_0040fdd4
         std::uint32_t Storable_GetId() override

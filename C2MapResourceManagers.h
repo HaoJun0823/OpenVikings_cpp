@@ -37,6 +37,20 @@ namespace NC2Logic
         std::uint32_t continentId;
     };
 
+    class CFishSwarmIterator
+    {
+    public:
+        CFishSwarmIterator();
+        std::int32_t GetFirstFishSwarmId(bool populatedOnly);
+        std::int32_t GetNextFishSwarmId();
+        std::int32_t l_GetNext(std::int32_t previous);
+        std::uint32_t mMode;
+        std::uint32_t mPoint;
+        std::uint32_t mRadius;
+        std::int32_t mIndex;
+    };
+    static_assert(sizeof(CFishSwarmIterator) == 16);
+
     class CMapFishManager
     {
     public:

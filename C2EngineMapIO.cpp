@@ -1,4 +1,5 @@
 #include "C2EngineMapIO.h"
+#include "C2EngineMacroMaps.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDisplayManager.h"
 #include "C2EngineLifetimeAccess.h"
@@ -370,9 +371,7 @@ namespace NC2E2
         case 0x14: E2Manager_l_IO_Savegame_Save(io); break;
         case 0x15: E2Manager_l_IO_Savegame_Load(io); break;
         case 0x16:
-            // Windows 00483E58 has no effect here: all writers of 00568370 belong
-            // to IO_Cleanmap_Load, which clears it after its missing-name warning.
-            // The separate macro-map rebuild entry 004935BA remains untranslated.
+            EngineMap_PostLoad_RebuildIfRequired();
             C2DEngineDisplayManager::sTheObjectPtr->InformThatLoadDone();
             break;
         }

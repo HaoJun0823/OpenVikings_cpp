@@ -79,6 +79,30 @@ namespace
 
 namespace NC2E2
 {
+    // Original function: FUN_004808d3; -1 remains a sentinel at the entry point.
+    std::int32_t Engine2d_EntryPoint_GetNextHouseId(std::int32_t previous, std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage)
+    {
+        return previous == -1 ? -1 : StaticDataHouses_GetNextHouseId(previous, tribe, logicType, stage);
+    }
+
+    // Original function: FUN_0048f73e; the output stage is written only for a match.
+    std::int32_t StaticDataHouses_GetNextHouseId(std::int32_t previous, std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage)
+    {
+        const auto limit = gStaticHouseCount;
+        std::int32_t index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u);
+        if (index >= limit) return -1;
+        const auto entries = gStaticHouseEntries;
+        for (; index < limit; index = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(index) + 1u))
+        {
+            const auto record = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(entries) + static_cast<std::uint32_t>(index) * 0x8BCu + 0x3Cu);
+            if (Read<std::uint32_t>(record, 0x14) != tribe) continue;
+            for (std::uint32_t item = 0; item < Read<std::uint32_t>(record, 0x18); ++item)
+            {
+                if (Read<std::uint32_t>(record, item * 4u) == logicType) { *stage = item; return index; }
+            }
+        }
+        return -1;
+    }
     // Original function: FUN_0048e651; CE2StaticDataHousesManager constructor.
     void* __fastcall E2StaticDataHousesManager_Construct(void* manager, void* /*unusedEdx*/)
     {

@@ -13,6 +13,7 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
+    const NC2Logic::CMapArea* External_Landscape_GetAreaPtr(const void* point, std::uint32_t areaKind);
     bool External_Landscape_SetMapMicroPointLandscape(const void* point, std::int32_t engineId, std::uint32_t valency, bool preserveWalkingBlock, std::int32_t player);
     std::int32_t External_Landscape_GetLandscapeIdByNamePtr(const char* name);
     std::int32_t External_Misc_GetEngineDepotLandscapeId(std::uint32_t tribe, std::uint32_t type);

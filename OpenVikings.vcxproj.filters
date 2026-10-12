@@ -1165,6 +1165,8 @@
     <ClCompile Include="C2EngineMapTerrainAccess.cpp"><Filter>Engine\Map</Filter></ClCompile>
     <ClInclude Include="C2EngineMapTerrainAccess.h"><Filter>Engine\Map</Filter></ClInclude>
     <ClCompile Include="C2EngineMapIO.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClCompile Include="C2EngineMacroMaps.cpp"><Filter>Engine\Map</Filter></ClCompile>
+    <ClInclude Include="C2EngineMacroMaps.h"><Filter>Engine\Map</Filter></ClInclude>
     <ClInclude Include="C2EngineMapIO.h"><Filter>Engine\Map</Filter></ClInclude>
     <ClCompile Include="C2E2StaticDataTransitions.cpp"><Filter>Engine\StaticData</Filter></ClCompile>
   </ItemGroup>

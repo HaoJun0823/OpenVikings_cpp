@@ -10,9 +10,27 @@
 #include "XBTokenList.h"
 #include "XIniFileReader.h"
 #include <cstring>
+#include <new>
 
 namespace NC2E2
 {
+    // Original function: FUN_0048a7fb; the original destructor is an empty RET.
+    static void __cdecl MiscLandscapeTokenList_AtExit() {}
+    // Original function: FUN_0048a7fa; the original destructor is an empty RET.
+    static void __cdecl MiscHouseLandscapeTokenList_AtExit() {}
+    template<void (__cdecl* AtExit)()> static NXBasics::CTokenList& GetLazyTokenList(const NXBasics::SToken* tokens)
+    {
+        static bool initialized = false;
+        alignas(NXBasics::CTokenList) static std::byte storage[sizeof(NXBasics::CTokenList)];
+        if (!initialized)
+        {
+            initialized = true;
+            ::new (storage) NXBasics::CTokenList(tokens);
+            NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AtExit));
+        }
+        return *reinterpret_cast<NXBasics::CTokenList*>(storage);
+    }
+
     // Original function: FUN_00481002.
     std::int32_t Engine2d_EntryPoint_GetLandscapeIdByNamePtr(const char* name) { return E2StaticDataLandscapesManager_GetLandscapeId(name); }
     // Original function: FUN_004825be; Windows argument order and border rejection.
@@ -34,8 +52,8 @@ namespace NC2E2
     void* __fastcall E2StaticDataMiscLandscapeManager_Construct(void* manager, void*)
     {
         using namespace NC2Lifetime;
-        constexpr NXBasics::SToken landscapeTokens[] = {{"logictribetype", 0x6C747274}, {"logiclandscapetype", 0x6C6C7479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
-        constexpr NXBasics::SToken groupTokens[] = {{"logictribetype", 0x6C747274}, {"logichousetype", 0x6C687479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
+        static constexpr NXBasics::SToken landscapeTokens[] = {{"logictribetype", 0x6C747274}, {"logiclandscapetype", 0x6C6C7479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
+        static constexpr NXBasics::SToken groupTokens[] = {{"logictribetype", 0x6C747274}, {"logichousetype", 0x6C687479}, {"landscapename", 0x6C6E616D}, {nullptr, 0}};
         gStaticMiscLandscapeEntryCount = 0;
         gStaticMiscLandscapeEntries = nullptr;
         gStaticMiscLandscapeGroupCount = 0;
@@ -56,7 +74,7 @@ namespace NC2E2
             gStaticMiscLandscapeEntries = entry;
             for (auto* group = reader.GetFirstGroup("tribelandscapelinkdata"); group != nullptr; group = reader.GetNextGroup("tribelandscapelinkdata"), entry += 12)
                 while (reader.GetNextCommandLineInGroup() != nullptr)
-                    switch (NXBasics::XB_Token_FindTokenInArray(landscapeTokens, reader.GetCurrentName()))
+                    switch (GetLazyTokenList<MiscLandscapeTokenList_AtExit>(landscapeTokens).FindToken(reader.GetCurrentName()))
                     {
                     case 0x6C747274: Write(entry, 0, reader.GetInt()); break;
                     case 0x6C6C7479: Write(entry, 4, reader.GetInt()); break;
@@ -74,7 +92,7 @@ namespace NC2E2
                 Write(entry, 16, choices);
                 reader.SetCurrentLineToGroupStart();
                 while (reader.GetNextCommandLineInGroup() != nullptr)
-                    switch (NXBasics::XB_Token_FindTokenInArray(groupTokens, reader.GetCurrentName()))
+                    switch (GetLazyTokenList<MiscHouseLandscapeTokenList_AtExit>(groupTokens).FindToken(reader.GetCurrentName()))
                     {
                     case 0x6C747274: Write(entry, 0, reader.GetInt()); break;
                     case 0x6C687479: Write(entry, 4, reader.GetInt()); break;
@@ -132,6 +150,14 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
+    // Original function: FUN_00480727; engine lookup precedes the logic lookup.
+    const NC2Logic::CMapArea* External_Landscape_GetAreaPtr(const void* point, std::uint32_t areaKind)
+    {
+        const auto engine = NC2E2::EngineMap_GetConstMapMicroPointPtr(point);
+        const auto logic = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
+        const auto valency = NC2Lifetime::Read<std::uint8_t>(logic, 0) == 1 ? NC2Lifetime::Read<std::uint8_t>(logic, 3) : 0;
+        return External_Landscape_GetAreaPtr(NC2Lifetime::Read<std::uint16_t>(engine, 0), valency, areaKind);
+    }
     // Original function: FUN_00480893.
     std::int32_t External_Landscape_GetLandscapeIdByNamePtr(const char* name) { return NC2E2::Engine2d_EntryPoint_GetLandscapeIdByNamePtr(name); }
     // Original function: FUN_00480877.

@@ -9,11 +9,24 @@
 
 namespace NXBasics
 {
+    // Original function: FUN_0040f994; constructs all 256 complete color records.
+    static void ConstructPaletteColors(std::uint8_t (*colors)[4])
+    {
+        for (std::uint32_t index = 0; index < 256; ++index) ::new (colors[index]) SColorRGB();
+    }
+
     // Original function: FUN_0040f95e
     CPalette::CPalette() : mColors{}, mHighColorTable(nullptr), mTrueColorTable(nullptr)
     {
-        // The original additionally clears the RGB channels and invalidates
-        // both caches, which are already zero after initialization.
+        ConstructPaletteColors(mColors);
+        l_MakeAllColorsBlack();
+    }
+
+    // Original function: FUN_0040fbbb; fourth bytes survive; caches are invalidated.
+    void CPalette::l_MakeAllColorsBlack()
+    {
+        for (auto& color : mColors) color[0] = color[1] = color[2] = 0;
+        Palette_PaletteChanged(this);
     }
 
     // Original function: FUN_0040f9b7.

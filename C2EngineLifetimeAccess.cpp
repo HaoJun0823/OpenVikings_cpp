@@ -8,6 +8,7 @@
 #include "C2E2StaticDataMapMoveables.h"
 #include "C2EngineMoveableDrawing.h"
 #include "C2EngineMapIO.h"
+#include "C2EngineMacroMaps.h"
 #include "C2EngineMapTerrainAccess.h"
 #include "C2LifetimeGlobals.h"
 #include "C2LifetimeAccess.h"
@@ -175,6 +176,35 @@ namespace NC2E2
     static void StaticTextureList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticTextureListTag>*>(list)->CRuntimeOwnedList<SStaticTextureListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_00490702.
     static void StaticBobManagerList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticBobManagerListTag>*>(list)->CRuntimeOwnedList<SStaticBobManagerListTag>::~CRuntimeOwnedList(); }
+
+    // Original function: FUN_0048d15c.
+    void* __fastcall StaticMoveableAnimationList_Delete(void* list, void* /*unusedEdx*/, std::uint32_t flags)
+    {
+        StaticMoveableAnimationList_Destruct(list);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(list);
+        return list;
+    }
+    // Original function: FUN_0048d178.
+    void* __fastcall StaticMoveableShadowList_Delete(void* list, void* /*unusedEdx*/, std::uint32_t flags)
+    {
+        StaticMoveableShadowList_Destruct(list);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(list);
+        return list;
+    }
+    // Original function: FUN_0049059d.
+    void* __fastcall StaticTextureList_Delete(void* list, void* /*unusedEdx*/, std::uint32_t flags)
+    {
+        StaticTextureList_Destruct(list);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(list);
+        return list;
+    }
+    // Original function: FUN_0049071f.
+    void* __fastcall StaticBobManagerList_Delete(void* list, void* /*unusedEdx*/, std::uint32_t flags)
+    {
+        StaticBobManagerList_Destruct(list);
+        if ((flags & 1u) != 0) NXBasics::Runtime_Free(list);
+        return list;
+    }
 
     // Original function: FUN_00484ca5; Mac l_SectorData_Free.
     void E2MapWeatherManagerSectorManager_FreeSectorData(void* manager)
@@ -399,13 +429,13 @@ namespace NC2E2
         gE2ParticelManager = nullptr;
     }
     // Original function: FUN_00487556.
-    static void MacroMap_Destruct(void* map)
+    void MacroMap_l_FreeAllData(void* map)
     {
         for (std::uint32_t offset = 0x114; offset <= 0x174; offset += 8) FreeField(map, offset);
         std::memset(map, 0, 0x178);
     }
     // Original function: FUN_00489f2f.
-    static void MacroMapManager_Clear(void* manager)
+    void MacroMapManager_l_FreeAllMacroMaps(void* manager)
     {
         if (Read<void*>(manager, 4) == nullptr) return;
         for (std::int32_t index = 0; index < Read<std::int32_t>(manager, 0); ++index)
@@ -423,7 +453,7 @@ namespace NC2E2
     // Original function: FUN_00489e01.
     static void MacroMapManager_Destruct(void* manager)
     {
-        MacroMapManager_Clear(manager);
+        MacroMapManager_l_FreeAllMacroMaps(manager);
         gMacroMapManager = nullptr;
     }
     // Original function: FUN_0048a47e.
@@ -1134,12 +1164,40 @@ namespace NC2E2
         E2ParticelGeneratorManager_Initialize(generator, "Data\\Engine2D\\Inis\\Particel\\Generator.ini");
         return generator;
     }
-    // Original function: FUN_00486336; the initial record constructors are
-    // zero-only on this path, and l_Initialize clears both complete arrays.
+    // Original function: FUN_004873db; the first eight bytes remain untouched.
+    static void* LogicParticelObject_Construct(void* object)
+    {
+        for (std::uint32_t offset = 8; offset <= 0x50; offset += 8) Write<double>(object, offset, 0.0);
+        Write<std::uint16_t>(object, 0x5A, 0);
+        Write<std::uint16_t>(object, 0x58, 0);
+        return object;
+    }
+    // Original function: FUN_004863b7.
+    static void* ParticelArray_Construct(void* array)
+    {
+        for (std::uint32_t index = 0; index < 10000; ++index)
+        {
+            auto* record = static_cast<std::byte*>(array) + index * 0x130u;
+            LogicParticelObject_Construct(record + 0x20);
+            std::memset(record, 0, 0x130);
+        }
+        return array;
+    }
+    // Original function: FUN_004863e9.
+    static void* ParticelGeneratorArray_Construct(void* array)
+    {
+        for (std::uint32_t index = 0; index < 1000; ++index)
+        {
+            Write<std::uint16_t>(array, index * 0x20u + 2u, 0);
+            Write<std::uint16_t>(array, index * 0x20u, 0);
+        }
+        return array;
+    }
+    // Original function: FUN_00486336.
     void* __fastcall E2ParticelManager_Construct(void* manager, void* /*unusedEdx*/)
     {
-        std::memset(static_cast<std::byte*>(manager) + 0x9F70, 0, 0x2E6308);
-        for (unsigned i = 0; i != 1000; ++i) Write<std::uint32_t>(manager, 0x2F0278 + i * 0x20u, 0);
+        ParticelArray_Construct(static_cast<std::byte*>(manager) + 0x9F70);
+        ParticelGeneratorArray_Construct(static_cast<std::byte*>(manager) + 0x2F0278);
         gE2ParticelManager = manager;
         std::memset(manager, 0, 0x9F6C);
         void* allocation = NXBasics::Runtime_Allocate(8);

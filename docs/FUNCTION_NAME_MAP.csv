@@ -2826,3 +2826,105 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0040D3F8,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized,NXBasics::CBitmap::CopyIntoBitmap_HalfSize_Optimized,11908,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 0040F522,NXBasics::CBitmap::GetUnclippedPixelPtr,NXBasics::CBitmap::GetUnclippedPixelPtr,15885,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00410601,NXBasics::SRectangle::IsInside,NXBasics::SRectangle::IsInside,37284,Windows inclusive endpoint predicate identifies correspondence; Mac symbol used only for naming
+0040F7C6,NXBasics::SColorRGB::SColorRGB,NXBasics::SColorRGB::SColorRGB,27069,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0040F924,NXBasics::SColorRGB::GetGolorsAsLong,NXBasics::SColorRGB::GetGolorsAsLong,27254,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0040F994,NXBasics::ConstructPaletteColors,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0040FBBB,NXBasics::CPalette::l_MakeAllColorsBlack,NXBasics::CPalette::l_MakeAllColorsBlack,27510,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004103D8,NXBasics::SRectangle::MovePosition,NXBasics::SRectangle::MovePosition,37019,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004104D6,NXBasics::SRectangle::CutInsideX,NXBasics::SRectangle::CutInsideX,37125,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00410654,NXBasics::SRectangle::MakeSizeLongAlligned,NXBasics::SRectangle::MakeSizeLongAlligned,37314,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00410B46,NXBasics::XB_Tool_ZeroMemory,NXBasics::XB_Tool_ZeroMemory,39220,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00410C1F,NXBasics::XB_BinaryConvert_T32uToFloat,NXBasics::XB_BinaryConvert_T32uToFloat,39423,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0047C6FB,NC2E2::DisplaySecondaryObjectReferences_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0047CC5B,NC2E2::DE_Highlighting_SetState,NC2E2::C2DEngineDisplay::DE_Highlighting_SetState,46054,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0047CE8E,NC2E2::DE_Hightlighting_GetHighlightBrightness,NC2E2::C2DEngineDisplay::DE_Hightlighting_GetHighlightBrightness,46296,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0047DBCB,NC2Logic::MapMoveable_GetMapPositionRef,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0047DC9D,NC2E2::EarthquakeRandom_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00480727,NC2LogicExternals::External_Landscape_GetAreaPtr,NC2LogicExternals::External_Landscape_GetAreaPtr,59217,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004808D3,NC2E2::Engine2d_EntryPoint_GetNextHouseId,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00480FE3,NC2E2::Engine2d_EntryPoint_GetPatternDataPtr,NC2E2::Engine2d_EntryPoint_GetPatternDataPtr,57864,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00480FF1,NC2E2::Engine2d_EntryPoint_GetLandscapeDataPtr,NC2E2::Engine2d_EntryPoint_GetLandscapeDataPtr,57929,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00481036,NC2E2::Engine2d_EntryPoint_Edit_SetHouse,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+004813E8,NC2E2::CDisplayObjectList::~CDisplayObjectList,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00481420,NC2E2::CDisplayObjectList::Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00481A47,NC2E2::S2DEngineDisplayRectangle_Copy,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+004821B3,NC2E2::DED_MapHeightToPixelHeight,NC2E2::C2DEngineDisplayDescription::DED_MapHeightToPixelHeight,49855,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0048245D,NC2E2::EngineMap_GetConstMapMacroPointPtr,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+004824A5,NC2E2::EngineMap_GetConstMapMicroPointPtr,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00482551,NC2E2::EngineMap_MapMacroPoint_TrianglePattern_SetType,NC2E2::C2DEngineMap::MapMacroPoint_TrianglePattern_SetType,66281,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004832DC,NC2E2::EngineMap_Highlighting_Clear,NC2E2::C2DEngineMap::Highlighting_Clear,67198,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00483E58,NC2E2::EngineMap_PostLoad_RebuildIfRequired,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00483F80,NC2E2::DisplayObjectReference_Tool_IsHouse,NC2Logic::SUserInteractionTargetData::Tool_IsHouse,257783,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00483FAD,NC2E2::DisplayObjectReference_Tool_IsHuman,NC2Logic::SUserInteractionTargetData::Tool_IsHuman,257799,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00483FDA,NC2E2::DisplayObjectReference_Tool_IsAnimal,NC2Logic::SUserInteractionTargetData::Tool_IsAnimal,257822,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484007,NC2E2::DisplayObjectReference_Tool_IsVehicle,NC2Logic::SUserInteractionTargetData::Tool_IsVehicle,257845,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484034,NC2E2::DisplayObjectReference_Tool_IsGuide,NC2Logic::SUserInteractionTargetData::Tool_IsGuide,257861,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484B95,NC2E2::DisplayMarkedObject_Tool_IsHouse,NC2E2::S2DEngineDisplaySearchObject::Tool_IsHouse,52363,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484BA1,NC2E2::DisplayMarkedObject_Tool_IsHuman,NC2E2::S2DEngineDisplaySearchObject::Tool_IsHuman,52375,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484BAD,NC2E2::DisplayMarkedObject_Tool_IsAnimal,NC2E2::S2DEngineDisplaySearchObject::Tool_IsAnimal,52387,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484BB9,NC2E2::DisplayMarkedObject_Tool_IsVehicle,NC2E2::S2DEngineDisplaySearchObject::Tool_IsVehicle,52399,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00484BC5,NC2E2::DisplayMarkedObject_Tool_IsGuide,NC2E2::S2DEngineDisplaySearchObject::Tool_IsGuide,52411,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004863B7,NC2E2::ParticelArray_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+004863E9,NC2E2::ParticelGeneratorArray_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+004873DB,NC2E2::LogicParticelObject_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00487508,NC2E2::MacroMap_Construct,NC2E2::CMacroMap::CMacroMap,59607,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00487551,NC2E2::MacroMap_Destruct,NC2E2::CMacroMap::~CMacroMap,60083,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004875FA,NC2E2::MacroMap_LoadFromIniFile,NC2E2::CMacroMap::LoadFromIniFile,59629,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0048823D,NC2E2::MacroMap_TokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048823E,NC2E2::MacroMap_CreateFromGameMap,NC2E2::CMacroMap::CreateFromGameMap,60156,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0048963E,NC2E2::MacroMap_SetPatternToGameMap,NC2E2::CMacroMap::SetPatternToGameMap,63366,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004896FC,NC2E2::MacroMap_SetTransitionsToGameMap,NC2E2::CMacroMap::SetTransitionsToGameMap,63409,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004897BD,NC2E2::MacroMap_SetLandscapesToGameMap,NC2E2::CMacroMap::SetLandscapesToGameMap,63453,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0048988A,NC2E2::MacroMap_SetHeightsToGameMap,NC2E2::CMacroMap::SetHeightsToGameMap,63591,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489998,NC2E2::MacroMap_SetVertexColorsToGameMap,NC2E2::CMacroMap::SetVertexColorsToGameMap,63671,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489A80,NC2E2::MacroMap_SetRoadsToGameMap,NC2E2::CMacroMap::SetRoadsToGameMap,63731,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489B28,NC2E2::MacroMap_SetHumansToGameMap,NC2E2::CMacroMap::SetHumansToGameMap,63854,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489BD9,NC2E2::MacroMap_SetAnimalsToGameMap,NC2E2::CMacroMap::SetAnimalsToGameMap,63897,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489C84,NC2E2::MacroMap_SetHousesToGameMap,NC2E2::CMacroMap::SetHousesToGameMap,63935,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489D46,NC2E2::MacroMap_SetFishSwarmsToGameMap,NC2E2::CMacroMap::SetFishSwarmsToGameMap,63981,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00489E0E,NC2E2::MacroMapManager_RescanMacroMaps,NC2E2::CMacroMapManager::RescanMacroMaps,64217,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0048A7FA,NC2E2::MiscHouseLandscapeTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048A7FB,NC2E2::MiscLandscapeTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048ACAF,NC2E2::E2StaticDataGoodManager_TokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048B213,NC2E2::RandomPaletteTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048B440,NC2E2::NeutralPlayerColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048B441,NC2E2::InvalidPlayerColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048BACC,NC2E2::JobChangeTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048BACD,NC2E2::JobBaseTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048BD65,NC2E2::HumanNameTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CC8B,NC2E2::VehicleJobTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CC8C,NC2E2::AnimalJobTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CC8D,NC2E2::WalkTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CC8E,NC2E2::AnimationTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CC8F,NC2E2::SequenceTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CCE2,NC2E2::StaticMoveableAnimation_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CCFD,NC2E2::StaticMoveableShadow_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048D026,NC2E2::AnimationSelectionRandom_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048D15C,NC2E2::StaticMoveableAnimationList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048D178,NC2E2::StaticMoveableShadowList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048DB89,NC2E2::StaticTransition_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048F73E,NC2E2::StaticDataHouses_GetNextHouseId,NC2E2::CE2StaticDataHousesManager::GetNextHouseId,74169,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0049059D,NC2E2::StaticTextureList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0049071F,NC2E2::StaticBobManagerList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00493472,NC2E2::MapIO_NewMap,NC2E2::MapIO_NewMap,68188,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004935BA,NC2E2::MapIO_RebuildCurrentMapViaMacroMap,NC2E2::MapIO_RebuildCurrentMapViaMacroMap,68328,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+004951A2,NC2E2::HumanGroupBlackColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+004951A3,NC2E2::HumanGroupWhiteColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00498F28,NC2E2::TooltipBlack_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00498F29,NC2E2::TooltipWhite_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00498F6C,NC2E2::Display_l_DE_Debug_DrawRange,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00499A5D,NC2E2::DebugGridPaleYellow_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00499A5E,NC2E2::DebugGridYellow_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00499A5F,NC2E2::DebugGridRed_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00499A60,NC2E2::DebugGridBlue_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00499A61,NC2E2::DebugGridWhite_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+00499A62,NC2E2::DebugGridGrey_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0049B3EB,NC2E2::MarkingFallbackColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0049B3EC,NC2E2::MarkingGreyColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0049B3ED,NC2E2::MarkingWhiteColor_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0049EB44,NC2Logic::CFishSwarmIterator::CFishSwarmIterator,NC2Logic::CFishSwarmIterator::CFishSwarmIterator,224349,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0049EB55,NC2Logic::CFishSwarmIterator::GetFirstFishSwarmId,NC2Logic::CFishSwarmIterator::GetFirstFishSwarmId,224373,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0049EB75,NC2Logic::CFishSwarmIterator::GetNextFishSwarmId,NC2Logic::CFishSwarmIterator::GetNextFishSwarmId,224494,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+0049EB91,NC2Logic::CFishSwarmIterator::l_GetNext,NC2Logic::CFishSwarmIterator::l_GetNext,224414,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
+00487556,NC2E2::MacroMap_l_FreeAllData,NC2E2::CMacroMap::l_FreeAllData,60094,Existing native body renamed to distinguish the forwarding destructor; Windows behavior unchanged; Mac supplies names only
+00489F2F,NC2E2::MacroMapManager_l_FreeAllMacroMaps,NC2E2::CMacroMapManager::l_FreeAllMacroMaps,64315,Existing native body renamed to distinguish the forwarding destructor; Windows behavior unchanged; Mac supplies names only

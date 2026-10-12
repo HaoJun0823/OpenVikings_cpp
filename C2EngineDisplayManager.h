@@ -4,7 +4,20 @@
 
 namespace NC2E2
 {
-    class C2DEngineDisplayManager : public NXSysKeyManager::CKeyEntryListBase
+    class CDisplayObjectList : public NXSysKeyManager::CKeyEntryListBase
+    {
+    public:
+        explicit CDisplayObjectList(std::uint8_t destroyValues) : CKeyEntryListBase(destroyValues) {}
+        ~CDisplayObjectList() override;
+        static void* __fastcall Delete(CDisplayObjectList* list, void* unusedEdx, std::uint32_t flags);
+
+    protected:
+        void DestroyValue(void* value) override;
+    };
+
+    static_assert(sizeof(CDisplayObjectList) == 0x14);
+
+    class C2DEngineDisplayManager : public CDisplayObjectList
     {
     public:
         C2DEngineDisplayManager();
@@ -22,9 +35,6 @@ namespace NC2E2
 
         // Original global: 00555114.
         inline static C2DEngineDisplayManager* sTheObjectPtr = nullptr;
-
-    protected:
-        void DestroyValue(void* value) override;
 
     private:
         void* mActiveDisplay;

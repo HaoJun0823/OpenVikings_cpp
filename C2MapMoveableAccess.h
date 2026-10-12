@@ -4,6 +4,7 @@
 
 namespace NC2Logic
 {
+    const void* MapMoveable_GetMapPositionRef(const void* moveable);
     class CArrayHandler;
     struct SSectorGridCursor;
 

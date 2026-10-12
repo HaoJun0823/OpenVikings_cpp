@@ -55,7 +55,7 @@ namespace NC2E2
             const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
             if (Read<std::uint32_t>(sound, 0x28) == 0) return;
             const auto wave = Read<std::uint32_t>(sound, 0x2C);
-            const auto volume = (Read<std::uint32_t>(sound, 0x30) * intensity) / 100u;
+            const auto volume = (Read<std::uint32_t>(sound, 0x30) * intensity) / 64u;
             auto* manager = NDSManager::CManager::sTheObjectPtr;
             if (manager->PreloadWave_IsRunning(wave)) manager->PreloadWave_ChangeVolume(wave, volume, true, 200);
             else manager->PreloadWave_Play(wave, volume, 0xFFFFFFFFu, 64, true, 200);
@@ -265,7 +265,7 @@ namespace NC2E2
                         if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0)
                         {
                             const auto id = Read<std::uint16_t>(logic, 4);
-                            if ((flags & 0x30000u) != 0x30000u) DrawAtom_House_DoDraw(id, bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
+                            if ((Read<std::uint32_t>(display, 0x70) & 0x30000u) != 0x30000u) DrawAtom_House_DoDraw(id, bitmap, x, y, Mul(Display_DE_Hightlighting_GetMapBrightness(display, point), 2), display);
                             Write(display, 0x9C, Read<std::uint32_t>(display, 0x9C) + 1u);
                             const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHouseArray::ElementSize;
                             const auto state = Read<std::uint32_t>(house, 0x2C);

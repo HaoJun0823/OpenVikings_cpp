@@ -23,6 +23,8 @@
 namespace NC2Logic
 {
     using namespace NC2Lifetime;
+    // Original function: FUN_0047dbcb; callers pass a CMapMoveable receiver.
+    const void* MapMoveable_GetMapPositionRef(const void* moveable) { return static_cast<const std::byte*>(moveable) + 0x12; }
 
     namespace
     {

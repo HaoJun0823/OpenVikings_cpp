@@ -485,7 +485,7 @@ namespace NC2Logic
 namespace NC2E2
 {
     // Original function: FUN_0048f6ab; CE2StaticDataHousesManager::GetHouseId.
-    static std::int32_t StaticDataHouses_GetHouseId(const char* name)
+    std::int32_t StaticDataHouses_GetHouseId(const char* name)
     {
         for (std::int32_t index = 0; index < gStaticHouseCount; ++index)
         {

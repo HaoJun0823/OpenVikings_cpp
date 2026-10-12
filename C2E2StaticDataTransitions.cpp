@@ -1,6 +1,7 @@
 #include "C2E2StaticDataTerrain.h"
 #include "C2E2StaticDataGroups.h"
 #include "C2LifetimeGlobals.h"
+#include "XGuiElementAccess.h"
 #include "XBTokenList.h"
 #include "XCrtFileAccess.h"
 #include "XIniFileReader.h"
@@ -21,6 +22,17 @@ namespace NC2E2
         int __cdecl DestroyTransitionTokenList() { return 0; }
         // Original function: FUN_0048db88.
         int __cdecl DestroyPointTypeTokenList() { return 0; }
+    }
+
+    // Original function: FUN_0048db89. Windows constructs both arrays of six three-point triangles.
+    static void* StaticTransition_Construct(void* transition)
+    {
+        // ICF entry 0048E569 is also the identity constructor for each eight-byte point.
+        for (std::uint32_t triangle = 0; triangle < 6; ++triangle)
+            for (std::uint32_t point = 0; point < 3; ++point) NXBaseGui::BaseElement_GetRealActiveElementPtr(static_cast<std::byte*>(transition) + 8u + triangle * 0x18u + point * 8u);
+        for (std::uint32_t triangle = 0; triangle < 6; ++triangle)
+            for (std::uint32_t point = 0; point < 3; ++point) NXBaseGui::BaseElement_GetRealActiveElementPtr(static_cast<std::byte*>(transition) + 0x98u + triangle * 0x18u + point * 8u);
+        return transition;
     }
 
     // Original function: FUN_0048d714.
@@ -62,6 +74,7 @@ namespace NC2E2
         if (storage.count == 0 || static_cast<std::uint32_t>(storage.count) > 42u) return manager;
         const auto bytes = static_cast<std::uint32_t>(storage.count) * 0x154u;
         storage.entries = static_cast<SE2StaticDataTransition*>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
+        for (std::int32_t index = 0; index < storage.count; ++index) StaticTransition_Construct(storage.entries + index);
         std::memset(storage.entries, 0, bytes);
         auto* entry = storage.entries;
         for (char* group = reader.GetFirstGroup("transition"); group != nullptr; group = reader.GetNextGroup("transition"), ++entry)

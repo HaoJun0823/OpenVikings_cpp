@@ -1493,6 +1493,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 
 | ID | Finding | Original reference |
 | --- | --- | --- |
+| [OA165](#oa165) | Macro-map placement/capture quirks and unchecked palette-event IDs | 00489C84, 0048823E, 004935BA, 0047EC5B |
 | [OA164](#oa164) | Bitmap half-size border offsets, look-ahead reads and unchecked empty fast loops | 0040D1F8, 0040D3F8 |
 | [OA163](#oa163) | School working-experience side effect; gameplay trigger user-reported | 00468961, 00442420, 00473C9B |
 | [OA-001](#oa001) | Equal size returns null in heap mode 2 | 004EE5C5 |
@@ -1650,6 +1651,10 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
 
 <a id="oa164"></a>
+
+### OA165 - Native macro-map and palette-event observations
+
+Windows assembly/Game.exe confirm that house macro-map application computes a translated point but places houses at the stored coordinates. Fish capture retains the global swarm count with zero records for swarms outside the capture bounds. Native map recreation snapshots omit humans, animals and houses while restoring the map GUID. The miscellaneous engine palette callback keeps its signed good-ID upper check and invalid-ID null dereference. These paths are preserved; runtime triggers and visual consequences are unverified. See [ENGINE_REMAINDER_COMPLETION.md](docs/ENGINE_REMAINDER_COMPLETION.md).
 
 ### OA164 - Bitmap half-size copies retain unusual borders and unchecked fast-path reads
 

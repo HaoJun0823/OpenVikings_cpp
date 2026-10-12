@@ -3,6 +3,43 @@
 
 namespace NXBasics
 {
+    // Original function: FUN_0040f7c6.
+    SColorRGB::SColorRGB(const SColorRGB& other) noexcept
+    {
+        std::memcpy(this, &other, sizeof(*this));
+    }
+
+    // Original function: FUN_0040f924; includes the fourth stored byte.
+    std::uint32_t SColorRGB::GetGolorsAsLong() const noexcept
+    {
+        return static_cast<std::uint32_t>(blue) | (static_cast<std::uint32_t>(green) << 8) | (static_cast<std::uint32_t>(red) << 16) | (static_cast<std::uint32_t>(reserved) << 24);
+    }
+
+    // Original function: FUN_004103d8.
+    void SRectangle::MovePosition(std::int32_t horizontal, std::int32_t vertical) noexcept
+    {
+        x = AddWrapped(x, horizontal);
+        y = AddWrapped(y, vertical);
+    }
+
+    // Original function: FUN_004104d6.
+    bool SRectangle::CutInsideX(const SRectangle& other) noexcept
+    {
+        bool changed = false;
+        if (x < other.x) { width = AddWrapped(width, SubtractWrapped(x, other.x)); x = other.x; changed = true; }
+        if (y < other.y) { height = AddWrapped(height, SubtractWrapped(y, other.y)); y = other.y; changed = true; }
+        if (AddWrapped(x, width) > AddWrapped(other.x, other.width)) { width = AddWrapped(SubtractWrapped(other.width, x), other.x); changed = true; }
+        if (AddWrapped(y, height) > AddWrapped(other.y, other.height)) { height = AddWrapped(SubtractWrapped(other.height, y), other.y); changed = true; }
+        return changed;
+    }
+
+    // Original function: FUN_00410654; the mask also clears the upper sixteen bits.
+    void SRectangle::MakeSizeLongAlligned() noexcept
+    {
+        width = Runtime_TimeSigned32(static_cast<std::uint32_t>(width) & 0xFFFCu);
+        height = Runtime_TimeSigned32(static_cast<std::uint32_t>(height) & 0xFFFCu);
+    }
+
     // Original function: FUN_00439855.
     std::int32_t __cdecl operator==(const SPoint& first, const SPoint& second) noexcept
     {

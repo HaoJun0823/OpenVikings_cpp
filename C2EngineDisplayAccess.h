@@ -24,6 +24,21 @@ namespace NC2E2
 
     const void* EngineMap_GetConstMapMacroPointPtr(const void* point);
     const void* EngineMap_GetConstMapMicroPointPtr(const void* point);
+    const void* EngineMap_GetConstMapMacroPointPtr(std::int16_t x, std::int16_t y);
+    const void* EngineMap_GetConstMapMicroPointPtr(std::int16_t x, std::int16_t y);
+    const void* Engine2d_EntryPoint_GetPatternDataPtr(std::uint32_t type);
+    const void* Engine2d_EntryPoint_GetLandscapeDataPtr(std::uint32_t type);
+    void DE_Highlighting_SetState(void* display, bool enabled);
+    std::uint32_t DE_Hightlighting_GetHighlightBrightness(const void* display, const void* point);
+    std::int32_t DED_MapHeightToPixelHeight(const void* description, std::int16_t height);
+    std::int32_t Engine2d_EntryPoint_GetNextHouseId(std::int32_t previous, std::uint32_t tribe, std::uint32_t logicType, std::uint32_t* stage);
+    void* S2DEngineDisplayRectangle_Copy(void* destination, const void* source);
+    void Display_l_DE_Debug_DrawRange(void* display, std::uint32_t point, std::int32_t radius, const NXBasics::SColorRGB* color);
+    bool DisplayObjectReference_Tool_IsHouse(const void* reference, std::uint32_t id);
+    bool DisplayObjectReference_Tool_IsHuman(const void* reference, std::uint32_t id);
+    bool DisplayObjectReference_Tool_IsAnimal(const void* reference, std::uint32_t id);
+    bool DisplayObjectReference_Tool_IsVehicle(const void* reference, std::uint32_t id);
+    bool DisplayObjectReference_Tool_IsGuide(const void* reference, std::uint32_t id);
     const void* Engine2d_EntryPoint_Tool_GetEngineMacroPointDataPtr(const void* point);
     const void* Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(const void* point);
     const void* Engine2d_EntryPoint_GetHouseDataPtr(std::uint32_t type);

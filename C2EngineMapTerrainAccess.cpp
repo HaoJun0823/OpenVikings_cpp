@@ -151,6 +151,31 @@ namespace NC2Logic
 
 namespace NC2E2
 {
+    // Original function: FUN_00482551; graphics change precedes the logic callback.
+    void EngineMap_MapMacroPoint_TrianglePattern_SetType(const void* point, bool triangleA, std::uint32_t pattern)
+    {
+        auto* data = const_cast<void*>(EngineMap_GetConstMapMacroPointPtr(point));
+        if (data == nullptr || NC2Logic::MapMagPoint_IsBorderPoint(point)) return;
+        const auto offset = triangleA ? 0u : 2u;
+        if (Read<std::uint16_t>(data, offset) == pattern) return;
+        Write<std::uint16_t>(data, offset, static_cast<std::uint16_t>(pattern));
+        NC2Logic::GameMapModifyManager_GameMapModifiedMacro(0x33, point, 0);
+        NC2Logic::Logic_EntryPoint_Edit_MapMacroPoint_TrianglePattern_SetType(point, triangleA, static_cast<const SE2StaticDataPatternData*>(gStaticPatternStorage.entries)[pattern].logicType);
+    }
+
+    // Original function: FUN_004832dc; clear flags in descending index order.
+    void EngineMap_Highlighting_Clear()
+    {
+        auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(DAT_00511570, 12) - 1u);
+        while (index >= 0)
+        {
+            void* data = Read<void*>(DAT_00568358, 4);
+            const auto offset = static_cast<std::uint32_t>(index) * 4u + 2u;
+            Write<std::uint8_t>(data, offset, Read<std::uint8_t>(data, offset) & 0xFCu);
+            --index;
+        }
+    }
+
     // Original function: FUN_0048114e.
     const void* Engine2d_EntryPoint_Tool_GetPatternDescriptionPtr(const void* packedMacroPoint, bool firstTriangle)
     {

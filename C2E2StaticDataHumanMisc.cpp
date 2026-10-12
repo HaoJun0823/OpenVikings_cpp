@@ -16,6 +16,77 @@
 
 namespace NC2E2
 {
+    // Original static region: 00568574..0056857F; one-time token-list lifetime.
+    static std::uint8_t gGoodGraphicsTokenFlags = 0;
+    static const NXBasics::SToken gGoodGraphicsTokens[] = {{"logicgood", 0x6C6F6764}, {"graphicshumanrandompalette", 0x67726872}, {nullptr, 0}};
+    static NXBasics::CTokenList* gGoodGraphicsTokenList = nullptr;
+    alignas(NXBasics::CTokenList) static std::byte gGoodGraphicsTokenStorage[sizeof(NXBasics::CTokenList)];
+
+    // Original function: FUN_0048acaf; the original CTokenList destructor is empty.
+    static void __cdecl E2StaticDataGoodManager_TokenList_AtExit() {}
+
+    // Original function: FUN_0048ab5c.
+    void* __fastcall E2StaticDataGoodManager_Construct(void* manager, void* /*unusedEdx*/)
+    {
+        using NC2Lifetime::Write;
+        gE2StaticDataGoodManager = manager;
+        std::memset(manager, 0, 1);
+        gStaticGoodData = nullptr;
+        gStaticGoodData = NXBasics::Runtime_AllocateWithNewHandler(0x108, 1);
+        std::memset(gStaticGoodData, 0, 0x108);
+        for (std::uint32_t offset = 0; offset < 0x108; offset += 4) Write<std::int32_t>(gStaticGoodData, offset, -1);
+        NXBasics::CIniFileReader reader("data\\engine2d\\inis\\goods\\goodgraphics.ini", nullptr, false, nullptr, nullptr);
+        if (reader.IsLoaded() && reader.GetFirstGroup("goodgraphics") != nullptr)
+        {
+            do
+            {
+                std::int32_t good = -1;
+                while (reader.GetNextCommandLineInGroup() != nullptr)
+                {
+                    if ((gGoodGraphicsTokenFlags & 1u) == 0)
+                    {
+                        gGoodGraphicsTokenFlags |= 1u;
+                        gGoodGraphicsTokenList = ::new (gGoodGraphicsTokenStorage) NXBasics::CTokenList(gGoodGraphicsTokens);
+                        NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(E2StaticDataGoodManager_TokenList_AtExit));
+                    }
+                    const auto token = gGoodGraphicsTokenList->FindToken(reader.GetCurrentName());
+                    if (token == 0x6C6F6764)
+                    {
+                        good = reader.GetInt();
+                        if (good >= 66) good = -1;
+                    }
+                    else if (token == 0x67726872 && good != -1)
+                    {
+                        const auto patch = StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString());
+                        Write(gStaticGoodData, static_cast<std::uint32_t>(good) * 4u, patch);
+                    }
+                }
+            } while (reader.GetNextGroup("goodgraphics") != nullptr);
+        }
+        return manager;
+    }
+
+    // Original function: FUN_0048b213; the original destructor is an empty RET.
+    static void __cdecl RandomPaletteTokenList_AtExit() {}
+    // Original function: FUN_0048bacd; the original destructor is an empty RET.
+    static void __cdecl JobBaseTokenList_AtExit() {}
+    // Original function: FUN_0048bacc; the original destructor is an empty RET.
+    static void __cdecl JobChangeTokenList_AtExit() {}
+    // Original function: FUN_0048bd65; the original destructor is an empty RET.
+    static void __cdecl HumanNameTokenList_AtExit() {}
+    template<void (__cdecl* AtExit)()> static NXBasics::CTokenList& GetLazyTokenList(const NXBasics::SToken* tokens)
+    {
+        static bool initialized = false;
+        alignas(NXBasics::CTokenList) static std::byte storage[sizeof(NXBasics::CTokenList)];
+        if (!initialized)
+        {
+            initialized = true;
+            ::new (storage) NXBasics::CTokenList(tokens);
+            NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AtExit));
+        }
+        return *reinterpret_cast<NXBasics::CTokenList*>(storage);
+    }
+
     namespace
     {
         using NC2Lifetime::Read;
@@ -56,7 +127,7 @@ namespace NC2E2
                 std::uint32_t index = 0;
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                 {
-                    const auto token = NXBasics::XB_Token_FindTokenInArray(gPatchTokens, reader.GetCurrentName());
+                    const auto token = GetLazyTokenList<RandomPaletteTokenList_AtExit>(gPatchTokens).FindToken(reader.GetCurrentName());
                     if (token == 0x6E616D65) std::strncpy(reinterpret_cast<char*>(record), reader.GetString(), 39);
                     else if (token == 0x70617463 && index != patches)
                     {
@@ -91,7 +162,7 @@ namespace NC2E2
                 for (char* group = reader.GetFirstGroup("jobbasegraphics"); group != nullptr; group = reader.GetNextGroup("jobbasegraphics"), record += 0xBC)
                     while (reader.GetNextCommandLineInGroup() != nullptr)
                     {
-                        const auto token = NXBasics::XB_Token_FindTokenInArray(gJobBaseTokens, reader.GetCurrentName());
+                        const auto token = GetLazyTokenList<JobBaseTokenList_AtExit>(gJobBaseTokens).FindToken(reader.GetCurrentName());
                         switch (token)
                         {
                         case 0x6C6F7472: Write(record, 0, reader.GetInt()); break;
@@ -141,7 +212,7 @@ namespace NC2E2
             {
                 Write<std::int32_t>(record, 0x74, -1);
                 while (reader.GetNextCommandLineInGroup() != nullptr)
-                    switch (NXBasics::XB_Token_FindTokenInArray(gJobChangeTokens, reader.GetCurrentName()))
+                    switch (GetLazyTokenList<JobChangeTokenList_AtExit>(gJobChangeTokens).FindToken(reader.GetCurrentName()))
                     {
                     case 0x6C6F7472: Write(record, 0, reader.GetInt()); break;
                     case 0x6C6F6A6F: Write(record, 4, reader.GetInt()); break;
@@ -180,7 +251,7 @@ namespace NC2E2
             std::int32_t tribe = -1;
             for (char* group = reader.GetFirstGroup("names"); group != nullptr; group = reader.GetNextGroup("names"))
                 while (reader.GetNextCommandLineInGroup() != nullptr)
-                    switch (NXBasics::XB_Token_FindTokenInArray(gNameTokens, reader.GetCurrentName()))
+                    switch (GetLazyTokenList<HumanNameTokenList_AtExit>(gNameTokens).FindToken(reader.GetCurrentName()))
                     {
                     case 0x6C6F7472: tribe = reader.GetInt(); if (tribe < 0 || tribe >= 8) tribe = -1; break;
                     case 0x6E616D65:

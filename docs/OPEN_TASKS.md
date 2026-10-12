@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Graphics engine remainder complete - 2026-10-12
+
+All **107/107** previously open graphics entries are reconstructed, including macro maps, remaining manager events, debug/fish drawing and their related lifetimes. Current engine inventory is **665/665**, after twelve completed entries move to shared basics, shared movement and map resources. Global inventory is **4838/5063 (95.56%), 225 open**; the only open category is **AI/assistant, 96/321**. All 22 affected C++ units pass Win32 `/Zs`; no build, tests or runtime run occurred. See [ENGINE_REMAINDER_COMPLETION.md](ENGINE_REMAINDER_COMPLETION.md) and [ENGINE_REMAINDER_NATIVE_ENTRIES.csv](ENGINE_REMAINDER_NATIVE_ENTRIES.csv).
+
+Next reconstruction block: the complete remaining AI/assistant tree, starting from the unfinished startup and callback boundaries rather than isolated leaf functions. Five explicitly unfinished entries remain in TEMPORARY_LINK_STUBS.csv. Live comparison of rendering, macro-map recreation and campaign behavior remains a separate validation phase.
+
 ## Graphics engine bitmap checkpoint - 2026-10-12
 
 Seven native bitmap/rectangle entries are reconstructed and the ZoomIn dummy is removed. Display_UpdateDisplay now calls the original optimized half-size copy rather than FitIn. Current inventory: **4731/5063 (93.44%), 332 open**; engine **570/677, 107 open**, AI **96/321, 225 open**, shared/system **673/673**. See [ENGINE_BITMAP_COMPLETION.md](ENGINE_BITMAP_COMPLETION.md) for original border, look-ahead and empty-dimension behavior and verification limits. The original observations are registered as OA164.
