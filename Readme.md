@@ -1493,6 +1493,7 @@ These findings are retained without promoting uncertain effects to confirmed gam
 
 | ID | Finding | Original reference |
 | --- | --- | --- |
+| [OA163](#oa163) | School working-experience side effect; gameplay trigger user-reported | 00468961, 00442420, 00473C9B |
 | [OA-001](#oa001) | Equal size returns null in heap mode 2 | 004EE5C5 |
 | [OA-002](#oa002) | Zero-length memset call | 004EE299 |
 | [OA-003](#oa003) | No progress check while extending a file | 004EB235 |
@@ -1646,6 +1647,15 @@ These findings are retained without promoting uncertain effects to confirmed gam
 | [OA152](#oa152) | Human goodie startup, conversation/waiting and sleep/work-area search | 00443D74, 00443E79, 00444E46, 0045C82F, 0045C984, 00460B31, 0046A407..0046A805 |
 | [OA153](#oa153) | Windows civilian goods, household work, equipment and freeze recovery | 0041BB51..0041BDE1, 004320CA, 0043C486, 0043C7CF, 00468B91, 00468D91, 0046BA57..0046C39D, 0046C7BE, 00473EC6..00475FCE |
 | [OA082](#oa082) | Lobby reset and validation retain cleared-mode reads and first-match scans | 004D8169, 004D79A7, 004D7D56, 004D7D8D |
+
+<a id="oa163"></a>
+
+### OA163 - School attendance can credit the current job independently of its learning target
+
+- **Windows evidence:** Event 28 at 00468961 calls 00442420, which credits working experience using the current job and produced good. Event 29 separately processes the school target through 00473C9B. The dispatch targets and key instruction bytes match the original Windows Game.exe.
+- **User report:** A miller studying another job can unlock baker; a collector can gain experience toward several collector-related professions, including smith and carpenter.
+- **Assessment:** The current-job experience mechanism is confirmed from Windows. The original school's animation event schedule and the precise miller/collector prerequisite tables have not been independently checked; those gameplay examples remain user-reported. Multiple unlocks depend on shared experience categories, thresholds and allowances.
+- **Decision / status:** Preserved / original observation; Renewed: open. Record and verify the school trigger before deciding on a correction after 100% reconstruction. No production behavior change, build or gameplay reproduction. See [SCHOOL_EXPERIENCE_OBSERVATION.md](docs/SCHOOL_EXPERIENCE_OBSERVATION.md).
 
 <a id="oa001"></a>
 

@@ -101,6 +101,8 @@ namespace NC2Logic
         }
         if (Read<std::uint8_t>(human, 0xABC) == 0) return;
         const auto& animation = gStaticAtomicAnimationData[Read<std::uint32_t>(human, 0xAC0)];
+        // Dispatch every event due at this animation time in stored order.
+        // Distinct events at the same time each get a separate dispatcher call.
         for (std::uint32_t index = 0; index < animation.eventCount; ++index)
             if (static_cast<std::uint32_t>(animation.events[index].time) == Read<std::uint32_t>(human, 0xAC4)) Human_l_PerformTaskEvent(human, animation.events[index]);
         const auto done = Read<std::uint32_t>(human, 0xAC4) + 1u;

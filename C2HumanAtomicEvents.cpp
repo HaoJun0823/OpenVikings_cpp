@@ -29,6 +29,18 @@ namespace NC2Logic
 
     namespace
     {
+        // Windows 00468961..004689D1: event selectors, CHuman fields and accepted task states.
+        constexpr std::int32_t WorkingExperienceEvent = 28;
+        constexpr std::int32_t JobTrainingEvent = 29;
+        constexpr std::uint32_t HumanTaskStatusOffset = 0x36C;
+        constexpr std::uint32_t HumanAtomicActionOffset = 0xAB8;
+        constexpr std::uint32_t HumanFlagsOffset = 0xB84;
+        constexpr std::uint32_t ExperienceGainBlockedFlag = 0x800;
+        constexpr std::uint32_t TaskStatusInProgress = 1;
+        constexpr std::uint32_t TaskStatusCompleted = 2;
+        constexpr std::uint32_t JobTrainingAction = 89;
+        constexpr std::uint32_t WeaponExerciseAction = 90;
+
         void* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         void* TargetHuman(const void* human) { return CHumanArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CHumanArray::ElementSize; }
         void AddAttribute(void* human, std::uint32_t offset, std::uint32_t amount) { Write(human, offset, Read<std::uint32_t>(human, offset) + amount); }
@@ -139,14 +151,15 @@ namespace NC2Logic
             else { Write<std::uint32_t>(human, 0x36C, 3); Write<std::uint32_t>(human, 0x374, 2); }
             return;
         }
-        case 28:
-            if ((Read<std::uint32_t>(human, 0xB84) & 0x800u) == 0 && (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)) Human_l_JobExperience_Gain(human);
+        case WorkingExperienceEvent:
+            // This credits the current job, independently of the selected school target.
+            if ((Read<std::uint32_t>(human, HumanFlagsOffset) & ExperienceGainBlockedFlag) == 0 && (Read<std::uint32_t>(human, HumanTaskStatusOffset) == TaskStatusInProgress || Read<std::uint32_t>(human, HumanTaskStatusOffset) == TaskStatusCompleted)) Human_l_JobExperience_Gain(human);
             return;
-        case 29:
-            if (Read<std::uint32_t>(human, 0x36C) == 1 || Read<std::uint32_t>(human, 0x36C) == 2)
+        case JobTrainingEvent:
+            if (Read<std::uint32_t>(human, HumanTaskStatusOffset) == TaskStatusInProgress || Read<std::uint32_t>(human, HumanTaskStatusOffset) == TaskStatusCompleted)
             {
-                if (Read<std::uint32_t>(human, 0xAB8) == 89) Human_l_JobTraining_Train(human, amount);
-                else if (Read<std::uint32_t>(human, 0xAB8) == 90) Human_l_JobTraining_Exercise(human, amount);
+                if (Read<std::uint32_t>(human, HumanAtomicActionOffset) == JobTrainingAction) Human_l_JobTraining_Train(human, amount);
+                else if (Read<std::uint32_t>(human, HumanAtomicActionOffset) == WeaponExerciseAction) Human_l_JobTraining_Exercise(human, amount);
             }
             return;
         case 30: Human_l_PerformTaskEvent_ChangeGold(human, event.parameter); return;
