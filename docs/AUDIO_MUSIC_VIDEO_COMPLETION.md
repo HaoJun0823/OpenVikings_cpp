@@ -1,5 +1,7 @@
 # Windows audio, music and video checkpoint
 
+Current installation follow-up, 2026-10-13: the user now stores Pictures/FMV/DM2/Mouse under DataX. All eight consumer paths have been adapted to those confirmed directories; the 2026-10-10 filesystem observations below are historical. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md). File presence and syntax are verified; playback remains pending.
+
 Updated: 2026-10-10. Windows x86 ASM and the original Windows `Game.exe` establish behavior, constants, strings, layouts and ownership. Mac declarations supply matching original names only.
 
 Runtime follow-up, 2026-10-10: the user reports no music. The reference PE has eight altered asset-path bytes compared with the installed original Windows executable; copying its `datax` music path caused a lookup under a nonexistent directory. The original music/mouse/picture/FMV path consumers are now corrected. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md). The address count below remains source coverage; actual playback is still unverified.

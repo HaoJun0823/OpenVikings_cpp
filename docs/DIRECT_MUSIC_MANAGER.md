@@ -1,6 +1,8 @@
 # Windows DirectMusic manager — 2026-10-01
 
-Follow-up, 2026-10-10: startup's music directory is corrected to the installed original Windows string `004FE0A4`, after proving the supplied reference PE differs in eight asset-path bytes only. The former `datax` directory does not exist in the installation. This fixes a resource-lookup blocker outside the manager body; playback is not yet runtime-confirmed. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md).
+Current installation follow-up, 2026-10-13: the user now stores music under `DataX\DM2`. Startup uses that physical directory; all 64 distinct SGT names referenced by this manager exist there, together with DLS assets and the driver DLL. The 2026-10-10 filesystem observations below are historical. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md). Playback remains pending.
+
+Historical follow-up, 2026-10-10: startup's music directory was corrected to the installed original Windows string `004FE0A4`, after proving the supplied reference PE differed in eight asset-path bytes only. The former `datax` directory did not exist in that installation. This fixed a resource-lookup blocker outside the manager body; playback was not runtime-confirmed. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md).
 
 ## Scope and evidence
 

@@ -57,7 +57,8 @@ namespace
     {
         if (Read<std::uint8_t>(manager, 0) == 0) return false;
         char pattern[260], fileName[260];
-        NXBasics::Runtime_PrintString(pattern, "data\\\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
+        // Requested installation layout: loose films are stored in DataX\FMV.
+        NXBasics::Runtime_PrintString(pattern, "datax\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
         if (!NC2Logic::LanguageTool_GetFilename(pattern, fileName, false)) return false;
         Read<NXBasics::CBitmap*>(manager, 0xCC)->Fill(NXBasics::SColorRGB(0, 0, 0));
         if (NWindowsVideo::CVideoPlayer::sTheObjectPtr == nullptr)

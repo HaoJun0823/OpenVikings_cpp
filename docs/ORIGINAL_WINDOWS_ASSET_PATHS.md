@@ -1,5 +1,23 @@
 # Original Windows asset paths - 2026-10-10
 
+## Current DataX installation adaptation - 2026-10-13
+
+The user reports missing Pictures/FMV and explicitly requests including DM2 and Mouse. The current debugger installation at `E:\Steam\steamapps\common\Cultures 8th Wonder` contains `DataX\Pictures`, `DataX\FMV`, `DataX\DM2` and `DataX\Mouse`; none of those four physical folders exists under `data`. The earlier 2026-10-10 filesystem observations below are historical and no longer describe this installation. Its configured Debug/Release working directory already points to the correct game root.
+
+Eight source path literals now use the requested DataX layout:
+
+| Consumer | Current path |
+| --- | --- |
+| DirectMusic initialization | Current directory + `\datax\dm2\` |
+| Three system cursor loads | `datax\mouse\mousenormal.cur`, `mousepressed.cur`, `mouseright.cur` |
+| Pre-picture existence probe | `datax\pictures\pre00.bmp` |
+| Pre/post picture sequence | `datax\pictures\%s%2.2d.bmp` |
+| Title/mission and pre-ingame film starts | `datax\FMV\%%s\%s.mpg`, then native language substitution |
+
+This is a user-requested installation adaptation from the original Windows `data` strings, not a newly claimed native behavior. Only directory literals/comments change; native file lookup, language fallback, intro sequence, cursor API, DirectMusic driver and media-stream call order remain intact. Virtual archive-internal `data` paths and the existing `datax\libs` archive mounting pattern are retained. The original first intro attempt `intro_00` has no loose file here; its native continuation tries `intro`, whose German film exists.
+
+Read-only checks confirm nonempty pre00/post00 bitmaps, all three CUR files, `FMV\Ger\intro.mpg` and `Seq_0000.mpg`, all 64 distinct SGT names referenced by `DMManager.cpp`, DLS assets and `gedx8musicdrv.dll`. Reversing the eight path literals and removing comments reproduces HEAD for all three changed units. Those units pass MSVC Win32 `/Zs`; `git diff --check` passes. No build, tests, cursor loading or audio/video playback occurred. Path availability is verified; live playback and the corresponding Windows components remain to be confirmed after rebuilding.
+
 ## Missing music report and evidence
 
 The user reports no music after the source-address completion checkpoint. Startup passed an absolute `datax\dm2` directory to the original DirectMusic driver. The configured debugger working directory is `E:\Steam\steamapps\common\Cultures 8th Wonder`; it contains `gedx8musicdrv.dll`, the `data\DM2` directory and the expected SGT music assets, but no `datax\DM2` directory. Installed options select music mode 2 and DirectMusic volume 70.

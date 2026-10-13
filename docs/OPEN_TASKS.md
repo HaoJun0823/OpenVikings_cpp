@@ -1,5 +1,9 @@
 # Open Tasks
 
+## DataX loose-asset paths - 2026-10-13
+
+Pictures, title/pre-ingame FMV, DM2 and Mouse now use the user's current DataX directories. Seven loose picture/cursor/film assets and all 64 referenced SGT names exist; three units pass Win32 `/Zs`. No build, tests or playback occurred. Next validation: intro/mission film, pre/post pictures, hardware cursors and DirectMusic after rebuilding. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md).
+
 ## Extras assistant-page text correction - 2026-10-13
 
 All nine Extras assistant-page lookup expressions now use the Windows Wonders string wrapper. Native verification checks all 25 expanded lookups/IDs and 1204 instruction byte sequences; two C++ units pass Win32 `/Zs`. No build, tests or runtime run occurred. Next validation: reopen Extras, switch both tabs and check equipment-toggle labels/states. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).

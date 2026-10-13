@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## DataX loose-asset paths - 2026-10-13
+
+Adapted eight path literals for Pictures, both FMV start paths, DM2 and Mouse to the user's current DataX installation. The earlier physical `data`-folder observations are historical; the current four folders exist only under DataX. All seven loose picture/cursor/film assets and all 64 referenced music-segment names resolve. Three units pass Win32 `/Zs`; no build, tests or playback occurred. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md). This explicitly requested layout adaptation preserves native loader/control behavior and archive-internal paths; runtime playback is the next validation.
+
 ## Extras assistant-page text correction - 2026-10-13
 
 Corrected all nine assistant-page lookup expressions in the Extras window from Odin string table 11 to the Windows-confirmed Wonders table 12. All 25 expanded lookups preserve their IDs; unrelated labels, missing-string diagnostics and oversized button captions came from the wrong resource table. Original geometry and control logic are retained. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). Native verification covers 1204 instructions; both relevant C++ units pass Win32 `/Zs`. No build, tests or runtime run occurred; reopening both tabs remains the next validation.

@@ -95,7 +95,8 @@ namespace
     {
         if (Read<std::uint8_t>(manager, 0) == 0) return false;
         char pattern[260], fileName[260];
-        NXBasics::Runtime_PrintString(pattern, "data\\\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
+        // Requested installation layout: loose films are stored in DataX\FMV.
+        NXBasics::Runtime_PrintString(pattern, "datax\\FMV\\%%s\\%s.mpg", static_cast<const char*>(manager) + 1);
         if (!NC2Logic::LanguageTool_GetFilename(pattern, fileName, false)) return false;
         Read<NXBasics::CBitmap*>(manager, 0xDC)->Fill(NXBasics::SColorRGB(0, 0, 0));
         if (NWindowsVideo::CVideoPlayer::sTheObjectPtr == nullptr)
@@ -170,7 +171,7 @@ namespace
             Write(manager, 0xD0, index);
             const char* prefix = Read<std::uint8_t>(manager, 0xCC) != 0 ? "pre" : "post";
             char fileName[200];
-            NXBasics::Runtime_PrintString(fileName, "data\\\\pictures\\%s%2.2d.bmp", prefix, NXBasics::Runtime_TimeSigned32(index));
+            NXBasics::Runtime_PrintString(fileName, "datax\\pictures\\%s%2.2d.bmp", prefix, NXBasics::Runtime_TimeSigned32(index));
             if (NXBasics::CFile::FileSystem_Tool_FileExists(fileName, true))
             {
                 if (auto* bitmap = Read<NXBasics::CBitmap*>(manager, 0xD8)) delete bitmap;
@@ -222,7 +223,7 @@ namespace
         if (NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_DoesExists("game_start_pre_picture_sequence"))
         {
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("game_start_pre_picture_sequence");
-            if (NXBasics::CFile::FileSystem_Tool_FileExists("data\\\\pictures\\pre00.bmp", true))
+            if (NXBasics::CFile::FileSystem_Tool_FileExists("datax\\pictures\\pre00.bmp", true))
             {
                 Write<std::uint32_t>(manager, 0xD0, NXBasics::IntegerRange::UInt32Maximum);
                 Write<std::uint8_t>(manager, 0xCC, 1);
