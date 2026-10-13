@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include "C2RuntimeConstants.h"
 #include <cstdint>
 
 namespace NC2Logic
@@ -16,20 +17,20 @@ namespace NC2Logic
     {
         explicit SHumanSearchGoodsComplexData(std::uint32_t playerId);
         std::uint32_t goodCount;
-        std::uint32_t goods[66];
-        std::uint32_t landscapeTypes[66];
+        std::uint32_t goods[NC2Runtime::GoodSearchLimits::Goods];
+        std::uint32_t landscapeTypes[NC2Runtime::GoodSearchLimits::Goods];
         std::uint32_t player;
         std::int32_t firstDistance;
         std::uint8_t firstWasLandscape;
         std::byte padding21D[3];
         std::uint32_t landscapeCount;
-        std::uint32_t landscapePoints[10];
-        std::uint32_t landscapeGoods[10];
+        std::uint32_t landscapePoints[NC2Runtime::GoodSearchLimits::LandscapeCandidates];
+        std::uint32_t landscapeGoods[NC2Runtime::GoodSearchLimits::LandscapeCandidates];
         std::uint32_t houseCount;
-        void* houses[2];
-        std::uint32_t houseGoods[2];
+        void* houses[NC2Runtime::GoodSearchLimits::HouseCandidates];
+        std::uint32_t houseGoods[NC2Runtime::GoodSearchLimits::HouseCandidates];
         std::uint32_t guideCount;
-        std::uint32_t guides[3];
+        std::uint32_t guides[NC2Runtime::GoodSearchLimits::GuideCandidates];
         std::uint32_t guidePosition;
     };
     static_assert(sizeof(SHumanSearchGoodsComplexData) == 668);

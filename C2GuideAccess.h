@@ -1,9 +1,20 @@
 #pragma once
 #include "C2CallbackManager.h"
 #include <cstdint>
+#include <cstddef>
 
 namespace NC2Logic
 {
+    // Windows guide and scratch-bucket layouts; unused fields are not given speculative meanings.
+    struct SGuideConnectionStorage { std::int32_t distance, guideId; };
+    struct SGuideStorage { std::uint8_t allocated; std::byte padding[3]; std::uint32_t playerId, guideId, linkSystemId, uniqueId, mapPosition; std::byte unresolved18[32]; SGuideConnectionStorage connections[8]; std::uint32_t connectionCount, goodsCounts[66]; };
+    struct SGuideDistanceBucketStorage { std::uint32_t count; void* guides[30]; };
+    struct SGuideManagerStorage { std::uint32_t nextLinkSystemId; SGuideDistanceBucketStorage distanceBuckets[40]; std::uint8_t* visitedGuides; };
+    static_assert(sizeof(SGuideConnectionStorage) == 8);
+    static_assert(sizeof(SGuideStorage) == 388);
+    static_assert(sizeof(SGuideDistanceBucketStorage) == 124);
+    static_assert(sizeof(SGuideManagerStorage) == 4968);
+
     bool Tool_Guide_IsAllowedToBeBuild(std::uint32_t player, const void* point, bool checkSpacing);
     bool Guide_AddConnectionToGuide(void* guide, std::int32_t id);
     bool Guide_TryConnectingFromGuide(void* guide, std::int32_t id);

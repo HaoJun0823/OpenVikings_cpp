@@ -1,3 +1,6 @@
+#include "C2RuntimeConstants.h"
+#include "SwitchIdentifiers.h"
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2GuideRouting.h"
 #include "C2MapPathfinderSearch.h"
@@ -20,11 +23,11 @@ namespace NC2Logic
         bool __cdecl slGuideSearch(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) != 3) return false;
-            auto* guide = Guide(Read<std::uint16_t>(micro, 2));
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != SwitchIds::MapMicroObjectType::Guide) return false;
+            auto* guide = Guide(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::GuideId));
             auto& data = *static_cast<SGuidePointSearch*>(callback->userData);
-            if (Distance(static_cast<std::byte*>(guide) + 0x14, &data.point) >= data.radius || Read<std::uint32_t>(guide, 4) != data.player) return false;
-            data.guideIds[data.count++] = Read<std::int32_t>(guide, 8);
+            if (Distance(static_cast<std::byte*>(guide) + NC2Layout::GuideOffset::MapPosition, &data.point) >= data.radius || Read<std::uint32_t>(guide, NC2Layout::GuideOffset::PlayerId) != data.player) return false;
+            data.guideIds[data.count++] = Read<std::int32_t>(guide, NC2Layout::GuideOffset::GuideId);
             return data.count == 2;
         }
     }
@@ -32,15 +35,15 @@ namespace NC2Logic
     // Original function: FUN_00447677.
     void Guide_GetMovePoint(const void* guide, void* point)
     {
-        const auto position = Read<std::uint32_t>(guide, 0x14);
+        const auto position = Read<std::uint32_t>(guide, NC2Layout::GuideOffset::MapPosition);
         Write(point, 0, position);
-        const auto directions = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 7);
+        const auto directions = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingDirections);
         for (std::uint32_t direction = 0; direction < 6; ++direction)
         {
             if ((directions & (1u << direction)) == 0) continue;
             Write(point, 0, position);
             MapMigPoint_MoveCursorUnwrapped(point, direction, 1);
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0C) & NXBasics::BitMask::Bit7) == 0) break;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) break;
         }
     }
 
@@ -86,7 +89,7 @@ namespace NC2Logic
                 auto* guide = Guide(sourceSearch.guideIds[candidate]);
                 std::uint32_t position = 0;
                 Guide_GetMovePoint(guide, &position);
-                if (Distance(&position, source) > NXBasics::Runtime_TimeSigned32(radius) || Read<std::uint32_t>(guide, 0x0C) != Read<std::uint32_t>(Guide(targetSearch.guideIds[target]), 0x0C)) continue;
+                if (Distance(&position, source) > NXBasics::Runtime_TimeSigned32(radius) || Read<std::uint32_t>(guide, NC2Layout::GuideOffset::LinkSystemId) != Read<std::uint32_t>(Guide(targetSearch.guideIds[target]), NC2Layout::GuideOffset::LinkSystemId)) continue;
                 selectedTarget = targetSearch.guideIds[target];
                 selectedSource = sourceSearch.guideIds[candidate];
             }
@@ -122,9 +125,9 @@ namespace NC2Logic
             const auto* guide = Guide(data.guideIds[index]);
             for (std::int32_t earlier = 0; earlier < index; ++earlier)
             {
-                if (data.guideIds[earlier] == -1 || Read<std::uint32_t>(Guide(data.guideIds[earlier]), 0x0C) != Read<std::uint32_t>(guide, 0x0C)) continue;
+                if (data.guideIds[earlier] == -1 || Read<std::uint32_t>(Guide(data.guideIds[earlier]), NC2Layout::GuideOffset::LinkSystemId) != Read<std::uint32_t>(guide, NC2Layout::GuideOffset::LinkSystemId)) continue;
                 const auto firstDistance = static_cast<std::uint32_t>(Distance(static_cast<const std::byte*>(Guide(data.guideIds[earlier])) + 0x14, point));
-                const auto secondDistance = static_cast<std::uint32_t>(Distance(static_cast<const std::byte*>(guide) + 0x14, point));
+                const auto secondDistance = static_cast<std::uint32_t>(Distance(static_cast<const std::byte*>(guide) + NC2Layout::GuideOffset::MapPosition, point));
                 if (firstDistance < secondDistance) data.guideIds[index] = -1;
                 else data.guideIds[earlier] = -1;
                 --data.count;
@@ -139,31 +142,31 @@ namespace NC2Logic
     std::int32_t GuideManager_l_GetNextGuideIdNearSourceGuide(void* manager, std::int32_t guideId, std::int32_t otherGuideId)
     {
         auto* first = Guide(otherGuideId);
-        if (Read<std::int32_t>(first, 8) == guideId) return -1;
+        if (Read<std::int32_t>(first, NC2Layout::GuideOffset::GuideId) == guideId) return -1;
         GuideManager_l_InitializeScan(manager);
-        Write(manager, 8, first);
-        Write<std::uint32_t>(manager, 4, Read<std::uint32_t>(manager, 4) + 1u);
-        auto* visited = Read<std::uint8_t*>(manager, 0x1364);
-        visited[Read<std::uint32_t>(first, 8)] = 1;
+        Write(manager, NC2Layout::GuideManagerOffset::FirstBucketGuides, first);
+        Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBuckets, Read<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBuckets) + 1u);
+        auto* visited = Read<std::uint8_t*>(manager, NC2Layout::GuideManagerOffset::VisitedGuides);
+        visited[Read<std::uint32_t>(first, NC2Layout::GuideOffset::GuideId)] = 1;
         std::uint32_t pending = 1, bucket = 0;
         for (;;)
         {
-            const auto offset = 4u + bucket * 0x7Cu;
+            const auto offset = NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * NC2Layout::RecordSize::GuideDistanceBucketUnsigned;
             for (std::int32_t slot = 0; slot < Read<std::int32_t>(manager, offset); ++slot)
             {
-                auto* guide = Read<void*>(manager, offset + 4u + static_cast<std::uint32_t>(slot) * 4u);
+                auto* guide = Read<void*>(manager, offset + NC2Layout::GuideDistanceBucketOffset::GuidesUnsigned + static_cast<std::uint32_t>(slot) * 4u);
                 --pending;
-                for (std::int32_t link = 0; link < Read<std::int32_t>(guide, 0x78); ++link)
+                for (std::int32_t link = 0; link < Read<std::int32_t>(guide, NC2Layout::GuideOffset::ConnectionCount); ++link)
                 {
-                    const auto linkOffset = 0x38u + static_cast<std::uint32_t>(link) * 8u;
-                    const auto id = Read<std::int32_t>(guide, linkOffset + 4);
+                    const auto linkOffset = NC2Layout::GuideOffset::ConnectionsUnsigned + static_cast<std::uint32_t>(link) * NC2Layout::RecordSize::GuideConnectionUnsigned;
+                    const auto id = Read<std::int32_t>(guide, linkOffset + NC2Layout::GuideConnectionOffset::GuideId);
                     if (visited[id] == 1) continue;
                     auto* candidate = Guide(id);
-                    if (Read<std::int32_t>(candidate, 8) == guideId) return Read<std::int32_t>(guide, 8);
-                    const auto targetBucket = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(guide, linkOffset) + bucket) % 40;
-                    const auto targetOffset = 4u + static_cast<std::uint32_t>(targetBucket) * 0x7Cu;
+                    if (Read<std::int32_t>(candidate, NC2Layout::GuideOffset::GuideId) == guideId) return Read<std::int32_t>(guide, NC2Layout::GuideOffset::GuideId);
+                    const auto targetBucket = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(guide, linkOffset) + bucket) % NC2Runtime::GuideRoutingLimits::DistanceBuckets;
+                    const auto targetOffset = NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + static_cast<std::uint32_t>(targetBucket) * NC2Layout::RecordSize::GuideDistanceBucketUnsigned;
                     const auto count = Read<std::uint32_t>(manager, targetOffset);
-                    Write(manager, targetOffset + 4u + count * 4u, candidate);
+                    Write(manager, targetOffset + NC2Layout::GuideDistanceBucketOffset::GuidesUnsigned + count * 4u, candidate);
                     Write(manager, targetOffset, count + 1u);
                     ++pending;
                     visited[id] = 1;
@@ -171,14 +174,14 @@ namespace NC2Logic
             }
             if (pending == 0) return -1;
             Write<std::uint32_t>(manager, offset, 0);
-            if (++bucket == 40) bucket = 0;
+            if (++bucket == NC2Runtime::GuideRoutingLimits::DistanceBuckets) bucket = 0;
         }
     }
 
     // Original function: FUN_0041B90D.
     void GuideManager_l_InitializeScan(void* manager)
     {
-        std::memset(Read<void*>(manager, 4964), 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
-        for (std::uint32_t bucket = 0; bucket < 40; ++bucket) Write<std::uint32_t>(manager, 4u + bucket * 0x7Cu, 0);
+        std::memset(Read<void*>(manager, NC2Layout::GuideManagerOffset::VisitedGuides), 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
+        for (std::uint32_t bucket = 0; bucket < NC2Runtime::GuideRoutingLimits::DistanceBuckets; ++bucket) Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * 0x7Cu, 0);
     }
 }

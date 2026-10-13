@@ -1,3 +1,5 @@
+#include "C2RuntimeConstants.h"
+#include "SwitchIdentifiers.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2HumanGoods.h"
@@ -50,12 +52,12 @@ namespace NC2Logic
         bool __cdecl slHumanSearchGoodFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             auto& data = *static_cast<SHumanSearchGoodData*>(callback->userData);
-            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
+            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > NC2Runtime::GoodSearchLimits::DistanceSlackUnsigned) return true;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto kind = Read<std::uint8_t>(micro, 0);
-            if (kind == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            const auto kind = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
+            if (kind == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
-                auto* house = House(Read<std::uint16_t>(micro, 4));
+                auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player) return false;
                 if (House_Stock_CanStoreGoodType(house, data.good, true) && House_Stock_RequestAmountOfGoods(house, data.good, true) != 0)
                 {
@@ -63,17 +65,17 @@ namespace NC2Logic
                     if (data.firstDistance < 0) data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance);
                 }
             }
-            else if (kind == 3 && Read<std::uint32_t>(Guide(Read<std::uint16_t>(micro, 2)), 4) == data.player)
+            else if (kind == SwitchIds::MapMicroObjectType::Guide && Read<std::uint32_t>(Guide(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::GuideId)), NC2Layout::GuideOffset::PlayerId) == data.player)
             {
-                if (data.guideCount < 3) data.guides[data.guideCount++] = Read<std::uint16_t>(micro, 2);
+                if (data.guideCount < NC2Runtime::GoodSearchLimits::GuideCandidates) data.guides[data.guideCount++] = Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::GuideId);
                 return false;
             }
-            else if ((kind == 1 ? Read<std::uint8_t>(micro, 2) : 0u) == data.landscapeType)
+            else if ((kind == SwitchIds::MapMicroObjectType::Landscape ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) : 0u) == data.landscapeType)
             {
                 data.points[data.landscapeCount++] = Read<std::uint32_t>(point, 0);
                 if (data.firstDistance < 0) data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance);
             }
-            return data.landscapeCount == 10 || data.houseCount == 2;
+            return data.landscapeCount == NC2Runtime::GoodSearchLimits::LandscapeCandidates || data.houseCount == NC2Runtime::GoodSearchLimits::HouseCandidates;
         }
 
         // Original function: FUN_0041b438; the Windows stock branch does not require an entry flag.
@@ -82,14 +84,14 @@ namespace NC2Logic
             auto& data = *static_cast<SGoodSearch*>(callback->userData);
             if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(&data.point, 0), Read<std::int16_t>(&data.point, 2))) >= 40u) return false;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0)
             {
-                if (gStaticDependencyGoodByLandscape[Read<std::uint8_t>(micro, 2)] != data.good) return false;
+                if (gStaticDependencyGoodByLandscape[Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData)] != data.good) return false;
             }
             else
             {
-                if (Read<std::uint8_t>(micro, 0) != 2) return false;
-                auto* house = House(Read<std::uint16_t>(micro, 4));
+                if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != SwitchIds::MapMicroObjectType::House) return false;
+                auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player) return false;
                 if (!House_Stock_CanStoreGoodType(house, data.good, true) || House_Stock_RequestAmountOfGoods(house, data.good, true) == 0) return false;
             }
@@ -102,8 +104,8 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SConsumerSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) != 2 || (freeStock && (Read<std::uint8_t>(micro, 2) & 2u) == 0)) return false;
-            auto* house = House(Read<std::uint16_t>(micro, 4));
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != SwitchIds::MapMicroObjectType::House || (freeStock && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) == 0)) return false;
+            auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
             if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || (House_GetHouseMainType(house) == 1) != freeStock || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player) return false;
             if (!House_Stock_CanStoreGoodType(house, data.good, false) || House_Stock_IsFull(house, data.good) || !House_Stock_HasDemandForGood(house, data.good)) return false;
             data.houses[data.count++] = house;
@@ -119,7 +121,7 @@ namespace NC2Logic
         {
             auto& data = *static_cast<SPilePointSearch*>(callback->userData);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 13) & 1u) != 0 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) return false;
+            if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
             if (Map_GoodTool_CanBePutOnMap(data.good, point)) data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 1;
         }
@@ -128,22 +130,22 @@ namespace NC2Logic
         void AdjustPileSearchPosition(void* point)
         {
             auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) return;
-            if ((Read<std::uint8_t>(micro, 7) & NXBasics::BitMask::Bit4) == 0)
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0) return;
+            if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & NXBasics::BitMask::Bit4) == 0)
             {
-                if ((Read<std::uint8_t>(micro, 7) & NXBasics::BitMask::Bit5) == 0) return;
+                if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & NXBasics::BitMask::Bit5) == 0) return;
                 MapMigPoint_MoveCursorUnwrapped(point, 5, 1);
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                if ((Read<std::uint8_t>(micro, 13) & 1u) != 0 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) { MapMigPoint_MoveCursorUnwrapped(point, 2, 1); return; }
-                if ((Read<std::uint8_t>(micro, 7) & NXBasics::BitMask::Bit4) == 0) return;
+                if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) { MapMigPoint_MoveCursorUnwrapped(point, 2, 1); return; }
+                if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & NXBasics::BitMask::Bit4) == 0) return;
             }
             MapMigPoint_MoveCursorUnwrapped(point, 4, 1);
             micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 13) & 1u) != 0 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) MapMigPoint_MoveCursorUnwrapped(point, 1, 1);
+            if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) MapMigPoint_MoveCursorUnwrapped(point, 1, 1);
         }
         bool GuideHasAnyGood(const void* guide, const SHumanSearchGoodsComplexData& data)
         {
-            for (std::uint32_t i = 0; i < data.goodCount; ++i) if (Read<std::uint32_t>(guide, 0x7Cu + data.goods[i] * 4u) != 0) return true;
+            for (std::uint32_t i = 0; i < data.goodCount; ++i) if (Read<std::uint32_t>(guide, NC2Layout::GuideOffset::GoodsCountsUnsigned + data.goods[i] * 4u) != 0) return true;
             return false;
         }
 
@@ -151,31 +153,31 @@ namespace NC2Logic
         void AdjustPickupWorkPosition(void* point)
         {
             auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0) return;
-            if ((Read<std::uint8_t>(micro, 7) & 2u) == 0)
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0) return;
+            if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & 2u) == 0)
             {
-                if ((Read<std::uint8_t>(micro, 7) & 4u) == 0) return;
+                if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & 4u) == 0) return;
                 MapMigPoint_MoveCursorUnwrapped(point, 2, 1);
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                if ((Read<std::uint8_t>(micro, 13) & 1u) != 0 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) { MapMigPoint_MoveCursorUnwrapped(point, 5, 1); return; }
+                if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) { MapMigPoint_MoveCursorUnwrapped(point, 5, 1); return; }
                 micro = GameMap_GetConstMapMicroPointPtr(point);
-                if ((Read<std::uint8_t>(micro, 7) & 2u) == 0) return;
+                if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) & 2u) == 0) return;
             }
             MapMigPoint_MoveCursorUnwrapped(point, 1, 1);
             micro = GameMap_GetConstMapMicroPointPtr(point);
-            if ((Read<std::uint8_t>(micro, 13) & 1u) != 0 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) MapMigPoint_MoveCursorUnwrapped(point, 4, 1);
+            if ((Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & 1u) != 0 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) MapMigPoint_MoveCursorUnwrapped(point, 4, 1);
         }
 
         // Original function: FUN_0045f9f9; requesting an empty stock records demand.
         bool __cdecl slHumanSearchGoodsComplexIgnoringHomesFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             auto& data = *static_cast<SHumanSearchGoodsComplexData*>(callback->userData);
-            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
+            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > NC2Runtime::GoodSearchLimits::DistanceSlackUnsigned) return true;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto type = Read<std::uint8_t>(micro, 0);
-            if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
+            if (type == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
-                auto* house = House(Read<std::uint16_t>(micro, 4));
+                auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 if (House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t i = 0; i < data.goodCount; ++i)
                 {
@@ -186,35 +188,35 @@ namespace NC2Logic
                     break;
                 }
             }
-            else if (type == 3 && Read<std::uint32_t>(Guide(Read<std::uint16_t>(micro, 2)), 4) == data.player)
+            else if (type == SwitchIds::MapMicroObjectType::Guide && Read<std::uint32_t>(Guide(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::GuideId)), NC2Layout::GuideOffset::PlayerId) == data.player)
             {
-                if (data.guideCount < 3) data.guides[data.guideCount++] = Read<std::uint16_t>(micro, 2);
+                if (data.guideCount < NC2Runtime::GoodSearchLimits::GuideCandidates) data.guides[data.guideCount++] = Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::GuideId);
                 return false;
             }
-            else if (type == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            else if (type == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0)
             {
                 for (std::uint32_t i = 0; i < data.goodCount; ++i)
                 {
-                    if (Read<std::uint8_t>(micro, 2) != data.landscapeTypes[i]) continue;
+                    if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != data.landscapeTypes[i]) continue;
                     data.landscapePoints[data.landscapeCount] = Read<std::uint32_t>(point, 0);
                     data.landscapeGoods[data.landscapeCount++] = data.goods[i];
                     if (data.firstDistance < 0) { data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance); data.firstWasLandscape = 1; }
                     break;
                 }
             }
-            return data.landscapeCount == 10 || data.houseCount == 2;
+            return data.landscapeCount == NC2Runtime::GoodSearchLimits::LandscapeCandidates || data.houseCount == NC2Runtime::GoodSearchLimits::HouseCandidates;
         }
 
         // Original function: FUN_004604d1; home-house refill only fetches from work houses.
         bool __cdecl slHumanSearchGoodsComplexInWorkHousesOnlyFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             auto& data = *static_cast<SHumanSearchGoodsComplexData*>(callback->userData);
-            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
+            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > NC2Runtime::GoodSearchLimits::DistanceSlackUnsigned) return true;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto type = Read<std::uint8_t>(micro, 0);
-            if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
+            if (type == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
-                auto* house = House(Read<std::uint16_t>(micro, 4));
+                auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 if (House_GetHouseMainType(house) != 3 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t index = 0; index < data.goodCount; ++index)
                 {
@@ -225,30 +227,30 @@ namespace NC2Logic
                     break;
                 }
             }
-            else if (type == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            else if (type == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0)
             {
                 for (std::uint32_t index = 0; index < data.goodCount; ++index)
                 {
-                    if (Read<std::uint8_t>(micro, 2) != data.landscapeTypes[index]) continue;
+                    if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != data.landscapeTypes[index]) continue;
                     data.landscapePoints[data.landscapeCount] = Read<std::uint32_t>(point, 0);
                     data.landscapeGoods[data.landscapeCount++] = data.goods[index];
                     if (data.firstDistance < 0) { data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance); data.firstWasLandscape = 1; }
                     break;
                 }
             }
-            return data.landscapeCount == 10 || data.houseCount == 2;
+            return data.landscapeCount == NC2Runtime::GoodSearchLimits::LandscapeCandidates || data.houseCount == NC2Runtime::GoodSearchLimits::HouseCandidates;
         }
 
         // Original function: FUN_00460676; both work houses and stocks qualify.
         bool __cdecl slHumanSearchGoodsComplexInWorkHousesAndStocksOnlyFunction(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             auto& data = *static_cast<SHumanSearchGoodsComplexData*>(callback->userData);
-            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > 10u) return true;
+            if (data.firstDistance >= 0 && callback->distance - static_cast<std::uint32_t>(data.firstDistance) > NC2Runtime::GoodSearchLimits::DistanceSlackUnsigned) return true;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const auto type = Read<std::uint8_t>(micro, 0);
-            if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
+            if (type == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
-                auto* house = House(Read<std::uint16_t>(micro, 4));
+                auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 const auto mainType = House_GetHouseMainType(house);
                 if ((mainType != 3 && mainType != 1) || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t index = 0; index < data.goodCount; ++index)
@@ -260,18 +262,18 @@ namespace NC2Logic
                     break;
                 }
             }
-            else if (type == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            else if (type == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0)
             {
                 for (std::uint32_t index = 0; index < data.goodCount; ++index)
                 {
-                    if (Read<std::uint8_t>(micro, 2) != data.landscapeTypes[index]) continue;
+                    if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != data.landscapeTypes[index]) continue;
                     data.landscapePoints[data.landscapeCount] = Read<std::uint32_t>(point, 0);
                     data.landscapeGoods[data.landscapeCount++] = data.goods[index];
                     if (data.firstDistance < 0) { data.firstDistance = NXBasics::Runtime_TimeSigned32(callback->distance); data.firstWasLandscape = 1; }
                     break;
                 }
             }
-            return data.landscapeCount == 10 || data.houseCount == 2;
+            return data.landscapeCount == NC2Runtime::GoodSearchLimits::LandscapeCandidates || data.houseCount == NC2Runtime::GoodSearchLimits::HouseCandidates;
         }
 
         // Original function: FUN_0041bc95; the first matching stock or landscape stops the search.
@@ -280,9 +282,9 @@ namespace NC2Logic
             auto& data = *static_cast<SHumanSearchGoodsComplexData*>(callback->userData);
             if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(&data.guidePosition, 0), Read<std::int16_t>(&data.guidePosition, 2))) >= 40u) return false;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::House && (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) & 2u) != 0)
             {
-                auto* house = House(Read<std::uint16_t>(micro, 4));
+                auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 if (House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t i = 0; i < data.goodCount; ++i)
                 {
@@ -292,11 +294,11 @@ namespace NC2Logic
                     return true;
                 }
             }
-            else if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0)
+            else if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0)
             {
                 for (std::uint32_t i = 0; i < data.goodCount; ++i)
                 {
-                    if (Read<std::uint8_t>(micro, 2) != data.landscapeTypes[i]) continue;
+                    if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != data.landscapeTypes[i]) continue;
                     data.landscapePoints[data.landscapeCount] = Read<std::uint32_t>(point, 0);
                     data.landscapeGoods[data.landscapeCount++] = data.goods[i];
                     return true;
@@ -313,33 +315,33 @@ namespace NC2Logic
     std::int32_t GuideManager_l_GetGuideIdWithGood(void* manager, std::int32_t guideId, std::uint32_t good)
     {
         auto* first = Guide(guideId);
-        const auto goodOffset = 0x7Cu + good * 4u;
+        const auto goodOffset = NC2Layout::GuideOffset::GoodsCountsUnsigned + good * 4u;
         if (Read<std::int32_t>(first, goodOffset) > 0) return guideId;
-        auto* visited = Read<std::uint8_t*>(manager, 0x1364);
+        auto* visited = Read<std::uint8_t*>(manager, NC2Layout::GuideManagerOffset::VisitedGuides);
         std::memset(visited, 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
-        for (std::uint32_t bucket = 0; bucket < 40; ++bucket) Write<std::uint32_t>(manager, 4u + bucket * 0x7Cu, 0);
-        Write(manager, 8, first);
-        Write<std::uint32_t>(manager, 4, 1);
-        visited[Read<std::uint32_t>(first, 8)] = 1;
+        for (std::uint32_t bucket = 0; bucket < NC2Runtime::GuideRoutingLimits::DistanceBuckets; ++bucket) Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * 0x7Cu, 0);
+        Write(manager, NC2Layout::GuideManagerOffset::FirstBucketGuides, first);
+        Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBuckets, 1);
+        visited[Read<std::uint32_t>(first, NC2Layout::GuideOffset::GuideId)] = 1;
         std::uint32_t pending = 1, bucket = 0;
         for (;;)
         {
-            const auto offset = 4u + bucket * 0x7Cu;
+            const auto offset = NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * NC2Layout::RecordSize::GuideDistanceBucketUnsigned;
             for (std::int32_t slot = 0; slot < Read<std::int32_t>(manager, offset); ++slot)
             {
-                const auto* guide = Read<void*>(manager, offset + 4u + static_cast<std::uint32_t>(slot) * 4u);
+                const auto* guide = Read<void*>(manager, offset + NC2Layout::GuideDistanceBucketOffset::GuidesUnsigned + static_cast<std::uint32_t>(slot) * 4u);
                 --pending;
-                for (std::int32_t link = 0; link < Read<std::int32_t>(guide, 0x78); ++link)
+                for (std::int32_t link = 0; link < Read<std::int32_t>(guide, NC2Layout::GuideOffset::ConnectionCount); ++link)
                 {
-                    const auto linkOffset = 0x38u + static_cast<std::uint32_t>(link) * 8u;
-                    const auto id = Read<std::int32_t>(guide, linkOffset + 4);
+                    const auto linkOffset = NC2Layout::GuideOffset::ConnectionsUnsigned + static_cast<std::uint32_t>(link) * NC2Layout::RecordSize::GuideConnectionUnsigned;
+                    const auto id = Read<std::int32_t>(guide, linkOffset + NC2Layout::GuideConnectionOffset::GuideId);
                     if (visited[id] == 1) continue;
                     auto* candidate = Guide(id);
-                    if (Read<std::int32_t>(candidate, goodOffset) > 0) return Read<std::int32_t>(candidate, 8);
-                    const auto targetBucket = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(guide, linkOffset) + bucket) % 40;
-                    const auto targetOffset = 4u + static_cast<std::uint32_t>(targetBucket) * 0x7Cu;
+                    if (Read<std::int32_t>(candidate, goodOffset) > 0) return Read<std::int32_t>(candidate, NC2Layout::GuideOffset::GuideId);
+                    const auto targetBucket = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(guide, linkOffset) + bucket) % NC2Runtime::GuideRoutingLimits::DistanceBuckets;
+                    const auto targetOffset = NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + static_cast<std::uint32_t>(targetBucket) * NC2Layout::RecordSize::GuideDistanceBucketUnsigned;
                     const auto count = Read<std::uint32_t>(manager, targetOffset);
-                    Write(manager, targetOffset + 4u + count * 4u, candidate);
+                    Write(manager, targetOffset + NC2Layout::GuideDistanceBucketOffset::GuidesUnsigned + count * 4u, candidate);
                     Write(manager, targetOffset, count + 1u);
                     ++pending;
                     visited[id] = 1;
@@ -347,7 +349,7 @@ namespace NC2Logic
             }
             if (pending == 0) return -1;
             Write<std::uint32_t>(manager, offset, 0);
-            if (++bucket == 40) bucket = 0;
+            if (++bucket == NC2Runtime::GuideRoutingLimits::DistanceBuckets) bucket = 0;
         }
     }
 
@@ -360,9 +362,9 @@ namespace NC2Logic
         const auto found = GuideManager_l_GetGuideIdWithGood(manager, guideId, data.good);
         if (found == -1) return false;
         auto* guide = Guide(found);
-        data.point = Read<std::uint32_t>(guide, 0x14);
-        if (CMapPathfinderElement::SearchOverMap(static_cast<std::byte*>(guide) + 0x14, radius, true, slGoodSearchAround, &data, true, anyPlayer ? -1 : static_cast<std::int32_t>(data.player))) return true;
-        if (!anyPlayer) Write<std::uint32_t>(guide, 0x7Cu + data.good * 4u, 0);
+        data.point = Read<std::uint32_t>(guide, NC2Layout::GuideOffset::MapPosition);
+        if (CMapPathfinderElement::SearchOverMap(static_cast<std::byte*>(guide) + NC2Layout::GuideOffset::MapPosition, radius, true, slGoodSearchAround, &data, true, anyPlayer ? -1 : static_cast<std::int32_t>(data.player))) return true;
+        if (!anyPlayer) Write<std::uint32_t>(guide, NC2Layout::GuideOffset::GoodsCountsUnsigned + data.good * 4u, 0);
         return false;
     }
 
@@ -409,9 +411,9 @@ namespace NC2Logic
             SGoodSearch search{Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), good, 0};
             if (!GuideManager_GetMapPositionWithGoods(gGuideManager, 40, id, search, false)) continue;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(&search.point);
-            if (Read<std::uint8_t>(micro, 0) == 2)
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::House)
             {
-                const auto* house = House(Read<std::uint16_t>(micro, 4));
+                const auto* house = House(Read<std::uint16_t>(micro, NC2Layout::MapMicroPointOffset::HouseId));
                 Write(realPosition, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition));
                 Write(workPosition, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
             }
@@ -432,32 +434,32 @@ namespace NC2Logic
         auto* first = Guide(guideId);
         if (GuideHasAnyGood(first, data)) return guideId;
         // Original outlined function: FUN_0041b90d.
-        auto* visited = Read<std::uint8_t*>(manager, 0x1364);
+        auto* visited = Read<std::uint8_t*>(manager, NC2Layout::GuideManagerOffset::VisitedGuides);
         std::memset(visited, 0, static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity));
-        for (std::uint32_t bucket = 0; bucket < 40; ++bucket) Write<std::uint32_t>(manager, 4u + bucket * 0x7Cu, 0);
-        Write(manager, 8, first);
-        Write<std::uint32_t>(manager, 4, 1);
-        visited[Read<std::uint32_t>(first, 8)] = 1;
+        for (std::uint32_t bucket = 0; bucket < NC2Runtime::GuideRoutingLimits::DistanceBuckets; ++bucket) Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * 0x7Cu, 0);
+        Write(manager, NC2Layout::GuideManagerOffset::FirstBucketGuides, first);
+        Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::DistanceBuckets, 1);
+        visited[Read<std::uint32_t>(first, NC2Layout::GuideOffset::GuideId)] = 1;
         std::uint32_t pending = 1;
         std::uint32_t bucket = 0;
         for (;;)
         {
-            const auto offset = 4u + bucket * 0x7Cu;
+            const auto offset = NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + bucket * NC2Layout::RecordSize::GuideDistanceBucketUnsigned;
             for (std::int32_t slot = 0; slot < Read<std::int32_t>(manager, offset); ++slot)
             {
-                const auto* guide = Read<void*>(manager, offset + 4u + static_cast<std::uint32_t>(slot) * 4u);
+                const auto* guide = Read<void*>(manager, offset + NC2Layout::GuideDistanceBucketOffset::GuidesUnsigned + static_cast<std::uint32_t>(slot) * 4u);
                 --pending;
-                for (std::int32_t link = 0; link < Read<std::int32_t>(guide, 0x78); ++link)
+                for (std::int32_t link = 0; link < Read<std::int32_t>(guide, NC2Layout::GuideOffset::ConnectionCount); ++link)
                 {
-                    const auto linkOffset = 0x38u + static_cast<std::uint32_t>(link) * 8u;
-                    const auto id = Read<std::int32_t>(guide, linkOffset + 4);
+                    const auto linkOffset = NC2Layout::GuideOffset::ConnectionsUnsigned + static_cast<std::uint32_t>(link) * NC2Layout::RecordSize::GuideConnectionUnsigned;
+                    const auto id = Read<std::int32_t>(guide, linkOffset + NC2Layout::GuideConnectionOffset::GuideId);
                     if (visited[id] == 1) continue;
                     auto* candidate = Guide(id);
-                    if (GuideHasAnyGood(candidate, data)) return Read<std::int32_t>(candidate, 8);
-                    const auto targetBucket = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(guide, linkOffset) + bucket) % 40;
-                    const auto targetOffset = 4u + static_cast<std::uint32_t>(targetBucket) * 0x7Cu;
+                    if (GuideHasAnyGood(candidate, data)) return Read<std::int32_t>(candidate, NC2Layout::GuideOffset::GuideId);
+                    const auto targetBucket = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(guide, linkOffset) + bucket) % NC2Runtime::GuideRoutingLimits::DistanceBuckets;
+                    const auto targetOffset = NC2Layout::GuideManagerOffset::DistanceBucketsUnsigned + static_cast<std::uint32_t>(targetBucket) * NC2Layout::RecordSize::GuideDistanceBucketUnsigned;
                     const auto count = Read<std::uint32_t>(manager, targetOffset);
-                    Write(manager, targetOffset + 4u + count * 4u, candidate);
+                    Write(manager, targetOffset + NC2Layout::GuideDistanceBucketOffset::GuidesUnsigned + count * 4u, candidate);
                     Write(manager, targetOffset, count + 1u);
                     ++pending;
                     visited[id] = 1;
@@ -465,7 +467,7 @@ namespace NC2Logic
             }
             if (pending == 0) return -1;
             Write<std::uint32_t>(manager, offset, 0);
-            if (++bucket == 40) bucket = 0;
+            if (++bucket == NC2Runtime::GuideRoutingLimits::DistanceBuckets) bucket = 0;
         }
     }
 
@@ -477,11 +479,11 @@ namespace NC2Logic
     {
         const auto found = GuideManager_l_GetGuideIdWithAnyGood(manager, guideId, data);
         auto* guide = Guide(found);
-        data.guidePosition = Read<std::uint32_t>(guide, 0x14);
+        data.guidePosition = Read<std::uint32_t>(guide, NC2Layout::GuideOffset::MapPosition);
         if (found == -1) return false;
-        CMapPathfinderElement::SearchOverMap(static_cast<std::byte*>(guide) + 0x14, radius, true, slGuideSearchGoodsComplexIgnoringHomesFunction, &data, true, -1);
+        CMapPathfinderElement::SearchOverMap(static_cast<std::byte*>(guide) + NC2Layout::GuideOffset::MapPosition, radius, true, slGuideSearchGoodsComplexIgnoringHomesFunction, &data, true, -1);
         if (data.landscapeCount != 0 || data.houseCount != 0) return true;
-        for (std::uint32_t i = 0; i < data.goodCount; ++i) Write<std::uint32_t>(guide, 0x7Cu + data.goods[i] * 4u, 0);
+        for (std::uint32_t i = 0; i < data.goodCount; ++i) Write<std::uint32_t>(guide, NC2Layout::GuideOffset::GoodsCountsUnsigned + data.goods[i] * 4u, 0);
         return false;
     }
 
@@ -523,8 +525,8 @@ namespace NC2Logic
             AdjustPickupWorkPosition(workPosition);
             return data.landscapeGoods[0];
         }
-        Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
-        Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+        Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::MapPosition));
+        Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::DoorEntryPoint));
         return data.houseGoods[0];
     }
 
@@ -553,8 +555,8 @@ namespace NC2Logic
         if (data.houseCount != 0)
         {
             const auto index = Game_Random_GetNumber() % data.houseCount;
-            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
-            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::MapPosition));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::DoorEntryPoint));
             *good = data.houseGoods[index];
             return true;
         }
@@ -572,8 +574,8 @@ namespace NC2Logic
             }
             if (data.houseCount != 0)
             {
-                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
-                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::MapPosition));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::DoorEntryPoint));
                 *good = data.houseGoods[0];
                 return true;
             }
@@ -591,8 +593,8 @@ namespace NC2Logic
         const void* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
         for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
-            if (Read<std::uint32_t>(house, offset + 4) <= Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) continue;
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HouseConstructionGood;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::RequiredAmount) <= Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) + Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount)) continue;
             const auto wanted = Read<std::uint32_t>(house, offset);
             data.goods[data.goodCount] = wanted;
             data.landscapeTypes[data.goodCount] = static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[wanted].landscapeType);
@@ -612,8 +614,8 @@ namespace NC2Logic
         if (data.houseCount != 0)
         {
             const auto index = Game_Random_GetNumber() % data.houseCount;
-            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
-            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::MapPosition));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::DoorEntryPoint));
             *good = data.houseGoods[index];
             return true;
         }
@@ -631,8 +633,8 @@ namespace NC2Logic
             }
             if (data.houseCount != 0)
             {
-                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
-                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::MapPosition));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::DoorEntryPoint));
                 *good = data.houseGoods[0];
                 return true;
             }
@@ -650,8 +652,8 @@ namespace NC2Logic
         const void* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId));
         for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
-            if (Read<std::uint32_t>(house, offset + 4) <= Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) continue;
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HouseConstructionGood;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::RequiredAmount) <= Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) + Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount)) continue;
             const auto wanted = Read<std::uint32_t>(house, offset);
             data.goods[data.goodCount] = wanted;
             data.landscapeTypes[data.goodCount] = static_cast<std::uint32_t>(gStaticGoodTypeStorage.records[wanted].landscapeType);
@@ -684,8 +686,8 @@ namespace NC2Logic
         if (data.houseCount != 0)
         {
             const auto index = Game_Random_GetNumber() % data.houseCount;
-            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
-            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::MapPosition));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::DoorEntryPoint));
             *good = data.houseGoods[index];
             return true;
         }
@@ -703,8 +705,8 @@ namespace NC2Logic
             }
             if (data.houseCount != 0)
             {
-                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
-                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::MapPosition));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::DoorEntryPoint));
                 *good = data.houseGoods[0];
                 return true;
             }
@@ -743,8 +745,8 @@ namespace NC2Logic
         if (data.houseCount != 0)
         {
             const auto index = Game_Random_GetNumber() % data.houseCount;
-            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
-            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::MapPosition));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::DoorEntryPoint));
             *good = data.houseGoods[index];
             return true;
         }
@@ -762,8 +764,8 @@ namespace NC2Logic
             }
             if (data.houseCount != 0)
             {
-                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], 0x1C));
-                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], 0x24));
+                Write(realPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::MapPosition));
+                Write(workPosition, 0, Read<std::uint32_t>(data.houses[0], NC2Layout::HouseOffset::DoorEntryPoint));
                 *good = data.houseGoods[0];
                 return true;
             }
@@ -803,8 +805,8 @@ namespace NC2Logic
         if (data.houseCount != 0)
         {
             const auto index = Game_Random_GetNumber() % data.houseCount;
-            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], 0x1C));
-            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], 0x24));
+            Write(realPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::MapPosition));
+            Write(workPosition, 0, Read<std::uint32_t>(data.houses[index], NC2Layout::HouseOffset::DoorEntryPoint));
             *good = data.houseGoods[index];
             return true;
         }
@@ -833,15 +835,15 @@ namespace NC2Logic
     {
         if (!Human_l_StartAtomicWalk(human, realPosition, workPosition)) return false;
         const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-        if (forSelf) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 1);
+        if (forSelf) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FetchForSelf);
         else if (job == 5 && Human_IsAttachedToHomeHouse(human))
         {
-            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 3);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FetchForHome);
             House_Stock_ModifyFutureAmount(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), 1, true);
         }
         else
         {
-            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 2);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FillStockFetch);
             if (Human_IsAttachedToWorkHouse(human)) House_Stock_ModifyFutureAmount(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), 1, true);
         }
         if (auto* house = Human_GetTargetHousePtr(human)) { House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), -1, false); return true; }
@@ -860,8 +862,8 @@ namespace NC2Logic
         if (!Human_l_StartAtomicWalk(human, realPosition, workPosition)) return false;
         auto* house = Human_GetTargetHousePtr(human);
         if (house == nullptr) return true;
-        const auto primary = Read<std::uint32_t>(house, 4) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 && Read<std::uint32_t>(house, 4) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId));
-        Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, primary ? 4 : 5);
+        const auto primary = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId));
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, primary ? SwitchIds::GoodCirculationMode::FillStockBringAway : SwitchIds::GoodCirculationMode::FlushStock);
         if (House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, primary)) return true;
         Human_Target_Reset(human);
         return false;
@@ -893,7 +895,7 @@ namespace NC2Logic
                 else
                 {
                     const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-                    if ((job != 9 && job != 10) || Read<std::uint32_t>(house, 4) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) == NXBasics::IntegerRange::UInt32Maximum || House_Stock_RequestAmountOfGoods(house, good, false) < 1u) return false;
+                    if ((job != 9 && job != 10) || Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) == NXBasics::IntegerRange::UInt32Maximum || House_Stock_RequestAmountOfGoods(house, good, false) < 1u) return false;
                 }
             }
         }
@@ -930,7 +932,7 @@ namespace NC2Logic
                 const auto next = House_Stock_GetDemandForGood(data.houses[index], good);
                 if (next > demand) { demand = next; selected = data.houses[index]; }
             }
-            if (demand != 0) { Write(realPosition, 0, Read<std::uint32_t>(selected, 0x1C)); Write(workPosition, 0, Read<std::uint32_t>(selected, 0x24)); }
+            if (demand != 0) { Write(realPosition, 0, Read<std::uint32_t>(selected, NC2Layout::HouseOffset::MapPosition)); Write(workPosition, 0, Read<std::uint32_t>(selected, NC2Layout::HouseOffset::DoorEntryPoint)); }
             return true;
         }
         SConsumerSearch stock{good, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 0, {}};
@@ -943,8 +945,8 @@ namespace NC2Logic
             const auto next = House_Stock_GetDemandForGood(stock.houses[index], good);
             if (next > demand) { demand = next; selected = stock.houses[index]; }
         }
-        Write(realPosition, 0, Read<std::uint32_t>(selected, 0x1C));
-        Write(workPosition, 0, Read<std::uint32_t>(selected, 0x24));
+        Write(realPosition, 0, Read<std::uint32_t>(selected, NC2Layout::HouseOffset::MapPosition));
+        Write(workPosition, 0, Read<std::uint32_t>(selected, NC2Layout::HouseOffset::DoorEntryPoint));
         return true;
     }
 
@@ -953,7 +955,7 @@ namespace NC2Logic
     {
         while (amount != 0 && Map_GoodTool_PutOnMap(good, &point, preserveEmptyLandscape)) --amount;
         if (amount == 0) return true;
-        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6);
+        const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ContinentId);
         for (std::uint32_t ring = 1; ring < radius; ++ring)
         {
             MapMigPoint_MoveCursorUnwrapped(point, 4);
@@ -962,7 +964,7 @@ namespace NC2Logic
                 for (std::uint32_t step = 0; step < ring; ++step)
                 {
                     MapMigPoint_MoveCursorUnwrapped(point, direction);
-                    if (!MapMigPoint_IsInsideMap(&point) || MapMigPoint_IsBorderPoint(&point) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) != continent) continue;
+                    if (!MapMigPoint_IsInsideMap(&point) || MapMigPoint_IsBorderPoint(&point) || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::ContinentId) != continent) continue;
                     while (amount != 0 && Map_GoodTool_PutOnMap(good, &point, preserveEmptyLandscape)) --amount;
                     if (amount == 0) return true;
                 }
@@ -979,14 +981,14 @@ namespace NC2Logic
         if (data.engineLandscapeId == -1) return false;
         if (External_Landscape_GetEngineIdOfMapLandscape(point) == data.engineLandscapeId) return GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 4) != -1;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (micro == nullptr || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) return false;
-        const auto kind = Read<std::uint8_t>(micro, 0);
-        const auto landscape = kind == 1 ? Read<std::uint8_t>(micro, 2) : 0;
-        if ((kind == 1 && landscape != 0 && landscape != 1) || kind == 2 || kind == 3) return false;
-        if (preserveEmptyLandscape && kind == 1 && landscape != 0)
+        if (micro == nullptr || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+        const auto kind = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
+        const auto landscape = kind == SwitchIds::MapMicroObjectType::Landscape ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) : 0;
+        if ((kind == SwitchIds::MapMicroObjectType::Landscape && landscape != 0 && landscape != 1) || kind == SwitchIds::MapMicroObjectType::House || kind == SwitchIds::MapMicroObjectType::Guide) return false;
+        if (preserveEmptyLandscape && kind == SwitchIds::MapMicroObjectType::Landscape && landscape != 0)
         {
             const auto engine = External_Landscape_GetEngineIdOfMapLandscape(point);
-            const auto valency = Read<std::uint8_t>(micro, 3);
+            const auto valency = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency);
             const auto* walk = External_Landscape_GetAreaPtr(engine, valency, 0);
             const auto* build = External_Landscape_GetAreaPtr(engine, valency, 1);
             const auto* extra = External_Landscape_GetAreaPtr(engine, valency, 3);
@@ -1003,17 +1005,17 @@ namespace NC2Logic
     {
         using namespace NC2LogicExternals;
         if (!MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point)) return false;
-        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6)) != 1) return false;
+        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::ContinentId)) != 1) return false;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (micro == nullptr || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0) return false;
-        const auto kind = Read<std::uint8_t>(micro, 0);
-        if (kind == 2 || kind == 3) return false;
+        if (micro == nullptr || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
+        const auto kind = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType);
+        if (kind == SwitchIds::MapMicroObjectType::House || kind == SwitchIds::MapMicroObjectType::Guide) return false;
         const auto& data = gStaticGoodTypeStorage.records[good];
         if (data.engineLandscapeId == -1) return false;
         const auto engine = External_Landscape_GetEngineIdOfMapLandscape(point);
         if (!GameMap_Misc_IsLandscapeAllowedOnPattern(point, static_cast<std::uint32_t>(data.landscapeType))) return false;
-        if (engine == data.engineLandscapeId) return (kind == 1 ? Read<std::uint8_t>(micro, 3) : 0u) != External_Landscape_GetMaximumValency(engine);
-        return kind != 1 || Read<std::uint8_t>(micro, 2) == 0 || Read<std::uint8_t>(micro, 2) == 1;
+        if (engine == data.engineLandscapeId) return (kind == SwitchIds::MapMicroObjectType::Landscape ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u) != External_Landscape_GetMaximumValency(engine);
+        return kind != SwitchIds::MapMicroObjectType::Landscape || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 0 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == 1;
     }
 
     // Original function: FUN_0045d76e; even a single candidate consumes a random number.
@@ -1090,7 +1092,7 @@ namespace NC2Logic
     void Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(void* human)
     {
         Human_Target_ResetSecondaryTarget(human);
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != SwitchIds::GoodCirculationMode::None) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); }
         auto startPile = [human](std::int32_t direction) { Human_l_StartAtomicAnimation(human, 23, direction); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); };
         const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
         if (Human_IsAtTargetPoint(human) && Map_GoodTool_CanBePutOnMap(good, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition)) { startPile(6); return; }
@@ -1119,7 +1121,7 @@ namespace NC2Logic
                         startPile(6);
                         return;
                     }
-                    if (Read<std::uint8_t>(house, 0x7D8) != 0 && Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4)))
+                    if (Read<std::uint8_t>(house, 0x7D8) != 0 && Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId)))
                     {
                         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
                         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
@@ -1138,7 +1140,7 @@ namespace NC2Logic
         if (vehicle != nullptr && Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFullSoon(vehicle))
         {
             reserveVehicle();
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 5) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 4);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != SwitchIds::GoodCirculationMode::FlushStock) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FillStockBringAway);
             startPile(-1);
             return;
         }
@@ -1160,7 +1162,7 @@ namespace NC2Logic
     // Original function: FUN_00468b91.
     void Human_l_PerformTaskEvent_Pickup(void* human)
     {
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0) Human_Target_Reset(human);
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == SwitchIds::GoodCirculationMode::None) Human_Target_Reset(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 3);
         if (!Human_Target_IsValid(human))
@@ -1181,7 +1183,7 @@ namespace NC2Logic
         }
         else
         {
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 5 && !Human_FindConsumerNearWorkCenter(human, good)) { Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == SwitchIds::GoodCirculationMode::FlushStock && !Human_FindConsumerNearWorkCenter(human, good)) { Human_Target_Reset(human); return; }
             auto* house = Human_GetHousePtrAtTargetPosition(human);
             if (house != nullptr)
             {
@@ -1189,7 +1191,7 @@ namespace NC2Logic
                 if (!available)
                 {
                     const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-                    available = (job == 9 || job == 10) && Read<std::uint32_t>(house, 4) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum && House_Stock_RequestAmountOfGoods(house, good, false) >= 1u;
+                    available = (job == 9 || job == 10) && Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum && House_Stock_RequestAmountOfGoods(house, good, false) >= 1u;
                 }
                 if (available) { House_Stock_ModifyAmount(house, good, -1, 0, false); taken = true; }
             }
@@ -1217,11 +1219,11 @@ namespace NC2Logic
                 CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, good);
             }
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 1)
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == SwitchIds::GoodCirculationMode::FetchForSelf)
             {
-                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 7) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0);
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 7) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::None);
             }
-            else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 5) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 4);
+            else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != SwitchIds::GoodCirculationMode::FlushStock) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FillStockBringAway);
         }
         else Human_StopCurrentGoodCirculationMode(human);
         Human_Target_Reset(human);
@@ -1243,7 +1245,7 @@ namespace NC2Logic
         {
             if (!House_Stock_IsFull(house, good))
             {
-                const auto id = Read<std::uint32_t>(house, 4);
+                const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId);
                 const auto construction = (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 && Human_IsAttachedToHomeHouse(human) && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)) || (Human_IsAttachedToWorkHouse(human) && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId)) || Human_IsDefendingHouse(human, static_cast<std::int32_t>(id));
                 stored = House_Stock_ModifyAmount(house, good, 1, 0, construction);
             }
@@ -1259,7 +1261,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
-            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::None);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
         }
         else
@@ -1282,18 +1284,18 @@ namespace NC2Logic
         else if (type >= 1 && type <= 5)
         {
             const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::SuspendedGoodCirculationMode);
-            if (mode != 0 && !(TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetGoodType)) && mode == 1))
+            if (mode != SwitchIds::GoodCirculationMode::None && !(TGoodTypes_IsFood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetGoodType)) && mode == SwitchIds::GoodCirculationMode::FetchForSelf))
             {
                 Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryTargetGoodType));
                 std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, NC2Layout::RecordSize::InteractionTargetData);
                 auto* real = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
                 auto* work = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
-                if (mode >= 1 && mode <= 4) Human_l_StartAtomicWalkAndFetch(human, real, work, mode == 1);
-                else if (mode == 5)
+                if (mode >= SwitchIds::GoodCirculationMode::FetchForSelf && mode <= SwitchIds::GoodCirculationMode::FillStockBringAway) Human_l_StartAtomicWalkAndFetch(human, real, work, mode == SwitchIds::GoodCirculationMode::FetchForSelf);
+                else if (mode == SwitchIds::GoodCirculationMode::FlushStock)
                 {
                     Human_l_StartAtomicWalk(human, real, work);
                     Write(human, NC2Layout::HumanOffset::InteractionTarget, Read<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget));
-                    Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 5);
+                    Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, SwitchIds::GoodCirculationMode::FlushStock);
                 }
             }
         }

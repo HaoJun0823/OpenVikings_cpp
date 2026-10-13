@@ -4,6 +4,27 @@
 // Values and integer literal types are retained from the Windows reconstruction.
 namespace NC2Runtime
 {
+    namespace GuideRoutingLimits
+    {
+        inline constexpr auto DistanceBuckets = 40;
+        inline constexpr auto ConnectionsPerGuide = 8;
+    }
+
+    namespace GoodSearchLimits
+    {
+        inline constexpr auto LandscapeCandidates = 10;
+        inline constexpr auto HouseCandidates = 2;
+        inline constexpr auto GuideCandidates = 3;
+        inline constexpr auto DistanceSlackUnsigned = 10u;
+        inline constexpr auto Goods = 66;
+    }
+
+    namespace ProductionCounter
+    {
+        inline constexpr auto Infinite = 11;
+    }
+
+
     namespace HumanAssistantCommandHistory
     {
         inline constexpr auto Capacity = 10;

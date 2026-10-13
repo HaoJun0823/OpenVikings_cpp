@@ -440,19 +440,19 @@ namespace NC2Logic
     void* __fastcall GuideManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gGuideManager = manager;
-        Write<std::uint32_t>(manager, 0, 0);
+        Write<std::uint32_t>(manager, NC2Layout::GuideManagerOffset::NextLinkSystemId, 0);
         gGuideManagerStaticVars.scanGuideId = -1;
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(48, 1);
         if (allocation != nullptr) ::new (allocation) CGuideArray();
         for (std::uint32_t type : {1u, 0x33u, 0x31u, 0x32u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, GuideManager_l_Guides_Callback, 0x64, 0);
-        Write(manager, 0x1364, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
+        Write(manager, NC2Layout::GuideManagerOffset::VisitedGuides, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
         return manager;
     }
 
     // Original function: FUN_0041aedf.
     static void GuideManager_Destruct(void* manager)
     {
-        FreeField(manager, 0x1364);
+        FreeField(manager, NC2Layout::GuideManagerOffset::VisitedGuides);
         Unregister(GuideManager_l_Guides_Callback, 0x64, {1, 0x33, 0x31, 0x32});
         DestroyOwned(CGuideArray::sTheObjectPtr, [](CGuideArray* array) { array->~CGuideArray(); });
         gGuideManager = nullptr;
@@ -480,7 +480,7 @@ namespace NC2Logic
         if (allocation != nullptr) ::new (allocation) CGuideArray(io);
         io->IO_File_ReadBinary(manager, 4);
         gGuideManagerStaticVars.scanGuideId = -1;
-        Write(manager, 0x1364, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
+        Write(manager, NC2Layout::GuideManagerOffset::VisitedGuides, NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(CGuideArray::sTheObjectPtr->mCapacity), 1));
         for (std::uint32_t type : {1u, 0x33u, 0x31u, 0x32u}) CCallbackManager::sTheObjectPtr->RegisterCallback(type, GuideManager_l_Guides_Callback, 0x64, 0);
         return manager;
     }

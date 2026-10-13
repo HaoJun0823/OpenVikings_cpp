@@ -607,6 +607,18 @@ namespace NC2Layout
 
     namespace HumanOffset
     {
+        inline constexpr auto WeaponCategory1Experience = 0x140;
+        inline constexpr auto WeaponCategory2Experience = 0x144;
+        inline constexpr auto WeaponCategory3Experience = 0x148;
+        inline constexpr auto WeaponCategory6Experience = 0x150;
+        inline constexpr auto WeaponCategory7Experience = 0x154;
+        inline constexpr auto WeaponCategory1ExperienceUnsigned = 0x140u;
+        inline constexpr auto WeaponCategory2ExperienceUnsigned = 0x144u;
+        inline constexpr auto WeaponCategory3ExperienceUnsigned = 0x148u;
+        inline constexpr auto WeaponCategory6ExperienceUnsigned = 0x150u;
+        inline constexpr auto WeaponCategory7ExperienceUnsigned = 0x154u;
+        inline constexpr auto SoldierWorkExperience = 0x138;
+
         inline constexpr auto AllocatedFlag = 0;
         inline constexpr auto HumanId = 4;
         inline constexpr auto UniqueId = 8;
@@ -1311,6 +1323,76 @@ namespace NC2Layout
         inline constexpr auto DisableAfterSpawn = 28;
     }
 
+
+    // Windows goods search, guide network and job-experience records.
+    namespace GuideOffset
+    {
+        inline constexpr auto GoodsCountsUnsigned = 0x7Cu;
+        inline constexpr auto ConnectionCount = 0x78;
+        inline constexpr auto MapPosition = 0x14;
+        inline constexpr auto GuideId = 8;
+        inline constexpr auto PlayerId = 4;
+        inline constexpr auto ConnectionsUnsigned = 0x38u;
+        inline constexpr auto ConnectionGuideIds = 0x3C;
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto ConnectionGuideIdsUnsigned = 0x3Cu;
+        inline constexpr auto LinkSystemId = 0x0C;
+        inline constexpr auto UniqueId = 0x10;
+        inline constexpr auto GoodsCounts = 0x7C;
+    }
+
+    namespace GuideManagerOffset
+    {
+        inline constexpr auto VisitedGuides = 0x1364;
+        inline constexpr auto DistanceBucketsUnsigned = 4u;
+        inline constexpr auto FirstBucketGuides = 8;
+        inline constexpr auto DistanceBuckets = 4;
+        inline constexpr auto NextLinkSystemId = 0;
+    }
+
+    namespace MapMicroPointOffset
+    {
+        inline constexpr auto ObjectType = 0;
+        inline constexpr auto ObjectData = 2;
+        inline constexpr auto HouseId = 4;
+        inline constexpr auto GuideId = 2;
+        inline constexpr auto TerrainFlags = 0x0D;
+        inline constexpr auto WalkingFlags = 0x0C;
+        inline constexpr auto WalkingDirections = 7;
+        inline constexpr auto LandscapeValency = 3;
+        inline constexpr auto ContinentId = 6;
+    }
+
+    namespace GuideDistanceBucketOffset
+    {
+        inline constexpr auto GuidesUnsigned = 4u;
+    }
+
+    namespace GuideConnectionOffset
+    {
+        inline constexpr auto GuideId = 4;
+    }
+
+    namespace JobExperienceTypeListOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto TypesUnsigned = 4u;
+    }
+
+    namespace JobExperienceTypeOffset
+    {
+        inline constexpr auto FirstGoodType = 0x24;
+        inline constexpr auto SecondGoodType = 0x28;
+        inline constexpr auto ExperienceFactor = 0x2C;
+        inline constexpr auto BaseRepeatCounterUnsigned = 0x30u;
+    }
+
+    namespace StaticWeaponTypeOffset
+    {
+        inline constexpr auto MainTypeUnsigned = 0x20u;
+        inline constexpr auto MainType = 0x20;
+    }
+
     namespace ParticleManagerOffset
     {
         inline constexpr auto FirstParticleActiveUnsigned = 0x9F74u;
@@ -1332,6 +1414,15 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuideConnectionUnsigned = 8u;
+        inline constexpr auto GuideConnection = 8;
+
+        inline constexpr auto GuideDistanceBucketUnsigned = 0x7Cu;
+        inline constexpr auto GuideGoodsCounts = 264;
+        inline constexpr auto StaticWeaponTypeUnsigned = 0xC4u;
+        inline constexpr auto JobExperienceTypeListUnsigned = 0x2Cu;
+        inline constexpr auto JobExperienceTypeUnsigned = 0x34u;
+
         inline constexpr auto AITaskDescription = 32;
         inline constexpr auto AIMilitarySlot = 52;
 

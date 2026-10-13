@@ -1625,6 +1625,14 @@ namespace SwitchIds
         inline constexpr auto Usewind = 0x75736577;
     }
 
+    namespace MapMicroObjectType
+    {
+        inline constexpr auto Empty = 0;
+        inline constexpr auto Landscape = 1;
+        inline constexpr auto House = 2;
+        inline constexpr auto Guide = 3;
+    }
+
     namespace AISoldierAction
     {
         inline constexpr auto Waiting = 1;

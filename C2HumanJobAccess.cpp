@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -31,7 +32,7 @@ namespace NC2Logic
     // Original function: FUN_00436B16; Windows outlined trader-only merchant reference.
     void* Human_GetMerchantDataPtr(const void* human) { return Human_IsJobTrader(human) ? HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, NC2Lifetime::Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)) : nullptr; }
     // Original function: FUN_0044B958.
-    bool Human_Production_IsInfinite(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 11; }
+    bool Human_Production_IsInfinite(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == NC2Runtime::ProductionCounter::Infinite; }
     // Original function: FUN_0044B96C.
     bool Human_Production_IsStopped(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 0; }
     // Original function: FUN_0044B97F.
@@ -142,13 +143,13 @@ namespace NC2Logic
     {
         const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
         const auto weapon = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon);
-        const auto category = Read<std::uint32_t>(gStaticWeaponTypeArrays[tribe], weapon * 0xC4u + 0x20);
+        const auto category = Read<std::uint32_t>(gStaticWeaponTypeArrays[tribe], weapon * NC2Layout::RecordSize::StaticWeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::MainType);
         std::uint32_t experience = 0;
-        if (category == 1) experience = Read<std::uint32_t>(human, 0x140);
-        else if (category == 2) experience = Read<std::uint32_t>(human, 0x144);
-        else if (category == 3) experience = Read<std::uint32_t>(human, 0x148);
-        else if (category == 6) experience = Read<std::uint32_t>(human, 0x150);
-        else if (category == 7) experience = Read<std::uint32_t>(human, 0x154);
+        if (category == 1) experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory1Experience);
+        else if (category == 2) experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory2Experience);
+        else if (category == 3) experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory3Experience);
+        else if (category == 6) experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory6Experience);
+        else if (category == 7) experience = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WeaponCategory7Experience);
         const auto percentage = experience * 100u / 100u;
         return percentage > 100u ? 100u : percentage;
     }
@@ -158,15 +159,15 @@ namespace NC2Logic
     {
         general = 0; specific = 0;
         if (job < 7 || job > 30) return;
-        const auto* table = static_cast<const std::byte*>(gStaticHumanJobExperienceTable00510A3C) + static_cast<std::uint32_t>(job) * 0x2Cu;
-        const auto count = Read<std::uint32_t>(table, 0);
+        const auto* table = static_cast<const std::byte*>(gStaticHumanJobExperienceTable00510A3C) + static_cast<std::uint32_t>(job) * NC2Layout::RecordSize::JobExperienceTypeListUnsigned;
+        const auto count = Read<std::uint32_t>(table, NC2Layout::JobExperienceTypeListOffset::Count);
         for (std::uint32_t index = 0; index < count; ++index)
         {
-            const auto id = Read<std::uint32_t>(table, 4u + index * 4u);
-            const auto* data = static_cast<const std::byte*>(gStaticHumanJobExperienceData) + id * 0x34u;
-            const auto firstGood = Read<std::uint32_t>(data, 0x24);
+            const auto id = Read<std::uint32_t>(table, NC2Layout::JobExperienceTypeListOffset::TypesUnsigned + index * 4u);
+            const auto* data = static_cast<const std::byte*>(gStaticHumanJobExperienceData) + id * NC2Layout::RecordSize::JobExperienceTypeUnsigned;
+            const auto firstGood = Read<std::uint32_t>(data, NC2Layout::JobExperienceTypeOffset::FirstGoodType);
             if (firstGood == 0) general = id;
-            else if (firstGood == good || (Read<std::uint32_t>(data, 0x28) != 0 && Read<std::uint32_t>(data, 0x28) == good)) specific = id;
+            else if (firstGood == good || (Read<std::uint32_t>(data, NC2Layout::JobExperienceTypeOffset::SecondGoodType) != 0 && Read<std::uint32_t>(data, NC2Layout::JobExperienceTypeOffset::SecondGoodType) == good)) specific = id;
         }
     }
 
@@ -180,8 +181,8 @@ namespace NC2Logic
     void Human_GainExperienceForWeapon(void* human, std::uint32_t weapon, std::uint32_t amount)
     {
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit11) != 0) return;
-        const auto category = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], weapon * 0xC4u + 0x20u);
-        const auto offset = category == 1 ? 0x140u : category == 2 ? 0x144u : category == 3 ? 0x148u : category == 6 ? 0x150u : category == 7 ? 0x154u : 0u;
+        const auto category = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], weapon * NC2Layout::RecordSize::StaticWeaponTypeUnsigned + NC2Layout::StaticWeaponTypeOffset::MainTypeUnsigned);
+        const auto offset = category == 1 ? NC2Layout::HumanOffset::WeaponCategory1ExperienceUnsigned : category == 2 ? NC2Layout::HumanOffset::WeaponCategory2ExperienceUnsigned : category == 3 ? NC2Layout::HumanOffset::WeaponCategory3ExperienceUnsigned : category == 6 ? NC2Layout::HumanOffset::WeaponCategory6ExperienceUnsigned : category == 7 ? NC2Layout::HumanOffset::WeaponCategory7ExperienceUnsigned : 0u;
         if (offset == 0) return;
         const auto previous = Read<std::uint32_t>(human, offset);
         Write(human, offset, previous > 10000u - amount ? 10000u : previous + amount);
@@ -196,23 +197,23 @@ namespace NC2Logic
         std::uint32_t general, specific;
         Tool_Human_GetExperienceType_GainedViaWorking(Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType), good, general, specific);
         auto increment = [human](std::uint32_t offset) { const auto previous = Read<std::uint32_t>(human, offset); Write(human, offset, previous > 9999u ? 10000u : previous + 1u); };
-        if (general != 0) increment(0x24u + general * 4u);
-        if (specific != 0 && specific != general) increment(0x24u + specific * 4u);
+        if (general != 0) increment(NC2Layout::HumanOffset::JobExperience + general * 4u);
+        if (specific != 0 && specific != general) increment(NC2Layout::HumanOffset::JobExperience + specific * 4u);
         const auto job = Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType);
         if ((job >= 31 && job <= 35) || (job >= 40 && job <= 41))
         {
-            increment(0x138);
+            increment(NC2Layout::HumanOffset::SoldierWorkExperience);
             Human_GainExperienceForWeapon(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon), 1);
         }
     }
 
-    // Original function: FUN_0044b9db; increasing stops at 11, decreasing stops at zero.
+    // Original function: FUN_0044b9db; increasing can select infinite production; decreasing stops at zero.
     void Human_Production_ChangeCounter(void* human, std::uint32_t good, std::int32_t amount)
     {
         const auto offset = NC2Layout::HumanOffset::ProductionCounters + good * 4u;
         if (amount > 0)
         {
-            while (amount-- > 0 && Read<std::int32_t>(human, offset) < 11) Write(human, offset, Read<std::uint32_t>(human, offset) + 1u);
+            while (amount-- > 0 && Read<std::int32_t>(human, offset) < NC2Runtime::ProductionCounter::Infinite) Write(human, offset, Read<std::uint32_t>(human, offset) + 1u);
         }
         else while (amount++ < 0 && Read<std::int32_t>(human, offset) > 0) Write(human, offset, Read<std::uint32_t>(human, offset) - 1u);
     }
@@ -227,7 +228,7 @@ namespace NC2Logic
             if (NXBasics::Runtime_TimeSigned32(index) >= 66) index = 0;
             Write(human, NC2Layout::HumanOffset::ProductionRotationIndex, index);
             const auto counter = Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + index * 4u);
-            if (counter > 0 && counter <= 11) { Write(human, NC2Layout::HumanOffset::ProducedGoodType, index); Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0); return true; }
+            if (counter > 0 && counter <= NC2Runtime::ProductionCounter::Infinite) { Write(human, NC2Layout::HumanOffset::ProducedGoodType, index); Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0); return true; }
             if (index == initial) break;
         }
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionRotationIndex, 0);
@@ -247,7 +248,7 @@ namespace NC2Logic
     void Human_Production_DidProduceGoods(void* human, std::uint32_t amount)
     {
         const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType);
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) != 11) Human_Production_ChangeCounter(human, good, NXBasics::Runtime_TimeSigned32(0u - amount));
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) != NC2Runtime::ProductionCounter::Infinite) Human_Production_ChangeCounter(human, good, NXBasics::Runtime_TimeSigned32(0u - amount));
         if (Human_IsJobBuilder(human)) return;
         // Original message functions: FUN_0045c608 and FUN_0045c667.
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 0 && good != 0)
@@ -311,7 +312,7 @@ namespace NC2Logic
         Tool_Human_GetExperienceType_GainedViaWorking(Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType), good == 65 ? Read<std::uint32_t>(human, NC2Layout::HumanOffset::CollectionGoodType) : good, general, specific);
         const auto id = specific != 0 ? specific : general;
         if (id == 0) return 0;
-        const auto weighted = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + id * 4u) * Read<std::uint32_t>(gStaticHumanJobExperienceData, id * 0x34u + 0x2C) / 100u;
+        const auto weighted = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + id * 4u) * Read<std::uint32_t>(gStaticHumanJobExperienceData, id * NC2Layout::RecordSize::JobExperienceTypeUnsigned + NC2Layout::JobExperienceTypeOffset::ExperienceFactor) / 100u;
         const auto divisor = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(weighted * 100u) / 5) + 100u);
         const auto value = NXBasics::Runtime_TimeSigned32(100u - static_cast<std::uint32_t>(10000 / divisor));
         const auto percentage = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(value) * 100u) / 98;
@@ -325,7 +326,7 @@ namespace NC2Logic
         std::uint32_t general, specific;
         Tool_Human_GetExperienceType_GainedViaWorking(Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType), good == 65 ? Read<std::uint32_t>(human, NC2Layout::HumanOffset::CollectionGoodType) : good, general, specific);
         const auto id = specific != 0 ? specific : general;
-        return id == 0 ? 10 : Read<std::int32_t>(gStaticHumanJobExperienceData, id * 0x34u + 0x30u);
+        return id == 0 ? 10 : Read<std::int32_t>(gStaticHumanJobExperienceData, id * NC2Layout::RecordSize::JobExperienceTypeUnsigned + NC2Layout::JobExperienceTypeOffset::BaseRepeatCounterUnsigned);
     }
 
     // Original function: FUN_0046a3b3; Windows-only leaf, original Mac name unresolved.
@@ -903,8 +904,8 @@ namespace NC2Logic
         const auto& enables = JobEnables(human);
         if (enables.defaultGood == 0) return;
         const auto preferred = static_cast<std::uint32_t>(enables.defaultGood);
-        if (Human_IsAbleToProduceGoodNow(human, preferred)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + preferred * 4u, 11);
-        else for (std::uint32_t i = 0; i < enables.goodCount; ++i) if (Human_IsAbleToProduceGoodNow(human, static_cast<std::uint32_t>(enables.goods[i]))) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + static_cast<std::uint32_t>(enables.goods[i]) * 4u, 11); break; }
+        if (Human_IsAbleToProduceGoodNow(human, preferred)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + preferred * 4u, NC2Runtime::ProductionCounter::Infinite);
+        else for (std::uint32_t i = 0; i < enables.goodCount; ++i) if (Human_IsAbleToProduceGoodNow(human, static_cast<std::uint32_t>(enables.goods[i]))) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + static_cast<std::uint32_t>(enables.goods[i]) * 4u, NC2Runtime::ProductionCounter::Infinite); break; }
     }
     // Original function: FUN_0044b9bb.
     std::uint32_t Human_Production_GetCounter(const void* human, std::uint32_t good) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u); }
@@ -917,9 +918,9 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < enables.goodCount; ++i)
         {
             const auto item = static_cast<std::uint32_t>(enables.goods[i]);
-            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + item * 4u) <= 11 && Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + item * 4u) >= 1) Human_Production_SetCounter(human, item, 0);
+            if (Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + item * 4u) <= NC2Runtime::ProductionCounter::Infinite && Read<std::int32_t>(human, NC2Layout::HumanOffset::ProductionCounters + item * 4u) >= 1) Human_Production_SetCounter(human, item, 0);
         }
-        Human_Production_SetCounter(human, good, 11);
+        Human_Production_SetCounter(human, good, NC2Runtime::ProductionCounter::Infinite);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
         Write(human, NC2Layout::HumanOffset::ProductionRotationIndex, good);
         Write(human, NC2Layout::HumanOffset::ProducedGoodType, good);
@@ -975,7 +976,7 @@ namespace NC2Logic
             for (i = 0; i < enables.goodCount; ++i) if (Human_IsAbleToProduceGoodNow(human, static_cast<std::uint32_t>(enables.goods[i]))) { selected = static_cast<std::uint32_t>(enables.goods[i]); break; }
             if (i == enables.goodCount) return;
         }
-        Human_Production_SetCounter(human, selected, 11);
+        Human_Production_SetCounter(human, selected, NC2Runtime::ProductionCounter::Infinite);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
         Write(human, NC2Layout::HumanOffset::ProductionRotationIndex, selected);
         Write(human, NC2Layout::HumanOffset::ProducedGoodType, selected);
