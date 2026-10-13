@@ -1450,6 +1450,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto InputSelectedObject = 8;
+
+        inline constexpr auto InputSelectedObjectUnsigned = 8u;
+
         inline constexpr auto GuiDisplayedMessageSerializedPrefix = 0x30C;
 
         inline constexpr auto GuiDisplayedMessagePool = 156800;
@@ -2287,6 +2291,13 @@ namespace NC2Layout
         inline constexpr auto UniqueId = 4;
 
         inline constexpr auto CreatedTick = 0;
+    }
+
+    namespace InputSelectedObjectOffset
+    {
+        inline constexpr auto UniqueId = 4;
+
+        inline constexpr auto ObjectId = 0;
     }
 
 }
