@@ -1352,6 +1352,8 @@ namespace NC2Layout
 
     namespace MapMicroPointOffset
     {
+        inline constexpr auto LandscapePlayerId = 4;
+
         inline constexpr auto ObjectType = 0;
         inline constexpr auto ObjectData = 2;
         inline constexpr auto HouseId = 4;
@@ -1414,18 +1416,23 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto BuildPlayerPointer = 4;
+        inline constexpr auto BuildPlayerPointerUnsigned = 4u;
+        inline constexpr auto BuildPlayerPointerArray = 80;
+        inline constexpr auto BuildPointUnsigned = 6u;
+        inline constexpr auto BuildPlayerCount = 4;
+        inline constexpr auto RoadBuildPlayer = 0x4B8;
+        inline constexpr auto WallBuildPlayer = 0x260;
+        inline constexpr auto BuildPoint = 6;
         inline constexpr auto GuideConnectionUnsigned = 8u;
         inline constexpr auto GuideConnection = 8;
-
         inline constexpr auto GuideDistanceBucketUnsigned = 0x7Cu;
         inline constexpr auto GuideGoodsCounts = 264;
         inline constexpr auto StaticWeaponTypeUnsigned = 0xC4u;
         inline constexpr auto JobExperienceTypeListUnsigned = 0x2Cu;
         inline constexpr auto JobExperienceTypeUnsigned = 0x34u;
-
         inline constexpr auto AITaskDescription = 32;
         inline constexpr auto AIMilitarySlot = 52;
-
         inline constexpr auto AISoldier = 84;
         inline constexpr auto AICombinedTask = 0x58;
         inline constexpr auto AIMainTask = 0x44;
@@ -1434,7 +1441,6 @@ namespace NC2Layout
         inline constexpr auto AICombinedTaskUnsigned = 0x58u;
         inline constexpr auto AIMainTaskUnsigned = 0x44u;
         inline constexpr auto AIVehicleUnsigned = 0x1Cu;
-
         inline constexpr auto MacroMapPatternUnsigned = 12u;
         inline constexpr auto MacroMapTransitionUnsigned = 16u;
         inline constexpr auto MacroMapLandscapeUnsigned = 16u;
@@ -1444,7 +1450,6 @@ namespace NC2Layout
         inline constexpr auto MacroMapCreatureUnsigned = 16u;
         inline constexpr auto MacroMapHouseUnsigned = 20u;
         inline constexpr auto MacroMapFishSwarmUnsigned = 8u;
-
         inline constexpr auto MacroMapNameUnsigned = 44u;
         inline constexpr auto MacroMapName = 44;
         inline constexpr auto MacroMapPattern = 12;
@@ -1457,7 +1462,6 @@ namespace NC2Layout
         inline constexpr auto MacroMapHouse = 20;
         inline constexpr auto MacroMapFishSwarm = 8;
         inline constexpr auto MacroMap = 376;
-
         inline constexpr auto Particle = 304;
         inline constexpr auto ParticlePosition = 40;
         inline constexpr auto ParticlePositionStateCopy = 112;
@@ -1470,7 +1474,6 @@ namespace NC2Layout
         inline constexpr auto ParticlePoolClearBytes = 3040008;
         inline constexpr auto ParticleGeneratorPoolBytes = 0x7D04;
         inline constexpr auto ParticleDrawPrefixBytes = 40812;
-
         inline constexpr auto DisplayDrawCounters = 32;
         inline constexpr auto DisplayObjectReference = 68;
         inline constexpr auto DisplayMarkedObject = 0x48u;
@@ -1491,7 +1494,6 @@ namespace NC2Layout
         inline constexpr auto FrameList = 8;
         inline constexpr auto StaticAnimalVehicleGraphics = 0x28;
         inline constexpr auto StaticAnimalVehicleGraphicsUnsigned = 0x28u;
-
         inline constexpr auto StaticGoodGraphics = 264;
         inline constexpr auto StaticGoodGraphicsHex = 0x108;
         inline constexpr auto HumanJobBaseGraphics = 0xBC;
@@ -1509,7 +1511,6 @@ namespace NC2Layout
         inline constexpr auto TribeHumanNameArraysUnsigned = 8u;
         inline constexpr auto StaticHumanColor = 0x58;
         inline constexpr auto StaticHumanColorUnsigned = 0x58u;
-
         inline constexpr auto MoveableAnimationPartUnsigned = 28u;
         inline constexpr auto DisplayAtomInformation = 60;
         inline constexpr auto DynamicAnimalVehicle = 0x44;
@@ -1517,7 +1518,6 @@ namespace NC2Layout
         inline constexpr auto DynamicHuman = 0x8C8;
         inline constexpr auto DynamicHumanUnsigned = 0x8C8u;
         inline constexpr auto DynamicHumanSavegamePayload = 0x888;
-
         inline constexpr auto InteractionTargetData = 28;
         inline constexpr auto HumanAssistantData = 0xD0;
         inline constexpr auto HumanAssistantCommandHistory = 0x14u;
@@ -1749,6 +1749,33 @@ namespace NC2Layout
         inline constexpr auto DirectionRuns = 0x38;
         inline constexpr auto DirectionRunCounts = 0x39;
         inline constexpr auto DirectionRunCountsUnsigned = 0x39u;
+    }
+
+    namespace BuildManagerOffset
+    {
+        inline constexpr auto PlayerRecords = 4;
+        inline constexpr auto PlayerCount = 0;
+    }
+
+    namespace BuildPlayerOffset
+    {
+        inline constexpr auto PointsUnsigned = 8u;
+        inline constexpr auto SecondPoint = 14;
+        inline constexpr auto FirstPointAssigned = 12;
+        inline constexpr auto Points = 8;
+        inline constexpr auto AssignedWorkerCount = 4;
+        inline constexpr auto PointCount = 0;
+    }
+
+    namespace BuildPointOffset
+    {
+        inline constexpr auto Assigned = 4;
+    }
+
+    namespace LandscapeLogicDataOffset
+    {
+        inline constexpr auto MaximumValency = 4;
+        inline constexpr auto LogicType = 0;
     }
 
 }

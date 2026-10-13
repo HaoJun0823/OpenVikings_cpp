@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
@@ -575,23 +576,23 @@ namespace NC2Logic
     // Original function: FUN_00427343.
     static void WallBuildManager_Destruct(void* manager)
     {
-        for (std::int32_t index = 0; index < Read<std::int32_t>(manager, 0); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++index)
         {
-            void* data = Read<void*>(Read<void*>(manager, 4), static_cast<std::uint32_t>(index) * 4);
+            void* data = Read<void*>(Read<void*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords), static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::BuildPlayerPointer);
             if (data != nullptr) NXBasics::Runtime_Free(data);
         }
-        FreeField(manager, 4);
+        FreeField(manager, NC2Layout::BuildManagerOffset::PlayerRecords);
         gWallBuildManager = nullptr;
     }
     // Original function: FUN_00427fb8.
     static void RoadBuildManager_Destruct(void* manager)
     {
-        for (std::int32_t index = 0; index < Read<std::int32_t>(manager, 0); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++index)
         {
-            void* data = Read<void*>(Read<void*>(manager, 4), static_cast<std::uint32_t>(index) * 4);
+            void* data = Read<void*>(Read<void*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords), static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::BuildPlayerPointer);
             if (data != nullptr) NXBasics::Runtime_Free(data);
         }
-        FreeField(manager, 4);
+        FreeField(manager, NC2Layout::BuildManagerOffset::PlayerRecords);
         gRoadBuildManager = nullptr;
     }
     // Original function: FUN_0044e65b.

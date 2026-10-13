@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -144,27 +145,27 @@ namespace NC2Logic
         // Original function: FUN_0042732b; remaining player-record bytes are untouched.
         void InitializeWallPlayerData(std::byte* record)
         {
-            for (std::uint32_t index = 0; index < 100; ++index)
-                Write<std::uint32_t>(record, 8 + index * 6, 0);
+            for (std::uint32_t index = 0; index < NC2Runtime::BuildLimits::WallPoints; ++index)
+                Write<std::uint32_t>(record, NC2Layout::BuildPlayerOffset::Points + index * NC2Layout::RecordSize::BuildPoint, 0);
         }
 
         // Original function: FUN_00427f9e.
         void InitializeRoadPlayerData(std::byte* record)
         {
-            for (std::uint32_t index = 0; index < 200; ++index)
-                Write<std::uint32_t>(record, 8 + index * 6, 0);
+            for (std::uint32_t index = 0; index < NC2Runtime::BuildLimits::RoadPoints; ++index)
+                Write<std::uint32_t>(record, NC2Layout::BuildPlayerOffset::Points + index * NC2Layout::RecordSize::BuildPoint, 0);
         }
 
         template<class T, class F> void InitializeBuildManager(T* manager, void*& owner, std::uint32_t recordBytes, F initialize)
         {
             owner = manager;
             manager->mPlayerCount = 0;
-            manager->mPlayerCount = 20;
-            manager->mPlayers = static_cast<std::byte**>(NXBasics::Runtime_AllocateWithNewHandler(80, 1));
-            std::memset(manager->mPlayers, 0, 80);
+            manager->mPlayerCount = NC2Runtime::BuildLimits::Players;
+            manager->mPlayers = static_cast<std::byte**>(NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::BuildPlayerPointerArray, 1));
+            std::memset(manager->mPlayers, 0, NC2Layout::RecordSize::BuildPlayerPointerArray);
             for (std::int32_t player = 0; player < manager->mPlayerCount; ++player)
             {
-                if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0)
+                if (player >= NC2Runtime::BuildLimits::Players || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0)
                     continue;
                 auto* record = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(recordBytes, 1));
                 if (record != nullptr)
@@ -176,8 +177,8 @@ namespace NC2Logic
 
         template<class T> void LoadBuildPlayers(T* manager, CIoHelper& io)
         {
-            io.IO_File_ReadBinary(&manager->mPlayerCount, 4);
-            const std::uint32_t bytes = static_cast<std::uint32_t>(manager->mPlayerCount) * 4u;
+            io.IO_File_ReadBinary(&manager->mPlayerCount, NC2Layout::RecordSize::BuildPlayerCount);
+            const std::uint32_t bytes = static_cast<std::uint32_t>(manager->mPlayerCount) * NC2Layout::RecordSize::BuildPlayerPointerUnsigned;
             manager->mPlayers = static_cast<std::byte**>(NXBasics::Runtime_AllocateWithNewHandler(bytes, 1));
             std::memset(manager->mPlayers, 0, bytes);
         }
@@ -193,10 +194,10 @@ namespace NC2Logic
                     initialize(record);
                 manager->mPlayers[player] = record;
                 io.IO_File_ReadBinary(record, recordBytes);
-                for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0); ++index)
+                for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, NC2Layout::BuildPlayerOffset::PointCount); ++index)
                 {
-                    void* microPoint = GameMap_GetMapMicroPointPtr(record + 8 + index * 6u);
-                    Write<std::uint8_t>(microPoint, 0x0D, Read<std::uint8_t>(microPoint, 0x0D) | mapFlag);
+                    void* microPoint = GameMap_GetMapMicroPointPtr(record + NC2Layout::BuildPlayerOffset::Points + index * NC2Layout::RecordSize::BuildPointUnsigned);
+                    Write<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(microPoint, NC2Layout::MapMicroPointOffset::TerrainFlags) | mapFlag);
                 }
             }
         }
@@ -351,7 +352,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00427297.
-    CWallBuildManager::CWallBuildManager() { InitializeBuildManager(this, gWallBuildManager, 0x260, InitializeWallPlayerData); }
+    CWallBuildManager::CWallBuildManager() { InitializeBuildManager(this, gWallBuildManager, NC2Layout::RecordSize::WallBuildPlayer, InitializeWallPlayerData); }
     // Original function: FUN_004273de.
     CWallBuildManager::CWallBuildManager(CIoHelper& io)
     {
@@ -362,12 +363,12 @@ namespace NC2Logic
         else
         {
             LoadBuildPlayers(this, io);
-            LoadBuildRecords(this, io, 0x260, 8, InitializeWallPlayerData);
+            LoadBuildRecords(this, io, NC2Layout::RecordSize::WallBuildPlayer, NC2Runtime::MapTerrainFlags::WallBuildPending, InitializeWallPlayerData);
         }
     }
 
     // Original function: FUN_00427f0a.
-    CRoadBuildManager::CRoadBuildManager() { InitializeBuildManager(this, gRoadBuildManager, 0x4B8, InitializeRoadPlayerData); }
+    CRoadBuildManager::CRoadBuildManager() { InitializeBuildManager(this, gRoadBuildManager, NC2Layout::RecordSize::RoadBuildPlayer, InitializeRoadPlayerData); }
     // Original function: FUN_00428053.
     CRoadBuildManager::CRoadBuildManager(CIoHelper& io)
     {
@@ -381,7 +382,7 @@ namespace NC2Logic
         else if (io.mReadHeader.version == 2u)
         {
             LoadBuildPlayers(this, io);
-            LoadBuildRecords(this, io, 0x4B8, 4, InitializeRoadPlayerData);
+            LoadBuildRecords(this, io, NC2Layout::RecordSize::RoadBuildPlayer, NC2Runtime::MapTerrainFlags::RoadBuildPending, InitializeRoadPlayerData);
         }
         else
             io.IO_File_Chunk_Skip();
@@ -626,11 +627,11 @@ namespace NC2Logic
     void CRoadBuildManager::IO_Savegame_DoSave(CIoHelper& io)
     {
         io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::RoadBuildManager, 2);
-        io.IO_Memory_WriteBinary(this, 4);
+        io.IO_Memory_WriteBinary(this, NC2Layout::RecordSize::BuildPlayerCount);
         for (std::int32_t index = 0; index < mPlayerCount; ++index)
         {
             io.IO_Memory_WriteByte(mPlayers[index] != nullptr);
-            if (mPlayers[index] != nullptr) io.IO_Memory_WriteBinary(mPlayers[index], 0x4B8);
+            if (mPlayers[index] != nullptr) io.IO_Memory_WriteBinary(mPlayers[index], NC2Layout::RecordSize::RoadBuildPlayer);
         }
         io.IO_Tool_Chunk_FinishAndWrite();
     }
@@ -639,11 +640,11 @@ namespace NC2Logic
     void CWallBuildManager::IO_Savegame_DoSave(CIoHelper& io)
     {
         io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::WallBuildManager, 1);
-        io.IO_Memory_WriteBinary(this, 4);
+        io.IO_Memory_WriteBinary(this, NC2Layout::RecordSize::BuildPlayerCount);
         for (std::int32_t index = 0; index < mPlayerCount; ++index)
         {
             io.IO_Memory_WriteByte(mPlayers[index] != nullptr);
-            if (mPlayers[index] != nullptr) io.IO_Memory_WriteBinary(mPlayers[index], 0x260);
+            if (mPlayers[index] != nullptr) io.IO_Memory_WriteBinary(mPlayers[index], NC2Layout::RecordSize::WallBuildPlayer);
         }
         io.IO_Tool_Chunk_FinishAndWrite();
     }

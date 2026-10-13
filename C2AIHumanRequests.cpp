@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2AIHumanRequests.h"
 #include "C2LifetimeAccess.h"
@@ -152,7 +154,7 @@ namespace NC2Logic
                 {
                     std::uint32_t point; MapMigPoint_AssignLong(&point, Read<std::uint32_t>(request, 4));
                     const auto* road = RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, Read<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &point);
-                    if (road != nullptr && Read<std::uint8_t>(road, 4) == 0) Send(human, 17, Read<std::uint32_t>(request, 4), 0);
+                    if (road != nullptr && Read<std::uint8_t>(road, NC2Layout::BuildPointOffset::Assigned) == 0) Send(human, 17, Read<std::uint32_t>(request, 4), 0);
                 }
             }
             else if (type == 4 && !Human_IsAttachedToWorkHouse(human))
@@ -219,13 +221,13 @@ namespace NC2Logic
             }
         }
         const auto* roads = RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, player);
-        if (roads != nullptr && Read<std::uint32_t>(roads, 0) != 0)
+        if (roads != nullptr && Read<std::uint32_t>(roads, NC2Layout::BuildPlayerOffset::PointCount) != 0)
         {
-            auto requested = AISinglePlayerHandler_l_Road_CountConstructorRequest(handler) + Read<std::uint32_t>(roads, 4);
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(roads, 0) && requested < 2; ++i)
+            auto requested = AISinglePlayerHandler_l_Road_CountConstructorRequest(handler) + Read<std::uint32_t>(roads, NC2Layout::BuildPlayerOffset::AssignedWorkerCount);
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(roads, NC2Layout::BuildPlayerOffset::PointCount) && requested < 2; ++i)
             {
-                const auto* road = static_cast<const std::byte*>(roads) + 8 + i * 6;
-                if (Read<std::uint8_t>(road, 4) != 0) continue;
+                const auto* road = static_cast<const std::byte*>(roads) + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint;
+                if (Read<std::uint8_t>(road, NC2Layout::BuildPointOffset::Assigned) != 0) continue;
                 const auto point = MapMigPoint_GetLong(road);
                 const auto id = AISinglePlayerHandler_l_Misc_SearchHuman(handler, point, 3, 400, true);
                 if (id == -1) continue;

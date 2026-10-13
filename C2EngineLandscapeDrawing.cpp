@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2EngineLandscapeDrawing.h"
@@ -66,7 +68,7 @@ namespace NC2E2
         // Foreground construction-marker branches 004915FA..0049180A of 004911D5.
         void DrawConstructionMarker(const void* display, const void* logic, const void* point, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, bool wall)
         {
-            if ((Read<std::uint8_t>(logic, 0xD) & (wall ? 8u : 4u)) == 0) return;
+            if ((Read<std::uint8_t>(logic, NC2Layout::MapMicroPointOffset::TerrainFlags) & (wall ? NC2Runtime::MapTerrainFlags::WallBuildPendingUnsigned : NC2Runtime::MapTerrainFlags::RoadBuildPendingUnsigned)) == 0) return;
             auto* manager = wall ? NC2Logic::gWallBuildManager : NC2Logic::gRoadBuildManager;
             const auto player = NC2Logic::RoadBuildManager_GetRoadBuildFlagPlayerId(manager, point);
             const auto* color = StaticHumanMisc_ColorIds_GetPlayerColorRef(player);
@@ -81,7 +83,7 @@ namespace NC2E2
             const auto* data = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(manager, player, point);
             if (data != nullptr)
             {
-                if (Read<std::uint8_t>(data, 4) != 0) bitmap->Draw_Circle(x, y, wall ? 8u : 6u, *color);
+                if (Read<std::uint8_t>(data, NC2Layout::BuildPointOffset::Assigned) != 0) bitmap->Draw_Circle(x, y, wall ? 8u : 6u, *color);
             }
             else
             {

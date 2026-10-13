@@ -1,3 +1,6 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2WallRoadPathfinder.h"
 #include "C2GameMapAccess.h"
@@ -39,7 +42,7 @@ namespace NC2Logic
         if (state == 3 || (state == 1 && source == target)) return -2;
         if (state == 1)
         {
-            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&source), 6) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&target), 6)) return -1;
+            if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&source), NC2Layout::MapMicroPointOffset::ContinentId) != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&target), NC2Layout::MapMicroPointOffset::ContinentId)) return -1;
             if (!l_FindWayAndBuildVectorList(&source, &target, radius)) return -1;
             state = 2;
         }
@@ -227,8 +230,8 @@ namespace NC2Logic
     {
         if (!MapMigPoint_IsInsideMap(point) || MapMigPoint_IsBorderPoint(point) || !GameMap_Exploration_HasBeenSeenOnce(playerId, point)) return false;
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, 6)) != 1 || (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, 7) == 0 || !Map_GoodTool_CanBePutOnMap(isRoad ? 3u : 5u, point)) return false;
-        if (Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) != 0 && Read<std::uint8_t>(micro, 2) != 1) return false;
+        if (GameMap_Continent_GetContinentTyp(Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ContinentId)) != 1 || (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0 || Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::WalkingDirections) == 0 || !Map_GoodTool_CanBePutOnMap(isRoad ? 3u : 5u, point)) return false;
+        if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 0 && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) != 1) return false;
         if (isRoad) return true;
         auto cursor = Read<std::uint32_t>(point, 0);
         for (std::uint32_t ring = 1; ring <= 2; ++ring)
@@ -239,9 +242,9 @@ namespace NC2Logic
                 {
                     MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                     const auto* neighbor = GameMap_GetConstMapMicroPointPtr(&cursor);
-                    if ((Read<std::uint8_t>(neighbor, 12) & NXBasics::BitMask::Bit7) == 0) continue;
-                    const auto type = Read<std::uint8_t>(neighbor, 2);
-                    if (Read<std::uint8_t>(neighbor, 0) != 1 || type == 0 || (type != 82 && type != 83 && type != 84)) return false;
+                    if ((Read<std::uint8_t>(neighbor, NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) == 0) continue;
+                    const auto type = Read<std::uint8_t>(neighbor, NC2Layout::MapMicroPointOffset::ObjectData);
+                    if (Read<std::uint8_t>(neighbor, NC2Layout::MapMicroPointOffset::ObjectType) != SwitchIds::MapMicroObjectType::Landscape || type == 0 || (type != SwitchIds::WallLandscapeType::Wall && type != SwitchIds::WallLandscapeType::GateOpen && type != SwitchIds::WallLandscapeType::GateClosed)) return false;
                 }
         }
         return true;

@@ -71,6 +71,27 @@ namespace NC2Logic
         void l_RegisterCallbacks();
     };
 
+    // Physical Windows build records. Raw accesses preserve unaligned DWORD operations.
+    struct SBuildPointStorage
+    {
+        std::int16_t x;
+        std::int16_t y;
+        std::uint8_t assigned;
+        std::uint8_t unresolved05;
+    };
+    struct SWallBuildPlayerStorage
+    {
+        std::uint32_t pointCount;
+        std::uint32_t assignedWorkerCount;
+        SBuildPointStorage points[100];
+    };
+    struct SRoadBuildPlayerStorage
+    {
+        std::uint32_t pointCount;
+        std::uint32_t assignedWorkerCount;
+        SBuildPointStorage points[200];
+    };
+
     class CWallBuildManager
     {
     public:

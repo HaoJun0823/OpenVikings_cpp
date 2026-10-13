@@ -1,3 +1,5 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "C2AIRoadAccess.h"
 #include "C2LifetimeAccess.h"
@@ -20,7 +22,7 @@ namespace NC2Logic
     {
         const auto previous = Read<std::int32_t>(manager, 0);
         if (previous != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize, NC2Layout::HouseOffset::AllocatedFlag) == 0) Write<std::int32_t>(manager, 0, -1);
-        if (Read<std::uint32_t>(RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, player), 0) != 0) return;
+        if (Read<std::uint32_t>(RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, player), NC2Layout::BuildPlayerOffset::PointCount) != 0) return;
         CHouseIterator houses;
         for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
         {

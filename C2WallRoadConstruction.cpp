@@ -1,3 +1,6 @@
+#include "SwitchIdentifiers.h"
+#include "C2RuntimeConstants.h"
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2WallRoadConstruction.h"
 #include "C2ChecksumTools.h"
@@ -32,25 +35,25 @@ namespace NC2Logic
         {
             if (!MapMigPoint_IsInsideMap(point)) return;
             auto* micro = GameMap_GetMapMicroPointPtr(point);
-            const auto type = Read<std::uint8_t>(micro, 2);
-            if (Read<std::uint8_t>(micro, 0) == 1 && (type == 82 || type == 83 || type == 84) && Read<std::int8_t>(micro, 4) == static_cast<std::int32_t>(player)) GameMap_MapMicroPoint_Landscape_Clear(point);
+            const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData);
+            if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && (type == SwitchIds::WallLandscapeType::Wall || type == SwitchIds::WallLandscapeType::GateOpen || type == SwitchIds::WallLandscapeType::GateClosed) && Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) == static_cast<std::int32_t>(player)) GameMap_MapMicroPoint_Landscape_Clear(point);
         }
         // Original function: FUN_00427bfe; Windows-only outlined wall eligibility leaf.
         bool WallGate_IsWallElementUsable(std::uint32_t player, const void* point)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            return Read<std::uint8_t>(micro, 0) == 1 && Read<std::uint8_t>(micro, 2) == 82 && Read<std::int8_t>(micro, 4) == static_cast<std::int32_t>(player) && Read<std::uint8_t>(micro, 3) >= gStaticLandscapeTypeStorage.records[82].maximumValency * 75u / 100u;
+            return Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData) == SwitchIds::WallLandscapeType::Wall && Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) == static_cast<std::int32_t>(player) && Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) >= gStaticLandscapeTypeStorage.records[SwitchIds::WallLandscapeType::Wall].maximumValency * 75u / 100u;
         }
     }
 
     // Original function: FUN_004274c7; hash the player count, then each allocated 260h record in player order.
     std::uint32_t WallBuildManager_Checksum_Calculate(const void* manager)
     {
-        auto checksum = Tool_Checksum_Calculate(manager, 4);
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+        auto checksum = Tool_Checksum_Calculate(manager, NC2Layout::RecordSize::BuildPlayerCount);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
         {
-            const auto* data = Read<std::byte* const*>(manager, 4)[player];
-            if (data != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, data, 0x260);
+            const auto* data = Read<std::byte* const*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            if (data != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, data, NC2Layout::RecordSize::WallBuildPlayer);
         }
         return checksum;
     }
@@ -58,11 +61,11 @@ namespace NC2Logic
     // Original function: FUN_00428171; unused entries and padding are part of the native 4B8h record hash.
     std::uint32_t RoadBuildManager_Checksum_Calculate(const void* manager)
     {
-        auto checksum = Tool_Checksum_Calculate(manager, 4);
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+        auto checksum = Tool_Checksum_Calculate(manager, NC2Layout::RecordSize::BuildPlayerCount);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
         {
-            const auto* data = Read<std::byte* const*>(manager, 4)[player];
-            if (data != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, data, 0x4B8);
+            const auto* data = Read<std::byte* const*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            if (data != nullptr) Tool_Checksum_CalculateAndCombine(&checksum, data, NC2Layout::RecordSize::RoadBuildPlayer);
         }
         return checksum;
     }
@@ -108,7 +111,7 @@ namespace NC2Logic
             MapMigPoint_MoveCursorUnwrapped(point, (direction + (side == 0 ? 2u : 4u)) % 6u);
             for (std::uint32_t i = 0; i < 4; ++i)
             {
-                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) != 0) return false;
+                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), NC2Layout::MapMicroPointOffset::WalkingFlags) & NXBasics::BitMask::Bit7) != 0) return false;
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
             }
         }
@@ -126,15 +129,15 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < 3; ++i) { GameMap_MapMicroPoint_Landscape_Clear(&point); MapMigPoint_MoveCursorUnwrapped(point, direction); }
         const auto engine = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(direction, true);
         const auto* logic = NC2LogicExternals::External_Landscape_GetLogicDataPtr(engine);
-        GameMap_MapMicroPoint_Landscape_SetType(source, Read<std::uint32_t>(logic, 0), Read<std::uint32_t>(logic, 4), engine, true, player);
+        GameMap_MapMicroPoint_Landscape_SetType(source, Read<std::uint32_t>(logic, NC2Layout::LandscapeLogicDataOffset::LogicType), Read<std::uint32_t>(logic, NC2Layout::LandscapeLogicDataOffset::MaximumValency), engine, true, player);
         GameMapModifyManager_StopGameMapModify();
     }
     // Original function: FUN_00427e27; command flag means closed, the external graphic flag means open.
     void MapTool_WallGate_SetState(std::uint32_t player, const void* point, bool closed)
     {
         const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-        const auto type = Read<std::uint8_t>(micro, 2);
-        if (Read<std::uint8_t>(micro, 0) != 1 || (type != 83 && type != 84) || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) return;
+        const auto type = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectData);
+        if (Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) != SwitchIds::MapMicroObjectType::Landscape || (type != SwitchIds::WallLandscapeType::GateOpen && type != SwitchIds::WallLandscapeType::GateClosed) || Read<std::int8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapePlayerId) != static_cast<std::int32_t>(player)) return;
         const auto current = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(point);
         std::uint32_t direction = NXBasics::IntegerRange::UInt32Maximum;
         for (auto candidate : gWallGateStateDirections)
@@ -143,31 +146,31 @@ namespace NC2Logic
         GameMapModifyManager_StartGameMapModify();
         const auto engine = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(direction, !closed);
         const auto* logic = NC2LogicExternals::External_Landscape_GetLogicDataPtr(engine);
-        const auto valency = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 3) : 0u;
-        GameMap_MapMicroPoint_Landscape_SetType(point, Read<std::uint32_t>(logic, 0), valency, engine, true, player);
+        const auto valency = Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape ? Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::LandscapeValency) : 0u;
+        GameMap_MapMicroPoint_Landscape_SetType(point, Read<std::uint32_t>(logic, NC2Layout::LandscapeLogicDataOffset::LogicType), valency, engine, true, player);
         GameMapModifyManager_StopGameMapModify();
     }
 
     // Original function: FUN_004278e7; Windows folds the road/wall point lookup.
     void* RoadBuildManager_GetRoadBuildDataPtr(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0)) return nullptr;
-        auto* data = Read<std::byte**>(manager, 4)[player];
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount)) return nullptr;
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         if (data == nullptr) return nullptr;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
-            if (Read<std::uint32_t>(data, 8 + i * 6) == Read<std::uint32_t>(point, 0)) return data + 8 + i * 6;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) == Read<std::uint32_t>(point, 0)) return data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint;
         return nullptr;
     }
     // Original function: FUN_0042856f; Windows folds the road/wall player lookup.
     void* RoadBuildManager_GetRoadBuildDataPtr(void* manager, std::int32_t player)
     {
-        return player >= Read<std::int32_t>(manager, 0) ? nullptr : Read<std::byte**>(manager, 4)[player];
+        return player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) ? nullptr : Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
     }
     // Original function: FUN_00428586; Windows folds the road/wall any-player predicate.
     bool RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(const void* manager, const void* point)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
-            if (Read<std::byte* const*>(manager, 4)[player] != nullptr && RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return true;
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
+            if (Read<std::byte* const*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] != nullptr && RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return true;
         return false;
     }
 
@@ -175,37 +178,37 @@ namespace NC2Logic
     void __fastcall WallBuildManager_SetWallBuildFlag(void* manager, void*, std::uint32_t player, const void* point)
     {
         if (!CMapPathfinderSpecialWallRoadElement::IsPointOkForBuilding(player, false, point)) return;
-        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr) return;
+        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr) return;
         if (RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(manager, point)) return;
-        auto* data = Read<std::byte**>(manager, 4)[player];
-        const auto count = Read<std::uint32_t>(data, 0);
-        if (count == 100) return;
-        Write(data, 8 + count * 6, Read<std::uint32_t>(point, 0));
-        Write<std::uint8_t>(data, 12 + count * 6, 0);
-        Write(data, 0, count + 1u);
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        const auto count = Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount);
+        if (count == NC2Runtime::BuildLimits::WallPoints) return;
+        Write(data, NC2Layout::BuildPlayerOffset::Points + count * NC2Layout::RecordSize::BuildPoint, Read<std::uint32_t>(point, 0));
+        Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + count * NC2Layout::RecordSize::BuildPoint, 0);
+        Write(data, NC2Layout::BuildPlayerOffset::PointCount, count + 1u);
         auto* micro = GameMap_GetMapMicroPointPtr(point);
-        Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) | 8u);
+        Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) | NC2Runtime::MapTerrainFlags::WallBuildPendingUnsigned);
     }
 
     // Original function: FUN_00427583.
     bool WallBuildManager_ClearWallBuildFlag(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
-        auto* data = Read<std::byte**>(manager, 4)[player];
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, 8 + i * 6) != Read<std::uint32_t>(point, 0)) continue;
-            if (Read<std::uint8_t>(data, 12 + i * 6) != 0) Write(data, 4, Read<std::uint32_t>(data, 4) - 1u);
-            data = Read<std::byte**>(manager, 4)[player];
-            std::memmove(data + 8 + i * 6, data + 14 + i * 6, (Read<std::uint32_t>(data, 0) - i - 1) * 6);
-            data = Read<std::byte**>(manager, 4)[player];
-            Write(data, 0, Read<std::uint32_t>(data, 0) - 1u);
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            Write(data, NC2Layout::BuildPlayerOffset::PointCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - 1u);
             break;
         }
         if (!RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(manager, point))
         {
             auto* micro = GameMap_GetMapMicroPointPtr(point);
-            Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) & ~8u);
+            Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & ~NC2Runtime::MapTerrainFlags::WallBuildPendingUnsigned);
         }
         return true;
     }
@@ -213,10 +216,10 @@ namespace NC2Logic
     // Original function: FUN_0042765e; removal restarts the scan at entry zero.
     void __fastcall WallBuildManager_ClearWallBuildFlagArea(void* manager, void*, std::uint32_t player, const void* center, std::uint32_t radius)
     {
-        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr) return;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(Read<std::byte**>(manager, 4)[player], 0);)
+        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr) return;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::PointCount);)
         {
-            auto point = Read<std::uint32_t>(Read<std::byte**>(manager, 4)[player], 8 + i * 6);
+            auto point = Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint);
             const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(center, 0), Read<std::int16_t>(center, 2));
             if (static_cast<std::uint32_t>(distance) <= radius) { WallBuildManager_ClearWallBuildFlag(manager, player, &point); i = 0; }
             else ++i;
@@ -226,45 +229,45 @@ namespace NC2Logic
     // Original function: FUN_004277c6; kept separate from ClearWallBuildFlag.
     static void WallBuildManager_l_FinishWall(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return;
-        auto* data = Read<std::byte**>(manager, 4)[player];
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return;
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, 8 + i * 6) != Read<std::uint32_t>(point, 0)) continue;
-            if (Read<std::uint8_t>(data, 12 + i * 6) != 0) Write(data, 4, Read<std::uint32_t>(data, 4) - 1u);
-            data = Read<std::byte**>(manager, 4)[player];
-            std::memmove(data + 8 + i * 6, data + 14 + i * 6, (Read<std::uint32_t>(data, 0) - i - 1) * 6);
-            data = Read<std::byte**>(manager, 4)[player];
-            Write(data, 0, Read<std::uint32_t>(data, 0) - 1u);
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            Write(data, NC2Layout::BuildPlayerOffset::PointCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - 1u);
             break;
         }
         if (!RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(manager, point))
         {
             auto* micro = GameMap_GetMapMicroPointPtr(point);
-            Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) & ~8u);
+            Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & ~NC2Runtime::MapTerrainFlags::WallBuildPendingUnsigned);
         }
     }
 
     // Original function: FUN_0042779d.
     static void WallBuildManager_l_FinishWallForAnyPlayer(void* manager, const void* point)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
-            if (Read<std::byte**>(manager, 4)[player] != nullptr) WallBuildManager_l_FinishWall(manager, player, point);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
+            if (Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] != nullptr) WallBuildManager_l_FinishWall(manager, player, point);
     }
 
     // Original function: FUN_004276ef; pending flags are removed before attempting the map edit.
     bool WallBuildManager_FinishWall(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
         WallBuildManager_l_FinishWallForAnyPlayer(manager, point);
         auto* micro = GameMap_GetMapMicroPointPtr(point);
-        Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) & ~8u);
+        Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & ~NC2Runtime::MapTerrainFlags::WallBuildPendingUnsigned);
         GameMapModifyManager_StartGameMapModify();
         const auto* landscape = GameMap_GetConstMapMicroPointPtr(point);
-        if (Read<std::uint8_t>(landscape, 0) == 1 && Read<std::uint8_t>(landscape, 2) == 1) GameMap_MapMicroPoint_Landscape_Clear(point);
+        if (Read<std::uint8_t>(landscape, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(landscape, NC2Layout::MapMicroPointOffset::ObjectData) == 1) GameMap_MapMicroPoint_Landscape_Clear(point);
         const auto engine = NC2LogicExternals::External_Misc_GetEngineWallElementLandscapeId();
         const auto* logic = NC2LogicExternals::External_Landscape_GetLogicDataPtr(engine);
-        const bool result = GameMap_MapMicroPoint_Landscape_SetType(point, Read<std::uint32_t>(logic, 0), Read<std::uint32_t>(logic, 4), engine, true, player);
+        const bool result = GameMap_MapMicroPoint_Landscape_SetType(point, Read<std::uint32_t>(logic, NC2Layout::LandscapeLogicDataOffset::LogicType), Read<std::uint32_t>(logic, NC2Layout::LandscapeLogicDataOffset::MaximumValency), engine, true, player);
         GameMapModifyManager_StopGameMapModify();
         return result;
     }
@@ -272,38 +275,38 @@ namespace NC2Logic
     // Original function: FUN_00427936.
     void WallBuildManager_ClearWallBuildFlagForAnyPlayer(void* manager, const void* point)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
-            if (Read<std::byte**>(manager, 4)[player] != nullptr) WallBuildManager_ClearWallBuildFlag(manager, player, point);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
+            if (Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] != nullptr) WallBuildManager_ClearWallBuildFlag(manager, player, point);
     }
 
     // Original function: FUN_0042795f; only idle builders without a build-site attachment are assigned.
     void __fastcall WallBuildManager_DoOneGameSecond(void* manager, void*)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
         {
-            auto* data = Read<std::byte**>(manager, 4)[player];
-            if (data == nullptr || Read<std::uint32_t>(data, 4) >= 5) continue;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+            auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            if (data == nullptr || Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) >= NC2Runtime::BuildLimits::WallWorkers) continue;
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
             {
-                if (Read<std::uint8_t>(data, 12 + i * 6) == 0)
+                if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) == 0)
                 {
                     CHumanIterator iterator;
-                    for (auto id = iterator.GetFirstHumanId(player, data + 8 + i * 6, 50); id != -1; id = iterator.GetNextHumanId())
+                    for (auto id = iterator.GetFirstHumanId(player, data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, NC2Runtime::BuildLimits::WorkerSearchRadius); id != -1; id = iterator.GetNextHumanId())
                     {
                         auto* human = const_cast<void*>(GetHumanPtr(id));
-                        if (Read<std::uint32_t>(human, 0x18) != 7 || Read<std::uint32_t>(human, 0xACC) != 0 || Human_IsAttachedToBuildSite(human)) continue;
-                        Write<std::uint32_t>(human, 0x38C, 0);
-                        data = Read<std::byte**>(manager, 4)[player];
-                        Write(human, 0xB30, Read<std::uint32_t>(data, 8 + i * 6));
+                        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != SwitchIds::HumanJob::Builder || Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != SwitchIds::GoodCirculationMode::None || Human_IsAttachedToBuildSite(human)) continue;
+                        Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
+                        data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+                        Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint));
                         Human_WorkCenterMarker_Update(human);
-                        data = Read<std::byte**>(manager, 4)[player];
-                        Write<std::uint8_t>(data, 12 + i * 6, 1);
-                        Write(data, 4, Read<std::uint32_t>(data, 4) + 1u);
+                        data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+                        Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint, 1);
+                        Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) + 1u);
                         break;
                     }
                 }
-                data = Read<std::byte**>(manager, 4)[player];
-                if (Read<std::uint32_t>(data, 4) >= 5) break;
+                data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+                if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) >= NC2Runtime::BuildLimits::WallWorkers) break;
             }
         }
     }
@@ -312,38 +315,38 @@ namespace NC2Logic
     void __fastcall RoadBuildManager_SetRoadBuildFlag(void* manager, void*, std::uint32_t player, const void* point)
     {
         if (!CMapPathfinderSpecialWallRoadElement::IsPointOkForBuilding(player, true, point)) return;
-        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 13) & 2u) != 0) return;
-        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr) return;
+        if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), NC2Layout::MapMicroPointOffset::TerrainFlags) & NC2Runtime::MapTerrainFlags::RoadUnsigned) != 0) return;
+        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr) return;
         if (RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(manager, point)) return;
-        auto* data = Read<std::byte**>(manager, 4)[player];
-        const auto count = Read<std::uint32_t>(data, 0);
-        if (count == 200) return;
-        Write(data, 8 + count * 6, Read<std::uint32_t>(point, 0));
-        Write<std::uint8_t>(data, 12 + count * 6, 0);
-        Write(data, 0, count + 1u);
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        const auto count = Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount);
+        if (count == NC2Runtime::BuildLimits::RoadPoints) return;
+        Write(data, NC2Layout::BuildPlayerOffset::Points + count * NC2Layout::RecordSize::BuildPoint, Read<std::uint32_t>(point, 0));
+        Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + count * NC2Layout::RecordSize::BuildPoint, 0);
+        Write(data, NC2Layout::BuildPlayerOffset::PointCount, count + 1u);
         auto* micro = GameMap_GetMapMicroPointPtr(point);
-        Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) | 4u);
+        Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) | NC2Runtime::MapTerrainFlags::RoadBuildPendingUnsigned);
     }
 
     // Original function: FUN_0042823c.
     bool RoadBuildManager_ClearRoadBuildFlag(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
-        auto* data = Read<std::byte**>(manager, 4)[player];
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, 8 + i * 6) != Read<std::uint32_t>(point, 0)) continue;
-            if (Read<std::uint8_t>(data, 12 + i * 6) != 0) Write(data, 4, Read<std::uint32_t>(data, 4) - 1u);
-            data = Read<std::byte**>(manager, 4)[player];
-            std::memmove(data + 8 + i * 6, data + 14 + i * 6, (Read<std::uint32_t>(data, 0) - i - 1) * 6);
-            data = Read<std::byte**>(manager, 4)[player];
-            Write(data, 0, Read<std::uint32_t>(data, 0) - 1u);
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            Write(data, NC2Layout::BuildPlayerOffset::PointCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - 1u);
             break;
         }
         if (!RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(manager, point))
         {
             auto* micro = GameMap_GetMapMicroPointPtr(point);
-            Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) & ~4u);
+            Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & ~NC2Runtime::MapTerrainFlags::RoadBuildPendingUnsigned);
         }
         return true;
     }
@@ -351,10 +354,10 @@ namespace NC2Logic
     // Original function: FUN_00428317; removal restarts the scan at entry zero.
     void __fastcall RoadBuildManager_ClearRoadBuildFlagArea(void* manager, void*, std::uint32_t player, const void* center, std::uint32_t radius)
     {
-        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr) return;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(Read<std::byte**>(manager, 4)[player], 0);)
+        if (static_cast<std::int32_t>(player) >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr) return;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::PointCount);)
         {
-            auto point = Read<std::uint32_t>(Read<std::byte**>(manager, 4)[player], 8 + i * 6);
+            auto point = Read<std::uint32_t>(Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player], NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint);
             const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(center, 0), Read<std::int16_t>(center, 2));
             if (static_cast<std::uint32_t>(distance) <= radius) { RoadBuildManager_ClearRoadBuildFlag(manager, player, &point); i = 0; }
             else ++i;
@@ -364,43 +367,43 @@ namespace NC2Logic
     // Original function: FUN_00428466; kept separate from ClearRoadBuildFlag.
     static void RoadBuildManager_l_FinishRoad(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return;
-        auto* data = Read<std::byte**>(manager, 4)[player];
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return;
+        auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
         {
-            if (Read<std::uint32_t>(data, 8 + i * 6) != Read<std::uint32_t>(point, 0)) continue;
-            if (Read<std::uint8_t>(data, 12 + i * 6) != 0) Write(data, 4, Read<std::uint32_t>(data, 4) - 1u);
-            data = Read<std::byte**>(manager, 4)[player];
-            std::memmove(data + 8 + i * 6, data + 14 + i * 6, (Read<std::uint32_t>(data, 0) - i - 1) * 6);
-            data = Read<std::byte**>(manager, 4)[player];
-            Write(data, 0, Read<std::uint32_t>(data, 0) - 1u);
+            if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint) != Read<std::uint32_t>(point, 0)) continue;
+            if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) != 0) Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) - 1u);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            std::memmove(data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, data + NC2Layout::BuildPlayerOffset::SecondPoint + i * NC2Layout::RecordSize::BuildPoint, (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - i - 1) * NC2Layout::RecordSize::BuildPoint);
+            data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            Write(data, NC2Layout::BuildPlayerOffset::PointCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount) - 1u);
             break;
         }
         if (!RoadBuildManager_l_IsRoadBuildFlagSetForAnyPlayer(manager, point))
         {
             auto* micro = GameMap_GetMapMicroPointPtr(point);
-            Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) & ~4u);
+            Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & ~NC2Runtime::MapTerrainFlags::RoadBuildPendingUnsigned);
         }
     }
 
     // Original function: FUN_0042843d.
     static void RoadBuildManager_l_FinishRoadForAnyPlayer(void* manager, const void* point)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
-            if (Read<std::byte**>(manager, 4)[player] != nullptr) RoadBuildManager_l_FinishRoad(manager, player, point);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
+            if (Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] != nullptr) RoadBuildManager_l_FinishRoad(manager, player, point);
     }
 
     // Original function: FUN_004283a8; pending flags are removed before attempting the map edit.
     bool RoadBuildManager_FinishRoad(void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0) || Read<std::byte**>(manager, 4)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount) || Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] == nullptr || !RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return false;
         RoadBuildManager_l_FinishRoadForAnyPlayer(manager, point);
         auto* micro = GameMap_GetMapMicroPointPtr(point);
-        Write<std::uint8_t>(micro, 13, Read<std::uint8_t>(micro, 13) & ~4u);
+        Write<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags, Read<std::uint8_t>(micro, NC2Layout::MapMicroPointOffset::TerrainFlags) & ~NC2Runtime::MapTerrainFlags::RoadBuildPendingUnsigned);
         GameMapModifyManager_StartGameMapModify();
         const bool result = GameMap_MapMicroPoint_Road_Set(point, true);
         const auto* landscape = GameMap_GetConstMapMicroPointPtr(point);
-        if (result && Read<std::uint8_t>(landscape, 0) == 1 && Read<std::uint8_t>(landscape, 2) == 1) GameMap_MapMicroPoint_Landscape_Clear(point);
+        if (result && Read<std::uint8_t>(landscape, NC2Layout::MapMicroPointOffset::ObjectType) == SwitchIds::MapMicroObjectType::Landscape && Read<std::uint8_t>(landscape, NC2Layout::MapMicroPointOffset::ObjectData) == 1) GameMap_MapMicroPoint_Landscape_Clear(point);
         GameMapModifyManager_StopGameMapModify();
         return result;
     }
@@ -408,39 +411,39 @@ namespace NC2Logic
     // Original function: FUN_004285b9.
     void RoadBuildManager_ClearRoadBuildFlagForAnyPlayer(void* manager, const void* point)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
-            if (Read<std::byte**>(manager, 4)[player] != nullptr) RoadBuildManager_ClearRoadBuildFlag(manager, player, point);
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
+            if (Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] != nullptr) RoadBuildManager_ClearRoadBuildFlag(manager, player, point);
     }
 
     // Original function: FUN_004285e2; only idle builders without a build-site attachment are assigned.
     void __fastcall RoadBuildManager_DoOneGameSecond(void* manager, void*)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
         {
-            auto* data = Read<std::byte**>(manager, 4)[player];
-            if (data == nullptr || Read<std::uint32_t>(data, 4) >= 3) continue;
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i)
+            auto* data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+            if (data == nullptr || Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) >= NC2Runtime::BuildLimits::RoadWorkers) continue;
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i)
             {
-                if (Read<std::uint8_t>(data, 12 + i * 6) == 0)
+                if (Read<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint) == 0)
                 {
                     CHumanIterator iterator;
-                    for (auto id = iterator.GetFirstHumanId(player, data + 8 + i * 6, 50); id != -1; id = iterator.GetNextHumanId())
+                    for (auto id = iterator.GetFirstHumanId(player, data + NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint, NC2Runtime::BuildLimits::WorkerSearchRadius); id != -1; id = iterator.GetNextHumanId())
                     {
                         auto* human = const_cast<void*>(GetHumanPtr(id));
-                        if (Read<std::uint32_t>(human, 0x18) != 7 || Read<std::uint32_t>(human, 0xACC) != 0 || Human_IsAttachedToBuildSite(human)) continue;
-                        Write<std::uint32_t>(human, 0x38C, 0);
-                        data = Read<std::byte**>(manager, 4)[player];
-                        Write(human, 0xB30, Read<std::uint32_t>(data, 8 + i * 6));
+                        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != SwitchIds::HumanJob::Builder || Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != SwitchIds::GoodCirculationMode::None || Human_IsAttachedToBuildSite(human)) continue;
+                        Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
+                        data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+                        Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::Points + i * NC2Layout::RecordSize::BuildPoint));
                         Human_WorkCenterMarker_Update(human);
                         Human_Target_ResetSecondaryTarget(human);
-                        data = Read<std::byte**>(manager, 4)[player];
-                        Write<std::uint8_t>(data, 12 + i * 6, 1);
-                        Write(data, 4, Read<std::uint32_t>(data, 4) + 1u);
+                        data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+                        Write<std::uint8_t>(data, NC2Layout::BuildPlayerOffset::FirstPointAssigned + i * NC2Layout::RecordSize::BuildPoint, 1);
+                        Write(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount, Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) + 1u);
                         break;
                     }
                 }
-                data = Read<std::byte**>(manager, 4)[player];
-                if (Read<std::uint32_t>(data, 4) >= 3) break;
+                data = Read<std::byte**>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
+                if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::AssignedWorkerCount) >= NC2Runtime::BuildLimits::RoadWorkers) break;
             }
         }
     }

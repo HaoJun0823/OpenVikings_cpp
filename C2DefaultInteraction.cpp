@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -48,17 +49,17 @@ namespace NC2Logic
     // Original function: FUN_0042789b; Windows folds the matching wall-manager method into this entry.
     bool RoadBuildManager_IsRoadBuildFlagSetForPlayer(const void* manager, std::int32_t player, const void* point)
     {
-        if (player >= Read<std::int32_t>(manager, 0)) return false;
-        const auto* data = Read<std::byte* const*>(manager, 4)[player];
+        if (player >= Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount)) return false;
+        const auto* data = Read<std::byte* const*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player];
         if (data == nullptr) return false;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0); ++i) if (Read<std::uint32_t>(data, 8u + i * 6u) == Read<std::uint32_t>(point, 0)) return true;
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointCount); ++i) if (Read<std::uint32_t>(data, NC2Layout::BuildPlayerOffset::PointsUnsigned + i * NC2Layout::RecordSize::BuildPointUnsigned) == Read<std::uint32_t>(point, 0)) return true;
         return false;
     }
     // Original function: FUN_0042853b; Windows folds GetWallBuildFlagPlayerId into this entry.
     std::int32_t RoadBuildManager_GetRoadBuildFlagPlayerId(const void* manager, const void* point)
     {
-        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, 0); ++player)
-            if (Read<std::byte* const*>(manager, 4)[player] != nullptr && RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return player;
+        for (std::int32_t player = 0; player < Read<std::int32_t>(manager, NC2Layout::BuildManagerOffset::PlayerCount); ++player)
+            if (Read<std::byte* const*>(manager, NC2Layout::BuildManagerOffset::PlayerRecords)[player] != nullptr && RoadBuildManager_IsRoadBuildFlagSetForPlayer(manager, player, point)) return player;
         return -1;
     }
 

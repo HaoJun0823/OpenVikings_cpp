@@ -216,4 +216,23 @@ namespace NC2Runtime
         inline constexpr auto MoveableUnsigned = 2u;
     }
 
+    namespace BuildLimits
+    {
+        inline constexpr auto Players = 20;
+        inline constexpr auto WorkerSearchRadius = 50;
+        inline constexpr auto RoadWorkers = 3;
+        inline constexpr auto WallWorkers = 5;
+        inline constexpr auto RoadPoints = 200;
+        inline constexpr auto WallPoints = 100;
+    }
+
+    namespace MapTerrainFlags
+    {
+        inline constexpr auto RoadBuildPending = 4;
+        inline constexpr auto WallBuildPending = 8;
+        inline constexpr auto WallBuildPendingUnsigned = 8u;
+        inline constexpr auto RoadBuildPendingUnsigned = 4u;
+        inline constexpr auto RoadUnsigned = 2u;
+    }
+
 }
