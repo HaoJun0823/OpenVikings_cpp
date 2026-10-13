@@ -1,10 +1,47 @@
 #pragma once
 
+#include "C2RuntimeConstants.h"
+
 #include <cstdint>
 namespace NXBasics { struct SRectangle; }
 
 namespace NC2InGameGuiInputManager
 {
+    struct SSelectedObjectReference
+    {
+        std::int32_t id;
+        std::uint32_t uniqueId;
+    };
+
+    // The original manager continues with cursor/highlighting state after this prefix.
+    struct SInputManagerSelectionData
+    {
+        std::uint32_t inputMode;
+        std::uint32_t selectionType;
+        SSelectedObjectReference singleHuman;
+        std::uint32_t humanGroupCount;
+        SSelectedObjectReference humanGroup[NC2Runtime::InputSelectionLimits::Humans];
+        SSelectedObjectReference singleAnimal;
+        SSelectedObjectReference singleVehicle;
+        std::uint32_t vehicleGroupCount;
+        SSelectedObjectReference vehicleGroup[NC2Runtime::InputSelectionLimits::Vehicles];
+        SSelectedObjectReference house;
+        std::uint32_t houseType;
+        std::uint32_t houseDevelopmentStage;
+        std::uint32_t houseSpecialItemType;
+        std::uint32_t houseSpecialItem;
+        SSelectedObjectReference guide;
+        std::uint32_t landscapeType;
+        std::uint32_t landscapeVariant;
+        std::uint32_t landscapeMapPoint;
+        std::int32_t landscapePlayerId;
+        std::uint32_t roadBuildPoint;
+        std::uint32_t wallBuildPoint;
+        std::uint32_t selectionChangeCount;
+    };
+    static_assert(sizeof(SSelectedObjectReference) == 8);
+    static_assert(sizeof(SInputManagerSelectionData) == 0xAB4);
+
     // Complete singleton binding at 00569410; lifecycle is in InGameGuiSupportAccess.cpp.
     extern void* gInputManager;
     std::int32_t Selection_GetSelectedEngineHouseTypeId(const void* manager);

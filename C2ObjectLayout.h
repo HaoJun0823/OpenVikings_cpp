@@ -180,6 +180,63 @@ namespace NC2Layout
         inline constexpr auto SandDensity = 8;
     }
 
+    namespace InputManagerOffset
+    {
+        inline constexpr auto InputMode = 0;
+        inline constexpr auto SelectionType = 4;
+        inline constexpr auto SingleHumanId = 8;
+        inline constexpr auto SingleHumanUniqueId = 0xC;
+        inline constexpr auto HumanGroupCount = 0x10;
+        inline constexpr auto HumanGroup = 0x14;
+        inline constexpr auto HumanGroupUniqueIds = 0x18;
+        inline constexpr auto HumanGroupSecondId = 0x1C;
+        inline constexpr auto HumanGroupSecondUniqueId = 0x20;
+        inline constexpr auto SingleAnimalId = 0x974;
+        inline constexpr auto SingleAnimalUniqueId = 0x978;
+        inline constexpr auto SingleVehicleId = 0x97C;
+        inline constexpr auto SingleVehicleUniqueId = 0x980;
+        inline constexpr auto VehicleGroupCount = 0x984;
+        inline constexpr auto VehicleGroup = 0x988;
+        inline constexpr auto VehicleGroupUniqueIds = 0x98C;
+        inline constexpr auto VehicleGroupSecondId = 0x990;
+        inline constexpr auto VehicleGroupSecondUniqueId = 0x994;
+        inline constexpr auto HouseId = 0xA78;
+        inline constexpr auto HouseUniqueId = 0xA7C;
+        inline constexpr auto HouseType = 0xA80;
+        inline constexpr auto HouseDevelopmentStage = 0xA84;
+        inline constexpr auto HouseSpecialItemType = 0xA88;
+        inline constexpr auto HouseSpecialItem = 0xA8C;
+        inline constexpr auto GuideId = 0xA90;
+        inline constexpr auto GuideUniqueId = 0xA94;
+        inline constexpr auto LandscapeType = 0xA98;
+        inline constexpr auto LandscapeVariant = 0xA9C;
+        inline constexpr auto LandscapeMapPoint = 0xAA0;
+        inline constexpr auto LandscapePlayerId = 0xAA4;
+        inline constexpr auto RoadBuildPoint = 0xAA8;
+        inline constexpr auto WallBuildPoint = 0xAAC;
+        inline constexpr auto SelectionChangeCount = 0xAB0;
+        inline constexpr auto SingleHumanIdUnsigned = 8u;
+        inline constexpr auto SingleHumanUniqueIdUnsigned = 0xCu;
+        inline constexpr auto HumanGroupCountUnsigned = 0x10u;
+        inline constexpr auto HumanGroupUnsigned = 0x14u;
+        inline constexpr auto HumanGroupUniqueIdsUnsigned = 0x18u;
+        inline constexpr auto SingleAnimalIdUnsigned = 0x974u;
+        inline constexpr auto SingleAnimalUniqueIdUnsigned = 0x978u;
+        inline constexpr auto SingleVehicleIdUnsigned = 0x97Cu;
+        inline constexpr auto SingleVehicleUniqueIdUnsigned = 0x980u;
+        inline constexpr auto VehicleGroupCountUnsigned = 0x984u;
+        inline constexpr auto VehicleGroupUnsigned = 0x988u;
+        inline constexpr auto VehicleGroupUniqueIdsUnsigned = 0x98Cu;
+        inline constexpr auto HouseIdUnsigned = 0xA78u;
+        inline constexpr auto HouseUniqueIdUnsigned = 0xA7Cu;
+        inline constexpr auto HouseTypeUnsigned = 0xA80u;
+        inline constexpr auto HouseDevelopmentStageUnsigned = 0xA84u;
+        inline constexpr auto GuideIdUnsigned = 0xA90u;
+        inline constexpr auto GuideUniqueIdUnsigned = 0xA94u;
+        inline constexpr auto LandscapeTypeUnsigned = 0xA98u;
+        inline constexpr auto LandscapeVariantUnsigned = 0xA9Cu;
+    }
+
     namespace DisplayObjectReferenceOffset
     {
         inline constexpr auto HumanIdUnsigned = 8u;

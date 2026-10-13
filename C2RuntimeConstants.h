@@ -85,6 +85,12 @@ namespace NC2Runtime
         inline constexpr auto Sand = 3;
     }
 
+    namespace InputSelectionLimits
+    {
+        inline constexpr auto Humans = 300;
+        inline constexpr auto Vehicles = 30;
+    }
+
     namespace DisplaySelectionLimits
     {
         inline constexpr auto SecondaryMarks = 30;

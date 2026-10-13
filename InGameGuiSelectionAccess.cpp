@@ -51,34 +51,34 @@ namespace NC2InGameGuiInputManager
     bool Selection_IsVehicleSelected(const void* manager, std::int32_t id)
     {
         using namespace NC2Lifetime;
-        const auto selection = Read<std::uint32_t>(manager, 4);
-        if (selection == 4) return Read<std::int32_t>(manager, 0x97C) == id;
-        if (selection == 5) for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0x984); ++i) if (Read<std::int32_t>(manager, 0x988u + i * 8u) == id) return true;
+        const auto selection = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
+        if (selection == 4) return Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId) == id;
+        if (selection == 5) for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupCount); ++i) if (Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + i * 8u) == id) return true;
         return false;
     }
 
     // Original function: FUN_004b7558.
     std::int32_t Selection_GetSelectedHouseId(const void* manager)
     {
-        return NC2Lifetime::Read<std::uint32_t>(manager, 4) == 6 ? NC2Lifetime::Read<std::int32_t>(manager, 0xA78) : -1;
+        return NC2Lifetime::Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 6 ? NC2Lifetime::Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::HouseId) : -1;
     }
 
     // Original function: FUN_004b7569.
     bool Selection_IsHouseSelected(const void* manager, std::int32_t id)
     {
-        return NC2Lifetime::Read<std::uint32_t>(manager, 4) == 6 && NC2Lifetime::Read<std::int32_t>(manager, 0xA78) == id;
+        return NC2Lifetime::Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 6 && NC2Lifetime::Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::HouseId) == id;
     }
 
     // Original function: FUN_004b65e5; all four fields participate in selection identity.
     bool Selection_SelectEngineHouseType(void* manager, std::uint32_t type, std::uint32_t developmentStage, std::uint32_t specialItemType, std::uint32_t specialItem)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint32_t>(manager, 4) == 7 && Read<std::uint32_t>(manager, 0xA80) == type && Read<std::uint32_t>(manager, 0xA84) == developmentStage && Read<std::uint32_t>(manager, 0xA88) == specialItemType && Read<std::uint32_t>(manager, 0xA8C) == specialItem) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 7 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseType) == type && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseDevelopmentStage) == developmentStage && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseSpecialItemType) == specialItemType && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseSpecialItem) == specialItem) return false;
         Selection_UnselectAll(manager);
         InputMode_Set(manager, 0);
-        Write<std::uint32_t>(manager, 0xAB0, Read<std::uint32_t>(manager, 0xAB0) + 1);
-        Write(manager, 0xA80, type); Write<std::uint32_t>(manager, 4, 7);
-        Write(manager, 0xA84, developmentStage); Write(manager, 0xA88, specialItemType); Write(manager, 0xA8C, specialItem);
+        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionChangeCount, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionChangeCount) + 1);
+        Write(manager, NC2Layout::InputManagerOffset::HouseType, type); Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 7);
+        Write(manager, NC2Layout::InputManagerOffset::HouseDevelopmentStage, developmentStage); Write(manager, NC2Layout::InputManagerOffset::HouseSpecialItemType, specialItemType); Write(manager, NC2Layout::InputManagerOffset::HouseSpecialItem, specialItem);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_UpdateWindows();
         return true;
     }
@@ -95,7 +95,7 @@ namespace NC2InGameGuiInputManager
         // l_Selection_Changed is inlined in Windows callers before 004a0e9d.
         void Changed(void* manager)
         {
-            Write(manager, 0xAB0, Read<std::uint32_t>(manager, 0xAB0) + 1u);
+            Write(manager, NC2Layout::InputManagerOffset::SelectionChangeCount, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionChangeCount) + 1u);
             InGameGuiManager_Selection_UpdateWindows(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
         }
 
@@ -152,11 +152,11 @@ namespace NC2InGameGuiInputManager
         bool SelectSingle(void* manager, std::uint32_t mode, std::uint32_t offset, std::uint32_t id, const void* object, std::uint32_t revisionOffset, std::uint32_t callback)
         {
             auto revision = Read<std::uint32_t>(object, revisionOffset);
-            if (Read<std::uint32_t>(manager, 4) == mode && Read<std::uint32_t>(manager, offset) == id && Read<std::uint32_t>(manager, offset + 4) == revision) return false;
+            if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == mode && Read<std::uint32_t>(manager, offset) == id && Read<std::uint32_t>(manager, offset + 4) == revision) return false;
             Selection_UnselectAll(manager);
             InputMode_Set(manager, 0);
             revision = Read<std::uint32_t>(object, revisionOffset);
-            Write(manager, 4, mode); Write(manager, offset, id); Write(manager, offset + 4, revision);
+            Write(manager, NC2Layout::InputManagerOffset::SelectionType, mode); Write(manager, offset, id); Write(manager, offset + 4, revision);
             Changed(manager);
             if (callback != 0) Inform(callback, id, revision, true);
             return true;
@@ -168,7 +168,7 @@ namespace NC2InGameGuiInputManager
 
         void ValidateGroup(void* manager, bool vehicles)
         {
-            const auto countOffset = vehicles ? 0x984u : 0x10u, entriesOffset = vehicles ? 0x988u : 0x14u;
+            const auto countOffset = vehicles ? NC2Layout::InputManagerOffset::VehicleGroupCountUnsigned : NC2Layout::InputManagerOffset::HumanGroupCountUnsigned, entriesOffset = vehicles ? NC2Layout::InputManagerOffset::VehicleGroupUnsigned : NC2Layout::InputManagerOffset::HumanGroupUnsigned;
             bool changed = false;
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, countOffset);)
             {
@@ -195,7 +195,7 @@ namespace NC2InGameGuiInputManager
         void RemoveFromSelection(void* manager, std::uint32_t id, std::uint32_t singleMode, std::uint32_t singleOffset, std::uint32_t groupMode, std::uint32_t countOffset, std::uint32_t recordsOffset, std::uint32_t callback)
         {
             Selection_Validate(manager);
-            const auto mode = Read<std::uint32_t>(manager, 4);
+            const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
             if (mode == singleMode)
             {
                 if (Read<std::uint32_t>(manager, singleOffset) == id) ResetInvalid(manager);
@@ -247,8 +247,8 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b4854; Windows validates selection before changing highlights.
     bool InputMode_Set(void* manager, std::int32_t mode)
     {
-        if (Read<std::int32_t>(manager, 0) == mode) return true;
-        const auto selection = Read<std::uint32_t>(manager, 4);
+        if (Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::InputMode) == mode) return true;
+        const auto selection = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
         if (static_cast<std::uint32_t>(mode) <= 28)
         {
             bool allowed = true;
@@ -268,7 +268,7 @@ namespace NC2InGameGuiInputManager
             }
             else if (mode >= 23)
             {
-                Write(manager, 0, mode);
+                Write(manager, NC2Layout::InputManagerOffset::InputMode, mode);
                 if (mode == 23 || mode == 24) Highlighting_Humans_Update(manager, true, false);
                 else if (mode == 25) Highlighting_Animals_Update(manager, true, false);
                 else Highlighting_Vehicles_Update(manager, true, false);
@@ -276,7 +276,7 @@ namespace NC2InGameGuiInputManager
             NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->ActivateDesktop();
             if (mode == 0) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Exploration_Set(true);
         }
-        Write<std::uint8_t>(manager, 0xABA, 0); Write<std::int32_t>(manager, 0, mode);
+        Write<std::uint8_t>(manager, 0xABA, 0); Write<std::int32_t>(manager, NC2Layout::InputManagerOffset::InputMode, mode);
         Cursor_SetPosition(manager, static_cast<std::byte*>(manager) + 0xAB6);
         InGameGuiManager_InputMode_Changed(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
         NC2InGameGuiBase::BaseToolDesktop_SelectionActiveChanged();
@@ -286,7 +286,7 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b4a5f.
     void InputMode_Cancel(void* manager)
     {
-        const auto mode = Read<std::int32_t>(manager, 0);
+        const auto mode = Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
         if (mode == 12) { InputMode_Set(manager, 0); Selection_UnselectAll(manager); }
         else if (mode == 0) Selection_UnselectAll(manager);
         else if (mode > 0 && mode <= 28) InputMode_Set(manager, 0);
@@ -299,11 +299,11 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b66e5; coordinates are two WORDs, not a pointer identity.
     bool Selection_SelectEngineLandscapeType(void* manager, std::uint32_t type, std::uint32_t valency, const void* point, std::int32_t player)
     {
-        if (Read<std::uint32_t>(manager, 4) == 9 && Read<std::uint32_t>(manager, 0xA98) == type && Read<std::uint32_t>(manager, 0xA9C) == valency && Read<std::uint32_t>(manager, 0xAA0) == Read<std::uint32_t>(point, 0) && Read<std::int32_t>(manager, 0xAA4) == player) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 9 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeType) == type && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeVariant) == valency && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::LandscapeMapPoint) == Read<std::uint32_t>(point, 0) && Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::LandscapePlayerId) == player) return false;
         UnselectAll(manager);
-        Write(manager, 0xA98, type); Write<std::uint32_t>(manager, 4, 9); Write(manager, 0xA9C, valency);
-        Write(manager, 0xAB0, Read<std::uint32_t>(manager, 0xAB0) + 1u);
-        Write(manager, 0xAA0, Read<std::uint32_t>(point, 0)); Write(manager, 0xAA4, player);
+        Write(manager, NC2Layout::InputManagerOffset::LandscapeType, type); Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 9); Write(manager, NC2Layout::InputManagerOffset::LandscapeVariant, valency);
+        Write(manager, NC2Layout::InputManagerOffset::SelectionChangeCount, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionChangeCount) + 1u);
+        Write(manager, NC2Layout::InputManagerOffset::LandscapeMapPoint, Read<std::uint32_t>(point, 0)); Write(manager, NC2Layout::InputManagerOffset::LandscapePlayerId, player);
         InGameGuiManager_Selection_UpdateWindows(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr);
         return true;
     }
@@ -313,7 +313,7 @@ namespace NC2InGameGuiInputManager
     {
         *first = *second = *third = *fourth = NXBasics::IntegerRange::UInt32Maximum;
         std::int32_t action = 0, id = -1;
-        if (Read<std::uint32_t>(manager, 0) == 0 && object != nullptr)
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) == 0 && object != nullptr)
         {
             switch (Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type))
             {
@@ -333,7 +333,7 @@ namespace NC2InGameGuiInputManager
             default: break;
             }
         }
-        else if (Read<std::uint32_t>(manager, 0) == 0 && Read<std::uint8_t>(manager, 0xABA) != 0)
+        else if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) == 0 && Read<std::uint8_t>(manager, 0xABA) != 0)
         {
             const auto* point = static_cast<const std::byte*>(manager) + 0xABC;
             NC2Logic::CMapMoveableIterator iterator;
@@ -387,23 +387,23 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b6bb0; record payloads remain untouched.
     void Selection_UnselectAll(void* manager)
     {
-        switch (Read<std::uint32_t>(manager, 4))
+        switch (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType))
         {
-        case SwitchIds::SelectionType::SingleHuman: Inform(0xE, Read<std::uint32_t>(manager, 8), Read<std::uint32_t>(manager, 0xC), false); break;
+        case SwitchIds::SelectionType::SingleHuman: Inform(0xE, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanUniqueId), false); break;
         case SwitchIds::SelectionType::MultipleHumans:
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0x10); ++i) Inform(0xE, Read<std::uint32_t>(manager, 0x14u + i * 8u), Read<std::uint32_t>(manager, 0x18u + i * 8u), false);
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupCount); ++i) Inform(0xE, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + i * 8u), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupUniqueIdsUnsigned + i * 8u), false);
             break;
-        case SwitchIds::SelectionType::SingleAnimal: Inform(0xF, Read<std::uint32_t>(manager, 0x974), Read<std::uint32_t>(manager, 0x978), false); break;
-        case SwitchIds::SelectionType::SingleVehicle: Inform(0x10, Read<std::uint32_t>(manager, 0x97C), Read<std::uint32_t>(manager, 0x980), false); break;
+        case SwitchIds::SelectionType::SingleAnimal: Inform(0xF, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleAnimalId), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleAnimalUniqueId), false); break;
+        case SwitchIds::SelectionType::SingleVehicle: Inform(0x10, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleUniqueId), false); break;
         case SwitchIds::SelectionType::MultipleVehicles:
-            for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, 0x984); ++i) Inform(0x10, Read<std::uint32_t>(manager, 0x988u + i * 8u), Read<std::uint32_t>(manager, 0x98Cu + i * 8u), false);
+            for (std::uint32_t i = 0; i < Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupCount); ++i) Inform(0x10, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + i * 8u), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUniqueIdsUnsigned + i * 8u), false);
             break;
-        case SwitchIds::SelectionType::House: Inform(0x11, Read<std::uint32_t>(manager, 0xA78), Read<std::uint32_t>(manager, 0xA7C), false); break;
+        case SwitchIds::SelectionType::House: Inform(0x11, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseId), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseUniqueId), false); break;
         default: break;
         }
-        Write<std::uint32_t>(manager, 4, 0);
-        for (auto offset : {8u, 0x974u, 0x97Cu, 0xA78u, 0xA80u, 0xA84u, 0xA90u, 0xA98u, 0xA9Cu}) Write<std::uint32_t>(manager, offset, NXBasics::IntegerRange::UInt32Maximum);
-        for (auto offset : {0xCu, 0x10u, 0x978u, 0x980u, 0xA7Cu, 0xA94u}) Write<std::uint32_t>(manager, offset, 0);
+        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 0);
+        for (auto offset : {NC2Layout::InputManagerOffset::SingleHumanIdUnsigned, NC2Layout::InputManagerOffset::SingleAnimalIdUnsigned, NC2Layout::InputManagerOffset::SingleVehicleIdUnsigned, NC2Layout::InputManagerOffset::HouseIdUnsigned, NC2Layout::InputManagerOffset::HouseTypeUnsigned, NC2Layout::InputManagerOffset::HouseDevelopmentStageUnsigned, NC2Layout::InputManagerOffset::GuideIdUnsigned, NC2Layout::InputManagerOffset::LandscapeTypeUnsigned, NC2Layout::InputManagerOffset::LandscapeVariantUnsigned}) Write<std::uint32_t>(manager, offset, NXBasics::IntegerRange::UInt32Maximum);
+        for (auto offset : {NC2Layout::InputManagerOffset::SingleHumanUniqueIdUnsigned, NC2Layout::InputManagerOffset::HumanGroupCountUnsigned, NC2Layout::InputManagerOffset::SingleAnimalUniqueIdUnsigned, NC2Layout::InputManagerOffset::SingleVehicleUniqueIdUnsigned, NC2Layout::InputManagerOffset::HouseUniqueIdUnsigned, NC2Layout::InputManagerOffset::GuideUniqueIdUnsigned}) Write<std::uint32_t>(manager, offset, 0);
         Changed(manager);
     }
 
@@ -417,40 +417,40 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b6788.
     bool Selection_SelectRoadBuildPlace(void* manager, const void* point)
     {
-        if (Read<std::uint32_t>(manager, 4) == 10 && Read<std::uint32_t>(manager, 0xAA8) == Read<std::uint32_t>(point, 0)) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 10 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::RoadBuildPoint) == Read<std::uint32_t>(point, 0)) return false;
         Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-        Write<std::uint32_t>(manager, 4, 10); Write(manager, 0xAA8, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
+        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 10); Write(manager, NC2Layout::InputManagerOffset::RoadBuildPoint, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
     }
     // Original function: FUN_004b67ed.
     bool Selection_SelectWallBuildPlace(void* manager, const void* point)
     {
-        if (Read<std::uint32_t>(manager, 4) == 11 && Read<std::uint32_t>(manager, 0xAAC) == Read<std::uint32_t>(point, 0)) return false;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 11 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::WallBuildPoint) == Read<std::uint32_t>(point, 0)) return false;
         Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-        Write<std::uint32_t>(manager, 4, 11); Write(manager, 0xAAC, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
+        Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 11); Write(manager, NC2Layout::InputManagerOffset::WallBuildPoint, Read<std::uint32_t>(point, 0)); Changed(manager); return true;
     }
 
     // Original function: FUN_004b618b; at most 300 humans, preserving the old single first.
     bool Selection_SelectAddSingleHuman(void* manager, std::int32_t id)
     {
-        const auto mode = Read<std::uint32_t>(manager, 4);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
         if (mode != 1 && mode != 2) return Selection_SelectSingleHuman(manager, id);
         if (mode == 1)
         {
-            const auto old = Read<std::uint32_t>(manager, 8);
+            const auto old = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId);
             if (old == static_cast<std::uint32_t>(id)) return false;
             Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-            Write<std::uint32_t>(manager, 4, 2); Write<std::uint32_t>(manager, 0x10, 2);
-            Write(manager, 0x14, old); Write(manager, 0x18, Read<std::uint32_t>(Human(old), NC2Layout::HumanOffset::UniqueId));
-            Write(manager, 0x1C, id); Write(manager, 0x20, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId));
+            Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 2); Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupCount, 2);
+            Write(manager, NC2Layout::InputManagerOffset::HumanGroup, old); Write(manager, NC2Layout::InputManagerOffset::HumanGroupUniqueIds, Read<std::uint32_t>(Human(old), NC2Layout::HumanOffset::UniqueId));
+            Write(manager, NC2Layout::InputManagerOffset::HumanGroupSecondId, id); Write(manager, NC2Layout::InputManagerOffset::HumanGroupSecondUniqueId, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId));
             Changed(manager);
             Inform(0xE, old, Read<std::uint32_t>(Human(old), NC2Layout::HumanOffset::UniqueId), true);
         }
         else
         {
-            const auto count = Read<std::uint32_t>(manager, 0x10);
-            for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, 0x14u + i * 8u) == id) return false;
-            if (count == 300) return false;
-            Write(manager, 0x14u + count * 8u, id); Write(manager, 0x18u + count * 8u, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId)); Write(manager, 0x10, count + 1u);
+            const auto count = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupCount);
+            for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + i * 8u) == id) return false;
+            if (count == NC2Runtime::InputSelectionLimits::Humans) return false;
+            Write(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + count * 8u, id); Write(manager, NC2Layout::InputManagerOffset::HumanGroupUniqueIdsUnsigned + count * 8u, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId)); Write(manager, NC2Layout::InputManagerOffset::HumanGroupCount, count + 1u);
             Changed(manager);
         }
         Inform(0xE, id, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId), true);
@@ -460,26 +460,26 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b63b5; only type-five vehicles form a group, maximum 30.
     bool Selection_SelectAddSingleVehicle(void* manager, std::int32_t id)
     {
-        const auto mode = Read<std::uint32_t>(manager, 4);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
         if (mode != 4 && mode != 5) return Selection_SelectSingleVehicle(manager, id);
         if (mode == 5)
         {
-            const auto count = Read<std::uint32_t>(manager, 0x984);
-            for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, 0x988u + i * 8u) == id) return false;
-            if (count == 30) return false;
-            if (Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, 0x988)), NC2Layout::VehicleOffset::LogicType) != 5 || Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::LogicType) != 5) return Selection_SelectSingleVehicle(manager, id);
-            Write(manager, 0x988u + count * 8u, id); Write(manager, 0x98Cu + count * 8u, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId)); Write(manager, 0x984, count + 1u);
+            const auto count = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupCount);
+            for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + i * 8u) == id) return false;
+            if (count == NC2Runtime::InputSelectionLimits::Vehicles) return false;
+            if (Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroup)), NC2Layout::VehicleOffset::LogicType) != 5 || Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::LogicType) != 5) return Selection_SelectSingleVehicle(manager, id);
+            Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + count * 8u, id); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUniqueIdsUnsigned + count * 8u, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId)); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupCount, count + 1u);
             Changed(manager);
         }
         else
         {
-            const auto old = Read<std::uint32_t>(manager, 0x97C);
+            const auto old = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId);
             if (Read<std::uint32_t>(Vehicle(old), NC2Layout::VehicleOffset::LogicType) != 5 || Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::LogicType) != 5) return Selection_SelectSingleVehicle(manager, id);
             if (old == static_cast<std::uint32_t>(id)) return false;
             Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-            Write<std::uint32_t>(manager, 4, 5); Write<std::uint32_t>(manager, 0x984, 2);
-            Write(manager, 0x988, old); Write(manager, 0x98C, Read<std::uint32_t>(Vehicle(old), NC2Layout::VehicleOffset::UniqueId));
-            Write(manager, 0x990, id); Write(manager, 0x994, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId));
+            Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 5); Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupCount, 2);
+            Write(manager, NC2Layout::InputManagerOffset::VehicleGroup, old); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupUniqueIds, Read<std::uint32_t>(Vehicle(old), NC2Layout::VehicleOffset::UniqueId));
+            Write(manager, NC2Layout::InputManagerOffset::VehicleGroupSecondId, id); Write(manager, NC2Layout::InputManagerOffset::VehicleGroupSecondUniqueId, Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::UniqueId));
             Changed(manager);
             Inform(0x10, old, Read<std::uint32_t>(Vehicle(old), NC2Layout::VehicleOffset::UniqueId), true);
         }
@@ -490,19 +490,19 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b6ce1; type-only selections 7 and 9 deliberately require no validation.
     void Selection_Validate(void* manager)
     {
-        const auto mode = Read<std::uint32_t>(manager, 4);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
         bool valid = true;
         switch (mode)
         {
-        case SwitchIds::SelectionType::SingleHuman: valid = IsLive(Human(Read<std::uint32_t>(manager, 8)), Read<std::uint32_t>(manager, 0xC)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, 8)), NC2Layout::HumanOffset::PlayerId) == Player(); break;
+        case SwitchIds::SelectionType::SingleHuman: valid = IsLive(Human(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanUniqueId)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId)), NC2Layout::HumanOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::MultipleHumans: ValidateGroup(manager, false); return;
-        case SwitchIds::SelectionType::SingleAnimal: valid = IsLive(Animal(Read<std::uint32_t>(manager, 0x974)), Read<std::uint32_t>(manager, 0x978)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, 0x974)), NC2Layout::AnimalOffset::PlayerId) == Player(); break;
-        case SwitchIds::SelectionType::SingleVehicle: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, 0x97C)), Read<std::uint32_t>(manager, 0x980)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), NC2Layout::VehicleOffset::PlayerId) == Player(); break;
+        case SwitchIds::SelectionType::SingleAnimal: valid = IsLive(Animal(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleAnimalId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleAnimalUniqueId)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleAnimalId)), NC2Layout::AnimalOffset::PlayerId) == Player(); break;
+        case SwitchIds::SelectionType::SingleVehicle: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleUniqueId)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId)), NC2Layout::VehicleOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::MultipleVehicles: ValidateGroup(manager, true); return;
-        case SwitchIds::SelectionType::House: valid = IsLive(House(Read<std::uint32_t>(manager, 0xA78)), Read<std::uint32_t>(manager, 0xA7C)); break;
-        case SwitchIds::SelectionType::Guide: valid = IsLive(Guide(Read<std::uint32_t>(manager, 0xA90)), Read<std::uint32_t>(manager, 0xA94), 0x10) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, 0xA90)), 4) == Player(); break;
-        case SwitchIds::SelectionType::RoadBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gRoadBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAA8) != nullptr; break;
-        case SwitchIds::SelectionType::WallBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gWallBuildManager, Player(), static_cast<const std::byte*>(manager) + 0xAAC) != nullptr; break;
+        case SwitchIds::SelectionType::House: valid = IsLive(House(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseUniqueId)); break;
+        case SwitchIds::SelectionType::Guide: valid = IsLive(Guide(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideId)), Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideUniqueId), 0x10) && Read<std::uint32_t>(Guide(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::GuideId)), 4) == Player(); break;
+        case SwitchIds::SelectionType::RoadBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gRoadBuildManager, Player(), static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::RoadBuildPoint) != nullptr; break;
+        case SwitchIds::SelectionType::WallBuildPlace: valid = NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(NC2Logic::gWallBuildManager, Player(), static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::WallBuildPoint) != nullptr; break;
         default: break;
         }
         if (!valid) ResetInvalid(manager);
@@ -516,12 +516,12 @@ namespace NC2InGameGuiInputManager
     void UnSelect_Guide(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, 8, 0xA90, 0, 0, 0, 0); }
 
     // Original functions: FUN_004b7442/004b7450/004b745d/004b7478.
-    std::int32_t Selection_GetSelectedSingleHumanId(const void* manager) { return Read<std::uint32_t>(manager, 4) == 1 ? Read<std::int32_t>(manager, 8) : -1; }
-    std::uint32_t Selection_GetSelectedMultipleHumanNumber(const void* manager) { return Read<std::uint32_t>(manager, 4) == 2 ? Read<std::uint32_t>(manager, 0x10) : 0; }
-    std::int32_t Selection_GetSelectedMultipleHumanId(const void* manager, std::uint32_t index) { return Read<std::uint32_t>(manager, 4) == 2 && index < Read<std::uint32_t>(manager, 0x10) ? Read<std::int32_t>(manager, 0x14u + index * 8u) : -1; }
+    std::int32_t Selection_GetSelectedSingleHumanId(const void* manager) { return Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 1 ? Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId) : -1; }
+    std::uint32_t Selection_GetSelectedMultipleHumanNumber(const void* manager) { return Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 2 ? Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupCount) : 0; }
+    std::int32_t Selection_GetSelectedMultipleHumanId(const void* manager, std::uint32_t index) { return Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 2 && index < Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupCount) ? Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + index * 8u) : -1; }
     bool Selection_IsHumanSelected(const void* manager, std::int32_t id)
     {
-        if (Read<std::uint32_t>(manager, 4) == 1) return Read<std::int32_t>(manager, 8) == id;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 1) return Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId) == id;
         for (std::uint32_t i = 0; i < Selection_GetSelectedMultipleHumanNumber(manager); ++i) if (Selection_GetSelectedMultipleHumanId(manager, i) == id) return true;
         return false;
     }
@@ -774,7 +774,7 @@ namespace NC2InGameGuiInputManager
     {
         // Windows reads its singleton in both the dispatcher and the outlined helpers.
         manager = gInputManager;
-        const auto mode = Read<std::uint32_t>(manager, 0);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
         if (mode == 1) return HighlightHumanMovement(gInputManager, rectangle);
         if (mode == 2 || mode == 3) return HighlightHumanWorkCenter(gInputManager, rectangle, mode == 3);
         if (mode == 10 || mode == 11) return HighlightEnemyHouses(rectangle);
@@ -800,7 +800,7 @@ namespace NC2InGameGuiInputManager
         Write(manager, 0xAB6, Read<std::uint32_t>(point, 0));
         auto* cursor = static_cast<std::byte*>(manager) + 0xAB6;
         NC2Logic::MapMigPoint_ValidatePosition(cursor);
-        if (Read<std::uint32_t>(manager, 0) >= 1 && Read<std::uint32_t>(manager, 0) <= 22)
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) >= 1 && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) <= 22)
         {
             std::int16_t rectangle[4]{static_cast<std::int16_t>(Read<std::int16_t>(cursor, 0) - 7), static_cast<std::int16_t>(Read<std::int16_t>(cursor, 2) - 7), 14, 14};
             // Native SMapMigRectangle construction clips before highlighting.
@@ -826,7 +826,7 @@ namespace NC2InGameGuiInputManager
             }
             return;
         }
-        if (Read<std::uint32_t>(manager, 0) != 0) return;
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) != 0) return;
         const bool valid = NC2Logic::MapMigPoint_IsInsideMap(cursor) && !NC2Logic::MapMigPoint_IsBorderPoint(cursor);
         Write<std::uint8_t>(manager, 0xABA, valid);
         if (valid) Write(manager, 0xABC, Read<std::uint32_t>(cursor, 0));
@@ -837,12 +837,12 @@ namespace NC2InGameGuiInputManager
         // Windows 004B790D/004B799D/004B7A7A inline the same selection-owner lookup.
         std::int32_t SelectedAttackPlayer(const void* manager)
         {
-            switch (Read<std::uint32_t>(manager, 4))
+            switch (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType))
             {
-            case SwitchIds::SelectionType::SingleHuman: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), NC2Layout::HumanOffset::PlayerId);
+            case SwitchIds::SelectionType::SingleHuman: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId)), NC2Layout::HumanOffset::PlayerId);
             case SwitchIds::SelectionType::MultipleHumans: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), NC2Layout::HumanOffset::PlayerId);
-            case SwitchIds::SelectionType::SingleVehicle: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), NC2Layout::VehicleOffset::PlayerId);
-            case SwitchIds::SelectionType::MultipleVehicles: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : NXBasics::IntegerRange::UInt32Maximum), NC2Layout::VehicleOffset::PlayerId);
+            case SwitchIds::SelectionType::SingleVehicle: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId)), NC2Layout::VehicleOffset::PlayerId);
+            case SwitchIds::SelectionType::MultipleVehicles: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupCount) != 0 ? Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroup) : NXBasics::IntegerRange::UInt32Maximum), NC2Layout::VehicleOffset::PlayerId);
             default: return -1;
             }
         }
@@ -862,12 +862,12 @@ namespace NC2InGameGuiInputManager
                 const auto first = target != nullptr ? targetId : NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + 0xABC);
                 QueueHumanTarget(humanId, opcode, first, target != nullptr ? Read<std::uint32_t>(target, 8) : 0u, false);
             };
-            if (Read<std::uint32_t>(manager, 4) == 1)
+            if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 1)
             {
                 send(Selection_GetSelectedSingleHumanId(manager));
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Selection_GetSelectedSingleHumanId(manager));
             }
-            for (std::uint32_t index = 0; Read<std::uint32_t>(manager, 4) == 2 && index < Selection_GetSelectedMultipleHumanNumber(manager); ++index)
+            for (std::uint32_t index = 0; Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 2 && index < Selection_GetSelectedMultipleHumanNumber(manager); ++index)
             {
                 send(Selection_GetSelectedMultipleHumanId(manager, index));
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Selection_GetSelectedMultipleHumanId(manager, index));
@@ -893,7 +893,7 @@ namespace NC2InGameGuiInputManager
     bool Misc_Animal_CanBeAttacked(const void* manager, std::int32_t id, bool allowOwnAnimals)
     {
         auto human = Selection_GetSelectedSingleHumanId(manager);
-        if (Read<std::uint32_t>(manager, 4) == 2) human = Selection_GetSelectedMultipleHumanId(manager, 0);
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 2) human = Selection_GetSelectedMultipleHumanId(manager, 0);
         return human != -1 && NC2Logic::Animal_Misc_CanBeAttackedByHuman(Animal(id), human, allowOwnAnimals);
     }
 
@@ -907,15 +907,15 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b7b08.
     bool Misc_Vehicle_IsToEnter(const void* manager, std::int32_t id)
     {
-        const auto selection = Read<std::uint32_t>(manager, 4);
+        const auto selection = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
         if (selection == 1)
         {
-            const auto human = Read<std::int32_t>(manager, 8);
+            const auto human = Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId);
             return human != -1 && NC2Logic::Vehicle_Passengers_CanHumanBeAttached(Vehicle(id), human);
         }
         if (selection == 4)
         {
-            const auto vehicle = Read<std::int32_t>(manager, 0x97C);
+            const auto vehicle = Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId);
             return vehicle != -1 && NC2Logic::Vehicle_Passengers_CanVehicleBeAttached(Vehicle(id), vehicle);
         }
         return false;
@@ -923,12 +923,12 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004cb04d.
     void Highlighting_Humans_Update(void* manager, bool force, bool clear)
     {
-        const auto mode = Read<std::uint32_t>(manager, 0);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
         if (!force && mode != 23 && mode != 24) return;
         NC2Logic::CHumanIterator iterator;
         for (auto id = iterator.GetFirstHumanId(); id != -1; id = iterator.GetNextHumanId())
         {
-            const auto currentMode = Read<std::int32_t>(manager, 0);
+            const auto currentMode = Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
             const bool allowed = !clear && currentMode >= 23 && currentMode <= 24 && Misc_Human_IsEnemyToAttack(manager, id);
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, id, allowed ? 12 : 8, 0);
         }
@@ -937,12 +937,12 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004cb0c8.
     void Highlighting_Animals_Update(void* manager, bool force, bool clear)
     {
-        if (!force && Read<std::uint32_t>(manager, 0) != 25) return;
+        if (!force && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) != 25) return;
         const auto* array = NC2Logic::CAnimalArray::sTheObjectPtr;
         for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
         {
             if (Read<std::uint8_t>(Animal(id), NC2Layout::AnimalOffset::AllocatedFlag) == 0) continue;
-            const bool allowed = !clear && Read<std::uint32_t>(manager, 0) == 25 && Misc_Animal_CanBeAttacked(manager, id, false);
+            const bool allowed = !clear && Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) == 25 && Misc_Animal_CanBeAttacked(manager, id, false);
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xF, true, id, allowed ? 12 : 8, 0);
         }
     }
@@ -950,14 +950,14 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004cb137.
     void Highlighting_Vehicles_Update(void* manager, bool force, bool clear)
     {
-        const auto mode = Read<std::uint32_t>(manager, 0);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
         if (!force && mode != 26 && mode != 27 && mode != 28) return;
         // The unfiltered Windows iterator scans allocation bytes in ascending array order.
         const auto* array = NC2Logic::CVehicleArray::sTheObjectPtr;
         for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
         {
             if (Read<std::uint8_t>(Vehicle(id), NC2Layout::VehicleOffset::AllocatedFlag) == 0) continue;
-            const auto currentMode = Read<std::uint32_t>(manager, 0);
+            const auto currentMode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
             const bool allowed = !clear && (currentMode == 27 ? Misc_Vehicle_IsToEnter(manager, id) : (currentMode == 26 || currentMode == 28) && Misc_Vehicle_IsEnemyToAttack(manager, id));
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x10, true, id, allowed ? 12 : 8, 0);
         }
@@ -965,15 +965,15 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b4bd6; complete native input-mode command dispatcher.
     bool Action_DoInputSelect(void* manager, const void* object)
     {
-        const auto mode = Read<std::uint32_t>(manager, 0);
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
         if (mode == 12)
         {
             if (Read<std::uint8_t>(manager, 0xABA) == 0) return false;
             std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 117); Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Player()));
-            Write(command, 4, Read<std::uint32_t>(manager, 0xA80)); Write(command, 8, Read<std::uint32_t>(manager, 0xA84));
+            Write(command, 4, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseType)); Write(command, 8, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseDevelopmentStage));
             Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(static_cast<std::byte*>(manager) + 0xABC));
-            Write(command, 0x10, (Read<std::uint32_t>(manager, 0xA88) << 16) | (Read<std::uint32_t>(manager, 0xA8C) & NXBasics::IntegerRange::UInt16Maximum));
+            Write(command, 0x10, (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseSpecialItemType) << 16) | (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::HouseSpecialItem) & NXBasics::IntegerRange::UInt16Maximum));
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
             InputMode_Cancel(manager); return true;
         }
@@ -991,11 +991,11 @@ namespace NC2InGameGuiInputManager
                     Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(point));
                     NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
                 };
-                if (mode == 19) send(Read<std::int32_t>(manager, 0x97C));
+                if (mode == 19) send(Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId));
                 else
                 {
-                    if (Read<std::uint32_t>(manager, 4) == 4) send(Read<std::int32_t>(manager, 0x97C));
-                    for (std::uint32_t index = 0; Read<std::uint32_t>(manager, 4) == 5 && index < Selection_GetSelectedMultipleVehiclesNumber(manager); ++index) send(Selection_GetSelectedMultipleVehicleId(manager, index));
+                    if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 4) send(Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleVehicleId));
+                    for (std::uint32_t index = 0; Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 5 && index < Selection_GetSelectedMultipleVehiclesNumber(manager); ++index) send(Selection_GetSelectedMultipleVehicleId(manager, index));
                 }
             }
             InputMode_Cancel(manager); return true;
@@ -1027,8 +1027,8 @@ namespace NC2InGameGuiInputManager
                 Write(command, 0x0C, targetId); Write(command, 0x10, Read<std::uint32_t>(target, 8));
                 NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
             };
-            if (Read<std::uint32_t>(manager, 4) == 4) send(Selection_GetSelectedSingleVehicleId(manager));
-            for (std::uint32_t index = 0; Read<std::uint32_t>(manager, 4) == 5 && index < Selection_GetSelectedMultipleVehiclesNumber(manager); ++index) send(Selection_GetSelectedMultipleVehicleId(manager, index));
+            if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 4) send(Selection_GetSelectedSingleVehicleId(manager));
+            for (std::uint32_t index = 0; Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 5 && index < Selection_GetSelectedMultipleVehiclesNumber(manager); ++index) send(Selection_GetSelectedMultipleVehicleId(manager, index));
             InputMode_Cancel(manager); return true;
         }
         if (mode >= 14 && mode <= 18)
@@ -1097,7 +1097,7 @@ namespace NC2InGameGuiInputManager
             if (object == nullptr || Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) != 3) return false;
             const auto id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::VehicleId);
             if (!Misc_Vehicle_IsToEnter(manager, id)) return false;
-            const auto selection = Read<std::uint32_t>(manager, 4);
+            const auto selection = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
             if (selection == 1 || selection == 4)
             {
                 std::byte command[20]{};
@@ -1106,7 +1106,7 @@ namespace NC2InGameGuiInputManager
                 if (selection == 1)
                 {
                     NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
-                    NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
+                    NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
                 }
                 else NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
             }
@@ -1121,11 +1121,11 @@ namespace NC2InGameGuiInputManager
             const auto id = Read<std::uint16_t>(micro, 4);
             std::byte command[20]{};
             const auto opcode = mode == 4 ? 26 : mode == 5 ? 28 : mode == 6 ? 32 : mode == 7 ? 30 : mode == 8 ? 36 : 37;
-            Write<std::uint8_t>(command, 0, static_cast<std::uint8_t>(opcode)); Write(command, 4, Read<std::uint32_t>(manager, 8));
+            Write<std::uint8_t>(command, 0, static_cast<std::uint8_t>(opcode)); Write(command, 4, Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
             Write<std::uint32_t>(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::UniqueId));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
             selectSchoolJob = mode == 6 && Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::LogicType) == 38;
-            NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
+            NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId));
         }
         InputMode_Cancel(manager);
         if (selectSchoolJob) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanLearnJobWindow_Open();
@@ -1135,8 +1135,8 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b5cff; object is deliberately unused by Windows.
     bool Action_DoDefault(void* manager, const void*)
     {
-        if (Read<std::uint32_t>(manager, 0) != 0) return false;
-        const auto mode = Read<std::uint32_t>(manager, 4);
+        if (Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::InputMode) != 0) return false;
+        const auto mode = Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType);
         if (mode != 1 && mode != 2 && mode != 4 && mode != 5) return false;
         auto* cursor = static_cast<std::byte*>(manager) + 0xAB6;
         std::uint32_t position = 0;
@@ -1152,7 +1152,7 @@ namespace NC2InGameGuiInputManager
         }
         if (mode == 5)
         {
-            NC2Logic::Vehicle_GetMapPosition(Vehicle(Read<std::uint32_t>(manager, 0x988)), &position);
+            NC2Logic::Vehicle_GetMapPosition(Vehicle(Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroup)), &position);
             if (Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(cursor), 6) != Read<std::uint8_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&position), 6)) return false;
             Misc_Tool_SendSelectedVehicle(manager, Read<std::uint32_t>(cursor, 0));
             return true;
@@ -1167,7 +1167,7 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b5e91.
     bool Action_DoCancel(void* manager, const void*)
     {
-        const auto mode = Read<std::int32_t>(manager, 0);
+        const auto mode = Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::InputMode);
         if (mode == 0) { Selection_UnselectAll(manager); return false; }
         if (mode > 0 && mode <= 28) InputMode_Cancel(manager);
         return true;
@@ -1227,8 +1227,8 @@ namespace NC2InGameGuiInputManager
         else if (count > 1)
         {
             Selection_UnselectAll(manager); InputMode_Set(manager, 0);
-            Write<std::uint32_t>(manager, 4, 2); Write(manager, 0x10, count);
-            for (std::uint32_t i = 0; i < count; ++i) { Write(manager, 0x14u + i * 8u, ids[i]); Write(manager, 0x18u + i * 8u, Read<std::uint32_t>(Human(ids[i]), NC2Layout::HumanOffset::UniqueId)); }
+            Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType, 2); Write(manager, NC2Layout::InputManagerOffset::HumanGroupCount, count);
+            for (std::uint32_t i = 0; i < count; ++i) { Write(manager, NC2Layout::InputManagerOffset::HumanGroupUnsigned + i * 8u, ids[i]); Write(manager, NC2Layout::InputManagerOffset::HumanGroupUniqueIdsUnsigned + i * 8u, Read<std::uint32_t>(Human(ids[i]), NC2Layout::HumanOffset::UniqueId)); }
             Changed(manager);
             for (std::uint32_t i = 0; i < count; ++i) Inform(0xE, ids[i], Read<std::uint32_t>(Human(ids[i]), NC2Layout::HumanOffset::UniqueId), true);
         }
