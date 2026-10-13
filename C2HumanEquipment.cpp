@@ -51,7 +51,7 @@ namespace NC2Logic
         // Original function: FUN_0045c075.
         void Human_UserMessage_SendToUserMessage_CannotFindEquipment(void* human)
         {
-            if (GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + 0xB88)) return;
+            if (GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData)) return;
             std::byte message[772];
             ToUserMessage_Construct(message);
             Write<std::uint32_t>(message, 0, 44);

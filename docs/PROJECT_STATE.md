@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Human military and assistant naming - 2026-10-13
+
+Corrected command 42 naming to world refreshment, preserving its behavior. Named 85 military/assistant human accesses, separate targets and the ten-record assistant history. All 17 affected C++ units and 26 value/type pairs pass Win32 `/Zs`; 921 native instruction byte sequences verify against Game.exe. No build or runtime run occurred. See [HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md](HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md). The full-source review continues with task counters, sector links and engine/GUI/control/data layouts.
+
 ## DataX loose-asset paths - 2026-10-13
 
 Adapted eight path literals for Pictures, both FMV start paths, DM2 and Mouse to the user's current DataX installation. The earlier physical `data`-folder observations are historical; the current four folders exist only under DataX. All seven loose picture/cursor/film assets and all 64 referenced music-segment names resolve. Three units pass Win32 `/Zs`; no build, tests or playback occurred. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md). This explicitly requested layout adaptation preserves native loader/control behavior and archive-internal paths; runtime playback is the next validation.

@@ -28,7 +28,7 @@ namespace NC2Logic
         // Original function: FUN_0046ba2d; original semantic name remains unresolved.
         bool HasValidMilitaryTarget(const void* human)
         {
-            return TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64) || TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB70);
+            return TargetData_IsValid(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget) || TargetData_IsValid(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget);
         }
 
         std::uint32_t Distance(const void* source, const void* target)
@@ -47,12 +47,12 @@ namespace NC2Logic
         if (!CGameMapSectorAttachmentManager::sTheObjectPtr->CheckForEnemyTarget_Human(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), point, minimumDistance, maximumDistance, candidate, ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) >> 13) & 1u) != 0, allowLandscape)) return false;
         if (TargetData_GetTargetType(candidate) == 6)
         {
-            std::memcpy(static_cast<std::byte*>(human) + 0xB64, candidate, 12);
+            std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget, candidate, NC2Layout::RecordSize::TargetDataSigned);
             return false;
         }
         std::uint32_t candidatePosition = 0;
         TargetData_GetMapPosition(candidate, &candidatePosition);
-        const auto* secondary = static_cast<const std::byte*>(human) + 0xB70;
+        const auto* secondary = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
         if (TargetData_IsValid(secondary))
         {
             if (Read<std::uint32_t>(secondary, 0) == candidate[0] && Read<std::uint32_t>(secondary, 4) == candidate[1] && Read<std::uint32_t>(secondary, 8) == candidate[2]) return false;
@@ -63,7 +63,7 @@ namespace NC2Logic
         }
         const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&candidatePosition), 6);
         if (continent != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) && Distance(point, &candidatePosition) > static_cast<std::uint32_t>(weapon->maximumRange)) return false;
-        std::memcpy(target, candidate, 12);
+        std::memcpy(target, candidate, NC2Layout::RecordSize::TargetDataSigned);
         return true;
     }
 
@@ -73,8 +73,8 @@ namespace NC2Logic
         const auto* weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon);
         std::uint32_t target[3]{};
         const auto* position = Human_GetMapPositionRef(human);
-        auto* primary = static_cast<std::byte*>(human) + 0xB64;
-        auto* secondary = static_cast<std::byte*>(human) + 0xB70;
+        auto* primary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget;
+        auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
         auto* workCenter = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter;
         if (Human_IsAttachedToWorkHouse(human))
         {
@@ -85,7 +85,7 @@ namespace NC2Logic
             {
                 if (Human_l_IsAtomicInterruptable(human) && !TargetData_IsValid(primary) && Human_l_CheckForEnemyTarget(human, position, 0, static_cast<std::uint32_t>(weapon->maximumRange) + 5u, target))
                 {
-                    std::memcpy(secondary, target, 12);
+                    std::memcpy(secondary, target, NC2Layout::RecordSize::TargetDataSigned);
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
                     return;
@@ -93,7 +93,7 @@ namespace NC2Logic
             }
             else if (!TargetData_IsValid(primary) && Human_l_CheckForEnemyTarget(human, workCenter, 0, 18, target))
             {
-                std::memcpy(secondary, target, 12);
+                std::memcpy(secondary, target, NC2Layout::RecordSize::TargetDataSigned);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
                 return;
@@ -127,7 +127,7 @@ namespace NC2Logic
                     }
                     else Write<std::uint32_t>(primary, 0, 0);
                 }
-                else if (Human_l_CheckForEnemyTarget(human, &searchPosition, minimumDistance, maximumDistance, target)) std::memcpy(secondary, target, 12);
+                else if (Human_l_CheckForEnemyTarget(human, &searchPosition, minimumDistance, maximumDistance, target)) std::memcpy(secondary, target, NC2Layout::RecordSize::TargetDataSigned);
             }
         }
         if (TargetData_IsValid(primary) || TargetData_IsValid(secondary))

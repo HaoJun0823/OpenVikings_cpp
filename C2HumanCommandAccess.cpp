@@ -320,7 +320,7 @@ namespace NC2Logic
     {
         switch (opcode)
         {
-        case SwitchIds::UserCommand::Stop: case SwitchIds::UserCommand::GotoAndWait: case SwitchIds::UserCommand::Marry: case SwitchIds::UserCommand::SetWorkCenter: case SwitchIds::UserCommand::ChangeJob: case SwitchIds::UserCommand::ChangeProducedGood: case SwitchIds::UserCommand::ChangeProduction: case SwitchIds::UserCommand::AttachHomeHouse: case SwitchIds::UserCommand::DetachHomeHouse: case SwitchIds::UserCommand::AttachWorkHouse: case SwitchIds::UserCommand::DetachWorkHouse: case SwitchIds::UserCommand::AttachBuildHouse: case SwitchIds::UserCommand::DetachBuildHouse: case SwitchIds::UserCommand::AttachLearnHouse: case SwitchIds::UserCommand::DetachLearnHouse: case SwitchIds::UserCommand::LearnJob: case SwitchIds::UserCommand::LearnGood: case SwitchIds::UserCommand::AttachTradeHouse: case SwitchIds::UserCommand::DetachTradeHouse: case SwitchIds::UserCommand::AttachVehicle: case SwitchIds::UserCommand::DetachVehicle: case SwitchIds::UserCommand::SetMilitaryMode: case SwitchIds::UserCommand::SetMilitaryAggressiveFlag: case SwitchIds::UserCommand::AttackHuman: case SwitchIds::UserCommand::AttackHouse: case SwitchIds::UserCommand::AttackAnimal: case SwitchIds::UserCommand::AttackVehicle: case SwitchIds::UserCommand::AttackMapPosition: case SwitchIds::UserCommand::StartAttack: case SwitchIds::UserCommand::ResetTraderImportFlags: case SwitchIds::UserCommand::ConfigureTradeGood: case SwitchIds::UserCommand::SelectTradeAgreement: return true;
+        case SwitchIds::UserCommand::Stop: case SwitchIds::UserCommand::GotoAndWait: case SwitchIds::UserCommand::Marry: case SwitchIds::UserCommand::SetWorkCenter: case SwitchIds::UserCommand::ChangeJob: case SwitchIds::UserCommand::ChangeProducedGood: case SwitchIds::UserCommand::ChangeProduction: case SwitchIds::UserCommand::AttachHomeHouse: case SwitchIds::UserCommand::DetachHomeHouse: case SwitchIds::UserCommand::AttachWorkHouse: case SwitchIds::UserCommand::DetachWorkHouse: case SwitchIds::UserCommand::AttachBuildHouse: case SwitchIds::UserCommand::DetachBuildHouse: case SwitchIds::UserCommand::AttachLearnHouse: case SwitchIds::UserCommand::DetachLearnHouse: case SwitchIds::UserCommand::LearnJob: case SwitchIds::UserCommand::LearnGood: case SwitchIds::UserCommand::AttachTradeHouse: case SwitchIds::UserCommand::DetachTradeHouse: case SwitchIds::UserCommand::AttachVehicle: case SwitchIds::UserCommand::DetachVehicle: case SwitchIds::UserCommand::SetMilitaryMode: case SwitchIds::UserCommand::SetMilitaryWorldRefreshmentFlag: case SwitchIds::UserCommand::AttackHuman: case SwitchIds::UserCommand::AttackHouse: case SwitchIds::UserCommand::AttackAnimal: case SwitchIds::UserCommand::AttackVehicle: case SwitchIds::UserCommand::AttackMapPosition: case SwitchIds::UserCommand::StartAttack: case SwitchIds::UserCommand::ResetTraderImportFlags: case SwitchIds::UserCommand::ConfigureTradeGood: case SwitchIds::UserCommand::SelectTradeAgreement: return true;
         default: return false;
         }
     }
@@ -569,8 +569,8 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_GotoAndWait(void* human, const void* point)
     {
         using namespace NC2Lifetime;
-        Write<std::uint32_t>(human, 0xB64, 0);
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         Human_Target_Reset(human);
         Human_Target_ResetSecondaryTarget(human);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
@@ -698,16 +698,16 @@ namespace NC2Logic
         void* target = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(target, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::HumanOffset::UniqueId) != revision) return 1;
         Human_IsAgeAdult(target);
-        Write<std::uint32_t>(human, 0xB64, 1);
-        Write(human, 0xB68, id);
-        Write(human, 0xB6C, revision);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 1);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetValue, id);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
             Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Human_GetMapPositionRef(target), 0));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
@@ -720,16 +720,16 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         void* target = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
         if (Read<std::uint8_t>(target, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::AnimalOffset::UniqueId) != revision) return 1;
-        Write<std::uint32_t>(human, 0xB64, 3);
-        Write(human, 0xB68, id);
-        Write(human, 0xB6C, revision);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 3);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetValue, id);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
             Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Animal_GetMapPositionRef(target), 0));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
@@ -742,16 +742,16 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         void* target = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
         if (Read<std::uint8_t>(target, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::HouseOffset::UniqueId) != revision) return 1;
-        Write<std::uint32_t>(human, 0xB64, 4);
-        Write(human, 0xB68, id);
-        Write(human, 0xB6C, revision);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 4);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetValue, id);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
             Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(target, NC2Layout::HouseOffset::MapPosition));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
@@ -764,16 +764,16 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         void* target = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
         if (Read<std::uint8_t>(target, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::VehicleOffset::UniqueId) != revision) return 1;
-        Write<std::uint32_t>(human, 0xB64, 2);
-        Write(human, 0xB68, id);
-        Write(human, 0xB6C, revision);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 2);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetValue, id);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, revision);
         if ((Human_IsJobSoldier(human) || Human_IsJobHero(human)) && !Human_IsAttachedToWorkHouse(human))
         {
             Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(Vehicle_GetMapPositionRef(target), 0));
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
         }
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
@@ -787,10 +787,10 @@ namespace NC2Logic
         std::uint32_t point;
         MapMigPoint_AssignLong(&point, packedPoint);
         if (!Tool_IsEnemyLandscapeOnPoint(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), &point)) return 1;
-        Write<std::uint32_t>(human, 0xB64, 6);
-        Write(human, 0xB68, point);
-        Write<std::uint32_t>(human, 0xB6C, 0);
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 6);
+        Write(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetValue, point);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14);
@@ -893,12 +893,12 @@ namespace NC2Logic
         case SwitchIds::UserCommand::MoveInsideVehicle: return Human_DoExecuteUserCommand_MoveInsideVehicle(human, Read<std::int32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1), Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter2));
         case SwitchIds::UserCommand::SetMilitaryMode:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
-            Write(human, 0xB5C, Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1));
-            if (Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1) == 3) Write<std::uint32_t>(human, 0xB70, 0);
+            Write(human, NC2Layout::HumanOffset::MilitaryMode, Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1));
+            if (Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1) == 3) Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
             return 2;
-        case SwitchIds::UserCommand::SetMilitaryAggressiveFlag:
+        case SwitchIds::UserCommand::SetMilitaryWorldRefreshmentFlag:
             if (!Human_l_IsAtomicInterruptable(human)) return 0;
-            Write<std::uint8_t>(human, 0xB60, Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1) != 0);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1) != 0);
             // The subsequent native call 0045BFEC is a folded RET 4 no-op.
             return 2;
         case SwitchIds::UserCommand::AttackHuman: return Human_DoExecuteUserCommand_AttackHuman(human, Read<std::int32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1), Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter2));

@@ -1943,7 +1943,7 @@ namespace SwitchIds
         inline constexpr auto DetachVehicle = 39;
         inline constexpr auto MoveInsideVehicle = 40;
         inline constexpr auto SetMilitaryMode = 41;
-        inline constexpr auto SetMilitaryAggressiveFlag = 42;
+        inline constexpr auto SetMilitaryWorldRefreshmentFlag = 42;
         inline constexpr auto AttackHuman = 43;
         inline constexpr auto AttackHouse = 44;
         inline constexpr auto AttackAnimal = 45;

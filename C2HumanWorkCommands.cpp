@@ -114,8 +114,8 @@ namespace NC2Logic
             Human_UserMessage_SendToUserMessage_CannotAttachVehicle(human);
             return 1;
         }
-        Write<std::uint32_t>(human, 0xB64, 0);
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         Write(human, NC2Layout::HumanOffset::AttachedVehicleId, id);
         Write(human, NC2Layout::HumanOffset::AttachedVehicleRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         Queue(human, 25, 0, 0);
@@ -208,7 +208,7 @@ namespace NC2Logic
         {
             if (WeaponGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 72, WeaponGood(human), NXBasics::IntegerRange::UInt32Maximum); }
             else if (ArmorGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 73, ArmorGood(human), NXBasics::IntegerRange::UInt32Maximum); }
-            Write<std::uint8_t>(human, 0xB60, 1);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, 1);
         }
         return Human_DoExecuteUserCommand_SetJob(human, static_cast<std::uint32_t>(job));
     }
@@ -240,8 +240,8 @@ namespace NC2Logic
         Human_Production_Setup(human);
         Human_Target_Reset(human);
         Human_Target_ResetSecondaryTarget(human);
-        Write<std::uint32_t>(human, 0xB64, 0);
-        Write<std::uint32_t>(human, 0xB70, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         if (!Human_IsAttachedToWorkHouse(human)) SetCenter(human, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
         // The native notification call at 0045BFEC is a no-op (RET 4).
         return 2;

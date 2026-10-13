@@ -379,7 +379,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0042cc0b.
-    std::uint32_t Human_GetMilitaryMode(const void* human) { return Read<std::uint32_t>(human, 0xB5C); }
+    std::uint32_t Human_GetMilitaryMode(const void* human) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode); }
     // Original function: FUN_0042d6ad.
     bool Human_CanEquipShoes(const void* human)
     {

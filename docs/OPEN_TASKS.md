@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Human military and assistant naming - 2026-10-13
+
+Corrected command 42 naming to world refreshment, preserving its behavior. Named 85 military/assistant human accesses, separate targets and the ten-record assistant history. All 17 affected C++ units and 26 value/type pairs pass Win32 `/Zs`; 921 native instruction byte sequences verify against Game.exe. No build or runtime run occurred. See [HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md](HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md). The full-source review continues with task counters, sector links and engine/GUI/control/data layouts.
+
 ## DataX loose-asset paths - 2026-10-13
 
 Pictures, title/pre-ingame FMV, DM2 and Mouse now use the user's current DataX directories. Seven loose picture/cursor/film assets and all 64 referenced SGT names exist; three units pass Win32 `/Zs`. No build, tests or playback occurred. Next validation: intro/mission film, pre/post pictures, hardware cursors and DirectMusic after rebuilding. See [ORIGINAL_WINDOWS_ASSET_PATHS.md](ORIGINAL_WINDOWS_ASSET_PATHS.md).

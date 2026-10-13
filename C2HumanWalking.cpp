@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2HumanWalking.h"
@@ -147,8 +148,8 @@ namespace NC2Logic
     // Original function: FUN_0044057d.
     void GameAssistantSingleHumanData_System_Init(void* data)
     {
-        NXBasics::Runtime_FillMemory(data, 0, 0xD0);
-        Write<std::uint8_t>(data, 0, 1);
+        NXBasics::Runtime_FillMemory(data, 0, NC2Layout::RecordSize::HumanAssistantData);
+        Write<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::InitializedFlag, 1);
     }
 
     // Original function: FUN_00440595; first free slot or first strictly earliest expiry.
@@ -156,36 +157,40 @@ namespace NC2Logic
     {
         GameAssistantSingleHumanData_CommandHistory_Validate(data);
         std::uint32_t index = 0;
-        while (index < 10 && Read<std::uint32_t>(data, 8u + index * 0x14u) != 0) ++index;
-        if (index == 10)
+        while (index < NC2Runtime::HumanAssistantCommandHistory::Capacity && Read<std::uint32_t>(data, NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory) != 0) ++index;
+        if (index == NC2Runtime::HumanAssistantCommandHistory::Capacity)
         {
             std::uint32_t earliest = NXBasics::IntegerRange::UInt32Maximum;
             index = NXBasics::IntegerRange::UInt32Maximum;
-            for (std::uint32_t candidate = 0; candidate < 10; ++candidate)
+            for (std::uint32_t candidate = 0; candidate < NC2Runtime::HumanAssistantCommandHistory::Capacity; ++candidate)
             {
-                const auto offset = 8u + candidate * 0x14u;
-                const auto expiry = Read<std::uint32_t>(data, offset + 0x0C) + Read<std::uint32_t>(data, offset + 0x10);
-                if (expiry < earliest) { earliest = expiry; index = candidate; }
+                const auto offset = NC2Layout::HumanAssistantDataOffset::CommandHistory + candidate * NC2Layout::RecordSize::HumanAssistantCommandHistory;
+                const auto expiry = Read<std::uint32_t>(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::StartTick) + Read<std::uint32_t>(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::DurationTicks);
+                if (expiry < earliest)
+                {
+                    earliest = expiry;
+                    index = candidate;
+                }
             }
         }
         // Keep the native -1 sentinel if all ten expiries equal UINT32_MAX.
-        const auto offset = 8u + index * 0x14u;
+        const auto offset = NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory;
         Write(data, offset, command);
-        Write(data, offset + 4u, parameter1);
-        Write(data, offset + 8u, parameter2);
-        Write(data, offset + 0x0Cu, gGameTime.tick);
-        Write(data, offset + 0x10u, duration * 0x2D0u);
-        Write<std::uint8_t>(data, 4, 1);
+        Write(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::Parameter1, parameter1);
+        Write(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::Parameter2, parameter2);
+        Write(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::StartTickUnsigned, gGameTime.tick);
+        Write(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::DurationTicksUnsigned, duration * NC2Runtime::HumanAssistantCommandHistory::TicksPerDurationUnit);
+        Write<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::HasCommandHistoryFlag, 1);
     }
 
     // Original function: FUN_0044061a.
     bool GameAssistantSingleHumanData_CommandHistory_IsInArray(void* data, std::uint32_t command)
     {
         GameAssistantSingleHumanData_CommandHistory_Validate(data);
-        if (Read<std::uint8_t>(data, 4) == 0) return false;
-        for (std::uint32_t index = 0; index < 10; ++index)
+        if (Read<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::HasCommandHistoryFlag) == 0) return false;
+        for (std::uint32_t index = 0; index < NC2Runtime::HumanAssistantCommandHistory::Capacity; ++index)
         {
-            const auto stored = Read<std::uint32_t>(data, 8u + index * 0x14u);
+            const auto stored = Read<std::uint32_t>(data, NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory);
             if (stored != 0 && stored == command) return true;
         }
         return false;
@@ -195,12 +200,12 @@ namespace NC2Logic
     bool GameAssistantSingleHumanData_CommandHistory_IsInArray(void* data, std::uint32_t command, std::uint32_t parameter1, std::uint32_t parameter2)
     {
         GameAssistantSingleHumanData_CommandHistory_Validate(data);
-        if (Read<std::uint8_t>(data, 4) == 0) return false;
-        for (std::uint32_t index = 0; index < 10; ++index)
+        if (Read<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::HasCommandHistoryFlag) == 0) return false;
+        for (std::uint32_t index = 0; index < NC2Runtime::HumanAssistantCommandHistory::Capacity; ++index)
         {
-            const auto offset = 8u + index * 0x14u;
+            const auto offset = NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory;
             const auto stored = Read<std::uint32_t>(data, offset);
-            if (stored != 0 && stored == command && Read<std::uint32_t>(data, offset + 4u) == parameter1 && Read<std::uint32_t>(data, offset + 8u) == parameter2) return true;
+            if (stored != 0 && stored == command && Read<std::uint32_t>(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::Parameter1) == parameter1 && Read<std::uint32_t>(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::Parameter2) == parameter2) return true;
         }
         return false;
     }
@@ -208,12 +213,12 @@ namespace NC2Logic
     // Original function: FUN_004406c4; expiry uses unsigned time addition/comparison.
     void GameAssistantSingleHumanData_CommandHistory_Validate(void* data)
     {
-        if (Read<std::uint8_t>(data, 4) == 0) return;
+        if (Read<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::HasCommandHistoryFlag) == 0) return;
         bool changed = false;
-        for (std::uint32_t index = 0; index < 10; ++index)
+        for (std::uint32_t index = 0; index < NC2Runtime::HumanAssistantCommandHistory::Capacity; ++index)
         {
-            const auto offset = 8u + index * 0x14u;
-            if (Read<std::uint32_t>(data, offset) != 0 && Read<std::uint32_t>(data, offset + 0x0C) + Read<std::uint32_t>(data, offset + 0x10) <= gGameTime.tick)
+            const auto offset = NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory;
+            if (Read<std::uint32_t>(data, offset) != 0 && Read<std::uint32_t>(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::StartTick) + Read<std::uint32_t>(data, offset + NC2Layout::HumanAssistantCommandHistoryOffset::DurationTicks) <= gGameTime.tick)
             {
                 Write<std::uint32_t>(data, offset, 0);
                 changed = true;
@@ -221,18 +226,25 @@ namespace NC2Logic
         }
         if (!changed) return;
         bool any = false;
-        for (std::uint32_t index = 0; index < 10; ++index) if (Read<std::uint32_t>(data, 8u + index * 0x14u) != 0) { any = true; break; }
-        Write<std::uint8_t>(data, 4, any ? 1 : 0);
+        for (std::uint32_t index = 0; index < NC2Runtime::HumanAssistantCommandHistory::Capacity; ++index)
+        {
+            if (Read<std::uint32_t>(data, NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory) != 0)
+            {
+                any = true;
+                break;
+            }
+        }
+        Write<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::HasCommandHistoryFlag, any ? 1 : 0);
     }
 
     // Original function: FUN_00440690.
     bool GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(void* data)
     {
         GameAssistantSingleHumanData_CommandHistory_Validate(data);
-        if (Read<std::uint8_t>(data, 4) == 0) return false;
-        for (std::uint32_t index = 0; index < 10; ++index)
+        if (Read<std::uint8_t>(data, NC2Layout::HumanAssistantDataOffset::HasCommandHistoryFlag) == 0) return false;
+        for (std::uint32_t index = 0; index < NC2Runtime::HumanAssistantCommandHistory::Capacity; ++index)
         {
-            const auto type = Read<std::int32_t>(data, 8u + index * 0x14u);
+            const auto type = Read<std::int32_t>(data, NC2Layout::HumanAssistantDataOffset::CommandHistory + index * NC2Layout::RecordSize::HumanAssistantCommandHistory);
             if (type >= 79 && type <= 87) return true;
         }
         return false;
@@ -405,8 +417,8 @@ namespace NC2Logic
         const auto task = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask);
         if (task != 14 && task != 15 && !(Human_GetPlayerType(human) == 2 && task == 4)) return true;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0 && Human_IsRefreshingInWorld(human)) return true;
-        const auto mode = Read<std::uint32_t>(human, 0xB5C);
-        const auto* primary = static_cast<const std::byte*>(human) + 0xB64;
+        const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode);
+        const auto* primary = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget;
         if (mode == 3)
         {
             if (task == 15 && !TargetData_IsValid(primary)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2); return false; }
@@ -418,14 +430,14 @@ namespace NC2Logic
         if (Human_l_CheckForEnemyTarget(human, source, 0, 18, target))
         {
             if (Human_GetPlayerType(human) == 2) { AIManager_Message_StartSelfDefence(gAIManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), target); return true; }
-            for (std::uint32_t index = 0; index < 3; ++index) Write(human, 0xB70u + index * 4u, target[index]);
+            for (std::uint32_t index = 0; index < 3; ++index) Write(human, NC2Layout::HumanOffset::SecondaryMilitaryTargetUnsigned + index * 4u, target[index]);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             return false;
         }
         if (mode == 2 && task == 15)
         {
             auto point = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
-            auto* secondary = static_cast<std::byte*>(human) + 0xB70;
+            auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
             if (TargetData_IsValid(secondary)) TargetData_GetMapPosition(secondary, &point);
             const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
             if (distance > 40) { Write<std::uint32_t>(secondary, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return false; }

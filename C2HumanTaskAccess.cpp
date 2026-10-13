@@ -285,8 +285,8 @@ namespace NC2Logic
         else if (task == 14) Human_l_FailTask_Attack(human);
         else if (task == 15)
         {
-            auto* target = static_cast<std::byte*>(human) + 0xB64;
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0 || (!TargetData_IsValid(target) && !TargetData_IsValid(static_cast<std::byte*>(human) + 0xB70))) Human_l_FailTask_Attack(human);
+            auto* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget;
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0 || (!TargetData_IsValid(target) && !TargetData_IsValid(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget))) Human_l_FailTask_Attack(human);
             else
             {
                 const auto type = TargetData_GetTargetType(target);
@@ -302,7 +302,7 @@ namespace NC2Logic
                 }
                 else if (Human_GetPlayerType(human) == 2)
                 {
-                    Write<std::uint32_t>(human, 0xB70, 0);
+                    Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
                     std::uint32_t point = 0;
                     if (Tool_GetOneOfNearestEnemyLandscapes(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Human_GetMapPositionRef(human), 0, 18, true, 1, 0, &point))
                     {
@@ -319,8 +319,8 @@ namespace NC2Logic
                     }
                 }
                 Human_UserMessage_SendToUserMessage(human, 3);
-                Write<std::uint32_t>(human, 0xB64, 0);
-                Write<std::uint32_t>(human, 0xB70, 0);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
                 doJob = false;
             }
         }
@@ -415,13 +415,13 @@ namespace NC2Logic
     // Original function: FUN_004445c9; nearby valid opponents transfer to task 14.
     void Human_l_StartTask_Idle(void* human)
     {
-        if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human) && TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64))
+        if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human) && TargetData_IsValid(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget))
         {
             std::uint32_t point = 0;
-            TargetData_GetMapPosition(static_cast<const std::byte*>(human) + 0xB64, &point);
+            TargetData_GetMapPosition(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget, &point);
             const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2), Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2));
             if (distance < 50) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 14); return; } // Game.exe 004F4300.
-            Write<std::uint32_t>(human, 0xB64, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
         }
         void* moveable = Moveable(human);
         const auto idleCount = Read<std::uint32_t>(human, 0x37C) + 1u;
@@ -479,7 +479,7 @@ namespace NC2Logic
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
         }
         const auto atomic = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction);
-        if ((atomic == 0 || atomic == 1) && idleCount >= 10u && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 2u) == 0 && Read<std::uint32_t>(human, 0xB64) == 0 && !Human_IsAttachedToVehicle(human))
+        if ((atomic == 0 || atomic == 1) && idleCount >= 10u && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 2u) == 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget) == 0 && !Human_IsAttachedToVehicle(human))
         {
             // Empty eligible queues were checked by the startup dispatcher.
             const auto distance = VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY));

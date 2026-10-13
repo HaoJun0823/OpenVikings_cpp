@@ -49,7 +49,7 @@ namespace NC2Logic
         const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weaponId];
         for (std::uint32_t index = 0; index < 2; ++index)
         {
-            auto* target = static_cast<std::byte*>(human) + 0xB64u + index * 12u;
+            auto* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTargetUnsigned + index * NC2Layout::RecordSize::TargetData;
             const auto type = TargetData_GetTargetType(target);
             if (type == 0) continue;
             if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }

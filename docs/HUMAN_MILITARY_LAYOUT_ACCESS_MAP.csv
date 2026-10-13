@@ -1,0 +1,86 @@
+Source,StagedLine,Receiver,PreviousLiteral,Replacement,WindowsEvidence
+C2AIAssistantAccess.cpp,52,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2AIAssistantAccess.cpp,171,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2AIAssistantAccess.cpp,242,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2HumanCommandAccess.cpp,572,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanCommandAccess.cpp,573,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,701,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanCommandAccess.cpp,702,human,0xB68,NC2Layout::HumanOffset::PrimaryMilitaryTargetValue,Attack object id or packed landscape position; 0043E051..0043E435
+C2HumanCommandAccess.cpp,703,human,0xB6C,NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision,Attack target unique id; landscape command clears the third DWORD
+C2HumanCommandAccess.cpp,710,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,723,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanCommandAccess.cpp,724,human,0xB68,NC2Layout::HumanOffset::PrimaryMilitaryTargetValue,Attack object id or packed landscape position; 0043E051..0043E435
+C2HumanCommandAccess.cpp,725,human,0xB6C,NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision,Attack target unique id; landscape command clears the third DWORD
+C2HumanCommandAccess.cpp,732,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,745,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanCommandAccess.cpp,746,human,0xB68,NC2Layout::HumanOffset::PrimaryMilitaryTargetValue,Attack object id or packed landscape position; 0043E051..0043E435
+C2HumanCommandAccess.cpp,747,human,0xB6C,NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision,Attack target unique id; landscape command clears the third DWORD
+C2HumanCommandAccess.cpp,754,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,767,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanCommandAccess.cpp,768,human,0xB68,NC2Layout::HumanOffset::PrimaryMilitaryTargetValue,Attack object id or packed landscape position; 0043E051..0043E435
+C2HumanCommandAccess.cpp,769,human,0xB6C,NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision,Attack target unique id; landscape command clears the third DWORD
+C2HumanCommandAccess.cpp,776,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,790,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanCommandAccess.cpp,791,human,0xB68,NC2Layout::HumanOffset::PrimaryMilitaryTargetValue,Attack object id or packed landscape position; 0043E051..0043E435
+C2HumanCommandAccess.cpp,792,human,0xB6C,NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision,Attack target unique id; landscape command clears the third DWORD
+C2HumanCommandAccess.cpp,793,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,896,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanCommandAccess.cpp,897,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanCommandAccess.cpp,901,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanJobAccess.cpp,382,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanInitialization.cpp,76,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanInitialization.cpp,77,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanInitialization.cpp,78,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanInitialization.cpp,79,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanInitialization.cpp,431,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanInitialization.cpp,432,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanInitialization.cpp,438,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanInitialization.cpp,439,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanInitialization.cpp,454,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanInitialization.cpp,455,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanInitialization.cpp,475,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanInitialization.cpp,476,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanInitialization.cpp,649,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2HumanInitialization.cpp,522,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2HumanTaskAccess.cpp,305,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanTaskAccess.cpp,322,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanTaskAccess.cpp,323,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanTaskAccess.cpp,424,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanTaskAccess.cpp,482,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanTaskAccess.cpp,288,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanTaskAccess.cpp,289,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanTaskAccess.cpp,418,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanTaskAccess.cpp,421,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanNeeds.cpp,69,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanNeeds.cpp,114,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2HumanWalking.cpp,408,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanWalking.cpp,421,human,0xB70u,NC2Layout::HumanOffset::SecondaryMilitaryTargetUnsigned,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanWalking.cpp,409,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanWalking.cpp,428,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanEquipment.cpp,54,human,0xB88,NC2Layout::HumanOffset::AssistantData,Windows initialization calls 0044057D with human+0xB88; D0-byte clear
+C2HumanWorkCommands.cpp,117,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanWorkCommands.cpp,118,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanWorkCommands.cpp,211,human,0xB60,NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag,Windows getter 0042CC12; command store 0043C212; needs checks
+C2HumanWorkCommands.cpp,243,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanWorkCommands.cpp,244,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanMilitaryJobs.cpp,31,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanMilitaryJobs.cpp,31,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanMilitaryJobs.cpp,50,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanMilitaryJobs.cpp,55,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanMilitaryJobs.cpp,76,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanMilitaryJobs.cpp,77,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanHuntingJobs.cpp,106,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanHuntingJobs.cpp,111,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanAttackTasks.cpp,260,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanAttackTasks.cpp,372,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanAttackTasks.cpp,372,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanAttackTasks.cpp,381,human,0xB5C,NC2Layout::HumanOffset::MilitaryMode,Windows getter 0042CC0B; command store 0043C1E0
+C2HumanAttackTasks.cpp,381,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanAttackTasks.cpp,233,human,0xB64u,NC2Layout::HumanOffset::PrimaryMilitaryTargetUnsigned,Windows attack command 0043E0A7; military search 0046B384
+C2HumanAttackTasks.cpp,382,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2HumanAttackTasks.cpp,383,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2WeaponHits.cpp,195,human,0xB6C,NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision,Attack target unique id; landscape command clears the third DWORD
+C2WeaponHits.cpp,195,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2WeaponHits.cpp,187,human,0xB70,NC2Layout::HumanOffset::SecondaryMilitaryTarget,Windows mode reset 0043C1EC; enemy-search replacement and attack priority
+C2WeaponHits.cpp,201,human,0xB64,NC2Layout::HumanOffset::PrimaryMilitaryTarget,Windows attack command 0043E0A7; military search 0046B384
+C2HumanWeaponEvents.cpp,52,human,0xB64u,NC2Layout::HumanOffset::PrimaryMilitaryTargetUnsigned,Windows attack command 0043E0A7; military search 0046B384

@@ -230,7 +230,7 @@ namespace NC2Logic
         std::uint32_t point = 0;
         for (std::uint32_t index = 0; index < 2; ++index)
         {
-            auto* target = static_cast<std::byte*>(human) + 0xB64u + index * 12u;
+            auto* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTargetUnsigned + index * NC2Layout::RecordSize::TargetData;
             if (TargetData_GetTargetType(target) == 0) continue;
             if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, 0, 0); continue; }
             const auto player = TargetData_GetPlayerId(target);
@@ -257,7 +257,7 @@ namespace NC2Logic
             if (index != 0)
             {
                 TargetData_GetMapPosition(target, &point);
-                const auto mode = Read<std::uint32_t>(human, 0xB5C);
+                const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode);
                 const auto distance = Distance(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, &point);
                 if ((mode == 3 && (distance > 18u || distance < static_cast<std::uint32_t>(weapon.minimumRange))) || (mode == 2 && distance > 40u))
                 {
@@ -369,7 +369,7 @@ namespace NC2Logic
     // Original function: FUN_0046b29a; Windows thresholds at 004F3B48/4C are 8000.
     void Human_l_FinishTask_Attack(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xB5C) == 3) Write<std::uint32_t>(human, 0xB70, 0);
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode) == 3) Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
         const auto next = Human_UserControl_IsPriorityCommandInQueue(human) ? 1u : Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_IsJobHunter(human) ? 8u : Read<std::int32_t>(human, NC2Layout::HumanOffset::Food) > 8000 && Read<std::int32_t>(human, NC2Layout::HumanOffset::Stamina) > 8000 ? 14u : 1u;
         Write(human, NC2Layout::HumanOffset::CurrentTask, next);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
@@ -378,9 +378,9 @@ namespace NC2Logic
     // Original function: FUN_00445e3a; discard the secondary target first in military mode 3.
     void Human_l_FailTask_Attack(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xB5C) == 3) Write<std::uint32_t>(human, 0xB70, 0);
-        auto* target = static_cast<std::byte*>(human) + 0xB70;
-        if (!TargetData_IsValid(target)) { target = static_cast<std::byte*>(human) + 0xB64; if (!TargetData_IsValid(target)) return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode) == 3) Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
+        auto* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
+        if (!TargetData_IsValid(target)) { target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget; if (!TargetData_IsValid(target)) return; }
         const auto type = TargetData_GetTargetType(target);
         if (type != 4 && type != 6) return;
         Write<std::uint32_t>(target, 0, 0);

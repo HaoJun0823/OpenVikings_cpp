@@ -49,7 +49,7 @@ namespace NC2Logic
     {
         auto* human = Human(id);
         Human_DoAddNewUserCommand(human, static_cast<std::uint8_t>(command), Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), parameter1, parameter2);
-        if (duration != 0) GameAssistantSingleHumanData_CommandHistory_Add(human + 0xB88, command, parameter1, parameter2, duration);
+        if (duration != 0) GameAssistantSingleHumanData_CommandHistory_Add(human + NC2Layout::HumanOffset::AssistantData, command, parameter1, parameter2, duration);
     }
     // Original function: FUN_00418d3b.
     bool __cdecl GameAssistantManager_ls_LogicCallback(TCallbackTypes type, std::uint32_t, std::uint32_t parameter1, std::uint32_t, std::uint32_t)
@@ -168,7 +168,7 @@ namespace NC2Logic
                     if (!Human_CanEquipToolIron(human) || Human_HasEquippedTools(human)) continue;
                 }
                 else if (!Human_CanEquipShoes(human) || Human_IsJobSoldier(human) != soldiers || Human_HasEquippedShoes(human)) continue;
-                if (GameAssistantSingleHumanData_CommandHistory_IsInArray(const_cast<std::byte*>(human) + 0xB88, 83, good, 0)) continue;
+                if (GameAssistantSingleHumanData_CommandHistory_IsInArray(const_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData, 83, good, 0)) continue;
                 candidates[count++] = id; if (count == 100) break;
             }
             Shuffle(candidates, count);
@@ -239,7 +239,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
             {
                 const auto* human = Human(id);
-                if (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || !Human_IsJobSoldier(human) || Human_HasEquippedWeapon(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 1 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 31 || GameAssistantSingleHumanData_CommandHistory_IsInArray(const_cast<std::byte*>(human) + 0xB88, 81)) continue;
+                if (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || !Human_IsJobSoldier(human) || Human_HasEquippedWeapon(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 1 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 31 || GameAssistantSingleHumanData_CommandHistory_IsInArray(const_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData, 81)) continue;
                 candidates[count++] = id; if (count == 100) break;
             }
             Shuffle(candidates, count);

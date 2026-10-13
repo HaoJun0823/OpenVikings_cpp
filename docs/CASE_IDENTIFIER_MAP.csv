@@ -528,7 +528,7 @@ C2HumanCommandAccess.cpp,320,opcode,37,SwitchIds::UserCommand::DetachTradeHouse,
 C2HumanCommandAccess.cpp,320,opcode,38,SwitchIds::UserCommand::AttachVehicle,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,320,opcode,39,SwitchIds::UserCommand::DetachVehicle,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,320,opcode,41,SwitchIds::UserCommand::SetMilitaryMode,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
-C2HumanCommandAccess.cpp,320,opcode,42,SwitchIds::UserCommand::SetMilitaryAggressiveFlag,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
+C2HumanCommandAccess.cpp,320,opcode,42,SwitchIds::UserCommand::SetMilitaryWorldRefreshmentFlag,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,320,opcode,43,SwitchIds::UserCommand::AttackHuman,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,320,opcode,44,SwitchIds::UserCommand::AttackHouse,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,320,opcode,45,SwitchIds::UserCommand::AttackAnimal,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
@@ -622,7 +622,7 @@ C2HumanCommandAccess.cpp,888,opcode,38,SwitchIds::UserCommand::AttachVehicle,Cur
 C2HumanCommandAccess.cpp,889,opcode,39,SwitchIds::UserCommand::DetachVehicle,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,890,opcode,40,SwitchIds::UserCommand::MoveInsideVehicle,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,891,opcode,41,SwitchIds::UserCommand::SetMilitaryMode,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
-C2HumanCommandAccess.cpp,896,opcode,42,SwitchIds::UserCommand::SetMilitaryAggressiveFlag,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
+C2HumanCommandAccess.cpp,896,opcode,42,SwitchIds::UserCommand::SetMilitaryWorldRefreshmentFlag,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,901,opcode,43,SwitchIds::UserCommand::AttackHuman,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,902,opcode,44,SwitchIds::UserCommand::AttackHouse,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout
 C2HumanCommandAccess.cpp,903,opcode,45,SwitchIds::UserCommand::AttackAnimal,Current Windows reconstruction: selector use and branch effects; semantic name inferred from call sites/layout

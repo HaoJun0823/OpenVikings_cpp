@@ -27,4 +27,4 @@ The original scalar/base transformation stages, record-stride changes and relati
 
 ## Remaining review
 
-The whole-source review remains in progress. Unnamed military counters, secondary-target overlays, task timers, assistant state and specialized flag arrays still need their complete xrefs followed. The remaining raw accesses are not classified as impossible to name. Next are vehicle records, then engine/GUI/control/data helpers and remaining function-level control-flow discrepancies.
+The whole-source review remains in progress. Military targets and assistant history have since been named; see `HUMAN_MILITARY_AND_ASSISTANT_REVIEW.md`. Remaining task counters/timers, sector links and specialized flag arrays still need their complete xrefs followed. The remaining raw accesses are not classified as impossible to name. Next are vehicle records, then engine/GUI/control/data helpers and remaining function-level control-flow discrepancies.

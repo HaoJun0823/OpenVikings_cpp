@@ -73,10 +73,10 @@ namespace NC2Logic
         if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0) return;
         if (Human_IsJobSoldier(human) || Human_IsJobHero(human))
         {
-            Write<std::uint32_t>(human, 0xB64, 0);
-            Write<std::uint32_t>(human, 0xB70, 0);
-            Write<std::uint8_t>(human, 0xB60, 1);
-            Write<std::uint32_t>(human, 0xB5C, 2);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryMilitaryTarget, 0);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode, 2);
         }
         std::uint32_t point = 0;
         bool wasAttached = false;
@@ -428,15 +428,15 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::MiscFlags, flags);
         if (tribe == 5 || tribe == 6)
         {
-            Write<std::uint32_t>(human, 0xB5C, (flags & NXBasics::BitMask::Bit16) != 0 ? 2u : 1u);
-            Write<std::uint8_t>(human, 0xB60, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode, (flags & NXBasics::BitMask::Bit16) != 0 ? 2u : 1u);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, 1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedArmor, 2);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 1);
         }
         else if (static_cast<std::int32_t>(job) >= 31 && static_cast<std::int32_t>(job) <= 41)
         {
-            Write<std::uint32_t>(human, 0xB5C, 2);
-            Write<std::uint8_t>(human, 0xB60, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode, 2);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, 1);
             switch (job)
             {
             case SwitchIds::HumanJob::SoldierUnarmed: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 1); break;
@@ -451,8 +451,8 @@ namespace NC2Logic
         }
         else if (static_cast<std::int32_t>(job) >= 42 && static_cast<std::int32_t>(job) <= 47)
         {
-            Write<std::uint32_t>(human, 0xB5C, 2);
-            Write<std::uint8_t>(human, 0xB60, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode, 2);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, 1);
             switch (job)
             {
             case SwitchIds::HumanJob::HeroSpearSIEGFRIED: Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, 6); Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedArmor, 4); break;
@@ -472,8 +472,8 @@ namespace NC2Logic
         }
         else
         {
-            Write<std::uint32_t>(human, 0xB5C, 2);
-            Write<std::uint8_t>(human, 0xB60, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::MilitaryMode, 2);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag, 1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon, job == 5 ? 2u : 1u);
         }
         Human_SetJobType(human, job);
@@ -519,7 +519,7 @@ namespace NC2Logic
             }
             else if (player == 0) Write<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) | 1u);
         }
-        GameAssistantSingleHumanData_System_Init(static_cast<std::byte*>(human) + 0xB88);
+        GameAssistantSingleHumanData_System_Init(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData);
         return true;
     }
 
@@ -646,7 +646,7 @@ namespace NC2Logic
     void Human_Exit(void* human)
     {
         // Shared System_Exit body at 00430CA4 clears the assistant allocation flag.
-        Write<std::uint8_t>(human, 0xB88, 0);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::AssistantData, 0);
         if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0)
         {
             const auto playerOffset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;

@@ -151,7 +151,7 @@ namespace NC2Logic
         }
         Human_AI_DoUpdateAI(human);
         if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
-        GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(human) + 0xB88);
+        GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData);
     }
 
     // Original function: FUN_004391EB; preserve its distinct native boundary.

@@ -184,7 +184,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 4 && Read<std::uint32_t>(human, 0x384) < 10u) allowed = false;
             const auto enemy = TargetData_GetPlayerId(attacker);
             if (enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayer) != 0 && GameControl_Diplomacy_GetState(gGameControl, enemy, player) != 3 && GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) allowed = false;
-            auto* secondary = static_cast<std::byte*>(human) + 0xB70;
+            auto* secondary = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryMilitaryTarget;
             if (allowed && TargetData_IsValid(secondary))
             {
                 TargetData_GetMapPosition(secondary, &previousPosition);
@@ -192,13 +192,13 @@ namespace NC2Logic
             }
             else if (allowed && Human_GetPlayerType(human) == 2) AIManager_Messages_SoldierAttacked(gAIManager, player, Read<std::uint32_t>(human, 4), attacker);
             // Native comparison deliberately checks type/revision without comparing the object id.
-            if (allowed && !(Read<std::uint32_t>(human, 0xB6C) == attacker[2] && Read<std::uint32_t>(human, 0xB64) == attacker[0]))
+            if (allowed && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTargetRevision) == attacker[2] && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget) == attacker[0]))
             {
                 for (std::uint32_t index = 0; index < 3; ++index) Write(secondary, index * 4u, attacker[index]);
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) != 14) Human_DoAddNewUserCommand(human, 48, static_cast<std::uint8_t>(player), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
             }
         }
-        else if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + 0xB64) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
+        else if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 4u) == 0 && !TargetData_IsValid(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget) && !Human_IsDefendingHouse(human, -1) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Human_GetMapPositionRef(human), &attackerPosition, &previousPosition, 10))
         {
             alignas(4) std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 4);

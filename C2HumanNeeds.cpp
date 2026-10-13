@@ -66,7 +66,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0042cc12.
-    bool Human_IsRefreshingInWorld(const void* human) { return Read<std::uint8_t>(human, 0xB60) != 0; }
+    bool Human_IsRefreshingInWorld(const void* human) { return Read<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag) != 0; }
 
     // Original function: FUN_0042cdd3; soldier/hero jobs do not enter the lookup.
     bool Human_IsDefendingHouse(const void* human, std::int32_t house)
@@ -111,7 +111,7 @@ namespace NC2Logic
     // Original function: FUN_0045be9c.
     void Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(void* human, std::uint32_t good)
     {
-        if (good == 64 || GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + 0xB88)) return;
+        if (good == 64 || GameAssistantSingleHumanData_CommandHistory_IsEquipCommandInArray(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AssistantData)) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 4);

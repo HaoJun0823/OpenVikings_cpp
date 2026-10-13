@@ -245,7 +245,6 @@ namespace NC2Layout
         inline constexpr auto WorkCenterX = 0xB30;
         inline constexpr auto WorkCenterY = 0xB32;
         inline constexpr auto WorkAttachmentHouseId = 0xB34;
-        inline constexpr auto MilitaryState = 0xB5C;
         inline constexpr auto WorkAttachmentHouseRevision = 0xB38;
         inline constexpr auto VehicleConstructionHouseId = 0xB3C;
         inline constexpr auto VehicleConstructionWorkshopRevision = 0xB40;
@@ -254,9 +253,20 @@ namespace NC2Layout
         inline constexpr auto AttachedVehicleRevision = 0xB4C;
         inline constexpr auto InsideHouseFlag = 0xB50;
         inline constexpr auto InsideVehicleFlag = 0xB51;
+        inline constexpr auto MilitaryMode = 0xB5C;
+        inline constexpr auto MilitaryState = 0xB5C;
+        inline constexpr auto MilitaryWorldRefreshmentFlag = 0xB60;
+        inline constexpr auto PrimaryMilitaryTarget = 0xB64;
+        inline constexpr auto PrimaryMilitaryTargetUnsigned = 0xB64u;
+        inline constexpr auto PrimaryMilitaryTargetValue = 0xB68;
+        inline constexpr auto PrimaryMilitaryTargetRevision = 0xB6C;
+        inline constexpr auto SecondaryMilitaryTarget = 0xB70;
+        inline constexpr auto SecondaryMilitaryTargetUnsigned = 0xB70u;
         inline constexpr auto ExplorationRadius = 0xB7C;
         inline constexpr auto MissionCheckId = 0xB80;
         inline constexpr auto MiscFlags = 0xB84;
+        inline constexpr auto AssistantData = 0xB88;
+        inline constexpr auto AssistantHasCommandHistoryFlag = 0xB8C;
     }
 
     namespace MapMoveableOffset
@@ -346,6 +356,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HumanAssistantData = 0xD0;
+        inline constexpr auto HumanAssistantCommandHistory = 0x14u;
         inline constexpr auto HumanInventorySlot = 8u;
         inline constexpr auto UserNetworkCommand = 20u;
         inline constexpr auto VehiclePassenger = 12u;
@@ -512,6 +524,24 @@ namespace NC2Layout
         inline constexpr auto DirectionRuns = 0x5C;
         inline constexpr auto DirectionRunCounts = 0x5D;
         inline constexpr auto DirectionRunCountsUnsigned = 0x5Du;
+    }
+
+    namespace HumanAssistantDataOffset
+    {
+        inline constexpr auto InitializedFlag = 0;
+        inline constexpr auto HasCommandHistoryFlag = 4;
+        inline constexpr auto CommandHistory = 8u;
+    }
+
+    namespace HumanAssistantCommandHistoryOffset
+    {
+        inline constexpr auto Command = 0u;
+        inline constexpr auto Parameter1 = 4u;
+        inline constexpr auto Parameter2 = 8u;
+        inline constexpr auto StartTick = 0x0C;
+        inline constexpr auto StartTickUnsigned = 0x0Cu;
+        inline constexpr auto DurationTicks = 0x10;
+        inline constexpr auto DurationTicksUnsigned = 0x10u;
     }
 
     namespace HumanMilitaryStateOffset

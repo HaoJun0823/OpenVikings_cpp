@@ -103,12 +103,12 @@ namespace NC2Logic
         if (Human_FindCadaverForHarvesting(human, &real, &work, &good, Human_GetMapPositionRef(human)) || Human_FindCadaverForHarvesting(human, &real, &work, &good, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter))
         {
             Write(human, NC2Layout::HumanOffset::RequestedGood, good);
-            Write<std::uint32_t>(human, 0xB64, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::PrimaryMilitaryTarget, 0);
             Write(human, 0xA88, real); Write(human, 0xA8C, work);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 2); Write<std::uint32_t>(human, 0xA90, good == 9 ? 79 : 80);
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
         }
-        void* target = static_cast<std::byte*>(human) + 0xB64;
+        void* target = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::PrimaryMilitaryTarget;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 56);
         if (TargetData_GetTargetType(target) != 3 || !TargetData_IsValid(target))
         {

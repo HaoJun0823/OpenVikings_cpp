@@ -4,6 +4,12 @@
 // Values and integer literal types are retained from the Windows reconstruction.
 namespace NC2Runtime
 {
+    namespace HumanAssistantCommandHistory
+    {
+        inline constexpr auto Capacity = 10;
+        inline constexpr auto TicksPerDurationUnit = 0x2D0u;
+    }
+
     namespace RandomSeed
     {
         inline constexpr auto Game = 0x18273645;

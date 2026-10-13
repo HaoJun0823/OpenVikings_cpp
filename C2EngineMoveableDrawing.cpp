@@ -408,7 +408,7 @@ namespace NC2E2
             if (need != -1) { icon(static_cast<std::uint32_t>(need)); iconY = AddOffset(iconY, -16); }
         }
         if ((flags & (1u << 7)) != 0 && (!NC2Logic::Human_IsJobHero(human) || specialHero)) { icon(10); iconY = AddOffset(iconY, -16); }
-        if (!centered && Read<std::uint8_t>(human, 0xB8C) != 0) icon(22);
+        if (!centered && Read<std::uint8_t>(human, NC2Layout::HumanOffset::AssistantHasCommandHistoryFlag) != 0) icon(22);
         if (display == nullptr || centered || Read<void*>(display, 0x924) == nullptr || player != playerId || NC2InGameGuiGroups::gObjectGroupManager == nullptr) return;
         const auto group = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         if (group == -1) return;

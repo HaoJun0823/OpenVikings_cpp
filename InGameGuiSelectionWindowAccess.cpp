@@ -579,7 +579,7 @@ namespace NC2InGameGuiSelection
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s: %s", HumanString(80), NC2Logic::StringAccess_GetMilitaryModeNamePtr(NC2Logic::Human_GetMilitaryMode(human)));
                 text[sizeof(text) - 1] = '\0';
                 bitmap->Text_Print(resources.font08, color, section.x + 8, y, text); y += 14;
-                bitmap->Text_Print(resources.font08, color, section.x + 8, y, HumanString(Read<std::uint8_t>(human, 0xB60) != 0 ? 81 : 82)); y += 14;
+                bitmap->Text_Print(resources.font08, color, section.x + 8, y, HumanString(Read<std::uint8_t>(human, NC2Layout::HumanOffset::MilitaryWorldRefreshmentFlag) != 0 ? 81 : 82)); y += 14;
                 NXBasics::Runtime_PrintStringN(text, sizeof(text), "%s: %d%%", HumanString(83), NC2Logic::Human_Tool_Gui_GetExperienceForEquippedWeapon(human));
                 text[sizeof(text) - 1] = '\0';
                 bitmap->Text_Print(resources.font08, color, section.x + 8, y, text); y += 14;
