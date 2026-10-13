@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Animal layout and state-constructor correction - 2026-10-13
+
+Named 400 whole-animal field accesses in 25 sources. Corrected the array helper to pass animal +0x18 to the Windows state constructor, as proven by both allocation and resize call sites. Relative constructor offsets, herd/food/age/aggression/atomic fields and the slaughter sentinel are named. Syntax, value/type, layout and native-byte checks pass; no runtime verification occurred. See [ANIMAL_LAYOUT_REVIEW.md](ANIMAL_LAYOUT_REVIEW.md) and its inventories. Entire-source review remains active.
+
 ## Vehicle layout review - 2026-10-13
 
 Named 508 vehicle scalar/base expressions in 42 sources, 40 passenger/command strides, reservation/reference members and distinct carrier commands. Requested-delta arithmetic and retained reservation amounts preserve Windows behavior. Value/type and Win32 syntax checks pass. See [VEHICLE_LAYOUT_REVIEW.md](VEHICLE_LAYOUT_REVIEW.md) and its field/access inventories. The whole-source review remains in progress.

@@ -214,19 +214,19 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CAnimalArray::mStaticVars + target * CAnimalArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 3 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, 8) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
+        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 3 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
         auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
-        const auto player = Read<std::uint32_t>(enemy, 0x10);
+        const auto player = Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::PlayerId);
         if (player != 20) GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 45);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
-        Write(command, 0x10, Read<std::uint32_t>(enemy, 8));
+        Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
         Write<std::uint32_t>(soldier, 0x34, 14);
         Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, 8));
+        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId));
         Write<std::uint32_t>(soldier, 0x48, 3);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
         else Write<std::uint8_t>(soldier, 0x44, 0);

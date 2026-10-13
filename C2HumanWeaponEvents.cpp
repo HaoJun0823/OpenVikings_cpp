@@ -87,7 +87,7 @@ namespace NC2Logic
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
                 if (weapon.hasMunition == 0) hit = Animal_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 1, Human_GetExperienceForEquippedWeapon(human), true);
-                else moveableId = Read<std::uint32_t>(object, 12);
+                else moveableId = Read<std::uint32_t>(object, NC2Layout::AnimalOffset::MapMoveableId);
                 break;
             case SwitchIds::TargetType::Vehicle:
                 object = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;

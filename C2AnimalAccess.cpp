@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AnimalAccess.h"
@@ -33,8 +34,8 @@ namespace NC2Logic
     namespace
     {
         void* Animal(std::int32_t id) { return CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * CAnimalArray::ElementSize; }
-        void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * NC2Layout::RecordSize::MapMoveable; }
-        const SStaticAnimalTypeData& Type(const void* animal) { return static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u]; }
+        void* Moveable(const void* animal) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable; }
+        const SStaticAnimalTypeData& Type(const void* animal) { return static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) - 8u]; }
     }
 
     // Original function: FUN_0044710b; neutral animals bypass diplomacy, owned animals do so only on selection.
@@ -74,35 +75,35 @@ namespace NC2Logic
     void CAnimalArray::FreeAnimal(std::int32_t id)
     {
         auto* animal = Animal(id);
-        if (Read<std::uint8_t>(animal, 0) == 0 || !Element_Free(id, true)) return;
-        if (Read<std::int32_t>(animal, 12) != -1) CCallbackManager::sTheObjectPtr->ExecuteCallback(6, false, id, 0, 0);
+        if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || !Element_Free(id, true)) return;
+        if (Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) != -1) CCallbackManager::sTheObjectPtr->ExecuteCallback(6, false, id, 0, 0);
         Animal_Exit(animal);
     }
 
     // Original function: FUN_0042dce9; retain random-call and initial-atomic order.
     bool Animal_Init(void* animal, std::int32_t id, std::uint32_t player, std::uint32_t tribe, std::uint32_t job, const void* point, std::uint32_t missionCheck, std::uint32_t flags)
     {
-        if (Read<std::uint8_t>(animal, 0) != 0) return false;
+        if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) != 0) return false;
         std::memset(animal, 0, CAnimalArray::ElementSize);
-        Write<std::uint8_t>(animal, 0, 1);
-        Write(animal, 4, id);
-        Write(animal, 8, Game_UniqueId_Generate());
-        Write<std::int32_t>(animal, 0x34, -1);
+        Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag, 1);
+        Write(animal, NC2Layout::AnimalOffset::AnimalId, id);
+        Write(animal, NC2Layout::AnimalOffset::UniqueId, Game_UniqueId_Generate());
+        Write<std::int32_t>(animal, NC2Layout::AnimalOffset::LeaderId, -1);
         Write(animal, NC2Layout::AnimalOffset::PlayerId, player);
         Write(animal, NC2Layout::AnimalOffset::TribeType, tribe);
         Write(animal, NC2Layout::AnimalOffset::AnimalType, job);
         const auto moveableId = MapMoveableArray_AllocateMapMoveable(gMapMoveableArrayStorage.manager, 2, id);
-        Write(animal, 12, moveableId);
+        Write(animal, NC2Layout::AnimalOffset::MapMoveableId, moveableId);
         if (moveableId == -1) return false;
         auto* moveable = Moveable(animal);
         MapMoveable_Attachment_AttachToMap(moveable, point);
         const auto start = Read<std::uint32_t>(moveable, 0x12);
-        Write(animal, 0x2C, start);
-        Write(animal, 0x28, start);
-        Write(animal, 0x24, start);
-        Write(animal, 0x64, Animal_HitPoints_GetMaximum(animal));
-        Write(animal, 0x68, Game_Random_GetNumber() % 400u);
-        Write<std::uint32_t>(animal, 0x6C, 0);
+        Write(animal, NC2Layout::AnimalOffset::BirthPoint, start);
+        Write(animal, NC2Layout::AnimalOffset::StayPoint, start);
+        Write(animal, NC2Layout::AnimalOffset::WorkCenter, start);
+        Write(animal, NC2Layout::AnimalOffset::Hitpoints, Animal_HitPoints_GetMaximum(animal));
+        Write(animal, NC2Layout::AnimalOffset::Food, Game_Random_GetNumber() % 400u);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AgeCounter, 0);
         auto* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
         const auto speed = Type(animal).moveSpeed;
         Write(moveable, 0x44, speed);
@@ -111,12 +112,12 @@ namespace NC2Logic
         Write<std::int32_t>(path, 0x24, -1);
         Write<std::int32_t>(path, 0x1C, -1);
         Animal_l_StartAtomicAnimation(animal, 2, -1);
-        Write<std::uint32_t>(animal, 0x1C, 1);
-        Write<std::uint32_t>(animal, 0x20, 1);
-        Write<std::int32_t>(animal, 0x34, -1);
-        Write(animal, 0x8C, missionCheck);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 1);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 1);
+        Write<std::int32_t>(animal, NC2Layout::AnimalOffset::LeaderId, -1);
+        Write(animal, NC2Layout::AnimalOffset::MissionCheckId, missionCheck);
         const auto delay = Game_Random_GetNumber() % 3u;
-        Write(animal, 0x90, flags);
+        Write(animal, NC2Layout::AnimalOffset::MiscFlags, flags);
         Write(animal, 0x30, delay);
         Animal_l_Aggressive_Check(animal);
         return true;
@@ -126,13 +127,13 @@ namespace NC2Logic
     void Animal_Exit(void* animal)
     {
         if (Animal_l_IsLeaderValid(animal)) Animal_l_DetachLeader(animal);
-        if (Read<std::uint8_t>(animal, 0) == 0) return;
-        const auto moveableId = Read<std::int32_t>(animal, 12);
+        if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0) return;
+        const auto moveableId = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId);
         auto size = static_cast<std::uint32_t>(Type(animal).maximumCadaverSize);
         if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && size != 0 && Read<std::uint8_t>(Moveable(animal), 0x10) != 0)
         {
             const auto* point = Animal_GetMapPositionRef(animal);
-            if (Read<std::uint32_t>(animal, 0x40) == 0xFFFE7960u)
+            if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::EnvironmentalFoodValue) == NC2Runtime::AnimalFoodValue::SlaughteredBits)
             {
                 const auto engine = NC2LogicExternals::External_Misc_GetEngineCadaverLandscapeId(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), 79);
                 if (engine != -1)
@@ -155,7 +156,7 @@ namespace NC2Logic
             }
         }
         if (moveableId != -1) MapMoveableArray_FreeMapMoveable(gMapMoveableArrayStorage.manager, moveableId);
-        Write<std::uint8_t>(animal, 0, 0);
+        Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag, 0);
     }
 
     // Original function: FUN_0042e82c; unsupported atomic types return false.
@@ -173,11 +174,11 @@ namespace NC2Logic
             job = Read<std::uint32_t>(data, 0x20);
             if (job == 0) return false;
         }
-        Write<std::uint32_t>(animal, 0x7C, 0);
-        Write(animal, 0x80, Read<std::uint32_t>(animal, 0x80) + 1u);
-        Write(animal, 0x78, animation);
-        Write(animal, 0x70, action);
-        Write<std::uint8_t>(animal, 0x74, 1);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame, 0);
+        Write(animal, NC2Layout::AnimalOffset::AtomicAnimationStartCount, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationStartCount) + 1u);
+        Write(animal, NC2Layout::AnimalOffset::AtomicAnimationId, animation);
+        Write(animal, NC2Layout::AnimalOffset::AtomicAction, action);
+        Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag, 1);
         const auto preferred = gStaticAtomicAnimationData[animation].startDirection;
         if (preferred != -1) MapMoveable_Attachment_StartTurn(Moveable(animal), preferred);
         else if (direction != -1) MapMoveable_Attachment_StartTurn(Moveable(animal), direction);
@@ -187,25 +188,25 @@ namespace NC2Logic
     // Original function: FUN_0042e9ae; no active animation is interruptible.
     bool Animal_l_IsAtomicInterruptable(const void* animal)
     {
-        if (Read<std::uint32_t>(animal, 0x70) == 1) return Read<std::uint8_t>(Moveable(animal), 0x2C) == 0;
-        return Read<std::uint8_t>(animal, 0x74) == 0 || gStaticAtomicAnimationData[Read<std::uint32_t>(animal, 0x78)].interruptable != 0;
+        if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction) == 1) return Read<std::uint8_t>(Moveable(animal), 0x2C) == 0;
+        return Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag) == 0 || gStaticAtomicAnimationData[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationId)].interruptable != 0;
     }
 
     // Original function: FUN_0042ebc1; leader attachment types must agree.
     bool Animal_l_IsLeaderValid(const void* animal)
     {
-        const auto id = Read<std::int32_t>(animal, 0x34);
+        const auto id = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::LeaderId);
         if (id == -1) return false;
         const auto* leader = Animal(id);
-        if (Read<std::uint8_t>(leader, 0) == 0 || Read<std::uint32_t>(leader, 8) != Read<std::uint32_t>(animal, 0x38) || Read<std::uint32_t>(leader, 0x10) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) || Animal_IsAttachedToVehicle(leader)) return false;
+        if (Read<std::uint8_t>(leader, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(leader, NC2Layout::AnimalOffset::UniqueId) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderRevision) || Read<std::uint32_t>(leader, NC2Layout::AnimalOffset::PlayerId) != Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) || Animal_IsAttachedToVehicle(leader)) return false;
         if (!Animal_IsAttachedToHouse(animal)) return !Animal_IsAttachedToHouse(leader);
-        return Animal_IsAttachedToHouse(leader) && TargetData_GetUniqueId(static_cast<const std::byte*>(leader) + 0x50) == TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50);
+        return Animal_IsAttachedToHouse(leader) && TargetData_GetUniqueId(static_cast<const std::byte*>(leader) + NC2Layout::AnimalOffset::AttachmentTarget) == TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget);
     }
 
     // Original function: FUN_0042f2ad.
-    bool Animal_IsAttachedToHouse(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + 0x50; return TargetData_GetTargetType(target) == 4 && TargetData_IsValid(target); }
+    bool Animal_IsAttachedToHouse(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget; return TargetData_GetTargetType(target) == 4 && TargetData_IsValid(target); }
     // Original function: FUN_0042f2d1.
-    bool Animal_IsAttachedToVehicle(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + 0x50; return TargetData_GetTargetType(target) == 2 && TargetData_IsValid(target); }
+    bool Animal_IsAttachedToVehicle(const void* animal) { const auto* target = static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget; return TargetData_GetTargetType(target) == 2 && TargetData_IsValid(target); }
 
     // Original function: FUN_0042f2f5; even an unallocated house triggers center update.
     void Animal_AttachToHouse(void* animal, std::int32_t houseId)
@@ -213,9 +214,9 @@ namespace NC2Logic
         const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
         if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0)
         {
-            Write(animal, 0x54, houseId);
-            Write(animal, 0x58, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
-            Write<std::uint32_t>(animal, 0x50, 4);
+            Write(animal, NC2Layout::AnimalOffset::AttachedObjectId, houseId);
+            Write(animal, NC2Layout::AnimalOffset::AttachedObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+            Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AttachmentTarget, 4);
             Animal_l_DetachLeader(animal);
         }
         Animal_l_MoveWorkCenterPoint(animal);
@@ -227,12 +228,12 @@ namespace NC2Logic
         const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleId) * CVehicleArray::ElementSize;
         if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0)
         {
-            Write(animal, 0x54, vehicleId);
-            Write(animal, 0x58, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
-            Write<std::uint32_t>(animal, 0x50, 2);
+            Write(animal, NC2Layout::AnimalOffset::AttachedObjectId, vehicleId);
+            Write(animal, NC2Layout::AnimalOffset::AttachedObjectRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
+            Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AttachmentTarget, 2);
         }
-        if (Read<std::uint32_t>(animal, 0x70) == 1) return false;
-        if (Read<std::uint32_t>(animal, 0x1C) != 9) { Write<std::uint32_t>(animal, 0x20, 0); Write<std::uint32_t>(animal, 0x1C, 9); }
+        if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction) == 1) return false;
+        if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask) != 9) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 9); }
         return true;
     }
 
@@ -242,8 +243,8 @@ namespace NC2Logic
         if (Animal_IsAttachedToVehicle(animal)) return;
         if (Animal_IsAttachedToHouse(animal))
         {
-            const auto id = TargetData_GetObjectId(static_cast<const std::byte*>(animal) + 0x50);
-            Write(animal, 0x24, Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, NC2Layout::HouseOffset::DoorEntryPoint));
+            const auto id = TargetData_GetObjectId(static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget);
+            Write(animal, NC2Layout::AnimalOffset::WorkCenter, Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, NC2Layout::HouseOffset::DoorEntryPoint));
             return;
         }
         const auto player = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
@@ -255,9 +256,9 @@ namespace NC2Logic
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6) != continent) continue;
-                Write(animal, 0x54, id);
-                Write(animal, 0x58, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
-                Write<std::uint32_t>(animal, 0x50, 4);
+                Write(animal, NC2Layout::AnimalOffset::AttachedObjectId, id);
+                Write(animal, NC2Layout::AnimalOffset::AttachedObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AttachmentTarget, 4);
                 Animal_l_DetachLeader(animal);
                 return;
             }
@@ -278,7 +279,7 @@ namespace NC2Logic
             }
             return total;
         };
-        const SSectorGridCursor center(Read<std::uint32_t>(animal, 0x24));
+        const SSectorGridCursor center(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::WorkCenter));
         if (occupied(center, true) == 0) return;
         const SSectorGridCursor active(Read<std::uint32_t>(Animal_GetMapPositionRef(animal), 0));
         auto best = active;
@@ -291,8 +292,8 @@ namespace NC2Logic
             const auto count = occupied(candidate, false);
             if (count < minimum) { best = candidate; minimum = count; }
         }
-        Write(animal, 0x24, static_cast<std::uint32_t>(static_cast<std::uint16_t>(best.x * 20)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(best.y * 20)) << 16));
-        auto* point = static_cast<std::byte*>(animal) + 0x24;
+        Write(animal, NC2Layout::AnimalOffset::WorkCenter, static_cast<std::uint32_t>(static_cast<std::uint16_t>(best.x * 20)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(best.y * 20)) << 16));
+        auto* point = static_cast<std::byte*>(animal) + NC2Layout::AnimalOffset::WorkCenter;
         if (MapMigPoint_IsBorderPoint(point)) MapMigPoint_ConstructOffset(point, point, 10, 10, false);
         Tool_Map_GetNotBlockedPosition(point, true);
     }
@@ -300,9 +301,9 @@ namespace NC2Logic
     // Original function: FUN_00461521.
     void Animal_GoIntoHouseInteractionMode(void* animal)
     {
-        if (Read<std::uint32_t>(animal, 0x1C) == 10) return;
-        Write<std::uint32_t>(animal, 0x20, 0);
-        Write<std::uint32_t>(animal, 0x1C, 10);
+        if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask) == 10) return;
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 10);
     }
 
     // Original function: FUN_004471ca; aggression changes sector-list membership.
@@ -310,26 +311,26 @@ namespace NC2Logic
     {
         if (Type(animal).aggressive != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49)
         {
-            if (Read<std::uint8_t>(animal, 0x5C) == 0)
+            if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) == 0)
             {
                 MapMoveable_Attachment_DetachFromSectorMap(Moveable(animal));
-                Write<std::uint8_t>(animal, 0x5C, 1);
+                Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag, 1);
                 MapMoveable_Attachment_AttachToSectorMap(Moveable(animal));
             }
         }
-        else if (Read<std::uint32_t>(animal, 0x60) != 0) Write(animal, 0x60, Read<std::uint32_t>(animal, 0x60) - 1u);
-        else if (Read<std::uint8_t>(animal, 0x5C) != 0)
+        else if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AggressionClearDelay) != 0) Write(animal, NC2Layout::AnimalOffset::AggressionClearDelay, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AggressionClearDelay) - 1u);
+        else if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0)
         {
             MapMoveable_Attachment_DetachFromSectorMap(Moveable(animal));
-            Write<std::uint8_t>(animal, 0x5C, 0);
+            Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag, 0);
             MapMoveable_Attachment_AttachToSectorMap(Moveable(animal));
         }
     }
 
     // Original function: FUN_0042e9e8.
-    std::uint32_t Animal_GetCurrentAtomicAnimationLengthInTicks(const void* animal) { return NC2Lifetime::Read<std::uint32_t>(gStaticAtomicAnimationData, NC2Lifetime::Read<std::uint32_t>(animal, 0x78) * 0x138u + 0x34); }
+    std::uint32_t Animal_GetCurrentAtomicAnimationLengthInTicks(const void* animal) { return NC2Lifetime::Read<std::uint32_t>(gStaticAtomicAnimationData, NC2Lifetime::Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationId) * NC2Layout::RecordSize::AtomicAnimation + NC2Layout::AtomicAnimationOffset::LengthInTicks); }
     // Original function: FUN_0042f6a2; forced house exit only clears the hidden byte.
-    void Animal_HouseMisc_Exit(void* animal) { Write<std::uint8_t>(animal, 0x94, 0); }
+    void Animal_HouseMisc_Exit(void* animal) { Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag, 0); }
 
     // Original function: FUN_0042f6aa; animal type IDs index the native biased table.
     std::uint32_t Animal_HitPoints_GetMaximum(const void* animal)
@@ -347,7 +348,7 @@ namespace NC2Logic
     // Original function: FUN_0042ef84; the native work-center reference is the leader's +2Ch point.
     const void* Animal_GetAnimalWorkCenterPointRef(const void* animal)
     {
-        return static_cast<const std::byte*>(Animal(Read<std::int32_t>(animal, 0x34))) + 0x2C;
+        return static_cast<const std::byte*>(Animal(Read<std::int32_t>(animal, NC2Layout::AnimalOffset::LeaderId))) + NC2Layout::AnimalOffset::BirthPoint;
     }
 
     // Original function: FUN_0042ea17

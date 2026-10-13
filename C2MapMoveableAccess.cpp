@@ -408,7 +408,7 @@ namespace NC2Logic
         switch (Read<std::uint32_t>(moveable, 8))
         {
         case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId);
-        case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
+        case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::UniqueId);
         case SwitchIds::MapMoveableType::Vehicle: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId);
         case SwitchIds::MapMoveableType::Marker: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);
         default: return NXBasics::IntegerRange::UInt32Maximum;
@@ -503,40 +503,40 @@ namespace NC2Logic
     void Animal_Sector_AttachAnimalToSector(void* animal, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const bool special = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 0x31 && Read<std::uint8_t>(animal, 0x5C) != 0;
+        const bool special = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 0x31 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0;
         const auto offset = (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) << 6) + (special ? 0x38u : 0x30u);
         const auto previous = Read<std::int32_t>(data, offset);
-        const auto id = Read<std::int32_t>(animal, 4);
+        const auto id = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::AnimalId);
         Write<std::int32_t>(data, offset, id);
         Write<std::uint32_t>(data, offset + 4, Read<std::uint32_t>(data, offset + 4) + 1u);
-        Write<std::int32_t>(animal, 0x88, previous);
-        if (previous != -1) Write<std::int32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(previous) * CAnimalArray::ElementSize, 0x84, id);
-        Write<std::int32_t>(animal, 0x84, -1);
+        Write<std::int32_t>(animal, NC2Layout::AnimalOffset::NextSectorAnimalId, previous);
+        if (previous != -1) Write<std::int32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(previous) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::PreviousSectorAnimalId, id);
+        Write<std::int32_t>(animal, NC2Layout::AnimalOffset::PreviousSectorAnimalId, -1);
     }
 
     // Original function: FUN_0042eac4. Windows does not repair the next node's previous ID on non-head removal.
     void Animal_Sector_DetachAnimalFromSector(void* animal, const SSectorGridCursor& sector)
     {
         auto* data = GetSector(sector);
-        const bool special = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 0x31 && Read<std::uint8_t>(animal, 0x5C) != 0;
+        const bool special = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 0x31 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0;
         const auto offset = (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) << 6) + (special ? 0x38u : 0x30u);
         auto current = Read<std::int32_t>(data, offset);
         Write<std::uint32_t>(data, offset + 4, Read<std::uint32_t>(data, offset + 4) - 1u);
-        const auto id = Read<std::int32_t>(animal, 4);
-        const auto next = Read<std::int32_t>(animal, 0x88);
+        const auto id = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::AnimalId);
+        const auto next = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::NextSectorAnimalId);
         if (current == id)
         {
             Write<std::int32_t>(data, offset, next);
-            if (next != -1) Write<std::int32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(next) * CAnimalArray::ElementSize, 0x84, -1);
+            if (next != -1) Write<std::int32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(next) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::PreviousSectorAnimalId, -1);
             return;
         }
         for (;;)
         {
             void* previous = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(current) * CAnimalArray::ElementSize;
-            current = Read<std::int32_t>(previous, 0x88);
+            current = Read<std::int32_t>(previous, NC2Layout::AnimalOffset::NextSectorAnimalId);
             if (current == id)
             {
-                Write<std::int32_t>(previous, 0x88, next);
+                Write<std::int32_t>(previous, NC2Layout::AnimalOffset::NextSectorAnimalId, next);
                 return;
             }
         }

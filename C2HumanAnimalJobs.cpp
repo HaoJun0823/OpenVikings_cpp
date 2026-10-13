@@ -95,20 +95,20 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstAnimalId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)); id != -1; id = iterator.GetNextAnimalId())
         {
             auto* animal = Animal(static_cast<std::uint32_t>(id));
-            const auto type = Read<std::uint32_t>(animal, 0x14);
-            if ((type != 19 && type != 10) || (Read<std::uint32_t>(animal, 0x90) & 8u) != 0 || Animal_IsAttachedToVehicle(animal)) continue;
+            const auto type = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType);
+            if ((type != 19 && type != 10) || (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) != 0 || Animal_IsAttachedToVehicle(animal)) continue;
             if (Animal_IsAttachedToHouse(animal))
             {
-                auto* currentHouse = House(TargetData_GetObjectId(static_cast<const std::byte*>(animal) + 0x50));
+                auto* currentHouse = House(TargetData_GetObjectId(static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget));
                 if (Read<std::uint32_t>(currentHouse, NC2Layout::HouseOffset::HouseId) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId))
                 {
                     House_Stock_ModifyAmount(house, type == 19 ? 57u : 58u, 1, 0, false);
-                    if (type != animalType || Read<std::uint32_t>(animal, 0x18) != 49) continue;
+                    if (type != animalType || Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) != 49) continue;
                     ++adults;
                     if (hasInteracting) continue;
                     const auto distance = Distance(Animal_GetMapPositionRef(animal), static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint);
                     if (distance >= slaughterDistance) continue;
-                    if (Read<std::uint32_t>(animal, 0x1C) == 10) hasInteracting = true;
+                    if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask) == 10) hasInteracting = true;
                     slaughter = animal;
                     slaughterDistance = distance;
                     continue;
@@ -183,7 +183,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             auto* animal = Animal(static_cast<std::uint32_t>(id));
-            if (Read<std::uint32_t>(animal, 0x14) != type || !Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) || Read<std::uint32_t>(animal, 0x18) != 49) continue;
+            if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) != type || !Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::AttachmentTarget) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) || Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) != 49) continue;
             if (++adults < 2) continue;
             const auto newborn = Logic_EntryPoint_Add_Animal(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), type, 48, Animal_GetMapPositionRef(animal), 0, 0);
             if (newborn == -1) return;

@@ -94,7 +94,7 @@ namespace NC2Logic
         for (std::int32_t i = 0; i < Read<std::int32_t>(counts, 0); ++i) Write<std::uint32_t>(counts, 4 + i * 12, 0);
         CAnimalIterator owned;
         for (auto id = owned.GetFirstSectorAnimalId(player, 0, 10000, false, false); id != -1; id = owned.GetNextSectorAnimalId())
-            AIAnimalTypeCounts_Increment(counts, Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 20));
+            AIAnimalTypeCounts_Increment(counts, Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::TribeType));
         if (AIAnimalTypeCounts_AreAllSatisfied(counts))
         {
             if (AIScout_IsValid(catcher))
@@ -143,9 +143,9 @@ namespace NC2Logic
         for (auto id = animals.GetFirstAnimalId(); id != -1; id = animals.GetNextAnimalId())
         {
             const auto* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-            const auto owner = Read<std::uint32_t>(animal, 16);
+            const auto owner = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
             if (owner != 20 && GameControl_Diplomacy_GetState(gGameControl, player, owner) != 3) continue;
-            if (!AIAnimalTypeCounts_MarkRequested(counts, Read<std::uint32_t>(animal, 20))) continue;
+            if (!AIAnimalTypeCounts_MarkRequested(counts, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType))) continue;
             const auto* animalPosition = Animal_GetMapPositionRef(animal);
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(animalPosition), 6) != continent) continue;
             const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(animalPosition, player);

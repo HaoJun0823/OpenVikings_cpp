@@ -200,7 +200,7 @@ namespace NC2Logic
         case SwitchIds::InteractionTargetType::Animal:
         {
             const auto* animal = CAnimalArray::mStaticVars + Read<std::uint32_t>(target, 0x14) * CAnimalArray::ElementSize;
-            return Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(target, 0x18) == Read<std::uint32_t>(animal, 8);
+            return Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(target, 0x18) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::UniqueId);
         }
         default:
             return false;

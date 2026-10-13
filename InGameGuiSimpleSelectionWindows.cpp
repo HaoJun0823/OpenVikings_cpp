@@ -80,7 +80,7 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004befda.
     static void __fastcall SelectionSingleAnimalWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)
     {
-        BaseToolWindow_Draw(window, nullptr, bitmap, rectangle); const SRectangle title(0, 0, 140, 16); SelectionTool_FillRectangle(bitmap, title, 5); SelectionTool_PrintCenteredString(bitmap, title, true, Text(530)); const auto id = Selection_GetSelectedSingleAnimalId(gInputManager); if (id == -1) return; const auto* animal = NC2Logic::CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CAnimalArray::ElementSize; if (Read<std::uint8_t>(animal, 0) == 0) return;
+        BaseToolWindow_Draw(window, nullptr, bitmap, rectangle); const SRectangle title(0, 0, 140, 16); SelectionTool_FillRectangle(bitmap, title, 5); SelectionTool_PrintCenteredString(bitmap, title, true, Text(530)); const auto id = Selection_GetSelectedSingleAnimalId(gInputManager); if (id == -1) return; const auto* animal = NC2Logic::CAnimalArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CAnimalArray::ElementSize; if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0) return;
         NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId), bitmap, 70, 110, nullptr, true, Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId)); bitmap->Text_Print(CGuiBaseDataManager::mStaticVars.resources.font08, White(), 4, 16, NC2Logic::StringAccess_GetTribeNamePtr(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), 1));
     }
 }

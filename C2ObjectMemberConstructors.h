@@ -10,7 +10,7 @@ namespace NC2Logic
     void* __fastcall Vehicle_ConstructMembers(void* vehicle, void* unusedEdx);
     void* __fastcall Vehicle_ConstructVars(void* data, void* unusedEdx);
     void* __fastcall Vehicle_Task_ConstructMembers(void* task, void* unusedEdx);
-    void* __fastcall Animal_ConstructMembers(void* animal, void* unusedEdx);
+    void* __fastcall Animal_ConstructStateMembers(void* state, void* unusedEdx);
     void* __fastcall ConstructPointMembers(void* data, void* unusedEdx);
 
     void* SearchNearbyMapPoints_ConstructMembers(void* data);

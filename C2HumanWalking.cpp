@@ -241,11 +241,11 @@ namespace NC2Logic
     // Original function: FUN_0042eec9.
     void Animal_l_DetachLeader(void* animal)
     {
-        const auto id = Read<std::uint32_t>(animal, 0x34);
+        const auto id = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return;
         void* leader = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
-        if (Read<std::uint8_t>(leader, 0) != 0 && Read<std::uint32_t>(leader, 8) == Read<std::uint32_t>(animal, 0x38)) Write(leader, 0x3C, Read<std::uint32_t>(leader, 0x3C) - 1u);
-        Write<std::uint32_t>(animal, 0x34, NXBasics::IntegerRange::UInt32Maximum);
+        if (Read<std::uint8_t>(leader, NC2Layout::AnimalOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(leader, NC2Layout::AnimalOffset::UniqueId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderRevision)) Write(leader, NC2Layout::AnimalOffset::GroupSize, Read<std::uint32_t>(leader, NC2Layout::AnimalOffset::GroupSize) - 1u);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_0042f63f; transfer updates pathfinder ownership and sector lists.
@@ -253,7 +253,7 @@ namespace NC2Logic
     {
         void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         MapMoveable_Attachment_DetachFromSectorMap(moveable);
-        Write<std::uint32_t>(animal, 0x50, 0);
+        Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AttachmentTarget, 0);
         Write(animal, NC2Layout::AnimalOffset::PlayerId, player);
         void* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
         Write<std::uint32_t>(path, 0x24, NXBasics::IntegerRange::UInt32Maximum);

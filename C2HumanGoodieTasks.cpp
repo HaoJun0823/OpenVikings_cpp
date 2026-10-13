@@ -486,7 +486,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorAnimalId(20, Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter), 50, false, false); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-            if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, 0x5C) != 0) continue;
+            if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0) continue;
             const void* position = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable + 0x12;
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent) continue;
             auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(Position(human), 0), Read<std::int16_t>(Position(human), 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));

@@ -719,7 +719,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         void* target = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-        if (Read<std::uint8_t>(target, 0) == 0 || Read<std::uint32_t>(target, 8) != revision) return 1;
+        if (Read<std::uint8_t>(target, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::AnimalOffset::UniqueId) != revision) return 1;
         Write<std::uint32_t>(human, 0xB64, 3);
         Write(human, 0xB68, id);
         Write(human, 0xB6C, revision);

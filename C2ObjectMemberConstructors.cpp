@@ -30,26 +30,26 @@ namespace NC2Logic
     void* __fastcall Human_ConstructMembers(void* human, void* /*unusedEdx*/)
     {
         auto* data = static_cast<std::byte*>(human);
-        std::memset(data + 0x15C, 0, 56);
-        Human_Task_ConstructMembers(data + 0x368, nullptr);
-        ConstructPointMembers(data + 0xA68, nullptr);
-        ConstructPointMembers(data + 0xA84, nullptr);
-        Write<std::uint16_t>(human, 0xB32, 0); Write<std::uint16_t>(human, NC2Layout::HumanOffset::WorkCenter, 0);
-        Human_ConstructMilitaryMembers(data + 0xB5C, nullptr);
+        std::memset(data + NC2Layout::HumanOffset::AllowedJobFlagsSigned, 0, 56);
+        Human_Task_ConstructMembers(data + NC2Layout::HumanOffset::CurrentTask, nullptr);
+        ConstructPointMembers(data + NC2Layout::HumanOffset::InteractionTarget, nullptr);
+        ConstructPointMembers(data + NC2Layout::HumanOffset::SecondaryInteractionTarget, nullptr);
+        Write<std::uint16_t>(human, NC2Layout::HumanOffset::WorkCenterY, 0); Write<std::uint16_t>(human, NC2Layout::HumanOffset::WorkCenterX, 0);
+        Human_ConstructMilitaryMembers(data + NC2Layout::HumanOffset::MilitaryState, nullptr);
         return human;
     }
 
     // Original function: FUN_0040b380; retain each of the 87 native per-task clears.
     void* __fastcall Human_Task_ConstructMembers(void* task, void* /*unusedEdx*/)
     {
-        for (std::uint32_t index = 0; index < 87; ++index) std::memset(static_cast<std::byte*>(task) + 0x28u + index * 0x14u, 0, 20);
+        for (std::uint32_t index = 0; index < 87; ++index) std::memset(static_cast<std::byte*>(task) + NC2Layout::HumanTaskOffset::UserCommandQueue + index * NC2Layout::RecordSize::UserNetworkCommand, 0, 20);
         return task;
     }
 
     // Original function: FUN_0040b3a4; the leading mode fields are not cleared here.
     void* __fastcall Human_ConstructMilitaryMembers(void* data, void* /*unusedEdx*/)
     {
-        for (std::uint32_t index = 0; index < 2; ++index) std::memset(static_cast<std::byte*>(data) + 8u + index * 12u, 0, 12);
+        for (std::uint32_t index = 0; index < 2; ++index) std::memset(static_cast<std::byte*>(data) + NC2Layout::HumanMilitaryStateOffset::Targets + index * NC2Layout::RecordSize::TargetData, 0, NC2Layout::RecordSize::TargetDataSigned);
         return data;
     }
 
@@ -64,17 +64,17 @@ namespace NC2Logic
     // Original function: FUN_0040b6c9.
     void* __fastcall Vehicle_ConstructVars(void* data, void* /*unusedEdx*/)
     {
-        for (std::uint32_t index = 0; index < 22; ++index) std::memset(static_cast<std::byte*>(data) + index * 0x14u, 0, 20);
-        Write<std::uint16_t>(data, 0x1BE, 0); Write<std::uint16_t>(data, 0x1BC, 0);
-        Write<std::uint16_t>(data, 0x1C4, 0); Write<std::uint16_t>(data, 0x1C2, 0);
-        Write<std::uint16_t>(data, 0x1C8, 0); Write<std::uint16_t>(data, 0x1C6, 0);
+        for (std::uint32_t index = 0; index < 22; ++index) std::memset(static_cast<std::byte*>(data) + index * NC2Layout::RecordSize::UserNetworkCommand, 0, 20);
+        Write<std::uint16_t>(data, NC2Layout::VehicleVarsOffset::DoorEntryPointY, 0); Write<std::uint16_t>(data, NC2Layout::VehicleVarsOffset::DoorEntryPointX, 0);
+        Write<std::uint16_t>(data, NC2Layout::VehicleVarsOffset::TargetWorkPositionY, 0); Write<std::uint16_t>(data, NC2Layout::VehicleVarsOffset::TargetWorkPositionX, 0);
+        Write<std::uint16_t>(data, NC2Layout::VehicleVarsOffset::MilitaryCenterY, 0); Write<std::uint16_t>(data, NC2Layout::VehicleVarsOffset::MilitaryCenterX, 0);
         return data;
     }
 
     // Original function: FUN_0040b71d; naming reference: CVehicle::SVars::STask.
     void* __fastcall Vehicle_Task_ConstructMembers(void* task, void* /*unusedEdx*/)
     {
-        for (std::uint32_t index = 0; index < 2; ++index) std::memset(static_cast<std::byte*>(task) + index * 12u, 0, 12);
+        for (std::uint32_t index = 0; index < 2; ++index) std::memset(static_cast<std::byte*>(task) + index * NC2Layout::RecordSize::TargetData, 0, NC2Layout::RecordSize::TargetDataSigned);
         return task;
     }
 
@@ -86,15 +86,15 @@ namespace NC2Logic
         return data;
     }
 
-    // Original function: FUN_0041c12c.
-    void* __fastcall Animal_ConstructMembers(void* animal, void* /*unusedEdx*/)
+    // Original function: FUN_0041c12c; Windows passes the animal's state region at +0x18.
+    void* __fastcall Animal_ConstructStateMembers(void* state, void* /*unusedEdx*/)
     {
-        Write<std::uint16_t>(animal, 0x0E, 0); Write<std::uint16_t>(animal, NC2Layout::AnimalOffset::MapMoveableId, 0);
-        Write<std::uint16_t>(animal, 0x12, 0); Write<std::uint16_t>(animal, NC2Layout::AnimalOffset::PlayerId, 0);
-        Write<std::uint16_t>(animal, 0x16, 0); Write<std::uint16_t>(animal, NC2Layout::AnimalOffset::TribeType, 0);
-        std::memset(static_cast<std::byte*>(animal) + 0x2C, 0, 12);
-        std::memset(static_cast<std::byte*>(animal) + 0x38, 0, 12);
-        return animal;
+        Write<std::uint16_t>(state, NC2Layout::AnimalStateOffset::WorkCenterY, 0); Write<std::uint16_t>(state, NC2Layout::AnimalStateOffset::WorkCenterX, 0);
+        Write<std::uint16_t>(state, NC2Layout::AnimalStateOffset::StayPointY, 0); Write<std::uint16_t>(state, NC2Layout::AnimalStateOffset::StayPointX, 0);
+        Write<std::uint16_t>(state, NC2Layout::AnimalStateOffset::BirthPointY, 0); Write<std::uint16_t>(state, NC2Layout::AnimalStateOffset::BirthPointX, 0);
+        std::memset(static_cast<std::byte*>(state) + NC2Layout::AnimalStateOffset::MilitaryTarget, 0, NC2Layout::RecordSize::TargetDataSigned);
+        std::memset(static_cast<std::byte*>(state) + NC2Layout::AnimalStateOffset::AttachmentTarget, 0, NC2Layout::RecordSize::TargetDataSigned);
+        return state;
     }
 
     // Original function: FUN_0045d3e1; count is initialized separately by callers.

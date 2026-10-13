@@ -27,7 +27,7 @@ namespace NC2Logic
     {
         CAnimalIterator iterator;
         for (auto id = iterator.GetFirstAnimalId(); id != -1; id = iterator.GetNextAnimalId())
-            if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x8C) == missionCheck) return id;
+            if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::MissionCheckId) == missionCheck) return id;
         return -1;
     }
 
@@ -38,7 +38,7 @@ namespace NC2Logic
         for (auto id = previous + 1; id <= CAnimalArray::sTheObjectPtr->mLastScanIndex; ++id)
         {
             const void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-            if (Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, 0x8C) == missionCheck) return id;
+            if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MissionCheckId) == missionCheck) return id;
         }
         return -1;
     }
@@ -49,7 +49,7 @@ namespace NC2Logic
         CAnimalIterator iterator;
         std::int32_t count = 0;
         for (auto id = iterator.GetFirstAnimalId(); id != -1; id = iterator.GetNextAnimalId())
-            if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x8C) == missionCheck) ++count;
+            if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::MissionCheckId) == missionCheck) ++count;
         return count;
     }
 

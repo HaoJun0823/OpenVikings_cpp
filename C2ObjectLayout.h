@@ -6,10 +6,49 @@ namespace NC2Layout
 {
     namespace AnimalOffset
     {
+        inline constexpr auto ConstructedState = 0x18;
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto AnimalId = 4;
+        inline constexpr auto UniqueId = 8;
         inline constexpr auto MapMoveableId = 0x0C;
         inline constexpr auto PlayerId = 0x10;
         inline constexpr auto TribeType = 0x14;
         inline constexpr auto AnimalType = 0x18;
+        inline constexpr auto CurrentTask = 0x1C;
+        inline constexpr auto CurrentTaskStatus = 0x20;
+        inline constexpr auto WorkCenter = 0x24;
+        inline constexpr auto WorkCenterX = 0x24;
+        inline constexpr auto WorkCenterY = 0x26;
+        inline constexpr auto StayPoint = 0x28;
+        inline constexpr auto StayPointX = 0x28;
+        inline constexpr auto StayPointY = 0x2A;
+        inline constexpr auto BirthPoint = 0x2C;
+        inline constexpr auto BirthPointX = 0x2C;
+        inline constexpr auto BirthPointY = 0x2E;
+        inline constexpr auto LeaderId = 0x34;
+        inline constexpr auto LeaderRevision = 0x38;
+        inline constexpr auto GroupSize = 0x3C;
+        inline constexpr auto EnvironmentalFoodValue = 0x40;
+        inline constexpr auto MilitaryTarget = 0x44;
+        inline constexpr auto MilitaryTargetUnsigned = 0x44u;
+        inline constexpr auto AttachmentTarget = 0x50;
+        inline constexpr auto AttachedObjectId = 0x54;
+        inline constexpr auto AttachedObjectRevision = 0x58;
+        inline constexpr auto AggressiveFlag = 0x5C;
+        inline constexpr auto AggressionClearDelay = 0x60;
+        inline constexpr auto Hitpoints = 0x64;
+        inline constexpr auto Food = 0x68;
+        inline constexpr auto AgeCounter = 0x6C;
+        inline constexpr auto AtomicAction = 0x70;
+        inline constexpr auto AtomicAnimationRunningFlag = 0x74;
+        inline constexpr auto AtomicAnimationId = 0x78;
+        inline constexpr auto AtomicAnimationFrame = 0x7C;
+        inline constexpr auto AtomicAnimationStartCount = 0x80;
+        inline constexpr auto PreviousSectorAnimalId = 0x84;
+        inline constexpr auto NextSectorAnimalId = 0x88;
+        inline constexpr auto MissionCheckId = 0x8C;
+        inline constexpr auto MiscFlags = 0x90;
+        inline constexpr auto InsideHouseFlag = 0x94;
     }
 
     namespace EngineDisplayOffset
@@ -193,6 +232,7 @@ namespace NC2Layout
         inline constexpr auto WorkCenterX = 0xB30;
         inline constexpr auto WorkCenterY = 0xB32;
         inline constexpr auto WorkAttachmentHouseId = 0xB34;
+        inline constexpr auto MilitaryState = 0xB5C;
         inline constexpr auto WorkAttachmentHouseRevision = 0xB38;
         inline constexpr auto VehicleConstructionHouseId = 0xB3C;
         inline constexpr auto VehicleConstructionWorkshopRevision = 0xB40;
@@ -279,6 +319,8 @@ namespace NC2Layout
         inline constexpr auto VehicleStockReservation = 12u;
         inline constexpr auto AtomicAnimation = 0x138u;
         inline constexpr auto StaticVehicleType = 0x1DCu;
+        inline constexpr auto TargetData = 12u;
+        inline constexpr auto TargetDataSigned = 12;
         inline constexpr auto HouseQualityEnhancer = 8u;
         inline constexpr auto HouseAttachment = 16u;
         inline constexpr auto HouseConstructionGood = 20u;
@@ -371,6 +413,38 @@ namespace NC2Layout
     namespace AtomicAnimationOffset
     {
         inline constexpr auto LengthInTicks = 0x34;
+    }
+
+    namespace AnimalStateOffset
+    {
+        inline constexpr auto WorkCenterX = 0x0C;
+        inline constexpr auto WorkCenterY = 0x0E;
+        inline constexpr auto StayPointX = 0x10;
+        inline constexpr auto StayPointY = 0x12;
+        inline constexpr auto BirthPointX = 0x14;
+        inline constexpr auto BirthPointY = 0x16;
+        inline constexpr auto MilitaryTarget = 0x2C;
+        inline constexpr auto AttachmentTarget = 0x38;
+    }
+
+    namespace VehicleVarsOffset
+    {
+        inline constexpr auto DoorEntryPointX = 0x1BC;
+        inline constexpr auto DoorEntryPointY = 0x1BE;
+        inline constexpr auto TargetWorkPositionX = 0x1C2;
+        inline constexpr auto TargetWorkPositionY = 0x1C4;
+        inline constexpr auto MilitaryCenterX = 0x1C6;
+        inline constexpr auto MilitaryCenterY = 0x1C8;
+    }
+
+    namespace HumanTaskOffset
+    {
+        inline constexpr auto UserCommandQueue = 0x28u;
+    }
+
+    namespace HumanMilitaryStateOffset
+    {
+        inline constexpr auto Targets = 8u;
     }
 
 }

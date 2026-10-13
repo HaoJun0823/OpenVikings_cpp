@@ -114,7 +114,7 @@ namespace NC2InGameGuiInputManager
         {
             if (id == NXBasics::IntegerRange::UInt32Maximum) return;
             const auto* object = Animal(id);
-            if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
+            if (Read<std::uint8_t>(object, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(object, NC2Layout::AnimalOffset::UniqueId) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xF, true, id, selected ? 3u : 2u, 0);
         }
 
@@ -318,7 +318,7 @@ namespace NC2InGameGuiInputManager
             switch (Read<std::uint32_t>(object, 0))
             {
             case SwitchIds::MapObjectUnderCursor::Human: id = Read<std::int32_t>(object, 8); if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
-            case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, 0x10); if (Read<std::uint32_t>(Animal(id), 0x10) == Player()) action = 3; break;
+            case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, 0x10); if (Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == Player()) action = 3; break;
             case SwitchIds::MapObjectUnderCursor::Vehicle: id = Read<std::int32_t>(object, 0x18); if (Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::PlayerId) == Player()) action = 4; break;
             case SwitchIds::MapObjectUnderCursor::House: id = Read<std::int32_t>(object, 0x28); action = 6; break;
             case SwitchIds::MapObjectUnderCursor::Guide: id = Read<std::int32_t>(object, 0x30); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
@@ -345,7 +345,7 @@ namespace NC2InGameGuiInputManager
                 switch (Read<std::uint32_t>(moveable, 8))
                 {
                 case SwitchIds::MapMoveableType::Human: if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
-                case SwitchIds::MapMoveableType::Animal: if (Read<std::uint32_t>(Animal(id), 0x10) == Player() || Read<std::uint32_t>(Animal(id), 0x10) == 20) action = 3; break;
+                case SwitchIds::MapMoveableType::Animal: if (Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == Player() || Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == 20) action = 3; break;
                 case SwitchIds::MapMoveableType::Vehicle: if (Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::PlayerId) == Player() || Read<std::int32_t>(Vehicle(id), NC2Layout::VehicleOffset::PlayerId) == -1) action = 4; break;
                 default: break;
                 }
@@ -496,7 +496,7 @@ namespace NC2InGameGuiInputManager
         {
         case SwitchIds::SelectionType::SingleHuman: valid = IsLive(Human(Read<std::uint32_t>(manager, 8)), Read<std::uint32_t>(manager, 0xC)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, 8)), NC2Layout::HumanOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::MultipleHumans: ValidateGroup(manager, false); return;
-        case SwitchIds::SelectionType::SingleAnimal: valid = IsLive(Animal(Read<std::uint32_t>(manager, 0x974)), Read<std::uint32_t>(manager, 0x978)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, 0x974)), 0x10) == Player(); break;
+        case SwitchIds::SelectionType::SingleAnimal: valid = IsLive(Animal(Read<std::uint32_t>(manager, 0x974)), Read<std::uint32_t>(manager, 0x978)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, 0x974)), NC2Layout::AnimalOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::SingleVehicle: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, 0x97C)), Read<std::uint32_t>(manager, 0x980)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), NC2Layout::VehicleOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::MultipleVehicles: ValidateGroup(manager, true); return;
         case SwitchIds::SelectionType::House: valid = IsLive(House(Read<std::uint32_t>(manager, 0xA78)), Read<std::uint32_t>(manager, 0xA7C)); break;
@@ -941,7 +941,7 @@ namespace NC2InGameGuiInputManager
         const auto* array = NC2Logic::CAnimalArray::sTheObjectPtr;
         for (auto id = array->mFirstScanIndex; id <= array->mLastScanIndex; ++id)
         {
-            if (Read<std::uint8_t>(Animal(id), 0) == 0) continue;
+            if (Read<std::uint8_t>(Animal(id), NC2Layout::AnimalOffset::AllocatedFlag) == 0) continue;
             const bool allowed = !clear && Read<std::uint32_t>(manager, 0) == 25 && Misc_Animal_CanBeAttacked(manager, id, false);
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xF, true, id, allowed ? 12 : 8, 0);
         }

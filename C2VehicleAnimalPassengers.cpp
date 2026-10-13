@@ -24,7 +24,7 @@ namespace NC2Logic
     {
         if (Vehicle_GetVehicleTypeDataPtr(vehicle)->draggingAnimalTribe == 0 || Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalInsideFlag) != 0 || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId) == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* animal = CAnimalArray::mStaticVars + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId) * CAnimalArray::ElementSize;
-        return Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, 8) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalRevision) && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
+        return Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::UniqueId) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalRevision) && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
     }
 
     // Original function: FUN_0044c453; the first two eligible animals are deliberately reserved.
@@ -35,7 +35,7 @@ namespace NC2Logic
         if (id != NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
-            if (Read<std::uint8_t>(animal, 0) == 0 || Read<std::uint32_t>(animal, 8) != Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalRevision)) { Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId, NXBasics::IntegerRange::UInt32Maximum); id = NXBasics::IntegerRange::UInt32Maximum; }
+            if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::UniqueId) != Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalRevision)) { Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId, NXBasics::IntegerRange::UInt32Maximum); id = NXBasics::IntegerRange::UInt32Maximum; }
         }
         if (id != NXBasics::IntegerRange::UInt32Maximum)
         {
@@ -52,7 +52,7 @@ namespace NC2Logic
         for (auto animalId = iterator.GetFirstAnimalId(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)); animalId != -1; animalId = iterator.GetNextAnimalId())
         {
             auto* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(animalId) * CAnimalArray::ElementSize;
-            if ((Read<std::uint32_t>(animal, 0x90) & 8u) != 0 || Read<std::int32_t>(animal, NC2Layout::AnimalOffset::TribeType) != data->draggingAnimalTribe || Animal_IsAttachedToVehicle(animal)) continue;
+            if ((Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) != 0 || Read<std::int32_t>(animal, NC2Layout::AnimalOffset::TribeType) != data->draggingAnimalTribe || Animal_IsAttachedToVehicle(animal)) continue;
             const auto* position = Animal_GetMapPositionRef(animal);
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(position), 6) != continent || ++count <= 2) continue;
             const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
@@ -74,7 +74,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId) != animalId) return false;
         const auto* animal = CAnimalArray::mStaticVars + animalId * CAnimalArray::ElementSize;
         Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalInsideFlag, 1);
-        Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * NC2Layout::RecordSize::MapMoveable, 12, 1);
+        Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, 12, 1);
         const auto type = Vehicle_GetVehicleTypeDataPtr(vehicle)->transformVehicleType;
         Write(vehicle, NC2Layout::VehicleOffset::LogicType, type);
         Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType, type >= 1 && type <= 6 ? static_cast<std::uint32_t>(type) + 49u : 0u);

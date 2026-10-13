@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2MilitaryDamage.h"
@@ -73,14 +74,14 @@ namespace NC2Logic
     {
         const auto& type = static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) - 8u];
         if (type.getAngry == 0) return;
-        if (Read<std::uint8_t>(animal, 0x5C) == 0)
+        if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) == 0)
         {
-            auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 12) * NC2Layout::RecordSize::MapMoveable;
+            auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
             MapMoveable_Attachment_DetachFromSectorMap(moveable);
-            Write<std::uint8_t>(animal, 0x5C, 1);
+            Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag, 1);
             MapMoveable_Attachment_AttachToSectorMap(moveable);
         }
-        Write(animal, 0x60, type.angryGameTime);
+        Write(animal, NC2Layout::AnimalOffset::AggressionClearDelay, type.angryGameTime);
     }
 
     // Original function: FUN_004464c9; propagation notifies matching animals once without recursive propagation.
@@ -98,43 +99,43 @@ namespace NC2Logic
         if (Read<std::uint32_t>(gGameControl, NC2Layout::GameControlOffset::DifficultyLevel) != 0 && player != 20 && (player == 0 || GameControl_Player_IsNetworkPlayer(gGameControl, NXBasics::Runtime_TimeSigned32(player)))) damage = static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(damage) / 2);
         if (NXBasics::Runtime_TimeSigned32(damage) > 0)
         {
-            if ((Read<std::uint32_t>(animal, 0x90) & 8u) == 0) Write(animal, 0x64, Read<std::uint32_t>(animal, 0x64) - damage);
+            if ((Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) == 0) Write(animal, NC2Layout::AnimalOffset::Hitpoints, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints) - damage);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x24, true, MapMigPoint_GetLong(Animal_GetMapPositionRef(animal)), 0, 12);
             if (data.soundTypesHit[2] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[2], MapMigPoint_GetLong(Animal_GetMapPositionRef(animal)), 1);
-            if (Read<std::int32_t>(animal, 0x64) <= 0 && weapon == 19) Write<std::int32_t>(animal, 0x40, -100000);
+            if (Read<std::int32_t>(animal, NC2Layout::AnimalOffset::Hitpoints) <= 0 && weapon == 19) Write<std::int32_t>(animal, NC2Layout::AnimalOffset::EnvironmentalFoodValue, NC2Runtime::AnimalFoodValue::Slaughtered);
         }
         Animal_l_Aggressive_GetAngry(animal);
         if (!TargetData_IsValid(attacker)) return false;
         std::uint32_t position = 0, flee = 10000u | (10000u << 16);
         TargetData_GetMapPosition(attacker, &position);
-        const auto aggressive = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, 0x5C) != 0;
+        const auto aggressive = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AggressiveFlag) != 0;
         if ((attackerType == 1 || attackerType == 3) && aggressive && TargetData_GetPlayerId(attacker) != Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId))
         {
-            if (!TargetData_IsValid(static_cast<const std::byte*>(animal) + 0x44))
+            if (!TargetData_IsValid(static_cast<const std::byte*>(animal) + NC2Layout::AnimalOffset::MilitaryTarget))
             {
-                const auto* leader = CAnimalArray::mStaticVars + Read<std::uint32_t>(animal, 0x34) * CAnimalArray::ElementSize;
-                if (!Animal_l_IsLeaderValid(animal) || Read<std::uint32_t>(leader, 0x1C) != 4)
+                const auto* leader = CAnimalArray::mStaticVars + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId) * CAnimalArray::ElementSize;
+                if (!Animal_l_IsLeaderValid(animal) || Read<std::uint32_t>(leader, NC2Layout::AnimalOffset::CurrentTask) != 4)
                 {
-                    Write<std::uint32_t>(animal, 0x20, 0);
-                    for (std::uint32_t index = 0; index < 3; ++index) Write(animal, 0x44u + index * 4u, attacker[index]);
-                    Write<std::uint32_t>(animal, 0x1C, 8);
+                    Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0);
+                    for (std::uint32_t index = 0; index < 3; ++index) Write(animal, NC2Layout::AnimalOffset::MilitaryTargetUnsigned + index * 4u, attacker[index]);
+                    Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 8);
                 }
             }
         }
-        else if (Read<std::uint32_t>(animal, 0x34) == Read<std::uint32_t>(animal, 4) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Animal_GetMapPositionRef(animal), &position, &flee, 20))
+        else if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId) && Tool_Misc_GetFleePointFarestAwayFromTargetPointRelativToSourcePoint(Animal_GetMapPositionRef(animal), &position, &flee, 20))
         {
-            Write(animal, 0x2C, flee);
-            Write<std::uint32_t>(animal, 0x1C, 4);
-            Write<std::uint32_t>(animal, 0x20, 0);
+            Write(animal, NC2Layout::AnimalOffset::BirthPoint, flee);
+            Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 4);
+            Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0);
         }
         if (propagate)
         {
             CAnimalIterator iterator;
             for (auto id = iterator.GetFirstAnimalId(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId), Animal_GetMapPositionRef(animal), 20); id != -1; id = iterator.GetNextAnimalId())
             {
-                if (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(animal, 4)) continue;
+                if (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId)) continue;
                 auto* other = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-                if (Read<std::uint32_t>(other, 0x14) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType)) Animal_Military_StartGettingHitByWeapon(other, tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
+                if (Read<std::uint32_t>(other, NC2Layout::AnimalOffset::TribeType) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType)) Animal_Military_StartGettingHitByWeapon(other, tribe, 0, attackerId, attackerRevision, attackerType, 0, false);
             }
         }
         return NXBasics::Runtime_TimeSigned32(damage) > 0;

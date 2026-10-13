@@ -2412,7 +2412,7 @@
 0041AC6D,NC2Logic::PlayerStatisticManager_Checksum_Calculate,NC2Logic::CPlayerStatisticManager::Checksum_Calculate,251955,Windows ASM/Game.exe establish behavior; Mac signature supplies naming only; see GAME_CONTROL_DATA_COMPLETION.md
 0041AE3E,NC2Logic::ConstructPointMembers,,,"Windows ASM/Game.exe establish body and ownership; implementation name, no separate Mac export established; see GAME_CONTROL_DATA_COMPLETION.md"
 0041B037,NC2Logic::GuideManager_Checksum_Calculate,NC2Logic::CGuideManager::Checksum_Calculate,157657,Windows ASM/Game.exe establish behavior; Mac signature supplies naming only; see GAME_CONTROL_DATA_COMPLETION.md
-0041C12C,NC2Logic::Animal_ConstructMembers,,,"Windows ASM/Game.exe establish body and ownership; implementation name, no separate Mac export established; see GAME_CONTROL_DATA_COMPLETION.md"
+0041C12C,NC2Logic::Animal_ConstructStateMembers,,,"Windows ASM/Game.exe establish body and ownership; implementation name, no separate Mac export established; see GAME_CONTROL_DATA_COMPLETION.md"
 0041CD08,NC2Logic::Human_l_GetMerchantDataPtr,,,"Windows ASM/Game.exe establish body and ownership; implementation name, no separate Mac export established; see GAME_CONTROL_DATA_COMPLETION.md"
 0041CEF3,NC2Logic::Array_Checksum_Calculate,NC2Logic::CMapPathfinderManager::Checksum_Calculate,239261,Windows ASM/Game.exe establish behavior; Mac signature supplies naming only; see GAME_CONTROL_DATA_COMPLETION.md
 0041CF8D,NC2Logic::MissionManager_ConstructMembers,,,"Windows ASM/Game.exe establish body and ownership; implementation name, no separate Mac export established; see GAME_CONTROL_DATA_COMPLETION.md"

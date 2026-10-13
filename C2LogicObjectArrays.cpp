@@ -124,7 +124,7 @@ namespace NC2Logic
             if constexpr (std::is_same_v<T, CHouseArray>) House_ConstructMembers(entry, nullptr);
             else if constexpr (std::is_same_v<T, CHumanArray>) Human_ConstructMembers(entry, nullptr);
             else if constexpr (std::is_same_v<T, CVehicleArray>) Vehicle_ConstructMembers(entry, nullptr);
-            else if constexpr (std::is_same_v<T, CAnimalArray>) Animal_ConstructMembers(entry, nullptr);
+            else if constexpr (std::is_same_v<T, CAnimalArray>) Animal_ConstructStateMembers(entry + NC2Layout::AnimalOffset::ConstructedState, nullptr);
         }
     }
 

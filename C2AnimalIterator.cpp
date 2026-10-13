@@ -60,7 +60,7 @@ namespace NC2Logic
         for (auto id = previousAnimalId + 1; id <= CAnimalArray::sTheObjectPtr->mLastScanIndex; ++id)
         {
             const auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
-            if (Read<std::uint8_t>(animal, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) != selection)) continue;
+            if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) != selection)) continue;
             if ((flags & 2u) != 0)
             {
                 const auto* point = Animal_GetMapPositionRef(animal);

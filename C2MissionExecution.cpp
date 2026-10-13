@@ -461,7 +461,7 @@ namespace NC2Logic
             std::uint32_t count = 0;
             const auto type = goal.type == 44 ? p[0] : p[1], threshold = goal.type == 44 ? p[1] : p[2];
             for (auto id = iterator.GetFirstAnimalId(goal.type == 44 ? 20 : p[0]); id != -1; id = iterator.GetNextAnimalId())
-                if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x14) == type && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(threshold)) return true;
+                if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::TribeType) == type && NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(threshold)) return true;
             return false;
         }
         case SwitchIds::MissionGoal::NumberOfHumansKilled: return Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x4618u) + Read<std::uint32_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x4614u) >= p[1];
@@ -1173,7 +1173,7 @@ namespace NC2Logic
             break;
         }
         case SwitchIds::MissionResult::RemoveAnimals:
-            for (auto id = MissionCheck_GetFirstAnimalIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextAnimalIdWithMissionCheckId(p[0], id)) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x0C));
+            for (auto id = MissionCheck_GetFirstAnimalIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextAnimalIdWithMissionCheckId(p[0], id)) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::MapMoveableId));
             break;
         case SwitchIds::MissionResult::ChangeHumanObjectIdInArea:
         case SwitchIds::MissionResult::ChangeMissionIdOfHumanInRange:

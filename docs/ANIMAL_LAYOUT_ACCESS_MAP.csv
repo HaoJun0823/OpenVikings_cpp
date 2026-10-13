@@ -1,0 +1,401 @@
+Source,StagedLine,Receiver,PreviousLiteral,Replacement,Evidence
+C2GameControlNetwork.cpp,67,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,36,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalAccess.cpp,37,animal,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AnimalAccess.cpp,77,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,78,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalAccess.cpp,85,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,87,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,88,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalAccess.cpp,89,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalAccess.cpp,90,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalAccess.cpp,95,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalAccess.cpp,100,animal,0x2C,NC2Layout::AnimalOffset::BirthPoint,Animal birth-point calculation; work-center accessor returns the leader birth point
+C2AnimalAccess.cpp,101,animal,0x28,NC2Layout::AnimalOffset::StayPoint,Stay task position and leader military-search center
+C2AnimalAccess.cpp,102,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalAccess.cpp,103,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2AnimalAccess.cpp,104,animal,0x68,NC2Layout::AnimalOffset::Food,"Initial random food, grazing adds, conditions subtract one"
+C2AnimalAccess.cpp,105,animal,0x6C,NC2Layout::AnimalOffset::AgeCounter,Conditions increments; baby growth threshold 3600
+C2AnimalAccess.cpp,114,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalAccess.cpp,115,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalAccess.cpp,116,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalAccess.cpp,117,animal,0x8C,NC2Layout::AnimalOffset::MissionCheckId,Animal_Init stores mission tag; reproduction inherits tag
+C2AnimalAccess.cpp,119,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2AnimalAccess.cpp,129,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,130,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalAccess.cpp,135,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalAccess.cpp,158,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,176,animal,0x7C,NC2Layout::AnimalOffset::AtomicAnimationFrame,"Startup resets, events precede frame increment"
+C2AnimalAccess.cpp,177,animal,0x80,NC2Layout::AnimalOffset::AtomicAnimationStartCount,Startup increments and dynamic sprite update receives sequence
+C2AnimalAccess.cpp,177,animal,0x80,NC2Layout::AnimalOffset::AtomicAnimationStartCount,Startup increments and dynamic sprite update receives sequence
+C2AnimalAccess.cpp,178,animal,0x78,NC2Layout::AnimalOffset::AtomicAnimationId,Animation lookup and event dispatch
+C2AnimalAccess.cpp,179,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalAccess.cpp,180,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalAccess.cpp,190,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalAccess.cpp,191,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalAccess.cpp,191,animal,0x78,NC2Layout::AnimalOffset::AtomicAnimationId,Animation lookup and event dispatch
+C2AnimalAccess.cpp,197,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalAccess.cpp,200,leader,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2AnimalAccess.cpp,200,leader,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalAccess.cpp,200,animal,0x38,NC2Layout::AnimalOffset::LeaderRevision,Leader assignment stores unique ID
+C2AnimalAccess.cpp,200,leader,0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+C2AnimalAccess.cpp,216,animal,0x54,NC2Layout::AnimalOffset::AttachedObjectId,Attached house or dragging vehicle ID
+C2AnimalAccess.cpp,217,animal,0x58,NC2Layout::AnimalOffset::AttachedObjectRevision,Attached object unique ID
+C2AnimalAccess.cpp,218,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,230,animal,0x54,NC2Layout::AnimalOffset::AttachedObjectId,Attached house or dragging vehicle ID
+C2AnimalAccess.cpp,231,animal,0x58,NC2Layout::AnimalOffset::AttachedObjectRevision,Attached object unique ID
+C2AnimalAccess.cpp,232,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,234,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalAccess.cpp,235,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalAccess.cpp,235,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalAccess.cpp,235,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalAccess.cpp,246,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalAccess.cpp,258,animal,0x54,NC2Layout::AnimalOffset::AttachedObjectId,Attached house or dragging vehicle ID
+C2AnimalAccess.cpp,259,animal,0x58,NC2Layout::AnimalOffset::AttachedObjectRevision,Attached object unique ID
+C2AnimalAccess.cpp,260,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,281,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalAccess.cpp,294,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalAccess.cpp,303,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalAccess.cpp,304,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalAccess.cpp,305,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalAccess.cpp,313,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2AnimalAccess.cpp,316,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2AnimalAccess.cpp,320,animal,0x60,NC2Layout::AnimalOffset::AggressionClearDelay,Aggression check decrements before clearing aggressive flag
+C2AnimalAccess.cpp,320,animal,0x60,NC2Layout::AnimalOffset::AggressionClearDelay,Aggression check decrements before clearing aggressive flag
+C2AnimalAccess.cpp,320,animal,0x60,NC2Layout::AnimalOffset::AggressionClearDelay,Aggression check decrements before clearing aggressive flag
+C2AnimalAccess.cpp,321,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2AnimalAccess.cpp,324,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2AnimalAccess.cpp,330,animal,0x78,NC2Layout::AnimalOffset::AtomicAnimationId,Animation lookup and event dispatch
+C2AnimalAccess.cpp,332,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2AnimalAccess.cpp,350,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalAccess.cpp,202,leader,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,202,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,206,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,208,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,245,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalAccess.cpp,295,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalIterator.cpp,63,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2EngineMoveableDrawing.cpp,235,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2EngineMoveableDrawing.cpp,236,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2EngineMoveableDrawing.cpp,236,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2EngineMoveableDrawing.cpp,236,animal,0x7C,NC2Layout::AnimalOffset::AtomicAnimationFrame,"Startup resets, events precede frame increment"
+C2EngineMoveableDrawing.cpp,236,animal,0x80,NC2Layout::AnimalOffset::AtomicAnimationStartCount,Startup increments and dynamic sprite update receives sequence
+C2EngineMoveableDrawing.cpp,236,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2EngineMoveableDrawing.cpp,346,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2EngineMoveableDrawing.cpp,347,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2EngineMoveableDrawing.cpp,349,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2EngineMoveableDrawing.cpp,352,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2EngineMoveableDrawing.cpp,352,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2EngineMoveableDrawing.cpp,352,animal,0x7C,NC2Layout::AnimalOffset::AtomicAnimationFrame,"Startup resets, events precede frame increment"
+C2EngineMoveableDrawing.cpp,352,animal,0x80,NC2Layout::AnimalOffset::AtomicAnimationStartCount,Startup increments and dynamic sprite update receives sequence
+C2EngineMoveableDrawing.cpp,352,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2EngineMoveableDrawing.cpp,353,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2MissionExecution.cpp,464,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2MissionExecution.cpp,1176,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize,0x0C,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AIAnimalDiplomacy.cpp,97,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize,20,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AIAnimalDiplomacy.cpp,146,animal,16,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+C2AIAnimalDiplomacy.cpp,148,animal,20,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AIMovementMessages.cpp,217,enemy,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AIMovementMessages.cpp,219,enemy,0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+C2AIMovementMessages.cpp,225,enemy,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AIMovementMessages.cpp,229,enemy,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2HumanCommandAccess.cpp,722,target,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2HumanCommandAccess.cpp,722,target,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2InteractionTargetAccess.cpp,203,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2InteractionTargetAccess.cpp,203,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2MissionStartObjects.cpp,30,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize,0x8C,NC2Layout::AnimalOffset::MissionCheckId,Animal_Init stores mission tag; reproduction inherits tag
+C2MissionStartObjects.cpp,41,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2MissionStartObjects.cpp,41,animal,0x8C,NC2Layout::AnimalOffset::MissionCheckId,Animal_Init stores mission tag; reproduction inherits tag
+C2MissionStartObjects.cpp,52,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize,0x8C,NC2Layout::AnimalOffset::MissionCheckId,Animal_Init stores mission tag; reproduction inherits tag
+C2MapMoveableAccess.cpp,411,CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2MapMoveableAccess.cpp,506,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2MapMoveableAccess.cpp,509,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2MapMoveableAccess.cpp,512,animal,0x88,NC2Layout::AnimalOffset::NextSectorAnimalId,Sector traversal and detach forward link
+C2MapMoveableAccess.cpp,513,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(previous) * CAnimalArray::ElementSize,0x84,NC2Layout::AnimalOffset::PreviousSectorAnimalId,Sector-list insertion backward link
+C2MapMoveableAccess.cpp,514,animal,0x84,NC2Layout::AnimalOffset::PreviousSectorAnimalId,Sector-list insertion backward link
+C2MapMoveableAccess.cpp,521,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2MapMoveableAccess.cpp,525,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2MapMoveableAccess.cpp,526,animal,0x88,NC2Layout::AnimalOffset::NextSectorAnimalId,Sector traversal and detach forward link
+C2MapMoveableAccess.cpp,530,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(next) * CAnimalArray::ElementSize,0x84,NC2Layout::AnimalOffset::PreviousSectorAnimalId,Sector-list insertion backward link
+C2MapMoveableAccess.cpp,536,previous,0x88,NC2Layout::AnimalOffset::NextSectorAnimalId,Sector traversal and detach forward link
+C2MapMoveableAccess.cpp,539,previous,0x88,NC2Layout::AnimalOffset::NextSectorAnimalId,Sector traversal and detach forward link
+C2HumanGoodieTasks.cpp,489,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2HumanWalking.cpp,244,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2HumanWalking.cpp,247,leader,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2HumanWalking.cpp,247,leader,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2HumanWalking.cpp,247,animal,0x38,NC2Layout::AnimalOffset::LeaderRevision,Leader assignment stores unique ID
+C2HumanWalking.cpp,247,leader,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2HumanWalking.cpp,247,leader,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2HumanWalking.cpp,248,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2HumanWalking.cpp,256,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2EngineSelectionAccess.cpp,142,object,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+InGameGuiSelectionAccess.cpp,117,object,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+InGameGuiSelectionAccess.cpp,117,object,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+InGameGuiSelectionAccess.cpp,321,Animal(id),0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+InGameGuiSelectionAccess.cpp,348,Animal(id),0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+InGameGuiSelectionAccess.cpp,348,Animal(id),0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+InGameGuiSelectionAccess.cpp,499,"Animal(Read<std::uint32_t>(manager, 0x974))",0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+InGameGuiSelectionAccess.cpp,944,Animal(id),0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2MissionOnscreenInfoAccess.cpp,90,CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+InGameGuiSimpleSelectionWindows.cpp,83,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2HumanAnimalJobs.cpp,98,animal,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2HumanAnimalJobs.cpp,99,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2HumanAnimalJobs.cpp,106,animal,0x18,NC2Layout::AnimalOffset::AnimalType,Animal actor job/age type; growth 48 to 49
+C2HumanAnimalJobs.cpp,111,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2HumanAnimalJobs.cpp,186,animal,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2HumanAnimalJobs.cpp,186,animal,0x18,NC2Layout::AnimalOffset::AnimalType,Animal actor job/age type; growth 48 to 49
+C2HumanAnimalJobs.cpp,102,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2HumanAnimalJobs.cpp,186,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalTasks.cpp,36,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalTasks.cpp,37,animal,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AnimalTasks.cpp,39,animal,0x18,NC2Layout::AnimalOffset::AnimalType,Animal actor job/age type; growth 48 to 49
+C2AnimalTasks.cpp,39,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2AnimalTasks.cpp,46,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2AnimalTasks.cpp,51,animal,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2AnimalTasks.cpp,52,leader,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2AnimalTasks.cpp,53,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,53,leader,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,54,animal,0x38,NC2Layout::AnimalOffset::LeaderRevision,Leader assignment stores unique ID
+C2AnimalTasks.cpp,54,leader,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalTasks.cpp,55,leader,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2AnimalTasks.cpp,55,leader,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2AnimalTasks.cpp,63,leader,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AnimalTasks.cpp,69,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,69,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,74,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,83,other,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AnimalTasks.cpp,84,other,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,88,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,89,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,90,animal,0x2C,NC2Layout::AnimalOffset::BirthPoint,Animal birth-point calculation; work-center accessor returns the leader birth point
+C2AnimalTasks.cpp,93,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,162,animal,0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+C2AnimalTasks.cpp,199,animal,0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+C2AnimalTasks.cpp,240,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2AnimalTasks.cpp,279,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2AnimalTasks.cpp,279,animal,0x3C,NC2Layout::AnimalOffset::GroupSize,"Leader attachment increments, detachment decrements; maximumGroupSize checks"
+C2AnimalTasks.cpp,281,animal,0x8C,NC2Layout::AnimalOffset::MissionCheckId,Animal_Init stores mission tag; reproduction inherits tag
+C2AnimalTasks.cpp,308,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,308,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalTasks.cpp,308,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,308,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,311,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,311,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,311,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,314,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalTasks.cpp,324,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,325,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,331,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,335,leader,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalTasks.cpp,335,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,336,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,344,animal,0x28,NC2Layout::AnimalOffset::StayPoint,Stay task position and leader military-search center
+C2AnimalTasks.cpp,344,animal,0x2C,NC2Layout::AnimalOffset::BirthPoint,Animal birth-point calculation; work-center accessor returns the leader birth point
+C2AnimalTasks.cpp,345,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,352,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,352,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,353,animal,0x68,NC2Layout::AnimalOffset::Food,"Initial random food, grazing adds, conditions subtract one"
+C2AnimalTasks.cpp,353,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,353,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,355,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,358,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,359,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,359,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,360,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,360,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,360,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,365,leader,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,365,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,365,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,366,leader,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,366,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,366,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,367,leader,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,369,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2AnimalTasks.cpp,369,leader,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2AnimalTasks.cpp,370,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,371,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,381,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,382,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,389,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,390,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,390,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,402,animal,0x68,NC2Layout::AnimalOffset::Food,"Initial random food, grazing adds, conditions subtract one"
+C2AnimalTasks.cpp,402,animal,0x68,NC2Layout::AnimalOffset::Food,"Initial random food, grazing adds, conditions subtract one"
+C2AnimalTasks.cpp,403,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2AnimalTasks.cpp,403,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2AnimalTasks.cpp,404,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2AnimalTasks.cpp,404,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2AnimalTasks.cpp,405,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,406,leader,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,406,leader,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,407,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,412,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,412,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,412,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,412,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,413,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,420,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,422,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,423,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,424,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,425,animal,0x28,NC2Layout::AnimalOffset::StayPoint,Stay task position and leader military-search center
+C2AnimalTasks.cpp,425,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,426,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,429,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,436,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,437,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalTasks.cpp,438,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalTasks.cpp,445,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalTasks.cpp,445,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,445,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,446,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalTasks.cpp,447,animal,0x78,NC2Layout::AnimalOffset::AtomicAnimationId,Animation lookup and event dispatch
+C2AnimalTasks.cpp,451,animal,0x7C,NC2Layout::AnimalOffset::AtomicAnimationFrame,"Startup resets, events precede frame increment"
+C2AnimalTasks.cpp,455,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,459,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,464,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,464,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalTasks.cpp,464,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,464,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalTasks.cpp,465,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,476,animal,0x7C,NC2Layout::AnimalOffset::AtomicAnimationFrame,"Startup resets, events precede frame increment"
+C2AnimalTasks.cpp,477,animal,0x7C,NC2Layout::AnimalOffset::AtomicAnimationFrame,"Startup resets, events precede frame increment"
+C2AnimalTasks.cpp,479,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,479,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,481,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalTasks.cpp,482,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalTasks.cpp,500,animal,0x68,NC2Layout::AnimalOffset::Food,"Initial random food, grazing adds, conditions subtract one"
+C2AnimalTasks.cpp,500,animal,0x68,NC2Layout::AnimalOffset::Food,"Initial random food, grazing adds, conditions subtract one"
+C2AnimalTasks.cpp,501,animal,0x6C,NC2Layout::AnimalOffset::AgeCounter,Conditions increments; baby growth threshold 3600
+C2AnimalTasks.cpp,502,animal,0x6C,NC2Layout::AnimalOffset::AgeCounter,Conditions increments; baby growth threshold 3600
+C2AnimalTasks.cpp,510,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,512,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2AnimalTasks.cpp,519,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2AnimalTasks.cpp,520,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalTasks.cpp,521,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalTasks.cpp,522,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,523,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,531,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2AnimalTasks.cpp,532,animal,0x74,NC2Layout::AnimalOffset::AtomicAnimationRunningFlag,Startup sets; completion resets
+C2AnimalTasks.cpp,533,animal,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalTasks.cpp,534,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,535,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,543,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,545,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,545,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2AnimalTasks.cpp,545,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,549,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,549,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,551,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,558,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,564,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,566,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,567,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,573,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,576,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2AnimalTasks.cpp,579,animal,0x94,NC2Layout::AnimalOffset::InsideHouseFlag,Animal house enter/exit and hidden rendering
+C2AnimalTasks.cpp,581,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,582,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,586,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,586,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,586,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,586,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,589,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,589,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,592,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,592,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,594,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,598,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,598,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,600,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,600,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,600,"Animal(Read<std::uint32_t>(animal, 0x34))",0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,600,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,603,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,604,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,610,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,612,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,612,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,622,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,622,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,622,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,622,"Animal(Read<std::uint32_t>(animal, 0x34))",0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,622,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,622,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,622,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,625,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalTasks.cpp,630,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalTasks.cpp,644,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalTasks.cpp,644,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,644,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalTasks.cpp,85,leader,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalTasks.cpp,85,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalTasks.cpp,171,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2AnimalTasks.cpp,242,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalTasks.cpp,243,animal,0x2C,NC2Layout::AnimalOffset::BirthPoint,Animal birth-point calculation; work-center accessor returns the leader birth point
+C2AnimalTasks.cpp,306,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalTasks.cpp,343,animal,0x2C,NC2Layout::AnimalOffset::BirthPoint,Animal birth-point calculation; work-center accessor returns the leader birth point
+C2AnimalTasks.cpp,358,animal,0x24,NC2Layout::AnimalOffset::WorkCenter,Animal_l_MoveWorkCenterPoint and stay/birth distance predicates
+C2AnimalTasks.cpp,361,animal,0x28,NC2Layout::AnimalOffset::StayPoint,Stay task position and leader military-search center
+C2AnimalTasks.cpp,361,animal,0x28,NC2Layout::AnimalOffset::StayPoint,Stay task position and leader military-search center
+C2AnimalTasks.cpp,369,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2AnimalTasks.cpp,454,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2AnimalTasks.cpp,542,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalTasks.cpp,565,animal,0x50,NC2Layout::AnimalOffset::AttachmentTarget,House/vehicle attachment target record
+C2AnimalTasks.cpp,588,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2AnimalTasks.cpp,591,animal,0x28,NC2Layout::AnimalOffset::StayPoint,Stay task position and leader military-search center
+C2HumanHuntingJobs.cpp,35,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2HumanHuntingJobs.cpp,38,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2MilitaryDamage.cpp,76,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2MilitaryDamage.cpp,78,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2MilitaryDamage.cpp,80,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2MilitaryDamage.cpp,83,animal,0x60,NC2Layout::AnimalOffset::AggressionClearDelay,Aggression check decrements before clearing aggressive flag
+C2MilitaryDamage.cpp,101,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2MilitaryDamage.cpp,101,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2MilitaryDamage.cpp,101,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2MilitaryDamage.cpp,104,animal,0x64,NC2Layout::AnimalOffset::Hitpoints,"Type-dependent initial health, grazing recovery, death check"
+C2MilitaryDamage.cpp,104,animal,0x40,NC2Layout::AnimalOffset::EnvironmentalFoodValue,Animal_l_CalculateFoodValue sums food patterns; grazing deducts leader food value
+C2MilitaryDamage.cpp,110,animal,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2MilitaryDamage.cpp,115,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2MilitaryDamage.cpp,116,leader,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2MilitaryDamage.cpp,118,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2MilitaryDamage.cpp,119,animal,0x44u,NC2Layout::AnimalOffset::MilitaryTargetUnsigned,Animal military target kind/value/revision record
+C2MilitaryDamage.cpp,120,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2MilitaryDamage.cpp,124,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2MilitaryDamage.cpp,124,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2MilitaryDamage.cpp,126,animal,0x2C,NC2Layout::AnimalOffset::BirthPoint,Animal birth-point calculation; work-center accessor returns the leader birth point
+C2MilitaryDamage.cpp,127,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2MilitaryDamage.cpp,128,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2MilitaryDamage.cpp,135,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2MilitaryDamage.cpp,137,other,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2MilitaryDamage.cpp,113,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2VehicleAnimalPassengers.cpp,27,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2VehicleAnimalPassengers.cpp,27,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2VehicleAnimalPassengers.cpp,38,animal,0,NC2Layout::AnimalOffset::AllocatedFlag,Animal_Init/Exit and slot allocation
+C2VehicleAnimalPassengers.cpp,38,animal,8,NC2Layout::AnimalOffset::UniqueId,Generated unique ID; leader and target validity
+C2VehicleAnimalPassengers.cpp,55,animal,0x90,NC2Layout::AnimalOffset::MiscFlags,Init flags and reproduction/leader/stay predicates
+C2VehicleAnimalPassengers.cpp,77,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2DelayedActionManager.cpp,147,Animal(object),4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2HumanWeaponEvents.cpp,90,object,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalMilitaryTasks.cpp,29,animal,0x14,NC2Layout::AnimalOffset::TribeType,Animal species/tribe type-data indexing
+C2AnimalMilitaryTasks.cpp,50,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalMilitaryTasks.cpp,51,animal,0x34,NC2Layout::AnimalOffset::LeaderId,"Leader assignment, validation and detachment"
+C2AnimalMilitaryTasks.cpp,51,animal,4,NC2Layout::AnimalOffset::AnimalId,Animal_Init stores array ID; references and callbacks read
+C2AnimalMilitaryTasks.cpp,100,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalMilitaryTasks.cpp,103,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalMilitaryTasks.cpp,105,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalMilitaryTasks.cpp,105,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalMilitaryTasks.cpp,111,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalMilitaryTasks.cpp,114,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalMilitaryTasks.cpp,114,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalMilitaryTasks.cpp,115,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalMilitaryTasks.cpp,120,animal,0x1C,NC2Layout::AnimalOffset::CurrentTask,Animal AI task selection and task dispatcher
+C2AnimalMilitaryTasks.cpp,142,animal,12,NC2Layout::AnimalOffset::MapMoveableId,Owned moveable ID and position/path access
+C2AnimalMilitaryTasks.cpp,146,other,0x10,NC2Layout::AnimalOffset::PlayerId,Owner and diplomacy checks
+C2AnimalMilitaryTasks.cpp,146,other,0x18,NC2Layout::AnimalOffset::AnimalType,Animal actor job/age type; growth 48 to 49
+C2AnimalMilitaryTasks.cpp,146,other,0x5C,NC2Layout::AnimalOffset::AggressiveFlag,Aggression changes sector membership
+C2AnimalMilitaryTasks.cpp,146,other,0x70,NC2Layout::AnimalOffset::AtomicAction,Atomic startup and interruptibility
+C2AnimalMilitaryTasks.cpp,156,animal,0x20,NC2Layout::AnimalOffset::CurrentTaskStatus,Task startup/update/success/failure dispatch
+C2AnimalMilitaryTasks.cpp,52,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record
+C2AnimalMilitaryTasks.cpp,99,animal,0x44,NC2Layout::AnimalOffset::MilitaryTarget,Animal military target kind/value/revision record

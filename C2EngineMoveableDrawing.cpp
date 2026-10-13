@@ -232,8 +232,8 @@ namespace NC2E2
         else if (type == 2)
         {
             const auto* animal = NC2Logic::CAnimalArray::mStaticVars + id * NC2Logic::CAnimalArray::ElementSize;
-            dynamic = gDynamicDataAnimals.entries + Read<std::uint32_t>(animal, 4) * 0x44u;
-            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType), 0, Read<std::uint8_t>(animal, 0x74) != 0, Read<std::uint32_t>(animal, 0x70), Read<std::uint32_t>(animal, 0x7C), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, 0x80), Read<std::uint8_t>(animal, 0x94) != 0, display, offsetX, offsetY, nullptr, false);
+            dynamic = gDynamicDataAnimals.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId) * 0x44u;
+            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType), 0, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationStartCount), Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag) != 0, display, offsetX, offsetY, nullptr, false);
         }
         else if (type == 3)
         {
@@ -343,14 +343,14 @@ namespace NC2E2
         if (type == 2)
         {
             const auto* animal = NC2Logic::CAnimalArray::mStaticVars + objectId * NC2Logic::CAnimalArray::ElementSize;
-            if (!centered && Read<std::uint8_t>(animal, 0x94) != 0) return;
-            auto* dynamic = gDynamicDataAnimals.entries + Read<std::uint32_t>(animal, 4) * 0x44u;
+            if (!centered && Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag) != 0) return;
+            auto* dynamic = gDynamicDataAnimals.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId) * 0x44u;
             brightness = DynamicBrightness(dynamic, 0x40, brightness);
-            const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Animal_GetMarkType(display, Read<std::uint32_t>(animal, 4)) : 0u;
+            const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Animal_GetMarkType(display, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalId)) : 0u;
             auto* palette = gStaticPalettes.palettes256[Read<std::uint32_t>(dynamic, 0x3C)].palette;
             const auto player = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
-            sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType), 0, Read<std::uint8_t>(animal, 0x74) != 0, Read<std::uint32_t>(animal, 0x70), Read<std::uint32_t>(animal, 0x7C), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, 0x80), palette, palette, bitmap, x, y, brightness, marking, player, Read<std::uint8_t>(animal, 0x94) != 0, centered, false, nullptr, -1, -1, display, false);
-            if (player != 20) NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(animal, 0x64), NC2Logic::Animal_HitPoints_GetMaximum(animal)), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
+            sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType), 0, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame), NC2Logic::Animal_GetCurrentAtomicAnimationLengthInTicks(animal), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationStartCount), palette, palette, bitmap, x, y, brightness, marking, player, Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::InsideHouseFlag) != 0, centered, false, nullptr, -1, -1, display, false);
+            if (player != 20) NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints), NC2Logic::Animal_HitPoints_GetMaximum(animal)), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
             if (!centered && display != nullptr && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType) == 49)
             {
                 const auto offset = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType) * 4u - 0x1Cu;

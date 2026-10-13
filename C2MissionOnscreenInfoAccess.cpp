@@ -87,7 +87,7 @@ namespace NC2Logic
         else if (type == 6)
         {
             const auto animalType = Read<std::uint32_t>(info, 8); const auto point = static_cast<std::uint32_t>(Read<std::uint16_t>(info, 0xC)) | static_cast<std::uint32_t>(Read<std::uint16_t>(info, 0x10)) << 16; CAnimalIterator iterator;
-            for (auto id = iterator.GetFirstSectorAnimalId(player, point, Read<std::int32_t>(info, 0x14), false, false); id != -1; id = iterator.GetNextSectorAnimalId()) if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, 0x14) == animalType) ++count;
+            for (auto id = iterator.GetFirstSectorAnimalId(player, point, Read<std::int32_t>(info, 0x14), false, false); id != -1; id = iterator.GetNextSectorAnimalId()) if (Read<std::uint32_t>(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::TribeType) == animalType) ++count;
             target = Read<std::uint32_t>(info, 0x18);
         }
         NXBasics::Runtime_PrintStringN(output, capacity, format, count, target); output[capacity - 1] = 0; return true;

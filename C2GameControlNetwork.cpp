@@ -64,7 +64,7 @@ namespace NC2Logic
             for (std::int32_t id = 0; id < CAnimalArray::sTheObjectPtr->mCapacity; ++id)
             {
                 auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
-                if (Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) == player) Animal_ChangePlayerId(animal, 20);
+                if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) == player) Animal_ChangePlayerId(animal, 20);
             }
             for (std::int32_t id = 0; id < CVehicleArray::sTheObjectPtr->mCapacity; ++id)
             {

@@ -32,10 +32,10 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorAnimalId(20, Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter), 50, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             void* animal = CAnimalArray::mStaticVars + static_cast<std::uint32_t>(id) * CAnimalArray::ElementSize;
-            if ((Read<std::uint32_t>(animal, 0x90) & 8u) != 0) continue;
+            if ((Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MiscFlags) & 8u) != 0) continue;
             const void* point = Animal_GetMapPositionRef(animal);
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 6) != continent) continue;
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2))) + Read<std::uint32_t>(animal, 0x64);
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2))) + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::Hitpoints);
             if (distance >= bestDistance) continue;
             best = animal;
             bestDistance = distance;

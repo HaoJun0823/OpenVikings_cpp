@@ -139,7 +139,7 @@ namespace NC2E2
                     auto objectMoveable = static_cast<std::uint32_t>(moveableId);
                     const bool marker = objectType == 4;
                     if (objectType == 1) { object = Human(id); if (NC2Logic::Human_Misc_IsHidden(object)) continue; }
-                    else if (objectType == 2) { object = NC2Logic::CAnimalArray::mStaticVars + id * 0x98u; if (Read<std::uint8_t>(object, 0x94) != 0) continue; }
+                    else if (objectType == 2) { object = NC2Logic::CAnimalArray::mStaticVars + id * 0x98u; if (Read<std::uint8_t>(object, NC2Layout::AnimalOffset::InsideHouseFlag) != 0) continue; }
                     else if (objectType == 3) object = NC2Logic::CVehicleArray::mStaticVars + id * 0x54Cu;
                     else if (marker)
                     {

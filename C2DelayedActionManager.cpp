@@ -144,7 +144,7 @@ namespace NC2Logic
                 if ((Read<std::uint32_t>(Human(object), NC2Layout::HumanOffset::PlayerId) == action->player && weapon.hitSelf == 0) || Human_Misc_IsHidden(Human(object))) break;
                 if (!Add(targets, 1, Read<std::uint32_t>(Human(object), NC2Layout::HumanOffset::HumanId))) return;
                 break;
-            case SwitchIds::MapMoveableType::Animal: if (!Add(targets, 3, Read<std::uint32_t>(Animal(object), 4))) return; break;
+            case SwitchIds::MapMoveableType::Animal: if (!Add(targets, 3, Read<std::uint32_t>(Animal(object), NC2Layout::AnimalOffset::AnimalId))) return; break;
             case SwitchIds::MapMoveableType::Vehicle:
                 if (Read<std::uint32_t>(Vehicle(object), NC2Layout::VehicleOffset::PlayerId) == action->player && weapon.hitSelf == 0) break;
                 if (!Contains(targets, 2, Read<std::uint32_t>(Vehicle(object), NC2Layout::VehicleOffset::VehicleId)) && !Add(targets, 2, Read<std::uint32_t>(Vehicle(object), NC2Layout::VehicleOffset::VehicleId))) return;
