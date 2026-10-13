@@ -102,7 +102,7 @@ namespace NC2Logic
         passenger:
             const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0) commands->AddCommand(13);
+            if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0) commands->AddCommand(13);
             return;
         }
         if (Human_IsAttachedToVehicle(human)) commands->AddCommand(13);

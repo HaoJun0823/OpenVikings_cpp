@@ -38,7 +38,7 @@ namespace NC2Logic
     void Human_l_StartTask_MoveInsideVehicle(void* human)
     {
         auto* vehicle = Vehicle(human);
-        if (Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision))
+        if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision))
         {
             Human_DetachFromVehicle(human);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
@@ -61,7 +61,7 @@ namespace NC2Logic
             Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
             Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
             Write<std::uint32_t>(message, 0, 43);
-            Write(message, 0x2E0, Read<std::uint32_t>(vehicle, 0x1E8));
+            Write(message, 0x2E0, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
@@ -101,7 +101,7 @@ namespace NC2Logic
             auto* vehicle = Vehicle(human);
             if (IsUsable(vehicle))
             {
-                if ((Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, 0x4FC) == 1) && Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
+                if ((Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1) && Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
                 {
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);

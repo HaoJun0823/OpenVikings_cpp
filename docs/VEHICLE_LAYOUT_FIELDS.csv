@@ -1,0 +1,53 @@
+WindowsOffset,Field,WidthOrRegionBytes,WindowsEvidence
+0x000,AllocatedFlag,1,Vehicle_Init/Exit and slot allocation
+0x004,VehicleId,4,Vehicle_Init stores array ID; references and callbacks read
+0x008,UniqueId,4,Vehicle_Init stores generated unique ID; attachment validation
+0x00C,Hitpoints,4,Vehicle_Init type-specific health and Vehicle_DoUpdateConditions
+0x010,UserCommandQueue,440,Vehicle_ResetUserCommandArray and insertion scan 22 records of 20 bytes
+0x1C8,CurrentTask,4,Vehicle_DoUpdateAI and command dispatch
+0x1CC,DoorEntryPoint,4,Vehicle_l_GetDoorPoint and Vehicle_GetConstMapMicroPointPtr returns this packed point
+0x1CE,DoorEntryPointY,2,High signed word of door point
+0x1D0,DockedFlag,1,Dock animation completion sets; docking/movement branches test
+0x1D2,TargetWorkPosition,4,Vehicle_Get/SetTargetWorkPosition and atomic walking target
+0x1D4,TargetWorkPositionY,2,High signed word of walking target
+0x1D6,MilitaryCenter,4,Goto and idle snapshot; return-to-center and military scan origin
+0x1D8,MilitaryCenterY,2,High signed word of military center
+0x1DC,MapMoveableId,4,Owned moveable ID and position/path access
+0x1E0,PlayerId,4,"Initialization, owner changes and passenger owner comparisons"
+0x1E4,TribeType,4,Initialization and tribe-specific atomic/weapon data
+0x1E8,LogicType,4,Vehicle type data lookup
+0x1EC,JobType,4,Type to actor job mapping and atomic lookup
+0x1F0,HumanPassengers,252,21 12-byte human references; type-dependent commander slot is included
+0x1F4,HumanPassengerRevisions,4,Interleaved reference unique IDs
+0x1F8,HumanPassengerInsideFlags,1,Interleaved inside flags at +8
+0x2EC,CommanderAttachedFlag,1,Commander attachment/detachment and capacity checks
+0x2F0,DraggingAnimalInsideFlag,1,Dragging animal move-in/move-out
+0x2F4,DraggingAnimalId,4,"Dragging animal reservation, validation and detach"
+0x2F8,DraggingAnimalRevision,4,Dragging animal unique ID validation
+0x2FC,VehiclePassengers,60,Five 12-byte vehicle references before stock storage
+0x300,VehiclePassengerRevisions,4,Interleaved vehicle passenger unique IDs
+0x304,VehiclePassengerInsideFlags,1,Interleaved vehicle passenger inside flags
+0x338,StockAmounts,66,Vehicle_Stock_GetAmountOfGoods byte vector
+0x37A,FutureStockAmounts,66,Projected stock byte vector
+0x3BC,WantedStockAmounts,66,Vehicle_Stock_Get/SetWantedAmount byte vector
+0x400,StockHumanReservations,252,Stock base + C8; 21 records of 12 bytes ending at atomic state
+0x4FC,AtomicAction,4,Atomic startup stores action; AI and moving predicates
+0x500,AtomicAnimationRunningFlag,1,Atomic startup sets; reset clears
+0x504,AtomicAnimationId,4,Atomic data selection and event lookup
+0x508,AtomicAnimationFrame,4,Startup resets; event dispatch precedes increment
+0x50C,AtomicAnimationStartCount,4,Atomic startup increments; dynamic sprite update receives sequence
+0x510,PreviousSectorVehicleId,4,Sector list insertion links back to newer head
+0x514,NextSectorVehicleId,4,Sector list insertion and iterator traverse older elements
+0x518,ExplorationRadius,4,Initialization and map exploration
+0x51C,MissionCheckId,4,Vehicle_Init stores mission tag; mission matching
+0x520,PrimaryMilitaryTarget,12,Explicit target record type/value/revision
+0x524,PrimaryMilitaryTargetValue,4,Object ID or packed point depending on target kind
+0x528,PrimaryMilitaryTargetRevision,4,Explicit object target unique ID
+0x52C,SecondaryMilitaryTarget,12,Automatic military-search target
+0x530,SecondaryMilitaryTargetValue,4,Automatic military-search object ID
+0x534,SecondaryMilitaryTargetRevision,4,Automatic military-search unique ID
+0x538,ActiveMilitaryTargetIndex,4,Attack animation stores target slot; event retrieves it
+0x53C,MilitaryMode,4,SetVehicleMilitaryMode and AI target-search/chase policies
+0x540,CarrierVehicleId,4,Carrier attachment and validation
+0x544,CarrierVehicleRevision,4,Carrier unique ID validation
+0x548,InsideVehicleFlag,1,Carrier move-in/move-out and position resolution

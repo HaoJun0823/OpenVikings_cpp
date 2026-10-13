@@ -141,7 +141,7 @@ namespace NC2Logic
         for (auto id = CVehicleArray::sTheObjectPtr->mFirstScanIndex; id <= CVehicleArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
         {
             const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 0x51C) == missionCheck) return id;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MissionCheckId) == missionCheck) return id;
         }
         return -1;
     }
@@ -153,7 +153,7 @@ namespace NC2Logic
         for (auto id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u); id <= CVehicleArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
         {
             const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 0x51C) == missionCheck) return id;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MissionCheckId) == missionCheck) return id;
         }
         return -1;
     }
@@ -363,7 +363,7 @@ namespace NC2Logic
                         const auto vehicleId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
                         if (!Vehicle_Passengers_AttachHuman(Vehicle(vehicleId), Read<std::uint32_t>(Human(currentId), 4))) continue;
                         Write<std::uint32_t>(Human(currentId), 0xB48, vehicleId);
-                        Write<std::uint32_t>(Human(currentId), 0xB4C, Read<std::uint32_t>(Vehicle(vehicleId), 8));
+                        Write<std::uint32_t>(Human(currentId), 0xB4C, Read<std::uint32_t>(Vehicle(vehicleId), NC2Layout::VehicleOffset::UniqueId));
                         break;
                     }
                     break;

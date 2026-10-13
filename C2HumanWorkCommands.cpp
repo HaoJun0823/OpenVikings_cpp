@@ -108,7 +108,7 @@ namespace NC2Logic
         if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) return 1;
         if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
         auto* vehicle = Vehicle(id);
-        if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != revision) return 1;
+        if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) != revision) return 1;
         if (!Vehicle_Passengers_AttachHuman(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)))
         {
             Human_UserMessage_SendToUserMessage_CannotAttachVehicle(human);
@@ -117,7 +117,7 @@ namespace NC2Logic
         Write<std::uint32_t>(human, 0xB64, 0);
         Write<std::uint32_t>(human, 0xB70, 0);
         Write(human, NC2Layout::HumanOffset::AttachedVehicleId, id);
-        Write(human, NC2Layout::HumanOffset::AttachedVehicleRevision, Read<std::uint32_t>(vehicle, 8));
+        Write(human, NC2Layout::HumanOffset::AttachedVehicleRevision, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         Queue(human, 25, 0, 0);
         return 2;
     }
@@ -131,17 +131,17 @@ namespace NC2Logic
         if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             auto* vehicle = Vehicle(Read<std::int32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
-            const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
-            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return 0;
-            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+            const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
+            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) return 0;
+            if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
             {
                 std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 101);
                 Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
-                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-                Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
                 std::uint32_t point = 0;
-                MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * NC2Layout::RecordSize::MapMoveable, &point);
+                MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &point);
                 Write(command, 12, MapMigPoint_GetLong(&point));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 return 0;

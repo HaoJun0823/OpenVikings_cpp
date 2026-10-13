@@ -18,15 +18,15 @@ namespace NC2Logic
     // Original function: FUN_00423004.
     std::uint32_t __fastcall Vehicle_GetMapMoveableId(const void* vehicle, void*) { return Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId); }
     // Original function: FUN_0042300b.
-    std::uint32_t __fastcall Vehicle_GetMissionCheckId(const void* vehicle, void*) { return Read<std::uint32_t>(vehicle, 0x51C); }
+    std::uint32_t __fastcall Vehicle_GetMissionCheckId(const void* vehicle, void*) { return Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MissionCheckId); }
     // Original function: FUN_00423012.
-    void __fastcall Vehicle_SetMissionCheckId(void* vehicle, void*, std::uint32_t id) { Write(vehicle, 0x51C, id); }
+    void __fastcall Vehicle_SetMissionCheckId(void* vehicle, void*, std::uint32_t id) { Write(vehicle, NC2Layout::VehicleOffset::MissionCheckId, id); }
     // Original function: FUN_0042301f.
-    bool __fastcall Vehicle_IsDocked(const void* vehicle, void*) { return Read<std::uint8_t>(vehicle, 0x1D0) != 0; }
+    bool __fastcall Vehicle_IsDocked(const void* vehicle, void*) { return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0; }
     // Original function: FUN_00423026.
-    const void* __fastcall Vehicle_Passengers_GetAttachedHumanSlotPtr(const void* vehicle, void*, std::uint32_t slot) { return static_cast<const std::byte*>(vehicle) + 0x1F0u + slot * 12u; }
+    const void* __fastcall Vehicle_Passengers_GetAttachedHumanSlotPtr(const void* vehicle, void*, std::uint32_t slot) { return static_cast<const std::byte*>(vehicle) + NC2Layout::VehicleOffset::HumanPassengers + slot * NC2Layout::RecordSize::VehiclePassenger; }
     // Original function: FUN_00423037.
-    bool __fastcall Vehicle_Passengers_IsCommanderAttached(const void* vehicle, void*) { return Read<std::uint8_t>(vehicle, 0x2EC) != 0; }
+    bool __fastcall Vehicle_Passengers_IsCommanderAttached(const void* vehicle, void*) { return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0; }
     // Original function: FUN_0042303e.
     std::uint32_t __fastcall Vehicle_Passengers_GetNumberOfSlots(const void* vehicle, void*) { return static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots); }
     // Original function: FUN_0042304a; native flag 005109C8.

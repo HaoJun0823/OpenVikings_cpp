@@ -563,7 +563,7 @@ namespace NC2Logic
         const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
         if (circulation != 0 && circulation != 1) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); }
         void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
-        if (Read<std::uint32_t>(vehicle, 8) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) && Vehicle_Passengers_GetAttachedHumanSlot(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) != -1) Vehicle_Passengers_DetachHuman(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) && Vehicle_Passengers_GetAttachedHumanSlot(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) != -1) Vehicle_Passengers_DetachHuman(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write<std::int32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId, -1);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision, 0);
     }
@@ -604,7 +604,7 @@ namespace NC2Logic
         if (vehicleId != NXBasics::IntegerRange::UInt32Maximum)
         {
             void* vehicle = CVehicleArray::mStaticVars + vehicleId * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 8) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision))
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision))
             {
                 if (forceVehicleDetach)
                 {

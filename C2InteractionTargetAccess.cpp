@@ -185,7 +185,7 @@ namespace NC2Logic
         case SwitchIds::InteractionTargetType::Vehicle:
         {
             const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(target, 0x14) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(target, 0x18) != Read<std::uint32_t>(vehicle, 8)) return false;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, 0x18) != Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)) return false;
             std::uint32_t entry = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
             if (Read<std::uint32_t>(target, 8) != entry) return false;

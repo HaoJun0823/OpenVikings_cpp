@@ -41,7 +41,7 @@ namespace NC2Logic
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-                if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0) continue;
+                if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0) continue;
                 std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 103);
                 Write(command, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));

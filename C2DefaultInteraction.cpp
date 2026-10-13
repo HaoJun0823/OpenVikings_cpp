@@ -113,8 +113,8 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
-            if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, 0x1E0)) == 3) { Prepare(command, 46, human, targetId, Read<std::uint32_t>(vehicle, 8)); return 44; }
-            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, 8)); return 12; }
+            if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)) == 3) { Prepare(command, 46, human, targetId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); return 44; }
+            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); return 12; }
             return 0;
         }
         case SwitchIds::MapObjectUnderCursor::House:
@@ -236,8 +236,8 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
-            if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, 0x1E0)) == 3) return commitTarget(44, 46, targetId, vehicle);
-            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, 8)); *action = 12; return true; }
+            if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)) == 3) return commitTarget(44, 46, targetId, vehicle);
+            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); *action = 12; return true; }
             return false;
         }
         case SwitchIds::MapObjectUnderCursor::House:
@@ -272,18 +272,18 @@ namespace NC2Logic
     }
 
     // Original function: FUN_0040b073; unallocated vehicles leave the command list untouched.
-    bool Logic_UserControl_GetVehicleCommands(std::int32_t id, SUserCommandsForVehicleHandler* commands, bool multiple) { const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * CVehicleArray::ElementSize; if (Read<std::uint8_t>(vehicle, 0) == 0) return false; Vehicle_UserControl_GetCommands(vehicle, commands, multiple); return true; }
+    bool Logic_UserControl_GetVehicleCommands(std::int32_t id, SUserCommandsForVehicleHandler* commands, bool multiple) { const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * CVehicleArray::ElementSize; if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0) return false; Vehicle_UserControl_GetCommands(vehicle, commands, multiple); return true; }
     // Original function: FUN_00437919.
     void Vehicle_UserControl_GetCommands(const void* vehicle, SUserCommandsForVehicleHandler* commands, bool multiple)
     {
         commands->Init();
         if (multiple)
         {
-            if (Read<std::uint8_t>(vehicle, 0x2EC) == 0 || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType) != 54) return;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) == 0 || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType) != 54) return;
             if (!Vehicle_Attachment_IsInsideVehicle(vehicle)) { commands->AddCommand(5); commands->AddCommand(6); commands->AddCommand(7); commands->AddCommand(8); }
             commands->AddCommand(9); commands->AddCommand(10); commands->AddCommand(11); return;
         }
-        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0)
+        if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0)
         {
             if (Vehicle_Attachment_IsValid(vehicle)) commands->AddCommand(13);
             if (!Vehicle_Attachment_IsInsideVehicle(vehicle))
@@ -295,16 +295,16 @@ namespace NC2Logic
             }
             if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType) == 54)
             {
-                if (Read<std::uint32_t>(vehicle, 0x53C) != 1) commands->AddCommand(9);
-                if (Read<std::uint32_t>(vehicle, 0x53C) != 2) commands->AddCommand(10);
-                if (Read<std::uint32_t>(vehicle, 0x53C) != 3) commands->AddCommand(11);
+                if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MilitaryMode) != 1) commands->AddCommand(9);
+                if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MilitaryMode) != 2) commands->AddCommand(10);
+                if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MilitaryMode) != 3) commands->AddCommand(11);
             }
         }
     passengerCommands:
         if (Vehicle_Passengers_GetNumberOfAttachedHumans(vehicle, true) == 0 || !Vehicle_Door_IsEntryPointOnLand(vehicle, 0)) return;
         if (Vehicle_Passengers_IsCarrierAttached(vehicle) && Vehicle_Stock_GetTotalWantedAmount(vehicle) != 0) commands->AddCommand(14);
         const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-        if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return;
+        if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) return;
         commands->AddCommand(3);
     }
 
@@ -326,8 +326,8 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
-            if (available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x1E0)) == 3) { Prepare(command, 107, vehicle, targetId, Read<std::uint32_t>(other, 8)); return 7; }
-            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanVehicleBeAttached(other, Read<std::uint32_t>(vehicle, 4))) { Prepare(command, 113, vehicle, targetId, Read<std::uint32_t>(other, 8)); return 12; }
+            if (available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::PlayerId)) == 3) { Prepare(command, 107, vehicle, targetId, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::UniqueId)); return 7; }
+            if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanVehicleBeAttached(other, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId))) { Prepare(command, 113, vehicle, targetId, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::UniqueId)); return 12; }
             break;
         }
         case SwitchIds::MapObjectUnderCursor::House:
@@ -374,7 +374,7 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
-            return available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x1E0)) == 3 && commitTarget(7, 107, targetId, other);
+            return available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::PlayerId)) == 3 && commitTarget(7, 107, targetId, other);
         }
         case SwitchIds::MapObjectUnderCursor::House:
         {
@@ -404,6 +404,6 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::CarrierVehicleId);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* other = Vehicle(id);
-        return Read<std::uint8_t>(other, 0) != 0 && Read<std::uint32_t>(other, 8) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::CarrierVehicleRevision);
+        return Read<std::uint8_t>(other, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(other, NC2Layout::VehicleOffset::UniqueId) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::CarrierVehicleRevision);
     }
 }

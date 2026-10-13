@@ -274,6 +274,11 @@ namespace NC2Layout
     {
         inline constexpr auto HumanInventorySlot = 8u;
         inline constexpr auto UserNetworkCommand = 20u;
+        inline constexpr auto VehiclePassenger = 12u;
+        inline constexpr auto VehiclePassengerSigned = 12;
+        inline constexpr auto VehicleStockReservation = 12u;
+        inline constexpr auto AtomicAnimation = 0x138u;
+        inline constexpr auto StaticVehicleType = 0x1DCu;
         inline constexpr auto HouseQualityEnhancer = 8u;
         inline constexpr auto HouseAttachment = 16u;
         inline constexpr auto HouseConstructionGood = 20u;
@@ -288,18 +293,84 @@ namespace NC2Layout
 
     namespace VehicleOffset
     {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto VehicleId = 4;
+        inline constexpr auto UniqueId = 8;
+        inline constexpr auto Hitpoints = 0xC;
+        inline constexpr auto UserCommandQueue = 0x10u;
+        inline constexpr auto UserCommandQueueSigned = 0x10;
+        inline constexpr auto CurrentTask = 0x1C8;
+        inline constexpr auto DoorEntryPoint = 0x1CC;
+        inline constexpr auto DockedFlag = 0x1D0;
+        inline constexpr auto TargetWorkPosition = 0x1D2;
+        inline constexpr auto MilitaryCenter = 0x1D6;
         inline constexpr auto MapMoveableId = 0x1DC;
         inline constexpr auto PlayerId = 0x1E0;
         inline constexpr auto TribeType = 0x1E4;
         inline constexpr auto LogicType = 0x1E8;
         inline constexpr auto JobType = 0x1EC;
+        inline constexpr auto HumanPassengers = 0x1F0u;
+        inline constexpr auto HumanPassengersSigned = 0x1F0;
+        inline constexpr auto HumanPassengerInsideFlags = 0x1F8u;
+        inline constexpr auto CommanderAttachedFlag = 0x2EC;
+        inline constexpr auto DraggingAnimalInsideFlag = 0x2F0;
+        inline constexpr auto DraggingAnimalId = 0x2F4;
+        inline constexpr auto DraggingAnimalRevision = 0x2F8;
+        inline constexpr auto VehiclePassengers = 0x2FCu;
+        inline constexpr auto VehiclePassengersSigned = 0x2FC;
+        inline constexpr auto VehiclePassengerInsideFlags = 0x304u;
+        inline constexpr auto VehiclePassengerInsideFlagsSigned = 0x304;
         inline constexpr auto StockAmounts = 0x338u;
         inline constexpr auto StockAmountsSigned = 0x338;
         inline constexpr auto FutureStockAmounts = 0x37Au;
+        inline constexpr auto WantedStockAmounts = 0x3BCu;
+        inline constexpr auto AtomicAction = 0x4FC;
+        inline constexpr auto AtomicAnimationRunningFlag = 0x500;
+        inline constexpr auto AtomicAnimationId = 0x504;
+        inline constexpr auto AtomicAnimationFrame = 0x508;
+        inline constexpr auto AtomicAnimationStartCount = 0x50C;
+        inline constexpr auto PreviousSectorVehicleId = 0x510;
+        inline constexpr auto NextSectorVehicleId = 0x514;
         inline constexpr auto ExplorationRadius = 0x518;
+        inline constexpr auto MissionCheckId = 0x51C;
+        inline constexpr auto PrimaryMilitaryTarget = 0x520;
+        inline constexpr auto PrimaryMilitaryTargetValue = 0x524;
+        inline constexpr auto PrimaryMilitaryTargetRevision = 0x528;
+        inline constexpr auto SecondaryMilitaryTarget = 0x52C;
+        inline constexpr auto SecondaryMilitaryTargetValue = 0x530;
+        inline constexpr auto SecondaryMilitaryTargetRevision = 0x534;
+        inline constexpr auto ActiveMilitaryTargetIndex = 0x538;
+        inline constexpr auto MilitaryMode = 0x53C;
         inline constexpr auto CarrierVehicleId = 0x540;
         inline constexpr auto CarrierVehicleRevision = 0x544;
         inline constexpr auto InsideVehicleFlag = 0x548;
+    }
+
+    namespace VehiclePassengerOffset
+    {
+        inline constexpr auto ObjectId = 0;
+        inline constexpr auto ObjectRevision = 4u;
+        inline constexpr auto ObjectRevisionSigned = 4;
+        inline constexpr auto InsideFlag = 8u;
+        inline constexpr auto InsideFlagSigned = 8;
+    }
+
+    namespace VehicleStockOffset
+    {
+        inline constexpr auto HumanReservations = 0xC8u;
+        inline constexpr auto ReservationHumanRevisions = 0xCCu;
+    }
+
+    namespace VehicleStockReservationOffset
+    {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto HumanRevision = 4;
+        inline constexpr auto RetainedAmount = 8;
+    }
+
+    namespace AtomicAnimationOffset
+    {
+        inline constexpr auto LengthInTicks = 0x34;
     }
 
 }

@@ -265,7 +265,7 @@ namespace NC2Logic
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
+            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
         }
         if (Read<std::uint32_t>(Position(human), 0) == Read<std::uint32_t>(workPosition, 0))
         {
@@ -300,7 +300,7 @@ namespace NC2Logic
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
+            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
         }
         if (!MapMoveable_Pathfinder_Start(Moveable(human), moveableId, static_cast<std::int32_t>(distance), Human_IsJobCarrier(human) ? 63u : 50u, true, useSectors, true)) return false;
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 0);

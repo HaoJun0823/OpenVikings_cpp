@@ -238,10 +238,10 @@ namespace NC2E2
         else if (type == 3)
         {
             const auto* vehicle = Vehicle(id);
-            dynamic = gDynamicDataVehicles.entries + Read<std::uint32_t>(vehicle, 4) * 0x44u;
-            const auto vehicleType = Read<std::uint32_t>(vehicle, 0x1E8);
-            const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, 0x1D0) != 0;
-            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(vehicle, 0x1E4), Read<std::uint32_t>(vehicle, 0x1EC), special ? 5u : 0u, Read<std::uint8_t>(vehicle, 0x500) != 0, special ? 4u : Read<std::uint32_t>(vehicle, 0x4FC), Read<std::uint32_t>(vehicle, 0x508), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, 0x50C), false, display, offsetX, offsetY, nullptr, false);
+            dynamic = gDynamicDataVehicles.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId) * 0x44u;
+            const auto vehicleType = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
+            const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0;
+            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType), special ? 5u : 0u, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag) != 0, special ? 4u : Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationStartCount), false, display, offsetX, offsetY, nullptr, false);
         }
         else if (type == 4)
         {
@@ -314,30 +314,30 @@ namespace NC2E2
         if (type == 3)
         {
             const auto* vehicle = Vehicle(objectId);
-            auto* dynamic = gDynamicDataVehicles.entries + Read<std::uint32_t>(vehicle, 4) * 0x44u;
+            auto* dynamic = gDynamicDataVehicles.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId) * 0x44u;
             brightness = DynamicBrightness(dynamic, 0x40, brightness);
-            const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Vehicle_GetMarkType(display, Read<std::uint32_t>(vehicle, 4)) : 0u;
+            const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Vehicle_GetMarkType(display, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)) : 0u;
             const auto* commander = NC2Logic::Vehicle_Passengers_GetAttachedCommanderPtr(vehicle);
             if (commander != nullptr && (NC2Logic::Human_IsJobTrader(commander) || NC2Logic::Human_IsJobCarrier(commander)) && Read<std::uint8_t>(commander, 0xB51) != 0)
             {
-                const auto attachedType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(commander, 0xB48)), 0x1E8);
+                const auto attachedType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(commander, 0xB48)), NC2Layout::VehicleOffset::LogicType);
                 if (attachedType == 1 || attachedType == 2)
                 {
                     auto* humanDynamic = HumanDynamic(commander);
                     Write<void*>(humanDynamic, 0x34, nullptr); Write<void*>(humanDynamic, 0x38, nullptr);
-                    const bool atomic = Read<std::uint8_t>(vehicle, 0x500) != 0;
-                    sl_DoDrawMapMoveable(moveable, humanDynamic, Read<std::uint32_t>(commander, 0x14), 25, attachedType == 1 ? 59u : 60u, atomic, atomic ? (attachedType == 1 ? 2u : 3u) : 1u, Read<std::uint32_t>(vehicle, 0x508), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, 0x50C), HumanBody(humanDynamic), HumanHead(humanDynamic), bitmap, x, y, brightness, marking, Read<std::int32_t>(commander, 0x10), false, centered, false, nullptr, -1, -1, display, true);
+                    const bool atomic = Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag) != 0;
+                    sl_DoDrawMapMoveable(moveable, humanDynamic, Read<std::uint32_t>(commander, 0x14), 25, attachedType == 1 ? 59u : 60u, atomic, atomic ? (attachedType == 1 ? 2u : 3u) : 1u, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationStartCount), HumanBody(humanDynamic), HumanHead(humanDynamic), bitmap, x, y, brightness, marking, Read<std::int32_t>(commander, 0x10), false, centered, false, nullptr, -1, -1, display, true);
                     return;
                 }
             }
-            const auto vehicleType = Read<std::uint32_t>(vehicle, 0x1E8);
-            const auto player = Read<std::int32_t>(vehicle, 0x1E0);
+            const auto vehicleType = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
+            const auto player = Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
             auto* palette = gStaticPalettes.palettes256[Read<std::uint32_t>(dynamic, 0x3C)].palette;
             if ((vehicleType == 3 || vehicleType == 4) && player != -1) palette = EnginePalette_GetPlayerShipPalette(player);
-            const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, 0x1D0) != 0;
-            sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(vehicle, 0x1E4), Read<std::uint32_t>(vehicle, 0x1EC), special ? 5u : 0u, Read<std::uint8_t>(vehicle, 0x500) != 0, special ? 4u : Read<std::uint32_t>(vehicle, 0x4FC), Read<std::uint32_t>(vehicle, 0x508), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, 0x50C), palette, palette, bitmap, x, y, brightness, marking, player, false, centered, false, nullptr, -1, -1, display, false);
+            const bool special = (vehicleType == 3 || vehicleType == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) != 0;
+            sl_DoDrawMapMoveable(moveable, dynamic, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType), special ? 5u : 0u, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag) != 0, special ? 4u : Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationFrame), NC2Logic::Vehicle_GetCurrentAtomicAnimationLengthInTicks(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationStartCount), palette, palette, bitmap, x, y, brightness, marking, player, false, centered, false, nullptr, -1, -1, display, false);
             if (player != -1 && vehicleType != 3 && vehicleType != 4)
-                NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(vehicle, 0xC), vehicleType == 5 ? 3000u : 1000u), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
+                NXBasics::BobManager_PrintBob(Read<void*>(gE2StaticDataBobManagersManager, 0x18), HealthBob(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints), vehicleType == 5 ? 3000u : 1000u), bitmap, x, AddOffset(y, -56), EnginePalette_GetPlayerPalette(player));
             return;
         }
         if (type == 2)
@@ -373,8 +373,8 @@ namespace NC2E2
             if (vehicleId != NXBasics::IntegerRange::UInt32Maximum)
             {
                 std::int32_t patch = -1;
-                if (Read<std::uint32_t>(Vehicle(vehicleId), 0x1E8) == 1) patch = StaticHumanMisc_RandomPalette_GetPatchId("good_handcart");
-                const auto vehicleType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)), 0x1E8);
+                if (Read<std::uint32_t>(Vehicle(vehicleId), NC2Layout::VehicleOffset::LogicType) == 1) patch = StaticHumanMisc_RandomPalette_GetPatchId("good_handcart");
+                const auto vehicleType = Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)), NC2Layout::VehicleOffset::LogicType);
                 if (vehicleType == 2 || vehicleType == 6) patch = StaticHumanMisc_RandomPalette_GetPatchId("good_oxcart");
                 if (patch != -1) StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), HumanBody(dynamic), HumanHead(dynamic), true);
             }

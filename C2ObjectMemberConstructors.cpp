@@ -56,8 +56,8 @@ namespace NC2Logic
     // Original function: FUN_0040b6af.
     void* __fastcall Vehicle_ConstructMembers(void* vehicle, void* /*unusedEdx*/)
     {
-        Vehicle_ConstructVars(static_cast<std::byte*>(vehicle) + 0x10, nullptr);
-        Vehicle_Task_ConstructMembers(static_cast<std::byte*>(vehicle) + 0x520, nullptr);
+        Vehicle_ConstructVars(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::UserCommandQueueSigned, nullptr);
+        Vehicle_Task_ConstructMembers(static_cast<std::byte*>(vehicle) + NC2Layout::VehicleOffset::PrimaryMilitaryTarget, nullptr);
         return vehicle;
     }
 

@@ -117,8 +117,8 @@ namespace NC2Logic
         const auto player = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
         damage = HalfForDifficulty(damage, player);
         if (data.soundTypesHit[6] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[6], MapMigPoint_GetLong(Vehicle_GetMapPositionRef(vehicle)), 0);
-        Write(vehicle, 12, Read<std::uint32_t>(vehicle, 12) - damage);
-        if (Read<std::int32_t>(vehicle, 12) <= 0) RecordKill(attacker, 0x461C);
+        Write(vehicle, NC2Layout::VehicleOffset::Hitpoints, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) - damage);
+        if (Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) <= 0) RecordKill(attacker, 0x461C);
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != attackerRevision) return false;
@@ -127,8 +127,8 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 52);
         Write(message, 8, player);
-        Write(message, 0x20, Read<std::uint32_t>(vehicle, 4));
-        Write(message, 0x24, Read<std::uint32_t>(vehicle, 8));
+        Write(message, 0x20, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+        Write(message, 0x24, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         Write(message, 0x2E0, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -223,6 +223,6 @@ namespace NC2Logic
     // Original function: FUN_00443108; the commander gains category-specific weapon experience.
     void Vehicle_Military_GainExperience(const void* vehicle)
     {
-        if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) Human_GainExperienceForWeapon(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) == 5 ? 21u : 0u, 1);
+        if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0) Human_GainExperienceForWeapon(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) == 5 ? 21u : 0u, 1);
     }
 }

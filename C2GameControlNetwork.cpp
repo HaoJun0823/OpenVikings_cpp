@@ -69,7 +69,7 @@ namespace NC2Logic
             for (std::int32_t id = 0; id < CVehicleArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto* vehicle = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
-                if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) == player) CVehicleArray::sTheObjectPtr->FreeVehicle(id);
+                if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) == player) CVehicleArray::sTheObjectPtr->FreeVehicle(id);
             }
             CGuideIterator iterator;
             for (auto id = iterator.GetFirstGuideId(player); id != -1; id = iterator.GetNextGuideId()) GuideManager_RemoveGuide(gGuideManager, nullptr, static_cast<std::uint32_t>(id));

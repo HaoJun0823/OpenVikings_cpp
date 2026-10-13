@@ -845,7 +845,7 @@ namespace NC2InGameGuiSelection
                     if (attached)
                     {
                         const auto vehicle = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId);
-                        bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, rowY, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize, 0x1E8)));
+                        bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, rowY, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::LogicType)));
                     }
                     rowY += 12;
                 }

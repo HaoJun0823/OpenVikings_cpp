@@ -381,18 +381,18 @@ namespace NC2Logic
                 return;
             }
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) goto failed;
+            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) goto failed;
             std::uint32_t entry = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
             const auto good = Human_FindFood_Complex(human, &real, &work, &entry);
             if (good == 0) goto failed;
-            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+            if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
             {
                 alignas(4) std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 0x70);
                 Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
-                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-                Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
@@ -457,13 +457,13 @@ namespace NC2Logic
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
                 return;
             }
-            if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+            if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
             {
                 std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 0x70);
                 Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-                Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+                Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);

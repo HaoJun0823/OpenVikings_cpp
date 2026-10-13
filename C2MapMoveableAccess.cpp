@@ -409,7 +409,7 @@ namespace NC2Logic
         {
         case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId);
         case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
-        case SwitchIds::MapMoveableType::Vehicle: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, 8);
+        case SwitchIds::MapMoveableType::Vehicle: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId);
         case SwitchIds::MapMoveableType::Marker: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);
         default: return NXBasics::IntegerRange::UInt32Maximum;
         }
@@ -548,11 +548,11 @@ namespace NC2Logic
         auto* data = GetSector(sector);
         const auto offset = (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) << 6) + (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType) == 0x36 ? 0x20u : 8u);
         const auto previous = Read<std::int32_t>(data, offset);
-        const auto id = Read<std::int32_t>(vehicle, 4);
+        const auto id = Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId);
         Write<std::int32_t>(data, offset, id);
-        Write<std::int32_t>(vehicle, 0x514, previous);
-        if (previous != -1) Write<std::int32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(previous) * CVehicleArray::ElementSize, 0x510, id);
-        Write<std::int32_t>(vehicle, 0x510, -1);
+        Write<std::int32_t>(vehicle, NC2Layout::VehicleOffset::NextSectorVehicleId, previous);
+        if (previous != -1) Write<std::int32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(previous) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::PreviousSectorVehicleId, id);
+        Write<std::int32_t>(vehicle, NC2Layout::VehicleOffset::PreviousSectorVehicleId, -1);
         Write<std::uint32_t>(data, offset + 4, Read<std::uint32_t>(data, offset + 4) + 1u);
     }
 
@@ -562,22 +562,22 @@ namespace NC2Logic
         auto* data = GetSector(sector);
         const auto offset = (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) << 6) + (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType) == 0x36 ? 0x20u : 8u);
         auto current = Read<std::int32_t>(data, offset);
-        const auto id = Read<std::int32_t>(vehicle, 4);
-        const auto next = Read<std::int32_t>(vehicle, 0x514);
+        const auto id = Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId);
+        const auto next = Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::NextSectorVehicleId);
         if (current == id)
         {
             Write<std::int32_t>(data, offset, next);
-            if (next != -1) Write<std::int32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(next) * CVehicleArray::ElementSize, 0x510, -1);
+            if (next != -1) Write<std::int32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(next) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::PreviousSectorVehicleId, -1);
         }
         else
         {
             for (;;)
             {
                 void* previous = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(current) * CVehicleArray::ElementSize;
-                current = Read<std::int32_t>(previous, 0x514);
+                current = Read<std::int32_t>(previous, NC2Layout::VehicleOffset::NextSectorVehicleId);
                 if (current == id)
                 {
-                    Write<std::int32_t>(previous, 0x514, next);
+                    Write<std::int32_t>(previous, NC2Layout::VehicleOffset::NextSectorVehicleId, next);
                     break;
                 }
             }

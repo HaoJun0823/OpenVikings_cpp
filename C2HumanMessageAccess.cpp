@@ -19,7 +19,7 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* vehicle = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
-        return Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(vehicle, 8);
+        return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId);
     }
 
     // Original function: FUN_0042c900.

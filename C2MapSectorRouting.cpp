@@ -377,7 +377,7 @@ namespace NC2Logic
                 {
                     const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                     total += Vehicle_Passengers_IsCommanderInVehicle(vehicle) ? 50u : 10u;
-                    id = Read<std::int32_t>(vehicle, 0x514);
+                    id = Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::NextSectorVehicleId);
                 }
             }
             else if (state == 2)

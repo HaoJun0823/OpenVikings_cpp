@@ -74,7 +74,7 @@ namespace NC2Logic
             std::uint32_t entry = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &entry, 0);
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return false;
+            if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) return false;
             return Vehicle_Door_IsEntryPointOnLand(vehicle, 0) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == entry;
         }
         case SwitchIds::InteractionTargetType::Human: case SwitchIds::InteractionTargetType::Animal: return true;
@@ -178,7 +178,7 @@ namespace NC2Logic
                 if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 5) House_Stock_ModifyFutureAmount(houseById(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), 1, false);
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) != 6) break;
                 auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectId) * CVehicleArray::ElementSize;
-                if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision) != Read<std::uint32_t>(vehicle, 8)) break;
+                if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision) != Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)) break;
                 if (Vehicle_Stock_CanStoreGoodType(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood))) Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
             }
             break;
@@ -763,7 +763,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         void* target = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-        if (Read<std::uint8_t>(target, 0) == 0 || Read<std::uint32_t>(target, 8) != revision) return 1;
+        if (Read<std::uint8_t>(target, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, NC2Layout::VehicleOffset::UniqueId) != revision) return 1;
         Write<std::uint32_t>(human, 0xB64, 2);
         Write(human, 0xB68, id);
         Write(human, 0xB6C, revision);

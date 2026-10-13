@@ -83,7 +83,7 @@ namespace NC2Logic
         {
             const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
             const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) continue;
+            if ((type == 3 || type == 4) && Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag) == 0) continue;
             if (Vehicle_Passengers_GetAttachedCommanderId(vehicle) != -1) return true;
         }
         return false;

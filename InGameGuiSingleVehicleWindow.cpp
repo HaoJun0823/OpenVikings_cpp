@@ -55,7 +55,7 @@ namespace NC2InGameGuiSelection
     static void* Vehicle(std::int32_t id) { return NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize; }
     static void* House(std::int32_t id) { return NC2Logic::CHouseArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHouseArray::ElementSize; }
     // Original function: FUN_004aa941.
-    static void* l_Misc_GetSelectedVehiclePtr() { if (Read<std::uint32_t>(gInputManager, 4) != 4) return nullptr; const auto id = Selection_GetSelectedSingleVehicleId(gInputManager); if (id == -1) return nullptr; auto* vehicle = Vehicle(id); return Read<std::uint8_t>(vehicle, 0) ? vehicle : nullptr; }
+    static void* l_Misc_GetSelectedVehiclePtr() { if (Read<std::uint32_t>(gInputManager, 4) != 4) return nullptr; const auto id = Selection_GetSelectedSingleVehicleId(gInputManager); if (id == -1) return nullptr; auto* vehicle = Vehicle(id); return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) ? vehicle : nullptr; }
     static void* Merchant(void* vehicle) { const auto id = NC2Logic::Vehicle_Passengers_GetWorkTraderHumanId(vehicle); if (id == -1) return nullptr; const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize; return NC2Logic::Human_IsJobTrader(human) ? NC2Logic::HumanMerchantArray_GetMerchantDataPtr(NC2Logic::gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)) : nullptr; }
     // Original function: FUN_004aa96f.
     static void l_Misc_CenterWorldDisplay(void* window) { auto* vehicle = l_Misc_GetSelectedVehiclePtr(); if (vehicle == nullptr) return; auto* preview = Read<void*>(window, 0xF0); if (preview == nullptr) return; auto* display = Read<void*>(preview, 0x30); std::int32_t point[2]; Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, Read<std::uint32_t>(vehicle, 0x1DC), point); point[1] -= 25; NC2E2::DE_SetWantedPositionToPixelPoint(display, point); }
@@ -164,7 +164,7 @@ namespace NC2InGameGuiSelection
                     if (NC2Logic::Vehicle_Attachment_IsValid(vehicle)) { Buttons(window).UpdateGfxButton(10009,0,x,y,18,VehicleString(23)); x += 20; } else Buttons(window).RemoveButton(10009,0);
                     if (commands.IsCommandAllowed(12)) { Buttons(window).UpdateGfxButton(10010,0,x,y,30,VehicleString(24)); x += 20; } else Buttons(window).RemoveButton(10010,0);
                     if (commands.IsCommandAllowed(13)) { Buttons(window).UpdateGfxButton(10011,0,x,y,29,VehicleString(25)); x += 20; } else Buttons(window).RemoveButton(10011,0);
-                    if (NC2Logic::Vehicle_Attachment_IsValid(vehicle)) bitmap->Text_Print(font,color,x,y,NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(Vehicle(Read<std::int32_t>(vehicle,0x540)),0x1E8))); y += 12;
+                    if (NC2Logic::Vehicle_Attachment_IsValid(vehicle)) bitmap->Text_Print(font,color,x,y,NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(Vehicle(Read<std::int32_t>(vehicle,0x540)),NC2Layout::VehicleOffset::LogicType))); y += 12;
                 }
             }
             auto height = y - section.y - 10; const auto* preview = Read<void*>(window,0xF0); const auto minimum = preview == nullptr ? 8 : Read<std::int32_t>(preview,0x10) + 8; if (height < minimum) height = minimum; l_SubTabs_OverwriteHeight(window,0,height);

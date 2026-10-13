@@ -225,10 +225,10 @@ namespace NC2Logic
     bool Animal_AttachToVehicle(void* animal, std::int32_t vehicleId)
     {
         const auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleId) * CVehicleArray::ElementSize;
-        if (Read<std::uint8_t>(vehicle, 0) != 0)
+        if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0)
         {
             Write(animal, 0x54, vehicleId);
-            Write(animal, 0x58, Read<std::uint32_t>(vehicle, 8));
+            Write(animal, 0x58, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
             Write<std::uint32_t>(animal, 0x50, 2);
         }
         if (Read<std::uint32_t>(animal, 0x70) == 1) return false;

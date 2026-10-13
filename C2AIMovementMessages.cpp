@@ -238,19 +238,19 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CVehicleArray::mStaticVars + target * CVehicleArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 2 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, 8) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
+        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 2 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
         auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
-        const auto player = Read<std::uint32_t>(enemy, 0x1E0);
+        const auto player = Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::PlayerId);
         GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 46);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
-        Write(command, 0x10, Read<std::uint32_t>(enemy, 8));
+        Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
         Write<std::uint32_t>(soldier, 0x34, 14);
         Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, 8));
+        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
         Write<std::uint32_t>(soldier, 0x48, 2);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
         else Write<std::uint8_t>(soldier, 0x44, 0);
@@ -428,8 +428,8 @@ namespace NC2Logic
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 104);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
-        Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-        Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+        Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+        Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         Write(command, 12, target);
         Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
@@ -447,17 +447,17 @@ namespace NC2Logic
         auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
         auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
         auto* enemy = CVehicleArray::mStaticVars + target * CVehicleArray::ElementSize;
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 480), 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::PlayerId), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 46);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
-        Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-        Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+        Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+        Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         Write(command, 12, target);
-        Write(command, 16, Read<std::uint32_t>(enemy, 8));
+        Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
         Write<std::uint32_t>(entry, 12, 1);
-        Write(entry, 24, Read<std::uint32_t>(enemy, 8));
+        Write(entry, 24, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
         Write(entry, 20, target);
         Write<std::uint32_t>(entry, 16, 2);
         return true;
@@ -473,8 +473,8 @@ namespace NC2Logic
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 44);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
-        Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-        Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+        Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+        Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         Write(command, 12, target);
         Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
@@ -533,7 +533,7 @@ namespace NC2Logic
         const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
         const auto* target = entry + 16;
         if (Read<std::uint32_t>(entry, 12) != 1 || !TargetData_IsValid(target)) return false;
-        return Read<std::uint32_t>(vehicle, 0x528) == Read<std::uint32_t>(target, 8) && Read<std::uint32_t>(vehicle, 0x524) == Read<std::uint32_t>(target, 4) && Read<std::uint32_t>(vehicle, 0x520) == Read<std::uint32_t>(target, 0);
+        return Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PrimaryMilitaryTargetRevision) == Read<std::uint32_t>(target, 8) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PrimaryMilitaryTargetValue) == Read<std::uint32_t>(target, 4) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PrimaryMilitaryTarget) == Read<std::uint32_t>(target, 0);
     }
 
 }

@@ -79,9 +79,9 @@ namespace NC2Logic
         else if (attackerType == 2)
         {
             const auto* vehicle = Vehicle(attackerId);
-            action.attackerRevision = Read<std::uint32_t>(vehicle, 8);
-            action.player = Read<std::uint32_t>(vehicle, 0x1E0);
-            action.tribe = Read<std::uint32_t>(vehicle, 0x1E4);
+            action.attackerRevision = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId);
+            action.player = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
+            action.tribe = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType);
             action.sourcePosition = MapMigPoint_GetLong(Vehicle_GetMapPositionRef(vehicle));
         }
         else if (attackerType == 1)
@@ -146,8 +146,8 @@ namespace NC2Logic
                 break;
             case SwitchIds::MapMoveableType::Animal: if (!Add(targets, 3, Read<std::uint32_t>(Animal(object), 4))) return; break;
             case SwitchIds::MapMoveableType::Vehicle:
-                if (Read<std::uint32_t>(Vehicle(object), 0x1E0) == action->player && weapon.hitSelf == 0) break;
-                if (!Contains(targets, 2, Read<std::uint32_t>(Vehicle(object), 4)) && !Add(targets, 2, Read<std::uint32_t>(Vehicle(object), 4))) return;
+                if (Read<std::uint32_t>(Vehicle(object), NC2Layout::VehicleOffset::PlayerId) == action->player && weapon.hitSelf == 0) break;
+                if (!Contains(targets, 2, Read<std::uint32_t>(Vehicle(object), NC2Layout::VehicleOffset::VehicleId)) && !Add(targets, 2, Read<std::uint32_t>(Vehicle(object), NC2Layout::VehicleOffset::VehicleId))) return;
                 break;
             case SwitchIds::MapMoveableType::Marker: break;
             default: return;
@@ -205,8 +205,8 @@ namespace NC2Logic
                 for (auto id = vehicles.GetFirstSectorVehicleId(player, MapMigPoint_GetLong(point), 5, group == 0); id != -1; id = vehicles.GetNextSectorVehicleId())
                 {
                     const auto* vehicle = Vehicle(static_cast<std::uint32_t>(id));
-                    if ((Read<std::uint32_t>(vehicle, 0x1E0) == action->player && weapon.hitSelf == 0) || !Vehicle_IsPositionInsideVehicle(vehicle, point)) continue;
-                    const auto object = Read<std::uint32_t>(vehicle, 4);
+                    if ((Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) == action->player && weapon.hitSelf == 0) || !Vehicle_IsPositionInsideVehicle(vehicle, point)) continue;
+                    const auto object = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId);
                     if (!Contains(targets, 2, object) && !Add(targets, 2, object)) return;
                 }
         }
@@ -238,7 +238,7 @@ namespace NC2Logic
         else if (hit && action->attackerType == 2)
         {
             const auto* vehicle = Vehicle(action->attackerId);
-            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 8) == action->attackerRevision) Vehicle_Military_GainExperience(vehicle);
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) == action->attackerRevision) Vehicle_Military_GainExperience(vehicle);
         }
         return hit;
     }

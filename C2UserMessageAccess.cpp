@@ -153,7 +153,7 @@ namespace NC2Logic
         if (vehicleId != NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto* vehicle = CVehicleArray::mStaticVars + vehicleId * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(message, 0x24)) return false;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) != Read<std::uint32_t>(message, 0x24)) return false;
         }
         return true;
     }

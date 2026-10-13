@@ -166,7 +166,7 @@ namespace NC2InGameGuiGroups
         const auto count = Read<std::uint32_t>(group, 0);
         if (count == 100) return;
         Write<std::uint32_t>(group, 4u + count * 12u, 2); Write(group, 8u + count * 12u, id);
-        Write(group, 12u + count * 12u, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize, 8));
+        Write(group, 12u + count * 12u, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
         Write(group, 0, count + 1);
     }
 

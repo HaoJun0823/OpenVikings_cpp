@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Vehicle layout review - 2026-10-13
+
+Named 508 vehicle scalar/base expressions in 42 sources, 40 passenger/command strides, reservation/reference members and distinct carrier commands. Requested-delta arithmetic and retained reservation amounts preserve Windows behavior. Value/type and Win32 syntax checks pass. See [VEHICLE_LAYOUT_REVIEW.md](VEHICLE_LAYOUT_REVIEW.md) and its field/access inventories. The whole-source review remains in progress.
+
 ## Human layout review - 2026-10-13
 
 Named 1148 human scalar/base expressions in 76 sources plus 41 inventory/command strides. Family links, task/atomic state, experience, equipment condition and vehicle-builder workshop references now have Windows-supported names. All affected value/type and syntax checks pass; no build or runtime test occurred. See [HUMAN_LAYOUT_REVIEW.md](HUMAN_LAYOUT_REVIEW.md), [HUMAN_LAYOUT_FIELDS.csv](HUMAN_LAYOUT_FIELDS.csv) and [HUMAN_LAYOUT_ACCESS_MAP.csv](HUMAN_LAYOUT_ACCESS_MAP.csv). Whole-source review remains in progress; next are vehicle records and the remaining engine/GUI/control/data blocks.

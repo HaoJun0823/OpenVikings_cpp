@@ -494,15 +494,15 @@ namespace NC2Logic
         auto* vehicle = Vehicle(human);
         const auto* position = Vehicle_GetMapPositionRef(vehicle);
         const auto* work = static_cast<std::byte*>(house) + 0x24;
-        if (!Vehicle_IsPriorityCommandInQueue(vehicle) && Read<std::uint32_t>(vehicle, 0x4FC) != 1 && VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(work, 0), Read<std::int16_t>(work, 2)) <= 5) return false;
-        if (Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, 0x4FC) == 1)
+        if (!Vehicle_IsPriorityCommandInQueue(vehicle) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) != 1 && VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(work, 0), Read<std::int16_t>(work, 2)) <= 5) return false;
+        if (Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1)
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 ? 1u : 21u);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
             return true;
         }
         auto point = Read<std::uint32_t>(position, 0);
-        const auto type = Read<std::uint32_t>(vehicle, 0x1E8);
+        const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
         if (Tool_Vehicle_GetNextMovePointNearPosition(type, work, &point, 20, 2))
         {
             std::uint32_t target = 0;
@@ -510,8 +510,8 @@ namespace NC2Logic
             std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 101);
             Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
-            Write(command, 4, Read<std::uint32_t>(vehicle, 4));
-            Write(command, 8, Read<std::uint32_t>(vehicle, 8));
+            Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
+            Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
             if (point != target || Tool_Vehicle_GetNextMovePointNearPosition(type, &point, &target, 20, 1))
             {
                 Write(command, 12, MapMigPoint_GetLong(&point));

@@ -332,7 +332,7 @@ namespace NC2Logic
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) != p[1]) continue;
-                Write(vehicle, 0x51C, p[3]);
+                Write(vehicle, NC2Layout::VehicleOffset::MissionCheckId, p[3]);
                 if (NXBasics::Runtime_TimeSigned32(++count) >= NXBasics::Runtime_TimeSigned32(p[2])) fulfilled = true;
             }
             return fulfilled;
@@ -436,7 +436,7 @@ namespace NC2Logic
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
             {
                 const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) == 0 || Read<std::uint32_t>(CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize, 0x51C) != p[1]) return false;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) == 0 || Read<std::uint32_t>(CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::MissionCheckId) != p[1]) return false;
             }
             return true;
         case SwitchIds::MissionGoal::FindHumansByPlayersMM:
@@ -491,11 +491,11 @@ namespace NC2Logic
             {
                 const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 auto qualifies = [&](std::uint32_t humanId) { const void* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize; return Human_IsJobSoldier(human) == (goal.type == 51) && !Human_IsJobHero(human); };
-                if (Read<std::uint8_t>(vehicle, 0x2EC) != 0 && qualifies(static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedCommanderId(vehicle)))) ++count;
+                if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0 && qualifies(static_cast<std::uint32_t>(Vehicle_Passengers_GetAttachedCommanderId(vehicle)))) ++count;
                 if (Vehicle_Passengers_GetNumberOfAttachedHumans(vehicle, true) != 0)
                     for (std::uint32_t slot = 0; slot < static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots); ++slot)
                     {
-                        const void* reference = static_cast<const std::byte*>(vehicle) + 0x1F0u + slot * 12u;
+                        const void* reference = static_cast<const std::byte*>(vehicle) + NC2Layout::VehicleOffset::HumanPassengers + slot * NC2Layout::RecordSize::VehiclePassenger;
                         if (HumanReference_IsAllocated(reference) && qualifies(Read<std::uint32_t>(reference, 0))) ++count;
                     }
             }
@@ -532,7 +532,7 @@ namespace NC2Logic
             {
                 CVehicleIterator iterator;
                 for (auto id = iterator.GetFirstVehicleId(p[0], &point, NXBasics::Runtime_TimeSigned32(p[5])); id != -1; id = iterator.GetNextVehicleId())
-                    if (Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, 0x1E8) == p[1]) ++count;
+                    if (Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::LogicType) == p[1]) ++count;
                 return count >= p[2];
             }
             CAnimalIterator iterator;
@@ -642,7 +642,7 @@ namespace NC2Logic
             if (humanId == -1) break;
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
             // Windows tests nonzero, including the command's unchanged/failed result 1.
-            if (Human_DoExecuteUserCommand_AttachVehicle(human, vehicleId, Read<std::uint32_t>(vehicle, 8)) != 0 && Human_VehicleMisc_Enter(human) != 0) break;
+            if (Human_DoExecuteUserCommand_AttachVehicle(human, vehicleId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)) != 0 && Human_VehicleMisc_Enter(human) != 0) break;
             CHumanArray::sTheObjectPtr->FreeHuman(humanId);
             break;
         }
@@ -674,7 +674,7 @@ namespace NC2Logic
             break;
         case SwitchIds::MissionResult::RemoveVehicles:
             for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
-                Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, 0x1DC));
+                Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, NC2Layout::VehicleOffset::MapMoveableId));
             break;
         case SwitchIds::MissionResult::RemoveHouses:
             for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(p[0], id))
@@ -786,7 +786,7 @@ namespace NC2Logic
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
             }
             break;
@@ -803,7 +803,7 @@ namespace NC2Logic
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, 4));
+                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
             }
             break;
@@ -1288,7 +1288,7 @@ namespace NC2Logic
                 MapMoveable_Attachment_AttachToMap(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, &target);
                 alignas(4) std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 0x65); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId));
-                Write(command, 4, Read<std::uint32_t>(vehicle, 4)); Write(command, 8, Read<std::uint32_t>(vehicle, 8)); Write(command, 12, target);
+                Write(command, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)); Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); Write(command, 12, target);
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 GameMap_Exploration_DoExplore(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId), &target, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::ExplorationRadius));
                 redraw(target, 4);

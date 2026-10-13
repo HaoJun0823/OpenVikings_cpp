@@ -215,7 +215,7 @@ namespace NC2InGameGuiWorldElement
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehicleId(input, i);
                 std::byte selectedCommand[20]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
-                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize, 8));
+                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
             }
         }
@@ -581,7 +581,7 @@ namespace NC2InGameGuiWorldElement
         using namespace NC2Lifetime;
         std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
         Write(element, 0x230, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x22C, 1);
-        Write(element, 0x234, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize, 8));
+        Write(element, 0x234, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
         WorldDisplayElement_l_FollowMode_Update(element);
     }
     // Original function: FUN_004bb449.
@@ -621,7 +621,7 @@ namespace NC2InGameGuiWorldElement
         if (Read<std::uint8_t>(element, 0x220) == 0) return;
         std::uint32_t moveable;
         if (Read<std::uint8_t>(element, 0x221) != 0) moveable = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId);
-        else if (Read<std::uint8_t>(element, 0x22C) != 0) moveable = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize, 0x1DC);
+        else if (Read<std::uint8_t>(element, 0x22C) != 0) moveable = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::MapMoveableId);
         else return;
         std::int32_t point[2];
         void* display = Read<void*>(element, 0x30);

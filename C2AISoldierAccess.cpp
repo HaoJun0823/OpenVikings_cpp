@@ -151,7 +151,7 @@ namespace NC2Logic
         for (auto id = vehicles.GetFirstSectorVehicleId(player, 0, 10000, true); id != -1; id = vehicles.GetNextSectorVehicleId())
         {
             auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) RefreshNeeds(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle));
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0) RefreshNeeds(Vehicle_Passengers_GetAttachedCommanderPtr(vehicle));
         }
     }
     // Original function: FUN_00473377.
@@ -167,7 +167,7 @@ namespace NC2Logic
         {
             auto* entry = entries + i * 28;
             const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, 8) == Read<std::uint32_t>(entry, 4) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) == Read<std::uint32_t>(handler, 0)) { ++i; continue; }
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) == Read<std::uint32_t>(entry, 4) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) == Read<std::uint32_t>(handler, 0)) { ++i; continue; }
             const auto remaining = Read<std::uint32_t>(handler, 0x5CB4) - i - 1;
             if (remaining != 0) NXBasics::Runtime_MoveMemory(entry, entry + 28, remaining * 28);
             Write(handler, 0x5CB4, Read<std::uint32_t>(handler, 0x5CB4) - 1);
@@ -181,10 +181,10 @@ namespace NC2Logic
             if (i != count) continue;
             auto* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
             std::byte command[20]{};
-            Write<std::uint8_t>(command, 0, 111); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)); Write(command, 4, id); Write(command, 8, Read<std::uint32_t>(vehicle, 8)); Write<std::uint32_t>(command, 12, 3);
+            Write<std::uint8_t>(command, 0, 111); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)); Write(command, 4, id); Write(command, 8, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); Write<std::uint32_t>(command, 12, 3);
             Vehicle_DoAddNewUserCommand(vehicle, command);
             auto* entry = entries + count * 28;
-            Write(entry, 0, id); Write(entry, 4, Read<std::uint32_t>(vehicle, 8)); Write<std::int32_t>(entry, 8, -1); Write<std::uint32_t>(entry, 12, 0);
+            Write(entry, 0, id); Write(entry, 4, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); Write<std::int32_t>(entry, 8, -1); Write<std::uint32_t>(entry, 12, 0);
             Write(handler, 0x5CB4, count + 1); if (count + 1 == 30) return;
         }
     }
@@ -194,9 +194,9 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x5CB4); ++i)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(handler, 0x5CB8 + i * 28) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0x2EC) != 0) continue;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::CommanderAttachedFlag) != 0) continue;
             auto* human = AISinglePlayerHandler_l_SingleSoldier_GetBestSoldier(handler, Vehicle_GetMapPositionRef(vehicle), 20);
-            if (human != nullptr) Human_DoAddNewUserCommand(human, 38, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(vehicle, 4), Read<std::uint32_t>(vehicle, 8));
+            if (human != nullptr) Human_DoAddNewUserCommand(human, 38, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId));
         }
     }
 

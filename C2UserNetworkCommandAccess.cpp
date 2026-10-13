@@ -89,7 +89,7 @@ namespace NC2Logic
         if (opcode > 0x63 && opcode < 0x74)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(command, 4) * CVehicleArray::ElementSize;
-            if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(command, 8)) return;
+            if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId) != Read<std::uint32_t>(command, 8)) return;
             if (opcode == 0x64) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId));
             else Vehicle_DoAddNewUserCommand(vehicle, command);
             return;
