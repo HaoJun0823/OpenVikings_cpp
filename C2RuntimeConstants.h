@@ -148,6 +148,7 @@ namespace NC2Runtime
     {
         inline constexpr auto RelocationThreshold = 5000u;
         inline constexpr auto FullStep = 10000u;
+        inline constexpr auto FullStepSigned = 10000;
     }
 
     namespace PathfinderDirectionResult

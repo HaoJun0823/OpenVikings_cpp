@@ -1555,31 +1555,31 @@ void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* displa
     (void)unusedEdx;
     using namespace NC2Lifetime;
     const auto moveableAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gMapMoveableArrayStorage.entries) + id * NC2Layout::RecordSize::MapMoveable); };
-    const auto vehicleAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CVehicleArray::mStaticVars) + id * 0x54Cu); };
+    const auto vehicleAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CVehicleArray::mStaticVars) + id * NC2Logic::CVehicleArray::ElementSize); };
     const void* moveable = moveableAt(moveableId);
-    if (Read<std::uint32_t>(moveable, 8) == 1)
+    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1)
     {
-        const void* human = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CHumanArray::mStaticVars) + Read<std::uint32_t>(moveable, 0x54) * 0xC58u);
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
-            moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(human, 0xB48)), 0x1DC));
+        const void* human = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CHumanArray::mStaticVars) + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CHumanArray::ElementSize);
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
+            moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)), NC2Layout::VehicleOffset::MapMoveableId));
     }
-    if (Read<std::uint32_t>(moveable, 8) == 3)
+    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 3)
     {
-        const void* vehicle = vehicleAt(Read<std::uint32_t>(moveable, 0x54));
+        const void* vehicle = vehicleAt(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
         // Original 0044DA5D only returns the attached byte; no generation validation.
-        if (Read<std::uint8_t>(vehicle, 0x548) != 0)
-            moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(vehicle, 0x540)), 0x1DC));
+        if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::InsideVehicleFlag) != 0)
+            moveable = moveableAt(Read<std::uint32_t>(vehicleAt(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::CarrierVehicleId)), NC2Layout::VehicleOffset::MapMoveableId));
     }
     const void* position = NC2Logic::MapMoveable_GetMapPositionRef(moveable);
     NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, point, false);
-    if (Read<std::uint8_t>(moveable, 0x2C) != 0 && Read<std::uint8_t>(moveable, 0x39) == 0)
+    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) == 0)
     {
-        std::uint32_t direction = Read<std::uint32_t>(moveable, 0x30), progress = Read<std::uint32_t>(moveable, 0x34);
+        std::uint32_t direction = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection), progress = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress);
         if (direction < 8)
         {
-            if (Read<std::uint8_t>(moveable, 0x38) != 0)
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) != 0)
             {
-                progress = 10000u - progress;
+                progress = NC2Runtime::WalkingProgress::FullStep - progress;
                 direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
             }
             std::int32_t start[2], end[2];
@@ -1587,8 +1587,8 @@ void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* displa
             std::uint32_t target = Read<std::uint32_t>(position, 0);
             NC2Logic::MapMigPoint_MoveCursorUnwrapped(target, direction);
             NC2E2::DisplayDescription_MapMigToWorldPixelCoordinates(display, target, end, true);
-            const std::int32_t dx = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[0]) - static_cast<std::uint32_t>(start[0])) * progress) / 10000;
-            const std::int32_t dy = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[1]) - static_cast<std::uint32_t>(start[1])) * progress) / 10000;
+            const std::int32_t dx = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[0]) - static_cast<std::uint32_t>(start[0])) * progress) / NC2Runtime::WalkingProgress::FullStepSigned;
+            const std::int32_t dy = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[1]) - static_cast<std::uint32_t>(start[1])) * progress) / NC2Runtime::WalkingProgress::FullStepSigned;
             point[0] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[0]) + static_cast<std::uint32_t>(dx));
             point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) + static_cast<std::uint32_t>(dy));
         }

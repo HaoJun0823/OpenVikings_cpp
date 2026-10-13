@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2VehicleAccess.h"
@@ -170,40 +171,40 @@ namespace NC2E2
     static void Display_DrawTooltipOverlay_MapMoveable(void* display, std::uint32_t moveableId, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
     {
         const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, moveableId * NC2Layout::RecordSize::MapMoveable);
-        if (Tooltip_ReadField<std::uint8_t>(moveable, 0x2C) != 0 && Tooltip_ReadField<std::uint8_t>(moveable, 0x39) == 0)
+        if (Tooltip_ReadField<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0 && Tooltip_ReadField<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) == 0)
         {
-            std::uint32_t direction = Tooltip_ReadField<std::uint32_t>(moveable, 0x30);
-            std::uint32_t progress = Tooltip_ReadField<std::uint32_t>(moveable, 0x34);
+            std::uint32_t direction = Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection);
+            std::uint32_t progress = Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress);
             if (direction < 8u)
             {
-                if (Tooltip_ReadField<std::uint8_t>(moveable, 0x38) != 0)
+                if (Tooltip_ReadField<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) != 0)
                 {
-                    progress = 10000u - progress;
+                    progress = NC2Runtime::WalkingProgress::FullStep - progress;
                     direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
                 }
                 std::int32_t start[2];
                 std::int32_t end[2];
                 std::uint32_t position = Tooltip_ReadField<std::uint32_t>(NC2Logic::MapMoveable_GetMapPositionRef(moveable), 0);
                 DisplayDescription_MapMigToWorldPixelCoordinates(display, position, start, true);
-                position = Tooltip_ReadField<std::uint32_t>(moveable, 0x12);
+                position = Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
                 NC2Logic::MapMigPoint_MoveCursorUnwrapped(position, direction);
                 DisplayDescription_MapMigToWorldPixelCoordinates(display, position, end, true);
-                const std::int32_t dx = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[0]) - static_cast<std::uint32_t>(start[0])) * progress) / 10000;
-                const std::int32_t dy = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[1]) - static_cast<std::uint32_t>(start[1])) * progress) / 10000;
+                const std::int32_t dx = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[0]) - static_cast<std::uint32_t>(start[0])) * progress) / NC2Runtime::WalkingProgress::FullStepSigned;
+                const std::int32_t dy = NXBasics::Runtime_TimeSigned32((static_cast<std::uint32_t>(end[1]) - static_cast<std::uint32_t>(start[1])) * progress) / NC2Runtime::WalkingProgress::FullStepSigned;
                 x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(x) + static_cast<std::uint32_t>(dx));
                 y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(dy));
             }
         }
 
         char text[100];
-        const std::uint32_t type = Tooltip_ReadField<std::uint32_t>(moveable, 8);
+        const std::uint32_t type = Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType);
         if (type == 3u)
         {
-            const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CVehicleArray::ElementSize);
-            if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E0) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
+            const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CVehicleArray::ElementSize);
+            if (Tooltip_ReadField<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
                 return;
-            Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8)));
-            if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8) != 5u)
+            Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Tooltip_ReadField<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType)));
+            if (Tooltip_ReadField<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) != 5u)
             {
                 STooltipGood goods[66];
                 std::uint32_t count = 0;
@@ -227,7 +228,7 @@ namespace NC2E2
             }
             if (NC2InGameGuiGroups::gObjectGroupManager != nullptr)
             {
-                const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfVehicle( Tooltip_ReadField<std::uint32_t>(vehicle, 4));
+                const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfVehicle( Tooltip_ReadField<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId));
                 if (slot != -1)
                 {
                     NXBasics::Runtime_PrintString(text, "%s: %d", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x32), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u));
@@ -238,16 +239,16 @@ namespace NC2E2
         else if (type == 1u)
         {
             // Inline the indexed human lookup performed by 0040211a.
-            const void* human = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CHumanArray::ElementSize);
-            const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(gDynamicDataHumans.entries, Tooltip_ReadField<std::uint32_t>(human, 4) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::NameUnsigned));
+            const void* human = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CHumanArray::ElementSize);
+            const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(gDynamicDataHumans.entries, Tooltip_ReadField<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::NameUnsigned));
             Display_DrawTooltipOverlay_String(display, bitmap, x, y, name);
-            if (Tooltip_ReadField<std::uint32_t>(human, 0x10) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
+            if (Tooltip_ReadField<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
                 return;
             if (!NC2Logic::Human_IsJobHero(human))
-                Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetJobNamePtr(Tooltip_ReadField<std::uint32_t>(human, 0x18), true));
+                Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetJobNamePtr(Tooltip_ReadField<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), true));
             if (NC2InGameGuiGroups::gObjectGroupManager != nullptr)
             {
-                const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman( Tooltip_ReadField<std::uint32_t>(human, 4));
+                const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman( Tooltip_ReadField<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
                 if (slot != -1)
                 {
                     NXBasics::Runtime_PrintString(text, "%s: %d", NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(0x32), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(slot) + 1u));
@@ -322,12 +323,12 @@ namespace NC2E2
     void Display_DrawTooltipOverlay_External_Vehicle(void* display, std::uint32_t vehicleId, NXBasics::CBitmap* bitmap, bool /*showGoods*/)
     {
         const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, vehicleId * NC2Logic::CVehicleArray::ElementSize);
-        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * NC2Layout::RecordSize::MapMoveable);
-        if (Tooltip_ReadField<std::uint8_t>(moveable, 0x10) == 0)
+        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable);
+        if (Tooltip_ReadField<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0)
             return;
         std::int32_t point[2];
         Display_MapMigToLocalDisplayPixelCoordinates(display, NC2Logic::Vehicle_GetMapPositionRef(vehicle), point, true);
-        Display_DrawTooltipOverlay_MapMoveable(display, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC), bitmap, point[0], point[1]);
+        Display_DrawTooltipOverlay_MapMoveable(display, Tooltip_ReadField<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId), bitmap, point[0], point[1]);
     }
 }
 
@@ -345,52 +346,52 @@ void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display)
     for (auto id = iterator.GetFirstMapMoveableId(); id != -1; id = iterator.GetNextMapMoveableId())
     {
         const auto moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable);
-        if (Read<std::uint8_t>(moveable, 0x10) == 0) continue;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) continue;
         std::int32_t pixel[2];
-        Display_MapMigToLocalDisplayPixelCoordinates(display, moveable + 0x12, pixel, false);
-        if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+        Display_MapMigToLocalDisplayPixelCoordinates(display, moveable + NC2Layout::MapMoveableOffset::MapPosition, pixel, false);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0)
         {
-            auto direction = Read<std::uint32_t>(moveable, 0x30);
-            auto progress = Read<std::uint32_t>(moveable, 0x34);
+            auto direction = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection);
+            auto progress = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress);
             if (direction < 8)
             {
-                if (Read<std::uint8_t>(moveable, 0x38) != 0) { progress = 10000u - progress; direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction); }
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) != 0) { progress = NC2Runtime::WalkingProgress::FullStep - progress; direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction); }
                 const auto horizontal = mul(dx[direction], Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalPixels)) / 2;
-                pixel[0] = add(pixel[0], mul(horizontal, progress) / 10000);
-                pixel[1] = add(pixel[1], mul(mul(dy[direction], Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels)), progress) / 10000);
+                pixel[0] = add(pixel[0], mul(horizontal, progress) / NC2Runtime::WalkingProgress::FullStepSigned);
+                pixel[1] = add(pixel[1], mul(mul(dy[direction], Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels)), progress) / NC2Runtime::WalkingProgress::FullStepSigned);
             }
         }
         auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         bitmap->Draw_Circle(pixel[0], pixel[1], 3, NXBasics::SColorRGB(255, 255, 255));
         const void* object;
         std::uint32_t mission;
-        if (Read<std::uint32_t>(moveable, 8) == 3)
+        if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 3)
         {
-            object = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(moveable, 0x54) * 0x54Cu);
+            object = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CVehicleArray::ElementSize);
             const auto type = NC2Logic::Vehicle_GetVehicleTypeDataPtr(object);
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "vehicleId: %d", Read<std::uint32_t>(object, 4));
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "player: %d", Read<std::uint32_t>(object, 0x1E0));
-            const auto tribe = NC2Logic::StaticTribeTypeData_GetNamePtr(Read<std::int32_t>(object, 0x1E4));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "vehicleId: %d", Read<std::uint32_t>(object, NC2Layout::VehicleOffset::VehicleId));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "player: %d", Read<std::uint32_t>(object, NC2Layout::VehicleOffset::PlayerId));
+            const auto tribe = NC2Logic::StaticTribeTypeData_GetNamePtr(Read<std::int32_t>(object, NC2Layout::VehicleOffset::TribeType));
             Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "tribe: %s", tribe);
             Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "type: %s", type);
-            mission = Read<std::uint32_t>(object, 0x51C);
+            mission = Read<std::uint32_t>(object, NC2Layout::VehicleOffset::MissionCheckId);
         }
-        else if (Read<std::uint32_t>(moveable, 8) == 2)
+        else if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 2)
         {
-            object = Tooltip_AddressAt(NC2Logic::CAnimalArray::mStaticVars, Read<std::uint32_t>(moveable, 0x54) * 0x98u);
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "animalId: %d", Read<std::uint32_t>(object, 4));
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "player: %d", Read<std::uint32_t>(object, 0x10));
-            const auto tribe = NC2Logic::StaticTribeTypeData_GetNamePtr(Read<std::int32_t>(object, 0x14));
+            object = Tooltip_AddressAt(NC2Logic::CAnimalArray::mStaticVars, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CAnimalArray::ElementSize);
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "animalId: %d", Read<std::uint32_t>(object, NC2Layout::AnimalOffset::AnimalId));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "player: %d", Read<std::uint32_t>(object, NC2Layout::AnimalOffset::PlayerId));
+            const auto tribe = NC2Logic::StaticTribeTypeData_GetNamePtr(Read<std::int32_t>(object, NC2Layout::AnimalOffset::TribeType));
             Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "tribe: %s", tribe);
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "job: %s", Tooltip_AddressAt(NC2Logic::gStaticAnimalTypeData, Read<std::uint32_t>(object, 0x18) * 0x88u));
-            mission = Read<std::uint32_t>(object, 0x8C);
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "job: %s", Tooltip_AddressAt(NC2Logic::gStaticAnimalTypeData, Read<std::uint32_t>(object, NC2Layout::AnimalOffset::AnimalType) * 0x88u));
+            mission = Read<std::uint32_t>(object, NC2Layout::AnimalOffset::MissionCheckId);
         }
-        else if (Read<std::uint32_t>(moveable, 8) == 1)
+        else if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1)
         {
-            object = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(moveable, 0x54) * 0xC58u);
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "humanId: %d", Read<std::uint32_t>(object, 4));
-            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "player: %d", Read<std::uint32_t>(object, 0x10));
-            mission = Read<std::uint32_t>(object, 0xB80);
+            object = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CHumanArray::ElementSize);
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "humanId: %d", Read<std::uint32_t>(object, NC2Layout::HumanOffset::HumanId));
+            Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "player: %d", Read<std::uint32_t>(object, NC2Layout::HumanOffset::PlayerId));
+            mission = Read<std::uint32_t>(object, NC2Layout::HumanOffset::MissionCheckId);
         }
         else continue;
         if (mission != 0) Display_DrawTooltipOverlay_StringV(display, bitmap, pixel[0], pixel[1], "missionId: %d", mission);
