@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2AIProduction.h"
 #include "C2AIBuildingAccess.h"
 #include "C2AIObjectAccess.h"
@@ -50,7 +51,7 @@ namespace NC2Logic
         const auto id = AIVillageManager_Good_GetWorkHouseId(village, good);
         if (id == -2) return -2;
         if (id == -1) { Write<std::int32_t>(producer, 0, -1); return 0; }
-        Write(producer, 8, id); Write(producer, 12, Read<std::uint32_t>(House(producer), 8));
+        Write(producer, 8, id); Write(producer, 12, Read<std::uint32_t>(House(producer), NC2Layout::HouseOffset::UniqueId));
         return 1;
     }
     // Original function: FUN_0045771e.

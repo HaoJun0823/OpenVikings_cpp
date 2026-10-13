@@ -38,7 +38,7 @@ namespace NC2Logic
     // Original function: FUN_00423060.
     void Game_SetSuppressVehicleWreckFlag(bool flag) { Write<std::uint8_t>(&gGameStaticVars, 0x1B1, flag); }
     // Original function: FUN_0042306a.
-    std::uint32_t __fastcall House_GetMissionCheckId(const void* house, void*) { return Read<std::uint32_t>(house, 0x7CC); }
+    std::uint32_t __fastcall House_GetMissionCheckId(const void* house, void*) { return Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId); }
     // Original function: FUN_004230d9.
     void* MarkerArray_GetExistingObjectPtr() { return gMarkerArray; }
     // Original function: FUN_004230df.

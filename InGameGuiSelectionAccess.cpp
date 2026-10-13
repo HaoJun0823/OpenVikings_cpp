@@ -132,7 +132,7 @@ namespace NC2InGameGuiInputManager
         {
             if (id == NXBasics::IntegerRange::UInt32Maximum) return;
             const auto* object = House(id);
-            if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
+            if (Read<std::uint8_t>(object, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(object, NC2Layout::HouseOffset::UniqueId) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x11, true, id, selected ? 3u : 2u, 0);
         }
 
@@ -350,7 +350,7 @@ namespace NC2InGameGuiInputManager
                 default: break;
                 }
             }
-            if (action == 0) { id = NC2Logic::Logic_EntryPoint_House_GetOnPosition(point); if (id != -1 && Read<std::uint32_t>(House(id), 0xC) == Player()) action = 6; }
+            if (action == 0) { id = NC2Logic::Logic_EntryPoint_House_GetOnPosition(point); if (id != -1 && Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::PlayerId) == Player()) action = 6; }
         }
         if (action != 0) *first = static_cast<std::uint32_t>(id);
         return static_cast<std::uint32_t>(action);
@@ -640,7 +640,7 @@ namespace NC2InGameGuiInputManager
                 case SwitchIds::InputMode::AttachLearnHouse: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsStudent(house, id); break;
                 case SwitchIds::InputMode::AttachBuildHouse: valid = NC2Logic::House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id); break;
                 case SwitchIds::InputMode::AttachTradeHouse: valid = merchant != nullptr && NC2Logic::MerchantData_Tool_CanHouseBeAdded(merchant, id, houseId); break;
-                case SwitchIds::InputMode::DetachTradeHouse: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, 8)); break;
+                case SwitchIds::InputMode::DetachTradeHouse: valid = merchant != nullptr && NC2Logic::MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); break;
                 }
                 return valid ? 3 : 1;
             });
@@ -676,7 +676,7 @@ namespace NC2InGameGuiInputManager
             {
                 const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
                 if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return 1;
-                return NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), 0x0C)) == 3 ? 3 : 1;
+                return NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), NC2Layout::HouseOffset::PlayerId)) == 3 ? 3 : 1;
             };
             return UpdateHighlightArea(rectangle, mark);
         }
@@ -879,7 +879,7 @@ namespace NC2InGameGuiInputManager
     bool Misc_House_IsEnemyToAttack(const void* manager, std::int32_t id)
     {
         const auto player = SelectedAttackPlayer(manager);
-        return player != -1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(id), 0x0C)) == 3;
+        return player != -1 && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(House(id), NC2Layout::HouseOffset::PlayerId)) == 3;
     }
 
     // Original function: FUN_004b799d; children are not attack targets.
@@ -1122,9 +1122,9 @@ namespace NC2InGameGuiInputManager
             std::byte command[20]{};
             const auto opcode = mode == 4 ? 26 : mode == 5 ? 28 : mode == 6 ? 32 : mode == 7 ? 30 : mode == 8 ? 36 : 37;
             Write<std::uint8_t>(command, 0, static_cast<std::uint8_t>(opcode)); Write(command, 4, Read<std::uint32_t>(manager, 8));
-            Write<std::uint32_t>(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(House(id), 8));
+            Write<std::uint32_t>(command, 0x0C, id); Write(command, 0x10, Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::UniqueId));
             NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
-            selectSchoolJob = mode == 6 && Read<std::uint32_t>(House(id), 0x14) == 38;
+            selectSchoolJob = mode == 6 && Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::LogicType) == 38;
             NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(manager, 8));
         }
         InputMode_Cancel(manager);

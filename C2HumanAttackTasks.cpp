@@ -68,7 +68,7 @@ namespace NC2Logic
     // Original function: FUN_0043499a; each engine footprint span advances only x.
     bool House_Military_GetNextFreeAttackPoint(const void* house, const void* source, void* point, const void* human, bool outside)
     {
-        auto stage = Read<std::uint32_t>(house, 0x20);
+        auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage);
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2) ++stage;
         const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         const auto* area = Read<const std::byte*>(graphics, 0x20u + stage * 4u);

@@ -42,7 +42,7 @@ namespace NC2Logic
     {
         if (Human_IsJobBuilder(human)) return 1;
         auto* house = House(id);
-        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != revision) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == id) return 1;
         if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
@@ -61,8 +61,8 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
         if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) { Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human); return 1; }
         auto* house = House(id);
-        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
-        if (Read<std::uint32_t>(house, 0x14) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, 0x17B) != 0) { Queue(human, 21, 31, 0); return 0; }
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != revision) return 1;
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, 0x17B) != 0) { Queue(human, 21, 31, 0); return 0; }
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 8)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 8); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
         SetCenter(human, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
@@ -82,7 +82,7 @@ namespace NC2Logic
         if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
         if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
         auto* house = House(id);
-        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != revision) return 1;
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 4)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 4); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
         SetCenter(human, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));

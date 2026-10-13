@@ -38,8 +38,8 @@ namespace NC2Logic
             if (index != count) continue;
             Write(handler, 0x3D64u + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
             Write(handler, 0x3D68u + count * 16u, point);
-            Write(handler, 0x3D6Cu + count * 16u, Read<std::uint32_t>(house, 0x20));
-            Write(handler, 0x3D70u + count * 16u, Read<std::uint32_t>(house, 0x7CC));
+            Write(handler, 0x3D6Cu + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
+            Write(handler, 0x3D70u + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
             Write(handler, 0x3D60, count + 1u);
         }
     }

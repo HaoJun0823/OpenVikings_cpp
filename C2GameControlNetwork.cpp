@@ -44,7 +44,7 @@ namespace NC2Logic
             for (std::int32_t id = 0; id < CHouseArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == player) CHouseArray::sTheObjectPtr->FreeHouse(id);
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == player) CHouseArray::sTheObjectPtr->FreeHouse(id);
             }
             for (std::int32_t id = 0; id < CHumanArray::sTheObjectPtr->mCapacity; ++id)
             {

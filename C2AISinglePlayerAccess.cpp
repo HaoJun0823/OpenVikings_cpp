@@ -89,7 +89,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, 0)); id != -1; id = iterator.GetNextHouseId())
         {
             auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 44) != 3 || House_GetHouseMainType(house) != 1) continue;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || House_GetHouseMainType(house) != 1) continue;
             const auto* definition = House_GetHouseTypeDataPtr(house);
             for (std::uint32_t i = 0; i < static_cast<std::uint32_t>(definition->stockCount); ++i)
             {
@@ -238,7 +238,7 @@ namespace NC2Logic
         if (stats == nullptr || Read<std::uint16_t>(stats, 0) == 0) return;
         CHouseIterator iterator;
         std::uint32_t building = 0;
-        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 44) != 3) ++building;
+        for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 3) ++building;
         if (building >= 3) return;
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x3D60); ++i)
         {

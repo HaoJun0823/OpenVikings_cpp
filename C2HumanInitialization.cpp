@@ -243,7 +243,7 @@ namespace NC2Logic
         const auto id = Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
         if (id == -1) return false;
         const void* house = House(id);
-        if (Read<std::uint32_t>(gStaticHouseTypeData, Read<std::uint32_t>(house, 0x14) * 0x624u) != 4) return false;
+        if (Read<std::uint32_t>(gStaticHouseTypeData, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) * 0x624u) != 4) return false;
         return House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4));
     }
     // Original function: FUN_0042c6aa.
@@ -306,7 +306,7 @@ namespace NC2Logic
         if (!Human_WorkCenterMarker_IsAllowed(human)) return false;
         if (Human_IsAttachedToWorkHouse(human))
         {
-            if (Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), 0x24) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter)) return false;
+            if (Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::DoorEntryPoint) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter)) return false;
         }
         else
         {
@@ -346,7 +346,7 @@ namespace NC2Logic
     void Human_l_AssignWorkHouse(void* human, std::uint32_t house)
     {
         Write(human, NC2Layout::HumanOffset::WorkAttachmentHouseId, house);
-        Write<std::uint32_t>(human, 0xB38, Read<std::uint32_t>(House(house), 8));
+        Write<std::uint32_t>(human, 0xB38, Read<std::uint32_t>(House(house), NC2Layout::HouseOffset::UniqueId));
         Human_SetupCurrentJobType(human);
         Human_Production_Update(human);
     }
@@ -358,7 +358,7 @@ namespace NC2Logic
         if (!Human_GetMapPosition(human, &point)) return false;
         const void* micro = GameMap_GetConstMapMicroPointPtr(&point);
         if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 2u) == 0) return false;
-        const auto type = Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), 0x14);
+        const auto type = Read<std::int32_t>(House(Read<std::uint16_t>(micro, 4)), NC2Layout::HouseOffset::LogicType);
         if (type >= 10 && type <= 11) return false;
         Write<std::uint8_t>(human, 0xB50, 1);
         return true;
@@ -408,7 +408,7 @@ namespace NC2Logic
         void* moveable = Moveable(moveableId);
         MapMoveable_Attachment_AttachToMap(moveable, point);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(House(Read<std::uint16_t>(micro, 4)), 0x2C) == 3) Human_HouseMisc_Enter(human);
+        if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(House(Read<std::uint16_t>(micro, 4)), NC2Layout::HouseOffset::ConstructionState) == 3) Human_HouseMisc_Enter(human);
         Write(human, NC2Layout::HumanOffset::TribeType, tribe);
         // Original outlined operation 00438CEC: clear cargo before notifying its change.
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);

@@ -190,7 +190,7 @@ namespace NC2Logic
             {
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5);
                 Write(human, NC2Layout::HumanOffset::TargetObjectId, id);
-                Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, 8));
+                Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 return;
             }
         }

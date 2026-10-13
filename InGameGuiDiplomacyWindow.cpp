@@ -115,7 +115,7 @@ namespace NC2InGameGuiMiscWindows
         else if (command == 12000)
         {
             const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + NC2Layout::HouseOffset::MapPosition));
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == param3) NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetDesktop(), 0x30), reinterpret_cast<const std::uint32_t*>(house + NC2Layout::HouseOffset::MapPosition));
         }
         else return true;
         NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(reinterpret_cast<NXBaseGui::CBaseWindow*>(window)); return true;
@@ -212,7 +212,7 @@ namespace NC2InGameGuiMiscWindows
                         const auto* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + offer * 24u;
                         const auto firstGood = Read<std::uint32_t>(agreement, 8), firstAmount = Read<std::uint32_t>(agreement, 12), secondGood = Read<std::uint32_t>(agreement, 16), secondAmount = Read<std::uint32_t>(agreement, 20);
                         char caption[260]; NXBasics::Runtime_PrintString(caption, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(356), secondAmount, NC2Logic::StringAccess_GetGoodNamePtr(secondGood, secondAmount), firstAmount, NC2Logic::StringAccess_GetGoodNamePtr(firstGood, firstAmount));
-                        auto* button = TextButton(window, row, caption, 12000, false); Write(button, 0x4C, id); Write(button, 0x50, Read<std::uint32_t>(house, 8)); BaseListBoxElement_Element_Add(list, nullptr, button); row.y += row.height + 2;
+                        auto* button = TextButton(window, row, caption, 12000, false); Write(button, 0x4C, id); Write(button, 0x50, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); BaseListBoxElement_Element_Add(list, nullptr, button); row.y += row.height + 2;
                     }
                 }
                 Add(window, list); const NXBasics::SRectangle scroll(476, 320, 20, 82);

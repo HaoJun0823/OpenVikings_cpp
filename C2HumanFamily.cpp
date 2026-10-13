@@ -32,12 +32,12 @@ namespace NC2Logic
         void AssignHome(void* human, std::uint32_t home)
         {
             Write(human, 0xB28, home);
-            Write(human, 0xB2C, Read<std::uint32_t>(House(home), 8));
+            Write(human, 0xB2C, Read<std::uint32_t>(House(home), NC2Layout::HouseOffset::UniqueId));
             House_Inhabitants_AttachHuman(House(home), Read<std::uint32_t>(human, 4), 1);
         }
         std::int32_t HomeDistance(std::uint32_t first, std::uint32_t second)
         {
-            return VE_HexagonDirection_GetDistance(Read<std::int16_t>(House(first), 0x1C), Read<std::int16_t>(House(first), 0x1E), Read<std::int16_t>(House(second), 0x1C), Read<std::int16_t>(House(second), 0x1E));
+            return VE_HexagonDirection_GetDistance(Read<std::int16_t>(House(first), NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(House(first), NC2Layout::HouseOffset::MapPositionY), Read<std::int16_t>(House(second), NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(House(second), NC2Layout::HouseOffset::MapPositionY));
         }
     }
 
@@ -51,7 +51,7 @@ namespace NC2Logic
     bool Human_IsAbleToGetPregnant(const void* human)
     {
         const auto home = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId);
-        return Human_IsSexFemale(human) && Human_IsMarried(human) && home != NXBasics::IntegerRange::UInt32Maximum && !Human_IsHavingChild(human) && Read<std::uint32_t>(House(home), 0x2C) == 3;
+        return Human_IsSexFemale(human) && Human_IsMarried(human) && home != NXBasics::IntegerRange::UInt32Maximum && !Human_IsHavingChild(human) && Read<std::uint32_t>(House(home), NC2Layout::HouseOffset::ConstructionState) == 3;
     }
 
     // Original function: FUN_0043c83b.
@@ -89,7 +89,7 @@ namespace NC2Logic
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (Human_IsAttachedToHomeHouse(human) && Human_DoExecuteUserCommand_DetachHomeHouse(human) == 0) return 1;
         auto* house = House(static_cast<std::uint32_t>(houseId));
-        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != revision) return 1;
         bool attached = true;
         if (Human_IsMarried(human))
         {
@@ -98,7 +98,7 @@ namespace NC2Logic
             if (attached)
             {
                 Write(partner, 0xB28, static_cast<std::uint32_t>(houseId));
-                Write(partner, 0xB2C, Read<std::uint32_t>(house, 8));
+                Write(partner, 0xB2C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 if (Human_IsSexMale(human)) { Write(partner, 0xB30, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)); Write<std::uint32_t>(partner, 0x38C, 0); Human_WorkCenterMarker_Update(partner); }
             }
         }
@@ -106,7 +106,7 @@ namespace NC2Logic
         {
             auto* child = Human(Read<std::uint32_t>(human, 0xB24));
             attached = House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 0xB24), 1);
-            if (attached) { Write(child, 0xB28, static_cast<std::uint32_t>(houseId)); Write(child, 0xB2C, Read<std::uint32_t>(house, 8)); }
+            if (attached) { Write(child, 0xB28, static_cast<std::uint32_t>(houseId)); Write(child, 0xB2C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); }
         }
         if (attached) attached = House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 1);
         if (!attached)
@@ -117,7 +117,7 @@ namespace NC2Logic
             return 1;
         }
         Write(human, NC2Layout::HumanOffset::HomeHouseId, static_cast<std::uint32_t>(houseId));
-        Write(human, 0xB2C, Read<std::uint32_t>(house, 8));
+        Write(human, 0xB2C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
         if (Human_IsSexFemale(human)) { Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)); Write<std::uint32_t>(human, 0x38C, 0); Human_WorkCenterMarker_Update(human); }
         return 2;
     }
@@ -192,7 +192,7 @@ namespace NC2Logic
         const auto firstBread = House_Stock_RequestAmountOfGoods(home, 16, false);
         const auto secondBread = House_Stock_RequestAmountOfGoods(home, 17, false);
         if (firstBread + secondBread < 2u || Human_IsJobIgnoringHomeHouse(Spouse(human)) || Human_IsDefendingHouse(human, -1)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
-        const auto real = Read<std::uint32_t>(home, 0x1C), work = Read<std::uint32_t>(home, 0x24);
+        const auto real = Read<std::uint32_t>(home, NC2Layout::HouseOffset::MapPosition), work = Read<std::uint32_t>(home, NC2Layout::HouseOffset::DoorEntryPoint);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition) != real) Human_Target_SetTargetPositions(human, &real, &work);
         if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(human, 0xA70))
         {
@@ -278,7 +278,7 @@ namespace NC2Logic
             {
                 House_Inhabitants_DetachHuman(House(home), Read<std::uint32_t>(human, 4), 1);
                 AssignHome(human, otherHome);
-                Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(House(otherHome), 0x24));
+                Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(House(otherHome), NC2Layout::HouseOffset::DoorEntryPoint));
                 Write<std::uint32_t>(human, 0x38C, 0);
                 Human_WorkCenterMarker_Update(human);
             }
@@ -292,7 +292,7 @@ namespace NC2Logic
         {
             const auto home = Read<std::uint32_t>(partner, 0xB28);
             AssignHome(human, home);
-            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(House(home), 0x24));
+            Write(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(House(home), NC2Layout::HouseOffset::DoorEntryPoint));
             Write<std::uint32_t>(human, 0x38C, 0);
             Human_WorkCenterMarker_Update(human);
         }
@@ -328,6 +328,6 @@ namespace NC2Logic
         if (!Human_IsAttachedToHomeHouse(human)) return;
         House_Inhabitants_AttachHuman(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, 0xB24), 1);
         Write(child, 0xB28, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId));
-        Write(child, 0xB2C, Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), 8));
+        Write(child, 0xB2C, Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), NC2Layout::HouseOffset::UniqueId));
     }
 }

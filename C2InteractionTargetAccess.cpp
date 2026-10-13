@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2InteractionTargetAccess.h"
@@ -179,7 +180,7 @@ namespace NC2Logic
         case SwitchIds::InteractionTargetType::House:
         {
             const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(target, 0x14) * CHouseArray::ElementSize;
-            return Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(target, 0x18) == Read<std::uint32_t>(house, 8) && Read<std::uint8_t>(house, 0x7D0) == 0;
+            return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(target, 0x18) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0;
         }
         case SwitchIds::InteractionTargetType::Vehicle:
         {

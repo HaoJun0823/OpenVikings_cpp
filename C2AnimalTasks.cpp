@@ -576,7 +576,7 @@ namespace NC2Logic
             if (Read<std::uint8_t>(animal, 0x94) == 0)
             {
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
-                if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 12) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId)) Write<std::uint8_t>(animal, 0x94, 1);
+                if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, NC2Layout::HouseOffset::PlayerId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId)) Write<std::uint8_t>(animal, 0x94, 1);
             }
             const auto task = Read<std::int32_t>(animal, 0x1C);
             if (task > 0 && task <= 10) Write<std::uint32_t>(animal, 0x20, 2);

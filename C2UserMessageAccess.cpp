@@ -147,7 +147,7 @@ namespace NC2Logic
         if (houseId != NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(message, 0x1C)) return false;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != Read<std::uint32_t>(message, 0x1C)) return false;
         }
         const auto vehicleId = Read<std::uint32_t>(message, 0x20);
         if (vehicleId != NXBasics::IntegerRange::UInt32Maximum)

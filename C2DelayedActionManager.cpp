@@ -71,9 +71,9 @@ namespace NC2Logic
         if (attackerType == 4)
         {
             const auto* house = House(attackerId);
-            action.attackerRevision = Read<std::uint32_t>(house, 8);
-            action.player = Read<std::uint32_t>(house, 12);
-            action.tribe = Read<std::uint32_t>(house, 0x18);
+            action.attackerRevision = Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId);
+            action.player = Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId);
+            action.tribe = Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType);
             action.sourcePosition = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
         }
         else if (attackerType == 2)
@@ -156,8 +156,8 @@ namespace NC2Logic
         if (Read<std::uint8_t>(micro, 0) == 2)
         {
             const auto* house = House(Read<std::uint16_t>(micro, 4));
-            if (Read<std::uint32_t>(house, 12) == action->player && weapon.hitSelf == 0) return;
-            const auto id = Read<std::uint32_t>(house, 4);
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == action->player && weapon.hitSelf == 0) return;
+            const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId);
             if (!Contains(targets, 4, id)) Add(targets, 4, id);
             return;
         }
@@ -190,8 +190,8 @@ namespace NC2Logic
                         const auto* nearby = GameMap_GetConstMapMicroPointPtr(&cursor);
                         if (Read<std::uint8_t>(nearby, 0) != 2) continue;
                         const auto* house = House(Read<std::uint16_t>(nearby, 4));
-                        if ((Read<std::uint32_t>(house, 12) == action->player && weapon.hitSelf == 0) || !House_IsPositionInHouse(house, point)) continue;
-                        const auto id = Read<std::uint32_t>(house, 4);
+                        if ((Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == action->player && weapon.hitSelf == 0) || !House_IsPositionInHouse(house, point)) continue;
+                        const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId);
                         if (!Contains(targets, 4, id) && !Add(targets, 4, id)) return;
                     }
             }
@@ -246,7 +246,7 @@ namespace NC2Logic
     // Original function: FUN_00434b86; row endpoints use an inclusive native comparison.
     bool House_IsPositionInHouse(const void* house, const void* point)
     {
-        const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
+        const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
         const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         const auto* area = Read<const CMapArea*>(data, 0x20u + stage * 4u);
         if (area == nullptr) return false;

@@ -56,7 +56,7 @@ namespace NC2Logic
             if (kind == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
                 auto* house = House(Read<std::uint16_t>(micro, 4));
-                if (Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 0x2C) != 3 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, 12) != data.player) return false;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player) return false;
                 if (House_Stock_CanStoreGoodType(house, data.good, true) && House_Stock_RequestAmountOfGoods(house, data.good, true) != 0)
                 {
                     data.houses[data.houseCount++] = house;
@@ -90,7 +90,7 @@ namespace NC2Logic
             {
                 if (Read<std::uint8_t>(micro, 0) != 2) return false;
                 auto* house = House(Read<std::uint16_t>(micro, 4));
-                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, 12) != data.player) return false;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player) return false;
                 if (!House_Stock_CanStoreGoodType(house, data.good, true) || House_Stock_RequestAmountOfGoods(house, data.good, true) == 0) return false;
             }
             data.point = Read<std::uint32_t>(point, 0);
@@ -104,7 +104,7 @@ namespace NC2Logic
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
             if (Read<std::uint8_t>(micro, 0) != 2 || (freeStock && (Read<std::uint8_t>(micro, 2) & 2u) == 0)) return false;
             auto* house = House(Read<std::uint16_t>(micro, 4));
-            if (Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 0x2C) != 3 || (House_GetHouseMainType(house) == 1) != freeStock || Read<std::uint32_t>(house, 12) != data.player) return false;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || (House_GetHouseMainType(house) == 1) != freeStock || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player) return false;
             if (!House_Stock_CanStoreGoodType(house, data.good, false) || House_Stock_IsFull(house, data.good) || !House_Stock_HasDemandForGood(house, data.good)) return false;
             data.houses[data.count++] = house;
             return data.count == (freeStock ? 2u : 1u);
@@ -176,7 +176,7 @@ namespace NC2Logic
             if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
                 auto* house = House(Read<std::uint16_t>(micro, 4));
-                if (House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, 12) != data.player || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                if (House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t i = 0; i < data.goodCount; ++i)
                 {
                     if (!House_Stock_CanStoreGoodType(house, data.goods[i], true) || House_Stock_RequestAmountOfGoods(house, data.goods[i], true) == 0) continue;
@@ -215,7 +215,7 @@ namespace NC2Logic
             if (type == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
                 auto* house = House(Read<std::uint16_t>(micro, 4));
-                if (House_GetHouseMainType(house) != 3 || Read<std::uint32_t>(house, 12) != data.player || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                if (House_GetHouseMainType(house) != 3 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t index = 0; index < data.goodCount; ++index)
                 {
                     if (!House_Stock_CanStoreGoodType(house, data.goods[index], true) || House_Stock_RequestAmountOfGoods(house, data.goods[index], true) == 0) continue;
@@ -250,7 +250,7 @@ namespace NC2Logic
             {
                 auto* house = House(Read<std::uint16_t>(micro, 4));
                 const auto mainType = House_GetHouseMainType(house);
-                if ((mainType != 3 && mainType != 1) || Read<std::uint32_t>(house, 12) != data.player || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                if ((mainType != 3 && mainType != 1) || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t index = 0; index < data.goodCount; ++index)
                 {
                     if (!House_Stock_CanStoreGoodType(house, data.goods[index], true) || House_Stock_RequestAmountOfGoods(house, data.goods[index], true) == 0) continue;
@@ -283,7 +283,7 @@ namespace NC2Logic
             if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
                 auto* house = House(Read<std::uint16_t>(micro, 4));
-                if (House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, 12) != data.player || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+                if (House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != data.player || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
                 for (std::uint32_t i = 0; i < data.goodCount; ++i)
                 {
                     if (!House_Stock_CanStoreGoodType(house, data.goods[i], true) || House_Stock_RequestAmountOfGoods(house, data.goods[i], true) == 0) continue;
@@ -589,7 +589,7 @@ namespace NC2Logic
     {
         SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         const void* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
-        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
             const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
             if (Read<std::uint32_t>(house, offset + 4) <= Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) continue;
@@ -648,7 +648,7 @@ namespace NC2Logic
     {
         SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         const void* house = House(Read<std::uint32_t>(human, 0xB3C));
-        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
             const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
             if (Read<std::uint32_t>(house, offset + 4) <= Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) continue;
@@ -665,7 +665,7 @@ namespace NC2Logic
             {
                 const auto wanted = data.goods[index];
                 if (!House_Stock_CanStoreGoodType(workshop, wanted, false) || House_Stock_RequestAmountOfGoods(workshop, wanted, false) == 0) continue;
-                Write(realPosition, 0, Read<std::uint32_t>(workshop, 0x1C));
+                Write(realPosition, 0, Read<std::uint32_t>(workshop, NC2Layout::HouseOffset::MapPosition));
                 House_Door_GetEntryPoint(workshop, workPosition);
                 *good = wanted;
                 return true;
@@ -778,7 +778,7 @@ namespace NC2Logic
     bool Human_FindGoodsDemandedForStockHouse(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
     {
         auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
-        if (Read<std::uint32_t>(house, 0x2C) != 3) return Human_FindGoodsDemandedForBuildHouse(human, realPosition, workPosition, good, source);
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return Human_FindGoodsDemandedForBuildHouse(human, realPosition, workPosition, good, source);
         SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         for (std::uint32_t wanted = 1; wanted <= 55; ++wanted)
         {
@@ -817,7 +817,7 @@ namespace NC2Logic
         const auto id = Logic_EntryPoint_House_GetOnPosition(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition);
         if (id == -1) return nullptr;
         auto* house = House(static_cast<std::uint32_t>(id));
-        return Read<std::uint8_t>(house, 0x7D0) == 0 ? house : nullptr;
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 ? house : nullptr;
     }
 
     // Original function: FUN_0042d768; validate only the explicit house target.
@@ -825,7 +825,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) != 5) return nullptr;
         auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectId));
-        return Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision) ? house : nullptr;
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision) ? house : nullptr;
     }
 
     // Original function: FUN_0045ca9a; destination reservation follows walk startup.
@@ -1312,7 +1312,7 @@ namespace NC2Logic
         const auto id = Logic_EntryPoint_House_GetOnPosition(point);
         if (id == -1) return nullptr;
         auto* house = House(static_cast<std::uint32_t>(id));
-        return Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 12) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) ? house : nullptr;
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) ? house : nullptr;
     }
 
 }

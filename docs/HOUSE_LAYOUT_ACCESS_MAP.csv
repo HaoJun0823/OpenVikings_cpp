@@ -1,0 +1,711 @@
+﻿Source,StageLine,OriginalExpression,Replacement,ReceiverEvidence,FieldEvidence
+C2AIAssistantAccess.cpp,67,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIAssistantAccess.cpp,68,36,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIAssistantAccess.cpp,81,36,NC2Layout::HouseOffset::DoorEntryPointX,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIAssistantAccess.cpp,81,38,NC2Layout::HouseOffset::DoorEntryPointY,house,House_ConstructMembers 0040AAD7 and door Y-coordinate accesses
+C2AIAssistantAccess.cpp,188,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIAssistantAccess.cpp,188,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIAssistantAccess.cpp,228,8,NC2Layout::HouseOffset::UniqueId,House(entry.house),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIBuildingAccess.cpp,165,0,NC2Layout::HouseOffset::AllocatedFlag,House(last),House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIBuildingAccess.cpp,171,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIBuildingAccess.cpp,175,0x24,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIBuildingAccess.cpp,195,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIBuildingAccess.cpp,195,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIBuildingAccess.cpp,195,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIBuildingAccess.cpp,195,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIBuildingAccess.cpp,205,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIBuildingAccess.cpp,205,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIBuildingAccess.cpp,205,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIBuildingAccess.cpp,205,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIBuildingAccess.cpp,213,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIBuildingAccess.cpp,215,0x10,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+C2AIBuildingAccess.cpp,235,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIBuildingAccess.cpp,235,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIBuildingAccess.cpp,235,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIBuildingAccess.cpp,235,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2AIBuildingAccess.cpp,235,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIGuideAccess.cpp,113,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIGuideAccess.cpp,114,28,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AIGuideAccess.cpp,115,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2AIGuideAccess.cpp,213,28,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AIHighLevelAccess.cpp,147,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIHighLevelAccess.cpp,147,36,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIHighLevelAccess.cpp,149,36,NC2Layout::HouseOffset::DoorEntryPointX,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIHighLevelAccess.cpp,149,38,NC2Layout::HouseOffset::DoorEntryPointY,house,House_ConstructMembers 0040AAD7 and door Y-coordinate accesses
+C2AIHighLevelAccess.cpp,150,36,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIHumanRequests.cpp,81,28,NC2Layout::HouseOffset::MapPosition,CHouseArray::mStaticVars + target * CHouseArray::ElementSize,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AIHumanRequests.cpp,137,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIHumanRequests.cpp,137,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIHumanRequests.cpp,137,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIHumanRequests.cpp,175,36,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIHumanRequests.cpp,177,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIHumanRequests.cpp,191,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIHumanRequests.cpp,192,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIHumanRequests.cpp,197,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIHumanRequests.cpp,210,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIHumanRequests.cpp,215,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMilitaryAccess.cpp,102,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIMilitaryAccess.cpp,116,36,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIMilitaryAccess.cpp,119,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2AIMilitaryAccess.cpp,119,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMilitaryAccess.cpp,218,36,NC2Layout::HouseOffset::DoorEntryPointX,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIMilitaryAccess.cpp,218,38,NC2Layout::HouseOffset::DoorEntryPointY,house,House_ConstructMembers 0040AAD7 and door Y-coordinate accesses
+C2AIMilitaryAccess.cpp,219,36,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIMilitaryAccess.cpp,222,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMilitaryAccess.cpp,605,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMovementMessages.cpp,37,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIMovementMessages.cpp,38,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIMovementMessages.cpp,38,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIMovementMessages.cpp,48,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2AIMovementMessages.cpp,70,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2AIMovementMessages.cpp,70,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMovementMessages.cpp,79,0,NC2Layout::HouseOffset::AllocatedFlag,CHouseArray::mStaticVars + static_cast<std::uint32_t>(cursor) * CHouseArray::ElementSize,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIMovementMessages.cpp,265,8,NC2Layout::HouseOffset::UniqueId,enemy,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMovementMessages.cpp,267,0xC,NC2Layout::HouseOffset::PlayerId,enemy,House_GetPlayerId 00433A95
+C2AIMovementMessages.cpp,273,8,NC2Layout::HouseOffset::UniqueId,enemy,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMovementMessages.cpp,277,8,NC2Layout::HouseOffset::UniqueId,enemy,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMovementMessages.cpp,472,12,NC2Layout::HouseOffset::PlayerId,enemy,House_GetPlayerId 00433A95
+C2AIMovementMessages.cpp,479,8,NC2Layout::HouseOffset::UniqueId,enemy,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIMovementMessages.cpp,482,8,NC2Layout::HouseOffset::UniqueId,enemy,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIObjectAccess.cpp,135,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIObjectAccess.cpp,135,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIObjectAccess.cpp,135,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIProduction.cpp,53,8,NC2Layout::HouseOffset::UniqueId,House(producer),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIRoadAccess.cpp,22,0,NC2Layout::HouseOffset::AllocatedFlag,CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIRoadAccess.cpp,30,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIRoadAccess.cpp,31,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIRoadAccess.cpp,41,20,NC2Layout::HouseOffset::LogicType,other,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIRoadAccess.cpp,51,0x24,NC2Layout::HouseOffset::DoorEntryPoint,other,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AISavegameAccess.cpp,41,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2AISavegameAccess.cpp,42,0x7CC,NC2Layout::HouseOffset::MissionCheckId,house,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2AISinglePlayerAccess.cpp,92,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AISinglePlayerAccess.cpp,92,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AISinglePlayerAccess.cpp,241,44,NC2Layout::HouseOffset::ConstructionState,CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AISoldierAccess.cpp,481,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2AITaskAccess.cpp,98,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2AITaskAccess.cpp,98,0x7CC,NC2Layout::HouseOffset::MissionCheckId,house,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2AIVillageAccess.cpp,208,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIVillageAccess.cpp,210,16,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+C2AIVillageAccess.cpp,210,32,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2AIVillageAccess.cpp,212,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIVillageAccess.cpp,246,16,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+C2AIVillageAccess.cpp,247,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIVillageAccess.cpp,248,32,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2AIVillageAccess.cpp,271,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIVillageAccess.cpp,277,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIVillageAccess.cpp,355,0,NC2Layout::HouseOffset::AllocatedFlag,CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AIVillageAccess.cpp,383,28,NC2Layout::HouseOffset::MapPositionX,House(id),House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AIVillageAccess.cpp,383,30,NC2Layout::HouseOffset::MapPositionY,House(id),House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2AIVillageAccess.cpp,399,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIVillageAccess.cpp,401,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIVillageAccess.cpp,415,36,NC2Layout::HouseOffset::DoorEntryPointX,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AIVillageAccess.cpp,415,38,NC2Layout::HouseOffset::DoorEntryPointY,house,House_ConstructMembers 0040AAD7 and door Y-coordinate accesses
+C2AIVillageAccess.cpp,418,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2AIVillageAccess.cpp,425,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2AIVillageAccess.cpp,425,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIVillageAccess.cpp,451,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIVillageAccess.cpp,452,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIVillageAccess.cpp,483,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2AIVillageAccess.cpp,487,28,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AIVillageAccess.cpp,488,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIVillageAccess.cpp,493,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AIVillageAccess.cpp,493,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2AIVillageAccess.cpp,499,28,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AIVillageAccess.cpp,499,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2AIVillageAccess.cpp,499,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AIVillageAccess.cpp,518,28,NC2Layout::HouseOffset::MapPosition,House(id),House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2AnimalAccess.cpp,214,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2AnimalAccess.cpp,217,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AnimalAccess.cpp,246,0x24,NC2Layout::HouseOffset::DoorEntryPoint,CHouseArray::mStaticVars + id * CHouseArray::ElementSize,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2AnimalAccess.cpp,257,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2AnimalAccess.cpp,259,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2AnimalTasks.cpp,579,12,NC2Layout::HouseOffset::PlayerId,"CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize",House_GetPlayerId 00433A95
+C2DefaultInteraction.cpp,123,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DefaultInteraction.cpp,128,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DefaultInteraction.cpp,134,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DefaultInteraction.cpp,135,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DefaultInteraction.cpp,136,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2DefaultInteraction.cpp,143,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DefaultInteraction.cpp,246,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2DefaultInteraction.cpp,249,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2DefaultInteraction.cpp,336,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2DefaultInteraction.cpp,336,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DefaultInteraction.cpp,382,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2DelayedActionManager.cpp,74,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2DelayedActionManager.cpp,75,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2DelayedActionManager.cpp,76,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2DelayedActionManager.cpp,159,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2DelayedActionManager.cpp,160,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2DelayedActionManager.cpp,193,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2DelayedActionManager.cpp,194,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2DelayedActionManager.cpp,249,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2E2HumanSoundAccess.cpp,125,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2E2HumanSoundAccess.cpp,129,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2E2HumanSoundAccess.cpp,133,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2E2HumanSoundAccess.cpp,134,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2EngineDisplayAccess.cpp,171,8,NC2Layout::HouseOffset::UniqueId,NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2EngineDrawingAccess.cpp,160,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2EngineHouseDrawing.cpp,55,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2EngineHouseDrawing.cpp,60,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineHouseDrawing.cpp,61,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2EngineHouseDrawing.cpp,62,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2EngineHouseDrawing.cpp,73,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2EngineHouseDrawing.cpp,127,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2EngineHouseDrawing.cpp,195,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2EngineHouseDrawing.cpp,201,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2EngineHouseDrawing.cpp,229,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2EngineHouseDrawing.cpp,250,0x10,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+C2EngineHouseDrawing.cpp,253,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineHouseDrawing.cpp,258,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineHouseDrawing.cpp,271,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineHouseDrawing.cpp,272,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2EngineHouseDrawing.cpp,273,0x10,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+C2EngineHouseDrawing.cpp,285,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2EngineHouseDrawing.cpp,304,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2EngineHouseDrawing.cpp,334,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineHouseDrawing.cpp,338,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2EngineHouseDrawing.cpp,376,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2EngineHouseDrawing.cpp,377,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineHouseDrawing.cpp,386,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2EngineHouseDrawing.cpp,387,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineMacroMaps.cpp,698,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2EngineMacroMaps.cpp,707,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2EngineMacroMaps.cpp,709,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2EngineMacroMaps.cpp,710,16,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+C2EngineMacroMaps.cpp,710,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2EngineSelectionAccess.cpp,116,8,NC2Layout::HouseOffset::UniqueId,House(houseId),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2EngineSelectionAccess.cpp,116,0xC,NC2Layout::HouseOffset::PlayerId,House(houseId),House_GetPlayerId 00433A95
+C2GameControlNetwork.cpp,47,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2GuideAccess.cpp,50,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2GuideAccess.cpp,72,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HouseAccess.cpp,56,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HouseAccess.cpp,56,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,77,0x7DC,NC2Layout::HouseOffset::BehaviourFlags,house,House_SetBehaviourFlag 004230B4 masks shift count and modifies DWORD
+C2HouseAccess.cpp,78,0x7DC,NC2Layout::HouseOffset::BehaviourFlags,house,House_SetBehaviourFlag 004230B4 masks shift count and modifies DWORD
+C2HouseAccess.cpp,85,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseAccess.cpp,85,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,89,0x7A8u,NC2Layout::HouseOffset::ActionOverlayCounters,house,Five remaining-duration DWORDs; overlay start/stop/update
+C2HouseAccess.cpp,99,0x640u,NC2Layout::HouseOffset::Attachments,house row-base arithmetic,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,109,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,122,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,124,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,141,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,144,0x104,NC2Layout::HouseOffset::ConstructionGoodsRequired,house,SHouseConstructionGoods.total; summed requirements and work-step allocation
+C2HouseAccess.cpp,145,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseAccess.cpp,146,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseAccess.cpp,147,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseAccess.cpp,156,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,158,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,163,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house row-base arithmetic,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HouseAccess.cpp,172,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,174,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,177,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house row-base arithmetic,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HouseAccess.cpp,179,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,191,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,193,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,197,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,199,0x644u,NC2Layout::HouseOffset::AttachmentHumanIds,house,"Interleaved attachment human IDs at record +4, stride 16"
+C2HouseAccess.cpp,216,0x430u,NC2Layout::HouseOffset::StockRequestCounters,house,66 counters: RequestAmountOfGoods increments/decreases; game-second upkeep decrements
+C2HouseAccess.cpp,218,0x538u,NC2Layout::HouseOffset::StockMinimumAmounts,house,House_Stock_SetMinimumValue 00431FD3 and related stock routing queries
+C2HouseAccess.cpp,289,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,298,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,333,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseAccess.cpp,385,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HouseAccess.cpp,387,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HouseAccess.cpp,396,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,405,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,414,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,427,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,429,0x644u,NC2Layout::HouseOffset::AttachmentHumanIds,house,"Interleaved attachment human IDs at record +4, stride 16"
+C2HouseAccess.cpp,433,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,434,0x644u,NC2Layout::HouseOffset::AttachmentHumanIds,house,"Interleaved attachment human IDs at record +4, stride 16"
+C2HouseAccess.cpp,448,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,448,0x644u,NC2Layout::HouseOffset::AttachmentHumanIds,house,"Interleaved attachment human IDs at record +4, stride 16"
+C2HouseAccess.cpp,457,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,458,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,469,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseAccess.cpp,469,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,473,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,475,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,475,0x644u,NC2Layout::HouseOffset::AttachmentHumanIds,house,"Interleaved attachment human IDs at record +4, stride 16"
+C2HouseAccess.cpp,482,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,494,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,519,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,521,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,534,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseAccess.cpp,535,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseAccess.cpp,536,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseAccess.cpp,536,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,540,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HouseAccess.cpp,551,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseAccess.cpp,551,0x784,NC2Layout::HouseOffset::HomeQualityEnhancer0Value,house,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseAccess.cpp,552,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseAccess.cpp,552,0x78C,NC2Layout::HouseOffset::HomeQualityEnhancer1Value,house,Second enhancer value
+C2HouseAccess.cpp,553,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseAccess.cpp,553,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,553,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,555,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,558,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,565,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,589,0x640u,NC2Layout::HouseOffset::Attachments,house row-base arithmetic,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseAccess.cpp,612,0x7A8u,NC2Layout::HouseOffset::ActionOverlayCounters,house row-base arithmetic,Five remaining-duration DWORDs; overlay start/stop/update
+C2HouseAccess.cpp,617,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseAccess.cpp,624,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,626,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,633,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,635,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,648,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseAccess.cpp,649,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseAccess.cpp,650,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseAccess.cpp,650,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,654,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,665,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseAccess.cpp,665,0x784,NC2Layout::HouseOffset::HomeQualityEnhancer0Value,house,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseAccess.cpp,666,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseAccess.cpp,666,0x78C,NC2Layout::HouseOffset::HomeQualityEnhancer1Value,house,Second enhancer value
+C2HouseAccess.cpp,667,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseAccess.cpp,667,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,667,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,669,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,673,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,680,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,711,0x784u,NC2Layout::HouseOffset::HomeQualityEnhancer0ValueUnsigned,house row-base arithmetic,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseAccess.cpp,733,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,735,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,754,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseAccess.cpp,754,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,755,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseAccess.cpp,756,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseAccess.cpp,778,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house row-base arithmetic,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HouseAccess.cpp,787,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HouseAccess.cpp,788,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HouseAccess.cpp,816,0x538u,NC2Layout::HouseOffset::StockMinimumAmounts,house,House_Stock_SetMinimumValue 00431FD3 and related stock routing queries
+C2HouseAccess.cpp,822,0x780u,NC2Layout::HouseOffset::HomeQualityEnhancersUnsigned,house row-base arithmetic,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseAccess.cpp,831,0x798,NC2Layout::HouseOffset::ProductionStoppedFlag,house,House_Production_SetStoppedFlag 0043349A
+C2HouseAccess.cpp,832,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,832,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,838,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,839,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,840,0x798,NC2Layout::HouseOffset::ProductionStoppedFlag,house,House_Production_SetStoppedFlag 0043349A
+C2HouseAccess.cpp,846,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,850,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,854,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseAccess.cpp,856,0x798,NC2Layout::HouseOffset::ProductionStoppedFlag,house,House_Production_SetStoppedFlag 0043349A
+C2HouseAccess.cpp,862,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,871,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseAccess.cpp,893,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,894,0x78C,NC2Layout::HouseOffset::HomeQualityEnhancer1Value,house,Second enhancer value
+C2HouseAccess.cpp,895,0x784,NC2Layout::HouseOffset::HomeQualityEnhancer0Value,house,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseAccess.cpp,897,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,905,0x220u,NC2Layout::HouseOffset::StockFractionalAmounts,house,66 base-ten fractional stock quantities; 00431B58 carry/borrow and 00431A88 float amount
+C2HouseAccess.cpp,905,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,923,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseAccess.cpp,923,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseAccess.cpp,936,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,937,0x78C,NC2Layout::HouseOffset::HomeQualityEnhancer1Value,house,Second enhancer value
+C2HouseAccess.cpp,938,0x784,NC2Layout::HouseOffset::HomeQualityEnhancer0Value,house,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseAccess.cpp,940,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,946,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,960,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,961,0x78C,NC2Layout::HouseOffset::HomeQualityEnhancer1Value,house,Second enhancer value
+C2HouseAccess.cpp,962,0x784,NC2Layout::HouseOffset::HomeQualityEnhancer0Value,house,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseAccess.cpp,964,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseAccess.cpp,970,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,971,0x430u,NC2Layout::HouseOffset::StockRequestCounters,house row-base arithmetic,66 counters: RequestAmountOfGoods increments/decreases; game-second upkeep decrements
+C2HouseAccess.cpp,985,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseAccess.cpp,987,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseAccess.cpp,990,0x108,NC2Layout::HouseOffset::ConstructionGoodsDelivered,house,House_l_Construction_PutGoodIntoStock increments after receiving one good
+C2HouseAccess.cpp,990,0x108,NC2Layout::HouseOffset::ConstructionGoodsDelivered,house,House_l_Construction_PutGoodIntoStock increments after receiving one good
+C2HouseAccess.cpp,1020,0x220u,NC2Layout::HouseOffset::StockFractionalAmounts,house,66 base-ten fractional stock quantities; 00431B58 carry/borrow and 00431A88 float amount
+C2HouseAccess.cpp,1021,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,1036,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HouseAccess.cpp,1037,0x220u,NC2Layout::HouseOffset::StockFractionalAmounts,house,66 base-ten fractional stock quantities; 00431B58 carry/borrow and 00431A88 float amount
+C2HouseConstruction.cpp,28,0x7DC,NC2Layout::HouseOffset::BehaviourFlags,house,House_SetBehaviourFlag 004230B4 masks shift count and modifies DWORD
+C2HouseConstruction.cpp,29,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseConstruction.cpp,30,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseConstruction.cpp,31,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseConstruction.cpp,40,0x640u,NC2Layout::HouseOffset::Attachments,house row-base arithmetic,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseConstruction.cpp,53,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseConstruction.cpp,55,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseConstruction.cpp,64,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,64,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseConstruction.cpp,65,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseConstruction.cpp,67,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseConstruction.cpp,76,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,76,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseConstruction.cpp,77,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseConstruction.cpp,79,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseConstruction.cpp,82,0x10C,NC2Layout::HouseOffset::ConstructionGoodsConsumed,house,House_Construction_DoUseOneGood increments after consuming one material
+C2HouseConstruction.cpp,83,0x10C,NC2Layout::HouseOffset::ConstructionGoodsConsumed,house,House_Construction_DoUseOneGood increments after consuming one material
+C2HouseConstruction.cpp,84,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseConstruction.cpp,91,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,91,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseConstruction.cpp,103,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,103,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseConstruction.cpp,105,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,105,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseConstruction.cpp,106,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,107,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,108,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseConstruction.cpp,116,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,116,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseConstruction.cpp,118,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,122,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,122,0x110,NC2Layout::HouseOffset::ConstructionStepLimit,house,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+C2HouseConstruction.cpp,123,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,124,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseConstruction.cpp,125,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseConstruction.cpp,131,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,131,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,133,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,135,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,137,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseConstruction.cpp,138,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseConstruction.cpp,147,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseConstruction.cpp,152,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseConstruction.cpp,168,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseConstruction.cpp,178,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,189,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseConstruction.cpp,212,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseConstruction.cpp,212,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,80,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HouseLifecycle.cpp,82,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HouseLifecycle.cpp,84,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,86,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,90,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HouseLifecycle.cpp,92,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HouseLifecycle.cpp,94,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HouseLifecycle.cpp,98,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,126,0x28,NC2Layout::HouseOffset::MappedFlag,house,House_Init sets after map/sector registration; House_Exit checks before clearing map/sector
+C2HouseLifecycle.cpp,132,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,136,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HouseLifecycle.cpp,137,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseLifecycle.cpp,138,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseLifecycle.cpp,139,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseLifecycle.cpp,143,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseLifecycle.cpp,144,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseLifecycle.cpp,146,0x7CC,NC2Layout::HouseOffset::MissionCheckId,house,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2HouseLifecycle.cpp,147,0x79C,NC2Layout::HouseOffset::ProductionCounter,house,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+C2HouseLifecycle.cpp,155,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HouseLifecycle.cpp,173,0x30,NC2Layout::HouseOffset::ConstructionStepsDone,house,House_Construction_DoOneStep and GetPercentage
+C2HouseLifecycle.cpp,173,0x34,NC2Layout::HouseOffset::ConstructionStepsRequired,house,House_l_Construction_InitConstruction: total materials times 30
+C2HouseLifecycle.cpp,174,0x7D2,NC2Layout::HouseOffset::DemolitionStepsDone,house,House_Misc_Destroy_House clears; House_DoOneGameTick increments WORD
+C2HouseLifecycle.cpp,175,0x7D4,NC2Layout::HouseOffset::DemolitionStepsRequired,house,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+C2HouseLifecycle.cpp,177,0x7D4,NC2Layout::HouseOffset::DemolitionStepsRequired,house,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+C2HouseLifecycle.cpp,178,0x7D4,NC2Layout::HouseOffset::DemolitionStepsRequired,house,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+C2HouseLifecycle.cpp,180,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,183,0x7D4,NC2Layout::HouseOffset::DemolitionStepsRequired,house,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+C2HouseLifecycle.cpp,184,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,185,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HouseLifecycle.cpp,191,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HouseLifecycle.cpp,201,0x28,NC2Layout::HouseOffset::MappedFlag,house,House_Init sets after map/sector registration; House_Exit checks before clearing map/sector
+C2HouseLifecycle.cpp,218,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,225,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HouseLifecycle.cpp,231,0x78C,NC2Layout::HouseOffset::HomeQualityEnhancer1Value,house,Second enhancer value
+C2HouseLifecycle.cpp,232,0x784,NC2Layout::HouseOffset::HomeQualityEnhancer0Value,house,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+C2HouseLifecycle.cpp,233,0x794,NC2Layout::HouseOffset::HomeQualityEnhancer2Value,house,"Third enhancer value, shared by holy-fire stock paths"
+C2HouseLifecycle.cpp,254,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,264,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HouseLifecycle.cpp,266,0x3Cu,NC2Layout::HouseOffset::ConstructionGoodEntries,house row-base arithmetic,"Ten construction/production good rows, native stride 20"
+C2HouseLifecycle.cpp,275,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HouseLifecycle.cpp,292,0x640u,NC2Layout::HouseOffset::Attachments,house row-base arithmetic,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseLifecycle.cpp,313,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0
+C2HouseLifecycle.cpp,314,0x644u,NC2Layout::HouseOffset::AttachmentHumanIds,house,"Interleaved attachment human IDs at record +4, stride 16"
+C2HouseLifecycle.cpp,322,0x7A8u,NC2Layout::HouseOffset::ActionOverlayCounters,house,Five remaining-duration DWORDs; overlay start/stop/update
+C2HouseLifecycle.cpp,323,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,331,0x7A8u,NC2Layout::HouseOffset::ActionOverlayCounters,house,Five remaining-duration DWORDs; overlay start/stop/update
+C2HouseLifecycle.cpp,340,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseLifecycle.cpp,387,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,388,0x7A4,NC2Layout::HouseOffset::NextSectorHouseId,house,House_l_AttachToSector/DetachFromSector successor linkage
+C2HouseLifecycle.cpp,389,0x7A0,NC2Layout::HouseOffset::PreviousSectorHouseId,CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize,House_l_AttachToSector/DetachFromSector predecessor linkage
+C2HouseLifecycle.cpp,389,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,390,0x7A0,NC2Layout::HouseOffset::PreviousSectorHouseId,house,House_l_AttachToSector/DetachFromSector predecessor linkage
+C2HouseLifecycle.cpp,401,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HouseLifecycle.cpp,405,0x7A4,NC2Layout::HouseOffset::NextSectorHouseId,house,House_l_AttachToSector/DetachFromSector successor linkage
+C2HouseLifecycle.cpp,407,0x7A0,NC2Layout::HouseOffset::PreviousSectorHouseId,CHouseArray::mStaticVars + static_cast<std::uint32_t>(next) * CHouseArray::ElementSize,House_l_AttachToSector/DetachFromSector predecessor linkage
+C2HouseLifecycle.cpp,414,0x7A4,NC2Layout::HouseOffset::NextSectorHouseId,entry,House_l_AttachToSector/DetachFromSector successor linkage
+C2HouseLifecycle.cpp,417,0x7A4,NC2Layout::HouseOffset::NextSectorHouseId,entry,House_l_AttachToSector/DetachFromSector successor linkage
+C2HouseLifecycle.cpp,417,0x7A4,NC2Layout::HouseOffset::NextSectorHouseId,house,House_l_AttachToSector/DetachFromSector successor linkage
+C2HousePeriodic.cpp,40,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HousePeriodic.cpp,47,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HousePeriodic.cpp,47,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2HousePeriodic.cpp,52,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HousePeriodic.cpp,54,0x7D2,NC2Layout::HouseOffset::DemolitionStepsDone,house,House_Misc_Destroy_House clears; House_DoOneGameTick increments WORD
+C2HousePeriodic.cpp,55,0x7D2,NC2Layout::HouseOffset::DemolitionStepsDone,house,House_Misc_Destroy_House clears; House_DoOneGameTick increments WORD
+C2HousePeriodic.cpp,56,0x7D4,NC2Layout::HouseOffset::DemolitionStepsRequired,house,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+C2HousePeriodic.cpp,56,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,57,0x7D4,NC2Layout::HouseOffset::DemolitionStepsRequired,house,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+C2HousePeriodic.cpp,57,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,64,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,65,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HousePeriodic.cpp,70,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HousePeriodic.cpp,70,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HousePeriodic.cpp,78,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HousePeriodic.cpp,90,0x1C,NC2Layout::HouseOffset::MapPosition,CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseFirst) * CHouseArray::ElementSize,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HousePeriodic.cpp,96,0x1C,NC2Layout::HouseOffset::MapPosition,CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseSecond) * CHouseArray::ElementSize,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HousePeriodic.cpp,103,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HousePeriodic.cpp,126,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,136,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HousePeriodic.cpp,155,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HousePeriodic.cpp,160,0x114,NC2Layout::HouseOffset::BuilderRecruitmentCounter,house,House_DoOneGameSecond counts recruitment delay and clamps at five
+C2HousePeriodic.cpp,163,0x114,NC2Layout::HouseOffset::BuilderRecruitmentCounter,house,House_DoOneGameSecond counts recruitment delay and clamps at five
+C2HousePeriodic.cpp,164,0x114,NC2Layout::HouseOffset::BuilderRecruitmentCounter,house,House_DoOneGameSecond counts recruitment delay and clamps at five
+C2HousePeriodic.cpp,167,0x114,NC2Layout::HouseOffset::BuilderRecruitmentCounter,house,House_DoOneGameSecond counts recruitment delay and clamps at five
+C2HousePeriodic.cpp,187,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,211,0x118u,NC2Layout::HouseOffset::StockAmounts,house,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+C2HousePeriodic.cpp,212,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HousePeriodic.cpp,213,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HousePeriodic.cpp,214,0x328u,NC2Layout::HouseOffset::FutureStockAmounts,house,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+C2HousePeriodic.cpp,218,0x430u,NC2Layout::HouseOffset::StockRequestCounters,house row-base arithmetic,66 counters: RequestAmountOfGoods increments/decreases; game-second upkeep decrements
+C2HousePeriodic.cpp,222,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HousePeriodic.cpp,234,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,241,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HousePeriodic.cpp,247,0x24,NC2Layout::HouseOffset::DoorEntryPointX,oldHouse,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HousePeriodic.cpp,247,0x26,NC2Layout::HouseOffset::DoorEntryPointY,oldHouse,House_ConstructMembers 0040AAD7 and door Y-coordinate accesses
+C2HousePeriodic.cpp,261,0x7A8u,NC2Layout::HouseOffset::ActionOverlayCounters,house row-base arithmetic,Five remaining-duration DWORDs; overlay start/stop/update
+C2HouseUserControl.cpp,32,0x1C,NC2Layout::HouseOffset::MapPosition,CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HouseUserControl.cpp,65,0x1C,NC2Layout::HouseOffset::MapPosition,CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HouseUserControl.cpp,84,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HouseUserControl.cpp,88,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HouseUserControl.cpp,88,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseUserControl.cpp,89,0x18,NC2Layout::HouseOffset::TribeType,house,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+C2HouseUserControl.cpp,94,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HouseUserControl.cpp,95,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HouseUserControl.cpp,95,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HouseUserControl.cpp,95,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HouseUserControl.cpp,95,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HouseUserControl.cpp,95,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HumanAnimalJobs.cpp,86,0x798,NC2Layout::HouseOffset::ProductionStoppedFlag,house,House_Production_SetStoppedFlag 0043349A
+C2HumanAnimalJobs.cpp,103,4,NC2Layout::HouseOffset::HouseId,currentHouse,House_Init stores the array ID; slot/free/message paths read it
+C2HumanAnimalJobs.cpp,103,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HumanAnimalJobs.cpp,109,0x24,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanAnimalJobs.cpp,117,0x1C,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanAnimalJobs.cpp,119,0x1C,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanAnimalJobs.cpp,127,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HumanAnimalJobs.cpp,186,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanAnimalJobs.cpp,190,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HumanAtomicEvents.cpp,60,0x24,NC2Layout::HouseOffset::DoorEntryPoint,House(id),House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanAtomicEvents.cpp,67,0x24,NC2Layout::HouseOffset::DoorEntryPoint,House(id),House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanAtomicEvents.cpp,183,0x1C,NC2Layout::HouseOffset::MapPosition,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId))",House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanAtomicEvents.cpp,184,0x1C,NC2Layout::HouseOffset::MapPosition,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))",House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanAttackTasks.cpp,71,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HumanCommandAccess.cpp,744,0,NC2Layout::HouseOffset::AllocatedFlag,target,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanCommandAccess.cpp,744,8,NC2Layout::HouseOffset::UniqueId,target,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanCommandAccess.cpp,750,0x1C,NC2Layout::HouseOffset::MapPosition,target,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanCommandAccess.cpp,1000,0x2C,NC2Layout::HouseOffset::ConstructionState,"CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanCommandAccess.cpp,1034,0x2C,NC2Layout::HouseOffset::ConstructionState,"CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanFamily.cpp,35,8,NC2Layout::HouseOffset::UniqueId,House(home),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanFamily.cpp,40,0x1C,NC2Layout::HouseOffset::MapPositionX,House(first),House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanFamily.cpp,40,0x1E,NC2Layout::HouseOffset::MapPositionY,House(first),House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2HumanFamily.cpp,40,0x1C,NC2Layout::HouseOffset::MapPositionX,House(second),House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanFamily.cpp,40,0x1E,NC2Layout::HouseOffset::MapPositionY,House(second),House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2HumanFamily.cpp,54,0x2C,NC2Layout::HouseOffset::ConstructionState,House(home),"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanFamily.cpp,92,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanFamily.cpp,92,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanFamily.cpp,101,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanFamily.cpp,109,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanFamily.cpp,120,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanFamily.cpp,195,0x1C,NC2Layout::HouseOffset::MapPosition,home,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanFamily.cpp,195,0x24,NC2Layout::HouseOffset::DoorEntryPoint,home,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanFamily.cpp,281,0x24,NC2Layout::HouseOffset::DoorEntryPoint,House(otherHome),House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanFamily.cpp,295,0x24,NC2Layout::HouseOffset::DoorEntryPoint,House(home),House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanFamily.cpp,331,8,NC2Layout::HouseOffset::UniqueId,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId))",House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanGoodieTasks.cpp,193,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanGoods.cpp,59,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,59,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanGoods.cpp,59,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,93,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,93,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,107,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,107,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanGoods.cpp,107,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,179,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,179,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,218,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,218,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,253,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,253,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,286,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanGoods.cpp,286,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,592,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HumanGoods.cpp,651,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+C2HumanGoods.cpp,668,0x1C,NC2Layout::HouseOffset::MapPosition,workshop,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanGoods.cpp,781,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanGoods.cpp,820,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,828,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanGoods.cpp,828,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanGoods.cpp,1315,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanGoods.cpp,1315,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanInitialization.cpp,246,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanInitialization.cpp,309,0x24,NC2Layout::HouseOffset::DoorEntryPoint,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))",House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanInitialization.cpp,349,8,NC2Layout::HouseOffset::UniqueId,House(house),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanInitialization.cpp,361,0x14,NC2Layout::HouseOffset::LogicType,"House(Read<std::uint16_t>(micro, 4))",House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanInitialization.cpp,411,0x2C,NC2Layout::HouseOffset::ConstructionState,"House(Read<std::uint16_t>(micro, 4))","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanJobAccess.cpp,378,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanJobAccess.cpp,378,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanJobAccess.cpp,498,0x780,NC2Layout::HouseOffset::HomeQualityEnhancers,house,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+C2HumanJobAccess.cpp,499,0x788,NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed,house,Second enhancer allowed flag
+C2HumanJobAccess.cpp,500,0x790,NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed,house,Third enhancer allowed flag
+C2HumanJobAccess.cpp,500,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+C2HumanJobAccess.cpp,828,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HumanMapCollection.cpp,99,0x2C,NC2Layout::HouseOffset::ConstructionState,WorkHouse(human),"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanMapCollection.cpp,167,0x2C,NC2Layout::HouseOffset::ConstructionState,WorkHouse(human),"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanMapCollection.cpp,396,0x798,NC2Layout::HouseOffset::ProductionStoppedFlag,WorkHouse(human),House_Production_SetStoppedFlag 0043349A
+C2HumanMapCollection.cpp,429,0x798,NC2Layout::HouseOffset::ProductionStoppedFlag,WorkHouse(human),House_Production_SetStoppedFlag 0043349A
+C2HumanMerchantAccess.cpp,32,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanMerchantAccess.cpp,32,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanMerchantAccess.cpp,32,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanMerchantAccess.cpp,37,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanMerchantAccess.cpp,134,0x0C,NC2Layout::HouseOffset::PlayerId,"House(Read<std::int32_t>(agreement, 0))",House_GetPlayerId 00433A95
+C2HumanMerchantAccess.cpp,144,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanMerchantAccess.cpp,145,0x0C,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanMerchantAccess.cpp,177,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanMerchantAccess.cpp,177,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanMerchantAccess.cpp,177,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanMerchantAccess.cpp,185,0x0C,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanMerchantAccess.cpp,191,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HumanMerchantAccess.cpp,191,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanMerchantAccess.cpp,259,0x0C,NC2Layout::HouseOffset::PlayerId,House(id),House_GetPlayerId 00433A95
+C2HumanNeeds.cpp,63,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanNeeds.cpp,63,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanNeeds.cpp,65,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanNeeds.cpp,87,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,House(id),House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HumanNeeds.cpp,92,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HumanNeeds.cpp,92,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2HumanNeeds.cpp,101,0x2C,NC2Layout::HouseOffset::ConstructionState,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanNeeds.cpp,483,0x2C,NC2Layout::HouseOffset::ConstructionState,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId))","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanNeeds.cpp,564,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanNeeds.cpp,564,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanNeeds.cpp,622,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanNeeds.cpp,622,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanNeeds.cpp,623,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2HumanNeeds.cpp,624,0x1C,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanProduction.cpp,139,0x2C,NC2Layout::HouseOffset::ConstructionState,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId))","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanProduction.cpp,164,0x1C,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanProduction.cpp,164,0x24,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanProduction.cpp,236,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanScout.cpp,149,0x2C,NC2Layout::HouseOffset::ConstructionState,CHouseArray::mStaticVars + static_cast<std::intptr_t>(houseId) * CHouseArray::ElementSize,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanTaskAccess.cpp,253,0x2C,NC2Layout::HouseOffset::ConstructionState,CHouseArray::mStaticVars + id * CHouseArray::ElementSize,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanTaskAccess.cpp,437,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,"CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize",House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+C2HumanTaskAccess.cpp,549,0x2C,NC2Layout::HouseOffset::ConstructionState,"CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize","House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanTransportJobs.cpp,272,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanTransportJobs.cpp,316,0x24,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2HumanTransportJobs.cpp,317,0x1C,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanVehicleJobs.cpp,61,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2HumanVehicleJobs.cpp,61,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanVehicleJobs.cpp,61,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanVehicleJobs.cpp,172,0,NC2Layout::HouseOffset::AllocatedFlag,site,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanVehicleJobs.cpp,179,0x14,NC2Layout::HouseOffset::LogicType,site,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanVehicleJobs.cpp,189,0x2C,NC2Layout::HouseOffset::ConstructionState,site,"House construction state machine 1=building, 2=upgrading, 3=finished"
+C2HumanVehicleJobs.cpp,248,8,NC2Layout::HouseOffset::UniqueId,"House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))",House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanWeaponEvents.cpp,80,0x1C,NC2Layout::HouseOffset::MapPosition,object,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2HumanWorkCommands.cpp,45,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanWorkCommands.cpp,45,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanWorkCommands.cpp,64,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanWorkCommands.cpp,64,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2HumanWorkCommands.cpp,65,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+C2HumanWorkCommands.cpp,85,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2HumanWorkCommands.cpp,85,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2InteractionTargetAccess.cpp,182,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2InteractionTargetAccess.cpp,182,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2InteractionTargetAccess.cpp,182,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2MilitaryTargetSearch.cpp,257,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2MissionExecution.cpp,165,0x7CC,NC2Layout::HouseOffset::MissionCheckId,house,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2MissionStartObjects.cpp,166,0x7CC,NC2Layout::HouseOffset::MissionCheckId,CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2MissionStartObjects.cpp,177,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2MissionStartObjects.cpp,177,0x7D0,NC2Layout::HouseOffset::DemolitionFlag,house,House_Misc_Destroy_House sets; tick/second/command paths check
+C2MissionStartObjects.cpp,177,0x7CC,NC2Layout::HouseOffset::MissionCheckId,house,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2MissionStartObjects.cpp,202,8,NC2Layout::HouseOffset::UniqueId,House(home),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2MissionStartObjects.cpp,220,0x1C,NC2Layout::HouseOffset::MapPositionX,workHouse,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2MissionStartObjects.cpp,220,0x1E,NC2Layout::HouseOffset::MapPositionY,workHouse,House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2MissionStartObjects.cpp,220,0x1C,NC2Layout::HouseOffset::MapPositionX,firstHome,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2MissionStartObjects.cpp,220,0x1E,NC2Layout::HouseOffset::MapPositionY,firstHome,House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2MissionStartObjects.cpp,221,0x1C,NC2Layout::HouseOffset::MapPositionX,workHouse,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2MissionStartObjects.cpp,221,0x1E,NC2Layout::HouseOffset::MapPositionY,workHouse,House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2MissionStartObjects.cpp,221,0x1C,NC2Layout::HouseOffset::MapPositionX,secondHome,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+C2MissionStartObjects.cpp,221,0x1E,NC2Layout::HouseOffset::MapPositionY,secondHome,House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+C2MissionStartObjects.cpp,311,8,NC2Layout::HouseOffset::UniqueId,House(currentId),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2MissionStartObjects.cpp,346,8,NC2Layout::HouseOffset::UniqueId,House(house),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2MissionStartObjects.cpp,347,8,NC2Layout::HouseOffset::UniqueId,House(house),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2MissionStartObjects.cpp,348,8,NC2Layout::HouseOffset::UniqueId,House(house),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2ScriptObjectAccess.cpp,41,0x7CC,NC2Layout::HouseOffset::MissionCheckId,house,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+C2UserMessageAccess.cpp,150,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2UserMessageAccess.cpp,150,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2UserNetworkCommandAccess.cpp,68,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+C2UserNetworkCommandAccess.cpp,68,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+C2VehicleSimulation.cpp,606,0x24,NC2Layout::HouseOffset::DoorEntryPoint,CHouseArray::mStaticVars + TargetData_GetObjectId(target) * CHouseArray::ElementSize,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+C2WeaponHits.cpp,80,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+C2WeaponHits.cpp,88,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+C2WeaponHits.cpp,98,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+C2WeaponHits.cpp,99,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiDiplomacyWindow.cpp,118,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiDiplomacyWindow.cpp,118,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiDiplomacyWindow.cpp,215,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiHouseGoodTypeElement.cpp,26,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiHouseGoodTypeElement.cpp,26,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiHouseGoodTypeElement.cpp,32,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiHouseGoodTypeElement.cpp,32,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiHouseGoodTypeElement.cpp,35,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiHouseInhabitantsElement.cpp,39,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiHouseInhabitantsElement.cpp,39,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiHouseInhabitantsElement.cpp,47,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiHouseInhabitantsElement.cpp,47,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiHouseInhabitantsElement.cpp,57,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+InGameGuiHouseInhabitantsElement.cpp,57,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+InGameGuiHouseInhabitantsElement.cpp,58,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+InGameGuiHouseInhabitantsElement.cpp,58,0x24,NC2Layout::HouseOffset::DoorEntryPoint,house,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+InGameGuiHouseWindow.cpp,58,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiHouseWindow.cpp,60,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+InGameGuiHouseWindow.cpp,60,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiHouseWindow.cpp,60,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+InGameGuiHouseWindow.cpp,90,0x10,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+InGameGuiHouseWindow.cpp,90,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+InGameGuiHouseWindow.cpp,105,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+InGameGuiHouseWindow.cpp,107,0xC,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+InGameGuiHouseWindow.cpp,107,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+InGameGuiHouseWindow.cpp,112,0x1C,NC2Layout::HouseOffset::MapPosition,house,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+InGameGuiHouseWindow.cpp,114,0x10,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+InGameGuiHouseWindow.cpp,114,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+InGameGuiHouseWindow.cpp,132,0x10,NC2Layout::HouseOffset::EngineType,house,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+InGameGuiHouseWindow.cpp,135,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiHouseWindow.cpp,135,0x7C8,NC2Layout::HouseOffset::Hitpoints,house,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+InGameGuiHouseWindow.cpp,135,0x20,NC2Layout::HouseOffset::DevelopmentStage,house,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+InGameGuiHouseWindow.cpp,136,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+InGameGuiHouseWindow.cpp,136,0x7D8,NC2Layout::HouseOffset::DefenceModeFlag,house,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+InGameGuiHouseWindow.cpp,136,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiHouseWindow.cpp,137,0x2C,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+InGameGuiHouseWindow.cpp,137,0x38,NC2Layout::HouseOffset::ConstructionGoodsCount,house,Embedded SHouseConstructionGoods.count; calculation and material scans
+InGameGuiHouseWindow.cpp,137,0x3C,NC2Layout::HouseOffset::ConstructionGoodEntriesSigned,house,"Ten construction/production good rows, native stride 20"
+InGameGuiHouseWindow.cpp,142,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiHouseWindow.cpp,157,12,NC2Layout::HouseOffset::PlayerId,house,House_GetPlayerId 00433A95
+InGameGuiHouseWindow.cpp,157,44,NC2Layout::HouseOffset::ConstructionState,house,"House construction state machine 1=building, 2=upgrading, 3=finished"
+InGameGuiHouseWindow.cpp,157,20,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiMousePointer.cpp,181,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiMousePointer.cpp,184,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiObservationWindow.cpp,71,8,NC2Layout::HouseOffset::UniqueId,CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSelectionAccess.cpp,135,0,NC2Layout::HouseOffset::AllocatedFlag,object,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiSelectionAccess.cpp,135,8,NC2Layout::HouseOffset::UniqueId,object,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSelectionAccess.cpp,353,0xC,NC2Layout::HouseOffset::PlayerId,House(id),House_GetPlayerId 00433A95
+InGameGuiSelectionAccess.cpp,643,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSelectionAccess.cpp,679,0x0C,NC2Layout::HouseOffset::PlayerId,"House(Read<std::uint16_t>(micro, 4))",House_GetPlayerId 00433A95
+InGameGuiSelectionAccess.cpp,882,0x0C,NC2Layout::HouseOffset::PlayerId,House(id),House_GetPlayerId 00433A95
+InGameGuiSelectionAccess.cpp,1125,8,NC2Layout::HouseOffset::UniqueId,House(id),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSelectionAccess.cpp,1127,0x14,NC2Layout::HouseOffset::LogicType,House(id),House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiSelectionWindowAccess.cpp,332,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+InGameGuiSelectionWindowAccess.cpp,332,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSelectionWindowAccess.cpp,634,0x14,NC2Layout::HouseOffset::LogicType,NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiSelectionWindowAccess.cpp,821,0x14,NC2Layout::HouseOffset::LogicType,NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiSelectionWindowAccess.cpp,942,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiSelectionWindowAccess.cpp,942,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSelectionWindowAccess.cpp,951,0,NC2Layout::HouseOffset::AllocatedFlag,house,House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiSelectionWindowAccess.cpp,951,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSingleVehicleWindow.cpp,88,0x14,NC2Layout::HouseOffset::LogicType,house,House_Init/upgrade and House_GetHouseTypeDataPtr
+InGameGuiSingleVehicleWindow.cpp,88,4,NC2Layout::HouseOffset::HouseId,house,House_Init stores the array ID; slot/free/message paths read it
+InGameGuiSingleVehicleWindow.cpp,88,8,NC2Layout::HouseOffset::UniqueId,house,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSingleVehicleWindow.cpp,124,0,NC2Layout::HouseOffset::AllocatedFlag,House(second),House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiSingleVehicleWindow.cpp,124,8,NC2Layout::HouseOffset::UniqueId,House(second),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSingleVehicleWindow.cpp,126,0,NC2Layout::HouseOffset::AllocatedFlag,House(second),House_Init/Exit and CArrayHandler occupied-slot scans
+InGameGuiSingleVehicleWindow.cpp,126,8,NC2Layout::HouseOffset::UniqueId,House(second),House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiSupportAccess.cpp,178,8,NC2Layout::HouseOffset::UniqueId,NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+InGameGuiTraderConfigWindow.cpp,84,0x0C,NC2Layout::HouseOffset::PlayerId,"House(Read<std::int32_t>(data, 0))",House_GetPlayerId 00433A95
+WorldDisplayElementAccess.cpp,108,0x640u,NC2Layout::HouseOffset::Attachments,house,Twenty inhabitant attachment records at stride 16; role byte at record +0

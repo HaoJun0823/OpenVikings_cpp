@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2AIHumanRequests.h"
 #include "C2LifetimeAccess.h"
 #include "C2AISinglePlayerAccess.h"
@@ -78,7 +79,7 @@ namespace NC2Logic
     {
         if (!gAISearchHumanPointInitialized) { gAISearchHumanPointInitialized = true; gAISearchHumanPoint = 0; NXBasics::Runtime_AtExit(AISearchHumanPoint_Destruct); }
         if (mapPosition) MapMigPoint_AssignLong(&gAISearchHumanPoint, target);
-        else gAISearchHumanPoint = Read<std::uint32_t>(CHouseArray::mStaticVars + target * CHouseArray::ElementSize, 28);
+        else gAISearchHumanPoint = Read<std::uint32_t>(CHouseArray::mStaticVars + target * CHouseArray::ElementSize, NC2Layout::HouseOffset::MapPosition);
         std::int32_t result = -1, bestDistance = 10000;
         CHumanIterator iterator;
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
@@ -134,7 +135,7 @@ namespace NC2Logic
             if (type != 3 && type != 4)
             {
                 house = CHouseArray::mStaticVars + Read<std::uint32_t>(request, 4) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(request, 8)) { Write<std::uint32_t>(request, 0, 0); continue; }
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != Read<std::uint32_t>(request, 8)) { Write<std::uint32_t>(request, 0, 0); continue; }
             }
             auto* human = Human(Read<std::uint32_t>(request, 12));
             if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(request, 16) || Human_IsJobScout(human)) { Write<std::uint32_t>(request, 0, 0); continue; }
@@ -172,9 +173,9 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
             auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (AISinglePlayerHandler_l_IsEnemySodlierOrVehicleNearPosition(handler, static_cast<std::byte*>(house) + 36) || House_GetHouseMainType(house) == 6) continue;
+            if (AISinglePlayerHandler_l_IsEnemySodlierOrVehicleNearPosition(handler, static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint) || House_GetHouseMainType(house) == 6) continue;
             const auto* definition = House_GetHouseTypeDataPtr(house);
-            const bool finished = Read<std::uint32_t>(house, 44) == 3;
+            const bool finished = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3;
             if (finished && !House_HitPoints_IsDamaged(house))
             {
                 if (House_GetHouseMainType(house) == 5) continue;
@@ -188,13 +189,13 @@ namespace NC2Logic
                     const auto humanId = AISinglePlayerHandler_l_Misc_SearchHuman(handler, id, 1, 80, false);
                     if (humanId == -1) continue;
                     auto* human = Human(humanId);
-                    if (Read<std::uint32_t>(human, 24) == static_cast<std::uint32_t>(job)) Send(human, 28, id, Read<std::uint32_t>(house, 8));
-                    else if (auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler)) { CreateRequest(request, 1, id, Read<std::uint32_t>(house, 8), humanId, job); Send(human, 21, job, 0); }
+                    if (Read<std::uint32_t>(human, 24) == static_cast<std::uint32_t>(job)) Send(human, 28, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                    else if (auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler)) { CreateRequest(request, 1, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId), humanId, job); Send(human, 21, job, 0); }
                 }
                 else if (House_GetHouseMainType(house) == 2 && House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(definition->homeSize))
                 {
                     const auto humanId = AISinglePlayerHandler_l_Misc_SearchHuman(handler, id, 5, 80, false);
-                    if (humanId != -1) Send(Human(humanId), 26, id, Read<std::uint32_t>(house, 8));
+                    if (humanId != -1) Send(Human(humanId), 26, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 }
             }
             else
@@ -207,12 +208,12 @@ namespace NC2Logic
                     const auto humanId = AISinglePlayerHandler_l_Misc_SearchHuman(handler, id, 2, 400, false);
                     if (humanId == -1) break;
                     auto* human = Human(humanId);
-                    if (Read<std::uint32_t>(human, 24) == 7) Send(human, 30, id, Read<std::uint32_t>(house, 8));
+                    if (Read<std::uint32_t>(human, 24) == 7) Send(human, 30, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                     else
                     {
                         auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler);
                         if (request == nullptr) break;
-                        CreateRequest(request, 2, id, Read<std::uint32_t>(house, 8), humanId, 7); Send(human, 21, 7, 0);
+                        CreateRequest(request, 2, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId), humanId, 7); Send(human, 21, 7, 0);
                     }
                 }
             }

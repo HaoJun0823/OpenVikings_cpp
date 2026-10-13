@@ -38,20 +38,81 @@ namespace NC2Layout
         inline constexpr auto PackingScratchBuffer = 0x38;
     }
 
+    namespace HouseAttachmentOffset
+    {
+        inline constexpr auto RoleMask = 0;
+        inline constexpr auto HumanId = 4;
+        inline constexpr auto TrainingJobType = 8;
+        inline constexpr auto TrainingGoodType = 12;
+    }
+
+    namespace HouseConstructionGoodOffset
+    {
+        inline constexpr auto GoodType = 0;
+        inline constexpr auto RequiredAmount = 4;
+        inline constexpr auto DeliveredAmount = 8;
+        inline constexpr auto IncomingAmount = 12;
+        inline constexpr auto ConsumedAmount = 16;
+    }
+
     namespace HouseOffset
     {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto HouseId = 4;
+        inline constexpr auto UniqueId = 8;
         inline constexpr auto PlayerId = 0x0C;
         inline constexpr auto EngineType = 0x10;
         inline constexpr auto LogicType = 0x14;
+        inline constexpr auto TribeType = 0x18;
         inline constexpr auto MapPosition = 0x1C;
         inline constexpr auto MapPositionX = 0x1C;
         inline constexpr auto MapPositionY = 0x1E;
+        inline constexpr auto DevelopmentStage = 0x20;
         inline constexpr auto DoorEntryPoint = 0x24;
         inline constexpr auto DoorEntryPointX = 0x24;
         inline constexpr auto DoorEntryPointY = 0x26;
+        inline constexpr auto MappedFlag = 0x28;
         inline constexpr auto ConstructionState = 0x2C;
+        inline constexpr auto ConstructionStepsDone = 0x30;
+        inline constexpr auto ConstructionStepsRequired = 0x34;
+        inline constexpr auto ConstructionGoodsCount = 0x38;
+        inline constexpr auto ConstructionGoodEntries = 0x3Cu;
+        inline constexpr auto ConstructionGoodEntriesSigned = 0x3C;
+        inline constexpr auto ConstructionGoodRequiredAmounts = 0x40u;
+        inline constexpr auto ConstructionGoodsRequired = 0x104;
+        inline constexpr auto ConstructionGoodsDelivered = 0x108;
+        inline constexpr auto ConstructionGoodsConsumed = 0x10C;
+        inline constexpr auto ConstructionStepLimit = 0x110;
+        inline constexpr auto BuilderRecruitmentCounter = 0x114;
+        inline constexpr auto StockAmounts = 0x118u;
+        inline constexpr auto StockFractionalAmounts = 0x220u;
+        inline constexpr auto FutureStockAmounts = 0x328u;
+        inline constexpr auto StockRequestCounters = 0x430u;
+        inline constexpr auto StockMinimumAmounts = 0x538u;
+        inline constexpr auto Attachments = 0x640u;
+        inline constexpr auto AttachmentHumanIds = 0x644u;
+        inline constexpr auto HomeQualityEnhancers = 0x780;
+        inline constexpr auto HomeQualityEnhancersUnsigned = 0x780u;
+        inline constexpr auto HomeQualityEnhancer0Value = 0x784;
+        inline constexpr auto HomeQualityEnhancer0ValueUnsigned = 0x784u;
+        inline constexpr auto HomeQualityEnhancer1Allowed = 0x788;
+        inline constexpr auto HomeQualityEnhancer1Value = 0x78C;
+        inline constexpr auto HomeQualityEnhancer2Allowed = 0x790;
+        inline constexpr auto HomeQualityEnhancer2Value = 0x794;
+        inline constexpr auto ProductionStoppedFlag = 0x798;
+        inline constexpr auto ProductionCounter = 0x79C;
+        inline constexpr auto PreviousSectorHouseId = 0x7A0;
+        inline constexpr auto NextSectorHouseId = 0x7A4;
+        inline constexpr auto ActionOverlayCounters = 0x7A8u;
         inline constexpr auto LandscapeOverlayActiveFlags = 0x7BCu;
         inline constexpr auto LandscapeOverlayActiveFlagsSigned = 0x7BC;
+        inline constexpr auto Hitpoints = 0x7C8;
+        inline constexpr auto MissionCheckId = 0x7CC;
+        inline constexpr auto DemolitionFlag = 0x7D0;
+        inline constexpr auto DemolitionStepsDone = 0x7D2;
+        inline constexpr auto DemolitionStepsRequired = 0x7D4;
+        inline constexpr auto DefenceModeFlag = 0x7D8;
+        inline constexpr auto BehaviourFlags = 0x7DC;
     }
 
     namespace HumanOffset
@@ -143,6 +204,9 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HouseQualityEnhancer = 8u;
+        inline constexpr auto HouseAttachment = 16u;
+        inline constexpr auto HouseConstructionGood = 20u;
         inline constexpr auto MapMoveable = 0x58u;
         inline constexpr auto MapMoveableSigned = 0x58;
         inline constexpr auto JobType = 0x88u;

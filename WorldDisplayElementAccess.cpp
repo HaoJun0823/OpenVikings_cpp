@@ -105,7 +105,7 @@ namespace NC2InGameGuiWorldElement
             if (Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
                 for (std::uint32_t i = 0; i < 20; ++i)
                 {
-                    const auto* slot = house + 0x640u + i * 0x10u;
+                    const auto* slot = house + NC2Layout::HouseOffset::Attachments + i * 0x10u;
                     if (Read<std::uint8_t>(slot, 0) != 0) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, Read<std::uint32_t>(slot, 4));
                 }
         }

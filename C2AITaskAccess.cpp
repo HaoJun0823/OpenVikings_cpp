@@ -95,7 +95,7 @@ namespace NC2Logic
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             if (count == 100) break;
             Write(handler, 0x3D64 + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)); Write(handler, 0x3D68 + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition));
-            Write(handler, 0x3D6C + count * 16, Read<std::uint32_t>(house, 0x20)); Write(handler, 0x3D70 + count * 16, Read<std::uint32_t>(house, 0x7CC));
+            Write(handler, 0x3D6C + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage)); Write(handler, 0x3D70 + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
             Write(handler, 0x3D60, count + 1);
         }
     }

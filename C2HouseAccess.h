@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <cstdint>
 namespace NC2Logic
 {
@@ -13,7 +14,7 @@ namespace NC2Logic
     bool House_IsMilitarySectorType(std::uint32_t type);
     void House_SetBehaviourFlag(void* house, std::uint32_t bit, bool enabled);
     void House_Door_GetEntryPoint(const void* house, void* point);
-    bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t flags);
+    bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t missionCheckId);
     void House_Exit(void* house);
     void __fastcall House_Misc_Destroy_House(void* house, void* unusedEdx);
     void House_l_Inhabitants_Reset(void* house);
@@ -33,17 +34,28 @@ namespace NC2Logic
     struct SHouseConstructionGoodsEntry
     {
         std::uint32_t good;
-        std::uint32_t amount;
-        std::uint32_t values[3];
+        std::uint32_t requiredAmount;
+        std::uint32_t deliveredAmount;
+        std::uint32_t incomingAmount;
+        std::uint32_t consumedAmount;
     };
     struct SHouseConstructionGoods
     {
         std::int32_t count;
         SHouseConstructionGoodsEntry entries[10];
-        std::uint32_t total;
-        std::uint32_t values[2];
+        std::uint32_t totalRequired;
+        std::uint32_t totalDelivered;
+        std::uint32_t totalConsumed;
     };
+    static_assert(sizeof(SHouseConstructionGoodsEntry) == 20);
+    static_assert(offsetof(SHouseConstructionGoodsEntry, requiredAmount) == 4);
+    static_assert(offsetof(SHouseConstructionGoodsEntry, deliveredAmount) == 8);
+    static_assert(offsetof(SHouseConstructionGoodsEntry, incomingAmount) == 12);
+    static_assert(offsetof(SHouseConstructionGoodsEntry, consumedAmount) == 16);
     static_assert(sizeof(SHouseConstructionGoods) == 216);
+    static_assert(offsetof(SHouseConstructionGoods, totalRequired) == 204);
+    static_assert(offsetof(SHouseConstructionGoods, totalDelivered) == 208);
+    static_assert(offsetof(SHouseConstructionGoods, totalConsumed) == 212);
     void House_Construction_CalculateGoodsNeeded(std::uint32_t engineType, std::uint32_t developmentStage, bool onlyCurrentStage, SHouseConstructionGoods* goods);
     void House_Inhabitants_UpdateAllWorkers(void* house);
     bool __fastcall House_Construction_UpgradeStart(void* house, void* unusedEdx);
@@ -120,7 +132,7 @@ namespace NC2Logic
     bool House_Stock_HasDemandForGood(const void* house, std::uint32_t good);
     float House_Stock_GetAmountOfGoodX(const void* house, std::uint32_t goodId, bool includeFutureStock);
     bool House_Stock_CanStoreGoodType(const void* house, std::uint32_t goodId, bool futureStock);
-    bool House_Stock_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta, bool modifyProduction);
+    bool House_Stock_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta, bool modifyConstruction);
     std::int32_t House_l_Stock_GetStockSlotIdForGoodType(const void* house, std::uint32_t goodId);
     void* House_Misc_WalkBlockArea_GetPtr(const void* house);
     void House_Misc_Blocks_SetToMap(const void* house);

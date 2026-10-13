@@ -37,37 +37,37 @@ namespace NC2Logic
         for (auto id = handler->mFirstScanIndex; id <= handler->mLastScanIndex; ++id)
         {
             void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) != 0) House_DoOneGameTick(house);
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0) House_DoOneGameTick(house);
         }
     }
 
     // Original function: FUN_00433694; target searches also run when the current tick has no arrows available.
     void House_DoOneGameTick(void* house)
     {
-        if (Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::int32_t>(house, 0x7C8) <= 0)
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints) <= 0)
         {
             HappinessManager_Messages_HouseDestroyedTroughAttack(gHappinessManager, house);
             House_Misc_Destroy_House(house, nullptr);
         }
-        if (Read<std::uint8_t>(house, 0x7D0) != 0)
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0)
         {
-            const auto tick = static_cast<std::uint16_t>(Read<std::uint16_t>(house, 0x7D2) + 1u);
-            Write(house, 0x7D2, tick);
-            if (static_cast<std::int16_t>(tick) == Read<std::int16_t>(house, 0x7D4) - 12) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1D, true, Read<std::uint32_t>(house, 4), 0, 0);
-            if (static_cast<std::int16_t>(tick) >= Read<std::int16_t>(house, 0x7D4)) { CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, 4)); return; }
+            const auto tick = static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DemolitionStepsDone) + 1u);
+            Write(house, NC2Layout::HouseOffset::DemolitionStepsDone, tick);
+            if (static_cast<std::int16_t>(tick) == Read<std::int16_t>(house, NC2Layout::HouseOffset::DemolitionStepsRequired) - 12) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1D, true, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), 0, 0);
+            if (static_cast<std::int16_t>(tick) >= Read<std::int16_t>(house, NC2Layout::HouseOffset::DemolitionStepsRequired)) { CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId)); return; }
         }
         if (House_GetHouseMainType(house) == 6)
         {
             if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3)
             {
                 // Windows frees the site first and reads its retained fields for vehicle allocation.
-                CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, 4));
-                Logic_EntryPoint_Add_Vehicle(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), Read<std::uint32_t>(house, 0x18), gStaticHouseTypeStorage.records[Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType)].vehicleType, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, 0);
+                CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId));
+                Logic_EntryPoint_Add_Vehicle(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType), gStaticHouseTypeStorage.records[Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType)].vehicleType, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, 0);
                 return;
             }
         }
         else if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition);
-        if (Read<std::uint8_t>(house, 0x7D8) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DefenceModeFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return;
         CHumanIterator iterator;
         std::uint32_t defenders = 0;
         const auto* door = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
@@ -75,7 +75,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorHumanId(player, Read<std::uint32_t>(door, 0), 0, false); id != -1; id = iterator.GetNextSectorHumanId()) ++defenders;
         auto remaining = defenders / 24u;
         if (defenders % 24u > gGameTime.tick % 24u) ++remaining;
-        const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, 0x18)])[20];
+        const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType)])[20];
         bool fired;
         do
         {
@@ -87,20 +87,20 @@ namespace NC2Logic
             const auto animal = Tool_Animals_GetOneOfNextEnemyInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, false, 5, 10);
             if (animal != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Animal_GetMapPositionRef(CAnimalArray::mStaticVars + static_cast<std::uint32_t>(animal) * CAnimalArray::ElementSize), 0)); --remaining; fired = true; }
             const auto houseFirst = Tool_GetOneOfNextEnemyHousesInRange(player, door, weapon.minimumRange, weapon.maximumRange, true, 5, 10);
-            if (houseFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseFirst) * CHouseArray::ElementSize, 0x1C)); --remaining; fired = true; }
+            if (houseFirst != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseFirst) * CHouseArray::ElementSize, NC2Layout::HouseOffset::MapPosition)); --remaining; fired = true; }
             const auto humanSecond = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10, true, true);
             if (humanSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Human_GetMapPositionRef(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanSecond) * CHumanArray::ElementSize), 0)); --remaining; fired = true; }
             const auto vehicleSecond = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10, false, false);
             if (vehicleSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(Vehicle_GetMapPositionRef(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicleSecond) * CVehicleArray::ElementSize), 0)); --remaining; fired = true; }
             const auto houseSecond = Tool_GetOneOfNextEnemyHousesInRange(player, door, weapon.minimumRange, weapon.maximumRange, false, 5, 10);
-            if (houseSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseSecond) * CHouseArray::ElementSize, 0x1C)); --remaining; fired = true; }
+            if (houseSecond != -1 && remaining != 0) { House_l_Military_StartArrow(house, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseSecond) * CHouseArray::ElementSize, NC2Layout::HouseOffset::MapPosition)); --remaining; fired = true; }
         } while (fired && remaining != 0);
     }
 
     // Original function: FUN_00433a9d; the target is passed by value and scatter consumes y before x.
     void House_l_Military_StartArrow(const void* house, std::uint32_t point)
     {
-        const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, 0x18)])[20];
+        const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType)])[20];
         const auto source = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
         const auto* graphics = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         std::uint32_t height = 0, offsetX = 20, offsetY = 20;
@@ -123,7 +123,7 @@ namespace NC2Logic
         // Complete native 0x24-byte stack callback record; its original type name remains unresolved.
         const std::uint32_t arrow[9] = {source, point, height, offsetX, offsetY, 20, 20, static_cast<std::uint32_t>(weapon.munitionType), flightTicks};
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x23, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(arrow)), 0, 0);
-        DelayedActionManager_DelayedAction_AddWeaponHit(gDelayedActionManager, flightTicks, 4, Read<std::uint32_t>(house, 4), &point, 20);
+        DelayedActionManager_DelayedAction_AddWeaponHit(gDelayedActionManager, flightTicks, 4, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), &point, 20);
     }
 
     // Original function: FUN_0040ad1d; the upper occupied-range bound is read each iteration.
@@ -133,7 +133,7 @@ namespace NC2Logic
         for (auto id = handler->mFirstScanIndex; id <= handler->mLastScanIndex; ++id)
         {
             void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) != 0) House_DoOneGameSecond(house);
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0) House_DoOneGameSecond(house);
         }
     }
 
@@ -152,19 +152,19 @@ namespace NC2Logic
     // Original function: FUN_00433bf9; builder recruitment, stock upkeep and civilian defence stay in native order.
     void House_DoOneGameSecond(void* house)
     {
-        if (Read<std::uint8_t>(house, 0x7D0) != 0) return;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return;
         if (House_GetHouseMainType(house) != 6 && (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || !House_Repair_IsFinished(house)))
         {
             const auto builders = House_Inhabitants_GetNumberOfAttachedHumans(house, 4);
             const auto maximum = House_Construction_GetTotalNumberOfBuildersAllowed(house);
-            if (NXBasics::Runtime_TimeSigned32(builders) >= maximum) Write<std::uint32_t>(house, 0x114, 0);
+            if (NXBasics::Runtime_TimeSigned32(builders) >= maximum) Write<std::uint32_t>(house, NC2Layout::HouseOffset::BuilderRecruitmentCounter, 0);
             else
             {
-                const auto wait = Read<std::uint32_t>(house, 0x114) + 1u;
-                Write(house, 0x114, wait);
+                const auto wait = Read<std::uint32_t>(house, NC2Layout::HouseOffset::BuilderRecruitmentCounter) + 1u;
+                Write(house, NC2Layout::HouseOffset::BuilderRecruitmentCounter, wait);
                 if (wait >= 5)
                 {
-                    Write<std::uint32_t>(house, 0x114, 5);
+                    Write<std::uint32_t>(house, NC2Layout::HouseOffset::BuilderRecruitmentCounter, 5);
                     CHumanIterator iterator;
                     auto* base = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
                     const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(base), 6);
@@ -184,7 +184,7 @@ namespace NC2Logic
                     }
                     if (selected != nullptr && House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(selected, 4), 4))
                     {
-                        Human_l_AssignWorkHouse(selected, Read<std::uint32_t>(house, 4));
+                        Human_l_AssignWorkHouse(selected, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
                         Write<std::uint32_t>(selected, 0x38C, 0);
                         Write(selected, 0xB30, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
                         Human_WorkCenterMarker_Update(selected);
@@ -208,18 +208,18 @@ namespace NC2Logic
         }
         for (std::uint32_t index = 0; index < 66; ++index)
         {
-            const auto stock = Read<std::uint32_t>(house, 0x118u + index * 4u);
-            const auto recent = Read<std::uint32_t>(house, 0x328u + index * 4u);
-            if (stock > recent) Write(house, 0x328u + index * 4u, recent + 1u);
-            else if (stock < recent) Write(house, 0x328u + index * 4u, recent - 1u);
+            const auto stock = Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * 4u);
+            const auto recent = Read<std::uint32_t>(house, NC2Layout::HouseOffset::FutureStockAmounts + index * 4u);
+            if (stock > recent) Write(house, NC2Layout::HouseOffset::FutureStockAmounts + index * 4u, recent + 1u);
+            else if (stock < recent) Write(house, NC2Layout::HouseOffset::FutureStockAmounts + index * 4u, recent - 1u);
         }
         for (std::uint32_t index = 0; index < 66; ++index)
         {
-            const auto offset = 0x430u + index * 4u;
+            const auto offset = NC2Layout::HouseOffset::StockRequestCounters + index * 4u;
             if (Read<std::int32_t>(house, offset) > 0) Write(house, offset, Read<std::uint32_t>(house, offset) - 1u);
         }
         House_l_ActionOverlay_Update(house);
-        if (Read<std::uint8_t>(house, 0x7D8) == 0) return;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DefenceModeFlag) == 0) return;
         CHumanIterator iterator;
         const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
         const std::uint32_t maximum = type == 1 ? 30u : type == 41 ? 20u : 10u;
@@ -231,20 +231,20 @@ namespace NC2Logic
         {
             if (count != maximum) { ++count; continue; }
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4))) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(&outside), 0);
+            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId))) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(&outside), 0);
         }
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint), 40, false); id != -1 && count < maximum; id = iterator.GetNextSectorHumanId())
         {
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             const void* position = Human_GetMapPositionRef(human);
             if (Read<std::uint32_t>(position, 0) == Read<std::uint32_t>(door, 0) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) continue;
-            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4))) { ++count; continue; }
+            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId))) { ++count; continue; }
             if (Human_IsDefendingHouse(human, -1))
             {
                 const auto oldId = Human_GetDefenseHouseId(human);
                 const void* oldHouse = oldId == -1 ? nullptr : CHouseArray::mStaticVars + static_cast<std::uint32_t>(oldId) * CHouseArray::ElementSize;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(door, 0), Read<std::int16_t>(door, 2)));
-                const auto previousDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(oldHouse, 0x24), Read<std::int16_t>(oldHouse, 0x26)));
+                const auto previousDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(oldHouse, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::int16_t>(oldHouse, NC2Layout::HouseOffset::DoorEntryPointY)));
                 if (distance >= previousDistance) continue;
             }
             else if (Human_UserControl_IsExecutingUserCommand(human)) continue;
@@ -258,7 +258,7 @@ namespace NC2Logic
     {
         for (std::int32_t overlay = 0; overlay < 5; ++overlay)
         {
-            const auto offset = 0x7A8u + static_cast<std::uint32_t>(overlay) * 4u;
+            const auto offset = NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * 4u;
             const auto value = Read<std::uint32_t>(house, offset);
             if (value == 0) continue;
             Write(house, offset, value - 1u);

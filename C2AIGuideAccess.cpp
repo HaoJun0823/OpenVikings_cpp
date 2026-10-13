@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AIGuideAccess.h"
 #include "C2AIMilitaryAccess.h"
@@ -110,9 +111,9 @@ namespace NC2Logic
             for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0) continue;
-                auto* entry = GridEntry(manager, house + 28);
-                if (Read<std::uint8_t>(entry, 0) == 0) { Write<std::uint8_t>(entry, 0, 1); Write(entry, 8, Read<std::uint32_t>(house, 4)); }
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
+                auto* entry = GridEntry(manager, house + NC2Layout::HouseOffset::MapPosition);
+                if (Read<std::uint8_t>(entry, 0) == 0) { Write<std::uint8_t>(entry, 0, 1); Write(entry, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); }
             }
             AIGuideManager_l_CheckForNewGuideBuildPos(manager, player);
         }
@@ -210,7 +211,7 @@ namespace NC2Logic
                 const auto* entry = static_cast<const std::byte*>(Read<void*>(manager, 32)) + (row * SSectorGridCursor::sGridWidth + column) * 12;
                 if (Read<std::uint8_t>(entry, 0) == 0 || Read<std::uint8_t>(entry, 1) != 0) continue;
                 const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(entry, 8) * CHouseArray::ElementSize;
-                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(house + 28), 6);
+                const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(house + NC2Layout::HouseOffset::MapPosition), 6);
                 const auto x = column * 20, y = row * 20;
                 std::uint32_t point = 0; MapMigPoint_Construct(&point, static_cast<std::int16_t>(x + 10), static_cast<std::int16_t>(y + 10), false);
                 if (MapMigPoint_IsInsideMap(&point) && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 6) == continent && Tool_Guide_IsAllowedToBeBuild(player, &point, true)) { Write(manager, 16, point); return; }

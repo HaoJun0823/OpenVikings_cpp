@@ -8,14 +8,14 @@ namespace NC2Logic
     struct SStaticHouseWorker
     {
         std::int32_t jobType;
-        std::int32_t unknown04;
+        std::int32_t maximumWorkers;
     };
 
     struct SStaticHouseStock
     {
         std::int32_t goodType;
         std::int32_t maximumAmount;
-        std::uint8_t unknown08;
+        std::uint8_t isOutputStock;
         std::byte padding09[3];
     };
 
@@ -70,10 +70,10 @@ namespace NC2Logic
     extern SStaticHouseTypeStorage gStaticHouseTypeStorage;
 
     static_assert(sizeof(SStaticHouseWorker) == 8);
-    static_assert(offsetof(SStaticHouseWorker, unknown04) == 4);
+    static_assert(offsetof(SStaticHouseWorker, maximumWorkers) == 4);
     static_assert(sizeof(SStaticHouseStock) == 12);
     static_assert(offsetof(SStaticHouseStock, maximumAmount) == 4);
-    static_assert(offsetof(SStaticHouseStock, unknown08) == 8);
+    static_assert(offsetof(SStaticHouseStock, isOutputStock) == 8);
     static_assert(sizeof(SStaticHouseTypeData) == 1572);
     static_assert(offsetof(SStaticHouseTypeData, homeSize) == 4);
     static_assert(offsetof(SStaticHouseTypeData, schoolSize) == 8);

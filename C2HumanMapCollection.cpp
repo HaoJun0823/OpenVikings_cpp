@@ -96,7 +96,7 @@ namespace NC2Logic
         switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None:
-            if (Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
+            if (Read<std::uint32_t>(WorkHouse(human), NC2Layout::HouseOffset::ConstructionState) != 3) { Fail(human, 2); return; }
             if (House_Stock_IsFullSoon(WorkHouse(human), good))
             {
                 Write(human, NC2Layout::HumanOffset::RequestedGood, good);
@@ -164,7 +164,7 @@ namespace NC2Logic
         switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None:
-            if (Human_IsForcedToHaveFinishedWorkHouse(human) && Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
+            if (Human_IsForcedToHaveFinishedWorkHouse(human) && Read<std::uint32_t>(WorkHouse(human), NC2Layout::HouseOffset::ConstructionState) != 3) { Fail(human, 2); return; }
             if (!House_Stock_CanStoreGoodType(WorkHouse(human), good, true)) { Fail(human, 2); return; }
             if (House_Stock_IsFullSoon(WorkHouse(human), good))
             {
@@ -393,7 +393,7 @@ namespace NC2Logic
         if (Human_IsAtTargetPoint(human))
         {
             const auto landscape = Human_GetLandscapeTypeAtTargetPosition(human);
-            if (landscape == static_cast<std::uint32_t>(type.landscapeToHarvest) && Read<std::uint8_t>(WorkHouse(human), 0x798) == 0)
+            if (landscape == static_cast<std::uint32_t>(type.landscapeToHarvest) && Read<std::uint8_t>(WorkHouse(human), NC2Layout::HouseOffset::ProductionStoppedFlag) == 0)
             {
                 const auto valency = Human_GetLandscapeValencyAtTargetPosition(human);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 2);
@@ -426,7 +426,7 @@ namespace NC2Logic
                 if (!Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Status(human, 3);
                 return;
             }
-            if (Read<std::uint8_t>(WorkHouse(human), 0x798) != 0) { Status(human, 3); return; }
+            if (Read<std::uint8_t>(WorkHouse(human), NC2Layout::HouseOffset::ProductionStoppedFlag) != 0) { Status(human, 3); return; }
         }
         if (!Human_FindGrowLandscapeNearWorkCenter(human, type.landscapeToHarvest, &real, &work) || !Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Status(human, 3);
     }

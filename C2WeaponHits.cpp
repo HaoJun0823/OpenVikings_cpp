@@ -77,7 +77,7 @@ namespace NC2Logic
     {
         const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
         auto damage = static_cast<std::uint32_t>(data.damageValues[7]) * 200u / (200u - (power > 100u ? 100u : power));
-        const auto player = Read<std::uint32_t>(house, 12);
+        const auto player = Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId);
         damage = HalfForDifficulty(damage, player);
         if (damage == 0) return false;
         if (data.soundTypesHit[7] != 0) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, data.soundTypesHit[7], Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 0);
@@ -85,7 +85,7 @@ namespace NC2Logic
         const std::uint32_t attacker[3] = { attackerType, attackerId, attackerType == 6 ? 0u : attackerRevision };
         damage = static_cast<std::uint32_t>(Tool_Military_GetDamage(NXBasics::Runtime_TimeSigned32(damage), attacker));
         House_HitPoints_ModifyValue(house, NXBasics::Runtime_TimeSigned32(0u - damage));
-        if (Read<std::int32_t>(house, 0x7C8) <= 0) RecordKill(attacker, 0x4620);
+        if (Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints) <= 0) RecordKill(attacker, 0x4620);
         HappinessManager_Messages_HouseAttacked(gHappinessManager, house);
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
@@ -95,8 +95,8 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 49);
         Write(message, 8, player);
-        Write(message, 0x18, Read<std::uint32_t>(house, 4));
-        Write(message, 0x1C, Read<std::uint32_t>(house, 8));
+        Write(message, 0x18, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+        Write(message, 0x1C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
         Write(message, 0x200, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);

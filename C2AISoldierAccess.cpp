@@ -478,7 +478,7 @@ namespace NC2Logic
                     if (houseId != -1)
                     {
                         const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
-                        if (GameControl_Diplomacy_GetState(gGameControl, Read<std::uint32_t>(handler, 0), Read<std::int32_t>(house, 12)) == 3 && AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, i, houseId, false)) continue;
+                        if (GameControl_Diplomacy_GetState(gGameControl, Read<std::uint32_t>(handler, 0), Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3 && AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, i, houseId, false)) continue;
                     }
                     if (Distance(&position, &target) <= Read<std::uint32_t>(soldier, 28))
                     {

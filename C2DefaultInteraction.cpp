@@ -79,7 +79,7 @@ namespace NC2Logic
         std::int32_t index = 0;
         while (index < data->workerCount && static_cast<std::uint32_t>(data->workers[index].jobType) != job) ++index;
         if (index == data->workerCount) return false;
-        return House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) < data->workers[index].unknown04;
+        return House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) < data->workers[index].maximumWorkers;
     }
 
     // Original function: FUN_00435605; the complete nine-entry Windows selector is 00436216..00436239.
@@ -120,27 +120,27 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
-            const auto houseCommand = [&](std::uint8_t opcode, std::uint32_t action) { Prepare(command, opcode, human, targetId, Read<std::uint32_t>(house, 8)); return action; };
+            const auto houseCommand = [&](std::uint8_t opcode, std::uint32_t action) { Prepare(command, opcode, human, targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); return action; };
             if (Read<std::uint32_t>(target, 0x40) != player)
             {
                 if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) return houseCommand(44, 42);
                 if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && MerchantData_Tool_CanHouseBeAdded(Merchant(human), id, targetId)) return houseCommand(36, 22);
-                if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(37, 23);
+                if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId))) return houseCommand(37, 23);
                 return 0;
             }
             if (Continent(house + NC2Layout::HouseOffset::MapPosition) != continent) return 0;
             if (available.IsCommandAllowed(20) && House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return houseCommand(30, 20);
             if (available.IsCommandAllowed(10) && House_Inhabitants_CanHumanBeAttachedAsHomie(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)) return houseCommand(26, 10);
-            if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && !MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(36, 22);
-            if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, 8))) return houseCommand(37, 23);
-            if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && Human_UserControl_GetNextJobType(human) == 24 && Read<std::uint32_t>(house, 0x14) == 39) return houseCommand(28, 16);
+            if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && !MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId))) return houseCommand(36, 22);
+            if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId))) return houseCommand(37, 23);
+            if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && Human_UserControl_GetNextJobType(human) == 24 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39) return houseCommand(28, 16);
             if (available.IsCommandAllowed(18) && House_Inhabitants_CanHumanBeAttachedAsStudent(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return houseCommand(32, 18);
             if (available.IsCommandAllowed(24) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))
             {
                 const auto job = House_JobMisc_GetPrimaryWorkerJobType(house);
                 if (job != 0 && job != Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) && Human_DoesEducationAllowJobChange(human, job) && House_JobMisc_CanJobBeAttachedAsWorker(house, job) && Human_UserControl_GetNextJobType(human) != 25)
                 {
-                    Prepare(command, 21, human, job); Prepare(secondary, 28, human, targetId, Read<std::uint32_t>(house, 8)); return 24;
+                    Prepare(command, 21, human, job); Prepare(secondary, 28, human, targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); return 24;
                 }
             }
             if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return houseCommand(28, 16);
@@ -243,10 +243,10 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
-            if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3) return commitTarget(42, 44, targetId, house);
+            if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3) return commitTarget(42, 44, targetId, house);
             if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return commitTarget(16, 28, targetId, house);
             if (available.IsCommandAllowed(20) && House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return commitTarget(20, 30, targetId, house);
-            if (available.IsCommandAllowed(18) && Read<std::uint32_t>(house, 0x14) == 39 && House_Inhabitants_CanHumanBeAttachedAsStudent(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return commitTarget(18, 32, targetId, house);
+            if (available.IsCommandAllowed(18) && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 39 && House_Inhabitants_CanHumanBeAttachedAsStudent(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return commitTarget(18, 32, targetId, house);
             if (available.IsCommandAllowed(10) && House_Inhabitants_CanHumanBeAttachedAsHomie(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)) return commitTarget(10, 26, targetId, house);
             return false;
         }
@@ -333,7 +333,7 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
-            if (available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3) { Prepare(command, 105, vehicle, targetId, Read<std::uint32_t>(house, 8)); return 6; }
+            if (available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3) { Prepare(command, 105, vehicle, targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); return 6; }
             return 0;
         }
         default: return 0;
@@ -379,7 +379,7 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::House:
         {
             const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
-            return available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, 0xC)) == 3 && commitTarget(6, 105, targetId, house);
+            return available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3 && commitTarget(6, 105, targetId, house);
         }
         case SwitchIds::MapObjectUnderCursor::Landscape:
             if (available.IsCommandAllowed(8) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }

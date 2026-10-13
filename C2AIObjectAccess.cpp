@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AIObjectAccess.h"
 #include "C2HumanCommandAccess.h"
@@ -132,7 +133,7 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(producer, 8);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
-        if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(producer, 12) && Read<std::uint8_t>(house, 0x7D0) == 0) return true;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(producer, 12) && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0) return true;
         Write<std::uint32_t>(producer, 8, NXBasics::IntegerRange::UInt32Maximum);
         return false;
     }

@@ -235,7 +235,7 @@ namespace NC2InGameGuiMiscWindows
             NC2Logic::House_Construction_CalculateGoodsNeeded(entry.type, entry.stage, false, &goods);
             for (std::int32_t slot = 0; slot < goods.count; ++slot)
             {
-                const auto good = goods.entries[slot].good, amount = goods.entries[slot].amount;
+                const auto good = goods.entries[slot].good, amount = goods.entries[slot].requiredAmount;
                 char tooltip[132], graphic[32];
                 NXBasics::Runtime_PrintString(graphic, "{gfxgood:%d,%d}", good, amount);
                 NXBasics::Runtime_PrintString(tooltip, "%d %s", amount, NC2Logic::StringAccess_GetGoodNamePtr(good, amount));

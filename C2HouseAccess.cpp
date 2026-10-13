@@ -29,14 +29,14 @@ namespace NC2Logic
         std::int32_t worker = 0;
         while (worker < data->workerCount && static_cast<std::uint32_t>(data->workers[worker].jobType) != job) ++worker;
         if (worker == data->workerCount) return false;
-        return static_cast<std::uint32_t>(House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job)) < static_cast<std::uint32_t>(data->workers[worker].unknown04);
+        return static_cast<std::uint32_t>(House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job)) < static_cast<std::uint32_t>(data->workers[worker].maximumWorkers);
     }
     // Original function: FUN_004322b6; homes do not expose worker attachments.
     bool House_Inhabitants_IsHumanAttachedAsWorker(const void* house, std::uint32_t human)
     {
         if (House_GetHouseMainType(house) == 2) return false;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(const_cast<void*>(house), human);
-        return slot != nullptr && (NC2Lifetime::Read<std::uint8_t>(slot, 0) & 2u) != 0;
+        return slot != nullptr && (NC2Lifetime::Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & 2u) != 0;
     }
 
     // Original function: FUN_0043264f; Windows-only outlined door reference.
@@ -47,13 +47,13 @@ namespace NC2Logic
     {
         const auto* attachment = House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot);
         if (attachment == nullptr) return nullptr;
-        return CHumanArray::mStaticVars + NC2Lifetime::Read<std::uint32_t>(attachment, 4) * CHumanArray::ElementSize;
+        return CHumanArray::mStaticVars + NC2Lifetime::Read<std::uint32_t>(attachment, NC2Layout::HouseAttachmentOffset::HumanId) * CHumanArray::ElementSize;
     }
 
     // Original function: FUN_0043322f; the fire counter comparison is signed.
     bool House_Religion_IsHolyFireActive(const void* house)
     {
-        return NC2Lifetime::Read<std::uint8_t>(house, 0x7D0) == 0 && NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && NC2Lifetime::Read<std::int32_t>(house, 0x794) > 0;
+        return NC2Lifetime::Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && NC2Lifetime::Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value) > 0;
     }
 
     // Original function: FUN_00433a95; Windows-only outlined owner getter.
@@ -74,19 +74,19 @@ namespace NC2Logic
     void House_SetBehaviourFlag(void* house, std::uint32_t bit, bool enabled)
     {
         const auto mask = 1u << (bit & 31u);
-        const auto flags = NC2Lifetime::Read<std::uint32_t>(house, 0x7DC);
-        NC2Lifetime::Write(house, 0x7DC, enabled ? flags | mask : flags & ~mask);
+        const auto flags = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::BehaviourFlags);
+        NC2Lifetime::Write(house, NC2Layout::HouseOffset::BehaviourFlags, enabled ? flags | mask : flags & ~mask);
     }
 
     // Original function: FUN_00434c1a; the engine type supplies the repair threshold.
     bool House_HitPoints_IsDamaged(const void* house)
     {
         const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-        return NC2Lifetime::Read<std::int32_t>(house, 0x7C8) < NC2Lifetime::Read<std::int32_t>(data, 0x19Cu + NC2Lifetime::Read<std::uint32_t>(house, 0x20) * 4u);
+        return NC2Lifetime::Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints) < NC2Lifetime::Read<std::int32_t>(data, 0x19Cu + NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
     }
 
     // Original function: FUN_004341c0; the Windows bound comparison is signed.
-    bool House_ActionOverlay_IsActive(const void* house, std::uint32_t overlay) { return NXBasics::Runtime_TimeSigned32(overlay) < 5 && NC2Lifetime::Read<std::uint32_t>(house, 0x7A8u + overlay * 4u) != 0; }
+    bool House_ActionOverlay_IsActive(const void* house, std::uint32_t overlay) { return NXBasics::Runtime_TimeSigned32(overlay) < 5 && NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::ActionOverlayCounters + overlay * 4u) != 0; }
     // Original function: FUN_0043423e.
     bool House_LandscapeOverlay_IsActive(const void* house, std::int32_t overlay) { return overlay >= 0 && overlay < 10 && NC2Lifetime::Read<std::uint8_t>(house, NC2Layout::HouseOffset::LandscapeOverlayActiveFlags + static_cast<std::uint32_t>(overlay)) != 0; }
 
@@ -96,8 +96,8 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            const auto offset = 0x640u + slot * 0x10u;
-            if (Read<std::uint8_t>(house, offset) == 2) Human_Production_Update(CHumanArray::mStaticVars + Read<std::uint32_t>(house, offset + 4) * CHumanArray::ElementSize);
+            const auto offset = NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment;
+            if (Read<std::uint8_t>(house, offset + NC2Layout::HouseAttachmentOffset::RoleMask) == 2) Human_Production_Update(CHumanArray::mStaticVars + Read<std::uint32_t>(house, offset + NC2Layout::HouseAttachmentOffset::HumanId) * CHumanArray::ElementSize);
         }
     }
 
@@ -106,7 +106,7 @@ namespace NC2Logic
     {
         (void)unusedEdx;
         if (!House_Construction_CanBeUpgraded(house)) return false;
-        House_l_Construction_InitConstruction(house, NC2Lifetime::Read<std::uint32_t>(house, 0x20) + 1u, true);
+        House_l_Construction_InitConstruction(house, NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + 1u, true);
         House_Inhabitants_UpdateAllWorkers(house);
         House_SetDefenceModeFlag(house, false);
         return true;
@@ -119,11 +119,11 @@ namespace NC2Logic
         (void)unusedEdx;
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 2) return false;
         GameMapModifyManager_StartGameMapModify();
-        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
-            const auto amount = Read<std::uint32_t>(house, offset + 8) - Read<std::uint32_t>(house, offset + 16);
-            const auto good = Read<std::uint32_t>(house, offset);
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HouseConstructionGood;
+            const auto amount = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) - Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::ConsumedAmount);
+            const auto good = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType);
             // Outlined getter 0043264F and copy 0040AD55 return the by-value door point at +0x24.
             if (amount != 0) Map_GoodTool_PutOnMap(good, amount, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint), 10, false);
         }
@@ -138,13 +138,13 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         Write<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState, upgrade ? 2u : 1u);
-        House_Construction_CalculateGoodsNeeded(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType), developmentStage, upgrade, reinterpret_cast<SHouseConstructionGoods*>(static_cast<std::byte*>(house) + 0x38));
+        House_Construction_CalculateGoodsNeeded(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType), developmentStage, upgrade, reinterpret_cast<SHouseConstructionGoods*>(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::ConstructionGoodsCount));
         House_l_Construction_TransferFutureStock(house);
         House_l_Construction_UpdateGoodsBeingBrought(house);
-        const auto steps = Read<std::uint32_t>(house, 0x104) * 30u;
-        Write<std::uint32_t>(house, 0x30, 0);
-        Write<std::uint32_t>(house, 0x110, 0);
-        Write(house, 0x34, steps);
+        const auto steps = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsRequired) * 30u;
+        Write<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionStepsDone, 0);
+        Write<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionStepLimit, 0);
+        Write(house, NC2Layout::HouseOffset::ConstructionStepsRequired, steps);
     }
 
     // Original function: FUN_00432b32; stock quantities use the native signed clamp after DWORD arithmetic.
@@ -153,33 +153,33 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3)
         {
-            for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+            for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
             {
-                const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
-                const auto reserved = Read<std::uint32_t>(house, offset + 12);
+                const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HouseConstructionGood;
+                const auto reserved = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount);
                 if (reserved == 0) continue;
-                const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, Read<std::uint32_t>(house, offset));
+                const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType));
                 if (stock == -1) continue;
-                const auto stockOffset = 0x328u + static_cast<std::uint32_t>(stock) * 4u;
+                const auto stockOffset = NC2Layout::HouseOffset::FutureStockAmounts + static_cast<std::uint32_t>(stock) * 4u;
                 auto amount = static_cast<std::int32_t>(Read<std::uint32_t>(house, stockOffset) - reserved);
                 if (amount < 0) amount = 0;
                 else if (amount > 1000) amount = 1000;
-                Write<std::uint32_t>(house, offset + 12, 0);
+                Write<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount, 0);
                 Write(house, stockOffset, amount);
             }
             return;
         }
-        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+        for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
-            const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, Read<std::uint32_t>(house, offset));
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HouseConstructionGood;
+            const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType));
             if (stock == -1) continue;
-            const auto stockOffset = 0x328u + static_cast<std::uint32_t>(stock) * 4u;
-            const auto reserved = Read<std::uint32_t>(house, offset + 12);
-            auto amount = static_cast<std::int32_t>(Read<std::uint32_t>(house, stockOffset) - Read<std::uint32_t>(house, 0x118u + static_cast<std::uint32_t>(stock) * 4u) + reserved);
+            const auto stockOffset = NC2Layout::HouseOffset::FutureStockAmounts + static_cast<std::uint32_t>(stock) * 4u;
+            const auto reserved = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount);
+            auto amount = static_cast<std::int32_t>(Read<std::uint32_t>(house, stockOffset) - Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + static_cast<std::uint32_t>(stock) * 4u) + reserved);
             if (amount < 0) amount = 0;
             else if (amount > 1000) amount = 1000;
-            Write(house, offset + 12, amount);
+            Write(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount, amount);
             Write(house, stockOffset, Read<std::uint32_t>(house, stockOffset) - (static_cast<std::uint32_t>(amount) - reserved));
         }
     }
@@ -188,18 +188,18 @@ namespace NC2Logic
     void House_l_Construction_UpdateGoodsBeingBrought(void* house)
     {
         using namespace NC2Lifetime;
-        for (std::int32_t goodSlot = 0; goodSlot < Read<std::int32_t>(house, 0x38); ++goodSlot)
+        for (std::int32_t goodSlot = 0; goodSlot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++goodSlot)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(goodSlot) * 20u;
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(goodSlot) * NC2Layout::RecordSize::HouseConstructionGood;
             std::uint32_t amount = 0;
             for (std::uint32_t slot = 0; slot < 20; ++slot)
             {
-                const auto role = Read<std::uint8_t>(house, 0x640u + slot * 16u);
+                const auto role = Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment);
                 if (role == 0 || role == 1) continue;
-                const void* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, 0x644u + slot * 16u) * CHumanArray::ElementSize;
+                const void* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u) * CHumanArray::ElementSize;
                 if (Read<std::uint8_t>(human, 0) == 0) continue;
                 const auto state = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
-                if (state == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) != Read<std::uint32_t>(house, offset)) continue;
+                if (state == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) != Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType)) continue;
                 if (state == 5) break;
                 if (state == 4 && MapMigPoint_IsInsideMap(Human_GetMapPositionRef(human)))
                 {
@@ -208,14 +208,14 @@ namespace NC2Logic
                 }
                 ++amount;
             }
-            if (amount != Read<std::uint32_t>(house, offset + 12)) Write(house, offset + 12, amount);
+            if (amount != Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount)) Write(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount, amount);
         }
     }
 
     // Original function: FUN_00431f85.
-    std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,0x430u + static_cast<std::uint32_t>(slot) * 4u); }
+    std::uint32_t House_Stock_GetGoodRequestCounter(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,NC2Layout::HouseOffset::StockRequestCounters + static_cast<std::uint32_t>(slot) * 4u); }
     // Original function: FUN_00431fac.
-    std::uint32_t House_Stock_GetMinimumValue(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,0x538u + static_cast<std::uint32_t>(slot) * 4u); }
+    std::uint32_t House_Stock_GetMinimumValue(const void* house, std::uint32_t good) { if (static_cast<std::int32_t>(good) >= 66) return 0; const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house,good); return slot == -1 ? 0 : NC2Lifetime::Read<std::uint32_t>(house,NC2Layout::HouseOffset::StockMinimumAmounts + static_cast<std::uint32_t>(slot) * 4u); }
     // Original function: FUN_00441228; food categories resolve to the first usable stock.
     std::uint32_t Tool_House_GetAmountOfGoods(const void* house, std::uint32_t* good, bool stockOnly)
     {
@@ -245,12 +245,12 @@ namespace NC2Logic
                 const auto good = NC2Lifetime::Read<std::uint32_t>(names, 0x4Cu + stage * 0x40u + index * 4u);
                 std::int32_t slot = 0;
                 while (slot < goods->count && goods->entries[slot].good != good) ++slot;
-                if (slot < goods->count) { ++goods->entries[slot].amount; ++goods->total; }
+                if (slot < goods->count) { ++goods->entries[slot].requiredAmount; ++goods->totalRequired; }
                 else if (goods->count != 10)
                 {
                     goods->entries[goods->count].good = good;
-                    goods->entries[goods->count].amount = 1;
-                    ++goods->total; ++goods->count;
+                    goods->entries[goods->count].requiredAmount = 1;
+                    ++goods->totalRequired; ++goods->count;
                 }
             }
         } while (stage++ != developmentStage);
@@ -260,19 +260,19 @@ namespace NC2Logic
     {
         if (House_GetHouseMainType(house) != 4) return false;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(const_cast<void*>(house), human);
-        return slot != nullptr && (NC2Lifetime::Read<std::uint8_t>(slot, 0) & 8u) != 0;
+        return slot != nullptr && (NC2Lifetime::Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & 8u) != 0;
     }
 
     // Original function: FUN_00432653.
     void House_Inhabitants_SetStudentJob(void* house, std::uint32_t human, std::uint32_t job)
     {
-        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human)) NC2Lifetime::Write(slot, 8, job);
+        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human)) NC2Lifetime::Write(slot, NC2Layout::HouseAttachmentOffset::TrainingJobType, job);
     }
 
     // Original function: FUN_0043266a.
     void House_Inhabitants_SetStudentGood(void* house, std::uint32_t human, std::uint32_t good)
     {
-        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human)) NC2Lifetime::Write(slot, 12, good);
+        if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human)) NC2Lifetime::Write(slot, NC2Layout::HouseAttachmentOffset::TrainingGoodType, good);
     }
     // Original function: FUN_00431ffa; slots retain their training fields when reused.
     bool House_Inhabitants_AttachHuman(void* house, std::uint32_t human, std::uint32_t mask)
@@ -281,26 +281,26 @@ namespace NC2Logic
         if (!House_Inhabitants_CanHumanBeAttached(house, human, mask)) return false;
         if (auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human))
         {
-            Write<std::uint8_t>(slot, 0, Read<std::uint8_t>(slot, 0) | mask);
+            Write<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask, Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) | mask);
             return true;
         }
         for (std::uint32_t index = 0; index < 20; ++index)
         {
-            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 16u;
-            if (Read<std::uint8_t>(slot, 0) != 0) continue;
-            Write(slot, 4, human);
-            Write<std::uint8_t>(slot, 0, static_cast<std::uint8_t>(mask));
+            auto* slot = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::Attachments + index * NC2Layout::RecordSize::HouseAttachment;
+            if (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) != 0) continue;
+            Write(slot, NC2Layout::HouseAttachmentOffset::HumanId, human);
+            Write<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask, static_cast<std::uint8_t>(mask));
             return true;
         }
         if (mask != 1) return false;
         for (std::uint32_t index = 0; index < 20; ++index)
         {
-            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 16u;
-            if (Read<std::uint8_t>(slot, 0) != 4) continue;
-            Write<std::uint8_t>(slot, 0, 0);
-            Human_DetachFromWorkHouse(CHumanArray::mStaticVars + Read<std::uint32_t>(slot, 4) * CHumanArray::ElementSize);
-            Write(slot, 4, human);
-            Write<std::uint8_t>(slot, 0, 1);
+            auto* slot = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::Attachments + index * NC2Layout::RecordSize::HouseAttachment;
+            if (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) != 4) continue;
+            Write<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask, 0);
+            Human_DetachFromWorkHouse(CHumanArray::mStaticVars + Read<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::HumanId) * CHumanArray::ElementSize);
+            Write(slot, NC2Layout::HouseAttachmentOffset::HumanId, human);
+            Write<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask, 1);
             return true;
         }
         return false;
@@ -325,12 +325,12 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, humanId) || House_GetHouseMainType(house) != 2) return false;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, humanId);
-        if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 1u) != 0) return true;
+        if (slot != nullptr && (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & 1u) != 0) return true;
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         for (const auto offset : {0xB14u, 0xB18u, 0xB24u, 0xB20u})
         {
             const auto relative = Read<std::uint32_t>(human, offset);
-            if (relative != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(CHumanArray::mStaticVars + relative * CHumanArray::ElementSize, 0xB28) == Read<std::uint32_t>(house, 4)) return true;
+            if (relative != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(CHumanArray::mStaticVars + relative * CHumanArray::ElementSize, 0xB28) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)) return true;
         }
         return House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(House_GetHouseTypeDataPtr(house)->homeSize);
     }
@@ -344,12 +344,12 @@ namespace NC2Logic
         if (data->mainType == 2) return false;
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, humanId);
-        const auto attached = slot != nullptr && (Read<std::uint8_t>(slot, 0) & 2u) != 0;
+        const auto attached = slot != nullptr && (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & 2u) != 0;
         const auto job = Human_UserControl_GetNextJobType(human);
         std::int32_t worker = 0;
         while (worker < data->workerCount && static_cast<std::uint32_t>(data->workers[worker].jobType) != job) ++worker;
         if (worker == data->workerCount) return false;
-        if (!attached && House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) >= data->workers[worker].unknown04) return false;
+        if (!attached && House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) >= data->workers[worker].maximumWorkers) return false;
         if (job == 30 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37) return true;
         const auto good = Read<std::uint32_t>(human, 0x1C);
         if (good == 0 || good == 65) return true;
@@ -363,7 +363,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, human) || House_GetHouseMainType(house) != 4) return false;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human);
-        if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 8u) != 0) return true;
+        if (slot != nullptr && (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & 8u) != 0) return true;
         return House_Inhabitants_GetNumberOfAttachedHumans(house, 8) < static_cast<std::uint32_t>(House_GetHouseTypeDataPtr(house)->schoolSize);
     }
 
@@ -374,7 +374,7 @@ namespace NC2Logic
         if (!House_l_Inhabitants_CanHumanBeAttached_BaseCheck(house, human) || Human_UserControl_GetNextJobType(CHumanArray::mStaticVars + human * CHumanArray::ElementSize) != 7) return false;
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(house)) return false;
         const auto* slot = House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(house, human);
-        if (slot != nullptr && (Read<std::uint8_t>(slot, 0) & 4u) != 0) return true;
+        if (slot != nullptr && (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & 4u) != 0) return true;
         return static_cast<std::int32_t>(House_Inhabitants_GetNumberOfAttachedHumans(house, 4)) < House_Construction_GetTotalNumberOfBuildersAllowed(house);
     }
 
@@ -382,9 +382,9 @@ namespace NC2Logic
     bool House_l_Inhabitants_CanHumanBeAttached_BaseCheck(const void* house, std::uint32_t humanId)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
-        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(house, 12)) return false;
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) return false;
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * NC2Layout::RecordSize::MapMoveable;
         return Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6);
     }
@@ -393,7 +393,7 @@ namespace NC2Logic
     std::uint32_t House_Inhabitants_GetNumberOfAttachedHumans(const void* house)
     {
         std::uint32_t count = 0;
-        for (std::uint32_t slot = 0; slot < 20; ++slot) if (NC2Lifetime::Read<std::uint8_t>(house, 0x640u + slot * 16u) != 0) ++count;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) if (NC2Lifetime::Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment) != 0) ++count;
         return count;
     }
 
@@ -402,7 +402,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         std::uint32_t count = 0;
-        for (std::uint32_t slot = 0; slot < 20; ++slot) if ((Read<std::uint8_t>(house, 0x640u + slot * 16u) & mask) != 0) ++count;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) if ((Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment) & mask) != 0) ++count;
         return count;
     }
 
@@ -411,7 +411,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         std::uint32_t count = 0;
-        for (std::uint32_t slot = 0; slot < 20; ++slot) { const auto mask = Read<std::uint8_t>(house, 0x640u + slot * 16u); if (mask != 0 && (mask & 4u) == 0) ++count; }
+        for (std::uint32_t slot = 0; slot < 20; ++slot) { const auto mask = Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment); if (mask != 0 && (mask & 4u) == 0) ++count; }
         return count;
     }
 
@@ -424,14 +424,14 @@ namespace NC2Logic
         std::uint32_t count = 0;
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            if ((Read<std::uint8_t>(house, 0x640u + slot * 16u) & 1u) == 0) continue;
+            if ((Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment) & 1u) == 0) continue;
             if (count == 0) { count = 1; if (families != nullptr) families[slot] = 0; continue; }
-            const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, 0x644u + slot * 16u) * CHumanArray::ElementSize;
+            const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u) * CHumanArray::ElementSize;
             bool related = false;
             for (std::uint32_t previous = 0; previous < slot; ++previous)
             {
-                if ((Read<std::uint8_t>(house, 0x640u + previous * 16u) & 1u) == 0) continue;
-                const auto id = Read<std::uint32_t>(house, 0x644u + previous * 16u);
+                if ((Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + previous * NC2Layout::RecordSize::HouseAttachment) & 1u) == 0) continue;
+                const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + previous * 16u);
                 for (const auto offset : {0xB14u, 0xB18u, 0xB24u, 0xB20u}) if (Read<std::uint32_t>(human, offset) != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(human, offset) == id) related = true;
                 if (related) { if (families != nullptr) families[slot] = families[previous]; break; }
             }
@@ -445,7 +445,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         std::int32_t count = 0;
-        for (std::uint32_t slot = 0; slot < 20; ++slot) if ((Read<std::uint8_t>(house, 0x640u + slot * 16u) & 2u) != 0 && Human_UserControl_GetNextJobType(CHumanArray::mStaticVars + Read<std::uint32_t>(house, 0x644u + slot * 16u) * CHumanArray::ElementSize) == job) ++count;
+        for (std::uint32_t slot = 0; slot < 20; ++slot) if ((Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment) & 2u) != 0 && Human_UserControl_GetNextJobType(CHumanArray::mStaticVars + Read<std::uint32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u) * CHumanArray::ElementSize) == job) ++count;
         return count;
     }
 
@@ -454,8 +454,8 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         std::uint32_t total = 0;
-        for (std::int32_t index = 0; index < Read<std::int32_t>(house, 0x38); ++index) total += Read<std::uint32_t>(house, 0x40u + static_cast<std::uint32_t>(index) * 20u);
-        if (Read<std::int32_t>(house, 0x38) <= 0 || total < 5) { if (!House_Repair_IsFinished(house)) total = 5; }
+        for (std::int32_t index = 0; index < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++index) total += Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionGoodRequiredAmounts + static_cast<std::uint32_t>(index) * 20u);
+        if (Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount) <= 0 || total < 5) { if (!House_Repair_IsFinished(house)) total = 5; }
         const auto available = 20 - static_cast<std::int32_t>(House_Inhabitants_GetNumberOfAttachedHumans_IgnoreBuilders(house));
         return NXBasics::Runtime_TimeSigned32(total) <= available ? NXBasics::Runtime_TimeSigned32(total) : available;
     }
@@ -466,21 +466,21 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 1) return true;
         const auto* engine = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-        return Read<std::int32_t>(house, 0x7C8) >= Read<std::int32_t>(engine, 0x19Cu + Read<std::uint32_t>(house, 0x20) * 4u);
+        return Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints) >= Read<std::int32_t>(engine, 0x19Cu + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
     }
 
     // Original function: FUN_00432681.
-    void* House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(void* house, std::uint32_t slot) { return static_cast<std::byte*>(house) + 0x640u + slot * 16u; }
+    void* House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(void* house, std::uint32_t slot) { return static_cast<std::byte*>(house) + NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment; }
     // Original function: FUN_004326c0.
-    std::int32_t House_Inhabitants_GetAttachedHumanSlotIdByHumanId(const void* house, std::uint32_t human) { for (std::uint32_t slot = 0; slot < 20; ++slot) if (NC2Lifetime::Read<std::uint8_t>(house,0x640u + slot * 16u) && NC2Lifetime::Read<std::uint32_t>(house,0x644u + slot * 16u) == human) return static_cast<std::int32_t>(slot); return -1; }
+    std::int32_t House_Inhabitants_GetAttachedHumanSlotIdByHumanId(const void* house, std::uint32_t human) { for (std::uint32_t slot = 0; slot < 20; ++slot) if (NC2Lifetime::Read<std::uint8_t>(house,NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment) && NC2Lifetime::Read<std::uint32_t>(house,NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u) == human) return static_cast<std::int32_t>(slot); return -1; }
 
     // Original function: FUN_00432690.
     void* House_Inhabitants_GetAttachedHumanSlotPtrByHumanId(void* house, std::uint32_t human)
     {
         for (std::uint32_t index = 0; index < 20; ++index)
         {
-            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 0x10u;
-            if (NC2Lifetime::Read<std::uint8_t>(slot, 0) != 0 && NC2Lifetime::Read<std::uint32_t>(slot, 4) == human) return slot;
+            auto* slot = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::Attachments + index * NC2Layout::RecordSize::HouseAttachment;
+            if (NC2Lifetime::Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) != 0 && NC2Lifetime::Read<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::HumanId) == human) return slot;
         }
         return nullptr;
     }
@@ -491,9 +491,9 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         for (std::uint32_t index = 0; index < 20; ++index)
         {
-            auto* slot = static_cast<std::byte*>(house) + 0x640u + index * 0x10u;
-            if (Read<std::uint8_t>(slot, 0) == 0 || Read<std::uint32_t>(slot, 4) != humanId) continue;
-            Write<std::uint8_t>(slot, 0, Read<std::uint8_t>(slot, 0) & ~attachmentMask);
+            auto* slot = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::Attachments + index * NC2Layout::RecordSize::HouseAttachment;
+            if (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) == 0 || Read<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::HumanId) != humanId) continue;
+            Write<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask, Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) & ~attachmentMask);
             auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
             switch (attachmentMask)
             {
@@ -501,12 +501,12 @@ namespace NC2Logic
             case SwitchIds::HouseAttachmentMask::Worker: case SwitchIds::HouseAttachmentMask::Builder: Human_DetachFromWorkHouse(human); break;
             case SwitchIds::HouseAttachmentMask::Student:
                 Human_DetachFromWorkHouse(human);
-                Write<std::uint32_t>(slot, 8, 0);
-                Write<std::uint32_t>(slot, 12, 0);
+                Write<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::TrainingJobType, 0);
+                Write<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::TrainingGoodType, 0);
                 break;
             default: break;
             }
-            if (Read<std::uint8_t>(slot, 0) == 0) Write<std::uint32_t>(slot, 4, NXBasics::IntegerRange::UInt32Maximum);
+            if (Read<std::uint8_t>(slot, NC2Layout::HouseAttachmentOffset::RoleMask) == 0) Write<std::uint32_t>(slot, NC2Layout::HouseAttachmentOffset::HumanId, NXBasics::IntegerRange::UInt32Maximum);
             return true;
         }
         return false;
@@ -516,10 +516,10 @@ namespace NC2Logic
     bool House_Construction_IsNeedingFutureGood(const void* house, std::uint32_t good)
     {
         using namespace NC2Lifetime;
-        for (std::int32_t i = 0; i < Read<std::int32_t>(house, 0x38); ++i)
+        for (std::int32_t i = 0; i < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++i)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(i) * 0x14u;
-            if (Read<std::uint32_t>(house, offset) == good && Read<std::uint32_t>(house, offset + 4) != Read<std::uint32_t>(house, offset + 8) + Read<std::uint32_t>(house, offset + 12)) return true;
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(i) * NC2Layout::RecordSize::HouseConstructionGood;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType) == good && Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::RequiredAmount) != Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) + Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount)) return true;
         }
         return false;
     }
@@ -531,13 +531,13 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return !House_Construction_IsNeedingFutureGood(house, good);
         if (House_GetHouseMainType(house) == 2)
         {
-            if (good == 29) return Read<std::uint8_t>(house, 0x780) == 0;
-            if (good == 28) return Read<std::uint8_t>(house, 0x788) == 0;
-            if (good == 15) return Read<std::uint8_t>(house, 0x790) == 0 || Read<std::uint32_t>(house, 0x20) < 2;
+            if (good == 29) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) == 0;
+            if (good == 28) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed) == 0;
+            if (good == 15) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) < 2;
         }
         else if (good == 15 && (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37)) return false;
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
-        return slot == -1 || Read<std::uint32_t>(house, 0x328u + static_cast<std::uint32_t>(slot) * 4u) >= House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
+        return slot == -1 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::FutureStockAmounts + static_cast<std::uint32_t>(slot) * 4u) >= House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
     }
 
     // Original function: FUN_00431879; subtraction wraps as an unsigned Windows DWORD.
@@ -548,21 +548,21 @@ namespace NC2Logic
         const auto* data = House_GetHouseTypeDataPtr(house);
         if (data->mainType == 2)
         {
-            if (good == 29) return Read<std::uint8_t>(house, 0x780) == 0 ? 0u : 100u - Read<std::uint32_t>(house, 0x784);
-            if (good == 28) return Read<std::uint8_t>(house, 0x788) == 0 ? 0u : 100u - Read<std::uint32_t>(house, 0x78C);
-            if (good == 15) return Read<std::uint8_t>(house, 0x790) == 0 || Read<std::uint32_t>(house, 0x20) < 2 ? 0u : 3000u - Read<std::uint32_t>(house, 0x794);
+            if (good == 29) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) == 0 ? 0u : 100u - Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value);
+            if (good == 28) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed) == 0 ? 0u : 100u - Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value);
+            if (good == 15) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) < 2 ? 0u : 3000u - Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value);
         }
-        else if (good == 15 && type == 37) return 1u - Read<std::uint32_t>(house, 0x794);
+        else if (good == 15 && type == 37) return 1u - Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value);
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
-        if (slot == -1 || (data->mainType == 3 && type != 12 && type != 34 && data->stock[slot].unknown08 == 0)) return 0;
-        return House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot)) - Read<std::uint32_t>(house, 0x118u + static_cast<std::uint32_t>(slot) * 4u);
+        if (slot == -1 || (data->mainType == 3 && type != 12 && type != 34 && data->stock[slot].isOutputStock == 0)) return 0;
+        return House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot)) - Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + static_cast<std::uint32_t>(slot) * 4u);
     }
 
     // Original function: FUN_004330bb; scan all construction interaction rows.
     bool House_Construction_GetNextWorkPoint(const void* house, const void* source, void* point, bool avoidOtherBuilders, std::uint32_t humanId, std::uint32_t continent)
     {
         using namespace NC2Lifetime;
-        const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
+        const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
         const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         const auto* area = Read<const CMapArea*>(definition, 0x34u + stage * 4u);
         if (area == nullptr) return false;
@@ -586,9 +586,9 @@ namespace NC2Logic
                             {
                                 for (std::uint32_t slot = 0; slot < 20; ++slot)
                                 {
-                                    const auto offset = 0x640u + slot * 0x10u;
-                                    if ((Read<std::uint8_t>(house, offset) & 4u) == 0) continue;
-                                    const auto id = Read<std::uint32_t>(house, offset + 4);
+                                    const auto offset = NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment;
+                                    if ((Read<std::uint8_t>(house, offset + NC2Layout::HouseAttachmentOffset::RoleMask) & 4u) == 0) continue;
+                                    const auto id = Read<std::uint32_t>(house, offset + NC2Layout::HouseAttachmentOffset::HumanId);
                                     if (id == humanId) continue;
                                     const auto* other = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
                                     if (Read<std::uint32_t>(Human_GetMapPositionRef(other), 0) == candidate && Read<std::uint32_t>(other, 0xAB8) != 1) { occupied = true; break; }
@@ -609,31 +609,31 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (overlay >= 5) return;
-        const auto offset = 0x7A8u + static_cast<std::uint32_t>(overlay) * 4u;
+        const auto offset = NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * 4u;
         const auto counter = (duration + 11u) / 12u;
         const auto previous = Read<std::uint32_t>(house, offset);
         if (previous != 0) { if (counter > previous) Write(house, offset, counter); return; }
         Write(house, offset, counter);
-        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1C, true, Read<std::uint32_t>(house, 4), static_cast<std::uint32_t>(overlay), 1);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1C, true, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), static_cast<std::uint32_t>(overlay), 1);
     }
 
     // Original function: FUN_00433515; counters above ten represent unlimited production.
     void House_Production_DidProduceOneGood(void* house)
     {
         using namespace NC2Lifetime;
-        const auto previous = Read<std::uint32_t>(house, 0x79C);
+        const auto previous = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ProductionCounter);
         if (previous > 10) return;
-        Write(house, 0x79C, previous - 1u);
+        Write(house, NC2Layout::HouseOffset::ProductionCounter, previous - 1u);
         House_l_Production_CheckProductionCounter(house);
     }
     // Original function: FUN_00432d92.
     bool House_Construction_IsNeedingGood(const void* house, std::uint32_t good)
     {
         using namespace NC2Lifetime;
-        for (std::int32_t i = 0; i < Read<std::int32_t>(house, 0x38); ++i)
+        for (std::int32_t i = 0; i < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++i)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(i) * 0x14u;
-            if (Read<std::uint32_t>(house, offset) == good && Read<std::uint32_t>(house, offset + 4) != Read<std::uint32_t>(house, offset + 8)) return true;
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(i) * NC2Layout::RecordSize::HouseConstructionGood;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType) == good && Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::RequiredAmount) != Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount)) return true;
         }
         return false;
     }
@@ -645,13 +645,13 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return !House_Construction_IsNeedingGood(house, good);
         if (House_GetHouseMainType(house) == 2)
         {
-            if (good == 29) return Read<std::uint8_t>(house, 0x780) == 0;
-            if (good == 28) return Read<std::uint8_t>(house, 0x788) == 0;
-            if (good == 15) return Read<std::uint8_t>(house, 0x790) == 0 || Read<std::uint32_t>(house, 0x20) < 2;
+            if (good == 29) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) == 0;
+            if (good == 28) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed) == 0;
+            if (good == 15) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) < 2;
         }
         else if (good == 15 && (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37)) return false;
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
-        return slot == -1 || Read<std::uint32_t>(house, 0x118u + static_cast<std::uint32_t>(slot) * 4u) >= House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
+        return slot == -1 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + static_cast<std::uint32_t>(slot) * 4u) >= House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
     }
 
     // Original function: FUN_0043179d; enhancer thresholds and demand flags are Windows-specific.
@@ -662,22 +662,22 @@ namespace NC2Logic
         const auto* data = House_GetHouseTypeDataPtr(house);
         if (data->mainType == 2)
         {
-            if (good == 29) return Read<std::uint8_t>(house, 0x780) != 0 && Read<std::int32_t>(house, 0x784) < 100;
-            if (good == 28) return Read<std::uint8_t>(house, 0x788) != 0 && Read<std::int32_t>(house, 0x78C) < 100;
-            if (good == 15) return Read<std::uint8_t>(house, 0x790) != 0 && Read<std::uint32_t>(house, 0x20) >= 2 && Read<std::int32_t>(house, 0x794) < 3000;
+            if (good == 29) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) != 0 && Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value) < 100;
+            if (good == 28) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed) != 0 && Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value) < 100;
+            if (good == 15) return Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) >= 2 && Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value) < 3000;
         }
-        else if (good == 15 && type == 37) return Read<std::int32_t>(house, 0x794) <= 0;
+        else if (good == 15 && type == 37) return Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value) <= 0;
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
         if (slot == -1) return false;
-        if (data->mainType == 3 && type != 12 && type != 34 && data->stock[slot].unknown08 == 0) return false;
-        return Read<std::uint32_t>(house, 0x118u + static_cast<std::uint32_t>(slot) * 4u) < House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
+        if (data->mainType == 3 && type != 12 && type != 34 && data->stock[slot].isOutputStock == 0) return false;
+        return Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + static_cast<std::uint32_t>(slot) * 4u) < House_Stock_GetMaximumAmountByStockId(house, static_cast<std::uint32_t>(slot));
     }
 
     // Original function: FUN_0043324d; inTemple/humanId are unused in Windows.
     bool House_Religion_GetNextPrayPoint(const void* house, const void* source, void* point, bool /*inTemple*/, std::uint32_t /*humanId*/, std::uint32_t continent)
     {
         using namespace NC2Lifetime;
-        const auto stage = Read<std::uint32_t>(house, 0x20) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
+        const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) + (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2 ? 1u : 0u);
         const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         const auto* area = Read<const CMapArea*>(definition, 0x34u + stage * 4u);
         if (area == nullptr) return false;
@@ -708,7 +708,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (enhancer > 2) return true;
-        const auto offset = 0x784u + enhancer * 8u;
+        const auto offset = NC2Layout::HouseOffset::HomeQualityEnhancer0ValueUnsigned + enhancer * 8u;
         const auto previous = Read<std::uint32_t>(house, offset);
         if (direction > 0)
         {
@@ -726,19 +726,19 @@ namespace NC2Logic
         return false;
     }
 
-    // Original function: FUN_00432d14; production entries are 14h bytes and totals cap at FEh.
-    static bool House_Production_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta)
+    // Original function: FUN_00432d14; construction-good entries are 14h bytes and totals cap at FEh.
+    static bool House_l_Construction_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta)
     {
         using namespace NC2Lifetime;
-        for (std::int32_t index = 0; index < Read<std::int32_t>(house, 0x38); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++index)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(index) * 0x14u;
-            if (Read<std::uint32_t>(house, offset) != goodId) continue;
-            const auto future = Read<std::uint32_t>(house, offset + 12);
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HouseConstructionGood;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType) != goodId) continue;
+            const auto future = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount);
             if (NXBasics::Runtime_TimeSigned32(future + static_cast<std::uint32_t>(delta)) < 0) return false;
-            if (Read<std::uint32_t>(house, offset + 8) + future + static_cast<std::uint32_t>(delta) > 254u) continue;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) + future + static_cast<std::uint32_t>(delta) > 254u) continue;
             const auto byteDelta = static_cast<std::int8_t>(static_cast<std::uint8_t>(delta));
-            Write(house, offset + 12, future + static_cast<std::uint32_t>(static_cast<std::int32_t>(byteDelta)));
+            Write(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount, future + static_cast<std::uint32_t>(static_cast<std::int32_t>(byteDelta)));
             return true;
         }
         return false;
@@ -751,9 +751,9 @@ namespace NC2Logic
         const auto* type = House_GetHouseTypeDataPtr(house);
         if (type->mainType == 2)
         {
-            if (goodId == 15) return !futureStock && Read<std::uint8_t>(house, 0x790) != 0 && Read<std::uint32_t>(house, 0x20) >= 2u;
-            if (goodId == 28) return !futureStock && Read<std::uint8_t>(house, 0x788) != 0;
-            if (goodId == 29) return !futureStock && Read<std::uint8_t>(house, 0x780) != 0;
+            if (goodId == 15) return !futureStock && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) >= 2u;
+            if (goodId == 28) return !futureStock && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed) != 0;
+            if (goodId == 29) return !futureStock && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) != 0;
         }
         else if (!futureStock && goodId == 15 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37) return true;
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
@@ -764,10 +764,10 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00431d2d; negative wrapped totals fail, positive totals cap at 1000.
-    bool House_Stock_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta, bool modifyProduction)
+    bool House_Stock_ModifyFutureAmount(void* house, std::uint32_t goodId, std::int32_t delta, bool modifyConstruction)
     {
         using namespace NC2Lifetime;
-        if (modifyProduction && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 && (delta == 1 || delta == -1) && House_Production_ModifyFutureAmount(house, goodId, delta)) return true;
+        if (modifyConstruction && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 && (delta == 1 || delta == -1) && House_l_Construction_ModifyFutureAmount(house, goodId, delta)) return true;
         if (House_GetHouseTypeDataPtr(house)->mainType == 2)
         {
             if (goodId == 15 || (NXBasics::Runtime_TimeSigned32(goodId) > 27 && NXBasics::Runtime_TimeSigned32(goodId) <= 29)) return true;
@@ -775,7 +775,7 @@ namespace NC2Logic
         else if (goodId == 15 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37) return true;
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
         if (slot == -1) return false;
-        const auto offset = 0x328u + static_cast<std::uint32_t>(slot) * 4u;
+        const auto offset = NC2Layout::HouseOffset::FutureStockAmounts + static_cast<std::uint32_t>(slot) * 4u;
         const auto value = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, offset) + static_cast<std::uint32_t>(delta));
         if (value < 0) return false;
         Write(house, offset, value > 1000 ? 1000 : value);
@@ -784,8 +784,8 @@ namespace NC2Logic
     // Original function: FUN_00434cb0; notify before storing the newly enabled flag.
     void House_SetDefenceModeFlag(void* house, bool enabled)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(house, 0x7D8) == 0 && enabled) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), 3, 0);
-        NC2Lifetime::Write(house, 0x7D8, static_cast<std::uint8_t>(enabled));
+        if (NC2Lifetime::Read<std::uint8_t>(house, NC2Layout::HouseOffset::DefenceModeFlag) == 0 && enabled) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), 3, 0);
+        NC2Lifetime::Write(house, NC2Layout::HouseOffset::DefenceModeFlag, static_cast<std::uint8_t>(enabled));
     }
 
     // Original function: FUN_0045bfec; Windows consists solely of RET 4.
@@ -813,13 +813,13 @@ namespace NC2Logic
     {
         if (NXBasics::Runtime_TimeSigned32(good) >= 66) return;
         const auto stock = House_l_Stock_GetStockSlotIdForGoodType(house, good);
-        if (stock != -1) NC2Lifetime::Write(house, 0x538u + static_cast<std::uint32_t>(stock) * 4u, minimum);
+        if (stock != -1) NC2Lifetime::Write(house, NC2Layout::HouseOffset::StockMinimumAmounts + static_cast<std::uint32_t>(stock) * 4u, minimum);
     }
 
     // Original function: FUN_0043347c; the enhancer index is unchecked.
     bool House_HomeQualityEnhancer_SetAllowedFlag(void* house, std::uint32_t enhancer, bool allowed)
     {
-        const auto offset = 0x780u + enhancer * 8u;
+        const auto offset = NC2Layout::HouseOffset::HomeQualityEnhancersUnsigned + enhancer * 8u;
         if (NC2Lifetime::Read<std::uint8_t>(house, offset) == static_cast<std::uint8_t>(allowed)) return false;
         NC2Lifetime::Write(house, offset, static_cast<std::uint8_t>(allowed));
         return true;
@@ -828,38 +828,38 @@ namespace NC2Logic
     // Original function: FUN_0043349a.
     void House_Production_SetStoppedFlag(void* house, bool stopped)
     {
-        NC2Lifetime::Write(house, 0x798, static_cast<std::uint8_t>(stopped));
-        if (!stopped && NC2Lifetime::Read<std::int32_t>(house, 0x79C) <= 0) NC2Lifetime::Write<std::uint32_t>(house, 0x79C, 1000000);
+        NC2Lifetime::Write(house, NC2Layout::HouseOffset::ProductionStoppedFlag, static_cast<std::uint8_t>(stopped));
+        if (!stopped && NC2Lifetime::Read<std::int32_t>(house, NC2Layout::HouseOffset::ProductionCounter) <= 0) NC2Lifetime::Write<std::uint32_t>(house, NC2Layout::HouseOffset::ProductionCounter, 1000000);
     }
 
     // Original function: FUN_0043352f; signed counter comparison.
     void House_l_Production_CheckProductionCounter(void* house)
     {
-        if (NC2Lifetime::Read<std::int32_t>(house, 0x79C) > 0) return;
-        NC2Lifetime::Write<std::uint32_t>(house, 0x79C, 0);
-        NC2Lifetime::Write<std::uint8_t>(house, 0x798, 1);
+        if (NC2Lifetime::Read<std::int32_t>(house, NC2Layout::HouseOffset::ProductionCounter) > 0) return;
+        NC2Lifetime::Write<std::uint32_t>(house, NC2Layout::HouseOffset::ProductionCounter, 0);
+        NC2Lifetime::Write<std::uint8_t>(house, NC2Layout::HouseOffset::ProductionStoppedFlag, 1);
     }
 
     // Original function: FUN_004334c0; the initial threshold comparison is unsigned.
     void House_Production_ChangeCounter(void* house, std::int32_t delta)
     {
-        const auto counter = NC2Lifetime::Read<std::uint32_t>(house, 0x79C);
+        const auto counter = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::ProductionCounter);
         if (counter > 10)
         {
             if (delta >= 0) return;
-            NC2Lifetime::Write<std::uint32_t>(house, 0x79C, 10);
+            NC2Lifetime::Write<std::uint32_t>(house, NC2Layout::HouseOffset::ProductionCounter, 10);
             House_l_Production_CheckProductionCounter(house);
             return;
         }
-        NC2Lifetime::Write(house, 0x79C, counter + static_cast<std::uint32_t>(delta));
+        NC2Lifetime::Write(house, NC2Layout::HouseOffset::ProductionCounter, counter + static_cast<std::uint32_t>(delta));
         House_l_Production_CheckProductionCounter(house);
-        if (delta >= 0 && NC2Lifetime::Read<std::uint8_t>(house, 0x798) != 0) House_Production_SetStoppedFlag(house, false);
+        if (delta >= 0 && NC2Lifetime::Read<std::uint8_t>(house, NC2Layout::HouseOffset::ProductionStoppedFlag) != 0) House_Production_SetStoppedFlag(house, false);
     }
     // Original function: FUN_00434274; Windows looks up the definition twice.
     void House_Misc_Blocks_SetToMap(const void* house)
     {
         const auto* type = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-        NC2Lifetime::Read<const CMapArea*>(type, 0x20u + NC2Lifetime::Read<std::uint32_t>(house, 0x20) * 4u)->WalkBlock_Set(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, true);
+        NC2Lifetime::Read<const CMapArea*>(type, 0x20u + NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u)->WalkBlock_Set(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, true);
         type = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         NC2Lifetime::Read<const CMapArea*>(type, 0x1C)->BuildBlock_Set(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, true);
     }
@@ -868,7 +868,7 @@ namespace NC2Logic
     void* House_Misc_WalkBlockArea_GetPtr(const void* house)
     {
         const void* type = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-        return NC2Lifetime::Read<void*>(type, 0x20u + NC2Lifetime::Read<std::uint32_t>(house, 0x20) * 4u);
+        return NC2Lifetime::Read<void*>(type, 0x20u + NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
     }
 
     // Original function: FUN_004316cc.
@@ -890,19 +890,19 @@ namespace NC2Logic
         {
             if (type->mainType == 2)
             {
-                if (goodId == 15) return static_cast<float>(Read<std::int32_t>(house, 0x794));
-                if (goodId == 28) return static_cast<float>(Read<std::int32_t>(house, 0x78C));
-                if (goodId == 29) return static_cast<float>(Read<std::int32_t>(house, 0x784));
+                if (goodId == 15) return static_cast<float>(Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value));
+                if (goodId == 28) return static_cast<float>(Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value));
+                if (goodId == 29) return static_cast<float>(Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value));
             }
-            else if (goodId == 15 && (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37)) return static_cast<float>(Read<std::int32_t>(house, 0x794));
+            else if (goodId == 15 && (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37)) return static_cast<float>(Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value));
         }
         const std::int32_t slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
         if (slot == -1) return 0.0f;
         const auto index = static_cast<std::uint32_t>(slot);
         if (type->mainType == 3 && includeFutureStock && Read<std::uint8_t>(type, 0x6Cu + index * 12u) != 0) return 0.0f;
-        // Windows loads future stock unsigned, but FIADD reads current stock signed.
-        // The future-stock term is included even when includeFutureStock is false.
-        return static_cast<float>(static_cast<double>(Read<std::uint32_t>(house, 0x220u + index * 4u)) * static_cast<double>(0.1f) + static_cast<double>(Read<std::int32_t>(house, 0x118u + index * 4u)));
+        // Windows loads fractional stock unsigned, but FIADD reads whole units signed.
+        // The fractional term is included regardless of the stock-query filter.
+        return static_cast<float>(static_cast<double>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockFractionalAmounts + index * 4u)) * static_cast<double>(0.1f) + static_cast<double>(Read<std::int32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * 4u)));
     }
 
     // Original function: FUN_00431f3c; CHouse::l_Stock_GetStockSlotIdForGoodType.
@@ -920,7 +920,7 @@ namespace NC2Logic
     std::int32_t House_Construction_GetPercentage(const void* house)
     {
         if (NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3) return 100;
-        return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(house, 0x30) * 100u) / NC2Lifetime::Read<std::int32_t>(house, 0x34);
+        return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionStepsDone) * 100u) / NC2Lifetime::Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionStepsRequired);
     }
     // Original function: FUN_00431944; CHouse::Stock_GetAmountOfGoods.
     std::uint32_t House_Stock_GetAmountOfGoods(const void* house, std::uint32_t goodId, bool stockOnly)
@@ -933,17 +933,17 @@ namespace NC2Logic
         {
             if (type->mainType == 2)
             {
-                if (goodId == 15) return Read<std::uint32_t>(house, 0x794);
-                if (goodId == 28) return Read<std::uint32_t>(house, 0x78C);
-                if (goodId == 29) return Read<std::uint32_t>(house, 0x784);
+                if (goodId == 15) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value);
+                if (goodId == 28) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value);
+                if (goodId == 29) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value);
             }
-            else if (goodId == 15 && (typeId == 1 || typeId == 37)) return Read<std::uint32_t>(house, 0x794);
+            else if (goodId == 15 && (typeId == 1 || typeId == 37)) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value);
         }
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
         if (slot == -1) return 0;
         const auto index = static_cast<std::uint32_t>(slot);
         if (type->mainType == 3 && stockOnly && Read<std::uint8_t>(type, 0x6Cu + index * 12u) != 0) return 0;
-        return Read<std::uint32_t>(house, 0x118u + index * 4u);
+        return Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * 4u);
     }
 
     // Original function: FUN_004319d7; a read also updates unmet-demand counters.
@@ -957,18 +957,18 @@ namespace NC2Logic
         {
             if (type->mainType == 2)
             {
-                if (goodId == 15) return Read<std::uint32_t>(house, 0x794);
-                if (goodId == 28) return Read<std::uint32_t>(house, 0x78C);
-                if (goodId == 29) return Read<std::uint32_t>(house, 0x784);
+                if (goodId == 15) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value);
+                if (goodId == 28) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value);
+                if (goodId == 29) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value);
             }
-            else if (goodId == 15 && (typeId == 1 || typeId == 37)) return Read<std::uint32_t>(house, 0x794);
+            else if (goodId == 15 && (typeId == 1 || typeId == 37)) return Read<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value);
         }
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, goodId);
         if (slot == -1) return 0;
         const auto index = static_cast<std::uint32_t>(slot);
         if (type->mainType == 3 && stockOnly && Read<std::uint8_t>(type, 0x6Cu + index * 12u) != 0) return 0;
-        const auto amount = Read<std::uint32_t>(house, 0x118u + index * 4u);
-        const auto offset = 0x430u + index * 4u;
+        const auto amount = Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * 4u);
+        const auto offset = NC2Layout::HouseOffset::StockRequestCounters + index * 4u;
         if (amount == 0) Write(house, offset, Read<std::uint32_t>(house, offset) + 1u);
         else
         {
@@ -982,14 +982,14 @@ namespace NC2Logic
     bool House_l_Construction_PutGoodIntoStock(void* house, std::uint32_t good)
     {
         using namespace NC2Lifetime;
-        for (std::int32_t index = 0; index < Read<std::int32_t>(house, 0x38); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++index)
         {
-            const auto offset = 0x3Cu + static_cast<std::uint32_t>(index) * 0x14u;
-            if (Read<std::uint32_t>(house, offset) != good || Read<std::uint32_t>(house, offset + 8) == Read<std::uint32_t>(house, offset + 4)) continue;
-            Write(house, offset + 8, Read<std::uint32_t>(house, offset + 8) + 1u);
-            Write(house, 0x108, Read<std::uint32_t>(house, 0x108) + 1u);
-            const auto future = Read<std::uint32_t>(house, offset + 12);
-            if (future != 0) Write(house, offset + 12, future - 1u);
+            const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::HouseConstructionGood;
+            if (Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType) != good || Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) == Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::RequiredAmount)) continue;
+            Write(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount, Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) + 1u);
+            Write(house, NC2Layout::HouseOffset::ConstructionGoodsDelivered, Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsDelivered) + 1u);
+            const auto future = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount);
+            if (future != 0) Write(house, offset + NC2Layout::HouseConstructionGoodOffset::IncomingAmount, future - 1u);
             return true;
         }
         return false;
@@ -1017,8 +1017,8 @@ namespace NC2Logic
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
         if (slot == -1) return false;
         const auto index = static_cast<std::uint32_t>(slot);
-        auto remainder = Read<std::uint32_t>(house, 0x220u + index * 4u) + static_cast<std::uint32_t>(fraction);
-        auto total = Read<std::uint32_t>(house, 0x118u + index * 4u) + static_cast<std::uint32_t>(amount);
+        auto remainder = Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockFractionalAmounts + index * 4u) + static_cast<std::uint32_t>(fraction);
+        auto total = Read<std::uint32_t>(house, NC2Layout::HouseOffset::StockAmounts + index * 4u) + static_cast<std::uint32_t>(amount);
         if (NXBasics::Runtime_TimeSigned32(remainder) >= 10)
         {
             const auto whole = remainder / 10u;
@@ -1033,8 +1033,8 @@ namespace NC2Logic
         }
         if (NXBasics::Runtime_TimeSigned32(total) >= 1000) { total = 1000; remainder = 0; }
         if (NXBasics::Runtime_TimeSigned32(total) < 0) return false;
-        Write(house, 0x118u + index * 4u, total);
-        Write(house, 0x220u + index * 4u, remainder);
+        Write(house, NC2Layout::HouseOffset::StockAmounts + index * 4u, total);
+        Write(house, NC2Layout::HouseOffset::StockFractionalAmounts + index * 4u, remainder);
         return true;
     }
 }

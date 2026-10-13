@@ -65,7 +65,7 @@ namespace NC2Logic
         if (opcode > 0x59 && opcode < 0x62)
         {
             auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(command, 4) * CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(command, 8)) return;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != Read<std::uint32_t>(command, 8)) return;
             switch (opcode)
             {
             case SwitchIds::UserCommand::DestroyHouse: House_Misc_Destroy_House(house, nullptr); break;
@@ -115,7 +115,7 @@ namespace NC2Logic
             const auto* type = House_GetHouseTypeDataPtr(house);
             for (std::uint32_t stock = 0; stock < type->stockCount; ++stock)
             {
-                if (type->stock[stock].unknown08 == 0) continue;
+                if (type->stock[stock].isOutputStock == 0) continue;
                 const auto good = static_cast<std::uint32_t>(type->stock[stock].goodType);
                 const auto maximum = House_Stock_GetMaximumAmountByStockId(house, stock);
                 House_Stock_ModifyAmount(house, nullptr, good, maximum, false);

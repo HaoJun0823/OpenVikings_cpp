@@ -162,17 +162,17 @@ namespace NC2Logic
         const auto build = Read<SHouseBuild>(village, 0xCC4);
         if (build.IsValidCheck()) return;
         auto last = Read<std::int32_t>(manager, 0);
-        if (last != -1 && Read<std::uint8_t>(House(last), 0) == 0) { Write<std::int32_t>(manager, 0, -1); last = -1; }
+        if (last != -1 && Read<std::uint8_t>(House(last), NC2Layout::HouseOffset::AllocatedFlag) == 0) { Write<std::int32_t>(manager, 0, -1); last = -1; }
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
             if (last != -1) { if (last <= id) { Write<std::int32_t>(manager, 0, -1); last = -1; } continue; }
             auto* house = House(id);
-            const auto type = Read<std::uint32_t>(house, 0x14);
+            const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
             if (type == 40 || type == 41) AIVillageManager_House_TryToUpgradeHouse(village, house);
             else if (type == 1) continue;
             if (AIHouseManager_Tower_IsHouseInDefendRange(houseManager, house)) continue;
-            const auto* point = static_cast<const std::byte*>(house) + 0x24;
+            const auto* point = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
             const auto result = AIVillageManager_House_BuildHouse(village, 41, point, false, slAITowerManagerSearchBuildPos, 0);
             if (result == -3 || result == -2) Write(manager, 0, id - 1);
             else if (result >= -1 && result <= 0)
@@ -192,7 +192,7 @@ namespace NC2Logic
         if (houseId != -1)
         {
             const void* house = House(houseId);
-            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == uniqueId && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x2C) != 3) return true;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == uniqueId && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return true;
         }
         active = 0;
         return false;
@@ -202,7 +202,7 @@ namespace NC2Logic
     {
         if (active == 0 || houseId == -1) return false;
         const void* house = House(houseId);
-        return Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == uniqueId && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x2C) != 3;
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == uniqueId && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3;
     }
     // Original function: FUN_00476dc5; future stock is modified before construction stock.
     void SHouseBuild::BuildHouse(std::uint32_t player, const void* point, std::uint32_t engineType, std::uint32_t stage, bool fillConstructionStock)
@@ -210,9 +210,9 @@ namespace NC2Logic
         const auto id = Logic_EntryPoint_House_Set(player, engineType, stage, point, false, 0);
         if (id == -1) return;
         void* house = House(id);
-        houseId = id; uniqueId = Read<std::uint32_t>(house, 8); active = 1;
+        houseId = id; uniqueId = Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId); active = 1;
         if (!fillConstructionStock) return;
-        const auto* definition = static_cast<const std::byte*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10))) + 0x48;
+        const auto* definition = static_cast<const std::byte*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType))) + 0x48;
         auto remaining = stage + 1u;
         do
         {
@@ -232,7 +232,7 @@ namespace NC2Logic
         if (houseId != -1)
         {
             const void* house = House(houseId);
-            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == uniqueId && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x20) != stage && Read<std::uint32_t>(house, 0x2C) != 3) return true;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == uniqueId && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) != stage && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return true;
         }
         active = 0;
         return false;

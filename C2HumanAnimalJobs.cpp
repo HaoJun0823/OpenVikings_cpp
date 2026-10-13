@@ -83,7 +83,7 @@ namespace NC2Logic
         }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
-        if (Read<std::uint8_t>(house, 0x798) != 0 || !House_Stock_CanStoreGoodType(house, good, true)) { Fail(human, 2); return; }
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::ProductionStoppedFlag) != 0 || !House_Stock_CanStoreGoodType(house, good, true)) { Fail(human, 2); return; }
         for (const auto animalGood : {57u, 58u}) House_Stock_ModifyAmount(house, animalGood, -static_cast<std::int32_t>(House_Stock_GetAmountOfGoods(house, animalGood, false)), 0, false);
         const auto animalType = good == 57 ? 19u : 10u;
         bool hasInteracting = false;
@@ -100,13 +100,13 @@ namespace NC2Logic
             if (Animal_IsAttachedToHouse(animal))
             {
                 auto* currentHouse = House(TargetData_GetObjectId(static_cast<const std::byte*>(animal) + 0x50));
-                if (Read<std::uint32_t>(currentHouse, 4) == Read<std::uint32_t>(house, 4))
+                if (Read<std::uint32_t>(currentHouse, NC2Layout::HouseOffset::HouseId) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId))
                 {
                     House_Stock_ModifyAmount(house, type == 19 ? 57u : 58u, 1, 0, false);
                     if (type != animalType || Read<std::uint32_t>(animal, 0x18) != 49) continue;
                     ++adults;
                     if (hasInteracting) continue;
-                    const auto distance = Distance(Animal_GetMapPositionRef(animal), static_cast<const std::byte*>(house) + 0x24);
+                    const auto distance = Distance(Animal_GetMapPositionRef(animal), static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint);
                     if (distance >= slaughterDistance) continue;
                     if (Read<std::uint32_t>(animal, 0x1C) == 10) hasInteracting = true;
                     slaughter = animal;
@@ -114,9 +114,9 @@ namespace NC2Logic
                     continue;
                 }
                 if (type != animalType) continue;
-                if (House_GetHouseMainType(currentHouse) != 1) { candidates.Add(animal, currentHouse, static_cast<const std::byte*>(house) + 0x1C); continue; }
+                if (House_GetHouseMainType(currentHouse) != 1) { candidates.Add(animal, currentHouse, static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition); continue; }
             }
-            const auto distance = Distance(static_cast<const std::byte*>(house) + 0x1C, Animal_GetMapPositionRef(animal));
+            const auto distance = Distance(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, Animal_GetMapPositionRef(animal));
             if (distance < nearestDistance) { nearest = animal; nearestDistance = distance; }
         }
         if (!House_Stock_IsFullSoon(house, good))
@@ -124,7 +124,7 @@ namespace NC2Logic
             if (nearest == nullptr && House_Stock_GetAmountOfGoods(house, good, false) < 2) nearest = candidates.GetNearest();
             if (nearest != nullptr)
             {
-                Animal_AttachToHouse(nearest, Read<std::int32_t>(house, 4));
+                Animal_AttachToHouse(nearest, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId));
                 House_Stock_ModifyAmount(house, good, 1, 0, false);
             }
         }
@@ -183,11 +183,11 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())
         {
             auto* animal = Animal(static_cast<std::uint32_t>(id));
-            if (Read<std::uint32_t>(animal, 0x14) != type || !Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50) != Read<std::uint32_t>(house, 8) || Read<std::uint32_t>(animal, 0x18) != 49) continue;
+            if (Read<std::uint32_t>(animal, 0x14) != type || !Animal_IsAttachedToHouse(animal) || TargetData_GetUniqueId(static_cast<const std::byte*>(animal) + 0x50) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) || Read<std::uint32_t>(animal, 0x18) != 49) continue;
             if (++adults < 2) continue;
             const auto newborn = Logic_EntryPoint_Add_Animal(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), type, 48, Animal_GetMapPositionRef(animal), 0, 0);
             if (newborn == -1) return;
-            Animal_AttachToHouse(Animal(static_cast<std::uint32_t>(newborn)), Read<std::int32_t>(house, 4));
+            Animal_AttachToHouse(Animal(static_cast<std::uint32_t>(newborn)), Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId));
             Human_l_JobExperience_Gain(human);
             Human_Production_DidProduceGoods(human, 1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);

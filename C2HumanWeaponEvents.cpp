@@ -77,7 +77,7 @@ namespace NC2Logic
                 {
                     std::int16_t x = 0, y = 0;
                     static_cast<const CMapArea*>(House_Misc_WalkBlockArea_GetPtr(object))->AreaTool_GetRandomPositionDelta(&x, &y);
-                    position = Read<std::uint32_t>(object, 0x1C);
+                    position = Read<std::uint32_t>(object, NC2Layout::HouseOffset::MapPosition);
                     MapMigPoint_AddOffset(&position, x, y);
                 }
                 break;

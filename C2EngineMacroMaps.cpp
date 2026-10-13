@@ -695,7 +695,7 @@ namespace NC2E2
             for (std::int32_t id = 0; id < NC2Logic::CHouseArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * 0x7E0u;
-                if (Read<std::uint8_t>(house, 0) != 0 && inside(house + NC2Layout::HouseOffset::MapPosition)) increment(0x168);
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && inside(house + NC2Layout::HouseOffset::MapPosition)) increment(0x168);
             }
             if (Read<std::uint32_t>(map, 0x168) != 0)
             {
@@ -704,10 +704,10 @@ namespace NC2E2
                 for (std::int32_t id = 0; id < NC2Logic::CHouseArray::sTheObjectPtr->mCapacity; ++id)
                 {
                     const auto house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * 0x7E0u;
-                    if (Read<std::uint8_t>(house, 0) == 0 || !inside(house + NC2Layout::HouseOffset::MapPosition)) continue;
+                    if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || !inside(house + NC2Layout::HouseOffset::MapPosition)) continue;
                     auto* entry = entryAt(0x168, index++, 20);
-                    Write(entry, 0, Read<std::uint32_t>(house, 12)); Write<std::uint16_t>(entry, 4, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionX) - microMinX)); Write<std::uint16_t>(entry, 6, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionY) - microMinY));
-                    Write(entry, 8, Read<std::uint32_t>(house, 16)); Write(entry, 12, Read<std::uint32_t>(house, 0x20)); Write<std::uint8_t>(entry, 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3);
+                    Write(entry, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)); Write<std::uint16_t>(entry, 4, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionX) - microMinX)); Write<std::uint16_t>(entry, 6, static_cast<std::uint16_t>(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionY) - microMinY));
+                    Write(entry, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)); Write(entry, 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage)); Write<std::uint8_t>(entry, 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3);
                 }
                 mirrorPoints(0x168, 20, 4, true);
             }

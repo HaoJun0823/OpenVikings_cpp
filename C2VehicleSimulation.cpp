@@ -603,7 +603,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(vehicle, 0x53C) == 3 && index == 1) { Write<std::uint32_t>(target, 0, 0); return false; }
             const bool tooClose = distance < static_cast<std::uint32_t>(weapon.minimumRange);
             const bool sameContinent = tooClose || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&source), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&destination), 6);
-            if (TargetData_GetTargetType(target) == 4) destination = Read<std::uint32_t>(CHouseArray::mStaticVars + TargetData_GetObjectId(target) * CHouseArray::ElementSize, 0x24);
+            if (TargetData_GetTargetType(target) == 4) destination = Read<std::uint32_t>(CHouseArray::mStaticVars + TargetData_GetObjectId(target) * CHouseArray::ElementSize, NC2Layout::HouseOffset::DoorEntryPoint);
             if (sameContinent)
             {
                 const auto minimum = tooClose ? static_cast<std::uint32_t>(weapon.minimumRange) : static_cast<std::uint32_t>(weapon.maximumRange) - 5u;

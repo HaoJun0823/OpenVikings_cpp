@@ -99,7 +99,7 @@ namespace NC2Logic
     {
         const auto* villages = static_cast<const std::byte*>(high) + 28;
         auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(AIVillagesData_Military_GetBarrackHouseId(villages)) * CHouseArray::ElementSize;
-        if (Read<std::uint32_t>(house, 44) != 3) return;
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return;
         const auto player = Read<std::uint32_t>(manager, 0);
         auto count = Read<std::uint16_t>(PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player), 18);
         if (count > 190) return;
@@ -113,10 +113,10 @@ namespace NC2Logic
         }
         while (needed < 0)
         {
-            const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(high, house + 36);
+            const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(high, house + NC2Layout::HouseOffset::DoorEntryPoint);
             if (id == -1) return;
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            Human_DoAddNewUserCommand(human, 32, static_cast<std::uint8_t>(player), id, Read<std::uint32_t>(human, 8), Read<std::uint32_t>(house, 4), Read<std::uint32_t>(house, 8));
+            Human_DoAddNewUserCommand(human, 32, static_cast<std::uint8_t>(player), id, Read<std::uint32_t>(human, 8), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             if (++count > 190) return;
             ++needed;
         }
@@ -215,11 +215,11 @@ namespace NC2Logic
             for (auto id = houses.GetFirstSectorHouseId(enemy, point, 10000, false); id != -1; id = houses.GetNextSectorHouseId())
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, 36), Read<std::uint16_t>(house, 38), Read<std::uint16_t>(point, 0), Read<std::uint16_t>(point, 2));
-                const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(house + 36, player, 5);
+                const auto distance = VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY), Read<std::uint16_t>(point, 0), Read<std::uint16_t>(point, 2));
+                const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(house + NC2Layout::HouseOffset::DoorEntryPoint, player, 5);
                 const auto score = static_cast<std::int32_t>(static_cast<std::uint32_t>(distance) + static_cast<std::uint32_t>(danger));
                 if (score >= best) continue;
-                best = score; Write(target, 4, id); Write(target, 8, Read<std::uint32_t>(house, 8)); Write<std::uint32_t>(target, 0, 4);
+                best = score; Write(target, 4, id); Write(target, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); Write<std::uint32_t>(target, 0, 4);
             }
         };
         searchHouses();
@@ -602,7 +602,7 @@ namespace NC2Logic
                 const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro, 4)) : -1;
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
                 if (House_GetHouseMainType(house) != 5) continue;
-                Write<std::uint32_t>(target, 0, 4); Write(target, 4, houseId); Write(target, 8, Read<std::uint32_t>(house, 8));
+                Write<std::uint32_t>(target, 0, 4); Write(target, 4, houseId); Write(target, 8, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 AIMilitaryManager_MilitaryPoint_Add(manager, 1, 0, target, 30, 2, 3);
             }
         }

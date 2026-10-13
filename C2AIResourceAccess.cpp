@@ -109,14 +109,14 @@ namespace NC2Logic
             for (std::uint32_t stock = 0; stock < definition.stockCount; ++stock)
             {
                 const auto& output = definition.stock[stock];
-                if (output.unknown08 == 0 || Read<std::uint8_t>(control, 0x1278 + tribe * 66 + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
+                if (output.isOutputStock == 0 || Read<std::uint8_t>(control, 0x1278 + tribe * 66 + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
                 for (std::uint32_t other = 0; other < 55; ++other)
                 {
                     if (other == 7 || other == 8 || other == 9 || other == 1 || Read<std::uint8_t>(control, 0x2820 + tribe * 55 + other) == 0) continue;
                     const auto& consumer = gStaticHouseTypeStorage.records[other];
                     for (std::uint32_t input = 0; input < consumer.stockCount; ++input)
                     {
-                        if (consumer.stock[input].unknown08 != 0 || consumer.stock[input].goodType != output.goodType || Read<std::uint8_t>(control, 0x1278 + tribe * 66 + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
+                        if (consumer.stock[input].isOutputStock != 0 || consumer.stock[input].goodType != output.goodType || Read<std::uint8_t>(control, 0x1278 + tribe * 66 + static_cast<std::uint32_t>(output.goodType)) == 0) continue;
                         const auto count = Read<std::uint32_t>(exports, 0);
                         Write(exports, 4 + count * 4, other); Write(exports, 0, count + 1); break;
                     }

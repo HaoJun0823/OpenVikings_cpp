@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2AIAssistantAccess.h"
 #include "C2CallbackManager.h"
@@ -64,8 +65,8 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
             const auto* house = House(id);
-            if (Read<std::uint32_t>(house, 20) != 1) continue;
-            Write(point, 0, Read<std::uint32_t>(house, 36)); return true;
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != 1) continue;
+            Write(point, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)); return true;
         }
         return false;
     }
@@ -78,7 +79,7 @@ namespace NC2Logic
         {
             const auto* house = House(id);
             if (House_GetHouseMainType(house) != 1) continue;
-            x += Read<std::int16_t>(house, 36); y += Read<std::int16_t>(house, 38); ++count;
+            x += Read<std::int16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX); y += Read<std::int16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY); ++count;
         }
         if (count == 0) return false;
         MapMigPoint_SetPosition(point, static_cast<std::int16_t>(x / count), static_cast<std::int16_t>(y / count), false); return true;
@@ -185,7 +186,7 @@ namespace NC2Logic
             for (auto id = houses.GetFirstHouseId(player); id != -1; id = houses.GetNextHouseId())
             {
                 const auto* house = House(id);
-                if (Read<std::uint32_t>(house, 44) != 3 || Read<std::uint32_t>(house, 20) != 39) continue;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != 39) continue;
                 barracks[barrackCount++] = id; if (barrackCount == 5) break;
             }
             if (barrackCount != 0)
@@ -225,7 +226,7 @@ namespace NC2Logic
                 for (std::uint32_t i = 0; i < recruitCount; ++i)
                 {
                     const auto& entry = recruits[i];
-                    GameAssistantManager_l_Human_Command_Add(manager, entry.human, 32, entry.house, Read<std::uint32_t>(House(entry.house), 8), 1);
+                    GameAssistantManager_l_Human_Command_Add(manager, entry.human, 32, entry.house, Read<std::uint32_t>(House(entry.house), NC2Layout::HouseOffset::UniqueId), 1);
                     DecrementIfNonzero(data, 8); Write(data, 40, Read<std::uint32_t>(data, 40) - 1); if (Read<std::uint32_t>(data, 40) == 0) break;
                 }
             }

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "InGameGuiTraderConfigWindow.h"
 #include "InGameGuiMousePointer.h"
@@ -81,7 +82,7 @@ namespace NC2InGameGuiSelectedAction
             for (std::uint32_t slot = 0; slot < 2; ++slot)
             {
                 const void* data = NC2Logic::MerchantData_GetHouseDataPtr(merchant, slot);
-                if (NC2Logic::MerchantHouseData_IsValid(data) && Read<std::uint32_t>(House(Read<std::int32_t>(data, 0)), 0x0C) != Read<std::uint32_t>(human, 0x10)) return House(Read<std::int32_t>(data, 0));
+                if (NC2Logic::MerchantHouseData_IsValid(data) && Read<std::uint32_t>(House(Read<std::int32_t>(data, 0)), NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, 0x10)) return House(Read<std::int32_t>(data, 0));
             }
             return nullptr;
         }

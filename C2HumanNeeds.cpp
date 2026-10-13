@@ -60,9 +60,9 @@ namespace NC2Logic
         if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 1u) == 0) return false;
         const auto id = Read<std::uint16_t>(micro, 4);
         const void* house = House(id);
-        if (Read<std::uint32_t>(house, 0x2C) != 3 || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
         if (id != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) && House_GetHouseMainType(house) == 2) return false;
-        return Read<std::uint32_t>(house, 0x14) == 1 || House_Religion_IsHolyFireActive(house);
+        return Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1 || House_Religion_IsHolyFireActive(house);
     }
 
     // Original function: FUN_0042cc12.
@@ -84,12 +84,12 @@ namespace NC2Logic
         if (Read<std::uint8_t>(micro, 0) == 2)
         {
             const auto id = Read<std::uint16_t>(micro, 4);
-            if (Read<std::uint8_t>(House(id), 0x7D8) != 0) return id;
+            if (Read<std::uint8_t>(House(id), NC2Layout::HouseOffset::DefenceModeFlag) != 0) return id;
         }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 5 && Human_Target_IsValid(human))
         {
             const void* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectId));
-            if (Read<std::uint8_t>(house, 0x7D8) != 0) return Read<std::int32_t>(house, 4);
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DefenceModeFlag) != 0) return Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId);
         }
         return -1;
     }
@@ -98,7 +98,7 @@ namespace NC2Logic
     void Human_UserMessage_SendToUserMessage(void* human, std::uint32_t type)
     {
         if (type == 11 && (Human_GetPlayerType(human) == 2 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 || !Human_IsAgeAdult(human) || Read<std::uint8_t>(human, 0xB51) != 0)) return;
-        if (type == 2 && Human_IsAttachedToWorkHouse(human) && Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u) != 0 && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), 0x2C) != 3) return;
+        if (type == 2 && Human_IsAttachedToWorkHouse(human) && Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u) != 0 && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::ConstructionState) != 3) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write(message, 0, type);
@@ -480,7 +480,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
-        if (Read<std::uint32_t>(human, 0x380) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), 0x2C) == 3) Human_l_StartTask_FulfillNeeds_Stamina_AtHome(human);
+        if (Read<std::uint32_t>(human, 0x380) == 0 && !Human_IsJobIgnoringHomeHouse(human) && Human_IsAttachedToHomeHouse(human) && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), NC2Layout::HouseOffset::ConstructionState) == 3) Human_l_StartTask_FulfillNeeds_Stamina_AtHome(human);
         else Human_l_StartTask_FulfillNeeds_Stamina_OnMap(human);
     }
 
@@ -561,7 +561,7 @@ namespace NC2Logic
         if (!Human_IsJobIgnoringHomeHouse(human) && Human_IsAttachedToHomeHouse(human))
         {
             const void* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId));
-            if (Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x2C) == 3 && House_Stock_GetAmountOfGoods(house, 15, false) > 0)
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Stock_GetAmountOfGoods(house, 15, false) > 0)
             {
                 Human_l_StartTask_FulfillNeeds_Religion_AtHome(human);
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 3) return;
@@ -619,9 +619,9 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstSectorHouseId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), position, 10000, pass != 0); id != -1; id = iterator.GetNextSectorHouseId())
             {
                 const void* house = House(static_cast<std::uint32_t>(id));
-                if (Read<std::uint32_t>(house, 0x14) != (pass == 0 ? 37u : 1u) || Read<std::uint32_t>(house, 0x2C) != 3) continue;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0) return false;
-                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + 0x1C), 6) != continent) continue;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != (pass == 0 ? 37u : 1u) || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) continue;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
+                if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6) != continent) continue;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY)));
                 if (distance > nearest) continue;
                 nearest = distance;

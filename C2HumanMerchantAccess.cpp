@@ -29,12 +29,12 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(merchant, 0x14) >= 2) return false;
         const void* house = House(id);
-        if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision || Read<std::uint8_t>(house, 0x7D0) != 0) return false;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != revision || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
         std::int32_t freeSlot = -1;
         for (std::uint32_t slot = 0; slot < 2; ++slot)
         {
             const void* data = MerchantData_GetHouseDataPtr(merchant, slot);
-            if (Read<std::int32_t>(data, 0) == id && Read<std::uint32_t>(data, 4) == Read<std::uint32_t>(house, 8)) return false;
+            if (Read<std::int32_t>(data, 0) == id && Read<std::uint32_t>(data, 4) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)) return false;
             if (!MerchantHouseData_IsValid(data) && freeSlot == -1) freeSlot = static_cast<std::int32_t>(slot);
         }
         if (freeSlot == -1) return false;
@@ -131,7 +131,7 @@ namespace NC2Logic
         const auto id = Read<std::int32_t>(merchant, 4);
         if (id == -1) return false;
         const void* agreement = static_cast<const std::byte*>(gHumanMerchantArray) + 0x38u + id * 0x18u;
-        if (TradeAgreement_IsValid(agreement) && GameControl_Diplomacy_GetState(gGameControl, player, Read<std::int32_t>(House(Read<std::int32_t>(agreement, 0)), 0x0C)) == 1) return true;
+        if (TradeAgreement_IsValid(agreement) && GameControl_Diplomacy_GetState(gGameControl, player, Read<std::int32_t>(House(Read<std::int32_t>(agreement, 0)), NC2Layout::HouseOffset::PlayerId)) == 1) return true;
         Write<std::int32_t>(merchant, 4, -1);
         return false;
     }
@@ -141,8 +141,8 @@ namespace NC2Logic
         if (houseId == -1) return false;
         const void* human = Human(humanId);
         const void* house = House(houseId);
-        if (MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, 8)) || Read<std::uint32_t>(merchant, 0x14) >= 2) return false;
-        const auto player = Read<std::int32_t>(human, 0x10), owner = Read<std::int32_t>(house, 0x0C);
+        if (MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)) || Read<std::uint32_t>(merchant, 0x14) >= 2) return false;
+        const auto player = Read<std::int32_t>(human, 0x10), owner = Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId);
         if (player == owner) return true;
         if (HumanMerchantArray_GetNextTradeAgreementId(gHumanMerchantArray, house, NXBasics::IntegerRange::UInt32Maximum) == NXBasics::IntegerRange::UInt32Maximum) return false;
         if (GameControl_Diplomacy_GetState(gGameControl, player, owner) != 1 || GameControl_Diplomacy_GetState(gGameControl, owner, player) != 1) return false;
@@ -174,7 +174,7 @@ namespace NC2Logic
     {
         if (Read<std::int32_t>(agreement, 0) == -1) return false;
         const void* house = House(Read<std::int32_t>(agreement, 0));
-        return Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(agreement, 4) && Read<std::uint8_t>(house, 0x7D0) == 0;
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(agreement, 4) && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0;
     }
     // Original function: FUN_0041ca5e.
     void HumanMerchantArray_AddTradeAgreement(void* manager, std::uint32_t missionCheck, std::uint32_t firstGood, std::uint32_t firstAmount, std::uint32_t secondGood, std::uint32_t secondAmount)
@@ -182,13 +182,13 @@ namespace NC2Logic
         for (auto id = MissionCheck_GetFirstHouseIdWithMissionCheckId(missionCheck); id != -1; id = MissionCheck_GetNextHouseIdWithMissionCheckId(missionCheck, id))
         {
             const void* house = House(id);
-            const auto owner = Read<std::int32_t>(house, 0x0C);
+            const auto owner = Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId);
             if (owner < 20 && Read<std::uint32_t>(gGameControl, owner * NC2Layout::RecordSize::GameControlPlayer + 4) == 1) continue;
             const auto count = Read<std::uint32_t>(manager, 0x34);
             if (count == 60) return;
             void* agreement = static_cast<std::byte*>(manager) + 0x38u + count * 0x18u;
             Write(manager, 0x34, count + 1u);
-            Write(agreement, 0, Read<std::uint32_t>(house, 4)); Write(agreement, 4, Read<std::uint32_t>(house, 8));
+            Write(agreement, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(agreement, 4, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             Write(agreement, 8, firstGood); Write(agreement, 0x0C, firstAmount); Write(agreement, 0x10, secondGood); Write(agreement, 0x14, secondAmount);
         }
     }
@@ -256,7 +256,7 @@ namespace NC2Logic
     {
         if (!Human_IsJobTrader(human)) return 1;
         void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
-        if (!MerchantData_AddHouse(merchant, id, revision, Read<std::uint32_t>(House(id), 0x0C) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId))) return 1;
+        if (!MerchantData_AddHouse(merchant, id, revision, Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId))) return 1;
         Human_l_Trader_ResetImportFlags(human); return 2;
     }
     // Original function: FUN_0043d021; reset imports even when no entry matched.

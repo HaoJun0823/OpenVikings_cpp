@@ -136,7 +136,7 @@ namespace NC2Logic
     // Original function: FUN_0046c7be; a woman's household work requires a completed home.
     void Human_l_StartTask_ExecuteJob_Woman(void* human)
     {
-        if (!Human_IsAttachedToHomeHouse(human) || Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), 0x2C) != 3) { Fail(human, 2); return; }
+        if (!Human_IsAttachedToHomeHouse(human) || Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), NC2Layout::HouseOffset::ConstructionState) != 3) { Fail(human, 2); return; }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0) Human_l_StartTask_ExecuteJob_Tool_FillHome_TryToFetch(human);
         else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_FillHome_BringAway(human);
         else Human_l_StartTask_ExecuteJob_Tool_FillHome_Fetch(human);
@@ -161,7 +161,7 @@ namespace NC2Logic
         else
         {
             auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId));
-            if (House_Stock_CanStoreGoodType(house, good, false) && House_Stock_HasDemandForGood(house, good) && Human_l_StartAtomicWalk(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24)) return;
+            if (House_Stock_CanStoreGoodType(house, good, false) && House_Stock_HasDemandForGood(house, good) && Human_l_StartAtomicWalk(human, static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition, static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint)) return;
             if (WalkToConsumer(human)) return;
         }
         std::uint32_t real = 0, work = 0;
@@ -233,7 +233,7 @@ namespace NC2Logic
             if (id != -1)
             {
                 auto* house = House(static_cast<std::uint32_t>(id));
-                if (Read<std::uint32_t>(house, 0x2C) == 3)
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3)
                 {
                     if ((House_Stock_CanStoreGoodType(house, good, false) && House_Stock_HasDemandForGood(house, good)) || (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && House_Stock_CanStoreGoodType(house, good, true) && House_Stock_HasDemandForGood(house, good))) { Start(human, 23); return; }
                 }

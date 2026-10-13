@@ -162,7 +162,7 @@ namespace NC2Logic
                 void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != p[1] || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) continue;
                 ++count;
-                Write(house, 0x7CC, p[3]);
+                Write(house, NC2Layout::HouseOffset::MissionCheckId, p[3]);
                 if (NXBasics::Runtime_TimeSigned32(count) >= NXBasics::Runtime_TimeSigned32(p[2])) fulfilled = true;
             }
             return fulfilled;

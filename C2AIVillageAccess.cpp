@@ -205,11 +205,11 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstSectorHouseId(player, static_cast<std::byte*>(village) + 12, Read<std::uint32_t>(village, 16), list != 0); id != -1; id = iterator.GetNextSectorHouseId())
             {
                 auto* house = House(id);
-                if (Read<std::uint8_t>(house, 0x7D0) != 0) continue;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
                 std::uint32_t match = 0;
-                while (match < candidates.count && (candidates.entries[match * 2 + 1] != Read<std::uint32_t>(house, 16) || candidates.entries[match * 2] > Read<std::uint32_t>(house, 32))) ++match;
+                while (match < candidates.count && (candidates.entries[match * 2 + 1] != Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) || candidates.entries[match * 2] > Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage))) ++match;
                 if (match == candidates.count) continue;
-                if (Read<std::uint32_t>(house, 44) != 3) return -2;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return -2;
                 const auto job = Read<std::uint32_t>(data, 4);
                 if (job == 0 || House_Inhabitants_IsFreeWorkSlotAvailable(house, job)) return id;
                 House_GetHouseTypeDataPtr(house);
@@ -243,9 +243,9 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstSectorHouseId(player, center, radius, list != 0); id != -1; id = iterator.GetNextSectorHouseId())
             {
                 auto* house = House(id);
-                if (Read<std::uint32_t>(house, 16) != static_cast<std::uint32_t>(engine)) continue;
-                if (Read<std::uint32_t>(house, 44) != 3) return -2;
-                if (Read<std::uint32_t>(house, 32) < stage && AIVillageManager_House_TryToUpgradeHouse(village, house) != 0) return -2;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) != static_cast<std::uint32_t>(engine)) continue;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return -2;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) < stage && AIVillageManager_House_TryToUpgradeHouse(village, house) != 0) return -2;
             }
         auto* goods = static_cast<std::byte*>(village) + 0x274;
         if (Read<std::uint8_t>(village, 0x25 + logic) == 0)
@@ -268,13 +268,13 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstSectorHouseId(player, center, radius, false); id != -1; id = iterator.GetNextSectorHouseId())
             {
                 auto* house = House(id);
-                if (AIResourceManager_IsExportingHouseType(resources, outputLogic, Read<std::uint32_t>(house, 20))) { sourceHouse = house; break; }
+                if (AIResourceManager_IsExportingHouseType(resources, outputLogic, Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType))) { sourceHouse = house; break; }
             }
         if (sourceHouse == nullptr)
             for (auto id = iterator.GetFirstSectorHouseId(player, center, radius, false); id != -1; id = iterator.GetNextSectorHouseId())
             {
                 auto* house = House(id);
-                const auto type = Read<std::uint32_t>(house, 20);
+                const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
                 if (type == 1 || type == 7 || type == 8 || type == 9) continue;
                 if (House_Production_IsAbleToProduceGood(house, good, false)) { sourceHouse = house; break; }
             }
@@ -352,7 +352,7 @@ namespace NC2Logic
     bool AIHouseManager_Military_IsBarrackBuild(const void* manager)
     {
         const auto id = Read<std::int32_t>(manager, 0x254);
-        return id != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0) != 0;
+        return id != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::AllocatedFlag) != 0;
     }
     namespace
     {
@@ -380,7 +380,7 @@ namespace NC2Logic
             CHouseIterator houses; std::uint32_t distance = 10000; std::int32_t best = -1;
             for (auto id = houses.GetFirstSectorHouseId(Read<std::uint32_t>(village, 8), AIVillageManager_GetCenterPoint(village), Read<std::uint32_t>(village, 16), false); id != -1; id = houses.GetNextSectorHouseId())
             {
-                const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(House(id), 28), Read<std::uint16_t>(House(id), 30), Read<std::uint16_t>(village, 12), Read<std::uint16_t>(village, 14)));
+                const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(House(id), NC2Layout::HouseOffset::MapPositionX), Read<std::uint16_t>(House(id), NC2Layout::HouseOffset::MapPositionY), Read<std::uint16_t>(village, 12), Read<std::uint16_t>(village, 14)));
                 if (candidate < distance) { distance = candidate; best = id; }
             }
             if (best == -1) return false;
@@ -396,9 +396,9 @@ namespace NC2Logic
             {
                 if (sent) return -2;
                 auto* house = House(id);
-                if (House_GetHouseMainType(house) != 2 || Read<std::uint8_t>(house, 0x7D0) != 0) continue;
+                if (House_GetHouseMainType(house) != 2 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
                 ++homes;
-                if (Read<std::uint32_t>(house, 44) != 3) continue;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) continue;
                 const auto* data = House_GetHouseTypeDataPtr(house);
                 for (std::uint32_t slot = 0; slot < 20; ++slot)
                 {
@@ -412,17 +412,17 @@ namespace NC2Logic
                             if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32) == 0 || !Human_IsAttachedToWorkHouse(human)) continue;
                             const auto* workPoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))) + 36;
                             if (!AIVillage_IsPointInside(village, workPoint)) continue;
-                            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(house, 36), Read<std::uint16_t>(house, 38)));
+                            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY)));
                             if (Human_IsAttachedToHomeHouse(human))
                             {
-                                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) == Read<std::uint32_t>(house, 4)) continue;
+                                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)) continue;
                                 const auto* homePoint = static_cast<const std::byte*>(House(Read<std::int32_t>(human, NC2Layout::HumanOffset::HomeHouseId))) + 36;
                                 const auto oldDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(workPoint, 0), Read<std::uint16_t>(workPoint, 2), Read<std::uint16_t>(homePoint, 0), Read<std::uint16_t>(homePoint, 2)));
                                 if (candidate >= oldDistance) continue;
                             }
                             if (candidate < distance) { distance = candidate; best = human; }
                         }
-                        if (best) Human_DoAddNewUserCommand(best, 26, static_cast<std::uint8_t>(player), Read<std::uint32_t>(best, 4), Read<std::uint32_t>(best, 8), Read<std::uint32_t>(house, 4), Read<std::uint32_t>(house, 8));
+                        if (best) Human_DoAddNewUserCommand(best, 26, static_cast<std::uint8_t>(player), Read<std::uint32_t>(best, 4), Read<std::uint32_t>(best, 8), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                         return 1;
                     }
                     if (flags == 0) continue;
@@ -448,8 +448,8 @@ namespace NC2Logic
             for (auto id = houses.GetFirstSectorHouseId(player, AIVillageManager_GetCenterPoint(village), Read<std::uint32_t>(village, 16), false); id != -1; id = houses.GetNextSectorHouseId())
             {
                 auto* house = House(id);
-                if (House_GetHouseMainType(house) != 2 || Read<std::uint8_t>(house, 0x7D0) != 0) continue;
-                if (Read<std::uint32_t>(house, 44) != 3 || AIVillageManager_House_TryToUpgradeHouse(village, house) != 0) return;
+                if (House_GetHouseMainType(house) != 2 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || AIVillageManager_House_TryToUpgradeHouse(village, house) != 0) return;
             }
             auto* build = reinterpret_cast<SHouseBuild*>(static_cast<std::byte*>(village) + 0xCC4);
             if (build->IsValid()) return;
@@ -480,23 +480,23 @@ namespace NC2Logic
             for (std::uint32_t list = 0; list < 2; ++list)
                 for (auto id = houses.GetFirstSectorHouseId(player, center, radius, list != 0); id != -1; id = houses.GetNextSectorHouseId())
                 {
-                    ++count; auto* house = House(id); const auto type = Read<std::uint32_t>(house, 20);
+                    ++count; auto* house = House(id); const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
                     if (list != 0)
                     {
                         const auto towers = Read<std::uint32_t>(manager, 0xC0);
-                        if ((type == 40 || type == 41 || type == 1) && towers < 100) { Write(manager, 0xC4 + towers * 4, Read<std::uint32_t>(house, 28)); Write(manager, 0xC0, towers + 1); }
-                        if (type == 39 && Read<std::uint32_t>(house, 44) == 3) { Write(manager, 0x254, id); continue; }
+                        if ((type == 40 || type == 41 || type == 1) && towers < 100) { Write(manager, 0xC4 + towers * 4, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)); Write(manager, 0xC0, towers + 1); }
+                        if (type == 39 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3) { Write(manager, 0x254, id); continue; }
                     }
                     const auto main = House_GetHouseMainType(house);
                     if (main == 1)
                     {
-                        if (Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint32_t>(house, 44) != 3) Write<std::uint8_t>(manager, 0x44, 1);
+                        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) Write<std::uint8_t>(manager, 0x44, 1);
                         else
                         {
                             const auto stocks = Read<std::uint32_t>(manager, 0x40);
                             if (stocks != 10)
                             {
-                                Write(manager, 0x48 + stocks * 12, Read<std::uint32_t>(house, 28)); Write(manager, 0x4C + stocks * 12, Read<std::uint32_t>(house, 4)); Write(manager, 0x50 + stocks * 12, Read<std::uint32_t>(house, 8)); Write(manager, 0x40, stocks + 1);
+                                Write(manager, 0x48 + stocks * 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)); Write(manager, 0x4C + stocks * 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(manager, 0x50 + stocks * 12, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); Write(manager, 0x40, stocks + 1);
                             }
                         }
                     }
@@ -515,7 +515,7 @@ namespace NC2Logic
             CHouseIterator houses;
             for (auto id = houses.GetFirstSectorHouseId(player, center, radius, false); id != -1; id = houses.GetNextSectorHouseId())
             {
-                auto point = Read<std::uint32_t>(House(id), 28);
+                auto point = Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::MapPosition);
                 for (std::uint32_t ring = 1; ring < 20; ++ring)
                 {
                     MapMigPoint_MoveCursorUnwrapped(point, 4);

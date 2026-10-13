@@ -329,7 +329,7 @@ namespace NC2InGameGuiSelection
                 for (auto offset : {0x10Cu, 0x114u})
                 {
                     void* element = Read<void*>(window, offset + row * 16u);
-                    Write(element, 0x48, Read<std::uint32_t>(house, 4)); Write(element, 0x4C, Read<std::uint32_t>(house, 8));
+                    Write(element, 0x48, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)); Write(element, 0x4C, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                     show(offset + row * 16u);
                     if (offset == 0x10C) hide(0x110u + row * 16u);
                 }
@@ -631,7 +631,7 @@ namespace NC2InGameGuiSelection
             }
             if (house != NXBasics::IntegerRange::UInt32Maximum)
             {
-                const auto type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14);
+                const auto type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::LogicType);
                 if (type != 0) bitmap->Text_Print(resources.font08, color, textX, y, NC2Logic::StringAccess_GetHouseNamePtr(type, 1));
             }
             y += 14;
@@ -818,7 +818,7 @@ namespace NC2InGameGuiSelection
                     if (house != NXBasics::IntegerRange::UInt32Maximum)
                     {
                         Buttons(window).UpdateGfxButton(10011, 0, x, rowY, 18, HumanString(27)); x += 20;
-                        type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, 0x14);
+                        type = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + house * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::LogicType);
                     }
                     else Buttons(window).RemoveButton(10011, 0);
                     if (allowed(10)) { Buttons(window).UpdateGfxButton(10012, 0, x, rowY, 30, HumanString(28)); x += 20; }
@@ -939,7 +939,7 @@ namespace NC2InGameGuiSelection
             else if (command == 10007)
             {
                 const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(param2));
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == param3) NC2InGameGuiInputManager::Selection_SelectHouse(NC2InGameGuiInputManager::gInputManager, static_cast<std::int32_t>(param2));
             }
             else if (command == 10008)
             {
@@ -948,7 +948,7 @@ namespace NC2InGameGuiSelection
             else if (command == 10009)
             {
                 const auto* house = NC2Logic::CHouseArray::mStaticVars + param2 * NC2Logic::CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == param3)
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == param3)
                     if (const void* human = selectedHuman)
                     {
                         std::byte networkCommand[20]{};

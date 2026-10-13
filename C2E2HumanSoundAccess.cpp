@@ -122,16 +122,16 @@ namespace NC2E2
                 for (std::uint32_t index = 0; index < Read<std::uint32_t>(data, 0x490); ++index)
                 {
                     const void* entry = static_cast<const std::byte*>(Read<void*>(data, 0x494)) + index * 0xE4u;
-                    if (Read<std::uint32_t>(entry, 4) != 3 || Read<std::uint32_t>(entry, 0) != Read<std::uint32_t>(house, 0x20)) continue;
+                    if (Read<std::uint32_t>(entry, 4) != 3 || Read<std::uint32_t>(entry, 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage)) continue;
                     auto position = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
                     NC2Logic::MapMigPoint_MoveCursorUnwrapped(position, 2);
                     const std::int32_t pixel[2] = {NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0xC) + 17u), NXBasics::Runtime_TimeSigned32(0u - Read<std::uint32_t>(entry, 0x10) + 19u)};
-                    E2ParticelManager_AddParticelGenerator(gE2ParticelManager, 0, &position, pixel, 5, Read<std::uint32_t>(house, 8));
+                    E2ParticelManager_AddParticelGenerator(gE2ParticelManager, 0, &position, pixel, 5, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                     found = true;
                 }
             }
-            if (found) E2ParticelManager_EnableGenerator(gE2ParticelManager, Read<std::uint32_t>(house, 8));
-            else E2ParticelManager_DestroyGenerator(gE2ParticelManager, Read<std::uint32_t>(house, 8));
+            if (found) E2ParticelManager_EnableGenerator(gE2ParticelManager, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+            else E2ParticelManager_DestroyGenerator(gE2ParticelManager, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             return true;
         }
         case SwitchIds::CallbackType::CreateMunitionParticle:

@@ -378,7 +378,7 @@ namespace NC2InGameGuiMiscWindows
             std::int32_t x = 40;
             for (std::int32_t slot = 0; slot < goods.count; ++slot)
             {
-                const auto good = goods.entries[slot].good, amount = goods.entries[slot].amount;
+                const auto good = goods.entries[slot].good, amount = goods.entries[slot].requiredAmount;
                 char graphic[32], tooltip[100];
                 NXBasics::Runtime_PrintString(graphic, "{setx:10}{gfxgood:%d,%d}", good, amount);
                 NXBasics::Runtime_PrintString(tooltip, "%d %s", amount, NC2Logic::StringAccess_GetGoodNamePtr(good, amount));
@@ -400,7 +400,7 @@ namespace NC2InGameGuiMiscWindows
             char text[300], worker[100]; text[0] = '\0';
             for (std::int32_t slot = 0; slot < house.workerCount; ++slot)
             {
-                const auto amount = house.workers[slot].unknown04;
+                const auto amount = house.workers[slot].maximumWorkers;
                 NXBasics::Runtime_PrintString(worker, "%d %s", amount, NC2Logic::StringAccess_GetJobNamePtr(house.workers[slot].jobType, amount));
                 if (slot != 0) std::strcat(text, ", ");
                 std::strcat(text, worker);
@@ -425,7 +425,7 @@ namespace NC2InGameGuiMiscWindows
             char graphic[28]; NXBasics::Runtime_PrintString(graphic, "{setx:10}{gfxgood:%d,1}", good);
             buttons->UpdateTextButton(10015, 2000 + stock, x + 40, y, 40, 18, graphic, false, NC2Logic::StringAccess_GetGoodNamePtr(good, 1));
             buttons->SetButtonMiscCommandData(10015, 2000 + stock, good, 0);
-            NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, x + 84, y, fontSmall, color, "%s %s", NC2Logic::StringAccess_GetGoodNamePtr(good, amount), house.stock[stock].unknown08 != 0 ? "<-" : "<>");
+            NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, x + 84, y, fontSmall, color, "%s %s", NC2Logic::StringAccess_GetGoodNamePtr(good, amount), house.stock[stock].isOutputStock != 0 ? "<-" : "<>");
             if (++column == 2) { column = 0; y += 20; }
         }
     }

@@ -211,10 +211,10 @@ namespace NC2Logic
     void Animal_AttachToHouse(void* animal, std::int32_t houseId)
     {
         const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * CHouseArray::ElementSize;
-        if (Read<std::uint8_t>(house, 0) != 0)
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0)
         {
             Write(animal, 0x54, houseId);
-            Write(animal, 0x58, Read<std::uint32_t>(house, 8));
+            Write(animal, 0x58, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             Write<std::uint32_t>(animal, 0x50, 4);
             Animal_l_DetachLeader(animal);
         }
@@ -243,7 +243,7 @@ namespace NC2Logic
         if (Animal_IsAttachedToHouse(animal))
         {
             const auto id = TargetData_GetObjectId(static_cast<const std::byte*>(animal) + 0x50);
-            Write(animal, 0x24, Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, 0x24));
+            Write(animal, 0x24, Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, NC2Layout::HouseOffset::DoorEntryPoint));
             return;
         }
         const auto player = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
@@ -254,9 +254,9 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
             {
                 const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, 0x7D0) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6) != continent) continue;
+                if (House_GetHouseMainType(house) != 1 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6) != continent) continue;
                 Write(animal, 0x54, id);
-                Write(animal, 0x58, Read<std::uint32_t>(house, 8));
+                Write(animal, 0x58, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                 Write<std::uint32_t>(animal, 0x50, 4);
                 Animal_l_DetachLeader(animal);
                 return;

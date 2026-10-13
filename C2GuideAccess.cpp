@@ -47,7 +47,7 @@ namespace NC2Logic
             {
                 if (static_cast<std::uint32_t>(Distance(point, Position(guide))) >= 40u) return false;
                 auto* house = CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(guide, 4)) return false;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(guide, 4)) return false;
                 const auto* data = House_GetHouseTypeDataPtr(house);
                 for (std::uint32_t index = 0; index < data->stockCount; ++index) AddGood(guide, data->stock[index].goodType, House_Stock_RequestAmountOfGoods(house, data->stock[index].goodType, false));
             }
@@ -69,11 +69,11 @@ namespace NC2Logic
             else if (kind == 2)
             {
                 auto* house = CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(guide, 4)) return false;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || House_GetHouseMainType(house) == 2 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(guide, 4)) return false;
                 const auto* data = House_GetHouseTypeDataPtr(house);
                 for (std::uint32_t index = 0; index < data->stockCount; ++index)
                 {
-                    if (data->stock[index].unknown08 == 0) AddGood(guide, data->stock[index].goodType, House_Stock_RequestAmountOfGoods(house, data->stock[index].goodType, true));
+                    if (data->stock[index].isOutputStock == 0) AddGood(guide, data->stock[index].goodType, House_Stock_RequestAmountOfGoods(house, data->stock[index].goodType, true));
                 }
             }
             return false;

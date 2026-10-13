@@ -113,7 +113,7 @@ namespace NC2E2
                         if (IsHit(bobs, mouse, base))
                         {
                             Write<std::uint32_t>(output, 0, 4); Write(output, 4, point); Write<std::uint32_t>(output, 0x28, houseId);
-                            Write(output, 0x2C, Read<std::uint32_t>(House(houseId), 8)); Write(output, 0x40, Read<std::int32_t>(House(houseId), 0xC));
+                            Write(output, 0x2C, Read<std::uint32_t>(House(houseId), NC2Layout::HouseOffset::UniqueId)); Write(output, 0x40, Read<std::int32_t>(House(houseId), NC2Layout::HouseOffset::PlayerId));
                             std::memcpy(static_cast<std::byte*>(output) + 0x48, &bobs, sizeof(bobs)); priority = 30;
                         }
                     }

@@ -157,7 +157,7 @@ namespace NC2E2
         NC2Logic::House_GetHouseTypeDataPtr(house);
         const auto houseType = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType);
         const auto* graphic = static_cast<const std::byte*>(gStaticHouseEntries) + houseType * 0x8BCu;
-        const auto variant = NC2Lifetime::Read<std::uint32_t>(house, 8) % NC2Lifetime::Read<std::uint32_t>(graphic, 0x21C);
+        const auto variant = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) % NC2Lifetime::Read<std::uint32_t>(graphic, 0x21C);
         ls_DrawAtom_House_DoDraw_PrintImageBob(NC2Lifetime::Read<void*>(graphic, 0x214), bobId, NC2Lifetime::Read<std::uint32_t>(graphic, 0x220u + variant * 4u), brightness, bitmap, x, y, false);
     }
 

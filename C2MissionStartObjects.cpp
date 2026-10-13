@@ -163,7 +163,7 @@ namespace NC2Logic
     {
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(); id != -1; id = iterator.GetNextHouseId())
-            if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 0x7CC) == missionCheck) return id;
+            if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::MissionCheckId) == missionCheck) return id;
         return -1;
     }
 
@@ -174,7 +174,7 @@ namespace NC2Logic
         for (auto id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(previous) + 1u); id <= CHouseArray::sTheObjectPtr->mLastScanIndex; id = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(id) + 1u))
         {
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint8_t>(house, 0x7D0) == 0 && Read<std::uint32_t>(house, 0x7CC) == missionCheck) return id;
+            if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId) == missionCheck) return id;
         }
         return -1;
     }
@@ -199,7 +199,7 @@ namespace NC2Logic
         void AssignHome(void* human, std::uint32_t home)
         {
             Write<std::uint32_t>(human, 0xB28, home);
-            Write<std::uint32_t>(human, 0xB2C, Read<std::uint32_t>(House(home), 8));
+            Write<std::uint32_t>(human, 0xB2C, Read<std::uint32_t>(House(home), NC2Layout::HouseOffset::UniqueId));
             House_Inhabitants_AttachHuman(House(home), Read<std::uint32_t>(human, 4), 1u);
         }
 
@@ -217,8 +217,8 @@ namespace NC2Logic
                     const auto* workHouse = House(work);
                     const auto* firstHome = House(womanHome);
                     const auto* secondHome = House(manHome);
-                    const auto firstDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(workHouse, 0x1C), Read<std::int16_t>(workHouse, 0x1E), Read<std::int16_t>(firstHome, 0x1C), Read<std::int16_t>(firstHome, 0x1E)));
-                    const auto secondDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(workHouse, 0x1C), Read<std::int16_t>(workHouse, 0x1E), Read<std::int16_t>(secondHome, 0x1C), Read<std::int16_t>(secondHome, 0x1E)));
+                    const auto firstDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(workHouse, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(workHouse, NC2Layout::HouseOffset::MapPositionY), Read<std::int16_t>(firstHome, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(firstHome, NC2Layout::HouseOffset::MapPositionY)));
+                    const auto secondDistance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(workHouse, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(workHouse, NC2Layout::HouseOffset::MapPositionY), Read<std::int16_t>(secondHome, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(secondHome, NC2Layout::HouseOffset::MapPositionY)));
                     useWomanHome = firstDistance < secondDistance;
                 }
                 void* moving = useWomanHome ? man : woman;
@@ -308,7 +308,7 @@ namespace NC2Logic
                     ReadPosition(*reader, point);
                     const auto missionCheck = reader->GetInt();
                     const auto id = Logic_EntryPoint_House_Set(player, engineType, stage, point, completed, missionCheck);
-                    if (id != -1) { currentId = id; currentRevision = Read<std::uint32_t>(House(currentId), 8); kind = 4; }
+                    if (id != -1) { currentId = id; currentRevision = Read<std::uint32_t>(House(currentId), NC2Layout::HouseOffset::UniqueId); kind = 4; }
                     break;
                 }
                 case SwitchIds::MissionStartToken::Setguide:
@@ -343,9 +343,9 @@ namespace NC2Logic
                     if (house == -1) break;
                     switch (reader->GetInt())
                     {
-                    case SwitchIds::HouseAttachmentMask::Home: Human_DoExecuteUserCommand_AttachHomeHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
-                    case SwitchIds::HouseAttachmentMask::Worker: Human_DoExecuteUserCommand_AttachWorkHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
-                    case SwitchIds::HouseAttachmentMask::Builder: Human_DoExecuteUserCommand_AttachBuildHouse(Human(currentId), house, Read<std::uint32_t>(House(house), 8)); break;
+                    case SwitchIds::HouseAttachmentMask::Home: Human_DoExecuteUserCommand_AttachHomeHouse(Human(currentId), house, Read<std::uint32_t>(House(house), NC2Layout::HouseOffset::UniqueId)); break;
+                    case SwitchIds::HouseAttachmentMask::Worker: Human_DoExecuteUserCommand_AttachWorkHouse(Human(currentId), house, Read<std::uint32_t>(House(house), NC2Layout::HouseOffset::UniqueId)); break;
+                    case SwitchIds::HouseAttachmentMask::Builder: Human_DoExecuteUserCommand_AttachBuildHouse(Human(currentId), house, Read<std::uint32_t>(House(house), NC2Layout::HouseOffset::UniqueId)); break;
                     }
                     break;
                 }

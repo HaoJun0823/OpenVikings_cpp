@@ -57,14 +57,14 @@ namespace NC2Logic
     bool Human_IsInHomeHouse(const void* human)
     {
         const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId);
-        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(House(id), 0x24);
+        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::DoorEntryPoint);
     }
 
     // Original function: FUN_0042cd98.
     bool Human_IsInWorkHouse(const void* human)
     {
         const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
-        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(House(id), 0x24);
+        return id != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::DoorEntryPoint);
     }
 
     // Original function: FUN_0045cca7.
@@ -180,8 +180,8 @@ namespace NC2Logic
         case SwitchIds::AtomicAnimationEvent::HouseParticleEffect:
         {
             std::uint32_t position;
-            if (Human_IsInHomeHouse(human)) position = Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), 0x1C);
-            else if (Human_IsInWorkHouse(human)) position = Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), 0x1C);
+            if (Human_IsInHomeHouse(human)) position = Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), NC2Layout::HouseOffset::MapPosition);
+            else if (Human_IsInWorkHouse(human)) position = Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::MapPosition);
             else return;
             MapMigPoint_MoveCursorUnwrapped(position, 1);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x25, true, amount, MapMigPoint_GetLong(&position), 0);

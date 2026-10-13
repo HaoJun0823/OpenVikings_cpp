@@ -1,0 +1,50 @@
+﻿Offset,Field,WidthOrRegionBytes,WindowsEvidence
+0x0,AllocatedFlag,1,House_Init/Exit and CArrayHandler occupied-slot scans
+0x4,HouseId,4,House_Init stores the array ID; slot/free/message paths read it
+0x8,UniqueId,4,House_Init stores Game_UniqueId_Generate; command/reference validation reads it
+0xC,PlayerId,4,House_GetPlayerId 00433A95
+0x10,EngineType,4,House_Init and Engine2d_EntryPoint_GetHouseDataPtr calls
+0x14,LogicType,4,House_Init/upgrade and House_GetHouseTypeDataPtr
+0x18,TribeType,4,"House_Init copies engine tribe; weapon-array, player tribe tables and vehicle allocation use it"
+0x1C,MapPosition,4,House_GetMapPositionRef 00433A99; packed WORD X/Y pair
+0x1E,MapPositionY,2,House_ConstructMembers 0040AAD7 and Y-coordinate distance/export accesses
+0x20,DevelopmentStage,4,House_Init stores stage; upgrade and stage-dependent graphics/HP/areas read it
+0x24,DoorEntryPoint,4,House_Door_GetEntryPointRef 0043264F; packed WORD X/Y pair
+0x26,DoorEntryPointY,2,House_ConstructMembers 0040AAD7 and door Y-coordinate accesses
+0x28,MappedFlag,1,House_Init sets after map/sector registration; House_Exit checks before clearing map/sector
+0x2C,ConstructionState,4,"House construction state machine 1=building, 2=upgrading, 3=finished"
+0x30,ConstructionStepsDone,4,House_Construction_DoOneStep and GetPercentage
+0x34,ConstructionStepsRequired,4,House_l_Construction_InitConstruction: total materials times 30
+0x38,ConstructionGoodsCount,4,Embedded SHouseConstructionGoods.count; calculation and material scans
+0x3C,ConstructionGoodEntries,200,"Ten construction/production good rows, native stride 20"
+0x104,ConstructionGoodsRequired,4,SHouseConstructionGoods.total; summed requirements and work-step allocation
+0x108,ConstructionGoodsDelivered,4,House_l_Construction_PutGoodIntoStock increments after receiving one good
+0x10C,ConstructionGoodsConsumed,4,House_Construction_DoUseOneGood increments after consuming one material
+0x110,ConstructionStepLimit,4,DoUseOneGood sets consumed materials times 30; DoOneStep checks this limit
+0x114,BuilderRecruitmentCounter,4,House_DoOneGameSecond counts recruitment delay and clamps at five
+0x118,StockAmounts,264,66 integer stock quantities; House_Stock_ModifyAmount 00431B58
+0x220,StockFractionalAmounts,264,66 base-ten fractional stock quantities; 00431B58 carry/borrow and 00431A88 float amount
+0x328,FutureStockAmounts,264,Stock_ModifyFutureAmount reservations; DoOneGameSecond relaxes toward current stock
+0x430,StockRequestCounters,264,66 counters: RequestAmountOfGoods increments/decreases; game-second upkeep decrements
+0x538,StockMinimumAmounts,264,House_Stock_SetMinimumValue 00431FD3 and related stock routing queries
+0x640,Attachments,320,Twenty inhabitant attachment records at stride 16; role byte at record +0
+0x644,AttachmentHumanIds,4,"Interleaved attachment human IDs at record +4, stride 16"
+0x780,HomeQualityEnhancers,24,"Three enhancer records: allowed byte +0, value DWORD +4, stride 8"
+0x784,HomeQualityEnhancer0Value,4,First enhancer value and indexed House_HomeQualityEnhancer_ModifyValue
+0x788,HomeQualityEnhancer1Allowed,1,Second enhancer allowed flag
+0x78C,HomeQualityEnhancer1Value,4,Second enhancer value
+0x790,HomeQualityEnhancer2Allowed,1,Third enhancer allowed flag
+0x794,HomeQualityEnhancer2Value,4,"Third enhancer value, shared by holy-fire stock paths"
+0x798,ProductionStoppedFlag,1,House_Production_SetStoppedFlag 0043349A
+0x79C,ProductionCounter,4,House_Production_ChangeCounter and l_Production_CheckProductionCounter
+0x7A0,PreviousSectorHouseId,4,House_l_AttachToSector/DetachFromSector predecessor linkage
+0x7A4,NextSectorHouseId,4,House_l_AttachToSector/DetachFromSector successor linkage
+0x7A8,ActionOverlayCounters,20,Five remaining-duration DWORDs; overlay start/stop/update
+0x7BC,LandscapeOverlayActiveFlags,10,House_LandscapeOverlay_SetActive 00434259
+0x7C8,Hitpoints,4,House_HitPoints_ModifyValue/Reset and damage/repair comparisons
+0x7CC,MissionCheckId,4,Complete outlined getter 0042306A; mission tag set/find and savegame paths
+0x7D0,DemolitionFlag,1,House_Misc_Destroy_House sets; tick/second/command paths check
+0x7D2,DemolitionStepsDone,2,House_Misc_Destroy_House clears; House_DoOneGameTick increments WORD
+0x7D4,DemolitionStepsRequired,2,House_Misc_Destroy_House sets scaled 24-step duration; tick/free/display compare
+0x7D8,DefenceModeFlag,1,House_SetDefenceModeFlag 00434CB0 notifies before storing byte
+0x7DC,BehaviourFlags,4,House_SetBehaviourFlag 004230B4 masks shift count and modifies DWORD

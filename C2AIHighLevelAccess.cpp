@@ -144,10 +144,10 @@ namespace NC2Logic
         for (auto id = houses.GetFirstSectorHouseId(player, &chosen, 10000, false); id != -1; id = houses.GetNextSectorHouseId())
         {
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            if (Read<std::uint32_t>(house, 20) == 1) { chosen = Read<std::uint32_t>(house, 36); break; }
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 1) { chosen = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint); break; }
             if (House_GetHouseMainType(house) != 1) continue;
-            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, 36), Read<std::uint16_t>(house, 38), Read<std::uint16_t>(&chosen, 0), Read<std::uint16_t>(&chosen, 2)));
-            if (candidate < distance) { chosen = Read<std::uint32_t>(house, 36); distance = candidate; }
+            const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY), Read<std::uint16_t>(&chosen, 0), Read<std::uint16_t>(&chosen, 2)));
+            if (candidate < distance) { chosen = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint); distance = candidate; }
         }
         for (; count < 4; ++count)
         {

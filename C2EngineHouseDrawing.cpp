@@ -52,14 +52,14 @@ namespace NC2E2
         NC2Logic::House_GetHouseTypeDataPtr(house);
         const auto* graphic = Graphic(house);
         auto* dynamic = gDynamicDataHouses.entries + id * 0xD0u;
-        const auto variant = Read<std::uint32_t>(house, 8) % Read<std::uint32_t>(graphic, 0x21C);
+        const auto variant = Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) % Read<std::uint32_t>(graphic, 0x21C);
         const auto paletteId = Read<std::uint32_t>(graphic, 0x220u + variant * 4u);
         auto* colorData = gStaticPalettes.palettes256 + paletteId;
         auto* manager = Read<void*>(graphic, 0x214);
         auto* shadowManager = Read<void*>(graphic, 0x218);
-        const auto stage = Read<std::uint32_t>(house, 0x20);
-        const auto state = Read<std::uint32_t>(house, 0x2C);
-        const bool deleting = Read<std::uint8_t>(house, 0x7D0) != 0;
+        const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage);
+        const auto state = Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState);
+        const bool deleting = Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0;
         const auto baseBob = Read<std::uint32_t>(graphic, 0x238u + stage * 4u);
         std::int32_t removedRows = 0;
         if (Read<std::uint8_t>(dynamic, 0xCC) != 0) brightness = Bits(DrawAtom_Tool_GetSelectedBrightness());
@@ -70,7 +70,7 @@ namespace NC2E2
             const auto marking = Display_DE_ObjectsToMark_House_GetMarkType(display, id);
             if (marking != 0)
             {
-                const auto* color = DrawAtom_Tool_GetMarkingColorRef(marking, Read<std::int32_t>(house, 0xC));
+                const auto* color = DrawAtom_Tool_GetMarkingColorRef(marking, Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId));
                 S2DEngineDisplaySearchObjectBobData bobs;
                 DrawAtom_House_GetBobData(id, &bobs);
                 for (std::uint32_t i = 0; i < bobs.count; ++i)
@@ -124,7 +124,7 @@ namespace NC2E2
                 if (Read<std::uint8_t>(graphic, 0x24Cu + stage * 12u) != 0)
                 {
                     NC2Logic::CHumanIterator iterator;
-                    auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, 0xC), house + NC2Layout::HouseOffset::DoorEntryPoint, 1);
+                    auto human = iterator.GetFirstHumanId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), house + NC2Layout::HouseOffset::DoorEntryPoint, 1);
                     while (human != -1 && NC2Logic::Human_Misc_IsHidden(Human(static_cast<std::uint32_t>(human)))) human = iterator.GetNextHumanId();
                     const auto bob = Read<std::uint32_t>(graphic, (human == -1 ? 0x254u : 0x250u) + stage * 12u);
                     if (bob != NXBasics::IntegerRange::UInt32Maximum) ls_DrawAtom_House_DoDraw_PrintImageBob(manager, bob, paletteId, brightness, bitmap, x, y, false);
@@ -192,13 +192,13 @@ namespace NC2E2
                 flagX = Sub(door[0], origin[0]);
                 flagY = Sub(door[1], origin[1]);
             }
-            const auto sign = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(house, 0xC), 8);
+            const auto sign = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId), 8);
             if (sign != -1) EngineGraphic_Draw(static_cast<std::uint32_t>(sign), 1, bitmap, Add(x, flagX), Add(y, flagY), NC2Logic::gGameTime.tick, brightness, -1, false);
         }
 
         const auto* pointsData = graphic + stage * 0x34u;
         // Outlined 0043322F: incense requires a completed house that is not being demolished.
-        if (!deleting && state == 3 && Read<std::int32_t>(house, 0x794) > 0)
+        if (!deleting && state == 3 && Read<std::int32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value) > 0)
         {
             const auto* points = Read<const std::byte*>(pointsData, 0x7D4);
             for (std::uint32_t i = 0; i < Read<std::uint32_t>(pointsData, 0x7D0); ++i) EngineGraphic_Draw(static_cast<std::uint32_t>(gStaticLandscapeStorage.incenseFireIds[(id + i) % 5u]), 1, bitmap, Add(x, Read<std::int32_t>(points, i * 8u)), Add(y, Read<std::int32_t>(points, i * 8u + 4u)), NC2Logic::gGameTime.tick, brightness, -1, false);
@@ -226,7 +226,7 @@ namespace NC2E2
             for (std::uint32_t i = 0; i < signs.count; ++i) EngineGraphic_Draw(static_cast<std::uint32_t>(signs.signs[i].landscape), 1, bitmap, Add(x, signs.signs[i].x), Add(y, signs.signs[i].y), 0, brightness, -1, false);
         }
         DrawAtom_House_Tool_CreateDestroySmokeParticelForward(id, bitmap, x, y, brightness);
-        if (display != nullptr && Read<std::uint8_t>(display, 0x6C) != 0) ++gWorldMusicState.visiblePlayerCounts[Read<std::uint32_t>(house, 0xC)];
+        if (display != nullptr && Read<std::uint8_t>(display, 0x6C) != 0) ++gWorldMusicState.visiblePlayerCounts[Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)];
         if ((Read<std::uint8_t>(display, 0x72) & 1u) != 0)
         {
             if (!gHouseDebugColorInitialized)
@@ -247,15 +247,15 @@ namespace NC2E2
     void DrawAtom_House_GetBobData(std::uint32_t id, S2DEngineDisplaySearchObjectBobData* output)
     {
         const auto* house = House(id);
-        const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, 0x10) * 0x8BCu;
+        const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) * 0x8BCu;
         std::memset(output, 0, sizeof(*output));
         auto* manager = Read<void*>(data, 0x214);
-        output->AddBob(manager, Read<std::uint32_t>(data, 0x238u + Read<std::uint32_t>(house, 0x20) * 4u), 0, 0);
+        output->AddBob(manager, Read<std::uint32_t>(data, 0x238u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u), 0, 0);
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0x490); ++i)
         {
             const auto* overlay = Read<std::byte*>(data, 0x494) + i * 0xE4u;
             const auto action = Read<std::int32_t>(overlay, 4);
-            if (action == 0 || Read<std::uint32_t>(overlay, 0) != Read<std::uint32_t>(house, 0x20) || Read<std::uint32_t>(overlay, 0x18) == 0) continue;
+            if (action == 0 || Read<std::uint32_t>(overlay, 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) || Read<std::uint32_t>(overlay, 0x18) == 0) continue;
             const bool active = NC2Logic::House_ActionOverlay_IsActive(house, static_cast<std::uint32_t>(action));
             if (Read<std::uint8_t>(overlay, 8) != static_cast<std::uint8_t>(active)) continue;
             const auto frame = (NC2Logic::gGameTime.tick / Read<std::uint32_t>(overlay, 0x14)) % Read<std::uint32_t>(overlay, 0x18);
@@ -268,9 +268,9 @@ namespace NC2E2
     {
         output->count = 0;
         const auto* house = House(id);
-        auto stage = Read<std::uint32_t>(house, 0x20);
-        if (Read<std::uint32_t>(house, 0x2C) == 2) ++stage;
-        const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, 0x10) * 0x8BCu + stage * 0x34u;
+        auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage);
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 2) ++stage;
+        const auto* data = static_cast<const std::byte*>(gStaticHouseEntries) + Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType) * 0x8BCu + stage * 0x34u;
         const auto x = Read<std::int32_t>(data, 0x7D8), baseY = Read<std::int32_t>(data, 0x7DC);
         if (x == 0 && baseY == 0) return;
         if (NC2Logic::House_GetHouseMainType(house) == 2)
@@ -282,7 +282,7 @@ namespace NC2E2
             auto y = baseY - static_cast<std::int32_t>(count * 25u) + 25;
             for (std::uint32_t slot = 0; slot < 20; ++slot)
             {
-                const auto* attachment = static_cast<const std::byte*>(house) + 0x640u + slot * 16u;
+                const auto* attachment = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::Attachments + slot * 16u;
                 if ((Read<std::uint8_t>(attachment, 0) & 1u) == 0 || families[slot] == NXBasics::IntegerRange::UInt32Maximum || used[families[slot]]) continue;
                 used[families[slot]] = true;
                 const auto humanId = Read<std::int32_t>(attachment, 4);
@@ -301,7 +301,7 @@ namespace NC2E2
         std::uint32_t ordinaryCount = 0, soldierCount = 0;
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            const auto* attachment = static_cast<const std::byte*>(house) + 0x640u + slot * 16u;
+            const auto* attachment = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::Attachments + slot * 16u;
             if ((Read<std::uint8_t>(attachment, 0) & 2u) == 0) continue;
             const auto humanId = Read<std::int32_t>(attachment, 4);
             if (NC2Logic::Human_IsJobSoldier(Human(humanId)) && Read<std::uint8_t>(data, 0x7E0) != 0) soldiers[soldierCount++] = humanId;
@@ -331,11 +331,11 @@ namespace NC2E2
     {
         const auto* house = House(id);
         const auto* graphic = Graphic(house);
-        const auto stage = Read<std::uint32_t>(house, 0x20);
+        const auto stage = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage);
         auto* dynamic = gDynamicDataHouses.entries + id * 0xD0u;
         const auto maximum = Read<std::uint32_t>(graphic, 0x1D8u + stage * 4u);
         const auto pointCount = Read<std::uint32_t>(graphic, 0x7B8u + stage * 0x34u);
-        const auto originalHealth = Read<std::int32_t>(house, 0x7C8);
+        const auto originalHealth = Read<std::int32_t>(house, NC2Layout::HouseOffset::Hitpoints);
         auto health = originalHealth;
         if (health < 0) health = 0;
         auto wanted = ((maximum - static_cast<std::uint32_t>(health)) * pointCount) / maximum;
@@ -373,8 +373,8 @@ namespace NC2E2
     void DrawAtom_House_Tool_CreateDestroySmokeParticelForward(std::uint32_t id, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness)
     {
         const auto* house = House(id);
-        if (Read<std::uint8_t>(house, 0x7D0) == 0) return;
-        const auto* data = Graphic(house) + Read<std::uint32_t>(house, 0x20) * 0x34u;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0) return;
+        const auto* data = Graphic(house) + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 0x34u;
         const auto* points = Read<const std::byte*>(data, 0x7C4);
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0x7C0); ++i) EngineGraphic_Draw(static_cast<std::uint32_t>(gStaticLandscapeStorage.smokeIds[i % 5u]), 1, bitmap, Add(x, Read<std::int32_t>(points, i * 8u)), Add(y, Read<std::int32_t>(points, i * 8u + 4u)), i, brightness, -1, false);
     }
@@ -383,8 +383,8 @@ namespace NC2E2
     void DrawAtom_House_Tool_CreateDestroySmokeParticelBack(std::uint32_t id, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness)
     {
         const auto* house = House(id);
-        if (Read<std::uint8_t>(house, 0x7D0) == 0) return;
-        const auto* data = Graphic(house) + Read<std::uint32_t>(house, 0x20) * 0x34u;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) == 0) return;
+        const auto* data = Graphic(house) + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 0x34u;
         const auto* points = Read<const std::byte*>(data, 0x7CC);
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(data, 0x7C8); ++i) EngineGraphic_Draw(static_cast<std::uint32_t>(gStaticLandscapeStorage.smokeIds[i % 5u]), 1, bitmap, Add(x, Read<std::int32_t>(points, i * 8u)), Add(y, Read<std::int32_t>(points, i * 8u + 4u)), i, brightness, -1, false);
     }

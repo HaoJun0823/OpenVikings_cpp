@@ -254,7 +254,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstSectorHouseId(enemies[enemy], point, maximumDistance, useSecondList); id != -1; id = iterator.GetNextSectorHouseId())
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0x7D0) != 0) continue;
+                if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) continue;
                 const void* position = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
                 const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2)));
                 if (distance > maximumDistance || distance < minimumDistance || distance >= cutoff) continue;

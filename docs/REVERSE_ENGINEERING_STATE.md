@@ -1,5 +1,11 @@
 # Reverse-Engineering State
 
+## House layout block reviewed - 2026-10-13
+
+Named 710 house scalar/base expressions in 72 source files, 88 subrecord accesses and 30 native row strides. Construction-good anonymous arrays and static worker/output-stock placeholders now have verified field names; all native structure widths are retained. The fractional stock area (0x220) is distinguished from projected stock (0x328), and 0x7CC is the mission tag. See [HOUSE_LAYOUT_REVIEW.md](HOUSE_LAYOUT_REVIEW.md), [HOUSE_LAYOUT_FIELDS.csv](HOUSE_LAYOUT_FIELDS.csv) and [HOUSE_LAYOUT_ACCESS_MAP.csv](HOUSE_LAYOUT_ACCESS_MAP.csv).
+
+Windows Game.exe checks verify 5438 house-range instruction byte sequences and separate outlined getters. Win32 syntax-only integration and value/type/layout checks pass; no build, tests or game run occurred. Field identities are backed by Windows getter/setter/dataflow evidence; receiver identities are inferred from current C++ pointer flow. Mac behavior and offsets were not used. The whole-source review remains in progress; human/vehicle layouts are the next active block. Earlier checkpoints below are historical.
+
 ## Constant domains and whole-source review started - 2026-10-13
 
 Removed the generic ReadableValues collection and organized its 434 unchanged definitions into five semantic headers/namespaces. See [CONSTANT_DOMAINS.md](CONSTANT_DOMAINS.md). Exact namespace/include reversal passes for all 230 integrating source/header files; all 307 production C++ units and 434 compiler value/type pairs pass Win32 syntax-only checks. Project/filter parity: 307 CPP / 288 headers. No build, tests or game run occurred.

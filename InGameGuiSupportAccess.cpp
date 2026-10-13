@@ -175,7 +175,7 @@ namespace NC2InGameGuiGroups
     {
         for (std::uint32_t i = 0; i < 10; ++i) l_Group_RemoveHouse(mStorage + 4u + i * 0x4B4u, id);
         Write<std::uint32_t>(group, 0, 0); Write(group, 8, id); Write<std::uint32_t>(group, 4, 3);
-        Write(group, 12, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize, 8));
+        Write(group, 12, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + id * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId));
         Write<std::uint32_t>(group, 0, 1);
     }
 

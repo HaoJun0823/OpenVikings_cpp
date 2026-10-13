@@ -58,7 +58,7 @@ namespace NC2Logic
         const void* micro = GameMap_GetConstMapMicroPointPtr(point);
         if (Read<std::uint8_t>(micro, 0) != 2 || (Read<std::uint8_t>(micro, 2) & 2u) != 0) return false;
         const void* house = House(Read<std::uint16_t>(micro, 4));
-        return Read<std::uint32_t>(house, 0xC) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) && Read<std::uint32_t>(house, 0x14) == type && Read<std::uint32_t>(house, 0x2C) != 3;
+        return Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == type && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3;
     }
 
     // Original function: FUN_0045da7c; the aligned center's success deliberately follows the native false-return path.
@@ -169,14 +169,14 @@ namespace NC2Logic
         else
         {
             const void* site = House(Read<std::uint32_t>(human, 0xB3C));
-            if (Read<std::uint8_t>(site, 0) == 0)
+            if (Read<std::uint8_t>(site, NC2Layout::HouseOffset::AllocatedFlag) == 0)
             {
                 Write<std::int32_t>(human, 0xB3C, -1); Write<std::uint32_t>(human, 0xB40, 0);
                 Human_Production_Rotate(human);
                 RestartUnfinishedShips(human);
                 return;
             }
-            const auto type = Read<std::uint32_t>(site, 0x14);
+            const auto type = Read<std::uint32_t>(site, NC2Layout::HouseOffset::LogicType);
             const auto good = Read<std::uint32_t>(human, 0x1C);
             if (type < 42 || type > 46 || good != type + 17u)
             {
@@ -186,7 +186,7 @@ namespace NC2Logic
             }
         }
         void* site = House(Read<std::uint32_t>(human, 0xB3C));
-        if (Read<std::uint32_t>(site, 0x2C) == 3 && House_Repair_IsFinished(site)) return;
+        if (Read<std::uint32_t>(site, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(site)) return;
         if (House_Construction_CanUseOneGoodNow(site)) House_Construction_DoUseOneGood(site);
         if (!House_Construction_IsUseGoodRunning(site) && House_Repair_IsFinished(site))
         {
@@ -245,7 +245,7 @@ namespace NC2Logic
     void Human_l_AttachToVehicleBuildHouse(void* human, std::int32_t house)
     {
         Write(human, 0xB3C, house);
-        Write(human, 0xB40, Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), 8));
+        Write(human, 0xB40, Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::UniqueId));
         Human_UpdateCurrentWorkHouse(human);
     }
     // Original function: FUN_00474c3e; occupied builder positions are retried before the unrestricted search.

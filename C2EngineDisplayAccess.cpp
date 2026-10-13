@@ -168,7 +168,7 @@ namespace NC2E2
         auto* reference = static_cast<std::byte*>(display) + 0xB0u + count * 0x48u;
         Write(reference, 0x44, markType); DisplayObjectReference_Reset(reference);
         Write<std::uint32_t>(reference, 0, 4); Write(reference, 0x28, houseId);
-        Write(reference, 0x2C, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize, 8));
+        Write(reference, 0x2C, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId));
         Write(display, 0xAC, count + 1u);
     }
     static std::uint32_t GetMoveableMarkType(const void* display, std::uint32_t id, std::uint32_t type, std::uint32_t idOffset, const std::byte* objects, std::uint32_t stride)

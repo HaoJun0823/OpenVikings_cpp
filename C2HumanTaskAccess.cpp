@@ -250,7 +250,7 @@ namespace NC2Logic
                 if (job >= 8 && job <= 30)
                 {
                     const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
-                    if (id == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, 0x2C) != 2) Human_UserMessage_SendToUserMessage(human, 11);
+                    if (id == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint32_t>(CHouseArray::mStaticVars + id * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 2) Human_UserMessage_SendToUserMessage(human, 11);
                 }
                 break;
             case SwitchIds::HumanTaskFailure::CannotFindGood: Human_UserMessage_SendToUserMessage_CannotFindGood_Generic(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood)); break;
@@ -434,7 +434,7 @@ namespace NC2Logic
             const auto soldierAtWork = Human_IsJobSoldier(human) && Human_IsAttachedToWorkHouse(human) && Human_IsInWorkHouse(human);
             if (Read<std::uint8_t>(human, 0xA60) == 0 && !soldierAtWork)
             {
-                if (Read<std::uint8_t>(micro, 0) == 2 && Read<std::uint8_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, 0x7D8) != 0)
+                if (Read<std::uint8_t>(micro, 0) == 2 && Read<std::uint8_t>(CHouseArray::mStaticVars + Read<std::uint16_t>(micro, 4) * CHouseArray::ElementSize, NC2Layout::HouseOffset::DefenceModeFlag) != 0)
                 {
                     if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
                     Human_l_StartAtomicAnimation(human, 5, -1);
@@ -546,7 +546,7 @@ namespace NC2Logic
         }
         if (Human_IsAttachedToLearnHouse(human)) { Human_l_StartTask_ExerciseJob(human); return; }
         const auto attached = Human_IsAttachedToWorkHouse(human);
-        if ((Human_IsForcedToHaveWorkHouse(human) && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize, 0x2C) != 3))
+        if ((Human_IsForcedToHaveWorkHouse(human) && !attached) || (attached && Read<std::uint8_t>(JobData(human), 0x84) != 0 && Read<std::uint32_t>(CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 3))
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 2);

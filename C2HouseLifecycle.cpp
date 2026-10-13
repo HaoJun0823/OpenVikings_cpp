@@ -75,27 +75,27 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00430fce; the position is a by-value Windows argument.
-    bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t flags)
+    bool House_Init(void* house, std::int32_t id, std::uint32_t player, std::uint32_t engineType, std::uint32_t stage, std::uint32_t point, bool finished, std::uint32_t missionCheckId)
     {
-        if (Read<std::uint8_t>(house, 0) != 0) return false;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0) return false;
         std::memset(house, 0, CHouseArray::ElementSize);
-        Write<std::uint8_t>(house, 0, 1);
+        Write<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag, 1);
         MapMigPoint_MakeMacroGridAligned(&point);
-        Write(house, 4, id);
+        Write(house, NC2Layout::HouseOffset::HouseId, id);
         Write(house, NC2Layout::HouseOffset::PlayerId, player);
-        Write(house, 0x20, stage);
+        Write(house, NC2Layout::HouseOffset::DevelopmentStage, stage);
         Write(house, NC2Layout::HouseOffset::EngineType, engineType);
         Write(house, NC2Layout::HouseOffset::MapPosition, point);
         Write(house, NC2Layout::HouseOffset::LogicType, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), stage * 4u));
-        Write(house, 0x18, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), 0x14));
+        Write(house, NC2Layout::HouseOffset::TribeType, Read<std::uint32_t>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType), 0x14));
         if (!Tool_House_IsAllowedToBeBuild(player, engineType, stage, point, House_GetHouseTypeDataPtr(house)->ignoreContinents != 0, false)) return false;
-        Write(house, 8, Game_UniqueId_Generate());
+        Write(house, NC2Layout::HouseOffset::UniqueId, Game_UniqueId_Generate());
         if (finished) House_HitPoints_Reset(house);
-        else Write<std::uint32_t>(house, 0x7C8, 1);
+        else Write<std::uint32_t>(house, NC2Layout::HouseOffset::Hitpoints, 1);
         House_l_Inhabitants_Reset(house);
         House_l_DoorPoint_Calculate(house);
         GameMapModifyManager_StartGameMapModify();
-        const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, 0x20) * 4u);
+        const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
         std::uint32_t amounts[66];
         auto* base = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
         auto* door = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
@@ -123,28 +123,28 @@ namespace NC2Logic
         }
         GameMapModifyManager_StopGameMapModify();
         House_l_AttachToSector(house);
-        Write<std::uint8_t>(house, 0x28, 1);
+        Write<std::uint8_t>(house, NC2Layout::HouseOffset::MappedFlag, 1);
         if (finished)
         {
             Write<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState, 3);
             House_l_Exploration_Do(house);
         }
-        else House_l_Construction_InitConstruction(house, Read<std::uint32_t>(house, 0x20), false);
+        else House_l_Construction_InitConstruction(house, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage), false);
         const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
         if (House_GetHouseMainType(house) == 2)
         {
-            const auto offset = player * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(house, 0x18) * 0x42u;
-            Write(house, 0x788, Read<std::uint8_t>(gGameControl, offset + 0x1D68));
-            Write(house, 0x780, Read<std::uint8_t>(gGameControl, offset + 0x1D69));
-            Write(house, 0x790, Read<std::uint8_t>(gGameControl, offset + 0x1D5B));
+            const auto offset = player * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType) * 0x42u;
+            Write(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed, Read<std::uint8_t>(gGameControl, offset + 0x1D68));
+            Write(house, NC2Layout::HouseOffset::HomeQualityEnhancers, Read<std::uint8_t>(gGameControl, offset + 0x1D69));
+            Write(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed, Read<std::uint8_t>(gGameControl, offset + 0x1D5B));
         }
         else if (type == 1 || type == 37)
         {
-            Write<std::uint8_t>(house, 0x790, 1);
-            Write<std::uint32_t>(house, 0x794, 1);
+            Write<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed, 1);
+            Write<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value, 1);
         }
-        Write(house, 0x7CC, flags);
-        Write<std::uint32_t>(house, 0x79C, 1000000);
+        Write(house, NC2Layout::HouseOffset::MissionCheckId, missionCheckId);
+        Write<std::uint32_t>(house, NC2Layout::HouseOffset::ProductionCounter, 1000000);
         std::memset(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::LandscapeOverlayActiveFlagsSigned, 0, 10);
         return true;
     }
@@ -152,7 +152,7 @@ namespace NC2Logic
     // Original function: FUN_00431276.
     void __fastcall House_Misc_Destroy_House(void* house, void*)
     {
-        if (Read<std::uint8_t>(house, 0) == 0) return;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0) return;
         House_l_ActionOverlay_StopAll(house);
         House_Inhabitants_DetachAllHumans(house);
         auto id = static_cast<std::int32_t>(Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint), 0x0A));
@@ -170,25 +170,25 @@ namespace NC2Logic
         }
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 1)
         {
-            const auto percentage = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, 0x30) * 100u) / Read<std::int32_t>(house, 0x34);
-            Write<std::uint16_t>(house, 0x7D2, 0);
-            Write<std::uint16_t>(house, 0x7D4, static_cast<std::uint16_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percentage) * 24u) / 100));
+            const auto percentage = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionStepsDone) * 100u) / Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionStepsRequired);
+            Write<std::uint16_t>(house, NC2Layout::HouseOffset::DemolitionStepsDone, 0);
+            Write<std::uint16_t>(house, NC2Layout::HouseOffset::DemolitionStepsRequired, static_cast<std::uint16_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percentage) * 24u) / 100));
         }
-        else Write<std::uint16_t>(house, 0x7D4, 24);
-        if (Read<std::uint16_t>(house, 0x7D4) == 0)
+        else Write<std::uint16_t>(house, NC2Layout::HouseOffset::DemolitionStepsRequired, 24);
+        if (Read<std::uint16_t>(house, NC2Layout::HouseOffset::DemolitionStepsRequired) == 0)
         {
-            CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, 4));
+            CHouseArray::sTheObjectPtr->FreeHouse(Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId));
             return;
         }
-        if (Read<std::int16_t>(house, 0x7D4) >= 12) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, 0x2A, MapMigPoint_GetLong(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 1);
-        else CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1D, true, Read<std::uint32_t>(house, 4), 0, 0);
-        Write<std::uint8_t>(house, 0x7D0, 1);
+        if (Read<std::int16_t>(house, NC2Layout::HouseOffset::DemolitionStepsRequired) >= 12) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, 0x2A, MapMigPoint_GetLong(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 1);
+        else CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1D, true, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), 0, 0);
+        Write<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag, 1);
     }
 
     // Original function: FUN_00431390.
     void House_Exit(void* house)
     {
-        if (Read<std::uint8_t>(house, 0) == 0) return;
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0) return;
         House_l_ActionOverlay_StopAll(house);
         House_Inhabitants_DetachAllHumans(house);
         auto id = static_cast<std::int32_t>(Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint), 0x0A));
@@ -198,7 +198,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(moveable, 8) == 1) Human_HouseMisc_Exit(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize);
             id = Read<std::int32_t>(moveable, 0x24);
         }
-        if (Read<std::uint8_t>(house, 0x28) != 0)
+        if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::MappedFlag) != 0)
         {
             GameMapModifyManager_StartGameMapModify();
             auto* base = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
@@ -215,22 +215,22 @@ namespace NC2Logic
                 // Original unresolved control bytes 005109C9/005109C8 retain their storage offsets.
                 if (Read<std::uint8_t>(&gGameStaticVars, 0x1B1) == 0)
                 {
-                    const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, 0x20) * 4u);
+                    const auto* area = Read<const CMapArea*>(NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)), 0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u);
                     for (std::uint32_t index = 0; index < (area->pointCount >> 1); ++index)
                     {
                         std::uint32_t point = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
                         std::int16_t x, y;
                         area->AreaTool_GetRandomPositionDelta(&x, &y);
                         MapMigPoint_ConstructOffset(&point, &point, x, y, false);
-                        const auto engine = NC2LogicExternals::External_HouseType_GetEngineRuineLandscapeId(Read<std::uint32_t>(house, 0x18), Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType));
+                        const auto engine = NC2LogicExternals::External_HouseType_GetEngineRuineLandscapeId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::TribeType), Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType));
                         if (engine != -1) Logic_EntryPoint_Edit_MapMicroPoint_Landscape_SetType(&point, 1, 1, engine, 0, -1);
                     }
                 }
                 if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0)
                 {
-                    Write<std::uint32_t>(house, 0x78C, 0);
-                    Write<std::uint32_t>(house, 0x784, 0);
-                    Write<std::uint32_t>(house, 0x794, 0);
+                    Write<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Value, 0);
+                    Write<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer0Value, 0);
+                    Write<std::uint32_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Value, 0);
                     const auto player = Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId);
                     const bool ai = player < 20 && Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 4) == 2;
                     const auto mainType = House_GetHouseMainType(house);
@@ -251,28 +251,28 @@ namespace NC2Logic
                     if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 1)
                     {
                         SHouseConstructionGoods goods;
-                        House_Construction_CalculateGoodsNeeded(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType), Read<std::uint32_t>(house, 0x20), false, &goods);
+                        House_Construction_CalculateGoodsNeeded(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType), Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage), false, &goods);
                         for (std::int32_t slot = 0; slot < goods.count; ++slot)
                         {
-                            const auto amount = (goods.entries[slot].amount + 1u) >> 1;
+                            const auto amount = (goods.entries[slot].requiredAmount + 1u) >> 1;
                             if (amount != 0) Map_GoodTool_PutOnMap(goods.entries[slot].good, amount, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 10, false);
                         }
                     }
                 }
                 if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3)
                 {
-                    for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, 0x38); ++slot)
+                    for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
                     {
-                        const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
-                        const auto used = Read<std::uint32_t>(house, offset + 16);
-                        const auto amount = ((used + 1u) >> 1) + Read<std::uint32_t>(house, offset + 8) - used;
-                        if (amount != 0) Map_GoodTool_PutOnMap(Read<std::uint32_t>(house, offset), amount, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 10, false);
+                        const auto offset = NC2Layout::HouseOffset::ConstructionGoodEntries + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HouseConstructionGood;
+                        const auto used = Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::ConsumedAmount);
+                        const auto amount = ((used + 1u) >> 1) + Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::DeliveredAmount) - used;
+                        if (amount != 0) Map_GoodTool_PutOnMap(Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType), amount, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 10, false);
                     }
                 }
                 GameMapModifyManager_StopGameMapModify();
             }
         }
-        Write<std::uint8_t>(house, 0, 0);
+        Write<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag, 0);
     }
 
     // Original function: FUN_0043217c; keep the four distinct attachment passes.
@@ -289,19 +289,19 @@ namespace NC2Logic
     {
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            const auto offset = 0x640u + slot * 16u;
-            const auto role = Read<std::uint8_t>(house, offset);
+            const auto offset = NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment;
+            const auto role = Read<std::uint8_t>(house, offset + NC2Layout::HouseAttachmentOffset::RoleMask);
             if ((role & mask) == 0) continue;
-            Write<std::uint8_t>(house, offset, static_cast<std::uint8_t>(role & ~mask));
-            void* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, offset + 4) * CHumanArray::ElementSize;
+            Write<std::uint8_t>(house, offset + NC2Layout::HouseAttachmentOffset::RoleMask, static_cast<std::uint8_t>(role & ~mask));
+            void* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, offset + NC2Layout::HouseAttachmentOffset::HumanId) * CHumanArray::ElementSize;
             if (mask == 1) Human_DetachFromHomeHouse(human);
             else if (mask == 2 || mask == 4 || mask == 8) Human_DetachFromWorkHouse(human);
             if (mask == 8)
             {
-                Write<std::uint32_t>(house, offset + 8, 0);
-                Write<std::uint32_t>(house, offset + 12, 0);
+                Write<std::uint32_t>(house, offset + NC2Layout::HouseAttachmentOffset::TrainingJobType, 0);
+                Write<std::uint32_t>(house, offset + NC2Layout::HouseAttachmentOffset::TrainingGoodType, 0);
             }
-            if (Read<std::uint8_t>(house, offset) == 0) Write<std::int32_t>(house, offset + 4, -1);
+            if (Read<std::uint8_t>(house, offset + NC2Layout::HouseAttachmentOffset::RoleMask) == 0) Write<std::int32_t>(house, offset + NC2Layout::HouseAttachmentOffset::HumanId, -1);
         }
     }
 
@@ -310,8 +310,8 @@ namespace NC2Logic
     {
         for (std::uint32_t slot = 0; slot < 20; ++slot)
         {
-            Write<std::uint8_t>(house, 0x640u + slot * 16u, 0);
-            Write<std::int32_t>(house, 0x644u + slot * 16u, -1);
+            Write<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment, 0);
+            Write<std::int32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u, -1);
         }
     }
 
@@ -319,8 +319,8 @@ namespace NC2Logic
     void House_ActionOverlay_Stop(void* house, std::int32_t overlay)
     {
         if (overlay >= 5) return;
-        Write<std::uint32_t>(house, 0x7A8u + static_cast<std::uint32_t>(overlay) * 4u, 0);
-        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1C, true, Read<std::uint32_t>(house, 4), overlay, 0);
+        Write<std::uint32_t>(house, NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * 4u, 0);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1C, true, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), overlay, 0);
     }
 
     // Original function: FUN_004341de.
@@ -328,7 +328,7 @@ namespace NC2Logic
     {
         for (std::int32_t overlay = 0; overlay < 5; ++overlay)
         {
-            if (Read<std::uint32_t>(house, 0x7A8u + static_cast<std::uint32_t>(overlay) * 4u) != 0) House_ActionOverlay_Stop(house, overlay);
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ActionOverlayCounters + static_cast<std::uint32_t>(overlay) * 4u) != 0) House_ActionOverlay_Stop(house, overlay);
         }
     }
 
@@ -337,7 +337,7 @@ namespace NC2Logic
     {
         const auto* base = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
         const void* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-        Read<const CMapArea*>(definition, 0x20u + Read<std::uint32_t>(house, 0x20) * 4u)->WalkBlock_Set(base, false);
+        Read<const CMapArea*>(definition, 0x20u + Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) * 4u)->WalkBlock_Set(base, false);
         definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
         const auto* area = Read<const CMapArea*>(definition, 0x1C);
         area->BuildBlock_Set(base, false);
@@ -384,10 +384,10 @@ namespace NC2Logic
         void* sector = manager->GetSectorData() + (static_cast<std::uint32_t>(cursor.y) * static_cast<std::uint32_t>(manager->GetGridWidth()) + static_cast<std::uint32_t>(cursor.x)) * 0x540u;
         const auto offset = House_GetPlayerId(house) * 64u + (House_IsMilitarySectorType(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType)) ? 0x28u : 0x10u);
         const auto previous = Read<std::int32_t>(sector, offset);
-        Write(sector, offset, Read<std::uint32_t>(house, 4));
-        Write(house, 0x7A4, previous);
-        if (previous != -1) Write(CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize, 0x7A0, Read<std::uint32_t>(house, 4));
-        Write<std::int32_t>(house, 0x7A0, -1);
+        Write(sector, offset, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+        Write(house, NC2Layout::HouseOffset::NextSectorHouseId, previous);
+        if (previous != -1) Write(CHouseArray::mStaticVars + static_cast<std::uint32_t>(previous) * CHouseArray::ElementSize, NC2Layout::HouseOffset::PreviousSectorHouseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
+        Write<std::int32_t>(house, NC2Layout::HouseOffset::PreviousSectorHouseId, -1);
         Write(sector, offset + 4, Read<std::uint32_t>(sector, offset + 4) + 1u);
     }
 
@@ -398,23 +398,23 @@ namespace NC2Logic
         auto* manager = CGameMapSectorAttachmentManager::sTheObjectPtr;
         void* sector = manager->GetSectorData() + (static_cast<std::uint32_t>(cursor.y) * static_cast<std::uint32_t>(manager->GetGridWidth()) + static_cast<std::uint32_t>(cursor.x)) * 0x540u;
         const auto offset = House_GetPlayerId(house) * 64u + (House_IsMilitarySectorType(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType)) ? 0x28u : 0x10u);
-        const auto id = Read<std::uint32_t>(house, 4);
+        const auto id = Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId);
         auto previous = Read<std::uint32_t>(sector, offset);
         if (previous == id)
         {
-            const auto next = Read<std::int32_t>(house, 0x7A4);
+            const auto next = Read<std::int32_t>(house, NC2Layout::HouseOffset::NextSectorHouseId);
             Write(sector, offset, next);
-            if (next != -1) Write<std::int32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(next) * CHouseArray::ElementSize, 0x7A0, -1);
+            if (next != -1) Write<std::int32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(next) * CHouseArray::ElementSize, NC2Layout::HouseOffset::PreviousSectorHouseId, -1);
         }
         else
         {
             for (;;)
             {
                 void* entry = CHouseArray::mStaticVars + previous * CHouseArray::ElementSize;
-                const auto next = Read<std::uint32_t>(entry, 0x7A4);
+                const auto next = Read<std::uint32_t>(entry, NC2Layout::HouseOffset::NextSectorHouseId);
                 if (next == id)
                 {
-                    Write(entry, 0x7A4, Read<std::uint32_t>(house, 0x7A4));
+                    Write(entry, NC2Layout::HouseOffset::NextSectorHouseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::NextSectorHouseId));
                     break;
                 }
                 previous = next;

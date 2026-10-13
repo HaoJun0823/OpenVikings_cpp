@@ -269,7 +269,7 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human))
         {
             auto* house = WorkHouse(human);
-            if (Read<std::uint32_t>(house, 0x2C) == 3 && House_GetHouseMainType(house) == 3)
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && House_GetHouseMainType(house) == 3)
             {
                 std::uint32_t fullest = 0, largest = 0, amount = 0;
                 for (std::uint32_t good = 1; good <= 55; ++good)
@@ -313,8 +313,8 @@ namespace NC2Logic
             }
             if (House_Stock_GetAmountOfGoods(house, good, true) > 0)
             {
-                auto* work = static_cast<std::byte*>(house) + 0x24;
-                auto* real = static_cast<std::byte*>(house) + 0x1C;
+                auto* work = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
+                auto* real = static_cast<std::byte*>(house) + NC2Layout::HouseOffset::MapPosition;
                 if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) == Read<std::uint32_t>(work, 0))
                 {
                     Human_Target_SetTargetPositions(human, real, work);

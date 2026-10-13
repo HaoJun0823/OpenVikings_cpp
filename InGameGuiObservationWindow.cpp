@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "InGameGuiObservationWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -68,7 +69,7 @@ namespace NC2InGameGuiWorldWindow
     // Original function: FUN_004bd934.
     void WorldObserveDisplayWindow_l_Follow_Vehicle(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x7C, id); Write(window, 0x80, Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, 8)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
     // Original function: FUN_004bd964.
-    void WorldObserveDisplayWindow_l_Follow_House(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x84, id); Write(window, 0x88, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, 8)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
+    void WorldObserveDisplayWindow_l_Follow_House(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x84, id); Write(window, 0x88, Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
     // Original function: FUN_004bd997.
     void WorldObserveDisplayWindow_l_Follow_Start(void* window)
     {

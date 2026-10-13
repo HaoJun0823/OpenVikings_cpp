@@ -146,7 +146,7 @@ namespace NC2Logic
         case SwitchIds::HumanTaskFailure::WorkHouseUnavailable:
         {
             const auto houseId = Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
-            if (houseId == -1 || Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::intptr_t>(houseId) * CHouseArray::ElementSize, 0x2C) != 2) Human_UserMessage_SendToUserMessage(human, 11);
+            if (houseId == -1 || Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::intptr_t>(houseId) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 2) Human_UserMessage_SendToUserMessage(human, 11);
             if (MapMigPoint_IsInsideMap(WorkCenter(human)) && Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != Read<std::uint32_t>(WorkCenter(human), 0)) Queue(human, 4, MapMigPoint_GetLong(WorkCenter(human)), 0);
             return;
         }

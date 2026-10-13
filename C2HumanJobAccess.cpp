@@ -375,7 +375,7 @@ namespace NC2Logic
         const auto id = Read<std::int32_t>(houseData, 0);
         if (id == -1) return false;
         const auto* house = CHouseArray::mStaticVars + static_cast<std::intptr_t>(id) * CHouseArray::ElementSize;
-        return Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(houseData, 4);
+        return Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(houseData, 4);
     }
 
     // Original function: FUN_0042cc0b.
@@ -495,9 +495,9 @@ namespace NC2Logic
         const auto category = Read<std::uint32_t>(data, 0);
         if (category == 2)
         {
-            if (good == 29) return !primary && Read<std::uint8_t>(house, 0x780) != 0;
-            if (good == 28) return !primary && Read<std::uint8_t>(house, 0x788) != 0;
-            if (good == 15) return !primary && Read<std::uint8_t>(house, 0x790) != 0 && Read<std::uint32_t>(house, 0x20) >= 2;
+            if (good == 29) return !primary && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancers) != 0;
+            if (good == 28) return !primary && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer1Allowed) != 0;
+            if (good == 15) return !primary && Read<std::uint8_t>(house, NC2Layout::HouseOffset::HomeQualityEnhancer2Allowed) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage) >= 2;
         }
         else if (!primary && good == 15 && type == 37) return true;
         const auto slot = House_l_Stock_GetStockSlotIdForGoodType(house, good);
@@ -825,7 +825,7 @@ namespace NC2Logic
                 House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7 ? 4 : 2);
                 if (House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), job == 7 ? 4 : 2))
                 {
-                    Human_l_AssignWorkHouse(human, Read<std::uint32_t>(house, 4));
+                    Human_l_AssignWorkHouse(human, Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId));
                     Write<std::uint32_t>(human, 0x38C, 0);
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
                     Human_WorkCenterMarker_Update(human);

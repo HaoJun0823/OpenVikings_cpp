@@ -1,4 +1,4 @@
-Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
+﻿Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0040743A,NC2Logic::Game_WorkOnStartUpData,NC2Logic::CGame::Game_WorkOnStartUpData,212139,Mac symbol; Windows call sequence/layout identifies the corresponding routine
 004074E5,NC2Logic::Autosave_Start,NC2Logic::CGame::Autosave_Start,212189,Windows ASM/Game.exe establish behavior and correspondence; Mac symbol used only for naming
 00407505,NC2Logic::Game_l_Autosave_Update,NC2Logic::CGame::l_Autosave_Update,212244,Mac symbol; Windows call sequence/layout identifies the corresponding routine
@@ -1265,7 +1265,7 @@ Address,CurrentName,MacSymbol,MacSourceLine,NamingEvidence
 0042D95E,Human_IsAllowedToDoJob,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004329B6,House_Construction_CanBeUpgraded,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 00432A64,House_Construction_CalculateGoodsNeeded,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
-00432D14,House_Production_ModifyFutureAmount,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
+00432D14,NC2Logic::House_l_Construction_ModifyFutureAmount,,,Windows construction-good row helper called by Stock_ModifyFutureAmount for unfinished houses; no separate Mac symbol established
 00433549,House_UserControl_GetCommands,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 004378A1,Vehicle_Door_ValidateEntryPoint,,,Windows ASM/Game.exe establish behavior; current semantic name from Windows reconstruction; separate Mac correspondence not recorded
 0043B42B,Tool_CountGoodsOnMap,NC2Logic::Tool_CountGoodsOnMap,9091,Windows ASM/Game.exe establish behavior and correspondence; x86-64-mac.h supplies names only
