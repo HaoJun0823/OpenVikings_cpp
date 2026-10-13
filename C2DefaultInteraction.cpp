@@ -88,14 +88,15 @@ namespace NC2Logic
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0 || Read<std::uint8_t>(Moveable(human), NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto continent = Continent(Human_GetMapPositionRef(human));
         SUserCommandsForHumanHandler available; Human_UserControl_GetCommands(human, &available, false, false);
-        const auto* point = static_cast<const std::byte*>(target) + 4;
+        const auto* point = static_cast<const std::byte*>(target) + NC2Layout::DisplayObjectReferenceOffset::MapPosition;
         const auto id = Read<std::uint32_t>(human, 4), player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         const auto sendTo = [&]() { return Human_UserControl_GetDefaultInteractionCommand_TrySendTo(human, command, point, false, modifier); };
-        switch (Read<std::uint32_t>(target, 0))
+        switch (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type))
         {
         case SwitchIds::MapObjectUnderCursor::Human:
         {
-            const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId);
+            const auto* other = GetHumanPtr(targetId);
             if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) { Prepare(command, 43, human, targetId, Read<std::uint32_t>(other, 8)); return 41; }
             if (Read<std::uint8_t>(Moveable(other), NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
             // Windows queries the active target's continent and still returns no command.
@@ -103,7 +104,8 @@ namespace NC2Logic
         }
         case SwitchIds::MapObjectUnderCursor::Animal:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::AnimalId);
+            const auto* animal = GetAnimalPtr(targetId);
             const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0xC) * NC2Layout::RecordSize::MapMoveable;
             if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), 6) != continent) return 0;
             if (Human_IsJobScout(human) && static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u].warrantable != 0) return sendTo();
@@ -112,18 +114,20 @@ namespace NC2Logic
         }
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId);
+            const auto* vehicle = Vehicle(targetId);
             if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)) == 3) { Prepare(command, 46, human, targetId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); return 44; }
             if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); return 12; }
             return 0;
         }
         case SwitchIds::MapObjectUnderCursor::House:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HouseId);
+            auto* house = House(targetId);
             const auto houseCommand = [&](std::uint8_t opcode, std::uint32_t action) { Prepare(command, opcode, human, targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); return action; };
-            if (Read<std::uint32_t>(target, 0x40) != player)
+            if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) != player)
             {
-                if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) return houseCommand(44, 42);
+                if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId)) == 3) return houseCommand(44, 42);
                 if (available.IsCommandAllowed(22) && Human_IsJobTrader(human) && MerchantData_Tool_CanHouseBeAdded(Merchant(human), id, targetId)) return houseCommand(36, 22);
                 if (available.IsCommandAllowed(23) && Human_IsJobTrader(human) && MerchantData_IsHouseInArray(Merchant(human), targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId))) return houseCommand(37, 23);
                 return 0;
@@ -149,9 +153,9 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Guide: return sendTo();
         case SwitchIds::MapObjectUnderCursor::Landscape:
         {
-            if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 47, human, MapMigPoint_GetLong(point)); return 45; }
+            if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId)) == 3) { Prepare(command, 47, human, MapMigPoint_GetLong(point)); return 45; }
             if (Continent(point) != continent) return 0;
-            const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38)); const auto type = Read<std::int32_t>(landscape, 0);
+            const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)); const auto type = Read<std::int32_t>(landscape, 0);
             if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == -1 && type == gStaticGoodTypeData[Read<std::uint32_t>(human, 0x1C)].landscapeToHarvest) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             for (std::uint32_t good = 0; good < 66; ++good)
                 if (Read<std::uint8_t>(human, 0x195 + good) != 0 && good != Read<std::uint32_t>(human, 0x1C) && Human_DoesEducationAllowGoodProduction(human, good) && type == gStaticGoodTypeData[good].landscapeToHarvest)
@@ -182,7 +186,7 @@ namespace NC2Logic
                 }
                 Prepare(secondary, 4, human, destination); return 30;
             }
-            if (Read<std::uint32_t>(target, 0x40) == player && type >= 82 && type <= 83 && Human_IsJobBuilder(human) && Read<std::uint32_t>(target, 0x3C) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38)), 4)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
+            if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) == player && type >= 82 && type <= 83 && Human_IsJobBuilder(human) && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant) < Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId)), 4)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             return sendTo();
         }
         case SwitchIds::MapObjectUnderCursor::RoadBuildPlace: case SwitchIds::MapObjectUnderCursor::WallBuildPlace:
@@ -190,7 +194,7 @@ namespace NC2Logic
             if (Continent(point) != continent) return 0;
             if (available.IsCommandAllowed(20))
             {
-                const auto* manager = Read<std::uint32_t>(target, 0) == 7 ? gRoadBuildManager : gWallBuildManager;
+                const auto* manager = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::RoadBuildPlace ? gRoadBuildManager : gWallBuildManager;
                 if (RoadBuildManager_GetRoadBuildFlagPlayerId(manager, point) == static_cast<std::int32_t>(player) && Continent(point) == Continent(Moveable(human) + 0x12)) { Prepare(command, 17, human, MapMigPoint_GetLong(point)); return 28; }
             }
             return sendTo();
@@ -220,29 +224,33 @@ namespace NC2Logic
             if (index != 0) return *action == wantedAction && Read<std::uint8_t>(command, 0) == opcode && Read<std::uint32_t>(command, 0xC) == targetId;
             Prepare(command, opcode, human, targetId, Read<std::uint32_t>(other, 8)); *action = wantedAction; return true;
         };
-        switch (Read<std::uint32_t>(target, 0))
+        switch (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type))
         {
         case SwitchIds::MapObjectUnderCursor::Human:
         {
-            const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId);
+            const auto* other = GetHumanPtr(targetId);
             if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) return commitTarget(41, 43, targetId, other);
             return false;
         }
         case SwitchIds::MapObjectUnderCursor::Animal:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::AnimalId);
+            const auto* animal = GetAnimalPtr(targetId);
             return available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false) && commitTarget(43, 45, targetId, animal);
         }
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* vehicle = Vehicle(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId);
+            const auto* vehicle = Vehicle(targetId);
             if (available.IsCommandAllowed(44) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)) == 3) return commitTarget(44, 46, targetId, vehicle);
             if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanHumanBeAttached(vehicle, id)) { Prepare(command, 38, human, targetId, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::UniqueId)); *action = 12; return true; }
             return false;
         }
         case SwitchIds::MapObjectUnderCursor::House:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x28); auto* house = House(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HouseId);
+            auto* house = House(targetId);
             if (available.IsCommandAllowed(42) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3) return commitTarget(42, 44, targetId, house);
             if (available.IsCommandAllowed(16) && House_Inhabitants_CanHumanBeAttachedAsWorker(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return commitTarget(16, 28, targetId, house);
             if (available.IsCommandAllowed(20) && House_Inhabitants_CanHumanBeAttachedAsBuilder(house, id) && targetId != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) return commitTarget(20, 30, targetId, house);
@@ -252,7 +260,7 @@ namespace NC2Logic
         }
         case SwitchIds::MapObjectUnderCursor::Landscape:
         {
-            const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, 0x38));
+            const auto* landscape = NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::LandscapeId));
             if (available.IsCommandAllowed(26))
             {
                 const auto good = gStaticDependencyGoodByLandscape[Read<std::uint32_t>(landscape, 0)];
@@ -263,8 +271,8 @@ namespace NC2Logic
                 }
             }
             const auto type = Read<std::int32_t>(landscape, 0);
-            if (StaticDependencies_Item_IsChest(type) && StaticDependencies_Item_IsAbleToOpenChest(Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType), type)) { Prepare(command, 18, human, Read<std::uint32_t>(target, 4)); *action = 30; return true; }
-            if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 47, human, Read<std::uint32_t>(target, 4)); *action = 45; return true; }
+            if (StaticDependencies_Item_IsChest(type) && StaticDependencies_Item_IsAbleToOpenChest(Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType), type)) { Prepare(command, 18, human, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::MapPosition)); *action = 30; return true; }
+            if (available.IsCommandAllowed(45) && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId)) == 3) { Prepare(command, 47, human, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::MapPosition)); *action = 45; return true; }
             return false;
         }
         default: return false;
@@ -313,26 +321,29 @@ namespace NC2Logic
     {
         SUserCommandsForVehicleHandler available; Vehicle_UserControl_GetCommands(vehicle, &available, false);
         const auto player = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
-        const auto* point = static_cast<const std::byte*>(target) + 4;
-        switch (Read<std::uint32_t>(target, 0))
+        const auto* point = static_cast<const std::byte*>(target) + NC2Layout::DisplayObjectReferenceOffset::MapPosition;
+        switch (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type))
         {
         case SwitchIds::MapObjectUnderCursor::Human:
         {
-            const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId);
+            const auto* human = Human(targetId);
             if (Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) == 3) { Prepare(command, 104, vehicle, targetId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); return 5; }
             break;
         }
         case SwitchIds::MapObjectUnderCursor::Animal: case SwitchIds::MapObjectUnderCursor::Guide: case SwitchIds::MapObjectUnderCursor::Landscape: case SwitchIds::MapObjectUnderCursor::Position: break;
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId);
+            const auto* other = Vehicle(targetId);
             if (available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::PlayerId)) == 3) { Prepare(command, 107, vehicle, targetId, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::UniqueId)); return 7; }
             if (available.IsCommandAllowed(12) && Vehicle_Passengers_CanVehicleBeAttached(other, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId))) { Prepare(command, 113, vehicle, targetId, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::UniqueId)); return 12; }
             break;
         }
         case SwitchIds::MapObjectUnderCursor::House:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HouseId);
+            const auto* house = House(targetId);
             if (available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3) { Prepare(command, 105, vehicle, targetId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)); return 6; }
             return 0;
         }
@@ -364,28 +375,31 @@ namespace NC2Logic
             if (index != 0) return *action == wantedAction && Read<std::uint8_t>(command, 0) == opcode && Read<std::uint32_t>(command, 0xC) == targetId;
             Prepare(command, opcode, vehicle, targetId, Read<std::uint32_t>(other, 8)); *action = wantedAction; return true;
         };
-        switch (Read<std::uint32_t>(target, 0))
+        switch (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type))
         {
         case SwitchIds::MapObjectUnderCursor::Human:
         {
-            const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId);
+            const auto* human = Human(targetId);
             return Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) == 3 && commitTarget(5, 104, targetId, human);
         }
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x18); const auto* other = Vehicle(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId);
+            const auto* other = Vehicle(targetId);
             return available.IsCommandAllowed(7) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, NC2Layout::VehicleOffset::PlayerId)) == 3 && commitTarget(7, 107, targetId, other);
         }
         case SwitchIds::MapObjectUnderCursor::House:
         {
-            const auto targetId = Read<std::uint32_t>(target, 0x28); const auto* house = House(targetId);
+            const auto targetId = Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HouseId);
+            const auto* house = House(targetId);
             return available.IsCommandAllowed(6) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) == 3 && commitTarget(6, 105, targetId, house);
         }
         case SwitchIds::MapObjectUnderCursor::Landscape:
-            if (available.IsCommandAllowed(8) && Read<std::int32_t>(target, 0x40) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, 0x40)) == 3) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }
+            if (available.IsCommandAllowed(8) && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) != -1 && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId)) == 3) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::MapPosition)); *action = 8; return true; }
             [[fallthrough]];
         case SwitchIds::MapObjectUnderCursor::Position:
-            if (modifier && available.IsCommandAllowed(8)) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, 4)); *action = 8; return true; }
+            if (modifier && available.IsCommandAllowed(8)) { Prepare(command, 108, vehicle, Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::MapPosition)); *action = 8; return true; }
             return false;
         default: return false;
         }

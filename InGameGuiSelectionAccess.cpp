@@ -315,18 +315,18 @@ namespace NC2InGameGuiInputManager
         std::int32_t action = 0, id = -1;
         if (Read<std::uint32_t>(manager, 0) == 0 && object != nullptr)
         {
-            switch (Read<std::uint32_t>(object, 0))
+            switch (Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type))
             {
-            case SwitchIds::MapObjectUnderCursor::Human: id = Read<std::int32_t>(object, 8); if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
-            case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, 0x10); if (Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == Player()) action = 3; break;
-            case SwitchIds::MapObjectUnderCursor::Vehicle: id = Read<std::int32_t>(object, 0x18); if (Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::PlayerId) == Player()) action = 4; break;
-            case SwitchIds::MapObjectUnderCursor::House: id = Read<std::int32_t>(object, 0x28); action = 6; break;
-            case SwitchIds::MapObjectUnderCursor::Guide: id = Read<std::int32_t>(object, 0x30); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
-            case SwitchIds::MapObjectUnderCursor::Landscape: id = Read<std::int32_t>(object, 0x38); *second = Read<std::uint32_t>(object, 0x3C); *third = Read<std::uint32_t>(object, 4); *fourth = Read<std::uint32_t>(object, 0x40); action = 9; break;
+            case SwitchIds::MapObjectUnderCursor::Human: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::HumanId); if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
+            case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::AnimalId); if (Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == Player()) action = 3; break;
+            case SwitchIds::MapObjectUnderCursor::Vehicle: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::VehicleId); if (Read<std::uint32_t>(Vehicle(id), NC2Layout::VehicleOffset::PlayerId) == Player()) action = 4; break;
+            case SwitchIds::MapObjectUnderCursor::House: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::HouseId); action = 6; break;
+            case SwitchIds::MapObjectUnderCursor::Guide: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::GuideId); if (Read<std::uint32_t>(Guide(id), 4) == Player()) action = 8; break;
+            case SwitchIds::MapObjectUnderCursor::Landscape: id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::LandscapeId); *second = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::LandscapeVariant); *third = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::MapPosition); *fourth = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::PlayerId); action = 9; break;
             case SwitchIds::MapObjectUnderCursor::RoadBuildPlace: case SwitchIds::MapObjectUnderCursor::WallBuildPlace:
             {
-                const bool road = Read<std::uint32_t>(object, 0) == 7;
-                const auto* point = static_cast<const std::byte*>(object) + 4;
+                const bool road = Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::RoadBuildPlace;
+                const auto* point = static_cast<const std::byte*>(object) + NC2Layout::DisplayObjectReferenceOffset::MapPosition;
                 if (NC2Logic::RoadBuildManager_GetRoadBuildDataPtr(road ? NC2Logic::gRoadBuildManager : NC2Logic::gWallBuildManager, Player(), point) != nullptr) { id = static_cast<std::int32_t>(NC2Logic::MapMigPoint_GetLong(point)); action = road ? 10 : 11; }
                 break;
             }
@@ -1015,8 +1015,8 @@ namespace NC2InGameGuiInputManager
             }
             else
             {
-                if (object == nullptr || Read<std::uint32_t>(object, 0) != (mode == 24 ? 1u : 3u)) return false;
-                targetId = Read<std::int32_t>(object, mode == 24 ? 8 : 0x18);
+                if (object == nullptr || Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) != (mode == 24 ? 1u : 3u)) return false;
+                targetId = Read<std::int32_t>(object, mode == 24 ? NC2Layout::DisplayObjectReferenceOffset::HumanId : NC2Layout::DisplayObjectReferenceOffset::VehicleId);
                 if (!(mode == 24 ? Misc_Human_IsEnemyToAttack(manager, targetId) : Misc_Vehicle_IsEnemyToAttack(manager, targetId))) return false;
                 target = mode == 24 ? Human(targetId) : Vehicle(targetId);
             }
@@ -1083,8 +1083,8 @@ namespace NC2InGameGuiInputManager
         if (mode == 23 || mode == 25 || mode == 26)
         {
             const auto type = mode == 23 ? 1u : mode == 25 ? 2u : 3u;
-            if (object == nullptr || Read<std::uint32_t>(object, 0) != type) return false;
-            const auto id = Read<std::int32_t>(object, type == 1 ? 8 : type == 2 ? 0x10 : 0x18);
+            if (object == nullptr || Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) != type) return false;
+            const auto id = Read<std::int32_t>(object, type == 1 ? NC2Layout::DisplayObjectReferenceOffset::HumanId : type == 2 ? NC2Layout::DisplayObjectReferenceOffset::AnimalId : NC2Layout::DisplayObjectReferenceOffset::VehicleId);
             const bool allowed = mode == 23 ? Misc_Human_IsEnemyToAttack(manager, id) : mode == 25 ? Misc_Animal_CanBeAttacked(manager, id, true) : Misc_Vehicle_IsEnemyToAttack(manager, id);
             if (!allowed) return false;
             const auto* target = mode == 23 ? Human(id) : mode == 25 ? Animal(id) : Vehicle(id);
@@ -1094,8 +1094,8 @@ namespace NC2InGameGuiInputManager
         }
         if (mode == 27)
         {
-            if (object == nullptr || Read<std::uint32_t>(object, 0) != 3) return false;
-            const auto id = Read<std::int32_t>(object, 0x18);
+            if (object == nullptr || Read<std::uint32_t>(object, NC2Layout::DisplayObjectReferenceOffset::Type) != 3) return false;
+            const auto id = Read<std::int32_t>(object, NC2Layout::DisplayObjectReferenceOffset::VehicleId);
             if (!Misc_Vehicle_IsToEnter(manager, id)) return false;
             const auto selection = Read<std::uint32_t>(manager, 4);
             if (selection == 1 || selection == 4)
