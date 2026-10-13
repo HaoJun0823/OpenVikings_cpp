@@ -1450,6 +1450,20 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto GuiDisplayedMessageSerializedPrefix = 0x30C;
+
+        inline constexpr auto GuiDisplayedMessagePool = 156800;
+
+        inline constexpr auto GuiMessageHistoryPool = 0x26160;
+
+        inline constexpr auto GuiMessageHistory = 0x30C;
+
+        inline constexpr auto GuiMessageHistoryUnsigned = 0x30Cu;
+
+        inline constexpr auto GuiDisplayedMessage = 0x310;
+
+        inline constexpr auto GuiDisplayedMessageUnsigned = 0x310u;
+
         inline constexpr auto SingleVehicleWindowVars = 15376;
 
         inline constexpr auto WorldGuiElementState = 532;
@@ -2223,6 +2237,56 @@ namespace NC2Layout
     namespace SingleVehicleWindowVarsOffset
     {
         inline constexpr auto Tooltips = 0x234;
+    }
+
+    namespace GuiMessageManagerOffset
+    {
+        inline constexpr auto NextMessageId = 4;
+
+        inline constexpr auto PresentationWindow = 0xC;
+
+        inline constexpr auto MinimumPriority = 8;
+
+        inline constexpr auto DisplayedCount = 0;
+
+        inline constexpr auto HistoryMessages = 0x14;
+
+        inline constexpr auto DisplayedMessages = 0x10;
+    }
+
+    namespace GuiMessageEnvelopeOffset
+    {
+        inline constexpr auto Type = 8;
+
+        inline constexpr auto PlayerId = 0x10;
+
+        inline constexpr auto MapPoint = 0x30;
+
+        inline constexpr auto HumanUniqueId = 0x1C;
+
+        inline constexpr auto Message = 8;
+
+        inline constexpr auto VehicleId = 0x28;
+
+        inline constexpr auto HouseId = 0x20;
+
+        inline constexpr auto HumanId = 0x18;
+    }
+
+    namespace GuiMessageHistoryOffset
+    {
+        inline constexpr auto CreatedTick = 4;
+
+        inline constexpr auto AllocatedFlag = 0;
+    }
+
+    namespace GuiDisplayedMessageOffset
+    {
+        inline constexpr auto MiniButton = 0x30C;
+
+        inline constexpr auto UniqueId = 4;
+
+        inline constexpr auto CreatedTick = 0;
     }
 
 }

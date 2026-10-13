@@ -252,4 +252,11 @@ namespace NC2Runtime
         inline constexpr auto Tribes = 42;
     }
 
+    namespace GuiMessageLimits
+    {
+        inline constexpr auto Capacity = 200;
+
+        inline constexpr auto LifetimeTicksUnsigned = 3600u;
+    }
+
 }

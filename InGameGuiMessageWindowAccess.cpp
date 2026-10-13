@@ -221,12 +221,12 @@ namespace NC2InGameGuiMessages
     }
 
     // Original function: FUN_004b428b.
-    void CMessageManager::PresentationWindow_Closed() { Write<void*>(this, 0xC, nullptr); }
+    void CMessageManager::PresentationWindow_Closed() { Write<void*>(this, NC2Layout::GuiMessageManagerOffset::PresentationWindow, nullptr); }
 
     // Original function: FUN_004b4247; one presentation window is reused.
     void CMessageManager::PresentationWindow_Open(std::uint32_t uniqueId)
     {
-        auto* window = Read<void*>(this, 0xC);
+        auto* window = Read<void*>(this, NC2Layout::GuiMessageManagerOffset::PresentationWindow);
         if (window != nullptr)
         {
             MessagePresentationWindow_ChangeToMessage(window, uniqueId);
@@ -234,7 +234,7 @@ namespace NC2InGameGuiMessages
         }
         auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(2920, 1);
         window = allocation == nullptr ? nullptr : MessagePresentationWindow_Construct(allocation, uniqueId);
-        Write(this, 0xC, window);
+        Write(this, NC2Layout::GuiMessageManagerOffset::PresentationWindow, window);
         NC2InGameGuiBase::BaseToolDesktop_AddWindow(static_cast<NXBaseGui::CBaseWindow*>(window), false);
     }
 }

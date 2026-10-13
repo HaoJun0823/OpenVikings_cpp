@@ -427,31 +427,33 @@ namespace NC2InGameGuiDeadHumanDataManager
 namespace NC2InGameGuiMessages
 {
     // Original function: FUN_004b3997.
-    CMessageManager::CMessageManager()
+    #include "C2ObjectLayout.h"
+#include "C2RuntimeConstants.h"
+CMessageManager::CMessageManager()
     {
         gMessageManager = this;
         std::memset(this, 0, 12);
         std::memset(mStorage + 0xC, 0, 12);
         RegisterCallbacks(ls_Callback_Logic, {1, 0x16, 4, 3, 0x2E}, 10);
-        Write<std::uint32_t>(this, 4, 1);
-        Write<std::uint32_t>(this, 8, 0);
-        auto* active = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(156800, 1));
+        Write<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::NextMessageId, 1);
+        Write<std::uint32_t>(this, NC2Layout::GuiMessageManagerOffset::MinimumPriority, 0);
+        auto* active = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::GuiDisplayedMessagePool, 1));
         if (active != nullptr)
-            for (std::uint32_t index = 0; index < 200; ++index) NC2Logic::ToUserMessage_Construct(active + 8u + index * 0x310u);
-        Write(this, 0x10, active);
-        std::memset(active, 0, 156800);
-        auto* pending = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(156000, 1));
+            for (std::uint32_t index = 0; index < NC2Runtime::GuiMessageLimits::Capacity; ++index) NC2Logic::ToUserMessage_Construct(active + 8u + index * NC2Layout::RecordSize::GuiDisplayedMessageUnsigned);
+        Write(this, NC2Layout::GuiMessageManagerOffset::DisplayedMessages, active);
+        std::memset(active, 0, NC2Layout::RecordSize::GuiDisplayedMessagePool);
+        auto* pending = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(NC2Layout::RecordSize::GuiMessageHistoryPool, 1));
         if (pending != nullptr)
-            for (std::uint32_t index = 0; index < 200; ++index) NC2Logic::ToUserMessage_Construct(pending + 8u + index * 0x30Cu);
-        Write(this, 0x14, pending);
-        std::memset(pending, 0, 156000);
+            for (std::uint32_t index = 0; index < NC2Runtime::GuiMessageLimits::Capacity; ++index) NC2Logic::ToUserMessage_Construct(pending + 8u + index * NC2Layout::RecordSize::GuiMessageHistoryUnsigned);
+        Write(this, NC2Layout::GuiMessageManagerOffset::HistoryMessages, pending);
+        std::memset(pending, 0, NC2Layout::RecordSize::GuiMessageHistoryPool);
     }
 
     // Original function: FUN_004b3abd.
     CMessageManager::~CMessageManager()
     {
-        NXBasics::Runtime_Free(Read<void*>(this, 0x14));
-        NXBasics::Runtime_Free(Read<void*>(this, 0x10));
+        NXBasics::Runtime_Free(Read<void*>(this, NC2Layout::GuiMessageManagerOffset::HistoryMessages));
+        NXBasics::Runtime_Free(Read<void*>(this, NC2Layout::GuiMessageManagerOffset::DisplayedMessages));
         UnregisterCallbacks(ls_Callback_Logic, {0x2E, 3, 4, 0x16, 1});
         gMessageManager = nullptr;
     }

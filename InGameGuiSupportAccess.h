@@ -21,6 +21,31 @@ namespace NC2InGameGuiInputManager
 namespace NC2InGameGuiMessages
 {
     inline void* gMessageManager = nullptr; // 00569408
+    // Physical Windows message envelopes. Displayed and history prefixes have different meanings.
+    struct SGuiDisplayedMessageStorage
+    {
+        std::uint32_t createdTick;
+        std::uint32_t uniqueId;
+        std::byte message[772];
+        void* miniButton;
+    };
+    struct SGuiMessageHistoryStorage
+    {
+        std::uint8_t allocated;
+        std::byte unresolved01[3];
+        std::uint32_t createdTick;
+        std::byte message[772];
+    };
+    struct SGuiMessageManagerStorage
+    {
+        std::uint32_t displayedCount;
+        std::uint32_t nextMessageId;
+        std::uint32_t minimumPriority;
+        void* presentationWindow;
+        SGuiDisplayedMessageStorage* displayedMessages;
+        SGuiMessageHistoryStorage* historyMessages;
+    };
+
     class CMessageManager
     {
     public:
