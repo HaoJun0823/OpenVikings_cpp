@@ -1,6 +1,7 @@
 #pragma once
 
 #include "XBasicTypes.h"
+#include "C2EngineMoveableDrawing.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -14,6 +15,52 @@ namespace NXBasics
 
 namespace NC2E2
 {
+    struct SDisplayObjectReference
+    {
+        std::uint32_t type;
+        std::uint32_t mapPosition;
+        std::uint32_t humanId;
+        std::uint32_t humanUniqueId;
+        std::uint32_t animalId;
+        std::uint32_t animalUniqueId;
+        std::uint32_t vehicleId;
+        std::uint32_t vehicleUniqueId;
+        std::uint32_t mapMoveableId;
+        std::uint32_t mapMoveableUniqueId;
+        std::uint32_t houseId;
+        std::uint32_t houseUniqueId;
+        std::uint32_t guideId;
+        std::uint32_t guideUniqueId;
+        std::uint32_t landscapeId;
+        std::uint32_t landscapeVariant;
+        std::int32_t playerId;
+    };
+
+    struct SDisplayMarkedObject
+    {
+        SDisplayObjectReference reference;
+        std::uint32_t markType;
+    };
+
+    struct SDisplaySearchObject
+    {
+        SDisplayMarkedObject markedObject;
+        S2DEngineDisplaySearchObjectBobData bobData;
+    };
+
+    struct SDisplayMarkingState
+    {
+        std::uint8_t primaryReferenceEnabled;
+        std::byte padding[3];
+        SDisplaySearchObject* primaryMarkedObject;
+        std::uint32_t secondaryMarkedObjectCount;
+        SDisplayMarkedObject secondaryMarkedObjects[NC2Runtime::DisplaySelectionLimits::SecondaryMarks];
+    };
+    static_assert(sizeof(SDisplayObjectReference) == 68);
+    static_assert(sizeof(SDisplayMarkedObject) == 72);
+    static_assert(sizeof(SDisplaySearchObject) == 396);
+    static_assert(sizeof(SDisplayMarkingState) == 2172);
+
     // Windows fixed-point values retain eight fractional bits in both raster sizes.
     struct SDisplayProjectionSpacing
     {

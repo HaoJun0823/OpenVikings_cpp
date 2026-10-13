@@ -65,7 +65,7 @@ namespace NC2E2
     {
         struct SBob { void* manager; std::uint32_t id; std::int32_t offsetX; std::int32_t offsetY; };
         std::uint32_t count;
-        SBob bobs[20];
+        SBob bobs[NC2Runtime::DisplaySelectionLimits::BobsPerHit];
         bool AddBob(void* manager, std::uint32_t id, std::int32_t offsetX, std::int32_t offsetY);
     };
 

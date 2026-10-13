@@ -135,15 +135,15 @@ namespace NC2E2
         {
             std::uint8_t enabled;
             void* target;
-            std::memcpy(&enabled, static_cast<const std::byte*>(display) + 0xA4, sizeof(enabled));
-            std::memcpy(&target, static_cast<const std::byte*>(display) + 0xA8, sizeof(target));
+            std::memcpy(&enabled, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::PrimaryReferenceEnabled, sizeof(enabled));
+            std::memcpy(&target, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::PrimaryMarkedObject, sizeof(target));
             if (enabled != 0 && target != nullptr)
             {
-                std::memset(target, 0, 396);
+                std::memset(target, 0, NC2Layout::RecordSize::DisplaySearchObject);
                 DisplayObjectReference_Reset(target);
             }
             const std::uint32_t zero = 0;
-            std::memcpy(static_cast<std::byte*>(display) + 0xAC, &zero, sizeof(zero));
+            std::memcpy(static_cast<std::byte*>(display) + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, &zero, sizeof(zero));
         }
     }
 

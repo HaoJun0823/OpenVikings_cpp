@@ -44,10 +44,10 @@ namespace NC2E2
     // Original function: FUN_0047c6fb; thirty packed map points at stride 0x48.
     static void* DisplaySecondaryObjectReferences_Construct(void* references)
     {
-        for (std::uint32_t index = 0; index < 30; ++index)
+        for (std::uint32_t index = 0; index < NC2Runtime::DisplaySelectionLimits::SecondaryMarks; ++index)
         {
-            NC2Lifetime::Write<std::uint16_t>(references, index * 0x48u + 0x12, 0);
-            NC2Lifetime::Write<std::uint16_t>(references, index * 0x48u + 0x10, 0);
+            NC2Lifetime::Write<std::uint16_t>(references, index * NC2Layout::RecordSize::DisplayMarkedObject + NC2Layout::DisplayMarkingOffset::FirstSecondaryMapPositionY, 0);
+            NC2Lifetime::Write<std::uint16_t>(references, index * NC2Layout::RecordSize::DisplayMarkedObject + NC2Layout::DisplayMarkingOffset::FirstSecondaryMapPositionX, 0);
         }
         return references;
     }
@@ -112,27 +112,27 @@ namespace NC2E2
     // Original function: FUN_00483f80.
     bool DisplayObjectReference_Tool_IsHouse(const void* reference, std::uint32_t id)
     {
-        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 4 && NC2Lifetime::Read<std::uint32_t>(reference, 0x28) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x2C) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, id * 0x7E0u + 8u);
+        return NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::House && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::HouseId) == id && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::HouseUniqueId) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, id * NC2Logic::CHouseArray::ElementSize + 8u);
     }
     // Original function: FUN_00483fad.
     bool DisplayObjectReference_Tool_IsHuman(const void* reference, std::uint32_t id)
     {
-        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 1 && NC2Lifetime::Read<std::uint32_t>(reference, 8) == id && NC2Lifetime::Read<std::uint32_t>(reference, 12) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, id * 0xC58u + 8u);
+        return NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::Human && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::HumanId) == id && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::HumanUniqueId) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, id * NC2Logic::CHumanArray::ElementSize + 8u);
     }
     // Original function: FUN_00483fda.
     bool DisplayObjectReference_Tool_IsAnimal(const void* reference, std::uint32_t id)
     {
-        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 2 && NC2Lifetime::Read<std::uint32_t>(reference, 0x10) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x14) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CAnimalArray::mStaticVars, id * 0x98u + 8u);
+        return NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::Animal && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::AnimalId) == id && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::AnimalUniqueId) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CAnimalArray::mStaticVars, id * NC2Logic::CAnimalArray::ElementSize + 8u);
     }
     // Original function: FUN_00484007.
     bool DisplayObjectReference_Tool_IsVehicle(const void* reference, std::uint32_t id)
     {
-        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 3 && NC2Lifetime::Read<std::uint32_t>(reference, 0x18) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x1C) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, id * 0x54Cu + 8u);
+        return NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::Vehicle && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::VehicleId) == id && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::VehicleUniqueId) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, id * NC2Logic::CVehicleArray::ElementSize + 8u);
     }
     // Original function: FUN_00484034.
     bool DisplayObjectReference_Tool_IsGuide(const void* reference, std::uint32_t id)
     {
-        return NC2Lifetime::Read<std::uint32_t>(reference, 0) == 5 && NC2Lifetime::Read<std::uint32_t>(reference, 0x30) == id && NC2Lifetime::Read<std::uint32_t>(reference, 0x34) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CGuideArray::mStaticVars, id * 0x184u + 0x10u);
+        return NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::Guide && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::GuideId) == id && NC2Lifetime::Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::GuideUniqueId) == NC2Lifetime::Read<std::uint32_t>(NC2Logic::CGuideArray::mStaticVars, id * NC2Logic::CGuideArray::ElementSize + 0x10u);
     }
 
     // Original function: FUN_00484b95; distinct native forwarding entry.
@@ -150,38 +150,42 @@ namespace NC2E2
     void Display_DE_ObjectsToMark_AddSecondaryHuman(void* display, std::uint32_t markType, std::uint32_t humanId)
     {
         using namespace NC2Lifetime;
-        const auto count = Read<std::uint32_t>(display, 0xAC);
-        if (count == 30) return;
-        auto* reference = static_cast<std::byte*>(display) + 0xB0u + count * 0x48u;
-        Write(reference, 0x44, markType); DisplayObjectReference_Reset(reference);
-        Write<std::uint32_t>(reference, 0, 1); Write(reference, 8, humanId);
-        Write(reference, 0xC, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
-        Write(display, 0xAC, count + 1u);
+        const auto count = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount);
+        if (count == NC2Runtime::DisplaySelectionLimits::SecondaryMarks) return;
+        auto* reference = static_cast<std::byte*>(display) + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjects + count * NC2Layout::RecordSize::DisplayMarkedObject;
+        Write(reference, NC2Layout::DisplayObjectReferenceOffset::MarkType, markType);
+        DisplayObjectReference_Reset(reference);
+        Write<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type, SwitchIds::MapObjectUnderCursor::Human);
+        Write(reference, NC2Layout::DisplayObjectReferenceOffset::HumanId, humanId);
+        Write(reference, NC2Layout::DisplayObjectReferenceOffset::HumanUniqueId, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
+        Write(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, count + 1u);
     }
 
     // Original function: FUN_0047d06d.
     void Display_DE_ObjectsToMark_AddSecondaryHouse(void* display, std::uint32_t markType, std::uint32_t houseId)
     {
         using namespace NC2Lifetime;
-        const auto count = Read<std::uint32_t>(display, 0xAC);
-        if (count == 30) return;
-        auto* reference = static_cast<std::byte*>(display) + 0xB0u + count * 0x48u;
-        Write(reference, 0x44, markType); DisplayObjectReference_Reset(reference);
-        Write<std::uint32_t>(reference, 0, 4); Write(reference, 0x28, houseId);
-        Write(reference, 0x2C, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId));
-        Write(display, 0xAC, count + 1u);
+        const auto count = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount);
+        if (count == NC2Runtime::DisplaySelectionLimits::SecondaryMarks) return;
+        auto* reference = static_cast<std::byte*>(display) + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjects + count * NC2Layout::RecordSize::DisplayMarkedObject;
+        Write(reference, NC2Layout::DisplayObjectReferenceOffset::MarkType, markType);
+        DisplayObjectReference_Reset(reference);
+        Write<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type, SwitchIds::MapObjectUnderCursor::House);
+        Write(reference, NC2Layout::DisplayObjectReferenceOffset::HouseId, houseId);
+        Write(reference, NC2Layout::DisplayObjectReferenceOffset::HouseUniqueId, Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars + houseId * NC2Logic::CHouseArray::ElementSize, NC2Layout::HouseOffset::UniqueId));
+        Write(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, count + 1u);
     }
     static std::uint32_t GetMoveableMarkType(const void* display, std::uint32_t id, std::uint32_t type, std::uint32_t idOffset, const std::byte* objects, std::uint32_t stride)
     {
         using NC2Lifetime::Read;
-        const auto matches = [=](const void* reference) { return type == 1 ? DisplayMarkedObject_Tool_IsHuman(reference, id) : type == 2 ? DisplayMarkedObject_Tool_IsAnimal(reference, id) : DisplayMarkedObject_Tool_IsVehicle(reference, id); };
-        const void* primary = Read<void*>(display, 0xA8);
-        if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, 0x44);
-        const auto count = Read<std::int32_t>(display, 0xAC);
+        const auto matches = [=](const void* reference) { return type == SwitchIds::MapObjectUnderCursor::Human ? DisplayMarkedObject_Tool_IsHuman(reference, id) : type == SwitchIds::MapObjectUnderCursor::Animal ? DisplayMarkedObject_Tool_IsAnimal(reference, id) : DisplayMarkedObject_Tool_IsVehicle(reference, id); };
+        const void* primary = Read<void*>(display, NC2Layout::EngineDisplayOffset::PrimaryMarkedObject);
+        if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, NC2Layout::DisplayObjectReferenceOffset::MarkType);
+        const auto count = Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount);
         for (std::int32_t index = 0; index < count; ++index)
         {
-            const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
-            if (matches(reference)) return Read<std::uint32_t>(reference, 0x44);
+            const auto* reference = static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjects + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::DisplayMarkedObject;
+            if (matches(reference)) return Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::MarkType);
         }
         return 0;
     }
@@ -190,34 +194,34 @@ namespace NC2E2
     std::uint32_t Display_DE_ObjectsToMark_House_GetMarkType(const void* display, std::uint32_t houseId)
     {
         using NC2Lifetime::Read;
-        const auto* primary = Read<void*>(display, 0xA8);
-        if (primary != nullptr && DisplayMarkedObject_Tool_IsHouse(primary, houseId)) return Read<std::uint32_t>(primary, 0x44);
-        for (std::int32_t index = 0; index < Read<std::int32_t>(display, 0xAC); ++index)
+        const auto* primary = Read<void*>(display, NC2Layout::EngineDisplayOffset::PrimaryMarkedObject);
+        if (primary != nullptr && DisplayMarkedObject_Tool_IsHouse(primary, houseId)) return Read<std::uint32_t>(primary, NC2Layout::DisplayObjectReferenceOffset::MarkType);
+        for (std::int32_t index = 0; index < Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount); ++index)
         {
-            const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
-            if (Read<std::uint32_t>(reference, 0) == 4 && Read<std::uint32_t>(reference, 0x28) == houseId) return Read<std::uint32_t>(reference, 0x44);
+            const auto* reference = static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjects + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::DisplayMarkedObject;
+            if (Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::Type) == SwitchIds::MapObjectUnderCursor::House && Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::HouseId) == houseId) return Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::MarkType);
         }
         return 0;
     }
 
     // Original function: FUN_0047d14d; reference predicates also compare generation.
-    std::uint32_t Display_DE_ObjectsToMark_Human_GetMarkType(const void* display, std::uint32_t humanId) { return GetMoveableMarkType(display, humanId, 1, 8, NC2Logic::CHumanArray::mStaticVars, NC2Logic::CHumanArray::ElementSize); }
+    std::uint32_t Display_DE_ObjectsToMark_Human_GetMarkType(const void* display, std::uint32_t humanId) { return GetMoveableMarkType(display, humanId, SwitchIds::MapObjectUnderCursor::Human, NC2Layout::DisplayObjectReferenceOffset::HumanId, NC2Logic::CHumanArray::mStaticVars, NC2Logic::CHumanArray::ElementSize); }
     // Original function: FUN_0047d1c7.
-    std::uint32_t Display_DE_ObjectsToMark_Animal_GetMarkType(const void* display, std::uint32_t animalId) { return GetMoveableMarkType(display, animalId, 2, 0x10, NC2Logic::CAnimalArray::mStaticVars, NC2Logic::CAnimalArray::ElementSize); }
+    std::uint32_t Display_DE_ObjectsToMark_Animal_GetMarkType(const void* display, std::uint32_t animalId) { return GetMoveableMarkType(display, animalId, SwitchIds::MapObjectUnderCursor::Animal, NC2Layout::DisplayObjectReferenceOffset::AnimalId, NC2Logic::CAnimalArray::mStaticVars, NC2Logic::CAnimalArray::ElementSize); }
     // Original function: FUN_0047d241.
-    std::uint32_t Display_DE_ObjectsToMark_Vehicle_GetMarkType(const void* display, std::uint32_t vehicleId) { return GetMoveableMarkType(display, vehicleId, 3, 0x18, NC2Logic::CVehicleArray::mStaticVars, NC2Logic::CVehicleArray::ElementSize); }
+    std::uint32_t Display_DE_ObjectsToMark_Vehicle_GetMarkType(const void* display, std::uint32_t vehicleId) { return GetMoveableMarkType(display, vehicleId, SwitchIds::MapObjectUnderCursor::Vehicle, NC2Layout::DisplayObjectReferenceOffset::VehicleId, NC2Logic::CVehicleArray::mStaticVars, NC2Logic::CVehicleArray::ElementSize); }
 
     // Original function: FUN_0047d2bb; both guide references validate the generation at +0x10.
     std::uint32_t Display_DE_ObjectsToMark_Guide_GetMarkType(const void* display, std::uint32_t guideId)
     {
         using NC2Lifetime::Read;
         const auto matches = [=](const void* reference) { return DisplayMarkedObject_Tool_IsGuide(reference, guideId); };
-        const auto* primary = Read<void*>(display, 0xA8);
-        if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, 0x44);
-        for (std::int32_t index = 0; index < Read<std::int32_t>(display, 0xAC); ++index)
+        const auto* primary = Read<void*>(display, NC2Layout::EngineDisplayOffset::PrimaryMarkedObject);
+        if (primary != nullptr && matches(primary)) return Read<std::uint32_t>(primary, NC2Layout::DisplayObjectReferenceOffset::MarkType);
+        for (std::int32_t index = 0; index < Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount); ++index)
         {
-            const auto* reference = static_cast<const std::byte*>(display) + 0xB0u + static_cast<std::uint32_t>(index) * 0x48u;
-            if (matches(reference)) return Read<std::uint32_t>(reference, 0x44);
+            const auto* reference = static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjects + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::DisplayMarkedObject;
+            if (matches(reference)) return Read<std::uint32_t>(reference, NC2Layout::DisplayObjectReferenceOffset::MarkType);
         }
         return 0;
     }
@@ -629,7 +633,7 @@ namespace NC2E2
 
         DisplayDescription_Construct(display);
 
-        DisplaySecondaryObjectReferences_Construct(displayBytes + 0xA4);
+        DisplaySecondaryObjectReferences_Construct(displayBytes + NC2Layout::EngineDisplayOffset::PrimaryReferenceEnabled);
 
         // Original function: FUN_0042ae54, applied to the rectangle at +0x97A.
         Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight, 0);
@@ -637,7 +641,7 @@ namespace NC2E2
         Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY, 0);
         Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX, 0);
 
-        std::memset(displayBytes + 0x64, 0, 2280);
+        std::memset(displayBytes + NC2Layout::EngineDisplayOffset::DestinationBitmap, 0, NC2Layout::RecordSize::DisplayInitializedTail);
 
         Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap, bitmap);
         Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag, active);
@@ -1138,10 +1142,10 @@ namespace NC2E2
     void DisplayObjectReference_Reset(void* reference)
     {
         auto* data = static_cast<std::byte*>(reference);
-        std::memset(data, 0, 68);
+        std::memset(data, 0, NC2Layout::RecordSize::DisplayObjectReference);
 
         const std::uint32_t invalidIndex = NXBasics::IntegerRange::UInt32Maximum;
-        constexpr std::size_t indexOffsets[] = { 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x40 };
+        constexpr std::size_t indexOffsets[] = { NC2Layout::DisplayObjectReferenceOffset::HumanId, NC2Layout::DisplayObjectReferenceOffset::AnimalId, NC2Layout::DisplayObjectReferenceOffset::VehicleId, NC2Layout::DisplayObjectReferenceOffset::MapMoveableId, NC2Layout::DisplayObjectReferenceOffset::HouseId, NC2Layout::DisplayObjectReferenceOffset::GuideId, NC2Layout::DisplayObjectReferenceOffset::PlayerId };
 
         for (std::size_t offset : indexOffsets)
             std::memcpy(data + offset, &invalidIndex, sizeof(invalidIndex));
@@ -1157,7 +1161,7 @@ namespace NC2E2
             return value;
         };
 
-        const std::uint32_t type = readWord(reference, 0);
+        const std::uint32_t type = readWord(reference, NC2Layout::DisplayObjectReferenceOffset::Type);
 
         void* table;
         std::uint32_t stride;
@@ -1169,35 +1173,35 @@ namespace NC2E2
             case SwitchIds::LogicObjectType::Human:
                 table = NC2Logic::CHumanArray::mStaticVars;
                 stride = NC2Logic::CHumanArray::ElementSize;
-                indexOffset = 0x08;
+                indexOffset = NC2Layout::DisplayObjectReferenceOffset::HumanId;
                 identityOffset = 0x08;
                 break;
 
             case SwitchIds::LogicObjectType::Animal:
                 table = NC2Logic::CAnimalArray::mStaticVars;
                 stride = NC2Logic::CAnimalArray::ElementSize;
-                indexOffset = 0x10;
+                indexOffset = NC2Layout::DisplayObjectReferenceOffset::AnimalId;
                 identityOffset = 0x08;
                 break;
 
             case SwitchIds::LogicObjectType::Vehicle:
                 table = NC2Logic::CVehicleArray::mStaticVars;
                 stride = NC2Logic::CVehicleArray::ElementSize;
-                indexOffset = 0x18;
+                indexOffset = NC2Layout::DisplayObjectReferenceOffset::VehicleId;
                 identityOffset = 0x08;
                 break;
 
             case SwitchIds::LogicObjectType::House:
                 table = NC2Logic::CHouseArray::mStaticVars;
                 stride = NC2Logic::CHouseArray::ElementSize;
-                indexOffset = 0x28;
+                indexOffset = NC2Layout::DisplayObjectReferenceOffset::HouseId;
                 identityOffset = 0x08;
                 break;
 
             case SwitchIds::LogicObjectType::Guide:
                 table = NC2Logic::CGuideArray::mStaticVars;
                 stride = NC2Logic::CGuideArray::ElementSize;
-                indexOffset = 0x30;
+                indexOffset = NC2Layout::DisplayObjectReferenceOffset::GuideId;
                 identityOffset = 0x10;
                 break;
 
@@ -1473,7 +1477,7 @@ namespace NC2E2
             Display_l_DE_SpecialOverlay_Snow_Draw(display);
             Display_l_DE_SpecialOverlay_Sand_Draw(display);
         }
-        if (Display_ReadField<std::uint8_t>(display, 0x920) != 0)
+        if (Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::TooltipOverlaysEnabled) != 0)
             Display_l_DE_DrawTooltipOverlays(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point);
         if ((Display_ReadField<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit5) != 0)
         {
@@ -1539,7 +1543,7 @@ namespace NC2E2
         if (!DisplayObjectReference_Validate(searchObject))
             return false;
 
-        std::memset(searchObject, 0, 396);
+        std::memset(searchObject, 0, NC2Layout::RecordSize::DisplaySearchObject);
         DisplayObjectReference_Reset(searchObject);
         return true;
     }

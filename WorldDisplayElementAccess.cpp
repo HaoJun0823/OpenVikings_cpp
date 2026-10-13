@@ -80,11 +80,11 @@ namespace NC2InGameGuiWorldElement
         NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
         auto* target = static_cast<std::byte*>(element) + 0x38;
         NC2E2::DE_SearchObject_FindOnWorldPosition(display, point, target);
-        Write<std::uint32_t>(display, 0xAC, 0);
+        Write<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, 0);
         const auto localPlayer = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        if (Read<std::uint32_t>(target, 0) == 1)
+        if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1)
         {
-            const auto* hoveredHuman = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, 8) * NC2Logic::CHumanArray::ElementSize;
+            const auto* hoveredHuman = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId) * NC2Logic::CHumanArray::ElementSize;
             if (Read<std::int32_t>(hoveredHuman, NC2Layout::HumanOffset::PlayerId) == localPlayer)
             {
                 for (const auto offset : {0xB20u, 0xB18u, 0xB14u, 0xB24u})
@@ -99,9 +99,9 @@ namespace NC2InGameGuiWorldElement
                 }
             }
         }
-        else if (Read<std::uint32_t>(target, 0) == 4)
+        else if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 4)
         {
-            const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(target, 0x28) * NC2Logic::CHouseArray::ElementSize;
+            const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HouseId) * NC2Logic::CHouseArray::ElementSize;
             if (Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
                 for (std::uint32_t i = 0; i < 20; ++i)
                 {
@@ -122,7 +122,7 @@ namespace NC2InGameGuiWorldElement
         case SwitchIds::SelectionType::SingleHuman:
         {
             const auto id = Selection_GetSelectedSingleHumanId(input);
-            if (Read<std::uint32_t>(target, 0) == 1 && Read<std::int32_t>(target, 8) == id) return;
+            if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1 && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId) == id) return;
             const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
             Write(element, 0x1C4, NC2Logic::Human_UserControl_GetDefaultInteractionCommand_SingleHuman(human, target, command, secondary, modifier()));
             return;
@@ -133,7 +133,7 @@ namespace NC2InGameGuiWorldElement
             for (std::uint32_t i = 0; i < count; ++i)
             {
                 const auto id = Selection_GetSelectedMultipleHumanId(input, i);
-                if (Read<std::uint32_t>(target, 0) == 1 && id == Read<std::int32_t>(target, 8)) return;
+                if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1 && id == Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId)) return;
             }
             for (std::uint32_t i = 0; i < count; ++i)
             {
@@ -146,7 +146,7 @@ namespace NC2InGameGuiWorldElement
         case SwitchIds::SelectionType::SingleVehicle:
         {
             const auto id = Selection_GetSelectedSingleVehicleId(input);
-            if (Read<std::uint32_t>(target, 0) == 3 && Read<std::int32_t>(target, 0x18) == id) return;
+            if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 3 && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId) == id) return;
             const auto* vehicle = NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize;
             Write(element, 0x1C8, NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(vehicle, target, command, secondary, modifier()));
             return;
@@ -157,7 +157,7 @@ namespace NC2InGameGuiWorldElement
             for (std::uint32_t i = 0; i < count; ++i)
             {
                 const auto id = Selection_GetSelectedMultipleVehicleId(input, i);
-                if (Read<std::uint32_t>(target, 0) == 3 && id == Read<std::int32_t>(target, 0x18)) return;
+                if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 3 && id == Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId)) return;
             }
             for (std::uint32_t i = 0; i < count; ++i)
             {
@@ -349,9 +349,9 @@ namespace NC2InGameGuiWorldElement
         if (message == 4)
         {
             Write(element, 0x21C, NXSysMouseManager::CMouseManager::sTheObjectPtr->GetInputMessageTime());
-            if (Read<std::uint8_t>(element, 0x34) != 0 && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(target, 0) == 1 && Read<std::uint32_t>(target, 0x40) == Read<std::uint32_t>(display, 0x7C) && Read<std::uint32_t>(input, 0) == 0 && (Selection_IsHumanSelected(input, Read<std::int32_t>(target, 8)) || Read<std::uint32_t>(input, 4) == 2))
+            if (Read<std::uint8_t>(element, 0x34) != 0 && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1 && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) == Read<std::uint32_t>(display, 0x7C) && Read<std::uint32_t>(input, 0) == 0 && (Selection_IsHumanSelected(input, Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId)) || Read<std::uint32_t>(input, 4) == 2))
             {
-                const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, 8) * NC2Logic::CHumanArray::ElementSize;
+                const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId) * NC2Logic::CHumanArray::ElementSize;
                 const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
                 std::int32_t point[2]{Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
                 NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
@@ -399,12 +399,12 @@ namespace NC2InGameGuiWorldElement
                     if (assignments->CheckDirectKeyVirtualOnly(27)) l_DoTimeSyncedScrolling(element, 1);
                     if (assignments->CheckDirectKeyVirtualOnly(24)) l_DoTimeSyncedScrolling(element, 4);
                     if (assignments->CheckDirectKeyVirtualOnly(25)) l_DoTimeSyncedScrolling(element, 2);
-                    Write<std::uint8_t>(display, 0x920, assignments->CheckDirectKeyVirtualOnly(28));
+                    Write<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::TooltipOverlaysEnabled, assignments->CheckDirectKeyVirtualOnly(28));
                 }
             }
             else if (command == 2031)
             {
-                std::memset(target, 0, 396);
+                std::memset(target, 0, NC2Layout::RecordSize::DisplaySearchObject);
                 NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
                 std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 20); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 20); Write<std::uint8_t>(element, 0x1F4, 0);
             }
@@ -526,12 +526,12 @@ namespace NC2InGameGuiWorldElement
         WorldDisplayElement_WriteField(element, 0x30, display);
         WorldDisplayElement_WriteField<std::uint8_t>(element, 0x34, static_cast<std::uint8_t>(inputEnabled));
         auto* interactionTarget = static_cast<std::byte*>(element) + 0x38;
-        std::memset(interactionTarget, 0, 396);
+        std::memset(interactionTarget, 0, NC2Layout::RecordSize::DisplaySearchObject);
         NC2E2::DisplayObjectReference_Reset(interactionTarget);
         if (active)
         {
-            WorldDisplayElement_WriteField<std::uint8_t>(display, 0xA4, interactionTarget != nullptr ? 1 : 0);
-            WorldDisplayElement_WriteField(display, 0xA8, interactionTarget);
+            WorldDisplayElement_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::PrimaryReferenceEnabled, interactionTarget != nullptr ? 1 : 0);
+            WorldDisplayElement_WriteField(display, NC2Layout::EngineDisplayOffset::PrimaryMarkedObject, interactionTarget);
         }
         else
         {
@@ -858,7 +858,7 @@ namespace NC2InGameGuiWorldElement
         auto* display = reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(displayAddress));
         const std::uint32_t zero = 0;
 
-        std::memcpy(display + 0xAC, &zero, sizeof(zero));
+        std::memcpy(display + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, &zero, sizeof(zero));
         std::memcpy(data + 0x1C4, &zero, sizeof(zero));
         std::memcpy(data + 0x1C8, &zero, sizeof(zero));
 

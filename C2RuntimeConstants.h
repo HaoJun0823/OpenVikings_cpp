@@ -85,6 +85,18 @@ namespace NC2Runtime
         inline constexpr auto Sand = 3;
     }
 
+    namespace DisplaySelectionLimits
+    {
+        inline constexpr auto SecondaryMarks = 30;
+        inline constexpr auto BobsPerHit = 20;
+    }
+
+    namespace DisplayObjectMarkType
+    {
+        inline constexpr auto LocalOrUnowned = 1u;
+        inline constexpr auto OtherPlayer = 3u;
+    }
+
     namespace DisplayProjection
     {
         inline constexpr auto DefaultVerticalSpacing = 19.0f;

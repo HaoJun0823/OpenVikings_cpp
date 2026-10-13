@@ -180,6 +180,44 @@ namespace NC2Layout
         inline constexpr auto SandDensity = 8;
     }
 
+    namespace DisplayObjectReferenceOffset
+    {
+        inline constexpr auto HumanIdUnsigned = 8u;
+        inline constexpr auto AnimalIdUnsigned = 0x10u;
+        inline constexpr auto VehicleIdUnsigned = 0x18u;
+        inline constexpr auto Type = 0;
+        inline constexpr auto MapPosition = 4;
+        inline constexpr auto MapPositionX = 4;
+        inline constexpr auto MapPositionY = 6;
+        inline constexpr auto HumanId = 8;
+        inline constexpr auto HumanUniqueId = 12;
+        inline constexpr auto AnimalId = 0x10;
+        inline constexpr auto AnimalUniqueId = 0x14;
+        inline constexpr auto VehicleId = 0x18;
+        inline constexpr auto VehicleUniqueId = 0x1C;
+        inline constexpr auto MapMoveableId = 0x20;
+        inline constexpr auto MapMoveableUniqueId = 0x24;
+        inline constexpr auto HouseId = 0x28;
+        inline constexpr auto HouseUniqueId = 0x2C;
+        inline constexpr auto GuideId = 0x30;
+        inline constexpr auto GuideUniqueId = 0x34;
+        inline constexpr auto LandscapeId = 0x38;
+        inline constexpr auto LandscapeVariant = 0x3C;
+        inline constexpr auto PlayerId = 0x40;
+        inline constexpr auto MarkType = 0x44;
+        inline constexpr auto BobData = 0x48;
+    }
+
+    namespace DisplayMarkingOffset
+    {
+        inline constexpr auto PrimaryReferenceEnabled = 0;
+        inline constexpr auto PrimaryMarkedObject = 4;
+        inline constexpr auto SecondaryMarkedObjectCount = 8;
+        inline constexpr auto SecondaryMarkedObjects = 12;
+        inline constexpr auto FirstSecondaryMapPositionX = 0x10;
+        inline constexpr auto FirstSecondaryMapPositionY = 0x12;
+    }
+
     namespace DisplayDescriptionOffset
     {
         inline constexpr auto VerticalSpacing = 0;
@@ -211,6 +249,12 @@ namespace NC2Layout
 
     namespace EngineDisplayOffset
     {
+        inline constexpr auto PrimaryReferenceEnabled = 0xA4;
+        inline constexpr auto PrimaryMarkedObject = 0xA8;
+        inline constexpr auto SecondaryMarkedObjectCount = 0xAC;
+        inline constexpr auto SecondaryMarkedObjects = 0xB0u;
+        inline constexpr auto TooltipOverlaysEnabled = 0x920;
+
         inline constexpr auto ActiveDisplayFlag = 0x6C;
         inline constexpr auto ZoomCounter = 0x78;
         inline constexpr auto EarthquakeEndTime = 0x940;
@@ -657,6 +701,10 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto DisplayObjectReference = 68;
+        inline constexpr auto DisplayMarkedObject = 0x48u;
+        inline constexpr auto DisplaySearchObject = 396;
+        inline constexpr auto DisplayInitializedTail = 2280;
         inline constexpr auto DisplayScrollState = 72;
         inline constexpr auto WeatherSector = 12u;
         inline constexpr auto WeatherSectorDimensions = 8;

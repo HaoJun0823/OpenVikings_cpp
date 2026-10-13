@@ -154,7 +154,7 @@ namespace NC2E2
             }
         }
 
-        if (Tooltip_ReadField<std::uint8_t>(display, 0x920) != 0 && NC2InGameGuiGroups::gObjectGroupManager != nullptr)
+        if (Tooltip_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::TooltipOverlaysEnabled) != 0 && NC2InGameGuiGroups::gObjectGroupManager != nullptr)
         {
             const std::int32_t slot = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHouse( houseId);
             if (slot != -1)

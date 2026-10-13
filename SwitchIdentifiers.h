@@ -1141,6 +1141,9 @@ namespace SwitchIds
 
     namespace MapObjectUnderCursor
     {
+        inline constexpr auto None = 0;
+        inline constexpr auto RoadBuildPlaceUnsigned = 7u;
+        inline constexpr auto WallBuildPlaceUnsigned = 8u;
         inline constexpr auto Human = 1;
         inline constexpr auto Animal = 2;
         inline constexpr auto Vehicle = 3;

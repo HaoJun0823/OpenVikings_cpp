@@ -197,7 +197,7 @@ namespace NC2E2
     // Original function: FUN_004955e7; bounded descriptor append, distinct from sprite drawing.
     bool S2DEngineDisplaySearchObjectBobData::AddBob(void* manager, std::uint32_t id, std::int32_t offsetX, std::int32_t offsetY)
     {
-        if (count == 20 || !NXBasics::BobManager_DoesBobExists(manager, id)) return false;
+        if (count == NC2Runtime::DisplaySelectionLimits::BobsPerHit || !NXBasics::BobManager_DoesBobExists(manager, id)) return false;
         bobs[count++] = {manager, id, offsetX, offsetY};
         return true;
     }
