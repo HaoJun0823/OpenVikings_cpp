@@ -408,11 +408,11 @@ namespace NC2InGameGuiInputManager
     }
 
     // Original functions: FUN_004b6115/004b62a9/004b632f/004b655f/004b6672.
-    bool Selection_SelectSingleHuman(void* manager, std::int32_t id) { return SelectSingle(manager, 1, 8, id, Human(id), 8, 0xE); }
-    bool Selection_SelectSingleAnimal(void* manager, std::int32_t id) { return SelectSingle(manager, 3, 0x974, id, Animal(id), 8, 0xF); }
-    bool Selection_SelectSingleVehicle(void* manager, std::int32_t id) { return SelectSingle(manager, 4, 0x97C, id, Vehicle(id), 8, 0x10); }
-    bool Selection_SelectHouse(void* manager, std::int32_t id) { return SelectSingle(manager, 6, 0xA78, id, House(id), 8, 0x11); }
-    bool Selection_SelectGuide(void* manager, std::int32_t id) { return SelectSingle(manager, 8, 0xA90, id, Guide(id), 0x10, 0); }
+    bool Selection_SelectSingleHuman(void* manager, std::int32_t id) { return SelectSingle(manager, SwitchIds::SelectionType::SingleHuman, NC2Layout::InputManagerOffset::SingleHumanId, id, Human(id), NC2Layout::HumanOffset::UniqueId, SwitchIds::CallbackType::HumanDisplayStateChanged); }
+    bool Selection_SelectSingleAnimal(void* manager, std::int32_t id) { return SelectSingle(manager, SwitchIds::SelectionType::SingleAnimal, NC2Layout::InputManagerOffset::SingleAnimalId, id, Animal(id), NC2Layout::AnimalOffset::UniqueId, SwitchIds::CallbackType::AnimalDisplayStateChanged); }
+    bool Selection_SelectSingleVehicle(void* manager, std::int32_t id) { return SelectSingle(manager, SwitchIds::SelectionType::SingleVehicle, NC2Layout::InputManagerOffset::SingleVehicleId, id, Vehicle(id), NC2Layout::VehicleOffset::UniqueId, SwitchIds::CallbackType::VehicleDisplayStateChanged); }
+    bool Selection_SelectHouse(void* manager, std::int32_t id) { return SelectSingle(manager, SwitchIds::SelectionType::House, NC2Layout::InputManagerOffset::HouseId, id, House(id), NC2Layout::HouseOffset::UniqueId, SwitchIds::CallbackType::HouseDisplayStateChanged); }
+    bool Selection_SelectGuide(void* manager, std::int32_t id) { return SelectSingle(manager, SwitchIds::SelectionType::Guide, NC2Layout::InputManagerOffset::GuideId, id, Guide(id), 0x10, 0); }
 
     // Original function: FUN_004b6788.
     bool Selection_SelectRoadBuildPlace(void* manager, const void* point)
@@ -509,11 +509,11 @@ namespace NC2InGameGuiInputManager
     }
 
     // Original functions: FUN_004b7059/004b7159/004b7187/004b72a7/004b72d5.
-    void UnSelect_Human(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, 1, 8, 2, 0x10, 0x14, 0xE); }
-    void UnSelect_Animal(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, 3, 0x974, 0, 0, 0, 0xF); }
-    void UnSelect_Vehicle(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, 4, 0x97C, 5, 0x984, 0x988, 0x10); }
-    void UnSelect_House(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, 6, 0xA78, 0, 0, 0, 0x11); }
-    void UnSelect_Guide(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, 8, 0xA90, 0, 0, 0, 0); }
+    void UnSelect_Human(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, SwitchIds::SelectionType::SingleHuman, NC2Layout::InputManagerOffset::SingleHumanId, SwitchIds::SelectionType::MultipleHumans, NC2Layout::InputManagerOffset::HumanGroupCount, NC2Layout::InputManagerOffset::HumanGroup, SwitchIds::CallbackType::HumanDisplayStateChanged); }
+    void UnSelect_Animal(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, SwitchIds::SelectionType::SingleAnimal, NC2Layout::InputManagerOffset::SingleAnimalId, 0, 0, 0, SwitchIds::CallbackType::AnimalDisplayStateChanged); }
+    void UnSelect_Vehicle(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, SwitchIds::SelectionType::SingleVehicle, NC2Layout::InputManagerOffset::SingleVehicleId, SwitchIds::SelectionType::MultipleVehicles, NC2Layout::InputManagerOffset::VehicleGroupCount, NC2Layout::InputManagerOffset::VehicleGroup, SwitchIds::CallbackType::VehicleDisplayStateChanged); }
+    void UnSelect_House(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, SwitchIds::SelectionType::House, NC2Layout::InputManagerOffset::HouseId, 0, 0, 0, SwitchIds::CallbackType::HouseDisplayStateChanged); }
+    void UnSelect_Guide(void* manager, std::int32_t id) { RemoveFromSelection(manager, id, SwitchIds::SelectionType::Guide, NC2Layout::InputManagerOffset::GuideId, 0, 0, 0, 0); }
 
     // Original functions: FUN_004b7442/004b7450/004b745d/004b7478.
     std::int32_t Selection_GetSelectedSingleHumanId(const void* manager) { return Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::SelectionType) == 1 ? Read<std::int32_t>(manager, NC2Layout::InputManagerOffset::SingleHumanId) : -1; }
