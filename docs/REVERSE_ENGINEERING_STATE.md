@@ -1,6 +1,16 @@
 # Reverse-Engineering State
 
-## Input cursor and whole-source review checkpoint - 2026-10-13
+## Particle, macro-map and AI record review checkpoint - 2026-10-13
+
+Completed the three requested naming/review blocks: particle simulation/drawing/generators/effects and ownership, all thirteen macro-map sections and capture/placement paths, and AI soldier/vehicle/main-task/combined-task/military records with their construction, message and relevant savegame consumers. See [PARTICLE_RECORDS_REVIEW.md](PARTICLE_RECORDS_REVIEW.md), [MACRO_MAP_RECORDS_REVIEW.md](MACRO_MAP_RECORDS_REVIEW.md) and [AI_RECORDS_REVIEW.md](AI_RECORDS_REVIEW.md). Windows behavior and literal types are retained; Mac was used only for original name spelling. Explicit unknowns, including military manager +0x1454, remain unresolved.
+
+All 307 production C++ units pass Win32 `/Zs`, with five existing GUI C4805 warnings unchanged. Block-specific compiler assertions verify 156 particle, 113 macro-map, 205 AI and three token-domain value/type pairs; AI models have 38 physical layout/pool assertions. Exact staged source audits confirm unchanged token streams after constant substitution. Native instruction byte checks and semantic evidence are described in the block documents. No builds, tests or game runs occurred.
+
+Fresh registered-source scan: 595 files (307 CPP / 288 headers), 145810 lines, 8982 remaining raw numeric access operands, 74 unknown-member mentions and 1208 long multi-statement lines. This pass removed 1358 raw-access candidates since the 10340 checkpoint. Relative to the initial 14730, the reduction is 5748 (39.02%); this is a text-scan reduction, not whole-source review completion. The 5063/5063 known-entry reconstruction inventory still has zero tracked unfinished implementations; it does not establish complete behavioral correctness. No reliable reviewed-function x/y ledger exists for this pass. The naming map remains 3151 unique addresses and project/filter parity is unchanged.
+
+Next review priorities: human goods/job paths, road/wall construction, village/resource AI, selection/vehicle/house GUI, world display and remaining layout owners. Some raw operands are established array strides or generic helper parameters; the scan does not count unresolved functions. Whole-source readability and behavior review remains incomplete.
+
+## Previous input cursor and whole-source review checkpoint - 2026-10-13
 
 Named the complete input manager cursor/road-wall/300-target-point storage, preserving the unaligned cursor at AB6, relative constructor receivers, retained last-valid coordinate and original search/callback order. Seven source/header files, 26 value/type pairs and layout assertions pass targeted Win32 syntax checks; 1216 native instruction byte sequences verify against Game.exe. See [INPUT_CURSOR_LAYOUT_REVIEW.md](INPUT_CURSOR_LAYOUT_REVIEW.md). No build, tests or runtime run occurred.
 

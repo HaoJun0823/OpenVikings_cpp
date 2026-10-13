@@ -1091,6 +1091,226 @@ namespace NC2Layout
         inline constexpr auto MapY = 2;
     }
 
+
+    // Windows AI owners, task records and soldier/military storage.
+    namespace AISinglePlayerOffset
+    {
+        inline constexpr auto SoldierCount = 0x6168;
+        inline constexpr auto PlayerId = 0;
+        inline constexpr auto CombinedTaskCount = 0x2A48;
+        inline constexpr auto FirstCombinedTaskMainIndices = 0x2A64;
+        inline constexpr auto CombinedTasks = 0x2A50;
+        inline constexpr auto FirstCombinedTaskPhase = 0x2A98;
+        inline constexpr auto VehicleCount = 0x5CB4;
+        inline constexpr auto Vehicles = 0x5CB8;
+        inline constexpr auto AllocatedSoldierCounts = 0xA500;
+        inline constexpr auto SoldierAssignedFlags = 0xAC70;
+        inline constexpr auto SoldierCandidateCount = 0xA62C;
+        inline constexpr auto SoldierCandidateScores = 0xA634;
+        inline constexpr auto SoldierCandidateSlots = 0xA630;
+        inline constexpr auto TaskAllocationFinished = 0xA5FA;
+        inline constexpr auto TaskAllocationWeighted = 0xA5C8;
+        inline constexpr auto TaskAllocationEligible = 0xA338;
+        inline constexpr auto TaskAllocationPriorityPercent = 0xA370;
+        inline constexpr auto DefaultSoldierPositionEnabled = 0xA32C;
+        inline constexpr auto DefaultSoldierPosition = 0xA32E;
+        inline constexpr auto DefaultSoldierRadius = 0xA334;
+        inline constexpr auto Soldiers = 0x616C;
+        inline constexpr auto SoldierSelfDefenceOrigins = 0xAD48;
+        inline constexpr auto WeaponCategoryCounts = 0xA30C;
+        inline constexpr auto FirstMainTaskDescription = 0x1C38;
+        inline constexpr auto TowerAttachmentCursor = 0xAD40;
+        inline constexpr auto LastAttackedTick = 0xAD44;
+        inline constexpr auto SoldierSelfDefenceOriginsUnsigned = 0xAD48u;
+        inline constexpr auto LastMainTaskIndex = 0x1C2C;
+        inline constexpr auto SoldiersUnsigned = 0x616Cu;
+        inline constexpr auto CombinedTasksUnsigned = 0x2A50u;
+        inline constexpr auto MainTasksUnsigned = 0x1C30u;
+        inline constexpr auto VehiclesUnsigned = 0x5CB8u;
+        inline constexpr auto ActiveMainTaskCount = 0x2978;
+        inline constexpr auto ActiveMainTaskIndices = 0x297C;
+        inline constexpr auto SecondActiveMainTaskIndex = 0x2980;
+        inline constexpr auto BuildHouseCount = 0x3D60;
+        inline constexpr auto BuildHouseTypes = 0x3D64;
+        inline constexpr auto BuildHousePositions = 0x3D68;
+        inline constexpr auto BuildHouseStages = 0x3D6C;
+        inline constexpr auto BuildHouseMissionCheckIds = 0x3D70;
+        inline constexpr auto FirstCombinedTaskPriority = 0x2A54;
+        inline constexpr auto FirstCombinedTaskPriorityPercent = 0x2A58;
+        inline constexpr auto FirstMainTaskDescriptionUnsigned = 0x1C38u;
+        inline constexpr auto MainTasksChanged = 6;
+        inline constexpr auto MainTasks = 0x1C30;
+        inline constexpr auto FirstMainTaskPosition = 0x1C3C;
+        inline constexpr auto BuildHousePositionsUnsigned = 0x3D68u;
+        inline constexpr auto BuildHouseTypesUnsigned = 0x3D64u;
+        inline constexpr auto BuildHouseStagesUnsigned = 0x3D6Cu;
+        inline constexpr auto BuildHouseMissionCheckIdsUnsigned = 0x3D70u;
+    }
+
+    namespace AISoldierOffset
+    {
+        inline constexpr auto HumanId = 0;
+        inline constexpr auto HumanUniqueId = 4;
+        inline constexpr auto TaskDescription = 20;
+        inline constexpr auto CurrentAction = 52;
+        inline constexpr auto WeaponType = 8;
+        inline constexpr auto ArmorType = 12;
+        inline constexpr auto CombinedTaskIndex = 0x38;
+        inline constexpr auto UsesDefaultTask = 0x10;
+        inline constexpr auto MovementDestination = 60;
+        inline constexpr auto MovementRadius = 64;
+        inline constexpr auto TaskRadius = 28;
+        inline constexpr auto TaskMilitaryMode = 44;
+        inline constexpr auto TaskMapPoint = 24;
+        inline constexpr auto AttackTarget = 0x48;
+        inline constexpr auto SelfDefence = 0x44;
+        inline constexpr auto AttackTargetUniqueId = 0x50;
+        inline constexpr auto AttackTargetId = 0x4C;
+    }
+
+    namespace AIVehicleOffset
+    {
+        inline constexpr auto VehicleId = 0;
+        inline constexpr auto VehicleUniqueId = 4;
+        inline constexpr auto TaskIndex = 8;
+        inline constexpr auto AttackActive = 12;
+        inline constexpr auto AttackTargetUniqueId = 24;
+        inline constexpr auto AttackTargetId = 20;
+        inline constexpr auto AttackTarget = 16;
+    }
+
+    namespace AICombinedTaskOffset
+    {
+        inline constexpr auto MainTaskIndices = 0x14;
+        inline constexpr auto TaskType = 0;
+        inline constexpr auto AttackPhase = 0x48;
+        inline constexpr auto Radius = 0x44;
+        inline constexpr auto FormationRadius = 0x4C;
+        inline constexpr auto MaximumSoldiers = 0x40;
+        inline constexpr auto MinimumSoldiers = 0x3C;
+        inline constexpr auto PriorityPercent = 8;
+        inline constexpr auto FormationPosition = 0x50;
+        inline constexpr auto Priority = 4;
+        inline constexpr auto MainTaskCount = 0x10;
+        inline constexpr auto FormationPositionY = 0x52;
+        inline constexpr auto NextTaskPriority = 0x5C;
+    }
+
+    namespace AIMainTaskOffset
+    {
+        inline constexpr auto Description = 8;
+        inline constexpr auto PrimaryPosition = 12;
+        inline constexpr auto PrimaryPositionY = 14;
+        inline constexpr auto Radius = 16;
+        inline constexpr auto ConditionId = 0x2C;
+        inline constexpr auto Disabled = 0;
+        inline constexpr auto ConfiguredPriority = 40;
+        inline constexpr auto ActivePriority = 4;
+        inline constexpr auto CreatedTick = 0x30;
+        inline constexpr auto SecondaryPosition = 28;
+        inline constexpr auto SecondaryPositionY = 30;
+        inline constexpr auto MilitaryMode = 32;
+        inline constexpr auto MinimumSoldiers = 20;
+        inline constexpr auto MaximumSoldiers = 24;
+    }
+
+    namespace AITaskDescriptionOffset
+    {
+        inline constexpr auto Type = 0;
+        inline constexpr auto MapPoint = 4;
+        inline constexpr auto MapPointY = 6;
+        inline constexpr auto MinimumSoldiers = 0xC;
+        inline constexpr auto MaximumSoldiers = 0x10;
+        inline constexpr auto Radius = 8;
+        inline constexpr auto FormationPosition = 0x14;
+        inline constexpr auto FormationPositionY = 0x16;
+    }
+
+    namespace AIMilitaryManagerOffset
+    {
+        inline constexpr auto WeaponSeventeenGood = 0x1528;
+
+        inline constexpr auto PlayerId = 0;
+        inline constexpr auto ArmorGoods = 0x1C9C;
+        inline constexpr auto ArmorPreferredWeapon = 0x1CA0;
+        inline constexpr auto EnemyScanCursor = 0x1F54;
+        inline constexpr auto TargetedEnemyPlayer = 0x1F58;
+        inline constexpr auto TargetedEnemyMilitaryPointIndex = 0x1F5C;
+        inline constexpr auto WeaponWeights = 0x1458;
+        inline constexpr auto ArmorWeights = 0x1C98;
+        inline constexpr auto ArmorTwoGood = 0x1CB4;
+        inline constexpr auto ArmorOneGood = 0x1CA8;
+        inline constexpr auto WeaponGoods = 0x145C;
+        inline constexpr auto WeaponFourGood = 0x148C;
+        inline constexpr auto WeaponPreferredArmor = 0x1460;
+        inline constexpr auto AttackedPositionMilitaryPointIndex = 0x1F64;
+        inline constexpr auto EnemyTargets = 0x1CD4;
+        inline constexpr auto AttackedPosition = 0x1F60;
+        inline constexpr auto AttackedPositionY = 0x1F62;
+    }
+
+    namespace AIHighLevelOffset
+    {
+        inline constexpr auto FirstVillageCenter = 52;
+        inline constexpr auto Villages = 0x1C;
+        inline constexpr auto AnimalCatcher = 0x94E8;
+        inline constexpr auto FirstVillageActive = 36;
+        inline constexpr auto Trade = 0x74D4;
+        inline constexpr auto Military = 0x7578;
+    }
+
+    namespace AIMilitaryPointOffset
+    {
+        inline constexpr auto TargetUniqueId = 8;
+        inline constexpr auto TargetIdOrMapPoint = 4;
+        inline constexpr auto Target = 0;
+        inline constexpr auto TargetPolicy = 12;
+        inline constexpr auto MainTaskIndex = 20;
+        inline constexpr auto LifetimePolicy = 16;
+        inline constexpr auto PlayerId = 28;
+        inline constexpr auto Radius = 24;
+    }
+
+    namespace AIMilitarySlotAccessOffset
+    {
+        inline constexpr auto Active = 4;
+        inline constexpr auto Role = 8;
+        inline constexpr auto TargetPolicy = 24;
+        inline constexpr auto MaximumSoldiers = 48;
+        inline constexpr auto MinimumSoldiers = 44;
+        inline constexpr auto Radius = 36;
+        inline constexpr auto MainTaskIndex = 32;
+        inline constexpr auto Point = 12;
+        inline constexpr auto SecondaryType = 52;
+    }
+
+
+    namespace AIBuildHouseTaskOffset
+    {
+        inline constexpr auto Position = 12;
+        inline constexpr auto PositionY = 14;
+        inline constexpr auto HouseType = 16;
+        inline constexpr auto DevelopmentStage = 20;
+        inline constexpr auto RequestedCount = 24;
+    }
+
+    namespace AIDiplomacyTaskOffset
+    {
+        inline constexpr auto OtherPlayerId = 16;
+        inline constexpr auto DiplomacyState = 12;
+    }
+
+    namespace AISpawnHumansTaskOffset
+    {
+        inline constexpr auto HumanCount = 24;
+        inline constexpr auto Position = 12;
+        inline constexpr auto PositionY = 14;
+        inline constexpr auto TribeType = 16;
+        inline constexpr auto JobType = 20;
+        inline constexpr auto Height = 32;
+        inline constexpr auto DisableAfterSpawn = 28;
+    }
+
     namespace ParticleManagerOffset
     {
         inline constexpr auto FirstParticleActiveUnsigned = 0x9F74u;
@@ -1112,6 +1332,18 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AITaskDescription = 32;
+        inline constexpr auto AIMilitarySlot = 52;
+
+        inline constexpr auto AISoldier = 84;
+        inline constexpr auto AICombinedTask = 0x58;
+        inline constexpr auto AIMainTask = 0x44;
+        inline constexpr auto AIVehicle = 28;
+        inline constexpr auto AISoldierUnsigned = 0x54u;
+        inline constexpr auto AICombinedTaskUnsigned = 0x58u;
+        inline constexpr auto AIMainTaskUnsigned = 0x44u;
+        inline constexpr auto AIVehicleUnsigned = 0x1Cu;
+
         inline constexpr auto MacroMapPatternUnsigned = 12u;
         inline constexpr auto MacroMapTransitionUnsigned = 16u;
         inline constexpr auto MacroMapLandscapeUnsigned = 16u;

@@ -195,7 +195,7 @@ namespace NC2Logic
                 }
                 else if (moveableType == 4) continue;
                 if (player == NXBasics::IntegerRange::UInt32Maximum) continue;
-                const auto owner = Read<std::uint32_t>(handler, 0), requestedPlayer = Read<std::uint32_t>(condition, 0x20);
+                const auto owner = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), requestedPlayer = Read<std::uint32_t>(condition, 0x20);
                 if (player == owner && requestedPlayer != owner) continue;
                 if (requestedPlayer != 20 && requestedPlayer != player) continue;
                 if (Read<std::uint8_t>(condition, 0x24) != 0 && GameControl_Diplomacy_GetState(gGameControl, owner, player) != 3) continue;
@@ -215,11 +215,11 @@ namespace NC2Logic
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
                 const auto housePlayer = Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId);
-                if (player == 20 && housePlayer == Read<std::uint32_t>(handler, 0)) continue;
+                if (player == 20 && housePlayer == Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId)) continue;
                 if (Read<std::uint8_t>(condition, 0x2C) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) continue;
                 const auto houseType = Read<std::uint32_t>(condition, 0x28);
                 if (houseType != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) != houseType) continue;
-                if (Read<std::uint8_t>(condition, 0x24) != 0 && GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(handler, 0), housePlayer) != 3) continue;
+                if (Read<std::uint8_t>(condition, 0x24) != 0 && GameControl_Diplomacy_GetState(gGameControl, Read<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), housePlayer) != 3) continue;
                 if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionX), Read<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionY), static_cast<std::uint16_t>(center), static_cast<std::uint16_t>(center >> 16))) < Read<std::uint32_t>(condition, 0x1C)) { active = 1; break; }
             }
             break;

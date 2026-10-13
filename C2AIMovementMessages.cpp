@@ -61,13 +61,13 @@ namespace NC2Logic
         }
         bool changed = false;
         CHumanIterator iterator;
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(House_Door_GetEntryPointRef(house), 0), 20, true); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(House_Door_GetEntryPointRef(house), 0), 20, true); id != -1; id = iterator.GetNextSectorHumanId())
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || !Human_IsJobSoldier(human)) continue;
             const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
             if (flags[job] == std::byte{0}) continue;
-            Human_DoAddNewUserCommand(human, 28, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+            Human_DoAddNewUserCommand(human, 28, Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             flags[job] = std::byte{0}; changed = true;
         }
         return changed;
@@ -75,19 +75,19 @@ namespace NC2Logic
     // Original function: FUN_0045b058.
     void AISinglePlayerHandler_l_Soldiers_AttachToTowers(void* handler)
     {
-        auto cursor = Read<std::int32_t>(handler, 0xAD40);
-        if (cursor != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(cursor) * CHouseArray::ElementSize, NC2Layout::HouseOffset::AllocatedFlag) == 0) Write<std::int32_t>(handler, 0xAD40, -1);
+        auto cursor = Read<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor);
+        if (cursor != -1 && Read<std::uint8_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(cursor) * CHouseArray::ElementSize, NC2Layout::HouseOffset::AllocatedFlag) == 0) Write<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor, -1);
         std::uint32_t origin;
         MapMigPoint_SetPosition(&origin, 0, 0, false);
         CHouseIterator iterator;
-        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, 0), &origin, 10000); id != -1; id = iterator.GetNextHouseId())
+        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &origin, 10000); id != -1; id = iterator.GetNextHouseId())
         {
-            cursor = Read<std::int32_t>(handler, 0xAD40);
+            cursor = Read<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor);
             if (cursor == -1)
             {
-                if (AISinglePlayerHandler_l_Soldiers_AttachToTower(handler, id)) { Write(handler, 0xAD40, id); return; }
+                if (AISinglePlayerHandler_l_Soldiers_AttachToTower(handler, id)) { Write(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor, id); return; }
             }
-            else if (id >= cursor) Write<std::int32_t>(handler, 0xAD40, -1);
+            else if (id >= cursor) Write<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor, -1);
         }
     }
     // Original function: FUN_0045b295; the iterator and native flags determine candidate eligibility.
@@ -96,7 +96,7 @@ namespace NC2Logic
         void* best = nullptr;
         std::uint32_t distance = 10000;
         CHumanIterator iterator;
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(point, 0), radius, true); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(point, 0), radius, true); id != -1; id = iterator.GetNextSectorHumanId())
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human)) continue;
@@ -109,9 +109,9 @@ namespace NC2Logic
     // Original function: FUN_00473102; Windows radius 004F4308 is 40.
     void __fastcall AISinglePlayerHandler_Messages_Attacked(void* handler, void* /*unusedEdx*/, const void* point)
     {
-        Write(handler, 0xAD44, gGameTime.tick);
+        Write(handler, NC2Layout::AISinglePlayerOffset::LastAttackedTick, gGameTime.tick);
         CHouseIterator iterator;
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         for (auto id = iterator.GetFirstSectorHouseId(player, point, 40, true); id != -1; id = iterator.GetNextSectorHouseId())
         {
             auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
@@ -132,16 +132,16 @@ namespace NC2Logic
         SNoWayMessageState gNoWayMessageState{};
         // Original function: FUN_00472F48; the original empty point destructor returns no value.
         int __cdecl NoWayMessagePoint_OnExit() { return 0; }
-        void* Soldier(void* handler, std::uint32_t slot) { return static_cast<std::byte*>(handler) + 0x616Cu + slot * 0x54u; }
-        const void* Soldier(const void* handler, std::uint32_t slot) { return static_cast<const std::byte*>(handler) + 0x616Cu + slot * 0x54u; }
+        void* Soldier(void* handler, std::uint32_t slot) { return static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldiersUnsigned + slot * NC2Layout::RecordSize::AISoldierUnsigned; }
+        const void* Soldier(const void* handler, std::uint32_t slot) { return static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldiersUnsigned + slot * NC2Layout::RecordSize::AISoldierUnsigned; }
         std::uint32_t Distance(const void* a, const void* b) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(a, 0), Read<std::int16_t>(a, 2), Read<std::int16_t>(b, 0), Read<std::int16_t>(b, 2))); }
     }
 
     // Original function: FUN_0045B02A; only the single-soldier leader id is searched.
     std::int32_t AISinglePlayerHandler_l_SingleSoldier_GetSlotIdByCreatureId(const void* handler, std::uint32_t human)
     {
-        const auto count = Read<std::uint32_t>(handler, 0x6168);
-        for (std::uint32_t slot = 0; slot < count; ++slot) if (Read<std::uint32_t>(Soldier(handler, slot), 0) == human) return NXBasics::Runtime_TimeSigned32(slot);
+        const auto count = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::SoldierCount);
+        for (std::uint32_t slot = 0; slot < count; ++slot) if (Read<std::uint32_t>(Soldier(handler, slot), NC2Layout::AISoldierOffset::HumanId) == human) return NXBasics::Runtime_TimeSigned32(slot);
         return -1;
     }
 
@@ -149,28 +149,28 @@ namespace NC2Logic
     bool AISinglePlayerHandler_l_SingleSoldier_CheckIfIsInTaskRange(const void* handler, std::uint32_t slot, bool defence)
     {
         const auto* soldier = Soldier(handler, slot);
-        const auto* position = Human_GetMapPositionRef(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
-        if (Read<std::uint8_t>(soldier, 0x10) != 0)
+        const auto* position = Human_GetMapPositionRef(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId))));
+        if (Read<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::UsesDefaultTask) != 0)
         {
-            const auto range = defence ? 25u : Read<std::uint32_t>(handler, 0xA334) * 8u;
-            return Distance(position, static_cast<const std::byte*>(handler) + 0xA32E) <= range;
+            const auto range = defence ? 25u : Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::DefaultSoldierRadius) * 8u;
+            return Distance(position, static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::DefaultSoldierPosition) <= range;
         }
-        const auto attachment = Read<std::uint32_t>(soldier, 0x38);
+        const auto attachment = Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CombinedTaskIndex);
         if (attachment == NXBasics::IntegerRange::UInt32Maximum) return true;
-        const auto* task = static_cast<const std::byte*>(handler) + 0x2A50u + attachment * 0x58u;
-        const auto* main = static_cast<const std::byte*>(handler) + 0x1C30u + Read<std::uint32_t>(task, 0x14) * 0x44u;
-        const auto type = Read<std::uint32_t>(main, 8);
+        const auto* task = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::CombinedTasksUnsigned + attachment * NC2Layout::RecordSize::AICombinedTaskUnsigned;
+        const auto* main = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::MainTasksUnsigned + Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::MainTaskIndices) * NC2Layout::RecordSize::AIMainTaskUnsigned;
+        const auto type = Read<std::uint32_t>(main, NC2Layout::AIMainTaskOffset::Description);
         if (type == 0) return true;
         std::uint32_t range, center;
-        if (type == 2 && Read<std::uint32_t>(task, 0x48) == 1)
+        if (type == 2 && Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::AttackPhase) == 1)
         {
-            range = Read<std::uint32_t>(task, 0x4C);
-            center = Read<std::uint32_t>(task, 0x50);
+            range = Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::FormationRadius);
+            center = Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::FormationPosition);
         }
         else
         {
-            MapMigPoint_SetPosition(&center, Read<std::int16_t>(main, 0xC), Read<std::int16_t>(main, 0xE), false);
-            range = Read<std::uint32_t>(main, 0x10);
+            MapMigPoint_SetPosition(&center, Read<std::int16_t>(main, NC2Layout::AIMainTaskOffset::PrimaryPosition), Read<std::int16_t>(main, NC2Layout::AIMainTaskOffset::PrimaryPositionY), false);
+            range = Read<std::uint32_t>(main, NC2Layout::AIMainTaskOffset::Radius);
         }
         if (defence) range = (range * 3u) >> 1;
         return Distance(&center, position) <= range;
@@ -180,9 +180,9 @@ namespace NC2Logic
     void AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(void* handler, std::uint32_t slot)
     {
         auto* soldier = Soldier(handler, slot);
-        const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0)));
-        Write<std::uint8_t>(soldier, 0x44, 1);
-        Write(handler, 0xAD48u + slot * 4u, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
+        const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId)));
+        Write<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence, 1);
+        Write(handler, NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOriginsUnsigned + slot * 4u, Read<std::uint32_t>(Human_GetMapPositionRef(human), 0));
     }
 
     // Original function: FUN_0045AB88.
@@ -190,22 +190,22 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CHumanArray::mStaticVars + target * CHumanArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 1 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
-        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
+        if (Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction) == SwitchIds::AISoldierAction::Attacking && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget) == 1 && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId) == Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId) && Read<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence) == static_cast<std::uint8_t>(defence)) return true;
+        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId))));
         const auto player = Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::PlayerId);
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 43);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
         Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
-        Write<std::uint32_t>(soldier, 0x34, 14);
-        Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
-        Write<std::uint32_t>(soldier, 0x48, 1);
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Attacking);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetId, target);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget, 1);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
-        else Write<std::uint8_t>(soldier, 0x44, 0);
+        else Write<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence, 0);
         return true;
     }
 
@@ -214,22 +214,22 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CAnimalArray::mStaticVars + target * CAnimalArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 3 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
-        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
+        if (Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction) == SwitchIds::AISoldierAction::Attacking && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget) == 3 && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId) == Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId) && Read<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence) == static_cast<std::uint8_t>(defence)) return true;
+        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId))));
         const auto player = Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::PlayerId);
-        if (player != 20) GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
+        if (player != 20) GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 45);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
         Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
-        Write<std::uint32_t>(soldier, 0x34, 14);
-        Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId));
-        Write<std::uint32_t>(soldier, 0x48, 3);
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Attacking);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetId, target);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::AnimalOffset::UniqueId));
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget, 3);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
-        else Write<std::uint8_t>(soldier, 0x44, 0);
+        else Write<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence, 0);
         return true;
     }
 
@@ -238,22 +238,22 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CVehicleArray::mStaticVars + target * CVehicleArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 2 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
-        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
+        if (Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction) == SwitchIds::AISoldierAction::Attacking && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget) == 2 && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId) == Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId) && Read<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence) == static_cast<std::uint8_t>(defence)) return true;
+        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId))));
         const auto player = Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::PlayerId);
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 46);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
         Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
-        Write<std::uint32_t>(soldier, 0x34, 14);
-        Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
-        Write<std::uint32_t>(soldier, 0x48, 2);
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Attacking);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetId, target);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget, 2);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
-        else Write<std::uint8_t>(soldier, 0x44, 0);
+        else Write<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence, 0);
         return true;
     }
 
@@ -262,27 +262,27 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CHouseArray::mStaticVars + target * CHouseArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 4 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
-        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
+        if (Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction) == SwitchIds::AISoldierAction::Attacking && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget) == 4 && Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId) == Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId) && Read<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence) == static_cast<std::uint8_t>(defence)) return true;
+        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::HumanId))));
         const auto player = Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::PlayerId);
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 44);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
         Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
-        Write<std::uint32_t>(soldier, 0x34, 14);
-        Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
-        Write<std::uint32_t>(soldier, 0x48, 4);
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction, SwitchIds::AISoldierAction::Attacking);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetId, target);
+        Write(soldier, NC2Layout::AISoldierOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
+        Write<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::AttackTarget, 4);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
-        else Write<std::uint8_t>(soldier, 0x44, 0);
+        else Write<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence, 0);
         return true;
     }
 
     // Original function: FUN_00472CC0.
-    bool AISingleSoldier_Tool_IsSelfDefending(const void* soldier) { return Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint8_t>(soldier, 0x44) != 0 && TargetData_IsValid(static_cast<const std::byte*>(soldier) + 0x48); }
+    bool AISingleSoldier_Tool_IsSelfDefending(const void* soldier) { return Read<std::uint32_t>(soldier, NC2Layout::AISoldierOffset::CurrentAction) == SwitchIds::AISoldierAction::Attacking && Read<std::uint8_t>(soldier, NC2Layout::AISoldierOffset::SelfDefence) != 0 && TargetData_IsValid(static_cast<const std::byte*>(soldier) + NC2Layout::AISoldierOffset::AttackTarget); }
 
     // Original function: FUN_00472CDE; the throttle is shared across all player handlers.
     void AISinglePlayerHandler_Messages_NoWayFound(void* handler, const void* source, const void* target)
@@ -294,10 +294,10 @@ namespace NC2Logic
             NXBasics::Runtime_AtExit(NoWayMessagePoint_OnExit);
         }
         if (gNoWayMessageState.point == Read<std::uint32_t>(target, 0) && gNoWayMessageState.tick + 12u > gGameTime.tick) return;
-        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(handler, 0x1C2C); ++index)
+        for (std::uint32_t index = 0; index <= Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::LastMainTaskIndex); ++index)
         {
-            auto* task = static_cast<std::byte*>(handler) + 0x1C30u + index * 0x44u;
-            const auto type = Read<std::uint32_t>(task, 8);
+            auto* task = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::MainTasksUnsigned + index * NC2Layout::RecordSize::AIMainTaskUnsigned;
+            const auto type = Read<std::uint32_t>(task, NC2Layout::AICombinedTaskOffset::PriorityPercent);
             if (type != 1 && type != 2) continue;
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, Read<std::int16_t>(task, 0xC), Read<std::int16_t>(task, 0xE), false);
@@ -308,8 +308,8 @@ namespace NC2Logic
                 {
                     Write<std::uint8_t>(task, 0x34, 1);
                     Write<std::uint32_t>(task, 0x38, type == 1 ? 3u : 1u);
-                    Write(task, 0x3C, Read<std::uint32_t>(source, 0));
-                    Write(task, 0x40, Read<std::uint32_t>(target, 0));
+                    Write(task, NC2Layout::AICombinedTaskOffset::MinimumSoldiers, Read<std::uint32_t>(source, 0));
+                    Write(task, NC2Layout::AICombinedTaskOffset::MaximumSoldiers, Read<std::uint32_t>(target, 0));
                     Write(task, 0xC, point);
                 }
             }
@@ -322,8 +322,8 @@ namespace NC2Logic
             if (sourceContinent != Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(target), 6) || !AISinglePlayerHandler_l_Messages_GetNewValidPosition(handler, source, &point)) continue;
             Write<std::uint8_t>(task, 0x34, 1);
             Write<std::uint32_t>(task, 0x38, 2);
-            Write(task, 0x3C, Read<std::uint32_t>(source, 0));
-            Write(task, 0x40, Read<std::uint32_t>(target, 0));
+            Write(task, NC2Layout::AICombinedTaskOffset::MinimumSoldiers, Read<std::uint32_t>(source, 0));
+            Write(task, NC2Layout::AICombinedTaskOffset::MaximumSoldiers, Read<std::uint32_t>(target, 0));
             Write(task, 0x1C, point);
         }
         gNoWayMessageState.point = Read<std::uint32_t>(target, 0);
@@ -421,10 +421,10 @@ namespace NC2Logic
     bool AISinglePlayerHandler_l_Vehicles_Let_AttackHuman(void* handler, std::uint32_t slot, std::uint32_t target, bool defence)
     {
         (void)defence; // The Windows argument is unused.
-        auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
-        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        auto* entry = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::VehiclesUnsigned + slot * NC2Layout::RecordSize::AIVehicleUnsigned;
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::VehicleId) * CVehicleArray::ElementSize;
         auto* enemy = CHumanArray::mStaticVars + target * CHumanArray::ElementSize;
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::PlayerId), 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::PlayerId), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 104);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
@@ -433,10 +433,10 @@ namespace NC2Logic
         Write(command, 12, target);
         Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
-        Write<std::uint32_t>(entry, 12, 1);
-        Write(entry, 24, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
-        Write(entry, 20, target);
-        Write<std::uint32_t>(entry, 16, 1);
+        Write<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackActive, 1);
+        Write(entry, NC2Layout::AIVehicleOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
+        Write(entry, NC2Layout::AIVehicleOffset::AttackTargetId, target);
+        Write<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackTarget, 1);
         return true;
     }
 
@@ -444,10 +444,10 @@ namespace NC2Logic
     bool AISinglePlayerHandler_l_Vehicles_Let_AttackVehicle(void* handler, std::uint32_t slot, std::uint32_t target, bool defence)
     {
         (void)defence; // The Windows argument is unused.
-        auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
-        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        auto* entry = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::VehiclesUnsigned + slot * NC2Layout::RecordSize::AIVehicleUnsigned;
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::VehicleId) * CVehicleArray::ElementSize;
         auto* enemy = CVehicleArray::mStaticVars + target * CVehicleArray::ElementSize;
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::PlayerId), 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::PlayerId), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 46);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
@@ -456,20 +456,20 @@ namespace NC2Logic
         Write(command, 12, target);
         Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
-        Write<std::uint32_t>(entry, 12, 1);
-        Write(entry, 24, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
-        Write(entry, 20, target);
-        Write<std::uint32_t>(entry, 16, 2);
+        Write<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackActive, 1);
+        Write(entry, NC2Layout::AIVehicleOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::VehicleOffset::UniqueId));
+        Write(entry, NC2Layout::AIVehicleOffset::AttackTargetId, target);
+        Write<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackTarget, 2);
         return true;
     }
 
     // Original function: FUN_00473833.
     bool AISinglePlayerHandler_l_Vehicles_Let_AttackHouse(void* handler, std::uint32_t slot, std::uint32_t target)
     {
-        auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
-        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+        auto* entry = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::VehiclesUnsigned + slot * NC2Layout::RecordSize::AIVehicleUnsigned;
+        auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::VehicleId) * CVehicleArray::ElementSize;
         auto* enemy = CHouseArray::mStaticVars + target * CHouseArray::ElementSize;
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::PlayerId), 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::PlayerId), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 44);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
@@ -478,17 +478,17 @@ namespace NC2Logic
         Write(command, 12, target);
         Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
-        Write<std::uint32_t>(entry, 12, 1);
-        Write(entry, 24, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
-        Write(entry, 20, target);
-        Write<std::uint32_t>(entry, 16, 4);
+        Write<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackActive, 1);
+        Write(entry, NC2Layout::AIVehicleOffset::AttackTargetUniqueId, Read<std::uint32_t>(enemy, NC2Layout::HouseOffset::UniqueId));
+        Write(entry, NC2Layout::AIVehicleOffset::AttackTargetId, target);
+        Write<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackTarget, 4);
         return true;
     }
 
     // Original function: FUN_0047354b; retain Windows target search order and all four flags.
     bool AISinglePlayerHandler_l_Vehicles_CheckForEnemys(void* handler, std::uint32_t slot, const void* point, std::uint32_t radius, bool houses, bool civilians, bool restrictCandidates, bool defence)
     {
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         const auto limit = restrictCandidates ? 1u : 5u, threshold = restrictCandidates ? 0u : 3u;
         auto target = Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(player, point, 0, radius, true, limit, threshold, false, false);
         if (target != -1 && AISinglePlayerHandler_l_Vehicles_Let_AttackVehicle(handler, slot, static_cast<std::uint32_t>(target), defence)) return true;
@@ -517,22 +517,22 @@ namespace NC2Logic
     // Original function: FUN_004738dd.
     void AISinglePlayerHandler_l_Vehicles_WorkOnAttachedTasks(void* handler)
     {
-        for (std::uint32_t slot = 0; slot < Read<std::uint32_t>(handler, 0x5CB4); ++slot)
+        for (std::uint32_t slot = 0; slot < Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::VehicleCount); ++slot)
         {
-            const auto* entry = static_cast<const std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
-            const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
+            const auto* entry = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::VehiclesUnsigned + slot * NC2Layout::RecordSize::AIVehicleUnsigned;
+            const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::VehicleId) * CVehicleArray::ElementSize;
             const auto* point = Vehicle_GetMapPositionRef(vehicle);
-            if (Read<std::uint32_t>(entry, 8) == NXBasics::IntegerRange::UInt32Maximum && !AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(handler, slot)) AISinglePlayerHandler_l_Vehicles_CheckForEnemys(handler, slot, point, 30, true, false, true, true);
+            if (Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::TaskIndex) == NXBasics::IntegerRange::UInt32Maximum && !AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(handler, slot)) AISinglePlayerHandler_l_Vehicles_CheckForEnemys(handler, slot, point, 30, true, false, true, true);
         }
     }
 
     // Original function: FUN_00473944.
     bool AISinglePlayerHandler_l_Vehicles_IsSubTaskTargetValid(const void* handler, std::uint32_t slot)
     {
-        const auto* entry = static_cast<const std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
-        const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
-        const auto* target = entry + 16;
-        if (Read<std::uint32_t>(entry, 12) != 1 || !TargetData_IsValid(target)) return false;
+        const auto* entry = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::VehiclesUnsigned + slot * NC2Layout::RecordSize::AIVehicleUnsigned;
+        const auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::VehicleId) * CVehicleArray::ElementSize;
+        const auto* target = entry + NC2Layout::AIVehicleOffset::AttackTarget;
+        if (Read<std::uint32_t>(entry, NC2Layout::AIVehicleOffset::AttackActive) != 1 || !TargetData_IsValid(target)) return false;
         return Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PrimaryMilitaryTargetRevision) == Read<std::uint32_t>(target, 8) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PrimaryMilitaryTargetValue) == Read<std::uint32_t>(target, 4) && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PrimaryMilitaryTarget) == Read<std::uint32_t>(target, 0);
     }
 

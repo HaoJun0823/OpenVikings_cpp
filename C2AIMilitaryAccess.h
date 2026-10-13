@@ -1,7 +1,14 @@
 #pragma once
 #include <cstdint>
+#include <cstddef>
 namespace NC2Logic
 {
+    // The existing slot accessors use a pointer four bytes before this physical record.
+    struct SAIMilitaryPointStorage { std::uint32_t target[3], targetPolicy, lifetimePolicy, mainTaskIndex, radius, playerId; };
+    struct SAIMilitarySlotStorage { std::uint8_t active; std::byte padding[3]; std::uint32_t role; SAIMilitaryPointStorage point; std::uint32_t minimumSoldiers, maximumSoldiers, secondaryType; };
+    static_assert(sizeof(SAIMilitaryPointStorage) == 32);
+    static_assert(sizeof(SAIMilitarySlotStorage) == 52);
+
     void AIMilitaryManager_Init(void* manager, std::uint32_t player, const void* center, std::uint32_t radius);
     void AIMilitaryManager_DoOneLogicGameTick(void* manager, void* high, std::uint32_t tick);
     void AIMilitaryManager_l_Soldier_Create(void* manager, const void* high);

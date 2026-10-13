@@ -82,7 +82,7 @@ namespace NC2Logic
         else gAISearchHumanPoint = Read<std::uint32_t>(CHouseArray::mStaticVars + target * CHouseArray::ElementSize, NC2Layout::HouseOffset::MapPosition);
         std::int32_t result = -1, bestDistance = 10000;
         CHumanIterator iterator;
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             const auto* human = Human(id);
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || !Human_IsAgeAdult(human) || Human_IsJobScout(human) || Human_IsJobTrader(human) || Human_IsAttachedToLearnHouse(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id)) continue;
@@ -100,7 +100,7 @@ namespace NC2Logic
             if (distance < bestDistance) { bestDistance = distance; result = id; }
         }
         if (result != -1 || (type != 2 && type != 3 && type != 4)) return result;
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             const auto* human = Human(id);
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || !Human_IsAgeAdult(human)) continue;
@@ -142,7 +142,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != Read<std::uint32_t>(request, 20))
             {
                 if (type == 2 || type == 3 || type == 4 || Human_IsAttachedToWorkHouse(human)) Write<std::uint32_t>(request, 0, 0);
-                else Human_DoAddNewUserCommand(human, 21, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(request, 20), 0);
+                else Human_DoAddNewUserCommand(human, 21, Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(request, 20), 0);
                 continue;
             }
             if (type == 1 || type == 2 || type == 5) Send(human, type == 1 ? 28 : type == 2 ? 30 : 26, Read<std::uint32_t>(request, 4), Read<std::uint32_t>(house, 8));
@@ -151,7 +151,7 @@ namespace NC2Logic
                 if (!Human_IsAttachedToWorkHouse(human))
                 {
                     std::uint32_t point; MapMigPoint_AssignLong(&point, Read<std::uint32_t>(request, 4));
-                    const auto* road = RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, Read<std::int32_t>(handler, 0), &point);
+                    const auto* road = RoadBuildManager_GetRoadBuildDataPtr(gRoadBuildManager, Read<std::int32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &point);
                     if (road != nullptr && Read<std::uint8_t>(road, 4) == 0) Send(human, 17, Read<std::uint32_t>(request, 4), 0);
                 }
             }
@@ -168,7 +168,7 @@ namespace NC2Logic
             }
             Write<std::uint32_t>(request, 0, 0);
         }
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {

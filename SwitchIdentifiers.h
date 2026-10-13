@@ -1625,6 +1625,14 @@ namespace SwitchIds
         inline constexpr auto Usewind = 0x75736577;
     }
 
+    namespace AISoldierAction
+    {
+        inline constexpr auto Waiting = 1;
+        inline constexpr auto Moving = 2;
+        inline constexpr auto Attacking = 14;
+        inline constexpr auto ChangingEquipment = 16;
+    }
+
     namespace MacroMapSection
     {
         inline constexpr auto PatternNames = 0;

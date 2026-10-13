@@ -48,9 +48,9 @@ namespace NC2Logic
     void AISinglePlayerHandler_l_Misc_CheckAndAddDefaultTasks(void* handler)
     {
         std::uint32_t center = 0;
-        Tool_Misc_GetPlayerCenterPosition(Read<std::uint32_t>(handler, 0), &center);
-        if (Read<std::uint8_t>(handler, 0xA32C) == 0) AISinglePlayerHandler_EntryPoint_SingleSoldier_SetDefaultPosition(handler, &center, 15);
-        for (std::uint32_t i = 0; i < 50; ++i) if (Read<std::uint32_t>(handler, 0x1C38 + i * 68) != 0) return;
+        Tool_Misc_GetPlayerCenterPosition(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &center);
+        if (Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::DefaultSoldierPositionEnabled) == 0) AISinglePlayerHandler_EntryPoint_SingleSoldier_SetDefaultPosition(handler, &center, 15);
+        for (std::uint32_t i = 0; i < 50; ++i) if (Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::FirstMainTaskDescription + i * 68) != 0) return;
         std::byte task[68]{};
         AIMainTask_Init(task, 1, 10, 100000);
         Write(task, 12, center); Write<std::uint32_t>(task, 16, 40);
@@ -60,14 +60,14 @@ namespace NC2Logic
     void AISinglePlayerHandler_l_Women_WorkOn(void* handler)
     {
         CHumanIterator iterator;
-        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), false); id != -1; id = iterator.GetNextSectorHumanId())
+        for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (!Human_IsJobWoman(human) || Human_IsAboutToMarry(human)) continue;
             if (!Human_IsMarried(human)) { Human_DoAddNewUserCommand(human, 14, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, 0, 0); continue; }
             if (!Human_IsAttachedToHomeHouse(human)) continue;
             auto* home = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) * CHouseArray::ElementSize;
-            const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(handler, 0));
+            const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId));
             if (stats == nullptr) continue;
             const auto workers = static_cast<std::uint32_t>(Read<std::uint16_t>(stats, 2)) - Read<std::uint16_t>(stats, 18);
             if (workers >= Read<std::uint32_t>(handler, 0xAD38)) continue;
@@ -86,7 +86,7 @@ namespace NC2Logic
     void AISinglePlayerHandler_l_House_FillStocks(void* handler)
     {
         CHouseIterator iterator;
-        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, 0)); id != -1; id = iterator.GetNextHouseId())
+        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId)); id != -1; id = iterator.GetNextHouseId())
         {
             auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3 || House_GetHouseMainType(house) != 1) continue;
@@ -103,14 +103,14 @@ namespace NC2Logic
     void AISinglePlayerHandler_l_BuildWallGates_SaveAllIntoArray(void* handler)
     {
         std::uint32_t point = 0;
-        Tool_Misc_GetPlayerCenterPosition(Read<std::uint32_t>(handler, 0), &point);
+        Tool_Misc_GetPlayerCenterPosition(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &point);
         const auto maximum = GameMap_GetWidth() > GameMap_GetHeight() ? GameMap_GetWidth() : GameMap_GetHeight();
         const auto save = [&](bool checkCapacity)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(&point);
             if (Read<std::uint8_t>(micro, 0) != 1) return;
             const auto landscape = Read<std::uint8_t>(micro, 2);
-            if (landscape == 82 && Read<std::int8_t>(micro, 4) == static_cast<std::int32_t>(Read<std::uint32_t>(handler, 0)))
+            if (landscape == 82 && Read<std::int8_t>(micro, 4) == static_cast<std::int32_t>(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId)))
             {
                 const auto count = Read<std::uint32_t>(handler, 0x43A8);
                 if (checkCapacity && count == 1000) return;
@@ -144,7 +144,7 @@ namespace NC2Logic
     {
         Write<std::uint8_t>(handler, 0x43A4, 0);
         if (Read<std::uint32_t>(handler, 0x43A8) == 0) return;
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
         if (stats == nullptr || Read<std::uint16_t>(stats, 0) == 0) return;
         std::uint32_t count = 0;
@@ -166,7 +166,7 @@ namespace NC2Logic
     {
         Write<std::uint8_t>(handler, 0x5B1C, 0);
         if (Read<std::uint32_t>(handler, 0x5B20) == 0) return;
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
         if (stats == nullptr || Read<std::uint16_t>(stats, 0) == 0) return;
         std::uint32_t count = 0;
@@ -182,24 +182,24 @@ namespace NC2Logic
     // Original function: FUN_0045bc60.
     void AISinglePlayerHandler_l_CheckDefenceMode(void* handler)
     {
-        const auto time = Read<std::uint32_t>(handler, 0xAD44);
+        const auto time = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::LastAttackedTick);
         if (time == 0 || time + 360 >= gGameTime.tick) return;
         std::uint32_t origin = 0;
         CHouseIterator iterator;
         for (const bool secondList : {true, false})
-            for (auto id = iterator.GetFirstSectorHouseId(Read<std::uint32_t>(handler, 0), &origin, 10000, secondList); id != -1; id = iterator.GetNextSectorHouseId()) House_SetDefenceModeFlag(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, false);
-        Write<std::uint32_t>(handler, 0xAD44, 0);
+            for (auto id = iterator.GetFirstSectorHouseId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), &origin, 10000, secondList); id != -1; id = iterator.GetNextSectorHouseId()) House_SetDefenceModeFlag(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, false);
+        Write<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::LastAttackedTick, 0);
     }
     // Original function: FUN_0045bd18.
     bool AISinglePlayerHandler_l_IsEnemySodlierOrVehicleNearPosition(void* handler, const void* point)
     {
-        if (Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(Read<std::uint32_t>(handler, 0), point, 0, 40, true, 1, 0, true, false) != -1) return true;
-        return Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(Read<std::uint32_t>(handler, 0), point, 0, 40, true, 1, 0, false, false) != -1;
+        if (Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), point, 0, 40, true, 1, 0, true, false) != -1) return true;
+        return Tool_ObjectId_GetOneOfNextEnemyMapMoveableInRange(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId), point, 0, 40, true, 1, 0, false, false) != -1;
     }
     // Original function: FUN_0045bd63.
     void AISinglePlayerHandler_l_OpenCloseGates(void* handler)
     {
-        const auto player = Read<std::uint32_t>(handler, 0);
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x5B20); ++i)
         {
             auto* point = static_cast<std::byte*>(handler) + 0x5B26 + i * 8;
@@ -217,9 +217,9 @@ namespace NC2Logic
     // Original function: FUN_00473070.
     void AISinglePlayerHandler_l_Messages_TryToRepairAllMainTasks(void* handler)
     {
-        for (std::uint32_t i = 0; i <= Read<std::uint32_t>(handler, 0x1C2C); ++i)
+        for (std::uint32_t i = 0; i <= Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::LastMainTaskIndex); ++i)
         {
-            auto* task = static_cast<std::byte*>(handler) + 0x1C30 + i * 68;
+            auto* task = static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::MainTasks + i * 68;
             if (Read<std::uint32_t>(task, 8) == 0 || Read<std::uint8_t>(task, 52) == 0) continue;
             std::uint32_t temporary = 0;
             if (!CMapWalkSectorManager::GetNextSectorBasePoint(task + 60, task + 64, 0, true, &temporary, &temporary, 40, 20)) continue;
@@ -232,17 +232,17 @@ namespace NC2Logic
     // Original function: FUN_0044e49a.
     void AISinglePlayerHandler_l_BuildHouses_CheckForBuildHouse(void* handler)
     {
-        if (Read<std::uint32_t>(handler, 0x3D60) == 0) return;
-        const auto player = Read<std::uint32_t>(handler, 0);
+        if (Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount) == 0) return;
+        const auto player = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId);
         const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, player);
         if (stats == nullptr || Read<std::uint16_t>(stats, 0) == 0) return;
         CHouseIterator iterator;
         std::uint32_t building = 0;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId()) if (Read<std::uint32_t>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize, NC2Layout::HouseOffset::ConstructionState) != 3) ++building;
         if (building >= 3) return;
-        for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x3D60); ++i)
+        for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount); ++i)
         {
-            const auto* entry = static_cast<const std::byte*>(handler) + 0x3D64 + i * 16;
+            const auto* entry = static_cast<const std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::BuildHouseTypes + i * 16;
             const auto engine = Read<std::uint32_t>(entry, 0), stage = Read<std::uint32_t>(entry, 8);
             const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engine);
             if (Read<std::uint32_t>(definition, 0x48 + stage * 64) == 0) continue;
@@ -259,7 +259,7 @@ namespace NC2Logic
     {
         if (Read<std::uint8_t>(handler, 4) == 0) return;
         const auto initialize = Read<std::uint8_t>(handler, 5);
-        if (initialize != 0 || Read<std::uint8_t>(handler, 6) != 0)
+        if (initialize != 0 || Read<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::MainTasksChanged) != 0)
         {
             if (initialize != 0)
             {
@@ -270,7 +270,7 @@ namespace NC2Logic
             AISinglePlayerHandler_l_SingleSoldiers_RecreateListCompletly(handler);
             AISinglePlayerHandler_l_Vehicles_RecreateListCompletly(handler);
             AISinglePlayerHandler_MainTask_RecheckAll(handler);
-            Write<std::uint8_t>(handler, 5, 0); Write<std::uint8_t>(handler, 6, 0);
+            Write<std::uint8_t>(handler, 5, 0); Write<std::uint8_t>(handler, NC2Layout::AISinglePlayerOffset::MainTasksChanged, 0);
         }
         AISinglePlayerHandler_l_Soldiers_AttachToTowers(handler);
         AISinglePlayerHandler_l_SingleSoldiers_UpdateList(handler);

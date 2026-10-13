@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2AIConstruction.h"
 #include "C2LifetimeAccess.h"
 #include "XCrtFileAccess.h"
@@ -66,9 +67,9 @@ namespace NC2Logic
         void* AISinglePlayerHandler_Vars_Construct(void* handler)
         {
             auto* bytes = static_cast<std::byte*>(handler);
-            AIMainTaskArray_Construct(bytes + 0x1C2C); AIActiveCombinedMainTasksArray_Construct(bytes + 0x2A48);
-            AIBuildHouseArray_Construct(bytes + 0x3D60); AISingleWallArray_Construct(bytes + 0x43A4);
-            AISingleGateArray_Construct(bytes + 0x5B1C); AISingleVehicleArray_Construct(bytes + 0x5CB4); AISingleSoldiers_Construct(bytes + 0x6168);
+            AIMainTaskArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::LastMainTaskIndex); AIActiveCombinedMainTasksArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::CombinedTaskCount);
+            AIBuildHouseArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::BuildHouseCount); AISingleWallArray_Construct(bytes + 0x43A4);
+            AISingleGateArray_Construct(bytes + 0x5B1C); AISingleVehicleArray_Construct(bytes + NC2Layout::AISinglePlayerOffset::VehicleCount); AISingleSoldiers_Construct(bytes + NC2Layout::AISinglePlayerOffset::SoldierCount);
             return handler;
         }
         // Original function: FUN_0042940e; the two original fills overlap.
@@ -86,8 +87,8 @@ namespace NC2Logic
         void* AIMilitaryManager_Construct(void* manager)
         {
             for (std::uint32_t i = 0; i < 100; ++i) AITarget_Construct(static_cast<std::byte*>(manager) + 12 + i * 52);
-            AIMilitaryEnemyTargetArray_Construct(static_cast<std::byte*>(manager) + 0x1CD4);
-            Write<std::uint16_t>(manager, 0x1F62, 0); Write<std::uint16_t>(manager, 0x1F60, 0); return manager;
+            AIMilitaryEnemyTargetArray_Construct(static_cast<std::byte*>(manager) + NC2Layout::AIMilitaryManagerOffset::EnemyTargets);
+            Write<std::uint16_t>(manager, NC2Layout::AIMilitaryManagerOffset::AttackedPositionY, 0); Write<std::uint16_t>(manager, NC2Layout::AIMilitaryManagerOffset::AttackedPosition, 0); return manager;
         }
         // Original function: FUN_00428a46.
         void* AIAnimalCatcher_Construct(void* manager)
@@ -125,15 +126,15 @@ namespace NC2Logic
     // Original function: FUN_00407dbd.
     void* AISinglePlayerHandler_Construct(void* handler)
     {
-        AISinglePlayerHandler_Vars_Construct(handler); AISingleSoldierCalcArray_Construct(static_cast<std::byte*>(handler) + 0xAD48); return handler;
+        AISinglePlayerHandler_Vars_Construct(handler); AISingleSoldierCalcArray_Construct(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOrigins); return handler;
     }
     // Original function: FUN_00428982.
     void* AIHighLevelHandler_Vars_Construct(void* handler)
     {
         auto* bytes = static_cast<std::byte*>(handler);
-        NXBasics::Runtime_FillMemory(bytes + 5, 0, 21); AIVillagesData_Construct(bytes + 0x1C);
-        AIResourcePointArray_Construct(bytes + 0x67B8); AITradeManager_Construct(bytes + 0x74D4);
-        AIMilitaryManager_Construct(bytes + 0x7578); AIAnimalCatcher_Construct(bytes + 0x94E8); return handler;
+        NXBasics::Runtime_FillMemory(bytes + 5, 0, 21); AIVillagesData_Construct(bytes + NC2Layout::AIHighLevelOffset::Villages);
+        AIResourcePointArray_Construct(bytes + 0x67B8); AITradeManager_Construct(bytes + NC2Layout::AIHighLevelOffset::Trade);
+        AIMilitaryManager_Construct(bytes + NC2Layout::AIHighLevelOffset::Military); AIAnimalCatcher_Construct(bytes + NC2Layout::AIHighLevelOffset::AnimalCatcher); return handler;
     }
     // Original function: FUN_0042951b.
     void* AIGuideManager_Construct(void* manager)

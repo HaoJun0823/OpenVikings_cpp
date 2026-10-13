@@ -27,20 +27,20 @@ namespace NC2Logic
     void AISinglePlayerHandler_EntryPoint_RecalculateHouseArray(void* handler)
     {
         CHouseIterator iterator;
-        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, 0)); id != -1; id = iterator.GetNextHouseId())
+        for (auto id = iterator.GetFirstHouseId(Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::PlayerId)); id != -1; id = iterator.GetNextHouseId())
         {
-            const auto count = Read<std::uint32_t>(handler, 0x3D60);
+            const auto count = Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount);
             if (count == 100) break;
             const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             const auto point = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             std::uint32_t index = 0;
-            while (index < count && Read<std::uint32_t>(handler, 0x3D68u + index * 16u) != point) ++index;
+            while (index < count && Read<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositionsUnsigned + index * 16u) != point) ++index;
             if (index != count) continue;
-            Write(handler, 0x3D64u + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
-            Write(handler, 0x3D68u + count * 16u, point);
-            Write(handler, 0x3D6Cu + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
-            Write(handler, 0x3D70u + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
-            Write(handler, 0x3D60, count + 1u);
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseTypesUnsigned + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHousePositionsUnsigned + count * 16u, point);
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseStagesUnsigned + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DevelopmentStage));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseMissionCheckIdsUnsigned + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MissionCheckId));
+            Write(handler, NC2Layout::AISinglePlayerOffset::BuildHouseCount, count + 1u);
         }
     }
 
@@ -126,9 +126,9 @@ namespace NC2Logic
         {
             AISinglePlayerHandler_Construct(handler);
             std::memset(handler, 0, 44360);
-            std::memset(static_cast<std::byte*>(handler) + 0xAD48, 0, 800);
-            Write<std::uint32_t>(handler, 0xAD40, NXBasics::IntegerRange::UInt32Maximum);
-            Write(handler, 0, player);
+            std::memset(static_cast<std::byte*>(handler) + NC2Layout::AISinglePlayerOffset::SoldierSelfDefenceOrigins, 0, 800);
+            Write<std::uint32_t>(handler, NC2Layout::AISinglePlayerOffset::TowerAttachmentCursor, NXBasics::IntegerRange::UInt32Maximum);
+            Write(handler, NC2Layout::AISinglePlayerOffset::PlayerId, player);
             Write<std::uint8_t>(handler, 4, enabled);
             Write<std::uint8_t>(handler, 5, 1);
             Write<std::uint32_t>(handler, 0xAD38, 0x50);

@@ -11,3 +11,5 @@ Preserved behavior includes parser order, the equality-only section capacity che
 Freeing visits all thirteen pointers in original order and clears the complete object. Manager scanning tries INI first and CIF only if there are no matches; the synthetic picked map slot remains unchanged. Filename storage extent/padding is not promoted into a guessed C++ string type.
 
 Validation against 22dc2eb: exact staged source comparisons and identical C++ token streams after constant substitution; 113 literal/value/type compiler assertions; 3325 disassembled instructions checked against Game.exe bytes; Win32 `/Zs` for the two affected production units and assertion unit. No builds, tests or game runs. MACRO_MAP_RECORDS_FIELDS.csv inventories named accesses. Whole-source review remains incomplete.
+
+The final integration review also replaces three unrelated equal-valued token aliases in the section dispatch array with their macro-map domain names: `Transname`, `Land` and `Animal`. Three value/type assertions and a targeted Win32 syntax pass confirm the substitutions. No token value or dispatch order changes. The complete 307-unit syntax pass also succeeds.
