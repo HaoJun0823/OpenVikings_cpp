@@ -70,7 +70,7 @@ namespace NC2Logic
     // Original function: FUN_0043711D.
     void Vehicle_DoUpdateConditions(void* vehicle)
     {
-        if (Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) <= 0) Write<std::uint8_t>(Moveable(vehicle), 0x0C, 1);
+        if (Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints) <= 0) Write<std::uint8_t>(Moveable(vehicle), NC2Layout::MapMoveableOffset::RemovalRequestedFlag, 1);
     }
 
     // Original function: FUN_00438057; events execute before advancing the tick.
@@ -88,7 +88,7 @@ namespace NC2Logic
             Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::CurrentTask, 0);
             Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DockedFlag, 1);
         }
-        if (animation->endDirection != -1) Write(Moveable(vehicle), 0x20, animation->endDirection);
+        if (animation->endDirection != -1) Write(Moveable(vehicle), NC2Layout::MapMoveableOffset::Direction, animation->endDirection);
         Vehicle_l_ResetAtomic(vehicle);
     }
 
@@ -109,9 +109,9 @@ namespace NC2Logic
         if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType) == 5) ticks *= 2u;
         if (NXBasics::Runtime_TimeSigned32(ticks) < 3) ticks = 3;
         const auto progress = NXBasics::Runtime_TimeSigned32(ticks + 9999u) / NXBasics::Runtime_TimeSigned32(ticks);
-        Write(Moveable(vehicle), 0x44, ticks);
-        Write<std::uint32_t>(Moveable(vehicle), 0x4C, 2);
-        Write(Moveable(vehicle), 0x48, progress);
+        Write(Moveable(vehicle), NC2Layout::MapMoveableOffset::WalkingTicksPerStep, ticks);
+        Write<std::uint32_t>(Moveable(vehicle), NC2Layout::MapMoveableOffset::TurningTicksPerDirection, 2);
+        Write(Moveable(vehicle), NC2Layout::MapMoveableOffset::WalkingProgressPerTick, progress);
     }
 
     // Original function: FUN_0046255B.
@@ -644,7 +644,7 @@ namespace NC2Logic
         {
             if (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(search.owner, 0x1DC)) continue;
             const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint32_t>(moveable, 8) != 3) continue;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 3) continue;
             const auto* other = Vehicle(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
             if (Read<std::uint32_t>(other, NC2Layout::VehicleOffset::PlayerId) == Read<std::uint32_t>(search.owner, 0x1E0) && Read<std::uint32_t>(other, NC2Layout::VehicleOffset::AtomicAction) == 0x51) return false;
         }

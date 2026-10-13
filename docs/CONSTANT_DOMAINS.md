@@ -1,6 +1,6 @@
 # Constant domains
 
-The generic `ReadableValues.h` / `ReadableValues` collection has been removed. Constants are organized by their meaning; all 434 definitions retain their exact values and integer literal types.
+The generic `ReadableValues.h` / `ReadableValues` collection has been removed. Constants are organized by their meaning; the initial split preserved all 434 moved definitions' exact values and integer literal types. Subsequent Windows layout reviews add separately documented fields and records.
 
 | Header | Namespace | Contents |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ The generic `ReadableValues.h` / `ReadableValues` collection has been removed. C
 | `C2DataIds.h` | `NC2DataIds` | File/chunk markers, compression types and parser token IDs |
 | `XNumericConstants.h` | `NXBasics` | Integer ranges, mathematical bit masks, RGB and binary64 representations |
 | `XWindowsResultCodes.h` | `NXBasics` | Windows COM result values |
-| `C2RuntimeConstants.h` | `NC2Runtime` | Game random seeds and sound instance tags |
+| `C2RuntimeConstants.h` | `NC2Runtime` | Game random seeds, sound tags, state sentinels, walking progress and pathfinder outcomes |
 
 The occurrence inventories in `HEX_VALUE_NAME_MAP.csv` and `HOUSE_POSITION_OFFSETS.csv` use the current replacement names. Their previous-expression/original-literal columns remain historical evidence. Earlier project checkpoints refer to the former collection name.
 

@@ -149,10 +149,10 @@ namespace NC2Logic
     // Original function: FUN_0040bbaa; embedded moveable state constructor.
     static void MapMoveable_ConstructMembers(void* moveable)
     {
-        Write<std::uint16_t>(moveable, 0x14, 0);
+        Write<std::uint16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY, 0);
         Write<std::uint16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition, 0);
-        Write<std::uint32_t>(moveable, 0x18, 0);
-        Write<std::uint32_t>(moveable, 0x1C, 0);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::SectorPosition, 0);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::SectorPositionY, 0);
     }
 
     // Original function: FUN_0040bb10.

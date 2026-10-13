@@ -52,10 +52,10 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstMapMoveableId(searchPoint); id != -1; id = iterator.GetNextMapMoveableId())
         {
             const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint32_t>(moveable, 8) != 3) continue;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 3) continue;
             const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CVehicleArray::ElementSize;
             if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1) continue;
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, 0x14)));
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY)));
             if (gStaticVehicleTypeStorage.records[Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType)].logicSize >= distance) return true;
         }
         return false;
@@ -189,13 +189,13 @@ namespace NC2Logic
         if (moveableId == -1) return false;
         auto* moveable = Moveable(vehicle);
         MapMoveable_Attachment_AttachToMap(moveable, point);
-        auto* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
-        Write<std::uint32_t>(moveable, 0x44, 8);
-        Write<std::uint32_t>(moveable, 0x48, 1250);
-        Write<std::uint32_t>(moveable, 0x4C, 2);
+        auto* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, 8);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, 1250);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection, 2);
         Write(path, 0x10, Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
         Write<std::uint8_t>(path, 0x16, 1);
-        Write<std::uint8_t>(moveable, 0x50, 1);
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag, 1);
         Write(path, 0x2C, player);
         Write<std::int32_t>(path, 0x24, -1);
         Write<std::int32_t>(path, 0x1C, -1);
@@ -266,7 +266,7 @@ namespace NC2Logic
             if (VehicleReference_IsAllocated(entry)) CVehicleArray::sTheObjectPtr->FreeVehicle(Read<std::int32_t>(entry, NC2Layout::VehiclePassengerOffset::ObjectId));
         }
         if (Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AllocatedFlag) == 0) return;
-        if (Read<std::uint8_t>(Moveable(vehicle), 0x10) != 0)
+        if (Read<std::uint8_t>(Moveable(vehicle), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             Logic_EntryPoint_Edit_Start();
             const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
@@ -330,7 +330,7 @@ namespace NC2Logic
         {
             if (id == Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId)) continue;
             const auto* moveable = gMapMoveableArrayStorage.entries + id * NC2Layout::RecordSize::MapMoveableSigned;
-            if (Read<std::uint32_t>(moveable, 8) != 1) continue;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
             auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize;
             if (Human_IsWalking(human) || Human_IsProducingVehicle(human) || Human_IsAttachedToVehicle(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) == Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId)) continue;
             std::byte command[20]{};
@@ -368,7 +368,7 @@ namespace NC2Logic
         {
             if (id == Read<std::int32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId)) continue;
             const auto* moveable = gMapMoveableArrayStorage.entries + id * NC2Layout::RecordSize::MapMoveableSigned;
-            if (Read<std::uint32_t>(moveable, 8) != 3) continue;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 3) continue;
             const auto* other = Vehicle(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
             if (Read<std::uint32_t>(other, NC2Layout::VehicleOffset::AtomicAction) == 1) continue;
             const auto distance = Distance(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition, point);
@@ -561,7 +561,7 @@ namespace NC2Logic
     // Original function: FUN_004625e7.
     bool Vehicle_l_IsAtomicInterruptable(const void* vehicle)
     {
-        if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1) return Read<std::uint8_t>(Moveable(vehicle), 0x2C) == 0;
+        if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAction) == 1) return Read<std::uint8_t>(Moveable(vehicle), NC2Layout::MapMoveableOffset::WalkingFlag) == 0;
         return Read<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationRunningFlag) == 0 || gStaticAtomicAnimationData[Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::AtomicAnimationId)].interruptable != 0;
     }
 

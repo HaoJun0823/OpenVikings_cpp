@@ -150,7 +150,7 @@ namespace NC2Logic
             const auto id = Read<std::int16_t>(micro, 10);
             if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || id == -1) return false;
             const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint32_t>(moveable, 8) != 1 || Human_IsJobSoldier(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize)) return false;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1 || Human_IsJobSoldier(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize)) return false;
             data.points[data.count++] = Read<std::uint32_t>(point, 0);
             return data.count == 8;
         }
@@ -285,8 +285,8 @@ namespace NC2Logic
         void Animal_l_Speed_Normal(void* animal)
         {
             const auto speed = Type(animal).moveSpeed;
-            Write(Moveable(animal), 0x44, speed);
-            Write(Moveable(animal), 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
+            Write(Moveable(animal), NC2Layout::MapMoveableOffset::WalkingTicksPerStep, speed);
+            Write(Moveable(animal), NC2Layout::MapMoveableOffset::WalkingProgressPerTick, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
         }
 
         // Original function: FUN_0042e7eb.
@@ -311,7 +311,7 @@ namespace NC2Logic
             if (Distance(Animal_GetMapPositionRef(Animal(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::LeaderId))), Animal_GetMapPositionRef(animal)) > LeaderDistance(animal)) { Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 3); Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 0); return; }
             auto* moveable = Moveable(animal);
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Animal_GetMapPositionRef(animal));
-            if (Read<std::int16_t>(micro, 10) != Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) || Read<std::int32_t>(moveable, 0x24) != -1)
+            if (Read<std::int16_t>(micro, 10) != Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) || Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) != -1)
             {
                 if (Animal_l_StartTask_GoAway(animal)) return;
             }
@@ -467,8 +467,8 @@ namespace NC2Logic
                 else if (event.type == 26)
                 {
                     auto* moveable = Moveable(animal);
-                    auto point = Read<std::uint32_t>(moveable, 0x12);
-                    MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u);
+                    auto point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
+                    MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u);
                     if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) == 0) { MapMoveable_Attachment_DetachFromMap(moveable); MapMoveable_Attachment_AttachToMap(moveable, &point); }
                 }
                 else if (event.type == SwitchIds::AtomicAnimationEvent::PlaySoundFX) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, event.parameter, MapMigPoint_GetLong(Animal_GetMapPositionRef(animal)), 0);
@@ -477,7 +477,7 @@ namespace NC2Logic
             Write(animal, NC2Layout::AnimalOffset::AtomicAnimationFrame, tick);
             if (tick != static_cast<std::uint32_t>(animation.length)) return true;
             if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus) == 1) Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 2);
-            if (animation.endDirection != -1) Write(Moveable(animal), 0x20, animation.endDirection);
+            if (animation.endDirection != -1) Write(Moveable(animal), NC2Layout::MapMoveableOffset::Direction, animation.endDirection);
             Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction, 0);
             Write<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag, 0);
             return true;
@@ -489,8 +489,8 @@ namespace NC2Logic
     {
         const auto speed = Type(animal).runSpeed;
         if (speed <= 0) return;
-        Write(Moveable(animal), 0x44, speed);
-        Write(Moveable(animal), 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
+        Write(Moveable(animal), NC2Layout::MapMoveableOffset::WalkingTicksPerStep, speed);
+        Write(Moveable(animal), NC2Layout::MapMoveableOffset::WalkingProgressPerTick, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
     }
 
     // Original function: FUN_0042df37; growth notifies after detaching and reattaching.
@@ -509,7 +509,7 @@ namespace NC2Logic
             MapMoveable_Attachment_AttachToMap(moveable, &point);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(6, true, Read<std::int32_t>(animal, NC2Layout::AnimalOffset::AnimalId), 1, 1);
         }
-        if (Read<std::int32_t>(animal, NC2Layout::AnimalOffset::Hitpoints) <= 0) Write<std::uint8_t>(Moveable(animal), 12, 1);
+        if (Read<std::int32_t>(animal, NC2Layout::AnimalOffset::Hitpoints) <= 0) Write<std::uint8_t>(Moveable(animal), NC2Layout::MapMoveableOffset::RemovalRequestedFlag, 1);
     }
 
     // Original function: FUN_0042e8e7.
@@ -614,7 +614,7 @@ namespace NC2Logic
     // Original function: FUN_0042dfc0.
     void Animal_DoUpdateAI(void* animal)
     {
-        if (Read<std::uint8_t>(Moveable(animal), 0x10) == 0) return;
+        if (Read<std::uint8_t>(Moveable(animal), NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return;
         if (!Animal_IsAttachedToVehicle(animal) && !Animal_IsAttachedToHouse(animal) && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) != 20) Animal_l_MoveWorkCenterPoint(animal);
         Animal_l_CheckForValidLeader(animal);
         if (!Animal_l_CurrentTask_DoPerform(animal) || !Animal_l_IsAtomicInterruptable(animal)) return;

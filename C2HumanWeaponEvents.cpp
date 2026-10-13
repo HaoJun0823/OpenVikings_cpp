@@ -119,10 +119,10 @@ namespace NC2Logic
                 {
                     const auto ticks = (distance << 3) / static_cast<std::uint32_t>(weapon.speed);
                     const auto* moveable = gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0)
                     {
-                        const auto direction = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
-                        const auto steps = (Read<std::uint32_t>(moveable, 0x48) * ticks + Read<std::uint32_t>(moveable, 0x34)) / 10000u;
+                        const auto direction = Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u;
+                        const auto steps = (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick) * ticks + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress)) / 10000u;
                         MapMigPoint_MoveCursorUnwrapped(&position, direction, steps);
                     }
                 }

@@ -101,7 +101,7 @@ namespace NC2E2
             {
                 ++count;
                 const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint32_t>(moveable, 8) != 1) continue;
+                if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CHumanArray::ElementSize;
                 if (NC2Logic::Human_Misc_IsHidden(human)) continue;
                 Write(display, 0x8C, Read<std::uint32_t>(display, 0x8C) + 1u);

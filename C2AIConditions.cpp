@@ -168,7 +168,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstMapMoveableId(); id != -1; id = iterator.GetNextMapMoveableId())
             {
                 const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                const auto moveableType = Read<std::uint32_t>(moveable, 8);
+                const auto moveableType = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType);
                 std::uint32_t player = 20, position = 0;
                 std::uint8_t military = 0;
                 if (moveableType == 1)

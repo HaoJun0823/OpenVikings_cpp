@@ -81,7 +81,7 @@ namespace NC2Logic
         std::uint32_t point = 0;
         bool wasAttached = false;
         void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
             MapMoveable_Attachment_DetachFromMap(moveable);
@@ -178,9 +178,9 @@ namespace NC2Logic
     {
         if (id == NXBasics::IntegerRange::UInt32Maximum) return;
         const void* moveable = Moveable(id);
-        if (Read<std::uint8_t>(moveable, 0) == 0) return;
-        const auto objectId = Read<std::int32_t>(moveable, 0x54);
-        switch (Read<std::uint32_t>(moveable, 8))
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0) return;
+        const auto objectId = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
+        switch (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType))
         {
         case SwitchIds::MapMoveableType::Human: CHumanArray::sTheObjectPtr->FreeHuman(objectId); break;
         case SwitchIds::MapMoveableType::Animal: CAnimalArray::sTheObjectPtr->FreeAnimal(objectId); break;
@@ -384,7 +384,7 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::AtomicAction, action);
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 1);
         void* moveable = Moveable(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId));
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             const auto preferred = gStaticAtomicAnimationData[animation].startDirection;
             if (preferred != -1) MapMoveable_Attachment_StartTurn(moveable, preferred);
@@ -490,12 +490,12 @@ namespace NC2Logic
         Write(human, NC2Layout::HumanOffset::Stamina, stamina);
         Human_ResetUserCommandArray(human);
         moveable = Moveable(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId));
-        void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
-        Write<std::uint32_t>(moveable, 0x44, 8);
-        Write<std::uint32_t>(moveable, 0x48, 1250);
-        Write<std::uint32_t>(moveable, 0x4C, 1);
+        void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, 8);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, 1250);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection, 1);
         Write<std::uint8_t>(pathfinder, 0x16, 1);
-        Write<std::uint8_t>(moveable, 0x50, 1);
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag, 1);
         Write<std::int32_t>(pathfinder, 0x24, -1);
         Write<std::int32_t>(pathfinder, 0x1C, -1);
         Write<std::uint32_t>(pathfinder, 0x2C, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
@@ -657,7 +657,7 @@ namespace NC2Logic
         Human_StopCurrentGoodCirculationMode(human);
         Human_Detach(human, true);
         const auto moveableId = Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId);
-        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && Read<std::uint8_t>(Moveable(moveableId), 0x10) != 0)
+        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && Read<std::uint8_t>(Moveable(moveableId), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x25, true, 4, MapMigPoint_GetLong(Human_GetMapPositionRef(human)), 0);
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit14) == 0 && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32))

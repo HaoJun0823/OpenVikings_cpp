@@ -141,7 +141,7 @@ namespace NC2Logic
         {
             if (id == Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId)) continue;
             const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint32_t>(moveable, 8) != 2) continue;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 2) continue;
             const auto* other = Animal(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
             if (Read<std::uint32_t>(other, NC2Layout::AnimalOffset::PlayerId) == Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) && Read<std::uint32_t>(other, NC2Layout::AnimalOffset::AnimalType) == 49 && Read<std::uint8_t>(other, NC2Layout::AnimalOffset::AggressiveFlag) != 0 && Read<std::uint32_t>(other, NC2Layout::AnimalOffset::AtomicAction) == 81) return true;
         }

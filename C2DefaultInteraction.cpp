@@ -85,7 +85,7 @@ namespace NC2Logic
     // Original function: FUN_00435605; the complete nine-entry Windows selector is 00436216..00436239.
     std::uint32_t Human_UserControl_GetDefaultInteractionCommand_SingleHuman(const void* human, const void* target, void* command, void* secondary, bool modifier)
     {
-        if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0 || Read<std::uint8_t>(Moveable(human), 0x10) == 0) return 0;
+        if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0 || Read<std::uint8_t>(Moveable(human), NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto continent = Continent(Human_GetMapPositionRef(human));
         SUserCommandsForHumanHandler available; Human_UserControl_GetCommands(human, &available, false, false);
         const auto* point = static_cast<const std::byte*>(target) + 4;
@@ -97,7 +97,7 @@ namespace NC2Logic
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* other = GetHumanPtr(targetId);
             if (Human_IsAgeAdult(other) && available.IsCommandAllowed(41) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(other, 0x10)) == 3) { Prepare(command, 43, human, targetId, Read<std::uint32_t>(other, 8)); return 41; }
-            if (Read<std::uint8_t>(Moveable(other), 0x10) == 0) return 0;
+            if (Read<std::uint8_t>(Moveable(other), NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
             // Windows queries the active target's continent and still returns no command.
             Continent(Human_GetMapPositionRef(other)); return 0;
         }
@@ -105,7 +105,7 @@ namespace NC2Logic
         {
             const auto targetId = Read<std::uint32_t>(target, 0x10); const auto* animal = GetAnimalPtr(targetId);
             const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, 0xC) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), 6) != continent) return 0;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(Animal_GetConstMapMicroPointPtr(animal), 6) != continent) return 0;
             if (Human_IsJobScout(human) && static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData)[Read<std::uint32_t>(animal, 0x14) - 8u].warrantable != 0) return sendTo();
             if (available.IsCommandAllowed(43) && Animal_Misc_CanBeAttackedByHuman(animal, id, false)) { Prepare(command, 45, human, targetId, Read<std::uint32_t>(animal, 8)); return 43; }
             return 0;
@@ -346,11 +346,11 @@ namespace NC2Logic
     {
         if (!MapMigPoint_IsInsideMap(point)) return 0;
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint8_t>(moveable, 0x10) == 0) return 0;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto player = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
         if (player < 16 && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) return 0;
         if (modifier && commands->IsCommandAllowed(8)) { Prepare(command, 108, vehicle, MapMigPoint_GetLong(point)); return 8; }
-        if (Continent(point) != Continent(moveable + 0x12)) return 0;
+        if (Continent(point) != Continent(moveable + NC2Layout::MapMoveableOffset::MapPosition)) return 0;
         Prepare(command, 101, vehicle, MapMigPoint_GetLong(point)); return 2;
     }
 

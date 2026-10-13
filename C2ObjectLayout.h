@@ -248,8 +248,29 @@ namespace NC2Layout
 
     namespace MapMoveableOffset
     {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto MoveableId = 4;
+        inline constexpr auto ObjectType = 8;
+        inline constexpr auto RemovalRequestedFlag = 0x0C;
+        inline constexpr auto AttachedToMapFlag = 0x10;
         inline constexpr auto MapPosition = 0x12;
+        inline constexpr auto MapPositionY = 0x14;
+        inline constexpr auto SectorPosition = 0x18;
+        inline constexpr auto SectorPositionY = 0x1C;
+        inline constexpr auto Direction = 0x20;
+        inline constexpr auto NextCellMoveableId = 0x24;
         inline constexpr auto PathfinderId = 0x28;
+        inline constexpr auto WalkingFlag = 0x2C;
+        inline constexpr auto WalkingDirection = 0x30;
+        inline constexpr auto WalkingProgress = 0x34;
+        inline constexpr auto WalkingPositionAdvancedFlag = 0x38;
+        inline constexpr auto TurningFlag = 0x39;
+        inline constexpr auto TurningElapsedTicks = 0x3C;
+        inline constexpr auto TurnTargetDirection = 0x40;
+        inline constexpr auto WalkingTicksPerStep = 0x44;
+        inline constexpr auto WalkingProgressPerTick = 0x48;
+        inline constexpr auto TurningTicksPerDirection = 0x4C;
+        inline constexpr auto IncludeVerticalDirectionsFlag = 0x50;
         inline constexpr auto ObjectId = 0x54;
     }
 

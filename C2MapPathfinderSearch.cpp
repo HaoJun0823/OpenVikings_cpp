@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2MapPathfinderSearch.h"
@@ -137,7 +138,7 @@ namespace NC2Logic
         Write(pathfinder, 0x40, Read<std::uint32_t>(source, 0));
         Write(pathfinder, 0x48, moveableId);
         const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint8_t>(moveable, 0x10) == 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0)
         {
             Write<std::uint32_t>(pathfinder, 4, 0);
             return;
@@ -171,39 +172,39 @@ namespace NC2Logic
         const auto target = [pathfinder]() -> const void*
         {
             const void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(pathfinder, 0x48) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint8_t>(moveable, 0) == 0) return nullptr;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0) return nullptr;
             if (MapMoveable_GetUniqueId(moveable) != Read<std::uint32_t>(pathfinder, 0x4C)) return nullptr;
-            if (Read<std::uint8_t>(moveable, 0x10) == 0) return nullptr;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return nullptr;
             return moveable;
         };
-        if (Read<std::uint32_t>(pathfinder, 4) == 0) return -3;
+        if (Read<std::uint32_t>(pathfinder, 4) == 0) return NC2Runtime::PathfinderDirectionResult::Stopped;
         if (Read<std::uint32_t>(pathfinder, 4) == 3u)
         {
             if (Read<std::uint32_t>(pathfinder, 8) == 2u)
             {
                 const void* moveable = target();
-                if (moveable == nullptr) return stop(-1);
+                if (moveable == nullptr) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
                 std::uint32_t point = 0;
                 MapMoveable_Attachment_GetNextMapPosition(moveable, &point);
-                if (PathfinderDistance(currentPoint, &point) <= Read<std::int32_t>(pathfinder, 0x50)) return stop(-2);
+                if (PathfinderDistance(currentPoint, &point) <= Read<std::int32_t>(pathfinder, 0x50)) return stop(NC2Runtime::PathfinderDirectionResult::Arrived);
                 Write<std::uint32_t>(pathfinder, 4, 1);
             }
-            else if (Read<std::uint32_t>(pathfinder, 8) == 1u) return stop(-2);
+            else if (Read<std::uint32_t>(pathfinder, 8) == 1u) return stop(NC2Runtime::PathfinderDirectionResult::Arrived);
         }
         if (Read<std::uint32_t>(pathfinder, 4) == 1u)
         {
             if (Read<std::uint32_t>(pathfinder, 8) == 2u)
             {
                 const void* moveable = target();
-                if (moveable == nullptr) return stop(-1);
+                if (moveable == nullptr) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
                 MapMoveable_Attachment_GetNextMapPosition(moveable, destination);
             }
-            if (static_cast<std::uint32_t>(PathfinderDistance(destination, currentPoint)) > 6u && !GameControl_System_PathfinderLimit_IsSearchAllowed(gGameControl, Read<std::int32_t>(pathfinder, 0x2C))) return -4;
+            if (static_cast<std::uint32_t>(PathfinderDistance(destination, currentPoint)) > 6u && !GameControl_System_PathfinderLimit_IsSearchAllowed(gGameControl, Read<std::int32_t>(pathfinder, 0x2C))) return NC2Runtime::PathfinderDirectionResult::Deferred;
         }
         else if (Read<std::uint32_t>(pathfinder, 8) == 2u)
         {
             const void* moveable = target();
-            if (moveable == nullptr) return stop(-1);
+            if (moveable == nullptr) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             std::uint32_t point = 0;
             MapMoveable_Attachment_GetNextMapPosition(moveable, &point);
             const auto distance = PathfinderDistance(currentPoint, destination);
@@ -216,18 +217,18 @@ namespace NC2Logic
         }
         if (Read<std::uint32_t>(pathfinder, 4) == 1u)
         {
-            if (Read<std::uint32_t>(currentPoint, 0) == Read<std::uint32_t>(destination, 0)) return stop(-2);
+            if (Read<std::uint32_t>(currentPoint, 0) == Read<std::uint32_t>(destination, 0)) return stop(NC2Runtime::PathfinderDirectionResult::Arrived);
             const auto sourceContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(currentPoint), 6);
             const auto destinationContinent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(destination), 6);
-            if (sourceContinent != destinationContinent) return stop(-1);
-            if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, 0x0C))) return stop(-1);
+            if (sourceContinent != destinationContinent) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
+            if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, 0x0C))) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             Write<std::uint32_t>(pathfinder, 4, 2);
         }
         auto index = Read<std::uint32_t>(pathfinder, 0x54);
         // Index 20 means all twenty runs were consumed. Do not read beyond the original array.
         if ((index == 20u || Read<std::uint8_t>(pathfinder, 0x5D + index * 2u) == 0) && Read<std::uint32_t>(pathfinder, 4) == 2u)
         {
-            if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, 0x0C))) return stop(-1);
+            if (!MapPathfinderElement_l_FindWayAndBuildVectorList(pathfinder, currentPoint, destination, Read<std::uint32_t>(pathfinder, 0x0C))) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             index = Read<std::uint32_t>(pathfinder, 0x54);
         }
         const auto direction = Read<std::uint8_t>(pathfinder, 0x5C + index * 2u);
@@ -246,13 +247,13 @@ namespace NC2Logic
             {
                 MapMigPoint_MoveCursorUnwrapped(point, VE_HexagonDirection_OppositeDirection(direction));
                 Write(currentPoint, 0, point);
-                return stop(-1);
+                return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             }
         }
         if (Read<std::uint32_t>(pathfinder, 8) == 2u)
         {
             const auto distance = PathfinderDistance(currentPoint, destination);
-            if (target() == nullptr) return stop(-1);
+            if (target() == nullptr) return stop(NC2Runtime::PathfinderDirectionResult::Failed);
             if (distance <= Read<std::int32_t>(pathfinder, 0x50)) Write<std::uint32_t>(pathfinder, 4, 3);
         }
         else if (Read<std::uint32_t>(pathfinder, 8) == 1u && point == Read<std::uint32_t>(destination, 0)) Write<std::uint32_t>(pathfinder, 4, 3);

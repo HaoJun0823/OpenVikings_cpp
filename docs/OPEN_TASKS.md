@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Shared movement layout review - 2026-10-13
+
+Named 285 moveable field accesses in 37 sources, walking thresholds and pathfinder outcomes. Human/animal/vehicle tick functions remain distinct and preserve Windows callback/early-return order. Value/type and syntax checks pass; no runtime verification occurred. See [MOVEABLE_LAYOUT_REVIEW.md](MOVEABLE_LAYOUT_REVIEW.md) and its inventories. Remaining pathfinder, human task/military, engine, GUI, control/data code is still under review.
+
 ## Animal layout and state-constructor correction - 2026-10-13
 
 Named 400 whole-animal field accesses in 25 sources. Corrected the array helper to pass animal +0x18 to the Windows state constructor, as proven by both allocation and resize call sites. Relative constructor offsets, herd/food/age/aggression/atomic fields and the slaughter sentinel are named. Syntax, value/type, layout and native-byte checks pass; no runtime verification occurred. See [ANIMAL_LAYOUT_REVIEW.md](ANIMAL_LAYOUT_REVIEW.md) and its inventories. Entire-source review remains active.

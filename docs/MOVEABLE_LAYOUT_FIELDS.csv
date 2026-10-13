@@ -1,0 +1,25 @@
+WindowsOffset,Field,WidthOrRegionBytes,WindowsEvidence
+0x00,AllocatedFlag,1,MapMoveable_Init/Exit and array allocation scans
+0x04,MoveableId,4,Init stores slot ID; micro-cell list insertion reads
+0x08,ObjectType,4,"Tick dispatch, position references and sector attachment"
+0x0C,RemovalRequestedFlag,1,Creature condition updates request removal; array tick frees after update
+0x10,AttachedToMapFlag,1,Map attach/detach and tick/drawing predicates
+0x12,MapPosition,4,Packed map point and position accessors
+0x14,MapPositionY,2,High signed word of packed map point
+0x18,SectorPosition,8,SSectorGridCursor saved on sector attachment; migration and detach read
+0x1C,SectorPositionY,4,Second signed DWORD of SSectorGridCursor
+0x20,Direction,4,"Init, walking and turn updates"
+0x24,NextCellMoveableId,4,Micro-cell intrusive list head insertion and traversal
+0x28,PathfinderId,4,Owned pathfinder allocated/freed and used for walking
+0x2C,WalkingFlag,1,Step start/completion and pathfinder-stop predicates
+0x30,WalkingDirection,4,Next step direction and predicted position
+0x34,WalkingProgress,4,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+0x38,WalkingPositionAdvancedFlag,1,Midpoint relocation done; prediction and render interpolation
+0x39,TurningFlag,1,StartTurn sets; completed turn clears
+0x3C,TurningElapsedTicks,4,Turn increments elapsed ticks and resets on directional step
+0x40,TurnTargetDirection,4,StartTurn and directional-step target comparison
+0x44,WalkingTicksPerStep,4,Speed updates store step duration; animation frame lookup uses it
+0x48,WalkingProgressPerTick,4,Speed updates compute progress added each tick
+0x4C,TurningTicksPerDirection,4,Turn waiting threshold; zero means immediate direction update
+0x50,IncludeVerticalDirectionsFlag,1,Passed to NextDirection includeVertical by turn and rendering paths
+0x54,ObjectId,4,Owned human/animal/vehicle/marker index

@@ -142,10 +142,10 @@ namespace NC2Logic
         const auto& data = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weapon];
         auto damage = static_cast<std::uint32_t>(data.damageValues[armor.materialType]) * 200u / (200u - (power > 100u ? 100u : power));
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * NC2Layout::RecordSize::MapMoveable;
-        auto facing = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
+        auto facing = Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u;
         if (facing == 7) facing = 2;
         else if (facing == 6) facing = 5;
-        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, 0x14), Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), false);
+        const auto direction = VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition), Read<std::int16_t>(moveable, NC2Layout::MapMoveableOffset::MapPositionY), Read<std::int16_t>(source, 0), Read<std::int16_t>(source, 2), false);
         auto difference = NXBasics::Runtime_TimeSigned32(direction - facing);
         if (difference < 0) difference = -difference;
         if (difference > 2) damage = damage * 150u / 100u;

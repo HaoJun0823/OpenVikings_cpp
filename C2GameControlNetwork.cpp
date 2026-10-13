@@ -53,7 +53,7 @@ namespace NC2Logic
                 std::uint32_t position = 0;
                 bool createAnimal = false;
                 const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint8_t>(moveable, 0x10) != 0 && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human))) == 1)
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human))) == 1)
                 {
                     createAnimal = true;
                     position = Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);

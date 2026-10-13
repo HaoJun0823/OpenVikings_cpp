@@ -236,7 +236,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
             {
                 const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint32_t>(moveable, 8) != 1) continue;
+                if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                 void* human = Human(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
                 if (child)
                 {
@@ -359,7 +359,7 @@ namespace NC2Logic
                     for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
                     {
                         const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                        if (Read<std::uint32_t>(moveable, 8) != 3) continue;
+                        if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 3) continue;
                         const auto vehicleId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
                         if (!Vehicle_Passengers_AttachHuman(Vehicle(vehicleId), Read<std::uint32_t>(Human(currentId), 4))) continue;
                         Write<std::uint32_t>(Human(currentId), 0xB48, vehicleId);
@@ -439,7 +439,7 @@ namespace NC2Logic
                     for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
                     {
                         const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                        if (Read<std::uint32_t>(moveable, 8) != 1) continue;
+                        if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                         void* candidate = Human(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
                         if (Human_IsSexFemale(candidate) && !Human_IsHavingChild(candidate)) { woman = candidate; break; }
                     }

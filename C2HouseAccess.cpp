@@ -386,7 +386,7 @@ namespace NC2Logic
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) return false;
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-        return Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6);
+        return Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6);
     }
 
     // Original function: FUN_004326e5.

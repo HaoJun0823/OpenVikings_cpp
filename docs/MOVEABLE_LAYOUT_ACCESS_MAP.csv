@@ -1,0 +1,286 @@
+Source,StagedLine,Receiver,PreviousLiteral,Replacement,Evidence
+C2GameMapIO.cpp,51,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2GameMapIO.cpp,52,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2GameMapIO.cpp,55,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2GameControlNetwork.cpp,56,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2AnimalAccess.cpp,100,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2AnimalAccess.cpp,107,moveable,0x28,NC2Layout::MapMoveableOffset::PathfinderId,Owned pathfinder allocated/freed and used for walking
+C2AnimalAccess.cpp,109,moveable,0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2AnimalAccess.cpp,110,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2AnimalAccess.cpp,133,Moveable(animal),0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2AnimalAccess.cpp,191,Moveable(animal),0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2AnimalAccess.cpp,344,Moveable(animal),0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineLandscapeDrawing.cpp,104,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMoveableDrawing.cpp,79,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2EngineMoveableDrawing.cpp,79,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2EngineMoveableDrawing.cpp,84,moveable,0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2EngineMoveableDrawing.cpp,161,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2EngineMoveableDrawing.cpp,161,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2EngineMoveableDrawing.cpp,162,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2EngineMoveableDrawing.cpp,164,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2EngineMoveableDrawing.cpp,165,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2EngineMoveableDrawing.cpp,170,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineMoveableDrawing.cpp,224,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMoveableDrawing.cpp,275,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMoveableDrawing.cpp,662,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2EngineMoveableDrawing.cpp,672,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2EngineMoveableDrawing.cpp,673,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2EngineMoveableDrawing.cpp,674,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2EngineMoveableDrawing.cpp,675,moveable,0x50,NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag,Passed to NextDirection includeVertical by turn and rendering paths
+C2EngineMoveableDrawing.cpp,718,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2EngineMoveableDrawing.cpp,753,moveable,0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2EngineMoveableDrawing.cpp,271,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineMoveableDrawing.cpp,568,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineMoveableDrawing.cpp,720,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2MapPathfinderSearch.cpp,140,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapPathfinderSearch.cpp,174,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapPathfinderSearch.cpp,176,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2LogicLifetimeAccess.cpp,152,moveable,0x14,NC2Layout::MapMoveableOffset::MapPositionY,High signed word of packed map point
+C2LogicLifetimeAccess.cpp,154,moveable,0x18,NC2Layout::MapMoveableOffset::SectorPosition,SSectorGridCursor saved on sector attachment; migration and detach read
+C2LogicLifetimeAccess.cpp,155,moveable,0x1C,NC2Layout::MapMoveableOffset::SectorPositionY,Second signed DWORD of SSectorGridCursor
+C2MissionExecution.cpp,1128,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MissionExecution.cpp,1128,moveable,0x0C,NC2Layout::MapMoveableOffset::RemovalRequestedFlag,Creature condition updates request removal; array tick frees after update
+C2MissionExecution.cpp,1270,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MissionExecution.cpp,1280,"gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable",0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2AIConditions.cpp,171,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2AIMovementMessages.cpp,401,entry,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2AIMovementMessages.cpp,402,entry,0x54,NC2Layout::MapMoveableOffset::ObjectId,Owned human/animal/vehicle/marker index
+C2AIMovementMessages.cpp,410,entry,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2AIMovementMessages.cpp,411,entry,0x54,NC2Layout::MapMoveableOffset::ObjectId,Owned human/animal/vehicle/marker index
+C2HouseAccess.cpp,389,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanCommandAccess.cpp,43,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanCommandAccess.cpp,118,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2HumanCommandAccess.cpp,264,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HumanCommandAccess.cpp,441,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2EngineMacroMaps.cpp,656,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2EngineMacroMaps.cpp,656,moveable,16,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2EngineMacroMaps.cpp,656,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMacroMaps.cpp,665,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2EngineMacroMaps.cpp,665,moveable,16,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2EngineMacroMaps.cpp,665,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMacroMaps.cpp,677,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2EngineMacroMaps.cpp,677,moveable,16,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2EngineMacroMaps.cpp,677,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMacroMaps.cpp,686,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2EngineMacroMaps.cpp,686,moveable,16,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2EngineMacroMaps.cpp,686,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineMacroMaps.cpp,656,moveable,18,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineMacroMaps.cpp,665,moveable,18,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineMacroMaps.cpp,677,moveable,18,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2EngineMacroMaps.cpp,686,moveable,18,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2MissionStartObjects.cpp,239,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MissionStartObjects.cpp,362,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MissionStartObjects.cpp,442,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MapMoveableAccess.cpp,59,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,69,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,71,moveable,0x0C,NC2Layout::MapMoveableOffset::RemovalRequestedFlag,Creature condition updates request removal; array tick frees after update
+C2MapMoveableAccess.cpp,79,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MapMoveableAccess.cpp,91,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,93,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,98,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,100,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,100,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,100,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2MapMoveableAccess.cpp,101,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,101,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,103,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,106,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,110,moveable,0x18,NC2Layout::MapMoveableOffset::SectorPosition,SSectorGridCursor saved on sector attachment; migration and detach read
+C2MapMoveableAccess.cpp,117,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,117,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,131,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2MapMoveableAccess.cpp,132,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2MapMoveableAccess.cpp,133,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,134,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,135,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,136,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,137,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,138,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,140,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,141,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,142,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2MapMoveableAccess.cpp,152,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,160,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,162,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,167,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,169,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,169,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,169,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2MapMoveableAccess.cpp,170,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,170,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,172,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,175,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,179,moveable,0x18,NC2Layout::MapMoveableOffset::SectorPosition,SSectorGridCursor saved on sector attachment; migration and detach read
+C2MapMoveableAccess.cpp,186,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,186,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,200,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2MapMoveableAccess.cpp,201,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2MapMoveableAccess.cpp,202,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,203,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,204,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,205,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,206,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,207,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,209,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,210,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,211,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2MapMoveableAccess.cpp,221,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,228,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,230,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,235,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,237,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,237,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,237,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2MapMoveableAccess.cpp,238,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,238,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,240,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,243,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,247,moveable,0x18,NC2Layout::MapMoveableOffset::SectorPosition,SSectorGridCursor saved on sector attachment; migration and detach read
+C2MapMoveableAccess.cpp,254,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,254,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,268,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2MapMoveableAccess.cpp,269,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2MapMoveableAccess.cpp,270,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,271,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,272,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2MapMoveableAccess.cpp,273,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,274,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,275,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,277,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,278,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,279,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2MapMoveableAccess.cpp,288,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,309,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,311,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,312,moveable,4,NC2Layout::MapMoveableOffset::MoveableId,Init stores slot ID; micro-cell list insertion reads
+C2MapMoveableAccess.cpp,313,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,314,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MapMoveableAccess.cpp,315,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,330,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,331,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,333,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,339,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2MapMoveableAccess.cpp,349,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,351,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,353,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,361,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,364,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2MapMoveableAccess.cpp,372,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,372,moveable,0x38,NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag,Midpoint relocation done; prediction and render interpolation
+C2MapMoveableAccess.cpp,374,moveable,0x30,NC2Layout::MapMoveableOffset::WalkingDirection,Next step direction and predicted position
+C2MapMoveableAccess.cpp,382,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,390,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,399,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2MapMoveableAccess.cpp,408,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MapMoveableAccess.cpp,428,moveable,4,NC2Layout::MapMoveableOffset::MoveableId,Init stores slot ID; micro-cell list insertion reads
+C2MapMoveableAccess.cpp,431,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,440,moveable,4,NC2Layout::MapMoveableOffset::MoveableId,Init stores slot ID; micro-cell list insertion reads
+C2MapMoveableAccess.cpp,443,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,449,previous,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,452,previous,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,452,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2MapMoveableAccess.cpp,461,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MapMoveableAccess.cpp,464,moveable,0x18,NC2Layout::MapMoveableOffset::SectorPosition,SSectorGridCursor saved on sector attachment; migration and detach read
+C2MapMoveableAccess.cpp,474,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2MapMoveableAccess.cpp,476,moveable,0x18,NC2Layout::MapMoveableOffset::SectorPosition,SSectorGridCursor saved on sector attachment; migration and detach read
+C2MapMoveableAccess.cpp,633,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2MapMoveableAccess.cpp,633,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,634,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,636,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,637,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,638,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2MapMoveableAccess.cpp,645,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2MapMoveableAccess.cpp,646,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,647,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,648,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2MapMoveableAccess.cpp,649,moveable,0x3C,NC2Layout::MapMoveableOffset::TurningElapsedTicks,Turn increments elapsed ticks and resets on directional step
+C2MapMoveableAccess.cpp,650,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,650,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2MapMoveableAccess.cpp,650,moveable,0x50,NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag,Passed to NextDirection includeVertical by turn and rendering paths
+C2MapMoveableAccess.cpp,651,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2MapMoveableAccess.cpp,652,moveable,0x40,NC2Layout::MapMoveableOffset::TurnTargetDirection,StartTurn and directional-step target comparison
+C2MapMoveableAccess.cpp,653,moveable,0x39,NC2Layout::MapMoveableOffset::TurningFlag,StartTurn sets; completed turn clears
+C2HumanJobAccess.cpp,848,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanInitialization.cpp,84,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanInitialization.cpp,181,moveable,0,NC2Layout::MapMoveableOffset::AllocatedFlag,MapMoveable_Init/Exit and array allocation scans
+C2HumanInitialization.cpp,182,moveable,0x54,NC2Layout::MapMoveableOffset::ObjectId,Owned human/animal/vehicle/marker index
+C2HumanInitialization.cpp,183,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HumanInitialization.cpp,387,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanInitialization.cpp,493,moveable,0x28,NC2Layout::MapMoveableOffset::PathfinderId,Owned pathfinder allocated/freed and used for walking
+C2HumanInitialization.cpp,494,moveable,0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2HumanInitialization.cpp,495,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2HumanInitialization.cpp,496,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2HumanInitialization.cpp,498,moveable,0x50,NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag,Passed to NextDirection includeVertical by turn and rendering paths
+C2HumanInitialization.cpp,660,Moveable(moveableId),0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2DefaultInteraction.cpp,88,Moveable(human),0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2DefaultInteraction.cpp,100,Moveable(other),0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2DefaultInteraction.cpp,108,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2DefaultInteraction.cpp,349,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2DefaultInteraction.cpp,353,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2HumanTaskAccess.cpp,429,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanTaskAccess.cpp,445,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2HumanTaskAccess.cpp,452,other,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HumanTaskAccess.cpp,452,other,0x54,NC2Layout::MapMoveableOffset::ObjectId,Owned human/animal/vehicle/marker index
+C2HumanTaskAccess.cpp,653,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanGoodieTasks.cpp,240,Moveable(human),0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2HumanGoodieTasks.cpp,255,Moveable(human),0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2HumanNeeds.cpp,723,"gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable",0x0C,NC2Layout::MapMoveableOffset::RemovalRequestedFlag,Creature condition updates request removal; array tick frees after update
+C2HumanWalking.cpp,50,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2HumanWalking.cpp,142,moveable,0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2HumanWalking.cpp,143,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2HumanWalking.cpp,144,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2HumanWalking.cpp,274,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HumanWalking.cpp,360,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanWalking.cpp,360,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2VehicleLifecycle.cpp,55,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2VehicleLifecycle.cpp,58,moveable,0x14,NC2Layout::MapMoveableOffset::MapPositionY,High signed word of packed map point
+C2VehicleLifecycle.cpp,192,moveable,0x28,NC2Layout::MapMoveableOffset::PathfinderId,Owned pathfinder allocated/freed and used for walking
+C2VehicleLifecycle.cpp,193,moveable,0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2VehicleLifecycle.cpp,194,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2VehicleLifecycle.cpp,195,moveable,0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2VehicleLifecycle.cpp,198,moveable,0x50,NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag,Passed to NextDirection includeVertical by turn and rendering paths
+C2VehicleLifecycle.cpp,269,Moveable(vehicle),0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2VehicleLifecycle.cpp,333,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2VehicleLifecycle.cpp,371,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2VehicleLifecycle.cpp,564,Moveable(vehicle),0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2VehicleSimulation.cpp,73,Moveable(vehicle),0x0C,NC2Layout::MapMoveableOffset::RemovalRequestedFlag,Creature condition updates request removal; array tick frees after update
+C2VehicleSimulation.cpp,91,Moveable(vehicle),0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2VehicleSimulation.cpp,112,Moveable(vehicle),0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2VehicleSimulation.cpp,113,Moveable(vehicle),0x4C,NC2Layout::MapMoveableOffset::TurningTicksPerDirection,Turn waiting threshold; zero means immediate direction update
+C2VehicleSimulation.cpp,114,Moveable(vehicle),0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2VehicleSimulation.cpp,647,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2EngineSelectionAccess.cpp,137,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+InGameGuiSelectionAccess.cpp,345,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+InGameGuiSelectionAccess.cpp,1200,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HouseLifecycle.cpp,162,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HouseLifecycle.cpp,169,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2HouseLifecycle.cpp,198,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HouseLifecycle.cpp,199,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2HumanLandscapeSearch.cpp,126,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2HumanMapCollection.cpp,141,gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2HumanSocialJobs.cpp,30,gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2AnimalTasks.cpp,153,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2AnimalTasks.cpp,288,Moveable(animal),0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2AnimalTasks.cpp,289,Moveable(animal),0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2AnimalTasks.cpp,314,moveable,0x24,NC2Layout::MapMoveableOffset::NextCellMoveableId,Micro-cell intrusive list head insertion and traversal
+C2AnimalTasks.cpp,470,moveable,0x12,NC2Layout::MapMoveableOffset::MapPosition,Packed map point and position accessors
+C2AnimalTasks.cpp,471,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2AnimalTasks.cpp,471,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2AnimalTasks.cpp,480,Moveable(animal),0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2AnimalTasks.cpp,492,Moveable(animal),0x44,NC2Layout::MapMoveableOffset::WalkingTicksPerStep,Speed updates store step duration; animation frame lookup uses it
+C2AnimalTasks.cpp,493,Moveable(animal),0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2AnimalTasks.cpp,512,Moveable(animal),12,NC2Layout::MapMoveableOffset::RemovalRequestedFlag,Creature condition updates request removal; array tick frees after update
+C2AnimalTasks.cpp,617,Moveable(animal),0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanAttackTasks.cpp,47,Moveable(id),8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HumanAttackTasks.cpp,48,Moveable(id),0x54,NC2Layout::MapMoveableOffset::ObjectId,Owned human/animal/vehicle/marker index
+C2VehicleAnimalPassengers.cpp,77,"gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable",12,NC2Layout::MapMoveableOffset::RemovalRequestedFlag,Creature condition updates request removal; array tick frees after update
+C2WeaponHits.cpp,145,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2WeaponHits.cpp,145,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2WeaponHits.cpp,148,moveable,0x14,NC2Layout::MapMoveableOffset::MapPositionY,High signed word of packed map point
+C2DelayedActionManager.cpp,141,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"
+C2HumanWeaponEvents.cpp,122,moveable,0x2C,NC2Layout::MapMoveableOffset::WalkingFlag,Step start/completion and pathfinder-stop predicates
+C2HumanWeaponEvents.cpp,124,moveable,0x10,NC2Layout::MapMoveableOffset::AttachedToMapFlag,Map attach/detach and tick/drawing predicates
+C2HumanWeaponEvents.cpp,124,moveable,0x20,NC2Layout::MapMoveableOffset::Direction,"Init, walking and turn updates"
+C2HumanWeaponEvents.cpp,125,moveable,0x48,NC2Layout::MapMoveableOffset::WalkingProgressPerTick,Speed updates compute progress added each tick
+C2HumanWeaponEvents.cpp,125,moveable,0x34,NC2Layout::MapMoveableOffset::WalkingProgress,"Per-tick progress, midpoint relocation at 5000 and completion at 10000"
+C2AnimalMilitaryTasks.cpp,144,moveable,8,NC2Layout::MapMoveableOffset::ObjectType,"Tick dispatch, position references and sector attachment"

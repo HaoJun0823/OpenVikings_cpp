@@ -237,7 +237,7 @@ namespace NC2Logic
     bool Human_HouseMisc_Leave(void* human)
     {
         if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag) == 0) return false;
-        Write<std::uint32_t>(Moveable(human), 0x20, 2);
+        Write<std::uint32_t>(Moveable(human), NC2Layout::MapMoveableOffset::Direction, 2);
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag, 0);
         return true;
     }
@@ -252,7 +252,7 @@ namespace NC2Logic
             Write<std::uint8_t>(human, 0xA61, 1);
             Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 1);
             Human_AI_DoUpdateTaskMachine(human);
-            Write<std::uint32_t>(Moveable(human), 0x20, 2);
+            Write<std::uint32_t>(Moveable(human), NC2Layout::MapMoveableOffset::Direction, 2);
         }
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag, 0);
     }

@@ -426,7 +426,7 @@ namespace NC2Logic
         void* moveable = Moveable(human);
         const auto idleCount = Read<std::uint32_t>(human, 0x37C) + 1u;
         Write(human, 0x37C, idleCount);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) Human_StopCurrentGoodCirculationMode(human);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
@@ -442,14 +442,14 @@ namespace NC2Logic
                     return;
                 }
                 const auto occupant = Read<std::int16_t>(micro, 0x0A);
-                if (occupant != Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) || Read<std::int32_t>(moveable, 0x24) != -1)
+                if (occupant != Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) || Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) != -1)
                 {
                     CMapMoveableIterator iterator;
                     for (auto id = iterator.GetFirstMapMoveableId(Position(human)); id != -1; id = iterator.GetNextMapMoveableId())
                     {
                         if (id == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId)) continue;
                         const auto* other = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                        if (Read<std::uint32_t>(other, 8) == 1 && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(other, 0x54) * CHumanArray::ElementSize, NC2Layout::HumanOffset::CurrentTask) == 23) continue;
+                        if (Read<std::uint32_t>(other, NC2Layout::MapMoveableOffset::ObjectType) == 1 && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(other, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize, NC2Layout::HumanOffset::CurrentTask) == 23) continue;
                         Human_DoAddNewUserCommand(human, 5, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), 0, 0, 0, 0);
                         Human_DoExecuteNextUserCommand(human);
                         Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 1);
@@ -650,7 +650,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, target == 1 ? 1 : target == 2 ? 3 : target == 3 || target == 4 ? 7 : target == 7 ? 6 : 0);
         }
         void* moveable = Moveable(human);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0 && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 0x0C) & NXBasics::BitMask::Bit7) != 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Position(human)), 0x0C) & NXBasics::BitMask::Bit7) != 0)
         {
             Human_CurrentTask_DoInterrupt(human);
             Human_l_StartTask_GoAway(human, 0, 0);

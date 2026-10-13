@@ -159,14 +159,14 @@ namespace NC2Logic
         while (id != -1)
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            const auto type = Read<std::uint32_t>(moveable, 8);
+            const auto type = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType);
             if (type == 1) Human_HouseMisc_Exit(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize);
             else if (type == 2)
             {
                 Animal_HouseMisc_Exit(CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CAnimalArray::ElementSize);
             }
             else if (type != 3 && type != 4) C2Debug_WarningBox("unknown map moveable type on house\xB4s door point!");
-            id = Read<std::int32_t>(moveable, 0x24);
+            id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
         }
         if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 1)
         {
@@ -195,8 +195,8 @@ namespace NC2Logic
         while (id != -1)
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint32_t>(moveable, 8) == 1) Human_HouseMisc_Exit(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize);
-            id = Read<std::int32_t>(moveable, 0x24);
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1) Human_HouseMisc_Exit(CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CHumanArray::ElementSize);
+            id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
         }
         if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::MappedFlag) != 0)
         {

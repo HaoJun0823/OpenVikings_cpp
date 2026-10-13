@@ -134,7 +134,7 @@ namespace NC2E2
                 {
                     const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable;
                     DrawAtom_MapMoveable_GetBobData(moveableId, display, &bobs, player);
-                    auto objectType = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId), objectPoint = point;
+                    auto objectType = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType), id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId), objectPoint = point;
                     const void* object = nullptr;
                     auto objectMoveable = static_cast<std::uint32_t>(moveableId);
                     const bool marker = objectType == 4;

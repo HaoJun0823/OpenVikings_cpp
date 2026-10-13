@@ -27,7 +27,7 @@ namespace NC2Logic
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
             const auto moveable = Read<std::int16_t>(micro, 10);
-            return moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, 0x24) == -1;
+            return moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) == -1;
         }
         void TargetHuman(void* human, const void* other)
         {

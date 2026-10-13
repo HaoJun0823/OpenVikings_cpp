@@ -48,11 +48,11 @@ namespace NC2Logic
                 if (moveableId != -1)
                 {
                     const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint8_t>(moveable, 0x39) != 0) ++count.turning;
-                    if (Read<std::uint8_t>(moveable, 0x10) != 0)
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) != 0) ++count.turning;
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
                     {
                         ++count.attached;
-                        if (player < 16u && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(moveable + 0x12), 8) & (1u << player)) != 0) ++count.explored;
+                        if (player < 16u && (Read<std::uint16_t>(GameMap_GetConstMapMicroPointPtr(moveable + NC2Layout::MapMoveableOffset::MapPosition), 8) & (1u << player)) != 0) ++count.explored;
                     }
                 }
                 if (NC2E2::gDynamicDataHumans.entries != nullptr)

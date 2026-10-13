@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -76,12 +77,12 @@ namespace NC2E2
 
         std::uint32_t DrawingDirection(const void* moveable)
         {
-            return Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
+            return Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u;
         }
 
         const SE2StaticDataMapMoveableWalkData* GetCachedWalk(const void* moveable, SE2DynamicDataMapMoveableData& dynamic, std::uint32_t tribe, std::uint32_t job, std::uint32_t good)
         {
-            const auto speed = Read<std::uint32_t>(moveable, 0x44);
+            const auto speed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep);
             if (dynamic.walk != nullptr && dynamic.walkTribe == tribe && dynamic.walkJob == job && dynamic.walkGood == good && dynamic.walkSpeed == speed) return dynamic.walk;
             dynamic.walk = nullptr;
             auto lookupJob = job;
@@ -158,16 +159,16 @@ namespace NC2E2
         const std::byte* Vehicle(std::uint32_t id) { return NC2Logic::CVehicleArray::mStaticVars + id * NC2Logic::CVehicleArray::ElementSize; }
         void WalkingOffset(const void* moveable, const void* display, std::int32_t& x, std::int32_t& y, std::int32_t* brightness)
         {
-            if (display == nullptr || Read<std::uint8_t>(moveable, 0x2C) == 0 || Read<std::uint8_t>(moveable, 0x39) != 0) return;
-            auto direction = Read<std::uint32_t>(moveable, 0x30);
+            if (display == nullptr || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) == 0 || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) != 0) return;
+            auto direction = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection);
             if (direction >= 8u) return;
-            auto progress = Read<std::uint32_t>(moveable, 0x34);
-            if (Read<std::uint8_t>(moveable, 0x38) != 0)
+            auto progress = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress);
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) != 0)
             {
-                progress = 10000u - progress;
+                progress = NC2Runtime::WalkingProgress::FullStep - progress;
                 direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction);
             }
-            const auto startPoint = Read<std::uint32_t>(moveable, 0x12);
+            const auto startPoint = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
             auto targetPoint = startPoint;
             NC2Logic::MapMigPoint_MoveCursorUnwrapped(targetPoint, direction);
             std::int32_t start[2], target[2];
@@ -221,7 +222,7 @@ namespace NC2E2
         const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable;
         std::int32_t walkingX = 0, walkingY = 0, offsetX = 0, offsetY = 0;
         WalkingOffset(moveable, display, walkingX, walkingY, nullptr);
-        const auto type = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
+        const auto type = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType), id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
         void* dynamic = nullptr;
         if (type == 1)
         {
@@ -268,11 +269,11 @@ namespace NC2E2
         std::int32_t brightness = 128;
         if (display != nullptr)
         {
-            brightness = Display_DE_Hightlighting_GetMapBrightness(display, moveable + 0x12);
+            brightness = Display_DE_Hightlighting_GetMapBrightness(display, moveable + NC2Layout::MapMoveableOffset::MapPosition);
             WalkingOffset(moveable, display, x, y, &brightness);
             brightness = AddOffset(128, AddOffset(brightness, -128) / 2);
         }
-        const auto type = Read<std::uint32_t>(moveable, 8), objectId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
+        const auto type = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType), objectId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
         if (type == 4)
         {
             const auto* marker = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + objectId * 0x18u;
@@ -565,7 +566,7 @@ namespace NC2E2
         }
         const auto drawOverlays = [&](std::uint32_t count, const SE2StaticDataMapMoveableAnimationPart* const* parts)
         {
-            const auto* moveablePoint = static_cast<const std::byte*>(moveable) + 0x12;
+            const auto* moveablePoint = static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition;
             const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(moveablePoint);
             if (Read<std::uint8_t>(micro, 0) != 2) return;
             std::int32_t anchorX = 0, anchorY = 0;
@@ -659,7 +660,7 @@ namespace NC2E2
         auto& dynamic = *static_cast<SE2DynamicDataMapMoveableData*>(dynamicData);
         offsetX = 0; offsetY = 0;
         if (overrideAction) { inHouseRevision = NXBasics::IntegerRange::UInt32Maximum; atomicActive = true; action = 2; done = 0; total = 1; }
-        if (Read<std::uint8_t>(moveable, 0x39) != 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) != 0)
         {
             const auto* walk = GetCachedWalk(moveable, dynamic, tribe, job, good);
             if (walk == nullptr) return;
@@ -669,10 +670,10 @@ namespace NC2E2
                 SetFrame(dynamic, static_cast<std::uint32_t>(walk->bodySequence), static_cast<std::uint32_t>(walk->headSequence), walk->walkFrames[direction].frames[0]);
                 return;
             }
-            auto turnDone = Read<std::uint32_t>(moveable, 0x3C);
-            const auto turnTotal = Read<std::uint32_t>(moveable, 0x4C);
-            const auto target = Read<std::uint32_t>(moveable, 0x40);
-            const bool vertical = Read<std::uint8_t>(moveable, 0x50) != 0;
+            auto turnDone = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks);
+            const auto turnTotal = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection);
+            const auto target = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection);
+            const bool vertical = Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag) != 0;
             const auto nextDirection = NC2Logic::VE_HexagonDirection_NextDirection(direction, target, vertical);
             if (NC2Logic::VE_HexagonDirection_DirectionToTurn(direction, target, vertical) < 0)
             {
@@ -715,9 +716,9 @@ namespace NC2E2
         const auto partCount = animation->bodySequenceOrPartCount;
         const auto* parts = reinterpret_cast<const SE2StaticDataMapMoveableAnimationPart*>(static_cast<std::uintptr_t>(animation->headSequenceOrPartAddress));
         const auto percent = (done * 10000u) / total;
-        if (display != nullptr && Read<std::uint8_t>(moveable, 0x10) != 0)
+        if (display != nullptr && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
-            const auto* point = static_cast<const std::byte*>(moveable) + 0x12;
+            const auto* point = static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition;
             const auto* micro = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
             if (Read<std::uint8_t>(micro, 0) == 2 && (Read<std::uint8_t>(micro, 2) & 2u) != 0)
             {
@@ -750,7 +751,7 @@ namespace NC2E2
                 const SE2StaticDataMapMoveableWalkData* walk;
                 while (true)
                 {
-                    walk = StaticMapMoveables_GetWalkDataPtr(gE2StaticDataMapMoveablesManager, tribe, lookupJob, static_cast<std::uint32_t>(part.parameter10), Read<std::uint32_t>(moveable, 0x44));
+                    walk = StaticMapMoveables_GetWalkDataPtr(gE2StaticDataMapMoveablesManager, tribe, lookupJob, static_cast<std::uint32_t>(part.parameter10), Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep));
                     if (walk != nullptr) break;
                     lookupJob = ParentJob(lookupJob);
                     if (lookupJob == 0) break;

@@ -845,7 +845,7 @@ namespace NC2Logic
         if ((currentJob >= 31 && currentJob <= 47) || (signedJob >= 31 && signedJob <= 47))
         {
             void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint8_t>(moveable, 0x10) != 0)
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
             {
                 const auto point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
                 MapMoveable_Attachment_DetachFromMap(moveable);

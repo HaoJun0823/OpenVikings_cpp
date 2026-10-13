@@ -653,7 +653,7 @@ namespace NC2E2
             for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
             {
                 const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint8_t>(moveable, 0) != 0 && Read<std::uint8_t>(moveable, 16) != 0 && inside(moveable + 18) && Read<std::uint32_t>(moveable, 8) == 1) increment(0x158);
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1) increment(0x158);
             }
             if (Read<std::uint32_t>(map, 0x158) != 0)
             {
@@ -662,7 +662,7 @@ namespace NC2E2
                 for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
                 {
                     const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint8_t>(moveable, 0) == 0 || Read<std::uint8_t>(moveable, 16) == 0 || !inside(moveable + 18) || Read<std::uint32_t>(moveable, 8) != 1) continue;
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || !inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) || Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                     const auto object = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * 3160u;
                     auto* entry = entryAt(0x158, index++, 16);
                     Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Human_GetMapPositionRef(object), 0) - microMinX));
@@ -674,7 +674,7 @@ namespace NC2E2
             for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
             {
                 const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint8_t>(moveable, 0) != 0 && Read<std::uint8_t>(moveable, 16) != 0 && inside(moveable + 18) && Read<std::uint32_t>(moveable, 8) == 2) increment(0x160);
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 && inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 2) increment(0x160);
             }
             if (Read<std::uint32_t>(map, 0x160) != 0)
             {
@@ -683,7 +683,7 @@ namespace NC2E2
                 for (std::int32_t id = 0; id < NC2Logic::gMapMoveableArrayStorage.manager->mCapacity; ++id)
                 {
                     const auto moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint8_t>(moveable, 0) == 0 || Read<std::uint8_t>(moveable, 16) == 0 || !inside(moveable + 18) || Read<std::uint32_t>(moveable, 8) != 2) continue;
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0 || !inside(moveable + NC2Layout::MapMoveableOffset::MapPosition) || Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 2) continue;
                     const auto object = NC2Logic::CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * 152u;
                     auto* entry = entryAt(0x160, index++, 16);
                     Write<std::uint16_t>(entry, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(NC2Logic::Animal_GetMapPositionRef(object), 0) - microMinX));

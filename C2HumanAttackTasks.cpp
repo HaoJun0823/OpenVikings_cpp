@@ -44,8 +44,8 @@ namespace NC2Logic
             CMapMoveableIterator iterator;
             for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
             {
-                if (id == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) || Read<std::uint32_t>(Moveable(id), 8) != 1) continue;
-                const auto* other = Human(Read<std::uint32_t>(Moveable(id), 0x54));
+                if (id == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) || Read<std::uint32_t>(Moveable(id), NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
+                const auto* other = Human(Read<std::uint32_t>(Moveable(id), NC2Layout::MapMoveableOffset::ObjectId));
                 if (soldiersOnly && !Human_IsJobSoldier(other) && !(includeHeroes && Human_IsJobHero(other))) continue;
                 if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) && Read<std::uint32_t>(other, NC2Layout::HumanOffset::AtomicAction) == 81) return true;
             }

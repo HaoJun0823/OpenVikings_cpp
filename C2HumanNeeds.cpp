@@ -720,7 +720,7 @@ namespace NC2Logic
                     ToUserMessage_FinishMessage(message);
                     Write<std::uint32_t>(message, 0x10, NXBasics::IntegerRange::UInt32Maximum);
                     NC2LogicExternals::External_Misc_SendToUserMessage(message);
-                    Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, 0x0C, 1);
+                    Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::RemovalRequestedFlag, 1);
                     CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 4, 0);
                     return;
                 }

@@ -74,7 +74,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalId) != animalId) return false;
         const auto* animal = CAnimalArray::mStaticVars + animalId * CAnimalArray::ElementSize;
         Write<std::uint8_t>(vehicle, NC2Layout::VehicleOffset::DraggingAnimalInsideFlag, 1);
-        Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, 12, 1);
+        Write<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::RemovalRequestedFlag, 1);
         const auto type = Vehicle_GetVehicleTypeDataPtr(vehicle)->transformVehicleType;
         Write(vehicle, NC2Layout::VehicleOffset::LogicType, type);
         Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType, type >= 1 && type <= 6 ? static_cast<std::uint32_t>(type) + 49u : 0u);

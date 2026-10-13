@@ -21,4 +21,18 @@ namespace NC2Runtime
         inline constexpr auto SlaughteredBits = 0xFFFE7960u;
     }
 
+    namespace WalkingProgress
+    {
+        inline constexpr auto RelocationThreshold = 5000u;
+        inline constexpr auto FullStep = 10000u;
+    }
+
+    namespace PathfinderDirectionResult
+    {
+        inline constexpr auto Deferred = -4;
+        inline constexpr auto Stopped = -3;
+        inline constexpr auto Arrived = -2;
+        inline constexpr auto Failed = -1;
+    }
+
 }

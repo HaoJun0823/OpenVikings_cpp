@@ -97,17 +97,17 @@ namespace NC2Logic
         if (moveableId == -1) return false;
         auto* moveable = Moveable(animal);
         MapMoveable_Attachment_AttachToMap(moveable, point);
-        const auto start = Read<std::uint32_t>(moveable, 0x12);
+        const auto start = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
         Write(animal, NC2Layout::AnimalOffset::BirthPoint, start);
         Write(animal, NC2Layout::AnimalOffset::StayPoint, start);
         Write(animal, NC2Layout::AnimalOffset::WorkCenter, start);
         Write(animal, NC2Layout::AnimalOffset::Hitpoints, Animal_HitPoints_GetMaximum(animal));
         Write(animal, NC2Layout::AnimalOffset::Food, Game_Random_GetNumber() % 400u);
         Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AgeCounter, 0);
-        auto* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, 0x28));
+        auto* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
         const auto speed = Type(animal).moveSpeed;
-        Write(moveable, 0x44, speed);
-        Write(moveable, 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
+        Write(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, speed);
+        Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
         Write(path, 0x2C, player);
         Write<std::int32_t>(path, 0x24, -1);
         Write<std::int32_t>(path, 0x1C, -1);
@@ -130,7 +130,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AllocatedFlag) == 0) return;
         const auto moveableId = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::MapMoveableId);
         auto size = static_cast<std::uint32_t>(Type(animal).maximumCadaverSize);
-        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && size != 0 && Read<std::uint8_t>(Moveable(animal), 0x10) != 0)
+        if (Read<std::uint8_t>(&gGameStaticVars, 0x1B0) == 0 && moveableId != -1 && size != 0 && Read<std::uint8_t>(Moveable(animal), NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             const auto* point = Animal_GetMapPositionRef(animal);
             if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::EnvironmentalFoodValue) == NC2Runtime::AnimalFoodValue::SlaughteredBits)
@@ -188,7 +188,7 @@ namespace NC2Logic
     // Original function: FUN_0042e9ae; no active animation is interruptible.
     bool Animal_l_IsAtomicInterruptable(const void* animal)
     {
-        if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction) == 1) return Read<std::uint8_t>(Moveable(animal), 0x2C) == 0;
+        if (Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAction) == 1) return Read<std::uint8_t>(Moveable(animal), NC2Layout::MapMoveableOffset::WalkingFlag) == 0;
         return Read<std::uint8_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationRunningFlag) == 0 || gStaticAtomicAnimationData[Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AtomicAnimationId)].interruptable != 0;
     }
 
@@ -341,7 +341,7 @@ namespace NC2Logic
     // Original function: FUN_0042e9fc; the native helper copies the position without allocation or attachment checks.
     bool Animal_GetMapPosition(const void* animal, void* point)
     {
-        Write(point, 0, Read<std::uint32_t>(Moveable(animal), 0x12));
+        Write(point, 0, Read<std::uint32_t>(Moveable(animal), NC2Layout::MapMoveableOffset::MapPosition));
         return true;
     }
 

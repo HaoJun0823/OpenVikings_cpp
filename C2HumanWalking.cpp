@@ -47,7 +47,7 @@ namespace NC2Logic
                 const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                 const auto state = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4);
                 if (state == 0 || state == 3) return false;
-                id = Read<std::int32_t>(moveable, 0x24);
+                id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
             }
             return true;
         }
@@ -139,9 +139,9 @@ namespace NC2Logic
     {
         void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         const auto duration = Human_WalkSpeed_GetMoveSpeed(human, resistance);
-        Write(moveable, 0x44, duration);
-        Write<std::uint32_t>(moveable, 0x4C, 1);
-        Write(moveable, 0x48, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(duration) + 9999u) / duration);
+        Write(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, duration);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection, 1);
+        Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(duration) + 9999u) / duration);
     }
 
     // Original function: FUN_0044057d.
@@ -271,7 +271,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
         {
             const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint32_t>(moveable, 8) != 2) continue;
+            if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 2) continue;
             void* animal = CAnimalArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * CAnimalArray::ElementSize;
             const auto tribe = Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType);
             const auto* data = static_cast<const SStaticAnimalTypeData*>(gStaticAnimalTypeData) + tribe - 8u;
@@ -357,7 +357,7 @@ namespace NC2Logic
         {
             const void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
             auto next = Read<std::uint32_t>(position, 0);
-            MapMigPoint_MoveCursorUnwrapped(next, Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u);
+            MapMigPoint_MoveCursorUnwrapped(next, Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0 ? Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) : 2u);
             std::uint32_t macroPoint = 0;
             MapMagPoint_ConstructFromMig(&macroPoint, position, false);
             const void* macro = GameMap_GetConstMapMacroPointPtr(Read<std::int16_t>(&macroPoint, 0), Read<std::int16_t>(&macroPoint, 2));

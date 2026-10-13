@@ -398,8 +398,8 @@ namespace NC2Logic
     void AIManager_Message_NoWayFound(void* manager, std::uint32_t moveable, const void* target)
     {
         const auto* entry = gMapMoveableArrayStorage.entries + moveable * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint32_t>(entry, 8) != 1) return;
-        const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0x54)));
+        if (Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectType) != 1) return;
+        const auto* human = GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectId)));
         if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, 0x10) * 4u)) AISinglePlayerHandler_Messages_NoWayFound(handler, Human_GetMapPositionRef(human), target);
     }
 
@@ -407,8 +407,8 @@ namespace NC2Logic
     void AIManager_Message_NoWayFoundToEnemy(void* manager, std::uint32_t moveable, const void* target)
     {
         const auto* entry = gMapMoveableArrayStorage.entries + moveable * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint32_t>(entry, 8) != 1) return;
-        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0x54))));
+        if (Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectType) != 1) return;
+        auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, NC2Layout::MapMoveableOffset::ObjectId))));
         if (auto* handler = Read<void*>(manager, Read<std::uint32_t>(human, 0x10) * 4u)) AISinglePlayerHandler_Messages_Human_NoWayFoundToEnemy(handler, human, target);
     }
 

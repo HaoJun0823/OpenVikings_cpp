@@ -342,7 +342,7 @@ namespace NC2InGameGuiInputManager
             {
                 const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable;
                 id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
-                switch (Read<std::uint32_t>(moveable, 8))
+                switch (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType))
                 {
                 case SwitchIds::MapMoveableType::Human: if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
                 case SwitchIds::MapMoveableType::Animal: if (Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == Player() || Read<std::uint32_t>(Animal(id), NC2Layout::AnimalOffset::PlayerId) == 20) action = 3; break;
@@ -1197,7 +1197,7 @@ namespace NC2InGameGuiInputManager
                 for (auto id = iterator.GetFirstMapMoveableId(point); id != -1 && count != 300; id = iterator.GetNextMapMoveableId())
                 {
                     const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint32_t>(moveable, 8) != 1) continue;
+                    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) != 1) continue;
                     const auto humanId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
                     const auto* human = Human(humanId);
                     const auto humanJob = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);

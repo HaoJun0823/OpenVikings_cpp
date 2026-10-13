@@ -1125,7 +1125,7 @@ namespace NC2Logic
                 for (auto id = moveables.GetFirstMapMoveableId(&point); id != -1; id = moveables.GetNextMapMoveableId())
                 {
                     void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint32_t>(moveable, 8) == 1) Write<std::uint8_t>(moveable, 0x0C, 1);
+                    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1) Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::RemovalRequestedFlag, 1);
                 }
             };
             mark();
@@ -1267,7 +1267,7 @@ namespace NC2Logic
             {
                 const void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                 const void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-                if (Read<std::uint8_t>(moveable, 0x2C) != 0 || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0) continue;
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0 || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0) continue;
                 ids[count++] = id; moved = true;
                 if (count == 20) break;
             }
@@ -1277,7 +1277,7 @@ namespace NC2Logic
             for (auto id = vehicles.GetFirstVehicleId(p[0], &origin, p[3]); id != -1; id = vehicles.GetNextVehicleId())
             {
                 const void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
-                if (Read<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, 0x2C) != 0) continue;
+                if (Read<std::uint8_t>(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0) continue;
                 ids[count++] = id; moved = true;
                 if (count == 20) break;
             }

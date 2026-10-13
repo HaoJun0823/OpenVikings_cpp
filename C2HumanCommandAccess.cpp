@@ -40,7 +40,7 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit5) != 0) return 0;
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint8_t>(moveable, 0x10) == 0) return 0;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return 0;
         const auto* target = GameMap_GetConstMapMicroPointPtr(point);
         const auto* source = GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
         if (Read<std::uint8_t>(target, 6) != Read<std::uint8_t>(source, 6)) return 0;
@@ -115,7 +115,7 @@ namespace NC2Logic
         if (animation.endDirection != -1)
         {
             void* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-            Write(moveable, 0x20, animation.endDirection);
+            Write(moveable, NC2Layout::MapMoveableOffset::Direction, animation.endDirection);
         }
         Human_l_ResetAtomic(human);
     }
@@ -261,7 +261,7 @@ namespace NC2Logic
                 for (auto id = iterator.GetFirstMapMoveableId(Human_GetMapPositionRef(human)); id != -1; id = iterator.GetNextMapMoveableId())
                 {
                     const void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-                    if (Read<std::uint32_t>(moveable, 8) == 1 && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))
+                    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType) == 1 && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))
                     {
                         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
                         return;
@@ -438,7 +438,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction) == 1)
         {
             const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
-            return Read<std::uint8_t>(moveable, 0x2C) == 0;
+            return Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) == 0;
         }
         if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag) == 0) return true;
         return Read<std::uint8_t>(gStaticAtomicAnimationData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationId) * 0x138u + 0x38u) != 0;

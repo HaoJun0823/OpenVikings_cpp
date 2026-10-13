@@ -138,7 +138,7 @@ namespace NC2Logic
         if (Human_IsAtTargetPoint(human))
         {
             const auto moveable = Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 10);
-            if (moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, 0x24) == -1) Start(human, 36, Human_Target_GetDirectionTo(human));
+            if (moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, NC2Layout::MapMoveableOffset::NextCellMoveableId) == -1) Start(human, 36, Human_Target_GetDirectionTo(human));
             else Human_l_StartTask_GoAway(human, 0, 0);
             return;
         }

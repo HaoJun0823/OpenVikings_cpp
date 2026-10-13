@@ -138,7 +138,7 @@ namespace NC2Logic
         {
             const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
             const auto object = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
-            switch (Read<std::uint32_t>(moveable, 8))
+            switch (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType))
             {
             case SwitchIds::MapMoveableType::Human:
                 if ((Read<std::uint32_t>(Human(object), NC2Layout::HumanOffset::PlayerId) == action->player && weapon.hitSelf == 0) || Human_Misc_IsHidden(Human(object))) break;

@@ -123,7 +123,7 @@ namespace NC2Logic
                 const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                 const auto type = Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4);
                 if (type == 0 || type == 3) return false;
-                id = Read<std::int32_t>(moveable, 0x24);
+                id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId);
             }
             const auto ways = Read<std::uint8_t>(micro, 7);
             if ((ways & NXBasics::BitMask::Low6Bits) == 0x3Fu) return false;

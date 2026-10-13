@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -56,7 +57,7 @@ namespace NC2Logic
     void MapMoveableArray_FreeMapMoveable(CArrayHandler* array, std::int32_t id)
     {
         void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-        if (Read<std::uint8_t>(moveable, 0) != 0 && array->Element_Free(id, true)) MapMoveable_Exit(moveable);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0 && array->Element_Free(id, true)) MapMoveable_Exit(moveable);
     }
 
     // Original function: FUN_0040BD33; deletion follows each individual tick.
@@ -66,9 +67,9 @@ namespace NC2Logic
         for (auto id = handler->mFirstScanIndex; id <= handler->mLastScanIndex; ++id)
         {
             void* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
-            if (Read<std::uint8_t>(moveable, 0) == 0) continue;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0) continue;
             MapMoveable_DoOneGameTick(moveable);
-            if (Read<std::uint8_t>(moveable, 0x0C) != 0) Logic_EntryPoint_FreeMapMoveable(static_cast<std::uint32_t>(id));
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::RemovalRequestedFlag) != 0) Logic_EntryPoint_FreeMapMoveable(static_cast<std::uint32_t>(id));
         }
     }
 
@@ -76,7 +77,7 @@ namespace NC2Logic
     void MapMoveable_DoOneGameTick(void* moveable)
     {
         const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
-        switch (Read<std::uint32_t>(moveable, 8))
+        switch (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType))
         {
         case SwitchIds::MapMoveableType::Human: MapMoveable_DoOneGameTick_Human(moveable, CHumanArray::mStaticVars + id * CHumanArray::ElementSize); return;
         case SwitchIds::MapMoveableType::Animal: MapMoveable_DoOneGameTick_Animal(moveable, CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize); return;
@@ -85,207 +86,207 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00439079; preserve its distinct native boundary.
-    void MapMoveable_DoOneGameTick_Human(void* moveable, void* creature)
+    void MapMoveable_DoOneGameTick_Human(void* moveable, void* human)
     {
-        Human_AI_DoUpdateConditions(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        Human_AI_DoUpdateConditions(human);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
-            if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
             const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId);
             if (id != -1)
             {
                 auto* pathfinder = GetUnsafePathfinderPtr(id);
-                if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0)
                 {
-                    Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48));
-                    if (Read<std::uint8_t>(moveable, 0x38) == 0 && Read<std::uint32_t>(moveable, 0x34) >= 5000u)
+                    Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgress, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick));
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) == 0 && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) >= NC2Runtime::WalkingProgress::RelocationThreshold)
                     {
-                        Write<std::uint8_t>(moveable, 0x38, 1);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag, 1);
                         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
                         auto point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
-                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection));
                         Write(moveable, NC2Layout::MapMoveableOffset::MapPosition, point);
                         MapMoveable_l_Attachment_AttachToGameMap(moveable);
                         const SSectorGridCursor sector(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition));
-                        const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                        const auto previous = Read<SSectorGridCursor>(moveable, NC2Layout::MapMoveableOffset::SectorPosition);
                         if (sector.x != previous.x || sector.y != previous.y)
                         {
                             MapMoveable_Attachment_DetachFromSectorMap(moveable);
                             MapMoveable_Attachment_AttachToSectorMap(moveable);
                         }
                     }
-                    if (Read<std::uint32_t>(moveable, 0x34) >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) >= NC2Runtime::WalkingProgress::FullStep) Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag, 0);
                     return;
                 }
                 auto direction = MapPathfinderElement_GetNextDirection(pathfinder);
-                if (direction == -4) return;
+                if (direction == NC2Runtime::PathfinderDirectionResult::Deferred) return;
                 if (direction >= 0)
                 {
-                    if (!Human_AI_DoNewMapPositionReached(creature, false))
+                    if (!Human_AI_DoNewMapPositionReached(human, false))
                     {
                         MapMoveable_Pathfinder_Stop(moveable);
                         direction = -3;
                     }
                     if (direction != -3)
                     {
-                        const auto turning = Read<std::uint32_t>(moveable, 0x4C);
-                        const auto speed = Read<std::uint32_t>(moveable, 0x48);
-                        Write<std::uint8_t>(moveable, 0x2C, 1);
-                        Write(moveable, 0x30, direction);
-                        Write(moveable, 0x34, speed);
-                        Write<std::uint8_t>(moveable, 0x38, 0);
-                        if (turning == 0) Write(moveable, 0x20, direction);
-                        else if (direction != Read<std::int32_t>(moveable, 0x20))
+                        const auto turning = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection);
+                        const auto speed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag, 1);
+                        Write(moveable, NC2Layout::MapMoveableOffset::WalkingDirection, direction);
+                        Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgress, speed);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag, 0);
+                        if (turning == 0) Write(moveable, NC2Layout::MapMoveableOffset::Direction, direction);
+                        else if (direction != Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::Direction))
                         {
-                            Write<std::uint8_t>(moveable, 0x39, 1);
-                            Write<std::uint32_t>(moveable, 0x3C, 0);
-                            Write(moveable, 0x40, direction);
+                            Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag, 1);
+                            Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks, 0);
+                            Write(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection, direction);
                         }
                     }
                 }
-                else if (direction == -2) Human_AI_DoNewMapPositionReached(creature, true);
-                else if (direction == -1) Human_AI_DoPathfinderFailed(creature);
-                else if (direction == -3) Human_AI_DoPathfinderStopped(creature);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Arrived) Human_AI_DoNewMapPositionReached(human, true);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Failed) Human_AI_DoPathfinderFailed(human);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Stopped) Human_AI_DoPathfinderStopped(human);
             }
         }
-        Human_AI_DoUpdateAI(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
-        GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(creature) + 0xB88);
+        Human_AI_DoUpdateAI(human);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
+        GameAssistantSingleHumanData_CommandHistory_Validate(static_cast<std::byte*>(human) + 0xB88);
     }
 
     // Original function: FUN_004391EB; preserve its distinct native boundary.
-    void MapMoveable_DoOneGameTick_Animal(void* moveable, void* creature)
+    void MapMoveable_DoOneGameTick_Animal(void* moveable, void* animal)
     {
-        Animal_DoUpdateConditions(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        Animal_DoUpdateConditions(animal);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
-            if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
             const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId);
             if (id != -1)
             {
                 auto* pathfinder = GetUnsafePathfinderPtr(id);
-                if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0)
                 {
-                    Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48));
-                    if (Read<std::uint8_t>(moveable, 0x38) == 0 && Read<std::uint32_t>(moveable, 0x34) >= 5000u)
+                    Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgress, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick));
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) == 0 && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) >= NC2Runtime::WalkingProgress::RelocationThreshold)
                     {
-                        Write<std::uint8_t>(moveable, 0x38, 1);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag, 1);
                         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
                         auto point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
-                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection));
                         Write(moveable, NC2Layout::MapMoveableOffset::MapPosition, point);
                         MapMoveable_l_Attachment_AttachToGameMap(moveable);
                         const SSectorGridCursor sector(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition));
-                        const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                        const auto previous = Read<SSectorGridCursor>(moveable, NC2Layout::MapMoveableOffset::SectorPosition);
                         if (sector.x != previous.x || sector.y != previous.y)
                         {
                             MapMoveable_Attachment_DetachFromSectorMap(moveable);
                             MapMoveable_Attachment_AttachToSectorMap(moveable);
                         }
                     }
-                    if (Read<std::uint32_t>(moveable, 0x34) >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) >= NC2Runtime::WalkingProgress::FullStep) Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag, 0);
                     return;
                 }
                 auto direction = MapPathfinderElement_GetNextDirection(pathfinder);
-                if (direction == -4) return;
+                if (direction == NC2Runtime::PathfinderDirectionResult::Deferred) return;
                 if (direction >= 0)
                 {
-                    if (!Animal_DoNewMapPositionReached(creature, false))
+                    if (!Animal_DoNewMapPositionReached(animal, false))
                     {
                         MapMoveable_Pathfinder_Stop(moveable);
                         direction = -3;
                     }
                     if (direction != -3)
                     {
-                        const auto turning = Read<std::uint32_t>(moveable, 0x4C);
-                        const auto speed = Read<std::uint32_t>(moveable, 0x48);
-                        Write<std::uint8_t>(moveable, 0x2C, 1);
-                        Write(moveable, 0x30, direction);
-                        Write(moveable, 0x34, speed);
-                        Write<std::uint8_t>(moveable, 0x38, 0);
-                        if (turning == 0) Write(moveable, 0x20, direction);
-                        else if (direction != Read<std::int32_t>(moveable, 0x20))
+                        const auto turning = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection);
+                        const auto speed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag, 1);
+                        Write(moveable, NC2Layout::MapMoveableOffset::WalkingDirection, direction);
+                        Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgress, speed);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag, 0);
+                        if (turning == 0) Write(moveable, NC2Layout::MapMoveableOffset::Direction, direction);
+                        else if (direction != Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::Direction))
                         {
-                            Write<std::uint8_t>(moveable, 0x39, 1);
-                            Write<std::uint32_t>(moveable, 0x3C, 0);
-                            Write(moveable, 0x40, direction);
+                            Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag, 1);
+                            Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks, 0);
+                            Write(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection, direction);
                         }
                     }
                 }
-                else if (direction == -2) Animal_DoNewMapPositionReached(creature, true);
-                else if (direction == -1) Animal_DoPathfinderFailed(creature);
-                else if (direction == -3) Animal_DoPathfinderStopped(creature);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Arrived) Animal_DoNewMapPositionReached(animal, true);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Failed) Animal_DoPathfinderFailed(animal);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Stopped) Animal_DoPathfinderStopped(animal);
             }
         }
-        Animal_DoUpdateAI(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x10), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
+        Animal_DoUpdateAI(animal);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
     }
 
     // Original function: FUN_00439352; preserve its distinct native boundary.
-    void MapMoveable_DoOneGameTick_Vehicle(void* moveable, void* creature)
+    void MapMoveable_DoOneGameTick_Vehicle(void* moveable, void* vehicle)
     {
-        Vehicle_DoUpdateConditions(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0)
+        Vehicle_DoUpdateConditions(vehicle);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
-            if (Read<std::uint8_t>(moveable, 0x39) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
+            if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) != 0 && !MapMoveable_Attachment_PerformTurn(moveable)) return;
             const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId);
             if (id != -1)
             {
                 auto* pathfinder = GetUnsafePathfinderPtr(id);
-                if (Read<std::uint8_t>(moveable, 0x2C) != 0)
+                if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0)
                 {
-                    Write(moveable, 0x34, Read<std::uint32_t>(moveable, 0x34) + Read<std::uint32_t>(moveable, 0x48));
-                    if (Read<std::uint8_t>(moveable, 0x38) == 0 && Read<std::uint32_t>(moveable, 0x34) >= 5000u)
+                    Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgress, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick));
+                    if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) == 0 && Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) >= NC2Runtime::WalkingProgress::RelocationThreshold)
                     {
-                        Write<std::uint8_t>(moveable, 0x38, 1);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag, 1);
                         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
                         auto point = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
-                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, 0x30));
+                        MapMigPoint_MoveCursorUnwrapped(point, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection));
                         Write(moveable, NC2Layout::MapMoveableOffset::MapPosition, point);
                         MapMoveable_l_Attachment_AttachToGameMap(moveable);
                         const SSectorGridCursor sector(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition));
-                        const auto previous = Read<SSectorGridCursor>(moveable, 0x18);
+                        const auto previous = Read<SSectorGridCursor>(moveable, NC2Layout::MapMoveableOffset::SectorPosition);
                         if (sector.x != previous.x || sector.y != previous.y)
                         {
                             MapMoveable_Attachment_DetachFromSectorMap(moveable);
                             MapMoveable_Attachment_AttachToSectorMap(moveable);
                         }
                     }
-                    if (Read<std::uint32_t>(moveable, 0x34) >= 10000u) Write<std::uint8_t>(moveable, 0x2C, 0);
+                    if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgress) >= NC2Runtime::WalkingProgress::FullStep) Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag, 0);
                     return;
                 }
                 auto direction = MapPathfinderElement_GetNextDirection(pathfinder);
-                if (direction == -4) return;
+                if (direction == NC2Runtime::PathfinderDirectionResult::Deferred) return;
                 if (direction >= 0)
                 {
-                    if (!Vehicle_DoNewMapPositionReached(creature, false))
+                    if (!Vehicle_DoNewMapPositionReached(vehicle, false))
                     {
                         MapMoveable_Pathfinder_Stop(moveable);
                         direction = -3;
                     }
                     if (direction != -3)
                     {
-                        const auto turning = Read<std::uint32_t>(moveable, 0x4C);
-                        const auto speed = Read<std::uint32_t>(moveable, 0x48);
-                        Write<std::uint8_t>(moveable, 0x2C, 1);
-                        Write(moveable, 0x30, direction);
-                        Write(moveable, 0x34, speed);
-                        Write<std::uint8_t>(moveable, 0x38, 0);
-                        if (turning == 0) Write(moveable, 0x20, direction);
-                        else if (direction != Read<std::int32_t>(moveable, 0x20))
+                        const auto turning = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection);
+                        const auto speed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag, 1);
+                        Write(moveable, NC2Layout::MapMoveableOffset::WalkingDirection, direction);
+                        Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgress, speed);
+                        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag, 0);
+                        if (turning == 0) Write(moveable, NC2Layout::MapMoveableOffset::Direction, direction);
+                        else if (direction != Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::Direction))
                         {
-                            Write<std::uint8_t>(moveable, 0x39, 1);
-                            Write<std::uint32_t>(moveable, 0x3C, 0);
-                            Write(moveable, 0x40, direction);
+                            Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag, 1);
+                            Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks, 0);
+                            Write(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection, direction);
                         }
                     }
                 }
-                else if (direction == -2) Vehicle_DoNewMapPositionReached(creature, true);
-                else if (direction == -1) Vehicle_DoPathfinderFailed(creature);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Arrived) Vehicle_DoNewMapPositionReached(vehicle, true);
+                else if (direction == NC2Runtime::PathfinderDirectionResult::Failed) Vehicle_DoPathfinderFailed(vehicle);
             }
         }
-        Vehicle_DoUpdateAI(creature);
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(creature, 0x1E0), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
+        Vehicle_DoUpdateAI(vehicle);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) Tool_Map_CheckUserInformationAboutEnemies(Read<std::uint32_t>(vehicle, 0x1E0), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
     }
 
     // Original function: FUN_0041cef8.
@@ -306,13 +307,13 @@ namespace NC2Logic
     // Original function: FUN_00438e09.
     bool MapMoveable_Init(void* moveable, std::int32_t id, std::uint32_t type, std::int32_t objectId)
     {
-        if (Read<std::uint8_t>(moveable, 0) != 0) return false;
-        std::memset(moveable, 0, 88);
-        Write<std::int32_t>(moveable, 0x24, -1);
-        Write<std::int32_t>(moveable, 4, id);
-        Write<std::uint8_t>(moveable, 0, 1);
-        Write<std::uint32_t>(moveable, 8, type);
-        Write<std::uint32_t>(moveable, 0x20, 2);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) != 0) return false;
+        std::memset(moveable, 0, NC2Layout::RecordSize::MapMoveableSigned);
+        Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId, -1);
+        Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::MoveableId, id);
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag, 1);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType, type);
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction, 2);
         const auto pathfinderId = MapPathfinderManager_AllocatePathfinder(static_cast<CArrayHandler*>(gMapPathfinderManager));
         Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId, pathfinderId);
         if (pathfinderId == -1)
@@ -327,16 +328,16 @@ namespace NC2Logic
     // Original function: FUN_00438e7d.
     void MapMoveable_Exit(void* moveable)
     {
-        if (Read<std::uint8_t>(moveable, 0) == 0) return;
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) MapMoveable_Attachment_DetachFromMap(moveable);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0) return;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) MapMoveable_Attachment_DetachFromMap(moveable);
         MapMoveable_l_Misc_FreeAllAllocatedData(moveable);
-        Write<std::uint8_t>(moveable, 0, 0);
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag, 0);
     }
 
     // Original function: FUN_00438e9c.
     void MapMoveable_l_Misc_FreeAllAllocatedData(void* moveable)
     {
-        if (Read<std::uint8_t>(moveable, 0) == 0) return;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AllocatedFlag) == 0) return;
         const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId);
         if (id == -1) return;
         MapPathfinderManager_FreePathfinder(static_cast<CArrayHandler*>(gMapPathfinderManager), id);
@@ -346,11 +347,11 @@ namespace NC2Logic
     // Original function: FUN_00438ebe. The source point is copied after detachment.
     void MapMoveable_Attachment_AttachToMap(void* moveable, const void* packedMigPoint)
     {
-        if (Read<std::uint8_t>(moveable, 0x10) != 0) MapMoveable_Attachment_DetachFromMap(moveable);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0) MapMoveable_Attachment_DetachFromMap(moveable);
         const auto point = Read<std::uint32_t>(packedMigPoint, 0);
-        Write<std::int32_t>(moveable, 0x24, -1);
+        Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId, -1);
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition, point);
-        Write<std::uint8_t>(moveable, 0x10, 1);
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag, 1);
         MapMoveable_l_Attachment_AttachToGameMap(moveable);
         MapMoveable_Attachment_AttachToSectorMap(moveable);
     }
@@ -358,10 +359,10 @@ namespace NC2Logic
     // Original function: FUN_00438eef.
     void MapMoveable_Attachment_DetachFromMap(void* moveable)
     {
-        if (Read<std::uint8_t>(moveable, 0x10) == 0) return;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) == 0) return;
         MapMoveable_l_Attachment_DetachFromGameMap(moveable);
         MapMoveable_Attachment_DetachFromSectorMap(moveable);
-        Write<std::uint8_t>(moveable, 0x10, 0);
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag, 0);
     }
 
     // Original function: FUN_00438F6A. An unrelocated walking object predicts its next point.
@@ -369,9 +370,9 @@ namespace NC2Logic
     {
         auto packed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition);
         Write(point, 0, packed);
-        if (Read<std::uint8_t>(moveable, 0x2C) != 0 && Read<std::uint8_t>(moveable, 0x38) == 0)
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0 && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingPositionAdvancedFlag) == 0)
         {
-            MapMigPoint_MoveCursorUnwrapped(packed, Read<std::uint32_t>(moveable, 0x30));
+            MapMigPoint_MoveCursorUnwrapped(packed, Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingDirection));
             Write(point, 0, packed);
         }
     }
@@ -379,7 +380,7 @@ namespace NC2Logic
     // Original function: FUN_00438F8C.
     bool MapMoveable_Pathfinder_Start(void* moveable, const void* destination, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides)
     {
-        if (Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0) return false;
         MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId)), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition, destination, radius, useResistance, useSectors, useGuides, false);
         return true;
     }
@@ -387,7 +388,7 @@ namespace NC2Logic
     // Original function: FUN_00438FC4.
     bool MapMoveable_Pathfinder_Start(void* moveable, std::int32_t targetId, std::int32_t distance, std::uint32_t radius, bool useResistance, bool useSectors, bool useGuides)
     {
-        if (Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0) return false;
         MapPathfinderElement_StartPathfinder(GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId)), static_cast<std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition, targetId, distance, radius, useResistance, useSectors, useGuides, false);
         return true;
     }
@@ -396,7 +397,7 @@ namespace NC2Logic
     bool MapMoveable_Pathfinder_Stop(void* moveable)
     {
         const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId);
-        if (id == -1 || Read<std::uint8_t>(moveable, 0x2C) != 0) return false;
+        if (id == -1 || Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::WalkingFlag) != 0) return false;
         MapPathfinderElement_StopPathfinder(GetUnsafePathfinderPtr(id));
         return true;
     }
@@ -405,7 +406,7 @@ namespace NC2Logic
     std::uint32_t MapMoveable_GetUniqueId(const void* moveable)
     {
         const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
-        switch (Read<std::uint32_t>(moveable, 8))
+        switch (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType))
         {
         case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId);
         case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, NC2Layout::AnimalOffset::UniqueId);
@@ -425,10 +426,10 @@ namespace NC2Logic
     void MapMoveable_l_Attachment_AttachToGameMap(void* moveable)
     {
         void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
-        const auto id = Read<std::uint32_t>(moveable, 4);
+        const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MoveableId);
         const auto previous = Read<std::int16_t>(point, 0x0A);
         Write<std::uint16_t>(point, 0x0A, static_cast<std::uint16_t>(id));
-        Write<std::int32_t>(moveable, 0x24, previous);
+        Write<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId, previous);
     }
 
     // Original function: FUN_004394ca. An absent micro-list entry is ignored.
@@ -437,19 +438,19 @@ namespace NC2Logic
         void* point = GameMap_GetMapMicroPointPtr(static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition);
         auto current = static_cast<std::int32_t>(Read<std::int16_t>(point, 0x0A));
         if (current == -1) return;
-        const auto id = Read<std::int32_t>(moveable, 4);
+        const auto id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::MoveableId);
         if (current == id)
         {
-            Write<std::uint16_t>(point, 0x0A, static_cast<std::uint16_t>(Read<std::uint32_t>(moveable, 0x24)));
+            Write<std::uint16_t>(point, 0x0A, static_cast<std::uint16_t>(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId)));
             return;
         }
         while (current != -1)
         {
             void* previous = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(current) * NC2Layout::RecordSize::MapMoveable;
-            current = Read<std::int32_t>(previous, 0x24);
+            current = Read<std::int32_t>(previous, NC2Layout::MapMoveableOffset::NextCellMoveableId);
             if (current == id)
             {
-                Write<std::int32_t>(previous, 0x24, Read<std::int32_t>(moveable, 0x24));
+                Write<std::int32_t>(previous, NC2Layout::MapMoveableOffset::NextCellMoveableId, Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::NextCellMoveableId));
                 return;
             }
         }
@@ -458,10 +459,10 @@ namespace NC2Logic
     // Original function: FUN_00439516. Type 4 has no sector-list attachment.
     void MapMoveable_Attachment_AttachToSectorMap(void* moveable)
     {
-        const auto type = Read<std::uint32_t>(moveable, 8);
+        const auto type = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType);
         if (type < 1u || type > 3u) return;
         const SSectorGridCursor sector(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition));
-        Write<SSectorGridCursor>(moveable, 0x18, sector);
+        Write<SSectorGridCursor>(moveable, NC2Layout::MapMoveableOffset::SectorPosition, sector);
         const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
         if (type == 1) Human_Sector_AttachHumanToSector(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, sector);
         else if (type == 2) Animal_Sector_AttachAnimalToSector(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, sector);
@@ -471,9 +472,9 @@ namespace NC2Logic
     // Original function: FUN_004395c3. Detachment uses the stored sector coordinates.
     void MapMoveable_Attachment_DetachFromSectorMap(void* moveable)
     {
-        const auto type = Read<std::uint32_t>(moveable, 8);
+        const auto type = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectType);
         if (type < 1u || type > 3u) return;
-        const auto sector = Read<SSectorGridCursor>(moveable, 0x18);
+        const auto sector = Read<SSectorGridCursor>(moveable, NC2Layout::MapMoveableOffset::SectorPosition);
         const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
         if (type == 1) Human_Sector_DetachHumanFromSector(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, sector);
         else if (type == 2) Animal_Sector_DetachAnimalFromSector(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, sector);
@@ -630,27 +631,27 @@ namespace NC2Logic
     // Original function: FUN_00438f0a.
     void MapMoveable_Attachment_StartTurn(void* moveable, std::int32_t direction)
     {
-        if (Read<std::uint32_t>(moveable, 0x4C) == 0) Write(moveable, 0x20, direction);
-        else if (Read<std::int32_t>(moveable, 0x20) != direction)
+        if (Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection) == 0) Write(moveable, NC2Layout::MapMoveableOffset::Direction, direction);
+        else if (Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::Direction) != direction)
         {
-            Write<std::uint32_t>(moveable, 0x3C, 0);
-            Write<std::uint8_t>(moveable, 0x39, 1);
-            Write(moveable, 0x40, direction);
+            Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks, 0);
+            Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag, 1);
+            Write(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection, direction);
         }
     }
 
     // Original function: FUN_00438f2c; Mac Attachment_PerformTurn.
     bool MapMoveable_Attachment_PerformTurn(void* moveable)
     {
-        if (Read<std::uint8_t>(moveable, 0x39) == 0) return true;
-        const auto elapsed = Read<std::uint32_t>(moveable, 0x3C) + 1u;
-        Write(moveable, 0x3C, elapsed);
-        if (NXBasics::Runtime_TimeSigned32(elapsed) < Read<std::int32_t>(moveable, 0x4C)) return false;
-        Write<std::uint32_t>(moveable, 0x3C, 0);
-        const auto direction = VE_HexagonDirection_NextDirection(Read<std::uint32_t>(moveable, 0x20), Read<std::uint32_t>(moveable, 0x40), Read<std::uint8_t>(moveable, 0x50) != 0);
-        Write(moveable, 0x20, direction);
-        if (direction != Read<std::uint32_t>(moveable, 0x40)) return false;
-        Write<std::uint8_t>(moveable, 0x39, 0);
+        if (Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag) == 0) return true;
+        const auto elapsed = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks) + 1u;
+        Write(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks, elapsed);
+        if (NXBasics::Runtime_TimeSigned32(elapsed) < Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection)) return false;
+        Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningElapsedTicks, 0);
+        const auto direction = VE_HexagonDirection_NextDirection(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::Direction), Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection), Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag) != 0);
+        Write(moveable, NC2Layout::MapMoveableOffset::Direction, direction);
+        if (direction != Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurnTargetDirection)) return false;
+        Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::TurningFlag, 0);
         return true;
     }
 }
