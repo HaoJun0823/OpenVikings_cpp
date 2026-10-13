@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Construction-marker crash correction - 2026-10-13
+
+The road/wall sign-ID getters now use the Windows-confirmed +0x48/+0x4C color-record fields instead of the RGB color and palette patch ID. Three relevant units pass Win32 `/Zs`; 229 native instruction byte sequences verify the constructor/getters/renderer evidence. No build, tests or runtime run occurred. Next validation is a fresh main-menu world preview and road/wall construction-marker rendering. See [GUIDE_AND_CONSTRUCTION_MARKERS.md](GUIDE_AND_CONSTRUCTION_MARKERS.md).
+
 ## Pathfinder layout review - 2026-10-13
 
 Named 240 ordinary/sector pathfinder accesses across nine units, with separate 132-/96-byte records. Policy flags, run records, search states, calculation masks and player statistics now have Windows-supported names. Original special count-read ordering is retained. Syntax/value/type/layout and native-byte checks pass; no runtime verification occurred. See [PATHFINDER_LAYOUT_REVIEW.md](PATHFINDER_LAYOUT_REVIEW.md) and its four inventories. The full-source review remains ongoing.

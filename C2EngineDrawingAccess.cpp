@@ -443,7 +443,8 @@ namespace NC2E2
         const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0);
+        // Windows 0048B5F4 reads 00568630, color record +0x48, not its RGB value.
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId);
     }
     // Original function: FUN_0048b5fb.
     std::int32_t StaticHumanMisc_WallBuildSign_GetLandscapeId(std::int32_t playerId)
@@ -453,6 +454,7 @@ namespace NC2E2
         const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
-        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 4);
+        // Windows 0048B62E reads 00568634, color record +0x4C, not its palette patch.
+        return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, NC2Layout::StaticHumanColorOffset::WallBuildSignLandscapeId);
     }
 }

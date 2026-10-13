@@ -1,5 +1,24 @@
 # Guideposts, construction markers and repair sound - 2026-10-10
 
+## Construction-marker crash correction - 2026-10-13
+
+The user-reported access violation in `EngineGraphic_DrawData` occurs on the construction-marker call path. Both sign-ID getters had incorrect offsets: the road getter read the four-byte RGB color at record +0, and the wall getter read the random-palette patch ID at +4. Treating the RGB value as a landscape ID produces an out-of-range record address before the renderer reads its frame-group count at +0x84. The wall lookup could also select an unrelated landscape. This is a reconstruction error, not an original Windows defect.
+
+Windows `0048B5F4` reads `[color * 0x58 + 00568630]`; `0048B62E` reads `[color * 0x58 + 00568634]`. The color-record region begins at `005685E8`, so the correct relative offsets are +0x48 and +0x4C. The constructor independently stores the road ID at `0048AE8A` (`[esi+0x48]`) and the wall ID at `0048AEAE` (`[esi+0x4C]`), after resolving `player%2.2d marker road/wall`. The two getters and those constructor stores now share named `StaticHumanColorOffset` constants. Player activity checks, color fallback, missing-ID handling and renderer behavior are unchanged.
+
+The complete ten-record region `005685E8..00568957` has 0x58-byte records. Constructor writes and neighboring Windows getters establish its fields:
+
+| Relative offset | Stored value |
+| --- | --- |
+| +0x00 | Four-byte player color |
+| +0x04 / +0x08 | Male/female random-palette patch IDs |
+| +0x0C..+0x30 | Ten residence, work, construction and external-work landscape IDs |
+| +0x34..+0x44 | Five soldier-sign landscape IDs |
+| +0x48 / +0x4C | Road/wall construction-marker landscape IDs |
+| +0x50 / +0x54 | Human/ship palette IDs |
+
+Windows ASM and the original Game.exe confirm both corrections; the Mac header confirms the existing function names only. Native checks verify 229 instruction byte sequences across the constructor, both getters and the graphic-ID renderer entry. All three changed/integrating C++ units pass MSVC Win32 `/Zs` without diagnostics; `git diff --check` passes. No build, tests or game run occurred. Runtime confirmation of the reported preview path remains pending.
+
 Windows assembly and the reference Windows Game.exe establish behavior, constants, fields and call order. Mac headers supply corresponding names only. Current sources and the preceding house-drawing commit were inspected before changing the field integration.
 
 ## Connected guidepost tree

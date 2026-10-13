@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Construction-marker crash correction - 2026-10-13
+
+Corrected the road/wall construction-sign getters to read player-color record +0x48/+0x4C, as independently confirmed by Windows getters and constructor stores. The road path previously passed an RGB color as a landscape ID into `EngineGraphic_DrawData`; the wall path read a palette patch ID. Loader and getters now share named offsets. See [GUIDE_AND_CONSTRUCTION_MARKERS.md](GUIDE_AND_CONSTRUCTION_MARKERS.md). Native verification covers 229 instruction byte sequences; all three relevant units pass Win32 `/Zs`. No build, tests or runtime run occurred; preview confirmation remains pending.
+
 ## Pathfinder layout review - 2026-10-13
 
 Named 240 ordinary/sector pathfinder accesses across nine units, with separate 132-/96-byte records. Policy flags, run records, search states, calculation masks and player statistics now have Windows-supported names. Original special count-read ordering is retained. Syntax/value/type/layout and native-byte checks pass; no runtime verification occurred. See [PATHFINDER_LAYOUT_REVIEW.md](PATHFINDER_LAYOUT_REVIEW.md) and its four inventories. The full-source review remains ongoing.

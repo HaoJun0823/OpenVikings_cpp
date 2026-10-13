@@ -343,9 +343,9 @@ namespace NC2E2
                 Write(record, 0x34 + soldier * 4u, E2StaticDataLandscapesManager_GetLandscapeId(name));
             }
             NXBasics::Runtime_PrintString(name, "player%2.2d marker road", static_cast<int>(color + 1u));
-            Write(record, 0x48, E2StaticDataLandscapesManager_GetLandscapeId(name));
+            Write(record, NC2Layout::StaticHumanColorOffset::RoadBuildSignLandscapeId, E2StaticDataLandscapesManager_GetLandscapeId(name));
             NXBasics::Runtime_PrintString(name, "player%2.2d marker wall", static_cast<int>(color + 1u));
-            Write(record, 0x4C, E2StaticDataLandscapesManager_GetLandscapeId(name));
+            Write(record, NC2Layout::StaticHumanColorOffset::WallBuildSignLandscapeId, E2StaticDataLandscapesManager_GetLandscapeId(name));
             NXBasics::Runtime_PrintString(name, "human_player%2.2d", static_cast<int>(color + 1u));
             Write(record, 0x50, E2StaticDataPalettesManager_GetPalette256Id(name));
             NXBasics::Runtime_PrintString(name, "human_ship%2.2d", static_cast<int>(color + 1u));

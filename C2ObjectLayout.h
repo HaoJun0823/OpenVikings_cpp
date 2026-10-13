@@ -62,6 +62,12 @@ namespace NC2Layout
         inline constexpr auto Font = 0x924;
     }
 
+    namespace StaticHumanColorOffset
+    {
+        inline constexpr auto RoadBuildSignLandscapeId = 0x48;
+        inline constexpr auto WallBuildSignLandscapeId = 0x4C;
+    }
+
     namespace GameControlOffset
     {
         inline constexpr auto DifficultyLevel = 0x5D200;
