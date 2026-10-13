@@ -796,8 +796,175 @@ namespace NC2Layout
         inline constexpr auto E2ParticelManager = 0x2F7F80;
     }
 
+
+    // Windows particle records and pool storage; offsets are relative to the indicated record.
+    namespace ParticleOffset
+    {
+        inline constexpr auto SpeedMapX = 0x98;
+        inline constexpr auto SpeedHeight = 0xA0;
+        inline constexpr auto SpeedMapY = 0xA8;
+        inline constexpr auto MovementMode = 0x90;
+        inline constexpr auto UseWind = 0xF8;
+        inline constexpr auto RemainingLifetimeTicks = 0x14;
+        inline constexpr auto Active = 4;
+        inline constexpr auto PendingMovementTicks = 0x110;
+        inline constexpr auto ValencyIsDirection = 0x18;
+        inline constexpr auto StaticParticleId = 0x128;
+        inline constexpr auto FrameIndex = 0x124;
+        inline constexpr auto Valency = 0x11C;
+        inline constexpr auto Position = 0x28;
+        inline constexpr auto PositionMapY = 0x30;
+        inline constexpr auto UseMapHeights = 0x20;
+        inline constexpr auto CachedGroundHeight = 0x80;
+        inline constexpr auto PositionHeight = 0x38;
+        inline constexpr auto PositionPixelX = 0x40;
+        inline constexpr auto PositionPixelY = 0x48;
+        inline constexpr auto MapPoint = 0x78;
+        inline constexpr auto TargetPosition = 80;
+        inline constexpr auto TargetHeight = 0x60;
+        inline constexpr auto TargetPixelX = 0x68;
+        inline constexpr auto TargetPixelY = 0x70;
+        inline constexpr auto TargetMapY = 0x58;
+        inline constexpr auto VectorMapX = 0xB0;
+        inline constexpr auto VectorHeight = 0xB8;
+        inline constexpr auto VectorMapY = 0xC0;
+        inline constexpr auto ParabolaBaselineHeight = 0x108;
+        inline constexpr auto TotalLifetimeTicks = 0x10;
+        inline constexpr auto StepMapX = 0xC8;
+        inline constexpr auto StepHeight = 0xD0;
+        inline constexpr auto StepMapY = 0xD8;
+        inline constexpr auto StepPixelX = 0xE0;
+        inline constexpr auto StepPixelY = 0xE8;
+        inline constexpr auto MaximumValency = 0x120;
+        inline constexpr auto ValencyMode = 0x118;
+        inline constexpr auto KillOnGroundCollision = 0xF9;
+        inline constexpr auto FadingSpawn = 0x12D;
+        inline constexpr auto DrawBottom = 0x12C;
+        inline constexpr auto ParabolaHeight = 0x100;
+        inline constexpr auto InitialDirectionValency = 0x1C;
+        inline constexpr auto PlayerId = 0;
+        inline constexpr auto StoredWindParameter = 0xF0;
+        inline constexpr auto PreviousWorldPixelPoint = 136;
+    }
+
+    namespace ParticlePositionOffset
+    {
+        inline constexpr auto MapX = 0;
+        inline constexpr auto MapY = 8;
+        inline constexpr auto Height = 0x10;
+        inline constexpr auto PixelX = 0x18;
+        inline constexpr auto PixelY = 0x20;
+    }
+
+    namespace ParticleWindOffset
+    {
+        inline constexpr auto TicksSinceChange = 0x54;
+        inline constexpr auto AngleDegrees = 0x50;
+        inline constexpr auto Cosine = 0;
+        inline constexpr auto Sine = 8;
+        inline constexpr auto HorizontalSpeed = 0x48;
+        inline constexpr auto VerticalSpeed = 0x4C;
+        inline constexpr auto HorizontalScale = 0x18;
+        inline constexpr auto VerticalScale = 0x20;
+        inline constexpr auto DeltaMapX = 0x30;
+        inline constexpr auto DeltaMapY = 0x38;
+    }
+
+    namespace StaticParticleOffset
+    {
+        inline constexpr auto Graphics = 0x34;
+        inline constexpr auto AnimationLoops = 0x30;
+        inline constexpr auto MaximumValency = 0x38;
+        inline constexpr auto SpawnParticleId = 0x24;
+        inline constexpr auto ValencyIsDirection = 0x31;
+        inline constexpr auto HasSpawnParticle = 0x20;
+        inline constexpr auto BobManager = 0x28;
+        inline constexpr auto PaletteId = 0x2C;
+        inline constexpr auto SpecialType = 0x44;
+        inline constexpr auto BobType = 0x40;
+    }
+
+    namespace ParticleFramesOffset
+    {
+        inline constexpr auto FrameCount = 4;
+        inline constexpr auto FrameIds = 8;
+        inline constexpr auto MinimumValency = 0;
+    }
+
+    namespace ParticleGeneratorOffset
+    {
+        inline constexpr auto AreaWidth = 0x5C;
+        inline constexpr auto AreaHeight = 0x60;
+        inline constexpr auto UseRandomArea = 0x58;
+        inline constexpr auto ParticleId = 0x20;
+        inline constexpr auto MovementMode = 0x30;
+        inline constexpr auto SpeedMapX = 0x34;
+        inline constexpr auto SpeedHeight = 0x38;
+        inline constexpr auto SpeedMapY = 0x3C;
+        inline constexpr auto UseMapHeights = 0x40;
+        inline constexpr auto UseWind = 0x48;
+        inline constexpr auto StoredWindParameter = 0x50;
+        inline constexpr auto LifetimeTicks = 0x24;
+        inline constexpr auto MaximumGoneLifetime = 0x28;
+        inline constexpr auto ValencyMode = 0x2C;
+        inline constexpr auto HeightOffset = 0x44;
+        inline constexpr auto KillOnGroundCollision = 0x64;
+    }
+
+    namespace ParticleEffectOffset
+    {
+        inline constexpr auto ParticleId = 0;
+        inline constexpr auto UseMapHeights = 0x1C;
+        inline constexpr auto UseWind = 0x1D;
+        inline constexpr auto MovementMode = 0xC;
+        inline constexpr auto LifetimeTicks = 4;
+        inline constexpr auto StartLifetimeTicks = 8;
+        inline constexpr auto SpeedMapX = 0x10;
+        inline constexpr auto SpeedHeight = 0x14;
+        inline constexpr auto SpeedMapY = 0x18;
+        inline constexpr auto MapOffsetX = 0x2E;
+        inline constexpr auto MapOffsetY = 0x30;
+        inline constexpr auto PixelPoint = 0x24;
+        inline constexpr auto HeightOffset = 0x20;
+        inline constexpr auto DrawBottom = 0x2C;
+        inline constexpr auto PixelY = 0x28;
+    }
+
+    namespace ParticleGeneratorSlotOffset
+    {
+        inline constexpr auto ChancePercent = 0xC;
+        inline constexpr auto PixelPoint = 4;
+        inline constexpr auto PixelY = 8;
+        inline constexpr auto Enabled = 0x14;
+        inline constexpr auto GeneratorId = 0x10;
+        inline constexpr auto Identifier = 0x18;
+        inline constexpr auto MapPoint = 0;
+        inline constexpr auto Active = 0x1C;
+    }
+
+    namespace ParticleGraphicsOffset
+    {
+        inline constexpr auto EntryCount = 0;
+        inline constexpr auto Entries = 8;
+    }
+
+    namespace ParticleGeneratorManagerOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto Entries = 4;
+    }
+
     namespace ParticleManagerOffset
     {
+        inline constexpr auto FirstParticleActiveUnsigned = 0x9F74u;
+        inline constexpr auto FirstGeneratorActiveUnsigned = 0x2F0294u;
+        inline constexpr auto Wind = 4;
+        inline constexpr auto DrawRowCount = 8;
+        inline constexpr auto DrawRows = 0xC;
+        inline constexpr auto FirstDrawRowCount = 0x10;
+        inline constexpr auto FirstDrawRowIndices = 0x14;
+        inline constexpr auto GeneratorManager = 0;
+
         inline constexpr auto Particles = 0x9F70;
         inline constexpr auto ParticlesUnsigned = 0x9F70u;
         inline constexpr auto LastParticleIndex = 0x2F0270;
@@ -808,6 +975,19 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto Particle = 304;
+        inline constexpr auto ParticlePosition = 40;
+        inline constexpr auto ParticlePositionStateCopy = 112;
+        inline constexpr auto ParticleUnsigned = 0x130u;
+        inline constexpr auto StaticParticleUnsigned = 0x48u;
+        inline constexpr auto ParticleGeneratorUnsigned = 0x68u;
+        inline constexpr auto ParticleEffectUnsigned = 0x34u;
+        inline constexpr auto ParticleGeneratorSlotUnsigned = 0x20u;
+        inline constexpr auto ParticleDrawRowUnsigned = 0x198u;
+        inline constexpr auto ParticlePoolClearBytes = 3040008;
+        inline constexpr auto ParticleGeneratorPoolBytes = 0x7D04;
+        inline constexpr auto ParticleDrawPrefixBytes = 40812;
+
         inline constexpr auto DisplayDrawCounters = 32;
         inline constexpr auto DisplayObjectReference = 68;
         inline constexpr auto DisplayMarkedObject = 0x48u;

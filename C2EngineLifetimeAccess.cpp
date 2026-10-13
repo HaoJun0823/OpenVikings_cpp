@@ -425,12 +425,12 @@ namespace NC2E2
     // Original function: FUN_00486404.
     static void E2ParticelManager_Destruct(void* manager)
     {
-        DestroyOwned(Read<void*>(manager, 0), E2ParticelGeneratorManager_Destruct);
-        if (void* entries = Read<void*>(manager, 4))
+        DestroyOwned(Read<void*>(manager, NC2Layout::ParticleManagerOffset::GeneratorManager), E2ParticelGeneratorManager_Destruct);
+        if (void* entries = Read<void*>(manager, NC2Layout::ParticleManagerOffset::Wind))
         {
             gE2ParticelWind = nullptr;
             NXBasics::Runtime_Free(entries);
-            Write<void*>(manager, 4, nullptr);
+            Write<void*>(manager, NC2Layout::ParticleManagerOffset::Wind, nullptr);
         }
         Unregister(E2ParticelManager_Callback, 0x14, {1, 2});
         gE2ParticelManager = nullptr;
@@ -598,23 +598,23 @@ namespace NC2E2
     // Original function: FUN_0048d6eb; unnamed nested particle record deleting destructor.
     static void* StaticParticelEntry_Delete(void* entry, std::uint32_t flags)
     {
-        if (Read<void*>(entry, 8) != nullptr) FreeAndClearField(entry, 8);
+        if (Read<void*>(entry, NC2Layout::ParticleFramesOffset::FrameIds) != nullptr) FreeAndClearField(entry, NC2Layout::ParticleFramesOffset::FrameIds);
         if ((flags & 1) != 0) NXBasics::Runtime_Free(entry);
         return entry;
     }
     // Original function: FUN_0048d5b6.
     static void StaticParticelEntryList_Destruct(void* list)
     {
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(list, 0); ++index)
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(list, NC2Layout::ParticleGraphicsOffset::EntryCount); ++index)
         {
-            void* entry = Read<void*>(Read<void*>(list, 8), index * 4);
+            void* entry = Read<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), index * 4);
             if (entry != nullptr)
             {
                 StaticParticelEntry_Delete(entry, 1);
-                Write<void*>(Read<void*>(list, 8), index * 4, nullptr);
+                Write<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), index * 4, nullptr);
             }
         }
-        if (Read<void*>(list, 8) != nullptr) FreeAndClearField(list, 8);
+        if (Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries) != nullptr) FreeAndClearField(list, NC2Layout::ParticleGraphicsOffset::Entries);
     }
     // Original function: FUN_0048d20d; scalar/vector deleting destructor, stride 0x48.
     static void* StaticParticelData_Delete(void* data, std::uint32_t flags)
@@ -1084,38 +1084,38 @@ namespace NC2E2
         gE2ParticelWind = state;
         std::memset(state, 0, 88);
         const std::uint32_t horizontal = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % 5;
-        Write<std::uint32_t>(state, 0x48, horizontal);
+        Write<std::uint32_t>(state, NC2Layout::ParticleWindOffset::HorizontalSpeed, horizontal);
         const std::uint32_t vertical = static_cast<std::uint32_t>(NXBasics::Runtime_Rand()) % 5;
-        Write<std::uint32_t>(state, 0x4C, vertical);
+        Write<std::uint32_t>(state, NC2Layout::ParticleWindOffset::VerticalSpeed, vertical);
         const double horizontalScale = (static_cast<double>(horizontal) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, 0));
         const double verticalScale = (static_cast<double>(vertical) * 0.01) * (1.0 / Read<std::int16_t>(gGameMapStaticStorage, 2));
-        Write<double>(state, 0x18, horizontalScale);
-        Write<double>(state, 0x20, verticalScale);
+        Write<double>(state, NC2Layout::ParticleWindOffset::HorizontalScale, horizontalScale);
+        Write<double>(state, NC2Layout::ParticleWindOffset::VerticalScale, verticalScale);
         const std::int32_t angle = NXBasics::Runtime_Rand() % 361;
-        Write<std::int32_t>(state, 0x50, angle);
+        Write<std::int32_t>(state, NC2Layout::ParticleWindOffset::AngleDegrees, angle);
         const double radians = (static_cast<double>(static_cast<std::uint32_t>(angle)) * 0.005555555555555556) * 3.1415927410125732;
         const double cosine = Runtime_Cos(radians);
-        Write<double>(state, 0, cosine);
+        Write<double>(state, NC2Layout::ParticleWindOffset::Cosine, cosine);
         const double sine = Runtime_Sin(radians);
-        Write<double>(state, 8, sine);
-        Write<double>(state, 0x30, Read<double>(state, 0x18) * Read<double>(state, 0));
-        Write<double>(state, 0x38, sine * Read<double>(state, 0x20));
+        Write<double>(state, NC2Layout::ParticleWindOffset::Sine, sine);
+        Write<double>(state, NC2Layout::ParticleWindOffset::DeltaMapX, Read<double>(state, NC2Layout::ParticleWindOffset::HorizontalScale) * Read<double>(state, NC2Layout::ParticleWindOffset::Cosine));
+        Write<double>(state, NC2Layout::ParticleWindOffset::DeltaMapY, sine * Read<double>(state, NC2Layout::ParticleWindOffset::VerticalScale));
         return state;
     }
     // Original function: FUN_00486464, CE2ParticelManager::l_Initialize.
     void E2ParticelManager_Initialize(void* manager)
     {
-        if (void* entries = Read<void*>(manager, 4))
+        if (void* entries = Read<void*>(manager, NC2Layout::ParticleManagerOffset::Wind))
         {
             gE2ParticelWind = nullptr;
             NXBasics::Runtime_Free(entries);
-            Write<void*>(manager, 4, nullptr);
+            Write<void*>(manager, NC2Layout::ParticleManagerOffset::Wind, nullptr);
         }
         void* drift = NXBasics::Runtime_Allocate(88);
         if (drift != nullptr) drift = E2ParticelWind_Construct(drift);
-        Write<void*>(manager, 4, drift);
-        std::memset(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Particles, 0, 3040008);
-        std::memset(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0, 32004);
+        Write<void*>(manager, NC2Layout::ParticleManagerOffset::Wind, drift);
+        std::memset(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Particles, 0, NC2Layout::RecordSize::ParticlePoolClearBytes);
+        std::memset(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0, NC2Layout::RecordSize::ParticleGeneratorPoolBytes);
         Write<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex, 0);
         Write<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastGeneratorIndex, 0);
     }
@@ -1128,34 +1128,38 @@ namespace NC2E2
         NXBasics::CTokenList tokenList(tokens);
         for (char* group = reader.GetFirstGroup("ParticelGenerator"); group != nullptr; group = reader.GetNextGroup("ParticelGenerator"))
         {
-            const auto count = Read<std::uint32_t>(generator, 0);
-            auto* record = Read<std::byte*>(generator, 4) + count * 0x68u;
-            Write(generator, 0, count + 1u);
+            const auto count = Read<std::uint32_t>(generator, NC2Layout::ParticleGeneratorManagerOffset::Count);
+            auto* record = Read<std::byte*>(generator, NC2Layout::ParticleGeneratorManagerOffset::Entries) + count * NC2Layout::RecordSize::ParticleGeneratorUnsigned;
+            Write(generator, NC2Layout::ParticleGeneratorManagerOffset::Count, count + 1u);
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
                 switch (tokenList.FindToken(reader.GetCurrentName()))
                 {
                 case SwitchIds::ParticleGeneratorToken::Name: std::strcpy(reinterpret_cast<char*>(record), reader.GetString()); break;
-                case SwitchIds::ParticleGeneratorToken::Generate: Write(record, 0x20, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
-                case SwitchIds::ParticleGeneratorToken::MaxGoneLifeTime: Write(record, 0x28, reader.GetInt()); break;
-                case SwitchIds::ParticleGeneratorToken::MaxLifeTime: Write(record, 0x24, reader.GetInt()); break;
-                case SwitchIds::ParticleGeneratorToken::Particelmove: Write(record, 0x30, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::Generate: Write(record, NC2Layout::ParticleGeneratorOffset::ParticleId, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
+                case SwitchIds::ParticleGeneratorToken::MaxGoneLifeTime: Write(record, NC2Layout::ParticleGeneratorOffset::MaximumGoneLifetime, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::MaxLifeTime: Write(record, NC2Layout::ParticleGeneratorOffset::LifetimeTicks, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::Particelmove: Write(record, NC2Layout::ParticleGeneratorOffset::MovementMode, reader.GetInt()); break;
                 case SwitchIds::ParticleGeneratorToken::Particelspeed:
                 {
                     const auto first = reader.GetInt(), second = reader.GetInt(), third = reader.GetInt();
-                    Write(record, 0x3C, first); Write(record, 0x38, second); Write(record, 0x34, third);
+                    Write(record, NC2Layout::ParticleGeneratorOffset::SpeedMapY, first);
+                    Write(record, NC2Layout::ParticleGeneratorOffset::SpeedHeight, second);
+                    Write(record, NC2Layout::ParticleGeneratorOffset::SpeedMapX, third);
                     break;
                 }
-                case SwitchIds::ParticleGeneratorToken::Usemapheights: Write<std::uint8_t>(record, 0x40, reader.GetInt() != 0); break;
-                case SwitchIds::ParticleGeneratorToken::Usewind: if (reader.GetInt() != 0) Write<std::uint8_t>(record, 0x48, 1); break;
+                case SwitchIds::ParticleGeneratorToken::Usemapheights: Write<std::uint8_t>(record, NC2Layout::ParticleGeneratorOffset::UseMapHeights, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleGeneratorToken::Usewind: if (reader.GetInt() != 0) Write<std::uint8_t>(record, NC2Layout::ParticleGeneratorOffset::UseWind, 1); break;
                 case SwitchIds::ParticleGeneratorToken::SetArea:
                 {
                     const auto first = reader.GetInt(), second = reader.GetInt();
-                    Write(record, 0x60, first); Write(record, 0x5C, second); Write<std::uint8_t>(record, 0x58, 1);
+                    Write(record, NC2Layout::ParticleGeneratorOffset::AreaHeight, first);
+                    Write(record, NC2Layout::ParticleGeneratorOffset::AreaWidth, second);
+                    Write<std::uint8_t>(record, NC2Layout::ParticleGeneratorOffset::UseRandomArea, 1);
                     break;
                 }
-                case SwitchIds::ParticleGeneratorToken::Groundcollision: Write<std::uint8_t>(record, 0x64, reader.GetInt() != 0); break;
-                case SwitchIds::ParticleGeneratorToken::HeightOffset: Write(record, 0x44, reader.GetInt()); break;
+                case SwitchIds::ParticleGeneratorToken::Groundcollision: Write<std::uint8_t>(record, NC2Layout::ParticleGeneratorOffset::KillOnGroundCollision, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleGeneratorToken::HeightOffset: Write(record, NC2Layout::ParticleGeneratorOffset::HeightOffset, reader.GetInt()); break;
                 }
             }
         }
@@ -1166,8 +1170,8 @@ namespace NC2E2
         gE2ParticelGeneratorManager = generator;
         std::memset(generator, 0, 8);
         auto* records = static_cast<std::byte*>(NXBasics::Runtime_Allocate(3120));
-        if (records != nullptr) for (unsigned i = 0; i != 30; ++i) std::memset(records + i * 0x68u, 0, 104);
-        Write(generator, 4, records);
+        if (records != nullptr) for (unsigned i = 0; i != 30; ++i) std::memset(records + i * NC2Layout::RecordSize::ParticleGeneratorUnsigned, 0, 104);
+        Write(generator, NC2Layout::ParticleGeneratorManagerOffset::Entries, records);
         E2ParticelGeneratorManager_Initialize(generator, "Data\\Engine2D\\Inis\\Particel\\Generator.ini");
         return generator;
     }
@@ -1184,9 +1188,9 @@ namespace NC2E2
     {
         for (std::uint32_t index = 0; index < 10000; ++index)
         {
-            auto* record = static_cast<std::byte*>(array) + index * 0x130u;
-            LogicParticelObject_Construct(record + 0x20);
-            std::memset(record, 0, 304);
+            auto* record = static_cast<std::byte*>(array) + index * NC2Layout::RecordSize::ParticleUnsigned;
+            LogicParticelObject_Construct(record + NC2Layout::ParticleOffset::UseMapHeights);
+            std::memset(record, 0, NC2Layout::RecordSize::Particle);
         }
         return array;
     }
@@ -1195,8 +1199,8 @@ namespace NC2E2
     {
         for (std::uint32_t index = 0; index < 1000; ++index)
         {
-            Write<std::uint16_t>(array, index * 0x20u + 2u, 0);
-            Write<std::uint16_t>(array, index * 0x20u, 0);
+            Write<std::uint16_t>(array, index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned + 2u, 0);
+            Write<std::uint16_t>(array, index * NC2Layout::RecordSize::ParticleGeneratorSlotUnsigned, 0);
         }
         return array;
     }
@@ -1206,11 +1210,11 @@ namespace NC2E2
         ParticelArray_Construct(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Particles);
         ParticelGeneratorArray_Construct(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators);
         gE2ParticelManager = manager;
-        std::memset(manager, 0, 40812);
+        std::memset(manager, 0, NC2Layout::RecordSize::ParticleDrawPrefixBytes);
         void* allocation = NXBasics::Runtime_Allocate(8);
         void* generator = allocation == nullptr ? nullptr : E2ParticelGeneratorManager_Construct(allocation);
-        Write<void*>(manager, 4, nullptr);
-        Write(manager, 0, generator);
+        Write<void*>(manager, NC2Layout::ParticleManagerOffset::Wind, nullptr);
+        Write(manager, NC2Layout::ParticleManagerOffset::GeneratorManager, generator);
         E2ParticelManager_Initialize(manager);
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(1, E2ParticelManager_Callback, 0x14, 1);
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(2, E2ParticelManager_Callback, 0x14, 1);

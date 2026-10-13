@@ -38,7 +38,7 @@ namespace NC2E2
 		}
 		void* StaticParticle(std::uint32_t id)
 		{
-			return At(gStaticParticelStorage.entries, id * 0x48u);
+			return At(gStaticParticelStorage.entries, id * NC2Layout::RecordSize::StaticParticleUnsigned);
 		}
 
 		// Original function: FUN_00487017; world-pixel projection without vertical height displacement.
@@ -46,15 +46,15 @@ namespace NC2E2
 		{
 			const auto vertical = Truncate(static_cast<double>(Read<float>(display, NC2Layout::DisplayDescriptionOffset::VerticalSpacing)) * NC2Logic::GameMap_GetHeight());
 			const auto horizontal = Truncate(static_cast<double>(Read<float>(display, NC2Layout::DisplayDescriptionOffset::HorizontalSpacing)) * NC2Logic::GameMap_GetWidth());
-			pixel[0] = Truncate(static_cast<double>(horizontal) * Read<double>(position, 0) + Read<double>(position, 0x18));
-			pixel[1] = Truncate(static_cast<double>(vertical) * Read<double>(position, 8) - Read<double>(position, 0x20));
+			pixel[0] = Truncate(static_cast<double>(horizontal) * Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + Read<double>(position, NC2Layout::ParticlePositionOffset::PixelX));
+			pixel[1] = Truncate(static_cast<double>(vertical) * Read<double>(position, NC2Layout::ParticlePositionOffset::MapY) - Read<double>(position, NC2Layout::ParticlePositionOffset::PixelY));
 		}
 
 		// Original function: FUN_00486f91; height-aware position projection.
 		void ParticelPosition_ToWorldPixelCoordinates(const void* position, std::int32_t* pixel, const void* display)
 		{
 			ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(position, pixel, display);
-			const auto height = static_cast<std::uint16_t>(static_cast<std::uint8_t>(Truncate(Read<double>(position, 0x10) * 250.0)));
+			const auto height = static_cast<std::uint16_t>(static_cast<std::uint8_t>(Truncate(Read<double>(position, NC2Layout::ParticlePositionOffset::Height) * 250.0)));
 			// Original inline height conversion: FUN_004821b3.
 			const auto bits = Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed) * height + 127u;
 			pixel[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(pixel[1]) - static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(bits) >> 8));
@@ -65,141 +65,141 @@ namespace NC2E2
 	// Original function: FUN_0049805a; original helper name unresolved.
 	void ParticelPosition_ToMapPoint(const void* position, void* point)
 	{
-		Write<std::uint16_t>(point, 0, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetWidth() * Read<double>(position, 0) + 0.5)));
-		Write<std::uint16_t>(point, 2, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetHeight() * Read<double>(position, 8) + 0.5)));
+		Write<std::uint16_t>(point, 0, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetWidth() * Read<double>(position, NC2Layout::ParticlePositionOffset::MapX) + 0.5)));
+		Write<std::uint16_t>(point, 2, static_cast<std::uint16_t>(Truncate(NC2Logic::GameMap_GetHeight() * Read<double>(position, NC2Layout::ParticlePositionOffset::MapY) + 0.5)));
 	}
 
 	// Original function: FUN_004980a7; original helper name unresolved.
 	void ParticelObject_RefreshGroundHeight(void* particle)
 	{
 		static std::uint32_t point = 0; // Original static point: 0056A380..0056A383.
-		ParticelPosition_ToMapPoint(At(particle, 0x28), &point);
-		if (point == Read<std::uint32_t>(particle, 0x78)) return;
-		Write(particle, 0x80, NC2Logic::GameMap_GetHeightAtMapMigPoint(&point) * 0.004);
-		Write(particle, 0x78, point);
+		ParticelPosition_ToMapPoint(At(particle, NC2Layout::ParticleOffset::Position), &point);
+		if (point == Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::MapPoint)) return;
+		Write(particle, NC2Layout::ParticleOffset::CachedGroundHeight, NC2Logic::GameMap_GetHeightAtMapMigPoint(&point) * 0.004);
+		Write(particle, NC2Layout::ParticleOffset::MapPoint, point);
 	}
 
 	// Original function: FUN_00497a29.
 	void LogicParticelObject_Move(void* particle)
 	{
-		const double ticks = Read<std::uint32_t>(particle, 0x110);
-		const auto mode = Read<std::uint32_t>(particle, 0x90);
-		auto height = Read<double>(particle, 0x38);
-		const auto speed = Read<double>(particle, 0xA0);
+		const double ticks = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::PendingMovementTicks);
+		const auto mode = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::MovementMode);
+		auto height = Read<double>(particle, NC2Layout::ParticleOffset::PositionHeight);
+		const auto speed = Read<double>(particle, NC2Layout::ParticleOffset::SpeedHeight);
 		switch (mode)
 		{
 			case SwitchIds::ParticleMotionMode::Linear:
-				Write(particle, 0x28, Read<double>(particle, 0x28) - ticks * Read<double>(particle, 0xC8));
-				Write(particle, 0x30, Read<double>(particle, 0x30) - ticks * Read<double>(particle, 0xD8));
-				Write(particle, 0x38, height - ticks * Read<double>(particle, 0xD0));
-				Write(particle, 0x40, Read<double>(particle, 0x40) + ticks * Read<double>(particle, 0xE0));
-				Write(particle, 0x48, Read<double>(particle, 0x48) + ticks * Read<double>(particle, 0xE8));
+				Write(particle, NC2Layout::ParticleOffset::Position, Read<double>(particle, NC2Layout::ParticleOffset::Position) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepMapX));
+				Write(particle, NC2Layout::ParticleOffset::PositionMapY, Read<double>(particle, NC2Layout::ParticleOffset::PositionMapY) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepMapY));
+				Write(particle, NC2Layout::ParticleOffset::PositionHeight, height - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepHeight));
+				Write(particle, NC2Layout::ParticleOffset::PositionPixelX, Read<double>(particle, NC2Layout::ParticleOffset::PositionPixelX) + ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepPixelX));
+				Write(particle, NC2Layout::ParticleOffset::PositionPixelY, Read<double>(particle, NC2Layout::ParticleOffset::PositionPixelY) + ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepPixelY));
 				break;
 			case SwitchIds::ParticleMotionMode::Parabolic:
 				{
-					Write(particle, 0x28, Read<double>(particle, 0x28) - ticks * Read<double>(particle, 0xC8));
-					Write(particle, 0x30, Read<double>(particle, 0x30) - ticks * Read<double>(particle, 0xD8));
-					const double baseline = Read<double>(particle, 0x108) - ticks * Read<double>(particle, 0xD0);
-					Write(particle, 0x108, baseline);
-					const double progress = ((1.0 - static_cast<double>(Read<std::uint32_t>(particle, 0x14)) / Read<std::uint32_t>(particle, 0x10)) - 0.5) * 2.0;
-					height = baseline - (progress * progress - 1.0) * Read<double>(particle, 0x100);
-					Write(particle, 0x38, height);
-					ParticelPosition_ToMapPoint(At(particle, 0x28), At(particle, 0x78));
-					Write(particle, 0x40, Read<double>(particle, 0x40) - ticks * Read<double>(particle, 0xE0));
-					Write(particle, 0x48, Read<double>(particle, 0x48) - ticks * Read<double>(particle, 0xE8));
-					if (height > 1.0) Write(particle, 0x38, 1.0);
+					Write(particle, NC2Layout::ParticleOffset::Position, Read<double>(particle, NC2Layout::ParticleOffset::Position) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepMapX));
+					Write(particle, NC2Layout::ParticleOffset::PositionMapY, Read<double>(particle, NC2Layout::ParticleOffset::PositionMapY) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepMapY));
+					const double baseline = Read<double>(particle, NC2Layout::ParticleOffset::ParabolaBaselineHeight) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepHeight);
+					Write(particle, NC2Layout::ParticleOffset::ParabolaBaselineHeight, baseline);
+					const double progress = ((1.0 - static_cast<double>(Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::RemainingLifetimeTicks)) / Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::TotalLifetimeTicks)) - 0.5) * 2.0;
+					height = baseline - (progress * progress - 1.0) * Read<double>(particle, NC2Layout::ParticleOffset::ParabolaHeight);
+					Write(particle, NC2Layout::ParticleOffset::PositionHeight, height);
+					ParticelPosition_ToMapPoint(At(particle, NC2Layout::ParticleOffset::Position), At(particle, NC2Layout::ParticleOffset::MapPoint));
+					Write(particle, NC2Layout::ParticleOffset::PositionPixelX, Read<double>(particle, NC2Layout::ParticleOffset::PositionPixelX) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepPixelX));
+					Write(particle, NC2Layout::ParticleOffset::PositionPixelY, Read<double>(particle, NC2Layout::ParticleOffset::PositionPixelY) - ticks * Read<double>(particle, NC2Layout::ParticleOffset::StepPixelY));
+					if (height > 1.0) Write(particle, NC2Layout::ParticleOffset::PositionHeight, 1.0);
 					break;
 				}
 			case SwitchIds::ParticleMotionMode::Rise: case SwitchIds::ParticleMotionMode::RiseAlternate:
 				height += ticks * speed;
-				Write(particle, 0x38, height);
-				if (height > 1.0) Write<std::uint8_t>(particle, 4, 0);
+				Write(particle, NC2Layout::ParticleOffset::PositionHeight, height);
+				if (height > 1.0) Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active, 0);
 				break;
 			case SwitchIds::ParticleMotionMode::Fall: case SwitchIds::ParticleMotionMode::FallWithGroundRefresh:
-				if (mode == 6) ParticelObject_RefreshGroundHeight(particle);
+				if (mode == SwitchIds::ParticleMotionMode::FallWithGroundRefresh) ParticelObject_RefreshGroundHeight(particle);
 				height -= ticks * speed;
-				Write(particle, 0x38, height);
+				Write(particle, NC2Layout::ParticleOffset::PositionHeight, height);
 				// Native JAE treats unordered as a collision as well.
-				if (!(height >= Read<double>(particle, 0x80)))
+				if (!(height >= Read<double>(particle, NC2Layout::ParticleOffset::CachedGroundHeight)))
 				{
-					if (Read<std::uint8_t>(particle, 0xF9) != 0) Write<std::uint8_t>(particle, 4, 0);
-					else if (mode == 6 && ticks <= 1.0) Write(particle, 0x38, height + speed);
-					else Write(particle, 0x38, Read<double>(particle, 0x80));
+					if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::KillOnGroundCollision) != 0) Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active, 0);
+					else if (mode == SwitchIds::ParticleMotionMode::FallWithGroundRefresh && ticks <= 1.0) Write(particle, NC2Layout::ParticleOffset::PositionHeight, height + speed);
+					else Write(particle, NC2Layout::ParticleOffset::PositionHeight, Read<double>(particle, NC2Layout::ParticleOffset::CachedGroundHeight));
 				}
 				break;
 			case SwitchIds::ParticleMotionMode::FollowGround:
 				ParticelObject_RefreshGroundHeight(particle);
-				if (Read<double>(particle, 0x80) > height)
+				if (Read<double>(particle, NC2Layout::ParticleOffset::CachedGroundHeight) > height)
 				{
-					if (Read<std::uint8_t>(particle, 0xF9) != 0) Write<std::uint8_t>(particle, 4, 0);
-					else Write(particle, 0x38, ticks <= 1.0 ? height + speed : Read<double>(particle, 0x80));
+					if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::KillOnGroundCollision) != 0) Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active, 0);
+					else Write(particle, NC2Layout::ParticleOffset::PositionHeight, ticks <= 1.0 ? height + speed : Read<double>(particle, NC2Layout::ParticleOffset::CachedGroundHeight));
 				}
 				break;
 		}
-		Write<std::uint32_t>(particle, 0x110, 0);
+		Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::PendingMovementTicks, 0);
 	}
 
 	// Original function: FUN_00497f54.
 	void LogicParticelObject_CalculateValency(void* particle)
 	{
-		const auto mode = Read<std::uint32_t>(particle, 0x118);
-		if (mode == 0) return;
-		const auto maximum = Read<std::uint32_t>(particle, 0x120);
-		const auto valency = Read<std::uint32_t>(particle, 0x14) * maximum / Read<std::uint32_t>(particle, 0x10);
-		Write(particle, 0x11C, mode == 2 ? maximum - valency - 1u : valency);
+		const auto mode = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::ValencyMode);
+		if (mode == SwitchIds::ParticleValencyMode::Fixed) return;
+		const auto maximum = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::MaximumValency);
+		const auto valency = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::RemainingLifetimeTicks) * maximum / Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::TotalLifetimeTicks);
+		Write(particle, NC2Layout::ParticleOffset::Valency, mode == SwitchIds::ParticleValencyMode::ElapsedLifetime ? maximum - valency - 1u : valency);
 	}
 
 	// Original function: FUN_00497de2.
 	void LogicParticelObject_DoOneMovementTick(void* particle, void* display)
 	{
-		if (Read<std::uint32_t>(particle, 0x110) == 0) return;
-		const bool direction = Read<std::uint8_t>(particle, 0x18) != 0 && display != nullptr;
-		if (direction) ParticelPosition_ToWorldPixelCoordinates(At(particle, 0x28), reinterpret_cast<std::int32_t*>(At(particle, 0x88)), display);
+		if (Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::PendingMovementTicks) == 0) return;
+		const bool direction = Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::ValencyIsDirection) != 0 && display != nullptr;
+		if (direction) ParticelPosition_ToWorldPixelCoordinates(At(particle, NC2Layout::ParticleOffset::Position), reinterpret_cast<std::int32_t*>(At(particle, NC2Layout::ParticleOffset::PreviousWorldPixelPoint)), display);
 		else LogicParticelObject_CalculateValency(particle);
-		void* data = StaticParticle(Read<std::uint32_t>(particle, 0x128));
-		void* frames = ParticelGraphics_GetValency(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
+		void* data = StaticParticle(Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::StaticParticleId));
+		void* frames = ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency));
 		if (frames == nullptr)
 		{
-			Write<std::uint8_t>(particle, 4, 0); return;
+			Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active, 0); return;
 		}
-		if (Read<std::uint32_t>(particle, 0x124) >= Read<std::uint32_t>(frames, 4))
+		if (Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex) >= Read<std::uint32_t>(frames, NC2Layout::ParticleFramesOffset::FrameCount))
 		{
-			if (Read<std::uint8_t>(data, 0x30) == 0)
+			if (Read<std::uint8_t>(data, NC2Layout::StaticParticleOffset::AnimationLoops) == 0)
 			{
-				Write<std::uint8_t>(particle, 4, 0); return;
+				Write<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active, 0); return;
 			}
-			Write<std::uint32_t>(particle, 0x124, 0);
+			Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex, 0);
 		}
 		LogicParticelObject_Move(particle);
 		if (!direction) return;
 		std::int32_t current[2], previous[2];
-		ParticelPosition_ToWorldPixelCoordinates(At(particle, 0x28), current, display);
-		std::memcpy(previous, At(particle, 136), sizeof(previous));
+		ParticelPosition_ToWorldPixelCoordinates(At(particle, NC2Layout::ParticleOffset::Position), current, display);
+		std::memcpy(previous, At(particle, NC2Layout::ParticleOffset::PreviousWorldPixelPoint), sizeof(previous));
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, current, true);
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, previous, true);
 		const auto dx = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(current[0]) - static_cast<std::uint32_t>(previous[0]));
 		const auto dy = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(current[1]) - static_cast<std::uint32_t>(previous[1]));
 		double angle = 90.0 - (std::atan2(static_cast<double>(dy), static_cast<double>(dx)) * 180.0) / 3.1415926535;
 		if (!(angle >= 0.0)) angle += 360.0;
-		const auto maximum = Read<std::int32_t>(particle, 0x120);
+		const auto maximum = Read<std::int32_t>(particle, NC2Layout::ParticleOffset::MaximumValency);
 		const auto valency = Truncate(static_cast<double>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(maximum) + 1u)) * angle * 0.002777777777777778);
-		Write<std::uint32_t>(particle, 0x11C, valency < maximum ? static_cast<std::uint32_t>(valency) : 0u);
+		Write<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency, valency < maximum ? static_cast<std::uint32_t>(valency) : 0u);
 	}
 
 	// Original function: FUN_0048688e.
 	void __fastcall E2ParticelManager_SortParticelAndDrawBottom(void* manager, void* /*unusedEdx*/, void* display)
 	{
-		Write<std::uint32_t>(manager, 8, 0);
+		Write<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRowCount, 0);
 		const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
 		std::uint32_t previous = 0;
 		std::uint32_t index = 0;
 		do
 		{
-			auto* particle = At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + index * 0x130u);
-			const auto* point = At(particle, 0x78);
-			if (Read<std::uint8_t>(particle, 4) == 0 || !NC2Logic::MapMigPoint_IsInside(point, reinterpret_cast<const std::int16_t*>(At(display, NC2Layout::EngineDisplayOffset::MapRectangleX)))) continue;
+			auto* particle = At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + index * NC2Layout::RecordSize::ParticleUnsigned);
+			const auto* point = At(particle, NC2Layout::ParticleOffset::MapPoint);
+			if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active) == 0 || !NC2Logic::MapMigPoint_IsInside(point, reinterpret_cast<const std::int16_t*>(At(display, NC2Layout::EngineDisplayOffset::MapRectangleX)))) continue;
 			LogicParticelObject_DoOneMovementTick(particle, display);
-			if (Read<std::uint8_t>(particle, 4) == 0)
+			if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::Active) == 0)
 			{
 				if (Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex) == index) Write(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex, previous);
 				continue;
@@ -211,25 +211,25 @@ namespace NC2E2
 			{
 				previous = index; continue;
 			}
-			if (Read<std::uint8_t>(particle, 0x12C) != 0) E2ParticelManager_l_DrawParticel(manager, display, particle);
+			if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::DrawBottom) != 0) E2ParticelManager_l_DrawParticel(manager, display, particle);
 			else
 			{
 				const auto y = Read<std::int16_t>(point, 2);
-				const auto count = Read<std::uint32_t>(manager, 8);
+				const auto count = Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRowCount);
 				std::uint32_t group = 0;
-				while (group < count && Read<std::int32_t>(manager, 0xC + group * 0x198u) != y) ++group;
+				while (group < count && Read<std::int32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRows + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned) != y) ++group;
 				if (group == count)
 				{
 					if (group >= 100) continue;
-					Write<std::int32_t>(manager, 0xC + group * 0x198u, y);
-					Write<std::uint32_t>(manager, 0x10 + group * 0x198u, 0);
-					Write(manager, 8, count + 1u);
+					Write<std::int32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRows + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned, y);
+					Write<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned, 0);
+					Write(manager, NC2Layout::ParticleManagerOffset::DrawRowCount, count + 1u);
 				}
-				const auto elements = Read<std::uint32_t>(manager, 0x10 + group * 0x198u);
+				const auto elements = Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned);
 				if (elements < 100)
 				{
-					Write(manager, 0x14 + group * 0x198u + elements * 4u, index);
-					Write(manager, 0x10 + group * 0x198u, elements + 1u);
+					Write(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowIndices + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned + elements * 4u, index);
+					Write(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + group * NC2Layout::RecordSize::ParticleDrawRowUnsigned, elements + 1u);
 				}
 			}
 			previous = index;
@@ -239,12 +239,12 @@ namespace NC2E2
 	// Original function: FUN_004869d0.
 	void E2ParticelManager_DrawParticelLine(void* manager, void* display, std::int32_t row)
 	{
-		for (std::uint32_t group = 0; group < Read<std::uint32_t>(manager, 8); ++group)
+		for (std::uint32_t group = 0; group < Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRowCount); ++group)
 		{
-			const auto offset = group * 0x198u;
-			if (Read<std::int32_t>(manager, 0xC + offset) != row) continue;
-			for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, 0x10 + offset); ++index)
-				E2ParticelManager_l_DrawParticel(manager, display, At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + Read<std::uint32_t>(manager, 0x14 + offset + index * 4u) * 0x130u));
+			const auto offset = group * NC2Layout::RecordSize::ParticleDrawRowUnsigned;
+			if (Read<std::int32_t>(manager, NC2Layout::ParticleManagerOffset::DrawRows + offset) != row) continue;
+			for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowCount + offset); ++index)
+				E2ParticelManager_l_DrawParticel(manager, display, At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::FirstDrawRowIndices + offset + index * 4u) * NC2Layout::RecordSize::ParticleUnsigned));
 			return;
 		}
 	}
@@ -253,38 +253,38 @@ namespace NC2E2
 	void E2ParticelManager_l_DrawParticel(void* /*manager*/, void* display, void* particle)
 	{
 		std::int32_t pixel[2];
-		if (Read<std::uint8_t>(particle, 0x20) != 0) ParticelPosition_ToWorldPixelCoordinates(At(particle, 0x28), pixel, display);
-		else ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(At(particle, 0x28), pixel, display);
+		if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::UseMapHeights) != 0) ParticelPosition_ToWorldPixelCoordinates(At(particle, NC2Layout::ParticleOffset::Position), pixel, display);
+		else ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(At(particle, NC2Layout::ParticleOffset::Position), pixel, display);
 		Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(display, pixel, false);
 		auto* bitmap = Read<NXBasics::CBitmap*>(display, 0x68);
-		const auto id = Read<std::uint32_t>(particle, 0x128);
+		const auto id = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::StaticParticleId);
 		if (id == static_cast<std::uint32_t>(gStaticParticelStorage.munitionIds[3]))
 		{
 			bitmap->Draw_FilledCircle(pixel[0], pixel[1], 3, NXBasics::SColorRGB(255, 255, 255)); return;
 		}
 		auto* data = StaticParticle(id);
-		const auto* frames = ParticelGraphics_GetValency(At(data, 0x34), Read<std::uint32_t>(particle, 0x11C));
-		const auto bob = Read<std::uint32_t>(Read<void*>(frames, 8), Read<std::uint32_t>(particle, 0x124) * 4u);
-		const auto* bobManager = Read<void*>(data, 0x28);
+		const auto* frames = ParticelGraphics_GetValency(At(data, NC2Layout::StaticParticleOffset::Graphics), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::Valency));
+		const auto bob = Read<std::uint32_t>(Read<void*>(frames, NC2Layout::ParticleFramesOffset::FrameIds), Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::FrameIndex) * 4u);
+		const auto* bobManager = Read<void*>(data, NC2Layout::StaticParticleOffset::BobManager);
 		NXBasics::SRectangle rectangle(0, 0, 0, 0);
 		std::memcpy(&rectangle, NXBasics::BobManager_GetBobAreaRectanglePtr(bobManager, bob), sizeof(rectangle));
 		rectangle.x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.x) + static_cast<std::uint32_t>(pixel[0]));
 		rectangle.y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(rectangle.y) + static_cast<std::uint32_t>(pixel[1]));
 		if (!rectangle.IsTouching(bitmap->GetRectangle())) return;
 		auto brightness = 128;
-		if (!(Read<double>(particle, 0x38) > Read<double>(particle, 0x80))) brightness = Display_DE_Hightlighting_GetMapBrightness(display, At(particle, 0x78));
-		auto* palette = EnginePalette_GetBrightnessPalette(gStaticPalettes.palettes256 + Read<std::uint32_t>(data, 0x2C), brightness);
-		if (Read<std::uint32_t>(data, 0x44) == 1) palette = EnginePalette_GetPlayerPalette(Read<std::int32_t>(particle, 0));
-		const auto mode = Read<std::uint32_t>(data, 0x40);
-		if (Read<std::uint8_t>(particle, 0x12D) != 0 || mode == 1)
+		if (!(Read<double>(particle, NC2Layout::ParticleOffset::PositionHeight) > Read<double>(particle, NC2Layout::ParticleOffset::CachedGroundHeight))) brightness = Display_DE_Hightlighting_GetMapBrightness(display, At(particle, NC2Layout::ParticleOffset::MapPoint));
+		auto* palette = EnginePalette_GetBrightnessPalette(gStaticPalettes.palettes256 + Read<std::uint32_t>(data, NC2Layout::StaticParticleOffset::PaletteId), brightness);
+		if (Read<std::uint32_t>(data, NC2Layout::StaticParticleOffset::SpecialType) == 1) palette = EnginePalette_GetPlayerPalette(Read<std::int32_t>(particle, NC2Layout::ParticleOffset::PlayerId));
+		const auto mode = Read<std::uint32_t>(data, NC2Layout::StaticParticleOffset::BobType);
+		if (Read<std::uint8_t>(particle, NC2Layout::ParticleOffset::FadingSpawn) != 0 || mode == SwitchIds::ParticleBobType::LifetimeFade)
 		{
-			const auto life = Read<std::uint32_t>(particle, 0x10);
-			const auto strength = 256u - ((life - Read<std::uint32_t>(particle, 0x14)) << 8) / life;
+			const auto life = Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::TotalLifetimeTicks);
+			const auto strength = 256u - ((life - Read<std::uint32_t>(particle, NC2Layout::ParticleOffset::RemainingLifetimeTicks)) << 8) / life;
 			NXBasics::BobManager_PrintBob_UsingTransparency(bobManager, bob, bitmap, strength, pixel[0], pixel[1], palette);
 		}
-		else if (mode == 0) NXBasics::BobManager_PrintBob(bobManager, bob, bitmap, pixel[0], pixel[1], palette);
-		else if (mode == 2) NXBasics::BobManager_PrintBobUsingTransparency(bobManager, bob, bitmap, pixel[0], pixel[1], palette);
-		else if (mode == 3) NXBasics::BobManager_PrintBob_UsingEffectMatrix(bobManager, bob, bitmap, pixel[0], pixel[1]);
+		else if (mode == SwitchIds::ParticleBobType::Opaque) NXBasics::BobManager_PrintBob(bobManager, bob, bitmap, pixel[0], pixel[1], palette);
+		else if (mode == SwitchIds::ParticleBobType::Transparency) NXBasics::BobManager_PrintBobUsingTransparency(bobManager, bob, bitmap, pixel[0], pixel[1], palette);
+		else if (mode == SwitchIds::ParticleBobType::EffectMatrix) NXBasics::BobManager_PrintBob_UsingEffectMatrix(bobManager, bob, bitmap, pixel[0], pixel[1]);
 	}
 }
 

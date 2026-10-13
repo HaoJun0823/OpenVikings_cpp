@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataParticles.h"
@@ -45,7 +46,7 @@ namespace NC2E2
         // Original function: FUN_0048d5f2; SGFXValencyHandler::AddGraphicsStructureToList.
         void GFXValencyHandler_AddGraphicsStructureToList(void* list, const SParticelFrames* frames)
         {
-            const auto count = Read<std::uint32_t>(list, 0);
+            const auto count = Read<std::uint32_t>(list, NC2Layout::ParticleGraphicsOffset::EntryCount);
             std::uint32_t index = 0;
             while (index < count && gParticelFrameWork[index]->valency <= frames->valency) ++index;
             for (auto end = count; end > index; --end) gParticelFrameWork[end] = gParticelFrameWork[end - 1u];
@@ -53,16 +54,16 @@ namespace NC2E2
             if (allocation != nullptr) std::memset(allocation, 0, 12);
             gParticelFrameWork[index] = allocation;
             ParticelFrames_Assign(allocation, frames);
-            Write(list, 0, count + 1u);
+            Write(list, NC2Layout::ParticleGraphicsOffset::EntryCount, count + 1u);
         }
 
         // Original function: FUN_0048d6b2; SGFXValencyHandler seals its pointer array.
         void ParticelFrames_FinishList(void* list)
         {
-            const auto count = Read<std::uint32_t>(list, 0);
+            const auto count = Read<std::uint32_t>(list, NC2Layout::ParticleGraphicsOffset::EntryCount);
             if (count == 0) return;
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(count * 4u, 1);
-            Write(list, 8, allocation);
+            Write(list, NC2Layout::ParticleGraphicsOffset::Entries, allocation);
             std::memcpy(allocation, gParticelFrameWork, count * 4u);
             std::memset(gParticelFrameWork, 0, sizeof(gParticelFrameWork));
         }
@@ -74,22 +75,23 @@ namespace NC2E2
             reader.GetNumberOfGroups("Particel"); // Native capacity remains thirty regardless of this result.
             for (auto* group = reader.GetFirstGroup("Particel"); group != nullptr; group = reader.GetNextGroup("Particel"))
             {
-                void* entry = static_cast<std::byte*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(gStaticParticelStorage.count++) * 0x48u;
+                void* entry = static_cast<std::byte*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(gStaticParticelStorage.count++) * NC2Layout::RecordSize::StaticParticleUnsigned;
                 std::memset(entry, 0, 72);
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                 {
                     switch (NXBasics::XB_Token_FindTokenInArray(gParticleTokens, reader.GetCurrentName()))
                     {
                     case SwitchIds::ParticleToken::Name: { const char* name = reader.GetString(); if (*name != '\0') std::strcpy(static_cast<char*>(entry), name); break; }
-                    case SwitchIds::ParticleToken::Palette: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, 0x2C, E2StaticDataPalettesManager_GetPalette256Id(name)); break; }
-                    case SwitchIds::ParticleToken::Bobmanager: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, 0x28, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name)); break; }
-                    case SwitchIds::ParticleToken::MaxValency: Write(entry, 0x38, reader.GetInt()); break;
-                    case SwitchIds::ParticleToken::Animloop: Write<std::uint8_t>(entry, 0x30, reader.GetInt() != 0); break;
-                    case SwitchIds::ParticleToken::Bobtype: Write(entry, 0x40, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::Palette: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, NC2Layout::StaticParticleOffset::PaletteId, E2StaticDataPalettesManager_GetPalette256Id(name)); break; }
+                    case SwitchIds::ParticleToken::Bobmanager: { const char* name = reader.GetString(); if (*name != '\0') Write(entry, NC2Layout::StaticParticleOffset::BobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, name)); break; }
+                    case SwitchIds::ParticleToken::MaxValency: Write(entry, NC2Layout::StaticParticleOffset::MaximumValency, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::Animloop: Write<std::uint8_t>(entry, NC2Layout::StaticParticleOffset::AnimationLoops, reader.GetInt() != 0); break;
+                    case SwitchIds::ParticleToken::Bobtype: Write(entry, NC2Layout::StaticParticleOffset::BobType, reader.GetInt()); break;
                     case SwitchIds::ParticleToken::MunitionType: gStaticParticelStorage.munitionIds[reader.GetInt()] = gStaticParticelStorage.count - 1; break;
-                    case SwitchIds::ParticleToken::ValencyIsDirection: Write<std::uint8_t>(entry, 0x31, reader.GetInt() != 0); break;
-                    case SwitchIds::ParticleToken::SpecialType: Write(entry, 0x44, reader.GetInt()); break;
-                    case SwitchIds::ParticleToken::SpawnparticelId: Write<std::uint8_t>(entry, 0x20, 1); Write(entry, 0x24, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::ValencyIsDirection: Write<std::uint8_t>(entry, NC2Layout::StaticParticleOffset::ValencyIsDirection, reader.GetInt() != 0); break;
+                    case SwitchIds::ParticleToken::SpecialType: Write(entry, NC2Layout::StaticParticleOffset::SpecialType, reader.GetInt()); break;
+                    case SwitchIds::ParticleToken::SpawnparticelId: Write<std::uint8_t>(entry, NC2Layout::StaticParticleOffset::HasSpawnParticle, 1);
+                    Write(entry, NC2Layout::StaticParticleOffset::SpawnParticleId, reader.GetInt()); break;
                     case SwitchIds::ParticleToken::GfxFrames:
                     {
                         SParticelFrames frames{};
@@ -116,7 +118,7 @@ namespace NC2E2
         if (allocation != nullptr)
         {
             Write<std::uint32_t>(allocation, 0, 30);
-            for (std::uint32_t index = 0; index < 30; ++index) std::memset(allocation + 4 + index * 0x48u + 0x34, 0, 12);
+            for (std::uint32_t index = 0; index < 30; ++index) std::memset(allocation + 4 + index * NC2Layout::RecordSize::StaticParticleUnsigned + 0x34, 0, 12);
             gStaticParticelStorage.entries = allocation + 4;
         }
         for (auto& id : gStaticParticelStorage.munitionIds) id = -1;
@@ -128,23 +130,24 @@ namespace NC2E2
     std::int32_t E2StaticDataParticelManager_GetParticelId(const char* name)
     {
         for (std::int32_t index = 0; index < gStaticParticelStorage.count; ++index)
-            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(index) * 0x48u, name) == 0) return index;
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticParticelStorage.entries) + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::StaticParticleUnsigned, name) == 0) return index;
         return -1;
     }
 
     // Original function: FUN_00486f68; semantic reconstruction name, original helper name unresolved.
     void* ParticelGraphics_GetValency(const void* list, std::uint32_t valency)
     {
-        for (auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(list, 0) - 1u); index >= 0; --index)
+        for (auto index = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(list, NC2Layout::ParticleGraphicsOffset::EntryCount) - 1u); index >= 0; --index)
         {
-            void* entry = Read<void*>(Read<void*>(list, 8), static_cast<std::uint32_t>(index) * 4u);
-            if (Read<std::uint32_t>(entry, 0) <= valency) return entry;
+            void* entry = Read<void*>(Read<void*>(list, NC2Layout::ParticleGraphicsOffset::Entries), static_cast<std::uint32_t>(index) * 4u);
+            if (Read<std::uint32_t>(entry, NC2Layout::ParticleFramesOffset::MinimumValency) <= valency) return entry;
         }
         return nullptr;
     }
 
     // Original function: FUN_0048a49d.
-    static void ParticelEffect_Construct(void* effect) { Write<std::uint16_t>(effect, 0x2E, 0); Write<std::uint16_t>(effect, 0x30, 0); std::memset(effect, 0, 52); }
+    static void ParticelEffect_Construct(void* effect) { Write<std::uint16_t>(effect, NC2Layout::ParticleEffectOffset::MapOffsetX, 0);
+    Write<std::uint16_t>(effect, NC2Layout::ParticleEffectOffset::MapOffsetY, 0); std::memset(effect, 0, 52); }
 
     // Original function: FUN_0048a028.
     void* __fastcall E2StaticDataParticelEffectManager_Construct(void* manager, void* /*unusedEdx*/)
@@ -152,7 +155,7 @@ namespace NC2E2
         gE2StaticDataParticelEffectManager = manager;
         gStaticParticelEffects = nullptr;
         auto* effects = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(364, 1));
-        if (effects != nullptr) for (std::uint32_t index = 0; index < 7; ++index) ParticelEffect_Construct(effects + index * 0x34u);
+        if (effects != nullptr) for (std::uint32_t index = 0; index < 7; ++index) ParticelEffect_Construct(effects + index * NC2Layout::RecordSize::ParticleEffectUnsigned);
         gStaticParticelEffects = effects;
         NXBasics::CIniFileReader reader("Data\\Engine2D\\Inis\\Particel\\ParticelEffects.ini", nullptr, false, nullptr, nullptr);
         if (!reader.IsLoaded()) return manager;
@@ -163,20 +166,24 @@ namespace NC2E2
             if (NXBasics::Runtime_CompareStringsIgnoreCase(reader.GetCurrentName(), "logictype") == 0) index = static_cast<std::uint32_t>(reader.GetInt());
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
-                auto* entry = effects + index * 0x34u;
+                auto* entry = effects + index * NC2Layout::RecordSize::ParticleEffectUnsigned;
                 switch (NXBasics::XB_Token_FindTokenInArray(gEffectTokens, reader.GetCurrentName()))
                 {
-                case SwitchIds::ParticleEffectToken::Particelname: Write(entry, 0, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
-                case SwitchIds::ParticleEffectToken::LifeTime: Write(entry, 4, reader.GetInt()); break;
-                case SwitchIds::ParticleEffectToken::StartLifeTime: Write(entry, 8, reader.GetInt()); break;
-                case SwitchIds::ParticleEffectToken::Movement: Write(entry, 0xC, reader.GetInt()); break;
-                case SwitchIds::ParticleEffectToken::Particelspeed: Write(entry, 0x10, reader.GetInt()); Write(entry, 0x14, reader.GetInt()); Write(entry, 0x18, reader.GetInt()); break;
-                case SwitchIds::ParticleEffectToken::Usemapheights: Write<std::uint8_t>(entry, 0x1C, reader.GetInt() != 0); break;
-                case SwitchIds::ParticleEffectToken::Usewind: Write<std::uint8_t>(entry, 0x1D, reader.GetInt() != 0); break;
-                case SwitchIds::ParticleEffectToken::Deltaheight: Write(entry, 0x20, reader.GetInt()); break;
-                case SwitchIds::ParticleEffectToken::PixelOffset: Write(entry, 0x24, reader.GetInt()); Write(entry, 0x28, reader.GetInt()); break;
-                case SwitchIds::ParticleEffectToken::Drawbottom: Write<std::uint8_t>(entry, 0x2C, reader.GetInt() != 0); break;
-                case SwitchIds::ParticleEffectToken::MigPointoffset: Write<std::uint16_t>(entry, 0x2E, static_cast<std::uint16_t>(reader.GetInt())); Write<std::uint16_t>(entry, 0x30, static_cast<std::uint16_t>(reader.GetInt())); break;
+                case SwitchIds::ParticleEffectToken::Particelname: Write(entry, NC2Layout::ParticleEffectOffset::ParticleId, E2StaticDataParticelManager_GetParticelId(reader.GetString())); break;
+                case SwitchIds::ParticleEffectToken::LifeTime: Write(entry, NC2Layout::ParticleEffectOffset::LifetimeTicks, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::StartLifeTime: Write(entry, NC2Layout::ParticleEffectOffset::StartLifetimeTicks, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Movement: Write(entry, NC2Layout::ParticleEffectOffset::MovementMode, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Particelspeed: Write(entry, NC2Layout::ParticleEffectOffset::SpeedMapX, reader.GetInt());
+                Write(entry, NC2Layout::ParticleEffectOffset::SpeedHeight, reader.GetInt());
+                Write(entry, NC2Layout::ParticleEffectOffset::SpeedMapY, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Usemapheights: Write<std::uint8_t>(entry, NC2Layout::ParticleEffectOffset::UseMapHeights, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleEffectToken::Usewind: Write<std::uint8_t>(entry, NC2Layout::ParticleEffectOffset::UseWind, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleEffectToken::Deltaheight: Write(entry, NC2Layout::ParticleEffectOffset::HeightOffset, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::PixelOffset: Write(entry, NC2Layout::ParticleEffectOffset::PixelPoint, reader.GetInt());
+                Write(entry, NC2Layout::ParticleEffectOffset::PixelY, reader.GetInt()); break;
+                case SwitchIds::ParticleEffectToken::Drawbottom: Write<std::uint8_t>(entry, NC2Layout::ParticleEffectOffset::DrawBottom, reader.GetInt() != 0); break;
+                case SwitchIds::ParticleEffectToken::MigPointoffset: Write<std::uint16_t>(entry, NC2Layout::ParticleEffectOffset::MapOffsetX, static_cast<std::uint16_t>(reader.GetInt()));
+                Write<std::uint16_t>(entry, NC2Layout::ParticleEffectOffset::MapOffsetY, static_cast<std::uint16_t>(reader.GetInt())); break;
                 }
             }
         }

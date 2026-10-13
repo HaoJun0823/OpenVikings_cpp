@@ -316,7 +316,7 @@ namespace NC2E2
     static void E2ParticelManager_IO_Savegame_Save(void* manager, CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::EngineSavegameChunk::Particles, 1);
-        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0x7D04);
+        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, NC2Layout::RecordSize::ParticleGeneratorPoolBytes);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
     // Original function: FUN_00486f0e.
@@ -324,7 +324,7 @@ namespace NC2E2
     {
         E2ParticelManager_Initialize(manager);
         if (io->mReadHeader.version != 1) io->IO_File_Chunk_Skip();
-        else io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0x7D04);
+        else io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, NC2Layout::RecordSize::ParticleGeneratorPoolBytes);
     }
 
     // Original function: FUN_0047f272; the Windows-only music chunk precedes weather.

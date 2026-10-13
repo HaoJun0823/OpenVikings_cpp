@@ -1627,6 +1627,7 @@ namespace SwitchIds
 
     namespace ParticleMotionMode
     {
+        inline constexpr auto Stationary = 0;
         inline constexpr auto Linear = 1;
         inline constexpr auto Parabolic = 2;
         inline constexpr auto Rise = 3;
@@ -1634,6 +1635,21 @@ namespace SwitchIds
         inline constexpr auto RiseAlternate = 5;
         inline constexpr auto FallWithGroundRefresh = 6;
         inline constexpr auto FollowGround = 7;
+    }
+
+    namespace ParticleValencyMode
+    {
+        inline constexpr auto Fixed = 0;
+        inline constexpr auto RemainingLifetime = 1;
+        inline constexpr auto ElapsedLifetime = 2;
+    }
+
+    namespace ParticleBobType
+    {
+        inline constexpr auto Opaque = 0;
+        inline constexpr auto LifetimeFade = 1;
+        inline constexpr auto Transparency = 2;
+        inline constexpr auto EffectMatrix = 3;
     }
 
     namespace ParticleToken
