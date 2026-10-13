@@ -103,9 +103,9 @@ namespace NC2InGameGuiInputManager
                 if ((Input_Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit5) != 0) continue;
                 std::byte command[20]{};
                 NC2Lifetime::Write<std::uint32_t>(command, 4, id);
-                const std::uint32_t targetIndex = index % Input_Read<std::uint32_t>(manager, 0xAC8);
+                const std::uint32_t targetIndex = index % Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::TargetPointCount);
                 NC2Lifetime::Write<std::uint8_t>(command, 0, 4);
-                NC2Lifetime::Write<std::uint32_t>(command, 0x0C, NC2Logic::MapMigPoint_GetLong(static_cast<const std::byte*>(manager) + 0xACCu + targetIndex * 4u));
+                NC2Lifetime::Write<std::uint32_t>(command, 0x0C, NC2Logic::MapMigPoint_GetLong(static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointsUnsigned + targetIndex * 4u));
                 NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, command);
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Input_Read<std::int32_t>(manager, offset));
             }
@@ -141,8 +141,8 @@ namespace NC2InGameGuiInputManager
                 std::byte command[20]{};
                 NC2Lifetime::Write<std::uint8_t>(command, 0, 101);
                 NC2Lifetime::Write(command, 4, Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + index * 8u));
-                const auto count = Input_Read<std::uint32_t>(manager, 0xAC8);
-                const void* target = count == 0 ? static_cast<const void*>(&point) : static_cast<const std::byte*>(manager) + 0xACCu + (index % count) * 4u;
+                const auto count = Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::TargetPointCount);
+                const void* target = count == 0 ? static_cast<const void*>(&point) : static_cast<const std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointsUnsigned + (index % count) * 4u;
                 NC2Lifetime::Write(command, 0x0C, NC2Logic::MapMigPoint_GetLong(target));
                 NC2Logic::UserNetworkCommand_AddVehicleCommand(NC2Logic::gUserNetworkCommandManager, command);
                 const void* vehicle = NC2Logic::CVehicleArray::mStaticVars + Input_Read<std::uint32_t>(manager, NC2Layout::InputManagerOffset::VehicleGroupUnsigned + index * 8u) * NC2Logic::CVehicleArray::ElementSize;
@@ -164,8 +164,8 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b7ded.
     void l_Selection_FillTargetPointArray(void* manager, const void* point, std::uint32_t radius, std::uint32_t wanted)
     {
-        NC2Lifetime::Write<std::uint32_t>(manager, 0xAC8, 0);
-        SInputManagerTargetPointSearch search{static_cast<std::byte*>(manager) + 0xAC8, NC2Logic::VE_MicroPoint_GetMicroPointCount(radius) * 2u, radius, 0, wanted};
+        NC2Lifetime::Write<std::uint32_t>(manager, NC2Layout::InputManagerOffset::TargetPointCount, 0);
+        SInputManagerTargetPointSearch search{static_cast<std::byte*>(manager) + NC2Layout::InputManagerOffset::TargetPointCount, NC2Logic::VE_MicroPoint_GetMicroPointCount(radius) * 2u, radius, 0, wanted};
         NC2Logic::CMapPathfinderElement::SearchOverMap(point, 20, true, slInputManagerSearchForTargetPoints, &search, true, -1);
     }
 
@@ -178,12 +178,12 @@ namespace NC2InGameGuiInputManager
         {
             const void* microPoint = NC2Logic::GameMap_GetConstMapMicroPointPtr(point);
             if ((Input_Read<std::uint8_t>(microPoint, 0x0C) & 7u) < search.radius) return false;
-            if (Input_Read<std::uint32_t>(search.targetPoints, 0) * search.spacing > search.visited) return false;
+            if (Input_Read<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count) * search.spacing > search.visited) return false;
         }
-        const std::uint32_t count = Input_Read<std::uint32_t>(search.targetPoints, 0);
-        NC2Lifetime::Write<std::uint32_t>(search.targetPoints, 4u + count * 4u, Input_Read<std::uint32_t>(point, 0));
-        NC2Lifetime::Write<std::uint32_t>(search.targetPoints, 0, count + 1u);
-        return Input_Read<std::uint32_t>(search.targetPoints, 0) >= search.wanted;
+        const std::uint32_t count = Input_Read<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count);
+        NC2Lifetime::Write<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Points + count * 4u, Input_Read<std::uint32_t>(point, 0));
+        NC2Lifetime::Write<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count, count + 1u);
+        return Input_Read<std::uint32_t>(search.targetPoints, NC2Layout::InputTargetPointListOffset::Count) >= search.wanted;
     }
 }
 

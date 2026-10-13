@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
@@ -31,32 +32,32 @@ namespace
     // Original function: FUN_004b476c; embedded input selection construction.
     void ConstructInputSelection(void* selection)
     {
-        Write<std::uint16_t>(selection, 0xA9E, 0);
-        Write<std::uint16_t>(selection, 0xA9C, 0);
-        Write<std::uint16_t>(selection, 0xAA6, 0);
-        Write<std::uint16_t>(selection, 0xAA4, 0);
-        Write<std::uint16_t>(selection, 0xAAA, 0);
-        Write<std::uint16_t>(selection, 0xAA8, 0);
+        Write<std::uint16_t>(selection, NC2Layout::InputSelectionMemberOffset::LandscapeMapPointY, 0);
+        Write<std::uint16_t>(selection, NC2Layout::InputSelectionMemberOffset::LandscapeMapPointX, 0);
+        Write<std::uint16_t>(selection, NC2Layout::InputSelectionMemberOffset::RoadBuildPointY, 0);
+        Write<std::uint16_t>(selection, NC2Layout::InputSelectionMemberOffset::RoadBuildPointX, 0);
+        Write<std::uint16_t>(selection, NC2Layout::InputSelectionMemberOffset::WallBuildPointY, 0);
+        Write<std::uint16_t>(selection, NC2Layout::InputSelectionMemberOffset::WallBuildPointX, 0);
     }
 
     // Original function: FUN_004b47bf; complete 300-point array.
     void ConstructInputPoints(void* storage)
     {
-        for (std::uint32_t index = 0; index < 300; ++index)
+        for (std::uint32_t index = 0; index < NC2Runtime::InputTargetPointLimits::Points; ++index)
         {
-            Write<std::uint16_t>(storage, 4u + index * 4u + 2u, 0);
-            Write<std::uint16_t>(storage, 4u + index * 4u, 0);
+            Write<std::uint16_t>(storage, NC2Layout::InputTargetPointListOffset::Points + index * 4u + 2u, 0);
+            Write<std::uint16_t>(storage, NC2Layout::InputTargetPointListOffset::Points + index * 4u, 0);
         }
     }
 
     // Original function: FUN_004b479f.
     void ConstructInputPointState(void* storage)
     {
-        Write<std::uint16_t>(storage, 2, 0);
-        Write<std::uint16_t>(storage, 0, 0);
-        Write<std::uint16_t>(storage, 6, 0);
-        Write<std::uint16_t>(storage, 4, 0);
-        ConstructInputPoints(static_cast<std::byte*>(storage) + 8);
+        Write<std::uint16_t>(storage, NC2Layout::InputRoadWallPointStateOffset::RoadStartPointY, 0);
+        Write<std::uint16_t>(storage, NC2Layout::InputRoadWallPointStateOffset::RoadStartPointX, 0);
+        Write<std::uint16_t>(storage, NC2Layout::InputRoadWallPointStateOffset::WallStartPointY, 0);
+        Write<std::uint16_t>(storage, NC2Layout::InputRoadWallPointStateOffset::WallStartPointX, 0);
+        ConstructInputPoints(static_cast<std::byte*>(storage) + NC2Layout::InputRoadWallPointStateOffset::TargetPoints);
     }
 
     // Original function: FUN_004b473b.
@@ -64,11 +65,11 @@ namespace
     {
         auto* bytes = static_cast<std::byte*>(storage);
         ConstructInputSelection(bytes + 4);
-        Write<std::uint16_t>(storage, 0xAB8, 0);
-        Write<std::uint16_t>(storage, 0xAB6, 0);
-        Write<std::uint16_t>(storage, 0xABE, 0);
-        Write<std::uint16_t>(storage, 0xABC, 0);
-        ConstructInputPointState(bytes + 0xAC0);
+        Write<std::uint16_t>(storage, NC2Layout::InputManagerOffset::CursorMapPointY, 0);
+        Write<std::uint16_t>(storage, NC2Layout::InputManagerOffset::CursorMapPoint, 0);
+        Write<std::uint16_t>(storage, NC2Layout::InputManagerOffset::AcceptedTargetMapPointY, 0);
+        Write<std::uint16_t>(storage, NC2Layout::InputManagerOffset::AcceptedTargetMapPoint, 0);
+        ConstructInputPointState(bytes + NC2Layout::InputManagerOffset::RoadStartPoint);
     }
 
 
@@ -463,10 +464,10 @@ namespace NC2InGameGuiInputManager
     {
         ConstructInputMembers(this);
         gInputManager = this;
-        std::memset(this, 0, 3964);
+        std::memset(this, 0, NC2Layout::ObjectSize::InputManager);
         gInputManagerStaticVars = 0;
         RegisterCallbacks(InputManager_ls_Callback_Logic, {1, 4, 6, 8, 0xA, 0xC, 0x16}, 20);
-        Write<std::uint32_t>(this, 0xAB0, 1);
+        Write<std::uint32_t>(this, NC2Layout::InputManagerOffset::SelectionChangeCount, 1);
     }
 
     // Original function: FUN_004b47d9.

@@ -1,5 +1,14 @@
 # OpenVikings Project State
 
+## Input cursor and whole-source review checkpoint - 2026-10-13
+
+Named the complete input manager cursor/road-wall/300-target-point storage, preserving the unaligned cursor at AB6, relative constructor receivers, retained last-valid coordinate and original search/callback order. Seven source/header files, 26 value/type pairs and layout assertions pass targeted Win32 syntax checks; 1216 native instruction byte sequences verify against Game.exe. See [INPUT_CURSOR_LAYOUT_REVIEW.md](INPUT_CURSOR_LAYOUT_REVIEW.md). No build, tests or runtime run occurred.
+
+The known-entry reconstruction inventory remains 5063/5063 with zero tracked unfinished implementations; this is distinct from the ongoing whole-source readability and behavior review. The refreshed registered-source scan covers 595 files (307 CPP / 288 headers) and finds 10340 raw numeric access operands, 74 unknown-member mentions and 1210 long multi-statement lines. Raw numeric accesses have decreased by 4390 from the initial 14730 (29.80%); that is a text-scan reduction, not a 29.80% completion claim for the entire review. There is not yet a complete reviewed-function ledger for this pass. The naming map still contains 3151 unique addresses.
+
+Recently completed related blocks: weather, display scrolling/projection, object references/search hits, downstream selection/default interaction, camera/tooltips, input selection storage and draw counters. Remaining priorities include particle simulation, engine macro maps, AI soldier/military data and remaining GUI/actor/layout regions. Explicit unknowns must continue to be resolved from Windows evidence rather than guessed.
+
+
 ## Static moveable lookup layouts - 2026-10-13
 
 Named the 42×56 animation/walk access tables, corrected misleading Shadow helper names to Walk, and separated the 32-byte data region from its adjacent token object. Sorting, independent random choice and frame/list destruction order are retained. Modified units and consumer plus 52 value/type pairs pass Win32 `/Zs`; 1449 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [FAST_MOVEABLE_ACCESS_REVIEW.md](FAST_MOVEABLE_ACCESS_REVIEW.md). Whole-source review continues with display/weather and GUI/control/data structures.

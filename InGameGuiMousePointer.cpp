@@ -265,26 +265,26 @@ namespace NC2InGameGuiWorldGameCursor
         };
         for (std::uint32_t index = 0; index < 10; ++index) { std::uint32_t position; manager->GuiMarker_Get(index, &position); if (NC2Logic::MapMigPoint_IsInsideMap(&position) && position != 0) marker(&position); }
 
-        if (mode != 0 && Read<std::uint8_t>(input, 0xABA) != 0)
+        if (mode != 0 && Read<std::uint8_t>(input, NC2Layout::InputManagerOffset::AcceptedTargetPresent) != 0)
         {
             if ((gMarkerColors.initialized & 1u) == 0) { gMarkerColors.initialized |= 1u; gMarkerColors.black.SetColors(0, 0, 0); NXBasics::Runtime_AtExit(MarkerBlack_Exit); }
             if ((gMarkerColors.initialized & 2u) == 0) { gMarkerColors.initialized |= 2u; gMarkerColors.white.SetColors(255, 255, 255); NXBasics::Runtime_AtExit(MarkerWhite_Exit); }
-            const auto* position = static_cast<const std::byte*>(input) + 0xABC;
+            const auto* position = static_cast<const std::byte*>(input) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint;
             NC2E2::DE_Debug_DrawMicroGridMarker(display, position, &gMarkerColors.black, &gMarkerColors.white, 5, false);
             if (mode == 12) { std::int32_t pixel[2]; NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, pixel, false); NC2E2::DrawAtom_House_Tool_DoDrawEngineHouseType(NC2InGameGuiInputManager::Selection_GetSelectedEngineHouseTypeId(input), NC2InGameGuiInputManager::Selection_GetSelectedEngineHouseExtensionLevel(input), Read<NXBasics::CBitmap*>(display, 0x68), pixel[0], pixel[1], -1, false, true); }
         }
         if (mode == 15 || mode == 17)
         {
-            const auto* position = static_cast<const std::byte*>(input) + (mode == 15 ? 0xAC0 : 0xAC4);
+            const auto* position = static_cast<const std::byte*>(input) + (mode == 15 ? NC2Layout::InputManagerOffset::RoadStartPoint : NC2Layout::InputManagerOffset::WallStartPoint);
             const auto graphic = mode == 15 ? NC2E2::StaticHumanMisc_RoadBuildSign_GetLandscapeId(player) : NC2E2::StaticHumanMisc_WallBuildSign_GetLandscapeId(player);
             std::int32_t pixel[2]; NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, position, pixel, false);
             const auto brightness = NC2E2::Display_DE_Hightlighting_GetMapLandscapeBrightness(display, position);
             NC2E2::EngineGraphic_Draw(graphic, 1, Read<NXBasics::CBitmap*>(display, 0x68), pixel[0], pixel[1], 0, brightness, -1, false);
-            if (Read<std::uint8_t>(input, 0xABA) != 0)
+            if (Read<std::uint8_t>(input, NC2Layout::InputManagerOffset::AcceptedTargetPresent) != 0)
             {
                 auto current = Read<std::uint32_t>(position, 0);
                 NC2Logic::CMapPathfinderSpecialWallRoadElement path;
-                const auto* target = static_cast<const std::byte*>(input) + 0xABC;
+                const auto* target = static_cast<const std::byte*>(input) + NC2Layout::InputManagerOffset::AcceptedTargetMapPoint;
                 if (mode == 15) NC2Logic::Tool_RoadBuildManager_GetPossibleVectorList(player, &path, &current, target);
                 else NC2Logic::MapTool_Wall_Build_GetPossibleVectorList(player, &path, &current, target);
                 const auto drawSign = [&]

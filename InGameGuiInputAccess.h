@@ -2,6 +2,7 @@
 
 #include "C2RuntimeConstants.h"
 
+#include <cstddef>
 #include <cstdint>
 namespace NXBasics { struct SRectangle; }
 
@@ -41,6 +42,42 @@ namespace NC2InGameGuiInputManager
     };
     static_assert(sizeof(SSelectedObjectReference) == 8);
     static_assert(sizeof(SInputManagerSelectionData) == 0xAB4);
+
+    struct SInputManagerCursorState
+    {
+        std::uint8_t mapHighlightingEnabled;
+        std::byte unresolvedByte1;
+        std::int16_t cursorX;
+        std::int16_t cursorY;
+        std::uint8_t acceptedTargetPresent;
+        std::byte unresolvedByte7;
+        std::uint32_t acceptedTargetMapPoint;
+    };
+
+    struct SInputManagerTargetPointList
+    {
+        std::uint32_t count;
+        std::uint32_t points[NC2Runtime::InputTargetPointLimits::Points];
+    };
+
+    struct SInputManagerRoadWallPointState
+    {
+        std::uint32_t roadStartPoint;
+        std::uint32_t wallStartPoint;
+        SInputManagerTargetPointList targetPoints;
+    };
+
+    // Layout documentation only; CInputManager retains its original raw storage.
+    struct SInputManagerData
+    {
+        SInputManagerSelectionData selection;
+        SInputManagerCursorState cursor;
+        SInputManagerRoadWallPointState roadWallPoints;
+    };
+    static_assert(sizeof(SInputManagerCursorState) == 12);
+    static_assert(sizeof(SInputManagerTargetPointList) == 1204);
+    static_assert(sizeof(SInputManagerRoadWallPointState) == 1212);
+    static_assert(sizeof(SInputManagerData) == 3964);
 
     // Complete singleton binding at 00569410; lifecycle is in InGameGuiSupportAccess.cpp.
     extern void* gInputManager;

@@ -180,8 +180,44 @@ namespace NC2Layout
         inline constexpr auto SandDensity = 8;
     }
 
+    namespace InputSelectionMemberOffset
+    {
+        inline constexpr auto LandscapeMapPointX = 0xA9C;
+        inline constexpr auto LandscapeMapPointY = 0xA9E;
+        inline constexpr auto RoadBuildPointX = 0xAA4;
+        inline constexpr auto RoadBuildPointY = 0xAA6;
+        inline constexpr auto WallBuildPointX = 0xAA8;
+        inline constexpr auto WallBuildPointY = 0xAAA;
+    }
+
+    namespace InputRoadWallPointStateOffset
+    {
+        inline constexpr auto RoadStartPointX = 0;
+        inline constexpr auto RoadStartPointY = 2;
+        inline constexpr auto WallStartPointX = 4;
+        inline constexpr auto WallStartPointY = 6;
+        inline constexpr auto TargetPoints = 8;
+    }
+
+    namespace InputTargetPointListOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto Points = 4u;
+    }
+
     namespace InputManagerOffset
     {
+        inline constexpr auto MapHighlightingEnabled = 0xAB4;
+        inline constexpr auto CursorMapPoint = 0xAB6;
+        inline constexpr auto CursorMapPointY = 0xAB8;
+        inline constexpr auto AcceptedTargetPresent = 0xABA;
+        inline constexpr auto AcceptedTargetMapPoint = 0xABC;
+        inline constexpr auto AcceptedTargetMapPointY = 0xABE;
+        inline constexpr auto RoadStartPoint = 0xAC0;
+        inline constexpr auto WallStartPoint = 0xAC4;
+        inline constexpr auto TargetPointCount = 0xAC8;
+        inline constexpr auto TargetPointsUnsigned = 0xACCu;
+
         inline constexpr auto InputMode = 0;
         inline constexpr auto SelectionType = 4;
         inline constexpr auto SingleHumanId = 8;
@@ -730,6 +766,7 @@ namespace NC2Layout
 
     namespace ObjectSize
     {
+        inline constexpr auto InputManager = 3964;
         inline constexpr auto EmbeddedSavegameManager = 0x8;
         inline constexpr auto MacroMapManager = 0x8;
         inline constexpr auto E2MapWeatherManagerSectorManager = 0xC;

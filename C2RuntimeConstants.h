@@ -85,6 +85,11 @@ namespace NC2Runtime
         inline constexpr auto Sand = 3;
     }
 
+    namespace InputTargetPointLimits
+    {
+        inline constexpr auto Points = 300;
+    }
+
     namespace InputSelectionLimits
     {
         inline constexpr auto Humans = 300;
