@@ -59,9 +59,9 @@ namespace NC2InGameGuiWorldElement
         using namespace NC2Lifetime;
         std::int32_t point[2]{x, y};
         NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
-        auto* display = Read<void*>(element, 0x30);
+        auto* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
         NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
-        if (Read<std::uint8_t>(element, 0x1F4) != 0) { Write(element, 0x200, point[0]); Write(element, 0x204, point[1]); return; }
+        if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag) != 0) { Write(element, NC2Layout::WorldGuiElementOffset::AreaEndX, point[0]); Write(element, NC2Layout::WorldGuiElementOffset::AreaEndY, point[1]); return; }
         NC2E2::DisplayDescription_MakeValidWorldPixelPosition(display, point);
         std::uint32_t mapPoint = 0;
         NC2E2::DisplayDescription_WorldPixelToMapMigCoordinates(display, point, &mapPoint);
@@ -72,13 +72,13 @@ namespace NC2InGameGuiWorldElement
     static void WorldDisplayElement_CheckObjectUnderMouse(void* element)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint8_t>(element, 0x34) == 0) return;
+        if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0) return;
         auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
         std::int32_t point[2]{Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
         NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
-        auto* display = Read<void*>(element, 0x30);
+        auto* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
         NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
-        auto* target = static_cast<std::byte*>(element) + 0x38;
+        auto* target = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse;
         NC2E2::DE_SearchObject_FindOnWorldPosition(display, point, target);
         Write<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, 0);
         const auto localPlayer = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
@@ -109,22 +109,22 @@ namespace NC2InGameGuiWorldElement
                     if (Read<std::uint8_t>(slot, 0) != 0) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, Read<std::uint32_t>(slot, 4));
                 }
         }
-        Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
-        std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 20); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 20);
+        Write<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HumanInteractionAction, 0); Write<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::VehicleInteractionAction, 0);
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::PrimaryCommand, 0, 20); std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::SecondaryCommand, 0, 20);
         const auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
-        auto* command = static_cast<std::byte*>(element) + 0x1CC;
-        auto* secondary = static_cast<std::byte*>(element) + 0x1E0;
+        auto* command = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::PrimaryCommand;
+        auto* secondary = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::SecondaryCommand;
         const auto modifier = []() { return (Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0) & 2u) != 0; };
         const auto clearGroup = [&](std::size_t offset) { Write<std::uint32_t>(element, offset, 0); std::memset(command, 0, 20); std::memset(secondary, 0, 20); };
         using namespace NC2InGameGuiInputManager;
-        switch (Read<std::uint32_t>(input, 4))
+        switch (Read<std::uint32_t>(input, NC2Layout::InputManagerOffset::SelectionType))
         {
         case SwitchIds::SelectionType::SingleHuman:
         {
             const auto id = Selection_GetSelectedSingleHumanId(input);
             if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1 && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId) == id) return;
             const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-            Write(element, 0x1C4, NC2Logic::Human_UserControl_GetDefaultInteractionCommand_SingleHuman(human, target, command, secondary, modifier()));
+            Write(element, NC2Layout::WorldGuiElementOffset::HumanInteractionAction, NC2Logic::Human_UserControl_GetDefaultInteractionCommand_SingleHuman(human, target, command, secondary, modifier()));
             return;
         }
         case SwitchIds::SelectionType::MultipleHumans:
@@ -139,7 +139,7 @@ namespace NC2InGameGuiWorldElement
             {
                 const auto id = Selection_GetSelectedMultipleHumanId(input, i);
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-                if (!NC2Logic::Human_UserControl_GetDefaultInteractionCommand_MultipleHuman(human, reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(element) + 0x1C4), target, command, i, count, modifier())) { clearGroup(0x1C4); return; }
+                if (!NC2Logic::Human_UserControl_GetDefaultInteractionCommand_MultipleHuman(human, reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::HumanInteractionAction), target, command, i, count, modifier())) { clearGroup(NC2Layout::WorldGuiElementOffset::HumanInteractionAction); return; }
             }
             return;
         }
@@ -148,7 +148,7 @@ namespace NC2InGameGuiWorldElement
             const auto id = Selection_GetSelectedSingleVehicleId(input);
             if (Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 3 && Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::VehicleId) == id) return;
             const auto* vehicle = NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize;
-            Write(element, 0x1C8, NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(vehicle, target, command, secondary, modifier()));
+            Write(element, NC2Layout::WorldGuiElementOffset::VehicleInteractionAction, NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_SingleVehicle(vehicle, target, command, secondary, modifier()));
             return;
         }
         case SwitchIds::SelectionType::MultipleVehicles:
@@ -163,7 +163,7 @@ namespace NC2InGameGuiWorldElement
             {
                 const auto id = Selection_GetSelectedMultipleVehicleId(input, i);
                 const auto* vehicle = NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize;
-                if (!NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_MultipleVehicles(vehicle, reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(element) + 0x1C8), target, command, i, count, modifier())) { clearGroup(0x1C8); return; }
+                if (!NC2Logic::Vehicle_UserControl_GetDefaultInteractionCommand_MultipleVehicles(vehicle, reinterpret_cast<std::uint32_t*>(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::VehicleInteractionAction), target, command, i, count, modifier())) { clearGroup(NC2Layout::WorldGuiElementOffset::VehicleInteractionAction); return; }
             }
             return;
         }
@@ -175,21 +175,21 @@ namespace NC2InGameGuiWorldElement
     static bool WorldDisplayElement_DoDefaultAction(void* element)
     {
         using namespace NC2Lifetime;
-        auto* command = static_cast<std::byte*>(element) + 0x1CC;
-        if (Read<std::uint8_t>(command, 0) == 0) return false;
-        if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 1)
+        auto* command = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::PrimaryCommand;
+        if (Read<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode) == 0) return false;
+        if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), NC2Layout::InputManagerOffset::SelectionType) == 1)
         {
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
-            if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
-            NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(command, 4));
-            if (Read<std::uint8_t>(command, 0) == 32)
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::SecondaryCommand) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::SecondaryCommand, false, false);
+            NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(command, NC2Layout::UserNetworkCommandOffset::ObjectId));
+            if (Read<std::uint8_t>(command, NC2Layout::UserNetworkCommandOffset::Opcode) == 32)
             {
-                const auto address = reinterpret_cast<std::uintptr_t>(NC2Logic::CHouseArray::mStaticVars) + Read<std::uint32_t>(command, 0xC) * NC2Logic::CHouseArray::ElementSize;
+                const auto address = reinterpret_cast<std::uintptr_t>(NC2Logic::CHouseArray::mStaticVars) + Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter1) * NC2Logic::CHouseArray::ElementSize;
                 const auto* house = reinterpret_cast<const void*>(address);
-                if (address != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(command, 0x10) && Read<std::uint32_t>(house, 0x14) == 38) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanLearnJobWindow_Open();
+                if (address != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) == Read<std::uint32_t>(command, NC2Layout::UserNetworkCommandOffset::Parameter2) && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 38) NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_HumanLearnJobWindow_Open();
             }
         }
-        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 2)
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), NC2Layout::InputManagerOffset::SelectionType) == 2)
         {
             auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
             const auto count = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanNumber(input);
@@ -197,17 +197,17 @@ namespace NC2InGameGuiWorldElement
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanId(input, i);
                 std::byte selectedCommand[20]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
-                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
+                Write(selectedCommand, NC2Layout::UserNetworkCommandOffset::ObjectId, id); Write(selectedCommand, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
             }
         }
-        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 4)
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), NC2Layout::InputManagerOffset::SelectionType) == 4)
         {
             NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, command, false, false);
-            if (Read<std::uint8_t>(element, 0x1E0) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + 0x1E0, false, false);
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::SecondaryCommand) != 0) NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::SecondaryCommand, false, false);
         }
-        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), 4) == 5)
+        else if (Read<std::uint32_t>(NC2InGameGuiInputManager::GetInputManagerPtr(), NC2Layout::InputManagerOffset::SelectionType) == 5)
         {
             auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
             const auto count = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehiclesNumber(input);
@@ -215,7 +215,7 @@ namespace NC2InGameGuiWorldElement
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleVehicleId(input, i);
                 std::byte selectedCommand[20]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
-                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
+                Write(selectedCommand, NC2Layout::UserNetworkCommandOffset::ObjectId, id); Write(selectedCommand, NC2Layout::UserNetworkCommandOffset::ObjectRevision, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
             }
         }
@@ -227,8 +227,8 @@ namespace NC2InGameGuiWorldElement
     {
         using namespace NC2Lifetime;
         auto* input = NC2InGameGuiInputManager::GetInputManagerPtr();
-        const auto type = Read<std::uint32_t>(element, 0x38), selection = Read<std::uint32_t>(input, 4);
-        const bool matches = (type == 1 && selection == 1 && NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input) == Read<std::int32_t>(element, 0x40)) || (type == 3 && selection == 4 && NC2InGameGuiInputManager::Selection_GetSelectedSingleVehicleId(input) == Read<std::int32_t>(element, 0x50)) || (type == 4 && selection == 6 && Read<std::int32_t>(input, 0xA78) == Read<std::int32_t>(element, 0x60));
+        const auto type = Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::ObjectUnderMouse), selection = Read<std::uint32_t>(input, NC2Layout::InputManagerOffset::SelectionType);
+        const bool matches = (type == 1 && selection == 1 && NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(input) == Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHumanId)) || (type == 3 && selection == 4 && NC2InGameGuiInputManager::Selection_GetSelectedSingleVehicleId(input) == Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId)) || (type == 4 && selection == 6 && Read<std::int32_t>(input, NC2Layout::InputManagerOffset::HouseId) == Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId));
         if (!matches) return false;
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Selection_ActionButtons_BringUp(); return true;
     }
@@ -237,13 +237,13 @@ namespace NC2InGameGuiWorldElement
     {
         using namespace NC2Lifetime;
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-        const auto type = Read<std::uint32_t>(element, 0x38);
+        const auto type = Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::ObjectUnderMouse);
         std::uint32_t player;
-        if (type == 1) player = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, 0x40) * NC2Logic::CHumanArray::ElementSize + 0x10);
-        else if (type == 3) player = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, 0x50) * NC2Logic::CVehicleArray::ElementSize + 0x1E0);
-        else if (type == 4) player = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, Read<std::uint32_t>(element, 0x60) * NC2Logic::CHouseArray::ElementSize + 0x0C);
+        if (type == 1) player = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHumanId) * NC2Logic::CHumanArray::ElementSize + 0x10);
+        else if (type == 3) player = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId) * NC2Logic::CVehicleArray::ElementSize + 0x1E0);
+        else if (type == 4) player = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId) * NC2Logic::CHouseArray::ElementSize + 0x0C);
         else return false;
-        if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::GetInputManagerPtr(), static_cast<std::byte*>(element) + 0x38, true, false, false)) return false;
+        if (player != static_cast<std::uint32_t>(manager->GetLocalPlayerId()) || !NC2InGameGuiInputManager::Action_DoNormalSelect(NC2InGameGuiInputManager::GetInputManagerPtr(), static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse, true, false, false)) return false;
         manager->Selection_ActionButtons_BringUp(); NC2GuiToolsBase::FXTool_ClickConfirm(); return true;
     }
     // Original function: FUN_004bb035; Windows scales directional scrolling by the measured frame rate.
@@ -259,7 +259,7 @@ namespace NC2InGameGuiWorldElement
         else if (direction == 4) y = NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(speed));
         const auto rate = Read<float>(manager, 0x190);
         const auto factor = 1.0 / (rate >= 1.0f ? static_cast<double>(rate) : 1.0);
-        NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(x * factor)), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(y * factor)));
+        NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(x * factor)), static_cast<std::int32_t>(NXBasics::Runtime_TruncateDoubleToInt64(y * factor)));
         WorldDisplayElement_FollowMode_End(element);
     }
 
@@ -269,19 +269,19 @@ namespace NC2InGameGuiWorldElement
         using namespace NC2Lifetime;
         using namespace NC2InGameGuiInputManager;
         auto* input = gInputManager;
-        auto* display = Read<void*>(element, 0x30);
+        auto* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
         const auto keys = Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0);
-        auto* target = static_cast<std::byte*>(element) + 0x38;
+        auto* target = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse;
         const auto mainMode = Read<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xDC);
         if (message == 1 || message == 2)
         {
             // Use the modern adapter's event time for the native 250 ms gate.
-            const auto doubleTime = Read<std::uint32_t>(element, 0x21C);
+            const auto doubleTime = Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::LastDoubleClickEventTime);
             if (doubleTime != 0 && NXSysMouseManager::CMouseManager::sTheObjectPtr->GetInputMessageTime() - doubleTime < 250u) return true;
         }
         if (message == 1 || message == 0x20)
         {
-            const auto offset = message == 1 ? 0x20Cu : 0x214u;
+            const auto offset = message == 1 ? NC2Layout::WorldGuiElementOffset::LeftClickHandlerUnsigned : NC2Layout::WorldGuiElementOffset::DoubleClickHandlerUnsigned;
             auto* overrideHandler = Read<void*>(element, offset);
             if (overrideHandler != nullptr)
             {
@@ -292,34 +292,34 @@ namespace NC2InGameGuiWorldElement
         }
         if (message == 1)
         {
-            if (Read<std::uint8_t>(element, 0x34) == 0 || Read<std::uint8_t>(display, 0x6C) == 0 || Read<std::int32_t>(input, 0) != 0) return true;
-            Write<std::uint8_t>(element, 0x1F4, 1);
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0 || Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0 || Read<std::int32_t>(input, NC2Layout::InputManagerOffset::InputMode) != 0) return true;
+            Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag, 1);
             std::int32_t point[2]{command, static_cast<std::int32_t>(param1)};
             NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
-            Write(element, 0x1F8, point[0]); Write(element, 0x1FC, point[1]); Write(element, 0x200, point[0]); Write(element, 0x204, point[1]);
+            Write(element, NC2Layout::WorldGuiElementOffset::AreaStartX, point[0]); Write(element, NC2Layout::WorldGuiElementOffset::AreaStartY, point[1]); Write(element, NC2Layout::WorldGuiElementOffset::AreaEndX, point[0]); Write(element, NC2Layout::WorldGuiElementOffset::AreaEndY, point[1]);
             return true;
         }
         if (message == 2)
         {
-            if (Read<std::uint8_t>(element, 0x34) == 0) return true;
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0) return true;
             bool selectedArea = false;
             if (WorldDisplayElement_MouseSelectingArea_IsAreaValid(element))
             {
-                NXBasics::SRectangle rectangle(Read<std::int32_t>(element, 0x1F8), Read<std::int32_t>(element, 0x1FC), Read<std::int32_t>(element, 0x200) - Read<std::int32_t>(element, 0x1F8), Read<std::int32_t>(element, 0x204) - Read<std::int32_t>(element, 0x1FC));
+                NXBasics::SRectangle rectangle(Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::AreaStartX), Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::AreaStartY), Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::AreaEndX) - Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::AreaStartX), Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::AreaEndY) - Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::AreaStartY));
                 selectedArea = Selection_SelectHumansInArea(input, element, rectangle, 0, (keys & 1u) != 0, (keys & 2u) != 0);
             }
-            Write<std::uint8_t>(element, 0x1F4, 0);
+            Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag, 0);
             WorldDisplayElement_MouseMoved(element, command, static_cast<std::int32_t>(param1));
             if (selectedArea) return true;
             if (mainMode == 1)
             {
-                if (Read<std::int32_t>(input, 0) != 0 && Action_DoCancel(input, target)) { NC2GuiToolsBase::FXTool_Fail(); return true; }
+                if (Read<std::int32_t>(input, NC2Layout::InputManagerOffset::InputMode) != 0 && Action_DoCancel(input, target)) { NC2GuiToolsBase::FXTool_Fail(); return true; }
                 if (Action_DoNormalSelect(input, target, false, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
             }
             else if (mainMode == 0)
             {
                 if (Action_DoInputSelect(input, target)) return true;
-                if (Read<std::int32_t>(input, 0) != 0) return true;
+                if (Read<std::int32_t>(input, NC2Layout::InputManagerOffset::InputMode) != 0) return true;
                 if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) return true;
                 if (Action_DoNormalSelect(input, target, true, (keys & 1u) != 0, (keys & 2u) != 0)) NC2GuiToolsBase::FXTool_ClickConfirm();
             }
@@ -327,12 +327,12 @@ namespace NC2InGameGuiWorldElement
         }
         if (message == 0x20)
         {
-            if (Read<std::uint8_t>(element, 0x34) == 0) return true;
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0) return true;
             WorldDisplayElement_MouseMoved(element, command, static_cast<std::int32_t>(param1));
             if (mainMode == 1)
             {
                 if (Action_DoInputSelect(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
-                if (Read<std::int32_t>(input, 0) != 0) return true;
+                if (Read<std::int32_t>(input, NC2Layout::InputManagerOffset::InputMode) != 0) return true;
                 if (WorldDisplayElement_DoDefaultAction(element) || Action_DoDefault(input, target)) { NC2GuiToolsBase::FXTool_ClickConfirm(); return true; }
                 if (WorldDisplayElement_l_TryToSelectAndBringUpActionButtonsForObjectUnderMouse(element)) NC2GuiToolsBase::FXTool_ClickConfirm();
                 return true;
@@ -348,8 +348,8 @@ namespace NC2InGameGuiWorldElement
         }
         if (message == 4)
         {
-            Write(element, 0x21C, NXSysMouseManager::CMouseManager::sTheObjectPtr->GetInputMessageTime());
-            if (Read<std::uint8_t>(element, 0x34) != 0 && Read<std::uint8_t>(display, 0x6C) != 0 && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1 && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) == Read<std::uint32_t>(display, 0x7C) && Read<std::uint32_t>(input, 0) == 0 && (Selection_IsHumanSelected(input, Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId)) || Read<std::uint32_t>(input, 4) == 2))
+            Write(element, NC2Layout::WorldGuiElementOffset::LastDoubleClickEventTime, NXSysMouseManager::CMouseManager::sTheObjectPtr->GetInputMessageTime());
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) != 0 && Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::Type) == 1 && Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::PlayerId) == Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId) && Read<std::uint32_t>(input, NC2Layout::InputManagerOffset::InputMode) == 0 && (Selection_IsHumanSelected(input, Read<std::int32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId)) || Read<std::uint32_t>(input, NC2Layout::InputManagerOffset::SelectionType) == 2))
             {
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, NC2Layout::DisplayObjectReferenceOffset::HumanId) * NC2Logic::CHumanArray::ElementSize;
                 const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
@@ -358,12 +358,12 @@ namespace NC2InGameGuiWorldElement
                 NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
                 Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), (keys & 1u) != 0, (keys & 2u) != 0);
             }
-            Write<std::uint8_t>(element, 0x1F4, 0);
+            Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag, 0);
             return true;
         }
         if (message == 0x80)
         {
-            if (Read<std::uint8_t>(element, 0x34) == 0) return true;
+            if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) == 0) return true;
             const auto* mouse = NXSysMouseManager::CMouseManager::sTheObjectPtr;
             const auto callback = Read<bool(__cdecl*)()>(mouse, 0x4C);
             if (callback != nullptr && callback())
@@ -380,7 +380,7 @@ namespace NC2InGameGuiWorldElement
             if (command == 2030)
             {
                 WorldDisplayElement_l_FollowMode_Update(element); WorldDisplayElement_CheckObjectUnderMouse(element);
-                if (Read<std::uint8_t>(display, 0x6C) != 0)
+                if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0)
                 {
                     auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
                     if (Read<std::uint8_t>(manager, 0xE3) != 0)
@@ -405,16 +405,16 @@ namespace NC2InGameGuiWorldElement
             else if (command == 2031)
             {
                 std::memset(target, 0, NC2Layout::RecordSize::DisplaySearchObject);
-                NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, 0x1C4, 0); Write<std::uint32_t>(element, 0x1C8, 0);
-                std::memset(static_cast<std::byte*>(element) + 0x1CC, 0, 20); std::memset(static_cast<std::byte*>(element) + 0x1E0, 0, 20); Write<std::uint8_t>(element, 0x1F4, 0);
+                NC2E2::DisplayObjectReference_Reset(target); Write<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::HumanInteractionAction, 0); Write<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::VehicleInteractionAction, 0);
+                std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::PrimaryCommand, 0, 20); std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::SecondaryCommand, 0, 20); Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag, 0);
             }
             else return false;
             return true;
         }
         if (message == 0x100)
         {
-            void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
-            if (WorldDisplayElement_ReadField<std::uint8_t>(element, 0x34) != 0 && WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) != 0)
+            void* display = WorldDisplayElement_ReadField<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
+            if (WorldDisplayElement_ReadField<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag) != 0 && WorldDisplayElement_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0)
             {
                 const auto wheelDelta = NXBasics::Runtime_TimeSigned32(param2);
                 if (wheelDelta > 0) NC2E2::DE_Zoom_In(display, false);
@@ -423,7 +423,7 @@ namespace NC2InGameGuiWorldElement
             return true;
         }
         if (message != 0x1000) return false;
-        if (Read<std::uint8_t>(display, 0x6C) == 0) return false;
+        if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0) return false;
         if (command == 2002)
         {
             float definition[3]; const std::uint32_t bits[3]{param1,param2,param3}; std::memcpy(definition,bits,sizeof(definition));
@@ -435,11 +435,11 @@ namespace NC2InGameGuiWorldElement
         if (command == 2007) { NC2E2::DE_Zoom_ToggleLevel(display,false); return false; }
         if (command == 2005)
         {
-            if ((Read<std::uint32_t>(element,0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
+            if ((Read<std::uint32_t>(element,NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
             return false;
         }
         if (command != 2004) return false;
-        if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) return false;
+        if (WorldDisplayElement_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit9Unsigned) != 0) return false;
         std::int32_t point[2];
         NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &param1, point, false);
         NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, false);
@@ -492,18 +492,18 @@ namespace NC2InGameGuiWorldElement
     // Original function: FUN_004ba140; initializes the state subobjects at +0x30.
     static void* WorldDisplayElement_ConstructState(void* state)
     {
-        WorldDisplayElement_WriteField<std::uint16_t>(state, 0x0E, 0);
-        WorldDisplayElement_WriteField<std::uint16_t>(state, 0x0C, 0);
-        std::memset(static_cast<std::byte*>(state) + 0x19C, 0, 20);
-        std::memset(static_cast<std::byte*>(state) + 0x1B0, 0, 20);
+        WorldDisplayElement_WriteField<std::uint16_t>(state, NC2Layout::WorldGuiStateOffset::HoveredMapPointY, 0);
+        WorldDisplayElement_WriteField<std::uint16_t>(state, NC2Layout::WorldGuiStateOffset::HoveredMapPointX, 0);
+        std::memset(static_cast<std::byte*>(state) + NC2Layout::WorldGuiStateOffset::PrimaryCommand, 0, 20);
+        std::memset(static_cast<std::byte*>(state) + NC2Layout::WorldGuiStateOffset::SecondaryCommand, 0, 20);
         return state;
     }
 
     // Original functions: FUN_004baffa/FUN_004bb007.
-    void WorldDisplayElement_DrawFrame_SetMode(void* element, std::uint32_t mode) { NC2Lifetime::Write(element, 0x208, mode); }
-    void WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, 0x20C, handler); NC2Lifetime::Write(element, 0x210, command); }
+    void WorldDisplayElement_DrawFrame_SetMode(void* element, std::uint32_t mode) { NC2Lifetime::Write(element, NC2Layout::WorldGuiElementOffset::FrameMode, mode); }
+    void WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, NC2Layout::WorldGuiElementOffset::LeftClickHandler, handler); NC2Lifetime::Write(element, NC2Layout::WorldGuiElementOffset::LeftClickCommand, command); }
     // Original function: FUN_004bb01e.
-    void WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, 0x214, handler); NC2Lifetime::Write(element, 0x218, command); }
+    void WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet(void* element, void* handler, std::uint32_t command) { NC2Lifetime::Write(element, NC2Layout::WorldGuiElementOffset::DoubleClickHandler, handler); NC2Lifetime::Write(element, NC2Layout::WorldGuiElementOffset::DoubleClickCommand, command); }
 
     // Original function: FUN_004ba042.
     void* WorldDisplayElement_Construct(void* element, const NXBasics::SRectangle* rectangle, bool active, bool inputEnabled)
@@ -511,21 +511,21 @@ namespace NC2InGameGuiWorldElement
         auto* desktopBitmap = NXBaseGui::CDesktop::sTheObjectPtr->GetDisplayBitmap();
         const std::int32_t depth = WorldDisplayElement_ReadField<std::int32_t>(desktopBitmap, 0x04);
         NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, rectangle, 1, 0x1A7, depth);
-        auto* state = static_cast<std::byte*>(element) + 0x30;
+        auto* state = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::Display;
         WorldDisplayElement_ConstructState(state);
-        WorldDisplayElement_WriteField(element, 0, gWorldDisplayElementVirtualTable + 0);
-        std::memset(state, 0, 532);
+        WorldDisplayElement_WriteField(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
+        std::memset(state, 0, NC2Layout::RecordSize::WorldGuiElementState);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(2452, 1);
         void* display = nullptr;
         if (allocation != nullptr)
         {
             auto* font = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.font08;
-            auto* bitmap = WorldDisplayElement_ReadField<NXBasics::CBitmap*>(element, 0x2C);
+            auto* bitmap = WorldDisplayElement_ReadField<NXBasics::CBitmap*>(element, NC2Layout::WorldGuiElementOffset::Bitmap);
             display = NC2E2::Display_Construct(allocation, bitmap, static_cast<std::uint8_t>(active), font);
         }
-        WorldDisplayElement_WriteField(element, 0x30, display);
-        WorldDisplayElement_WriteField<std::uint8_t>(element, 0x34, static_cast<std::uint8_t>(inputEnabled));
-        auto* interactionTarget = static_cast<std::byte*>(element) + 0x38;
+        WorldDisplayElement_WriteField(element, NC2Layout::WorldGuiElementOffset::Display, display);
+        WorldDisplayElement_WriteField<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::InputEnabledFlag, static_cast<std::uint8_t>(inputEnabled));
+        auto* interactionTarget = static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse;
         std::memset(interactionTarget, 0, NC2Layout::RecordSize::DisplaySearchObject);
         NC2E2::DisplayObjectReference_Reset(interactionTarget);
         if (active)
@@ -540,18 +540,18 @@ namespace NC2InGameGuiWorldElement
         }
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_Register(element);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(element);
-        WorldDisplayElement_WriteField<std::uint32_t>(element, 0x208, 0);
+        WorldDisplayElement_WriteField<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FrameMode, 0);
         return element;
     }
 
     // Original function: FUN_004ba174.
     void WorldDisplayElement_Destruct(void* element)
     {
-        WorldDisplayElement_WriteField(element, 0, gWorldDisplayElementVirtualTable + 0);
+        WorldDisplayElement_WriteField(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldDisplayElementVirtualTable + 0);
         WorldDisplayElement_DarkenBitmap_Exit(element);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(element);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->EngineWorldDisplayGuiElement_UnRegister(element);
-        void* display = WorldDisplayElement_ReadField<void*>(element, 0x30);
+        void* display = WorldDisplayElement_ReadField<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
         if (display != nullptr)
         {
             NC2E2::Display_Destruct(display);
@@ -564,52 +564,52 @@ namespace NC2InGameGuiWorldElement
     void WorldDisplayElement_FollowMode_FollowHuman(void* element, std::int32_t id)
     {
         using namespace NC2Lifetime;
-        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
-        Write(element, 0x224, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x221, 1);
-        Write(element, 0x228, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::FollowEnabledFlag, 0, 24);
+        Write(element, NC2Layout::WorldGuiElementOffset::FollowHumanId, id); Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowEnabledFlag, 1); Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanFlag, 1);
+        Write(element, NC2Layout::WorldGuiElementOffset::FollowHumanUniqueId, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
         WorldDisplayElement_l_FollowMode_Update(element);
     }
     // Original function: FUN_004bb3d5; validate the revision before reporting the id.
     std::int32_t WorldDisplayElement_FollowMode_GetHumanId(void* element)
     {
         WorldDisplayElement_l_FollowMode_Validate(element);
-        return NC2Lifetime::Read<std::uint8_t>(element, 0x220) != 0 && NC2Lifetime::Read<std::uint8_t>(element, 0x221) != 0 ? NC2Lifetime::Read<std::int32_t>(element, 0x224) : -1;
+        return NC2Lifetime::Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowEnabledFlag) != 0 && NC2Lifetime::Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanFlag) != 0 ? NC2Lifetime::Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanId) : -1;
     }
     // Original function: FUN_004bb3fc.
     void WorldDisplayElement_FollowMode_FollowVehicle(void* element, std::int32_t id)
     {
         using namespace NC2Lifetime;
-        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
-        Write(element, 0x230, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x22C, 1);
-        Write(element, 0x234, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::FollowEnabledFlag, 0, 24);
+        Write(element, NC2Layout::WorldGuiElementOffset::FollowVehicleId, id); Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowEnabledFlag, 1); Write<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleFlag, 1);
+        Write(element, NC2Layout::WorldGuiElementOffset::FollowVehicleUniqueId, Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::UniqueId));
         WorldDisplayElement_l_FollowMode_Update(element);
     }
     // Original function: FUN_004bb449.
     std::int32_t WorldDisplayElement_FollowMode_GetVehicleId(void* element)
     {
         WorldDisplayElement_l_FollowMode_Validate(element);
-        return NC2Lifetime::Read<std::uint8_t>(element, 0x220) != 0 && NC2Lifetime::Read<std::uint8_t>(element, 0x22C) != 0 ? NC2Lifetime::Read<std::int32_t>(element, 0x230) : -1;
+        return NC2Lifetime::Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowEnabledFlag) != 0 && NC2Lifetime::Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleFlag) != 0 ? NC2Lifetime::Read<std::int32_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleId) : -1;
     }
     // Original function: FUN_004bb470; CWorldDisplayElement::FollowMode_End.
     void WorldDisplayElement_FollowMode_End(void* element)
     {
-        std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::WorldGuiElementOffset::FollowEnabledFlag, 0, 24);
     }
 
     // Original function: FUN_004bb484; both modes share the 0x18-byte state.
     void WorldDisplayElement_l_FollowMode_Validate(void* element)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint8_t>(element, 0x220) == 0) return;
+        if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowEnabledFlag) == 0) return;
         const void* object = nullptr;
         std::uint32_t revision = 0;
-        if (Read<std::uint8_t>(element, 0x221) != 0)
+        if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanFlag) != 0)
         {
-            object = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize; revision = Read<std::uint32_t>(element, 0x228);
+            object = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanId) * NC2Logic::CHumanArray::ElementSize; revision = Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanUniqueId);
         }
-        else if (Read<std::uint8_t>(element, 0x22C) != 0)
+        else if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleFlag) != 0)
         {
-            object = NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize; revision = Read<std::uint32_t>(element, 0x234);
+            object = NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleId) * NC2Logic::CVehicleArray::ElementSize; revision = Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleUniqueId);
         }
         if (object == nullptr || Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) WorldDisplayElement_FollowMode_End(element);
     }
@@ -618,13 +618,13 @@ namespace NC2InGameGuiWorldElement
     {
         using namespace NC2Lifetime;
         WorldDisplayElement_l_FollowMode_Validate(element);
-        if (Read<std::uint8_t>(element, 0x220) == 0) return;
+        if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowEnabledFlag) == 0) return;
         std::uint32_t moveable;
-        if (Read<std::uint8_t>(element, 0x221) != 0) moveable = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId);
-        else if (Read<std::uint8_t>(element, 0x22C) != 0) moveable = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::MapMoveableId);
+        if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanFlag) != 0) moveable = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FollowHumanId) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId);
+        else if (Read<std::uint8_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleFlag) != 0) moveable = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::FollowVehicleId) * NC2Logic::CVehicleArray::ElementSize, NC2Layout::VehicleOffset::MapMoveableId);
         else return;
         std::int32_t point[2];
-        void* display = Read<void*>(element, 0x30);
+        void* display = Read<void*>(element, NC2Layout::WorldGuiElementOffset::Display);
         Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, moveable, point);
         point[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) - 25u);
         NC2E2::DE_SetWantedPositionToPixelPoint(display, point);
@@ -635,15 +635,15 @@ namespace NC2InGameGuiWorldElement
     {
         using namespace NC2Lifetime;
         WorldDisplayElement_DarkenBitmap_Exit(element);
-        Write(element, 0x238, variant);
+        Write(element, NC2Layout::WorldGuiElementOffset::DarkenVariant, variant);
         if (variant == 0) return;
         char path[200];
         NXBasics::Runtime_PrintString(path, "data\\gui\\palettes\\ingame_remap_%2.2d.pcx", variant);
         auto* palette = NXBasics::XB_PictureTool_LoadPaletteOutOfPicture(path);
-        Write(element, 0x23C, palette);
-        if (Read<std::uint32_t>(Read<void*>(element, 0x2C), 4) != 1) return;
+        Write(element, NC2Layout::WorldGuiElementOffset::DarkenPalette, palette);
+        if (Read<std::uint32_t>(Read<void*>(element, NC2Layout::WorldGuiElementOffset::Bitmap), 4) != 1) return;
         auto* table = static_cast<std::uint16_t*>(NXBasics::Runtime_Allocate(131072));
-        Write(element, 0x240, table);
+        Write(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable, table);
         const auto* colours = NXBasics::Palette_GetHighColorTablePtr(palette);
         const auto* converter = NXBasics::g16BitPixelConverter;
         for (std::uint32_t value = 0; value < 0x10000; ++value)
@@ -659,25 +659,25 @@ namespace NC2InGameGuiWorldElement
     // Original function: FUN_004bb669.
     void WorldDisplayElement_DarkenBitmap_Exit(void* element)
     {
-        void* palette = WorldDisplayElement_ReadField<void*>(element, 0x23C);
-        WorldDisplayElement_WriteField<std::uint32_t>(element, 0x238, 0);
+        void* palette = WorldDisplayElement_ReadField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenPalette);
+        WorldDisplayElement_WriteField<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::DarkenVariant, 0);
         if (palette != nullptr)
         {
             using TDeletingDestructor = void*(__thiscall*)(void*, std::uint32_t);
             auto* methods = *static_cast<TDeletingDestructor**>(palette);
             methods[3](palette, 1);
         }
-        void* lookupTable = WorldDisplayElement_ReadField<void*>(element, 0x240);
-        WorldDisplayElement_WriteField<void*>(element, 0x23C, nullptr);
+        void* lookupTable = WorldDisplayElement_ReadField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable);
+        WorldDisplayElement_WriteField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenPalette, nullptr);
         NXBasics::Runtime_Free(lookupTable);
-        WorldDisplayElement_WriteField<void*>(element, 0x240, nullptr);
+        WorldDisplayElement_WriteField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable, nullptr);
     }
 
     // Original function: FUN_004bb6a6; CWorldDisplayElement::l_DarkenBitmap_Do.
     void WorldDisplayElement_DarkenBitmap_Do(const void* element, NXBasics::CBitmap* bitmap)
     {
         // +0x238 is the palette variant selected by DarkenBitmap_Init (004bb57b).
-        if (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x238) == 0)
+        if (WorldDisplayElement_ReadField<std::uint32_t>(element, NC2Layout::WorldGuiElementOffset::DarkenVariant) == 0)
             return;
 
         const std::uint32_t depth = WorldDisplayElement_ReadField<std::uint32_t>(bitmap, 4);
@@ -691,7 +691,7 @@ namespace NC2InGameGuiWorldElement
         if (depth == 2u)
         {
             auto* pixels = WorldDisplayElement_ReadField<std::uint32_t*>(bitmap, 0x2C);
-            void* palette = WorldDisplayElement_ReadField<void*>(element, 0x23C);
+            void* palette = WorldDisplayElement_ReadField<void*>(element, NC2Layout::WorldGuiElementOffset::DarkenPalette);
             const std::uint32_t* table = NXBasics::Palette_GetTrueColorTablePtr(palette);
 
             for (std::uint32_t y = 0; y < height; ++y)
@@ -715,7 +715,7 @@ namespace NC2InGameGuiWorldElement
         else
         {
             auto* pixels = WorldDisplayElement_ReadField<std::uint16_t*>(bitmap, 0x28);
-            const auto* table = WorldDisplayElement_ReadField<const std::uint16_t*>(element, 0x240);
+            const auto* table = WorldDisplayElement_ReadField<const std::uint16_t*>(element, NC2Layout::WorldGuiElementOffset::DarkenHighColorTable);
 
             for (std::uint32_t y = 0; y < height; ++y)
             {
@@ -756,29 +756,29 @@ namespace NC2InGameGuiWorldElement
         };
 
         WorldDisplayElement_ValidateObjectUnderMouse(element);
-        NC2E2::Display_UpdateDisplay(readPointer(element, 0x30));
+        NC2E2::Display_UpdateDisplay(readPointer(element, NC2Layout::WorldGuiElementOffset::Display));
         NC2InGameGuiBase::BaseBitmapToolElement_Draw(element, bitmap, rectangle);
         WorldDisplayElement_DarkenBitmap_Do(element, bitmap);
 
-        if (readWord(element, 0x38) == 4u)
+        if (readWord(element, NC2Layout::WorldGuiElementOffset::ObjectUnderMouse) == 4u)
         {
-            void* display = readPointer(element, 0x30);
+            void* display = readPointer(element, NC2Layout::WorldGuiElementOffset::Display);
 
-            if (readWord(element, 0x78) == readWord(display, 0x7C))
+            if (readWord(element, NC2Layout::WorldGuiElementOffset::HoveredPlayerId) == readWord(display, NC2Layout::EngineDisplayOffset::PlayerId))
             {
                 const bool enabled = readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xE1) == 0;
-                NC2E2::Display_DrawTooltipOverlay_External_House(display, readWord(element, 0x60), bitmap, enabled);
+                NC2E2::Display_DrawTooltipOverlay_External_House(display, readWord(element, NC2Layout::WorldGuiElementOffset::HoveredHouseId), bitmap, enabled);
             }
         }
 
-        if (readWord(element, 0x38) == 3u)
+        if (readWord(element, NC2Layout::WorldGuiElementOffset::ObjectUnderMouse) == 3u)
         {
-            void* display = readPointer(element, 0x30);
+            void* display = readPointer(element, NC2Layout::WorldGuiElementOffset::Display);
 
-            if (readWord(element, 0x78) == readWord(display, 0x7C))
+            if (readWord(element, NC2Layout::WorldGuiElementOffset::HoveredPlayerId) == readWord(display, NC2Layout::EngineDisplayOffset::PlayerId))
             {
                 const bool enabled = readByte(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 0xE1) == 0;
-                NC2E2::Display_DrawTooltipOverlay_External_Vehicle(display, readWord(element, 0x50), bitmap, enabled);
+                NC2E2::Display_DrawTooltipOverlay_External_Vehicle(display, readWord(element, NC2Layout::WorldGuiElementOffset::HoveredVehicleId), bitmap, enabled);
             }
         }
 
@@ -792,11 +792,11 @@ namespace NC2InGameGuiWorldElement
             std::int32_t firstPoint[2];
             std::int32_t lastPoint[2];
 
-            std::memcpy(firstPoint, static_cast<const std::byte*>(element) + 0x1F8, sizeof(firstPoint));
-            std::memcpy(lastPoint, static_cast<const std::byte*>(element) + 0x200, sizeof(lastPoint));
+            std::memcpy(firstPoint, static_cast<const std::byte*>(element) + NC2Layout::WorldGuiElementOffset::AreaStartX, sizeof(firstPoint));
+            std::memcpy(lastPoint, static_cast<const std::byte*>(element) + NC2Layout::WorldGuiElementOffset::AreaEndX, sizeof(lastPoint));
 
-            NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, 0x30), firstPoint, true);
-            NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, 0x30), lastPoint, true);
+            NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, NC2Layout::WorldGuiElementOffset::Display), firstPoint, true);
+            NC2E2::Display_GlobalWorldPixelToLocalDisplayPixelCoordinates(readPointer(element, NC2Layout::WorldGuiElementOffset::Display), lastPoint, true);
 
             const std::uint32_t widthBits = static_cast<std::uint32_t>(lastPoint[0]) - static_cast<std::uint32_t>(firstPoint[0]);
             const std::uint32_t heightBits = static_cast<std::uint32_t>(lastPoint[1]) - static_cast<std::uint32_t>(firstPoint[1]);
@@ -807,19 +807,19 @@ namespace NC2InGameGuiWorldElement
             bitmap->Draw_Rectangle(selection, white);
         }
 
-        void* display = readPointer(element, 0x30);
+        void* display = readPointer(element, NC2Layout::WorldGuiElementOffset::Display);
 
         // Original double at 004f6ff8: 120.0.
-        if (readByte(display, 0x6C) != 0 && !(NC2Logic::gGameTime.speed >= 120.0) && NC2Logic::gGameTime.maximizeSpeed == 0)
+        if (readByte(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && !(NC2Logic::gGameTime.speed >= 120.0) && NC2Logic::gGameTime.maximizeSpeed == 0)
         {
             NC2E2::AmbientSoundManager_UpdateAmbientSounds(NC2E2::gE2AmbientSoundManager, display);
-            NC2E2::CE2AnimalSoundManager::sTheObjectPtr->PlayAnimalSounds(readPointer(element, 0x30));
+            NC2E2::CE2AnimalSoundManager::sTheObjectPtr->PlayAnimalSounds(readPointer(element, NC2Layout::WorldGuiElementOffset::Display));
             NC2E2::WorldMusic_UpdateVisiblePlayerSelection();
         }
 
-        display = readPointer(element, 0x30);
+        display = readPointer(element, NC2Layout::WorldGuiElementOffset::Display);
 
-        if (readByte(display, 0x6C) != 0 && !(NC2Logic::gGameTime.speed >= 0.01))
+        if (readByte(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && !(NC2Logic::gGameTime.speed >= 0.01))
         {
             char text[200];
             NXBasics::Runtime_PrintString(text, "* %s *", NC2GuiToolsBase::StringTool_GetUpdate103StringPtr(20));
@@ -838,7 +838,7 @@ namespace NC2InGameGuiWorldElement
             NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, x, y, font, colour, text);
         }
 
-        const std::uint32_t frameMode = readWord(element, 0x208);
+        const std::uint32_t frameMode = readWord(element, NC2Layout::WorldGuiElementOffset::FrameMode);
 
         if (frameMode != 0)
             NC2GuiToolsBase::DrawTool_DrawFrame(nullptr, bitmap, rectangle, NXBasics::Runtime_TimeSigned32(frameMode));
@@ -849,21 +849,21 @@ namespace NC2InGameGuiWorldElement
     {
         auto* data = static_cast<std::byte*>(element);
 
-        if (!NC2E2::DisplaySearchObject_Validate(data + 0x38))
+        if (!NC2E2::DisplaySearchObject_Validate(data + NC2Layout::WorldGuiElementOffset::ObjectUnderMouse))
             return;
 
         std::uint32_t displayAddress;
-        std::memcpy(&displayAddress, data + 0x30, sizeof(displayAddress));
+        std::memcpy(&displayAddress, data + NC2Layout::WorldGuiElementOffset::Display, sizeof(displayAddress));
 
         auto* display = reinterpret_cast<std::byte*>(static_cast<std::uintptr_t>(displayAddress));
         const std::uint32_t zero = 0;
 
         std::memcpy(display + NC2Layout::EngineDisplayOffset::SecondaryMarkedObjectCount, &zero, sizeof(zero));
-        std::memcpy(data + 0x1C4, &zero, sizeof(zero));
-        std::memcpy(data + 0x1C8, &zero, sizeof(zero));
+        std::memcpy(data + NC2Layout::WorldGuiElementOffset::HumanInteractionAction, &zero, sizeof(zero));
+        std::memcpy(data + NC2Layout::WorldGuiElementOffset::VehicleInteractionAction, &zero, sizeof(zero));
 
-        std::memset(data + 0x1CC, 0, 20);
-        std::memset(data + 0x1E0, 0, 20);
+        std::memset(data + NC2Layout::WorldGuiElementOffset::PrimaryCommand, 0, 20);
+        std::memset(data + NC2Layout::WorldGuiElementOffset::SecondaryCommand, 0, 20);
     }
 
     // Original function: FUN_004bafc2
@@ -872,7 +872,7 @@ namespace NC2InGameGuiWorldElement
         const auto* data = static_cast<const std::byte*>(element);
 
         std::uint8_t active;
-        std::memcpy(&active, data + 0x1F4, sizeof(active));
+        std::memcpy(&active, data + NC2Layout::WorldGuiElementOffset::AreaSelectionActiveFlag, sizeof(active));
 
         if (active == 0)
             return false;
@@ -892,9 +892,9 @@ namespace NC2InGameGuiWorldElement
             return magnitude >= 5u && magnitude <= NXBasics::IntegerRange::Int32Maximum;
         };
 
-        if (!hasMinimumDistance(0x1F8, 0x200))
+        if (!hasMinimumDistance(NC2Layout::WorldGuiElementOffset::AreaStartX, NC2Layout::WorldGuiElementOffset::AreaEndX))
             return false;
 
-        return hasMinimumDistance(0x1FC, 0x204);
+        return hasMinimumDistance(NC2Layout::WorldGuiElementOffset::AreaStartY, NC2Layout::WorldGuiElementOffset::AreaEndY);
     }
 }

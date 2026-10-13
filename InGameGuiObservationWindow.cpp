@@ -27,7 +27,7 @@ namespace NC2InGameGuiWorldWindow
     using namespace NC2InGameGuiWorldElement;
     using namespace NC2InGameGuiInputManager;
     using namespace NC2Logic;
-    static void* Display(void* window) { return Read<void*>(Read<void*>(window, 0x70), 0x30); }
+    static void* Display(void* window) { return Read<void*>(Read<void*>(window, 0x70), NC2Layout::WorldGuiElementOffset::Display); }
     static void* __fastcall WorldObserveDisplayWindow_Delete(void* window, void*, std::uint32_t flags);
     static bool __fastcall WorldObserveDisplayWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3);
     // Complete Windows virtual table 004F7080..004F70CB.

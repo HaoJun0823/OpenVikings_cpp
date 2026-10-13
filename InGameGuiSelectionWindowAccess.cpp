@@ -285,7 +285,7 @@ namespace NC2InGameGuiSelection
             void* human = l_Misc_GetSelectedHumanPtr();
             void* preview = Read<void*>(window, NC2Layout::SingleHumanWindowOffset::PreviewElement);
             if (human == nullptr || preview == nullptr) return;
-            void* display = Read<void*>(preview, 0x30);
+            void* display = Read<void*>(preview, NC2Layout::WorldGuiElementOffset::Display);
             std::int32_t point[2];
             Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), point);
             point[1] -= 25;
@@ -399,11 +399,11 @@ namespace NC2InGameGuiSelection
                 Write(window, NC2Layout::SingleHumanWindowOffset::PreviewElement, preview);
                 if (preview != nullptr)
                 {
-                    Write<std::uint32_t>(preview, 0x208, 2);
-                    Write(preview, 0x20C, window); Write<std::uint32_t>(preview, 0x210, 10001);
-                    Write(preview, 0x214, window); Write<std::uint32_t>(preview, 0x218, 10002);
+                    Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::FrameMode, 2);
+                    Write(preview, NC2Layout::WorldGuiElementOffset::LeftClickHandler, window); Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::LeftClickCommand, 10001);
+                    Write(preview, NC2Layout::WorldGuiElementOffset::DoubleClickHandler, window); Write<std::uint32_t>(preview, NC2Layout::WorldGuiElementOffset::DoubleClickCommand, 10002);
                     NXBaseGui::BaseWindow_Element_Add(window, preview);
-                    NC2E2::DE_ControllingPlayer_SetId(Read<void*>(preview, 0x30), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId());
+                    NC2E2::DE_ControllingPlayer_SetId(Read<void*>(preview, NC2Layout::WorldGuiElementOffset::Display), NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId());
                     l_Misc_CenterWorldDisplay(window);
                 }
                 AddGraphicButton(window, SRectangle(basic.x + 6, basic.y + 22, 18, 16), 18, 100, 10003);
@@ -877,7 +877,7 @@ namespace NC2InGameGuiSelection
                 if (const void* human = selectedHuman)
                 {
                     void* world = Read<void*>(NInGameGuiManager::CInGameGuiManager::sTheObjectPtr, 4);
-                    NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, 0x30), reinterpret_cast<const std::uint32_t*>(NC2Logic::Human_GetMapPositionRef(human)));
+                    NC2E2::DE_SetWantedPositionToMapPoint(Read<void*>(world, NC2Layout::WorldGuiElementOffset::Display), reinterpret_cast<const std::uint32_t*>(NC2Logic::Human_GetMapPositionRef(human)));
                     NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(world);
                 }
             }

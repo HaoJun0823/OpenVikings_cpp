@@ -1450,6 +1450,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto WorldGuiElementState = 532;
+
         inline constexpr auto SingleHumanWindowVars = 15624;
 
         inline constexpr auto AIHouseExport = 24;
@@ -2130,6 +2132,53 @@ namespace NC2Layout
         inline constexpr auto DrawChildren = 0x3C;
         inline constexpr auto InputChildren = 0x50;
         inline constexpr auto ActiveChild = 0x64;
+    }
+
+    namespace WorldGuiElementOffset
+    {
+        inline constexpr auto Bitmap = 0x2C;
+        inline constexpr auto Display = 0x30;
+        inline constexpr auto InputEnabledFlag = 0x34;
+        inline constexpr auto ObjectUnderMouse = 0x38;
+        inline constexpr auto HoveredHumanId = 0x40;
+        inline constexpr auto HoveredVehicleId = 0x50;
+        inline constexpr auto HoveredHouseId = 0x60;
+        inline constexpr auto HoveredPlayerId = 0x78;
+        inline constexpr auto HumanInteractionAction = 0x1C4;
+        inline constexpr auto VehicleInteractionAction = 0x1C8;
+        inline constexpr auto PrimaryCommand = 0x1CC;
+        inline constexpr auto SecondaryCommand = 0x1E0;
+        inline constexpr auto AreaSelectionActiveFlag = 0x1F4;
+        inline constexpr auto AreaStartX = 0x1F8;
+        inline constexpr auto AreaStartY = 0x1FC;
+        inline constexpr auto AreaEndX = 0x200;
+        inline constexpr auto AreaEndY = 0x204;
+        inline constexpr auto FrameMode = 0x208;
+        inline constexpr auto LeftClickHandler = 0x20C;
+        inline constexpr auto LeftClickHandlerUnsigned = 0x20Cu;
+        inline constexpr auto LeftClickCommand = 0x210;
+        inline constexpr auto DoubleClickHandler = 0x214;
+        inline constexpr auto DoubleClickHandlerUnsigned = 0x214u;
+        inline constexpr auto DoubleClickCommand = 0x218;
+        inline constexpr auto LastDoubleClickEventTime = 0x21C;
+        inline constexpr auto FollowEnabledFlag = 0x220;
+        inline constexpr auto FollowHumanFlag = 0x221;
+        inline constexpr auto FollowHumanId = 0x224;
+        inline constexpr auto FollowHumanUniqueId = 0x228;
+        inline constexpr auto FollowVehicleFlag = 0x22C;
+        inline constexpr auto FollowVehicleId = 0x230;
+        inline constexpr auto FollowVehicleUniqueId = 0x234;
+        inline constexpr auto DarkenVariant = 0x238;
+        inline constexpr auto DarkenPalette = 0x23C;
+        inline constexpr auto DarkenHighColorTable = 0x240;
+    }
+
+    namespace WorldGuiStateOffset
+    {
+        inline constexpr auto HoveredMapPointX = 0x0C;
+        inline constexpr auto HoveredMapPointY = 0x0E;
+        inline constexpr auto PrimaryCommand = 0x19C;
+        inline constexpr auto SecondaryCommand = 0x1B0;
     }
 
 }
