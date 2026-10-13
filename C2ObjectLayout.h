@@ -625,6 +625,8 @@ namespace NC2Layout
 
     namespace HumanOffset
     {
+        inline constexpr auto InventoryConditionsSigned = 0xAF8;
+
         inline constexpr auto AllowedEquipment32Flag = 0x200;
 
         inline constexpr auto AllowedEquipment31Flag = 0x1FF;
@@ -1448,6 +1450,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto SingleHumanWindowVars = 15624;
+
         inline constexpr auto AIHouseExport = 24;
 
         inline constexpr auto AIResourceGood = 16;
@@ -2035,6 +2039,71 @@ namespace NC2Layout
     namespace AITowerManagerOffset
     {
         inline constexpr auto LastHouseId = 0;
+    }
+
+    namespace SingleHumanWindowOffset
+    {
+        inline constexpr auto TabEnabledFlags = 0x70;
+        inline constexpr auto MilitaryTabEnabled = 0x71;
+        inline constexpr auto WorkTabEnabled = 0x72;
+        inline constexpr auto ExperienceTabEnabled = 0x73;
+        inline constexpr auto JobTabEnabled = 0x74;
+        inline constexpr auto TraderTabEnabled = 0x75;
+        inline constexpr auto TabCollapsedFlags = 0x76;
+        inline constexpr auto MilitaryTabCollapsed = 0x77;
+        inline constexpr auto WorkTabCollapsed = 0x78;
+        inline constexpr auto ExperienceTabCollapsed = 0x79;
+        inline constexpr auto JobTabCollapsed = 0x7A;
+        inline constexpr auto TraderTabCollapsed = 0x7B;
+        inline constexpr auto TabStateChecksum = 0x7C;
+        inline constexpr auto TabRectangles = 0x80;
+        inline constexpr auto ComputedWidth = 0xE0;
+        inline constexpr auto ComputedHeight = 0xE4;
+        inline constexpr auto TabHeightOverrides = 0xE8;
+        inline constexpr auto LayoutInvalidFlag = 0x100;
+        inline constexpr auto PreviewElement = 0x104;
+        inline constexpr auto NameElement = 0x108;
+        inline constexpr auto RouteSelectButtons = 0x10C;
+        inline constexpr auto RouteSelectButtonsUnsigned = 0x10Cu;
+        inline constexpr auto RouteAssignButtons = 0x110;
+        inline constexpr auto RouteAssignButtonsUnsigned = 0x110u;
+        inline constexpr auto RouteActionButtons = 0x114;
+        inline constexpr auto RouteActionButtonsUnsigned = 0x114u;
+        inline constexpr auto RouteLabels = 0x118;
+        inline constexpr auto RouteLabelsUnsigned = 0x118u;
+        inline constexpr auto SecondRouteSelectButton = 0x11C;
+        inline constexpr auto SecondRouteAssignButton = 0x120;
+        inline constexpr auto SecondRouteActionButton = 0x124;
+        inline constexpr auto SecondRouteLabel = 0x128;
+        inline constexpr auto TraderConfigButton = 0x12C;
+        inline constexpr auto ExperiencePage = 0x130;
+        inline constexpr auto ExperienceJobsUnsigned = 0x134u;
+        inline constexpr auto Tooltips = 0x39C;
+        inline constexpr auto DynamicButtons = 0x3280;
+        inline constexpr auto TraderConfigWindow = 0x3D74;
+    }
+
+    namespace SingleHumanWindowVarsOffset
+    {
+        inline constexpr auto Tooltips = 0x32C;
+    }
+
+    namespace DynamicSubButtonEntryOffset
+    {
+        inline constexpr auto ActiveFlag = 0;
+    }
+
+    namespace ToolGfxButtonOffset
+    {
+        inline constexpr auto CommandData1 = 0x48;
+        inline constexpr auto CommandData2 = 0x4C;
+    }
+
+    namespace ToolTextButtonOffset
+    {
+        inline constexpr auto CommandData1 = 0x4C;
+        inline constexpr auto CommandData2 = 0x50;
+        inline constexpr auto CenteredFlag = 0x54;
     }
 
 }

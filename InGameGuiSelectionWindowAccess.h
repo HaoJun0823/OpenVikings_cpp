@@ -44,6 +44,30 @@ namespace NC2InGameGuiBase
 
 namespace NC2InGameGuiSelection
 {
+    // Physical Windows window storage; the base window and padding remain opaque here.
+    struct SSingleHumanRouteControlsStorage { void* select; void* assign; void* action; void* label; };
+    struct SSingleHumanWindowStorage
+    {
+        std::byte baseWindow[112];
+        std::uint8_t tabsEnabled[6];
+        std::uint8_t tabsCollapsed[6];
+        std::uint32_t tabStateChecksum;
+        NXBasics::SRectangle tabRectangles[6];
+        std::int32_t computedWidth, computedHeight;
+        std::int32_t tabHeightOverrides[6];
+        std::uint8_t layoutInvalid;
+        std::byte unresolved101[3];
+        void* previewElement;
+        void* nameElement;
+        SSingleHumanRouteControlsStorage routeControls[2];
+        void* traderConfigButton;
+        std::uint32_t experiencePage;
+        std::uint32_t experienceJobs[11][14];
+        NC2InGameGuiBase::CStaticToolTipHandler tooltips;
+        NC2InGameGuiBase::CDynamicSubButtonsHandler dynamicButtons;
+        void* traderConfigWindow;
+    };
+
     void Tool_LandscapeType_GetTooltipStringPtr(std::int32_t graphicId, std::int32_t amount, char* output, bool* isGood, bool* isResource);
     void SelectionTool_FillRectangle(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, std::int32_t mode);
     void SelectionTool_PrintCenteredString(NXBasics::CBitmap* bitmap, const NXBasics::SRectangle& rectangle, bool largeFont, const char* text);
