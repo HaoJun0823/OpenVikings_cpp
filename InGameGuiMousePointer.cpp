@@ -77,7 +77,7 @@ namespace NC2InGameGuiManager
 
     namespace
     {
-        const char* HumanName(std::int32_t id) { return reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * 0x8C8 + 0x85C; }
+        const char* HumanName(std::int32_t id) { return reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * NC2Layout::RecordSize::DynamicHuman + NC2Layout::DynamicHumanOffset::Name; }
         // The two native scheme branches share this presentation sequence; their selection checks remain distinct.
         void PrintHumanInformation(NXBasics::CBitmap* bitmap, std::int32_t* point, std::int32_t id)
         {

@@ -273,7 +273,7 @@ namespace NC2InGameGuiSelectedAction
             NC2InGameGuiSelection::SelectionTool_FillRectangle(bitmap, bitmap->GetRectangle(), 1);
             const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
             const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400);
-            if (const void* human = l_Merchant_GetHumanPtr(window)) bitmap->Text_Print(resources.font10, color, 8, 24, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) * 0x8C8u + 0x85C);
+            if (const void* human = l_Merchant_GetHumanPtr(window)) bitmap->Text_Print(resources.font10, color, 8, 24, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name);
             for (std::uint32_t row = 0; row < 2; ++row)
                 if (const void* house = l_Merchant_GetHousePtr(window, row, nullptr))
                 {

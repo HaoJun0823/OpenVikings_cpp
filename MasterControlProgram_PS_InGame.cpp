@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
@@ -218,7 +219,7 @@ namespace NMasterControlProgram
                         auto* human = reinterpret_cast<const void*>(humanAddress);
                         if (NC2Lifetime::Read<std::uint8_t>(human, 0) != 0 && NC2Lifetime::Read<std::int32_t>(human, 8) == validationValue && controllingPlayerId != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId() && commandText != nullptr)
                         {
-                            const auto displayAddress = reinterpret_cast<std::uintptr_t>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::uint32_t>(humanIndex) * 0x8C8u;
+                            const auto displayAddress = reinterpret_cast<std::uintptr_t>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::uint32_t>(humanIndex) * NC2Layout::RecordSize::DynamicHumanUnsigned;
                             NC2E2::DynamicHuman_SetName(reinterpret_cast<void*>(displayAddress), commandText);
                         }
 

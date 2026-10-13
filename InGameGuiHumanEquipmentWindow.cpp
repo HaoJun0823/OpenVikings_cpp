@@ -129,7 +129,7 @@ namespace NC2InGameGuiSelectedAction
             if (selection == 1)
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(Input());
-                AddText(window, SRectangle(4, 282, 412, 16), reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::uint32_t>(id) * 0x8C8u + 0x85C);
+                AddText(window, SRectangle(4, 282, 412, 16), reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name);
             }
             else if (selection == 2) AddText(window, SRectangle(4, 282, 412, 16), MiscString(305));
         }

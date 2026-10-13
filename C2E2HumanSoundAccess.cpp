@@ -86,8 +86,8 @@ namespace NC2E2
             else return true;
             if (patch != -1)
             {
-                auto* human = static_cast<std::byte*>(gDynamicDataHumans.entries) + parameter1 * 0x8C8u;
-                StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), reinterpret_cast<NXBasics::CPalette*>(human + 0x44), reinterpret_cast<NXBasics::CPalette*>(human + 0x450), false);
+                auto* human = static_cast<std::byte*>(gDynamicDataHumans.entries) + parameter1 * NC2Layout::RecordSize::DynamicHumanUnsigned;
+                StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), reinterpret_cast<NXBasics::CPalette*>(human + NC2Layout::DynamicHumanOffset::BodyPalette), reinterpret_cast<NXBasics::CPalette*>(human + NC2Layout::DynamicHumanOffset::HeadPalette), false);
             }
             return true;
         }
@@ -98,8 +98,8 @@ namespace NC2E2
             const auto patch = StaticHumanMisc_RandomPalette_GetPatchId(name);
             if (patch != -1)
             {
-                auto* human = static_cast<std::byte*>(gDynamicDataHumans.entries) + parameter1 * 0x8C8u;
-                StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), reinterpret_cast<NXBasics::CPalette*>(human + 0x44), reinterpret_cast<NXBasics::CPalette*>(human + 0x450), false);
+                auto* human = static_cast<std::byte*>(gDynamicDataHumans.entries) + parameter1 * NC2Layout::RecordSize::DynamicHumanUnsigned;
+                StaticHumanMisc_RandomPalette_Execute(static_cast<std::uint32_t>(patch), reinterpret_cast<NXBasics::CPalette*>(human + NC2Layout::DynamicHumanOffset::BodyPalette), reinterpret_cast<NXBasics::CPalette*>(human + NC2Layout::DynamicHumanOffset::HeadPalette), false);
             }
             return true;
         }

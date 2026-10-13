@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2EngineObjectData.h"
 #include "C2MissionStartObjects.h"
 #include "C2StringIO.h"
@@ -14,8 +15,8 @@ namespace NC2E2
     {
         auto* bytes = static_cast<char*>(human);
         // Original CRT entry 004e66a0 is strncpy, including zero padding.
-        std::strncpy(bytes + 0x85C, name, 99);
-        bytes[0x8BF] = '\0';
+        std::strncpy(bytes + NC2Layout::DynamicHumanOffset::Name, name, 99);
+        bytes[NC2Layout::DynamicHumanOffset::NameTerminator] = '\0';
     }
 }
 
@@ -27,7 +28,7 @@ namespace NC2LogicExternals
         auto* strings = NC2Logic::StringIO_GetMissionStringArrayPtr();
         if (strings == nullptr) return;
         const auto* text = strings->GetStringPtr(name);
-        if (text != nullptr) NC2E2::DynamicHuman_SetName(NC2E2::gDynamicDataHumans.entries + human * 0x8C8u, text);
+        if (text != nullptr) NC2E2::DynamicHuman_SetName(NC2E2::gDynamicDataHumans.entries + human * NC2Layout::RecordSize::DynamicHumanUnsigned, text);
         delete strings;
     }
     // Original function: FUN_00480975.
@@ -35,7 +36,7 @@ namespace NC2LogicExternals
     {
         const auto patch = NC2E2::StaticHumanMisc_RandomPalette_GetPatchId(palette);
         if (patch == -1) return;
-        auto* data = NC2E2::gDynamicDataHumans.entries + human * 0x8C8u;
-        NC2E2::StaticHumanMisc_RandomPalette_Execute(patch, reinterpret_cast<NXBasics::CPalette*>(data + 0x44), reinterpret_cast<NXBasics::CPalette*>(data + 0x450), false);
+        auto* data = NC2E2::gDynamicDataHumans.entries + human * NC2Layout::RecordSize::DynamicHumanUnsigned;
+        NC2E2::StaticHumanMisc_RandomPalette_Execute(patch, reinterpret_cast<NXBasics::CPalette*>(data + NC2Layout::DynamicHumanOffset::BodyPalette), reinterpret_cast<NXBasics::CPalette*>(data + NC2Layout::DynamicHumanOffset::HeadPalette), false);
     }
 }

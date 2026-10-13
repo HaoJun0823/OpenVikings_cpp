@@ -36,7 +36,7 @@ namespace NC2InGameGuiSelectedAction
         void* Input() { return NC2InGameGuiInputManager::gInputManager; }
         std::int32_t SelectedId() { return NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(Input()); }
         void* Human(std::int32_t id) { return NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize; }
-        const char* Name(std::int32_t id) { return reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * 0x8C8 + 0x85C; }
+        const char* Name(std::int32_t id) { return reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + static_cast<std::intptr_t>(id) * NC2Layout::RecordSize::DynamicHuman + NC2Layout::DynamicHumanOffset::Name; }
         const char* Misc(std::uint32_t id) { return NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(id); }
         auto* TextInput(void* window) { return reinterpret_cast<NC2InGameGuiBaseTextInputElement::CStringInputHandler*>(static_cast<std::byte*>(window) + 0x78); }
         void Close(void* window) { NXBaseGui::CDesktop::sTheObjectPtr->Window_AddToCloseList(static_cast<NXBaseGui::CBaseWindow*>(window)); }
@@ -232,7 +232,7 @@ namespace NC2InGameGuiSelectedAction
             if (Read<std::uint8_t>(window, 0x70) == 0 || Read<std::uint32_t>(Input(), 4) != 1 || SelectedId() == -1) return;
             const auto id = SelectedId(); const char* text = TextInput(window)->GetString();
             if (std::strlen(text) == 0) return;
-            NC2E2::DynamicHuman_SetName(static_cast<std::byte*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8, text);
+            NC2E2::DynamicHuman_SetName(static_cast<std::byte*>(NC2E2::gDynamicDataHumans.entries) + id * NC2Layout::RecordSize::DynamicHuman, text);
             if (NC2Logic::gGameStaticVars.networkGame == 0 || !NNetwork::Network_IsInSession()) return;
             char formatted[100];
             NXBasics::Runtime_PrintStringN(formatted, sizeof(formatted), "%d:%d:%d:%s", Read<std::int32_t>(Human(id), NC2Layout::HumanOffset::PlayerId), id, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId), text);

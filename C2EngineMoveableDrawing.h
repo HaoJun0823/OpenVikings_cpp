@@ -11,7 +11,28 @@ namespace NXBasics
 
 namespace NC2E2
 {
-    // Shared Windows dynamic drawing prefix; humans extend it with two palettes.
+    struct SHumanAppearanceVariants
+    {
+        std::uint32_t body;
+        std::uint32_t head;
+    };
+
+    struct SAnimalVehicleDrawState
+    {
+        std::uint32_t paletteId;
+        std::uint8_t selected;
+        std::uint8_t highlighted;
+        std::byte padding[2];
+    };
+
+    union SActorSpecificDrawData
+    {
+        SHumanAppearanceVariants human;
+        SAnimalVehicleDrawState animalOrVehicle;
+    };
+
+    // Windows has a 60-byte common prefix and an 8-byte actor-specific tail.
+    // Humans continue with two embedded palettes; animal/vehicle records end here.
     struct SE2DynamicDataMapMoveableData
     {
         std::uint32_t bodyBobId;
@@ -19,7 +40,7 @@ namespace NC2E2
         std::uint32_t animationTribe;
         std::uint32_t animationJob;
         std::uint32_t animationAction;
-        std::uint32_t animationRevision;
+        std::uint32_t animationStartCount;
         std::uint32_t walkTribe;
         std::uint32_t walkJob;
         std::uint32_t walkGood;
@@ -29,7 +50,7 @@ namespace NC2E2
         void* shadowBobManager;
         const SE2StaticDataMapMoveableAnimationData* animation;
         const SE2StaticDataMapMoveableWalkData* walk;
-        std::byte subtypeOrFlags[8];
+        SActorSpecificDrawData actorData;
     };
 
     struct SMapMoveableAnimationOverlays
@@ -55,14 +76,20 @@ namespace NC2E2
     void E2DynamicDataHumanManager_HumanXtructed(std::uint32_t humanId, bool created, bool fromSavegame);
     void E2DynamicDataHumanManager_HumanJobChanged(std::uint32_t humanId, std::uint32_t oldJob, std::uint32_t newJob);
     void E2DynamicDataHumanManager_HumanArmorChanged(std::uint32_t humanId, std::uint32_t armor);
-    void sl_DoUpdateMapMoveableDynamicBobData(const void* moveable, void* dynamicData, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, bool atomicActive, std::uint32_t action, std::uint32_t done, std::uint32_t total, std::uint32_t inHouseRevision, bool overrideAction, const void* display, std::int32_t& offsetX, std::int32_t& offsetY, SMapMoveableAnimationOverlays* overlays, bool ignorePathfinder);
+    void sl_DoUpdateMapMoveableDynamicBobData(const void* moveable, void* dynamicData, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, bool atomicActive, std::uint32_t action, std::uint32_t done, std::uint32_t total, std::uint32_t atomicAnimationStartCount, bool overrideAction, const void* display, std::int32_t& offsetX, std::int32_t& offsetY, SMapMoveableAnimationOverlays* overlays, bool ignorePathfinder);
     const NXBasics::SColorRGB* DrawAtom_Tool_GetMarkingColorRef(std::uint32_t markingType, std::int32_t playerId);
-    bool sl_DoDrawMapMoveable(const void* moveable, void* dynamicData, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, bool atomicActive, std::uint32_t action, std::uint32_t done, std::uint32_t total, std::uint32_t inHouseRevision, NXBasics::CPalette* bodyPalette, NXBasics::CPalette* headPalette, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness, std::uint32_t markingType, std::int32_t playerId, bool overrideAction, bool centered, bool transparent, const NXBasics::SColorRGB* effectColor, std::int32_t bodyRange, std::int32_t headRange, const void* display, bool ignorePathfinder);
+    bool sl_DoDrawMapMoveable(const void* moveable, void* dynamicData, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, bool atomicActive, std::uint32_t action, std::uint32_t done, std::uint32_t total, std::uint32_t atomicAnimationStartCount, NXBasics::CPalette* bodyPalette, NXBasics::CPalette* headPalette, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y, std::int32_t brightness, std::uint32_t markingType, std::int32_t playerId, bool overrideAction, bool centered, bool transparent, const NXBasics::SColorRGB* effectColor, std::int32_t bodyRange, std::int32_t headRange, const void* display, bool ignorePathfinder);
 
+    static_assert(sizeof(SHumanAppearanceVariants) == 8);
+    static_assert(offsetof(SHumanAppearanceVariants, head) == 4);
+    static_assert(sizeof(SAnimalVehicleDrawState) == 8);
+    static_assert(offsetof(SAnimalVehicleDrawState, selected) == 4);
+    static_assert(offsetof(SAnimalVehicleDrawState, highlighted) == 5);
+    static_assert(sizeof(SActorSpecificDrawData) == 8);
     static_assert(sizeof(SE2DynamicDataMapMoveableData) == 68);
     static_assert(offsetof(SE2DynamicDataMapMoveableData, bodyBobManager) == 0x28);
     static_assert(offsetof(SE2DynamicDataMapMoveableData, animation) == 0x34);
-    static_assert(offsetof(SE2DynamicDataMapMoveableData, subtypeOrFlags) == 0x3C);
+    static_assert(offsetof(SE2DynamicDataMapMoveableData, actorData) == 0x3C);
     static_assert(sizeof(SMapMoveableAnimationOverlays) == 48);
     static_assert(sizeof(S2DEngineDisplaySearchObjectBobData) == 324);
     static_assert(sizeof(S2DEngineDisplaySearchObjectBobData::SBob) == 16);

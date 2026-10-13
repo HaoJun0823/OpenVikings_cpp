@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiOverviewDisplayAccess.h"
@@ -463,7 +464,7 @@ namespace NC2InGameGuiOverviewDisplay
                 if (OverviewDisplay_Read<std::uint8_t>(element, 0x806F) == 0) continue;
                 const void* vehicle = OverviewDisplay_Entry(NC2Logic::CVehicleArray::mStaticVars, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), NC2Logic::CVehicleArray::ElementSize);
                 const NXBasics::SColorRGB* color = NC2E2::Tool_PlayerColors_GetColorRef(OverviewDisplay_Read<std::int32_t>(vehicle, 0x1E0));
-                const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataVehicles.entries, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), 0x44);
+                const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataVehicles.entries, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), NC2Layout::RecordSize::DynamicAnimalVehicle);
                 bitmap->Draw_HorizontalLine(OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Subtract(point[1], 1), 3, *color);
                 bitmap->Draw_HorizontalLine(OverviewDisplay_Subtract(point[0], 1), OverviewDisplay_Add(point[1], 1), 3, *color);
                 bitmap->Draw_SetPixel(OverviewDisplay_Subtract(point[0], 1), point[1], *color);
@@ -512,12 +513,12 @@ namespace NC2InGameGuiOverviewDisplay
                 }
                 const void* human = NC2Logic::GetHumanPtr(OverviewDisplay_Read<std::int32_t>(moveable, 0x54));
                 const NXBasics::SColorRGB* color = NC2E2::Tool_PlayerColors_GetColorRef(OverviewDisplay_Read<std::int32_t>(human, 0x10));
-                const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataHumans.entries, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), 0x8C8);
+                const void* displayData = OverviewDisplay_Entry(NC2E2::gDynamicDataHumans.entries, OverviewDisplay_Read<std::int32_t>(moveable, 0x54), NC2Layout::RecordSize::DynamicHuman);
                 bitmap->Draw_SetPixel(point[0], OverviewDisplay_Subtract(point[1], 1), *color);
                 bitmap->Draw_SetPixel(OverviewDisplay_Subtract(point[0], 1), point[1], *color);
                 bitmap->Draw_SetPixel(OverviewDisplay_Add(point[0], 1), point[1], *color);
                 bitmap->Draw_SetPixel(point[0], OverviewDisplay_Add(point[1], 1), *color);
-                if (OverviewDisplay_Read<std::uint8_t>(displayData, 0x8C4) != 0) bitmap->Draw_Circle(point[0], point[1], 3, pulse);
+                if (OverviewDisplay_Read<std::uint8_t>(displayData, NC2Layout::DynamicHumanOffset::SelectedFlag) != 0) bitmap->Draw_Circle(point[0], point[1], 3, pulse);
             }
         }
     }

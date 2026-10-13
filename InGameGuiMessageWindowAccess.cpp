@@ -127,7 +127,7 @@ namespace NC2InGameGuiMessages
             const char* name = nullptr;
             if (humanId != -1)
             {
-                name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * 0x8C8u + 0x85Cu);
+                name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::NameUnsigned);
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * NC2Logic::CHumanArray::ElementSize;
                 NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), bitmap, 30, 200, nullptr, true, -1);
             }

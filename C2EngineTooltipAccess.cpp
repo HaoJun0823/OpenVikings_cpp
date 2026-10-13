@@ -239,7 +239,7 @@ namespace NC2E2
         {
             // Inline the indexed human lookup performed by 0040211a.
             const void* human = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CHumanArray::ElementSize);
-            const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(gDynamicDataHumans.entries, Tooltip_ReadField<std::uint32_t>(human, 4) * 0x8C8u + 0x85Cu));
+            const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(gDynamicDataHumans.entries, Tooltip_ReadField<std::uint32_t>(human, 4) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::NameUnsigned));
             Display_DrawTooltipOverlay_String(display, bitmap, x, y, name);
             if (Tooltip_ReadField<std::uint32_t>(human, 0x10) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
                 return;

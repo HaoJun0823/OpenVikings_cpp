@@ -57,9 +57,9 @@ namespace NC2Logic
                 }
                 if (NC2E2::gDynamicDataHumans.entries != nullptr)
                 {
-                    const auto* dynamic = NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(id) * 0x8C8u;
-                    if (Read<void*>(dynamic, 0x28) != nullptr) ++count.bodies;
-                    if (Read<void*>(dynamic, 0x2C) != nullptr) ++count.heads;
+                    const auto* dynamic = NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::DynamicHumanUnsigned;
+                    if (Read<void*>(dynamic, NC2Layout::DisplayAtomInformationOffset::BodyBobManager) != nullptr) ++count.bodies;
+                    if (Read<void*>(dynamic, NC2Layout::DisplayAtomInformationOffset::HeadBobManager) != nullptr) ++count.heads;
                 }
             }
             ::OutputDebugStringA("[OpenVikings] Loaded human overview: ");

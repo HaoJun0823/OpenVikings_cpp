@@ -206,7 +206,7 @@ namespace NC2E2
     // Original function: FUN_00490c90; SDisplayAtomInformation::IO_Savegame_Save.
     static void DisplayAtomInformation_IO_Savegame_Save(void* atom, CIoHelper* io)
     {
-        for (std::uint32_t offset = 0x28; offset <= 0x30; offset += 4)
+        for (std::uint32_t offset = NC2Layout::DisplayAtomInformationOffset::BodyBobManager; offset <= NC2Layout::DisplayAtomInformationOffset::ShadowBobManager; offset += 4)
         {
             const void* bob = Read<void*>(atom, offset);
             const char* filename = bob == nullptr ? nullptr : E2StaticDataBobManagersManager_GetBobManagerFilenamePtr(gE2StaticDataBobManagersManager, nullptr, bob);
@@ -217,10 +217,10 @@ namespace NC2E2
     // Original function: FUN_00490d0b; SDisplayAtomInformation::IO_Savegame_Load.
     static void DisplayAtomInformation_IO_Savegame_Load(void* atom, CIoHelper* io)
     {
-        std::memset(atom, 0, 60);
-        Write<std::uint32_t>(atom, 0, NXBasics::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(atom, 4, NXBasics::IntegerRange::UInt32Maximum);
-        for (std::uint32_t offset = 0x28; offset <= 0x30; offset += 4)
+        std::memset(atom, 0, NC2Layout::RecordSize::DisplayAtomInformation);
+        Write<std::uint32_t>(atom, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(atom, NC2Layout::DisplayAtomInformationOffset::HeadBobId, NXBasics::IntegerRange::UInt32Maximum);
+        for (std::uint32_t offset = NC2Layout::DisplayAtomInformationOffset::BodyBobManager; offset <= NC2Layout::DisplayAtomInformationOffset::ShadowBobManager; offset += 4)
         {
             const char* filename = io->IO_File_ReadString();
             if (std::strlen(filename) != 0) Write(atom, offset, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, filename));
@@ -240,10 +240,10 @@ namespace NC2E2
                 if (atom) DisplayAtomInformation_IO_Savegame_Save(entry, io);
                 if (human)
                 {
-                    NXBasics::Palette_PaletteChanged(entry + 0x44);
-                    NXBasics::Palette_PaletteChanged(entry + 0x450);
+                    NXBasics::Palette_PaletteChanged(entry + NC2Layout::DynamicHumanOffset::BodyPalette);
+                    NXBasics::Palette_PaletteChanged(entry + NC2Layout::DynamicHumanOffset::HeadPalette);
                 }
-                io->IO_Memory_WriteBinary(entry + (atom ? 0x3C : 0), payload);
+                io->IO_Memory_WriteBinary(entry + (atom ? NC2Layout::DisplayAtomInformationOffset::ActorSpecificData : 0), payload);
             }
             io->IO_Tool_Chunk_FinishAndWrite();
         }
@@ -257,27 +257,27 @@ namespace NC2E2
                 if (Read<std::uint8_t>(Array::mStaticVars, static_cast<std::uint32_t>(i) * Array::ElementSize) == 0) continue;
                 auto* entry = storage.entries + static_cast<std::uint32_t>(i) * stride;
                 if (atom) DisplayAtomInformation_IO_Savegame_Load(entry, io);
-                io->IO_File_ReadBinary(entry + (atom ? 0x3C : 0), payload);
+                io->IO_File_ReadBinary(entry + (atom ? NC2Layout::DisplayAtomInformationOffset::ActorSpecificData : 0), payload);
             }
         }
     }
 
     // Original function: FUN_0048029c.
-    static void DynamicDataHumanManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHumanArray>(io, SwitchIds::EngineSavegameChunk::DynamicHumans, gDynamicDataHumans, 0x8C8, 0x888, true, true); }
+    static void DynamicDataHumanManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHumanArray>(io, SwitchIds::EngineSavegameChunk::DynamicHumans, gDynamicDataHumans, NC2Layout::RecordSize::DynamicHuman, NC2Layout::RecordSize::DynamicHumanSavegamePayload, true, true); }
     // Original function: FUN_00480348.
-    static void DynamicDataHumanManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHumanArray>(io, gDynamicDataHumans, 0x8C8, 0x888, true); }
+    static void DynamicDataHumanManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHumanArray>(io, gDynamicDataHumans, NC2Layout::RecordSize::DynamicHuman, NC2Layout::RecordSize::DynamicHumanSavegamePayload, true); }
     // Original function: FUN_00490798.
     static void DynamicDataHouseManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CHouseArray>(io, SwitchIds::EngineSavegameChunk::DynamicHouses, gDynamicDataHouses, 0xD0, 0xCC, false, false); }
     // Original function: FUN_00490817.
     static void DynamicDataHouseManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CHouseArray>(io, gDynamicDataHouses, 0xD0, 0xCC, false); }
     // Original function: FUN_00490918.
-    static void DynamicDataVehicleManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CVehicleArray>(io, SwitchIds::EngineSavegameChunk::DynamicVehicles, gDynamicDataVehicles, 0x44, 4, true, false); }
+    static void DynamicDataVehicleManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CVehicleArray>(io, SwitchIds::EngineSavegameChunk::DynamicVehicles, gDynamicDataVehicles, NC2Layout::RecordSize::DynamicAnimalVehicle, 4, true, false); }
     // Original function: FUN_004909a8.
-    static void DynamicDataVehicleManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CVehicleArray>(io, gDynamicDataVehicles, 0x44, 4, true); }
+    static void DynamicDataVehicleManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CVehicleArray>(io, gDynamicDataVehicles, NC2Layout::RecordSize::DynamicAnimalVehicle, 4, true); }
     // Original function: FUN_00490b09.
-    static void DynamicDataAnimalManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CAnimalArray>(io, SwitchIds::EngineSavegameChunk::DynamicAnimals, gDynamicDataAnimals, 0x44, 4, true, false); }
+    static void DynamicDataAnimalManager_IO_Savegame_Save(CIoHelper* io) { SaveDynamicObjects<NC2Logic::CAnimalArray>(io, SwitchIds::EngineSavegameChunk::DynamicAnimals, gDynamicDataAnimals, NC2Layout::RecordSize::DynamicAnimalVehicle, 4, true, false); }
     // Original function: FUN_00490b99.
-    static void DynamicDataAnimalManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CAnimalArray>(io, gDynamicDataAnimals, 0x44, 4, true); }
+    static void DynamicDataAnimalManager_IO_Savegame_Load(CIoHelper* io) { LoadDynamicObjects<NC2Logic::CAnimalArray>(io, gDynamicDataAnimals, NC2Layout::RecordSize::DynamicAnimalVehicle, 4, true); }
 
     // Original function: FUN_00484cc3.
     static void E2MapWeatherManagerSectorManager_IO_Savegame_Load(void* manager, CIoHelper* io)

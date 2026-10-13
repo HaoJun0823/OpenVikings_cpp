@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Dynamic actor drawing layouts - 2026-10-13
+
+Named human appearance, palette/name and display-state storage, common sprite-cache members and distinct human/animal/vehicle tails. Corrected the animation-cache name to atomic start count. Original copying, callback order, palette lifetime and serialization boundaries are retained. All 21 affected C++ units, 36 value/type pairs and layout assertions pass Win32 `/Zs`; 3011 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [DYNAMIC_ACTOR_LAYOUT_REVIEW.md](DYNAMIC_ACTOR_LAYOUT_REVIEW.md). Whole-source review continues with compound animation records and remaining engine/GUI/control/data layouts.
+
 ## Interaction and military target records - 2026-10-13
 
 Named 28 human interaction-overlay accesses and 29 relative target accesses with distinct 28-/12-byte formats. Original target validation, hidden/container redirection and interruption/resume order are retained. All eight affected C++ units, 32 value/type pairs and eight layout assertions pass Win32 `/Zs`; 1257 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [TARGET_RECORD_LAYOUT_REVIEW.md](TARGET_RECORD_LAYOUT_REVIEW.md). Whole-source review continues with remaining task-local storage and engine/GUI/control/data layouts.

@@ -42,7 +42,7 @@ namespace NC2InGameGuiMiscWindows
     using namespace NC2Logic;
     using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
     static const void* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
-    static const char* Name(std::uint32_t id) { return reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + id * 0x8C8u + 0x85C); }
+    static const char* Name(std::uint32_t id) { return reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + id * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name); }
     static char* Text(std::uint32_t id) { return StringTool_GetGameGuiHumanListWindowStringPtr(id); }
     static bool Filter(std::uint32_t index) { return Read<std::uint8_t>(gHumanListWindowStatics, index) != 0; }
     static std::uint32_t Modifiers() { return Read<std::uint32_t>(NXSysKeyManager::CKeyManager::sTheObjectPtr, 0); }

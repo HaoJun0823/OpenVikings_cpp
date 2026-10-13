@@ -409,7 +409,7 @@ namespace NC2InGameGuiSelection
                 AddGraphicButton(window, SRectangle(basic.x + 44, basic.y + 22, 18, 16), 28, 101, 10004);
                 AddGraphicButton(window, SRectangle(basic.x + basic.width - 20, basic.y + basic.height - 20, 18, 18), 142, 102, 10005);
                 const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId);
-                const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C;
+                const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name;
                 const SRectangle nameRect(basic.x + 68, basic.y + 20, basic.width - 72, 14);
                 allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 void* nameElement = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &nameRect, name, HumanString(103), 10006, window);
@@ -784,7 +784,7 @@ namespace NC2InGameGuiSelection
                     const auto id = Read<std::uint32_t>(human, field);
                     if (id == NXBasics::IntegerRange::UInt32Maximum) { Buttons(window).RemoveButton(command, 0); return; }
                     NC2GuiToolsBase::DrawTool_DrawIcon(icon, bitmap, basic.x + 10, rowY + 6);
-                    bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C);
+                    bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), basic.x + 44, rowY, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name);
                     Buttons(window).UpdateGfxButton(command, 0, basic.x + 24, rowY, 18, HumanString(label));
                     rowY += 14;
                 };
@@ -1018,7 +1018,7 @@ namespace NC2InGameGuiSelection
                 const void* nameElement = Read<void*>(window, 0x108);
                 if (human != nullptr && nameElement != nullptr)
                 {
-                    const auto* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, 4) * 0x8C8u + 0x85C;
+                    const auto* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, 4) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::Name;
                     if (std::strcmp(name, Read<const char*>(nameElement, 0x30)) != 0) l_SubTabs_UpdateAll(window, true);
                 }
                 if (Read<std::uint8_t>(window, 0x73) != 0 && Read<std::uint8_t>(window, 0x79) == 0 && Read<std::uint32_t>(window, 0x130) == 0)

@@ -29,7 +29,7 @@ namespace NC2InGameGuiMessages
         if (humanId != -1)
         {
             const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize;
-            std::strcpy(name, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * 0x8C8u + 0x85Cu));
+            std::strcpy(name, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::NameUnsigned));
             if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 0 && !Human_IsJobHero(human) && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32))
             {
                 std::strcat(name, " ("); std::strcat(name, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), 1)); std::strcat(name, ")");

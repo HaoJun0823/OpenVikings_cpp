@@ -782,8 +782,8 @@ namespace NC2E2
     // Original function: FUN_0048024a; SDynamicDataHuman palette subobjects.
     static void* DynamicHuman_Construct(void* human)
     {
-        ::new (static_cast<std::byte*>(human) + 0x44) NXBasics::CPalette;
-        ::new (static_cast<std::byte*>(human) + 0x450) NXBasics::CPalette;
+        ::new (static_cast<std::byte*>(human) + NC2Layout::DynamicHumanOffset::BodyPalette) NXBasics::CPalette;
+        ::new (static_cast<std::byte*>(human) + NC2Layout::DynamicHumanOffset::HeadPalette) NXBasics::CPalette;
         return human;
     }
     // Original function: FUN_00480162; Windows clears the records after construction.
@@ -793,7 +793,7 @@ namespace NC2E2
         std::memset(manager, 0, 1);
         gDynamicDataHumans.entries = nullptr;
         const auto count = static_cast<std::uint32_t>(NC2Logic::CHumanArray::sTheObjectPtr->mCapacity);
-        const auto bytes = count * 0x8C8u;
+        const auto bytes = count * NC2Layout::RecordSize::DynamicHumanUnsigned;
         auto* allocation = static_cast<std::byte*>(NXBasics::Runtime_Allocate(bytes + 4u));
         std::byte* entries = nullptr;
         if (allocation != nullptr)
@@ -801,7 +801,7 @@ namespace NC2E2
             entries = allocation + 4;
             Write(allocation, 0, count);
             if (NXBasics::Runtime_TimeSigned32(count - 1u) >= 0)
-                for (std::uint32_t i = 0; i < count; ++i) DynamicHuman_Construct(entries + i * 0x8C8u);
+                for (std::uint32_t i = 0; i < count; ++i) DynamicHuman_Construct(entries + i * NC2Layout::RecordSize::DynamicHumanUnsigned);
         }
         gDynamicDataHumans.entries = entries;
         std::memset(entries, 0, bytes);
@@ -851,7 +851,7 @@ namespace NC2E2
         gDynamicDataVehicles.manager = manager;
         std::memset(manager, 0, 1);
         gDynamicDataVehicles.entries = nullptr;
-        const std::uint32_t size = NC2Logic::CVehicleArray::sTheObjectPtr->mCapacity * 0x44u;
+        const std::uint32_t size = NC2Logic::CVehicleArray::sTheObjectPtr->mCapacity * NC2Layout::RecordSize::DynamicAnimalVehicleUnsigned;
         gDynamicDataVehicles.entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(size));
         std::memset(gDynamicDataVehicles.entries, 0, size);
         return manager;
@@ -860,21 +860,21 @@ namespace NC2E2
     static void E2DynamicDataVehicleManager_VehicleXtructed(std::uint32_t index, bool created)
     {
         if (!created) return;
-        void* entry = gDynamicDataVehicles.entries + index * 0x44u;
+        void* entry = gDynamicDataVehicles.entries + index * NC2Layout::RecordSize::DynamicAnimalVehicleUnsigned;
         void* vehicle = NC2Logic::CVehicleArray::mStaticVars + index * 0x54Cu;
-        std::memset(entry, 0, 68);
+        std::memset(entry, 0, NC2Layout::RecordSize::DynamicAnimalVehicle);
         if (void* graphics = StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType)))
         {
-            Write<std::uint32_t>(entry, 0x28, Read<std::uint32_t>(graphics, 8));
-            Write<std::uint32_t>(entry, 0x30, Read<std::uint32_t>(graphics, 12));
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<std::uint32_t>(graphics, 8));
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<std::uint32_t>(graphics, 12));
             if (Read<std::uint32_t>(graphics, 0x10) != 0)
             {
                 const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, 0x10);
-                Write<std::uint32_t>(entry, 0x3C, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
+                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
             }
         }
-        Write<std::uint32_t>(entry, 0, NXBasics::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(entry, 4, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::HeadBobId, NXBasics::IntegerRange::UInt32Maximum);
     }
     // Original function: FUN_00490aa5.
     static void* E2DynamicDataAnimalManager_Construct(void* manager)
@@ -882,7 +882,7 @@ namespace NC2E2
         gDynamicDataAnimals.manager = manager;
         std::memset(manager, 0, 1);
         gDynamicDataAnimals.entries = nullptr;
-        const std::uint32_t size = NC2Logic::CAnimalArray::sTheObjectPtr->mCapacity * 0x44u;
+        const std::uint32_t size = NC2Logic::CAnimalArray::sTheObjectPtr->mCapacity * NC2Layout::RecordSize::DynamicAnimalVehicleUnsigned;
         gDynamicDataAnimals.entries = static_cast<std::byte*>(NXBasics::Runtime_Allocate(size));
         std::memset(gDynamicDataAnimals.entries, 0, size);
         return manager;
@@ -891,21 +891,21 @@ namespace NC2E2
     static void E2DynamicDataAnimalManager_AnimalXtructed(std::uint32_t index, bool created)
     {
         if (!created) return;
-        void* entry = gDynamicDataAnimals.entries + index * 0x44u;
+        void* entry = gDynamicDataAnimals.entries + index * NC2Layout::RecordSize::DynamicAnimalVehicleUnsigned;
         void* animal = NC2Logic::CAnimalArray::mStaticVars + index * 0x98u;
-        std::memset(entry, 0, 68);
+        std::memset(entry, 0, NC2Layout::RecordSize::DynamicAnimalVehicle);
         if (void* graphics = StaticMapMoveables_JobGraphics_Animals_GetDataPtr(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType)))
         {
-            Write<std::uint32_t>(entry, 0x28, Read<std::uint32_t>(graphics, 8));
-            Write<std::uint32_t>(entry, 0x30, Read<std::uint32_t>(graphics, 12));
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<std::uint32_t>(graphics, 8));
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<std::uint32_t>(graphics, 12));
             if (Read<std::uint32_t>(graphics, 0x10) != 0)
             {
                 const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, 0x10);
-                Write<std::uint32_t>(entry, 0x3C, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
+                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
             }
         }
-        Write<std::uint32_t>(entry, 0, NXBasics::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(entry, 4, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::HeadBobId, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Remaining original dependencies are creation/update paths, not shutdown bodies.
@@ -918,8 +918,8 @@ namespace NC2E2
     // Original function: FUN_00480264; the two embedded CPalette members.
     static void DynamicHuman_Destruct(void* human)
     {
-        reinterpret_cast<NXBasics::CPalette*>(static_cast<std::byte*>(human) + 0x450)->NXBasics::CPalette::~CPalette();
-        reinterpret_cast<NXBasics::CPalette*>(static_cast<std::byte*>(human) + 0x44)->NXBasics::CPalette::~CPalette();
+        reinterpret_cast<NXBasics::CPalette*>(static_cast<std::byte*>(human) + NC2Layout::DynamicHumanOffset::HeadPalette)->NXBasics::CPalette::~CPalette();
+        reinterpret_cast<NXBasics::CPalette*>(static_cast<std::byte*>(human) + NC2Layout::DynamicHumanOffset::BodyPalette)->NXBasics::CPalette::~CPalette();
     }
     // Original function: FUN_004801e9.
     static void* DynamicHuman_Delete(void* human, std::uint32_t flags)
@@ -928,7 +928,7 @@ namespace NC2E2
         if ((flags & 2) != 0)
         {
             allocation = static_cast<std::byte*>(human) - 4;
-            Vector_Destruct(human, 0x8C8, Read<std::uint32_t>(allocation, 0), DynamicHuman_Destruct);
+            Vector_Destruct(human, NC2Layout::RecordSize::DynamicHuman, Read<std::uint32_t>(allocation, 0), DynamicHuman_Destruct);
         }
         else
         {

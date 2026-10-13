@@ -51,6 +51,52 @@ namespace NC2Layout
         inline constexpr auto InsideHouseFlag = 0x94;
     }
 
+    namespace DisplayAtomInformationOffset
+    {
+        inline constexpr auto BodyBobId = 0;
+        inline constexpr auto HeadBobId = 4;
+        inline constexpr auto AnimationTribe = 8;
+        inline constexpr auto AnimationJob = 0x0C;
+        inline constexpr auto AnimationAction = 0x10;
+        inline constexpr auto AnimationStartCount = 0x14;
+        inline constexpr auto WalkTribe = 0x18;
+        inline constexpr auto WalkJob = 0x1C;
+        inline constexpr auto WalkGood = 0x20;
+        inline constexpr auto WalkSpeed = 0x24;
+        inline constexpr auto BodyBobManager = 0x28;
+        inline constexpr auto HeadBobManager = 0x2C;
+        inline constexpr auto ShadowBobManager = 0x30;
+        inline constexpr auto Animation = 0x34;
+        inline constexpr auto Walk = 0x38;
+        inline constexpr auto ActorSpecificData = 0x3C;
+    }
+
+    namespace DynamicHumanOffset
+    {
+        inline constexpr auto BodyVariant = 0x3C;
+        inline constexpr auto HeadVariant = 0x40;
+        inline constexpr auto BodyPalette = 0x44;
+        inline constexpr auto HeadPalette = 0x450;
+        inline constexpr auto Name = 0x85C;
+        inline constexpr auto NameUnsigned = 0x85Cu;
+        inline constexpr auto NameTerminator = 0x8BF;
+        inline constexpr auto HasUserMessageFlag = 0x8C0;
+        inline constexpr auto SelectedFlag = 0x8C4;
+        inline constexpr auto HighlightedFlag = 0x8C5;
+    }
+
+    namespace DynamicAnimalVehicleOffset
+    {
+        inline constexpr auto PaletteId = 0x3C;
+        inline constexpr auto SelectedFlag = 0x40;
+        inline constexpr auto HighlightedFlag = 0x41;
+    }
+
+    namespace DynamicHouseOffset
+    {
+        inline constexpr auto SelectedFlag = 0xCC;
+    }
+
     namespace EngineDisplayOffset
     {
         inline constexpr auto DestinationBitmap = 0x64;
@@ -369,6 +415,13 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto DisplayAtomInformation = 60;
+        inline constexpr auto DynamicAnimalVehicle = 0x44;
+        inline constexpr auto DynamicAnimalVehicleUnsigned = 0x44u;
+        inline constexpr auto DynamicHuman = 0x8C8;
+        inline constexpr auto DynamicHumanUnsigned = 0x8C8u;
+        inline constexpr auto DynamicHumanSavegamePayload = 0x888;
+
         inline constexpr auto InteractionTargetData = 28;
         inline constexpr auto HumanAssistantData = 0xD0;
         inline constexpr auto HumanAssistantCommandHistory = 0x14u;
