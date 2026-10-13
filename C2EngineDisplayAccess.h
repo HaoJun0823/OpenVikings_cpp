@@ -14,6 +14,34 @@ namespace NXBasics
 
 namespace NC2E2
 {
+    // Windows fixed-point values retain eight fractional bits in both raster sizes.
+    struct SDisplayProjectionSpacing
+    {
+        std::int32_t verticalFixed;
+        std::int32_t horizontalFixed;
+        std::int32_t heightFixed;
+        std::int32_t halfHorizontalFixed;
+        std::int32_t halfVerticalFixed;
+        std::int32_t verticalPixels;
+        std::int32_t horizontalPixels;
+        std::int32_t heightPixels;
+        std::int32_t halfHorizontalPixels;
+        std::int32_t halfVerticalPixels;
+    };
+
+    struct SDisplayDescriptionData
+    {
+        float verticalSpacing;
+        float horizontalSpacing;
+        float heightScale;
+        SDisplayProjectionSpacing micro;
+        SDisplayProjectionSpacing macro;
+        std::int32_t worldWidthPixels;
+        std::int32_t worldHeightPixels;
+    };
+    static_assert(sizeof(SDisplayProjectionSpacing) == 40);
+    static_assert(sizeof(SDisplayDescriptionData) == 100);
+
     // The contiguous Windows scroll state begins at display +0x94C.
     struct SDisplayScrollState
     {

@@ -180,6 +180,35 @@ namespace NC2Layout
         inline constexpr auto SandDensity = 8;
     }
 
+    namespace DisplayDescriptionOffset
+    {
+        inline constexpr auto VerticalSpacing = 0;
+        inline constexpr auto HorizontalSpacing = 4;
+        inline constexpr auto HeightScale = 8;
+        inline constexpr auto MicroVerticalFixed = 0x0C;
+        inline constexpr auto MicroHorizontalFixed = 0x10;
+        inline constexpr auto MicroHeightFixed = 0x14;
+        inline constexpr auto MicroHalfHorizontalFixed = 0x18;
+        inline constexpr auto MicroHalfVerticalFixed = 0x1C;
+        inline constexpr auto MicroVerticalPixels = 0x20;
+        inline constexpr auto MicroHorizontalPixels = 0x24;
+        inline constexpr auto MicroHeightPixels = 0x28;
+        inline constexpr auto MicroHalfHorizontalPixels = 0x2C;
+        inline constexpr auto MicroHalfVerticalPixels = 0x30;
+        inline constexpr auto MacroVerticalFixed = 0x34;
+        inline constexpr auto MacroHorizontalFixed = 0x38;
+        inline constexpr auto MacroHeightFixed = 0x3C;
+        inline constexpr auto MacroHalfHorizontalFixed = 0x40;
+        inline constexpr auto MacroHalfVerticalFixed = 0x44;
+        inline constexpr auto MacroVerticalPixels = 0x48;
+        inline constexpr auto MacroHorizontalPixels = 0x4C;
+        inline constexpr auto MacroHeightPixels = 0x50;
+        inline constexpr auto MacroHalfHorizontalPixels = 0x54;
+        inline constexpr auto MacroHalfVerticalPixels = 0x58;
+        inline constexpr auto WorldWidthPixels = 0x5C;
+        inline constexpr auto WorldHeightPixels = 0x60;
+    }
+
     namespace EngineDisplayOffset
     {
         inline constexpr auto ActiveDisplayFlag = 0x6C;

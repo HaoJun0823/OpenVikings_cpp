@@ -171,8 +171,8 @@ namespace NC2E2
         const I h2 = Ground_GetMacroHeight(left, bottom), h3 = Ground_GetMacroHeight(right, bottom);
         const I b2 = Display_l_DE_Hightlighting_GetMapBrightness(display, left, bottom), b3 = Display_l_DE_Hightlighting_GetMapBrightness(display, right, bottom);
         const U c2 = Ground_GetMacroVertexColor(left, bottom), c3 = Ground_GetMacroVertexColor(right, bottom);
-        const I baseX = Sub(position.x, Fixed(Read<I>(display, 0x2C))), scale = Read<I>(display, 0x3C);
-        const I baseY = Sub(position.y, Mul(scale, h0)), spacing = Read<I>(display, 0x34), horizontal = Read<I>(display, 0x38), parity = Read<I>(display, 0x40);
+        const I baseX = Sub(position.x, Fixed(Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels))), scale = Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHeightFixed);
+        const I baseY = Sub(position.y, Mul(scale, h0)), spacing = Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroVerticalFixed), horizontal = Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHorizontalFixed), parity = Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHalfHorizontalFixed);
         SCorner origin{Round(Add(baseX, parity)), Round(baseY), b0, c0};
         SCorner eastCorner{Round(Add(Add(baseX, horizontal), parity)), Round(Add(baseY, Mul(Sub(h0, h1), scale))), b1, c1};
         SCorner lowerLeft{Round(baseX), Round(Add(Add(baseY, Mul(Sub(h0, h2), scale)), spacing)), b2, c2};
@@ -249,13 +249,13 @@ namespace NC2E2
         {
             point[1] = static_cast<std::int16_t>(rectangle[1] + row);
             NC2Logic::MapMagPoint_ValidateYPosition(point);
-            const I y = Add(Mul(Read<I>(display, 0x34), row), pixelPoint[1]);
-            const I parity = (point[1] & 1) != 0 ? Fixed(Read<I>(display, 0x54)) : 0;
+            const I y = Add(Mul(Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroVerticalFixed), row), pixelPoint[1]);
+            const I parity = (point[1] & 1) != 0 ? Fixed(Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHalfHorizontalPixels)) : 0;
             for (I column = 0; column < rectangle[2]; ++column)
             {
                 point[0] = static_cast<std::int16_t>(rectangle[0] + column);
                 NC2Logic::MapMagPoint_ValidateXPosition(point);
-                Display_l_DE_DrawSingleQuadrangle_MigMag(display, point, bitmap, {Add(Add(Mul(Read<I>(display, 0x38), column), pixelPoint[0]), parity), y});
+                Display_l_DE_DrawSingleQuadrangle_MigMag(display, point, bitmap, {Add(Add(Mul(Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHorizontalFixed), column), pixelPoint[0]), parity), y});
             }
         }
     }
@@ -265,25 +265,25 @@ namespace NC2E2
     {
         if (outside || (Read<std::uint8_t>(display, 0x71) & 4) != 0) { bitmap->Fill(std::uint8_t(0)); return; }
         NC2Lifetime::Write<std::uint8_t>(Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader), 0x0C, 0);
-        worldX = Wrap(worldX, Read<I>(display, 0x5C));
-        worldY = Wrap(worldY, Read<I>(display, 0x60));
+        worldX = Wrap(worldX, Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels));
+        worldY = Wrap(worldY, Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels));
         std::int16_t rectangle[4]{};
-        rectangle[1] = static_cast<std::int16_t>(Fixed(worldY) / Read<I>(display, 0x34));
-        rectangle[0] = static_cast<std::int16_t>(Fixed(Add(Mul(rectangle[1] & 1, Read<I>(display, 0x54)), worldX)) / Read<I>(display, 0x38) - 2);
-        I pixelPoint[2] = {Sub(Mul(rectangle[0], Read<I>(display, 0x38)), Fixed(worldX)), Sub(Mul(rectangle[1], Read<I>(display, 0x34)), Fixed(worldY))};
+        rectangle[1] = static_cast<std::int16_t>(Fixed(worldY) / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroVerticalFixed));
+        rectangle[0] = static_cast<std::int16_t>(Fixed(Add(Mul(rectangle[1] & 1, Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHalfHorizontalPixels)), worldX)) / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHorizontalFixed) - 2);
+        I pixelPoint[2] = {Sub(Mul(rectangle[0], Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHorizontalFixed)), Fixed(worldX)), Sub(Mul(rectangle[1], Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroVerticalFixed)), Fixed(worldY))};
         NC2Logic::MapMagPoint_ValidateXPosition(rectangle);
-        rectangle[2] = static_cast<std::int16_t>(bitmap->GetRectangle().width / Read<I>(display, 0x4C) + 5);
-        rectangle[3] = static_cast<std::int16_t>(bitmap->GetRectangle().height / Read<I>(display, 0x48) + 20);
+        rectangle[2] = static_cast<std::int16_t>(bitmap->GetRectangle().width / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroHorizontalPixels) + 5);
+        rectangle[3] = static_cast<std::int16_t>(bitmap->GetRectangle().height / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MacroVerticalPixels) + 20);
         Display_l_DE_DrawQuadrangleField_MigMag(display, rectangle, bitmap, pixelPoint);
         if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 1) == 0) return;
-        rectangle[1] = static_cast<std::int16_t>(Fixed(worldY) / Read<I>(display, 0x0C));
-        rectangle[0] = static_cast<std::int16_t>(Fixed(Add(Mul(rectangle[1] & 1, Read<I>(display, 0x2C)), worldX)) / Read<I>(display, 0x10) - 2);
-        pixelPoint[0] = Sub(Mul(rectangle[0], Read<I>(display, 0x10)), Fixed(worldX));
-        pixelPoint[1] = Sub(Mul(rectangle[1], Read<I>(display, 0x0C)), Fixed(worldY));
-        if (rectangle[0] < 0) pixelPoint[0] = Sub(pixelPoint[0], Mul(rectangle[0], Read<I>(display, 0x10)));
-        if (rectangle[1] < 0) pixelPoint[1] = Sub(pixelPoint[1], Mul(rectangle[1], Read<I>(display, 0x0C)));
-        rectangle[2] = static_cast<std::int16_t>(bitmap->GetRectangle().width / Read<I>(display, 0x24) + 7);
-        rectangle[3] = static_cast<std::int16_t>(bitmap->GetRectangle().height / Read<I>(display, 0x20) + 37);
+        rectangle[1] = static_cast<std::int16_t>(Fixed(worldY) / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed));
+        rectangle[0] = static_cast<std::int16_t>(Fixed(Add(Mul(rectangle[1] & 1, Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels)), worldX)) / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed) - 2);
+        pixelPoint[0] = Sub(Mul(rectangle[0], Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed)), Fixed(worldX));
+        pixelPoint[1] = Sub(Mul(rectangle[1], Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed)), Fixed(worldY));
+        if (rectangle[0] < 0) pixelPoint[0] = Sub(pixelPoint[0], Mul(rectangle[0], Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed)));
+        if (rectangle[1] < 0) pixelPoint[1] = Sub(pixelPoint[1], Mul(rectangle[1], Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed)));
+        rectangle[2] = static_cast<std::int16_t>(bitmap->GetRectangle().width / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalPixels) + 7);
+        rectangle[3] = static_cast<std::int16_t>(bitmap->GetRectangle().height / Read<I>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels) + 37);
         NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
         pixelPoint[0] = Round(pixelPoint[0]); pixelPoint[1] = Round(pixelPoint[1]);
         Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, bitmap, pixelPoint, true, false);
@@ -292,7 +292,7 @@ namespace NC2E2
     // Original function: FUN_00481e20.
     bool Display_l_DE_IsRectangleOutOfWorldArea(void* display, const S2DEngineDisplayRectangle* rectangle)
     {
-        return !(Bits(rectangle->worldX) < Read<I>(display, 0x5C) && Bits(rectangle->worldX + rectangle->width) > 0 && Bits(rectangle->worldY) < Read<I>(display, 0x60) && Bits(rectangle->worldY + rectangle->height) > 0);
+        return !(Bits(rectangle->worldX) < Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels) && Bits(rectangle->worldX + rectangle->width) > 0 && Bits(rectangle->worldY) < Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels) && Bits(rectangle->worldY + rectangle->height) > 0);
     }
     // Original function: FUN_00481cdd.
     void Display_l_DE_DoUpdateStaticPart4(void* display, S2DEngineDisplayRectangle rectangle)
@@ -316,7 +316,7 @@ namespace NC2E2
     // Original function: FUN_00481c10.
     void Display_l_DE_DoUpdateStaticPart3(void* display, S2DEngineDisplayRectangle rectangle)
     {
-        const I end = Bits(rectangle.worldY + rectangle.height), worldHeight = Read<I>(display, 0x60);
+        const I end = Bits(rectangle.worldY + rectangle.height), worldHeight = Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels);
         U split = 0;
         const bool crossesZero = end > 0 && Bits(rectangle.worldY) < 0;
         if (crossesZero) split = 0u - rectangle.worldY;
@@ -348,7 +348,7 @@ namespace NC2E2
     // Original function: FUN_00481ae2.
     void __fastcall Display_l_DE_DoUpdateStaticPart1(void* display, void* /*unusedEdx*/, S2DEngineDisplayRectangle rectangle)
     {
-        const I end = Bits(rectangle.worldX + rectangle.width), worldWidth = Read<I>(display, 0x5C);
+        const I end = Bits(rectangle.worldX + rectangle.width), worldWidth = Read<I>(display, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels);
         U split = 0;
         const bool crossesZero = end > 0 && Bits(rectangle.worldX) < 0;
         if (crossesZero) split = 0u - rectangle.worldX;

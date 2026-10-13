@@ -93,7 +93,7 @@ namespace NC2E2
     // Original function: FUN_004821b3; wrapped multiply/add precedes signed shift.
     std::int32_t DED_MapHeightToPixelHeight(const void* description, std::int16_t height)
     {
-        return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(description, 0x14) * static_cast<std::uint32_t>(height) + 127u) >> 8;
+        return NXBasics::Runtime_TimeSigned32(NC2Lifetime::Read<std::uint32_t>(description, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed) * static_cast<std::uint32_t>(height) + NC2Runtime::DisplayProjection::RoundingBias) >> NC2Runtime::DisplayProjection::FractionBits;
     }
 
     // Original function: FUN_0048245d.
@@ -363,7 +363,7 @@ namespace NC2E2
     static std::uint32_t DisplayDescription_FixedToPixels(std::uint32_t bits)
     {
         // Preserve the original 32-bit addition and arithmetic right shift.
-        return DisplayDescription_ShiftRightSigned(bits + 127u, 8);
+        return DisplayDescription_ShiftRightSigned(bits + NC2Runtime::DisplayProjection::RoundingBias, NC2Runtime::DisplayProjection::FractionBits);
     }
 
     static std::uint32_t DisplayDescription_ConvertScaledFloat(float value, float scale)
@@ -377,7 +377,7 @@ namespace NC2E2
     // Original function: FUN_00481e72
     void* DisplayDescription_Construct(void* description)
     {
-        DisplayDescription_AssignNewTriangleValues(description, 19.0f, 34.0f, 1.2f);
+        DisplayDescription_AssignNewTriangleValues(description, NC2Runtime::DisplayProjection::DefaultVerticalSpacing, NC2Runtime::DisplayProjection::DefaultHorizontalSpacing, NC2Runtime::DisplayProjection::DefaultHeightScale);
         return description;
     }
 
@@ -385,20 +385,20 @@ namespace NC2E2
     void DisplayDescription_AssignNewTriangleValues(void* description, float verticalSpacing, float horizontalSpacing, float heightScale)
     {
         // The original also replaces unordered values with the lower bound.
-        if (!(verticalSpacing > 1.0f))
-            verticalSpacing = 1.0f;
+        if (!(verticalSpacing > NC2Runtime::DisplayProjection::MinimumVerticalSpacing))
+            verticalSpacing = NC2Runtime::DisplayProjection::MinimumVerticalSpacing;
 
-        if (!(horizontalSpacing > 2.0f))
-            horizontalSpacing = 2.0f;
+        if (!(horizontalSpacing > NC2Runtime::DisplayProjection::MinimumHorizontalSpacing))
+            horizontalSpacing = NC2Runtime::DisplayProjection::MinimumHorizontalSpacing;
 
-        if (!(heightScale > 0.0f))
-            heightScale = 0.0f;
+        if (!(heightScale > NC2Runtime::DisplayProjection::MinimumHeightScale))
+            heightScale = NC2Runtime::DisplayProjection::MinimumHeightScale;
 
         auto* bytes = static_cast<std::byte*>(description);
 
-        std::memcpy(bytes + 0x08, &heightScale, sizeof(heightScale));
-        std::memcpy(bytes + 0, &verticalSpacing, sizeof(verticalSpacing));
-        std::memcpy(bytes + 0x04, &horizontalSpacing, sizeof(horizontalSpacing));
+        std::memcpy(bytes + NC2Layout::DisplayDescriptionOffset::HeightScale, &heightScale, sizeof(heightScale));
+        std::memcpy(bytes + NC2Layout::DisplayDescriptionOffset::VerticalSpacing, &verticalSpacing, sizeof(verticalSpacing));
+        std::memcpy(bytes + NC2Layout::DisplayDescriptionOffset::HorizontalSpacing, &horizontalSpacing, sizeof(horizontalSpacing));
 
         DisplayDescription_CalculateResultingVars(description);
     }
@@ -414,53 +414,53 @@ namespace NC2E2
         const float heightScale = values[2];
 
         // Integer values below retain their original two's-complement bit patterns.
-        const std::uint32_t horizontal256 = DisplayDescription_ConvertScaledFloat(horizontalSpacing, 256.0f);
-        DisplayDescription_WriteDword(description, 0x10, horizontal256);
+        const std::uint32_t microHorizontalFixed = DisplayDescription_ConvertScaledFloat(horizontalSpacing, NC2Runtime::DisplayProjection::FixedPointScale);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed, microHorizontalFixed);
 
-        const std::uint32_t vertical256 = DisplayDescription_ConvertScaledFloat(verticalSpacing, 256.0f);
-        DisplayDescription_WriteDword(description, 0x0C, vertical256);
+        const std::uint32_t microVerticalFixed = DisplayDescription_ConvertScaledFloat(verticalSpacing, NC2Runtime::DisplayProjection::FixedPointScale);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed, microVerticalFixed);
 
-        const std::uint32_t height256 = DisplayDescription_ConvertScaledFloat(heightScale, 256.0f);
+        const std::uint32_t heightFixed = DisplayDescription_ConvertScaledFloat(heightScale, NC2Runtime::DisplayProjection::FixedPointScale);
 
-        const std::uint32_t halfHorizontal256 = DisplayDescription_HalveSigned(horizontal256);
-        const std::uint32_t halfVertical256 = DisplayDescription_HalveSigned(vertical256);
-        const std::uint32_t heightPixels = DisplayDescription_FixedToPixels(height256);
+        const std::uint32_t microHalfHorizontalFixed = DisplayDescription_HalveSigned(microHorizontalFixed);
+        const std::uint32_t microHalfVerticalFixed = DisplayDescription_HalveSigned(microVerticalFixed);
+        const std::uint32_t heightPixels = DisplayDescription_FixedToPixels(heightFixed);
 
-        DisplayDescription_WriteDword(description, 0x18, halfHorizontal256);
-        DisplayDescription_WriteDword(description, 0x1C, halfVertical256);
-        DisplayDescription_WriteDword(description, 0x24, DisplayDescription_FixedToPixels(horizontal256));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalFixed, microHalfHorizontalFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHalfVerticalFixed, microHalfVerticalFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHorizontalPixels, DisplayDescription_FixedToPixels(microHorizontalFixed));
 
-        DisplayDescription_WriteDword(description, 0x14, height256);
-        DisplayDescription_WriteDword(description, 0x20, DisplayDescription_FixedToPixels(vertical256));
-        DisplayDescription_WriteDword(description, 0x28, heightPixels);
-        DisplayDescription_WriteDword(description, 0x2C, DisplayDescription_FixedToPixels(halfHorizontal256));
-        DisplayDescription_WriteDword(description, 0x30, DisplayDescription_FixedToPixels(halfVertical256));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed, heightFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels, DisplayDescription_FixedToPixels(microVerticalFixed));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHeightPixels, heightPixels);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels, DisplayDescription_FixedToPixels(microHalfHorizontalFixed));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MicroHalfVerticalPixels, DisplayDescription_FixedToPixels(microHalfVerticalFixed));
 
-        const std::uint32_t horizontal512 = DisplayDescription_ConvertScaledFloat(horizontalSpacing, 512.0f);
-        DisplayDescription_WriteDword(description, 0x38, horizontal512);
+        const std::uint32_t macroHorizontalFixed = DisplayDescription_ConvertScaledFloat(horizontalSpacing, NC2Runtime::DisplayProjection::DoubledFixedPointScale);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHorizontalFixed, macroHorizontalFixed);
 
-        const std::uint32_t vertical512 = DisplayDescription_ConvertScaledFloat(verticalSpacing, 512.0f);
-        const std::uint32_t halfHorizontal512 = DisplayDescription_HalveSigned(horizontal512);
-        const std::uint32_t halfVertical512 = DisplayDescription_HalveSigned(vertical512);
+        const std::uint32_t macroVerticalFixed = DisplayDescription_ConvertScaledFloat(verticalSpacing, NC2Runtime::DisplayProjection::DoubledFixedPointScale);
+        const std::uint32_t macroHalfHorizontalFixed = DisplayDescription_HalveSigned(macroHorizontalFixed);
+        const std::uint32_t macroHalfVerticalFixed = DisplayDescription_HalveSigned(macroVerticalFixed);
 
         // The doubled-spacing block retains the original height scale.
-        DisplayDescription_WriteDword(description, 0x3C, height256);
-        DisplayDescription_WriteDword(description, 0x34, vertical512);
-        DisplayDescription_WriteDword(description, 0x40, halfHorizontal512);
-        DisplayDescription_WriteDword(description, 0x44, halfVertical512);
-        DisplayDescription_WriteDword(description, 0x4C, DisplayDescription_FixedToPixels(horizontal512));
-        DisplayDescription_WriteDword(description, 0x48, DisplayDescription_FixedToPixels(vertical512));
-        DisplayDescription_WriteDword(description, 0x50, heightPixels);
-        DisplayDescription_WriteDword(description, 0x58, DisplayDescription_FixedToPixels(halfVertical512));
-        DisplayDescription_WriteDword(description, 0x54, DisplayDescription_FixedToPixels(halfHorizontal512));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHeightFixed, heightFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroVerticalFixed, macroVerticalFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHalfHorizontalFixed, macroHalfHorizontalFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHalfVerticalFixed, macroHalfVerticalFixed);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHorizontalPixels, DisplayDescription_FixedToPixels(macroHorizontalFixed));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroVerticalPixels, DisplayDescription_FixedToPixels(macroVerticalFixed));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHeightPixels, heightPixels);
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHalfVerticalPixels, DisplayDescription_FixedToPixels(macroHalfVerticalFixed));
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::MacroHalfHorizontalPixels, DisplayDescription_FixedToPixels(macroHalfHorizontalFixed));
 
         const std::int32_t mapWidth = NC2Logic::GameMap_GetWidth();
-        const std::uint32_t worldWidthFixed = static_cast<std::uint32_t>(mapWidth) * horizontal256;
-        DisplayDescription_WriteDword(description, 0x5C, DisplayDescription_FixedToPixels(worldWidthFixed));
+        const std::uint32_t worldWidthFixed = static_cast<std::uint32_t>(mapWidth) * microHorizontalFixed;
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels, DisplayDescription_FixedToPixels(worldWidthFixed));
 
         const std::int32_t mapHeight = NC2Logic::GameMap_GetHeight();
-        const std::uint32_t worldHeightFixed = static_cast<std::uint32_t>(mapHeight) * vertical256;
-        DisplayDescription_WriteDword(description, 0x60, DisplayDescription_FixedToPixels(worldHeightFixed));
+        const std::uint32_t worldHeightFixed = static_cast<std::uint32_t>(mapHeight) * microVerticalFixed;
+        DisplayDescription_WriteDword(description, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels, DisplayDescription_FixedToPixels(worldHeightFixed));
     }
 
     static std::uint32_t DisplayDescription_ReadDword(const void* description, std::size_t offset)
@@ -506,7 +506,7 @@ namespace NC2E2
         if (point[0] < 0)
             point[0] = 0;
 
-        const std::uint32_t widthBits = DisplayDescription_ReadDword(description, 0x5C);
+        const std::uint32_t widthBits = DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::WorldWidthPixels);
 
         if (point[0] >= DisplayDescription_SignedDword(widthBits))
             point[0] = DisplayDescription_SignedDword(widthBits - 1u);
@@ -514,7 +514,7 @@ namespace NC2E2
         if (point[1] < 0)
             point[1] = 0;
 
-        const std::uint32_t heightBits = DisplayDescription_ReadDword(description, 0x60);
+        const std::uint32_t heightBits = DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::WorldHeightPixels);
 
         if (point[1] >= DisplayDescription_SignedDword(heightBits))
             point[1] = DisplayDescription_SignedDword(heightBits - 1u);
@@ -523,8 +523,8 @@ namespace NC2E2
     // Original function: FUN_00482049
     bool DisplayDescription_WorldPixelToMapMigCoordinates(const void* description, const std::int32_t* worldPoint, std::uint32_t* packedMapPoint)
     {
-        const std::uint32_t adjustedX = static_cast<std::uint32_t>(worldPoint[0]) - DisplayDescription_ReadDword(description, 0x2C);
-        const std::uint32_t adjustedY = static_cast<std::uint32_t>(worldPoint[1]) - DisplayDescription_ReadDword(description, 0x20);
+        const std::uint32_t adjustedX = static_cast<std::uint32_t>(worldPoint[0]) - DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels);
+        const std::uint32_t adjustedY = static_cast<std::uint32_t>(worldPoint[1]) - DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels);
 
         std::int32_t projectedPoint[2] =
         {
@@ -534,8 +534,8 @@ namespace NC2E2
 
         DisplayDescription_MakeValidWorldPixelPosition(description, projectedPoint);
 
-        const std::int32_t estimatedX = DisplayDescription_DivideSigned(static_cast<std::uint32_t>(projectedPoint[0]) << 8, DisplayDescription_ReadDword(description, 0x10));
-        const std::int32_t estimatedY = DisplayDescription_DivideSigned(static_cast<std::uint32_t>(projectedPoint[1]) << 8, DisplayDescription_ReadDword(description, 0x0C));
+        const std::int32_t estimatedX = DisplayDescription_DivideSigned(static_cast<std::uint32_t>(projectedPoint[0]) << 8, DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed));
+        const std::int32_t estimatedY = DisplayDescription_DivideSigned(static_cast<std::uint32_t>(projectedPoint[1]) << 8, DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed));
 
         std::int32_t bestDistance = 100000000;
 
@@ -581,8 +581,8 @@ namespace NC2E2
         const std::uint32_t mapX = static_cast<std::uint32_t>(static_cast<std::int32_t>(coordinates[0]));
         const std::uint32_t mapY = static_cast<std::uint32_t>(static_cast<std::int32_t>(coordinates[1]));
 
-        const std::uint32_t horizontalFixed = DisplayDescription_ReadDword(description, 0x10) * mapX;
-        const std::uint32_t halfHorizontalPixels = DisplayDescription_ReadDword(description, 0x2C);
+        const std::uint32_t horizontalFixed = DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed) * mapX;
+        const std::uint32_t halfHorizontalPixels = DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels);
 
         std::uint32_t worldX = DisplayDescription_FixedToPixels(horizontalFixed) + halfHorizontalPixels;
         worldPoint[0] = DisplayDescription_SignedDword(worldX);
@@ -593,13 +593,13 @@ namespace NC2E2
             worldPoint[0] = DisplayDescription_SignedDword(worldX);
         }
 
-        const std::uint32_t verticalFixed = DisplayDescription_ReadDword(description, 0x0C) * mapY;
+        const std::uint32_t verticalFixed = DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed) * mapY;
         std::uint32_t worldY = DisplayDescription_FixedToPixels(verticalFixed);
 
         worldPoint[1] = DisplayDescription_SignedDword(worldY);
 
         const std::uint32_t mapHeight = NC2Logic::GameMap_GetHeightAtMapMigPoint(&packedMapPoint);
-        const std::uint32_t heightFixed = DisplayDescription_ReadDword(description, 0x14) * mapHeight;
+        const std::uint32_t heightFixed = DisplayDescription_ReadDword(description, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed) * mapHeight;
 
         worldY -= DisplayDescription_FixedToPixels(heightFixed);
         worldPoint[1] = DisplayDescription_SignedDword(worldY);
@@ -779,8 +779,8 @@ namespace NC2E2
             Display_WriteField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY, NC2Runtime::DisplayScrolling::MinimumWorldY);
 
         const std::int32_t mapWidth = NC2Logic::GameMap_GetWidth();
-        const std::uint32_t worldWidth = DisplayDescription_ConvertScaledFloat(Display_ReadField<float>(display, 0x04), static_cast<float>(mapWidth));
-        const float verticalSpacing = Display_ReadField<float>(display, 0);
+        const std::uint32_t worldWidth = DisplayDescription_ConvertScaledFloat(Display_ReadField<float>(display, NC2Layout::DisplayDescriptionOffset::HorizontalSpacing), static_cast<float>(mapWidth));
+        const float verticalSpacing = Display_ReadField<float>(display, NC2Layout::DisplayDescriptionOffset::VerticalSpacing);
         const std::int32_t mapHeight = NC2Logic::GameMap_GetHeight();
         const std::uint32_t maxX = worldWidth - Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth) + NC2Runtime::DisplayScrolling::MaximumWorldMargin;
         const std::uint32_t worldHeight = DisplayDescription_ConvertScaledFloat(verticalSpacing, static_cast<float>(mapHeight));
@@ -875,7 +875,7 @@ namespace NC2E2
         auto* bytes = static_cast<std::byte*>(display);
 
         std::int32_t horizontalSpacingPixels;
-        std::memcpy(&horizontalSpacingPixels, bytes + 0x24, sizeof(horizontalSpacingPixels));
+        std::memcpy(&horizontalSpacingPixels, bytes + NC2Layout::DisplayDescriptionOffset::MicroHorizontalPixels, sizeof(horizontalSpacingPixels));
 
         std::uint32_t drawFlags;
         std::memcpy(&drawFlags, bytes + 0x70, sizeof(drawFlags));
@@ -1117,18 +1117,18 @@ namespace NC2E2
             std::memcpy(destination, &bits, sizeof(bits));
         };
 
-        const std::int32_t mapY = signedDivide(pixelY << 8, readWord(display, 0x0C));
+        const std::int32_t mapY = signedDivide(pixelY << 8, readWord(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed));
         storeShort(rectangle + 1, mapY);
 
-        const std::uint32_t rowOffset = (static_cast<std::uint32_t>(mapY) & 1u) * readWord(display, 0x2C);
+        const std::uint32_t rowOffset = (static_cast<std::uint32_t>(mapY) & 1u) * readWord(display, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels);
         const std::uint32_t adjustedX = (pixelX + rowOffset) << 8;
-        const std::int32_t mapX = signedDivide(adjustedX, readWord(display, 0x10));
+        const std::int32_t mapX = signedDivide(adjustedX, readWord(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed));
         storeShort(rectangle, mapX);
 
-        const std::int32_t mapWidth = signedDivide(pixelWidth, readWord(display, 0x24));
+        const std::int32_t mapWidth = signedDivide(pixelWidth, readWord(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalPixels));
         storeShort(rectangle + 2, mapWidth);
 
-        const std::int32_t mapHeight = signedDivide(pixelHeight, readWord(display, 0x20));
+        const std::int32_t mapHeight = signedDivide(pixelHeight, readWord(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels));
         storeShort(rectangle + 3, mapHeight);
 
         NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
@@ -1327,8 +1327,8 @@ namespace NC2E2
         Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapMinimumY, static_cast<std::uint16_t>(rectangle[1] > 0 ? rectangle[1] : 0));
         Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapMaximumY, static_cast<std::uint16_t>(bottom < heightLimit ? bottom : heightLimit));
 
-        const std::uint32_t x = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, 0x10) * static_cast<std::uint32_t>(rectangle[0])) - pixelX;
-        const std::uint32_t y = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, 0x0C) * static_cast<std::uint32_t>(rectangle[1])) - pixelY;
+        const std::uint32_t x = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed) * static_cast<std::uint32_t>(rectangle[0])) - pixelX;
+        const std::uint32_t y = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed) * static_cast<std::uint32_t>(rectangle[1])) - pixelY;
         Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelX, x);
         Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelY, y);
     }

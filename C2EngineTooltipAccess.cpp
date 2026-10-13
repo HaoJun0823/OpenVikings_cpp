@@ -272,18 +272,18 @@ namespace NC2E2
         for (std::int32_t row = 0; row < rectangle[3]; ++row)
         {
             std::int16_t point[2] = {rectangle[0], static_cast<std::int16_t>(static_cast<std::uint32_t>(rectangle[1]) + static_cast<std::uint32_t>(row))};
-            const auto rowOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, 0x0C) * static_cast<std::uint32_t>(row) + 127u) >> 8;
+            const auto rowOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed) * static_cast<std::uint32_t>(row) + 127u) >> 8;
             const auto baseY = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(origin[1]) + static_cast<std::uint32_t>(rowOffset));
-            const auto baseX = static_cast<std::uint32_t>(origin[0]) + ((static_cast<std::uint16_t>(point[1]) & 1u) + 1u) * Tooltip_ReadField<std::uint32_t>(display, 0x2C);
+            const auto baseX = static_cast<std::uint32_t>(origin[0]) + ((static_cast<std::uint16_t>(point[1]) & 1u) + 1u) * Tooltip_ReadField<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels);
             (void)EngineMap_GetConstMapMicroPointPtr(point);
             const auto* micro = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
             for (std::int32_t column = 0; column < rectangle[2]; ++column, ++point[0], micro += 0x0E)
             {
                 const auto player = Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
                 if ((Tooltip_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Tooltip_ReadField<std::uint16_t>(micro, 8) & (1u << player)) == 0) continue;
-                const auto columnOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, 0x10) * static_cast<std::uint32_t>(column) + 127u) >> 8;
+                const auto columnOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed) * static_cast<std::uint32_t>(column) + 127u) >> 8;
                 const auto x = NXBasics::Runtime_TimeSigned32(baseX + static_cast<std::uint32_t>(columnOffset));
-                const auto heightOffset = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeightAtMapMigPoint(point)) * Tooltip_ReadField<std::uint32_t>(display, 0x14) + 127u) >> 8;
+                const auto heightOffset = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeightAtMapMigPoint(point)) * Tooltip_ReadField<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed) + 127u) >> 8;
                 const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(baseY) - static_cast<std::uint32_t>(heightOffset));
                 if (Tooltip_ReadField<std::uint8_t>(micro, 0) == 2 && (Tooltip_ReadField<std::uint8_t>(micro, 2) & 1u) != 0) Display_DrawTooltipOverlay_House(display, Tooltip_ReadField<std::uint16_t>(micro, 4), true, bitmap, x, y);
                 if (Tooltip_ReadField<std::uint16_t>(micro, 0x0A) == NXBasics::IntegerRange::UInt16Maximum) continue;
@@ -355,9 +355,9 @@ void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display)
             if (direction < 8)
             {
                 if (Read<std::uint8_t>(moveable, 0x38) != 0) { progress = 10000u - progress; direction = NC2Logic::VE_HexagonDirection_OppositeDirection(direction); }
-                const auto horizontal = mul(dx[direction], Read<std::uint32_t>(display, 0x24)) / 2;
+                const auto horizontal = mul(dx[direction], Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalPixels)) / 2;
                 pixel[0] = add(pixel[0], mul(horizontal, progress) / 10000);
-                pixel[1] = add(pixel[1], mul(mul(dy[direction], Read<std::uint32_t>(display, 0x20)), progress) / 10000);
+                pixel[1] = add(pixel[1], mul(mul(dy[direction], Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalPixels)), progress) / 10000);
             }
         }
         auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
@@ -450,29 +450,29 @@ void __fastcall Display_l_DE_Debug_DrawGridLines(void* display)
     const auto sub = [](std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) - static_cast<std::uint32_t>(b)); };
     const auto mul = [](std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) * static_cast<std::uint32_t>(b)); };
     const auto round = [&](std::int32_t value) { return add(value, 127) >> 8; };
-    const auto halfStep = round(Read<std::int32_t>(display, 0x10) / 2);
-    const auto fullStep = round(Read<std::int32_t>(display, 0x10));
-    const auto rowStep = round(Read<std::int32_t>(display, 0x0C));
+    const auto halfStep = round(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed) / 2);
+    const auto fullStep = round(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed));
+    const auto rowStep = round(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed));
     for (std::int32_t row = 0; row < Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight); ++row)
     {
         std::int16_t point[2] = {Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), static_cast<std::int16_t>(Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY) + row)};
-        const auto rowY = add(round(mul(Read<std::int32_t>(display, 0x0C), row)), Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelY));
-        const auto rowX = add(mul((point[1] & 1) + 1, Read<std::int32_t>(display, 0x2C)), Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelX));
+        const auto rowY = add(round(mul(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroVerticalFixed), row)), Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelY));
+        const auto rowX = add(mul((point[1] & 1) + 1, Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHalfHorizontalPixels)), Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelX));
         EngineMap_GetConstMapMicroPointPtr(point);
         const auto* logic = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
         for (std::int32_t column = 0; column < Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth); ++column, ++point[0], logic += 14)
         {
-            const auto x = add(round(mul(Read<std::int32_t>(display, 0x10), column)), rowX);
-            const auto y = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, 0x14))));
+            const auto x = add(round(mul(Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHorizontalFixed), column)), rowX);
+            const auto y = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed))));
             if ((Read<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit6) != 0)
             {
                 std::int16_t next[2] = {point[0], point[1]};
                 NC2Logic::MapMigPoint_MoveCursorWrappedEast(next);
-                const auto eastY = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, 0x14))));
+                const auto eastY = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed))));
                 NC2Logic::MapMigPoint_MoveCursorWrapped(next, 2);
-                const auto lowerRightY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, 0x14)))), rowStep);
+                const auto lowerRightY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed)))), rowStep);
                 NC2Logic::MapMigPoint_MoveCursorWrappedWest(next);
-                const auto lowerLeftY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, 0x14)))), rowStep);
+                const auto lowerLeftY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed)))), rowStep);
                 auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
                 const auto edges = Read<std::uint8_t>(logic, 7);
                 bitmap->Draw_Circle(x, y, 2, grey);

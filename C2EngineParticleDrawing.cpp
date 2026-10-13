@@ -44,8 +44,8 @@ namespace NC2E2
 		// Original function: FUN_00487017; world-pixel projection without vertical height displacement.
 		void ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(const void* position, std::int32_t* pixel, const void* display)
 		{
-			const auto vertical = Truncate(static_cast<double>(Read<float>(display, 0)) * NC2Logic::GameMap_GetHeight());
-			const auto horizontal = Truncate(static_cast<double>(Read<float>(display, 4)) * NC2Logic::GameMap_GetWidth());
+			const auto vertical = Truncate(static_cast<double>(Read<float>(display, NC2Layout::DisplayDescriptionOffset::VerticalSpacing)) * NC2Logic::GameMap_GetHeight());
+			const auto horizontal = Truncate(static_cast<double>(Read<float>(display, NC2Layout::DisplayDescriptionOffset::HorizontalSpacing)) * NC2Logic::GameMap_GetWidth());
 			pixel[0] = Truncate(static_cast<double>(horizontal) * Read<double>(position, 0) + Read<double>(position, 0x18));
 			pixel[1] = Truncate(static_cast<double>(vertical) * Read<double>(position, 8) - Read<double>(position, 0x20));
 		}
@@ -56,7 +56,7 @@ namespace NC2E2
 			ParticelPosition_ToWorldPixelCoordinates_IgnoreHeight(position, pixel, display);
 			const auto height = static_cast<std::uint16_t>(static_cast<std::uint8_t>(Truncate(Read<double>(position, 0x10) * 250.0)));
 			// Original inline height conversion: FUN_004821b3.
-			const auto bits = Read<std::uint32_t>(display, 0x14) * height + 127u;
+			const auto bits = Read<std::uint32_t>(display, NC2Layout::DisplayDescriptionOffset::MicroHeightFixed) * height + 127u;
 			pixel[1] = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(pixel[1]) - static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(bits) >> 8));
 		}
 

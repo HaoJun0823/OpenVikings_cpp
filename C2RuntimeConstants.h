@@ -85,6 +85,20 @@ namespace NC2Runtime
         inline constexpr auto Sand = 3;
     }
 
+    namespace DisplayProjection
+    {
+        inline constexpr auto DefaultVerticalSpacing = 19.0f;
+        inline constexpr auto DefaultHorizontalSpacing = 34.0f;
+        inline constexpr auto DefaultHeightScale = 1.2f;
+        inline constexpr auto MinimumVerticalSpacing = 1.0f;
+        inline constexpr auto MinimumHorizontalSpacing = 2.0f;
+        inline constexpr auto MinimumHeightScale = 0.0f;
+        inline constexpr auto FixedPointScale = 256.0f;
+        inline constexpr auto DoubledFixedPointScale = 512.0f;
+        inline constexpr auto FractionBits = 8;
+        inline constexpr auto RoundingBias = 127u;
+    }
+
     namespace DisplayScrolling
     {
         inline constexpr auto MinimumWorldX = -100;
