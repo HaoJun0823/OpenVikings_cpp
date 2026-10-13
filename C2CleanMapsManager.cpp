@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2CleanMapsManager.h"
 #include "C2LifetimeGlobals.h"
@@ -151,7 +151,7 @@ namespace NC2Logic
     bool CCleanMapsManager::l_CleanMapList_Update_WorkOnMap(CIniFileReader& reader, const char* mapRoot, bool userMap, const char* archiveFilename)
     {
         static constexpr SToken typeTokens[] = { { "maptype", SwitchIds::CleanMapToken::MapType }, { "mapcampaignid", SwitchIds::CleanMapToken::Mapcampaignid }, { "mapmultiplayeronly", SwitchIds::CleanMapToken::Mapmultiplayeronly }, { nullptr, 0 } };
-        static constexpr SToken nameTokens[] = { { "mapnamestringid", ReadableValues::CleanMapsManagerToken::MapNameStringId }, { "mapdescriptionstringid", ReadableValues::CleanMapsManagerToken::MapDescriptionStringId }, { nullptr, 0 } };
+        static constexpr SToken nameTokens[] = { { "mapnamestringid", NC2DataIds::CleanMapsManagerToken::MapNameStringId }, { "mapdescriptionstringid", NC2DataIds::CleanMapsManagerToken::MapDescriptionStringId }, { nullptr, 0 } };
         if (!reader.IsLoaded() || !reader.SearchGroup("logiccontrol"))
             return false;
         SCleanMapInfoData info;
@@ -219,7 +219,7 @@ namespace NC2Logic
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
                 const std::uint32_t token = tokens.FindToken(reader.GetCurrentName());
-                if (token != ReadableValues::CleanMapsManagerToken::MapNameStringId && token != ReadableValues::CleanMapsManagerToken::MapDescriptionStringId)
+                if (token != NC2DataIds::CleanMapsManagerToken::MapNameStringId && token != NC2DataIds::CleanMapsManagerToken::MapDescriptionStringId)
                     continue;
                 const auto id = static_cast<std::uint32_t>(reader.GetInt());
                 CStringArray* strings = StringIO_GetMissionStringArrayPtr(info.mapRoot);
@@ -227,8 +227,8 @@ namespace NC2Logic
                     continue;
                 if (const char* text = strings->GetStringPtr(id))
                 {
-                    char* destination = token == ReadableValues::CleanMapsManagerToken::MapNameStringId ? info.mapName : info.description;
-                    const std::uint32_t capacity = token == ReadableValues::CleanMapsManagerToken::MapNameStringId ? 200u : 400u;
+                    char* destination = token == NC2DataIds::CleanMapsManagerToken::MapNameStringId ? info.mapName : info.description;
+                    const std::uint32_t capacity = token == NC2DataIds::CleanMapsManagerToken::MapNameStringId ? 200u : 400u;
                     std::strncpy(destination, text, capacity - 1);
                     destination[capacity - 1] = '\0';
                 }

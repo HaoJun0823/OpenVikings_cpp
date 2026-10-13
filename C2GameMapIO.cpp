@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
 #include "C2GameMapIO.h"
 #include "C2GameMapAccess.h"
 #include "C2CallbackManager.h"
@@ -38,15 +39,15 @@ namespace NC2Logic
             {
                 const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
                 if (Read<std::uint8_t>(human, 0) == 0) continue;
-                const auto player = Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId);
+                const auto player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
                 if (player >= 20u) continue;
                 auto& count = counts[player];
                 ++count.allocated;
                 if (Read<std::uint8_t>(human, 0xB50) != 0 || Read<std::uint8_t>(human, 0xB51) != 0) ++count.hidden;
-                const auto moveableId = Read<std::int32_t>(human, ReadableValues::HumanOffset::MapMoveableId);
+                const auto moveableId = Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId);
                 if (moveableId != -1)
                 {
-                    const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * ReadableValues::RecordSize::MapMoveable;
+                    const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveableId) * NC2Layout::RecordSize::MapMoveable;
                     if (Read<std::uint8_t>(moveable, 0x39) != 0) ++count.turning;
                     if (Read<std::uint8_t>(moveable, 0x10) != 0)
                     {
@@ -66,7 +67,7 @@ namespace NC2Logic
             ::OutputDebugStringA("\n");
             for (std::uint32_t player = 0; player < 20u; ++player)
             {
-                const auto* data = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
+                const auto* data = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
                 if (counts[player].allocated == 0 && Read<std::uint8_t>(data, 0) == 0) continue;
                 const auto& c = counts[player];
                 char line[256];
@@ -171,11 +172,11 @@ namespace NC2Logic
             NXBasics::CFile file(mapDataFilename, true);
             CIoHelper io;
             io.IO_File_Init(&file);
-            bool loaded = io.IO_File_Chunk_CheckMarkerAndVersion(ReadableValues::LogicMapChunk::LogicFileStart, 0) && GameMap_IO_Cleanmap_Load(&io);
+            bool loaded = io.IO_File_Chunk_CheckMarkerAndVersion(NC2DataIds::LogicMapChunk::LogicFileStart, 0) && GameMap_IO_Cleanmap_Load(&io);
             if (loaded)
             {
                 CCallbackManager::sTheObjectPtr->ExecuteCallback(0x13, false, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&io)), 0, 0);
-                loaded = io.IO_File_Chunk_CheckMarkerAndVersion(ReadableValues::LogicMapChunk::LogicFileEnd, 0);
+                loaded = io.IO_File_Chunk_CheckMarkerAndVersion(NC2DataIds::LogicMapChunk::LogicFileEnd, 0);
             }
             if (!loaded)
             {
@@ -209,7 +210,7 @@ namespace NC2Logic
     bool GameMap_IO_Cleanmap_Load(CIoHelper* io)
     {
         std::uint32_t version;
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::LogicMapChunk::MapData, &version, nullptr)) return false;
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(NC2DataIds::LogicMapChunk::MapData, &version, nullptr)) return false;
         return GameMap_l_GlobalIO_Load(io);
     }
 }

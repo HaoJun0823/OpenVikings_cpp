@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XResultIdentifiers.h"
 #include "SwitchIdentifiers.h"
 #include <winsock2.h>
@@ -235,7 +235,7 @@ namespace
 
                     char details[64] = {};
 
-                    NXBasics::Runtime_PrintString(details, "Version %d.%d %s (Build %d)", static_cast<int>(version.dwMajorVersion), static_cast<int>(version.dwMinorVersion), version.szCSDVersion, static_cast<int>(version.dwBuildNumber & ReadableValues::IntegerRange::UInt16Maximum));
+                    NXBasics::Runtime_PrintString(details, "Version %d.%d %s (Build %d)", static_cast<int>(version.dwMajorVersion), static_cast<int>(version.dwMinorVersion), version.szCSDVersion, static_cast<int>(version.dwBuildNumber & NXBasics::IntegerRange::UInt16Maximum));
                     std::strcat(gNetworkWindowsVersion, details);
                     break;
                 }
@@ -644,7 +644,7 @@ namespace NNetwork
             while (*source != '\0')
             {
                 const auto value = static_cast<unsigned char>(*source++);
-                *destination++ = static_cast<char>(value ^ ReadableValues::BitMask::ByteExceptBit4);
+                *destination++ = static_cast<char>(value ^ NXBasics::BitMask::ByteExceptBit4);
             }
 
             *destination = '\0';
@@ -886,7 +886,7 @@ namespace NNetwork
         static constexpr GUID peerClassId = { 0x286F484Du, 0x375Eu, 0x4458u, { 0xA2, 0x72, 0xB1, 0x38, 0xE2, 0xF8, 0x0A, 0x6A } };
         static constexpr GUID peerInterfaceId = { 0x5102DACFu, 0x241Bu, 0x11D3u, { 0xAE, 0xA7, 0, 0x60, 0x97, 0xB0, 0x14, 0x11 } };
         static constexpr GUID addressClassId = { 0x934A9523u, 0xA3CAu, 0x4BC5u, { 0xAD, 0xA0, 0xD6, 0xD9, 0x5D, 0x97, 0x94, 0x21 } };
-        static constexpr GUID addressInterfaceId = { 0x83783300u, 0x4063u, 0x4C8Au, { 0x9D, 0xB3, 0x82, 0x83, 0x0A, ReadableValues::IntegerRange::Int8MaximumSigned, 0xEB, 0x31 } };
+        static constexpr GUID addressInterfaceId = { 0x83783300u, 0x4063u, 0x4C8Au, { 0x9D, 0xB3, 0x82, 0x83, 0x0A, NXBasics::IntegerRange::Int8MaximumSigned, 0xEB, 0x31 } };
 
         HRESULT result = ::CoInitialize(nullptr);
 
@@ -1042,7 +1042,7 @@ namespace NNetwork
     // Original function: FUN_004dc9cc
     DPNID CDPNet::GetLocalPlayerId()
     {
-        if ((flags & ReadableValues::BitMask::Bit1) == 0 && (flags & ReadableValues::BitMask::Bit3) == 0)
+        if ((flags & NXBasics::BitMask::Bit1) == 0 && (flags & NXBasics::BitMask::Bit3) == 0)
         {
             return 0;
         }
@@ -1072,7 +1072,7 @@ namespace NNetwork
     // Original function: FUN_004dca43
     DPNID CDPNet::GetHostPlayerId()
     {
-        if ((flags & ReadableValues::BitMask::Bit1) == 0 && (flags & ReadableValues::BitMask::Bit3) == 0)
+        if ((flags & NXBasics::BitMask::Bit1) == 0 && (flags & NXBasics::BitMask::Bit3) == 0)
         {
             return 0;
         }
@@ -1583,7 +1583,7 @@ namespace NNetwork
                     if (current->responseTime != response->dwRoundTripLatencyMS)
                     {
                         current->responseTime = response->dwRoundTripLatencyMS;
-                        list->flags |= ReadableValues::BitMask::Bit1;
+                        list->flags |= NXBasics::BitMask::Bit1;
                     }
 
                     current->lastResponseTime = timeGetTime();
@@ -3024,7 +3024,7 @@ namespace NNetwork
                         }
 
                         // Preserve the original fall-through after a failed send.
-                        if ((node->stream->flags & ReadableValues::BitMask::Bit4) != 0)
+                        if ((node->stream->flags & NXBasics::BitMask::Bit4) != 0)
                         {
                             NXBasics::Runtime_CloseStream(node->stream);
                             node->state = 1;
@@ -3114,7 +3114,7 @@ namespace NNetwork
                         }
                         else
                         {
-                            std::uint32_t checksum = ReadableValues::IntegerRange::UInt32Maximum;
+                            std::uint32_t checksum = NXBasics::IntegerRange::UInt32Maximum;
                             std::uint32_t fileSize = 0;
                             std::int32_t character = NXBasics::Runtime_ReadStreamCharacter(node->stream);
 
@@ -3162,7 +3162,7 @@ namespace NNetwork
 
                     if (node != nullptr)
                     {
-                        node->checksum = ReadableValues::IntegerRange::UInt32Maximum;
+                        node->checksum = NXBasics::IntegerRange::UInt32Maximum;
                         std::memcpy(&node->expectedChecksum, packet + 0x14, sizeof(node->expectedChecksum));
                         std::memcpy(&node->fileSize, packet + 0x18, sizeof(node->fileSize));
 
@@ -3327,7 +3327,7 @@ namespace NNetwork
 
             if (!playerStillPresent)
             {
-                slot.playerId = ReadableValues::IntegerRange::UInt32Maximum;
+                slot.playerId = NXBasics::IntegerRange::UInt32Maximum;
                 slot.used = 0;
 
                 std::memset(slot.data, 0, sizeof(slot.data));
@@ -3345,7 +3345,7 @@ namespace NNetwork
         {
             const SDynamicSlot& slot = buffer->slots[index];
 
-            if (slot.used == 0 && slot.playerId != ReadableValues::IntegerRange::UInt32Maximum)
+            if (slot.used == 0 && slot.playerId != NXBasics::IntegerRange::UInt32Maximum)
                 return false;
         }
 
@@ -3356,7 +3356,7 @@ namespace NNetwork
     std::uint32_t FindCommandBufferPlayerIndex(const SDynamicSlotArray* buffer, DPNID playerId)
     {
         if (buffer->slots == nullptr)
-            return ReadableValues::IntegerRange::UInt32Maximum;
+            return NXBasics::IntegerRange::UInt32Maximum;
 
         for (std::uint32_t index = 0; index < buffer->count; ++index)
         {
@@ -3364,7 +3364,7 @@ namespace NNetwork
                 return index;
         }
 
-        return ReadableValues::IntegerRange::UInt32Maximum;
+        return NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_004e12a6
@@ -3377,7 +3377,7 @@ namespace NNetwork
         {
             const SDynamicSlot& slot = buffer->slots[index];
 
-            if (slot.playerId != ReadableValues::IntegerRange::UInt32Maximum && slot.used == 0)
+            if (slot.playerId != NXBasics::IntegerRange::UInt32Maximum && slot.used == 0)
                 return slot.playerId;
         }
 
@@ -3392,7 +3392,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == ReadableValues::IntegerRange::UInt32Maximum)
+        if (index == NXBasics::IntegerRange::UInt32Maximum)
             return false;
 
         buffer->slots[index].used = length;
@@ -3409,7 +3409,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == ReadableValues::IntegerRange::UInt32Maximum)
+        if (index == NXBasics::IntegerRange::UInt32Maximum)
             return false;
 
         // Original function 004e71f0 supports overlapping memory regions.
@@ -3425,7 +3425,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == ReadableValues::IntegerRange::UInt32Maximum)
+        if (index == NXBasics::IntegerRange::UInt32Maximum)
             return 0;
 
         return buffer->slots[index].used;
@@ -3442,7 +3442,7 @@ namespace NNetwork
 
         const std::uint32_t index = FindCommandBufferPlayerIndex(buffer, playerId);
 
-        if (index == ReadableValues::IntegerRange::UInt32Maximum)
+        if (index == NXBasics::IntegerRange::UInt32Maximum)
             return false;
 
         const SDynamicSlot& slot = buffer->slots[index];
@@ -3655,7 +3655,7 @@ void* WriteNetworkLog(NNetwork::SNetLog* object, const char* text, std::int32_t 
         return object;
     }
 
-    if ((object->formatFlags & ReadableValues::BitMask::Bit1) != 0)
+    if ((object->formatFlags & NXBasics::BitMask::Bit1) != 0)
     {
         const int result = NXBasics::Runtime_PrintStream(static_cast<NXBasics::RuntimeFormatStream*>(object->stream), "\n%010lu: ", static_cast<unsigned long>(object->sequenceNumber));
 
@@ -3739,7 +3739,7 @@ namespace NNetwork
         if (peer == nullptr || (flags & 1u) != 1u) return false;
         DPN_PLAYER_INFO player{};
         player.dwSize = sizeof(player); player.dwInfoFlags = callsign != nullptr; player.pwszName = const_cast<wchar_t*>(callsign); player.dwPlayerFlags = 6;
-        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, ReadableValues::IntegerRange::Bit31);
+        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, NXBasics::IntegerRange::Bit31);
         if (FAILED(result)) { ReportDirectPlayError("CDPNet::HostSession(): IDirectPlay8Peer::SetPeerInfo", result); return false; }
         if (interface70 == nullptr) return false;
         auto* hostAddress = reinterpret_cast<IDirectPlay8Address*>(interface70);
@@ -3766,12 +3766,12 @@ namespace NNetwork
         if ((flags & 4u) != 4u) return false;
         DPN_PLAYER_INFO player{};
         player.dwSize = sizeof(player); player.dwInfoFlags = 1; player.pwszName = const_cast<wchar_t*>(callsign);
-        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, ReadableValues::IntegerRange::Bit31);
+        HRESULT result = peer->SetPeerInfo(&player, nullptr, nullptr, NXBasics::IntegerRange::Bit31);
         if (FAILED(result)) { ReportDirectPlayError("CDPNet::JoinSession(): IDirectPlay8Peer::SetPeerInfo", result); return false; }
         if (session == nullptr) { ReportDirectPlayError("CDPNet::JoinSession(): Session information lost (pSession == null)", 0); return false; }
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x680, session->address0C != nullptr, "Could not create DirectPlay address.");
         ReportNetworkConditionFailure("D:\\Dev\\Projects\\FunaticsOld\\ProjectD\\ToolLibs\\DPlayBase\\dpnet.cpp", 0x681, session->address10 != nullptr, "Could not create DirectPlay address.");
-        result = peer->Connect(session->description, session->address0C, session->address10, nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr, ReadableValues::IntegerRange::Bit31);
+        result = peer->Connect(session->description, session->address0C, session->address10, nullptr, nullptr, nullptr, 0, nullptr, nullptr, nullptr, NXBasics::IntegerRange::Bit31);
         if (FAILED(result))
         {
             StopSearchingSessions();
@@ -3927,7 +3927,7 @@ namespace NNetwork
                     }
                     if (error == nullptr)
                     {
-                        result = peer->EnumHosts(&description, reinterpret_cast<IDirectPlay8Address*>(interface6C), reinterpret_cast<IDirectPlay8Address*>(interface70), nullptr, 0, ReadableValues::IntegerRange::UInt32Maximum, 0, ReadableValues::IntegerRange::UInt32Maximum, nullptr, &searchOperation, 0);
+                        result = peer->EnumHosts(&description, reinterpret_cast<IDirectPlay8Address*>(interface6C), reinterpret_cast<IDirectPlay8Address*>(interface70), nullptr, 0, NXBasics::IntegerRange::UInt32Maximum, 0, NXBasics::IntegerRange::UInt32Maximum, nullptr, &searchOperation, 0);
                         if (FAILED(result)) error = "CDPNet::StartSearchingSessions(): IDirectPlay8Peer::EnumHosts";
                         else { flags |= 4u; return result; }
                     }

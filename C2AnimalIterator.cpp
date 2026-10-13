@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2AnimalIterator.h"
 #include "C2AnimalAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -59,7 +60,7 @@ namespace NC2Logic
         for (auto id = previousAnimalId + 1; id <= CAnimalArray::sTheObjectPtr->mLastScanIndex; ++id)
         {
             const auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
-            if (Read<std::uint8_t>(animal, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId) != selection)) continue;
+            if (Read<std::uint8_t>(animal, 0) == 0 || ((flags & 1u) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) != selection)) continue;
             if ((flags & 2u) != 0)
             {
                 const auto* point = Animal_GetMapPositionRef(animal);
@@ -100,14 +101,14 @@ namespace NC2Logic
         radius = radiusValue;
 
         const std::uint32_t radiusBits = static_cast<std::uint32_t>(radiusValue);
-        const std::uint16_t lowerX = static_cast<std::uint16_t>((centerValue & ReadableValues::IntegerRange::UInt16Maximum) - radiusBits);
+        const std::uint16_t lowerX = static_cast<std::uint16_t>((centerValue & NXBasics::IntegerRange::UInt16Maximum) - radiusBits);
         const std::uint16_t lowerY = static_cast<std::uint16_t>((centerValue >> 16) - radiusBits);
         std::uint32_t corner = static_cast<std::uint32_t>(lowerX) | (static_cast<std::uint32_t>(lowerY) << 16);
 
         firstSector = SSectorGridCursor(corner);
 
         const std::uint32_t diameterBits = radiusBits * 2u;
-        const std::uint16_t upperX = static_cast<std::uint16_t>((corner & ReadableValues::IntegerRange::UInt16Maximum) + diameterBits);
+        const std::uint16_t upperX = static_cast<std::uint16_t>((corner & NXBasics::IntegerRange::UInt16Maximum) + diameterBits);
         const std::uint16_t upperY = static_cast<std::uint16_t>((corner >> 16) + diameterBits);
         corner = static_cast<std::uint32_t>(upperX) | (static_cast<std::uint32_t>(upperY) << 16);
 

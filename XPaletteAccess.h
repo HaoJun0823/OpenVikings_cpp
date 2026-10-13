@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 
 #include "XCrtFileAccess.h"
 #include "XPixelFormatConverter.h"
@@ -19,7 +19,7 @@ namespace NXBasics
         const auto* paletteBytes = static_cast<const std::uint8_t*>(palette);
 
         std::uint32_t bestIndex = 0;
-        std::uint32_t bestDistance = ReadableValues::IntegerRange::Int32Maximum;
+        std::uint32_t bestDistance = NXBasics::IntegerRange::Int32Maximum;
 
         for (std::uint32_t index = 0; index < 256; ++index)
         {

@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2MapWalkSectorManager.h"
 #include "C2MapPathfinderSectorSearch.h"
@@ -106,8 +107,8 @@ namespace NC2Logic
     {
         std::int16_t macroWidth;
         std::int16_t macroHeight;
-        std::memcpy(&macroWidth, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroWidth, sizeof(macroWidth));
-        std::memcpy(&macroHeight, gGameMapStaticStorage + ReadableValues::GameMapOffset::MacroHeight, sizeof(macroHeight));
+        std::memcpy(&macroWidth, gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroWidth, sizeof(macroWidth));
+        std::memcpy(&macroHeight, gGameMapStaticStorage + NC2Layout::GameMapOffset::MacroHeight, sizeof(macroHeight));
 
         mStaticVars.gridWidth = (static_cast<std::int32_t>(macroWidth) + 9) / 10;
         SSectorGridCursor::sGridWidth = mStaticVars.gridWidth;
@@ -222,9 +223,9 @@ namespace NC2Logic
         auto* land = GetLandSectorDataPtr(cursor);
         auto* water = GetWaterSectorDataPtr(cursor);
         for (std::uint32_t index = 0; index < land->basePointCount; ++index)
-            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(land->basePoints + index))[13] &= ReadableValues::BitMask::ByteExceptBit4;
+            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(land->basePoints + index))[13] &= NXBasics::BitMask::ByteExceptBit4;
         for (std::uint32_t index = 0; index < water->basePointCount; ++index)
-            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(water->basePoints + index))[13] &= ReadableValues::BitMask::ByteExceptBit4;
+            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(water->basePoints + index))[13] &= NXBasics::BitMask::ByteExceptBit4;
 
         std::memset(land, 0, 52);
         std::memset(water, 0, 52);
@@ -235,7 +236,7 @@ namespace NC2Logic
             const void* point = GameMap_GetConstMapMicroPointPtr(&center);
             const std::uint8_t continent = MicroPointByte(point, 6);
             const std::uint8_t flags = MicroPointByte(point, 0x0C);
-            if (continent != 0 && (flags & ReadableValues::BitMask::Bit7) == 0)
+            if (continent != 0 && (flags & NXBasics::BitMask::Bit7) == 0)
             {
                 auto& candidate = mStaticVars.basePointCandidates[continent];
                 candidate.packedBasePoint = center;
@@ -260,7 +261,7 @@ namespace NC2Logic
                         const void* point = GameMap_GetConstMapMicroPointPtr(&packedPoint);
                         const std::uint8_t continent = MicroPointByte(point, 6);
                         const std::uint8_t flags = MicroPointByte(point, 0x0C);
-                        if (continent != 0 && (flags & ReadableValues::BitMask::Bit7) == 0)
+                        if (continent != 0 && (flags & NXBasics::BitMask::Bit7) == 0)
                         {
                             std::uint32_t value = flags & 7u;
                             const std::uint32_t limit = GameMap_Continent_GetContinentTyp(continent) == 1u ? 1u : 4u;
@@ -366,9 +367,9 @@ namespace NC2Logic
         land->calculated = 1;
         water->calculated = 1;
         for (std::uint32_t index = 0; index < land->basePointCount; ++index)
-            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(land->basePoints + index))[13] |= ReadableValues::BitMask::Bit4;
+            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(land->basePoints + index))[13] |= NXBasics::BitMask::Bit4;
         for (std::uint32_t index = 0; index < water->basePointCount; ++index)
-            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(water->basePoints + index))[13] |= ReadableValues::BitMask::Bit4;
+            static_cast<std::uint8_t*>(GameMap_GetMapMicroPointPtr(water->basePoints + index))[13] |= NXBasics::BitMask::Bit4;
     }
 
     // Original function: FUN_0044faa6.
@@ -408,7 +409,7 @@ namespace NC2Logic
                         continue;
                     const void* microPoint = GameMap_GetConstMapMicroPointPtr(&point);
                     const std::uint8_t flags = MicroPointByte(microPoint, 0x0C);
-                    if ((flags & ReadableValues::BitMask::Bit7) != 0 || MicroPointByte(microPoint, 6) != sector.continentId || destination.count == 4000u)
+                    if ((flags & NXBasics::BitMask::Bit7) != 0 || MicroPointByte(microPoint, 6) != sector.continentId || destination.count == 4000u)
                         continue;
 
                     destination.points[destination.count++] = point;
@@ -435,13 +436,13 @@ namespace NC2Logic
         if (count == nextIndex)
         {
             count = 0;
-            point = ReadableValues::IntegerRange::UInt32Maximum;
+            point = NXBasics::IntegerRange::UInt32Maximum;
             return;
         }
         if (MapMigPoint_IsInsideMap(points + nextIndex))
         {
             point = points[nextIndex];
-            points[nextIndex] = ReadableValues::IntegerRange::UInt32Maximum;
+            points[nextIndex] = NXBasics::IntegerRange::UInt32Maximum;
             ++nextIndex;
         }
         // An invalid entry leaves the output and next index unchanged in Windows.

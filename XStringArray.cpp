@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XStringArray.h"
 #include "XDiagnostics.h"
 #include "XFileAccess.h"
@@ -14,7 +14,7 @@ namespace NXBasics
     {
         void* allocation = Runtime_AllocateWithNewHandler(12, 1);
         mOffsets = allocation != nullptr ? ::new (allocation) CMemory(mOffsetCapacity * std::uint32_t{ 4 }) : nullptr;
-        mOffsets->Fill(ReadableValues::IntegerRange::UInt8MaximumSigned);
+        mOffsets->Fill(NXBasics::IntegerRange::UInt8MaximumSigned);
     }
 
     // Original function: FUN_0042bad3
@@ -108,7 +108,7 @@ namespace NXBasics
         std::uint32_t offset;
         std::memcpy(&offset, mOffsets->mData + stringId * std::uint32_t{ 4 }, sizeof(offset));
 
-        if (offset == ReadableValues::IntegerRange::UInt32Maximum)
+        if (offset == NXBasics::IntegerRange::UInt32Maximum)
         {
             return nullptr;
         }
@@ -124,7 +124,7 @@ namespace NXBasics
             std::uint32_t offset;
             std::memcpy(&offset, mOffsets->mData + stringId * std::uint32_t{ 4 }, sizeof(offset));
 
-            if (offset != ReadableValues::IntegerRange::UInt32Maximum)
+            if (offset != NXBasics::IntegerRange::UInt32Maximum)
             {
                 return false;
             }
@@ -138,7 +138,7 @@ namespace NXBasics
             }
 
             mOffsetCapacity = stringId + std::uint32_t{ 100 };
-            mOffsets->ChangeBufferSize(mOffsetCapacity * std::uint32_t{ 4 }, true, ReadableValues::IntegerRange::UInt8MaximumSigned);
+            mOffsets->ChangeBufferSize(mOffsetCapacity * std::uint32_t{ 4 }, true, NXBasics::IntegerRange::UInt8MaximumSigned);
         }
 
         const std::uint32_t byteCount = Runtime_StringLength(text) + std::uint32_t{ 1 };
@@ -181,7 +181,7 @@ namespace NXBasics
 
         if (!InsertString(stringId, text))
         {
-            return ReadableValues::IntegerRange::UInt32Maximum;
+            return NXBasics::IntegerRange::UInt32Maximum;
         }
 
         return stringId;
@@ -205,7 +205,7 @@ namespace NXBasics
             std::uint32_t offset;
             std::memcpy(&offset, mOffsets->mData + stringId * std::uint32_t{ 4 }, sizeof(offset));
 
-            if (offset == ReadableValues::IntegerRange::UInt32Maximum)
+            if (offset == NXBasics::IntegerRange::UInt32Maximum)
             {
                 return stringId;
             }

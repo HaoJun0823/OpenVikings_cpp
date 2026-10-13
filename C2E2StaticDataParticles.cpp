@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataParticles.h"
 #include "C2E2StaticDataPalettes.h"
@@ -23,7 +23,7 @@ namespace NC2E2
         SParticelFrames* gParticelFrameWork[40]{};
         std::uint32_t gParticelFrameIds[150]{};
         constexpr NXBasics::SToken gParticleTokens[] = {{"name", SwitchIds::ParticleToken::Name}, {"palette", SwitchIds::ParticleToken::Palette}, {"bobmanager", SwitchIds::ParticleToken::Bobmanager}, {"maxvalency", SwitchIds::ParticleToken::MaxValency}, {"gfxframes", SwitchIds::ParticleToken::GfxFrames}, {"animloop", SwitchIds::ParticleToken::Animloop}, {"bobtype", SwitchIds::ParticleToken::Bobtype}, {"munitiontype", SwitchIds::ParticleToken::MunitionType}, {"valencyisdirection", SwitchIds::ParticleToken::ValencyIsDirection}, {"specialtype", SwitchIds::ParticleToken::SpecialType}, {"spawnparticelId", SwitchIds::ParticleToken::SpawnparticelId}, {nullptr, 0}};
-        constexpr NXBasics::SToken gEffectTokens[] = {{"logictype", ReadableValues::ParticlesToken::LogicType}, {"particelname", SwitchIds::ParticleEffectToken::Particelname}, {"lifetime", SwitchIds::ParticleEffectToken::LifeTime}, {"movement", SwitchIds::ParticleEffectToken::Movement}, {"particelspeed", SwitchIds::ParticleEffectToken::Particelspeed}, {"usemapheights", SwitchIds::ParticleEffectToken::Usemapheights}, {"usewind", SwitchIds::ParticleEffectToken::Usewind}, {"deltaheight", SwitchIds::ParticleEffectToken::Deltaheight}, {"pixeloffset", SwitchIds::ParticleEffectToken::PixelOffset}, {"drawbottom", SwitchIds::ParticleEffectToken::Drawbottom}, {"migPointoffset", SwitchIds::ParticleEffectToken::MigPointoffset}, {"startLifeTime", SwitchIds::ParticleEffectToken::StartLifeTime}, {nullptr, 0}};
+        constexpr NXBasics::SToken gEffectTokens[] = {{"logictype", NC2DataIds::ParticlesToken::LogicType}, {"particelname", SwitchIds::ParticleEffectToken::Particelname}, {"lifetime", SwitchIds::ParticleEffectToken::LifeTime}, {"movement", SwitchIds::ParticleEffectToken::Movement}, {"particelspeed", SwitchIds::ParticleEffectToken::Particelspeed}, {"usemapheights", SwitchIds::ParticleEffectToken::Usemapheights}, {"usewind", SwitchIds::ParticleEffectToken::Usewind}, {"deltaheight", SwitchIds::ParticleEffectToken::Deltaheight}, {"pixeloffset", SwitchIds::ParticleEffectToken::PixelOffset}, {"drawbottom", SwitchIds::ParticleEffectToken::Drawbottom}, {"migPointoffset", SwitchIds::ParticleEffectToken::MigPointoffset}, {"startLifeTime", SwitchIds::ParticleEffectToken::StartLifeTime}, {nullptr, 0}};
 
         // Original function: FUN_0048d589; SGFXValency owned frame allocation.
         void ParticelFrames_Allocate(SParticelFrames* entry)

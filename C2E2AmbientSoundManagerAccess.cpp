@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2LifetimeGlobals.h"
@@ -122,7 +122,7 @@ namespace NC2E2
                     {
                         const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
                         // Windows 83 /7 sign-extends the FF immediate to FFFFFFFF.
-                        if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != ReadableValues::IntegerRange::UInt32Maximum) ++gPatternAmbientGroupCounts[group];
+                        if (CE2StaticDataSoundFXManager::sTheObjectPtr->patternGroupAmbientIds[group] != NXBasics::IntegerRange::UInt32Maximum) ++gPatternAmbientGroupCounts[group];
                     }
                 }
             }
@@ -173,13 +173,13 @@ namespace NC2E2
                 if (NC2Logic::MapMigPoint_IsBorderPoint(point)) continue;
                 const auto* data = Engine2d_EntryPoint_Tool_GetEngineMicroPointDataPtr(point);
                 const auto landscape = Read<std::uint16_t>(data, 0);
-                if (landscape == ReadableValues::IntegerRange::UInt16Maximum) continue;
+                if (landscape == NXBasics::IntegerRange::UInt16Maximum) continue;
                 // Original lookup entry: FUN_00480ff1, 8C-byte static landscape records.
                 const auto* record = static_cast<const std::byte*>(gStaticLandscapeEntries) + static_cast<std::uint32_t>(landscape) * 0x8Cu;
                 for (std::uint32_t index = 0; index < Read<std::uint32_t>(record, 0x28); ++index)
                 {
                     const auto group = Read<std::uint32_t>(record, 0x2Cu + index * 4u);
-                    if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != ReadableValues::IntegerRange::UInt32Maximum) ++gLandscapeAmbientGroupCounts[group];
+                    if (CE2StaticDataSoundFXManager::sTheObjectPtr->landscapeGroupAmbientIds[group] != NXBasics::IntegerRange::UInt32Maximum) ++gLandscapeAmbientGroupCounts[group];
                 }
             }
         }
@@ -254,16 +254,16 @@ namespace NC2E2
                 if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(waveId))
                     NDSManager::CManager::sTheObjectPtr->PreloadWave_ChangeVolume(waveId, entry.volume, true, 1000);
                 else
-                    NDSManager::CManager::sTheObjectPtr->PreloadWave_Play(waveId, entry.volume, ReadableValues::IntegerRange::UInt32Maximum, 64, true, 1000);
+                    NDSManager::CManager::sTheObjectPtr->PreloadWave_Play(waveId, entry.volume, NXBasics::IntegerRange::UInt32Maximum, 64, true, 1000);
             }
 
             if (previousIndex < previous->count)
-                previous->entries[previousIndex].ambientId = ReadableValues::IntegerRange::UInt32Maximum;
+                previous->entries[previousIndex].ambientId = NXBasics::IntegerRange::UInt32Maximum;
         }
 
         for (std::int32_t index = 0; index < previous->count; ++index)
         {
-            if (previous->entries[index].ambientId == ReadableValues::IntegerRange::UInt32Maximum)
+            if (previous->entries[index].ambientId == NXBasics::IntegerRange::UInt32Maximum)
                 continue;
             const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(previous->entries[index].ambientId), 0xA8);
             if (NDSManager::CManager::sTheObjectPtr->PreloadWave_IsRunning(waveId))
@@ -328,7 +328,7 @@ namespace NC2E2
                     if (slot >= Ambient_ReadField<std::int32_t>(sector, 0))
                         continue;
                     const std::uint32_t ambientId = Ambient_ReadField<std::uint32_t>(sector, 4u + static_cast<std::uint32_t>(slot) * 8u);
-                    if (ambientId == ReadableValues::IntegerRange::UInt32Maximum)
+                    if (ambientId == NXBasics::IntegerRange::UInt32Maximum)
                         continue;
                     const std::uint32_t volume = Ambient_ReadField<std::uint32_t>(sector, 8u + static_cast<std::uint32_t>(slot) * 8u);
                     std::int32_t index = 0;
@@ -359,12 +359,12 @@ namespace NC2E2
         {
             if (index != 0) soundManager = NDSManager::CManager::sTheObjectPtr;
             auto& entry = loops->entries[index];
-            if (entry.ambientId == ReadableValues::IntegerRange::UInt32Maximum) continue;
+            if (entry.ambientId == NXBasics::IntegerRange::UInt32Maximum) continue;
             const std::uint32_t waveId = Ambient_ReadField<std::uint32_t>(Ambient_GetStaticRecord(entry.ambientId), 0xA8);
             if (soundManager->PreloadWave_IsRunning(waveId))
             {
                 NDSManager::CManager::sTheObjectPtr->PreloadWave_Stop(waveId);
-                entry.ambientId = ReadableValues::IntegerRange::UInt32Maximum;
+                entry.ambientId = NXBasics::IntegerRange::UInt32Maximum;
             }
         }
     }
@@ -377,7 +377,7 @@ namespace NC2E2
         for (;; ++index)
         {
             remaining -= Ambient_ReadField<std::uint32_t>(record, 0xB0u + index * 0x88u);
-            if ((remaining & ReadableValues::IntegerRange::Bit31) != 0)
+            if ((remaining & NXBasics::IntegerRange::Bit31) != 0)
                 return static_cast<const std::byte*>(record) + 0x30u + index * 0x88u;
         }
     }

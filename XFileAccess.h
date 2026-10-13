@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 
 #include "OriginalStrings.h"
 #include "XCrtFileAccess.h"
@@ -35,7 +35,7 @@ namespace NXBasics
 
         const std::int32_t result = Runtime_Close(static_cast<std::uint32_t>(descriptor));
 
-        if (static_cast<std::uint32_t>(result) == ReadableValues::IntegerRange::UInt32Maximum)
+        if (static_cast<std::uint32_t>(result) == NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *NXBasics::Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -98,7 +98,7 @@ namespace NXBasics
 
         const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-        if (archiveIndex != ReadableValues::IntegerRange::UInt32Maximum)
+        if (archiveIndex != NXBasics::IntegerRange::UInt32Maximum)
         {
             void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
@@ -114,7 +114,7 @@ namespace NXBasics
 
         const std::uint32_t result = Runtime_Seek(static_cast<std::uint32_t>(descriptor), seekOffset, 0);
 
-        if (result == ReadableValues::IntegerRange::UInt32Maximum)
+        if (result == NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -140,7 +140,7 @@ namespace NXBasics
         std::uint32_t position = Runtime_Seek(static_cast<std::uint32_t>(descriptor), 0, 1);
         const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-        if (position == ReadableValues::IntegerRange::UInt32Maximum)
+        if (position == NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -152,7 +152,7 @@ namespace NXBasics
         std::uint32_t archiveIndex;
         std::memcpy(&archiveIndex, fileBytes + 0x10C, sizeof(archiveIndex));
 
-        if (archiveIndex != ReadableValues::IntegerRange::UInt32Maximum)
+        if (archiveIndex != NXBasics::IntegerRange::UInt32Maximum)
         {
             void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
@@ -181,7 +181,7 @@ namespace NXBasics
 
         const auto* fileName = reinterpret_cast<const char*>(fileBytes + 0x08);
 
-        if (archiveIndex != ReadableValues::IntegerRange::UInt32Maximum)
+        if (archiveIndex != NXBasics::IntegerRange::UInt32Maximum)
         {
             void* archive = CFile::mStaticVars.fileLibraries[archiveIndex];
 
@@ -190,7 +190,7 @@ namespace NXBasics
 
         const std::uint32_t size = Runtime_GetFileSize(static_cast<std::uint32_t>(descriptor));
 
-        if (size == ReadableValues::IntegerRange::UInt32Maximum)
+        if (size == NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto firstError = *Runtime_GetErrnoPointer();
             const auto errorText = NXBasics::Runtime_GetErrorText(firstError);
@@ -321,7 +321,7 @@ namespace NXBasics
             return false;
         }
 
-        return Archive_FindFileIndex(archive, fileName) != ReadableValues::IntegerRange::UInt32Maximum;
+        return Archive_FindFileIndex(archive, fileName) != NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_00406861
@@ -336,7 +336,7 @@ namespace NXBasics
 
         const std::uint32_t entryIndex = Archive_FindFileIndex(archive, fileName);
 
-        if (entryIndex == ReadableValues::IntegerRange::UInt32Maximum)
+        if (entryIndex == NXBasics::IntegerRange::UInt32Maximum)
         {
             return 0;
         }
@@ -356,7 +356,7 @@ namespace NXBasics
 
         const std::uint32_t entryIndex = Archive_FindFileIndex(archive, fileName);
 
-        if (entryIndex == ReadableValues::IntegerRange::UInt32Maximum)
+        if (entryIndex == NXBasics::IntegerRange::UInt32Maximum)
         {
             return 0;
         }
@@ -385,7 +385,7 @@ namespace NXBasics
             }
         }
 
-        return ReadableValues::IntegerRange::UInt32Maximum;
+        return NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_00406903

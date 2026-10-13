@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "C2LifetimeAccess.h"
@@ -65,7 +65,7 @@ namespace NC2InGameGuiMessages
             if (record != nullptr)
             {
                 std::uint32_t job = 0;
-                if (SingleMessageDisplayed_GetValidHumanId(record) != ReadableValues::IntegerRange::UInt32Maximum) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(record) * NC2Logic::CHumanArray::ElementSize + 0x18);
+                if (SingleMessageDisplayed_GetValidHumanId(record) != NXBasics::IntegerRange::UInt32Maximum) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(record) * NC2Logic::CHumanArray::ElementSize + 0x18);
                 const auto priority = CMessageManager::MessagePriority_Calculate(Read<std::uint32_t>(record, 8), job);
                 if (priority == 1) icon = 0x44;
                 else if (priority == 2) icon = 0x45;
@@ -73,14 +73,14 @@ namespace NC2InGameGuiMessages
             MessageMiniButton_IconPrint(button, bitmap, icon);
             if (record == nullptr) return;
             const auto human = Read<std::uint32_t>(record, 0x18);
-            if (human != ReadableValues::IntegerRange::UInt32Maximum)
+            if (human != NXBasics::IntegerRange::UInt32Maximum)
             {
                 if (Read<std::uint32_t>(record, 8) == 0x2E) MessageMiniButton_IconPrint(button, bitmap, 0x5A);
                 else NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x0C), bitmap, 0x1B, 0x33, nullptr, true, -1);
                 return;
             }
             const auto vehicle = Read<std::uint32_t>(record, 0x28);
-            if (vehicle != ReadableValues::IntegerRange::UInt32Maximum)
+            if (vehicle != NXBasics::IntegerRange::UInt32Maximum)
             {
                 switch (Read<std::int32_t>(NC2Logic::CVehicleArray::mStaticVars, vehicle * NC2Logic::CVehicleArray::ElementSize + 0x1E8))
                 {

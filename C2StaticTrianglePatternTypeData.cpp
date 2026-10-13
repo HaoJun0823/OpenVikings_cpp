@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticTrianglePatternTypeData.h"
 #include "C2EngineTerrainData.h"
@@ -28,10 +28,10 @@ namespace NC2Logic
             {
                 storage.tokenInitFlags |= 1;
                 storage.tokens[11] = {nullptr, 0};
-                storage.tokens[0] = {"type", ReadableValues::TrianglePatternToken::Type};
+                storage.tokens[0] = {"type", NC2DataIds::TrianglePatternToken::Type};
                 storage.tokens[1] = {"humancanwalkon", SwitchIds::TrianglePatternToken::Humancanwalkon};
                 storage.tokens[2] = {"housecanbebuildon", SwitchIds::TrianglePatternToken::Housecanbebuildon};
-                storage.tokens[3] = {"biocangrowon", ReadableValues::TrianglePatternToken::BioCanGrowOn};
+                storage.tokens[3] = {"biocangrowon", NC2DataIds::TrianglePatternToken::BioCanGrowOn};
                 storage.tokens[4] = {"biocanplanton", SwitchIds::TrianglePatternToken::Biocanplanton};
                 storage.tokens[5] = {"island", SwitchIds::TrianglePatternToken::IsLand};
                 storage.tokens[6] = {"iswater", SwitchIds::TrianglePatternToken::IsWater};

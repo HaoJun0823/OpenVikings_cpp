@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "XGuiElementAccess.h"
 #include "C2GameState.h"
@@ -89,19 +90,19 @@ namespace NC2InGameGuiWorldElement
                 for (const auto offset : {0xB20u, 0xB18u, 0xB14u, 0xB24u})
                 {
                     const auto id = Read<std::uint32_t>(hoveredHuman, offset);
-                    if (id != ReadableValues::IntegerRange::UInt32Maximum) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, id);
+                    if (id != NXBasics::IntegerRange::UInt32Maximum) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHuman(display, 2, id);
                 }
                 for (const auto offset : {0xB28u, 0xB34u})
                 {
                     const auto id = Read<std::uint32_t>(hoveredHuman, offset);
-                    if (id != ReadableValues::IntegerRange::UInt32Maximum) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHouse(display, 2, id);
+                    if (id != NXBasics::IntegerRange::UInt32Maximum) NC2E2::Display_DE_ObjectsToMark_AddSecondaryHouse(display, 2, id);
                 }
             }
         }
         else if (Read<std::uint32_t>(target, 0) == 4)
         {
             const auto* house = NC2Logic::CHouseArray::mStaticVars + Read<std::uint32_t>(target, 0x28) * NC2Logic::CHouseArray::ElementSize;
-            if (Read<std::int32_t>(house, ReadableValues::HouseOffset::PlayerId) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
+            if (Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId) == localPlayer && NC2Logic::House_Inhabitants_GetNumberOfAttachedHumans(house) != 0)
                 for (std::uint32_t i = 0; i < 20; ++i)
                 {
                     const auto* slot = house + 0x640u + i * 0x10u;
@@ -355,7 +356,7 @@ namespace NC2InGameGuiWorldElement
                 std::int32_t point[2]{Read<std::int32_t>(mouse, 0), Read<std::int32_t>(mouse, 4)};
                 NC2InGameGuiBase::BaseElement_GlobalToLocalCoordinates(element, point);
                 NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, true);
-                Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType), (keys & 1u) != 0, (keys & 2u) != 0);
+                Selection_SelectHumansInArea(input, element, NXBasics::SRectangle(point[0] - 400, point[1] - 300, 800, 600), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), (keys & 1u) != 0, (keys & 2u) != 0);
             }
             Write<std::uint8_t>(element, 0x1F4, 0);
             return true;
@@ -434,11 +435,11 @@ namespace NC2InGameGuiWorldElement
         if (command == 2007) { NC2E2::DE_Zoom_ToggleLevel(display,false); return false; }
         if (command == 2005)
         {
-            if ((Read<std::uint32_t>(element,0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
+            if ((Read<std::uint32_t>(element,0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) { NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(display,NXBasics::Runtime_TimeSigned32(param1),NXBasics::Runtime_TimeSigned32(param2)); WorldDisplayElement_FollowMode_End(element); }
             return false;
         }
         if (command != 2004) return false;
-        if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) return false;
+        if (WorldDisplayElement_ReadField<std::uint8_t>(display, 0x6C) == 0 || (WorldDisplayElement_ReadField<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) return false;
         std::int32_t point[2];
         NC2E2::Display_MapMigToLocalDisplayPixelCoordinates(display, &param1, point, false);
         NC2E2::Display_LocalDisplayPixelToGlobalWorldPixelCoordinates(display, point, false);
@@ -885,10 +886,10 @@ namespace NC2InGameGuiWorldElement
             std::memcpy(&last, data + lastOffset, sizeof(last));
 
             const std::uint32_t difference = first - last;
-            const std::uint32_t magnitude = (difference & ReadableValues::IntegerRange::Bit31) != 0 ? 0u - difference : difference;
+            const std::uint32_t magnitude = (difference & NXBasics::IntegerRange::Bit31) != 0 ? 0u - difference : difference;
 
             // Preserve wrapped subtraction and the signed comparison after NEG.
-            return magnitude >= 5u && magnitude <= ReadableValues::IntegerRange::Int32Maximum;
+            return magnitude >= 5u && magnitude <= NXBasics::IntegerRange::Int32Maximum;
         };
 
         if (!hasMinimumDistance(0x1F8, 0x200))

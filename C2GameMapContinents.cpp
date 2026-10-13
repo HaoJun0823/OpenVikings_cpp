@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "ApplicationGlobals.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
@@ -355,7 +355,7 @@ namespace NC2Logic
                 const auto type = GameMap_Continent_CalculateContinentType(&source);
                 auto& creation = work.creations[work.creationCount];
                 creation.count = GameMap_l_Continents_SearchFillArea(&source, work.changedCounts, first, end, temporaryBase + work.creationCount, type);
-                creation.point = source; creation.oldIds[creation.oldIdCount++] = ReadableValues::IntegerRange::UInt32Maximum; creation.type = type;
+                creation.point = source; creation.oldIds[creation.oldIdCount++] = NXBasics::IntegerRange::UInt32Maximum; creation.type = type;
                 GameMap_l_Continents_SubChanged(&work, work.creationCount);
                 ++work.creationCount;
             }
@@ -365,7 +365,7 @@ namespace NC2Logic
             for (std::uint32_t index = 0; index < work.creationCount; ++index)
             {
                 auto& creation = work.creations[index];
-                if (!MapMigPoint_IsInsideMap(&creation.point) || creation.oldIds[0] != ReadableValues::IntegerRange::UInt32Maximum) continue;
+                if (!MapMigPoint_IsInsideMap(&creation.point) || creation.oldIds[0] != NXBasics::IntegerRange::UInt32Maximum) continue;
                 std::uint32_t target = 255;
                 if (creation.type != 0)
                 {
@@ -466,7 +466,7 @@ namespace NC2Logic
                 links[row * columns + column] = 0;
                 if (!MapMigPoint_IsInsideMap(&creation.point)) continue;
                 selected = &work.creations[work.creationCount];
-                selected->oldIds[selected->oldIdCount++] = ReadableValues::IntegerRange::UInt32Maximum; selected->point = creation.point;
+                selected->oldIds[selected->oldIdCount++] = NXBasics::IntegerRange::UInt32Maximum; selected->point = creation.point;
                 MapMigPoint_Construct(&creation.point, -1, -1, false); selected->type = creation.type;
                 selected->count = GameMap_l_Continents_SearchFillArea(&selected->point, work.changedCounts, mapFirst, mapEnd, temporaryBase + work.creationCount, selected->type);
                 // The native scan starts at matchingRows[1], independently of the current row.

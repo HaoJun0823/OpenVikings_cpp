@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2AIObjectAccess.h"
 #include "C2HumanCommandAccess.h"
 #include "C2HumanJobAccess.h"
@@ -48,7 +48,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00453cc3.
-    void AIScout_Init(void* scout) { Write<std::uint32_t>(scout, 0, ReadableValues::IntegerRange::UInt32Maximum); Write<std::uint8_t>(scout, 8, 0); }
+    void AIScout_Init(void* scout) { Write<std::uint32_t>(scout, 0, NXBasics::IntegerRange::UInt32Maximum); Write<std::uint8_t>(scout, 8, 0); }
 
     // Original function: FUN_00453ccb.
     void AIScout_Set(void* scout, std::int32_t human)
@@ -70,7 +70,7 @@ namespace NC2Logic
         if (!AIGoodManager_Producer_IsHumanValid(scout)) return;
         auto* human = Human(scout);
         Human_DoAddNewUserCommand(human, 21, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, 6, 0);
-        Write<std::uint32_t>(scout, 0, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(scout, 0, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_00453d3c.
@@ -130,10 +130,10 @@ namespace NC2Logic
     bool AIGoodManager_Producer_IsHouseValid(void* producer)
     {
         const auto id = Read<std::uint32_t>(producer, 8);
-        if (id == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
         if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, 8) == Read<std::uint32_t>(producer, 12) && Read<std::uint8_t>(house, 0x7D0) == 0) return true;
-        Write<std::uint32_t>(producer, 8, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(producer, 8, NXBasics::IntegerRange::UInt32Maximum);
         return false;
     }
 
@@ -141,17 +141,17 @@ namespace NC2Logic
     bool AIGoodManager_Producer_IsHumanValid(void* producer)
     {
         const auto id = Read<std::uint32_t>(producer, 0);
-        if (id == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(producer);
         if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(producer, 4)) return true;
-        Write<std::uint32_t>(producer, 0, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(producer, 0, NXBasics::IntegerRange::UInt32Maximum);
         return false;
     }
 
     // Original function: FUN_00457529.
     bool AIGoodManager_Producer_IsHumanValidCheck(const void* producer)
     {
-        if (Read<std::uint32_t>(producer, 0) == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (Read<std::uint32_t>(producer, 0) == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(producer);
         return Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(producer, 4);
     }
@@ -173,13 +173,13 @@ namespace NC2Logic
     // Original function: FUN_00457992.
     void AIGoodManager_Producer_Clear(void* producer)
     {
-        Write<std::uint32_t>(producer, 8, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(producer, 8, NXBasics::IntegerRange::UInt32Maximum);
         if (AIGoodManager_Producer_IsHumanValid(producer))
         {
             auto* human = Human(producer);
             if (Human_IsAttachedToWorkHouse(human)) Human_DoAddNewUserCommand(human, 22, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
         }
-        Write<std::uint32_t>(producer, 0, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(producer, 0, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_004579d8.

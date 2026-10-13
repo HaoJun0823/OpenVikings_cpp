@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2UserMessageAccess.h"
 #include "WorldDisplayElementAccess.h"
 #include "C2EngineDisplayAccess.h"
@@ -42,7 +43,7 @@ namespace NC2Logic
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
-        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
+        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write<std::uint32_t>(message, 0, 23);
         Write(message, 0x30, item);
         ToUserMessage_FinishMessage(message);
@@ -57,7 +58,7 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
         Write<std::uint32_t>(message, 0, 41);
-        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
+        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -71,7 +72,7 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 41);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
-        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
+        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }
@@ -84,7 +85,7 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 19);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
-        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
+        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, 0x30, good);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -98,7 +99,7 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 20);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
-        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
+        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, 0x13C, job);
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -112,9 +113,9 @@ namespace NC2Logic
         Write<std::uint16_t>(message, 0x28, 0);
         std::memset(message, 0, 772);
         for (const auto offset : {0x30u, 0x13Cu, 0x200u, 0x2E0u}) Write<std::uint32_t>(message, offset, 0);
-        for (const auto offset : {8u, 0x10u, 0x18u, 0x20u}) Write<std::uint32_t>(message, offset, ReadableValues::IntegerRange::UInt32Maximum);
-        Write<std::uint16_t>(message, 0x28, ReadableValues::IntegerRange::UInt16MaximumSigned);
-        Write<std::uint16_t>(message, 0x2A, ReadableValues::IntegerRange::UInt16MaximumSigned);
+        for (const auto offset : {8u, 0x10u, 0x18u, 0x20u}) Write<std::uint32_t>(message, offset, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint16_t>(message, 0x28, NXBasics::IntegerRange::UInt16MaximumSigned);
+        Write<std::uint16_t>(message, 0x2A, NXBasics::IntegerRange::UInt16MaximumSigned);
     }
 
     // Original function: FUN_0042bfcc; referenced object IDs are deliberately unchecked.
@@ -122,11 +123,11 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         const auto human = Read<std::uint32_t>(message, 0x10);
-        if (human != ReadableValues::IntegerRange::UInt32Maximum) Write(message, 0x14, Read<std::uint32_t>(CHumanArray::mStaticVars, human * CHumanArray::ElementSize + 8));
+        if (human != NXBasics::IntegerRange::UInt32Maximum) Write(message, 0x14, Read<std::uint32_t>(CHumanArray::mStaticVars, human * CHumanArray::ElementSize + 8));
         const auto house = Read<std::uint32_t>(message, 0x18);
-        if (house != ReadableValues::IntegerRange::UInt32Maximum) Write(message, 0x1C, Read<std::uint32_t>(CHouseArray::mStaticVars, house * CHouseArray::ElementSize + 8));
+        if (house != NXBasics::IntegerRange::UInt32Maximum) Write(message, 0x1C, Read<std::uint32_t>(CHouseArray::mStaticVars, house * CHouseArray::ElementSize + 8));
         const auto vehicle = Read<std::uint32_t>(message, 0x20);
-        if (vehicle != ReadableValues::IntegerRange::UInt32Maximum) Write(message, 0x24, Read<std::uint32_t>(CVehicleArray::mStaticVars, vehicle * CVehicleArray::ElementSize + 8));
+        if (vehicle != NXBasics::IntegerRange::UInt32Maximum) Write(message, 0x24, Read<std::uint32_t>(CVehicleArray::mStaticVars, vehicle * CVehicleArray::ElementSize + 8));
         Write<std::uint8_t>(message, 4, 1);
     }
 
@@ -136,20 +137,20 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         if (Read<std::uint8_t>(message, 4) == 0) return false;
         const auto humanId = Read<std::uint32_t>(message, 0x10);
-        if (humanId != ReadableValues::IntegerRange::UInt32Maximum)
+        if (humanId != NXBasics::IntegerRange::UInt32Maximum)
         {
             auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
             if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(message, 0x14)) return false;
             if (checkHuman && Human_UserMessage_IsInvalid(human, message)) return false;
         }
         const auto houseId = Read<std::uint32_t>(message, 0x18);
-        if (houseId != ReadableValues::IntegerRange::UInt32Maximum)
+        if (houseId != NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
             if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != Read<std::uint32_t>(message, 0x1C)) return false;
         }
         const auto vehicleId = Read<std::uint32_t>(message, 0x20);
-        if (vehicleId != ReadableValues::IntegerRange::UInt32Maximum)
+        if (vehicleId != NXBasics::IntegerRange::UInt32Maximum)
         {
             const auto* vehicle = CVehicleArray::mStaticVars + vehicleId * CVehicleArray::ElementSize;
             if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(message, 0x24)) return false;
@@ -167,13 +168,13 @@ namespace NC2Logic
         const auto type = Read<std::int32_t>(other, 0);
         if (type < 4 || (type > 6 && type != 0x2C) || Read<std::int32_t>(message, 0) != type) return false;
         const auto player = Read<std::uint32_t>(other, 8);
-        if (player == ReadableValues::IntegerRange::UInt32Maximum || player != Read<std::uint32_t>(message, 8) || Read<std::uint32_t>(other, 0x30) != Read<std::uint32_t>(message, 0x30)) return false;
+        if (player == NXBasics::IntegerRange::UInt32Maximum || player != Read<std::uint32_t>(message, 8) || Read<std::uint32_t>(other, 0x30) != Read<std::uint32_t>(message, 0x30)) return false;
         const auto otherId = Read<std::uint32_t>(other, 0x10);
-        if (otherId == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (otherId == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* otherHuman = CHumanArray::mStaticVars + otherId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(otherHuman, 0) == 0 || Read<std::uint32_t>(otherHuman, 8) != Read<std::uint32_t>(other, 0x14)) return false;
         const auto humanId = Read<std::uint32_t>(message, 0x10);
-        if (humanId == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (humanId == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(message, 0x14)) return false;
         std::uint32_t otherPoint = 0, point = 0;
@@ -205,7 +206,7 @@ namespace NC2LogicExternals
         const auto* gui = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         if (gui == nullptr) return;
         const auto player = NC2Lifetime::Read<std::uint32_t>(message, 8);
-        if (player != ReadableValues::IntegerRange::UInt32Maximum && player != NC2Lifetime::Read<std::uint32_t>(gui, 0)) return;
+        if (player != NXBasics::IntegerRange::UInt32Maximum && player != NC2Lifetime::Read<std::uint32_t>(gui, 0)) return;
         static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_Add(message);
     }
 }

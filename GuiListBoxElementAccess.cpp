@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "GuiListBoxElementAccess.h"
 #include "C2LifetimeAccess.h"
@@ -164,7 +164,7 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d00e6.
     void* BaseListBoxElement_Construct(void* element, const SRectangle* rectangle, std::uint32_t flags, std::uint32_t messageTypes)
     {
-        NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, flags | 3u, messageTypes | ReadableValues::BitMask::Bit8AndBit11);
+        NC2InGameGuiBase::BaseToolElement_Construct(element, rectangle, flags | 3u, messageTypes | NXBasics::BitMask::Bit8AndBit11);
         ObjectVars_Construct(static_cast<std::byte*>(element) + 0x4C);
         Write(element, 0, gListTable.data());
         std::memset(static_cast<std::byte*>(element) + 0x30, 0, 28);
@@ -254,7 +254,7 @@ namespace NC2InGameGuiBaseListBox
         NXBasics::CListBase::Iterator iterator(ElementList(list, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
+            if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             char text[100];
             if (!Virtual<TMessage>(child, 2)(child, 0x800, 0x7F1, reinterpret_cast<std::uintptr_t>(text), 99, 0)) continue;
             if (NXBasics::Runtime_ToLower(static_cast<signed char>(text[0])) != NXBasics::Runtime_ToLower(static_cast<signed char>(letter))) continue;
@@ -272,7 +272,7 @@ namespace NC2InGameGuiBaseListBox
         SRectangle bounds(0, 0, Read<std::int32_t>(element, 0x0C), Read<std::int32_t>(element, 0x10));
         NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
-            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
+            if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
         Write(element, 0x38, bounds);
         l_ScrollOffset_Validate(element);
     }
@@ -282,7 +282,7 @@ namespace NC2InGameGuiBaseListBox
         NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
         {
-            if ((Read<std::uint32_t>(child, 0x18) & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
+            if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             auto position = BaseElement_GetRectangle(child);
             position.x = Add(position.x, Read<std::int32_t>(element, 0x30));
             position.y = Add(position.y, Read<std::int32_t>(element, 0x34));
@@ -381,7 +381,7 @@ namespace NC2InGameGuiBaseListBox
         {
             const auto flags = Read<std::uint32_t>(child, 0x18);
             if (!includeDisabled && !BaseElement_CanBeActivated(child)) continue;
-            if ((flags & ReadableValues::BitMask::Bit9Unsigned) != 0) continue;
+            if ((flags & NXBasics::BitMask::Bit9Unsigned) != 0) continue;
             const auto rectangle = BaseElement_GetRectangle(child);
             if (point[0] < rectangle.x || point[0] > Subtract(Add(rectangle.x, rectangle.width), 1) || point[1] < rectangle.y || point[1] > Subtract(Add(rectangle.y, rectangle.height), 1)) continue;
             using THit = bool(__thiscall*)(void*, const std::int32_t*);

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataSoundFX.h"
 #include "C2LifetimeGlobals.h"
@@ -51,13 +51,13 @@ namespace NC2E2
         std::memset(this, 0, sizeof(*this));
 
         for (std::uint32_t& value : patternGroupAmbientIds)
-            value = ReadableValues::IntegerRange::UInt32Maximum;
+            value = NXBasics::IntegerRange::UInt32Maximum;
 
         for (std::uint32_t& value : landscapeGroupAmbientIds)
-            value = ReadableValues::IntegerRange::UInt32Maximum;
+            value = NXBasics::IntegerRange::UInt32Maximum;
 
         for (std::uint32_t& value : staticSoundIdsByType)
-            value = ReadableValues::IntegerRange::UInt32Maximum;
+            value = NXBasics::IntegerRange::UInt32Maximum;
 
         if (NDSManager::CManager::sTheObjectPtr != nullptr)
         {

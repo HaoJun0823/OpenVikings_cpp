@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "InGameGuiHumanListWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiWindowState.h"
@@ -150,7 +151,7 @@ namespace NC2InGameGuiMiscWindows
             if (Filter(3) && !Human_IsJobSoldier(human)) continue;
             if (Filter(4) && !Human_IsJobHero(human)) continue;
             if (Filter(5) && (!Human_IsSexMale(human) || !Human_IsAgeAdult(human) || Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_UserControl_GetNextJobType(human) == 6)) continue;
-            if (Filter(6) && (Read<std::uint32_t>(human, 0xB28) != ReadableValues::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human))) continue;
+            if (Filter(6) && (Read<std::uint32_t>(human, 0xB28) != NXBasics::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human))) continue;
             if (Filter(7))
             {
                 if (!Human_IsSexMale(human) || !Human_IsAgeAdult(human) || Human_IsJobSoldier(human) || Human_IsJobHero(human)) continue;
@@ -158,9 +159,9 @@ namespace NC2InGameGuiMiscWindows
                 const auto percentage = good == 31 || good == 32 ? NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) * 100u) / 10000 : 0;
                 if (percentage > 0) continue;
             }
-            if (Filter(8) && (Read<std::uint32_t>(human, 0xB20) != ReadableValues::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human) || !Human_IsAgeAdult(human))) continue;
+            if (Filter(8) && (Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human) || !Human_IsAgeAdult(human))) continue;
             if (Filter(9) || Filter(10)) continue;
-            if (Filter(11) && (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint32_t>(human, 0xB24) != ReadableValues::IntegerRange::UInt32Maximum)) continue;
+            if (Filter(11) && (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint32_t>(human, 0xB24) != NXBasics::IntegerRange::UInt32Maximum)) continue;
             if (Filter(12) && (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Human_HasEquippedShoes(human))) continue;
             if (Filter(13) && (!Human_IsAgeAdult(human) || !Human_IsJobSoldier(human) || Human_IsJobHero(human) || Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)], Read<std::uint32_t>(human, 0xAE4) * 0xC4u + 0x24) != 0)) continue;
             const auto job = Read<std::uint32_t>(gHumanListWindowStatics, 0x10), possible = Read<std::uint32_t>(gHumanListWindowStatics, 0x14);
@@ -193,9 +194,9 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1729.
     static bool HumanListButton_l_ValidateHuman(void* element)
     {
-        const auto id = Read<std::uint32_t>(element, 0x30); if (id == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        const auto id = Read<std::uint32_t>(element, 0x30); if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(id); if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(element, 0x34)) return true;
-        Write<std::uint32_t>(element, 0x30, ReadableValues::IntegerRange::UInt32Maximum); Write<std::uint32_t>(element, 0x34, 0); return false;
+        Write<std::uint32_t>(element, 0x30, NXBasics::IntegerRange::UInt32Maximum); Write<std::uint32_t>(element, 0x34, 0); return false;
     }
     // Original function: FUN_004b1691; 0x100 messages are forwarded to the parent list.
     static bool __fastcall HumanListButton_Message(void* element, void*, std::uint32_t message, std::uint32_t command, std::uint32_t first, std::uint32_t second, std::uint32_t third)
@@ -206,7 +207,7 @@ namespace NC2InGameGuiMiscWindows
         if (handler != nullptr)
         {
             HumanListButton_l_ValidateHuman(element); const auto id = Read<std::uint32_t>(element, 0x30);
-            if (id != ReadableValues::IntegerRange::UInt32Maximum) Read<TMessage*>(handler, 0)[2](handler, 0x800, Read<std::uint32_t>(element, 0x3C), reinterpret_cast<std::uint32_t>(element), id, Read<std::uint32_t>(element, 0x34));
+            if (id != NXBasics::IntegerRange::UInt32Maximum) Read<TMessage*>(handler, 0)[2](handler, 0x800, Read<std::uint32_t>(element, 0x3C), reinterpret_cast<std::uint32_t>(element), id, Read<std::uint32_t>(element, 0x34));
         }
         return true;
     }
@@ -214,14 +215,14 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall HumanListButton_DoPressedAction(void* element)
     {
         auto* handler = Read<void*>(element, 0x40); if (handler == nullptr) return; HumanListButton_l_ValidateHuman(element);
-        const auto id = Read<std::uint32_t>(element, 0x30); if (id == ReadableValues::IntegerRange::UInt32Maximum) return;
+        const auto id = Read<std::uint32_t>(element, 0x30); if (id == NXBasics::IntegerRange::UInt32Maximum) return;
         Read<TMessage*>(handler, 0)[2](handler, 0x800, Read<std::uint32_t>(element, 0x38), reinterpret_cast<std::uint32_t>(element), id, Read<std::uint32_t>(element, 0x34)); FXTool_ClickConfirm();
     }
 
     // Original function: FUN_004b1198; row details are rebuilt from live native object data.
     static void __fastcall HumanListButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
-        const auto mode = (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         if (!HumanListButton_l_ValidateHuman(element)) return;
         const auto id = Read<std::uint32_t>(element, 0x30); const auto* human = Human(id);
@@ -244,11 +245,11 @@ namespace NC2InGameGuiMiscWindows
         const auto job = Read<std::uint32_t>(human, 0x18);
         // Native IsJobWoman (0042C5AA) tests job 5 alone.
         if (job == 5 && !Human_IsMarried(human)) { std::strcat(caption, " - "); std::strcat(caption, Text(41)); }
-        if (job == 5 && Read<std::uint32_t>(human, 0xB24) != ReadableValues::IntegerRange::UInt32Maximum) { std::strcat(caption, " - "); std::strcat(caption, Text(42)); std::strcat(caption, ": "); std::strcat(caption, Name(Read<std::uint32_t>(human, 0xB24))); }
+        if (job == 5 && Read<std::uint32_t>(human, 0xB24) != NXBasics::IntegerRange::UInt32Maximum) { std::strcat(caption, " - "); std::strcat(caption, Text(42)); std::strcat(caption, ": "); std::strcat(caption, Name(Read<std::uint32_t>(human, 0xB24))); }
         if (Human_IsAttachedToWorkHouse(human))
         {
             const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
-            if (house != nullptr) { std::strcat(caption, " - "); std::strcat(caption, StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType), 1)); }
+            if (house != nullptr) { std::strcat(caption, " - "); std::strcat(caption, StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1)); }
         }
         if (!Human_IsJobSoldier(human) && !Human_IsAttachedToHomeHouse(human) && !Human_IsJobHero(human)) { std::strcat(caption, " - "); std::strcat(caption, Text(43)); }
         bitmap->Text_Print(resources.font08, color, 10, 18, caption);
@@ -365,7 +366,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1a99; one matching inhabitant makes the pair visible.
     static bool HumanListJobSelectionWindow_l_IsJobToChoose(void* window, std::uint32_t tribe, std::uint32_t job, std::uint32_t player)
     {
-        const auto* state = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
+        const auto* state = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(state, 0x18u + tribe * 56u + job) == 0) return false;
         if (Read<std::uint8_t>(window, 0x74) == 0 && tribe != Read<std::uint32_t>(state, 0xC)) return false;
         CHumanIterator iterator;

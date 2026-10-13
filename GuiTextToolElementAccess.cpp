@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "GuiTextToolElementAccess.h"
 #include "GuiClockToolElementAccess.h"
 #include "C2LifetimeAccess.h"
@@ -194,7 +194,7 @@ namespace NC2InGameGuiBase
     static void __fastcall TextButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const bool disabled = Read<std::uint8_t>(element, 0x56) != 0;
-        const auto mode = ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
+        const auto mode = ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
         if (Read<std::uint8_t>(element, 0x59) != 0) bitmap->Fill(Read<NXBasics::SColorRGB>(element, 0x5C));
         else NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
@@ -236,7 +236,7 @@ namespace NC2InGameGuiBase
         {
             NXBasics::SRectangle area = bitmap->GetRectangle();
             area.Inflate(-1, -1);
-            bitmap->Tool_Darken(area, ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned);
+            bitmap->Tool_Darken(area, NXBasics::IntegerRange::Int8MaximumSigned, NXBasics::IntegerRange::Int8MaximumSigned, NXBasics::IntegerRange::Int8MaximumSigned);
         }
     }
 

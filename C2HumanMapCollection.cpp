@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanMapCollection.h"
 #include "C2GameMapAccess.h"
@@ -93,14 +93,14 @@ namespace NC2Logic
         const auto good = Read<std::uint32_t>(human, 0x1C);
         if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
         if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
-        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
+        switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None:
             if (Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
             if (House_Stock_IsFullSoon(WorkHouse(human), good))
             {
-                Write(human, ReadableValues::HumanOffset::RequestedGood, good);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
+                Write(human, NC2Layout::HumanOffset::RequestedGood, good);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 5);
                 Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
                 return;
             }
@@ -116,8 +116,8 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Fisher(void* human)
     {
         if (Read<std::uint32_t>(human, 0x1C) == 0) { Fail(human, 2); return; }
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 22);
-        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 22);
+        switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None: Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(human); return;
         case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Fisher_Collect(human); return;
@@ -129,7 +129,7 @@ namespace NC2Logic
     // Original function: FUN_0046d245.
     void Human_l_StartTask_ExecuteJob_Fisher_Collect(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 2 && Read<std::uint32_t>(human, 0xA78) != 0)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 2 && Read<std::uint32_t>(human, 0xA78) != 0)
         {
             if (Human_IsAtTargetPoint(human)) { Human_l_StartTask_Tool_PickupWantedGood_FromTargetPosition(human); return; }
             if (Human_l_StartAtomicWalkAndFetch(human, Real(human), Work(human), false)) return;
@@ -138,7 +138,7 @@ namespace NC2Logic
         if (Human_IsAtTargetPoint(human))
         {
             const auto moveable = Read<std::int16_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 10);
-            if (moveable == Read<std::int32_t>(human, 12) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * ReadableValues::RecordSize::MapMoveable, 0x24) == -1) Start(human, 36, Human_Target_GetDirectionTo(human));
+            if (moveable == Read<std::int32_t>(human, 12) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, 0x24) == -1) Start(human, 36, Human_Target_GetDirectionTo(human));
             else Human_l_StartTask_GoAway(human, 0, 0);
             return;
         }
@@ -150,8 +150,8 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Fisher_TryToCollect(void* human)
     {
         Human_Target_Reset(human);
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        if (Human_IsAttachedToWorkHouse(human) && House_Stock_IsFull(WorkHouse(human), Tool_Human_GetReallyProducedGoodType(Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType), Read<std::uint32_t>(human, 0x1C)))) { Fail(human, 11); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Human_IsAttachedToWorkHouse(human) && House_Stock_IsFull(WorkHouse(human), Tool_Human_GetReallyProducedGoodType(Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), Read<std::uint32_t>(human, 0x1C)))) { Fail(human, 11); return; }
         std::uint32_t real = 0, work = 0;
         if (!Human_FindShorePointForFishing(human, &real, &work) || !Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) Fail(human, 3);
     }
@@ -161,15 +161,15 @@ namespace NC2Logic
     {
         const auto good = Read<std::uint32_t>(human, 0x1C);
         if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
-        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
+        switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None:
             if (Human_IsForcedToHaveFinishedWorkHouse(human) && Read<std::uint32_t>(WorkHouse(human), 0x2C) != 3) { Fail(human, 2); return; }
             if (!House_Stock_CanStoreGoodType(WorkHouse(human), good, true)) { Fail(human, 2); return; }
             if (House_Stock_IsFullSoon(WorkHouse(human), good))
             {
-                Write(human, ReadableValues::HumanOffset::RequestedGood, good);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
+                Write(human, NC2Layout::HumanOffset::RequestedGood, good);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 5);
                 Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human);
                 return;
             }
@@ -184,7 +184,7 @@ namespace NC2Logic
     // Original function: FUN_0046c876.
     void Human_l_StartTask_ExecuteJob_Collector(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return; }
         const auto good = Read<std::uint32_t>(human, 0x1C);
         if (good == 0) { Fail(human, 2); return; }
         if (Human_Production_GetCounter(human, good) == 0) { Human_Production_Rotate(human); return; }
@@ -194,7 +194,7 @@ namespace NC2Logic
     // Original function: FUN_0047603f.
     void Human_l_StartTask_ExecuteJob_Tool_MapCollector_Collect(void* human)
     {
-        if (Human_Target_HasTarget(human) && Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) != 2)
+        if (Human_Target_HasTarget(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) != 2)
         {
             Human_StopCurrentGoodCirculationMode(human);
             Human_Target_Reset(human);
@@ -204,7 +204,7 @@ namespace NC2Logic
         {
             if (Human_IsAttachedToWorkHouse(human) && House_Stock_IsFull(WorkHouse(human), good)) { Fail(human, 11); return; }
         }
-        else if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood) != 0) good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood);
+        else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) != 0) good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
         else
         {
             SHumanSearchLandscapesData data;
@@ -232,7 +232,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, 0x38C, 0);
             Write(human, 0x20, good);
         }
-        Write(human, ReadableValues::HumanOffset::RequestedGood, good);
+        Write(human, NC2Layout::HumanOffset::RequestedGood, good);
         const auto& type = gStaticGoodTypeStorage.records[good];
         if (type.isBioLandscape != 0) Human_l_StartTask_ExecuteJob_Tool_MapCollector_Collect_Bio(human, type.landscapeToHarvest, type.landscapeToPickup, type.landscapeToStore, type.atomicForHarvesting);
         else Human_l_StartTask_ExecuteJob_Tool_MapCollector_Collect_NonBio(human, type.landscapeToHarvest, type.landscapeToPickup, type.landscapeToStore, type.atomicForHarvesting);
@@ -247,9 +247,9 @@ namespace NC2Logic
             const auto type = Human_GetLandscapeTypeAtTargetPosition(human);
             if (harvest != 0 && type == harvest)
             {
-                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 0)
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0)
                 {
-                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 2);
+                    Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 2);
                     if (Human_IsAttachedToWorkHouse(human)) Reserve(human);
                 }
                 Start(human, animation, Human_Target_GetDirectionTo(human));
@@ -272,7 +272,7 @@ namespace NC2Logic
         std::uint32_t real = 0, work = 0;
         if (Human_IsAttachedToWorkHouse(human))
         {
-            if (House_Stock_HasDemandForGood(WorkHouse(human), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood)))
+            if (House_Stock_HasDemandForGood(WorkHouse(human), Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood)))
             {
                 data.Add(store);
                 data.Add(pickup);
@@ -348,7 +348,7 @@ namespace NC2Logic
         std::uint32_t real = 0, work = 0;
         if (Human_IsAttachedToWorkHouse(human))
         {
-            if (House_Stock_HasDemandForGood(WorkHouse(human), Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood)))
+            if (House_Stock_HasDemandForGood(WorkHouse(human), Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood)))
             {
                 if (Human_GetLandscapeTypeAtActiveMapPosition(human) == store)
                 {
@@ -386,9 +386,9 @@ namespace NC2Logic
     // Original function: FUN_0047696d.
     void Human_l_StartTask_ExecuteJob_Tool_MapFarmer_Collect(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         const auto good = Read<std::uint32_t>(human, 0x1C);
-        Write(human, ReadableValues::HumanOffset::RequestedGood, good);
+        Write(human, NC2Layout::HumanOffset::RequestedGood, good);
         const auto& type = gStaticGoodTypeStorage.records[good];
         if (Human_IsAtTargetPoint(human))
         {
@@ -396,14 +396,14 @@ namespace NC2Logic
             if (landscape == static_cast<std::uint32_t>(type.landscapeToHarvest) && Read<std::uint8_t>(WorkHouse(human), 0x798) == 0)
             {
                 const auto valency = Human_GetLandscapeValencyAtTargetPosition(human);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget, 2);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 2);
                 Write(human, 0xA74, type.landscapeToHarvest);
                 Start(human, valency >= 5 ? type.atomicForHarvesting : type.atomicForCultivating, Human_Target_GetDirectionTo(human));
                 return;
             }
             if (landscape == static_cast<std::uint32_t>(type.landscapeToPickup) && Human_IsAttachedToWorkHouse(human) && House_Stock_HasDemandForGood(WorkHouse(human), good))
             {
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget, 2);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 2);
                 Write(human, 0xA74, type.landscapeToPickup);
                 Start(human, 22, 6);
                 return;

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XCPU.h"
 
 #include <cstdint>
@@ -31,7 +31,7 @@ namespace NXBasics
         int registers[4];
         __cpuid(registers, 1);
 
-        if ((static_cast<std::uint32_t>(registers[3]) & ReadableValues::BitMask::Bit23) != 0)
+        if ((static_cast<std::uint32_t>(registers[3]) & NXBasics::BitMask::Bit23) != 0)
             gMmxDetectionState.supported = 1;
 
         return gMmxDetectionState.supported != 0;

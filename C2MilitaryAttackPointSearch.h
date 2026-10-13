@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include <cstdint>
 
 namespace NC2Logic
@@ -18,7 +18,7 @@ namespace NC2Logic
         const void* owner;
 
         // Original function: FUN_00442fc7; range and owner fields are filled by the caller.
-        SAttackPointSearch() : target(0), source(0), count(0), points{}, bestDistance(ReadableValues::IntegerRange::UInt32Maximum) {}
+        SAttackPointSearch() : target(0), source(0), count(0), points{}, bestDistance(NXBasics::IntegerRange::UInt32Maximum) {}
     };
     static_assert(sizeof(SAttackPointSearch) == 52);
 }

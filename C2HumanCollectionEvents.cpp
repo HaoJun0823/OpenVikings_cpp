@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanCollectionEvents.h"
 #include "C2Debug.h"
@@ -64,17 +64,17 @@ namespace NC2Logic
             case SwitchIds::GoodType::Mushroom: landscape = 36; break;
             default:
                 C2Debug_WarningBoxV("Production of this good is not possible at all: %s", gStaticGoodTypeStorage.records[good].name);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
                 Human_StopCurrentGoodCirculationMode(human);
                 return;
             }
             Logic_EntryPoint_Edit_Start();
             const auto engineId = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(landscape, false);
             const auto success = NC2LogicExternals::External_Landscape_SetMapMicroPointLandscape(Real(human), engineId, 1, true, -1);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, success ? 2u : 3u);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, success ? 2u : 3u);
             Logic_EntryPoint_Edit_Stop();
         }
-        else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        else Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
         Human_StopCurrentGoodCirculationMode(human);
     }
 
@@ -86,11 +86,11 @@ namespace NC2Logic
         {
             if (Read<std::uint32_t>(human, 0x1C) == 5) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x17, true, 10, MapMigPoint_GetLong(Real(human)), 0);
             Human_l_JobExperience_Gain(human);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             WearTools(human);
-            if (Human_IsAttachedToWorkHouse(human)) House_Production_DidProduceOneGood(CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize);
+            if (Human_IsAttachedToWorkHouse(human)) House_Production_DidProduceOneGood(CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize);
         }
-        else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        else Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
         Human_StopCurrentGoodCirculationMode(human);
         Human_Target_Reset(human);
     }
@@ -102,7 +102,7 @@ namespace NC2Logic
         const auto engineId = GameMap_MapMicroPoint_Landscape_ApplyTransition(Real(human), 5);
         Human_StopCurrentGoodCirculationMode(human);
         std::uint32_t pile = 0;
-        if (engineId == -1 || !Human_FindPilePointNearPosition(human, engineId, Human_GetMapPositionRef(human), &pile)) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); return; }
+        if (engineId == -1 || !Human_FindPilePointNearPosition(human, engineId, Human_GetMapPositionRef(human), &pile)) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
         GameMapModifyManager_StartGameMapModify();
         NC2LogicExternals::External_Landscape_SetMapMicroPointLandscape(&pile, engineId, 1, true, -1);
         GameMap_GetConstMapMicroPointPtr(&pile);
@@ -111,7 +111,7 @@ namespace NC2Logic
         GameMapModifyManager_StopGameMapModify();
         WearTools(human);
         Human_l_JobExperience_Gain(human);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
     }
 
     // Original function: FUN_004697d2; cursor movement precedes each transition.
@@ -128,7 +128,7 @@ namespace NC2Logic
             if (MapMigPoint_IsInsideMap(&cursor) && GameMap_MapMicroPoint_Landscape_ApplyTransition(&cursor, 7) != -1) changed = true;
         }
         if (GameMap_MapMicroPoint_Landscape_ApplyTransition(Real(human), 7) != -1) changed = true;
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, changed ? 2u : 3u);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, changed ? 2u : 3u);
         WearTools(human);
         Human_StopCurrentGoodCirculationMode(human);
     }
@@ -142,7 +142,7 @@ namespace NC2Logic
         {
             Human_l_ResetAtomic(human);
             Human_l_StartAtomicAnimation(human, 38, Human_Target_GetDirectionTo(human));
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             WearTools(human);
             Human_StopCurrentGoodCirculationMode(human);
             return;
@@ -156,17 +156,17 @@ namespace NC2Logic
         {
             Human_l_JobExperience_Gain(human);
             Write<std::uint32_t>(human, 0xA64, 0);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             // Native outlined carried-good setter 0042DB6C invokes callback 0x21.
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood, 16);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 16);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 16);
             Human_l_PerformTaskEvent_DidProduceOneGood(human);
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 5) Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 4);
-            GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), &swarmPosition, (Read<std::uint32_t>(human, 0xB7C) >> 1) + 1u);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 5) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 4);
+            GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), &swarmPosition, (Read<std::uint32_t>(human, 0xB7C) >> 1) + 1u);
         }
         else
         {
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
             Human_StopCurrentGoodCirculationMode(human);
         }
         WearTools(human);

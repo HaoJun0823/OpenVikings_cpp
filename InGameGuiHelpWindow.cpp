@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiHelpWindow.h"
 #include "InGameGuiManager.h"
@@ -70,7 +71,7 @@ namespace NC2InGameGuiMiscWindows
         Write<std::int32_t>(window, 0x3AC, -1); buttons->SetWindow(window);
         Write<std::uint32_t>(window, 0x6C, 1);
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        const auto tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0xC);
+        const auto tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC);
         bool full = false;
         for (std::int32_t type = 0; type < NC2E2::gStaticHouseCount && !full; ++type)
         {
@@ -186,7 +187,7 @@ namespace NC2InGameGuiMiscWindows
         if (field != 0)
         {
             const bool previous = command == 10013 || command == 10018 || command == 10022;
-            const auto value = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, field) + (previous ? ReadableValues::IntegerRange::UInt32Maximum : 1u));
+            const auto value = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, field) + (previous ? NXBasics::IntegerRange::UInt32Maximum : 1u));
             Write(window, field, value < 0 || (!previous && value >= NXBasics::Runtime_TimeSigned32(count)) ? -1 : value);
         }
         HyperLinkTextWindow_l_GuiButtons_Update(window);
@@ -408,7 +409,7 @@ namespace NC2InGameGuiMiscWindows
         }
         NC2GuiToolsBase::DrawTool_PrintStringXV(bitmap, 20, y, fontSmall, color, "%s:", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(41));
         y += 16;
-        const auto difficulty = Read<std::uint32_t>(NC2Logic::gGameControl, ReadableValues::GameControlOffset::DifficultyLevel);
+        const auto difficulty = Read<std::uint32_t>(NC2Logic::gGameControl, NC2Layout::GameControlOffset::DifficultyLevel);
         const auto multiplier = difficulty == 1 ? 2u : difficulty == 2 ? 5u : 1u;
         if (house.mainType == 1)
         {

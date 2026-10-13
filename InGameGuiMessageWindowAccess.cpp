@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -128,7 +129,7 @@ namespace NC2InGameGuiMessages
             {
                 name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + static_cast<std::uint32_t>(humanId) * 0x8C8u + 0x85Cu);
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * NC2Logic::CHumanArray::ElementSize;
-                NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId), bitmap, 30, 200, nullptr, true, -1);
+                NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), bitmap, 30, 200, nullptr, true, -1);
             }
             char text[1036];
             const auto type = Read<std::uint32_t>(message, 8);
@@ -167,7 +168,7 @@ namespace NC2InGameGuiMessages
                         Buttons(window).UpdateGfxButton(10201, id, 160, y, 143, nullptr);
                         std::uint32_t stage = 0, tribe;
                         if (humanId != -1) tribe = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(humanId) * NC2Logic::CHumanArray::ElementSize, 0x14);
-                        else { const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(); tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0xC); }
+                        else { const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(); tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC); }
                         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, id, &stage);
                         Buttons(window).SetButtonMiscCommandData(10201, id, engineType, stage);
                     }
@@ -209,7 +210,7 @@ namespace NC2InGameGuiMessages
             const NXBasics::SRectangle rectangle((vars.displayWidth - 440) / 2, (vars.displayHeight - 240) / 2, 440, 240);
             NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
             new (static_cast<std::byte*>(window) + 0x74) NC2InGameGuiBase::CDynamicSubButtonsHandler;
-            Write(window, 0x1C, Read<std::uint32_t>(window, 0x1C) | ReadableValues::BitMask::Bit5);
+            Write(window, 0x1C, Read<std::uint32_t>(window, 0x1C) | NXBasics::BitMask::Bit5);
             Write(window, 0, gMessagePresentationWindowVirtualTable + 0);
             std::memset(static_cast<std::byte*>(window) + 0x70, 0, 2808);
             Write(window, 0x70, uniqueId); Buttons(window).SetWindow(window);

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "XPicture.h"
 #include "XBitmap.h"
@@ -118,13 +118,13 @@ namespace NXBasics
 
     static SPictureBmpRows Picture_GetBmpRows(std::uint32_t heightBits)
     {
-        if ((heightBits & ReadableValues::IntegerRange::Bit31) != 0)
+        if ((heightBits & NXBasics::IntegerRange::Bit31) != 0)
         {
             const std::uint32_t positiveHeightBits = 0u - heightBits;
             return { positiveHeightBits, 0u, positiveHeightBits, 1u };
         }
 
-        return { heightBits, heightBits - 1u, ReadableValues::IntegerRange::UInt32Maximum, ReadableValues::IntegerRange::UInt32Maximum };
+        return { heightBits, heightBits - 1u, NXBasics::IntegerRange::UInt32Maximum, NXBasics::IntegerRange::UInt32Maximum };
     }
 
     // Original function: FUN_0040beaa.
@@ -152,7 +152,7 @@ namespace NXBasics
     // Interpret the low 16 bits exactly as an x86 signed word.
     static std::int32_t Picture_SignedWord(std::uint32_t value)
     {
-        value &= ReadableValues::IntegerRange::UInt16Maximum;
+        value &= NXBasics::IntegerRange::UInt16Maximum;
         return value < 0x8000u ? static_cast<std::int32_t>(value) : static_cast<std::int32_t>(value) - 0x10000;
     }
 
@@ -166,8 +166,8 @@ namespace NXBasics
             return static_cast<std::uint32_t>(source[offset]) | (static_cast<std::uint32_t>(source[offset + 1u]) << 8u);
         };
 
-        const std::uint32_t widthBits = ((readWord(0x08) - readWord(0x04)) & ReadableValues::IntegerRange::UInt16Maximum) + 1u;
-        const std::uint32_t heightBits = ((readWord(0x0A) - readWord(0x06)) & ReadableValues::IntegerRange::UInt16Maximum) + 1u;
+        const std::uint32_t widthBits = ((readWord(0x08) - readWord(0x04)) & NXBasics::IntegerRange::UInt16Maximum) + 1u;
+        const std::uint32_t heightBits = ((readWord(0x0A) - readWord(0x06)) & NXBasics::IntegerRange::UInt16Maximum) + 1u;
         const std::uint32_t paddedWidthBits = (widthBits + 1u) & ~1u;
 
         const std::int32_t width = Picture_SignedWord(widthBits);
@@ -199,7 +199,7 @@ namespace NXBasics
 
                 if (token > 0xBF)
                 {
-                    const std::uint32_t runLength = token & ReadableValues::BitMask::Low6Bits;
+                    const std::uint32_t runLength = token & NXBasics::BitMask::Low6Bits;
                     const std::uint8_t value = source[sourceOffset++];
 
                     std::memset(output, value, runLength);
@@ -363,9 +363,9 @@ namespace NXBasics
                 const std::uint32_t pixel = static_cast<std::uint32_t>(source[0]) | (static_cast<std::uint32_t>(source[1]) << 8u);
                 source += 2;
 
-                const std::uint32_t blue = (pixel & ReadableValues::BitMask::Low5Bits) << 3u;
-                const std::uint32_t green = (pixel >> 2u) & ReadableValues::BitMask::ByteExceptBits0Through2;
-                const std::uint32_t red = (pixel >> 7u) & ReadableValues::BitMask::ByteExceptBits0Through2;
+                const std::uint32_t blue = (pixel & NXBasics::BitMask::Low5Bits) << 3u;
+                const std::uint32_t green = (pixel >> 2u) & NXBasics::BitMask::ByteExceptBits0Through2;
+                const std::uint32_t red = (pixel >> 7u) & NXBasics::BitMask::ByteExceptBits0Through2;
 
                 output[row * widthBits + x] = g32BitPixelConverter->PackColor(red, green, blue);
             }

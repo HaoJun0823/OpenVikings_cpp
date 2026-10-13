@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "InGameGuiHouseInhabitantsElement.h"
 #include "InGameGuiManager.h"
 #include "C2LifetimeAccess.h"
@@ -50,7 +50,7 @@ namespace NC2InGameGuiSelection
     {
         auto* house = House(Read<std::int32_t>(element,0x2C)); std::int32_t count = 0; Write(element,0x34,count);
         for (std::uint32_t index = 0; index < 20; ++index) { const auto* attachment = NC2Logic::House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house,index); const auto flags = Read<std::uint8_t>(attachment,0); if (!flags) continue; const auto id = Read<std::int32_t>(attachment,4); const auto* human = Human(id); auto* slot = Slot(element,count); Write(slot,0,id); Write<std::uint32_t>(slot,4,flags); std::int32_t priority = 1;
-            if (flags & 1u) { std::uint32_t families[20]; NC2Logic::House_Inhabitants_GetNumberOfFamiliesLivingInHome(house,families); if (families[index] != ReadableValues::IntegerRange::UInt32Maximum) priority = static_cast<std::int32_t>((families[index] + 1) * 10); if (!NC2Logic::Human_IsAgeAdult(human)) priority += 2; else if (NC2Logic::Human_IsSexFemale(human)) ++priority; }
+            if (flags & 1u) { std::uint32_t families[20]; NC2Logic::House_Inhabitants_GetNumberOfFamiliesLivingInHome(house,families); if (families[index] != NXBasics::IntegerRange::UInt32Maximum) priority = static_cast<std::int32_t>((families[index] + 1) * 10); if (!NC2Logic::Human_IsAgeAdult(human)) priority += 2; else if (NC2Logic::Human_IsSexFemale(human)) ++priority; }
             else if (flags & 2u) priority = Read<std::uint32_t>(human,0x18) == 24 ? 200 : 100; else if (flags & 4u) priority = 500;
             Write(slot,12,priority); Write(element,0x34,++count); if (count == 100) break;
         }

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "InGameGuiLandscapeSelectionWindow.h"
 #include "InGameGuiSelectionWindowAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -43,7 +43,7 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004bdea6; native allocation 0x88, including the unaligned packed map point.
     void* SelectionLandscapeTypeWindow_Construct(void* window)
     {
-        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 240, 160, 240); BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 24); Write(window, 0, gSelectionLandscapeTypeVirtualTable.data()); Write<std::uint32_t>(window, 0x72, ReadableValues::IntegerRange::UInt32Maximum);
+        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 240, 160, 240); BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 24); Write(window, 0, gSelectionLandscapeTypeVirtualTable.data()); Write<std::uint32_t>(window, 0x72, NXBasics::IntegerRange::UInt32Maximum);
         if (Read<std::uint32_t>(gInputManager, 4) == 9) { Write<std::uint8_t>(window, 0x70, 1); Write(window, 0x72, Read<std::uint32_t>(Selection_GetSelectedEngineLandscapeMapPointRef(gInputManager), 0)); Write(window, 0x78, Selection_GetSelectedEngineLandscapePlayerId(gInputManager)); Write(window, 0x7C, Selection_GetSelectedEngineLandscapeTypeId(gInputManager)); Write(window, 0x80, Selection_GetSelectedEngineLandscapeValency(gInputManager)); }
         SelectionLandscapeTypeWindow_l_Gui_UpdateElements(window); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(window); return window;
     }
@@ -69,7 +69,7 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004be257.
     static bool SelectionLandscapeTypeWindow_l_Landscape_NeedToBeUpdatedFromMap(void* window) { if (Read<std::uint8_t>(window, 0x70) == 0 || !NC2Logic::MapMigPoint_IsInsideMap(Point(window))) return false; const auto type = Read<std::uint32_t>(NC2LogicExternals::External_Landscape_GetLogicDataPtr(Read<std::int32_t>(window, 0x7C)), 0); return Read<std::uint32_t>(window, 0x78) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId() && (type == 83 || type == 84); }
     // Original function: FUN_004be29b.
-    static std::int32_t SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(void* window) { if (!SelectionLandscapeTypeWindow_l_Landscape_NeedToBeUpdatedFromMap(window)) return Read<std::int32_t>(window, 0x7C); const auto id = Read<std::uint16_t>(NC2E2::EngineMap_GetConstMapMicroPointPtr(Point(window)), 0); return id == ReadableValues::IntegerRange::UInt16Maximum ? -1 : id; }
+    static std::int32_t SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(void* window) { if (!SelectionLandscapeTypeWindow_l_Landscape_NeedToBeUpdatedFromMap(window)) return Read<std::int32_t>(window, 0x7C); const auto id = Read<std::uint16_t>(NC2E2::EngineMap_GetConstMapMicroPointPtr(Point(window)), 0); return id == NXBasics::IntegerRange::UInt16Maximum ? -1 : id; }
     // Original function: FUN_004be2c5.
     static std::uint32_t SelectionLandscapeTypeWindow_l_Landscape_GetValency(void* window) { if (!SelectionLandscapeTypeWindow_l_Landscape_NeedToBeUpdatedFromMap(window)) return Read<std::uint32_t>(window, 0x80); const auto* data = NC2Logic::GameMap_GetConstMapMicroPointPtr(Point(window)); return Read<std::uint8_t>(data, 0) == 1 ? Read<std::uint8_t>(data, 3) : 0; }
     static void AddButton(void* window, const SRectangle& area, std::uint32_t string, std::uint32_t command, bool camera) { auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : camera ? BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &area, "->", Text(string), command, window) : BaseToolTextButton_Construct(memory, nullptr, &area, Text(string), command, window)); }
@@ -81,5 +81,5 @@ namespace NC2InGameGuiSelection
         if (type == 82 || type == 83 || type == 84) { AddButton(window, area, 482, 10200, false); area.y -= area.height + 2; } if (type == 84) { AddButton(window, area, 483, 10300, false); area.y -= area.height + 2; } if (type == 83) AddButton(window, area, 484, 10301, false);
     }
     // Original function: FUN_004be488; a missing engine graphic returns 0xFFFFFFFF instead of the accumulated flags.
-    static std::uint32_t SelectionLandscapeTypeWindow_l_Gui_CalculateChecksum(void* window) { if (Read<std::uint8_t>(window, 0x70) == 0) return 0; std::uint32_t flags = NC2Logic::MapMigPoint_IsInsideMap(Point(window)) ? 1 : 0; if (SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window) == -1) return ReadableValues::IntegerRange::UInt32Maximum; const auto* data = NC2LogicExternals::External_Landscape_GetLogicDataPtr(SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window)); if (Read<std::uint32_t>(window, 0x78) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) { const auto type = Read<std::uint32_t>(data, 0); if (type == 82 || type == 83 || type == 84) flags |= 2; if (type == 84) flags |= 4; if (type == 83) flags |= 8; } return flags; }
+    static std::uint32_t SelectionLandscapeTypeWindow_l_Gui_CalculateChecksum(void* window) { if (Read<std::uint8_t>(window, 0x70) == 0) return 0; std::uint32_t flags = NC2Logic::MapMigPoint_IsInsideMap(Point(window)) ? 1 : 0; if (SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window) == -1) return NXBasics::IntegerRange::UInt32Maximum; const auto* data = NC2LogicExternals::External_Landscape_GetLogicDataPtr(SelectionLandscapeTypeWindow_l_Landscape_GetEngineId(window)); if (Read<std::uint32_t>(window, 0x78) == NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) { const auto type = Read<std::uint32_t>(data, 0); if (type == 82 || type == 83 || type == 84) flags |= 2; if (type == 84) flags |= 4; if (type == 83) flags |= 8; } return flags; }
 }

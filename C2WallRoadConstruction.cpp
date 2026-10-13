@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2WallRoadConstruction.h"
 #include "C2ChecksumTools.h"
 #include "C2WallRoadPathfinder.h"
@@ -108,7 +108,7 @@ namespace NC2Logic
             MapMigPoint_MoveCursorUnwrapped(point, (direction + (side == 0 ? 2u : 4u)) % 6u);
             for (std::uint32_t i = 0; i < 4; ++i)
             {
-                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & ReadableValues::BitMask::Bit7) != 0) return false;
+                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) != 0) return false;
                 MapMigPoint_MoveCursorUnwrapped(point, direction);
             }
         }
@@ -117,9 +117,9 @@ namespace NC2Logic
     // Original function: FUN_00427d89; the native final candidate is retained even when no candidate succeeds.
     void MapTool_WallGate_SetIntoWall(std::uint32_t player, const void* source)
     {
-        std::uint32_t direction = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t direction = NXBasics::IntegerRange::UInt32Maximum;
         for (auto candidate : gSetWallGateDirections) { direction = candidate; if (ls_MapTool_WallGate_IsPossibleMapPosition_GatePossible(player, source, direction)) break; }
-        if (direction == ReadableValues::IntegerRange::UInt32Maximum) return;
+        if (direction == NXBasics::IntegerRange::UInt32Maximum) return;
         GameMapModifyManager_StartGameMapModify();
         auto point = Read<std::uint32_t>(source, 0);
         MapMigPoint_MoveCursorUnwrapped(&point, VE_HexagonDirection_OppositeDirection(direction), 1);
@@ -136,10 +136,10 @@ namespace NC2Logic
         const auto type = Read<std::uint8_t>(micro, 2);
         if (Read<std::uint8_t>(micro, 0) != 1 || (type != 83 && type != 84) || Read<std::int8_t>(micro, 4) != static_cast<std::int32_t>(player)) return;
         const auto current = NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(point);
-        std::uint32_t direction = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t direction = NXBasics::IntegerRange::UInt32Maximum;
         for (auto candidate : gWallGateStateDirections)
             if (NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(candidate, true) == current || NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(candidate, false) == current) { direction = candidate; break; }
-        if (direction == ReadableValues::IntegerRange::UInt32Maximum) return;
+        if (direction == NXBasics::IntegerRange::UInt32Maximum) return;
         GameMapModifyManager_StartGameMapModify();
         const auto engine = NC2LogicExternals::External_Misc_GetEngineWallGateLandscapeId(direction, !closed);
         const auto* logic = NC2LogicExternals::External_Landscape_GetLogicDataPtr(engine);

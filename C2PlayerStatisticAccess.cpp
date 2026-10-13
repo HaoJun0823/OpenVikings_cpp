@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2HumanIterator.h"
 #include "C2OverviewObjectIterators.h"
@@ -70,7 +71,7 @@ namespace NC2Logic
         std::memset(manager, 0, 168);
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
+            const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
             if (Read<std::uint8_t>(playerData, 0) == 0) continue;
             if (Read<std::uint32_t>(playerData, 4) == 1)
             {
@@ -149,7 +150,7 @@ namespace NC2Logic
                 const auto amount = House_Stock_GetAmountOfGoods(house, good, false);
                 Write<std::uint32_t>(counts, 0, Read<std::uint32_t>(counts, 0) + amount);
                 auto value = static_cast<std::uint32_t>(Read<std::uint16_t>(counts, 4u + good * 2u)) + amount;
-                if (value > ReadableValues::IntegerRange::UInt16Maximum) value = ReadableValues::IntegerRange::UInt16Maximum;
+                if (value > NXBasics::IntegerRange::UInt16Maximum) value = NXBasics::IntegerRange::UInt16Maximum;
                 Write<std::uint16_t>(counts, 4u + good * 2u, static_cast<std::uint16_t>(value));
             }
         }
@@ -161,7 +162,7 @@ namespace NC2Logic
         Tool_PlayerStatistics_CountHumans(player, sample->humans);
         Tool_PlayerStatistics_CountHouses(player, sample->houses);
         Tool_PlayerStatistics_CountGoods(player, &sample->goodTotal);
-        const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer;
+        const auto* playerData = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
         sample->values114[0] = Read<std::uint32_t>(playerData, 0x4A14);
         sample->values114[1] = Read<std::uint32_t>(playerData, 0x4A18);
         sample->values114[2] = Read<std::uint32_t>(playerData, 0x4A1C);

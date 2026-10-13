@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2MultiPlayerGoalAccess.h"
 #include "C2LifetimeAccess.h"
@@ -16,7 +17,7 @@
 namespace
 {
     // Complete Windows token region 004F3820..004F3847.
-    const NXBasics::SToken gMultiPlayerGoalTokens[] = { { "goalwonwhengoods", ReadableValues::MultiPlayerGoalToken::GoalWonWhenGoods }, { "goalwonwheninhabitants", ReadableValues::MultiPlayerGoalToken::GoalWonWhenInhabitants }, { "goalwonbymission", ReadableValues::MultiPlayerGoalToken::GoalWonByMission }, { "goallostbymission", ReadableValues::MultiPlayerGoalToken::GoalLostByMission }, { nullptr, 0 } };
+    const NXBasics::SToken gMultiPlayerGoalTokens[] = { { "goalwonwhengoods", NC2DataIds::MultiPlayerGoalToken::GoalWonWhenGoods }, { "goalwonwheninhabitants", NC2DataIds::MultiPlayerGoalToken::GoalWonWhenInhabitants }, { "goalwonbymission", NC2DataIds::MultiPlayerGoalToken::GoalWonByMission }, { "goallostbymission", NC2DataIds::MultiPlayerGoalToken::GoalLostByMission }, { nullptr, 0 } };
     const NXBasics::SToken* gMultiPlayerGoalTokenList = nullptr; // Original 005114F8.
     std::uint8_t gMultiPlayerGoalTokenInitFlags = 0; // Original 005114FC.
     static_assert(sizeof(gMultiPlayerGoalTokens) == 40);
@@ -48,11 +49,11 @@ namespace NC2Logic
             }
             NXBasics::CTokenList tokens(gMultiPlayerGoalTokenList);
             const auto command = tokens.FindToken(reader->GetCurrentName());
-            if (command != ReadableValues::MultiPlayerGoalToken::GoalWonWhenGoods && command != ReadableValues::MultiPlayerGoalToken::GoalWonWhenInhabitants && command != ReadableValues::MultiPlayerGoalToken::GoalWonByMission && command != ReadableValues::MultiPlayerGoalToken::GoalLostByMission) continue;
+            if (command != NC2DataIds::MultiPlayerGoalToken::GoalWonWhenGoods && command != NC2DataIds::MultiPlayerGoalToken::GoalWonWhenInhabitants && command != NC2DataIds::MultiPlayerGoalToken::GoalWonByMission && command != NC2DataIds::MultiPlayerGoalToken::GoalLostByMission) continue;
             const auto count = Read<std::uint32_t>(manager, 0x19C);
             if (count == 20) continue;
             auto* goal = static_cast<std::byte*>(manager) + 0x1A0 + count * 0x48u;
-            if (command == ReadableValues::MultiPlayerGoalToken::GoalWonWhenGoods)
+            if (command == NC2DataIds::MultiPlayerGoalToken::GoalWonWhenGoods)
             {
                 Write<std::uint32_t>(goal, 0, 2);
                 while (reader->GetTypeOfNextParameter() == 3 && Read<std::uint32_t>(goal, 4) != 8)
@@ -65,7 +66,7 @@ namespace NC2Logic
                     Write(goal, 4, pair + 1u);
                 }
             }
-            else if (command == ReadableValues::MultiPlayerGoalToken::GoalWonWhenInhabitants)
+            else if (command == NC2DataIds::MultiPlayerGoalToken::GoalWonWhenInhabitants)
             {
                 const auto amount = reader->GetInt();
                 const auto mode = reader->GetInt();
@@ -73,7 +74,7 @@ namespace NC2Logic
                 Write(goal, 4, amount);
                 Write<std::uint8_t>(goal, 8, mode != 0);
             }
-            else Write<std::uint32_t>(goal, 0, command == ReadableValues::MultiPlayerGoalToken::GoalWonByMission ? 4 : 5);
+            else Write<std::uint32_t>(goal, 0, command == NC2DataIds::MultiPlayerGoalToken::GoalWonByMission ? 4 : 5);
             Write(manager, 0x19C, count + 1u);
         }
     }
@@ -91,7 +92,7 @@ namespace NC2Logic
         for (std::uint32_t player = 0; player < 20; ++player)
         {
             if (MultiPlayerGoalManager_l_IsWonOrLost(manager, player)) continue;
-            if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) == 0 || MultiPlayerGoalManager_l_IsWonOrLost(manager, player)) continue;
+            if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer) == 0 || MultiPlayerGoalManager_l_IsWonOrLost(manager, player)) continue;
             for (std::uint32_t index = 0; index < 20; ++index)
             {
                 const auto* goal = static_cast<const std::byte*>(manager) + 0x1A0 + index * 0x48u;
@@ -99,7 +100,7 @@ namespace NC2Logic
                 bool lost = false;
                 switch (Read<std::uint32_t>(goal, 0))
                 {
-                case SwitchIds::MultiplayerGoal::Survive: lost = Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer + 8) != 0; break;
+                case SwitchIds::MultiplayerGoal::Survive: lost = Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 8) != 0; break;
                 case SwitchIds::MultiplayerGoal::CollectGoods:
                 {
                     std::byte goods[136]{};
@@ -154,7 +155,7 @@ namespace NC2Logic
         {
             if (Read<std::uint8_t>(manager, 0x14 + player * 20u) == 0) continue;
             Write<std::uint8_t>(manager, 0x14 + player * 20u, 0);
-            if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) == 0) continue;
+            if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer) == 0) continue;
             std::byte command[20]{};
             Write<std::uint32_t>(command, 0, 0x89);
             Write(command, 4, player);

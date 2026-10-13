@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2AIRoadAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -32,7 +32,7 @@ namespace NC2Logic
             if (type == 1 || type == 7 || type == 8 || type == 9) continue;
             const auto good = Read<std::uint32_t>(resources, 0x71C + type * 4);
             if (Read<std::uint8_t>(resources, 0x308 + good * 16) != 0) continue;
-            const auto* source = house + ReadableValues::HouseOffset::DoorEntryPoint;
+            const auto* source = house + NC2Layout::HouseOffset::DoorEntryPoint;
             CHouseIterator nearby;
             for (auto otherId = nearby.GetFirstHouseId(player, source, 20); otherId != -1; otherId = nearby.GetNextHouseId())
             {

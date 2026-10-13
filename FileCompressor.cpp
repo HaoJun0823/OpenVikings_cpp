@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "FileCompressor.h"
 #include "XCrtFileAccess.h"
 
@@ -43,7 +43,7 @@ namespace NNetwork
             return 1;
         }
 
-        header.signature = ReadableValues::CompressedFileHeader::Signature;
+        header.signature = NC2DataIds::CompressedFileHeader::Signature;
         header.headerSize = 0x1Cu;
         header.version = 1;
 
@@ -160,7 +160,7 @@ namespace NNetwork
         // Preserve the original unchecked header read.
         NXBasics::Runtime_ReadStream(&header, 0x1Cu, 1u, mInput);
 
-        if (header.signature != ReadableValues::CompressedFileHeader::Signature)
+        if (header.signature != NC2DataIds::CompressedFileHeader::Signature)
         {
             NXBasics::Runtime_CloseStream(mInput);
             return 3;

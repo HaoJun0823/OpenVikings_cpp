@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2AISinglePlayerAccess.h"
 #include "C2AITaskAccess.h"
 #include "C2AISoldierAccess.h"
@@ -65,7 +66,7 @@ namespace NC2Logic
             if (!Human_IsJobWoman(human) || Human_IsAboutToMarry(human)) continue;
             if (!Human_IsMarried(human)) { Human_DoAddNewUserCommand(human, 14, Read<std::uint8_t>(human, 16), 0, 0, 0, 0); continue; }
             if (!Human_IsAttachedToHomeHouse(human)) continue;
-            auto* home = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId) * CHouseArray::ElementSize;
+            auto* home = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) * CHouseArray::ElementSize;
             const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(handler, 0));
             if (stats == nullptr) continue;
             const auto workers = static_cast<std::uint32_t>(Read<std::uint16_t>(stats, 2)) - Read<std::uint16_t>(stats, 18);
@@ -151,7 +152,7 @@ namespace NC2Logic
         {
             auto* point = static_cast<std::byte*>(handler) + 0x43AE + i * 6;
             const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
-            const bool build = (Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7Signed) == 0;
+            const bool build = (Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7Signed) == 0;
             if (!build && !IsDamagedOwnedLandscape(micro, player)) continue;
             if (AISinglePlayerHandler_l_IsEnemySodlierOrVehicleNearPosition(handler, point) || !HasHumanNearby(player, point)) continue;
             Write<std::uint8_t>(handler, 0x43A4, 1);

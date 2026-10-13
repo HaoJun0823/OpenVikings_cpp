@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -27,11 +27,11 @@ namespace NC2InGameGuiMessages
         bool SingleMessageDisplayed_GetMapPositionImpl(const void* record, std::uint32_t* point)
         {
             const auto human = Read<std::uint32_t>(record, 0x18);
-            if (human != ReadableValues::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), 0); return true; }
+            if (human != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(NC2Logic::CHumanArray::mStaticVars + human * NC2Logic::CHumanArray::ElementSize), 0); return true; }
             const auto house = Read<std::uint32_t>(record, 0x20);
-            if (house != ReadableValues::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + 0x1C); return true; }
+            if (house != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::CHouseArray::mStaticVars, house * NC2Logic::CHouseArray::ElementSize + 0x1C); return true; }
             const auto vehicle = Read<std::uint32_t>(record, 0x28);
-            if (vehicle != ReadableValues::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize), 0); return true; }
+            if (vehicle != NXBasics::IntegerRange::UInt32Maximum) { *point = Read<std::uint32_t>(NC2Logic::Vehicle_GetMapPositionRef(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize), 0); return true; }
             if (Read<std::uint32_t>(record, 8) == 0x3B)
             {
                 const auto* dead = static_cast<NC2InGameGuiDeadHumanDataManager::CDeadHumanDataManager*>(NC2InGameGuiDeadHumanDataManager::gDeadHumanDataManager)->DeadHuman_GetDataPtrByHumanUniqueId(Read<std::uint32_t>(record, 0x1C));
@@ -45,7 +45,7 @@ namespace NC2InGameGuiMessages
         // Original function: FUN_004b465d.
         std::uint32_t SingleMessageHistory_GetValidHumanId(const void* record)
         {
-            if (Read<std::uint8_t>(record, 0) == 0 || Read<std::uint32_t>(record, 0x18) == ReadableValues::IntegerRange::UInt32Maximum || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return ReadableValues::IntegerRange::UInt32Maximum;
+            if (Read<std::uint8_t>(record, 0) == 0 || Read<std::uint32_t>(record, 0x18) == NXBasics::IntegerRange::UInt32Maximum || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return NXBasics::IntegerRange::UInt32Maximum;
             return Read<std::uint32_t>(record, 0x18);
         }
 
@@ -69,7 +69,7 @@ namespace NC2InGameGuiMessages
     // Original function: FUN_004b45a7.
     std::uint32_t SingleMessageDisplayed_GetValidHumanId(const void* record)
     {
-        if (NC2Lifetime::Read<std::uint32_t>(record, 0x18) == ReadableValues::IntegerRange::UInt32Maximum || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return ReadableValues::IntegerRange::UInt32Maximum;
+        if (NC2Lifetime::Read<std::uint32_t>(record, 0x18) == NXBasics::IntegerRange::UInt32Maximum || !NC2Logic::ToUserMessage_IsValid(static_cast<const std::byte*>(record) + 8, false)) return NXBasics::IntegerRange::UInt32Maximum;
         return NC2Lifetime::Read<std::uint32_t>(record, 0x18);
     }
 
@@ -95,7 +95,7 @@ namespace NC2InGameGuiMessages
         while (index < Read<std::uint32_t>(this, 0))
         {
             std::uint32_t job = 0;
-            if (SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) != ReadableValues::IntegerRange::UInt32Maximum)
+            if (SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) != NXBasics::IntegerRange::UInt32Maximum)
                 job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, SingleMessageDisplayed_GetValidHumanId(Displayed(this, index)) * NC2Logic::CHumanArray::ElementSize + 0x18);
             if (MessagePriority_Calculate(Read<std::uint32_t>(Displayed(this, index), 8), job) < Read<std::int32_t>(this, 8)) Message_Remove(Read<std::uint32_t>(Displayed(this, index), 4), false);
             else ++index;
@@ -127,7 +127,7 @@ namespace NC2InGameGuiMessages
         if (Read<std::uint32_t>(this, 0) == 200) return false;
         std::uint32_t job = 0;
         const auto human = Read<std::uint32_t>(message, 0x10);
-        if (human != ReadableValues::IntegerRange::UInt32Maximum && Read<std::uint8_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize) != 0) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x18);
+        if (human != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint8_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize) != 0) job = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars, human * NC2Logic::CHumanArray::ElementSize + 0x18);
         if (MessagePriority_Calculate(Read<std::uint32_t>(message, 0), job) < Read<std::int32_t>(this, 8) || NC2Logic::gGameTime.tick <= 1u) return true;
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0); ++index)
             if (NC2Logic::ToUserMessage_IsEqualTo(Displayed(this, index) + 8, message)) return true;
@@ -148,7 +148,7 @@ namespace NC2InGameGuiMessages
         std::uint32_t point = 0;
         if (SingleMessageDisplayed_GetMapPosition(record, &point)) NC2InGameGuiOverviewDisplay::CWorldOverviewElementHandler::sTheObjectPtr->Marker_AddInfoMarker(Read<std::int32_t>(record, 0x10), &point);
         const auto validHuman = SingleMessageDisplayed_GetValidHumanId(record);
-        if (validHuman != ReadableValues::IntegerRange::UInt32Maximum) NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, validHuman, 0x30, 0);
+        if (validHuman != NXBasics::IntegerRange::UInt32Maximum) NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, validHuman, 0x30, 0);
         l_GuiElements_UpdateMiniButtons();
         return true;
     }
@@ -167,7 +167,7 @@ namespace NC2InGameGuiMessages
         if (index == count) return;
         auto* record = active + index * 0x310u;
         const auto human = SingleMessageDisplayed_GetValidHumanId(record);
-        if (human != ReadableValues::IntegerRange::UInt32Maximum)
+        if (human != NXBasics::IntegerRange::UInt32Maximum)
         {
             std::uint32_t other = 0;
             while (other < Read<std::uint32_t>(this, 0))
@@ -275,7 +275,7 @@ namespace NC2InGameGuiMessages
     {
         using namespace NC2Lifetime;
         auto* history = Read<std::byte*>(this, 0x14);
-        std::uint32_t selected = ReadableValues::IntegerRange::UInt32Maximum, oldest = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t selected = NXBasics::IntegerRange::UInt32Maximum, oldest = NXBasics::IntegerRange::UInt32Maximum;
         for (std::uint32_t index = 0; index < 200; ++index)
         {
             auto* record = history + index * 0x30Cu;
@@ -283,7 +283,7 @@ namespace NC2InGameGuiMessages
             const auto tick = Read<std::uint32_t>(record, 4);
             if (tick < oldest) { oldest = tick; selected = index; }
         }
-        if (selected == ReadableValues::IntegerRange::UInt32Maximum) return;
+        if (selected == NXBasics::IntegerRange::UInt32Maximum) return;
         auto* record = history + selected * 0x30Cu;
         std::memset(record, 0, 780);
         Write<std::uint8_t>(record, 0, 1);

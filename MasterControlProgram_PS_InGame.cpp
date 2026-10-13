@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "ApplicationGlobals.h"
 #include "C2LogicObjectArrays.h"
@@ -27,7 +27,7 @@ struct SReceivedNetworkRecord
 {
     std::uint32_t senderPlayerId; // +0x000
     std::uint16_t type;           // +0x004
-    wchar_t text[ReadableValues::IntegerRange::Int8MaximumSigned];           // +0x006
+    wchar_t text[NXBasics::IntegerRange::Int8MaximumSigned];           // +0x006
 };
 
 static_assert(sizeof(wchar_t) == 2);

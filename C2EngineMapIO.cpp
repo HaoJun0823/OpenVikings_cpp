@@ -1,4 +1,6 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineMapIO.h"
 #include "C2EngineMacroMaps.h"
@@ -27,7 +29,7 @@ namespace NC2E2
 
     namespace
     {
-        std::byte* MapScratch() { return Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::PackingScratchBuffer); }
+        std::byte* MapScratch() { return Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::PackingScratchBuffer); }
         std::uint32_t MacroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 8); }
         std::uint32_t MicroCount() { return Read<std::uint32_t>(gGameMapStaticStorage, 12); }
         std::byte* EngineMacro() { return Read<std::byte*>(gEngineMapStaticStorage, 0); }
@@ -45,7 +47,7 @@ namespace NC2E2
                 if (words) Write<std::uint16_t>(scratch, i * 2u, Read<std::uint16_t>(entries, i * stride + offset));
                 else scratch[i] = entries[i * stride + offset];
             }
-            io->IO_Memory_PackAndWriteBinary(scratch, count * (words ? 2u : 1u), words ? ReadableValues::PackingType::Rle16 : ReadableValues::PackingType::Rle8);
+            io->IO_Memory_PackAndWriteBinary(scratch, count * (words ? 2u : 1u), words ? NC2DataIds::PackingType::Rle16 : NC2DataIds::PackingType::Rle8);
             io->IO_Tool_Chunk_FinishAndWrite();
         }
 
@@ -97,8 +99,8 @@ namespace NC2E2
             for (std::uint32_t i = 0; i < MacroCount(); ++i)
             {
                 const auto stored = Read<std::uint8_t>(scratch, i);
-                std::uint8_t encoded = ReadableValues::IntegerRange::UInt8MaximumSigned;
-                if (stored != ReadableValues::IntegerRange::UInt8MaximumSigned && stored / 6u < mapping.count && mapping.ids[stored / 6u] != -1) encoded = static_cast<std::uint8_t>(mapping.ids[stored / 6u] * 6u + stored % 6u);
+                std::uint8_t encoded = NXBasics::IntegerRange::UInt8MaximumSigned;
+                if (stored != NXBasics::IntegerRange::UInt8MaximumSigned && stored / 6u < mapping.count && mapping.ids[stored / 6u] != -1) encoded = static_cast<std::uint8_t>(mapping.ids[stored / 6u] * 6u + stored % 6u);
                 Write(EngineMacro(), i * 12u + offset, encoded);
             }
         }
@@ -110,14 +112,14 @@ namespace NC2E2
             for (std::uint32_t i = 0; i < MicroCount(); ++i)
             {
                 const auto stored = Read<std::uint16_t>(scratch, i * 2u);
-                std::uint16_t id = ReadableValues::IntegerRange::UInt16MaximumSigned;
-                const bool missing = stored != ReadableValues::IntegerRange::UInt16MaximumSigned && (stored >= mapping.count || mapping.ids[stored] == -1);
-                if (stored != ReadableValues::IntegerRange::UInt16MaximumSigned && !missing) id = static_cast<std::uint16_t>(mapping.ids[stored]);
+                std::uint16_t id = NXBasics::IntegerRange::UInt16MaximumSigned;
+                const bool missing = stored != NXBasics::IntegerRange::UInt16MaximumSigned && (stored >= mapping.count || mapping.ids[stored] == -1);
+                if (stored != NXBasics::IntegerRange::UInt16MaximumSigned && !missing) id = static_cast<std::uint16_t>(mapping.ids[stored]);
                 Write(EngineMicro(), i * 4u, id);
                 if (missing)
                 {
                     Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 1);
-                    auto* logic = Read<std::byte*>(gGameMapStaticStorage, ReadableValues::GameMapOffset::MicroPointStorage) + i * 14u;
+                    auto* logic = Read<std::byte*>(gGameMapStaticStorage, NC2Layout::GameMapOffset::MicroPointStorage) + i * 14u;
                     if (Read<std::uint8_t>(logic, 0) <= 1) Write<std::uint8_t>(logic, 0, 0);
                 }
             }
@@ -127,7 +129,7 @@ namespace NC2E2
     // Original function: FUN_004832fa.
     void EngineMap_IO_Cleanmap_Save(CIoHelper* io)
     {
-        io->IO_File_Chunk_WriteMarkerAndVersion(ReadableValues::EngineMapChunk::MapHeader, 0, 0);
+        io->IO_File_Chunk_WriteMarkerAndVersion(NC2DataIds::EngineMapChunk::MapHeader, 0, 0);
         WritePlane(io, SwitchIds::EngineMapChunk::MacroBrightness, false, 4, false);
         WritePlane(io, SwitchIds::EngineMapChunk::MacroVertexColor, false, 5, false);
         WritePlane(io, SwitchIds::EngineMapChunk::MacroFlags, false, 6, false);
@@ -145,7 +147,7 @@ namespace NC2E2
     // Original function: FUN_00483800.
     void EngineMap_IO_Cleanmap_Load(CIoHelper* io)
     {
-        if (!io->IO_File_Chunk_CheckMarkerAndVersion(ReadableValues::EngineMapChunk::MapHeader, 0)) return;
+        if (!io->IO_File_Chunk_CheckMarkerAndVersion(NC2DataIds::EngineMapChunk::MapHeader, 0)) return;
         Write<std::uint8_t>(gEngineMapStaticStorage, 0x18, 0);
         const auto borderId = gStaticPatternStorage.borderIds[1];
         SNameMap patterns, transitions, landscapes;
@@ -216,8 +218,8 @@ namespace NC2E2
     static void DisplayAtomInformation_IO_Savegame_Load(void* atom, CIoHelper* io)
     {
         std::memset(atom, 0, 60);
-        Write<std::uint32_t>(atom, 0, ReadableValues::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(atom, 4, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(atom, 0, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(atom, 4, NXBasics::IntegerRange::UInt32Maximum);
         for (std::uint32_t offset = 0x28; offset <= 0x30; offset += 4)
         {
             const char* filename = io->IO_File_ReadString();
@@ -314,7 +316,7 @@ namespace NC2E2
     static void E2ParticelManager_IO_Savegame_Save(void* manager, CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::EngineSavegameChunk::Particles, 1);
-        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Generators, 0x7D04);
+        io->IO_Memory_WriteBinary(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0x7D04);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
     // Original function: FUN_00486f0e.
@@ -322,13 +324,13 @@ namespace NC2E2
     {
         E2ParticelManager_Initialize(manager);
         if (io->mReadHeader.version != 1) io->IO_File_Chunk_Skip();
-        else io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Generators, 0x7D04);
+        else io->IO_File_ReadBinary(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0x7D04);
     }
 
     // Original function: FUN_0047f272; the Windows-only music chunk precedes weather.
     static void E2Manager_l_IO_Savegame_Save(CIoHelper* io)
     {
-        io->IO_File_Chunk_WriteMarkerAndVersion(ReadableValues::EngineSavegameChunk::EngineHeader, 0, 0);
+        io->IO_File_Chunk_WriteMarkerAndVersion(NC2DataIds::EngineSavegameChunk::EngineHeader, 0, 0);
         EngineMap_IO_Savegame_Save(io);
         DynamicDataHumanManager_IO_Savegame_Save(io);
         DynamicDataVehicleManager_IO_Savegame_Save(io);
@@ -343,7 +345,7 @@ namespace NC2E2
     static void E2Manager_l_IO_Savegame_Load(CIoHelper* io)
     {
         std::uint32_t version = 0;
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::EngineSavegameChunk::EngineHeader, &version, nullptr)) return;
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(NC2DataIds::EngineSavegameChunk::EngineHeader, &version, nullptr)) return;
         io->IO_File_Chunk_Skip();
         while (io->IO_File_Chunk_ReadHeader())
         {

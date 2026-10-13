@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include <cstddef>
 #include <cstdint>
 
@@ -35,7 +35,7 @@ namespace NC2Logic
     class CTributeIterator
     {
     public:
-        CTributeIterator(std::uint32_t source, std::uint32_t target) : mIndex(ReadableValues::IntegerRange::UInt32Maximum), mSource(source), mTarget(target), mCurrent(nullptr) {}
+        CTributeIterator(std::uint32_t source, std::uint32_t target) : mIndex(NXBasics::IntegerRange::UInt32Maximum), mSource(source), mTarget(target), mCurrent(nullptr) {}
         void operator++(int);
         void* GetCurrent() const { return mCurrent; }
         std::uint32_t GetIndex() const { return mIndex; }

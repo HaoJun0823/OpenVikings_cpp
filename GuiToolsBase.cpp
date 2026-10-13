@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 
 #include "C2EngineDrawingAccess.h"
@@ -410,7 +410,7 @@ namespace NC2GuiToolsBase
                             std::uint32_t graphicId;
                             std::memcpy(&graphicId, good + 0x24, sizeof(graphicId));
 
-                            if (graphicId != ReadableValues::IntegerRange::UInt32Maximum)
+                            if (graphicId != NXBasics::IntegerRange::UInt32Maximum)
                             {
                                 const std::uint32_t frame = ::timeGetTime() / 83u;
                                 NC2E2::EngineGraphic_Draw(graphicId, static_cast<std::uint32_t>(variant), bitmap, signedValue(currentX + 12u), signedValue(currentY + 8u), frame, 256, -1, true);
@@ -491,14 +491,14 @@ namespace NC2GuiToolsBase
     void FXTool_ClickConfirm()
     {
         auto* manager = NDSManager::CManager::sTheObjectPtr;
-        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_confirm.wav", 100u, ReadableValues::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
+        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_confirm.wav", 100u, NXBasics::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
     }
 
     // Original function: FUN_004e2bae; original failure feedback sound.
     void FXTool_Fail()
     {
         auto* manager = NDSManager::CManager::sTheObjectPtr;
-        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_fail.wav", 100u, ReadableValues::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
+        if (manager != nullptr) manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\click_fail.wav", 100u, NXBasics::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
     }
 
     // Original function: FUN_004e2bcf
@@ -508,7 +508,7 @@ namespace NC2GuiToolsBase
 
         if (manager != nullptr)
         {
-            manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\chat_incoming.wav", 100u, ReadableValues::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
+            manager->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\chat_incoming.wav", 100u, NXBasics::IntegerRange::UInt32Maximum, 1u, false, false, 100u);
         }
     }
 

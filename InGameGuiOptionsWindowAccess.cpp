@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiOptionsWindowAccess.h"
 #include "InGameGuiManager.h"
@@ -136,7 +137,7 @@ namespace NC2InGameGuiMiscWindows
             element = WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         }
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        Write<std::uint32_t>(window, 0x74, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(window, 0x74, NXBasics::IntegerRange::UInt32Maximum);
         NXBasics::SRectangle tabRectangle(4, 22, 492 / 6 - 2, 22);
         for (std::uint32_t tab = 0; tab < 6; ++tab)
         {
@@ -189,7 +190,7 @@ namespace NC2InGameGuiMiscWindows
             addButton(rectangle, 0x25, SwitchIds::OptionsWindowCommand::ConfirmQuit, false, false);
             rectangle.y += rectangle.height + 36;
             if (!NNetwork::Network_IsInSession()) addButton(rectangle, 0x26, SwitchIds::OptionsWindowCommand::ConfirmRestart, false, false);
-            const auto difficulty = Read<std::uint32_t>(NC2Logic::gGameControl, ReadableValues::GameControlOffset::DifficultyLevel);
+            const auto difficulty = Read<std::uint32_t>(NC2Logic::gGameControl, NC2Layout::GameControlOffset::DifficultyLevel);
             if (difficulty < 3)
             {
                 const char* description = NC2GuiToolsBase::StringTool_GetOdin001StringPtr(0x1Bu + difficulty * 2u);
@@ -314,7 +315,7 @@ namespace NC2InGameGuiMiscWindows
                 addList(rectangle, list); y += 126;
                 button({4, y, 96, 18}, 0x4E, SwitchIds::OptionsWindowCommand::StopCdTrack, false, false);
                 button({200, y, 96, 18}, 0x50, SwitchIds::OptionsWindowCommand::CdVolumeDown, false, false, "-", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x50));
-                NXBasics::Runtime_PrintString(caption, "%d", cd->GetVolume() * 100u / ReadableValues::IntegerRange::UInt16Maximum);
+                NXBasics::Runtime_PrintString(caption, "%d", cd->GetVolume() * 100u / NXBasics::IntegerRange::UInt16Maximum);
                 text({298, y, 96, 18}, 0, caption);
                 button({396, y, 96, 18}, 0x51, SwitchIds::OptionsWindowCommand::CdVolumeUp, false, false, "+", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x51));
             }
@@ -424,7 +425,7 @@ namespace NC2InGameGuiMiscWindows
         switch (command)
         {
         case SwitchIds::OptionsWindowCommand::UpdateGameSpeed:
-            update = Read<std::uint32_t>(window, 0x74) != ReadableValues::IntegerRange::UInt32Maximum && Read<std::uint32_t>(window, 0x74) != static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed));
+            update = Read<std::uint32_t>(window, 0x74) != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(window, 0x74) != static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed));
             break;
         case SwitchIds::OptionsWindowCommand::DetailLow: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(0); break;
         case SwitchIds::OptionsWindowCommand::DetailMedium: NC2E2::CLevelOfDetailManager::SetLevelOfDetail(1); break;
@@ -493,10 +494,10 @@ namespace NC2InGameGuiMiscWindows
             if (cd == nullptr) update = false;
             else
             {
-                auto percent = NXBasics::Runtime_TimeSigned32(cd->GetVolume() * 100u / ReadableValues::IntegerRange::UInt16Maximum + (command == SwitchIds::OptionsWindowCommand::CdVolumeDown ? static_cast<std::uint32_t>(-5) : 5u));
+                auto percent = NXBasics::Runtime_TimeSigned32(cd->GetVolume() * 100u / NXBasics::IntegerRange::UInt16Maximum + (command == SwitchIds::OptionsWindowCommand::CdVolumeDown ? static_cast<std::uint32_t>(-5) : 5u));
                 if (command == SwitchIds::OptionsWindowCommand::CdVolumeDown && percent < 0) percent = 0;
                 if (command == SwitchIds::OptionsWindowCommand::CdVolumeUp && percent > 100) percent = 100;
-                cd->SetVolume(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percent) * ReadableValues::IntegerRange::UInt16Maximum) / 100));
+                cd->SetVolume(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(percent) * NXBasics::IntegerRange::UInt16Maximum) / 100));
             }
             break;
         case SwitchIds::OptionsWindowCommand::SortSavegamesByDate: NC2Logic::gSavegamesManager->SortType_Set(2); break;

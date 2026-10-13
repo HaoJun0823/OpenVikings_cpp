@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 
 #include "SwitchIdentifiers.h"
 
@@ -58,8 +58,8 @@ namespace NXBasics
     {
         const DWORD version = GetVersion();
 
-        gRuntimeWindowsMinorVersion = (version >> 8) & ReadableValues::IntegerRange::UInt8Maximum;
-        gRuntimeWindowsMajorVersion = version & ReadableValues::IntegerRange::UInt8Maximum;
+        gRuntimeWindowsMinorVersion = (version >> 8) & NXBasics::IntegerRange::UInt8Maximum;
+        gRuntimeWindowsMajorVersion = version & NXBasics::IntegerRange::UInt8Maximum;
         gRuntimeWindowsVersion = (gRuntimeWindowsMajorVersion << 8) + gRuntimeWindowsMinorVersion;
         gRuntimeOsVersion = version >> 16;
 

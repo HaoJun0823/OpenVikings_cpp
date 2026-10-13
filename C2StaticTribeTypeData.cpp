@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticTribeTypeData.h"
 #include "C2StaticAtomicAnimationData.h"
@@ -30,7 +31,7 @@ namespace NC2Logic
             if ((storage.tokenInitFlags & 1) == 0)
             {
                 storage.tokenInitFlags |= 1;
-                storage.tokens[0] = {"type", ReadableValues::TribeToken::Type};
+                storage.tokens[0] = {"type", NC2DataIds::TribeToken::Type};
                 storage.tokens[1] = {"name", SwitchIds::TribeTypeToken::Name};
                 storage.tokens[2] = {"setatomic", SwitchIds::TribeTypeToken::SetAtomic};
                 storage.tokens[3] = {"allowjob", SwitchIds::TribeTypeToken::AllowJob};
@@ -89,7 +90,7 @@ namespace NC2Logic
             const auto tribe = static_cast<std::uint32_t>(reader.GetInt());
             if (tribe == 0 || tribe >= 42 || !Tool_AllowedItems_IsTribeTypeAllowed(tribe)) continue;
             auto& record = gStaticTribeTypeData[tribe];
-            std::memset(record.atomicIds, ReadableValues::IntegerRange::UInt8MaximumSigned, sizeof(record.atomicIds));
+            std::memset(record.atomicIds, NXBasics::IntegerRange::UInt8MaximumSigned, sizeof(record.atomicIds));
             reader.SetCurrentLineToGroupStart();
 
             // These local helpers organize one original loader, retaining raw signed offsets.
@@ -197,9 +198,9 @@ namespace NC2Logic
                     const auto job = static_cast<std::uint32_t>(reader.GetInt());
                     const auto state = static_cast<std::uint32_t>(reader.GetInt());
                     const auto atomic = CStaticAtomicAnimationDataManager::GetAtomicId(reader.GetString());
-                    if (atomic == ReadableValues::IntegerRange::UInt32Maximum) break;
+                    if (atomic == NXBasics::IntegerRange::UInt32Maximum) break;
                     const auto offset = 0x20u + (job * 92u + state) * 4u;
-                    if (Read<std::uint32_t>(&record, offset) == ReadableValues::IntegerRange::UInt32Maximum) Write<std::uint32_t>(&record, offset, atomic);
+                    if (Read<std::uint32_t>(&record, offset) == NXBasics::IntegerRange::UInt32Maximum) Write<std::uint32_t>(&record, offset, atomic);
                     break;
                 }
                 }

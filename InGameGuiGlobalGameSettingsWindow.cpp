@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiGlobalGameSettingsWindow.h"
 #include "InGameGuiManager.h"
@@ -210,7 +210,7 @@ namespace NC2InGameGuiMiscWindows
             allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);
             void* list = allocation == nullptr ? nullptr : ToolListBoxElement_Construct(allocation, nullptr, &rectangle);
             NXBasics::SRectangle row(0, 0, Read<std::int32_t>(list, 0xC), 26);
-            const auto base = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0x4624u;
+            const auto base = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0x4624u;
             for (std::uint32_t index = 0; index < 100; ++index)
             {
                 const auto type = Read<std::uint32_t>(NC2Logic::gGameControl, base + index * 8u);

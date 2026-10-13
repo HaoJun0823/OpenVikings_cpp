@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2AIBuildingAccess.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineTerrainData.h"
@@ -60,7 +60,7 @@ namespace NC2Logic
     {
         if (Read<std::uint8_t>(village, 0x25u + logicType) == 0) return 0;
         const auto player = Read<std::int32_t>(village, 8);
-        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0xC) : 1u;
+        const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC) : 1u;
         std::uint32_t stage;
         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, logicType, &stage);
         if (engineType == -1) return 0;

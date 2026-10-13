@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2GameState.h"
 #include "ApplicationGlobals.h"
 #include "C2EngineDrawingAccess.h"
@@ -27,7 +28,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (playerId < 0 || playerId >= 20) return nullptr;
-        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(player, 0) == 0) return nullptr;
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
@@ -40,7 +41,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (playerId < 0 || playerId >= 20) return -1;
-        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
@@ -52,7 +53,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (count == 0 || playerId >= 20) return -1;
-        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto* player = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10);
         if (color < 0 || color >= 10) color = 9;
@@ -94,7 +95,7 @@ namespace NC2E2
             return reinterpret_cast<const std::byte*>(static_cast<std::uintptr_t>(address));
         };
 
-        const std::byte* player = addressAt(NC2Logic::gGameControl, static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer);
+        const std::byte* player = addressAt(NC2Logic::gGameControl, static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
 
         std::uint8_t active;
         std::memcpy(&active, player, sizeof(active));
@@ -154,7 +155,7 @@ namespace NC2E2
     {
         const auto* house = NC2Logic::CHouseArray::mStaticVars + static_cast<std::uint32_t>(houseId) * NC2Logic::CHouseArray::ElementSize;
         NC2Logic::House_GetHouseTypeDataPtr(house);
-        const auto houseType = NC2Lifetime::Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType);
+        const auto houseType = NC2Lifetime::Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType);
         const auto* graphic = static_cast<const std::byte*>(gStaticHouseEntries) + houseType * 0x8BCu;
         const auto variant = NC2Lifetime::Read<std::uint32_t>(house, 8) % NC2Lifetime::Read<std::uint32_t>(graphic, 0x21C);
         ls_DrawAtom_House_DoDraw_PrintImageBob(NC2Lifetime::Read<void*>(graphic, 0x214), bobId, NC2Lifetime::Read<std::uint32_t>(graphic, 0x220u + variant * 4u), brightness, bitmap, x, y, false);
@@ -263,7 +264,7 @@ namespace NC2E2
             selected = addressAt(selected, 0u - 12u);
         }
 
-        if (variantIndex == ReadableValues::IntegerRange::UInt32Maximum)
+        if (variantIndex == NXBasics::IntegerRange::UInt32Maximum)
             return;
 
         const std::uint32_t frameCount = readWord(selected, 4);
@@ -439,7 +440,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (playerId >= 20) return -1;
-        const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer);
+        const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
         return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 0);
@@ -449,7 +450,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (playerId >= 20) return -1;
-        const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer);
+        const auto* player = reinterpret_cast<const std::byte*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
         if (Read<std::uint8_t>(player, 0) == 0) return -1;
         auto color = Read<std::int32_t>(player, 0x10); if (color < 0 || color >= 10) color = 9;
         return Read<std::int32_t>(gStaticHumanColors + static_cast<std::uint32_t>(color) * 0x58u, 4);

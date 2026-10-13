@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2InteractionTargetAccess.h"
 #include "C2LifetimeAccess.h"
@@ -45,7 +45,7 @@ namespace NC2Logic
         }
         if (type < 1 || type > 4) return false;
         const auto id = TargetData_GetObjectId(target);
-        if (type == 1 && id == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (type == 1 && id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* object = TargetObject(type, id);
         return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == TargetData_GetUniqueId(target) && (type != 4 || Read<std::uint8_t>(object, 0x7D0) == 0);
     }
@@ -62,7 +62,7 @@ namespace NC2Logic
         }
         if (type < 1 || type > 4) return false;
         const auto id = Read<std::uint32_t>(target, 4);
-        if (type == 1 && id == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (type == 1 && id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* object = TargetObject(type, id);
         return Read<std::uint8_t>(object, 0) != 0 && Read<std::uint32_t>(object, 8) == Read<std::uint32_t>(target, 8) && (type != 4 || Read<std::uint8_t>(object, 0x7D0) == 0);
     }
@@ -120,7 +120,7 @@ namespace NC2Logic
                 if (HiddenHumanIsInAttachedHouse(human))
                 {
                     const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-                    return Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : ReadableValues::IntegerRange::UInt32Maximum;
+                    return Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : NXBasics::IntegerRange::UInt32Maximum;
                 }
             }
         }
@@ -145,7 +145,7 @@ namespace NC2Logic
                 if (HiddenHumanIsInAttachedHouse(human))
                 {
                     const auto* point = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
-                    const auto id = Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : ReadableValues::IntegerRange::UInt32Maximum;
+                    const auto id = Read<std::uint8_t>(point, 0) == 2 ? Read<std::uint16_t>(point, 4) : NXBasics::IntegerRange::UInt32Maximum;
                     return Read<std::uint32_t>(TargetObject(4, id), 8);
                 }
             }

@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "HyperLinkTextSystem.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -26,10 +27,10 @@ namespace NHyperLinkTextSystem
         // Complete token array 004F7D08..004F7D87 and token-list state 005694A4..005694AB.
         const SToken sTokenArray[] = {
             { "font", SwitchIds::HyperlinkToken::Font }, { "color", SwitchIds::HyperlinkToken::Color }, { "picture", SwitchIds::HyperlinkToken::Picture },
-            { "userpicture", ReadableValues::HyperLinkTextSystemToken::UserPicture }, { "icon", SwitchIds::HyperlinkToken::Icon }, { "usericon", ReadableValues::HyperLinkTextSystemToken::UserIcon },
-            { "block", ReadableValues::HyperLinkTextSystemToken::Block }, { "textxstart", ReadableValues::HyperLinkTextSystemToken::TextXStart }, { "textxend", ReadableValues::HyperLinkTextSystemToken::TextXEnd },
-            { "anchor", SwitchIds::HyperlinkToken::Anchor }, { "localjump", ReadableValues::HyperLinkTextSystemToken::LocalJump }, { "globaljump", ReadableValues::HyperLinkTextSystemToken::GlobalJump },
-            { "include", SwitchIds::HyperlinkToken::Include }, { "rem", ReadableValues::HyperLinkTextSystemToken::Rem }, { "onscreencallback", ReadableValues::HyperLinkTextSystemToken::OnScreenCallback }, { nullptr, 0 }
+            { "userpicture", NC2DataIds::HyperLinkTextSystemToken::UserPicture }, { "icon", SwitchIds::HyperlinkToken::Icon }, { "usericon", NC2DataIds::HyperLinkTextSystemToken::UserIcon },
+            { "block", NC2DataIds::HyperLinkTextSystemToken::Block }, { "textxstart", NC2DataIds::HyperLinkTextSystemToken::TextXStart }, { "textxend", NC2DataIds::HyperLinkTextSystemToken::TextXEnd },
+            { "anchor", SwitchIds::HyperlinkToken::Anchor }, { "localjump", NC2DataIds::HyperLinkTextSystemToken::LocalJump }, { "globaljump", NC2DataIds::HyperLinkTextSystemToken::GlobalJump },
+            { "include", SwitchIds::HyperlinkToken::Include }, { "rem", NC2DataIds::HyperLinkTextSystemToken::Rem }, { "onscreencallback", NC2DataIds::HyperLinkTextSystemToken::OnScreenCallback }, { nullptr, 0 }
         };
         struct STokenState { const SToken* tokens; std::uint32_t initialized; };
         STokenState sTokenList{};
@@ -516,7 +517,7 @@ namespace NHyperLinkTextSystem
     {
         auto* entity = l_GetDisplayManagerLineEntityOnPosition(point);
         if (entity == nullptr || entity->jump == 0) return false;
-        if (entity->textFile == ReadableValues::IntegerRange::UInt32Maximum) JumpToAnchor(entity->anchor);
+        if (entity->textFile == NXBasics::IntegerRange::UInt32Maximum) JumpToAnchor(entity->anchor);
         else
         {
             const char* filename = resources->GetTextFilePtr(entity->textFile);
@@ -581,7 +582,7 @@ namespace NHyperLinkTextSystem
                     entry->entity = entity;
                     break;
                 }
-                case SwitchIds::HyperlinkController::LocalJump: jump = 1; textFile = ReadableValues::IntegerRange::UInt32Maximum; anchor = entity->data.values[0]; break;
+                case SwitchIds::HyperlinkController::LocalJump: jump = 1; textFile = NXBasics::IntegerRange::UInt32Maximum; anchor = entity->data.values[0]; break;
                 case SwitchIds::HyperlinkController::GlobalJump: jump = 1; textFile = entity->data.values[1]; anchor = entity->data.values[0]; break;
                 default: break;
                 }
@@ -691,7 +692,7 @@ namespace
         using TBackground = void(__thiscall*)(void*, CBitmap*);
         Read<TBackground*>(element, 0)[18](element, bitmap);
         display->Draw(bitmap);
-        if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8Signed) != 0)
+        if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8Signed) != 0)
         {
             std::int32_t point[2];
             std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point));
@@ -702,7 +703,7 @@ namespace
     // Original function: FUN_004cbef5.
     bool __fastcall HyperLinkTextGuiElementBase_XGui_BE_Message_Handle(void* element, void*, std::uint32_t message, std::uint32_t param1, std::uint32_t param2, std::uint32_t param3, std::uint32_t param4)
     {
-        if (Read<std::uint8_t>(element, 0x38) != 0 && (message & ReadableValues::BitMask::Bit8Signed) != 0)
+        if (Read<std::uint8_t>(element, 0x38) != 0 && (message & NXBasics::BitMask::Bit8Signed) != 0)
         {
             Write<float>(element, 0x3C, 0);
             Read<CDisplayManager*>(element, 0x34)->ScrollY(Runtime_TimeSigned32(param3) / -4);

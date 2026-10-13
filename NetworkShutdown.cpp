@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "DirectXErrorText.h"
 #include "OriginalStrings.h"
@@ -139,18 +139,18 @@ namespace NNetwork
 
         CDPNet* network = GetNetworkInstance();
 
-        if ((network->flags & ReadableValues::BitMask::Bit2) != 0)
+        if ((network->flags & NXBasics::BitMask::Bit2) != 0)
         {
             network->StopSearchingSessions();
         }
 
-        if ((network->flags & ReadableValues::BitMask::Bit3) != 0)
+        if ((network->flags & NXBasics::BitMask::Bit3) != 0)
         {
             network->LeaveSession();
         }
 
         // Read the flags again after LeaveSession().
-        if ((network->flags & ReadableValues::BitMask::Bit1) != 0)
+        if ((network->flags & NXBasics::BitMask::Bit1) != 0)
         {
             network->LeaveSession();
         }
@@ -169,7 +169,7 @@ namespace NNetwork
     // Original function: FUN_004059a1
     bool Network_IsHost()
     {
-        return (GetNetworkInstance()->flags & ReadableValues::BitMask::Bit1) != 0;
+        return (GetNetworkInstance()->flags & NXBasics::BitMask::Bit1) != 0;
     }
 
     // Original function: FUN_004059b3
@@ -180,7 +180,7 @@ namespace NNetwork
             return false;
         }
 
-        return (GetNetworkInstance()->flags & ReadableValues::BitMask::Bit1AndBit3) != 0;
+        return (GetNetworkInstance()->flags & NXBasics::BitMask::Bit1AndBit3) != 0;
     }
 
     // Original function: FUN_004059cb
@@ -423,7 +423,7 @@ namespace NNetwork
 
                         case SwitchIds::NetworkPacket::PlayerInfo:
                             {
-                                if ((GetNetworkInstance()->flags & ReadableValues::BitMask::Bit3) == 0)
+                                if ((GetNetworkInstance()->flags & NXBasics::BitMask::Bit3) == 0)
                                 {
                                     return S_OK;
                                 }
@@ -472,7 +472,7 @@ namespace NNetwork
 
             case DPN_MSGID_SEND_COMPLETE:
                 {
-                    if ((GetNetworkInstance()->flags & ReadableValues::BitMask::Bit6) == 0)
+                    if ((GetNetworkInstance()->flags & NXBasics::BitMask::Bit6) == 0)
                     {
                         return S_OK;
                     }
@@ -517,7 +517,7 @@ namespace NNetwork
                         {
                             WriteNetworkLogLevel(3, "Local peer is new host", 0);
 
-                            GetNetworkInstance()->flags |= ReadableValues::BitMask::Bit1;
+                            GetNetworkInstance()->flags |= NXBasics::BitMask::Bit1;
                             GetNetworkInstance()->flags &= ~0x08u;
                         }
                     }
@@ -662,7 +662,7 @@ namespace NNetwork
 
         CoUninitialize();
 
-        flags &= ReadableValues::BitMask::DwordExceptBit0;
+        flags &= NXBasics::BitMask::DwordExceptBit0;
         return true;
     }
 
@@ -682,7 +682,7 @@ namespace NNetwork
             return false;
         }
 
-        flags &= ReadableValues::BitMask::Bit2AndBits4Through31;
+        flags &= NXBasics::BitMask::Bit2AndBits4Through31;
 
         return InitializePeer(callbackContext, false);
     }

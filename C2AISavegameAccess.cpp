@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2AISavegameAccess.h"
 #include "C2IoHelper.h"
@@ -31,11 +32,11 @@ namespace NC2Logic
             const auto count = Read<std::uint32_t>(handler, 0x3D60);
             if (count == 100) break;
             const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-            const auto point = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+            const auto point = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             std::uint32_t index = 0;
             while (index < count && Read<std::uint32_t>(handler, 0x3D68u + index * 16u) != point) ++index;
             if (index != count) continue;
-            Write(handler, 0x3D64u + count * 16u, Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
+            Write(handler, 0x3D64u + count * 16u, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
             Write(handler, 0x3D68u + count * 16u, point);
             Write(handler, 0x3D6Cu + count * 16u, Read<std::uint32_t>(house, 0x20));
             Write(handler, 0x3D70u + count * 16u, Read<std::uint32_t>(house, 0x7CC));
@@ -102,13 +103,13 @@ namespace NC2Logic
         // Original function: FUN_0042958f.
         void AIGuideManager_Init(void* guides)
         {
-            Write<std::uint32_t>(guides, 0, ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(guides, 0, NXBasics::IntegerRange::UInt32Maximum);
             Write<std::uint8_t>(guides, 8, 0);
             Write<std::uint8_t>(guides, 0x14, 0);
             AIGuideManager_CalcVars_CreateGuideCalcArray(static_cast<std::byte*>(guides) + 0x18);
-            Write<std::uint16_t>(guides, 0x10, ReadableValues::IntegerRange::UInt16MaximumSigned);
-            Write<std::uint16_t>(guides, 0x12, ReadableValues::IntegerRange::UInt16MaximumSigned);
-            Write<std::uint32_t>(guides, 0x0C, ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint16_t>(guides, 0x10, NXBasics::IntegerRange::UInt16MaximumSigned);
+            Write<std::uint16_t>(guides, 0x12, NXBasics::IntegerRange::UInt16MaximumSigned);
+            Write<std::uint32_t>(guides, 0x0C, NXBasics::IntegerRange::UInt32Maximum);
         }
 
         // Original function: FUN_00428ae7.
@@ -126,7 +127,7 @@ namespace NC2Logic
             AISinglePlayerHandler_Construct(handler);
             std::memset(handler, 0, 44360);
             std::memset(static_cast<std::byte*>(handler) + 0xAD48, 0, 800);
-            Write<std::uint32_t>(handler, 0xAD40, ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(handler, 0xAD40, NXBasics::IntegerRange::UInt32Maximum);
             Write(handler, 0, player);
             Write<std::uint8_t>(handler, 4, enabled);
             Write<std::uint8_t>(handler, 5, 1);
@@ -138,7 +139,7 @@ namespace NC2Logic
         {
             for (std::uint32_t player = 0; player < 20; ++player)
             {
-                const std::uint32_t offset = player * ReadableValues::RecordSize::GameControlPlayerSigned;
+                const std::uint32_t offset = player * NC2Layout::RecordSize::GameControlPlayerSigned;
                 if (Read<std::uint8_t>(gGameControl, offset) == 0) continue;
                 void* single = NXBasics::Runtime_AllocateWithNewHandler(45160, 1);
                 Write(manager, player * 4, single);

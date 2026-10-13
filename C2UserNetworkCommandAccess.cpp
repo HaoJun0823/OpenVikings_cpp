@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2UserNetworkCommandAccess.h"
 #include "C2GuideAccess.h"
@@ -57,7 +58,7 @@ namespace NC2Logic
         {
             auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(command, 4) * CHumanArray::ElementSize;
             if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(command, 8)) return;
-            if (opcode == 2) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId));
+            if (opcode == 2) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId));
             else Human_DoAddNewUserCommand(human, command);
             return;
         }
@@ -89,7 +90,7 @@ namespace NC2Logic
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(command, 4) * CVehicleArray::ElementSize;
             if (Read<std::uint8_t>(vehicle, 0) == 0 || Read<std::uint32_t>(vehicle, 8) != Read<std::uint32_t>(command, 8)) return;
-            if (opcode == 0x64) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId));
+            if (opcode == 0x64) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId));
             else Vehicle_DoAddNewUserCommand(vehicle, command);
             return;
         }
@@ -105,7 +106,7 @@ namespace NC2Logic
             bool usedItem = false;
             if (itemType != 0)
             {
-                if (!GameControl_SpecialItem_Use(gGameControl, player, itemType, item & ReadableValues::IntegerRange::UInt16Maximum)) return;
+                if (!GameControl_SpecialItem_Use(gGameControl, player, itemType, item & NXBasics::IntegerRange::UInt16Maximum)) return;
                 usedItem = true;
             }
             const auto id = Logic_EntryPoint_House_Set(player, Read<std::uint32_t>(command, 4), Read<std::uint32_t>(command, 8), &point, usedItem, 0);
@@ -225,7 +226,7 @@ namespace NC2Logic
                 }
                 else if (Human_IsJobHero(human)) continue;
                 const auto parameter = opcode == SwitchIds::UserCommand::EquipMeadForPlayer ? 0x2Bu : 0x1Eu + opcode - 0x81u;
-                Human_DoAddNewUserCommand(human, 0x53, player, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), parameter, opcode == SwitchIds::UserCommand::EquipMeadForPlayer ? ReadableValues::IntegerRange::UInt32Maximum : 0u);
+                Human_DoAddNewUserCommand(human, 0x53, player, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), parameter, opcode == SwitchIds::UserCommand::EquipMeadForPlayer ? NXBasics::IntegerRange::UInt32Maximum : 0u);
             }
             return;
         }
@@ -244,7 +245,7 @@ namespace NC2Logic
             const auto player = GameTime_Network_GetPlayerByNetworkId(Read<std::uint32_t>(command, 12));
             if (player == -1) return;
             const auto baseOffset = static_cast<std::uint32_t>(player) * 0x78u;
-            auto selected = ReadableValues::IntegerRange::UInt32Maximum;
+            auto selected = NXBasics::IntegerRange::UInt32Maximum;
             for (std::uint32_t sample = 0; sample < 10; ++sample)
             {
                 const auto offset = baseOffset + sample * 12u;
@@ -255,9 +256,9 @@ namespace NC2Logic
                 NC2LogicExternals::External_Misc_SendToUserStringMessage(message, false);
                 break;
             }
-            if (selected == ReadableValues::IntegerRange::UInt32Maximum)
+            if (selected == NXBasics::IntegerRange::UInt32Maximum)
             {
-                auto oldestTick = ReadableValues::IntegerRange::UInt32Maximum;
+                auto oldestTick = NXBasics::IntegerRange::UInt32Maximum;
                 for (std::uint32_t sample = 0; sample < 10; ++sample)
                 {
                     const auto tick = Read<std::uint32_t>(manager, baseOffset + sample * 12u + 4);
@@ -265,7 +266,7 @@ namespace NC2Logic
                     oldestTick = tick;
                     selected = sample;
                 }
-                if (selected == ReadableValues::IntegerRange::UInt32Maximum) return;
+                if (selected == NXBasics::IntegerRange::UInt32Maximum) return;
             }
             const auto offset = baseOffset + selected * 12u;
             Write(manager, offset, Read<std::uint32_t>(command, 4));
@@ -342,7 +343,7 @@ namespace NC2Logic
             const auto tick = Read<std::uint32_t>(manager, baseOffset + 4);
             if (checksum == 0) continue;
             std::uint32_t matched = 1;
-            std::uint32_t selectedTick = ReadableValues::IntegerRange::UInt32Maximum;
+            std::uint32_t selectedTick = NXBasics::IntegerRange::UInt32Maximum;
             for (std::uint32_t player = 1; player < playerCount; ++player)
             {
                 for (std::uint32_t otherSample = 0; otherSample < 10; ++otherSample)
@@ -366,7 +367,7 @@ namespace NC2Logic
                 selectedTick = tick;
                 Write(manager, 0x960, tick);
             }
-            if (selectedTick != ReadableValues::IntegerRange::UInt32Maximum)
+            if (selectedTick != NXBasics::IntegerRange::UInt32Maximum)
             {
                 for (std::uint32_t player = 0; player < playerCount; ++player)
                 {

@@ -1,4 +1,6 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "C2RuntimeConstants.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "NetworkShutdown.h"
 #include "C2LifetimeGlobals.h"
@@ -53,15 +55,15 @@ namespace NC2E2
     // Original function: FUN_0047cc5b.
     void DE_Highlighting_SetState(void* display, bool enabled)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::HighlightingEnabled) == static_cast<std::uint8_t>(enabled)) return;
-        NC2Lifetime::Write<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::HighlightingEnabled, enabled);
+        if (NC2Lifetime::Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) == static_cast<std::uint8_t>(enabled)) return;
+        NC2Lifetime::Write<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled, enabled);
         NC2Lifetime::Write<std::uint8_t>(display, 0x978, 1);
     }
 
     // Original function: FUN_0047ce8e; a missing point returns zero.
     std::uint32_t DE_Hightlighting_GetHighlightBrightness(const void* display, const void* point)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::HighlightingEnabled) != 0)
+        if (NC2Lifetime::Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) != 0)
         {
             const void* data = EngineMap_GetConstMapMicroPointPtr(point);
             if (data == nullptr) return 0;
@@ -276,7 +278,7 @@ namespace NC2E2
         if ((initialized & 2u) == 0) { initialized |= 2u; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(NeutralPlayerColor_AtExit)); }
         if (playerId == 20) return &neutral;
         if (playerId >= 20) return &invalid;
-        const void* player = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * ReadableValues::RecordSize::GameControlPlayer);
+        const void* player = reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(playerId) * NC2Layout::RecordSize::GameControlPlayer);
         std::uint8_t active;
         std::memcpy(&active, player, sizeof(active));
         if (active == 0) return &invalid;
@@ -346,8 +348,8 @@ namespace NC2E2
 
         const std::uint32_t shifted = bits >> shift;
 
-        if ((bits & ReadableValues::IntegerRange::Bit31) != 0)
-            return shifted | (ReadableValues::IntegerRange::UInt32Maximum << (32u - shift));
+        if ((bits & NXBasics::IntegerRange::Bit31) != 0)
+            return shifted | (NXBasics::IntegerRange::UInt32Maximum << (32u - shift));
 
         return shifted;
     }
@@ -544,7 +546,7 @@ namespace NC2E2
             for (std::int32_t offsetX = -2; offsetX <= 4; ++offsetX)
             {
                 const std::uint32_t candidateX = static_cast<std::uint32_t>(estimatedX) + static_cast<std::uint32_t>(offsetX);
-                const std::uint32_t candidate = (candidateX & ReadableValues::IntegerRange::UInt16Maximum) | ((candidateY & ReadableValues::IntegerRange::UInt16Maximum) << 16);
+                const std::uint32_t candidate = (candidateX & NXBasics::IntegerRange::UInt16Maximum) | ((candidateY & NXBasics::IntegerRange::UInt16Maximum) << 16);
 
                 if (!NC2Logic::MapMigPoint_IsInsideMap(&candidate))
                     continue;
@@ -637,9 +639,9 @@ namespace NC2E2
 
         std::memset(displayBytes + 0x64, 0, 2280);
 
-        Display_WriteField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DestinationBitmap, bitmap);
+        Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap, bitmap);
         Display_WriteField<std::uint8_t>(display, 0x6C, active);
-        Display_WriteField<std::uint32_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags, 7);
+        Display_WriteField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags, 7);
 
         void* buffer = NXBasics::Runtime_AllocateWithNewHandler(148, 1);
 
@@ -648,8 +650,8 @@ namespace NC2E2
             ::new (buffer) NToolGouraudShader::CGouraudShader;
         }
 
-        Display_WriteField<void*>(display, ReadableValues::EngineDisplayOffset::GouraudShader, buffer);
-        Display_WriteField<NXBasics::CFont*>(display, ReadableValues::EngineDisplayOffset::Font, font);
+        Display_WriteField<void*>(display, NC2Layout::EngineDisplayOffset::GouraudShader, buffer);
+        Display_WriteField<NXBasics::CFont*>(display, NC2Layout::EngineDisplayOffset::Font, font);
 
         Display_InitScrollVariables(display);
 
@@ -672,7 +674,7 @@ namespace NC2E2
         Display_ExitScrollVariables(display);
 
         void* buffer;
-        std::memcpy(&buffer, static_cast<const std::byte*>(display) + ReadableValues::EngineDisplayOffset::GouraudShader, sizeof(buffer));
+        std::memcpy(&buffer, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::GouraudShader, sizeof(buffer));
 
         NXBasics::Runtime_Free(buffer);
     }
@@ -890,7 +892,7 @@ namespace NC2E2
         bytes[0x978] = std::byte{ 1 };
 
         if (horizontalSpacingPixels > 5)
-            drawFlags |= ReadableValues::BitMask::Bit1;
+            drawFlags |= NXBasics::BitMask::Bit1;
         else
             drawFlags &= ~0x02u;
 
@@ -951,8 +953,8 @@ namespace NC2E2
 
             const std::uint32_t shifted = bits >> count;
 
-            if ((bits & ReadableValues::IntegerRange::Bit31) != 0)
-                return shifted | (ReadableValues::IntegerRange::UInt32Maximum << (32u - count));
+            if ((bits & NXBasics::IntegerRange::Bit31) != 0)
+                return shifted | (NXBasics::IntegerRange::UInt32Maximum << (32u - count));
 
             return shifted;
         };
@@ -1018,7 +1020,7 @@ namespace NC2E2
         std::memset(displayBytes + 0x94C, 0, 72);
 
         const std::int32_t zoom = Display_ReadField<std::int32_t>(display, 0x78);
-        NXBasics::CBitmap* displayBitmap = Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DestinationBitmap);
+        NXBasics::CBitmap* displayBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
 
         NXBasics::SRectangle rectangle = displayBitmap->GetRectangle();
 
@@ -1041,15 +1043,15 @@ namespace NC2E2
             const std::int32_t depth = Display_ReadField<std::int32_t>(displayBitmap, 0x04);
             NXBasics::CBitmap* scrollBitmap = new (std::nothrow) NXBasics::CBitmap(rectangle, depth);
 
-            Display_WriteField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap, scrollBitmap);
+            Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap, scrollBitmap);
         }
         else
         {
-            Display_WriteField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap, displayBitmap);
+            Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap, displayBitmap);
         }
 
         // Reload the assigned display bitmap at the original access point.
-        displayBitmap = Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DestinationBitmap);
+        displayBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
 
         const std::int32_t depth = Display_ReadField<std::int32_t>(displayBitmap, 0x04);
         NXBasics::CBitmap* auxiliaryBitmap = new (std::nothrow) NXBasics::CBitmap(rectangle, depth);
@@ -1138,7 +1140,7 @@ namespace NC2E2
         auto* data = static_cast<std::byte*>(reference);
         std::memset(data, 0, 68);
 
-        const std::uint32_t invalidIndex = ReadableValues::IntegerRange::UInt32Maximum;
+        const std::uint32_t invalidIndex = NXBasics::IntegerRange::UInt32Maximum;
         constexpr std::size_t indexOffsets[] = { 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x40 };
 
         for (std::size_t offset : indexOffsets)
@@ -1205,7 +1207,7 @@ namespace NC2E2
 
         const std::uint32_t index = readWord(reference, indexOffset);
 
-        if (index == ReadableValues::IntegerRange::UInt32Maximum)
+        if (index == NXBasics::IntegerRange::UInt32Maximum)
             return false;
 
         const std::uint32_t baseAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(table));
@@ -1256,7 +1258,7 @@ namespace NC2E2
 
         // Original lazy CRandom at 00554d90, guarded by 00554d88.
         // 00410c3f leaves this fixed seed unchanged (its bit count is in [8,24]).
-        static NC2Logic::SGameRandomState random{ ReadableValues::RandomSeed::DisplayEffects, ReadableValues::RandomSeed::DisplayEffects };
+        static NC2Logic::SGameRandomState random{ NC2Runtime::RandomSeed::DisplayEffects, NC2Runtime::RandomSeed::DisplayEffects };
         static bool initialized = false;
         if (!initialized) { initialized = true; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(EarthquakeRandom_AtExit)); }
         const std::uint32_t dx = NC2Logic::Random_Get(random) % 41u - 20u;
@@ -1270,7 +1272,7 @@ namespace NC2E2
     // Original function: FUN_0047cc71; l_DE_Hightlighting_CheckUpdate.
     static void Display_Highlighting_CheckUpdate(void* display)
     {
-        if (Display_ReadField<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::HighlightingEnabled) == 0)
+        if (Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) == 0)
             return;
         std::uint16_t bits[4];
         std::memcpy(bits, static_cast<const std::byte*>(display) + 0x97A, sizeof(bits));
@@ -1296,7 +1298,7 @@ namespace NC2E2
     // Original function: FUN_00481544; l_DE_SetMapRectangle.
     static void Display_SetMapRectangle(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
     {
-        auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+        auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         std::int16_t rectangle[4];
         DisplayDescription_GetMapRectangle(display, pixelX, pixelY, static_cast<std::uint32_t>(bitmap->GetRectangle().width), static_cast<std::uint32_t>(bitmap->GetRectangle().height), rectangle);
 
@@ -1337,20 +1339,20 @@ namespace NC2E2
         const std::int32_t remainingHeight = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, 0x968) - static_cast<std::uint32_t>(y));
 
         NXBasics::CBitmap bottomRight(source, NXBasics::SRectangle(x, y, remainingWidth, remainingHeight));
-        bottomRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), 0, 0);
+        bottomRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), 0, 0);
         if (x != 0)
         {
             NXBasics::CBitmap bottomLeft(source, NXBasics::SRectangle(0, y, x, remainingHeight));
-            bottomLeft.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), remainingWidth, 0);
+            bottomLeft.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), remainingWidth, 0);
         }
         if (y != 0)
         {
             NXBasics::CBitmap topRight(source, NXBasics::SRectangle(x, 0, remainingWidth, y));
-            topRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), 0, remainingHeight);
+            topRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), 0, remainingHeight);
             if (x != 0)
             {
                 NXBasics::CBitmap topLeft(source, NXBasics::SRectangle(0, 0, x, y));
-                topLeft.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), remainingWidth, remainingHeight);
+                topLeft.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), remainingWidth, remainingHeight);
             }
         }
     }
@@ -1363,7 +1365,7 @@ namespace NC2E2
         if (coordinate == 0)
             return 0;
         const std::int32_t divisor = NXBasics::Runtime_TimeSigned32(size);
-        if ((coordinate & ReadableValues::IntegerRange::Bit31) != 0)
+        if ((coordinate & NXBasics::IntegerRange::Bit31) != 0)
         {
             const std::int32_t remainder = NXBasics::Runtime_TimeSigned32(0u - coordinate) % divisor;
             coordinate = size - static_cast<std::uint32_t>(remainder);
@@ -1397,8 +1399,8 @@ namespace NC2E2
         const std::uint32_t oldY = Display_ReadField<std::uint32_t>(display, 0x958);
         const std::uint32_t dx = pixelX - oldX;
         const std::uint32_t dy = pixelY - oldY;
-        const std::uint32_t absoluteX = (dx & ReadableValues::IntegerRange::Bit31) != 0 ? 0u - dx : dx;
-        const std::uint32_t absoluteY = (dy & ReadableValues::IntegerRange::Bit31) != 0 ? 0u - dy : dy;
+        const std::uint32_t absoluteX = (dx & NXBasics::IntegerRange::Bit31) != 0 ? 0u - dx : dx;
+        const std::uint32_t absoluteY = (dy & NXBasics::IntegerRange::Bit31) != 0 ? 0u - dy : dy;
         const std::uint32_t width = Display_ReadField<std::uint32_t>(display, 0x964);
         const std::uint32_t height = Display_ReadField<std::uint32_t>(display, 0x968);
         if (NXBasics::Runtime_TimeSigned32(absoluteX) >= NXBasics::Runtime_TimeSigned32(width) || NXBasics::Runtime_TimeSigned32(absoluteY) >= NXBasics::Runtime_TimeSigned32(height) || Display_ReadField<std::uint8_t>(display, 0x978) != 0)
@@ -1410,7 +1412,7 @@ namespace NC2E2
             return;
 
         const std::uint32_t product = dx * dy;
-        const std::uint32_t area = (product & ReadableValues::IntegerRange::Bit31) != 0 ? 0u - product : product;
+        const std::uint32_t area = (product & NXBasics::IntegerRange::Bit31) != 0 ? 0u - product : product;
         if ((area * 100u) / (height * width) >= 75u)
         {
             Display_RebuildStaticCompletly(display, pixelX, pixelY);
@@ -1452,14 +1454,14 @@ namespace NC2E2
     static void Display_DrawForeground(void* display)
     {
         DrawAtom_FishManager_DoDraw(display);
-        if ((Display_ReadField<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) & 2u) != 0)
+        if ((Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 2u) != 0)
             E2ParticelManager_SortParticelAndDrawBottom(gE2ParticelManager, nullptr, display);
         const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
         const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + 0x98C);
-        if ((Display_ReadField<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) & 1u) != 0)
+        if ((Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 1u) != 0)
         {
-            Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), point, false, true);
-            Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), point, false, false);
+            Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point, false, true);
+            Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point, false, false);
         }
         if (CLevelOfDetailManager::sLevelOfDetail == 2 && Display_ReadField<std::int32_t>(display, 0x78) >= 0)
         {
@@ -1468,23 +1470,23 @@ namespace NC2E2
             Display_l_DE_SpecialOverlay_Sand_Draw(display);
         }
         if (Display_ReadField<std::uint8_t>(display, 0x920) != 0)
-            Display_l_DE_DrawTooltipOverlays(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap), point);
-        if ((Display_ReadField<std::uint8_t>(display, 0x71) & ReadableValues::BitMask::Bit5) != 0)
+            Display_l_DE_DrawTooltipOverlays(display, nullptr, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point);
+        if ((Display_ReadField<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit5) != 0)
         {
             Display_l_DE_Debug_DrawMapMoveablesDebugInfos(display);
             Display_l_DE_Debug_DrawHousesDebugInfos(display);
         }
-        if ((Display_ReadField<std::uint8_t>(display, 0x71) & ReadableValues::BitMask::ByteExceptBits0Through5) != 0)
+        if ((Display_ReadField<std::uint8_t>(display, 0x71) & NXBasics::BitMask::ByteExceptBits0Through5) != 0)
             Display_l_DE_Debug_DrawGridLines(display);
         Display_InformGuiRedraw(display);
 
         if (Display_ReadField<std::int32_t>(display, 0x78) > 0)
         {
-            auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DestinationBitmap);
+            auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
             NXBasics::SRectangle area = bitmap->GetRectangle();
             // Original 00410654 masks each dimension with 0000fffch.
-            area.width = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.width) & ReadableValues::BitMask::WordExceptBits0Through1);
-            area.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.height) & ReadableValues::BitMask::WordExceptBits0Through1);
+            area.width = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.width) & NXBasics::BitMask::WordExceptBits0Through1);
+            area.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.height) & NXBasics::BitMask::WordExceptBits0Through1);
             NXBasics::CBitmap window(bitmap, area);
             for (std::int32_t step = 0; step < Display_ReadField<std::int32_t>(display, 0x78); ++step)
                 window.ZoomIn();
@@ -1500,8 +1502,8 @@ namespace NC2E2
         Display_DoUpdateStatic(display, Display_ReadField<std::uint32_t>(display, 0x94C), Display_ReadField<std::uint32_t>(display, 0x950));
         Display_CopyStaticBitmap(display);
         Display_DrawForeground(display);
-        auto* workBitmap = Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
-        auto* outputBitmap = Display_ReadField<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DestinationBitmap);
+        auto* workBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
+        auto* outputBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
         if (workBitmap != outputBitmap)
             workBitmap->CopyIntoBitmap_HalfSize_Optimized(outputBitmap);
     }
@@ -1512,13 +1514,13 @@ namespace NC2E2
         if (gDirectMusicManager == nullptr)
             return;
 
-        std::uint32_t selected = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t selected = NXBasics::IntegerRange::UInt32Maximum;
         gWorldMusicState.selectedPlayer = selected;
         for (std::uint32_t player = 0; player < 20u; ++player)
         {
             if (player == gWorldMusicState.controllingPlayer || gWorldMusicState.visiblePlayerCounts[player] == 0)
                 continue;
-            if (selected == ReadableValues::IntegerRange::UInt32Maximum || gWorldMusicState.visiblePlayerCounts[selected] < gWorldMusicState.visiblePlayerCounts[player])
+            if (selected == NXBasics::IntegerRange::UInt32Maximum || gWorldMusicState.visiblePlayerCounts[selected] < gWorldMusicState.visiblePlayerCounts[player])
             {
                 selected = player;
                 gWorldMusicState.selectedPlayer = selected;
@@ -1544,7 +1546,7 @@ void __fastcall Display_DE_MapMoveableToGlobalWorldPixelCoordinates(void* displa
 {
     (void)unusedEdx;
     using namespace NC2Lifetime;
-    const auto moveableAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gMapMoveableArrayStorage.entries) + id * ReadableValues::RecordSize::MapMoveable); };
+    const auto moveableAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::gMapMoveableArrayStorage.entries) + id * NC2Layout::RecordSize::MapMoveable); };
     const auto vehicleAt = [](std::uint32_t id) -> const void* { return reinterpret_cast<const void*>(reinterpret_cast<std::uintptr_t>(NC2Logic::CVehicleArray::mStaticVars) + id * 0x54Cu); };
     const void* moveable = moveableAt(moveableId);
     if (Read<std::uint32_t>(moveable, 8) == 1)

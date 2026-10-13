@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 
 #include "SwitchIdentifiers.h"
 
@@ -278,7 +278,7 @@ namespace NXBasics
         std::uint32_t attributes;
         std::memcpy(&attributes, state->nativeSearchState + 0x04, sizeof(attributes));
 
-        if ((attributes & ReadableValues::BitMask::Bit4) != 0 && extension[0] == '.')
+        if ((attributes & NXBasics::BitMask::Bit4) != 0 && extension[0] == '.')
         {
             return false;
         }

@@ -1,5 +1,11 @@
 # Open Tasks
 
+## Constant domains and whole-source review started - 2026-10-13
+
+Removed the generic ReadableValues collection and organized its 434 unchanged definitions into five semantic headers/namespaces. See [CONSTANT_DOMAINS.md](CONSTANT_DOMAINS.md). Exact namespace/include reversal passes for all 230 integrating source/header files; all 307 production C++ units and 434 compiler value/type pairs pass Win32 syntax-only checks. Project/filter parity: 307 CPP / 288 headers. No build, tests or game run occurred.
+
+The requested whole-source readability and Windows-ASM review remains in progress. The complete registered scope is 307 CPP / 288 headers, 143127 current lines. The initial inventory identifies 14730 numeric access operands, 94 unknown-member mentions and 1071 condensed multi-statement lines. Those are review candidates, not counts of missing functions. Object layouts and directly related helpers are being reviewed as functional blocks; none of these scan counts alone establishes behavior or meaning. The next active block is the house lifecycle/construction/stock/attachments layout and its Windows xrefs. Earlier checkpoints below are historical.
+
 ## House position components; non-exhaustive hex pass - 2026-10-13
 
 The previous hex pass was **not exhaustive**. The user identified a missed, established coordinate component: `house + 0x1E` is the 16-bit Y component of the packed position at `0x1C`. Added `HouseOffset::MapPositionX/Y` and `DoorEntryPointX/Y` (`1C/1E`, `24/26`), retaining the whole-point `MapPosition` and `DoorEntryPoint` constants for DWORD reads and pointer references.

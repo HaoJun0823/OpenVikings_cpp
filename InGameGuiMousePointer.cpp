@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiMousePointer.h"
 #include "InGameGuiManager.h"
@@ -178,12 +178,12 @@ namespace NC2InGameGuiManager
                                 const auto* house = NC2Logic::CHouseArray::mStaticVars + first * NC2Logic::CHouseArray::ElementSize;
                                 if (scheme == 0)
                                 {
-                                    const char* name = Read<std::uint8_t>(house, 0) != 0 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType), 1) : nullptr;
+                                    const char* name = Read<std::uint8_t>(house, 0) != 0 ? NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1) : nullptr;
                                     char text[200]; std::strcpy(text, NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(60)); std::strcat(text, " "); std::strcat(text, name != nullptr ? name : NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(62)); ls_PrintString(bitmap, point, text, true);
                                 }
-                                else if (Read<std::uint8_t>(house, 0) != 0 && (Read<std::int32_t>(house, ReadableValues::HouseOffset::PlayerId) == manager->GetLocalPlayerId() || NC2Logic::House_GetHouseMainType(house) == 1))
+                                else if (Read<std::uint8_t>(house, 0) != 0 && (Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId) == manager->GetLocalPlayerId() || NC2Logic::House_GetHouseMainType(house) == 1))
                                 {
-                                    const char* name = NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType), 1);
+                                    const char* name = NC2Logic::StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1);
                                     if (name != nullptr) ls_PrintString(bitmap, point, name, false);
                                 }
                             }

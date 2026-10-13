@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XPixelFormatConverter.h"
 #include "XCrtFileAccess.h"
 
@@ -136,9 +136,9 @@ namespace NXBasics
     // Original function: FUN_0049b818
     std::uint16_t C16BitPixelConverter::ApplyShadowMode2(std::uint16_t pixel) const
     {
-        const std::uint32_t red = (ExtractShadowChannel(pixel, mRedMask, mRedAdjustment) & ReadableValues::BitMask::Low13Bits) * 4u + 128u;
-        const std::uint32_t green = (ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment) & ReadableValues::BitMask::Low13Bits) * 4u + 128u;
-        const std::uint32_t blue = (ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment) & ReadableValues::BitMask::Low13Bits) * 4u + 128u;
+        const std::uint32_t red = (ExtractShadowChannel(pixel, mRedMask, mRedAdjustment) & NXBasics::BitMask::Low13Bits) * 4u + 128u;
+        const std::uint32_t green = (ExtractShadowChannel(pixel, mGreenMask, mGreenAdjustment) & NXBasics::BitMask::Low13Bits) * 4u + 128u;
+        const std::uint32_t blue = (ExtractShadowChannel(pixel, mBlueMask, mBlueAdjustment) & NXBasics::BitMask::Low13Bits) * 4u + 128u;
 
         // No additional saturation is performed before packing.
         return PackColor(static_cast<std::uint16_t>(red), static_cast<std::uint16_t>(green), static_cast<std::uint16_t>(blue));
@@ -216,9 +216,9 @@ namespace NXBasics
 
         mInitialized = true;
 
-        mMiddleGrayColor = PackColor(ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned, ReadableValues::IntegerRange::Int8MaximumSigned);
-        mUsesRgb565 = redMask == ReadableValues::Rgb565::RedMask && greenMask == ReadableValues::Rgb565::GreenMask && blueMask == 0x001F;
-        mUsesRgb555 = redMask == ReadableValues::Rgb555::RedMask && greenMask == ReadableValues::Rgb555::GreenMaskSigned && blueMask == 0x001F;
+        mMiddleGrayColor = PackColor(NXBasics::IntegerRange::Int8MaximumSigned, NXBasics::IntegerRange::Int8MaximumSigned, NXBasics::IntegerRange::Int8MaximumSigned);
+        mUsesRgb565 = redMask == NXBasics::Rgb565::RedMask && greenMask == NXBasics::Rgb565::GreenMask && blueMask == 0x001F;
+        mUsesRgb555 = redMask == NXBasics::Rgb555::RedMask && greenMask == NXBasics::Rgb555::GreenMaskSigned && blueMask == 0x001F;
 
         if (mTrueColorConvertTable != nullptr)
         {

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticAtomicAnimationData.h"
 #include "C2LifetimeGlobals.h"
@@ -113,6 +113,6 @@ namespace NC2Logic
     {
         for (std::int32_t index = 0; index < NXBasics::Runtime_TimeSigned32(gStaticAtomicAnimationStorage.count); ++index)
             if (NXBasics::Runtime_CompareStringsIgnoreCase(gStaticAtomicAnimationData[index].name, name) == 0) return static_cast<std::uint32_t>(index);
-        return ReadableValues::IntegerRange::UInt32Maximum;
+        return NXBasics::IntegerRange::UInt32Maximum;
     }
 }

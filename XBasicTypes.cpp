@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XBasicTypes.h"
 #include "XCrtFileAccess.h"
 
@@ -37,8 +37,8 @@ namespace NXBasics
     // Original function: FUN_00410654; the mask also clears the upper sixteen bits.
     void SRectangle::MakeSizeLongAlligned() noexcept
     {
-        width = Runtime_TimeSigned32(static_cast<std::uint32_t>(width) & ReadableValues::BitMask::WordExceptBits0Through1);
-        height = Runtime_TimeSigned32(static_cast<std::uint32_t>(height) & ReadableValues::BitMask::WordExceptBits0Through1);
+        width = Runtime_TimeSigned32(static_cast<std::uint32_t>(width) & NXBasics::BitMask::WordExceptBits0Through1);
+        height = Runtime_TimeSigned32(static_cast<std::uint32_t>(height) & NXBasics::BitMask::WordExceptBits0Through1);
     }
 
     // Original function: FUN_00439855.

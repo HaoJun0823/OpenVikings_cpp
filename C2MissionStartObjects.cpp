@@ -1,4 +1,6 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2MissionStartObjects.h"
 #include "C2GuideAccess.h"
@@ -54,14 +56,14 @@ namespace NC2Logic
     // Original function: FUN_0040aeda; the player comparison is signed.
     bool Logic_EntryPoint_IsPlayerInGame(std::int32_t player)
     {
-        return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) != 0;
+        return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) != 0;
     }
 
     // Original function: FUN_00409d1b.
     static bool GameControl_IsPlayerNotInMultiPlayerGame(const void* control, std::int32_t player)
     {
         if (gGameStaticVars.networkGame == 0) return false;
-        return player >= 20 || Read<std::uint8_t>(control, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0;
+        return player >= 20 || Read<std::uint8_t>(control, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0;
     }
 
     // Original function: FUN_0040aef6.
@@ -87,27 +89,27 @@ namespace NC2Logic
     // Original function: FUN_0042c54e.
     bool Human_IsSexFemale(const void* human)
     {
-        const auto job = Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType);
-        return job == 1 || job == 3 || job == 5 || (job == 47 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == 3);
+        const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
+        return job == 1 || job == 3 || job == 5 || (job == 47 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3);
     }
 
     // Original function: FUN_0042ca07.
     bool Human_IsAbleToMarry(const void* human)
     {
-        const auto job = Read<std::int32_t>(human, ReadableValues::HumanOffset::JobType);
+        const auto job = Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType);
         if (job >= 1 && job <= 4) return false;
-        if (Read<std::uint32_t>(human, 0xB20) != ReadableValues::IntegerRange::UInt32Maximum || Read<std::uint32_t>(human, 0xB1C) != ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum || Read<std::uint32_t>(human, 0xB1C) != NXBasics::IntegerRange::UInt32Maximum) return false;
         return job != 27 && !(job >= 31 && job <= 41) && !(job >= 42 && job <= 47);
     }
 
     // Original function: FUN_0042ca95; shared with human message validation.
-    bool Human_IsMarried(const void* human) { return Read<std::uint32_t>(human, 0xB20) != ReadableValues::IntegerRange::UInt32Maximum; }
+    bool Human_IsMarried(const void* human) { return Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum; }
 
     // Original function: FUN_0042caa2.
-    bool Human_IsHavingChild(const void* human) { return Read<std::uint32_t>(human, 0xB24) != ReadableValues::IntegerRange::UInt32Maximum; }
+    bool Human_IsHavingChild(const void* human) { return Read<std::uint32_t>(human, 0xB24) != NXBasics::IntegerRange::UInt32Maximum; }
 
     // Original function: FUN_0044b9c9; the good index is unchecked.
-    void Human_Production_SetCounter(void* human, std::uint32_t good, std::uint32_t counter) { Write<std::uint32_t>(human, ReadableValues::HumanOffset::ProductionCounters + good * 4u, counter); }
+    void Human_Production_SetCounter(void* human, std::uint32_t good, std::uint32_t counter) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u, counter); }
 
     // Original function: FUN_00449ab8.
     std::int32_t MissionCheck_GetFirstHumanIdWithMissionCheckId(std::uint32_t missionCheck)
@@ -205,12 +207,12 @@ namespace NC2Logic
         {
             const auto manHome = Read<std::uint32_t>(man, 0xB28);
             const auto womanHome = Read<std::uint32_t>(woman, 0xB28);
-            if (manHome == ReadableValues::IntegerRange::UInt32Maximum) AssignHome(man, womanHome);
+            if (manHome == NXBasics::IntegerRange::UInt32Maximum) AssignHome(man, womanHome);
             else
             {
                 const auto work = Read<std::uint32_t>(man, 0xB34);
                 bool useWomanHome = false;
-                if (work != ReadableValues::IntegerRange::UInt32Maximum)
+                if (work != NXBasics::IntegerRange::UInt32Maximum)
                 {
                     const auto* workHouse = House(work);
                     const auto* firstHome = House(womanHome);
@@ -233,12 +235,12 @@ namespace NC2Logic
             CMapMoveableIterator iterator;
             for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
             {
-                const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
+                const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                 if (Read<std::uint32_t>(moveable, 8) != 1) continue;
-                void* human = Human(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId));
+                void* human = Human(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
                 if (child)
                 {
-                    if (!Human_IsAgeAdult(human) && Read<std::uint32_t>(human, 0xB18) == ReadableValues::IntegerRange::UInt32Maximum) return human;
+                    if (!Human_IsAgeAdult(human) && Read<std::uint32_t>(human, 0xB18) == NXBasics::IntegerRange::UInt32Maximum) return human;
                 }
                 else if ((woman ? Human_IsSexFemale(human) : Human_IsSexMale(human)) && Human_IsAbleToMarry(human)) return human;
             }
@@ -257,7 +259,7 @@ namespace NC2Logic
     void __fastcall MissionManager_l_LoadObjectData(void* /*manager*/, void* /*unusedEdx*/, NXBasics::CIniFileReader* reader)
     {
         // Complete Windows region 004F38F8..004F3977, including two unused tokens.
-        static constexpr NXBasics::SToken sObjectTokenArray[] = {{"sethuman", SwitchIds::MissionStartToken::SetHuman}, {"setvehicle", SwitchIds::MissionStartToken::SetVehicle}, {"sethouse", SwitchIds::MissionStartToken::SetHouse}, {"setanimal", SwitchIds::MissionStartToken::SetAnimal}, {"setguide", SwitchIds::MissionStartToken::Setguide}, {"addgoods", SwitchIds::MissionStartToken::Addgoods}, {"attachtohouse", SwitchIds::MissionStartToken::AttachToHouse}, {"setproducedgood", SwitchIds::MissionStartToken::Setproducedgood}, {"attachtovehicle", SwitchIds::MissionStartToken::AttachToVehicle}, {"moveintovehicle", SwitchIds::MissionStartToken::MoveInToVehicle}, {"setexpierence", SwitchIds::MissionStartToken::Setexpierence}, {"allowjob", ReadableValues::MissionStartObjectsToken::AllowJob}, {"forbidjob", ReadableValues::MissionStartObjectsToken::ForbidJob}, {"marry", SwitchIds::MissionStartToken::Marry}, {"childOfWoman", SwitchIds::MissionStartToken::ChildOfWoman}, {nullptr, 0}};
+        static constexpr NXBasics::SToken sObjectTokenArray[] = {{"sethuman", SwitchIds::MissionStartToken::SetHuman}, {"setvehicle", SwitchIds::MissionStartToken::SetVehicle}, {"sethouse", SwitchIds::MissionStartToken::SetHouse}, {"setanimal", SwitchIds::MissionStartToken::SetAnimal}, {"setguide", SwitchIds::MissionStartToken::Setguide}, {"addgoods", SwitchIds::MissionStartToken::Addgoods}, {"attachtohouse", SwitchIds::MissionStartToken::AttachToHouse}, {"setproducedgood", SwitchIds::MissionStartToken::Setproducedgood}, {"attachtovehicle", SwitchIds::MissionStartToken::AttachToVehicle}, {"moveintovehicle", SwitchIds::MissionStartToken::MoveInToVehicle}, {"setexpierence", SwitchIds::MissionStartToken::Setexpierence}, {"allowjob", NC2DataIds::MissionStartObjectsToken::AllowJob}, {"forbidjob", NC2DataIds::MissionStartObjectsToken::ForbidJob}, {"marry", SwitchIds::MissionStartToken::Marry}, {"childOfWoman", SwitchIds::MissionStartToken::ChildOfWoman}, {nullptr, 0}};
         for (auto* group = reader->GetFirstGroup("StaticObjects"); group != nullptr; group = reader->GetNextGroup("StaticObjects"))
         {
             std::uint32_t kind = 0, currentId = 0, currentRevision = 0;
@@ -321,20 +323,20 @@ namespace NC2Logic
                 }
                 case SwitchIds::MissionStartToken::Addgoods:
                 {
-                    if ((kind != 4 && kind != 2) || currentId == ReadableValues::IntegerRange::UInt32Maximum) break;
+                    if ((kind != 4 && kind != 2) || currentId == NXBasics::IntegerRange::UInt32Maximum) break;
                     const auto good = ReadGood(*reader);
                     const auto amount = reader->GetInt();
                     if (kind == 4) House_Stock_ModifyAmount(House(currentId), nullptr, good, amount, true);
                     else
                     {
-                        Vehicle_Stock_ModifyFutureAmount(Vehicle(currentId), good, amount, ReadableValues::IntegerRange::UInt32Maximum);
-                        Vehicle_Stock_ModifyAmount(Vehicle(currentId), good, amount, ReadableValues::IntegerRange::UInt32Maximum);
+                        Vehicle_Stock_ModifyFutureAmount(Vehicle(currentId), good, amount, NXBasics::IntegerRange::UInt32Maximum);
+                        Vehicle_Stock_ModifyAmount(Vehicle(currentId), good, amount, NXBasics::IntegerRange::UInt32Maximum);
                     }
                     break;
                 }
                 case SwitchIds::MissionStartToken::AttachToHouse:
                 {
-                    if (kind != 1 || currentId == ReadableValues::IntegerRange::UInt32Maximum) break;
+                    if (kind != 1 || currentId == NXBasics::IntegerRange::UInt32Maximum) break;
                     std::int16_t point[2];
                     ReadPosition(*reader, point);
                     const auto house = Logic_EntryPoint_House_GetOnPosition(point);
@@ -349,16 +351,16 @@ namespace NC2Logic
                 }
                 case SwitchIds::MissionStartToken::AttachToVehicle:
                 {
-                    if (kind != 1 || currentId == ReadableValues::IntegerRange::UInt32Maximum) break;
+                    if (kind != 1 || currentId == NXBasics::IntegerRange::UInt32Maximum) break;
                     std::int16_t point[2];
                     ReadPosition(*reader, point);
                     if (!MapMigPoint_IsInsideMap(point)) break;
                     CMapMoveableIterator iterator;
                     for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
                     {
-                        const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
+                        const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                         if (Read<std::uint32_t>(moveable, 8) != 3) continue;
-                        const auto vehicleId = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId);
+                        const auto vehicleId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
                         if (!Vehicle_Passengers_AttachHuman(Vehicle(vehicleId), Read<std::uint32_t>(Human(currentId), 4))) continue;
                         Write<std::uint32_t>(Human(currentId), 0xB48, vehicleId);
                         Write<std::uint32_t>(Human(currentId), 0xB4C, Read<std::uint32_t>(Vehicle(vehicleId), 8));
@@ -367,11 +369,11 @@ namespace NC2Logic
                     break;
                 }
                 case SwitchIds::MissionStartToken::MoveInToVehicle:
-                    if (kind == 1 && currentId != ReadableValues::IntegerRange::UInt32Maximum) Human_VehicleMisc_Enter(Human(currentId));
+                    if (kind == 1 && currentId != NXBasics::IntegerRange::UInt32Maximum) Human_VehicleMisc_Enter(Human(currentId));
                     break;
                 case SwitchIds::MissionStartToken::Setproducedgood:
                 {
-                    if (kind != 1 || currentId == ReadableValues::IntegerRange::UInt32Maximum) break;
+                    if (kind != 1 || currentId == NXBasics::IntegerRange::UInt32Maximum) break;
                     auto good = ReadGood(*reader);
                     if (good >= 66u) good = 0;
                     void* human = Human(currentId);
@@ -388,7 +390,7 @@ namespace NC2Logic
                 }
                 case SwitchIds::MissionStartToken::Setexpierence:
                 {
-                    if (kind != 1 || currentId == ReadableValues::IntegerRange::UInt32Maximum || Human_IsJobHero(Human(currentId))) break;
+                    if (kind != 1 || currentId == NXBasics::IntegerRange::UInt32Maximum || Human_IsJobHero(Human(currentId))) break;
                     const auto job = static_cast<std::uint32_t>(reader->GetInt());
                     const auto amount = static_cast<std::uint32_t>(reader->GetInt());
                     const auto offset = 0x24u + job * 4u;
@@ -404,10 +406,10 @@ namespace NC2Logic
                     void* man = FindFamilyHuman(*reader, false, false);
                     if (man == nullptr) break;
                     Write<std::uint32_t>(woman, 0xB1C, Read<std::uint32_t>(man, 4));
-                    Write<std::uint32_t>(woman, 0xB1C, ReadableValues::IntegerRange::UInt32Maximum);
+                    Write<std::uint32_t>(woman, 0xB1C, NXBasics::IntegerRange::UInt32Maximum);
                     Write<std::uint32_t>(woman, 0xB20, Read<std::uint32_t>(man, 4));
                     Write<std::uint32_t>(man, 0xB1C, Read<std::uint32_t>(woman, 4));
-                    Write<std::uint32_t>(man, 0xB1C, ReadableValues::IntegerRange::UInt32Maximum);
+                    Write<std::uint32_t>(man, 0xB1C, NXBasics::IntegerRange::UInt32Maximum);
                     Write<std::uint32_t>(man, 0xB20, Read<std::uint32_t>(woman, 4));
                     if (Human_IsHavingChild(woman))
                     {
@@ -436,9 +438,9 @@ namespace NC2Logic
                     void* woman = nullptr;
                     for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
                     {
-                        const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable;
+                        const auto* moveable = gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable;
                         if (Read<std::uint32_t>(moveable, 8) != 1) continue;
-                        void* candidate = Human(Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId));
+                        void* candidate = Human(Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId));
                         if (Human_IsSexFemale(candidate) && !Human_IsHavingChild(candidate)) { woman = candidate; break; }
                     }
                     if (woman == nullptr) break;
@@ -460,22 +462,22 @@ namespace NC2Logic
             }
             (void)currentRevision;
         }
-        static constexpr NXBasics::SToken sNameTokenArray[] = {{"setname", ReadableValues::MissionStartObjectsToken::SetName}, {nullptr, 0}};
+        static constexpr NXBasics::SToken sNameTokenArray[] = {{"setname", NC2DataIds::MissionStartObjectsToken::SetName}, {nullptr, 0}};
         if (reader->GetFirstGroup("misc_humannames") != nullptr)
         {
             while (reader->GetNextCommandLineInGroup() != nullptr)
             {
-                if (NXBasics::XB_Token_FindTokenInArray(sNameTokenArray, reader->GetCurrentName()) != ReadableValues::MissionStartObjectsToken::SetName) continue;
+                if (NXBasics::XB_Token_FindTokenInArray(sNameTokenArray, reader->GetCurrentName()) != NC2DataIds::MissionStartObjectsToken::SetName) continue;
                 const auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(reader->GetInt());
                 if (id != -1) NC2LogicExternals::External_Human_SetName(id, reader->GetInt());
             }
         }
-        static constexpr NXBasics::SToken sGraphicsTokenArray[] = {{"setpalette", ReadableValues::MissionStartObjectsToken::SetPalette}, {nullptr, 0}};
+        static constexpr NXBasics::SToken sGraphicsTokenArray[] = {{"setpalette", NC2DataIds::MissionStartObjectsToken::SetPalette}, {nullptr, 0}};
         if (reader->GetFirstGroup("misc_humangraphics") != nullptr)
         {
             while (reader->GetNextCommandLineInGroup() != nullptr)
             {
-                if (NXBasics::XB_Token_FindTokenInArray(sGraphicsTokenArray, reader->GetCurrentName()) != ReadableValues::MissionStartObjectsToken::SetPalette) continue;
+                if (NXBasics::XB_Token_FindTokenInArray(sGraphicsTokenArray, reader->GetCurrentName()) != NC2DataIds::MissionStartObjectsToken::SetPalette) continue;
                 const auto check = static_cast<std::uint32_t>(reader->GetInt());
                 const auto* palette = reader->GetString();
                 for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(check); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(check, id)) NC2LogicExternals::External_Human_SetRandomPalettePatch(id, palette);

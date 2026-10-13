@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 
 #include <Windows.h>
 
@@ -1082,7 +1082,7 @@ namespace NXBasics
         {0u, 0u, 0x400C9C40u}, // 10^4
         {0u, 0u, 0x400FC350u}, // 10^5
         {0u, 0u, 0x4012F424u}, // 10^6
-        {0u, ReadableValues::IntegerRange::Bit31, 0x40169896u}, // 10^7
+        {0u, NXBasics::IntegerRange::Bit31, 0x40169896u}, // 10^7
         {0u, 0x20000000u, 0x4019BEBCu}, // 10^8
         {0u, 0xC9BF0400u, 0x40348E1Bu}, // 10^16
         {0xA1000000u, 0x1BCECCEDu, 0x404ED3C2u}, // 10^24

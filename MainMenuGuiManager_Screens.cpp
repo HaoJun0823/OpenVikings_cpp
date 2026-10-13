@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineDisplayAccess.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -269,7 +269,7 @@ namespace NC2MainMenuGuiManager
         {
             heading(title, 0x4A);
             auto rectangle = content; rectangle.width = AddCoordinate(rectangle.width, 100);
-            Write<std::uint32_t>(this, 0x51C, ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(this, 0x51C, NXBasics::IntegerRange::UInt32Maximum);
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(this, 0x68); ++index)
             {
                 auto* name = reinterpret_cast<const char*>(this) + 0x6C + index * 0x78u;
@@ -399,7 +399,7 @@ namespace NC2MainMenuGuiManager
                 players.y = AddCoordinate(players.y, 5);
                 void* element = CreateButton(players, 0x66, 0x67, 0x13B2, owner, StringTool_GetMainMenuStringPtr);
                 const auto index = Network_GetPlayerListIndex(Read<std::uint32_t>(this, 0xEE4));
-                if (index == ReadableValues::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, 0x56, 1);
+                if (index == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) Write<std::uint8_t>(element, 0x56, 1);
                 add(element); AdvanceRow(players, 5);
             }
             auto slots = players;
@@ -409,7 +409,7 @@ namespace NC2MainMenuGuiManager
             {
                 const auto offset = 0xF28 + index * 0x10u;
                 const auto flags = Read<std::uint32_t>(this, offset + 8);
-                if (flags == 0 || (flags & ReadableValues::IntegerRange::Bit31) != 0) continue;
+                if (flags == 0 || (flags & NXBasics::IntegerRange::Bit31) != 0) continue;
                 const auto kind = Read<std::uint32_t>(this, offset + 4);
                 void* element;
                 if (kind == 1)

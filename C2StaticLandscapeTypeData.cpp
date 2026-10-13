@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticLandscapeTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -27,7 +27,7 @@ namespace NC2Logic
             {
                 storage.tokenInitFlags |= 1;
                 storage.tokens[9] = {nullptr, 0};
-                storage.tokens[0] = {"type", ReadableValues::LandscapeToken::Type};
+                storage.tokens[0] = {"type", NC2DataIds::LandscapeToken::Type};
                 storage.tokens[1] = {"name", SwitchIds::LogicLandscapeToken::Name};
                 storage.tokens[2] = {"allowedonland", SwitchIds::LogicLandscapeToken::Allowedonland};
                 storage.tokens[3] = {"allowedonwater", SwitchIds::LogicLandscapeToken::Allowedonwater};

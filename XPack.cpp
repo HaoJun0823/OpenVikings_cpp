@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "XPack.h"
 
@@ -20,7 +21,7 @@ namespace NXBasics
     // Original function: FUN_00458890.
     bool XB_Pack_Simple8BitRLEUnPack(const void* packedBlock, void* destination, std::uint32_t destinationBytes)
     {
-        if (ReadPackedLong(packedBlock, 0) != ReadableValues::PackingHeader::Signature || ReadPackedLong(packedBlock, 4) != ReadableValues::PackingType::Rle8Unsigned || destinationBytes < ReadPackedLong(packedBlock, 8))
+        if (ReadPackedLong(packedBlock, 0) != NC2DataIds::PackingHeader::Signature || ReadPackedLong(packedBlock, 4) != NC2DataIds::PackingType::Rle8Unsigned || destinationBytes < ReadPackedLong(packedBlock, 8))
             return false;
 
         const auto* block = static_cast<const std::uint8_t*>(packedBlock);
@@ -31,8 +32,8 @@ namespace NXBasics
         while (source != end)
         {
             const std::uint8_t descriptor = *source++;
-            const std::uint32_t count = descriptor & ReadableValues::IntegerRange::Int8Maximum;
-            if ((descriptor & ReadableValues::BitMask::Bit7) != 0)
+            const std::uint32_t count = descriptor & NXBasics::IntegerRange::Int8Maximum;
+            if ((descriptor & NXBasics::BitMask::Bit7) != 0)
             {
                 const std::uint8_t value = *source++;
                 for (std::uint32_t index = 0; index < count; ++index)
@@ -50,7 +51,7 @@ namespace NXBasics
     // Original function: FUN_00458c53.
     bool XB_Pack_Simple16BitRLEUnPack(const void* packedBlock, void* destination, std::uint32_t destinationBytes)
     {
-        if (ReadPackedLong(packedBlock, 0) != ReadableValues::PackingHeader::Signature || ReadPackedLong(packedBlock, 4) != ReadableValues::PackingType::Rle16Unsigned || destinationBytes < ReadPackedLong(packedBlock, 8))
+        if (ReadPackedLong(packedBlock, 0) != NC2DataIds::PackingHeader::Signature || ReadPackedLong(packedBlock, 4) != NC2DataIds::PackingType::Rle16Unsigned || destinationBytes < ReadPackedLong(packedBlock, 8))
             return false;
 
         const auto* block = static_cast<const std::byte*>(packedBlock);
@@ -60,8 +61,8 @@ namespace NXBasics
         while (source != end)
         {
             const auto descriptor = static_cast<std::uint8_t>(*source++);
-            const std::uint32_t count = descriptor & ReadableValues::IntegerRange::Int8Maximum;
-            if ((descriptor & ReadableValues::BitMask::Bit7) != 0)
+            const std::uint32_t count = descriptor & NXBasics::IntegerRange::Int8Maximum;
+            if ((descriptor & NXBasics::BitMask::Bit7) != 0)
             {
                 std::uint16_t value;
                 std::memcpy(&value, source, sizeof(value));
@@ -90,7 +91,7 @@ namespace NXBasics
     // Original function: FUN_00458d60.
     bool XB_Pack_UnPack(const void* packedBlock, void* destination, std::uint32_t destinationBytes)
     {
-        if (ReadPackedLong(packedBlock, 0) != ReadableValues::PackingHeader::Signature)
+        if (ReadPackedLong(packedBlock, 0) != NC2DataIds::PackingHeader::Signature)
             return false;
         switch (ReadPackedLong(packedBlock, 4))
         {
@@ -114,7 +115,7 @@ namespace NXBasics
         {
             auto* output = static_cast<std::byte*>(destination);
             const auto* input = static_cast<const std::byte*>(source);
-            const std::uint32_t header[3] = {ReadableValues::PackingHeader::SignatureSigned, packingType, sourceBytes};
+            const std::uint32_t header[3] = {NC2DataIds::PackingHeader::SignatureSigned, packingType, sourceBytes};
             std::memcpy(output, header, sizeof(header));
             std::uint32_t used = 16;
             T literals[127];
@@ -143,7 +144,7 @@ namespace NXBasics
             };
             const auto flushRun = [&]()
             {
-                if (!writeByte(static_cast<std::uint8_t>(runCount | ReadableValues::BitMask::Bit7Signed)) || !writeValue(last)) return false;
+                if (!writeByte(static_cast<std::uint8_t>(runCount | NXBasics::BitMask::Bit7Signed)) || !writeValue(last)) return false;
                 runCount = 0;
                 return true;
             };
@@ -195,14 +196,14 @@ namespace NXBasics
     // Original function: FUN_004585c6.
     std::uint32_t XB_Pack_Simple8BitRLEPack(const void* source, std::uint32_t sourceBytes, void* destination, std::uint32_t destinationBytes)
     {
-        return PackSimpleRLE<std::uint8_t>(source, sourceBytes, destination, destinationBytes, ReadableValues::PackingType::Rle8);
+        return PackSimpleRLE<std::uint8_t>(source, sourceBytes, destination, destinationBytes, NC2DataIds::PackingType::Rle8);
     }
 
     // Original function: FUN_0045892a; odd source lengths are rejected before writing the header.
     std::uint32_t XB_Pack_Simple16BitRLEPack(const void* source, std::uint32_t sourceBytes, void* destination, std::uint32_t destinationBytes)
     {
         if ((sourceBytes & 1u) != 0) return 0;
-        return PackSimpleRLE<std::uint16_t>(source, sourceBytes, destination, destinationBytes, ReadableValues::PackingType::Rle16);
+        return PackSimpleRLE<std::uint16_t>(source, sourceBytes, destination, destinationBytes, NC2DataIds::PackingType::Rle16);
     }
 
     // Original function: FUN_00458ce2.
@@ -214,7 +215,7 @@ namespace NXBasics
         case SwitchIds::PackingType::Rle16Signed: return XB_Pack_Simple16BitRLEPack(source, sourceBytes, destination, destinationBytes);
         case SwitchIds::PackingType::NoneSigned:
         {
-            const std::uint32_t header[4] = {ReadableValues::PackingHeader::SignatureSigned, packingType, sourceBytes, sourceBytes + 16u};
+            const std::uint32_t header[4] = {NC2DataIds::PackingHeader::SignatureSigned, packingType, sourceBytes, sourceBytes + 16u};
             std::memcpy(destination, header, sizeof(header));
             if (destinationBytes < sourceBytes + 16u) return 0;
             std::memcpy(static_cast<std::byte*>(destination) + 16, source, sourceBytes);

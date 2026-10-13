@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiMousePointer.h"
 #include "InGameGuiBaseAccess.h"
@@ -233,10 +233,10 @@ namespace NInGameGuiManager
     // Original function: FUN_004a244e; complete table 004F4DA0..004F4DCF.
     void CInGameGuiManager::MiscWindows_CloseAllLargeOnes(bool resetInputMode)
     {
-        static constexpr std::uint32_t commands[] = {0x7D8, 0x7D9, 0x7E3, 0x7E4, 0x7E5, 0x7E6, 0x7E7, 0x7E8, 0x7E9, 0x7EC, 0x7DA, ReadableValues::IntegerRange::UInt32Maximum};
+        static constexpr std::uint32_t commands[] = {0x7D8, 0x7D9, 0x7E3, 0x7E4, 0x7E5, 0x7E6, 0x7E7, 0x7E8, 0x7E9, 0x7EC, 0x7DA, NXBasics::IntegerRange::UInt32Maximum};
         for (auto command : commands)
         {
-            if (command == ReadableValues::IntegerRange::UInt32Maximum) break;
+            if (command == NXBasics::IntegerRange::UInt32Maximum) break;
             auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(command, 0, 0, 0);
             if (window != nullptr) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(reinterpret_cast<NXBaseGui::CBaseWindow*>(window));
         }

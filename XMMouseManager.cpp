@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "X2DApplication.h"
 #include "XMMouseManager.h"
 #include "XSystemMouseCursor.h"
@@ -221,9 +221,9 @@ namespace NXSysMouseManager
     // Original function: FUN_004794eb
     void CMouseManager::l_UpdateMouseButtonState()
     {
-        const bool leftButton = (GetKeyState(VK_LBUTTON) & ReadableValues::BitMask::Bit15Signed) != 0;
-        const bool middleButton = (GetKeyState(VK_MBUTTON) & ReadableValues::BitMask::Bit15Signed) != 0;
-        const bool rightButton = (GetKeyState(VK_RBUTTON) & ReadableValues::BitMask::Bit15Signed) != 0;
+        const bool leftButton = (GetKeyState(VK_LBUTTON) & NXBasics::BitMask::Bit15Signed) != 0;
+        const bool middleButton = (GetKeyState(VK_MBUTTON) & NXBasics::BitMask::Bit15Signed) != 0;
+        const bool rightButton = (GetKeyState(VK_RBUTTON) & NXBasics::BitMask::Bit15Signed) != 0;
 
         l_SetState_Total(leftButton, middleButton, rightButton, mMouseX, mMouseY, 0, 0, 0);
     }

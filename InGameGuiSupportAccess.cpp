@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiSupportAccess.h"
 #include "ApplicationGlobals.h"
@@ -398,13 +398,13 @@ namespace NC2InGameGuiDeadHumanDataManager
     void CDeadHumanDataManager::DeadHuman_Add(std::uint32_t humanId)
     {
         void* human = NC2Logic::CHumanArray::mStaticVars + humanId * 0xC58u;
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) return;
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId()) return;
         void* entry = static_cast<std::byte*>(Read<void*>(this, 8)) + Read<std::uint32_t>(this, 4) * 0x3Cu;
         std::memset(entry, 0, 60);
         Write<std::uint32_t>(entry, 0, Read<std::uint32_t>(human, 8));
         std::strncpy(static_cast<char*>(entry) + 4, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries + humanId * 0x8C8u + 0x85Cu), 40);
         Write<std::uint32_t>(entry, 0x30, NC2Logic::gGameTime.tick);
-        Write<std::uint32_t>(entry, 0x34, Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType));
+        Write<std::uint32_t>(entry, 0x34, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType));
         Write<std::uint32_t>(entry, 0x38, Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(human), 0));
         const auto count = Read<std::uint32_t>(this, 0);
         if (count != 50) Write<std::uint32_t>(this, 0, count + 1u);

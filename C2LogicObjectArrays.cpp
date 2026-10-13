@@ -1,4 +1,6 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2LogicObjectArrays.h"
 #include "C2CallbackManager.h"
 #include "C2LifetimeAccess.h"
@@ -22,7 +24,7 @@ namespace NC2Logic
     // Original function: FUN_004020fb; no allocation or bounds check.
     void* GetVehiclePtr(std::int32_t id) { return CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize; }
     // Original function: FUN_0040210c; no allocation or bounds check.
-    void* GetMapMoveablePtr(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable; }
+    void* GetMapMoveablePtr(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable; }
     // Original function: FUN_00430f4c.
     std::uint32_t CArrayHandler::Checksum_Calculate()
     {
@@ -63,20 +65,20 @@ namespace NC2Logic
     bool HumanReference_IsAllocated(const void* reference)
     {
         const auto id = NC2Lifetime::Read<std::uint32_t>(reference, 0);
-        if (id == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
         return NC2Lifetime::Read<std::uint8_t>(human, 0) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 8) == NC2Lifetime::Read<std::uint32_t>(reference, 4);
     }
     // Original function: FUN_0042d2ee.
     bool Human_HasEquippedShoes(const void* human)
     {
-        return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedShoes) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xADC) != 0;
+        return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedShoes) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xADC) != 0;
     }
 
     // Original function: FUN_0042d304.
     bool Human_HasEquippedTools(const void* human)
     {
-        return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedTools) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xAE0) != 0;
+        return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedTools) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 0xAE0) != 0;
     }
     // Original function: FUN_0040211a; IDs are deliberately not range checked.
     const void* GetHumanPtr(std::int32_t id)
@@ -94,7 +96,7 @@ namespace NC2Logic
     bool Human_IsJobSoldier(const void* human)
     {
         std::int32_t job;
-        std::memcpy(&job, static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::JobType, sizeof(job));
+        std::memcpy(&job, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::JobType, sizeof(job));
         return job >= 0x1F && job <= 0x29;
     }
 
@@ -102,7 +104,7 @@ namespace NC2Logic
     bool Human_IsJobHero(const void* human)
     {
         std::int32_t job;
-        std::memcpy(&job, static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::JobType, sizeof(job));
+        std::memcpy(&job, static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::JobType, sizeof(job));
         return job >= 0x2A && job <= 0x2F;
     }
 
@@ -253,7 +255,7 @@ namespace NC2Logic
 
         std::uint32_t version = 0;
 
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::ArrayChunk::Header, &version, nullptr))
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(NC2DataIds::ArrayChunk::Header, &version, nullptr))
             return;
 
         // The original reads all six serialized state fields without validating the version.
@@ -279,7 +281,7 @@ namespace NC2Logic
     // Original function: FUN_00430db7
     void CArrayHandler::IO_SaveArray(CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(ReadableValues::ArrayChunk::Header, 1u);
+        io->IO_Tool_Chunk_StartCreation(NC2DataIds::ArrayChunk::Header, 1u);
         io->IO_Memory_WriteBinary(&mCapacity, 0x18u);
 
         for (std::int32_t index = 0; index < mCapacity; ++index)
@@ -493,17 +495,17 @@ namespace NC2Logic
     // Original function: FUN_0042c597.
     bool Human_IsAgeAdult(const void* human)
     {
-        const auto job = NC2Lifetime::Read<std::int32_t>(human, ReadableValues::HumanOffset::JobType);
+        const auto job = NC2Lifetime::Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType);
         return job < 1 || job > 4;
     }
     // Original function: FUN_0042c522.
     bool Human_IsSexMale(const void* human)
     {
-        const auto job = NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType);
-        return !(job == 1 || job == 3 || job == 5 || (job == 47 && NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == 3));
+        const auto job = NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
+        return !(job == 1 || job == 3 || job == 5 || (job == 47 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3));
     }
     // Original function: FUN_0042c652.
-    bool Human_IsAttachedToHomeHouse(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId) != ReadableValues::IntegerRange::UInt32Maximum; }
+    bool Human_IsAttachedToHomeHouse(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) != NXBasics::IntegerRange::UInt32Maximum; }
     // Original function: FUN_0042c65f.
-    bool Human_IsAttachedToWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) != ReadableValues::IntegerRange::UInt32Maximum; }
+    bool Human_IsAttachedToWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) != NXBasics::IntegerRange::UInt32Maximum; }
 }

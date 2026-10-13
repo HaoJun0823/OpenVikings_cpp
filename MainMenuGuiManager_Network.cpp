@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XResultIdentifiers.h"
 #include "MainMenuGuiManager.h"
 #include "C2LifetimeAccess.h"
@@ -91,7 +91,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_HostSession(const char* sessionName, std::uint32_t maximumPlayers)
     {
         const char* error;
-        if (Read<std::uint32_t>(this, 0x51C) == ReadableValues::IntegerRange::UInt32Maximum) error = "Host start session - no service provider selected";
+        if (Read<std::uint32_t>(this, 0x51C) == NXBasics::IntegerRange::UInt32Maximum) error = "Host start session - no service provider selected";
         else
         {
             auto* network = GetNetworkInstance();
@@ -118,7 +118,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_StartSessionSearch(const char* address)
     {
         const char* error;
-        if (Read<std::uint32_t>(this, 0x51C) == ReadableValues::IntegerRange::UInt32Maximum) error = "Join session - no service provider selected";
+        if (Read<std::uint32_t>(this, 0x51C) == NXBasics::IntegerRange::UInt32Maximum) error = "Join session - no service provider selected";
         else
         {
             auto* network = GetNetworkInstance();
@@ -239,7 +239,7 @@ namespace NC2MainMenuGuiManager
     bool CGuiManager::Network_SelectedProviderIsTcpIp() const
     {
         const auto selected = Read<std::uint32_t>(this, 0x51C);
-        if (selected == ReadableValues::IntegerRange::UInt32Maximum) return false;
+        if (selected == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto address = reinterpret_cast<std::uintptr_t>(this) + selected * 0x78u + 0xD4u;
         if (address == 0) return false;
         return std::memcmp(reinterpret_cast<const void*>(address), &cTcpIpProvider, sizeof(GUID)) == 0;
@@ -413,6 +413,6 @@ namespace NC2MainMenuGuiManager
     {
         const auto count = Read<std::uint32_t>(this, 0xAA4);
         for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(this, 0xB10 + index * 0x6Cu) == playerId) return index;
-        return ReadableValues::IntegerRange::UInt32Maximum;
+        return NXBasics::IntegerRange::UInt32Maximum;
     }
 }

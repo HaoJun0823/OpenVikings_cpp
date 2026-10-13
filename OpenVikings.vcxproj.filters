@@ -1592,6 +1592,10 @@
     <ClInclude Include="XResultIdentifiers.h"><Filter>Diagnostics</Filter></ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ReadableValues.h"><Filter>Core\Types</Filter></ClInclude>
+    <ClInclude Include="C2ObjectLayout.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="C2DataIds.h"><Filter>Logic</Filter></ClInclude>
+    <ClInclude Include="XNumericConstants.h"><Filter>Core\Types</Filter></ClInclude>
+    <ClInclude Include="XWindowsResultCodes.h"><Filter>Diagnostics</Filter></ClInclude>
+    <ClInclude Include="C2RuntimeConstants.h"><Filter>Logic</Filter></ClInclude>
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "InGameGuiTraderConfigWindow.h"
 #include "InGameGuiMousePointer.h"
 #include "InGameGuiBaseAccess.h"
@@ -188,10 +188,10 @@ namespace NC2InGameGuiSelectedAction
             const void* house = l_Merchant_GetOpponentTradeHousePtr(window);
             if (house == nullptr) return;
             void* merchant = Merchant(l_Merchant_GetHumanPtr(window));
-            const auto selected = merchant == nullptr ? ReadableValues::IntegerRange::UInt32Maximum : Read<std::uint32_t>(merchant, 4);
-            std::uint32_t id = ReadableValues::IntegerRange::UInt32Maximum;
+            const auto selected = merchant == nullptr ? NXBasics::IntegerRange::UInt32Maximum : Read<std::uint32_t>(merchant, 4);
+            std::uint32_t id = NXBasics::IntegerRange::UInt32Maximum;
             std::int32_t y = 0;
-            while ((id = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, id)) != ReadableValues::IntegerRange::UInt32Maximum)
+            while ((id = NC2Logic::HumanMerchantArray_GetNextTradeAgreementId(NC2Logic::gHumanMerchantArray, house, id)) != NXBasics::IntegerRange::UInt32Maximum)
             {
                 const void* agreement = static_cast<const std::byte*>(NC2Logic::gHumanMerchantArray) + 0x38u + id * 24u;
                 const auto good1 = Read<std::uint32_t>(agreement, 8), amount1 = Read<std::uint32_t>(agreement, 12), good2 = Read<std::uint32_t>(agreement, 16), amount2 = Read<std::uint32_t>(agreement, 20);
@@ -203,7 +203,7 @@ namespace NC2InGameGuiSelectedAction
                 BaseListBoxElement_Element_Add(list, nullptr, element); y += 34;
             }
             void* element = TextButton(window, SRectangle(0, y, Read<std::int32_t>(list, 0x0C), 30), HumanString(116), 10200);
-            Write<std::uint32_t>(element, 0x4C, ReadableValues::IntegerRange::UInt32Maximum); Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x55, selected == ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(element, 0x4C, NXBasics::IntegerRange::UInt32Maximum); Write<std::uint32_t>(element, 0x50, 0); Write<std::uint8_t>(element, 0x55, selected == NXBasics::IntegerRange::UInt32Maximum);
             BaseListBoxElement_Element_Add(list, nullptr, element);
         }
         // Original function: FUN_004cd33c.

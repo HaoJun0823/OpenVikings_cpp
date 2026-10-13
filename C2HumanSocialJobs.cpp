@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanSocialJobs.h"
 #include "C2GameMapAccess.h"
@@ -27,7 +27,7 @@ namespace NC2Logic
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
             const auto moveable = Read<std::int16_t>(micro, 10);
-            return moveable == Read<std::int32_t>(human, 12) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * ReadableValues::RecordSize::MapMoveable, 0x24) == -1;
+            return moveable == Read<std::int32_t>(human, 12) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, 0x24) == -1;
         }
         void TargetHuman(void* human, const void* other)
         {
@@ -43,8 +43,8 @@ namespace NC2Logic
     void* Human_FindHumanToEnjoy(const void* human)
     {
         CHumanIterator iterator;
-        const auto job = Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType);
-        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, job == 18 || job == 29 ? 10 : 20); id != -1; id = iterator.GetNextHumanId())
+        const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
+        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, job == 18 || job == 29 ? 10 : 20); id != -1; id = iterator.GetNextHumanId())
         {
             auto* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Read<std::uint8_t>(other, 0xB51) != 0 || Read<std::int32_t>(other, 0xAB0) > 8000 || !Human_IsJobNeedingSocial(other)) continue;
@@ -58,8 +58,8 @@ namespace NC2Logic
     void* Human_FindHumanToBless(const void* human)
     {
         CHumanIterator iterator;
-        const auto job = Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType);
-        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<const std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter, job == 18 || job == 29 ? 10 : 20); id != -1; id = iterator.GetNextHumanId())
+        const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
+        for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, job == 18 || job == 29 ? 10 : 20); id != -1; id = iterator.GetNextHumanId())
         {
             auto* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Read<std::int32_t>(other, 0xAA0) > static_cast<std::int32_t>(Human_GetHumanAttributeMaximum_Hitpoints(other))) continue;
@@ -72,7 +72,7 @@ namespace NC2Logic
     // Original function: FUN_0046f035.
     void Human_l_StartTask_ExecuteJob_Jester(void* human)
     {
-        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
+        switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::None: Human_l_StartTask_ExecuteJob_Jester_TryToJest(human); return;
         case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Jester_Collect(human); return;
@@ -86,7 +86,7 @@ namespace NC2Logic
     {
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) == 7) Human_l_StartTask_ExecuteJob_Jester_Jest(human);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 7) Human_l_StartTask_ExecuteJob_Jester_Jest(human);
             else Human_l_StartTask_ExecuteJob_Tool_CollectWantedGood(human);
             return;
         }
@@ -98,11 +98,11 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Jester_TryToJest(void* human)
     {
         Human_Target_Reset(human);
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         auto* other = Human_FindHumanToEnjoy(human);
         if (other != nullptr && Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, 12), 1))
         {
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 2);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 2);
             TargetHuman(human, other);
             return;
         }
@@ -115,7 +115,7 @@ namespace NC2Logic
         if (!HasUnsharedPosition(human)) { Human_l_StartTask_GoAway(human, 0, 0); return; }
         Human_Target_SetWorkPosition(human, Human_GetMapPositionRef(human));
         Human_l_StartAtomicAnimation(human, 16, Human_Target_GetDirectionTo(human));
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
     }
 
     // Original function: FUN_0046f26d.
@@ -123,10 +123,10 @@ namespace NC2Logic
     {
         if (Human_IsAttachedToWorkHouse(human))
         {
-            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-            if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::ConstructionState) == 3)
+            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3)
             {
-                if (Read<std::uint32_t>(house, ReadableValues::HouseOffset::LogicType) == 37) Human_l_StartTask_ExecuteJob_Druid_Priest(human);
+                if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37) Human_l_StartTask_ExecuteJob_Druid_Priest(human);
                 else Human_l_StartTask_ExecuteJob_Tool_GoodProducer(human);
                 return;
             }
@@ -137,7 +137,7 @@ namespace NC2Logic
     // Original function: FUN_0046f2b2.
     void Human_l_StartTask_ExecuteJob_Druid_Priest(void* human)
     {
-        if (!Human_Target_HasTarget(human) || Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget) != 7) Human_l_StartTask_ExecuteJob_Tool_FillTemple(human);
+        if (!Human_Target_HasTarget(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) != 7) Human_l_StartTask_ExecuteJob_Tool_FillTemple(human);
         if (IsWorking(human)) return;
         Human_l_StartTask_ExecuteJob_Druid_Healer(human);
         if (!IsWorking(human)) Fail(human, 2);
@@ -153,7 +153,7 @@ namespace NC2Logic
     // Original function: FUN_0046f327.
     void Human_l_StartTask_ExecuteJob_Druid_TryToHeal(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         auto* other = Human_FindHumanToBless(human);
         if (other != nullptr && Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, 12), 1))
         {
@@ -170,14 +170,14 @@ namespace NC2Logic
         if (!HasUnsharedPosition(human)) { Human_l_StartTask_GoAway(human, 0, 0); return; }
         Human_Target_SetWorkPosition(human, Human_GetMapPositionRef(human));
         Human_l_StartAtomicAnimation(human, 18, Human_Target_GetDirectionTo(human));
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
     }
 
     // Original function: FUN_004757a6; the Windows entry contains dispatch, delivery and collection.
     void Human_l_StartTask_ExecuteJob_Tool_FillTemple(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 0) { Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch(human); return; }
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) == 0)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0) { Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) == 0)
         {
             if (Human_IsAtTargetPoint(human))
             {
@@ -194,40 +194,40 @@ namespace NC2Logic
             auto* house = Human_GetHousePtrAtTargetPosition(human);
             if (house != nullptr)
             {
-                if (!House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), false) || House_Stock_IsFull(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood))) { Human_Target_Reset(human); return; }
+                if (!House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), false) || House_Stock_IsFull(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood))) { Human_Target_Reset(human); return; }
             }
             else
             {
-                if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
-                if (!Map_GoodTool_CanBePutOnMap(Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), Human_Target_GetRealPositionRef(human)))
+                if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
+                if (!Map_GoodTool_CanBePutOnMap(Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), Human_Target_GetRealPositionRef(human)))
                 {
                     if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
-                    Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+                    Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
                     return;
                 }
             }
             Human_l_StartAtomicAnimation(human, 23, 6);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
-        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-        if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), false) && House_Stock_HasDemandForGood(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood)) && Human_l_StartAtomicWalk(human, house + ReadableValues::HouseOffset::MapPosition, house + ReadableValues::HouseOffset::DoorEntryPoint)) return;
-        if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+        if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), false) && House_Stock_HasDemandForGood(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood)) && Human_l_StartAtomicWalk(human, house + NC2Layout::HouseOffset::MapPosition, house + NC2Layout::HouseOffset::DoorEntryPoint)) return;
+        if (Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), &real, &work) && Human_l_StartAtomicWalkAndBring(human, &real, &work)) return;
         if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_004759ab.
     void Human_l_StartTask_ExecuteJob_Tool_FillTemple_Fetch(void* human)
     {
         Human_Target_Reset(human);
-        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+        auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
         if (House_Stock_HasDemandForGood(house, 15))
         {
             std::uint32_t real = 0, work = 0;
             if (Human_FindGood_Complex(human, 15, &real, &work, Human_GetWorkCenterPointRef(human)))
             {
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 15);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 15);
                 if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
             }
         }

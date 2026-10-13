@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2AITaskAccess.h"
 #include "C2GameMapAccess.h"
 #include "C2LifetimeAccess.h"
@@ -93,7 +94,7 @@ namespace NC2Logic
             const auto count = Read<std::uint32_t>(handler, 0x3D60);
             const auto* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
             if (count == 100) break;
-            Write(handler, 0x3D64 + count * 16, Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType)); Write(handler, 0x3D68 + count * 16, Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition));
+            Write(handler, 0x3D64 + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType)); Write(handler, 0x3D68 + count * 16, Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition));
             Write(handler, 0x3D6C + count * 16, Read<std::uint32_t>(house, 0x20)); Write(handler, 0x3D70 + count * 16, Read<std::uint32_t>(house, 0x7CC));
             Write(handler, 0x3D60, count + 1);
         }
@@ -169,7 +170,7 @@ namespace NC2Logic
     void AIConditionToConditionCheck_Tool_Init(void* check, std::uint32_t operation)
     {
         Write<std::uint32_t>(check, 4, 0); Write(check, 0, operation);
-        for (std::uint32_t i = 0; i < 10; ++i) Write<std::uint32_t>(check, 8 + i * 4, ReadableValues::IntegerRange::UInt32Maximum);
+        for (std::uint32_t i = 0; i < 10; ++i) Write<std::uint32_t>(check, 8 + i * 4, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Original function: FUN_0044e09a; Windows combines matching type-2 centers only.
@@ -242,7 +243,7 @@ namespace NC2Logic
     bool AIManager_EntryPoint_MainTask_Add(void* manager, std::uint32_t player, const void* task)
     {
         void* handler = Read<void*>(manager, player * 4u);
-        return handler != nullptr && AISinglePlayerHandler_MainTask_Add(handler, task) != ReadableValues::IntegerRange::UInt32Maximum;
+        return handler != nullptr && AISinglePlayerHandler_MainTask_Add(handler, task) != NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_0042a5bf.
@@ -261,24 +262,24 @@ namespace NC2Logic
             if (slot > Read<std::uint32_t>(handler, 0x1C2C)) Write(handler, 0x1C2C, slot);
             return slot;
         }
-        return ReadableValues::IntegerRange::UInt32Maximum;
+        return NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_0044df9a; distinct primary/secondary border checks precede a forward DWORD copy.
     std::uint32_t AISinglePlayerHandler_MainTask_Add(void* handler, const void* task)
     {
         const auto slot = AISinglePlayerHandler_l_MainTask_GetFreeArraySlot(handler);
-        if (slot == ReadableValues::IntegerRange::UInt32Maximum) return slot;
+        if (slot == NXBasics::IntegerRange::UInt32Maximum) return slot;
         const auto type = Read<std::uint32_t>(task, 8);
         if (type == 1 || type == 2 || type == 3 || type == 5)
         {
             std::uint32_t point;
             MapMigPoint_SetPosition(&point, Read<std::int16_t>(task, 0x0C), Read<std::int16_t>(task, 0x0E), false);
-            if (MapMigPoint_IsBorderPoint(&point)) return ReadableValues::IntegerRange::UInt32Maximum;
+            if (MapMigPoint_IsBorderPoint(&point)) return NXBasics::IntegerRange::UInt32Maximum;
             if (type == 2)
             {
                 MapMigPoint_Construct(&point, Read<std::int16_t>(task, 0x1C), Read<std::int16_t>(task, 0x1E), false);
-                if (MapMigPoint_IsBorderPoint(&point)) return ReadableValues::IntegerRange::UInt32Maximum;
+                if (MapMigPoint_IsBorderPoint(&point)) return NXBasics::IntegerRange::UInt32Maximum;
             }
         }
         void* destination = static_cast<std::byte*>(handler) + 0x1C30u + slot * 0x44u;

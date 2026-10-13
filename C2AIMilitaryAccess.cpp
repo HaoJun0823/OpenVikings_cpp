@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2AIMilitaryAccess.h"
 #include "C2AIBuildingAccess.h"
 #include "C2AITaskAccess.h"
@@ -37,7 +38,7 @@ namespace NC2Logic
     {
         for (std::uint32_t i = 0; i < 100; ++i) Write<std::uint8_t>(manager, 4 + i * 52, 0);
         Write<std::int32_t>(manager, 0x1454, -1); Write(manager, 0, player);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
         for (std::uint32_t t = 0; t < 8; ++t)
             for (std::uint32_t weapon = 0; weapon < 22; ++weapon)
             {
@@ -49,7 +50,7 @@ namespace NC2Logic
                 {
                     const auto* armorData = static_cast<const std::byte*>(gStaticArmorTypeData) + armor * 52;
                     const auto candidate = Read<std::int32_t>(data, 56 + Read<std::uint32_t>(armorData, 40) * 4);
-                    if (candidate >= damage || Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + tribe * 56 + Read<std::uint32_t>(armorData, 36) + 0x3C78) == 0) continue;
+                    if (candidate >= damage || Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + Read<std::uint32_t>(armorData, 36) + 0x3C78) == 0) continue;
                     best = armor; damage = candidate;
                 }
                 Write(manager, offset + 4, best);
@@ -64,7 +65,7 @@ namespace NC2Logic
             {
                 if (weapon != 4 && weapon != 5 && weapon != 7 && weapon != 8 && weapon != 16 && weapon != 17) continue;
                 const auto* weaponData = static_cast<const std::byte*>(gStaticWeaponTypeArrays[tribe]) + weapon * 0xC4;
-                if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + tribe * 56 + Read<std::uint32_t>(weaponData, 36) + 0x3C78) == 0) continue;
+                if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + Read<std::uint32_t>(weaponData, 36) + 0x3C78) == 0) continue;
                 const auto candidate = Read<std::int32_t>(weaponData, 56 + Read<std::uint32_t>(data, 40) * 4);
                 if (candidate > damage) { damage = candidate; best = weapon; }
             }
@@ -127,7 +128,7 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < 5; ++i) Write<std::uint32_t>(manager, 0x1C98 + i * 12, 0);
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned) == 0 || player == Read<std::uint32_t>(manager, 0)) continue;
+            if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned) == 0 || player == Read<std::uint32_t>(manager, 0)) continue;
             const auto state = GameControl_Diplomacy_GetState(gGameControl, Read<std::uint32_t>(manager, 0), player);
             if (state == 1) continue;
             const std::uint32_t weight = state == 3 ? 5 : 1;
@@ -155,12 +156,12 @@ namespace NC2Logic
     std::uint32_t AIMilitaryManager_l_Soldier_GetBestPossibleWeaponType(void* manager, std::uint32_t weapon, void* high)
     {
         const auto player = Read<std::uint32_t>(manager, 0);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
         auto* villages = static_cast<std::byte*>(high) + 28;
         if ((weapon == 5 || weapon == 7 || weapon == 8) && AIVillagesData_Good_IsProducingGood(villages, 32, true) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, 0x145C + (tribe * 22 + weapon) * 12), true)) return weapon;
         if ((weapon == 16 || weapon == 17) && AIVillagesData_Good_IsProducingGood(villages, Read<std::uint32_t>(manager, 0x145C + (tribe * 22 + weapon) * 12), true)) return weapon;
         const auto good = Read<std::uint32_t>(manager, 0x148C + tribe * 264);
-        if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + tribe * 56 + good + 0x3C78) != 0 && AIVillagesData_Good_IsProducingGood(villages, good, true)) return 4;
+        if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + good + 0x3C78) != 0 && AIVillagesData_Good_IsProducingGood(villages, good, true)) return 4;
         return 0;
     }
     // Original function: FUN_004557ed.
@@ -183,7 +184,7 @@ namespace NC2Logic
             const auto enemy = Read<std::int32_t>(manager, 0x1F54);
             if (enemy == 20) { Write<std::int32_t>(manager, 0x1F54, -1); return; }
             const auto player = Read<std::uint32_t>(manager, 0);
-            if (static_cast<std::uint32_t>(enemy) != player && enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * ReadableValues::RecordSize::GameControlPlayerSigned) != 0 && Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + enemy + 0x45F8) != 0 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * ReadableValues::RecordSize::GameControlPlayerSigned + 8) == 0)
+            if (static_cast<std::uint32_t>(enemy) != player && enemy < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayerSigned) != 0 && Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + enemy + 0x45F8) != 0 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(enemy) * NC2Layout::RecordSize::GameControlPlayerSigned + 8) == 0)
             {
                 auto* target = static_cast<std::byte*>(manager) + 0x1CD4 + static_cast<std::uint32_t>(enemy) * 32;
                 if (GameControl_Diplomacy_GetState(gGameControl, player, enemy) != 3) AIMilitaryPoint_Clear(target);
@@ -244,7 +245,7 @@ namespace NC2Logic
     void AIMilitaryManager_l_MilitaryPoints_Update(void* manager, void* high)
     {
         const auto player = Read<std::uint32_t>(manager, 0); auto* single = Read<void*>(gAIManager, player * 4);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
         auto* villages = static_cast<std::byte*>(high) + 28;
         for (std::uint32_t index = 0; index < 100; ++index)
         {
@@ -296,7 +297,7 @@ namespace NC2Logic
             const auto taskId = Read<std::int32_t>(entry, 32);
             if (taskId == -1)
             {
-                const auto added = AISinglePlayerHandler_MainTask_Add(single, task); if (added != ReadableValues::IntegerRange::UInt32Maximum) Write(entry, 32, added);
+                const auto added = AISinglePlayerHandler_MainTask_Add(single, task); if (added != NXBasics::IntegerRange::UInt32Maximum) Write(entry, 32, added);
                 continue;
             }
             auto* old = static_cast<std::byte*>(single) + 0x1C30 + static_cast<std::uint32_t>(taskId) * 68;
@@ -318,10 +319,10 @@ namespace NC2Logic
     void AIMilitaryManager_l_Soldier_SetupCorrectEquipment(void* manager, void* high)
     {
         const auto player = Read<std::uint32_t>(manager, 0); auto* single = Read<void*>(gAIManager, player * 4);
-        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
+        const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
         auto count = Read<std::uint32_t>(single, 0x6168); if (count == 0) return;
         auto remaining = count; auto* villages = static_cast<std::byte*>(high) + 28;
-        const auto available = [&](std::uint32_t good) { return Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + tribe * 56 + good + 0x3C78) != 0; };
+        const auto available = [&](std::uint32_t good) { return Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + tribe * 56 + good + 0x3C78) != 0; };
         const auto weaponGood = [&](std::uint32_t weapon) { return Read<std::uint32_t>(manager, 0x145C + (tribe * 22 + weapon) * 12); };
         const auto armorGood = [&](std::uint32_t armor) { return Read<std::uint32_t>(manager, 0x1C9C + armor * 12); };
         const auto soldierAt = [&](std::uint32_t i) { return static_cast<std::byte*>(single) + 0x616C + i * 84; };

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XMKeyManager.h"
 #include "XCrtFileAccess.h"
 
@@ -80,14 +80,14 @@ namespace NXSysKeyManager
 
         mModifierFlags = 0;
 
-        if ((GetAsyncKeyState(VK_SHIFT) & ReadableValues::BitMask::Bit15Signed) != 0)
+        if ((GetAsyncKeyState(VK_SHIFT) & NXBasics::BitMask::Bit15Signed) != 0)
         {
             mModifierFlags |= 1;
         }
 
-        if ((GetAsyncKeyState(VK_CONTROL) & ReadableValues::BitMask::Bit15Signed) != 0)
+        if ((GetAsyncKeyState(VK_CONTROL) & NXBasics::BitMask::Bit15Signed) != 0)
         {
-            mModifierFlags |= ReadableValues::BitMask::Bit1Signed;
+            mModifierFlags |= NXBasics::BitMask::Bit1Signed;
         }
 
         message->modifierFlags = mModifierFlags;

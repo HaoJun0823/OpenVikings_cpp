@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2GuideRouting.h"
 #include "C2MapPathfinderSearch.h"
 #include "C2MapGeometry.h"
@@ -40,7 +40,7 @@ namespace NC2Logic
             if ((directions & (1u << direction)) == 0) continue;
             Write(point, 0, position);
             MapMigPoint_MoveCursorUnwrapped(point, direction, 1);
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0C) & ReadableValues::BitMask::Bit7) == 0) break;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0C) & NXBasics::BitMask::Bit7) == 0) break;
         }
     }
 

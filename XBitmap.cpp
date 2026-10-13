@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "XSystemManager.h"
 #include "OriginalStrings.h"
@@ -561,9 +561,9 @@ namespace NXBasics
                 for (std::int32_t x = 0; x < mRectangle.width; ++x)
                 {
                     const std::uint32_t pixel = Draw_GetPixel_Long(x, y);
-                    const std::uint32_t red = (pixel >> 16) & ReadableValues::IntegerRange::UInt8Maximum;
-                    const std::uint32_t green = (pixel >> 8) & ReadableValues::IntegerRange::UInt8Maximum;
-                    const std::uint32_t blue = pixel & ReadableValues::IntegerRange::UInt8Maximum;
+                    const std::uint32_t red = (pixel >> 16) & NXBasics::IntegerRange::UInt8Maximum;
+                    const std::uint32_t green = (pixel >> 8) & NXBasics::IntegerRange::UInt8Maximum;
+                    const std::uint32_t blue = pixel & NXBasics::IntegerRange::UInt8Maximum;
                     const std::uint16_t color = g16BitPixelConverter->PackColor(red, green, blue);
 
                     const std::uint32_t index = static_cast<std::uint32_t>(y) * destination->mRowPixelCount + static_cast<std::uint32_t>(x);
@@ -671,7 +671,7 @@ namespace NXBasics
                     {
                         std::uint32_t packed;
                         std::memcpy(&packed, BitmapPixelAddress(source, sourceIndex + 1u), sizeof(packed));
-                        packed = (packed & ReadableValues::BitMask::DwordExceptBits0Through15) | *BitmapPixelAddress(source, sourceIndex);
+                        packed = (packed & NXBasics::BitMask::DwordExceptBits0Through15) | *BitmapPixelAddress(source, sourceIndex);
                         std::memcpy(BitmapPixelAddress(target, destinationIndex), &packed, sizeof(packed));
                         sourceIndex += 4u;
                         destinationIndex += 2u;
@@ -921,8 +921,8 @@ namespace NXBasics
         if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > Runtime_TimeSigned32(mRightBits) && x2 > Runtime_TimeSigned32(mRightBits)) || (y1 > Runtime_TimeSigned32(mBottomBits) && y2 > Runtime_TimeSigned32(mBottomBits))) return;
         auto dx = static_cast<std::uint32_t>(x2) - static_cast<std::uint32_t>(x1);
         auto dy = static_cast<std::uint32_t>(y2) - static_cast<std::uint32_t>(y1);
-        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : ReadableValues::IntegerRange::UInt32Maximum);
-        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : ReadableValues::IntegerRange::UInt32Maximum);
+        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : NXBasics::IntegerRange::UInt32Maximum);
+        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : NXBasics::IntegerRange::UInt32Maximum);
         if (Runtime_TimeSigned32(dx) < 0) dx = 0u - dx;
         if (Runtime_TimeSigned32(dy) < 0) dy = 0u - dy;
         auto x = static_cast<std::uint32_t>(x1), y = static_cast<std::uint32_t>(y1);
@@ -959,8 +959,8 @@ namespace NXBasics
         if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > Runtime_TimeSigned32(mRightBits) && x2 > Runtime_TimeSigned32(mRightBits)) || (y1 > Runtime_TimeSigned32(mBottomBits) && y2 > Runtime_TimeSigned32(mBottomBits))) return;
         auto dx = static_cast<std::uint32_t>(x2) - static_cast<std::uint32_t>(x1);
         auto dy = static_cast<std::uint32_t>(y2) - static_cast<std::uint32_t>(y1);
-        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : ReadableValues::IntegerRange::UInt32Maximum);
-        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : ReadableValues::IntegerRange::UInt32Maximum);
+        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : NXBasics::IntegerRange::UInt32Maximum);
+        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : NXBasics::IntegerRange::UInt32Maximum);
         if (Runtime_TimeSigned32(dx) < 0) dx = 0u - dx;
         if (Runtime_TimeSigned32(dy) < 0) dy = 0u - dy;
         auto x = static_cast<std::uint32_t>(x1), y = static_cast<std::uint32_t>(y1);
@@ -997,8 +997,8 @@ namespace NXBasics
         if ((x1 < 0 && x2 < 0) || (y1 < 0 && y2 < 0) || (x1 > Runtime_TimeSigned32(mRightBits) && x2 > Runtime_TimeSigned32(mRightBits)) || (y1 > Runtime_TimeSigned32(mBottomBits) && y2 > Runtime_TimeSigned32(mBottomBits))) return;
         auto dx = static_cast<std::uint32_t>(x2) - static_cast<std::uint32_t>(x1);
         auto dy = static_cast<std::uint32_t>(y2) - static_cast<std::uint32_t>(y1);
-        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : ReadableValues::IntegerRange::UInt32Maximum);
-        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : ReadableValues::IntegerRange::UInt32Maximum);
+        const std::uint32_t stepX = Runtime_TimeSigned32(dx) > 0 ? 1u : (dx == 0 ? 0u : NXBasics::IntegerRange::UInt32Maximum);
+        const std::uint32_t stepY = Runtime_TimeSigned32(dy) > 0 ? 1u : (dy == 0 ? 0u : NXBasics::IntegerRange::UInt32Maximum);
         if (Runtime_TimeSigned32(dx) < 0) dx = 0u - dx;
         if (Runtime_TimeSigned32(dy) < 0) dy = 0u - dy;
         auto x = static_cast<std::uint32_t>(x1), y = static_cast<std::uint32_t>(y1);

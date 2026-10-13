@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2UserNetworkCommandAccess.h"
 #include "InGameGuiInputAccess.h"
 #include "C2LogicObjectArrays.h"
@@ -45,13 +45,13 @@ namespace NC2InGameGuiInputManager
     // Original function: FUN_004b75c8.
     std::uint32_t Selection_GetSelectedEngineLandscapeValency(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 9 ? Input_Read<std::uint32_t>(manager, 0xA9C) : 0; }
     // Original function: FUN_004b75d8.
-    const void* Selection_GetSelectedEngineLandscapeMapPointRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 9) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA0, ReadableValues::IntegerRange::UInt32Maximum); return static_cast<std::byte*>(manager) + 0xAA0; }
+    const void* Selection_GetSelectedEngineLandscapeMapPointRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 9) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA0, NXBasics::IntegerRange::UInt32Maximum); return static_cast<std::byte*>(manager) + 0xAA0; }
     // Original function: FUN_004b75fa.
     std::int32_t Selection_GetSelectedEngineLandscapePlayerId(const void* manager) { return Input_Read<std::uint32_t>(manager, 4) == 9 ? Input_Read<std::int32_t>(manager, 0xAA4) : -1; }
     // Original function: FUN_004b760b; invalid selection writes the native (-1,-1) point.
-    const void* Selection_GetSelectedRoadBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 10) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA8, ReadableValues::IntegerRange::UInt32Maximum); return static_cast<std::byte*>(manager) + 0xAA8; }
+    const void* Selection_GetSelectedRoadBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 10) NC2Lifetime::Write<std::uint32_t>(manager, 0xAA8, NXBasics::IntegerRange::UInt32Maximum); return static_cast<std::byte*>(manager) + 0xAA8; }
     // Original function: FUN_004b762d.
-    const void* Selection_GetSelectedWallBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 11) NC2Lifetime::Write<std::uint32_t>(manager, 0xAAC, ReadableValues::IntegerRange::UInt32Maximum); return static_cast<std::byte*>(manager) + 0xAAC; }
+    const void* Selection_GetSelectedWallBuildPlacePositionRef(void* manager) { if (Input_Read<std::uint32_t>(manager, 4) != 11) NC2Lifetime::Write<std::uint32_t>(manager, 0xAAC, NXBasics::IntegerRange::UInt32Maximum); return static_cast<std::byte*>(manager) + 0xAAC; }
     // Original function: FUN_004b7e92; all 29 native cases use miscellaneous table 2 via 004E1E35.
     const char* StringTool_GetInputModeNamePtr(const void* manager) { const auto mode = Input_Read<std::uint32_t>(manager, 0); return mode <= 28 ? NC2GuiToolsBase::StringTool_GetMiscMenuStringPtr(mode + 10) : "<UNKNOWN>"; }
 
@@ -99,7 +99,7 @@ namespace NC2InGameGuiInputManager
                 const std::uint32_t offset = 0x14u + index * 8u;
                 const std::uint32_t id = Input_Read<std::uint32_t>(manager, offset);
                 const void* human = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize;
-                if ((Input_Read<std::uint32_t>(human, 0xB84) & ReadableValues::BitMask::Bit5) != 0) continue;
+                if ((Input_Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit5) != 0) continue;
                 std::byte command[20]{};
                 NC2Lifetime::Write<std::uint32_t>(command, 4, id);
                 const std::uint32_t targetIndex = index % Input_Read<std::uint32_t>(manager, 0xAC8);

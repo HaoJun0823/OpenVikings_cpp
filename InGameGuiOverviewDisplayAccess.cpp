@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiOverviewDisplayAccess.h"
 #include "InGameGuiOverviewHandler.h"
@@ -196,8 +196,8 @@ namespace NC2InGameGuiOverviewDisplay
 
     static NXBasics::SColorRGB OverviewDisplay_GetPulseColor()
     {
-        const std::uint32_t phase = timeGetTime() & ReadableValues::BitMask::Low9Bits;
-        const auto intensity = static_cast<std::uint8_t>((phase & ReadableValues::BitMask::Bit8) != 0 ? 0x1FEu - phase : phase & ReadableValues::IntegerRange::UInt8Maximum);
+        const std::uint32_t phase = timeGetTime() & NXBasics::BitMask::Low9Bits;
+        const auto intensity = static_cast<std::uint8_t>((phase & NXBasics::BitMask::Bit8) != 0 ? 0x1FEu - phase : phase & NXBasics::IntegerRange::UInt8Maximum);
         // At phase 511, the original subtraction narrows -1 to 255.
         return NXBasics::SColorRGB(intensity, intensity, intensity);
     }

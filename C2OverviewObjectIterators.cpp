@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2OverviewObjectIterators.h"
 #include "C2LogicObjectArrays.h"
 #include "C2MapGeometry.h"
@@ -136,7 +136,7 @@ namespace NC2Logic
             if (id != -1)
             {
                 const void* house = CHouseArray::mStaticVars + static_cast<std::uint32_t>(id) * CHouseArray::ElementSize;
-                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionX), Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionY), center[0], center[1])) <= radius) return id;
+                if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY), center[0], center[1])) <= radius) return id;
             }
             else
             {
@@ -167,7 +167,7 @@ namespace NC2Logic
             const void* house = Iterator_Entry(CHouseArray::mStaticVars, index, CHouseArray::ElementSize);
             if (Iterator_Read<std::uint8_t>(house, 0) == 0) continue;
             if ((flags & 1u) != 0 && Iterator_Read<std::uint32_t>(house, 0x0C) != player) continue;
-            if ((flags & 2u) != 0 && static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Iterator_Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionX), Iterator_Read<std::int16_t>(house, ReadableValues::HouseOffset::MapPositionY), center[0], center[1])) > radius) continue;
+            if ((flags & 2u) != 0 && static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Iterator_Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionX), Iterator_Read<std::int16_t>(house, NC2Layout::HouseOffset::MapPositionY), center[0], center[1])) > radius) continue;
             if ((flags & 4u) != 0 && Iterator_Read<std::uint32_t>(house, 0x10) != houseType) continue;
             return index;
         }

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2HappinessEvents.h"
 #include "C2GameState.h"
 #include "C2HumanIterator.h"
@@ -18,7 +18,7 @@ namespace NC2Logic
     {
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            if (Read<std::uint8_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer) != 0) HappinessManager_l_RecalculatePlayer(manager, player);
+            if (Read<std::uint8_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer) != 0) HappinessManager_l_RecalculatePlayer(manager, player);
         }
     }
 
@@ -34,7 +34,7 @@ namespace NC2Logic
         Write(happiness, 0, Read<std::uint32_t>(happiness, 0) + HappinessManager_l_GetMilitaryHappinessValue(manager, player));
         Write(happiness, 0, Read<std::uint32_t>(happiness, 0) + static_cast<std::uint32_t>(Happiness_GetEventValue(happiness)));
         if (Read<std::uint8_t>(happiness, 0x7C) != 0) Write(happiness, 0, Read<std::uint32_t>(happiness, 0) - 10u);
-        Write(gGameControl, player * ReadableValues::RecordSize::GameControlPlayer + 0x4610u, Read<std::uint32_t>(happiness, 0));
+        Write(gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x4610u, Read<std::uint32_t>(happiness, 0));
     }
 
     // Original function: FUN_004198d3; statistics are read as unsigned WORDs before signed arithmetic.

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2ScriptObjectAccess.h"
 #include "C2LifetimeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -12,11 +12,11 @@ namespace NC2Logic
     // Original function: FUN_00422fec.
     std::uint32_t __fastcall MapMicroPoint_GetContinent(const void* micro, void*) { return Read<std::uint8_t>(micro, 6); }
     // Original function: FUN_00422ff1.
-    void* __fastcall MapMoveable_GetMarkerPtr(const void* moveable, void*) { return static_cast<std::byte*>(gMarkerEntries) + Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId) * 24u; }
+    void* __fastcall MapMoveable_GetMarkerPtr(const void* moveable, void*) { return static_cast<std::byte*>(gMarkerEntries) + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * 24u; }
     // Original function: FUN_00423001.
     std::uint32_t __fastcall HumanReference_GetHumanId(const void* reference, void*) { return Read<std::uint32_t>(reference, 0); }
     // Original function: FUN_00423004.
-    std::uint32_t __fastcall Vehicle_GetMapMoveableId(const void* vehicle, void*) { return Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::MapMoveableId); }
+    std::uint32_t __fastcall Vehicle_GetMapMoveableId(const void* vehicle, void*) { return Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId); }
     // Original function: FUN_0042300b.
     std::uint32_t __fastcall Vehicle_GetMissionCheckId(const void* vehicle, void*) { return Read<std::uint32_t>(vehicle, 0x51C); }
     // Original function: FUN_00423012.

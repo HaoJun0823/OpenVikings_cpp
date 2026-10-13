@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
 #include "C2GameMapAccess.h"
@@ -91,7 +91,7 @@ namespace NC2E2
             std::uint32_t player;
             std::memcpy(&player, static_cast<const std::byte*>(display) + 0x7C, sizeof(player));
             const auto* visible = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
-            if ((playerId == ReadableValues::IntegerRange::UInt32Maximum || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[2424] = std::byte{1};
+            if ((playerId == NXBasics::IntegerRange::UInt32Maximum || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[2424] = std::byte{1};
         }
     }
 

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XGuiElementAccess.h"
 #include "C2LifetimeAccess.h"
 #include "XCrtFileAccess.h"
@@ -42,7 +42,7 @@ namespace NXBaseGui
         std::memset(static_cast<std::byte*>(element) + 4, 0, 40);
         Write<std::uint32_t>(element, 0x14, 0);
         std::memcpy(static_cast<std::byte*>(element) + 4, rectangle, sizeof(*rectangle));
-        flags |= ReadableValues::BitMask::Bit5;
+        flags |= NXBasics::BitMask::Bit5;
         if ((flags & 2u) != 0) flags |= 1u;
         Write(element, 0x18, flags);
         Write(element, 0x1C, elementId);
@@ -76,7 +76,7 @@ namespace NXBaseGui
     }
 
     // Original function: FUN_004788a7.
-    bool __fastcall BaseElement_HasSubElements(void* element) { return (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit6) != 0; }
+    bool __fastcall BaseElement_HasSubElements(void* element) { return (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit6) != 0; }
 
     // Original function: FUN_004788b1; the base hit test accepts every local point.
     bool __fastcall BaseElement_IsHit(void*, void*, const std::int32_t*) { return true; }
@@ -135,9 +135,9 @@ namespace NXBaseGui
         if (BaseElement_CanBePressed(element) && Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) != 0 && Read<std::uint32_t>(element, 0x14) == 1) Write<std::uint32_t>(element, 0x14, 2);
     }
     // Original function: FUN_00478a3b.
-    bool BaseElement_CanBeActivated(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & ReadableValues::BitMask::Bit10) == 0 && (flags & 1u) != 0; }
+    bool BaseElement_CanBeActivated(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & NXBasics::BitMask::Bit10) == 0 && (flags & 1u) != 0; }
     // Original function: FUN_00478a4f.
-    bool BaseElement_CanBePressed(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & ReadableValues::BitMask::Bit10) == 0 && (flags & 2u) != 0; }
+    bool BaseElement_CanBePressed(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & NXBasics::BitMask::Bit10) == 0 && (flags & 2u) != 0; }
 
     // Original function: FUN_00478a65; unsigned subtraction preserves x86 wraparound.
     void __fastcall BaseElement_ParentToLocalPosition(void* element, void*, std::int32_t* point)
@@ -150,8 +150,8 @@ namespace NXBaseGui
     void* __fastcall BaseElement_FindElementOnPosition(void* element, void*, const std::int32_t* point, bool includeDisabled)
     {
         const auto flags = Read<std::uint32_t>(element, 0x18);
-        if (!includeDisabled && ((flags & ReadableValues::BitMask::Bit10) != 0 || (flags & 1u) == 0)) return nullptr;
-        if ((flags & ReadableValues::BitMask::Bit9Unsigned) != 0) return nullptr;
+        if (!includeDisabled && ((flags & NXBasics::BitMask::Bit10) != 0 || (flags & 1u) == 0)) return nullptr;
+        if ((flags & NXBasics::BitMask::Bit9Unsigned) != 0) return nullptr;
         using THitTest = bool(__thiscall*)(void*, const std::int32_t*);
         return Read<THitTest*>(element, 0)[8](element, point) ? element : nullptr;
     }

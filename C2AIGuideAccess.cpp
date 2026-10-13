@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2AIGuideAccess.h"
 #include "C2AIMilitaryAccess.h"
 #include "C2AIObjectAccess.h"
@@ -95,8 +95,8 @@ namespace NC2Logic
         AIGuideManager_CalcVars_CreateGuideCalcArray(static_cast<std::byte*>(manager) + 24);
         if (Read<std::uint32_t>(manager, 24) == 0 || Read<std::uint32_t>(manager, 28) == 0) return;
         auto* destination = static_cast<std::byte*>(manager) + 16;
-        if (Read<std::uint16_t>(destination, 0) != ReadableValues::IntegerRange::UInt16MaximumSigned && !Tool_Guide_IsAllowedToBeBuild(player, destination, true)) Write<std::uint16_t>(destination, 0, ReadableValues::IntegerRange::UInt16MaximumSigned);
-        if (Read<std::uint16_t>(destination, 0) == ReadableValues::IntegerRange::UInt16MaximumSigned)
+        if (Read<std::uint16_t>(destination, 0) != NXBasics::IntegerRange::UInt16MaximumSigned && !Tool_Guide_IsAllowedToBeBuild(player, destination, true)) Write<std::uint16_t>(destination, 0, NXBasics::IntegerRange::UInt16MaximumSigned);
+        if (Read<std::uint16_t>(destination, 0) == NXBasics::IntegerRange::UInt16MaximumSigned)
         {
             NXBasics::Runtime_FillMemory(Read<void*>(manager, 32), 0, Read<std::uint32_t>(manager, 24) * Read<std::uint32_t>(manager, 28) * 12);
             CGuideIterator guides;
@@ -116,7 +116,7 @@ namespace NC2Logic
             }
             AIGuideManager_l_CheckForNewGuideBuildPos(manager, player);
         }
-        if (Read<std::uint16_t>(destination, 0) == ReadableValues::IntegerRange::UInt16MaximumSigned)
+        if (Read<std::uint16_t>(destination, 0) == NXBasics::IntegerRange::UInt16MaximumSigned)
         {
             if (Read<std::int32_t>(manager, 12) != -1) { AIMilitaryManager_MilitaryPoint_Clear(military, Read<std::int32_t>(manager, 12)); Write<std::int32_t>(manager, 12, -1); }
             AIScout_Clear(manager); return;

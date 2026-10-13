@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2ObjectMemberConstructors.h"
 #include "C2LifetimeAccess.h"
 #include <cstring>
@@ -21,8 +21,8 @@ namespace NC2Logic
     // Original function: FUN_0040aad7; only the two embedded positions are initialized.
     void* __fastcall House_ConstructMembers(void* house, void* /*unusedEdx*/)
     {
-        Write<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionY, 0); Write<std::uint16_t>(house, ReadableValues::HouseOffset::MapPositionX, 0);
-        Write<std::uint16_t>(house, ReadableValues::HouseOffset::DoorEntryPointY, 0); Write<std::uint16_t>(house, ReadableValues::HouseOffset::DoorEntryPointX, 0);
+        Write<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionY, 0); Write<std::uint16_t>(house, NC2Layout::HouseOffset::MapPositionX, 0);
+        Write<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointY, 0); Write<std::uint16_t>(house, NC2Layout::HouseOffset::DoorEntryPointX, 0);
         return house;
     }
 
@@ -34,7 +34,7 @@ namespace NC2Logic
         Human_Task_ConstructMembers(data + 0x368, nullptr);
         ConstructPointMembers(data + 0xA68, nullptr);
         ConstructPointMembers(data + 0xA84, nullptr);
-        Write<std::uint16_t>(human, 0xB32, 0); Write<std::uint16_t>(human, ReadableValues::HumanOffset::WorkCenter, 0);
+        Write<std::uint16_t>(human, 0xB32, 0); Write<std::uint16_t>(human, NC2Layout::HumanOffset::WorkCenter, 0);
         Human_ConstructMilitaryMembers(data + 0xB5C, nullptr);
         return human;
     }
@@ -89,9 +89,9 @@ namespace NC2Logic
     // Original function: FUN_0041c12c.
     void* __fastcall Animal_ConstructMembers(void* animal, void* /*unusedEdx*/)
     {
-        Write<std::uint16_t>(animal, 0x0E, 0); Write<std::uint16_t>(animal, ReadableValues::AnimalOffset::MapMoveableId, 0);
-        Write<std::uint16_t>(animal, 0x12, 0); Write<std::uint16_t>(animal, ReadableValues::AnimalOffset::PlayerId, 0);
-        Write<std::uint16_t>(animal, 0x16, 0); Write<std::uint16_t>(animal, ReadableValues::AnimalOffset::TribeType, 0);
+        Write<std::uint16_t>(animal, 0x0E, 0); Write<std::uint16_t>(animal, NC2Layout::AnimalOffset::MapMoveableId, 0);
+        Write<std::uint16_t>(animal, 0x12, 0); Write<std::uint16_t>(animal, NC2Layout::AnimalOffset::PlayerId, 0);
+        Write<std::uint16_t>(animal, 0x16, 0); Write<std::uint16_t>(animal, NC2Layout::AnimalOffset::TribeType, 0);
         std::memset(static_cast<std::byte*>(animal) + 0x2C, 0, 12);
         std::memset(static_cast<std::byte*>(animal) + 0x38, 0, 12);
         return animal;

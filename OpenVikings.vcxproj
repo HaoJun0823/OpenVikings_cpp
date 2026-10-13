@@ -854,6 +854,10 @@
     <ClInclude Include="XResultIdentifiers.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ReadableValues.h"></ClInclude>
+    <ClInclude Include="C2ObjectLayout.h"></ClInclude>
+    <ClInclude Include="C2DataIds.h"></ClInclude>
+    <ClInclude Include="XNumericConstants.h"></ClInclude>
+    <ClInclude Include="XWindowsResultCodes.h"></ClInclude>
+    <ClInclude Include="C2RuntimeConstants.h"></ClInclude>
   </ItemGroup>
 </Project>

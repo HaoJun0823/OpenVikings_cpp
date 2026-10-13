@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "XBitmap.h"
 #include "C2LifetimeAccess.h"
@@ -280,7 +280,7 @@ namespace NC2InGameGuiBase
     // to the background/frame helpers, while the Bob coordinates remain local.
     static void __fastcall GfxButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
-        const bool highlighted = (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 && Read<std::uint8_t>(element, 0x50) == 0;
+        const bool highlighted = (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 && Read<std::uint8_t>(element, 0x50) == 0;
         if (Read<std::uint8_t>(element, 0x35) != 0)
         {
             const auto mode = highlighted ? 4 : (Read<std::uint8_t>(element, 0x36) != 0 ? 3 : 2);
@@ -403,7 +403,7 @@ namespace NC2InGameGuiBase
     static void __fastcall WindowMoverButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         using namespace NC2Lifetime;
-        const auto mode = (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         auto* font = NC2GuiToolsBase::DrawTool_GetFont10Ptr();

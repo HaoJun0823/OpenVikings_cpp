@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineLandscapeDrawing.h"
 #include "C2EngineTerrainData.h"
@@ -56,13 +57,13 @@ namespace NC2E2
     I Display_l_DE_Hightlighting_GetMapBrightness(void* display, const void* packedPoint)
     {
         std::int16_t micro[2];
-        if ((Read<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) & 4) != 0)
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4) != 0)
         {
             NC2Logic::MapMigPoint_ConstructFromMag(micro, packedPoint, false);
-            if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(Read<U>(display, ReadableValues::EngineDisplayOffset::PlayerId), micro)) return 0;
+            if (!NC2Logic::GameMap_Exploration_HasBeenSeenOnce(Read<U>(display, NC2Layout::EngineDisplayOffset::PlayerId), micro)) return 0;
         }
         const auto* macro = EngineMap_GetConstMapMacroPointPtr(packedPoint);
-        if (Read<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::HighlightingEnabled) != 0)
+        if (Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) != 0)
         {
             if (macro == nullptr) return 0;
             NC2Logic::MapMigPoint_ConstructFromMag(micro, packedPoint, false);
@@ -106,7 +107,7 @@ namespace NC2E2
         const SE2StaticDataTransition* road2 = transitions.entries + transitions.roadOverlayIds[1];
         const SE2StaticDataTransition* house1 = transitions.entries + transitions.houseOverlayIds[0];
         const SE2StaticDataTransition* house2 = transitions.entries + transitions.houseOverlayIds[1];
-        auto& shader = *Read<Shader*>(display, ReadableValues::EngineDisplayOffset::GouraudShader);
+        auto& shader = *Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader);
         const SCorner corners[3] = {{x0, y0, brightness0, 0}, {x1, y1, brightness1, 0}, {x2, y2, brightness2, 0}};
         const U masks[3] = {mask0, mask1, mask2};
         static constexpr U passMasks[2] = {0x30, 0x0C};
@@ -114,8 +115,8 @@ namespace NC2E2
         static constexpr I shapes[14] = {-1, 5, 3, 1, 4, 0, 2, -1, 5, 4, 0, 3, 1, 2};
         for (unsigned pass = 0; pass != 2; ++pass)
         {
-            const U flags = Read<U>(display, ReadableValues::EngineDisplayOffset::DrawFlags);
-            if ((flags & ReadableValues::BitMask::Bit16Signed) != 0 && (flags & ReadableValues::BitMask::Bit17Signed) != 0 && (passMasks[pass] & ReadableValues::BitMask::Bits2Through5) != 0) continue;
+            const U flags = Read<U>(display, NC2Layout::EngineDisplayOffset::DrawFlags);
+            if ((flags & NXBasics::BitMask::Bit16Signed) != 0 && (flags & NXBasics::BitMask::Bit17Signed) != 0 && (passMasks[pass] & NXBasics::BitMask::Bits2Through5) != 0) continue;
             U present = 0, firstMask = 0;
             for (unsigned i = 0; i != 3; ++i)
             {
@@ -132,7 +133,7 @@ namespace NC2E2
             }
             else
             {
-                const auto* transition = (firstMask & 8) != 0 ? road2 : (firstMask & 4) != 0 ? road1 : (firstMask & ReadableValues::BitMask::Bit5Signed) != 0 ? house2 : (firstMask & ReadableValues::BitMask::Bit4Signed) != 0 ? house1 : nullptr;
+                const auto* transition = (firstMask & 8) != 0 ? road2 : (firstMask & 4) != 0 ? road1 : (firstMask & NXBasics::BitMask::Bit5Signed) != 0 ? house2 : (firstMask & NXBasics::BitMask::Bit4Signed) != 0 ? house1 : nullptr;
                 AssignTexture(shader, transition->textureId);
                 shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition->alphaTextureId], 0x24);
                 const I shape = shapes[present + (triangleA ? 0 : 7)];
@@ -178,7 +179,7 @@ namespace NC2E2
         SCorner lowerRight{Round(Add(baseX, horizontal)), Round(Add(Add(baseY, Mul(Sub(h0, h3), scale)), spacing)), b3, c3};
         if (eastCorner.x < 0 || (std::max)({origin.y, eastCorner.y, lowerLeft.y, lowerRight.y}) < 0 || lowerLeft.x >= bitmap->GetRectangle().width || (std::min)({origin.y, eastCorner.y, lowerLeft.y, lowerRight.y}) >= bitmap->GetRectangle().height) return false;
         const bool visibleA = Add(Add(b2, b3), b0) / 3 != 0, visibleB = Add(Add(b3, b1), b0) / 3 != 0;
-        auto& shader = *Read<Shader*>(display, ReadableValues::EngineDisplayOffset::GouraudShader);
+        auto& shader = *Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader);
         shader.bitmap = bitmap;
         const auto* patterns = static_cast<const SE2StaticDataPatternData*>(gStaticPatternStorage.entries);
         const SCorner triangles[2][3] = {{lowerLeft, origin, lowerRight}, {eastCorner, lowerRight, origin}};
@@ -199,7 +200,7 @@ namespace NC2E2
             for (int layer = 1; layer >= 0; --layer)
             {
                 const auto encoded = Read<std::uint8_t>(macro, 7 + triangle + layer * 2);
-                if (encoded == ReadableValues::IntegerRange::UInt8MaximumSigned || (Read<std::uint8_t>(display, 0x71) & (layer == 0 ? 8 : 0x10)) != 0) continue;
+                if (encoded == NXBasics::IntegerRange::UInt8MaximumSigned || (Read<std::uint8_t>(display, 0x71) & (layer == 0 ? 8 : 0x10)) != 0) continue;
                 const auto& transition = gStaticTransitionStorage.entries[encoded / 6];
                 AssignTexture(shader, transition.textureId);
                 shader.alphaTexture = Read<const std::uint8_t*>(gStaticDataTextures.bitmaps[transition.alphaTextureId], 0x24);
@@ -263,7 +264,7 @@ namespace NC2E2
     void Display_l_DE_DrawStatic(void* display, bool outside, I worldX, I worldY, NXBasics::CBitmap* bitmap)
     {
         if (outside || (Read<std::uint8_t>(display, 0x71) & 4) != 0) { bitmap->Fill(std::uint8_t(0)); return; }
-        NC2Lifetime::Write<std::uint8_t>(Read<Shader*>(display, ReadableValues::EngineDisplayOffset::GouraudShader), 0x0C, 0);
+        NC2Lifetime::Write<std::uint8_t>(Read<Shader*>(display, NC2Layout::EngineDisplayOffset::GouraudShader), 0x0C, 0);
         worldX = Wrap(worldX, Read<I>(display, 0x5C));
         worldY = Wrap(worldY, Read<I>(display, 0x60));
         std::int16_t rectangle[4]{};
@@ -274,7 +275,7 @@ namespace NC2E2
         rectangle[2] = static_cast<std::int16_t>(bitmap->GetRectangle().width / Read<I>(display, 0x4C) + 5);
         rectangle[3] = static_cast<std::int16_t>(bitmap->GetRectangle().height / Read<I>(display, 0x48) + 20);
         Display_l_DE_DrawQuadrangleField_MigMag(display, rectangle, bitmap, pixelPoint);
-        if ((Read<std::uint8_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) & 1) == 0) return;
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 1) == 0) return;
         rectangle[1] = static_cast<std::int16_t>(Fixed(worldY) / Read<I>(display, 0x0C));
         rectangle[0] = static_cast<std::int16_t>(Fixed(Add(Mul(rectangle[1] & 1, Read<I>(display, 0x2C)), worldX)) / Read<I>(display, 0x10) - 2);
         pixelPoint[0] = Sub(Mul(rectangle[0], Read<I>(display, 0x10)), Fixed(worldX));

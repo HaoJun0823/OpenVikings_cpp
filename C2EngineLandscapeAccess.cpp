@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineLandscapeAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -196,9 +196,9 @@ namespace NC2LogicExternals
     {
         auto* micro = const_cast<void*>(NC2E2::EngineMap_GetConstMapMicroPointPtr(point));
         const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
-        if (id == ReadableValues::IntegerRange::UInt16Maximum) return;
+        if (id == NXBasics::IntegerRange::UInt16Maximum) return;
         const auto parameter = NC2Lifetime::Read<std::uint8_t>(NC2E2::gStaticLandscapeEntries, static_cast<std::uint32_t>(id) * 0x8Cu + 0x79u);
-        NC2Lifetime::Write<std::uint16_t>(micro, 0, ReadableValues::IntegerRange::UInt16Maximum);
+        NC2Lifetime::Write<std::uint16_t>(micro, 0, NXBasics::IntegerRange::UInt16Maximum);
         NC2Logic::GameMapModifyManager_GameMapModified(0x32, point, parameter);
     }
 
@@ -238,7 +238,7 @@ namespace NC2LogicExternals
         const auto* micro = NC2E2::EngineMap_GetConstMapMicroPointPtr(point);
         if (micro == nullptr) return -1;
         const auto id = NC2Lifetime::Read<std::uint16_t>(micro, 0);
-        return id == ReadableValues::IntegerRange::UInt16Maximum ? -1 : static_cast<std::int32_t>(id);
+        return id == NXBasics::IntegerRange::UInt16Maximum ? -1 : static_cast<std::int32_t>(id);
     }
 
     // Original function: FUN_004807c8.

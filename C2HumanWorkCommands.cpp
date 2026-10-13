@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanWorkCommands.h"
 #include "C2HumanCommandAccess.h"
@@ -43,12 +44,12 @@ namespace NC2Logic
         auto* house = House(id);
         if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        if (Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) == id) return 1;
+        if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == id) return 1;
         if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
         if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) { Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human); return 1; }
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 2)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 2); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
-        SetCenter(human, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
+        SetCenter(human, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
         return 2;
     }
 
@@ -56,7 +57,7 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_AttachLearnHouse(void* human, std::int32_t id, std::uint32_t revision)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
-        if (Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) == id && Human_IsAttachedToLearnHouse(human)) return 1;
+        if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) == id && Human_IsAttachedToLearnHouse(human)) return 1;
         if (Human_IsAttachedToWorkHouse(human) && DetachExistingWorkHouse(human) == 0) return 1;
         if (Human_IsAttachedToVehicle(human) && Human_DoExecuteUserCommand_DetachVehicle(human) == 0) { Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human); return 1; }
         auto* house = House(id);
@@ -64,7 +65,7 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, 0x14) == 39 && !Human_IsJobSoldier(human) && Read<std::uint8_t>(human, 0x17B) != 0) { Queue(human, 21, 31, 0); return 0; }
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 8)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 8); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
-        SetCenter(human, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
+        SetCenter(human, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
         return 2;
     }
 
@@ -78,13 +79,13 @@ namespace NC2Logic
             const auto result = Human_IsAttachedToLearnHouse(human) ? Human_DoExecuteUserCommand_DetachLearnHouse(human) : Human_DoExecuteUserCommand_DetachBuildHouse(human);
             if (result == 0) return 1;
         }
-        if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter);
-        if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter);
+        if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
+        if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
         auto* house = House(id);
         if (Read<std::uint8_t>(house, 0) == 0 || Read<std::uint32_t>(house, 8) != revision) return 1;
         if (!House_Inhabitants_AttachHuman(house, Read<std::uint32_t>(human, 4), 4)) { Human_UserMessage_SendToUserMessage_CannotAttachHouse(human, 4); return 1; }
         Human_l_AssignWorkHouse(human, static_cast<std::uint32_t>(id));
-        SetCenter(human, Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint));
+        SetCenter(human, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
         return 2;
     }
 
@@ -94,7 +95,7 @@ namespace NC2Logic
         if (!Human_IsJobBuilder(human)) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (!Human_IsAttachedToWorkHouse(human)) return 1;
-        if (House_Inhabitants_DetachHuman(House(Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, 4), 4)) return 2;
+        if (House_Inhabitants_DetachHuman(House(Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), Read<std::uint32_t>(human, 4), 4)) return 2;
         Human_UserMessage_SendToUserMessage_CannotDetachHouse(human, 4);
         return 1;
     }
@@ -115,8 +116,8 @@ namespace NC2Logic
         }
         Write<std::uint32_t>(human, 0xB64, 0);
         Write<std::uint32_t>(human, 0xB70, 0);
-        Write(human, ReadableValues::HumanOffset::AttachedVehicleId, id);
-        Write(human, ReadableValues::HumanOffset::AttachedVehicleRevision, Read<std::uint32_t>(vehicle, 8));
+        Write(human, NC2Layout::HumanOffset::AttachedVehicleId, id);
+        Write(human, NC2Layout::HumanOffset::AttachedVehicleRevision, Read<std::uint32_t>(vehicle, 8));
         Queue(human, 25, 0, 0);
         return 2;
     }
@@ -129,25 +130,25 @@ namespace NC2Logic
         if (!Human_IsAttachedToVehicle(human)) return 1;
         if (Read<std::uint8_t>(human, 0xB51) != 0)
         {
-            auto* vehicle = Vehicle(Read<std::int32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId));
+            auto* vehicle = Vehicle(Read<std::int32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
             const auto kind = Read<std::uint32_t>(vehicle, 0x1E8);
             if ((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) return 0;
             if (Read<std::uint32_t>(vehicle, 0x4FC) == 1)
             {
                 std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 101);
-                Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)));
+                Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
                 Write(command, 4, Read<std::uint32_t>(vehicle, 4));
                 Write(command, 8, Read<std::uint32_t>(vehicle, 8));
                 std::uint32_t point = 0;
-                MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * ReadableValues::RecordSize::MapMoveable, &point);
+                MapMoveable_Attachment_GetNextMapPosition(gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, 0x1DC) * NC2Layout::RecordSize::MapMoveable, &point);
                 Write(command, 12, MapMigPoint_GetLong(&point));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
                 return 0;
             }
             if (!Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4))) return 0;
         }
-        if (Vehicle_Passengers_DetachHuman(Vehicle(Read<std::int32_t>(human, ReadableValues::HumanOffset::AttachedVehicleId)), Read<std::uint32_t>(human, 4))) return 2;
+        if (Vehicle_Passengers_DetachHuman(Vehicle(Read<std::int32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)), Read<std::uint32_t>(human, 4))) return 2;
         Human_UserMessage_SendToUserMessage_CannotDetachVehicle(human);
         return 1;
     }
@@ -159,13 +160,13 @@ namespace NC2Logic
         if (!Human_WorkCenterMarker_IsAllowed(human)) return 1;
         if (Human_IsJobBuilder(human))
         {
-            const auto mode = Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode);
+            const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
             if (mode != 0 && mode != 1) Human_StopCurrentGoodCirculationMode(human);
             if (Human_IsAttachedToWorkHouse(human)) { if (Human_DoExecuteUserCommand_DetachBuildHouse(human) == 0) return 0; }
             else
             {
-                if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter);
-                if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter);
+                if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
+                if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
             }
         }
         SetCenter(human, Read<std::uint32_t>(point, 0));
@@ -177,21 +178,21 @@ namespace NC2Logic
     {
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         std::memset(static_cast<std::byte*>(human) + 0x778, 0, 36u * 20u);
-        if (static_cast<std::uint32_t>(job) == Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType)) return 1;
+        if (static_cast<std::uint32_t>(job) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType)) return 1;
         if (job >= 31 && job <= 41)
         {
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) return 0;
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) return 0;
             if (!Human_IsAbleToDoJob(human, static_cast<std::uint32_t>(job)))
             {
                 switch (job)
                 {
-                case SwitchIds::HumanJob::SoldierUnarmed: Queue(human, 54, WeaponGood(human), ReadableValues::IntegerRange::UInt32Maximum); break;
-                case SwitchIds::HumanJob::SoldierSpearWooden: Queue(human, 63, 39, ReadableValues::IntegerRange::UInt32Maximum); break;
-                case SwitchIds::HumanJob::SoldierSpearIron: Queue(human, 63, 40, ReadableValues::IntegerRange::UInt32Maximum); break;
-                case SwitchIds::HumanJob::SoldierSwordShort: Queue(human, 63, 41, ReadableValues::IntegerRange::UInt32Maximum); break;
-                case SwitchIds::HumanJob::SoldierSwordLong: Queue(human, 63, 42, ReadableValues::IntegerRange::UInt32Maximum); break;
-                case SwitchIds::HumanJob::SoldierBowShort: Queue(human, 63, 37, ReadableValues::IntegerRange::UInt32Maximum); break;
-                case SwitchIds::HumanJob::SoldierBowLong: Queue(human, 63, 38, ReadableValues::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierUnarmed: Queue(human, 54, WeaponGood(human), NXBasics::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierSpearWooden: Queue(human, 63, 39, NXBasics::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierSpearIron: Queue(human, 63, 40, NXBasics::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierSwordShort: Queue(human, 63, 41, NXBasics::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierSwordLong: Queue(human, 63, 42, NXBasics::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierBowShort: Queue(human, 63, 37, NXBasics::IntegerRange::UInt32Maximum); break;
+                case SwitchIds::HumanJob::SoldierBowLong: Queue(human, 63, 38, NXBasics::IntegerRange::UInt32Maximum); break;
                 default: break;
                 }
                 switch (Human_Equipment_GetWeaponType(human))
@@ -205,8 +206,8 @@ namespace NC2Logic
         }
         else
         {
-            if (WeaponGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 72, WeaponGood(human), ReadableValues::IntegerRange::UInt32Maximum); }
-            else if (ArmorGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 73, ArmorGood(human), ReadableValues::IntegerRange::UInt32Maximum); }
+            if (WeaponGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 72, WeaponGood(human), NXBasics::IntegerRange::UInt32Maximum); }
+            else if (ArmorGood(human) != 0) { Human_Target_Reset(human); Human_CurrentTask_DoInterrupt(human); Queue(human, 73, ArmorGood(human), NXBasics::IntegerRange::UInt32Maximum); }
             Write<std::uint8_t>(human, 0xB60, 1);
         }
         return Human_DoExecuteUserCommand_SetJob(human, static_cast<std::uint32_t>(job));
@@ -215,7 +216,7 @@ namespace NC2Logic
     // Original function: FUN_0043db6b; no additional unlock check occurs here.
     std::uint32_t Human_DoExecuteUserCommand_SetJob(void* human, std::uint32_t job)
     {
-        if (job == Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType)) return 1;
+        if (job == Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType)) return 1;
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (Human_IsJobBuilder(human))
         {
@@ -224,15 +225,15 @@ namespace NC2Logic
                 const auto result = Human_IsAttachedToLearnHouse(human) ? Human_DoExecuteUserCommand_DetachLearnHouse(human) : Human_DoExecuteUserCommand_DetachBuildHouse(human);
                 if (result == 0) return 0;
             }
-            else if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter);
-            else if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter);
+            else if (Human_IsAttachedToWallPoint(human)) BuildManager_DetachBuilder(gWallBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
+            else if (Human_IsAttachedToRoadPoint(human)) BuildManager_DetachBuilder(gRoadBuildManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter);
         }
         else if (Human_IsAttachedToWorkHouse(human))
         {
             const auto result = Human_IsAttachedToLearnHouse(human) ? Human_DoExecuteUserCommand_DetachLearnHouse(human) : Human_DoExecuteUserCommand_DetachWorkHouse(human);
             if (result == 0) return 0;
         }
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0); }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); }
         Write<std::int32_t>(human, 0xB3C, -1);
         Write<std::uint32_t>(human, 0xB40, 0);
         Human_SetJobType(human, job);
@@ -257,10 +258,10 @@ namespace NC2Logic
                 Write<std::uint32_t>(human, 0x38C, 0);
                 Write(human, 0x218, good);
                 Write(human, 0x1C, good);
-                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 1 && Human_l_IsAtomicInterruptable(human)) Human_CurrentTask_DoInterrupt(human);
             }
         }
-        else if (Read<std::uint32_t>(human, 0x1C) == good && Human_Production_GetCounter(human, good) == 0 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 8 && Human_l_IsAtomicInterruptable(human))
+        else if (Read<std::uint32_t>(human, 0x1C) == good && Human_Production_GetCounter(human, good) == 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 8 && Human_l_IsAtomicInterruptable(human))
         {
             Human_CurrentTask_DoInterrupt(human);
             Human_Production_Rotate(human);
@@ -273,7 +274,7 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_LearnJob(void* human, std::uint32_t job)
     {
         if (!Human_l_IsAtomicInterruptable(human) || !Human_IsAttachedToLearnHouse(human)) return 0;
-        auto* house = House(Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId));
+        auto* house = House(Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
         if (!House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4))) return 0;
         House_Inhabitants_SetStudentJob(house, Read<std::uint32_t>(human, 4), job);
         Write<std::uint32_t>(human, 0x158, 0);
@@ -286,7 +287,7 @@ namespace NC2Logic
     {
         if (!Human_l_IsAtomicInterruptable(human)) return 0;
         if (!Human_IsAttachedToLearnHouse(human)) return 1;
-        auto* house = House(Read<std::int32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId));
+        auto* house = House(Read<std::int32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
         if (!House_Inhabitants_IsHumanAttachedAsStudent(house, Read<std::uint32_t>(human, 4))) return 1;
         House_Inhabitants_SetStudentGood(house, Read<std::uint32_t>(human, 4), good);
         Write<std::uint32_t>(human, 0x158, 0);
@@ -297,7 +298,7 @@ namespace NC2Logic
     // Original function: FUN_0043e023; restart shares the native 00445a6e leaf.
     std::uint32_t Human_DoExecuteUserCommand_RestartJobExecution(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0 || Read<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask) == 16 || !Human_l_IsAtomicInterruptable(human)) return 0;
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 16 || !Human_l_IsAtomicInterruptable(human)) return 0;
         Human_l_FinishTask_Idle(human);
         return 2;
     }
@@ -309,7 +310,7 @@ namespace NC2Logic
         ToUserMessage_Construct(message);
         Write(message, 0x10, Read<std::uint32_t>(human, 4));
         Write<std::uint32_t>(message, 0, 42);
-        Write(message, 8, Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId));
+        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
     }

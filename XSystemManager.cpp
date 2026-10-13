@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XSystemManager.h"
 #include "XCrtFileAccess.h"
 #include "XDiagnostics.h"
@@ -49,7 +49,7 @@ namespace NXBasics
         allocation = Runtime_AllocateWithNewHandler(sizeof(C32BitPixelConverter), 1);
         g32BitPixelConverter = allocation != nullptr ? ::new (allocation) C32BitPixelConverter() : nullptr;
         // Windows calls this even when the preceding allocation fails.
-        g32BitPixelConverter->SetColorMasks(0x00FF0000, 0x0000FF00, ReadableValues::IntegerRange::UInt8MaximumSigned);
+        g32BitPixelConverter->SetColorMasks(0x00FF0000, 0x0000FF00, NXBasics::IntegerRange::UInt8MaximumSigned);
     }
 
     // Original function: FUN_00406ab5

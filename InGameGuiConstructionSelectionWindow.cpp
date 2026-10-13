@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "InGameGuiConstructionSelectionWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -171,7 +171,7 @@ namespace NC2InGameGuiMiscWindows
         const auto scroll = Read<std::int32_t>(list, 0x34);
         NC2InGameGuiBaseListBox::BaseListBoxElement_Element_DeleteAll(list);
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        const auto* playerData = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto* playerData = static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         struct SHouseEntry { std::uint32_t type, stage; };
         auto* entries = static_cast<SHouseEntry*>(NXBasics::Runtime_AllocateWithNewHandler(static_cast<std::uint32_t>(NC2E2::gStaticHouseCount) * 40u, 1));
         std::uint32_t count = 0;

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanProduction.h"
 #include "C2HumanAnimalJobs.h"
@@ -61,16 +61,16 @@ namespace NC2Logic
         if (Read<std::uint32_t>(house, 0x2C) != 3) { Fail(human, 0); return; }
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(Real(human), 0) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition)) { Human_Target_Reset(human); return; }
-            if (Read<std::uint32_t>(Work(human), 0) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            if (Read<std::uint32_t>(Real(human), 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); return; }
+            if (Read<std::uint32_t>(Work(human), 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
             const auto animation = Read<std::uint32_t>(house, 0x14) == 39 && Read<std::uint8_t>(human, 0x17B) != 0 ? 90u : 89u;
             Human_l_StartAtomicAnimation(human, animation, -1);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
             House_ActionOverlay_Start(house, 3, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
             House_ActionOverlay_Start(house, 4, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
             return;
         }
-        const auto real = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
+        const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint);
         if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
         {
             if (!Human_l_StartAtomicWalk(human, &real, &work)) { Fail(human, 1); return; }
@@ -95,15 +95,15 @@ namespace NC2Logic
         }
         case SwitchIds::TrainingHouseType::Barracks:
         {
-            auto weapon = Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon);
+            auto weapon = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon);
             if (weapon == 19) weapon = 1;
-            job = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)], weapon * 0xC4u + 0x34u);
+            job = Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], weapon * 0xC4u + 0x34u);
             break;
         }
         default: return;
         }
         if (job == 0) return;
-        const auto& tribe = gStaticTribeTypeData[Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType)];
+        const auto& tribe = gStaticTribeTypeData[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)];
         const auto required = tribe.jobTraining[job] + (good == 0 ? 0u : tribe.goodTraining[good]);
         const auto previous = Read<std::uint32_t>(human, 0x158);
         if (required > previous) { Write(human, 0x158, previous > 10000u - amount ? 10000u : previous + amount); return; }
@@ -118,7 +118,7 @@ namespace NC2Logic
             Human_UserMessage_SendToUserMessage_CanProduceNewGood(human, good);
         }
         Write<std::uint32_t>(human, 0x158, 0);
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) != job) Human_SetJobType(human, job);
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != job) Human_SetJobType(human, job);
         else { Human_SetupCurrentJobType(human); Human_Production_Setup(human); }
         Human_SetupPlayerSpecificStuff(human);
         if (good != 0 && Human_IsAbleToProduceGoodNow(human, good)) Human_ChangeProducedGoodType(human, good);
@@ -136,16 +136,16 @@ namespace NC2Logic
     // Original function: FUN_0046c7be; a woman's household work requires a completed home.
     void Human_l_StartTask_ExecuteJob_Woman(void* human)
     {
-        if (!Human_IsAttachedToHomeHouse(human) || Read<std::uint32_t>(House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId)), 0x2C) != 3) { Fail(human, 2); return; }
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) == 0) Human_l_StartTask_ExecuteJob_Tool_FillHome_TryToFetch(human);
-        else if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_FillHome_BringAway(human);
+        if (!Human_IsAttachedToHomeHouse(human) || Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), 0x2C) != 3) { Fail(human, 2); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0) Human_l_StartTask_ExecuteJob_Tool_FillHome_TryToFetch(human);
+        else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_FillHome_BringAway(human);
         else Human_l_StartTask_ExecuteJob_Tool_FillHome_Fetch(human);
     }
 
     // Original function: FUN_0047553c; household deliveries have their own stock semantics.
     void Human_l_StartTask_ExecuteJob_Tool_FillHome_BringAway(void* human)
     {
-        const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
+        const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
         if (Human_IsAtTargetPoint(human))
         {
             auto* house = Human_GetHousePtrAtTargetPosition(human);
@@ -160,13 +160,13 @@ namespace NC2Logic
         }
         else
         {
-            auto* house = House(Read<std::uint32_t>(human, ReadableValues::HumanOffset::HomeHouseId));
+            auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId));
             if (House_Stock_CanStoreGoodType(house, good, false) && House_Stock_HasDemandForGood(house, good) && Human_l_StartAtomicWalk(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24)) return;
             if (WalkToConsumer(human)) return;
         }
         std::uint32_t real = 0, work = 0;
         if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_004756eb; invalid collection destinations release reservations.
@@ -188,12 +188,12 @@ namespace NC2Logic
         Fail(human, 2);
         if (!Human_IsAttachedToHomeHouse(human)) return;
         std::uint32_t real = 0, work = 0, good = 0;
-        if (Human_FindGoodsDemandedForHomeHouse(human, &real, &work, &good, static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter))
+        if (Human_FindGoodsDemandedForHomeHouse(human, &real, &work, &good, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter))
         {
-            Write(human, ReadableValues::HumanOffset::RequestedGood, good);
+            Write(human, NC2Layout::HumanOffset::RequestedGood, good);
             if (Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return;
         }
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_00473ec6; shared indoor producer entry point.
@@ -201,7 +201,7 @@ namespace NC2Logic
     {
         if (!Human_IsAttachedToWorkHouse(human) || Read<std::uint32_t>(human, 0x1C) == 0) { Fail(human, 2); return; }
         if (!Human_IsAbleToProduceGoodNow(human, Read<std::uint32_t>(human, 0x1C))) { Fail(human, 0); return; }
-        switch (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode))
+        switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
         {
         case SwitchIds::GoodCirculationMode::FillStockFetch: Human_l_StartTask_ExecuteJob_Tool_FillStock_Fetch(human); return;
         case SwitchIds::GoodCirculationMode::FillStockBringAway: Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human); return;
@@ -209,15 +209,15 @@ namespace NC2Logic
         case SwitchIds::GoodCirculationMode::None: break;
         default: return;
         }
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::ProductionCounters + Read<std::uint32_t>(human, 0x1C) * 4u) == 0) { Human_Production_Rotate(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + Read<std::uint32_t>(human, 0x1C) * 4u) == 0) { Human_Production_Rotate(human); return; }
         auto* house = WorkHouse(human);
-        const auto* job = static_cast<const std::byte*>(gStaticJobTypeData) + Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) * ReadableValues::RecordSize::JobType;
+        const auto* job = static_cast<const std::byte*>(gStaticJobTypeData) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType;
         if ((Read<std::uint8_t>(job, 0x84) != 0 && Read<std::uint32_t>(house, 0x2C) != 3) || Read<std::uint8_t>(house, 0x798) != 0 || !House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, 0x1C), true)) { Fail(human, 2); return; }
         if (House_Stock_IsFull(house, Read<std::uint32_t>(human, 0x1C)))
         {
-            Write(human, ReadableValues::HumanOffset::RequestedGood, Read<std::uint32_t>(human, 0x1C));
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 5);
+            Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, 0x1C));
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 5);
             Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(human);
         }
         else Human_l_StartTask_ExecuteJob_Tool_TryToProduce(human);
@@ -226,7 +226,7 @@ namespace NC2Logic
     // Original function: FUN_00474f17; returns cargo to construction, stock or map piles.
     void Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(void* human)
     {
-        const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
+        const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
         if (Human_IsAtTargetPoint(human))
         {
             const auto id = Logic_EntryPoint_House_GetOnPosition(Real(human));
@@ -235,7 +235,7 @@ namespace NC2Logic
                 auto* house = House(static_cast<std::uint32_t>(id));
                 if (Read<std::uint32_t>(house, 0x2C) == 3)
                 {
-                    if ((House_Stock_CanStoreGoodType(house, good, false) && House_Stock_HasDemandForGood(house, good)) || (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) && House_Stock_CanStoreGoodType(house, good, true) && House_Stock_HasDemandForGood(house, good))) { Start(human, 23); return; }
+                    if ((House_Stock_CanStoreGoodType(house, good, false) && House_Stock_HasDemandForGood(house, good)) || (static_cast<std::uint32_t>(id) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && House_Stock_CanStoreGoodType(house, good, true) && House_Stock_HasDemandForGood(house, good))) { Start(human, 23); return; }
                 }
                 if (House_Construction_IsNeedingGood(house, good)) Start(human, 23);
                 else Human_StopCurrentGoodCirculationMode(human);
@@ -247,7 +247,7 @@ namespace NC2Logic
             if (Map_GoodTool_CanBePutOnMap(good, Real(human))) { Start(human, 23); return; }
             std::uint32_t real = 0, work = 0;
             if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
             return;
         }
         if (Human_IsAttachedToWorkHouse(human))
@@ -266,7 +266,7 @@ namespace NC2Logic
                 return;
             }
             Human_StopCurrentGoodCirculationMode(human);
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode) != 5) Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 4);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 5) Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 4);
             if (House_GetHouseMainType(house) != 1 && WalkToConsumer(human)) return;
         }
         else if (good == 3 || good == 5)
@@ -274,7 +274,7 @@ namespace NC2Logic
             const auto action = Human_IsAttachedToRoadPoint(human) ? 41u : Human_IsAttachedToWallPoint(human) ? 42u : 0u;
             if (action != 0)
             {
-                auto real = Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkCenter), work = real;
+                auto real = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter), work = real;
                 if (action == 42 && !GameMap_Misc_GetLandscapeWorkPosition(&real, &work)) { Fail(human, 7); return; }
                 Human_Target_SetTargetPositions(human, &real, &work);
                 if (Human_IsAtTargetPoint(human)) Start(human, action);
@@ -286,7 +286,7 @@ namespace NC2Logic
         if (Human_FindPilePointNearWorkCenter(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
         real = work = 0;
         if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_004753cb; preserve Windows' >= test in the unreached branch.
@@ -294,12 +294,12 @@ namespace NC2Logic
     {
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood) == 0) { Human_l_StartTask_ExecuteJob_Tool_CollectForProduction(human); return; }
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) == 0) { Human_l_StartTask_ExecuteJob_Tool_CollectForProduction(human); return; }
             auto* house = Human_GetHousePtrAtTargetPosition(human);
             if (house != nullptr)
             {
-                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
-                if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), true) && House_Stock_RequestAmountOfGoods(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), true) != 0)
+                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+                if (House_Stock_CanStoreGoodType(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), true) && House_Stock_RequestAmountOfGoods(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), true) != 0)
                 {
                     const auto type = Read<std::uint32_t>(house, 0x14);
                     Start(human, type == 10 ? 44 : type == 11 ? 45 : 22);
@@ -309,50 +309,50 @@ namespace NC2Logic
             else if (Human_GetLandscapeTypeAtTargetPosition(human) == Read<std::uint32_t>(human, 0xA74)) { Start(human, 22); return; }
             Human_Target_Reset(human);
             Human_StopCurrentGoodCirculationMode(human);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
             return;
         }
         const auto& good = gStaticGoodTypeStorage.records[Read<std::uint32_t>(human, 0x1C)];
         auto* house = WorkHouse(human);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
         for (std::uint32_t index = 0; index < good.distinctProductionInputCount; ++index)
         {
-            Write(human, ReadableValues::HumanOffset::RequestedGood, static_cast<std::uint32_t>(good.distinctProductionInputs[index]));
+            Write(human, NC2Layout::HumanOffset::RequestedGood, static_cast<std::uint32_t>(good.distinctProductionInputs[index]));
             if (House_Stock_RequestAmountOfGoods(house, static_cast<std::uint32_t>(good.distinctProductionInputs[index]), false) >= good.productionInputAmounts[index] && Human_l_StartTask_ExecuteJob_Tool_CollectWantedGood(human)) return;
         }
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 0);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_00475a3a; cargo-bearing flushing delegates to the bring-away leaf.
     void Human_l_StartTask_ExecuteJob_Tool_FlushStock_Fetch(void* human)
     {
-        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(human); return; }
         auto* house = WorkHouse(human);
         if (Human_IsAtTargetPoint(human))
         {
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) == Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition) && House_Stock_IsFull(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) { Start(human, 22); return; }
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition) && House_Stock_IsFull(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood))) { Start(human, 22); return; }
             Human_Target_Reset(human);
             Human_StopCurrentGoodCirculationMode(human);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
             return;
         }
-        if (!Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) { Fail(human, 11); return; }
+        if (!Human_FindConsumerNearWorkCenter(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood))) { Fail(human, 11); return; }
         Human_Target_SetTargetPositions(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24);
         if (Human_IsAtTargetPoint(human))
         {
-            if (House_Stock_IsFull(house, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood))) { Start(human, 22); return; }
+            if (House_Stock_IsFull(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood))) { Start(human, 22); return; }
             Human_StopCurrentGoodCirculationMode(human);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
         }
         else if (Human_l_StartAtomicWalk(human, Real(human), Work(human))) return;
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_00475a4d; Windows uses ordinary walking for map-pile fallback.
     void Human_l_StartTask_ExecuteJob_Tool_FlushStock_BringAway(void* human)
     {
-        const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
+        const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
         if (Human_IsAtTargetPoint(human))
         {
             const auto id = Logic_EntryPoint_House_GetOnPosition(Real(human));
@@ -369,7 +369,7 @@ namespace NC2Logic
         else if (Human_IsAttachedToWorkHouse(human) && House_GetHouseMainType(WorkHouse(human)) != 1 && WalkToConsumer(human)) return;
         std::uint32_t real = 0, work = 0;
         if (Human_FindPilePointNearby(human, &real, &work) && Human_l_StartAtomicWalk(human, &real, &work)) return;
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_00475d34.
@@ -382,25 +382,25 @@ namespace NC2Logic
     // Original function: FUN_00475da4; try deficient input types in their original order.
     void Human_l_StartTask_ExecuteJob_Tool_CollectForProduction(void* human)
     {
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
         Human_Target_Reset(human);
         const auto& good = gStaticGoodTypeStorage.records[Read<std::uint32_t>(human, 0x1C)];
         auto* house = WorkHouse(human);
         for (std::uint32_t index = 0; index < good.distinctProductionInputCount; ++index)
         {
             if (House_Stock_RequestAmountOfGoods(house, static_cast<std::uint32_t>(good.distinctProductionInputs[index]), false) >= good.productionInputAmounts[index]) continue;
-            Write(human, ReadableValues::HumanOffset::RequestedGood, static_cast<std::uint32_t>(good.distinctProductionInputs[index]));
+            Write(human, NC2Layout::HumanOffset::RequestedGood, static_cast<std::uint32_t>(good.distinctProductionInputs[index]));
             if (Human_l_StartTask_ExecuteJob_Tool_CollectWantedGood(human)) return;
         }
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 0);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_00475e31.
     bool Human_l_StartTask_ExecuteJob_Tool_CollectWantedGood(void* human)
     {
         std::uint32_t real = 0, work = 0;
-        if (Human_FindGood_Complex(human, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood), &real, &work, static_cast<std::byte*>(human) + ReadableValues::HumanOffset::WorkCenter) && Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return true;
+        if (Human_FindGood_Complex(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), &real, &work, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter) && Human_l_StartAtomicWalkAndFetch(human, &real, &work, false)) return true;
         Fail(human, 3);
         return false;
     }
@@ -414,16 +414,16 @@ namespace NC2Logic
             auto* house = WorkHouse(human);
             if (Human_IsAtTargetPoint(human))
             {
-                if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TargetPosition) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition)) { Human_Target_Reset(human); continue; }
-                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetPosition) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); continue; }
+                if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
                 if (!InputsAvailable(house, good)) { Fail(human, 10); Human_Target_Reset(human); return; }
                 Human_l_StartAtomicAnimation(human, static_cast<std::uint32_t>(good.atomicForProduction), -1);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 1);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
                 House_ActionOverlay_Start(house, 3, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
                 House_ActionOverlay_Start(house, 4, static_cast<std::uint32_t>(gStaticAtomicAnimationStorage.records[Read<std::uint32_t>(human, 0xAC0)].length));
                 return;
             }
-            const auto real = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, ReadableValues::HouseOffset::DoorEntryPoint);
+            const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), work = Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint);
             if (Human_l_StartAtomicWalk(human, &real, &work)) Human_Target_SetTargetPositions(human, &real, &work);
             else Fail(human, 0);
             return;
@@ -442,9 +442,9 @@ namespace NC2Logic
         Human_l_JobExperience_Gain(human);
         House_Production_DidProduceOneGood(house);
         Human_Production_DidProduceGoods(human, amount, fraction);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode, 0);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood, 0);
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
     }
 
     // Original function: FUN_004691ce; retain input consumption before animal allocation.
@@ -464,9 +464,9 @@ namespace NC2Logic
                 if (id == 57 || id == 58) Human_l_PerformTaskEvent_Produce_Animal(human);
                 else Human_l_PerformTaskEvent_Produce_Good(human);
             }
-            else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+            else Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
         }
-        else Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        else Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
         Human_Target_Reset(human);
     }
 }

@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanWeaponEvents.h"
 #include "C2AnimalAccess.h"
@@ -45,14 +45,14 @@ namespace NC2Logic
     // Original function: FUN_00469b78; primary target precedes secondary target, and invalid targets fail immediately.
     void Human_l_PerformTaskEvent_Attack(void* human)
     {
-        const auto tribe = Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType), weaponId = Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon);
+        const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), weaponId = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon);
         const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weaponId];
         for (std::uint32_t index = 0; index < 2; ++index)
         {
             auto* target = static_cast<std::byte*>(human) + 0xB64u + index * 12u;
             const auto type = TargetData_GetTargetType(target);
             if (type == 0) continue;
-            if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3); return; }
+            if (!TargetData_IsValid(target)) { Write<std::uint32_t>(target, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
             auto range = static_cast<std::uint32_t>(weapon.maximumRange);
             if (Human_IsAttachedToWorkHouse(human) && Human_IsJobSoldier(human) && weapon.hasMunition != 0) range += 5u;
             const auto id = TargetData_GetObjectId(target);
@@ -65,7 +65,7 @@ namespace NC2Logic
                 TargetData_GetMapPosition(target, &position);
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
-                if (weapon.hasMunition == 0) hit = Tool_HitLandscapeOnPoint(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), tribe, weaponId, &position);
+                if (weapon.hasMunition == 0) hit = Tool_HitLandscapeOnPoint(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), tribe, weaponId, &position);
                 break;
             case SwitchIds::TargetType::House:
                 object = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
@@ -95,7 +95,7 @@ namespace NC2Logic
                 {
                     // Native fallback calls direct damage even for a weapon with munition.
                     hit = Vehicle_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, Human_GetExperienceForEquippedWeapon(human));
-                    if (hit) { Human_GainExperienceForEquippedWeapon(human, 1); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2); return; }
+                    if (hit) { Human_GainExperienceForEquippedWeapon(human, 1); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2); return; }
                     continue;
                 }
                 distance = Distance(&position, Human_GetMapPositionRef(human));
@@ -118,7 +118,7 @@ namespace NC2Logic
                 if (type == 1 || type == 2 || type == 3)
                 {
                     const auto ticks = (distance << 3) / static_cast<std::uint32_t>(weapon.speed);
-                    const auto* moveable = gMapMoveableArrayStorage.entries + moveableId * ReadableValues::RecordSize::MapMoveable;
+                    const auto* moveable = gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable;
                     if (Read<std::uint8_t>(moveable, 0x2C) != 0)
                     {
                         const auto direction = Read<std::uint8_t>(moveable, 0x10) != 0 ? Read<std::uint32_t>(moveable, 0x20) : 2u;
@@ -127,31 +127,31 @@ namespace NC2Logic
                     }
                 }
                 Human_Military_ShootArrowAtPosition(human, position);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
                 return;
             }
-            if (hit) { Human_GainExperienceForEquippedWeapon(human, 1); Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 2); return; }
+            if (hit) { Human_GainExperienceForEquippedWeapon(human, 1); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2); return; }
         }
-        Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 3);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
     // Original function: FUN_0046b7c7; signed low-word RNG remainders and callback-before-scheduling order.
     void Human_Military_ShootArrowAtPosition(void* human, std::uint32_t position)
     {
-        const auto tribe = Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType), weaponId = Read<std::uint32_t>(human, ReadableValues::HumanOffset::EquippedWeapon);
+        const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), weaponId = Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon);
         const auto& weapon = static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[tribe])[weaponId];
         const auto chance = Human_IsJobHero(human) ? 0u : Game_Random_GetNumber() % 100u;
         auto source = MapMigPoint_GetLong(Human_GetMapPositionRef(human));
         std::uint32_t height = 0, offsetX = 20, offsetY = 20;
         if (Human_IsAttachedToWorkHouse(human) && Human_IsInWorkHouse(human))
         {
-            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, ReadableValues::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-            const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
+            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
+            const auto* data = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
             const auto count = Read<std::uint32_t>(data, 0x1B0);
             if (count != 0)
             {
                 const auto selected = Game_Random_GetNumber() % count;
-                source = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+                source = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
                 height = Read<std::uint32_t>(data, 0x1BCu + selected * 12u);
                 offsetX = Read<std::uint32_t>(data, 0x1B4u + selected * 12u);
                 offsetY = Read<std::uint32_t>(data, 0x1B8u + selected * 12u);
@@ -176,10 +176,10 @@ namespace NC2Logic
         callback.sourcePixelOffsetY = offsetY;
         callback.targetPixelOffsetX = 20;
         callback.targetPixelOffsetY = 20;
-        callback.munition = tribe == 2 && Read<std::uint32_t>(human, ReadableValues::HumanOffset::JobType) == 47 ? 3u : static_cast<std::uint32_t>(weapon.munitionType);
+        callback.munition = tribe == 2 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 47 ? 3u : static_cast<std::uint32_t>(weapon.munitionType);
         callback.flightTicks = ticks;
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x23, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&callback)), 0, 0);
         DelayedActionManager_DelayedAction_AddWeaponHit(gDelayedActionManager, ticks, 1, Read<std::uint32_t>(human, 4), &position, weaponId);
-        GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId), &position, 1);
+        GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), &position, 1);
     }
 }

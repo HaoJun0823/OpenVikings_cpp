@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiSupportAccess.h"
@@ -150,7 +150,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004c9c3b; preserve child-chunk order inside XGUI.
     void CInGameGuiManager::l_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
-        io->IO_Tool_Chunk_StartCreation(ReadableValues::GuiSavegameChunk::GuiHeader, 1);
+        io->IO_Tool_Chunk_StartCreation(NC2DataIds::GuiSavegameChunk::GuiHeader, 1);
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DisplayPosition, 1);
         std::uint32_t mapPoint = 0;
         NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(sTheObjectPtr->GetDesktop(), 0x30), &mapPoint);
@@ -174,7 +174,7 @@ namespace NInGameGuiManager
     void CInGameGuiManager::l_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
         std::uint32_t version = 0;
-        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(ReadableValues::GuiSavegameChunk::GuiHeader, &version, nullptr)) { io->IO_File_Chunk_Skip(); return; }
+        if (!io->IO_File_Chunk_CheckMarkerAndGetVersion(NC2DataIds::GuiSavegameChunk::GuiHeader, &version, nullptr)) { io->IO_File_Chunk_Skip(); return; }
         while (io->IO_File_Chunk_ReadHeader())
         {
             switch (io->mReadHeader.marker)

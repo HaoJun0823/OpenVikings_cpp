@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "CRC16.h"
 
 namespace NCRC16
@@ -18,8 +18,8 @@ namespace NCRC16
 
             for (std::uint32_t bit = 0; bit < 8; ++bit)
             {
-                if ((value & ReadableValues::BitMask::Bit15) != 0)
-                    value = (value << 1) ^ ReadableValues::BitMask::Bit0AndBit5AndBit12;
+                if ((value & NXBasics::BitMask::Bit15) != 0)
+                    value = (value << 1) ^ NXBasics::BitMask::Bit0AndBit5AndBit12;
                 else
                     value <<= 1;
             }
@@ -35,7 +35,7 @@ namespace NCRC16
         if (g_crcTable[1] == 0)
             InitializeCRCTable();
 
-        std::uint16_t checksum = ReadableValues::IntegerRange::UInt16Maximum;
+        std::uint16_t checksum = NXBasics::IntegerRange::UInt16Maximum;
         const auto* bytes = static_cast<const std::uint8_t*>(data);
 
         while (length > 0)

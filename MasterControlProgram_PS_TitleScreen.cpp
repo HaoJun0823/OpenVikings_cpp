@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "MasterControlProgram.h"
 #include "MasterPropertyManager.h"
 #include "C2LanguageTools.h"
@@ -74,7 +74,7 @@ namespace
         bitmap->Fill(NXBasics::SColorRGB(0, 0, 0));
         auto* font = static_cast<NXBasics::CFont*>(NXBasics::XB_Storable_LoadObject("data\\gui\\fonts\\font10.fnt"));
         Write(manager, 0xE0, font);
-        Write<std::uint32_t>(font, 0xC, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(font, 0xC, NXBasics::IntegerRange::UInt32Maximum);
         memory = NXBasics::Runtime_AllocateWithNewHandler(1036, 1);
         auto* palette = memory != nullptr ? ::new (memory) NXBasics::CPalette() : nullptr;
         Write(manager, 0xE4, palette);
@@ -224,7 +224,7 @@ namespace
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("game_start_pre_picture_sequence");
             if (NXBasics::CFile::FileSystem_Tool_FileExists("data\\\\pictures\\pre00.bmp", true))
             {
-                Write<std::uint32_t>(manager, 0xD0, ReadableValues::IntegerRange::UInt32Maximum);
+                Write<std::uint32_t>(manager, 0xD0, NXBasics::IntegerRange::UInt32Maximum);
                 Write<std::uint8_t>(manager, 0xCC, 1);
                 NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Add("game_start_pre_intro", false, 0, nullptr);
             }
@@ -251,7 +251,7 @@ namespace
             NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Property_Remove("game_start_post_picture_sequence");
             // Requested missing-asset fallback: the native sequence end already
             // requests program exit when the next post picture does not exist.
-            Write<std::uint32_t>(manager, 0xD0, ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(manager, 0xD0, NXBasics::IntegerRange::UInt32Maximum);
             Write<std::uint8_t>(manager, 0xCD, 1);
         }
         if (Read<std::uint8_t>(manager, 0) != 0)

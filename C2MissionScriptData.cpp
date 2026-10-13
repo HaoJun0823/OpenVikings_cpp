@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2MissionScriptData.h"
 #include "C2LifetimeAccess.h"
@@ -448,7 +448,7 @@ namespace NC2Logic
     {
         for (std::uint32_t index = 0; index < 56; ++index)
         {
-            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticJobTypeData) + index * ReadableValues::RecordSize::JobType, name) == 0) return index;
+            if (NXBasics::Runtime_CompareStringsIgnoreCase(static_cast<const char*>(gStaticJobTypeData) + index * NC2Layout::RecordSize::JobType, name) == 0) return index;
         }
         return 0;
     }

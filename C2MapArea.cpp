@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2MapArea.h"
 #include "C2GameState.h"
 #include "C2GameMapAccess.h"
@@ -53,7 +53,7 @@ namespace NC2Logic
                     const auto value = Read<std::uint8_t>(micro, 12);
                     if (((value >> 7) != 0) != blocked)
                     {
-                        Write<std::uint8_t>(micro, 12, static_cast<std::uint8_t>((value & ReadableValues::IntegerRange::Int8Maximum) | (blocked ? 0x80u : 0u)));
+                        Write<std::uint8_t>(micro, 12, static_cast<std::uint8_t>((value & NXBasics::IntegerRange::Int8Maximum) | (blocked ? 0x80u : 0u)));
                         GameMapModifyManager_GameMapModified(14, &point, 0);
                     }
                 }
@@ -71,7 +71,7 @@ namespace NC2Logic
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & ReadableValues::BitMask::Bit7) != 0) return false;
+                if (MapMigPoint_IsInsideMap(&point) && (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 12) & NXBasics::BitMask::Bit7) != 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }
@@ -90,7 +90,7 @@ namespace NC2Logic
                 if (MapMigPoint_IsInsideMap(&point))
                 {
                     auto* micro = GameMap_GetMapMicroPointPtr(&point);
-                    Write<std::uint8_t>(micro, 13, static_cast<std::uint8_t>((Read<std::uint8_t>(micro, 13) & ReadableValues::BitMask::ByteExceptBit0) | (blocked ? 1u : 0u)));
+                    Write<std::uint8_t>(micro, 13, static_cast<std::uint8_t>((Read<std::uint8_t>(micro, 13) & NXBasics::BitMask::ByteExceptBit0) | (blocked ? 1u : 0u)));
                 }
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
@@ -226,7 +226,7 @@ namespace NC2Logic
             MapMigPoint_ConstructOffset(&point, source, rows[row].x, rows[row].y, false);
             for (std::uint32_t column = 0; column < rows[row].width; ++column)
             {
-                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & ReadableValues::BitMask::Bit5) != 0) return false;
+                if (!MapMigPoint_IsInsideMap(&point) || (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(&point), 13) & NXBasics::BitMask::Bit5) != 0) return false;
                 Write<std::uint16_t>(&point, 0, static_cast<std::uint16_t>(Read<std::uint16_t>(&point, 0) + 1u));
             }
         }

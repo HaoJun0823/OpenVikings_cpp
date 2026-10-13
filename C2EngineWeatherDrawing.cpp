@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2EngineWeatherDrawing.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineLifetimeAccess.h"
@@ -74,13 +75,13 @@ namespace NC2E2
     {
         if (Read<std::uint8_t>(display, 0x928) == 0) return;
         // The two original SColorRGB temporaries have no observable side effects.
-        void* bitmap = Read<void*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+        void* bitmap = Read<void*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         const auto width = Read<std::int32_t>(bitmap, 0x10);
         const auto height = Read<std::int32_t>(bitmap, 0x14);
         const auto stride = Read<std::uint32_t>(bitmap, 0x30);
         const auto point = Weather_GetMapPoint(display);
-        const auto ignoreDark = ((Read<std::uint32_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) >> 2) & 1u) != 0;
-        const auto playerId = Read<std::int32_t>(display, ReadableValues::EngineDisplayOffset::PlayerId);
+        const auto ignoreDark = ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) >> 2) & 1u) != 0;
+        const auto playerId = Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
         auto* manager = E2MapWeatherManagerSectorManager_GetExistingObjectPtr();
         const auto density = E2MapWeatherManagerSectorManager_Rain_GetDensity(manager, point, ignoreDark, playerId);
         const auto count = Weather_GetCount(density, width, height, 0.025);
@@ -112,13 +113,13 @@ namespace NC2E2
     void Display_l_DE_SpecialOverlay_Snow_Draw(void* display)
     {
         if (Read<std::uint8_t>(display, 0x930) == 0) return;
-        void* bitmap = Read<void*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+        void* bitmap = Read<void*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         const auto width = Read<std::int32_t>(bitmap, 0x10);
         const auto height = Read<std::int32_t>(bitmap, 0x14);
         const auto stride = Read<std::uint32_t>(bitmap, 0x30);
         const auto point = Weather_GetMapPoint(display);
-        const auto ignoreDark = ((Read<std::uint32_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) >> 2) & 1u) != 0;
-        const auto playerId = Read<std::int32_t>(display, ReadableValues::EngineDisplayOffset::PlayerId);
+        const auto ignoreDark = ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) >> 2) & 1u) != 0;
+        const auto playerId = Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
         auto* manager = E2MapWeatherManagerSectorManager_GetExistingObjectPtr();
         const auto density = E2MapWeatherManagerSectorManager_Snow_GetDensity(manager, point, ignoreDark, playerId);
         const auto count = Weather_GetCount(density, width, height, 0.02);
@@ -140,7 +141,7 @@ namespace NC2E2
             const auto y = Signed((random.Get() + static_cast<std::uint32_t>(driftY)) % static_cast<std::uint32_t>(height));
             if (!Weather_IsInside(x, y, width, height)) continue;
             auto* pixel = pixels + static_cast<std::uint32_t>(y) * stride + static_cast<std::uint32_t>(x);
-            *pixel = ReadableValues::IntegerRange::UInt16MaximumSigned;
+            *pixel = NXBasics::IntegerRange::UInt16MaximumSigned;
             if ((index & 1) != 0) continue;
             pixel[-1] = table[pixel[-1]];
             pixel[1] = table[pixel[1]];
@@ -153,13 +154,13 @@ namespace NC2E2
     void Display_l_DE_SpecialOverlay_Sand_Draw(void* display)
     {
         if (Read<std::uint8_t>(display, 0x938) == 0) return;
-        void* bitmap = Read<void*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+        void* bitmap = Read<void*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         const auto width = Read<std::int32_t>(bitmap, 0x10);
         const auto height = Read<std::int32_t>(bitmap, 0x14);
         const auto stride = Read<std::uint32_t>(bitmap, 0x30);
         const auto point = Weather_GetMapPoint(display);
-        const auto ignoreDark = ((Read<std::uint32_t>(display, ReadableValues::EngineDisplayOffset::DrawFlags) >> 2) & 1u) != 0;
-        const auto playerId = Read<std::int32_t>(display, ReadableValues::EngineDisplayOffset::PlayerId);
+        const auto ignoreDark = ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) >> 2) & 1u) != 0;
+        const auto playerId = Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
         auto* manager = E2MapWeatherManagerSectorManager_GetExistingObjectPtr();
         const auto density = E2MapWeatherManagerSectorManager_Sand_GetDensity(manager, point, ignoreDark, playerId);
         const auto count = Weather_GetCount(density, width, height, 0.05);

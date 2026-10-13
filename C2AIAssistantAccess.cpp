@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2AIAssistantAccess.h"
 #include "C2CallbackManager.h"
 #include "C2LifetimeAccess.h"
@@ -91,7 +91,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
         {
             const auto* human = Human(id);
-            if (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 0xB28) == ReadableValues::IntegerRange::UInt32Maximum || Human_UserControl_DoesWantToGetChild(human)) continue;
+            if (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 0xB28) == NXBasics::IntegerRange::UInt32Maximum || Human_UserControl_DoesWantToGetChild(human)) continue;
             SUserCommandsForHumanHandler commands;
             Human_UserControl_GetCommands(human, &commands, false, false);
             if (!commands.IsCommandAllowed(8) && !commands.IsCommandAllowed(9)) continue;
@@ -195,7 +195,7 @@ namespace NC2Logic
                 for (auto id = humans.GetFirstHumanId(player); id != -1; id = humans.GetNextHumanId())
                 {
                     const auto* human = Human(id);
-                    if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 24) != 6 || Read<std::uint32_t>(human, 0xB34) != ReadableValues::IntegerRange::UInt32Maximum) continue;
+                    if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 24) != 6 || Read<std::uint32_t>(human, 0xB34) != NXBasics::IntegerRange::UInt32Maximum) continue;
                     const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
                     std::uint32_t b = 0;
                     while (b < barrackCount && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House(barracks[b]) + 28), 6) != continent) ++b;

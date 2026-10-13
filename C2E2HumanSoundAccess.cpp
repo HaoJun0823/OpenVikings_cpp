@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2HumanSoundAccess.h"
 #include "C2E2StaticDataSoundFX.h"
@@ -37,7 +38,7 @@ namespace NC2E2
             const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
             if (NC2Logic::House_GetHouseMainType(house) == 6) return true;
             const auto* area = static_cast<const NC2Logic::CMapArea*>(NC2Logic::House_Misc_WalkBlockArea_GetPtr(house));
-            const auto root = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+            const auto root = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             for (std::uint32_t rowIndex = 0; rowIndex < area->rowCount; ++rowIndex)
             {
                 const auto* row = area->rows + rowIndex;
@@ -61,7 +62,7 @@ namespace NC2E2
             }
             std::int16_t rectangle[4];
             NC2Logic::MapMigRectangle_Construct(rectangle, static_cast<std::int16_t>(Read<std::uint16_t>(&root, 0) - 20u), static_cast<std::int16_t>(Read<std::uint16_t>(&root, 2) - 20u), 40, 40);
-            C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, ReadableValues::IntegerRange::UInt32Maximum);
+            C2DEngineDisplayManager::sTheObjectPtr->InformThatStaticMapChanged(rectangle, NXBasics::IntegerRange::UInt32Maximum);
             return true;
         }
         case SwitchIds::CallbackType::ResetHouseDynamicGraphics:
@@ -73,7 +74,7 @@ namespace NC2E2
             if (parameter2 == 2)
             {
                 const void* human = NC2Logic::GetHumanPtr(static_cast<std::int32_t>(parameter1));
-                if ((Read<std::uint32_t>(human, 0xB84) & ReadableValues::BitMask::Bit10) != 0) return true;
+                if ((Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit10) != 0) return true;
                 patch = StaticHumanMisc_ColorIds_GetPlayerRandomPatchId(Read<std::int32_t>(human, 0x10), NC2Logic::Human_IsSexFemale(human));
             }
             else if (parameter2 == 1)
@@ -114,7 +115,7 @@ namespace NC2E2
         {
             const void* house = NC2Logic::CHouseArray::mStaticVars + parameter1 * NC2Logic::CHouseArray::ElementSize;
             NC2Logic::House_GetHouseTypeDataPtr(house);
-            const void* data = Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, ReadableValues::HouseOffset::EngineType));
+            const void* data = Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::EngineType));
             bool found = false;
             if (parameter3 != 0)
             {
@@ -122,7 +123,7 @@ namespace NC2E2
                 {
                     const void* entry = static_cast<const std::byte*>(Read<void*>(data, 0x494)) + index * 0xE4u;
                     if (Read<std::uint32_t>(entry, 4) != 3 || Read<std::uint32_t>(entry, 0) != Read<std::uint32_t>(house, 0x20)) continue;
-                    auto position = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+                    auto position = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
                     NC2Logic::MapMigPoint_MoveCursorUnwrapped(position, 2);
                     const std::int32_t pixel[2] = {NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(entry, 0xC) + 17u), NXBasics::Runtime_TimeSigned32(0u - Read<std::uint32_t>(entry, 0x10) + 19u)};
                     E2ParticelManager_AddParticelGenerator(gE2ParticelManager, 0, &position, pixel, 5, Read<std::uint32_t>(house, 8));
@@ -163,7 +164,7 @@ namespace NC2E2
         if (distance > 64) return true;
         auto* sounds = CE2StaticDataSoundFXManager::sTheObjectPtr;
         const auto soundId = sounds->staticSoundIdsByType[soundType];
-        if (soundId == ReadableValues::IntegerRange::UInt32Maximum) return true;
+        if (soundId == NXBasics::IntegerRange::UInt32Maximum) return true;
         const auto* sound = static_cast<const std::byte*>(sounds->staticSounds) + soundId * 0x43Cu;
         const auto count = Read<std::uint32_t>(sound, 0x28);
         if (count == 0) return true;
@@ -224,20 +225,20 @@ namespace NC2E2
             for (std::uint32_t category = 0; category < 3; ++category)
             {
                 const auto offset = (tribe * 3u + category) * 0x8Cu;
-                if (chance >= Read<std::uint32_t>(manager, offset + 4u) || Read<std::uint32_t>(manager, offset + 0x0Cu) == ReadableValues::IntegerRange::UInt32Maximum) continue;
+                if (chance >= Read<std::uint32_t>(manager, offset + 4u) || Read<std::uint32_t>(manager, offset + 0x0Cu) == NXBasics::IntegerRange::UInt32Maximum) continue;
                 NC2Logic::CHumanIterator iterator;
                 const void* selected = nullptr;
                 for (auto id = iterator.GetFirstSectorHumanId(player, center, rectangle[2], false); id != -1; id = iterator.GetNextSectorHumanId())
                 {
                     const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-                    if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == category) { selected = human; break; }
+                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == category) { selected = human; break; }
                 }
                 if (selected == nullptr && category == 2)
                 {
                     for (auto id = iterator.GetFirstSectorHumanId(player, center, rectangle[2], true); id != -1; id = iterator.GetNextSectorHumanId())
                     {
                         const auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-                        if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == 2) { selected = human; break; }
+                        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == tribe && HumanSound_GetSexAgeIndex(human) == 2) { selected = human; break; }
                     }
                 }
                 if (selected == nullptr) continue;
@@ -252,7 +253,7 @@ namespace NC2E2
     {
         const std::uint32_t offset = responseType * 0x40u;
         const std::uint32_t count = Read<std::uint32_t>(record, offset + 8u);
-        return count == 0 ? ReadableValues::IntegerRange::UInt32Maximum : Read<std::uint32_t>(record, offset + 0x0Cu + (selector % count) * 4u);
+        return count == 0 ? NXBasics::IntegerRange::UInt32Maximum : Read<std::uint32_t>(record, offset + 0x0Cu + (selector % count) * 4u);
     }
 
     // Original function: FUN_00485931; CE2HumanSoundManager::PlayRespondingSound.
@@ -267,7 +268,7 @@ namespace NC2E2
 
         const auto* record = static_cast<const std::byte*>(manager) + 8u + (tribe * 3u + HumanSound_GetSexAgeIndex(human)) * 0x8Cu;
         const std::uint32_t soundId = HumanSound_GetRespondingSoundId(record, responseType, selector);
-        if (soundId == ReadableValues::IntegerRange::UInt32Maximum) return;
+        if (soundId == NXBasics::IntegerRange::UInt32Maximum) return;
         const auto* sound = static_cast<const std::byte*>(CE2StaticDataSoundFXManager::sTheObjectPtr->staticSounds) + soundId * 0x43Cu;
         if (Read<std::uint32_t>(sound, 0x28) == 0) return;
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(sound, 0x28); ++index)
@@ -290,7 +291,7 @@ namespace NC2E2
     // Original function: FUN_00490eea. Visibility/attenuation are optional; pan is always calculated.
     void Tool_Sound_PlaySoundOrientedOnDisplay(const void* point, std::uint32_t soundId, const void* display, bool skipRunning, bool attenuate)
     {
-        if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0 || soundId == ReadableValues::IntegerRange::UInt32Maximum) return;
+        if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0 || soundId == NXBasics::IntegerRange::UInt32Maximum) return;
         const std::int32_t x = Read<std::int16_t>(point, 0);
         const std::int32_t y = Read<std::int16_t>(point, 2);
         const std::int32_t left = Read<std::int16_t>(display, 0x97A);

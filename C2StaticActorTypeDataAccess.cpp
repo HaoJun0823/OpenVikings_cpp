@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticActorTypeDataAccess.h"
 #include "C2LifetimeGlobals.h"
@@ -51,13 +51,13 @@ namespace NC2Logic
                 {
                     gAnimalTypeTokenFlags |= 1u;
                     static constexpr NXBasics::SToken tokens[19] = {
-                        {"tribetype", ReadableValues::AnimalTypeToken::TribeType}, {"aggressive", SwitchIds::AnimalTypeToken::Aggressive}, {"warrantable", SwitchIds::AnimalTypeToken::Warrantable},
+                        {"tribetype", NC2DataIds::AnimalTypeToken::TribeType}, {"aggressive", SwitchIds::AnimalTypeToken::Aggressive}, {"warrantable", SwitchIds::AnimalTypeToken::Warrantable},
                         {"maximumleaderdistance", SwitchIds::AnimalTypeToken::MaximumLeaderDistance}, {"searchforleader", SwitchIds::AnimalTypeToken::SearchForLeader},
                         {"maximumdistancetostaypoint", SwitchIds::AnimalTypeToken::MaximumDistanceToStayPoint}, {"maximumdistancetobirthpoint", SwitchIds::AnimalTypeToken::MaximumDistanceToBirthPoint},
                         {"maximumgroupsize", SwitchIds::AnimalTypeToken::MaximumGroupSize}, {"maximumcadaversize", SwitchIds::AnimalTypeToken::Maximumcadaversize}, {"catchable", SwitchIds::AnimalTypeToken::Catchable},
                         {"movespeed", SwitchIds::AnimalTypeToken::MoveSpeed}, {"hitpoints_baby", SwitchIds::AnimalTypeToken::HitpointsBABY}, {"hitpoints_adult", SwitchIds::AnimalTypeToken::HitpointsAdult},
-                        {"getangry", ReadableValues::AnimalTypeToken::GetAngry}, {"angryGameTime", SwitchIds::AnimalTypeToken::AngryGameTime}, {"runspeed", SwitchIds::AnimalTypeToken::Runspeed},
-                        {"ignorehouses", ReadableValues::AnimalTypeToken::IgnoreHouses}, {"cannotbeattacked", SwitchIds::AnimalTypeToken::Cannotbeattacked}, {nullptr, 0}
+                        {"getangry", NC2DataIds::AnimalTypeToken::GetAngry}, {"angryGameTime", SwitchIds::AnimalTypeToken::AngryGameTime}, {"runspeed", SwitchIds::AnimalTypeToken::Runspeed},
+                        {"ignorehouses", NC2DataIds::AnimalTypeToken::IgnoreHouses}, {"cannotbeattacked", SwitchIds::AnimalTypeToken::Cannotbeattacked}, {nullptr, 0}
                     };
                     std::memcpy(gAnimalTypeTokens, tokens, sizeof(tokens));
                 }
@@ -109,7 +109,7 @@ namespace NC2Logic
                 if ((gArmorTypeTokenFlags & 1u) == 0)
                 {
                     gArmorTypeTokenFlags |= 1u;
-                    static constexpr NXBasics::SToken tokens[8] = {{"type", ReadableValues::ArmorTypeToken::Type}, {"name", SwitchIds::ArmorTypeToken::Name}, {"maintype", SwitchIds::ArmorTypeToken::Maintype}, {"goodtype", SwitchIds::ArmorTypeToken::GoodType}, {"weight", SwitchIds::ArmorTypeToken::Weight}, {"blockingValue", SwitchIds::ArmorTypeToken::BlockingValue}, {"materialType", SwitchIds::ArmorTypeToken::MaterialType}, {nullptr, 0}};
+                    static constexpr NXBasics::SToken tokens[8] = {{"type", NC2DataIds::ArmorTypeToken::Type}, {"name", SwitchIds::ArmorTypeToken::Name}, {"maintype", SwitchIds::ArmorTypeToken::Maintype}, {"goodtype", SwitchIds::ArmorTypeToken::GoodType}, {"weight", SwitchIds::ArmorTypeToken::Weight}, {"blockingValue", SwitchIds::ArmorTypeToken::BlockingValue}, {"materialType", SwitchIds::ArmorTypeToken::MaterialType}, {nullptr, 0}};
                     std::memcpy(gArmorTypeTokens, tokens, sizeof(tokens));
                 }
                 if ((gArmorTypeTokenFlags & 2u) == 0)
@@ -163,7 +163,7 @@ namespace NC2Logic
                 if ((gExperienceTypeTokenFlags & 1u) == 0)
                 {
                     gExperienceTypeTokenFlags |= 1u;
-                    static constexpr NXBasics::SToken tokens[7] = {{"type", ReadableValues::HumanJobExperienceTypeToken::Type}, {"name", SwitchIds::ArmorTypeToken::Name}, {"job", SwitchIds::JobExperienceToken::Job}, {"good", SwitchIds::JobExperienceToken::Good}, {"experiencefactor", SwitchIds::JobExperienceToken::ExperienceFactor}, {"baserepeatcounter", SwitchIds::JobExperienceToken::Baserepeatcounter}, {nullptr, 0}};
+                    static constexpr NXBasics::SToken tokens[7] = {{"type", NC2DataIds::HumanJobExperienceTypeToken::Type}, {"name", SwitchIds::ArmorTypeToken::Name}, {"job", SwitchIds::JobExperienceToken::Job}, {"good", SwitchIds::JobExperienceToken::Good}, {"experiencefactor", SwitchIds::JobExperienceToken::ExperienceFactor}, {"baserepeatcounter", SwitchIds::JobExperienceToken::Baserepeatcounter}, {nullptr, 0}};
                     std::memcpy(gExperienceTypeTokens, tokens, sizeof(tokens));
                 }
                 if ((gExperienceTypeTokenFlags & 2u) == 0)
@@ -244,7 +244,7 @@ namespace NC2Logic
                 {
                     gWeaponTypeTokenFlags |= 1u;
                     static constexpr NXBasics::SToken tokens[20] = {
-                        {"type", ReadableValues::WeaponTypeToken::Type}, {"tribetype", ReadableValues::WeaponTypeToken::TribeType}, {"name", SwitchIds::ArmorTypeToken::Name}, {"maintype", SwitchIds::ArmorTypeToken::Maintype},
+                        {"type", NC2DataIds::WeaponTypeToken::Type}, {"tribetype", NC2DataIds::WeaponTypeToken::TribeType}, {"name", SwitchIds::ArmorTypeToken::Name}, {"maintype", SwitchIds::ArmorTypeToken::Maintype},
                         {"goodtype", SwitchIds::ArmorTypeToken::GoodType}, {"weight", SwitchIds::ArmorTypeToken::Weight}, {"minimumrange", SwitchIds::WeaponTypeToken::MinimumRange}, {"maximumrange", SwitchIds::WeaponTypeToken::MaximumRange},
                         {"munitiontype", SwitchIds::WeaponTypeToken::MunitionType}, {"damagetype", SwitchIds::WeaponTypeToken::DamageType}, {"damagevalue", SwitchIds::WeaponTypeToken::Damagevalue}, {"jobtype", SwitchIds::WeaponTypeToken::JobType},
                         {"atomicactiontype", SwitchIds::WeaponTypeToken::AtomicActionType}, {"speed", SwitchIds::WeaponTypeToken::Speed}, {"soundtype_hit", SwitchIds::WeaponTypeToken::SoundtypeHit}, {"soundtype_nohit", SwitchIds::WeaponTypeToken::SoundtypeNohit},
@@ -318,7 +318,7 @@ namespace NC2Logic
                     {
                         gJobTypeTokenFlags |= 1u;
                         static constexpr NXBasics::SToken tokens[14] = {
-                            {"type", ReadableValues::JobTypeToken::Type}, {"Name", SwitchIds::ArmorTypeToken::Name}, {"Allowatomic", SwitchIds::JobTypeToken::Allowatomic}, {"Forbidatomic", SwitchIds::JobTypeToken::Forbidatomic},
+                            {"type", NC2DataIds::JobTypeToken::Type}, {"Name", SwitchIds::ArmorTypeToken::Name}, {"Allowatomic", SwitchIds::JobTypeToken::Allowatomic}, {"Forbidatomic", SwitchIds::JobTypeToken::Forbidatomic},
                             {"Baseatomics", SwitchIds::JobTypeToken::Baseatomics}, {"needsReligionFlag", SwitchIds::JobTypeToken::NeedsReligionFlag}, {"ignoresHomeHouseFlag", SwitchIds::JobTypeToken::IgnoresHomeHouseFlag},
                             {"CanHaveWorkHouseFlag", SwitchIds::JobTypeToken::CanHaveWorkHouseFlag}, {"MustHaveWorkHouseFlag", SwitchIds::JobTypeToken::MustHaveWorkHouseFlag}, {"MustHaveFinishedWorkHouseFlag", SwitchIds::JobTypeToken::MustHaveFinishedWorkHouseFlag},
                             {"UserCanChangeProductionFlag", SwitchIds::JobTypeToken::UserCanChangeProductionFlag}, {"UserShouldAttachWorkPlaceAfterJobChangeFlag", SwitchIds::JobTypeToken::UserShouldAttachWorkPlaceAfterJobChangeFlag}, {"CanBeTrainedFlag", SwitchIds::JobTypeToken::CanBeTrainedFlag}, {nullptr, 0}

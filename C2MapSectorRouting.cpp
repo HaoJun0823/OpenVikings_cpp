@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2MapWalkSectorManager.h"
 #include "C2MapPathfinderSectorSearch.h"
 #include "C2MapPathfinderSearch.h"
@@ -58,7 +59,7 @@ namespace NC2Logic
         bool __cdecl slWalkSectorBasePointSearch(const void* point, const SMapPathfinderManagerSearchOverMapCallbackData* callback)
         {
             auto& data = *static_cast<SBasePointSearch*>(callback->userData);
-            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0D) & ReadableValues::BitMask::Bit4) == 0) return false;
+            if ((Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(point), 0x0D) & NXBasics::BitMask::Bit4) == 0) return false;
             auto* sector = Sector(SSectorGridCursor(Read<std::uint32_t>(point, 0)), data.land != 0);
             for (std::uint32_t direction = 0; direction < 8; ++direction)
             {
@@ -80,7 +81,7 @@ namespace NC2Logic
         for (std::int32_t other = 0; other < 21; ++other)
         {
             if (other == 20) { total += Read<std::uint32_t>(sector, 0x53C) * 10u; continue; }
-            if (Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * ReadableValues::RecordSize::GameControlPlayer) == 0) continue;
+            if (Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * NC2Layout::RecordSize::GameControlPlayer) == 0) continue;
             const auto* data = sector + static_cast<std::uint32_t>(other) * 0x40u;
             const auto common = Read<std::uint32_t>(data, 0x24) * 5u + Read<std::uint32_t>(data, 0x2C) * 4u;
             const auto relation = GameControl_Diplomacy_GetState(gGameControl, player, other);
@@ -183,13 +184,13 @@ namespace NC2Logic
         const auto* target = Sector(destination, land);
         if (first->calculated == 0 || target->calculated == 0 || first->continentId != target->continentId || !WayPossible(source, destination, clearance, land, player)) return nullptr;
         auto cursor = source;
-        if ((Sectors_CalculationMap_GetValue(cursor) & ReadableValues::BitMask::Bits16Through23) != 0) first = nullptr;
+        if ((Sectors_CalculationMap_GetValue(cursor) & NXBasics::BitMask::Bits16Through23) != 0) first = nullptr;
         SMapWalkSectorData* best = nullptr;
         std::uint32_t bestDistance = 0;
         for (std::uint32_t step = 0; step < 2; ++step)
         {
             const auto value = Sectors_CalculationMap_GetValue(cursor);
-            if ((value & ReadableValues::BitMask::Bits16Through23) == 0) return first;
+            if ((value & NXBasics::BitMask::Bits16Through23) == 0) return first;
             std::uint32_t directions[8], count = 0;
             for (std::uint32_t direction = 0; direction < 8; ++direction) if ((value & (0x10000u << direction)) != 0) directions[count++] = direction;
             cursor.MoveCursorUnwrapped(directions[Game_Random_GetNumber() % count]);
@@ -245,12 +246,12 @@ namespace NC2Logic
     {
         l_Sectors_CalculationMap_ClearAll();
         l_Sectors_CalculationMap_SetValue(source, 0);
-        std::uint32_t budget = ReadableValues::IntegerRange::UInt16Maximum;
+        std::uint32_t budget = NXBasics::IntegerRange::UInt16Maximum;
         for (auto& queue : sMapPathfinderStaticVariables) queue.count = 0;
         sMapPathfinderStaticVariables[0].count = 1;
         sMapPathfinderStaticVariables[0].points[0] = PackSector(destination);
-        const bool dangerCosts = player != -1 && player < 20 && Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 4) == 2;
-        l_Sectors_CalculationMap_SetValue(destination, ReadableValues::IntegerRange::UInt16Maximum);
+        const bool dangerCosts = player != -1 && player < 20 && Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 4) == 2;
+        l_Sectors_CalculationMap_SetValue(destination, NXBasics::IntegerRange::UInt16Maximum);
         std::uint32_t current = 0, pending = 1;
         do
         {
@@ -268,7 +269,7 @@ namespace NC2Logic
                     next.MoveCursorUnwrapped(direction);
                     if (!next.IsInsideMap()) continue;
                     const auto value = Sectors_CalculationMap_GetValue(next);
-                    const auto oldCost = value & ReadableValues::IntegerRange::UInt16Maximum;
+                    const auto oldCost = value & NXBasics::IntegerRange::UInt16Maximum;
                     std::uint32_t cost = 1;
                     if (dangerCosts)
                     {
@@ -292,7 +293,7 @@ namespace NC2Logic
             current = (current + 1u) & 15u;
             budget = remaining;
         } while (budget > 17u);
-        return (Sectors_CalculationMap_GetValue(source) & ReadableValues::IntegerRange::UInt16Maximum) != 0;
+        return (Sectors_CalculationMap_GetValue(source) & NXBasics::IntegerRange::UInt16Maximum) != 0;
     }
 
     // Original function: FUN_00450A4D; select the last low-danger interior base point on the native route.
@@ -313,7 +314,7 @@ namespace NC2Logic
         for (;;)
         {
             const auto value = Sectors_CalculationMap_GetValue(cursor);
-            if ((value & ReadableValues::BitMask::Bits16Through23) == 0) break;
+            if ((value & NXBasics::BitMask::Bits16Through23) == 0) break;
             std::uint32_t directions[8], count = 0;
             for (std::uint32_t direction = 0; direction < 8; ++direction) if ((value & (0x10000u << direction)) != 0) directions[count++] = direction;
             cursor.MoveCursorUnwrapped(directions[Game_Random_GetNumber() % count]);
@@ -355,7 +356,7 @@ namespace NC2Logic
         for (std::int32_t other = 0; other < 21; ++other)
         {
             if (other == 20) { total += Read<std::uint32_t>(sector, 0x53C) * 10u; continue; }
-            if (Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * ReadableValues::RecordSize::GameControlPlayer) == 0) continue;
+            if (Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * NC2Layout::RecordSize::GameControlPlayer) == 0) continue;
             const auto state = GameControl_Diplomacy_GetState(gGameControl, player, other);
             const auto* data = sector + static_cast<std::uint32_t>(other) * 0x40u;
             if (state == 3)

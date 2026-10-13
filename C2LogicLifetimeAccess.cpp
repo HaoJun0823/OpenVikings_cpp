@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2GuideAccess.h"
@@ -35,13 +35,13 @@ namespace NC2Logic
     // Original function: FUN_00418cc6; the manager itself does not participate in validation.
     bool GameAssistantManager_l_Assistant_IsPlayerIdOk(const void*, std::int32_t player)
     {
-        return player >= 0 && player < 20 && NC2Lifetime::Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) != 0;
+        return player >= 0 && player < 20 && NC2Lifetime::Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) != 0;
     }
     // Original function: FUN_00418ae1; additions wrap before signed clamping to 0..20.
     void GameAssistantManager_UserInput_Save(void* manager, std::int32_t player, std::int32_t command, std::int32_t value)
     {
         using namespace NC2Lifetime;
-        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0) return;
+        if (player < 0 || player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0) return;
         const auto base = static_cast<std::uint32_t>(player) * 0x38u;
         std::uint32_t offset;
         switch (command)
@@ -150,7 +150,7 @@ namespace NC2Logic
     static void MapMoveable_ConstructMembers(void* moveable)
     {
         Write<std::uint16_t>(moveable, 0x14, 0);
-        Write<std::uint16_t>(moveable, ReadableValues::MapMoveableOffset::MapPosition, 0);
+        Write<std::uint16_t>(moveable, NC2Layout::MapMoveableOffset::MapPosition, 0);
         Write<std::uint32_t>(moveable, 0x18, 0);
         Write<std::uint32_t>(moveable, 0x1C, 0);
     }

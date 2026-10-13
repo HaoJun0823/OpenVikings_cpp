@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticVehicleTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -27,9 +28,9 @@ namespace NC2Logic
             {
                 storage.tokenInitFlags |= 1;
                 storage.tokens[15] = {nullptr, 0};
-                storage.tokens[0] = {"type", ReadableValues::VehicleToken::Type};
+                storage.tokens[0] = {"type", NC2DataIds::VehicleToken::Type};
                 storage.tokens[1] = {"name", SwitchIds::VehicleTypeToken::Name};
-                storage.tokens[2] = {"logicsize", ReadableValues::LogicMapChunk::MapSize};
+                storage.tokens[2] = {"logicsize", NC2DataIds::LogicMapChunk::MapSize};
                 storage.tokens[3] = {"debugcolor", SwitchIds::VehicleTypeToken::DebugColor};
                 storage.tokens[4] = {"debugradius", SwitchIds::VehicleTypeToken::DebugRadius};
                 storage.tokens[5] = {"stockslots", SwitchIds::VehicleTypeToken::StockSlots};
@@ -40,7 +41,7 @@ namespace NC2Logic
                 storage.tokens[10] = {"logiccommander", SwitchIds::VehicleTypeToken::LogicCommander};
                 storage.tokens[11] = {"passengervector", SwitchIds::VehicleTypeToken::PassengerVector};
                 storage.tokens[12] = {"logicdragginganimaltribe", SwitchIds::VehicleTypeToken::LogicDraggingAnimalTribe};
-                storage.tokens[13] = {"logictransformvehicleType", ReadableValues::VehicleToken::LogicTransformVehicleType};
+                storage.tokens[13] = {"logictransformvehicleType", NC2DataIds::VehicleToken::LogicTransformVehicleType};
                 storage.tokens[14] = {"vehicleslots", SwitchIds::VehicleTypeToken::VehicleSlots};
             }
             if ((storage.tokenInitFlags & 2) == 0)
@@ -76,7 +77,7 @@ namespace NC2Logic
             const auto type = static_cast<std::uint32_t>(reader.GetInt());
             if (type == 0 || type >= 7) continue;
             auto& record = gStaticVehicleTypeData[type];
-            std::memset(record.goodTypeIndices, ReadableValues::IntegerRange::UInt8MaximumSigned, sizeof(record.goodTypeIndices));
+            std::memset(record.goodTypeIndices, NXBasics::IntegerRange::UInt8MaximumSigned, sizeof(record.goodTypeIndices));
             reader.SetCurrentLineToGroupStart();
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {

@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticHouseTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -26,7 +27,7 @@ namespace NC2Logic
             if ((storage.tokenInitFlags & 1) == 0)
             {
                 storage.tokenInitFlags |= 1;
-                storage.tokens[0] = {"logictype", ReadableValues::HouseToken::LogicType};
+                storage.tokens[0] = {"logictype", NC2DataIds::HouseToken::LogicType};
                 storage.tokens[1] = {"logicmaintype", SwitchIds::HouseTypeToken::Logicmaintype};
                 storage.tokens[2] = {"logicworker", SwitchIds::HouseTypeToken::LogicWorker};
                 storage.tokens[3] = {"logicstock", SwitchIds::HouseTypeToken::LogicStock};
@@ -73,7 +74,7 @@ namespace NC2Logic
             const auto type = static_cast<std::uint32_t>(reader.GetInt());
             if (type == 0 || type >= 55) continue;
             auto& record = gStaticHouseTypeData[type];
-            std::memset(record.stockIndices, ReadableValues::IntegerRange::UInt8MaximumSigned, sizeof(record.stockIndices));
+            std::memset(record.stockIndices, NXBasics::IntegerRange::UInt8MaximumSigned, sizeof(record.stockIndices));
             reader.SetCurrentLineToGroupStart();
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {

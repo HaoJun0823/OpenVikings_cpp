@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "XBobRendering.h"
 #include "XBasicTypes.h"
 #include "XBitmap.h"
@@ -95,10 +95,10 @@ namespace NXBasics
             {
                 const std::uint32_t descriptor = BobRead<std::uint32_t>(rows);
                 rows = BobAddress(rows, 4);
-                if (descriptor != ReadableValues::IntegerRange::UInt32Maximum)
+                if (descriptor != NXBasics::IntegerRange::UInt32Maximum)
                 {
                     std::uint32_t currentX = static_cast<std::uint32_t>(region.placed.x) + (descriptor >> 22);
-                    const std::byte* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
+                    const std::byte* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & NXBasics::BitMask::Low22Bits);
                     bool unchecked = whollyUnchecked || (!region.clipRight && Runtime_TimeSigned32(currentX) >= 0);
                     for (;;)
                     {
@@ -106,8 +106,8 @@ namespace NXBasics
                         source = BobAddress(source, 1);
                         if (token == 0)
                             break;
-                        const std::uint32_t count = token & ReadableValues::IntegerRange::Int8Maximum;
-                        if ((token & ReadableValues::BitMask::Bit7) != 0)
+                        const std::uint32_t count = token & NXBasics::IntegerRange::Int8Maximum;
+                        if ((token & NXBasics::BitMask::Bit7) != 0)
                             currentX += count;
                         else
                         {
@@ -137,8 +137,8 @@ namespace NXBasics
             std::uint32_t result = 0;
             for (std::uint32_t channel = 0; channel < 4; ++channel)
             {
-                const std::uint32_t factor = (repeated >> ((channel & 1u) * 16u)) & ReadableValues::IntegerRange::UInt16Maximum;
-                const std::uint32_t scaled = static_cast<std::uint16_t>(((colour >> (channel * 8u)) & ReadableValues::IntegerRange::UInt8Maximum) * factor) >> 6;
+                const std::uint32_t factor = (repeated >> ((channel & 1u) * 16u)) & NXBasics::IntegerRange::UInt16Maximum;
+                const std::uint32_t scaled = static_cast<std::uint16_t>(((colour >> (channel * 8u)) & NXBasics::IntegerRange::UInt8Maximum) * factor) >> 6;
                 result |= (std::min)(scaled, 255u) << (channel * 8u);
             }
             return result;
@@ -170,7 +170,7 @@ namespace NXBasics
         {
             const auto red = (((background & redMask) * inverse + (foreground & redMask) * alpha) >> 8) & redResultMask;
             const auto green = (((background & greenMask) * inverse + (foreground & greenMask) * alpha) >> 8) & greenMask;
-            const auto blueMask = redMask == ReadableValues::Rgb888::RedMaskUnsigned ? 255u : 31u;
+            const auto blueMask = redMask == NXBasics::Rgb888::RedMaskUnsigned ? 255u : 31u;
             const auto blue = ((background & blueMask) * inverse + (foreground & blueMask) * alpha) >> 8;
             return red + green + blue;
         }
@@ -253,7 +253,7 @@ namespace NXBasics
         if (table == nullptr)
             return;
         const bool rgb565 = depth == 1u && BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0;
-        const std::uint32_t greenMask = rgb565 ? ReadableValues::Rgb565::GreenMaskUnsigned : ReadableValues::Rgb555::GreenMask;
+        const std::uint32_t greenMask = rgb565 ? NXBasics::Rgb565::GreenMaskUnsigned : NXBasics::Rgb555::GreenMask;
         const bool mmx = CPU_HasMMX();
         const std::uint32_t* trueTable = nullptr;
         const std::uint32_t* conversionTable = nullptr;
@@ -285,7 +285,7 @@ namespace NXBasics
             {
                 const std::uint32_t foreground = depth == 1u ? BobRead<std::uint16_t>(table, index * 2u) : BobRead<std::uint32_t>(table, index * 4u);
                 const std::uint32_t background = depth == 1u ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
-                const std::uint32_t masks[3] = { depth == 1u ? ReadableValues::Rgb565::RedMaskUnsigned : ReadableValues::Rgb888::RedMaskUnsigned, depth == 1u ? greenMask : ReadableValues::Rgb888::GreenMaskUnsigned, depth == 1u ? 0x1Fu : ReadableValues::IntegerRange::UInt8Maximum };
+                const std::uint32_t masks[3] = { depth == 1u ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned, depth == 1u ? greenMask : NXBasics::Rgb888::GreenMaskUnsigned, depth == 1u ? 0x1Fu : NXBasics::IntegerRange::UInt8Maximum };
                 for (std::uint32_t channel = 0; channel < 3; ++channel)
                 {
                     const std::uint32_t mask = masks[channel];
@@ -350,7 +350,7 @@ namespace NXBasics
                     result = PackMmxHighColour(result, rgb565);
                     // Paired pixels pass through PSRLW/PACKSSDW/PSLLW and lose bit zero.
                     if (pixel < (count & ~1u))
-                        result &= ReadableValues::BitMask::WordExceptBit0;
+                        result &= NXBasics::BitMask::WordExceptBit0;
                 }
             }
             std::memcpy(destination, &result, depth == 1u ? 2u : 4u);
@@ -369,15 +369,15 @@ namespace NXBasics
         if (depth != 1u && depth != 2u)
             return;
         const std::uint32_t foreground = depth == 1u ? g16BitPixelConverter->PackColor(*colour) : g32BitPixelConverter->PackColor(*colour);
-        const std::uint32_t greenMask = depth == 1u && BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? ReadableValues::Rgb565::PairedGreenMask : ReadableValues::Rgb555::PairedGreenMask;
+        const std::uint32_t greenMask = depth == 1u && BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? NXBasics::Rgb565::PairedGreenMask : NXBasics::Rgb555::PairedGreenMask;
         const std::uint32_t alpha = static_cast<std::uint32_t>(strength);
         const std::uint32_t inverseAlpha = (depth == 1u && region.wasClipped ? 255u : 256u) - alpha;
         DrawBobRuns(bobManager, bitmap, region, region.type == 1u ? 1u : 2u, depth == 1u && !region.wasClipped, false, [&](std::byte* destination, const std::byte*, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
         {
             const std::uint32_t background = depth == 1u ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
-            const std::uint32_t redMask = depth == 1u ? ReadableValues::Rgb565::RedMaskUnsigned : ReadableValues::Rgb888::RedMaskUnsigned;
-            const std::uint32_t middleMask = depth == 1u ? greenMask : ReadableValues::Rgb888::GreenMaskUnsigned;
-            const std::uint32_t blueMask = depth == 1u ? 0x1Fu : ReadableValues::IntegerRange::UInt8Maximum;
+            const std::uint32_t redMask = depth == 1u ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned;
+            const std::uint32_t middleMask = depth == 1u ? greenMask : NXBasics::Rgb888::GreenMaskUnsigned;
+            const std::uint32_t blueMask = depth == 1u ? 0x1Fu : NXBasics::IntegerRange::UInt8Maximum;
             const std::uint32_t red = (((background & redMask) * inverseAlpha + (foreground & redMask) * alpha) >> 8) & redMask;
             const std::uint32_t green = (((background & middleMask) * inverseAlpha + (foreground & middleMask) * alpha) >> 8) & middleMask;
             const std::uint32_t blue = ((background & blueMask) * inverseAlpha + (foreground & blueMask) * alpha) >> 8;
@@ -397,10 +397,10 @@ namespace NXBasics
         {
             const auto descriptor = BobRead<std::uint32_t>(rows);
             rows = BobAddress(rows, 4);
-            if (descriptor != ReadableValues::IntegerRange::UInt32Maximum)
+            if (descriptor != NXBasics::IntegerRange::UInt32Maximum)
             {
                 auto currentX = static_cast<std::uint32_t>(region.placed.x) + (descriptor >> 22);
-                auto* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
+                auto* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & NXBasics::BitMask::Low22Bits);
                 for (auto token = BobRead<std::uint8_t>(source); token != 0; token = BobRead<std::uint8_t>(source))
                 {
                     source = BobAddress(source, 1);
@@ -425,8 +425,8 @@ namespace NXBasics
         const auto depth = BobRead<std::uint32_t>(bitmap, 4);
         if (depth != 1 && depth != 2) return;
         const auto foreground = depth == 1 ? g16BitPixelConverter->PackColor(*colour) : g32BitPixelConverter->PackColor(*colour);
-        const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? ReadableValues::Rgb565::PairedGreenMask : ReadableValues::Rgb555::PairedGreenMask) : ReadableValues::Rgb888::GreenMaskUnsigned;
-        const auto redMask = depth == 1 ? ReadableValues::Rgb565::RedMaskUnsigned : ReadableValues::Rgb888::RedMaskUnsigned;
+        const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? NXBasics::Rgb565::PairedGreenMask : NXBasics::Rgb555::PairedGreenMask) : NXBasics::Rgb888::GreenMaskUnsigned;
+        const auto redMask = depth == 1 ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned;
         const auto inverse = (depth == 1 && region.wasClipped ? 255u : 256u) - strength;
         DrawBobRuns(bobManager, bitmap, region, 1, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)
         {
@@ -448,7 +448,7 @@ namespace NXBasics
         if (depth != 1 && depth != 2) { _mm_empty(); return; }
         const void* table = depth == 1 ? static_cast<const void*>(Palette_GetHighColorTablePtr(palette)) : Palette_GetTrueColorTablePtr(palette);
         if (table == nullptr) return;
-        const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? ReadableValues::Rgb565::PairedGreenMask : ReadableValues::Rgb555::PairedGreenMask) : ReadableValues::Rgb888::GreenMaskUnsigned;
+        const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? NXBasics::Rgb565::PairedGreenMask : NXBasics::Rgb555::PairedGreenMask) : NXBasics::Rgb888::GreenMaskUnsigned;
         const bool mmx = CPU_HasMMX();
         const auto inverse = TransparencyFactors(0x01000100u - strength * 0x10001u);
         const auto alpha = TransparencyFactors(strength * 0x10001u);
@@ -479,7 +479,7 @@ namespace NXBasics
                 const auto foreground = depth == 1 ? BobRead<std::uint16_t>(table, BobRead<std::uint8_t>(source) * 2u) : BobRead<std::uint32_t>(table, BobRead<std::uint8_t>(source) * 4u);
                 const auto background = depth == 1 ? BobRead<std::uint16_t>(destination) : BobRead<std::uint32_t>(destination);
                 const auto inverseStrength = (depth == 1 && !mmx && region.wasClipped ? 255u : 256u) - strength;
-                const auto result = BlendPackedColour(background, foreground, strength, inverseStrength, depth == 1 ? ReadableValues::Rgb565::RedMaskUnsigned : ReadableValues::Rgb888::RedMaskUnsigned, greenMask, depth == 1 ? ReadableValues::Rgb565::RedProductMask : ReadableValues::Rgb888::RedMaskUnsigned);
+                const auto result = BlendPackedColour(background, foreground, strength, inverseStrength, depth == 1 ? NXBasics::Rgb565::RedMaskUnsigned : NXBasics::Rgb888::RedMaskUnsigned, greenMask, depth == 1 ? NXBasics::Rgb565::RedProductMask : NXBasics::Rgb888::RedMaskUnsigned);
                 std::memcpy(destination, &result, depth == 1 ? 2u : 4u);
             }
         });
@@ -497,10 +497,10 @@ namespace NXBasics
         {
             const auto descriptor = BobRead<std::uint32_t>(rows);
             rows = BobAddress(rows, 4);
-            if (descriptor != ReadableValues::IntegerRange::UInt32Maximum)
+            if (descriptor != NXBasics::IntegerRange::UInt32Maximum)
             {
                 auto currentX = static_cast<std::uint32_t>(region.placed.x) + (descriptor >> 22);
-                auto* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
+                auto* source = BobAddress(BobPointer(bobManager, 0x28), descriptor & NXBasics::BitMask::Low22Bits);
                 bool previousRun = false;
                 for (auto token = BobRead<std::uint8_t>(source); token != 0; token = BobRead<std::uint8_t>(source))
                 {
@@ -541,9 +541,9 @@ namespace NXBasics
             {
                 const auto descriptor = BobRead<std::uint32_t>(rows);
                 rows = BobAddress(rows, 0u - 4u);
-                if (descriptor != ReadableValues::IntegerRange::UInt32Maximum)
+                if (descriptor != NXBasics::IntegerRange::UInt32Maximum)
                 {
-                    auto* source = BobAddress(BobPointer(manager, 0x28), descriptor & ReadableValues::BitMask::Low22Bits);
+                    auto* source = BobAddress(BobPointer(manager, 0x28), descriptor & NXBasics::BitMask::Low22Bits);
                     for (auto token = BobRead<std::uint8_t>(source); token != 0; token = BobRead<std::uint8_t>(source))
                     {
                         source = BobAddress(source, 1);
@@ -663,9 +663,9 @@ namespace NXBasics
             else
             {
                 const auto background = BobRead<std::uint32_t>(destination);
-                const auto red = ((background >> 15) & ReadableValues::BitMask::Bits1Through16) / 3u;
+                const auto red = ((background >> 15) & NXBasics::BitMask::Bits1Through16) / 3u;
                 const auto blue = ((background & 255u) * 2u) / 3u;
-                const auto green = ((background >> 7) & ReadableValues::BitMask::Bits1Through8) / 3u;
+                const auto green = ((background >> 7) & NXBasics::BitMask::Bits1Through8) / 3u;
                 const auto value = (((red << 8) | green) << 8) | (blue + ((red + blue) >> 4));
                 std::memcpy(destination, &value, 4);
             }

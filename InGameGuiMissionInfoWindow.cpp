@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2RuntimeConstants.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiMissionInfoWindow.h"
 #include "InGameGuiManager.h"
@@ -155,7 +156,7 @@ namespace NC2InGameGuiMiscWindows
         Write(window, 0, gMissionInfoWindowVirtualTable + 0);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
         MissionInfoWindow_l_Briefing_FreeData(window);
-        if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(ReadableValues::SoundTag::MissionBriefingVoice);
+        if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(NC2Runtime::SoundTag::MissionBriefingVoice);
         if (lsUserCallbackMapDisplayEnginePtr != nullptr)
         {
             NC2E2::Display_Destruct(lsUserCallbackMapDisplayEnginePtr);
@@ -183,7 +184,7 @@ namespace NC2InGameGuiMiscWindows
     {
         if (message == 0x1000) return command == 0x7E6;
         if (message != 0x800) return false;
-        const auto stopSample = []() { if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(ReadableValues::SoundTag::MissionBriefingVoice); };
+        const auto stopSample = []() { if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(NC2Runtime::SoundTag::MissionBriefingVoice); };
         if (command >= 10000u && command < 10100u)
         {
             Write(window, 0x70, command - 10000u);
@@ -257,7 +258,7 @@ namespace NC2InGameGuiMiscWindows
         {
             const auto* mission = static_cast<const std::byte*>(NC2Logic::gMissionManager) + 0x1C + static_cast<std::uint32_t>(index) * 0xDD8u;
             const auto description = Read<std::uint32_t>(mission, 0x30);
-            if (description == ReadableValues::IntegerRange::UInt32Maximum || Read<std::uint8_t>(mission, 0x24) == 0) continue;
+            if (description == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(mission, 0x24) == 0) continue;
             const char* text = MissionInfoWindow_l_Goals_GetStringPtr(window, description);
             NXBasics::SColorRGB color = *dark;
             if (*text == '@') { ++text; color = NXBasics::SColorRGB(0, 0, 0); }
@@ -363,7 +364,7 @@ namespace NC2InGameGuiMiscWindows
         if ((type != 1 && type != 2) || lsUserCallbackMapDisplayBitmapPtr == nullptr || lsUserCallbackMapDisplayEnginePtr == nullptr) return nullptr;
         if (type == 1)
         {
-            const std::uint32_t point = (param1 & ReadableValues::IntegerRange::UInt16Maximum) | (param2 << 16);
+            const std::uint32_t point = (param1 & NXBasics::IntegerRange::UInt16Maximum) | (param2 << 16);
             NC2E2::DE_SetWantedPositionToMapPoint(lsUserCallbackMapDisplayEnginePtr, &point);
         }
         else
@@ -389,19 +390,19 @@ namespace NC2InGameGuiMiscWindows
         const auto argument = Read<std::uint32_t>(window, 0x394);
         if (command == 2000 && NDSManager::CManager::sTheObjectPtr != nullptr)
         {
-            NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(ReadableValues::SoundTag::MissionBriefingVoice);
+            NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(NC2Runtime::SoundTag::MissionBriefingVoice);
             if (NDSManager::CManager::sTheObjectPtr != nullptr)
             {
                 char pattern[272], filename[260];
                 NXBasics::Runtime_PrintString(pattern, "%s\\SFX\\%%s\\%4.4d.wav", static_cast<char*>(window) + 0x75, argument);
                 NC2Logic::LanguageTool_GetFilename(pattern, filename, false);
-                NDSManager::CManager::sTheObjectPtr->FireAndForget_LoadAndPlay(filename, 100, ReadableValues::SoundTag::MissionBriefingVoice, 1, false, false, 100);
+                NDSManager::CManager::sTheObjectPtr->FireAndForget_LoadAndPlay(filename, 100, NC2Runtime::SoundTag::MissionBriefingVoice, 1, false, false, 100);
             }
         }
         else if (command >= 1000 && command <= 1003 && Read<std::uint8_t>(window, 0x179) == 0)
         {
             std::uint32_t point = 0;
-            if (command == 1000) point = (argument & ReadableValues::IntegerRange::UInt16Maximum) | (Read<std::uint32_t>(window, 0x398) << 16);
+            if (command == 1000) point = (argument & NXBasics::IntegerRange::UInt16Maximum) | (Read<std::uint32_t>(window, 0x398) << 16);
             else
             {
                 std::uint16_t sums[2]{};

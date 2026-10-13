@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "InGameGuiTechTreeWindow.h"
 #include "InGameGuiTechTreeData.h"
 #include "InGameGuiWindowState.h"
@@ -50,12 +51,12 @@ namespace NC2InGameGuiMiscWindows
     static std::uint32_t LocalTribe()
     {
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        return player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0xC);
+        return player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC);
     }
     static const std::byte* PlayerFlags(std::uint32_t stride, std::uint32_t type)
     {
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
-        return static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + LocalTribe() * stride + type;
+        return static_cast<const std::byte*>(NC2Logic::gGameControl) + static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + LocalTribe() * stride + type;
     }
     // Original functions: FUN_004a6d66, FUN_004a6db3, FUN_004a6e00.
     bool TechTreeWindow_IsHouseTypeFree(std::uint32_t type) { const auto* flags = PlayerFlags(55, type); return Read<std::uint8_t>(flags, 0x2820) != 0 && Read<std::uint8_t>(flags, 0x3126) != 0; }
@@ -104,7 +105,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall TechTreeHouseTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 4) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 4) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         auto* font = DrawTool_GetFont10Ptr(); const auto* palette = CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(palette, 0x400);
@@ -129,7 +130,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall TechTreeGoodTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 8) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 8) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
@@ -159,7 +160,7 @@ namespace NC2InGameGuiMiscWindows
     static void __fastcall TechTreeJobTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 12) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 12) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources; auto* font = resources.font08;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);

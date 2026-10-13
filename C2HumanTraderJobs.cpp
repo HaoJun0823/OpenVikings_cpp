@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2HumanTraderJobs.h"
 #include "C2Debug.h"
@@ -226,7 +227,7 @@ namespace NC2Logic
         std::uint32_t difference = 1;
         if (House_Stock_CanStoreGoodType(next, good, false)) difference = House_Stock_GetAmountOfGoods(next, good, StockOnly(next)) - House_Stock_GetAmountOfGoods(current, good, StockOnly(current));
         const auto available = vehicle != nullptr && Vehicle_Stock_CanStoreGoodType(vehicle, good) ? Vehicle_Stock_GetAmountOfGoods(vehicle, good) + 1u : 1u;
-        if (NXBasics::Runtime_TimeSigned32((available + difference) & ReadableValues::BitMask::DwordExceptBit0) > 0) return true;
+        if (NXBasics::Runtime_TimeSigned32((available + difference) & NXBasics::BitMask::DwordExceptBit0) > 0) return true;
         return NXBasics::Runtime_TimeSigned32(requests) > NXBasics::Runtime_TimeSigned32(House_Stock_GetGoodRequestCounter(next, good));
     }
 
@@ -248,7 +249,7 @@ namespace NC2Logic
         std::uint32_t difference = 1;
         if (House_Stock_CanStoreGoodType(next, good, false)) difference = House_Stock_GetAmountOfGoods(current, good, StockOnly(current)) - House_Stock_GetAmountOfGoods(next, good, StockOnly(next));
         const auto available = vehicle != nullptr && Vehicle_Stock_CanStoreGoodType(vehicle, good) ? Vehicle_Stock_GetAmountOfGoods(vehicle, good) + 1u : 1u;
-        if (NXBasics::Runtime_TimeSigned32((available + difference) & ReadableValues::BitMask::DwordExceptBit0) > 0) return true;
+        if (NXBasics::Runtime_TimeSigned32((available + difference) & NXBasics::BitMask::DwordExceptBit0) > 0) return true;
         return NXBasics::Runtime_TimeSigned32(requests) > NXBasics::Runtime_TimeSigned32(House_Stock_GetGoodRequestCounter(current, good));
     }
 
@@ -260,8 +261,8 @@ namespace NC2Logic
         auto* nextData = MerchantData_GetNextHouseDataPtr(merchant);
         if (currentData == nextData || currentData == nullptr)
         {
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
             return;
         }
         auto* current = House(currentData);
@@ -275,13 +276,13 @@ namespace NC2Logic
         if (Read<std::uint8_t>(currentData, 8) == 0 && Read<std::uint8_t>(nextData, 8) == 0)
         {
             if (IsCommander(human) && (Human_l_Trader_GetNextGoodFromVehicle(human) != 0 || Human_l_Trader_GetNextGoodForNextHouse(human) != 0) && Human_l_Trader_MoveVehicleNearHouse(human, current)) return;
-            const auto circulation = Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode);
+            const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
             if (circulation == 4)
             {
-                const auto cargo = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
+                const auto cargo = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
                 if (Human_IsAtTargetPoint(human))
                 {
-                    const auto target = Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget);
+                    const auto target = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget);
                     if (target == 5)
                     {
                         auto* house = Human_GetTargetHousePtr(human);
@@ -313,7 +314,7 @@ namespace NC2Logic
             }
             else if (circulation == 2 && Human_l_Trader_FetchForWork(human, current)) return;
             Human_Target_Reset(human);
-            if (Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
             Human_GetMapPositionRef(human);
             if (Human_IsAttachedToVehicle(human) && Read<std::uint8_t>(human, 0xB51) != 0 && Vehicle_Passengers_IsCommander(Vehicle(human), Read<std::uint32_t>(human, 4)))
             {
@@ -331,7 +332,7 @@ namespace NC2Logic
             Fail(human, 2);
             return;
         }
-        if (!MerchantData_IsTradeAgreementValid(merchant, Read<std::int32_t>(human, ReadableValues::HumanOffset::PlayerId)))
+        if (!MerchantData_IsTradeAgreementValid(merchant, Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId)))
         {
             ResetTradeAmounts(merchant);
             Fail(human, 15);
@@ -346,15 +347,15 @@ namespace NC2Logic
             MerchantData_NextHouse(merchant);
             return;
         }
-        const auto circulation = Read<std::uint32_t>(human, ReadableValues::HumanOffset::GoodCirculationMode);
+        const auto circulation = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
         if (Read<std::uint8_t>(nextData, 8) != 0)
         {
             if (circulation == 4)
             {
-                const auto cargo = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
+                const auto cargo = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
                 if (Human_IsAtTargetPoint(human))
                 {
-                    const auto target = Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget);
+                    const auto target = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget);
                     if (target == 6)
                     {
                         auto* vehicle = Vehicle(human);
@@ -369,7 +370,7 @@ namespace NC2Logic
                     }
                     else if (target == 1)
                     {
-                        if (Map_GoodTool_CanBePutOnMap(cargo, static_cast<std::byte*>(human) + ReadableValues::HumanOffset::TargetPosition)) { Start(human, 23); return; }
+                        if (Map_GoodTool_CanBePutOnMap(cargo, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition)) { Start(human, 23); return; }
                         if (WalkToPile(human)) return;
                     }
                 }
@@ -390,7 +391,7 @@ namespace NC2Logic
             switch (Human_l_Trader_Foreign_CheckGoods(human, current, agreement, &excess))
             {
             case SwitchIds::TraderGoodsCheck::Unavailable:
-                Write(human, ReadableValues::HumanOffset::RequestedGood, Read<std::uint32_t>(agreement, 8));
+                Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(agreement, 8));
                 Fail(human, 3);
                 ResetTradeAmounts(merchant);
                 MerchantData_NextHouse(merchant);
@@ -410,15 +411,15 @@ namespace NC2Logic
             auto recordIncoming = [human, current, merchant]()
             {
                 Write(merchant, 16, Read<std::uint32_t>(merchant, 16) + 1u);
-                const auto offset = Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) * ReadableValues::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, 12) * 4u + 0x4A30u;
+                const auto offset = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer + Read<std::uint32_t>(current, 12) * 4u + 0x4A30u;
                 Write(gGameControl, offset, Read<std::uint32_t>(gGameControl, offset) + 1u);
             };
             if (circulation == 4)
             {
-                const auto cargo = Read<std::uint32_t>(human, ReadableValues::HumanOffset::CarriedGood);
+                const auto cargo = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
                 if (Human_IsAtTargetPoint(human))
                 {
-                    const auto target = Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget);
+                    const auto target = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget);
                     if (target == 5)
                     {
                         auto* house = Human_GetTargetHousePtr(human);
@@ -476,7 +477,7 @@ namespace NC2Logic
                     if (!Human_l_Trader_MoveVehicleNearHouse(human, current)) TraderFetchFromVehicle(human, outgoing);
                     return;
                 }
-                Write(human, ReadableValues::HumanOffset::RequestedGood, outgoing);
+                Write(human, NC2Layout::HumanOffset::RequestedGood, outgoing);
                 Fail(human, 3);
                 MerchantData_NextHouse(merchant);
                 return;
@@ -496,8 +497,8 @@ namespace NC2Logic
         if (!Vehicle_IsPriorityCommandInQueue(vehicle) && Read<std::uint32_t>(vehicle, 0x4FC) != 1 && VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(work, 0), Read<std::int16_t>(work, 2)) <= 5) return false;
         if (Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, 0x4FC) == 1)
         {
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
-            Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
             return true;
         }
         auto point = Read<std::uint32_t>(position, 0);
@@ -508,15 +509,15 @@ namespace NC2Logic
             Vehicle_GetTargetWorkPosition(vehicle, &target);
             std::byte command[20]{};
             Write<std::uint8_t>(command, 0, 101);
-            Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId)));
+            Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)));
             Write(command, 4, Read<std::uint32_t>(vehicle, 4));
             Write(command, 8, Read<std::uint32_t>(vehicle, 8));
             if (point != target || Tool_Vehicle_GetNextMovePointNearPosition(type, &point, &target, 20, 1))
             {
                 Write(command, 12, MapMigPoint_GetLong(&point));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTask, 1);
-                Write<std::uint32_t>(human, ReadableValues::HumanOffset::CurrentTaskStatus, 0);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 1);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                 return true;
             }
         }
@@ -530,11 +531,11 @@ namespace NC2Logic
     {
         if (Human_IsAtTargetPoint(human))
         {
-            const auto type = Read<std::uint32_t>(human, ReadableValues::HumanOffset::InteractionTarget);
+            const auto type = Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget);
             if (type == 6)
             {
                 auto* vehicle = Vehicle(human);
-                if (Vehicle_Stock_GetAmountOfGoods(vehicle, Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood)) > 0)
+                if (Vehicle_Stock_GetAmountOfGoods(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood)) > 0)
                 {
                     std::uint32_t door = 0;
                     Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
@@ -549,7 +550,7 @@ namespace NC2Logic
                 if (target == house)
                 {
                     if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(target, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
-                    const auto good = Read<std::uint32_t>(human, ReadableValues::HumanOffset::RequestedGood);
+                    const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
                     if (House_Stock_CanStoreGoodType(target, good, true) && House_Stock_GetAmountOfGoods(target, good, true) > House_Stock_GetMinimumValue(house, good))
                     {
                         const auto houseType = Read<std::uint32_t>(target, 0x14);

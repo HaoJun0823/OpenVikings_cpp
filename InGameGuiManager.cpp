@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
 #include "InGameGuiKeyAssignmentManager.h"
@@ -112,7 +112,7 @@ namespace NInGameGuiManager
 {
     // Complete contiguous cache pair 00507378..0050737F, initial PE values -2/-1.
     struct SMiscButtonUpdateCache { std::uint32_t speed, priority; };
-    static SMiscButtonUpdateCache gMiscButtonUpdateCache{0xFFFFFFFEu, ReadableValues::IntegerRange::UInt32Maximum};
+    static SMiscButtonUpdateCache gMiscButtonUpdateCache{0xFFFFFFFEu, NXBasics::IntegerRange::UInt32Maximum};
 
     // Original function: FUN_004a299b.
     void CInGameGuiManager::MiscButtons_SpeedButton_Update(bool update)
@@ -120,13 +120,13 @@ namespace NInGameGuiManager
         using namespace NC2Lifetime;
         void* button = Read<void*>(this, 0x34);
         if (button == nullptr) return;
-        const auto speed = NC2Logic::gGameTime.maximizeSpeed != 0 ? ReadableValues::IntegerRange::UInt32Maximum : static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed)) / 12u;
+        const auto speed = NC2Logic::gGameTime.maximizeSpeed != 0 ? NXBasics::IntegerRange::UInt32Maximum : static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(NC2Logic::gGameTime.speed)) / 12u;
         const auto graphicsId = speed == 2 ? 0x34u : speed == 3 ? 0x35u : speed == 0 ? 0x36u : 0x31u;
         NC2InGameGuiBase::BaseToolGfxButton_SetGraphicsId(button, nullptr, graphicsId);
         if (gMiscButtonUpdateCache.speed == speed && !update) return;
         gMiscButtonUpdateCache.speed = speed;
         char text[100];
-        if (speed == ReadableValues::IntegerRange::UInt32Maximum) std::strcpy(text, "MAX!");
+        if (speed == NXBasics::IntegerRange::UInt32Maximum) std::strcpy(text, "MAX!");
         else NXBasics::Runtime_PrintString(text, "%s (*%d)", NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(13), speed);
         button = Read<void*>(this, 0x34);
         NC2InGameGuiBase::BaseToolGfxButton_SetToolTipString(button, text);

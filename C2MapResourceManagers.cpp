@@ -1,4 +1,6 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2AIConstruction.h"
 #include "C2MapResourceManagers.h"
@@ -84,14 +86,14 @@ namespace NC2Logic
                         MapMigPoint_MoveCursorUnwrapped(cursor, direction);
                     }
             }
-            if ((Read<std::uint8_t>(micro, 12) & ReadableValues::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro, 13) & 1u) != 0) return false;
+            if ((Read<std::uint8_t>(micro, 12) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(micro, 13) & 1u) != 0) return false;
             cursor = Read<std::uint32_t>(point, 0);
             MapMigPoint_MoveCursorUnwrapped(cursor, 4);
             for (std::uint32_t direction = 0; direction < 6; ++direction)
             {
                 if (!MapMigPoint_IsInsideMap(&cursor)) return false;
                 const auto* neighbor = GameMap_GetConstMapMicroPointPtr(&cursor);
-                if ((Read<std::uint8_t>(neighbor, 12) & ReadableValues::BitMask::Bit7) != 0 || (Read<std::uint8_t>(neighbor, 13) & 1u) != 0) return false;
+                if ((Read<std::uint8_t>(neighbor, 12) & NXBasics::BitMask::Bit7) != 0 || (Read<std::uint8_t>(neighbor, 13) & 1u) != 0) return false;
                 MapMigPoint_MoveCursorUnwrapped(cursor, direction);
             }
             cursor = Read<std::uint32_t>(point, 0);
@@ -162,7 +164,7 @@ namespace NC2Logic
             std::memset(manager->mPlayers, 0, 80);
             for (std::int32_t player = 0; player < manager->mPlayerCount; ++player)
             {
-                if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0)
+                if (player >= 20 || Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0)
                     continue;
                 auto* record = static_cast<std::byte*>(NXBasics::Runtime_AllocateWithNewHandler(recordBytes, 1));
                 if (record != nullptr)
@@ -266,7 +268,7 @@ namespace NC2Logic
                 const auto* micro = GameMap_GetConstMapMicroPointPtr(point);
                 if (Read<std::uint8_t>(micro, 0) != 1) continue;
                 const auto landscape = Read<std::uint8_t>(micro, 2);
-                if (landscape != 0 && (gStaticLandscapeTypeStorage.records[landscape].transitionMask & ReadableValues::BitMask::Bit7) != 0) GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 7);
+                if (landscape != 0 && (gStaticLandscapeTypeStorage.records[landscape].transitionMask & NXBasics::BitMask::Bit7) != 0) GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 7);
             }
         GameMapModifyManager_StopGameMapModify();
     }
@@ -308,10 +310,10 @@ namespace NC2Logic
         const auto type = Read<std::uint8_t>(micro, 0) == 1 ? Read<std::uint8_t>(micro, 2) : 0u;
         const auto* data = gStaticLandscapeTypeStorage.records + type;
         auto id = AutoTransition_GetDataId(point);
-        if (id == ReadableValues::IntegerRange::UInt32Maximum)
+        if (id == NXBasics::IntegerRange::UInt32Maximum)
         {
             id = static_cast<std::uint32_t>(Element_Allocate());
-            if (id == ReadableValues::IntegerRange::UInt32Maximum)
+            if (id == NXBasics::IntegerRange::UInt32Maximum)
             {
                 if (NC2LogicExternals::External_Landscape_GetEngineIdOfMapLandscape(point) == engine) GameMap_MapMicroPoint_Landscape_ApplyTransition(point, 13);
                 return;
@@ -336,14 +338,14 @@ namespace NC2Logic
             const auto* record = mRecords + index * 0x14u;
             if (Read<std::uint8_t>(record, 0) != 0 && Read<std::uint16_t>(record, 0x10) == Read<std::uint16_t>(point, 0) && Read<std::uint16_t>(record, 0x12) == Read<std::uint16_t>(point, 2)) return index;
         }
-        return ReadableValues::IntegerRange::UInt32Maximum;
+        return NXBasics::IntegerRange::UInt32Maximum;
     }
 
     // Original function: FUN_004270ff; multiplication wraps before unsigned division.
     std::uint32_t CMapLandscapeAutoTransitionManager::AutoTransition_GetTimeDonePercentage(const void* point) const
     {
         const std::uint32_t index = AutoTransition_GetDataId(point);
-        if (index == ReadableValues::IntegerRange::UInt32Maximum) return 0;
+        if (index == NXBasics::IntegerRange::UInt32Maximum) return 0;
         const auto* record = mRecords + index * 0x14u;
         return (Read<std::uint32_t>(record, 4) * 100u) / Read<std::uint32_t>(record, 8);
     }
@@ -597,7 +599,7 @@ namespace NC2Logic
     // Original function: FUN_004269c5.
     void CMapBioRegrowManager::IO_Savegame_DoSave(CIoHelper& io)
     {
-        io.IO_Tool_Chunk_StartCreation(ReadableValues::LogicMapChunk::BioRegrowth, 1);
+        io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::BioRegrowth, 1);
         io.IO_Memory_WriteLong(static_cast<std::uint32_t>(mCapacity));
         IO_SaveArray(&io);
         io.IO_Tool_Chunk_FinishAndWrite();
@@ -606,7 +608,7 @@ namespace NC2Logic
     // Original function: FUN_00426ec0.
     void CMapLandscapeAutoTransitionManager::IO_Savegame_DoSave(CIoHelper& io)
     {
-        io.IO_Tool_Chunk_StartCreation(ReadableValues::LogicMapChunk::AutoTransitions, 1);
+        io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::AutoTransitions, 1);
         io.IO_Memory_WriteLong(static_cast<std::uint32_t>(mCapacity));
         IO_SaveArray(&io);
         io.IO_Tool_Chunk_FinishAndWrite();
@@ -615,7 +617,7 @@ namespace NC2Logic
     // Original function: FUN_0044e733.
     void CMapFishManager::IO_Savegame_DoSave(CIoHelper& io)
     {
-        io.IO_Tool_Chunk_StartCreation(ReadableValues::LogicMapChunk::FishManager, 1);
+        io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::FishManager, 1);
         io.IO_Memory_WriteBinary(this, 0x1774);
         io.IO_Tool_Chunk_FinishAndWrite();
     }
@@ -623,7 +625,7 @@ namespace NC2Logic
     // Original function: FUN_00427feb.
     void CRoadBuildManager::IO_Savegame_DoSave(CIoHelper& io)
     {
-        io.IO_Tool_Chunk_StartCreation(ReadableValues::LogicMapChunk::RoadBuildManager, 2);
+        io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::RoadBuildManager, 2);
         io.IO_Memory_WriteBinary(this, 4);
         for (std::int32_t index = 0; index < mPlayerCount; ++index)
         {
@@ -636,7 +638,7 @@ namespace NC2Logic
     // Original function: FUN_00427376.
     void CWallBuildManager::IO_Savegame_DoSave(CIoHelper& io)
     {
-        io.IO_Tool_Chunk_StartCreation(ReadableValues::LogicMapChunk::WallBuildManager, 1);
+        io.IO_Tool_Chunk_StartCreation(NC2DataIds::LogicMapChunk::WallBuildManager, 1);
         io.IO_Memory_WriteBinary(this, 4);
         for (std::int32_t index = 0; index < mPlayerCount; ++index)
         {

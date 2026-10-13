@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "C2RuntimeConstants.h"
 #include "C2E2AmbientSoundManagerAccess.h"
 #include "C2PlayerStatisticAccess.h"
 #include "C2GameControlStartup.h"
@@ -102,8 +103,8 @@ namespace NC2Logic
         gGame = game;
         std::memset(&gGameStaticVars, 0, sizeof(gGameStaticVars));
         // Fixed Windows seed has thirteen set bits; neither adjustment branch runs.
-        gGameRandomState.seed = ReadableValues::RandomSeed::Game;
-        gGameRandomState.currentState = ReadableValues::RandomSeed::Game;
+        gGameRandomState.seed = NC2Runtime::RandomSeed::Game;
+        gGameRandomState.currentState = NC2Runtime::RandomSeed::Game;
         gGameStaticVars.uniqueIdCounter = 1;
         ConstructNative<CStaticStringsManager>(1);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
@@ -144,7 +145,7 @@ namespace NC2Logic
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, GameMapModifyManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::UserNetworkCommandManager, UserNetworkCommandManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::UserNetworkCommandManager, UserNetworkCommandManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         return game;
     }
@@ -159,36 +160,36 @@ namespace NC2Logic
             Game_ShutDown();
             std::memcpy(&gGameControlStartupData, savedStartupData, sizeof(savedStartupData));
         }
-        gGameRandomState.seed = ReadableValues::RandomSeed::Game;
-        gGameRandomState.currentState = ReadableValues::RandomSeed::Game;
+        gGameRandomState.seed = NC2Runtime::RandomSeed::Game;
+        gGameRandomState.currentState = NC2Runtime::RandomSeed::Game;
         gGameStaticVars.uniqueIdCounter = 1;
         GameTime_Reset(false);
         gGameStaticVars.networkGame = static_cast<std::uint8_t>(networkGame);
-        ConstructOriginal(ReadableValues::ObjectSize::GameControl, GameControl_Construct, iniFile);
+        ConstructOriginal(NC2Layout::ObjectSize::GameControl, GameControl_Construct, iniFile);
         ConstructOriginal(1, GameMap_Construct, width, height);
-        ConstructOriginal(ReadableValues::ObjectSize::MissionManager, MissionManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::AIManager, AIManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::MapMoveableArray, MapMoveableArray_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::MapPathfinderManager, MapPathfinderManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MissionManager, MissionManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::AIManager, AIManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MapMoveableArray, MapMoveableArray_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MapPathfinderManager, MapPathfinderManager_Construct);
         static_assert(sizeof(NC2Logic::CHumanArray) == 48);
         ConstructNative<NC2Logic::CHumanArray>(0x30);
-        ConstructOriginal(ReadableValues::ObjectSize::HumanMerchantArray, HumanMerchantArray_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::HumanMerchantArray, HumanMerchantArray_Construct);
         static_assert(sizeof(NC2Logic::CAnimalArray) == 48);
         ConstructNative<NC2Logic::CAnimalArray>(0x30);
         static_assert(sizeof(NC2Logic::CVehicleArray) == 48);
         ConstructNative<NC2Logic::CVehicleArray>(0x30);
-        ConstructOriginal(ReadableValues::ObjectSize::MarkerArray, MarkerArray_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MarkerArray, MarkerArray_Construct);
         static_assert(sizeof(NC2Logic::CHouseArray) == 48);
         ConstructNative<NC2Logic::CHouseArray>(0x30);
-        ConstructOriginal(ReadableValues::ObjectSize::GuideManager, GuideManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::PlayerStatisticManager, PlayerStatisticManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::DelayedActionManager, DelayedActionManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::TributeManager, TributeManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::EmbeddedSavegameManager, EmbeddedSavegameManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::HappinessManager, HappinessManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::MultiPlayerGoalManager, MultiPlayerGoalManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::GameAssistantManager, GameAssistantManager_Construct);
-        ConstructOriginal(ReadableValues::ObjectSize::MissionOnscreenInfoManager, MissionOnscreenInfoManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::GuideManager, GuideManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::PlayerStatisticManager, PlayerStatisticManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::DelayedActionManager, DelayedActionManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::TributeManager, TributeManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::EmbeddedSavegameManager, EmbeddedSavegameManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::HappinessManager, HappinessManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MultiPlayerGoalManager, MultiPlayerGoalManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::GameAssistantManager, GameAssistantManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MissionOnscreenInfoManager, MissionOnscreenInfoManager_Construct);
         CCleanMapsManager::Tool_GenerateNewGuid(&gGameStaticVars.mapGuid);
         gGameStaticVars.mapType = 2;
         GameTime_Reset(enableTime);
@@ -273,17 +274,17 @@ namespace NC2E2
         std::memset(manager, 0, 1);
         std::memset(gStaticMapModifiedBounds, 0, sizeof(gStaticMapModifiedBounds));
         gDesktopOwnedBobBitmap = nullptr;
-        ConstructOriginal(ReadableValues::ObjectSize::E2StaticDataBobManagersManager, E2StaticDataBobManagersManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2StaticDataBobManagersManager, E2StaticDataBobManagersManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2StaticDataTexturesManager, E2StaticDataTexturesManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2StaticDataTexturesManager, E2StaticDataTexturesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, E2StaticDataPalettesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2StaticDataLandscapesManager, E2StaticDataLandscapesManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2StaticDataLandscapesManager, E2StaticDataLandscapesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, E2StaticDataHousesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2StaticDataPatternManager, E2StaticDataPatternManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2StaticDataPatternManager, E2StaticDataPatternManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         static_assert(sizeof(NC2E2::CE2StaticDataSoundFXManager) == 1304);
         ConstructNative<NC2E2::CE2StaticDataSoundFXManager>(0x518);
@@ -292,7 +293,7 @@ namespace NC2E2
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, E2StaticDataParticelManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2StaticDataMapMoveablesManager, E2StaticDataMapMoveablesManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2StaticDataMapMoveablesManager, E2StaticDataMapMoveablesManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, E2StaticDataHumanMiscManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
@@ -307,7 +308,7 @@ namespace NC2E2
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         static_assert(sizeof(NC2E2::CLevelOfDetailManager) == 1);
         ConstructNative<NC2E2::CLevelOfDetailManager>(1);
-        ConstructOriginal(ReadableValues::ObjectSize::MacroMapManager, MacroMapManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::MacroMapManager, MacroMapManager_Construct);
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x2, E2Manager_CallbackSomethingInLogicXtructed, 0, 0xA);
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x3, E2Manager_CallbackSomethingInLogicXtructed, 0, 0xA);
         NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x4, E2Manager_CallbackSomethingInLogicXtructed, 0, 0xA);
@@ -346,18 +347,18 @@ namespace NC2E2
         static_assert(sizeof(NC2E2::C2DEngineDisplayManager) == 24);
         ConstructNative<NC2E2::C2DEngineDisplayManager>(0x18);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2ParticelManager, E2ParticelManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2ParticelManager, E2ParticelManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::AmbientSoundManager, AmbientSoundManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::AmbientSoundManager, AmbientSoundManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         static_assert(sizeof(NC2E2::CE2AnimalSoundManager) == 140);
         ConstructNative<NC2E2::CE2AnimalSoundManager>(0x8C);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
         ConstructOriginal(1, WorldMusic_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2HumanSoundManager, E2HumanSoundManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2HumanSoundManager, E2HumanSoundManager_Construct);
         NC2LogicExternals::External_Misc_ProgressBar_Update();
-        ConstructOriginal(ReadableValues::ObjectSize::E2MapWeatherManagerSectorManager, E2MapWeatherManagerSectorManager_Construct);
+        ConstructOriginal(NC2Layout::ObjectSize::E2MapWeatherManagerSectorManager, E2MapWeatherManagerSectorManager_Construct);
         return manager;
     }
 }

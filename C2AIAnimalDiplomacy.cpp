@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "C2AIAnimalDiplomacy.h"
 #include "C2AIMilitaryAccess.h"
 #include "C2AIObjectAccess.h"
@@ -161,7 +161,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(diplomacy, 0) == 20) Write<std::uint32_t>(diplomacy, 0, 0);
         const auto other = Read<std::int32_t>(diplomacy, 0);
-        if (static_cast<std::uint32_t>(other) != player && other < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * ReadableValues::RecordSize::GameControlPlayerSigned) != 0)
+        if (static_cast<std::uint32_t>(other) != player && other < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(other) * NC2Layout::RecordSize::GameControlPlayerSigned) != 0)
         {
             const auto theirs = GameControl_Diplomacy_GetState(gGameControl, other, player);
             const auto ours = GameControl_Diplomacy_GetState(gGameControl, player, other);

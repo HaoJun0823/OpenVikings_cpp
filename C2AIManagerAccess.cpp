@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2AIManagerAccess.h"
 #include "C2AIConditions.h"
@@ -24,14 +25,14 @@ namespace NC2Logic
             {"AI_MainTask_Defend", SwitchIds::AIToken::AIMainTaskDefend}, {"AI_MainTask_Attack", SwitchIds::AIToken::AIMainTaskAttack},
             {"AI_MainTask_BuildHouse", SwitchIds::AIToken::AIMainTaskBuildHouse}, {"AI_MainTask_ChangeDiplomacy", SwitchIds::AIToken::AIMainTaskChangeDiplomacy},
             {"AI_MainTask_CreateCreatures", SwitchIds::AIToken::AIMainTaskCreateCreatures}, {"AI_MainTask_SelfDestroyPlayer", SwitchIds::AIToken::AIMainTaskSelfDestroyPlayer},
-            {"AI_MainTask_ClearTributes", ReadableValues::AIManagerToken::AIMainTaskClearTributes}, {"AI_MainTask_BuildMilestone", ReadableValues::AIManagerToken::AIMainTaskBuildMilestone},
+            {"AI_MainTask_ClearTributes", NC2DataIds::AIManagerToken::AIMainTaskClearTributes}, {"AI_MainTask_BuildMilestone", NC2DataIds::AIManagerToken::AIMainTaskBuildMilestone},
             {"AI_SetCondition_True", SwitchIds::AIToken::AISetConditionTrue}, {"AI_SetCondition_OnTime", SwitchIds::AIToken::AISetConditionOnTime},
             {"AI_SetCondition_OnConditions", SwitchIds::AIToken::AISetConditionOnConditions}, {"AI_SetCondition_OnConditionChangeDelayed", SwitchIds::AIToken::AISetConditionOnConditionChangeDelayed},
             {"AI_SetCondition_OnDiplomacyChange", SwitchIds::AIToken::AISetConditionOnDiplomacyChange}, {"AI_SetCondition_OnCreatureInRange", SwitchIds::AIToken::AISetConditionOnCreatureInRange},
             {"AI_SetCondition_OnHouseInRange", SwitchIds::AIToken::AISetConditionOnHouseInRange}, {"AI_SetCondition_OnPlayerSeen", SwitchIds::AIToken::AISetConditionOnPlayerSeen},
             {"AI_SetCondition_OnPlayerDead", SwitchIds::AIToken::AISetConditionOnPlayerDead}, {"AI_SetCondition_OnNumberOfSoldiers", SwitchIds::AIToken::AISetConditionOnNumberOfSoldiers},
             {"AI_SetCondition_OnExternal", SwitchIds::AIToken::AISetConditionOnExternal}, {"AI_SetCondition_OnTimer", SwitchIds::AIToken::AISetConditionOnTimer},
-            {"AI_AddTribute", ReadableValues::AIManagerToken::AIAddTribute}, {"AI_SetTributeHireling", ReadableValues::AIManagerToken::AISetTributeHireling},
+            {"AI_AddTribute", NC2DataIds::AIManagerToken::AIAddTribute}, {"AI_SetTributeHireling", NC2DataIds::AIManagerToken::AISetTributeHireling},
             {"AI_UnitLimit", SwitchIds::AIToken::AIUnitLimit}, {"AI_MaxUnitLimit", SwitchIds::AIToken::AIMaxUnitLimit},
             {"AI_SoldiersDefaultPosition", SwitchIds::AIToken::AISoldiersDefaultPosition}, {"AI_Disable", SwitchIds::AIToken::AIDisable},
             {"HAI_Disable", SwitchIds::AIToken::HAIDisable}, {"HAI_DisableHouseBuild", SwitchIds::AIToken::HAIDisableHouseBuild},
@@ -43,7 +44,7 @@ namespace NC2Logic
         bool IsScriptPlayerActive(std::int32_t player)
         {
             // The original signed comparison relies on valid nonnegative script player indices.
-            return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) != 0;
+            return player < 20 && Read<std::uint8_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) != 0;
         }
     }
 

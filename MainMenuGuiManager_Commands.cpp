@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "MainMenuGuiManager.h"
 #include "C2CleanMapsManager.h"
@@ -134,7 +134,7 @@ namespace NC2MainMenuGuiManager
     const GUID* CGuiManager::Network_GetSelectedServiceProvider() const
     {
         const auto index = Read<std::uint32_t>(this, 0x51C);
-        return index == ReadableValues::IntegerRange::UInt32Maximum ? nullptr : reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + 0xD4 + index * 0x78u);
+        return index == NXBasics::IntegerRange::UInt32Maximum ? nullptr : reinterpret_cast<const GUID*>(reinterpret_cast<const std::byte*>(this) + 0xD4 + index * 0x78u);
     }
 
     // Original function: FUN_004d787b.
@@ -150,7 +150,7 @@ namespace NC2MainMenuGuiManager
         const auto player = Read<std::uint32_t>(this, 0xEE4);
         if (player == 0) return;
         const auto index = Network_GetPlayerListIndex(player);
-        if (index == ReadableValues::IntegerRange::UInt32Maximum) return;
+        if (index == NXBasics::IntegerRange::UInt32Maximum) return;
         if (Read<std::uint8_t>(this, 0xB0E + index * 0x6Cu) != 0) return;
         SendKickToPlayer(player);
     }
@@ -171,7 +171,7 @@ namespace NC2MainMenuGuiManager
     void CGuiManager::Network_SelectPlayer(std::uint32_t playerId)
     {
         const auto index = Network_GetPlayerListIndex(playerId);
-        if (index == ReadableValues::IntegerRange::UInt32Maximum) Write<std::uint32_t>(this, 0xEE4, 0);
+        if (index == NXBasics::IntegerRange::UInt32Maximum) Write<std::uint32_t>(this, 0xEE4, 0);
         else
         {
             Write(this, 0xEE4, playerId);
@@ -193,13 +193,13 @@ namespace NC2MainMenuGuiManager
             if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : 0u);
             if (index != slot && (Read<std::uint8_t>(this, offset + 8) & 4) != 0)
             {
-                if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
+                if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(index) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
                 Write<std::uint32_t>(this, offset + 4, 2);
             }
         }
         const auto offset = 0xF28 + slot * 0x10u;
         Write<std::uint32_t>(this, offset + 4, 0);
-        if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
+        if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
         Write(this, offset, Read<std::uint32_t>(this, 0xEE4));
         Write<std::uint32_t>(this, offset + 4, 1);
         Screen_UpdateGui();
@@ -228,7 +228,7 @@ namespace NC2MainMenuGuiManager
         else
         {
             if ((flags & 4) == 0) return;
-            if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
+            if (Read<std::uint32_t>(this, 0xF24) == 0) Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
             Write<std::uint32_t>(this, offset + 4, 2);
             Write<std::uint32_t>(this, offset, 0);
         }
@@ -249,7 +249,7 @@ namespace NC2MainMenuGuiManager
     // Original function: FUN_004d80a7; a full cycle returns color zero.
     std::uint32_t CGuiManager::Network_FindNextPlayerColor(std::uint32_t color) const
     {
-        const auto stop = color == ReadableValues::IntegerRange::UInt32Maximum ? 9u : color;
+        const auto stop = color == NXBasics::IntegerRange::UInt32Maximum ? 9u : color;
         for (;;)
         {
             ++color;
@@ -260,7 +260,7 @@ namespace NC2MainMenuGuiManager
             {
                 const auto offset = 0xF2C + slot * 0x10u;
                 const auto type = Read<std::uint32_t>(this, offset);
-                if ((type == 1 || type == 2) && (Read<std::uint8_t>(this, offset + 7) & ReadableValues::BitMask::Bit7Signed) == 0 && Read<std::uint32_t>(this, offset + 8) == color) { used = true; break; }
+                if ((type == 1 || type == 2) && (Read<std::uint8_t>(this, offset + 7) & NXBasics::BitMask::Bit7Signed) == 0 && Read<std::uint32_t>(this, offset + 8) == color) { used = true; break; }
             }
             if (!used) return color;
         }
@@ -338,7 +338,7 @@ namespace NC2MainMenuGuiManager
                             if (slot < 20)
                             {
                                 const auto offset = (static_cast<std::uint32_t>(slot) + 0xF3u) * 0x10u + 3u;
-                                Write<std::uint8_t>(this, offset, Read<std::uint8_t>(this, offset) | ReadableValues::BitMask::Bit7Signed);
+                                Write<std::uint8_t>(this, offset, Read<std::uint8_t>(this, offset) | NXBasics::BitMask::Bit7Signed);
                             }
                             break;
                         }
@@ -354,7 +354,7 @@ namespace NC2MainMenuGuiManager
         {
             const auto offset = 0xF28 + slot * 0x10u;
             if ((Read<std::uint8_t>(this, offset + 8) & 4) == 0) continue;
-            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(ReadableValues::IntegerRange::UInt32Maximum));
+            Write(this, offset + 12, Read<std::uint8_t>(this, 0x1068) != 0 ? FixedPlayerColor(slot) : Network_FindNextPlayerColor(NXBasics::IntegerRange::UInt32Maximum));
             Write<std::uint32_t>(this, offset + 4, 2);
             Write<std::uint32_t>(this, offset, 0);
         }

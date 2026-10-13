@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "MainMenuWorldDisplayElement.h"
 #include "MainMenuGuiManager.h"
@@ -60,7 +60,7 @@ namespace NC2MainMenuGuiWorldElement
                 for (std::uint32_t column = 0; column < width; ++column)
                 {
                     const std::uint32_t pixel = pixels[column];
-                    const std::uint32_t blue = pixel & ReadableValues::IntegerRange::UInt8Maximum, green = (pixel >> 8) & ReadableValues::IntegerRange::UInt8Maximum, red = (pixel >> 16) & ReadableValues::IntegerRange::UInt8Maximum;
+                    const std::uint32_t blue = pixel & NXBasics::IntegerRange::UInt8Maximum, green = (pixel >> 8) & NXBasics::IntegerRange::UInt8Maximum, red = (pixel >> 16) & NXBasics::IntegerRange::UInt8Maximum;
                     const std::uint32_t maximum = red > green ? red : green;
                     pixels[column] = table[maximum > blue ? maximum : blue];
                 }
@@ -210,7 +210,7 @@ bool __fastcall MainMenuWorldDisplayElement_XGui_BE_Message_Handle(void* element
         case SwitchIds::WorldDisplayCommand::AssignDisplayDefinition: NC2E2::Display_AssignNewDisplayDefinitionValues(Read<void*>(element, 0x30), Read<float>(&param1, 0), Read<float>(&param2, 0), Read<float>(&param3, 0), true); break;
         case SwitchIds::WorldDisplayCommand::ToggleDrawFlags: NC2E2::DE_ToDraw_ToggleFlagset(Read<void*>(element, 0x30), param1); break;
         case SwitchIds::WorldDisplayCommand::ScrollByPixelDelta:
-            if ((Read<std::uint32_t>(element, 0x18) & ReadableValues::BitMask::Bit9Unsigned) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
+            if ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) NC2E2::DE_SetWantedPositionAddDeltaPixelPoint(Read<void*>(element, 0x30), NXBasics::Runtime_TimeSigned32(param1), NXBasics::Runtime_TimeSigned32(param2));
             break;
         case SwitchIds::WorldDisplayCommand::ToggleZoom:
             if (Read<std::uint8_t>(Read<void*>(element, 0x30), 0x6C) != 0) NC2E2::DE_Zoom_ToggleLevel(Read<void*>(element, 0x30), false);

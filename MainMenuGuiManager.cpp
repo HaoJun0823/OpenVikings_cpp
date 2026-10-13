@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2CallbackManager.h"
 #include "C2CleanMapsManager.h"
@@ -1135,7 +1135,7 @@ namespace NC2MainMenuGuiManager
 					if (static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4))->IsValid())
 						mapInformation = NC2Logic::gCleanMapsManager->CleanMapList_GetInfoPtrByGuid(*static_cast<const NC2Logic::SCleanMapGuid*>(static_cast<const void*>(lobbyData + 4)));
 
-					if (mapInformation != nullptr && (mapInformation->mapTypes & ReadableValues::BitMask::Bit6) != 0 && mapInformation->userMap != 0)
+					if (mapInformation != nullptr && (mapInformation->mapTypes & NXBasics::BitMask::Bit6) != 0 && mapInformation->userMap != 0)
 					{
 						sTheObjectPtr->Screen_ChangeTo(17, false);
 

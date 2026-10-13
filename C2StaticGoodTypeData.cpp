@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "C2StaticGoodTypeData.h"
 #include "C2LifetimeGlobals.h"
@@ -31,7 +31,7 @@ namespace NC2Logic
             if ((storage.tokenInitFlags & 1) == 0)
             {
                 storage.tokenInitFlags |= 1;
-                storage.tokens[0] = {"type", ReadableValues::GoodToken::Type};
+                storage.tokens[0] = {"type", NC2DataIds::GoodToken::Type};
                 storage.tokens[1] = {"name", SwitchIds::GoodToken::Name};
                 storage.tokens[2] = {"landscapetype", SwitchIds::GoodToken::LandscapeType};
                 storage.tokens[3] = {"weaponType", SwitchIds::GoodToken::WeaponType};

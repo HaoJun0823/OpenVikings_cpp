@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2E2StaticDataHumanMisc.h"
 #include "C2E2StaticDataPalettes.h"
@@ -20,7 +21,7 @@ namespace NC2E2
 {
     // Original static region: 00568574..0056857F; one-time token-list lifetime.
     static std::uint8_t gGoodGraphicsTokenFlags = 0;
-    static const NXBasics::SToken gGoodGraphicsTokens[] = {{"logicgood", ReadableValues::HumanMiscToken::LogicGood}, {"graphicshumanrandompalette", ReadableValues::HumanMiscToken::GraphicsHumanRandomPalette}, {nullptr, 0}};
+    static const NXBasics::SToken gGoodGraphicsTokens[] = {{"logicgood", NC2DataIds::HumanMiscToken::LogicGood}, {"graphicshumanrandompalette", NC2DataIds::HumanMiscToken::GraphicsHumanRandomPalette}, {nullptr, 0}};
     static NXBasics::CTokenList* gGoodGraphicsTokenList = nullptr;
     alignas(NXBasics::CTokenList) static std::byte gGoodGraphicsTokenStorage[sizeof(NXBasics::CTokenList)];
 
@@ -52,12 +53,12 @@ namespace NC2E2
                         NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(E2StaticDataGoodManager_TokenList_AtExit));
                     }
                     const auto token = gGoodGraphicsTokenList->FindToken(reader.GetCurrentName());
-                    if (token == ReadableValues::HumanMiscToken::LogicGood)
+                    if (token == NC2DataIds::HumanMiscToken::LogicGood)
                     {
                         good = reader.GetInt();
                         if (good >= 66) good = -1;
                     }
-                    else if (token == ReadableValues::HumanMiscToken::GraphicsHumanRandomPalette && good != -1)
+                    else if (token == NC2DataIds::HumanMiscToken::GraphicsHumanRandomPalette && good != -1)
                     {
                         const auto patch = StaticHumanMisc_RandomPalette_GetPatchId(reader.GetString());
                         Write(gStaticGoodData, static_cast<std::uint32_t>(good) * 4u, patch);
@@ -96,7 +97,7 @@ namespace NC2E2
 
         // Complete Windows tables 00506468..0050647F (after lazy initialization),
         // 004F47D0..004F4857, and sign patterns 00506438..0050645F.
-        constexpr NXBasics::SToken gPatchTokens[] = {{"name", SwitchIds::HumanNameToken::Name}, {"patch", ReadableValues::HumanMiscToken::Patch}, {nullptr, 0}};
+        constexpr NXBasics::SToken gPatchTokens[] = {{"name", SwitchIds::HumanNameToken::Name}, {"patch", NC2DataIds::HumanMiscToken::Patch}, {nullptr, 0}};
         constexpr NXBasics::SToken gJobBaseTokens[] = {{"logictribe", SwitchIds::HumanJobChangeToken::LogicTribe}, {"logicjob", SwitchIds::HumanJobChangeToken::LogicJob}, {"gfxbobmanagerbody", SwitchIds::HumanJobChangeToken::Gfxbobmanagerbody}, {"gfxbobmanagerhead", SwitchIds::HumanJobChangeToken::Gfxbobmanagerhead}, {"gfxpalettebasebody", SwitchIds::HumanJobGraphicsToken::Gfxpalettebasebody}, {"gfxpalettebasehead", SwitchIds::HumanJobGraphicsToken::Gfxpalettebasehead}, {"gfxpaletterandom", SwitchIds::HumanJobChangeToken::GfxPaletteRandom}, {nullptr, 0}};
         constexpr NXBasics::SToken gJobChangeTokens[] = {{"logictribe", SwitchIds::HumanJobChangeToken::LogicTribe}, {"logicjob", SwitchIds::HumanJobChangeToken::LogicJob}, {"gfxbobmanagerbody", SwitchIds::HumanJobChangeToken::Gfxbobmanagerbody}, {"gfxbobmanagerhead", SwitchIds::HumanJobChangeToken::Gfxbobmanagerhead}, {"gfxpaletterandom", SwitchIds::HumanJobChangeToken::GfxPaletteRandom}, {nullptr, 0}};
         constexpr NXBasics::SToken gNameTokens[] = {{"logictribe", SwitchIds::HumanJobChangeToken::LogicTribe}, {"name", SwitchIds::HumanNameToken::Name}, {nullptr, 0}};
@@ -131,7 +132,7 @@ namespace NC2E2
                 {
                     const auto token = GetLazyTokenList<RandomPaletteTokenList_AtExit>(gPatchTokens).FindToken(reader.GetCurrentName());
                     if (token == SwitchIds::HumanNameToken::Name) std::strncpy(reinterpret_cast<char*>(record), reader.GetString(), 39);
-                    else if (token == ReadableValues::HumanMiscToken::Patch && index != patches)
+                    else if (token == NC2DataIds::HumanMiscToken::Patch && index != patches)
                     {
                         auto* patch = data + index * 0x10u;
                         Write<std::int32_t>(patch, 4, -1); Write<std::int32_t>(patch, 8, -1);
@@ -415,7 +416,7 @@ namespace NC2E2
     {
         using NC2Lifetime::Read;
         if (player >= 20) return -1;
-        const auto offset = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(NC2Logic::gGameControl, offset) == 0) return -1;
         auto color = Read<std::int32_t>(NC2Logic::gGameControl, offset + 0x10);
         if (color < 0 || color >= 10) color = 9;
@@ -428,7 +429,7 @@ namespace NC2E2
         while (true)
         {
             if (const void* record = JobGraphicsBase_Find(tribe, job)) return record;
-            job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * ReadableValues::RecordSize::JobType + 0x20);
+            job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x20);
             if (job == 0) return NC2Lifetime::Read<void*>(gStaticHumanMiscData, 12);
         }
     }
@@ -439,7 +440,7 @@ namespace NC2E2
         while (true)
         {
             if (const void* record = JobGraphicsChange_Find(tribe, job)) return record;
-            job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * ReadableValues::RecordSize::JobType + 0x20);
+            job = NC2Lifetime::Read<std::uint32_t>(NC2Logic::gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x20);
             if (job == 0) return nullptr;
         }
     }

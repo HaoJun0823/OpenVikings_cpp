@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "InGameGuiKeyAssignmentManager.h"
 #include "C2LifetimeAccess.h"
 #include "X2DApplication.h"
@@ -152,7 +152,7 @@ namespace NC2InGameGuiKeyAssignmentManager
         for (std::int32_t index = 0; index < Read<std::int32_t>(mStorage, offset); ++index)
         {
             const auto key = Read<std::uint32_t>(mStorage, offset + 4u + static_cast<std::uint32_t>(index) * 8u);
-            if (key != 0 && (GetKeyState(static_cast<int>(key)) & ReadableValues::BitMask::Bit15Signed) != 0) return true;
+            if (key != 0 && (GetKeyState(static_cast<int>(key)) & NXBasics::BitMask::Bit15Signed) != 0) return true;
         }
         return false;
     }

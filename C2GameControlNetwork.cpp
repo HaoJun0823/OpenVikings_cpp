@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2UserNetworkCommandAccess.h"
 #include "C2GameControlNetwork.h"
@@ -24,7 +24,7 @@ namespace NC2Logic
     void __fastcall GameControl_Player_LeavesGame(void* gameControl, void* /*unusedEdx*/, unsigned int player, bool originalFlag, bool removeObjects)
     {
         using namespace NC2Lifetime;
-        const auto offset = player * ReadableValues::RecordSize::GameControlPlayer;
+        const auto offset = player * NC2Layout::RecordSize::GameControlPlayer;
         if (gGameStaticVars.networkGame != 0 && Read<std::uint32_t>(gameControl, offset + 4) == 1 && Read<std::uint32_t>(gameControl, offset + 0x14) != 0)
         {
             Write<std::uint32_t>(gameControl, offset + 0x14, 0);
@@ -44,15 +44,15 @@ namespace NC2Logic
             for (std::int32_t id = 0; id < CHouseArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto* house = CHouseArray::mStaticVars + id * CHouseArray::ElementSize;
-                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, ReadableValues::HouseOffset::PlayerId) == player) CHouseArray::sTheObjectPtr->FreeHouse(id);
+                if (Read<std::uint8_t>(house, 0) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) == player) CHouseArray::sTheObjectPtr->FreeHouse(id);
             }
             for (std::int32_t id = 0; id < CHumanArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-                if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, ReadableValues::HumanOffset::PlayerId) != player) continue;
+                if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != player) continue;
                 std::uint32_t position = 0;
                 bool createAnimal = false;
-                const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, ReadableValues::HumanOffset::MapMoveableId) * ReadableValues::RecordSize::MapMoveable;
+                const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
                 if (Read<std::uint8_t>(moveable, 0x10) != 0 && MapMicroPointData_Continent_GetContinentTyp(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human))) == 1)
                 {
                     createAnimal = true;
@@ -64,12 +64,12 @@ namespace NC2Logic
             for (std::int32_t id = 0; id < CAnimalArray::sTheObjectPtr->mCapacity; ++id)
             {
                 auto* animal = CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize;
-                if (Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::PlayerId) == player) Animal_ChangePlayerId(animal, 20);
+                if (Read<std::uint8_t>(animal, 0) != 0 && Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::PlayerId) == player) Animal_ChangePlayerId(animal, 20);
             }
             for (std::int32_t id = 0; id < CVehicleArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto* vehicle = CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize;
-                if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::PlayerId) == player) CVehicleArray::sTheObjectPtr->FreeVehicle(id);
+                if (Read<std::uint8_t>(vehicle, 0) != 0 && Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId) == player) CVehicleArray::sTheObjectPtr->FreeVehicle(id);
             }
             CGuideIterator iterator;
             for (auto id = iterator.GetFirstGuideId(player); id != -1; id = iterator.GetNextGuideId()) GuideManager_RemoveGuide(gGuideManager, nullptr, static_cast<std::uint32_t>(id));
@@ -82,7 +82,7 @@ namespace NC2Logic
     const char* GameControl_Names_GetPlayerTribeShortNamePtr(const void* gameControl, std::int32_t player)
     {
         if (player >= 20) return nullptr;
-        const auto offset = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         if (NC2Lifetime::Read<std::uint8_t>(gameControl, offset) == 0) return nullptr;
         const auto* name = static_cast<const char*>(gameControl) + offset + 0x49E0u;
         return std::strlen(name) != 0 ? name : nullptr;
@@ -91,7 +91,7 @@ namespace NC2Logic
     // Original function: FUN_0040a58c; the network name takes precedence over tribe names.
     void GameControl_Misc_GetPlayerName(const void* gameControl, std::int32_t player, bool shortName, char* output)
     {
-        if (GameControl_Player_IsNetworkPlayer(gameControl, player) && NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + 0x14u), output)) return;
+        if (GameControl_Player_IsNetworkPlayer(gameControl, player) && NNetwork::Network_GetPlayerName(NC2Lifetime::Read<std::uint32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0x14u), output)) return;
         const auto* name = shortName ? GameControl_Names_GetPlayerTribeShortNamePtr(gameControl, player) : GameControl_Names_GetPlayerTribeNamePtr(gameControl, player);
         if (name != nullptr) std::strcpy(output, name);
         else if (shortName) NXBasics::Runtime_PrintString(output, "P%d", player + 1);
@@ -104,7 +104,7 @@ namespace NC2Logic
     const char* GameControl_Names_GetPlayerTribeNamePtr(const void* gameControl, std::int32_t player)
     {
         if (player >= 20) return nullptr;
-        const auto offset = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         if (NC2Lifetime::Read<std::uint8_t>(gameControl, offset) == 0) return nullptr;
         const auto* name = static_cast<const char*>(gameControl) + offset + 0x49ACu;
         return std::strlen(name) != 0 ? name : nullptr;
@@ -114,7 +114,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (player >= 20) return false;
-        const std::uint32_t base = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const std::uint32_t base = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(gameControl, base) == 0) return false;
         for (std::uint32_t index = 0; index < 100; ++index)
         {
@@ -141,7 +141,7 @@ namespace NC2Logic
     {
         using namespace NC2Lifetime;
         if (player >= 20) return false;
-        const auto base = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto base = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         if (Read<std::uint8_t>(gameControl, base) == 0) return false;
         for (std::uint32_t index = 0; index < 100; ++index)
         {
@@ -158,7 +158,7 @@ namespace NC2Logic
     {
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, player * ReadableValues::RecordSize::GameControlPlayer + 0x14u);
+            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x14u);
             if (id != 0 && id == networkId) return static_cast<std::int32_t>(player);
         }
         return -1;
@@ -173,28 +173,28 @@ namespace NC2Logic
     bool GameControl_Player_IsNetworkPlayer(const void* gameControl, std::int32_t player)
     {
         if (gGameStaticVars.networkGame == 0 || player >= 20) return false;
-        const auto offset = static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer;
+        const auto offset = static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer;
         return NC2Lifetime::Read<std::uint8_t>(gameControl, offset) != 0 && NC2Lifetime::Read<std::uint32_t>(gameControl, offset + 4) == 1;
     }
     // Original function: FUN_0040a12b; CGameControl::Diplomacy_GetState.
     std::int32_t GameControl_Diplomacy_GetState(const void* gameControl, std::int32_t player, std::int32_t otherPlayer)
     {
-        if (player >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer) == 0) return 0;
-        if (otherPlayer >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(otherPlayer) * ReadableValues::RecordSize::GameControlPlayer) == 0) return 0;
-        return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * ReadableValues::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * 4u + 0x45A8u);
+        if (player >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer) == 0) return 0;
+        if (otherPlayer >= 20 || NC2Lifetime::Read<std::uint8_t>(gameControl, static_cast<std::uint32_t>(otherPlayer) * NC2Layout::RecordSize::GameControlPlayer) == 0) return 0;
+        return NC2Lifetime::Read<std::int32_t>(gameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + static_cast<std::uint32_t>(otherPlayer) * 4u + 0x45A8u);
     }
     // Original function: FUN_0040a171; CGameControl::Diplomacy_SetState.
     bool __fastcall GameControl_Diplomacy_SetState(void* gameControl, void* /*unusedEdx*/, std::uint32_t player, std::uint32_t otherPlayer, std::uint32_t state)
     {
         using namespace NC2Lifetime;
         // Signed upper bounds deliberately retain the original missing lower checks.
-        if (static_cast<std::int32_t>(player) >= 20 || Read<std::uint8_t>(gameControl, player * ReadableValues::RecordSize::GameControlPlayer) == 0) return false;
-        if (static_cast<std::int32_t>(otherPlayer) >= 20 || Read<std::uint8_t>(gameControl, otherPlayer * ReadableValues::RecordSize::GameControlPlayer) == 0) return false;
-        const std::uint32_t offset = player * ReadableValues::RecordSize::GameControlPlayer + otherPlayer * 4u + 0x45A8u;
+        if (static_cast<std::int32_t>(player) >= 20 || Read<std::uint8_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer) == 0) return false;
+        if (static_cast<std::int32_t>(otherPlayer) >= 20 || Read<std::uint8_t>(gameControl, otherPlayer * NC2Layout::RecordSize::GameControlPlayer) == 0) return false;
+        const std::uint32_t offset = player * NC2Layout::RecordSize::GameControlPlayer + otherPlayer * 4u + 0x45A8u;
         if (Read<std::uint32_t>(gameControl, offset) == state) return true;
         Write(gameControl, offset, state);
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1A, true, player, otherPlayer, state);
-        if (Read<std::uint8_t>(gameControl, player * ReadableValues::RecordSize::GameControlPlayer + otherPlayer + 0x496Cu) == 0)
+        if (Read<std::uint8_t>(gameControl, player * NC2Layout::RecordSize::GameControlPlayer + otherPlayer + 0x496Cu) == 0)
         {
             std::byte message[772];
             ToUserMessage_Construct(message);
@@ -215,7 +215,7 @@ namespace NC2Logic
         (void)originalFlag; // The original stack argument is never read.
         for (std::uint32_t player = 0; player < 20; ++player)
         {
-            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, 0x14u + player * ReadableValues::RecordSize::GameControlPlayer);
+            const auto id = NC2Lifetime::Read<std::uint32_t>(gameControl, 0x14u + player * NC2Layout::RecordSize::GameControlPlayer);
             if (id == 0 || id != networkPlayerId) continue;
             std::byte command[20]{};
             NC2Lifetime::Write<std::uint32_t>(command, 8, 0);

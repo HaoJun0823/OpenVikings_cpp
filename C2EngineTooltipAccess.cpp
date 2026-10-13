@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2VehicleAccess.h"
 #include "C2StringAccess.h"
 #include "C2HouseAccess.h"
@@ -168,7 +169,7 @@ namespace NC2E2
     // Original function: FUN_0049883d; l_DE_DrawTooltipOverlay_MapMoveable.
     static void Display_DrawTooltipOverlay_MapMoveable(void* display, std::uint32_t moveableId, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
     {
-        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, moveableId * ReadableValues::RecordSize::MapMoveable);
+        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, moveableId * NC2Layout::RecordSize::MapMoveable);
         if (Tooltip_ReadField<std::uint8_t>(moveable, 0x2C) != 0 && Tooltip_ReadField<std::uint8_t>(moveable, 0x39) == 0)
         {
             std::uint32_t direction = Tooltip_ReadField<std::uint32_t>(moveable, 0x30);
@@ -285,7 +286,7 @@ namespace NC2E2
                 const auto heightOffset = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeightAtMapMigPoint(point)) * Tooltip_ReadField<std::uint32_t>(display, 0x14) + 127u) >> 8;
                 const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(baseY) - static_cast<std::uint32_t>(heightOffset));
                 if (Tooltip_ReadField<std::uint8_t>(micro, 0) == 2 && (Tooltip_ReadField<std::uint8_t>(micro, 2) & 1u) != 0) Display_DrawTooltipOverlay_House(display, Tooltip_ReadField<std::uint16_t>(micro, 4), true, bitmap, x, y);
-                if (Tooltip_ReadField<std::uint16_t>(micro, 0x0A) == ReadableValues::IntegerRange::UInt16Maximum) continue;
+                if (Tooltip_ReadField<std::uint16_t>(micro, 0x0A) == NXBasics::IntegerRange::UInt16Maximum) continue;
                 NC2Logic::CMapMoveableIterator iterator;
                 for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId()) Display_DrawTooltipOverlay_MapMoveable(display, static_cast<std::uint32_t>(id), bitmap, x, y);
             }
@@ -321,7 +322,7 @@ namespace NC2E2
     void Display_DrawTooltipOverlay_External_Vehicle(void* display, std::uint32_t vehicleId, NXBasics::CBitmap* bitmap, bool /*showGoods*/)
     {
         const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, vehicleId * NC2Logic::CVehicleArray::ElementSize);
-        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * ReadableValues::RecordSize::MapMoveable);
+        const void* moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, Tooltip_ReadField<std::uint32_t>(vehicle, 0x1DC) * NC2Layout::RecordSize::MapMoveable);
         if (Tooltip_ReadField<std::uint8_t>(moveable, 0x10) == 0)
             return;
         std::int32_t point[2];
@@ -343,7 +344,7 @@ void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display)
     NC2Logic::CMapMoveableIterator iterator;
     for (auto id = iterator.GetFirstMapMoveableId(); id != -1; id = iterator.GetNextMapMoveableId())
     {
-        const auto moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, static_cast<std::uint32_t>(id) * ReadableValues::RecordSize::MapMoveable);
+        const auto moveable = Tooltip_AddressAt(NC2Logic::gMapMoveableArrayStorage.entries, static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapMoveable);
         if (Read<std::uint8_t>(moveable, 0x10) == 0) continue;
         std::int32_t pixel[2];
         Display_MapMigToLocalDisplayPixelCoordinates(display, moveable + 0x12, pixel, false);
@@ -359,7 +360,7 @@ void __fastcall Display_l_DE_Debug_DrawMapMoveablesDebugInfos(void* display)
                 pixel[1] = add(pixel[1], mul(mul(dy[direction], Read<std::uint32_t>(display, 0x20)), progress) / 10000);
             }
         }
-        auto* bitmap = Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+        auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         bitmap->Draw_Circle(pixel[0], pixel[1], 3, NXBasics::SColorRGB(255, 255, 255));
         const void* object;
         std::uint32_t mission;
@@ -401,7 +402,7 @@ namespace NC2E2
     // Original function: FUN_00498f6c; radius zero uses a five-pixel circle.
     void Display_l_DE_Debug_DrawRange(void* display, std::uint32_t point, std::int32_t radius, const NXBasics::SColorRGB* color)
     {
-        auto* bitmap = NC2Lifetime::Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+        auto* bitmap = NC2Lifetime::Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
         std::int32_t previous[2], next[2];
         if (radius == 0) { Display_MapMigToLocalDisplayPixelCoordinates(display, &point, previous, false); bitmap->Draw_Circle(previous[0], previous[1], 5, *color); return; }
         NC2Logic::MapMigPoint_MoveCursorUnwrapped(&point, 4, static_cast<std::uint32_t>(radius));
@@ -463,7 +464,7 @@ void __fastcall Display_l_DE_Debug_DrawGridLines(void* display)
         {
             const auto x = add(round(mul(Read<std::int32_t>(display, 0x10), column)), rowX);
             const auto y = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, 0x14))));
-            if ((Read<std::uint8_t>(display, 0x71) & ReadableValues::BitMask::Bit6) != 0)
+            if ((Read<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit6) != 0)
             {
                 std::int16_t next[2] = {point[0], point[1]};
                 NC2Logic::MapMigPoint_MoveCursorWrappedEast(next);
@@ -472,30 +473,30 @@ void __fastcall Display_l_DE_Debug_DrawGridLines(void* display)
                 const auto lowerRightY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, 0x14)))), rowStep);
                 NC2Logic::MapMigPoint_MoveCursorWrappedWest(next);
                 const auto lowerLeftY = add(sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(next), Read<std::int32_t>(display, 0x14)))), rowStep);
-                auto* bitmap = Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap);
+                auto* bitmap = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);
                 const auto edges = Read<std::uint8_t>(logic, 7);
                 bitmap->Draw_Circle(x, y, 2, grey);
                 bitmap->Draw_Line(x, y, add(x, fullStep), eastY, (edges & 1u) != 0 ? white : grey);
                 bitmap->Draw_Line(x, y, add(x, halfStep), lowerRightY, (edges & 2u) != 0 ? white : grey);
                 bitmap->Draw_Line(x, y, sub(x, halfStep), lowerLeftY, (edges & 4u) != 0 ? white : grey);
             }
-            if ((Read<std::uint8_t>(display, 0x71) & ReadableValues::BitMask::Bit7) == 0) continue;
-            if ((Read<std::uint8_t>(logic, 0x0C) & ReadableValues::BitMask::Bit7) != 0) Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 5, blue);
-            if ((Read<std::uint8_t>(logic, 0x0D) & 1u) != 0) Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 4, red);
-            if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0) Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
-            if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 2u) != 0) Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
+            if ((Read<std::uint8_t>(display, 0x71) & NXBasics::BitMask::Bit7) == 0) continue;
+            if ((Read<std::uint8_t>(logic, 0x0C) & NXBasics::BitMask::Bit7) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 5, blue);
+            if ((Read<std::uint8_t>(logic, 0x0D) & 1u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 4, red);
+            if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 1u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
+            if (Read<std::uint8_t>(logic, 0) == 2 && (Read<std::uint8_t>(logic, 2) & 2u) != 0) Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 3, yellow);
             if (Read<std::uint8_t>(logic, 0) == 4)
             {
-                Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 6, paleYellow);
+                Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Circle(x, y, 6, paleYellow);
                 std::int16_t origin[2] = {static_cast<std::int16_t>(point[0] + (Read<std::uint8_t>(logic, 0) == 4 ? Read<std::int8_t>(logic, 2) : 0)), static_cast<std::int16_t>(point[1] + (Read<std::uint8_t>(logic, 0) == 4 ? Read<std::int8_t>(logic, 3) : 0))};
                 std::int32_t originPixel[2];
                 Display_MapMigToLocalDisplayPixelCoordinates(display, origin, originPixel, false);
-                Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Line(x, y, originPixel[0], originPixel[1], paleYellow);
+                Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(x, y, originPixel[0], originPixel[1], paleYellow);
             }
-            if ((Read<std::uint8_t>(logic, 0x0D) & ReadableValues::BitMask::Bit5) != 0)
+            if ((Read<std::uint8_t>(logic, 0x0D) & NXBasics::BitMask::Bit5) != 0)
             {
-                Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Line(sub(x, 5), sub(y, 5), add(x, 5), add(y, 5), red);
-                Read<NXBasics::CBitmap*>(display, ReadableValues::EngineDisplayOffset::DrawingBitmap)->Draw_Line(sub(x, 5), add(y, 5), add(x, 5), sub(y, 5), red);
+                Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(sub(x, 5), sub(y, 5), add(x, 5), add(y, 5), red);
+                Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap)->Draw_Line(sub(x, 5), add(y, 5), add(x, 5), sub(y, 5), red);
             }
         }
     }

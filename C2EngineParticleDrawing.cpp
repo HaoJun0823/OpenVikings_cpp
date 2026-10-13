@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "C2EngineParticleDrawing.h"
 #include "C2EngineDisplayAccess.h"
@@ -195,13 +195,13 @@ namespace NC2E2
 		std::uint32_t index = 0;
 		do
 		{
-			auto* particle = At(manager, ReadableValues::ParticleManagerOffset::ParticlesUnsigned + index * 0x130u);
+			auto* particle = At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + index * 0x130u);
 			const auto* point = At(particle, 0x78);
 			if (Read<std::uint8_t>(particle, 4) == 0 || !NC2Logic::MapMigPoint_IsInside(point, reinterpret_cast<const std::int16_t*>(At(display, 0x97A)))) continue;
 			LogicParticelObject_DoOneMovementTick(particle, display);
 			if (Read<std::uint8_t>(particle, 4) == 0)
 			{
-				if (Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex) == index) Write(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex, previous);
+				if (Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex) == index) Write(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex, previous);
 				continue;
 			}
 			// Deferred movement can carry a previously visible particle outside the map.
@@ -233,7 +233,7 @@ namespace NC2E2
 				}
 			}
 			previous = index;
-		} while (++index <= Read<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex));
+		} while (++index <= Read<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex));
 	}
 
 	// Original function: FUN_004869d0.
@@ -244,7 +244,7 @@ namespace NC2E2
 			const auto offset = group * 0x198u;
 			if (Read<std::int32_t>(manager, 0xC + offset) != row) continue;
 			for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, 0x10 + offset); ++index)
-				E2ParticelManager_l_DrawParticel(manager, display, At(manager, ReadableValues::ParticleManagerOffset::ParticlesUnsigned + Read<std::uint32_t>(manager, 0x14 + offset + index * 4u) * 0x130u));
+				E2ParticelManager_l_DrawParticel(manager, display, At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + Read<std::uint32_t>(manager, 0x14 + offset + index * 4u) * 0x130u));
 			return;
 		}
 	}

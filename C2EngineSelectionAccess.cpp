@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2DefaultInteraction.h"
 #include "C2EngineDrawingAccess.h"
@@ -47,7 +48,7 @@ namespace NC2E2
             const auto offset = type == 1 ? 8u : type == 2 ? 0x10u : 0x18u;
             Write(output, offset, id); Write(output, offset + 4, Read<std::uint32_t>(object, 8));
             Write(output, 0x20, moveableId);
-            Write(output, 0x24, NC2Logic::MapMoveable_GetUniqueId(NC2Logic::gMapMoveableArrayStorage.entries + moveableId * ReadableValues::RecordSize::MapMoveable));
+            Write(output, 0x24, NC2Logic::MapMoveable_GetUniqueId(NC2Logic::gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable));
             Write(output, 0x40, Read<std::int32_t>(object, type == 3 ? 0x1E0 : 0x10));
             std::memcpy(static_cast<std::byte*>(output) + 0x48, &bobs, sizeof(bobs));
         }
@@ -78,7 +79,7 @@ namespace NC2E2
                 S2DEngineDisplaySearchObjectBobData bobs;
                 const auto type = Read<std::uint8_t>(micro, 0);
                 const auto phase = static_cast<std::uint32_t>(x + y * 2);
-                if (type == 1 && Read<std::uint8_t>(micro, 2) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != ReadableValues::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
+                if (type == 1 && Read<std::uint8_t>(micro, 2) != 0 && priority <= 20 && Read<std::uint16_t>(engineMicro, 0) != NXBasics::IntegerRange::UInt16MaximumSigned && Read<std::uint32_t>(Landscape(Read<std::uint16_t>(engineMicro, 0)), 0x38) != 1)
                 {
                     DrawAtom_Landscape_GetBobData(Landscape(Read<std::uint16_t>(engineMicro, 0)), Read<std::uint8_t>(micro, 3), phase, &bobs);
                     if (IsHit(bobs, mouse, base))
@@ -131,9 +132,9 @@ namespace NC2E2
                 NC2Logic::CMapMoveableIterator iterator;
                 for (auto moveableId = iterator.GetFirstMapMoveableId(&point); moveableId != -1; moveableId = iterator.GetNextMapMoveableId())
                 {
-                    const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * ReadableValues::RecordSize::MapMoveable;
+                    const auto* moveable = NC2Logic::gMapMoveableArrayStorage.entries + moveableId * NC2Layout::RecordSize::MapMoveable;
                     DrawAtom_MapMoveable_GetBobData(moveableId, display, &bobs, player);
-                    auto objectType = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, ReadableValues::MapMoveableOffset::ObjectId), objectPoint = point;
+                    auto objectType = Read<std::uint32_t>(moveable, 8), id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId), objectPoint = point;
                     const void* object = nullptr;
                     auto objectMoveable = static_cast<std::uint32_t>(moveableId);
                     const bool marker = objectType == 4;

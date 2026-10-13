@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiHumanActionButtons.h"
 #include "InGameGuiManager.h"
@@ -198,7 +198,7 @@ namespace NC2InGameGuiManager
             case SwitchIds::HumanGuiAction::ChangeEquippedGoods: manager->MiscWindows_HumanChangeEquippedGoodsWindow_Open(6, -1); break;
             case SwitchIds::HumanGuiAction::LearnJob: manager->MiscWindows_HumanLearnJobWindow_Open(); break;
             case SwitchIds::HumanGuiAction::SetWorkCenter: mode = 2; break; case SwitchIds::HumanGuiAction::SetWorkArea: mode = 3; break; case SwitchIds::HumanGuiAction::ExploreArea: mode = 13; break;
-            case SwitchIds::HumanGuiAction::ExploreAreaAndReset: remove = ls_Tool_SendSimpleHumanNetworkCommand(32, id, ReadableValues::IntegerRange::UInt32Maximum, 1); break;
+            case SwitchIds::HumanGuiAction::ExploreAreaAndReset: remove = ls_Tool_SendSimpleHumanNetworkCommand(32, id, NXBasics::IntegerRange::UInt32Maximum, 1); break;
             default: remove = ls_Tool_SendSimpleHumanNetworkCommand(action, id, first, 0); break;
             }
             if (mode != -1) InputMode_Set(Input(), mode);

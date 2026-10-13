@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiTextToolElementAccess.h"
@@ -343,7 +343,7 @@ namespace NC2InGameGuiOverviewDisplay
         struct SFilterButton { std::int32_t y; std::uint32_t command, stringId; };
         constexpr SFilterButton buttons[] = {
             {20, SwitchIds::OverviewWindowCommand::CycleViewMode, 0xFB}, {40, 0x2712, 0xFC}, {60, 0x2713, 0xFD}, {80, 0x2714, 0xFE},
-            {116, SwitchIds::OverviewWindowCommand::ToggleLargeOverview, ReadableValues::IntegerRange::UInt8MaximumSigned}, {136, 0x2716, 0x100}, {156, 0x2717, 0x101}, {176, SwitchIds::OverviewWindowCommand::ZoomOut, 0x102},
+            {116, SwitchIds::OverviewWindowCommand::ToggleLargeOverview, NXBasics::IntegerRange::UInt8MaximumSigned}, {136, 0x2716, 0x100}, {156, 0x2717, 0x101}, {176, SwitchIds::OverviewWindowCommand::ZoomOut, 0x102},
             {212, 0x2718, 0x103}, {232, 0x2719, 0x104}, {268, SwitchIds::OverviewWindowCommand::ZoomIn, 0x107}, {288, 0x271C, 0x108}, {308, 0x271D, 0x109}
         };
         for (const auto& button : buttons)

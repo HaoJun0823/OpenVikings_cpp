@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "C2HappinessEvents.h"
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
@@ -15,7 +15,7 @@ namespace NC2Logic
     {
         Happiness_UpdateEvents(happiness);
         std::int32_t oldest = -1;
-        std::uint32_t expiration = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t expiration = NXBasics::IntegerRange::UInt32Maximum;
         std::uint32_t index = 0;
         for (; index < 10; ++index)
         {

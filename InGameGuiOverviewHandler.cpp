@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiOverviewHandler.h"
 #include "C2CallbackManager.h"
@@ -227,7 +227,7 @@ namespace NC2InGameGuiOverviewDisplay
     static void WorldOverviewElement_MarkerAdd(void* element, std::uint32_t markerType, const std::uint32_t* packedMapPoint)
     {
         std::uint32_t selected = 0;
-        std::uint32_t oldest = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t oldest = NXBasics::IntegerRange::UInt32Maximum;
         for (std::uint32_t index = 0; index < 20; ++index)
         {
             const std::uint32_t timestamp = Overview_Read<std::uint32_t>(element, 0x807C + index * 12u);

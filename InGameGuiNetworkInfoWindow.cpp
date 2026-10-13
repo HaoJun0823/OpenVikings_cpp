@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "InGameGuiNetworkInfoWindow.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiBaseAccess.h"
@@ -101,7 +102,7 @@ namespace NC2InGameGuiMiscWindows
         }
         y += 30; bitmap->Text_PrintV(large, White(), 4, y, "%s:", Text(130)); y += 25;
         struct SRank { std::uint32_t player; std::int32_t key; }; SRank ranking[20]; std::uint32_t count = 0;
-        for (std::uint32_t player = 0; player < 20; ++player) { const auto* record = static_cast<const std::byte*>(manager) + player * 20u; if (Read<std::uint8_t>(record, 4) != 0 || Read<std::uint8_t>(record, 0xC) != 0) { const auto key = Read<std::uint8_t>(record, 4) != 0 ? Read<std::uint32_t>(record, 8) + 1000u : 2000u - (Read<std::uint8_t>(record, 0xC) != 0 ? Read<std::uint32_t>(record, 0x10) : ReadableValues::IntegerRange::UInt32Maximum); ranking[count++] = {player, static_cast<std::int32_t>(key)}; } }
+        for (std::uint32_t player = 0; player < 20; ++player) { const auto* record = static_cast<const std::byte*>(manager) + player * 20u; if (Read<std::uint8_t>(record, 4) != 0 || Read<std::uint8_t>(record, 0xC) != 0) { const auto key = Read<std::uint8_t>(record, 4) != 0 ? Read<std::uint32_t>(record, 8) + 1000u : 2000u - (Read<std::uint8_t>(record, 0xC) != 0 ? Read<std::uint32_t>(record, 0x10) : NXBasics::IntegerRange::UInt32Maximum); ranking[count++] = {player, static_cast<std::int32_t>(key)}; } }
         if (count > 1) for (std::uint32_t pass = 0; pass < count - 1; ++pass) for (std::uint32_t index = 0; index < count - 1; ++index) if (ranking[index].key > ranking[index + 1].key) { const auto saved = ranking[index]; ranking[index] = ranking[index + 1]; ranking[index + 1] = saved; }
         for (std::uint32_t index = 0; index < count; ++index)
         {
@@ -124,7 +125,7 @@ namespace NC2InGameGuiMiscWindows
             constexpr std::uint32_t icons[6] = {85,162,85,162,80,71}; constexpr std::int32_t x[6] = {210,260,330,380,430,480}; constexpr std::int32_t tooltipX[6] = {200,250,312,362,412,462};
             for (std::uint32_t index = 0; index < 6; ++index) { DrawTool_DrawIcon(icons[index], bitmap, x[index], 100); tips->Add(NXBasics::SRectangle(tooltipX[index], 90, 20, index < 2 ? 16 : 30), Text(142 + index)); }
             std::int32_t y = 120;
-            for (std::uint32_t player = 0; player < 20; ++player) { const auto* control = static_cast<const std::byte*>(gGameControl) + player * ReadableValues::RecordSize::GameControlPlayer; if (Read<std::uint8_t>(control, 0) == 0 || Read<std::uint32_t>(control, 4) != 1) continue; char name[200]; GameControl_Misc_GetPlayerName(gGameControl, player, true, name); bitmap->Text_PrintV(large, White(), 4, y, name); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 220, y, "%d", Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 270, y, "%d", Read<std::uint32_t>(control, 0x4A18) - Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 340, y, "%d", Read<std::uint32_t>(control, 0x4614)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 390, y, "%d", Read<std::uint32_t>(control, 0x4618)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 440, y, "%d", Read<std::uint32_t>(control, 0x4620)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 490, y, "%d", Read<std::uint32_t>(control, 0x461C)); y += 20; }
+            for (std::uint32_t player = 0; player < 20; ++player) { const auto* control = static_cast<const std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer; if (Read<std::uint8_t>(control, 0) == 0 || Read<std::uint32_t>(control, 4) != 1) continue; char name[200]; GameControl_Misc_GetPlayerName(gGameControl, player, true, name); bitmap->Text_PrintV(large, White(), 4, y, name); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 220, y, "%d", Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 270, y, "%d", Read<std::uint32_t>(control, 0x4A18) - Read<std::uint32_t>(control, 0x4A1C)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 340, y, "%d", Read<std::uint32_t>(control, 0x4614)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 390, y, "%d", Read<std::uint32_t>(control, 0x4618)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 440, y, "%d", Read<std::uint32_t>(control, 0x4620)); NetworkInfoWindow_PrintRightAligned(window, font, White(), bitmap, 490, y, "%d", Read<std::uint32_t>(control, 0x461C)); y += 20; }
             return;
         }
         if (page != 2 && page != 3) return; if (!NNetwork::Network_IsInSession()) { bitmap->Text_PrintV(large, White(), 4, 60, Text(122)); return; }
@@ -137,7 +138,7 @@ namespace NC2InGameGuiMiscWindows
         for (std::uint32_t index = 0; index < gDynamicNetworkData.playerCount; ++index)
         {
             const auto& player = players[index]; char caption[200], converted[200]; NXBasics::Runtime_PrintString(caption, Text(107), index); NNetwork::ConvertNetworkWideToAnsi(converted, player.playerName, -1); std::strcat(caption, " "); std::strcat(caption, converted); std::int32_t gamePlayer = -1;
-            for (std::int32_t candidate = 0; candidate < 20; ++candidate) { const auto* control = static_cast<const std::byte*>(gGameControl) + static_cast<std::uint32_t>(candidate) * ReadableValues::RecordSize::GameControlPlayer; if (Read<std::uint8_t>(control, 0) != 0 && Read<std::uint32_t>(control, 0x14) == player.playerId) { gamePlayer = candidate; break; } }
+            for (std::int32_t candidate = 0; candidate < 20; ++candidate) { const auto* control = static_cast<const std::byte*>(gGameControl) + static_cast<std::uint32_t>(candidate) * NC2Layout::RecordSize::GameControlPlayer; if (Read<std::uint8_t>(control, 0) != 0 && Read<std::uint32_t>(control, 0x14) == player.playerId) { gamePlayer = candidate; break; } }
             if (gamePlayer != -1) { std::strcat(caption, " - "); NXBasics::Runtime_PrintString(converted, Text(108), gamePlayer); std::strcat(caption, converted); } else { std::strcpy(caption, " - "); std::strcat(caption, Text(109)); } // The Windows fallback overwrites the previously formatted name.
             bitmap->Text_Print(font, White(), 4, y, caption); y += 12; NXBasics::Runtime_PrintString(caption, "%s: %8.8x", Text(110), player.playerId);
             if (player.isHost) { std::strcat(caption, " - "); std::strcat(caption, Text(111)); } if (player.isLocal) { std::strcat(caption, " - "); std::strcat(caption, Text(112)); } bitmap->Text_PrintV(font, White(), 4, y, caption); y += 12;

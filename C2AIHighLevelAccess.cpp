@@ -1,4 +1,5 @@
-#include "ReadableValues.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "C2AIHighLevelAccess.h"
 #include "C2AIAnimalDiplomacy.h"
 #include "C2AIBuildingAccess.h"
@@ -110,7 +111,7 @@ namespace NC2Logic
     {
         auto* bytes = static_cast<std::byte*>(handler); auto* guides = bytes + 0xAA18;
         const auto player = Read<std::uint32_t>(handler, 0);
-        if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, 0xAA28) == ReadableValues::IntegerRange::UInt16MaximumSigned)
+        if (Read<std::uint8_t>(handler, 0x67AC) != 0 && Read<std::uint16_t>(handler, 0xAA28) == NXBasics::IntegerRange::UInt16MaximumSigned)
         {
             if (AIGuideManager_IsGuideAlreadyBuild(guides, player, bytes + 0x67AE)) { if (Read<std::uint8_t>(handler, 0xAA2C) != 0) Write<std::uint8_t>(handler, 0x67AD, 1); }
             else AIGuideManager_BuildGuideNearPosition(guides, player, bytes + 0x67AE);
@@ -150,7 +151,7 @@ namespace NC2Logic
         }
         for (; count < 4; ++count)
         {
-            const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * ReadableValues::RecordSize::GameControlPlayerSigned + 12) : 1;
+            const auto tribe = static_cast<std::int32_t>(player) < 20 ? Read<std::uint32_t>(gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 12) : 1;
             CHumanArray::sTheObjectPtr->AllocateHuman(player, tribe, 6, &chosen, 0, 0);
         }
         AIVillagesData_Init(static_cast<std::byte*>(handler) + 0x1C, player, &chosen); return true;

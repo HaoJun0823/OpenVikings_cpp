@@ -1,4 +1,6 @@
-#include "ReadableValues.h"
+#include "C2DataIds.h"
+#include "C2ObjectLayout.h"
+#include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2HouseAccess.h"
 #include "C2GameState.h"
@@ -66,7 +68,7 @@ namespace NC2E2
         if ((gHumanSoundTokenFlags & 1u) == 0)
         {
             gHumanSoundTokenFlags |= 1u;
-            static constexpr NXBasics::SToken tokens[5] = {{"logictribe", ReadableValues::EngineLifetimeToken::LogicTribe}, {"scream", ReadableValues::EngineLifetimeToken::Scream}, {"generic", ReadableValues::EngineLifetimeToken::Generic}, {"respond", ReadableValues::EngineLifetimeToken::Respond}, {nullptr, 0}};
+            static constexpr NXBasics::SToken tokens[5] = {{"logictribe", NC2DataIds::EngineLifetimeToken::LogicTribe}, {"scream", NC2DataIds::EngineLifetimeToken::Scream}, {"generic", NC2DataIds::EngineLifetimeToken::Generic}, {"respond", NC2DataIds::EngineLifetimeToken::Respond}, {nullptr, 0}};
             std::memcpy(gHumanSoundTokens, tokens, sizeof(tokens));
         }
         for (char* group = reader.GetFirstGroup("sounds"); group != nullptr; group = reader.GetNextGroup("sounds"))
@@ -77,15 +79,15 @@ namespace NC2E2
             while (reader.GetNextCommandLineInGroup() != nullptr)
             {
                 const auto token = NXBasics::XB_Token_FindTokenInArray(gHumanSoundTokens, reader.GetCurrentName());
-                if (token == ReadableValues::EngineLifetimeToken::Scream || token == ReadableValues::ParticleGeneratorToken::Generate)
+                if (token == NC2DataIds::EngineLifetimeToken::Scream || token == NC2DataIds::ParticleGeneratorToken::Generate)
                 {
                     const auto sexAge = static_cast<std::uint32_t>(reader.GetInt());
                     auto* soundManager = CE2StaticDataSoundFXManager::sTheObjectPtr;
                     const char* name = reader.GetString();
                     const auto id = soundManager->GetStaticSoundFxIdByNamePtr(name);
-                    Write<std::uint32_t>(manager, (tribe * 3u + sexAge) * 0x8Cu + (token == ReadableValues::EngineLifetimeToken::Scream ? 8u : 12u), id);
+                    Write<std::uint32_t>(manager, (tribe * 3u + sexAge) * 0x8Cu + (token == NC2DataIds::EngineLifetimeToken::Scream ? 8u : 12u), id);
                 }
-                else if (token == ReadableValues::EngineLifetimeToken::Respond)
+                else if (token == NC2DataIds::EngineLifetimeToken::Respond)
                 {
                     const auto sexAge = static_cast<std::uint32_t>(reader.GetInt());
                     const auto response = static_cast<std::uint32_t>(reader.GetInt());
@@ -110,8 +112,8 @@ namespace NC2E2
         std::memset(manager, 0, 3364);
         for (std::uint32_t record = 0; record < 24; ++record)
         {
-            Write<std::uint32_t>(manager, 8u + record * 0x8Cu, ReadableValues::IntegerRange::UInt32Maximum);
-            Write<std::uint32_t>(manager, 12u + record * 0x8Cu, ReadableValues::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(manager, 8u + record * 0x8Cu, NXBasics::IntegerRange::UInt32Maximum);
+            Write<std::uint32_t>(manager, 12u + record * 0x8Cu, NXBasics::IntegerRange::UInt32Maximum);
         }
         if (NDSManager::CManager::sTheObjectPtr != nullptr && Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) != 0)
         {
@@ -372,11 +374,11 @@ namespace NC2E2
         std::memset(sectors, 0, Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u);
         if (!reader->SearchGroup("misc_weather")) return;
         // Complete original command table 004F4660..004F467F, including its terminator.
-        static constexpr NXBasics::SToken tokens[] = {{"setsnowrectangle", ReadableValues::EngineLifetimeToken::SetSnowRectangle}, {"setrainrectangle", ReadableValues::EngineLifetimeToken::SetRainRectangle}, {"setsandrectangle", ReadableValues::EngineLifetimeToken::SetSandRectangle}, {nullptr, 0}};
+        static constexpr NXBasics::SToken tokens[] = {{"setsnowrectangle", NC2DataIds::EngineLifetimeToken::SetSnowRectangle}, {"setrainrectangle", NC2DataIds::EngineLifetimeToken::SetRainRectangle}, {"setsandrectangle", NC2DataIds::EngineLifetimeToken::SetSandRectangle}, {nullptr, 0}};
         while (reader->GetNextCommandLineInGroup() != nullptr)
         {
             const auto command = NXBasics::XB_Token_FindTokenInArray(tokens, reader->GetCurrentName());
-            const std::int32_t type = command == ReadableValues::EngineLifetimeToken::SetSnowRectangle ? 2 : command == ReadableValues::EngineLifetimeToken::SetRainRectangle ? 1 : command == ReadableValues::EngineLifetimeToken::SetSandRectangle ? 3 : 0;
+            const std::int32_t type = command == NC2DataIds::EngineLifetimeToken::SetSnowRectangle ? 2 : command == NC2DataIds::EngineLifetimeToken::SetRainRectangle ? 1 : command == NC2DataIds::EngineLifetimeToken::SetSandRectangle ? 3 : 0;
             if (type == 0) continue;
             const auto x1 = reader->GetInt();
             const auto y1 = reader->GetInt();
@@ -861,7 +863,7 @@ namespace NC2E2
         void* entry = gDynamicDataVehicles.entries + index * 0x44u;
         void* vehicle = NC2Logic::CVehicleArray::mStaticVars + index * 0x54Cu;
         std::memset(entry, 0, 68);
-        if (void* graphics = StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, ReadableValues::VehicleOffset::LogicType)))
+        if (void* graphics = StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType)))
         {
             Write<std::uint32_t>(entry, 0x28, Read<std::uint32_t>(graphics, 8));
             Write<std::uint32_t>(entry, 0x30, Read<std::uint32_t>(graphics, 12));
@@ -871,8 +873,8 @@ namespace NC2E2
                 Write<std::uint32_t>(entry, 0x3C, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
             }
         }
-        Write<std::uint32_t>(entry, 0, ReadableValues::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(entry, 4, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, 0, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, 4, NXBasics::IntegerRange::UInt32Maximum);
     }
     // Original function: FUN_00490aa5.
     static void* E2DynamicDataAnimalManager_Construct(void* manager)
@@ -892,7 +894,7 @@ namespace NC2E2
         void* entry = gDynamicDataAnimals.entries + index * 0x44u;
         void* animal = NC2Logic::CAnimalArray::mStaticVars + index * 0x98u;
         std::memset(entry, 0, 68);
-        if (void* graphics = StaticMapMoveables_JobGraphics_Animals_GetDataPtr(Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::TribeType), Read<std::uint32_t>(animal, ReadableValues::AnimalOffset::AnimalType)))
+        if (void* graphics = StaticMapMoveables_JobGraphics_Animals_GetDataPtr(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType)))
         {
             Write<std::uint32_t>(entry, 0x28, Read<std::uint32_t>(graphics, 8));
             Write<std::uint32_t>(entry, 0x30, Read<std::uint32_t>(graphics, 12));
@@ -902,8 +904,8 @@ namespace NC2E2
                 Write<std::uint32_t>(entry, 0x3C, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
             }
         }
-        Write<std::uint32_t>(entry, 0, ReadableValues::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(entry, 4, ReadableValues::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, 0, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(entry, 4, NXBasics::IntegerRange::UInt32Maximum);
     }
 
     // Remaining original dependencies are creation/update paths, not shutdown bodies.
@@ -1034,7 +1036,7 @@ namespace NC2E2
             void* house = NC2Logic::CHouseArray::mStaticVars + param1 * 0x7E0u;
             if (NC2Logic::House_GetHouseMainType(house) == 6) break;
             void* area = NC2Logic::House_Misc_WalkBlockArea_GetPtr(house);
-            const std::uint32_t position = Read<std::uint32_t>(house, ReadableValues::HouseOffset::MapPosition);
+            const std::uint32_t position = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
             for (std::uint32_t row = 0; row < Read<std::uint32_t>(area, 0); ++row)
             {
                 void* line = static_cast<std::byte*>(Read<void*>(area, 4)) + row * 8;
@@ -1043,7 +1045,7 @@ namespace NC2E2
                 for (std::uint32_t column = 0; column < Read<std::uint32_t>(line, 4); ++column)
                 {
                     if (NC2Logic::MapMigPoint_IsInsideMap(&point)) EngineMap_OverlayPattern_HouseAreaChanged(&point, created);
-                    point = (point & ReadableValues::BitMask::DwordExceptBits0Through15) | static_cast<std::uint16_t>(point + 1u);
+                    point = (point & NXBasics::BitMask::DwordExceptBits0Through15) | static_cast<std::uint16_t>(point + 1u);
                 }
             }
             const std::uint16_t x = static_cast<std::uint16_t>(position - 20u);
@@ -1109,10 +1111,10 @@ namespace NC2E2
         void* drift = NXBasics::Runtime_Allocate(88);
         if (drift != nullptr) drift = E2ParticelWind_Construct(drift);
         Write<void*>(manager, 4, drift);
-        std::memset(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Particles, 0, 3040008);
-        std::memset(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Generators, 0, 32004);
-        Write<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastParticleIndex, 0);
-        Write<std::uint32_t>(manager, ReadableValues::ParticleManagerOffset::LastGeneratorIndex, 0);
+        std::memset(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Particles, 0, 3040008);
+        std::memset(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators, 0, 32004);
+        Write<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastParticleIndex, 0);
+        Write<std::uint32_t>(manager, NC2Layout::ParticleManagerOffset::LastGeneratorIndex, 0);
     }
 
     // Original function: FUN_004973e6; complete token table 004F4C00..004F4C5F.
@@ -1198,8 +1200,8 @@ namespace NC2E2
     // Original function: FUN_00486336.
     void* __fastcall E2ParticelManager_Construct(void* manager, void* /*unusedEdx*/)
     {
-        ParticelArray_Construct(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Particles);
-        ParticelGeneratorArray_Construct(static_cast<std::byte*>(manager) + ReadableValues::ParticleManagerOffset::Generators);
+        ParticelArray_Construct(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Particles);
+        ParticelGeneratorArray_Construct(static_cast<std::byte*>(manager) + NC2Layout::ParticleManagerOffset::Generators);
         gE2ParticelManager = manager;
         std::memset(manager, 0, 40812);
         void* allocation = NXBasics::Runtime_Allocate(8);
@@ -1224,7 +1226,7 @@ namespace NC2E2
     {
         gSingleton00568418 = manager;
         std::memset(&gWorldMusicState, 0, sizeof(gWorldMusicState));
-        gWorldMusicState.selectedPlayer = ReadableValues::IntegerRange::UInt32Maximum;
+        gWorldMusicState.selectedPlayer = NXBasics::IntegerRange::UInt32Maximum;
         gWorldMusicState.eventVariant = 4;
         for (std::uint32_t type : {0x13u, 2u, 0x16u}) NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(type, WorldMusic_Callback, 0xDE, 10);
         if (gDirectMusicManager != nullptr)
@@ -1237,7 +1239,7 @@ namespace NC2E2
     // Original function: FUN_00485ba6; thresholds include state-dependent hysteresis.
     static std::uint32_t WorldMusic_GetEventVariant()
     {
-        const auto value = Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.controllingPlayer * ReadableValues::RecordSize::GameControlPlayer + 0x4610u);
+        const auto value = Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.controllingPlayer * NC2Layout::RecordSize::GameControlPlayer + 0x4610u);
         switch (gWorldMusicState.eventVariant)
         {
         case SwitchIds::MusicEventVariant::Neutral: if (value <= -50) return 6; if (value >= 50) return 5; break;
@@ -1264,14 +1266,14 @@ namespace NC2E2
             if (gameTime < gWorldMusicState.changeAtGameTime) return;
             gWorldMusicState.changePending = 0;
         }
-        if (gWorldMusicState.selectedPlayer == ReadableValues::IntegerRange::UInt32Maximum)
+        if (gWorldMusicState.selectedPlayer == NXBasics::IntegerRange::UInt32Maximum)
         {
             NDMManager::ProcessEvent(gDirectMusicManager, NXBasics::Runtime_TimeSigned32(gWorldMusicState.musicType), gWorldMusicState.eventVariant, 2);
             return;
         }
         const auto selected = NXBasics::Runtime_TimeSigned32(gWorldMusicState.selectedPlayer);
         const auto relationship = NC2Logic::GameControl_Diplomacy_GetState(NC2Logic::gGameControl, NXBasics::Runtime_TimeSigned32(gWorldMusicState.controllingPlayer), selected);
-        const auto tribe = selected < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.selectedPlayer * ReadableValues::RecordSize::GameControlPlayer + 12u) : 1;
+        const auto tribe = selected < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, gWorldMusicState.selectedPlayer * NC2Layout::RecordSize::GameControlPlayer + 12u) : 1;
         const auto event = tribe == 1 ? 2 : tribe == 2 ? 3 : tribe == 3 ? 4 : tribe == 4 ? 5 : tribe > 4 && tribe <= 6 ? 6 : 1;
         NDMManager::ProcessEvent(gDirectMusicManager, event, event == 6 ? 0 : static_cast<std::uint32_t>(relationship), 2);
     }
@@ -1313,7 +1315,7 @@ namespace NC2E2
             if (!inTransition()) WorldMusic_Update(param1);
             break;
         case SwitchIds::CallbackType::MapLifetime:
-            gWorldMusicState.selectedPlayer = ReadableValues::IntegerRange::UInt32Maximum;
+            gWorldMusicState.selectedPlayer = NXBasics::IntegerRange::UInt32Maximum;
             gWorldMusicState.eventVariant = 4;
             gWorldMusicState.changePending = 0;
             gWorldMusicState.changeAtGameTime = 0;
@@ -1333,7 +1335,7 @@ namespace NC2E2
             }
             {
                 const std::uint32_t player = param1 == gWorldMusicState.controllingPlayer ? param2 : param1;
-                const std::int32_t tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, player * ReadableValues::RecordSize::GameControlPlayer + 0x0C) : 1;
+                const std::int32_t tribe = NXBasics::Runtime_TimeSigned32(player) < 20 ? Read<std::int32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayer + 0x0C) : 1;
                 gWorldMusicState.changeAtGameTime = NC2Logic::gGameTime.tick + 120u;
                 gWorldMusicState.changePending = 1;
                 const std::int32_t event = tribe == 2 ? 7 : tribe == 3 ? 8 : tribe == 4 ? 9 : 6;

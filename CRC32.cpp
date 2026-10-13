@@ -1,4 +1,4 @@
-#include "ReadableValues.h"
+#include "XNumericConstants.h"
 #include "CRC32.h"
 
 namespace
@@ -15,7 +15,7 @@ namespace
 
             for (unsigned int bit = 0; bit < 8; ++bit)
             {
-                if ((value & ReadableValues::IntegerRange::Bit31) != 0)
+                if ((value & NXBasics::IntegerRange::Bit31) != 0)
                 {
                     value = (value << 1) ^ 0x04C11DB7u;
                 }
@@ -39,7 +39,7 @@ namespace NCRC32
             InitializeCRCTable();
 
         const auto* bytes = static_cast<const std::uint8_t*>(data);
-        std::uint32_t checksum = ReadableValues::IntegerRange::UInt32Maximum;
+        std::uint32_t checksum = NXBasics::IntegerRange::UInt32Maximum;
 
         for (std::int32_t index = 0; index < byteCount; ++index)
         {
