@@ -7,6 +7,16 @@
 
 namespace NXBasics
 {
+    namespace PixelConverter16Offset
+    {
+        inline constexpr auto RedMask = 0xC;
+        inline constexpr auto GreenMask = 0xE;
+        inline constexpr auto BlueMask = 0x10;
+        inline constexpr auto RedAdjustment = 0x2C;
+        inline constexpr auto GreenAdjustment = 0x30;
+        inline constexpr auto BlueAdjustment = 0x34;
+    }
+
     class C16BitPixelConverter
     {
     public:

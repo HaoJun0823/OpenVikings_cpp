@@ -166,8 +166,33 @@ namespace NC2Layout
         inline constexpr auto TurnFramePointers = 0x5C;
     }
 
+    namespace WeatherSectorManagerOffset
+    {
+        inline constexpr auto SectorWidth = 0;
+        inline constexpr auto SectorHeight = 4;
+        inline constexpr auto Sectors = 8;
+    }
+
+    namespace WeatherSectorOffset
+    {
+        inline constexpr auto RainDensity = 0;
+        inline constexpr auto SnowDensity = 4;
+        inline constexpr auto SandDensity = 8;
+    }
+
     namespace EngineDisplayOffset
     {
+        inline constexpr auto RainEnabled = 0x928;
+        inline constexpr auto RainColorTable = 0x92C;
+        inline constexpr auto SnowEnabled = 0x930;
+        inline constexpr auto SnowColorTable = 0x934;
+        inline constexpr auto SandEnabled = 0x938;
+        inline constexpr auto SandColorTable = 0x93C;
+        inline constexpr auto WorldPixelX = 0x954;
+        inline constexpr auto WorldPixelY = 0x958;
+        inline constexpr auto BufferWidth = 0x964;
+        inline constexpr auto BufferHeight = 0x968;
+
         inline constexpr auto DestinationBitmap = 0x64;
         inline constexpr auto DrawingBitmap = 0x68;
         inline constexpr auto DrawFlags = 0x70;
@@ -579,6 +604,9 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto WeatherSector = 12u;
+        inline constexpr auto WeatherSectorDimensions = 8;
+        inline constexpr auto WeatherDensity = 4u;
         inline constexpr auto StaticMoveableManager = 113240;
         inline constexpr auto StaticMoveableData = 32;
         inline constexpr auto FastMoveableTribeUnsigned = 0x544u;

@@ -65,6 +65,26 @@ namespace NC2Runtime
         inline constexpr auto FramesPerWalkList = 200;
     }
 
+    namespace WeatherGrid
+    {
+        inline constexpr auto SectorWidthInMapPoints = 10;
+        inline constexpr auto SectorCenterInMapPoints = 5;
+        inline constexpr auto SectorRoundUp = 9;
+        inline constexpr auto FullPercentage = 100;
+        inline constexpr auto DensityMaximum = 10000;
+        inline constexpr auto DensityUnitsPerPercent = 100u;
+        inline constexpr auto ColorTableBytes = 131072;
+        inline constexpr auto ColorTableEntries = 0x10000;
+    }
+
+    namespace WeatherType
+    {
+        inline constexpr auto None = 0;
+        inline constexpr auto Rain = 1;
+        inline constexpr auto Snow = 2;
+        inline constexpr auto Sand = 3;
+    }
+
     namespace RandomSeed
     {
         inline constexpr auto Game = 0x18273645;

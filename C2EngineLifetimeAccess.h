@@ -4,6 +4,24 @@
 
 namespace NC2E2
 {
+    // Windows weather data is raw storage; these records document its exact layout.
+    struct SWeatherSector
+    {
+        std::int32_t rainDensity;
+        std::int32_t snowDensity;
+        std::int32_t sandDensity;
+    };
+
+    struct SWeatherSectorManagerData
+    {
+        std::int32_t sectorWidth;
+        std::int32_t sectorHeight;
+        SWeatherSector* sectors;
+    };
+
+    static_assert(sizeof(SWeatherSector) == 12);
+    static_assert(sizeof(SWeatherSectorManagerData) == 12);
+
     void* E2MapWeatherManagerSectorManager_GetExistingObjectPtr();
     extern void* gE2Manager;
     void E2MapWeatherManagerSectorManager_WeatherSetRectangle(void* manager, std::uint32_t first, std::uint32_t second, std::int32_t type, std::int32_t density);
@@ -33,5 +51,5 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
-    void External_FX_Weather_SetRectangle(std::uint32_t first, std::uint32_t second, bool snow, std::int32_t duration);
+    void External_FX_Weather_SetRectangle(std::uint32_t first, std::uint32_t second, bool snow, std::int32_t densityPercent);
 }

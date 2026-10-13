@@ -10,6 +10,15 @@ namespace NXSys2DApp { class CDDDisplay; }
 
 namespace NXBasics
 {
+    namespace BitmapOffset
+    {
+        inline constexpr auto Depth = 4;
+        inline constexpr auto Width = 0x10;
+        inline constexpr auto Height = 0x14;
+        inline constexpr auto HighColorMemory = 0x28;
+        inline constexpr auto RowPixelCount = 0x30;
+    }
+
     class CFont;
     class CPalette;
 

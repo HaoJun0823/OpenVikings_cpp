@@ -284,10 +284,10 @@ namespace NC2E2
     {
         if (io->mReadHeader.version != 1) { io->IO_File_Chunk_Skip(); return; }
         E2MapWeatherManagerSectorManager_FreeSectorData(manager);
-        io->IO_File_ReadBinary(manager, 8);
-        const auto size = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u;
+        io->IO_File_ReadBinary(manager, NC2Layout::RecordSize::WeatherSectorDimensions);
+        const auto size = Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight) * NC2Layout::RecordSize::WeatherSector;
         void* entries = NXBasics::Runtime_Allocate(size);
-        Write(manager, 8, entries);
+        Write(manager, NC2Layout::WeatherSectorManagerOffset::Sectors, entries);
         std::memset(entries, 0, size);
         io->IO_File_ReadBinary(entries, size);
     }
@@ -295,8 +295,8 @@ namespace NC2E2
     static void E2MapWeatherManagerSectorManager_IO_Savegame_Save(void* manager, CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::EngineSavegameChunk::Weather, 1);
-        io->IO_Memory_WriteBinary(manager, 8);
-        io->IO_Memory_WriteBinary(Read<void*>(manager, 8), Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u);
+        io->IO_Memory_WriteBinary(manager, NC2Layout::RecordSize::WeatherSectorDimensions);
+        io->IO_Memory_WriteBinary(Read<void*>(manager, NC2Layout::WeatherSectorManagerOffset::Sectors), Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight) * NC2Layout::RecordSize::WeatherSector);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
     // Original function: FUN_00485f97; the owning class name remains unresolved.

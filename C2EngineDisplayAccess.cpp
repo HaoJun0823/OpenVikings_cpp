@@ -657,9 +657,9 @@ namespace NC2E2
 
         C2DEngineDisplayManager::sTheObjectPtr->RegisterDisplayObject(display);
 
-        Display_WriteField<std::uint8_t>(display, 0x928, 1);
-        Display_WriteField<std::uint8_t>(display, 0x930, 1);
-        Display_WriteField<std::uint8_t>(display, 0x938, 1);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::RainEnabled, 1);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::SnowEnabled, 1);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::SandEnabled, 1);
 
         return display;
     }
@@ -917,9 +917,9 @@ namespace NC2E2
             std::memcpy(displayBytes + offset, &buffer, sizeof(buffer));
         };
 
-        releaseBuffer(0x92C);
-        releaseBuffer(0x934);
-        releaseBuffer(0x93C);
+        releaseBuffer(NC2Layout::EngineDisplayOffset::RainColorTable);
+        releaseBuffer(NC2Layout::EngineDisplayOffset::SnowColorTable);
+        releaseBuffer(NC2Layout::EngineDisplayOffset::SandColorTable);
     }
 
     // Original function: FUN_0047cb4d

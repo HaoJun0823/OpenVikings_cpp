@@ -157,9 +157,9 @@ namespace NC2E2
     void* __fastcall E2MapWeatherManagerSectorManager_Construct(void* manager, void* /*unusedEdx*/)
     {
         gE2MapWeatherManagerSectorManager = manager;
-        std::memset(manager, 0, 12);
-        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(2, E2MapWeatherManagerSectorManager_LogicCallback, 0x32, 0xC8);
-        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(0x16, E2MapWeatherManagerSectorManager_LogicCallback, 0x32, 0xC8);
+        std::memset(manager, 0, NC2Layout::ObjectSize::E2MapWeatherManagerSectorManager);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(SwitchIds::CallbackType::MapLifetime, E2MapWeatherManagerSectorManager_LogicCallback, 0x32, 0xC8);
+        NC2Logic::CCallbackManager::sTheObjectPtr->RegisterCallback(SwitchIds::CallbackType::LoadDone, E2MapWeatherManagerSectorManager_LogicCallback, 0x32, 0xC8);
         return manager;
     }
 
@@ -214,62 +214,63 @@ namespace NC2E2
     // Original function: FUN_00484ca5; Mac l_SectorData_Free.
     void E2MapWeatherManagerSectorManager_FreeSectorData(void* manager)
     {
-        if (Read<void*>(manager, 8) != nullptr) FreeAndClearField(manager, 8);
-        Write<std::uint32_t>(manager, 4, 0);
-        Write<std::uint32_t>(manager, 0, 0);
+        if (Read<void*>(manager, NC2Layout::WeatherSectorManagerOffset::Sectors) != nullptr)
+            FreeAndClearField(manager, NC2Layout::WeatherSectorManagerOffset::Sectors);
+        Write<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight, 0);
+        Write<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth, 0);
     }
     // Original function: FUN_00484c4f; l_SectorData_Create.
     static void E2MapWeatherManagerSectorManager_CreateSectorData(void* manager)
     {
         E2MapWeatherManagerSectorManager_FreeSectorData(manager);
-        Write<std::int32_t>(manager, 0, (static_cast<std::int32_t>(NC2Logic::GameMap_GetWidth()) + 9) / 10);
-        Write<std::int32_t>(manager, 4, (static_cast<std::int32_t>(NC2Logic::GameMap_GetHeight()) + 9) / 10);
-        const std::uint32_t size = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u;
+        Write<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth, (static_cast<std::int32_t>(NC2Logic::GameMap_GetWidth()) + NC2Runtime::WeatherGrid::SectorRoundUp) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints);
+        Write<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight, (static_cast<std::int32_t>(NC2Logic::GameMap_GetHeight()) + NC2Runtime::WeatherGrid::SectorRoundUp) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints);
+        const std::uint32_t size = Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight) * NC2Layout::RecordSize::WeatherSector;
         void* sectors = NXBasics::Runtime_Allocate(size);
-        Write<void*>(manager, 8, sectors);
-        const std::uint32_t clearSize = Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u;
+        Write<void*>(manager, NC2Layout::WeatherSectorManagerOffset::Sectors, sectors);
+        const std::uint32_t clearSize = Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight) * NC2Layout::RecordSize::WeatherSector;
         std::memset(sectors, 0, clearSize);
     }
     // Original function: FUN_004853d6; l_Sector_GetDataPtr.
     static void* E2MapWeatherManagerSectorManager_GetDataPtr(void* manager, std::int32_t x, std::int32_t y)
     {
         if (x < 0) x = 0;
-        const auto width = Read<std::int32_t>(manager, 0);
+        const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
         if (x >= width) x = width - 1;
         if (y < 0) y = 0;
-        const auto height = Read<std::int32_t>(manager, 4);
+        const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         if (y >= height) y = height - 1;
-        const std::uint32_t offset = (static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * 12u;
-        return static_cast<std::byte*>(Read<void*>(manager, 8)) + offset;
+        const std::uint32_t offset = (static_cast<std::uint32_t>(width) * static_cast<std::uint32_t>(y) + static_cast<std::uint32_t>(x)) * NC2Layout::RecordSize::WeatherSector;
+        return static_cast<std::byte*>(Read<void*>(manager, NC2Layout::WeatherSectorManagerOffset::Sectors)) + offset;
     }
     // Original function: FUN_0048534a.
     static std::int32_t E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(const void* manager, const void* point)
     {
         const auto x = static_cast<std::int32_t>(Read<std::int16_t>(point, 0));
-        const auto sector = (x - 5) / 10;
-        if (sector < 0 || sector >= Read<std::int32_t>(manager, 0)) return 0;
-        const auto percentage = (x - sector * 10 - 5) * 100 / 10;
-        return percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
+        const auto sector = (x - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        if (sector < 0 || sector >= Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth)) return 0;
+        const auto percentage = (x - sector * NC2Runtime::WeatherGrid::SectorWidthInMapPoints - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) * NC2Runtime::WeatherGrid::FullPercentage / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        return percentage < 0 ? 0 : percentage > NC2Runtime::WeatherGrid::FullPercentage ? NC2Runtime::WeatherGrid::FullPercentage : percentage;
     }
 
     // Original function: FUN_0048538f.
     static std::int32_t E2MapWeatherManagerSectorManager_Coordinates_GetInSectorYPercentage(const void* manager, const void* point)
     {
         const auto y = static_cast<std::int32_t>(Read<std::int16_t>(point, 2));
-        const auto sector = (y - 5) / 10;
-        if (sector < 0 || sector >= Read<std::int32_t>(manager, 4)) return 0;
-        const auto percentage = (y - sector * 10 - 5) * 100 / 10;
-        return percentage < 0 ? 0 : percentage > 100 ? 100 : percentage;
+        const auto sector = (y - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        if (sector < 0 || sector >= Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight)) return 0;
+        const auto percentage = (y - sector * NC2Runtime::WeatherGrid::SectorWidthInMapPoints - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) * NC2Runtime::WeatherGrid::FullPercentage / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        return percentage < 0 ? 0 : percentage > NC2Runtime::WeatherGrid::FullPercentage ? NC2Runtime::WeatherGrid::FullPercentage : percentage;
     }
 
     // Original function: FUN_00484d77; the Windows body does not read ignoreDark or playerId.
     std::int32_t E2MapWeatherManagerSectorManager_Snow_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&point);
-        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - 5) / 10;
-        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - 5) / 10;
-        const auto width = Read<std::int32_t>(manager, 0);
-        const auto height = Read<std::int32_t>(manager, 4);
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
+        const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
         const auto sectorY = y < 0 ? 0 : y >= height ? height - 1 : y;
         const auto percentageX = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(manager, &point);
@@ -279,22 +280,22 @@ namespace NC2E2
         const auto* third = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY + 1);
         const auto* fourth = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY + 1);
         // x86 IMUL/ADD/SUB wrap at 32 bits before each signed division by 100.
-        const auto topLeft = Read<std::uint32_t>(first, 4);
-        const auto bottomLeft = Read<std::uint32_t>(third, 4);
-        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, 4) - topLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
-        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, 4) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
-        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / 100));
-        return density < 0 ? 0 : density >= 10000 ? 10000 : density;
+        const auto topLeft = Read<std::uint32_t>(first, NC2Layout::WeatherSectorOffset::SnowDensity);
+        const auto bottomLeft = Read<std::uint32_t>(third, NC2Layout::WeatherSectorOffset::SnowDensity);
+        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, NC2Layout::WeatherSectorOffset::SnowDensity) - topLeft) * static_cast<std::uint32_t>(percentageX)) / NC2Runtime::WeatherGrid::FullPercentage);
+        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, NC2Layout::WeatherSectorOffset::SnowDensity) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / NC2Runtime::WeatherGrid::FullPercentage);
+        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / NC2Runtime::WeatherGrid::FullPercentage));
+        return density < 0 ? 0 : density >= NC2Runtime::WeatherGrid::DensityMaximum ? NC2Runtime::WeatherGrid::DensityMaximum : density;
     }
 
     // Original function: FUN_00484e80; the Windows body does not read ignoreDark or playerId.
     std::int32_t E2MapWeatherManagerSectorManager_Rain_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&point);
-        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - 5) / 10;
-        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - 5) / 10;
-        const auto width = Read<std::int32_t>(manager, 0);
-        const auto height = Read<std::int32_t>(manager, 4);
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
+        const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
         const auto sectorY = y < 0 ? 0 : y >= height ? height - 1 : y;
         const auto percentageX = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(manager, &point);
@@ -304,22 +305,22 @@ namespace NC2E2
         const auto* third = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY + 1);
         const auto* fourth = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY + 1);
         // x86 IMUL/ADD/SUB wrap at 32 bits before each signed division by 100.
-        const auto topLeft = Read<std::uint32_t>(first, 0);
-        const auto bottomLeft = Read<std::uint32_t>(third, 0);
-        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, 0) - topLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
-        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, 0) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
-        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / 100));
-        return density < 0 ? 0 : density >= 10000 ? 10000 : density;
+        const auto topLeft = Read<std::uint32_t>(first, NC2Layout::WeatherSectorOffset::RainDensity);
+        const auto bottomLeft = Read<std::uint32_t>(third, NC2Layout::WeatherSectorOffset::RainDensity);
+        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, NC2Layout::WeatherSectorOffset::RainDensity) - topLeft) * static_cast<std::uint32_t>(percentageX)) / NC2Runtime::WeatherGrid::FullPercentage);
+        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, NC2Layout::WeatherSectorOffset::RainDensity) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / NC2Runtime::WeatherGrid::FullPercentage);
+        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / NC2Runtime::WeatherGrid::FullPercentage));
+        return density < 0 ? 0 : density >= NC2Runtime::WeatherGrid::DensityMaximum ? NC2Runtime::WeatherGrid::DensityMaximum : density;
     }
 
     // Original function: FUN_00484f85; the Windows body does not read ignoreDark or playerId.
     std::int32_t E2MapWeatherManagerSectorManager_Sand_GetDensity(void* manager, std::uint32_t point, bool /*ignoreDark*/, std::int32_t /*playerId*/)
     {
         NC2Logic::MapMigPoint_ValidatePosition(&point);
-        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - 5) / 10;
-        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - 5) / 10;
-        const auto width = Read<std::int32_t>(manager, 0);
-        const auto height = Read<std::int32_t>(manager, 4);
+        const auto x = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 0)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto y = (static_cast<std::int32_t>(Read<std::int16_t>(&point, 2)) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
+        const auto width = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth);
+        const auto height = Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight);
         const auto sectorX = x < 0 ? 0 : x >= width ? width - 1 : x;
         const auto sectorY = y < 0 ? 0 : y >= height ? height - 1 : y;
         const auto percentageX = E2MapWeatherManagerSectorManager_Coordinates_GetInSectorXPercentage(manager, &point);
@@ -329,12 +330,12 @@ namespace NC2E2
         const auto* third = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX, sectorY + 1);
         const auto* fourth = E2MapWeatherManagerSectorManager_GetDataPtr(manager, sectorX + 1, sectorY + 1);
         // x86 IMUL/ADD/SUB wrap at 32 bits before each signed division by 100.
-        const auto topLeft = Read<std::uint32_t>(first, 8);
-        const auto bottomLeft = Read<std::uint32_t>(third, 8);
-        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, 8) - topLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
-        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, 8) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / 100);
-        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / 100));
-        return density < 0 ? 0 : density >= 10000 ? 10000 : density;
+        const auto topLeft = Read<std::uint32_t>(first, NC2Layout::WeatherSectorOffset::SandDensity);
+        const auto bottomLeft = Read<std::uint32_t>(third, NC2Layout::WeatherSectorOffset::SandDensity);
+        const auto top = topLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(second, NC2Layout::WeatherSectorOffset::SandDensity) - topLeft) * static_cast<std::uint32_t>(percentageX)) / NC2Runtime::WeatherGrid::FullPercentage);
+        const auto bottom = bottomLeft + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((Read<std::uint32_t>(fourth, NC2Layout::WeatherSectorOffset::SandDensity) - bottomLeft) * static_cast<std::uint32_t>(percentageX)) / NC2Runtime::WeatherGrid::FullPercentage);
+        const auto density = NXBasics::Runtime_TimeSigned32(top + static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32((bottom - top) * static_cast<std::uint32_t>(percentageY)) / NC2Runtime::WeatherGrid::FullPercentage));
+        return density < 0 ? 0 : density >= NC2Runtime::WeatherGrid::DensityMaximum ? NC2Runtime::WeatherGrid::DensityMaximum : density;
     }
 
     // Original function: FUN_0048520f; Weather_SetRectangle receives two points by value.
@@ -348,39 +349,40 @@ namespace NC2E2
         if (start[0] > end[0]) std::swap(start[0], end[0]);
         if (start[1] > end[1]) std::swap(start[1], end[1]);
         if (density < 0) density = 0;
-        if (density > 10000) density = 10000;
+        if (density > NC2Runtime::WeatherGrid::DensityMaximum) density = NC2Runtime::WeatherGrid::DensityMaximum;
         const auto sectorCoordinate = [] (std::int16_t coordinate, std::int32_t dimension)
         {
-            const std::int32_t sector = (static_cast<std::int32_t>(coordinate) - 5) / 10;
+            const std::int32_t sector = (static_cast<std::int32_t>(coordinate) - NC2Runtime::WeatherGrid::SectorCenterInMapPoints) / NC2Runtime::WeatherGrid::SectorWidthInMapPoints;
             return sector < 0 ? 0 : sector >= dimension ? dimension - 1 : sector;
         };
-        const auto startX = sectorCoordinate(start[0], Read<std::int32_t>(manager, 0));
-        const auto startY = sectorCoordinate(start[1], Read<std::int32_t>(manager, 4));
-        const auto endX = sectorCoordinate(end[0], Read<std::int32_t>(manager, 0));
-        const auto endY = sectorCoordinate(end[1], Read<std::int32_t>(manager, 4));
+        const auto startX = sectorCoordinate(start[0], Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth));
+        const auto startY = sectorCoordinate(start[1], Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight));
+        const auto endX = sectorCoordinate(end[0], Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth));
+        const auto endY = sectorCoordinate(end[1], Read<std::int32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight));
         for (std::int32_t y = startY; y <= endY; ++y)
         {
             for (std::int32_t x = startX; x <= endX; ++x)
             {
                 void* sector = E2MapWeatherManagerSectorManager_GetDataPtr(manager, x, y);
-                if (type >= 1 && type <= 3) Write<std::int32_t>(sector, static_cast<std::uint32_t>(type - 1) * 4u, density);
+                if (type >= NC2Runtime::WeatherType::Rain && type <= NC2Runtime::WeatherType::Sand)
+                    Write<std::int32_t>(sector, static_cast<std::uint32_t>(type - NC2Runtime::WeatherType::Rain) * NC2Layout::RecordSize::WeatherDensity, density);
             }
         }
     }
     // Original function: FUN_0048508e; l_Init_DataFromMapIni.
     static void E2MapWeatherManagerSectorManager_InitDataFromMapIni(void* manager, NXBasics::CIniFileReader* reader)
     {
-        void* sectors = Read<void*>(manager, 8);
+        void* sectors = Read<void*>(manager, NC2Layout::WeatherSectorManagerOffset::Sectors);
         if (sectors == nullptr) return;
-        std::memset(sectors, 0, Read<std::uint32_t>(manager, 0) * Read<std::uint32_t>(manager, 4) * 12u);
+        std::memset(sectors, 0, Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorWidth) * Read<std::uint32_t>(manager, NC2Layout::WeatherSectorManagerOffset::SectorHeight) * NC2Layout::RecordSize::WeatherSector);
         if (!reader->SearchGroup("misc_weather")) return;
         // Complete original command table 004F4660..004F467F, including its terminator.
         static constexpr NXBasics::SToken tokens[] = {{"setsnowrectangle", NC2DataIds::EngineLifetimeToken::SetSnowRectangle}, {"setrainrectangle", NC2DataIds::EngineLifetimeToken::SetRainRectangle}, {"setsandrectangle", NC2DataIds::EngineLifetimeToken::SetSandRectangle}, {nullptr, 0}};
         while (reader->GetNextCommandLineInGroup() != nullptr)
         {
             const auto command = NXBasics::XB_Token_FindTokenInArray(tokens, reader->GetCurrentName());
-            const std::int32_t type = command == NC2DataIds::EngineLifetimeToken::SetSnowRectangle ? 2 : command == NC2DataIds::EngineLifetimeToken::SetRainRectangle ? 1 : command == NC2DataIds::EngineLifetimeToken::SetSandRectangle ? 3 : 0;
-            if (type == 0) continue;
+            const std::int32_t type = command == NC2DataIds::EngineLifetimeToken::SetSnowRectangle ? NC2Runtime::WeatherType::Snow : command == NC2DataIds::EngineLifetimeToken::SetRainRectangle ? NC2Runtime::WeatherType::Rain : command == NC2DataIds::EngineLifetimeToken::SetSandRectangle ? NC2Runtime::WeatherType::Sand : NC2Runtime::WeatherType::None;
+            if (type == NC2Runtime::WeatherType::None) continue;
             const auto x1 = reader->GetInt();
             const auto y1 = reader->GetInt();
             const auto x2 = reader->GetInt();
@@ -395,7 +397,7 @@ namespace NC2E2
     static void E2MapWeatherManagerSectorManager_Destruct(void* manager)
     {
         E2MapWeatherManagerSectorManager_FreeSectorData(manager);
-        Unregister(E2MapWeatherManagerSectorManager_LogicCallback, 0x32, {2, 0x16});
+        Unregister(E2MapWeatherManagerSectorManager_LogicCallback, 0x32, {SwitchIds::CallbackType::MapLifetime, SwitchIds::CallbackType::LoadDone});
         gE2MapWeatherManagerSectorManager = nullptr;
     }
     // Original function: FUN_004854d1. The 0xD24 owner matches CE2HumanSoundManager.
@@ -1065,12 +1067,12 @@ namespace NC2E2
     // Original function: FUN_00485412, l_Logic_Callback.
     bool __cdecl E2MapWeatherManagerSectorManager_LogicCallback(NC2Logic::TCallbackTypes type, std::uint32_t /*userData*/, std::uint32_t param1, std::uint32_t, std::uint32_t)
     {
-        if (type == 2)
+        if (type == SwitchIds::CallbackType::MapLifetime)
         {
             if (static_cast<std::uint16_t>(param1) != 0) E2MapWeatherManagerSectorManager_CreateSectorData(gE2MapWeatherManagerSectorManager);
             else E2MapWeatherManagerSectorManager_FreeSectorData(gE2MapWeatherManagerSectorManager);
         }
-        else if (type == 0x16 && NC2Logic::gGameStaticVars.retainedMapIni != nullptr)
+        else if (type == SwitchIds::CallbackType::LoadDone && NC2Logic::gGameStaticVars.retainedMapIni != nullptr)
         {
             E2MapWeatherManagerSectorManager_InitDataFromMapIni(gE2MapWeatherManagerSectorManager, NC2Logic::gGameStaticVars.retainedMapIni);
         }
@@ -1442,9 +1444,9 @@ namespace NC2E2
 
 namespace NC2LogicExternals
 {
-    // Original function: FUN_004809ab; native duration multiplication wraps at 32 bits.
-    void External_FX_Weather_SetRectangle(std::uint32_t first, std::uint32_t second, bool snow, std::int32_t duration)
+    // Original function: FUN_004809ab; the density-percent multiplication wraps at 32 bits.
+    void External_FX_Weather_SetRectangle(std::uint32_t first, std::uint32_t second, bool snow, std::int32_t densityPercent)
     {
-        if (NC2E2::gE2MapWeatherManagerSectorManager != nullptr) NC2E2::E2MapWeatherManagerSectorManager_WeatherSetRectangle(NC2E2::E2MapWeatherManagerSectorManager_GetExistingObjectPtr(), first, second, snow ? 2 : 1, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(duration) * 100u));
+        if (NC2E2::gE2MapWeatherManagerSectorManager != nullptr) NC2E2::E2MapWeatherManagerSectorManager_WeatherSetRectangle(NC2E2::E2MapWeatherManagerSectorManager_GetExistingObjectPtr(), first, second, snow ? NC2Runtime::WeatherType::Snow : NC2Runtime::WeatherType::Rain, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(densityPercent) * NC2Runtime::WeatherGrid::DensityUnitsPerPercent));
     }
 }
