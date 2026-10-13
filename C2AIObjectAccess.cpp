@@ -42,8 +42,8 @@ namespace NC2Logic
     {
         for (std::uint32_t i = 0; i < 8; ++i)
         {
-            const auto* slot = static_cast<const std::byte*>(villages) + i * 0xCF0u;
-            if (Read<std::uint8_t>(slot, 8) != 0 && AIVillageManager_IsObjectUsed(slot + 0xC, target)) return true;
+            const auto* slot = static_cast<const std::byte*>(villages) + i * NC2Layout::RecordSize::AIVillageSlotUnsigned;
+            if (Read<std::uint8_t>(slot, NC2Layout::AIVillageSlotViewOffset::Active) != 0 && AIVillageManager_IsObjectUsed(slot + NC2Layout::AIVillageSlotViewOffset::Village, target)) return true;
         }
         return false;
     }
@@ -117,7 +117,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_004715fe.
-    bool AIVillageManager_IsObjectUsed(const void* village, const void* target) { return AIGoodManager_IsObjectUsed(static_cast<const std::byte*>(village) + 0x274, target); }
+    bool AIVillageManager_IsObjectUsed(const void* village, const void* target) { return AIGoodManager_IsObjectUsed(static_cast<const std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, target); }
 
     // Original function: FUN_004574ac.
     std::uint8_t AIGoodManager_IsProducingGoodRealy(const void* manager, std::uint32_t good)

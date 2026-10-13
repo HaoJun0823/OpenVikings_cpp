@@ -30,7 +30,7 @@ namespace NC2Logic
     }
 
     // Original function: FUN_00453bd4; the inlined original method name remains unresolved.
-    bool AIVillage_IsPointInside(const void* village, const void* point) { return Distance(point, static_cast<const std::byte*>(village) + 0xC) < Read<std::uint32_t>(village, 0x10); }
+    bool AIVillage_IsPointInside(const void* village, const void* point) { return Distance(point, static_cast<const std::byte*>(village) + NC2Layout::AIVillageOffset::CenterPoint) < Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::Radius); }
 
     // Original function: FUN_004544fb; both moveable lists precede houses and animals.
     bool AI_IsEnemyObjectAround(std::uint32_t player, const void* point, std::uint32_t radius)
@@ -58,24 +58,24 @@ namespace NC2Logic
     // Original function: FUN_00471cf6; the five distinct status codes are retained.
     std::int32_t AIVillageManager_House_BuildHouse(void* village, std::uint32_t logicType, const void* source, bool disableOnFailure, MapSearchCallback callback, std::uint32_t userData)
     {
-        if (Read<std::uint8_t>(village, 0x25u + logicType) == 0) return 0;
-        const auto player = Read<std::int32_t>(village, 8);
+        if (Read<std::uint8_t>(village, NC2Layout::AIVillageOffset::HouseBuildAllowedFlagsUnsigned + logicType) == 0) return 0;
+        const auto player = Read<std::int32_t>(village, NC2Layout::AIVillageOffset::PlayerId);
         const auto tribe = player < 20 ? Read<std::uint32_t>(gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC) : 1u;
         std::uint32_t stage;
         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, logicType, &stage);
         if (engineType == -1) return 0;
-        auto* build = reinterpret_cast<SHouseBuild*>(static_cast<std::byte*>(village) + 0xCC4);
+        auto* build = reinterpret_cast<SHouseBuild*>(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::BuildHouse);
         if (build->IsValid()) return -2;
         const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(engineType);
         bool available = true;
         for (std::uint32_t level = 0; level < stage + 1u; ++level)
             for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0x48u + level * 0x40u); ++index)
-                if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + 0x274, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
+                if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
         if (!available) return -1;
         std::uint32_t point = 0;
         if (!AIVillageManager_l_House_GetPossibleBuildPosition(village, source, engineType, stage, &point, false, callback, userData))
         {
-            if (disableOnFailure) Write<std::uint8_t>(village, 0x25u + logicType, 0);
+            if (disableOnFailure) Write<std::uint8_t>(village, NC2Layout::AIVillageOffset::HouseBuildAllowedFlagsUnsigned + logicType, 0);
             return 0;
         }
         if (AI_IsEnemyObjectAround(static_cast<std::uint32_t>(player), &point, 30)) return -3;
@@ -116,20 +116,20 @@ namespace NC2Logic
         SBuildSearch search{village, engineType, stage, static_cast<std::uint8_t>(checkTerrain), {}, output, userData};
         auto point = Read<std::uint32_t>(source, 0);
         Tool_Map_GetNotBlockedPosition(&point, true);
-        return CMapPathfinderElement::SearchOverMap(&point, Read<std::uint32_t>(village, 0x10), true, callback == nullptr ? slAIVillageManagerSearchBuildPos : callback, &search, false, Read<std::int32_t>(village, 8));
+        return CMapPathfinderElement::SearchOverMap(&point, Read<std::uint32_t>(village, NC2Layout::AIVillageOffset::Radius), true, callback == nullptr ? slAIVillageManagerSearchBuildPos : callback, &search, false, Read<std::int32_t>(village, NC2Layout::AIVillageOffset::PlayerId));
     }
 
     // Original function: FUN_0047261f; every next-stage material is checked before returning -1.
     std::int32_t AIVillageManager_House_TryToUpgradeHouse(void* village, void* house)
     {
         if (!House_Construction_CanBeUpgraded(house)) return 0;
-        auto* upgrade = reinterpret_cast<SHouseUpgrade*>(static_cast<std::byte*>(village) + 0xCD0);
+        auto* upgrade = reinterpret_cast<SHouseUpgrade*>(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::UpgradeHouse);
         if (upgrade->IsValid()) return -2;
         const auto* definition = NC2E2::Engine2d_EntryPoint_GetHouseDataPtr(Read<std::uint32_t>(house, 0x10));
         const auto level = Read<std::uint32_t>(house, 0x20) + 1u;
         bool available = true;
         for (std::uint32_t index = 0; index < Read<std::uint32_t>(definition, 0x48u + level * 0x40u); ++index)
-            if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + 0x274, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
+            if (!AIGoodManager_IsProducingGood(static_cast<std::byte*>(village) + NC2Layout::AIVillageOffset::Goods, Read<std::uint32_t>(definition, 0x4Cu + level * 0x40u + index * 4u), true)) available = false;
         if (!available) return -1;
         upgrade->UpgradeHouse(house);
         return 1;
@@ -138,7 +138,7 @@ namespace NC2Logic
     // Original function: FUN_004729ff; a distance of exactly twenty lies outside the defend range.
     bool AIHouseManager_Tower_IsPointInDefendRange(const void* manager, const void* point)
     {
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, 0xC0); ++index)
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(manager, NC2Layout::AIHouseManagerOffset::DefendPointCount); ++index)
             if (Distance(point, static_cast<const std::byte*>(manager) + 0xC4u + index * 4u) < 20) return true;
         return false;
     }
@@ -159,14 +159,14 @@ namespace NC2Logic
     // Original function: FUN_00476c43; a build attempt finishes this tick, even on a failed status.
     void AITowerManager_DoOneLogicGameTick(void* manager, std::uint32_t player, void* houseManager, void* village)
     {
-        const auto build = Read<SHouseBuild>(village, 0xCC4);
+        const auto build = Read<SHouseBuild>(village, NC2Layout::AIVillageOffset::BuildHouse);
         if (build.IsValidCheck()) return;
-        auto last = Read<std::int32_t>(manager, 0);
-        if (last != -1 && Read<std::uint8_t>(House(last), NC2Layout::HouseOffset::AllocatedFlag) == 0) { Write<std::int32_t>(manager, 0, -1); last = -1; }
+        auto last = Read<std::int32_t>(manager, NC2Layout::AITowerManagerOffset::LastHouseId);
+        if (last != -1 && Read<std::uint8_t>(House(last), NC2Layout::HouseOffset::AllocatedFlag) == 0) { Write<std::int32_t>(manager, NC2Layout::AITowerManagerOffset::LastHouseId, -1); last = -1; }
         CHouseIterator iterator;
         for (auto id = iterator.GetFirstHouseId(player); id != -1; id = iterator.GetNextHouseId())
         {
-            if (last != -1) { if (last <= id) { Write<std::int32_t>(manager, 0, -1); last = -1; } continue; }
+            if (last != -1) { if (last <= id) { Write<std::int32_t>(manager, NC2Layout::AITowerManagerOffset::LastHouseId, -1); last = -1; } continue; }
             auto* house = House(id);
             const auto type = Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType);
             if (type == 40 || type == 41) AIVillageManager_House_TryToUpgradeHouse(village, house);
@@ -174,13 +174,13 @@ namespace NC2Logic
             if (AIHouseManager_Tower_IsHouseInDefendRange(houseManager, house)) continue;
             const auto* point = static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::DoorEntryPoint;
             const auto result = AIVillageManager_House_BuildHouse(village, 41, point, false, slAITowerManagerSearchBuildPos, 0);
-            if (result == -3 || result == -2) Write(manager, 0, id - 1);
+            if (result == -3 || result == -2) Write(manager, NC2Layout::AITowerManagerOffset::LastHouseId, id - 1);
             else if (result >= -1 && result <= 0)
             {
                 const auto fallback = AIVillageManager_House_BuildHouse(village, 40, point, false, slAITowerManagerSearchBuildPos, 0);
-                if (fallback == -2 || fallback == -1) Write(manager, 0, id - 1);
+                if (fallback == -2 || fallback == -1) Write(manager, NC2Layout::AITowerManagerOffset::LastHouseId, id - 1);
             }
-            Write(manager, 0, id);
+            Write(manager, NC2Layout::AITowerManagerOffset::LastHouseId, id);
             return;
         }
     }

@@ -103,7 +103,7 @@ namespace NC2Logic
             auto* entry = static_cast<std::byte*>(manager) + good * 40;
             Write(entry, 0, Read<std::uint8_t>(entry, 8));
             if (Read<std::uint8_t>(entry, 0) != 0) continue;
-            const auto* data = static_cast<const std::byte*>(resources) + 0x2FC + good * 16;
+            const auto* data = static_cast<const std::byte*>(resources) + NC2Layout::AIResourceManagerOffset::GoodRequirements + good * 16;
             if (Read<std::uint32_t>(data, 0) == 1 && AIResourceManager_WasResourceDataUpdated(resources, good) != 0)
             {
                 std::uint32_t point = 0;

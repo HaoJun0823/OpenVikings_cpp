@@ -513,6 +513,12 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto AllowedHouses = 0x2820;
+
+        inline constexpr auto AllowedGoods = 0x1278;
+
+        inline constexpr auto AllowedJobs = 0x18;
+
         inline constexpr auto AllowedThings = 0x18;
         inline constexpr auto AllowedJobsUnsigned = 0x18u;
         inline constexpr auto WomanJobAllowedFlagUnsigned = 0x1Du;
@@ -1283,6 +1289,12 @@ namespace NC2Layout
 
     namespace AIHighLevelOffset
     {
+        inline constexpr auto Resources = 0x67B4;
+
+        inline constexpr auto ResourcePoints = 0x67B8;
+
+        inline constexpr auto ResourceGoodRequirements = 0x6AB0;
+
         inline constexpr auto FirstVillageCenter = 52;
         inline constexpr auto Villages = 0x1C;
         inline constexpr auto AnimalCatcher = 0x94E8;
@@ -1436,6 +1448,16 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto AIHouseExport = 24;
+
+        inline constexpr auto AIResourceGood = 16;
+
+        inline constexpr auto AIResourcePoint = 20;
+
+        inline constexpr auto AIVillageSlotUnsigned = 0xCF0u;
+
+        inline constexpr auto AIVillageSlot = 0xCF0;
+
         inline constexpr auto TribeBuildRequirement = 408;
         inline constexpr auto ToUserMessage = 772;
         inline constexpr auto BuildPlayerPointer = 4;
@@ -1831,6 +1853,12 @@ namespace NC2Layout
 
     namespace StaticJobTypeOffset
     {
+        inline constexpr auto MustHaveWorkHouse = 0x83;
+
+        inline constexpr auto AllowedAtomics = 0x24;
+
+        inline constexpr auto UserCanChangeProduction = 0x85;
+
         inline constexpr auto MustHaveWorkHouseUnsigned = 0x83u;
         inline constexpr auto MustHaveFinishedWorkHouseUnsigned = 0x84u;
         inline constexpr auto UserCanChangeProductionUnsigned = 0x85u;
@@ -1855,6 +1883,158 @@ namespace NC2Layout
     {
         inline constexpr auto JobsUnsigned = 8u;
         inline constexpr auto GoodsUnsigned = 0xD0u;
+    }
+
+    namespace AIVillageOffset
+    {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto VillageId = 4;
+        inline constexpr auto PlayerId = 8;
+        inline constexpr auto CenterPoint = 12;
+        inline constexpr auto CenterY = 14;
+        inline constexpr auto Radius = 0x10;
+        inline constexpr auto Houses = 28;
+        inline constexpr auto AllHousesLostFlag = 36;
+        inline constexpr auto HouseBuildAllowedFlags = 0x25;
+        inline constexpr auto HouseBuildAllowedFlagsUnsigned = 0x25u;
+        inline constexpr auto StockBuildAllowedFlag = 0x2C;
+        inline constexpr auto StockCount = 0x5C;
+        inline constexpr auto StockConstructionPendingFlag = 0x60;
+        inline constexpr auto Goods = 0x274;
+        inline constexpr auto BuildHouse = 0xCC4;
+        inline constexpr auto UpgradeHouse = 0xCD0;
+        inline constexpr auto TowerHouseId = 0xCE0;
+        inline constexpr auto Type = 0xCE4;
+        inline constexpr auto ResourceGood = 0xCE8;
+    }
+
+    namespace AIVillagesOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto NextVillageId = 4;
+        inline constexpr auto FirstVillage = 12;
+        inline constexpr auto FirstVillagePlayerId = 20;
+        inline constexpr auto FirstVillageCenter = 24;
+        inline constexpr auto PendingVillageType = 0x6788;
+        inline constexpr auto PendingVillageGood = 0x678C;
+        inline constexpr auto PendingVillageFlag = 0x6790;
+        inline constexpr auto PendingVillageConfirmedFlag = 0x6791;
+        inline constexpr auto PendingVillagePoint = 0x6792;
+        inline constexpr auto PendingVillageY = 0x6794;
+    }
+
+    namespace AIVillageSlotViewOffset
+    {
+        inline constexpr auto Active = 8;
+        inline constexpr auto Village = 12;
+        inline constexpr auto VillageId = 16;
+        inline constexpr auto Center = 24;
+        inline constexpr auto Houses = 40;
+        inline constexpr auto AllHousesLostFlag = 0x30;
+        inline constexpr auto BarrackHouseId = 0x27C;
+        inline constexpr auto VillageType = 0xCF0;
+    }
+
+    namespace AIHouseManagerOffset
+    {
+        inline constexpr auto HasHomeFlag = 0;
+        inline constexpr auto PreviousHouseCount = 4;
+        inline constexpr auto AllHousesLostFlag = 8;
+        inline constexpr auto BuildAllowedFlags = 9;
+        inline constexpr auto StockCount = 0x40;
+        inline constexpr auto StockConstructionPendingFlag = 0x44;
+        inline constexpr auto Stocks = 0x48;
+        inline constexpr auto FirstStockHouseId = 0x4C;
+        inline constexpr auto FirstStockUniqueId = 0x50;
+        inline constexpr auto DefendPointCount = 0xC0;
+        inline constexpr auto DefendPoints = 0xC4;
+        inline constexpr auto BarrackHouseId = 0x254;
+    }
+
+    namespace AIResourceManagerOffset
+    {
+        inline constexpr auto PlayerId = 0;
+        inline constexpr auto ResourcePoints = 4;
+        inline constexpr auto FirstResourceGood = 12;
+        inline constexpr auto LandscapeResourceIndices = 0x194;
+        inline constexpr auto ResourceCount = 0x2F4;
+        inline constexpr auto ScanIndex = 0x2F8;
+        inline constexpr auto GoodRequirements = 0x2FC;
+        inline constexpr auto HouseGoods = 0x71C;
+        inline constexpr auto HouseExports = 0x7F8;
+        inline constexpr auto FirstHouseExportTypes = 0x7FC;
+    }
+
+    namespace AIResourceSlotViewOffset
+    {
+        inline constexpr auto Point = 4;
+        inline constexpr auto UpdatedFlag = 8;
+        inline constexpr auto OnMapFlag = 9;
+        inline constexpr auto GoodType = 12;
+        inline constexpr auto MinimumValency = 16;
+        inline constexpr auto StoredLandscapeType = 20;
+    }
+
+    namespace AIResourceGoodOffset
+    {
+        inline constexpr auto Type = 0;
+        inline constexpr auto WorkerJob = 4;
+        inline constexpr auto HouseType = 8;
+        inline constexpr auto CheckTerrainFlag = 12;
+    }
+
+    namespace AIHouseExportOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto HouseTypes = 4;
+    }
+
+    namespace AIResourcePointArrayOffset
+    {
+        inline constexpr auto LandscapeResourceIndices = 0x190;
+    }
+
+    namespace AIResourceSearchOffset
+    {
+        inline constexpr auto Villages = 0;
+        inline constexpr auto ResourcePoints = 4;
+        inline constexpr auto ResourceIndex = 8;
+        inline constexpr auto ContinentId = 12;
+        inline constexpr auto BestVillageId = 16;
+        inline constexpr auto BestScore = 20;
+        inline constexpr auto PlayerId = 24;
+        inline constexpr auto BestPoint = 28;
+    }
+
+    namespace AIInvalidAreaManagerOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto Areas = 4;
+        inline constexpr auto FirstAreaRadius = 8;
+    }
+
+    namespace AIInvalidAreaOffset
+    {
+        inline constexpr auto Center = 0;
+        inline constexpr auto Radius = 4;
+    }
+
+    namespace AIResourceGoodViewOffset
+    {
+        inline constexpr auto Type = 0x2FC;
+        inline constexpr auto HouseType = 0x304;
+        inline constexpr auto CheckTerrainFlag = 0x308;
+    }
+
+    namespace AIResourcePointOffset
+    {
+        inline constexpr auto MinimumValency = 12;
+        inline constexpr auto StoredLandscapeType = 16;
+    }
+
+    namespace AITowerManagerOffset
+    {
+        inline constexpr auto LastHouseId = 0;
     }
 
 }

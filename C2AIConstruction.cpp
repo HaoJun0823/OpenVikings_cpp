@@ -104,23 +104,23 @@ namespace NC2Logic
         // Original function: FUN_00429301.
         void* AIHouseManager_Construct(void* manager)
         {
-            ConstructPoints(manager, 0x48, 12, 10); AIHouseHumanArray_Construct(static_cast<std::byte*>(manager) + 0xC0); return manager;
+            ConstructPoints(manager, NC2Layout::AIHouseManagerOffset::Stocks, 12, 10); AIHouseHumanArray_Construct(static_cast<std::byte*>(manager) + NC2Layout::AIHouseManagerOffset::DefendPointCount); return manager;
         }
         // Original function: FUN_004292e8.
         void* AIVillageManager_Construct(void* manager)
         {
-            Write<std::uint16_t>(manager, 14, 0); Write<std::uint16_t>(manager, 12, 0);
-            AIHouseManager_Construct(static_cast<std::byte*>(manager) + 28); return manager;
+            Write<std::uint16_t>(manager, NC2Layout::AIVillageOffset::CenterY, 0); Write<std::uint16_t>(manager, NC2Layout::AIVillageOffset::CenterPoint, 0);
+            AIHouseManager_Construct(static_cast<std::byte*>(manager) + NC2Layout::AIVillageOffset::Houses); return manager;
         }
         // Original function: FUN_004289cd.
         void* AIVillagesData_Construct(void* villages)
         {
             for (std::uint32_t i = 0; i < 8; ++i)
             {
-                auto* village = static_cast<std::byte*>(villages) + 12 + i * 0xCF0;
-                AIVillageManager_Construct(village); Write<std::uint8_t>(village, 0, 0);
+                auto* village = static_cast<std::byte*>(villages) + NC2Layout::AIVillagesOffset::FirstVillage + i * NC2Layout::RecordSize::AIVillageSlot;
+                AIVillageManager_Construct(village); Write<std::uint8_t>(village, NC2Layout::AIVillageOffset::AllocatedFlag, 0);
             }
-            Write<std::uint16_t>(villages, 0x6794, 0); Write<std::uint16_t>(villages, 0x6792, 0); return villages;
+            Write<std::uint16_t>(villages, NC2Layout::AIVillagesOffset::PendingVillageY, 0); Write<std::uint16_t>(villages, NC2Layout::AIVillagesOffset::PendingVillagePoint, 0); return villages;
         }
     }
     // Original function: FUN_00407dbd.
@@ -133,7 +133,7 @@ namespace NC2Logic
     {
         auto* bytes = static_cast<std::byte*>(handler);
         NXBasics::Runtime_FillMemory(bytes + 5, 0, 21); AIVillagesData_Construct(bytes + NC2Layout::AIHighLevelOffset::Villages);
-        AIResourcePointArray_Construct(bytes + 0x67B8); AITradeManager_Construct(bytes + NC2Layout::AIHighLevelOffset::Trade);
+        AIResourcePointArray_Construct(bytes + NC2Layout::AIHighLevelOffset::ResourcePoints); AITradeManager_Construct(bytes + NC2Layout::AIHighLevelOffset::Trade);
         AIMilitaryManager_Construct(bytes + NC2Layout::AIHighLevelOffset::Military); AIAnimalCatcher_Construct(bytes + NC2Layout::AIHighLevelOffset::AnimalCatcher); return handler;
     }
     // Original function: FUN_0042951b.
