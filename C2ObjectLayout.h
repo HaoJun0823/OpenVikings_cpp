@@ -1450,6 +1450,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto SingleVehicleWindowVars = 15376;
+
         inline constexpr auto WorldGuiElementState = 532;
 
         inline constexpr auto SingleHumanWindowVars = 15624;
@@ -2179,6 +2181,48 @@ namespace NC2Layout
         inline constexpr auto HoveredMapPointY = 0x0E;
         inline constexpr auto PrimaryCommand = 0x19C;
         inline constexpr auto SecondaryCommand = 0x1B0;
+    }
+
+    namespace SingleVehicleWindowOffset
+    {
+        inline constexpr auto TabEnabledFlags = 0x70;
+        inline constexpr auto TraderTabEnabled = 0x71;
+        inline constexpr auto HumanPassengersTabEnabled = 0x72;
+        inline constexpr auto HumanAndVehiclePassengersTabEnabled = 0x73;
+        inline constexpr auto StockTabEnabled = 0x74;
+        inline constexpr auto TabCollapsedFlags = 0x75;
+        inline constexpr auto TraderTabCollapsed = 0x76;
+        inline constexpr auto HumanPassengersTabCollapsed = 0x77;
+        inline constexpr auto HumanAndVehiclePassengersTabCollapsed = 0x78;
+        inline constexpr auto StockTabCollapsed = 0x79;
+        inline constexpr auto TabStateChecksum = 0x7C;
+        inline constexpr auto TabRectangles = 0x80;
+        inline constexpr auto ComputedWidth = 0xD0;
+        inline constexpr auto ComputedHeight = 0xD4;
+        inline constexpr auto TabHeightOverrides = 0xD8;
+        inline constexpr auto LayoutInvalidFlag = 0xEC;
+        inline constexpr auto PreviewElement = 0xF0;
+        inline constexpr auto RouteSelectButtons = 0xF4;
+        inline constexpr auto RouteSelectButtonsUnsigned = 0xF4u;
+        inline constexpr auto RouteAssignButtons = 0xF8;
+        inline constexpr auto RouteRemoveButtons = 0xFC;
+        inline constexpr auto RouteRemoveButtonsUnsigned = 0xFCu;
+        inline constexpr auto RouteLabels = 0x100;
+        inline constexpr auto SecondRouteSelectButton = 0x104;
+        inline constexpr auto SecondRouteAssignButton = 0x108;
+        inline constexpr auto SecondRouteRemoveButton = 0x10C;
+        inline constexpr auto SecondRouteLabel = 0x110;
+        inline constexpr auto TraderConfigButton = 0x114;
+        inline constexpr auto StockPage = 0x118;
+        inline constexpr auto StockGoods = 0x11C;
+        inline constexpr auto Tooltips = 0x2A4;
+        inline constexpr auto DynamicButtons = 0x3188;
+        inline constexpr auto TraderConfigWindow = 0x3C7C;
+    }
+
+    namespace SingleVehicleWindowVarsOffset
+    {
+        inline constexpr auto Tooltips = 0x234;
     }
 
 }
