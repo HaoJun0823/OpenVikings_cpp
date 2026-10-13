@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Extras assistant-page text correction - 2026-10-13
+
+Corrected all nine assistant-page lookup expressions in the Extras window from Odin string table 11 to the Windows-confirmed Wonders table 12. All 25 expanded lookups preserve their IDs; unrelated labels, missing-string diagnostics and oversized button captions came from the wrong resource table. Original geometry and control logic are retained. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md). Native verification covers 1204 instructions; both relevant C++ units pass Win32 `/Zs`. No build, tests or runtime run occurred; reopening both tabs remains the next validation.
+
 ## Construction-marker crash correction - 2026-10-13
 
 Corrected the road/wall construction-sign getters to read player-color record +0x48/+0x4C, as independently confirmed by Windows getters and constructor stores. The road path previously passed an RGB color as a landscape ID into `EngineGraphic_DrawData`; the wall path read a palette patch ID. Loader and getters now share named offsets. See [GUIDE_AND_CONSTRUCTION_MARKERS.md](GUIDE_AND_CONSTRUCTION_MARKERS.md). Native verification covers 229 instruction byte sequences; all three relevant units pass Win32 `/Zs`. No build, tests or runtime run occurred; preview confirmation remains pending.

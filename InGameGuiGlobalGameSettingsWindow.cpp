@@ -178,7 +178,7 @@ namespace NC2InGameGuiMiscWindows
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
         rectangle = NXBasics::SRectangle(4, 22, 244, 22);
-        NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(10), 10002, true, gGlobalGameSettingsPage == 1, false));
+        NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(10), 10002, true, gGlobalGameSettingsPage == 1, false));
         rectangle.x += rectangle.width + 2;
         NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(501), 10000, true, gGlobalGameSettingsPage == 0, false));
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
@@ -195,9 +195,9 @@ namespace NC2InGameGuiMiscWindows
             {
                 const bool selected = NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) && Read<std::uint8_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * 0x38u + offset) != 0;
                 rectangle = NXBasics::SRectangle(330, y, 48, 18);
-                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(24), command, true, !selected, true));
+                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(24), command, true, !selected, true));
                 rectangle.x += rectangle.width + 2;
-                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(23), command + 1, true, selected, true));
+                NXBaseGui::BaseWindow_Element_Add(window, button(rectangle, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(23), command + 1, true, selected, true));
             };
             numeric(70, 10300); numeric(90, 10310);
             flag(120, 10340, 0x18); flag(140, 10350, 0x19); flag(160, 10360, 0x1A); flag(180, 10370, 0x1B);
@@ -243,12 +243,12 @@ namespace NC2InGameGuiMiscWindows
         const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400);
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
         const auto amount = [&](std::uint32_t offset) { return NC2Logic::GameAssistantManager_l_Assistant_IsPlayerIdOk(NC2Logic::gGameAssistantManager, player) ? Read<std::uint32_t>(NC2Logic::gGameAssistantManager, static_cast<std::uint32_t>(player) * 0x38u + offset) : 0u; };
-        bitmap->Text_PrintV(font, color, 10, 72, "%s %d", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(11), amount(0));
-        bitmap->Text_PrintV(font, color, 10, 92, "%s %d", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(12), amount(4));
-        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_Print(font, color, 10, 124 + index * 20, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(17 + index));
-        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_PrintV(font, color, 10, 232 + index * 20, "%s %d", NC2GuiToolsBase::StringTool_GetOdin001StringPtr(13 + index), amount(8 + index * 4));
-        bitmap->Text_Print(font, color, 10, 324, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(21));
-        bitmap->Text_Print(font, color, 10, 344, NC2GuiToolsBase::StringTool_GetOdin001StringPtr(22));
+        bitmap->Text_PrintV(font, color, 10, 72, "%s %d", NC2GuiToolsBase::StringTool_GetWonders001StringPtr(11), amount(0));
+        bitmap->Text_PrintV(font, color, 10, 92, "%s %d", NC2GuiToolsBase::StringTool_GetWonders001StringPtr(12), amount(4));
+        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_Print(font, color, 10, 124 + index * 20, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(17 + index));
+        for (std::uint32_t index = 0; index < 4; ++index) bitmap->Text_PrintV(font, color, 10, 232 + index * 20, "%s %d", NC2GuiToolsBase::StringTool_GetWonders001StringPtr(13 + index), amount(8 + index * 4));
+        bitmap->Text_Print(font, color, 10, 324, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(21));
+        bitmap->Text_Print(font, color, 10, 344, NC2GuiToolsBase::StringTool_GetWonders001StringPtr(22));
     }
 }
 

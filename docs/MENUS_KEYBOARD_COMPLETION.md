@@ -1,5 +1,24 @@
 # Menus, keyboard commands and cheats
 
+## Extras assistant-page text correction - 2026-10-13
+
+The user screenshot shows unrelated `Fische`, `Tutorial` and campaign labels, `<11:...:NOT DEFINED!>` diagnostics and clipped long button captions in the Extras window. `InGameGuiGlobalGameSettingsWindow.cpp` incorrectly used `StringTool_GetOdin001StringPtr` for the entire assistant page. Windows control construction at `004C2502` and drawing at `004C2F2B` call `004E1EB3`, the existing `StringTool_GetWonders001StringPtr`, for all 25 concrete text lookups. Its native wrapper selects table 12 (`wonders/wonders001.ini`); the incorrect Odin wrapper selects table 11. Mac declarations confirm the wrapper names only. This is a reconstruction error, not missing localized assets or an original layout defect.
+
+All nine source lookup expressions now use the Wonders wrapper. Their loop/helper expansions retain the native IDs:
+
+| Wonders ID | Use |
+| --- | --- |
+| 10 | Assistant-page tab |
+| 11 / 12 | Requested boys/girls |
+| 13..16 | Four soldier request counts |
+| 17..20 | Four civilian equipment options |
+| 21 / 22 | Two soldier equipment options |
+| 23 / 24 | Enable/disable captions for six option pairs |
+
+The window title and special-items tab continue using misc-window IDs 500/501 as Windows does. Native numeric controls are 24x18 with literal `-`/`+`; option controls are 48x18 with a two-pixel gap. Fonts, geometry, selected states, command packets and update/lifetime behavior are retained. The source diff reverses exactly to HEAD by reversing only the nine wrapper-name replacements.
+
+Native verification covers 1204 original Game.exe instruction byte sequences across complete control construction, page drawing and the three neighboring string wrappers. The 25 native Wonders lookups and their exact ID order are checked. The affected window and integrating string manager pass MSVC Win32 `/Zs` without diagnostics; `git diff --check` passes. No build, tests or game run occurred. Next validation is reopening Extras and checking both tabs and the six equipment toggles.
+
 User priority (2026-10-08): finish all menus and keyboard commands, including cheats, before returning to the house-builder task tree.
 
 Windows x86 assembly and the original Windows Game.exe establish behavior, sizes, command IDs, tables and strings. Mac headers are used only to recover established names. Compilation or a link dummy does not establish completion.

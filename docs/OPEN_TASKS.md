@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Extras assistant-page text correction - 2026-10-13
+
+All nine Extras assistant-page lookup expressions now use the Windows Wonders string wrapper. Native verification checks all 25 expanded lookups/IDs and 1204 instruction byte sequences; two C++ units pass Win32 `/Zs`. No build, tests or runtime run occurred. Next validation: reopen Extras, switch both tabs and check equipment-toggle labels/states. See [MENUS_KEYBOARD_COMPLETION.md](MENUS_KEYBOARD_COMPLETION.md).
+
 ## Construction-marker crash correction - 2026-10-13
 
 The road/wall sign-ID getters now use the Windows-confirmed +0x48/+0x4C color-record fields instead of the RGB color and palette patch ID. Three relevant units pass Win32 `/Zs`; 229 native instruction byte sequences verify the constructor/getters/renderer evidence. No build, tests or runtime run occurred. Next validation is a fresh main-menu world preview and road/wall construction-marker rendering. See [GUIDE_AND_CONSTRUCTION_MARKERS.md](GUIDE_AND_CONSTRUCTION_MARKERS.md).
