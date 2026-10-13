@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Static moveable lookup layouts - 2026-10-13
+
+Named the 42×56 animation/walk access tables, corrected misleading Shadow helper names to Walk, and separated the 32-byte data region from its adjacent token object. Sorting, independent random choice and frame/list destruction order are retained. Modified units and consumer plus 52 value/type pairs pass Win32 `/Zs`; 1449 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [FAST_MOVEABLE_ACCESS_REVIEW.md](FAST_MOVEABLE_ACCESS_REVIEW.md). Whole-source review continues with display/weather and GUI/control/data structures.
+
 ## Human appearance data - 2026-10-13
 
 Named base/change job graphics, weighted palette records, names, the complete 968-byte static region and color/good tables. Windows lookup differences, random/read/free order and arithmetic are retained. All 307 C++ units pass Win32 `/Zs`; final value/type checks cover 85 pairs. Native-byte provenance checks cover 1605 instructions. No build or runtime run occurred. See [HUMAN_APPEARANCE_DATA_REVIEW.md](HUMAN_APPEARANCE_DATA_REVIEW.md). Whole-source review continues with static animation/walk access structures and display/GUI/control/data layouts.

@@ -251,7 +251,7 @@ namespace NC2E2
     alignas(4) inline std::byte gStaticHumanMiscData[968]{};
     inline std::byte* const gStaticHumanColors = gStaticHumanMiscData + NC2Layout::StaticHumanMiscOffset::PlayerColors;
     // 00568998..005689BB; counts, record arrays and auxiliary allocations.
-    alignas(4) inline std::byte gStaticMapMoveableData[36]{};
+    alignas(4) inline std::byte gStaticMapMoveableData[32]{};
     // 005689F0..00568A0F; transition counts and tables.
     inline std::byte (&gStaticTransitionData)[32] = *reinterpret_cast<std::byte (*)[32]>(&gStaticTransitionStorage);
     inline std::uint32_t gStaticMiscLandscapeGroupCount = 0; // 00568550

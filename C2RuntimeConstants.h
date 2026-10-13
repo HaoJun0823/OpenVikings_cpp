@@ -56,6 +56,15 @@ namespace NC2Runtime
         inline constexpr auto BytesUnsigned = 64u;
     }
 
+    namespace FastMoveableAccessLimits
+    {
+        inline constexpr auto TribeSlots = 42;
+        inline constexpr auto JobSlots = 56;
+        inline constexpr auto JobSlotsHex = 0x38;
+        inline constexpr auto RandomAnimationChoices = 10;
+        inline constexpr auto FramesPerWalkList = 200;
+    }
+
     namespace RandomSeed
     {
         inline constexpr auto Game = 0x18273645;

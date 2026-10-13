@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -175,7 +176,7 @@ namespace NC2E2
     // Original function: FUN_0048d109; direct destruction bypasses any cleared list vptr.
     static void StaticMoveableAnimationList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableAnimationListTag>*>(list)->CRuntimeOwnedList<SStaticMoveableAnimationListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_0048d126.
-    static void StaticMoveableShadowList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableShadowListTag>*>(list)->CRuntimeOwnedList<SStaticMoveableShadowListTag>::~CRuntimeOwnedList(); }
+    static void StaticMoveableWalkList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticMoveableWalkListTag>*>(list)->CRuntimeOwnedList<SStaticMoveableWalkListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_00490580.
     static void StaticTextureList_Destruct(void* list) { static_cast<CRuntimeOwnedList<SStaticTextureListTag>*>(list)->CRuntimeOwnedList<SStaticTextureListTag>::~CRuntimeOwnedList(); }
     // Original function: FUN_00490702.
@@ -189,9 +190,9 @@ namespace NC2E2
         return list;
     }
     // Original function: FUN_0048d178.
-    void* __fastcall StaticMoveableShadowList_Delete(void* list, void* /*unusedEdx*/, std::uint32_t flags)
+    void* __fastcall StaticMoveableWalkList_Delete(void* list, void* /*unusedEdx*/, std::uint32_t flags)
     {
-        StaticMoveableShadowList_Destruct(list);
+        StaticMoveableWalkList_Destruct(list);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(list);
         return list;
     }
@@ -529,67 +530,67 @@ namespace NC2E2
         } while (--count != 0);
     }
     // Original function: FUN_0048ce91.
-    static void StaticMoveableAnimation_Destruct(void* object) { StaticMoveableAnimationList_Destruct(static_cast<std::byte*>(object) + 4); }
+    static void StaticMoveableAnimation_Destruct(void* object) { StaticMoveableAnimationList_Destruct(static_cast<std::byte*>(object) + NC2Layout::FastMoveableJobOffset::Entries); }
     // Original function: FUN_0048ce99.
-    static void StaticMoveableShadow_Destruct(void* object) { StaticMoveableShadowList_Destruct(static_cast<std::byte*>(object) + 4); }
+    static void StaticMoveableWalk_Destruct(void* object) { StaticMoveableWalkList_Destruct(static_cast<std::byte*>(object) + NC2Layout::FastMoveableJobOffset::Entries); }
     // Original function: FUN_0048ce45.
     static void StaticMoveableAnimationGroups_Destruct(void* object)
     {
-        std::uint32_t offset = 0xDD2C;
-        for (std::uint32_t group = 0; group < 42; ++group)
+        std::uint32_t offset = NC2Layout::FastMoveableTribeOffset::ReverseDestructionEnd;
+        for (std::uint32_t group = 0; group < NC2Runtime::FastMoveableAccessLimits::TribeSlots; ++group)
         {
-            offset -= 0x544;
-            Vector_Destruct(static_cast<std::byte*>(object) + offset, 0x18, 0x38, StaticMoveableAnimation_Destruct);
+            offset -= NC2Layout::RecordSize::FastMoveableTribe;
+            Vector_Destruct(static_cast<std::byte*>(object) + offset, NC2Layout::RecordSize::FastMoveableJob, NC2Runtime::FastMoveableAccessLimits::JobSlotsHex, StaticMoveableAnimation_Destruct);
         }
     }
     // Original function: FUN_0048ce6b.
-    static void StaticMoveableShadowGroups_Destruct(void* object)
+    static void StaticMoveableWalkGroups_Destruct(void* object)
     {
-        std::uint32_t offset = 0xDD2C;
-        for (std::uint32_t group = 0; group < 42; ++group)
+        std::uint32_t offset = NC2Layout::FastMoveableTribeOffset::ReverseDestructionEnd;
+        for (std::uint32_t group = 0; group < NC2Runtime::FastMoveableAccessLimits::TribeSlots; ++group)
         {
-            offset -= 0x544;
-            Vector_Destruct(static_cast<std::byte*>(object) + offset, 0x18, 0x38, StaticMoveableShadow_Destruct);
+            offset -= NC2Layout::RecordSize::FastMoveableTribe;
+            Vector_Destruct(static_cast<std::byte*>(object) + offset, NC2Layout::RecordSize::FastMoveableJob, NC2Runtime::FastMoveableAccessLimits::JobSlotsHex, StaticMoveableWalk_Destruct);
         }
     }
     // Original function: FUN_0048cd18.
     static void E2StaticDataMapMoveablesManager_Destruct(void* manager)
     {
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, 0); ++index)
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimationCount); ++index)
         {
-            const std::uint32_t offset = index * 0x64;
-            void* entries = Read<void*>(gStaticMapMoveableData, 4);
-            const std::uint32_t type = Read<std::uint32_t>(entries, offset + 0x10);
-            if (type == 0 || type == 1)
+            const std::uint32_t offset = index * NC2Layout::RecordSize::StaticMoveableAnimation;
+            void* entries = Read<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations);
+            const std::uint32_t animationMode = Read<std::uint32_t>(entries, offset + NC2Layout::StaticMoveableAnimationOffset::Mode);
+            if (animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames)
             {
-                FreeField(entries, offset + 0x20);
+                FreeField(entries, offset + NC2Layout::StaticMoveableAnimationOffset::FrameArray);
                 for (std::uint32_t direction = 0; direction < 8; ++direction)
                 {
-                    FreeField(Read<void*>(gStaticMapMoveableData, 4), offset + 0x28 + direction * 8);
+                    FreeField(Read<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations), offset + NC2Layout::StaticMoveableAnimationOffset::DirectionFramePointers + direction * NC2Layout::RecordSize::FrameList);
                 }
             }
-            entries = Read<void*>(gStaticMapMoveableData, 4);
-            if (Read<std::uint32_t>(entries, offset + 0x10) == 2) FreeField(entries, offset + 0x18);
+            entries = Read<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations);
+            if (Read<std::uint32_t>(entries, offset + NC2Layout::StaticMoveableAnimationOffset::Mode) == NC2Runtime::MoveableAnimationMode::Compound) FreeField(entries, offset + NC2Layout::StaticMoveableAnimationOffset::PartArray);
         }
-        FreeField(gStaticMapMoveableData, 4);
-        Write<std::uint32_t>(gStaticMapMoveableData, 0, 0);
-        Write<void*>(gStaticMapMoveableData, 4, nullptr);
-        FreeField(gStaticMapMoveableData, 0x1C);
-        FreeField(gStaticMapMoveableData, 0x14);
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, 8); ++index)
+        FreeField(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations);
+        Write<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimationCount, 0);
+        Write<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations, nullptr);
+        FreeField(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::VehicleGraphics);
+        FreeField(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimalGraphics);
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::WalkCount); ++index)
         {
             for (std::uint32_t direction = 0; direction < 8; ++direction)
             {
-                FreeField(Read<void*>(gStaticMapMoveableData, 0x0C), index * 0x98 + 0x1C + direction * 8);
-                FreeField(Read<void*>(gStaticMapMoveableData, 0x0C), index * 0x98 + 0x5C + direction * 8);
+                FreeField(Read<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Walks), index * NC2Layout::RecordSize::StaticMoveableWalk + NC2Layout::StaticMoveableWalkOffset::WalkFramePointers + direction * NC2Layout::RecordSize::FrameList);
+                FreeField(Read<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Walks), index * NC2Layout::RecordSize::StaticMoveableWalk + NC2Layout::StaticMoveableWalkOffset::TurnFramePointers + direction * NC2Layout::RecordSize::FrameList);
             }
         }
-        FreeField(gStaticMapMoveableData, 0x0C);
-        Write<std::uint32_t>(gStaticMapMoveableData, 8, 0);
-        Write<void*>(gStaticMapMoveableData, 0x0C, nullptr);
+        FreeField(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Walks);
+        Write<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::WalkCount, 0);
+        Write<void*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Walks, nullptr);
         gE2StaticDataMapMoveablesManager = nullptr;
-        StaticMoveableShadowGroups_Destruct(static_cast<std::byte*>(manager) + 0xDD30);
-        StaticMoveableAnimationGroups_Destruct(static_cast<std::byte*>(manager) + 8);
+        StaticMoveableWalkGroups_Destruct(static_cast<std::byte*>(manager) + NC2Layout::StaticMoveableManagerOffset::WalkAccess);
+        StaticMoveableAnimationGroups_Destruct(static_cast<std::byte*>(manager) + NC2Layout::StaticMoveableManagerOffset::AnimationAccess);
     }
 
     // Original function: FUN_0048d6eb; unnamed nested particle record deleting destructor.
@@ -811,22 +812,22 @@ namespace NC2E2
     // Original function: FUN_0048d093; JobGraphics_Animals_GetDataPtr.
     static void* StaticMapMoveables_JobGraphics_Animals_GetDataPtr(std::uint32_t tribe, std::uint32_t type)
     {
-        auto* records = Read<std::byte*>(gStaticMapMoveableData, 0x14);
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, 0x10); ++index)
+        auto* records = Read<std::byte*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimalGraphics);
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimalGraphicsCount); ++index)
         {
-            void* record = records + index * 0x28u;
-            if (Read<std::uint32_t>(record, 0) == tribe && Read<std::uint32_t>(record, 4) == type) return record;
+            void* record = records + index * NC2Layout::RecordSize::StaticAnimalVehicleGraphicsUnsigned;
+            if (Read<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::Tribe) == tribe && Read<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::Type) == type) return record;
         }
         return nullptr;
     }
     // Original function: FUN_0048d0ce; JobGraphics_Vehicles_GetDataPtr.
     static void* StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(std::uint32_t tribe, std::uint32_t type)
     {
-        auto* records = Read<std::byte*>(gStaticMapMoveableData, 0x1C);
-        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, 0x18); ++index)
+        auto* records = Read<std::byte*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::VehicleGraphics);
+        for (std::uint32_t index = 0; index < Read<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::VehicleGraphicsCount); ++index)
         {
-            void* record = records + index * 0x28u;
-            if (Read<std::uint32_t>(record, 0) == tribe && Read<std::uint32_t>(record, 4) == type) return record;
+            void* record = records + index * NC2Layout::RecordSize::StaticAnimalVehicleGraphicsUnsigned;
+            if (Read<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::Tribe) == tribe && Read<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::Type) == type) return record;
         }
         return nullptr;
     }
@@ -865,12 +866,12 @@ namespace NC2E2
         std::memset(entry, 0, NC2Layout::RecordSize::DynamicAnimalVehicle);
         if (void* graphics = StaticMapMoveables_JobGraphics_Vehicles_GetDataPtr(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::TribeType), Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType)))
         {
-            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<std::uint32_t>(graphics, 8));
-            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<std::uint32_t>(graphics, 12));
-            if (Read<std::uint32_t>(graphics, 0x10) != 0)
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::BodyBobManager));
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::ShadowBobManager));
+            if (Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount) != 0)
             {
-                const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, 0x10);
-                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
+                const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount);
+                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + variant * 4u));
             }
         }
         Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);
@@ -896,12 +897,12 @@ namespace NC2E2
         std::memset(entry, 0, NC2Layout::RecordSize::DynamicAnimalVehicle);
         if (void* graphics = StaticMapMoveables_JobGraphics_Animals_GetDataPtr(Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::TribeType), Read<std::uint32_t>(animal, NC2Layout::AnimalOffset::AnimalType)))
         {
-            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<std::uint32_t>(graphics, 8));
-            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<std::uint32_t>(graphics, 12));
-            if (Read<std::uint32_t>(graphics, 0x10) != 0)
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobManager, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::BodyBobManager));
+            Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::ShadowBobManager, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::ShadowBobManager));
+            if (Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount) != 0)
             {
-                const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, 0x10);
-                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, 0x14 + variant * 4u));
+                const std::uint32_t variant = NC2Logic::Logic_EntryPoint_Random_GetNumber() % Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount);
+                Write<std::uint32_t>(entry, NC2Layout::DynamicAnimalVehicleOffset::PaletteId, Read<std::uint32_t>(graphics, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + variant * 4u));
             }
         }
         Write<std::uint32_t>(entry, NC2Layout::DisplayAtomInformationOffset::BodyBobId, NXBasics::IntegerRange::UInt32Maximum);

@@ -6,7 +6,67 @@
 namespace NC2E2
 {
     struct SStaticMoveableAnimationListTag {};
-    struct SStaticMoveableShadowListTag {};
+    struct SStaticMoveableWalkListTag {};
+
+    template<class Tag> struct SFastMoveableJobAccess
+    {
+        std::uint32_t count;
+        NC2Lifetime::CRuntimeOwnedList<Tag> entries;
+    };
+
+    template<class Tag> struct SFastMoveableTribeAccess
+    {
+        std::uint32_t count;
+        SFastMoveableJobAccess<Tag> jobs[NC2Runtime::FastMoveableAccessLimits::JobSlots];
+    };
+
+    template<class Tag> struct SFastMoveableDataAccess
+    {
+        SFastMoveableTribeAccess<Tag> tribes[NC2Runtime::FastMoveableAccessLimits::TribeSlots];
+    };
+
+    using SFastAnimationDataAccess = SFastMoveableDataAccess<SStaticMoveableAnimationListTag>;
+    using SFastWalkDataAccess = SFastMoveableDataAccess<SStaticMoveableWalkListTag>;
+
+    struct SStaticMoveableManagerData
+    {
+        std::uint32_t sequenceLibraryCount;
+        void* sequenceLibraries;
+        SFastAnimationDataAccess animations;
+        SFastWalkDataAccess walks;
+    };
+
+    struct SStaticAnimalVehicleGraphics
+    {
+        std::uint32_t tribe;
+        std::uint32_t type;
+        void* bodyBobManager;
+        void* shadowBobManager;
+        std::uint32_t paletteCount;
+        std::int32_t paletteIds[5];
+    };
+
+    struct SStaticMoveableData
+    {
+        std::uint32_t animationCount;
+        void* animations;
+        std::uint32_t walkCount;
+        void* walks;
+        std::uint32_t animalGraphicsCount;
+        SStaticAnimalVehicleGraphics* animalGraphics;
+        std::uint32_t vehicleGraphicsCount;
+        SStaticAnimalVehicleGraphics* vehicleGraphics;
+    };
+
+    static_assert(sizeof(SFastMoveableJobAccess<SStaticMoveableAnimationListTag>) == 0x18);
+    static_assert(sizeof(SFastMoveableTribeAccess<SStaticMoveableAnimationListTag>) == 0x544);
+    static_assert(sizeof(SFastAnimationDataAccess) == 0xDD28);
+    static_assert(sizeof(SFastWalkDataAccess) == 0xDD28);
+    static_assert(sizeof(SStaticMoveableManagerData) == 113240);
+    static_assert(offsetof(SStaticMoveableManagerData, animations) == 8);
+    static_assert(offsetof(SStaticMoveableManagerData, walks) == 0xDD30);
+    static_assert(sizeof(SStaticAnimalVehicleGraphics) == 40);
+    static_assert(sizeof(SStaticMoveableData) == 32);
 
     struct SMapMoveableFrameList
     {

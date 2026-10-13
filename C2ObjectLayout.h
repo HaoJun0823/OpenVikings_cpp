@@ -97,6 +97,75 @@ namespace NC2Layout
         inline constexpr auto SelectedFlag = 0xCC;
     }
 
+    namespace StaticMoveableDataOffset
+    {
+        inline constexpr auto AnimationCount = 0;
+        inline constexpr auto Animations = 4;
+        inline constexpr auto WalkCount = 8;
+        inline constexpr auto Walks = 12;
+        inline constexpr auto AnimalGraphicsCount = 0x10;
+        inline constexpr auto AnimalGraphics = 0x14;
+        inline constexpr auto VehicleGraphicsCount = 0x18;
+        inline constexpr auto VehicleGraphics = 0x1C;
+    }
+
+    namespace StaticMoveableManagerOffset
+    {
+        inline constexpr auto SequenceLibraryCount = 0;
+        inline constexpr auto SequenceLibraries = 4;
+        inline constexpr auto AnimationAccess = 8;
+        inline constexpr auto WalkAccess = 0xDD30;
+        inline constexpr auto FirstAnimationList = 0x10;
+        inline constexpr auto FirstWalkList = 0xDD38;
+    }
+
+    namespace FastMoveableTribeOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto Jobs = 4;
+        inline constexpr auto JobsUnsigned = 4u;
+        inline constexpr auto ReverseDestructionEnd = 0xDD2C;
+    }
+
+    namespace StaticMoveableSortOffset
+    {
+        inline constexpr auto ActionOrGood = 8;
+        inline constexpr auto WalkSpeed = 12;
+    }
+
+    namespace FastMoveableJobOffset
+    {
+        inline constexpr auto Count = 0;
+        inline constexpr auto Entries = 4;
+    }
+
+    namespace StaticAnimalVehicleGraphicsOffset
+    {
+        inline constexpr auto Tribe = 0;
+        inline constexpr auto Type = 4;
+        inline constexpr auto BodyBobManager = 8;
+        inline constexpr auto ShadowBobManager = 12;
+        inline constexpr auto PaletteCount = 0x10;
+        inline constexpr auto PaletteIds = 0x14;
+    }
+
+    namespace StaticMoveableAnimationOffset
+    {
+        inline constexpr auto DirectionFrames = 0x24;
+        inline constexpr auto Mode = 0x10;
+        inline constexpr auto PartArray = 0x18;
+        inline constexpr auto FrameArray = 0x20;
+        inline constexpr auto DirectionFramePointers = 0x28;
+    }
+
+    namespace StaticMoveableWalkOffset
+    {
+        inline constexpr auto WalkFrames = 0x18;
+        inline constexpr auto TurnFrames = 0x58;
+        inline constexpr auto WalkFramePointers = 0x1C;
+        inline constexpr auto TurnFramePointers = 0x5C;
+    }
+
     namespace EngineDisplayOffset
     {
         inline constexpr auto DestinationBitmap = 0x64;
@@ -510,6 +579,18 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto StaticMoveableManager = 113240;
+        inline constexpr auto StaticMoveableData = 32;
+        inline constexpr auto FastMoveableTribeUnsigned = 0x544u;
+        inline constexpr auto FastMoveableTribe = 0x544;
+        inline constexpr auto FastMoveableJobUnsigned = 0x18u;
+        inline constexpr auto FastMoveableJob = 0x18;
+        inline constexpr auto StaticMoveableAnimation = 0x64;
+        inline constexpr auto StaticMoveableWalk = 0x98;
+        inline constexpr auto FrameList = 8;
+        inline constexpr auto StaticAnimalVehicleGraphics = 0x28;
+        inline constexpr auto StaticAnimalVehicleGraphicsUnsigned = 0x28u;
+
         inline constexpr auto StaticGoodGraphics = 264;
         inline constexpr auto StaticGoodGraphicsHex = 0x108;
         inline constexpr auto HumanJobBaseGraphics = 0xBC;

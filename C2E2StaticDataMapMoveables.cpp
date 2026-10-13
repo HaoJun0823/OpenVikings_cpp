@@ -47,7 +47,7 @@ namespace NC2E2
         using NC2Lifetime::Read;
         using NC2Lifetime::Write;
         using AnimationList = NC2Lifetime::CRuntimeOwnedList<SStaticMoveableAnimationListTag>;
-        using WalkList = NC2Lifetime::CRuntimeOwnedList<SStaticMoveableShadowListTag>;
+        using WalkList = NC2Lifetime::CRuntimeOwnedList<SStaticMoveableWalkListTag>;
 
         // Complete Windows token tables 004F4858..004F495F and 00506708..00506727.
         constexpr NXBasics::SToken gSequenceTokens[] = {{"imagelib", SwitchIds::AnimationSequenceToken::Imagelib}, {"shadowlib", SwitchIds::AnimationSequenceToken::Shadowlib}, {"seq", NC2DataIds::MapMoveablesToken::Seq}, {nullptr, 0}};
@@ -70,30 +70,30 @@ namespace NC2E2
         // Original function: FUN_0048cce2; the preceding count is not initialized here.
         void* StaticMoveableAnimation_Construct(void* group)
         {
-            ::new (static_cast<std::byte*>(group) + 4) AnimationList(false);
+            ::new (static_cast<std::byte*>(group) + NC2Layout::FastMoveableJobOffset::Entries) AnimationList(false);
             return group;
         }
         // Original function: FUN_0048ccfd.
-        void* StaticMoveableShadow_Construct(void* group)
+        void* StaticMoveableWalk_Construct(void* group)
         {
-            ::new (static_cast<std::byte*>(group) + 4) WalkList(false);
+            ::new (static_cast<std::byte*>(group) + NC2Layout::FastMoveableJobOffset::Entries) WalkList(false);
             return group;
         }
 
         // Original function: FUN_0048cc90; SFastAnimationDataAccess constructor.
         void FastAnimationDataAccess_Construct(void* groups)
         {
-            for (std::uint32_t tribe = 0; tribe < 42; ++tribe)
-                for (std::uint32_t job = 0; job < 56; ++job)
-                    StaticMoveableAnimation_Construct(static_cast<std::byte*>(groups) + 4 + tribe * 0x544u + job * 0x18u);
+            for (std::uint32_t tribe = 0; tribe < NC2Runtime::FastMoveableAccessLimits::TribeSlots; ++tribe)
+                for (std::uint32_t job = 0; job < NC2Runtime::FastMoveableAccessLimits::JobSlots; ++job)
+                    StaticMoveableAnimation_Construct(static_cast<std::byte*>(groups) + NC2Layout::FastMoveableTribeOffset::Jobs + tribe * NC2Layout::RecordSize::FastMoveableTribeUnsigned + job * NC2Layout::RecordSize::FastMoveableJobUnsigned);
         }
 
         // Original function: FUN_0048ccb9; SFastWalkDataAccess constructor.
         void FastWalkDataAccess_Construct(void* groups)
         {
-            for (std::uint32_t tribe = 0; tribe < 42; ++tribe)
-                for (std::uint32_t job = 0; job < 56; ++job)
-                    StaticMoveableShadow_Construct(static_cast<std::byte*>(groups) + 4 + tribe * 0x544u + job * 0x18u);
+            for (std::uint32_t tribe = 0; tribe < NC2Runtime::FastMoveableAccessLimits::TribeSlots; ++tribe)
+                for (std::uint32_t job = 0; job < NC2Runtime::FastMoveableAccessLimits::JobSlots; ++job)
+                    StaticMoveableWalk_Construct(static_cast<std::byte*>(groups) + NC2Layout::FastMoveableTribeOffset::Jobs + tribe * NC2Layout::RecordSize::FastMoveableTribeUnsigned + job * NC2Layout::RecordSize::FastMoveableJobUnsigned);
         }
 
         template<class T> T* Allocate(std::uint32_t count)
@@ -119,28 +119,32 @@ namespace NC2E2
         // Original function: FUN_0048cea1; l_Generation_SearchBobSequence.
         std::int32_t SearchBobSequence(const void* manager, const char* name)
         {
-            const auto* libraries = Read<SSequenceLibrary*>(manager, 4);
-            for (std::uint32_t library = 0; library < Read<std::uint32_t>(manager, 0); ++library)
+            const auto* libraries = Read<SSequenceLibrary*>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraries);
+            for (std::uint32_t library = 0; library < Read<std::uint32_t>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraryCount); ++library)
                 for (std::uint32_t index = 0; index < libraries[library].count; ++index)
                     if (std::strcmp(libraries[library].sequences[index].name, name) == 0) return libraries[library].sequences[index].firstBob;
             return -1;
         }
 
-        template<class T> void InsertSorted(void* manager, std::uint32_t base, T* record, bool walk)
+        template<class T> void InsertSorted(void* manager, std::uint32_t base, T* record, bool sortByWalkSpeed)
         {
-            const auto tribeOffset = record->tribe * 0x544u;
+            const auto tribeOffset = record->tribe * NC2Layout::RecordSize::FastMoveableTribeUnsigned;
             Write(manager, base + tribeOffset, Read<std::uint32_t>(manager, base + tribeOffset) + 1u);
-            const auto slot = base + tribeOffset + 4u + record->job * 0x18u;
+            const auto slot = base + tribeOffset + NC2Layout::FastMoveableTribeOffset::JobsUnsigned + record->job * NC2Layout::RecordSize::FastMoveableJobUnsigned;
             Write(manager, slot, Read<std::uint32_t>(manager, slot) + 1u);
-            auto* list = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + slot + 4);
-            if (list->GetCount() == 0) { list->InsertAtStart(record); return; }
+            auto* list = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + slot + NC2Layout::FastMoveableJobOffset::Entries);
+            if (list->GetCount() == 0)
+            {
+                list->InsertAtStart(record);
+                return;
+            }
             NXBasics::CListBase::Iterator iterator(*list);
             void* position = iterator.First();
-            const auto key = Read<std::uint32_t>(record, 8);
+            const auto key = Read<std::uint32_t>(record, NC2Layout::StaticMoveableSortOffset::ActionOrGood);
             while (position != nullptr)
             {
-                const auto previous = Read<std::uint32_t>(position, 8);
-                if (NXBasics::Runtime_TimeSigned32(previous) > NXBasics::Runtime_TimeSigned32(key) || (walk && previous == key && Read<std::uint32_t>(position, 12) > Read<std::uint32_t>(record, 12))) break;
+                const auto previous = Read<std::uint32_t>(position, NC2Layout::StaticMoveableSortOffset::ActionOrGood);
+                if (NXBasics::Runtime_TimeSigned32(previous) > NXBasics::Runtime_TimeSigned32(key) || (sortByWalkSpeed && previous == key && Read<std::uint32_t>(position, NC2Layout::StaticMoveableSortOffset::WalkSpeed) > Read<std::uint32_t>(record, NC2Layout::StaticMoveableSortOffset::WalkSpeed))) break;
                 position = iterator.Next();
             }
             if (position != nullptr) list->InsertBefore(position, record);
@@ -153,26 +157,26 @@ namespace NC2E2
             const auto count = reader.GetNumberOfGroups("jobgraphics");
             Write(gStaticMapMoveableData, countOffset, count);
             if (count == 0) return;
-            auto* records = AllocateCleared<std::byte>(count * 0x28u);
+            auto* records = AllocateCleared<std::byte>(count * NC2Layout::RecordSize::StaticAnimalVehicleGraphicsUnsigned);
             Write(gStaticMapMoveableData, countOffset + 4, records);
             auto* record = records;
-            for (char* group = reader.GetFirstGroup("jobgraphics"); group != nullptr; group = reader.GetNextGroup("jobgraphics"), record += 0x28)
+            for (char* group = reader.GetFirstGroup("jobgraphics"); group != nullptr; group = reader.GetNextGroup("jobgraphics"), record += NC2Layout::RecordSize::StaticAnimalVehicleGraphics)
                 while (reader.GetNextCommandLineInGroup() != nullptr)
                     switch ((tokens == gAnimalJobTokens ? GetLazyTokenList<AnimalJobTokenList_AtExit>(tokens) : GetLazyTokenList<VehicleJobTokenList_AtExit>(tokens)).FindToken(reader.GetCurrentName()))
                     {
-                    case SwitchIds::AnimalVehicleJobToken::LogicTribe: Write<std::uint32_t>(record, 0, static_cast<std::uint32_t>(reader.GetInt())); break;
+                    case SwitchIds::AnimalVehicleJobToken::LogicTribe: Write<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::Tribe, static_cast<std::uint32_t>(reader.GetInt())); break;
                     case SwitchIds::AnimalVehicleJobToken::LogicJob:
-                    case SwitchIds::AnimalVehicleJobToken::LogicVehicle: Write<std::uint32_t>(record, 4, static_cast<std::uint32_t>(reader.GetInt())); break;
+                    case SwitchIds::AnimalVehicleJobToken::LogicVehicle: Write<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::Type, static_cast<std::uint32_t>(reader.GetInt())); break;
                     case SwitchIds::AnimalVehicleJobToken::Gfxbobmanagerbody:
-                        Write(record, 8, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
-                        Write(record, 12, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                        Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::BodyBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
+                        Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::ShadowBobManager, E2StaticDataBobManagersManager_GetBobManagerPtr(gE2StaticDataBobManagersManager, nullptr, reader.GetString()));
                         break;
                     case SwitchIds::AnimalVehicleJobToken::GfxPaletteBody:
                     {
-                        const auto used = Read<std::uint32_t>(record, 0x10);
+                        const auto used = Read<std::uint32_t>(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount);
                         if (used == 5) break;
-                        Write(record, 0x14 + used * 4u, E2StaticDataPalettesManager_GetPalette256Id(reader.GetString()));
-                        Write(record, 0x10, used + 1u);
+                        Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteIds + used * 4u, E2StaticDataPalettesManager_GetPalette256Id(reader.GetString()));
+                        Write(record, NC2Layout::StaticAnimalVehicleGraphicsOffset::PaletteCount, used + 1u);
                         break;
                     }
                     }
@@ -185,21 +189,21 @@ namespace NC2E2
         using NC2Lifetime::Read;
         using NC2Lifetime::Write;
         // Original constructors 0048CC90/0048CCB9 precede the complete manager clear.
-        FastAnimationDataAccess_Construct(static_cast<std::byte*>(manager) + 8);
-        FastWalkDataAccess_Construct(static_cast<std::byte*>(manager) + 0xDD30);
+        FastAnimationDataAccess_Construct(static_cast<std::byte*>(manager) + NC2Layout::StaticMoveableManagerOffset::AnimationAccess);
+        FastWalkDataAccess_Construct(static_cast<std::byte*>(manager) + NC2Layout::StaticMoveableManagerOffset::WalkAccess);
         gE2StaticDataMapMoveablesManager = manager;
-        std::memset(manager, 0, 113240);
-        std::memset(gStaticMapMoveableData, 0, 32);
+        std::memset(manager, 0, NC2Layout::RecordSize::StaticMoveableManager);
+        std::memset(gStaticMapMoveableData, 0, NC2Layout::RecordSize::StaticMoveableData);
         {
             NXBasics::CIniFileReader reader("data\\engine2d\\inis\\mapmoveableanimations\\animations.ini", nullptr, false, nullptr, nullptr);
             if (reader.IsLoaded())
             {
                 const auto libraryCount = reader.GetNumberOfGroups("bobseq");
-                Write(manager, 0, libraryCount);
+                Write(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraryCount, libraryCount);
                 if (libraryCount != 0)
                 {
                     auto* libraries = AllocateCleared<SSequenceLibrary>(libraryCount);
-                    Write(manager, 4, libraries);
+                    Write(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraries, libraries);
                     auto* library = libraries;
                     for (char* group = reader.GetFirstGroup("bobseq"); group != nullptr; group = reader.GetNextGroup("bobseq"), ++library)
                     {
@@ -221,11 +225,11 @@ namespace NC2E2
                 }
 
                 const auto animationCount = reader.GetNumberOfGroups("gfxanimatomic");
-                Write(gStaticMapMoveableData, 0, animationCount);
+                Write(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimationCount, animationCount);
                 if (animationCount != 0)
                 {
                     auto* animations = AllocateCleared<SE2StaticDataMapMoveableAnimationData>(animationCount);
-                    Write(gStaticMapMoveableData, 4, animations);
+                    Write(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations, animations);
                     auto* animation = animations;
                     for (char* group = reader.GetFirstGroup("gfxanimatomic"); group != nullptr; group = reader.GetNextGroup("gfxanimatomic"), ++animation)
                     {
@@ -325,21 +329,21 @@ namespace NC2E2
                             std::memcpy(data, parts, partCount * NC2Layout::RecordSize::MoveableAnimationPartUnsigned);
                             animation->headSequenceOrPartAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(data));
                         }
-                        if (animation->inHouseSubId == 0) InsertSorted(manager, 8, animation, false);
+                        if (animation->inHouseSubId == 0) InsertSorted(manager, NC2Layout::StaticMoveableManagerOffset::AnimationAccess, animation, false);
                     }
                 }
 
                 const auto walkCount = reader.GetNumberOfGroups("gfxwalkatomic");
-                Write(gStaticMapMoveableData, 8, walkCount);
+                Write(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::WalkCount, walkCount);
                 if (walkCount != 0)
                 {
                     auto* walks = AllocateCleared<SE2StaticDataMapMoveableWalkData>(walkCount);
-                    Write(gStaticMapMoveableData, 12, walks);
+                    Write(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Walks, walks);
                     auto* walk = walks;
                     for (char* group = reader.GetFirstGroup("gfxwalkatomic"); group != nullptr; group = reader.GetNextGroup("gfxwalkatomic"), ++walk)
                     {
                         walk->walkSpeed = 100000; walk->bodySequence = 0; walk->headSequence = -1;
-                        std::uint32_t walkFrames[8][200], turnFrames[8][200], walkCounts[8]{}, turnCounts[8]{};
+                        std::uint32_t walkFrames[8][NC2Runtime::FastMoveableAccessLimits::FramesPerWalkList], turnFrames[8][NC2Runtime::FastMoveableAccessLimits::FramesPerWalkList], walkCounts[8]{}, turnCounts[8]{};
                         while (reader.GetNextCommandLineInGroup() != nullptr)
                         {
                             const auto token = GetLazyTokenList<WalkTokenList_AtExit>(gWalkTokens).FindToken(reader.GetCurrentName());
@@ -357,28 +361,28 @@ namespace NC2E2
                                 const auto direction = static_cast<std::uint32_t>(reader.GetInt());
                                 auto& count = token == SwitchIds::HumanAnimationToken::GfxAnimFrameList ? walkCounts[direction] : turnCounts[direction];
                                 auto* output = token == SwitchIds::HumanAnimationToken::GfxAnimFrameList ? walkFrames[direction] : turnFrames[direction];
-                                while (reader.GetTypeOfNextParameter() == 3 && count != 200) output[count++] = static_cast<std::uint32_t>(reader.GetInt());
+                                while (reader.GetTypeOfNextParameter() == 3 && count != NC2Runtime::FastMoveableAccessLimits::FramesPerWalkList) output[count++] = static_cast<std::uint32_t>(reader.GetInt());
                                 break;
                             }
                             }
                         }
                         for (std::uint32_t direction = 0; direction < 8; ++direction) { CopyFrames(walk->walkFrames[direction], walkFrames[direction], walkCounts[direction]); CopyFrames(walk->turnFrames[direction], turnFrames[direction], turnCounts[direction]); }
-                        InsertSorted(manager, 0xDD30, walk, true);
+                        InsertSorted(manager, NC2Layout::StaticMoveableManagerOffset::WalkAccess, walk, true);
                     }
                 }
-                const auto* libraries = Read<SSequenceLibrary*>(manager, 4);
-                for (std::uint32_t library = 0; library < Read<std::uint32_t>(manager, 0); ++library) NXBasics::Runtime_Free(libraries[library].sequences);
-                NXBasics::Runtime_Free(Read<void*>(manager, 4));
-                Write<std::uint32_t>(manager, 0, 0); Write<void*>(manager, 4, nullptr);
+                const auto* libraries = Read<SSequenceLibrary*>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraries);
+                for (std::uint32_t library = 0; library < Read<std::uint32_t>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraryCount); ++library) NXBasics::Runtime_Free(libraries[library].sequences);
+                NXBasics::Runtime_Free(Read<void*>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraries));
+                Write<std::uint32_t>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraryCount, 0); Write<void*>(manager, NC2Layout::StaticMoveableManagerOffset::SequenceLibraries, nullptr);
             }
         }
         {
             NXBasics::CIniFileReader reader("data\\engine2d\\inis\\animals\\jobgraphics.ini", nullptr, false, nullptr, nullptr);
-            LoadJobGraphics(reader, 0x10, gAnimalJobTokens);
+            LoadJobGraphics(reader, NC2Layout::StaticMoveableDataOffset::AnimalGraphicsCount, gAnimalJobTokens);
         }
         {
             NXBasics::CIniFileReader reader("data\\engine2d\\inis\\vehicles\\jobgraphics.ini", nullptr, false, nullptr, nullptr);
-            LoadJobGraphics(reader, 0x18, gVehicleJobTokens);
+            LoadJobGraphics(reader, NC2Layout::StaticMoveableDataOffset::VehicleGraphicsCount, gVehicleJobTokens);
         }
         return manager;
     }
@@ -388,29 +392,40 @@ namespace NC2E2
     {
         if (inHouseSubId != 0)
         {
-            const auto* entries = NC2Lifetime::Read<SE2StaticDataMapMoveableAnimationData*>(gStaticMapMoveableData, 4);
-            for (std::uint32_t index = 0; index < NC2Lifetime::Read<std::uint32_t>(gStaticMapMoveableData, 0); ++index)
+            const auto* entries = NC2Lifetime::Read<SE2StaticDataMapMoveableAnimationData*>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::Animations);
+            for (std::uint32_t index = 0; index < NC2Lifetime::Read<std::uint32_t>(gStaticMapMoveableData, NC2Layout::StaticMoveableDataOffset::AnimationCount); ++index)
                 if (entries[index].tribe == tribe && entries[index].job == job && entries[index].action == action && entries[index].inHouseSubId == inHouseSubId) return entries + index;
             return nullptr;
         }
-        auto* list = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + tribe * 0x544u + job * 0x18u + 0x10);
+        auto* list = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + tribe * NC2Layout::RecordSize::FastMoveableTribeUnsigned + job * NC2Layout::RecordSize::FastMoveableJobUnsigned + NC2Layout::StaticMoveableManagerOffset::FirstAnimationList);
         NXBasics::CListBase::Iterator iterator(*list);
         auto* record = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.First());
         while (record != nullptr && record->action != action) record = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.Next());
         if (record == nullptr) return nullptr;
-        const SE2StaticDataMapMoveableAnimationData* choices[10]{record};
+        const SE2StaticDataMapMoveableAnimationData* choices[NC2Runtime::FastMoveableAccessLimits::RandomAnimationChoices]{record};
         auto* next = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.Next());
         if (next == nullptr || next->action != action) return record;
         std::uint32_t count = 1;
-        do { choices[count++] = next; if (count == 10) break; next = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.Next()); } while (next != nullptr && next->action == action);
-        if (!gAnimationSelectionRandomInitialized) { gAnimationSelectionRandomInitialized = true; gAnimationSelectionRandom.currentState = NC2Runtime::RandomSeed::DisplayEffects; gAnimationSelectionRandom.seed = NC2Runtime::RandomSeed::DisplayEffects; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AnimationSelectionRandom_AtExit)); }
+        do
+        {
+            choices[count++] = next;
+            if (count == NC2Runtime::FastMoveableAccessLimits::RandomAnimationChoices) break;
+            next = static_cast<const SE2StaticDataMapMoveableAnimationData*>(iterator.Next());
+        } while (next != nullptr && next->action == action);
+        if (!gAnimationSelectionRandomInitialized)
+        {
+            gAnimationSelectionRandomInitialized = true;
+            gAnimationSelectionRandom.currentState = NC2Runtime::RandomSeed::DisplayEffects;
+            gAnimationSelectionRandom.seed = NC2Runtime::RandomSeed::DisplayEffects;
+            NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(AnimationSelectionRandom_AtExit));
+        }
         return choices[NC2Logic::Random_Get(gAnimationSelectionRandom) % count];
     }
 
     // Original function: FUN_0048d027; first matching good with sufficient walk speed.
     const SE2StaticDataMapMoveableWalkData* StaticMapMoveables_GetWalkDataPtr(void* manager, std::uint32_t tribe, std::uint32_t job, std::uint32_t good, std::uint32_t walkSpeed)
     {
-        auto* list = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + tribe * 0x544u + job * 0x18u + 0xDD38);
+        auto* list = reinterpret_cast<NXBasics::CListBase*>(static_cast<std::byte*>(manager) + tribe * NC2Layout::RecordSize::FastMoveableTribeUnsigned + job * NC2Layout::RecordSize::FastMoveableJobUnsigned + NC2Layout::StaticMoveableManagerOffset::FirstWalkList);
         NXBasics::CListBase::Iterator iterator(*list);
         auto* record = static_cast<const SE2StaticDataMapMoveableWalkData*>(iterator.First());
         while (record != nullptr && record->good != good) record = static_cast<const SE2StaticDataMapMoveableWalkData*>(iterator.Next());

@@ -2898,10 +2898,10 @@
 0048CC8E,NC2E2::AnimationTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
 0048CC8F,NC2E2::SequenceTokenList_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
 0048CCE2,NC2E2::StaticMoveableAnimation_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
-0048CCFD,NC2E2::StaticMoveableShadow_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048CCFD,NC2E2::StaticMoveableWalk_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
 0048D026,NC2E2::AnimationSelectionRandom_AtExit,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
 0048D15C,NC2E2::StaticMoveableAnimationList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
-0048D178,NC2E2::StaticMoveableShadowList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
+0048D178,NC2E2::StaticMoveableWalkList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
 0048DB89,NC2E2::StaticTransition_Construct,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
 0048F73E,NC2E2::StaticDataHouses_GetNextHouseId,NC2E2::CE2StaticDataHousesManager::GetNextHouseId,74169,Windows ASM/Game.exe establish behavior and correspondence; Mac supplies names only
 0049059D,NC2E2::StaticTextureList_Delete,,,Windows ASM/Game.exe and owning caller establish semantic role; no standalone Mac symbol established
