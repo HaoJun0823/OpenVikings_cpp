@@ -256,9 +256,9 @@ namespace NC2Logic
         Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::AttachmentTarget, 0);
         Write(animal, NC2Layout::AnimalOffset::PlayerId, player);
         void* path = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
-        Write<std::uint32_t>(path, 0x24, NXBasics::IntegerRange::UInt32Maximum);
-        Write<std::uint32_t>(path, 0x1C, NXBasics::IntegerRange::UInt32Maximum);
-        Write(path, 0x2C, player);
+        Write<std::uint32_t>(path, NC2Layout::MapPathfinderOffset::CurrentGuideId, NXBasics::IntegerRange::UInt32Maximum);
+        Write<std::uint32_t>(path, NC2Layout::MapPathfinderOffset::SourceGuideId, NXBasics::IntegerRange::UInt32Maximum);
+        Write(path, NC2Layout::MapPathfinderOffset::PlayerId, player);
         MapMoveable_Attachment_AttachToSectorMap(moveable);
         Animal_l_DetachLeader(animal);
     }

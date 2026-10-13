@@ -35,4 +35,29 @@ namespace NC2Runtime
         inline constexpr auto Failed = -1;
     }
 
+    namespace PathfinderCalculationValue
+    {
+        inline constexpr auto BlockedStartAreaFlag = 0x200;
+        inline constexpr auto DirectionMaskBase = 0x400u;
+    }
+
+    namespace PathfinderSearchState
+    {
+        inline constexpr auto Stopped = 0;
+        inline constexpr auto SearchRequired = 1;
+        inline constexpr auto SearchRequiredUnsigned = 1u;
+        inline constexpr auto RouteAvailable = 2;
+        inline constexpr auto RouteAvailableUnsigned = 2u;
+        inline constexpr auto Arrived = 3;
+        inline constexpr auto ArrivedUnsigned = 3u;
+    }
+
+    namespace PathfinderTargetMode
+    {
+        inline constexpr auto Position = 1;
+        inline constexpr auto PositionUnsigned = 1u;
+        inline constexpr auto Moveable = 2;
+        inline constexpr auto MoveableUnsigned = 2u;
+    }
+
 }

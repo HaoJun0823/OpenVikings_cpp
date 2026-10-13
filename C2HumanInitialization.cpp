@@ -89,9 +89,9 @@ namespace NC2Logic
         }
         Human_SetPlayerIdAndResetCapabilities(human, player);
         void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
-        Write<std::int32_t>(pathfinder, 0x24, -1);
-        Write<std::int32_t>(pathfinder, 0x1C, -1);
-        Write(pathfinder, 0x2C, player);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
+        Write(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId, player);
         if (wasAttached)
         {
             MapMoveable_Attachment_AttachToMap(moveable, &point);
@@ -494,11 +494,11 @@ namespace NC2Logic
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, 8);
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, 1250);
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection, 1);
-        Write<std::uint8_t>(pathfinder, 0x16, 1);
+        Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllowVerticalDirectionsFlag, 1);
         Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag, 1);
-        Write<std::int32_t>(pathfinder, 0x24, -1);
-        Write<std::int32_t>(pathfinder, 0x1C, -1);
-        Write<std::uint32_t>(pathfinder, 0x2C, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
+        Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         if (Human_WorkCenterMarker_IsVisible(human)) Human_WorkCenterMarker_Create(human);
         GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), point, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ExplorationRadius));
         Human_l_StartAtomicAnimation(human, 2, -1);

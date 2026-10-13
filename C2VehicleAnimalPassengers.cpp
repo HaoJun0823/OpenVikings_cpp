@@ -80,7 +80,7 @@ namespace NC2Logic
         Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::JobType, type >= 1 && type <= 6 ? static_cast<std::uint32_t>(type) + 49u : 0u);
         const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         auto* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
-        Write(pathfinder, 0x10, Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
+        Write(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance, Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
         CCallbackManager::sTheObjectPtr->ExecuteCallback(8, true, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::VehicleId), 1, 0);
         return true;
     }

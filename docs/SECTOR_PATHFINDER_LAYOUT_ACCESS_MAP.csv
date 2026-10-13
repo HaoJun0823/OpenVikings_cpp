@@ -1,0 +1,67 @@
+Source,StagedLine,Receiver,PreviousLiteral,Replacement,Evidence
+C2MapPathfinderSectorSearch.cpp,25,pathfinder,4,NC2Layout::SectorPathfinderOffset::SearchRadius,Init default 5; Start radius and route budgets
+C2MapPathfinderSectorSearch.cpp,31,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,32,pathfinder,0x20,NC2Layout::SectorPathfinderOffset::CurrentPosition,Start copies source; extracted directions advance it
+C2MapPathfinderSectorSearch.cpp,33,pathfinder,0x24,NC2Layout::SectorPathfinderOffset::DestinationPosition,Start copies destination
+C2MapPathfinderSectorSearch.cpp,34,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,35,pathfinder,4,NC2Layout::SectorPathfinderOffset::SearchRadius,Init default 5; Start radius and route budgets
+C2MapPathfinderSectorSearch.cpp,36,pathfinder,0x0C,NC2Layout::SectorPathfinderOffset::UseResistanceFlag,Start stores weighted-search policy
+C2MapPathfinderSectorSearch.cpp,43,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,45,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,48,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,51,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,53,pathfinder,4,NC2Layout::SectorPathfinderOffset::SearchRadius,Init default 5; Start radius and route budgets
+C2MapPathfinderSectorSearch.cpp,54,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,56,pathfinder,0x30,NC2Layout::SectorPathfinderOffset::DirectionRunIndex,GetNextDirection consumes the current run
+C2MapPathfinderSectorSearch.cpp,57,pathfinder,0x39,NC2Layout::SectorPathfinderOffset::DirectionRunCounts,Interleaved remaining count byte
+C2MapPathfinderSectorSearch.cpp,57,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,59,pathfinder,4,NC2Layout::SectorPathfinderOffset::SearchRadius,Init default 5; Start radius and route budgets
+C2MapPathfinderSectorSearch.cpp,60,pathfinder,0x30,NC2Layout::SectorPathfinderOffset::DirectionRunIndex,GetNextDirection consumes the current run
+C2MapPathfinderSectorSearch.cpp,62,pathfinder,0x38,NC2Layout::SectorPathfinderOffset::DirectionRuns,Twenty direction/count byte pairs
+C2MapPathfinderSectorSearch.cpp,63,pathfinder,0x39,NC2Layout::SectorPathfinderOffset::DirectionRunCounts,Interleaved remaining count byte
+C2MapPathfinderSectorSearch.cpp,64,pathfinder,0x39,NC2Layout::SectorPathfinderOffset::DirectionRunCounts,Interleaved remaining count byte
+C2MapPathfinderSectorSearch.cpp,65,pathfinder,0x30,NC2Layout::SectorPathfinderOffset::DirectionRunIndex,GetNextDirection consumes the current run
+C2MapPathfinderSectorSearch.cpp,67,pathfinder,0x34,NC2Layout::SectorPathfinderOffset::BlockedAreaSteps,Counted while building; consumed on extraction
+C2MapPathfinderSectorSearch.cpp,68,pathfinder,0x34,NC2Layout::SectorPathfinderOffset::BlockedAreaSteps,Counted while building; consumed on extraction
+C2MapPathfinderSectorSearch.cpp,74,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,84,pathfinder,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,Vehicle footprint space threshold
+C2MapPathfinderSectorSearch.cpp,86,pathfinder,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,Vehicle footprint space threshold
+C2MapPathfinderSectorSearch.cpp,87,pathfinder,0x0C,NC2Layout::SectorPathfinderOffset::UseResistanceFlag,Start stores weighted-search policy
+C2MapPathfinderSectorSearch.cpp,89,pathfinder,0x0C,NC2Layout::SectorPathfinderOffset::UseResistanceFlag,Start stores weighted-search policy
+C2MapPathfinderSectorSearch.cpp,91,pathfinder,0x30,NC2Layout::SectorPathfinderOffset::DirectionRunIndex,GetNextDirection consumes the current run
+C2MapPathfinderSectorSearch.cpp,92,pathfinder,0x34,NC2Layout::SectorPathfinderOffset::BlockedAreaSteps,Counted while building; consumed on extraction
+C2MapPathfinderSectorSearch.cpp,93,pathfinder,0x20,NC2Layout::SectorPathfinderOffset::CurrentPosition,Start copies source; extracted directions advance it
+C2MapPathfinderSectorSearch.cpp,110,pathfinder,0x0D,NC2Layout::SectorPathfinderOffset::AllowVerticalDirectionsFlag,Direction-run generation merges diagonal pairs into directions 6/7
+C2MapPathfinderSectorSearch.cpp,128,pathfinder,0x38,NC2Layout::SectorPathfinderOffset::DirectionRuns,Twenty direction/count byte pairs
+C2MapPathfinderSectorSearch.cpp,129,pathfinder,0x39,NC2Layout::SectorPathfinderOffset::DirectionRunCounts,Interleaved remaining count byte
+C2MapPathfinderSectorSearch.cpp,134,pathfinder,0x34,NC2Layout::SectorPathfinderOffset::BlockedAreaSteps,Counted while building; consumed on extraction
+C2MapPathfinderSectorSearch.cpp,134,pathfinder,0x34,NC2Layout::SectorPathfinderOffset::BlockedAreaSteps,Counted while building; consumed on extraction
+C2MapPathfinderSectorSearch.cpp,137,pathfinder,0x39,NC2Layout::SectorPathfinderOffset::DirectionRunCounts,Interleaved remaining count byte
+C2MapPathfinderSectorSearch.cpp,138,pathfinder,0,NC2Layout::SectorPathfinderOffset::SearchState,Start/GetNextDirection/stop and arrival
+C2MapPathfinderSectorSearch.cpp,186,pathfinder,0x10,NC2Layout::SectorPathfinderOffset::PreferredDirection1,Special workspace preferred-direction geometry
+C2MapPathfinderSectorSearch.cpp,187,pathfinder,0x14,NC2Layout::SectorPathfinderOffset::PreferredDirection2,Special workspace alternative preferred direction
+C2MapPathfinderSectorSearch.cpp,191,pathfinder,0x10,NC2Layout::SectorPathfinderOffset::PreferredDirection1,Special workspace preferred-direction geometry
+C2MapPathfinderSectorSearch.cpp,192,pathfinder,0x14,NC2Layout::SectorPathfinderOffset::PreferredDirection2,Special workspace alternative preferred direction
+C2MapPathfinderSectorSearch.cpp,233,pathfinder,0x10,NC2Layout::SectorPathfinderOffset::PreferredDirection1,Special workspace preferred-direction geometry
+C2MapPathfinderSectorSearch.cpp,233,pathfinder,0x14,NC2Layout::SectorPathfinderOffset::PreferredDirection2,Special workspace alternative preferred direction
+C2MapPathfinderSectorSearch.cpp,264,pathfinder,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,Vehicle footprint space threshold
+C2MapPathfinderSectorSearch.cpp,294,pathfinder,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,Vehicle footprint space threshold
+C2MapPathfinderSectorSearch.cpp,296,pathfinder,0x10,NC2Layout::SectorPathfinderOffset::PreferredDirection1,Special workspace preferred-direction geometry
+C2MapPathfinderSectorSearch.cpp,296,pathfinder,0x14,NC2Layout::SectorPathfinderOffset::PreferredDirection2,Special workspace alternative preferred direction
+C2MapPathfinderSectorSearch.cpp,358,pathfinder,0x10,NC2Layout::SectorPathfinderOffset::PreferredDirection1,Special workspace preferred-direction geometry
+C2MapPathfinderSectorSearch.cpp,358,pathfinder,0x14,NC2Layout::SectorPathfinderOffset::PreferredDirection2,Special workspace alternative preferred direction
+C2MapPathfinderSectorSearch.cpp,389,pathfinder,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,Vehicle footprint space threshold
+C2MapPathfinderSectorSearch.cpp,419,pathfinder,8,NC2Layout::SectorPathfinderOffset::RequiredClearance,Vehicle footprint space threshold
+C2MapPathfinderSectorSearch.cpp,421,pathfinder,0x10,NC2Layout::SectorPathfinderOffset::PreferredDirection1,Special workspace preferred-direction geometry
+C2MapPathfinderSectorSearch.cpp,421,pathfinder,0x14,NC2Layout::SectorPathfinderOffset::PreferredDirection2,Special workspace alternative preferred direction
+C2MapPathfinderSectorSearch.cpp,37,pathfinder,0x28,NC2Layout::SectorPathfinderOffset::SearchRectangle,Rectangle copied by Start; InRectangle compares four signed words
+C2MapPathfinderSectorSearch.cpp,46,pathfinder,0x20,NC2Layout::SectorPathfinderOffset::CurrentPosition,Start copies source; extracted directions advance it
+C2MapPathfinderSectorSearch.cpp,47,pathfinder,0x24,NC2Layout::SectorPathfinderOffset::DestinationPosition,Start copies destination
+C2MapPathfinderSectorSearch.cpp,110,pathfinder,0x24,NC2Layout::SectorPathfinderOffset::DestinationPosition,Start copies destination
+C2MapPathfinderSectorSearch.cpp,200,pathfinder,0x28,NC2Layout::SectorPathfinderOffset::SearchRectangle,Rectangle copied by Start; InRectangle compares four signed words
+C2MapPathfinderSectorSearch.cpp,262,pathfinder,0x28,NC2Layout::SectorPathfinderOffset::SearchRectangle,Rectangle copied by Start; InRectangle compares four signed words
+C2MapPathfinderSectorSearch.cpp,325,pathfinder,0x28,NC2Layout::SectorPathfinderOffset::SearchRectangle,Rectangle copied by Start; InRectangle compares four signed words
+C2MapPathfinderSectorSearch.cpp,387,pathfinder,0x28,NC2Layout::SectorPathfinderOffset::SearchRectangle,Rectangle copied by Start; InRectangle compares four signed words
+C2MapPathfinderSectorSearch.cpp,450,pathfinder,0x20,NC2Layout::SectorPathfinderOffset::CurrentPosition,Start copies source; extracted directions advance it
+C2MapPathfinderSectorSearch.cpp,451,pathfinder,0x24,NC2Layout::SectorPathfinderOffset::DestinationPosition,Start copies destination
+C2MapPathfinderSectorSearch.cpp,452,pathfinder,0x28,NC2Layout::SectorPathfinderOffset::SearchRectangle,Rectangle copied by Start; InRectangle compares four signed words

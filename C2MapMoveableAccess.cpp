@@ -301,7 +301,7 @@ namespace NC2Logic
     void MapPathfinderManager_FreePathfinder(CArrayHandler* manager, std::int32_t id)
     {
         void* pathfinder = GetUnsafePathfinderPtr(id);
-        if (Read<std::uint8_t>(pathfinder, 0) != 0 && manager->Element_Free(id, true)) Write<std::uint8_t>(pathfinder, 0, 0);
+        if (Read<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllocatedFlag) != 0 && manager->Element_Free(id, true)) Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllocatedFlag, 0);
     }
 
     // Original function: FUN_00438e09.
@@ -484,20 +484,20 @@ namespace NC2Logic
     // Original function: FUN_0044186d. No ID or allocation check is performed.
     void* GetUnsafePathfinderPtr(std::int32_t id)
     {
-        return static_cast<std::byte*>(gMapPathfinderEntries) + static_cast<std::uint32_t>(id) * 0x84u;
+        return static_cast<std::byte*>(gMapPathfinderEntries) + static_cast<std::uint32_t>(id) * NC2Layout::RecordSize::MapPathfinder;
     }
 
     // Original function: FUN_00447804.
     void MapPathfinderElement_Init(void* pathfinder)
     {
-        std::memset(pathfinder, 0, 132);
-        Write<std::uint32_t>(pathfinder, 0x10, 0);
-        Write<std::uint32_t>(pathfinder, 4, 0);
-        Write<std::int32_t>(pathfinder, 0x2C, -1);
-        Write<std::int32_t>(pathfinder, 0x1C, -1);
-        Write<std::int32_t>(pathfinder, 0x24, -1);
-        Write<std::uint8_t>(pathfinder, 0, 1);
-        Write<std::uint32_t>(pathfinder, 0x0C, 5);
+        std::memset(pathfinder, 0, NC2Layout::RecordSize::MapPathfinderSigned);
+        Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::RequiredClearance, 0);
+        Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchState, NC2Runtime::PathfinderSearchState::Stopped);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId, -1);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
+        Write<std::uint8_t>(pathfinder, NC2Layout::MapPathfinderOffset::AllocatedFlag, 1);
+        Write<std::uint32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SearchRadius, 5);
     }
 
     // Original function: FUN_0042ea28. Animals update the count before linking neighbours.

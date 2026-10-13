@@ -1,5 +1,9 @@
 # OpenVikings Project State
 
+## Pathfinder layout review - 2026-10-13
+
+Named 240 ordinary/sector pathfinder accesses across nine units, with separate 132-/96-byte records. Policy flags, run records, search states, calculation masks and player statistics now have Windows-supported names. Original special count-read ordering is retained. Syntax/value/type/layout and native-byte checks pass; no runtime verification occurred. See [PATHFINDER_LAYOUT_REVIEW.md](PATHFINDER_LAYOUT_REVIEW.md) and its four inventories. The full-source review remains ongoing.
+
 ## Shared movement layout review - 2026-10-13
 
 Named 285 moveable field accesses in 37 sources, walking thresholds and pathfinder outcomes. Human/animal/vehicle tick functions remain distinct and preserve Windows callback/early-return order. Value/type and syntax checks pass; no runtime verification occurred. See [MOVEABLE_LAYOUT_REVIEW.md](MOVEABLE_LAYOUT_REVIEW.md) and its inventories. Remaining pathfinder, human task/military, engine, GUI, control/data code is still under review.

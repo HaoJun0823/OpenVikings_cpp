@@ -108,9 +108,9 @@ namespace NC2Logic
         const auto speed = Type(animal).moveSpeed;
         Write(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, speed);
         Write(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(speed) + 9999u) / speed);
-        Write(path, 0x2C, player);
-        Write<std::int32_t>(path, 0x24, -1);
-        Write<std::int32_t>(path, 0x1C, -1);
+        Write(path, NC2Layout::MapPathfinderOffset::PlayerId, player);
+        Write<std::int32_t>(path, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
+        Write<std::int32_t>(path, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
         Animal_l_StartAtomicAnimation(animal, 2, -1);
         Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTask, 1);
         Write<std::uint32_t>(animal, NC2Layout::AnimalOffset::CurrentTaskStatus, 1);

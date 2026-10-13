@@ -67,6 +67,13 @@ namespace NC2Layout
         inline constexpr auto DifficultyLevel = 0x5D200;
     }
 
+    namespace GameControlPlayerOffset
+    {
+        inline constexpr auto AreaSearchCount = 0x4A24u;
+        inline constexpr auto PointPathfinderStartCount = 0x4A28u;
+        inline constexpr auto AreaSearchWithoutEarlyExitCount = 0x4A2Cu;
+    }
+
     namespace GameMapOffset
     {
         inline constexpr auto MicroHeight = 0x02;
@@ -347,6 +354,11 @@ namespace NC2Layout
         inline constexpr auto HouseConstructionGood = 20u;
         inline constexpr auto MapMoveable = 0x58u;
         inline constexpr auto MapMoveableSigned = 0x58;
+        inline constexpr auto MapPathfinder = 0x84u;
+        inline constexpr auto MapPathfinderSigned = 0x84;
+        inline constexpr auto SectorPathfinder = 0x60u;
+        inline constexpr auto SectorPathfinderSigned = 0x60;
+        inline constexpr auto PathfinderDirectionRun = 2u;
         inline constexpr auto JobType = 0x88u;
         inline constexpr auto JobTypeSigned = 0x88;
         inline constexpr auto GameControlPlayer = 0x4A80u;
@@ -463,9 +475,61 @@ namespace NC2Layout
         inline constexpr auto UserCommandQueue = 0x28u;
     }
 
+    namespace MapPathfinderOffset
+    {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto SearchState = 4;
+        inline constexpr auto TargetMode = 8;
+        inline constexpr auto SearchRadius = 0x0C;
+        inline constexpr auto RequiredClearance = 0x10;
+        inline constexpr auto UseResistanceFlag = 0x14;
+        inline constexpr auto UseSectorsFlag = 0x15;
+        inline constexpr auto AllowVerticalDirectionsFlag = 0x16;
+        inline constexpr auto UseGuidesFlag = 0x17;
+        inline constexpr auto DeterministicDirectionChoiceFlag = 0x18;
+        inline constexpr auto SourceGuideId = 0x1C;
+        inline constexpr auto SourceGuideRevision = 0x20;
+        inline constexpr auto CurrentGuideId = 0x24;
+        inline constexpr auto CurrentGuideRevision = 0x28;
+        inline constexpr auto PlayerId = 0x2C;
+        inline constexpr auto PreferredDirection1 = 0x30;
+        inline constexpr auto PreferredDirection2 = 0x34;
+        inline constexpr auto PreferredDirectionWeight1 = 0x38;
+        inline constexpr auto PreferredDirectionWeight2 = 0x3C;
+        inline constexpr auto CurrentPosition = 0x40;
+        inline constexpr auto DestinationPosition = 0x44;
+        inline constexpr auto TargetMoveableId = 0x48;
+        inline constexpr auto TargetObjectRevision = 0x4C;
+        inline constexpr auto TargetDistance = 0x50;
+        inline constexpr auto DirectionRunIndex = 0x54;
+        inline constexpr auto BlockedAreaSteps = 0x58;
+        inline constexpr auto DirectionRuns = 0x5C;
+        inline constexpr auto DirectionRunCounts = 0x5D;
+        inline constexpr auto DirectionRunCountsUnsigned = 0x5Du;
+    }
+
     namespace HumanMilitaryStateOffset
     {
         inline constexpr auto Targets = 8u;
+    }
+
+    namespace SectorPathfinderOffset
+    {
+        inline constexpr auto SearchState = 0;
+        inline constexpr auto SearchRadius = 4;
+        inline constexpr auto RequiredClearance = 8;
+        inline constexpr auto UseResistanceFlag = 0x0C;
+        inline constexpr auto AllowVerticalDirectionsFlag = 0x0D;
+        inline constexpr auto PreferredDirection1 = 0x10;
+        inline constexpr auto PreferredDirection2 = 0x14;
+        inline constexpr auto CurrentPosition = 0x20;
+        inline constexpr auto DestinationPosition = 0x24;
+        inline constexpr auto SearchRectangle = 0x28;
+        inline constexpr auto DirectionRunIndex = 0x30;
+        inline constexpr auto BlockedAreaSteps = 0x34;
+        inline constexpr auto DirectionRuns = 0x38;
+        inline constexpr auto DirectionRunCounts = 0x39;
+        inline constexpr auto DirectionRunCountsUnsigned = 0x39u;
     }
 
 }

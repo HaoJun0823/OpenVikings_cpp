@@ -193,12 +193,12 @@ namespace NC2Logic
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep, 8);
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingProgressPerTick, 1250);
         Write<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::TurningTicksPerDirection, 2);
-        Write(path, 0x10, Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
-        Write<std::uint8_t>(path, 0x16, 1);
+        Write(path, NC2Layout::MapPathfinderOffset::RequiredClearance, Vehicle_GetVehicleTypeDataPtr(vehicle)->logicSize);
+        Write<std::uint8_t>(path, NC2Layout::MapPathfinderOffset::AllowVerticalDirectionsFlag, 1);
         Write<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::IncludeVerticalDirectionsFlag, 1);
-        Write(path, 0x2C, player);
-        Write<std::int32_t>(path, 0x24, -1);
-        Write<std::int32_t>(path, 0x1C, -1);
+        Write(path, NC2Layout::MapPathfinderOffset::PlayerId, player);
+        Write<std::int32_t>(path, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
+        Write<std::int32_t>(path, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
         Write<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::Hitpoints, type == 3 || type == 4 ? 5000u : type == 5 ? 3000u : 1000u);
         Vehicle_ResetUserCommandArray(vehicle);
         Vehicle_l_Passengers_ResetContents(vehicle);

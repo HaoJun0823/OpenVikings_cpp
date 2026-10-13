@@ -48,9 +48,9 @@ namespace NC2Logic
         MapMoveable_Attachment_DetachFromMap(moveable);
         Write(vehicle, NC2Layout::VehicleOffset::PlayerId, player);
         void* pathfinder = GetUnsafePathfinderPtr(Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::PathfinderId));
-        Write<std::int32_t>(pathfinder, 0x24, -1);
-        Write<std::int32_t>(pathfinder, 0x1C, -1);
-        Write(pathfinder, 0x2C, player);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::CurrentGuideId, -1);
+        Write<std::int32_t>(pathfinder, NC2Layout::MapPathfinderOffset::SourceGuideId, -1);
+        Write(pathfinder, NC2Layout::MapPathfinderOffset::PlayerId, player);
         MapMoveable_Attachment_AttachToMap(moveable, &point);
         const auto radius = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::ExplorationRadius);
         const auto owner = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId);
