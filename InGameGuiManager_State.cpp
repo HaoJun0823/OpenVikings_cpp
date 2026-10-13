@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "InGameGuiManager.h"
 #include "InGameGuiMousePointer.h"
@@ -83,14 +84,14 @@ namespace NC2InGameGuiMiscWindows
     void DiplomacyWindow_Statics_Init()
     {
         std::memset(gDiplomacyWindowStatics, 0, sizeof(gDiplomacyWindowStatics));
-        NC2Lifetime::Write<std::uint32_t>(gDiplomacyWindowStatics, 0, 0);
+        NC2Lifetime::Write<std::uint32_t>(gDiplomacyWindowStatics, NC2Layout::DiplomacyWindowStateOffset::Page, 0);
     }
     // Original function: FUN_004b1093; CHumanListWindow::l_Statics_Reset.
     void HumanListWindow_l_Filter_Reset()
     {
         std::memset(gHumanListWindowStatics, 0, sizeof(gHumanListWindowStatics));
-        NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, 0x10, 0);
-        NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, 0x14, 0);
+        NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, NC2Layout::HumanListWindowStateOffset::JobFilter, 0);
+        NC2Lifetime::Write<std::uint32_t>(gHumanListWindowStatics, NC2Layout::HumanListWindowStateOffset::PossibleJobFilter, 0);
     }
     // Original function: FUN_004b00da.
     void HumanListWindow_Statics_Init()
@@ -102,9 +103,9 @@ namespace NC2InGameGuiMiscWindows
     void StatisticsWindow_Statics_Init()
     {
         std::memset(gStatisticsWindowStatics, 0, sizeof(gStatisticsWindowStatics));
-        NC2Lifetime::Write<std::uint32_t>(gStatisticsWindowStatics, 0, 0);
-        std::memset(gStatisticsWindowStatics + 8, 0, 4);
-        NC2Lifetime::Write<std::uint32_t>(gStatisticsWindowStatics, 8, 1);
+        NC2Lifetime::Write<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::Page, 0);
+        std::memset(gStatisticsWindowStatics + NC2Layout::StatisticsWindowStateOffset::TimeScaleHours, 0, 4);
+        NC2Lifetime::Write<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::TimeScaleHours, 1);
     }
 }
 

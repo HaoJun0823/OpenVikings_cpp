@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2DataIds.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiManager.h"
@@ -18,14 +19,14 @@ namespace NC2InGameGuiMiscWindows
     static void StatisticsWindow_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::StatisticsWindow, 1);
-        io->IO_Memory_WriteLong(NC2Lifetime::Read<std::uint32_t>(gStatisticsWindowStatics, 0));
+        io->IO_Memory_WriteLong(NC2Lifetime::Read<std::uint32_t>(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::Page));
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
     // Original function: FUN_004b1e38.
     static void StatisticsWindow_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::StatisticsWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gStatisticsWindowStatics, 0, io->IO_File_ReadLong());
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::StatisticsWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gStatisticsWindowStatics, NC2Layout::StatisticsWindowStateOffset::Page, io->IO_File_ReadLong());
         else { StatisticsWindow_Statics_Init(); io->IO_File_Chunk_Skip(); }
     }
 
@@ -33,14 +34,14 @@ namespace NC2InGameGuiMiscWindows
     static void HumanListWindow_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::HumanListWindow, 1);
-        io->IO_Memory_WriteBinary(gHumanListWindowStatics, 0x18);
+        io->IO_Memory_WriteBinary(gHumanListWindowStatics, NC2Layout::RecordSize::HumanListWindowState);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
     // Original function: FUN_004b011a.
     static void HumanListWindow_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::HumanListWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) io->IO_File_ReadBinary(gHumanListWindowStatics, 0x18);
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::HumanListWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) io->IO_File_ReadBinary(gHumanListWindowStatics, NC2Layout::RecordSize::HumanListWindowState);
         else { HumanListWindow_Statics_Init(); io->IO_File_Chunk_Skip(); }
     }
 
@@ -48,14 +49,14 @@ namespace NC2InGameGuiMiscWindows
     static void DiplomacyWindow_IO_Savegame_Save(NC2Logic::CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::GuiSavegameChunk::DiplomacyWindow, 1);
-        io->IO_Memory_WriteLong(NC2Lifetime::Read<std::uint32_t>(gDiplomacyWindowStatics, 0));
+        io->IO_Memory_WriteLong(NC2Lifetime::Read<std::uint32_t>(gDiplomacyWindowStatics, NC2Layout::DiplomacyWindowStateOffset::Page));
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
     // Original function: FUN_004af099.
     static void DiplomacyWindow_IO_Savegame_Load(NC2Logic::CIoHelper* io)
     {
-        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::DiplomacyWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gDiplomacyWindowStatics, 0, io->IO_File_ReadLong());
+        if (io->mReadHeader.marker == SwitchIds::GuiSavegameChunk::DiplomacyWindow && io->mReadHeader.version == 1 && !NNetwork::Network_IsInSession()) NC2Lifetime::Write(gDiplomacyWindowStatics, NC2Layout::DiplomacyWindowStateOffset::Page, io->IO_File_ReadLong());
         else { std::memset(gDiplomacyWindowStatics, 0, 4); io->IO_File_Chunk_Skip(); }
     }
 }

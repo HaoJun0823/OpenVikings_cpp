@@ -1460,6 +1460,22 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HumanListWindowState = 0x18;
+
+        inline constexpr auto StatisticsListPointers = 12;
+
+        inline constexpr auto StatisticsWindowVars = 508;
+
+        inline constexpr auto HumanListButtonVars = 24;
+
+        inline constexpr auto HumanListWindowVars = 4008;
+
+        inline constexpr auto HumanListJobSelectionWindowVars = 8;
+
+        inline constexpr auto DiplomacyPlayerTabs = 108;
+
+        inline constexpr auto DiplomacyWindowVars = 136;
+
         inline constexpr auto ListBoxScrollAndActiveState = 28;
 
         inline constexpr auto ListBoxControllerState = 12;
@@ -2511,6 +2527,134 @@ namespace NC2Layout
         inline constexpr auto FirstPointY = 0x30;
 
         inline constexpr auto FirstPointX = 0x2C;
+    }
+
+    namespace DiplomacyWindowOffset
+    {
+        inline constexpr auto LastButtonsUpdateTick = 0xDC;
+
+        inline constexpr auto OverviewRectangle = 0xE4;
+
+        inline constexpr auto VisiblePlayerCount = 0xD8;
+
+        inline constexpr auto HiddenPlayerFlagsUnsigned = 0xC4u;
+
+        inline constexpr auto PlayerIdsUnsigned = 0x74u;
+
+        inline constexpr auto PlayerCount = 0x70;
+
+        inline constexpr auto OverviewElement = 0xF4;
+
+        inline constexpr auto MissionStrings = 0xE0;
+
+        inline constexpr auto PlayerPageSlotsUnsigned = 0x70u;
+    }
+
+    namespace DiplomacyWindowStateOffset
+    {
+        inline constexpr auto Page = 0;
+    }
+
+    namespace DiplomacyCommandOffset
+    {
+        inline constexpr auto Parameter = 12;
+
+        inline constexpr auto SecondPlayer = 8;
+
+        inline constexpr auto FirstPlayer = 4;
+
+        inline constexpr auto Opcode = 0;
+
+        inline constexpr auto PlayerId = 1;
+    }
+
+    namespace HumanListWindowStateOffset
+    {
+        inline constexpr auto PossibleJobFilter = 0x14;
+
+        inline constexpr auto JobFilter = 0x10;
+    }
+
+    namespace HumanListJobSelectionWindowOffset
+    {
+        inline constexpr auto CurrentJobFlag = 0x74;
+
+        inline constexpr auto OwnerWindow = 0x70;
+    }
+
+    namespace HumanListWindowOffset
+    {
+        inline constexpr auto FirstHumanUniqueIdUnsigned = 0x78u;
+
+        inline constexpr auto HumanReferencesUnsigned = 0x74u;
+
+        inline constexpr auto HumanCount = 0x70;
+
+        inline constexpr auto JobSelectionWindow = 0x1014;
+    }
+
+    namespace HumanListButtonOffset
+    {
+        inline constexpr auto DebugFlag = 0x44;
+
+        inline constexpr auto Handler = 0x40;
+
+        inline constexpr auto DoubleClickCommand = 0x3C;
+
+        inline constexpr auto PressedCommand = 0x38;
+
+        inline constexpr auto HumanUniqueId = 0x34;
+
+        inline constexpr auto HumanId = 0x30;
+    }
+
+    namespace StatisticsWindowStateOffset
+    {
+        inline constexpr auto TimeScaleHours = 8;
+
+        inline constexpr auto GoodGroup = 4;
+
+        inline constexpr auto Page = 0;
+    }
+
+    namespace StatisticsWindowOffset
+    {
+        inline constexpr auto DiagramColors = 0xAC;
+
+        inline constexpr auto DiagramBitmap = 0x8C;
+
+        inline constexpr auto DiagramState = 0x88;
+
+        inline constexpr auto DiagramPlayerId = 0x98;
+
+        inline constexpr auto DiagramWidth = 0x90;
+
+        inline constexpr auto DiagramHeight = 0x94;
+
+        inline constexpr auto DisplayMaximum = 0xA8;
+
+        inline constexpr auto DisplayMinimum = 0xA4;
+
+        inline constexpr auto ObservedMaximum = 0xA0;
+
+        inline constexpr auto ObservedMinimum = 0x9C;
+
+        inline constexpr auto GraveyardList = 0x78;
+
+        inline constexpr auto HousesList = 0x74;
+
+        inline constexpr auto JobsList = 0x70;
+
+        inline constexpr auto GraveyardListUpdateTick = 0x84;
+
+        inline constexpr auto HousesListUpdateTick = 0x80;
+
+        inline constexpr auto JobsListUpdateTick = 0x7C;
+    }
+
+    namespace StatisticsDiagramStateOffset
+    {
+        inline constexpr auto Colors = 0x24;
     }
 
 }

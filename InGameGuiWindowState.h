@@ -8,7 +8,11 @@ namespace NC2InGameGuiMiscWindows
     // Complete CMissionInfoWindow history region 005690E0..005691AB.
     struct SMissionBriefingHistory { std::uint32_t count; std::int32_t entries[50]; };
     inline SMissionBriefingHistory gMissionBriefingHistory{};
-    // Complete Windows class statics; unidentified field meanings retain offsets.
+    // Physical state models; filter bytes without established names remain explicit.
+    struct SDiplomacyWindowStateStorage { std::uint32_t page; };
+    struct SHumanListWindowStateStorage { std::uint8_t filterFlags[16]; std::uint32_t jobFilter, possibleJobFilter; };
+    struct SStatisticsWindowStateStorage { std::uint32_t page, goodGroup, timeScaleHours; };
+    // Original raw storage and initialization/serialization remain unchanged.
     alignas(4) inline std::byte gTechTreeWindowStatics[16]{}; // 005691B8..005691C7.
     alignas(4) inline std::byte gDiplomacyWindowStatics[4]{}; // 005691E4..005691E7.
     alignas(4) inline std::byte gHumanListWindowStatics[24]{}; // 005691E8..005691FF.
