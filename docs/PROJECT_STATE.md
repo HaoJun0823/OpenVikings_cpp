@@ -1,6 +1,16 @@
 # OpenVikings Project State
 
-## Particle, macro-map and AI record review checkpoint - 2026-10-13
+## Goods, guides, construction and human capabilities review checkpoint - 2026-10-13
+
+Completed and committed three further record naming/review blocks: human goods search and guide routing/ownership (`d2fbc3b`), road/wall build queues, workers, serialization and consumers (`27884cc`), and human capability/player allowance/notification fields (`1b4bd95`). See [GOODS_GUIDE_RECORDS_REVIEW.md](GOODS_GUIDE_RECORDS_REVIEW.md), [WALL_ROAD_RECORDS_REVIEW.md](WALL_ROAD_RECORDS_REVIEW.md) and [HUMAN_CAPABILITY_RECORDS_REVIEW.md](HUMAN_CAPABILITY_RECORDS_REVIEW.md). Windows behavior and original literal types are retained; explicit unresolved regions remain documented.
+
+All affected production translation units and the block-specific literal/layout assertion units pass targeted Win32 `/Zs`. Audits cover 84/50/68 literal value/type pairs, 23/23/31 layout assertions and 5326/2280/2139 byte-verified native instructions respectively. Source token comparisons retain original operations after resolving constants. The preceding all-307-unit syntax checkpoint is historical; this pass ran the affected units. No build, tests or game execution occurred. Project/filter parity remains 307 CPP / 288 headers, with 3151 unique naming-map addresses.
+
+Fresh scan: 595 registered files, 146144 lines, **8375 raw numeric access operands**, **74 unknown-member mentions**, 1219 long multi-statement lines and 5014 native address annotations. This removes 607 raw-access candidates from the preceding 8982 checkpoint. Relative to the initial 14730, 6355 raw candidates have been removed (43.14% text-scan reduction). These are review candidates, not counts of missing functions or a whole-review completion percentage. The known-entry reconstruction inventory remains 5063/5063 with zero tracked unfinished implementations; that does not prove complete behavioral equivalence. No complete reviewed-function x/y ledger exists for this pass.
+
+Next priorities by remaining raw operands: selection window 168, village AI 163, world display 142, vehicle window 136, resource AI 132, GUI selection access 131, mission execution 116, list box 100, house window 100, tech tree 99, message manager 98 and AI movement messages 98. These are file-level text-scan counts, not subsystem function counts. Remaining explicit targets include player +0x3B52, build-entry byte 5 and other documented unknowns. Whole-source readability/Windows behavior review remains incomplete.
+
+## Previous particle, macro-map and AI record review checkpoint - 2026-10-13
 
 Completed the three requested naming/review blocks: particle simulation/drawing/generators/effects and ownership, all thirteen macro-map sections and capture/placement paths, and AI soldier/vehicle/main-task/combined-task/military records with their construction, message and relevant savegame consumers. See [PARTICLE_RECORDS_REVIEW.md](PARTICLE_RECORDS_REVIEW.md), [MACRO_MAP_RECORDS_REVIEW.md](MACRO_MAP_RECORDS_REVIEW.md) and [AI_RECORDS_REVIEW.md](AI_RECORDS_REVIEW.md). Windows behavior and literal types are retained; Mac was used only for original name spelling. Explicit unknowns, including military manager +0x1454, remain unresolved.
 
