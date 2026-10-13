@@ -105,14 +105,14 @@ namespace NC2E2
                 const auto* human = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId) * NC2Logic::CHumanArray::ElementSize;
                 if (NC2Logic::Human_Misc_IsHidden(human)) continue;
                 Write(display, 0x8C, Read<std::uint32_t>(display, 0x8C) + 1u);
-                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(display, 0x7C))
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
                 {
                     const auto offset = NC2Logic::Human_IsAgeAdult(human) ? (NC2Logic::Human_IsSexMale(human) ? 0x90u : 0x94u) : 0x98u;
                     Write(display, offset, Read<std::uint32_t>(display, offset) + 1u);
                 }
                 E2HumanSoundManager_IncreaseSeenCounter(gE2HumanSoundManager, human);
             }
-            const auto player = Read<std::int32_t>(display, 0x7C);
+            const auto player = Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
             NC2Logic::CMapMoveableIterator iterator;
             if (count < 2u || count > 20u)
             {
@@ -213,13 +213,13 @@ namespace NC2E2
         using NC2Lifetime::Write;
         std::memset(static_cast<std::byte*>(display) + 0x84, 0, 32);
         const bool foregroundPart = !staticPart && !backgroundPart;
-        if (foregroundPart && Read<std::uint8_t>(display, 0x6C) != 0)
+        if (foregroundPart && Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0)
         {
             std::memset(CE2AnimalSoundManager::sTheObjectPtr->animalCounts, 0, sizeof(CE2AnimalSoundManager::sTheObjectPtr->animalCounts));
             std::memset(gWorldMusicState.visiblePlayerCounts, 0, sizeof(gWorldMusicState.visiblePlayerCounts));
             E2HumanSoundManager_ClearSeenHumanCounter(gE2HumanSoundManager);
         }
-        bool drawVoid = Read<std::int32_t>(display, 0x78) >= 0;
+        bool drawVoid = Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter) >= 0;
         if (drawVoid && CLevelOfDetailManager::GetSkipUnimportantVoidLandscapesFlag()) drawVoid = false;
         for (std::int32_t row = 0; row < rectangle[3]; ++row)
         {
@@ -295,7 +295,7 @@ namespace NC2E2
                 EngineGraphic_DrawData(graphic, landscape ? Read<std::uint8_t>(originLogic, 3) : 0u, bitmap, Add(x, Sub(originPixel[0], sourcePixel[0])), Add(y, Sub(originPixel[1], sourcePixel[1])), phase, Display_DE_Hightlighting_GetMapLandscapeBrightness(display, point), player, false);
             }
         }
-        if (foregroundPart && Read<std::uint8_t>(display, 0x6C) != 0 && NDSManager::CManager::sTheObjectPtr != nullptr)
+        if (foregroundPart && Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag) != 0 && NDSManager::CManager::sTheObjectPtr != nullptr)
         {
             UpdateRepairSound(display);
             E2HumanSoundManager_PlayGenericSounds(gE2HumanSoundManager, display);

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2GameState.h"
 #include "ApplicationGlobals.h"
@@ -297,8 +298,8 @@ namespace NC2E2
 
     static bool Ambient_SectorIsVisible(const void* display, std::uint32_t point)
     {
-        const std::uint32_t player = Ambient_ReadField<std::uint32_t>(display, 0x7C);
-        if ((Ambient_ReadField<std::uint8_t>(display, 0x70) & 4u) == 0 || player >= 16u)
+        const std::uint32_t player = Ambient_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
+        if ((Ambient_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) == 0 || player >= 16u)
             return true;
         const void* microPoint = NC2Logic::GameMap_GetConstMapMicroPointPtr(&point);
         return (Ambient_ReadField<std::uint16_t>(microPoint, 8) & (1u << player)) != 0;
@@ -436,7 +437,7 @@ namespace NC2E2
             return;
 
         std::int16_t rectangle[4]{};
-        DisplayDescription_GetMapRectangle(display, Ambient_ReadField<std::uint32_t>(display, 0x954), Ambient_ReadField<std::uint32_t>(display, 0x958), Ambient_ReadField<std::uint32_t>(display, 0x964), Ambient_ReadField<std::uint32_t>(display, 0x968), rectangle);
+        DisplayDescription_GetMapRectangle(display, Ambient_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX), Ambient_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY), Ambient_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth), Ambient_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight), rectangle);
         const std::uint32_t firstPoint = static_cast<std::uint16_t>(rectangle[0]) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(rectangle[1])) << 16);
         const std::uint16_t lastX = static_cast<std::uint16_t>(static_cast<std::int32_t>(rectangle[0]) + rectangle[2] - 1);
         const std::uint16_t lastY = static_cast<std::uint16_t>(static_cast<std::int32_t>(rectangle[1]) + rectangle[3] - 1);

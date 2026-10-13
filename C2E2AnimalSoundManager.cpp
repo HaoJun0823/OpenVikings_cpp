@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2GameState.h"
 #include "C2AnimalAccess.h"
 #include "C2AnimalIterator.h"
@@ -73,7 +74,7 @@ namespace NC2E2
         // Inline initialization performed by 0042ae54.
         alignas(4) std::int16_t rectangle[4]{};
 
-        DisplayDescription_GetMapRectangle(display, readWord(display, 0x954), readWord(display, 0x958), readWord(display, 0x964), readWord(display, 0x968), rectangle);
+        DisplayDescription_GetMapRectangle(display, readWord(display, NC2Layout::EngineDisplayOffset::WorldPixelX), readWord(display, NC2Layout::EngineDisplayOffset::WorldPixelY), readWord(display, NC2Layout::EngineDisplayOffset::BufferWidth), readWord(display, NC2Layout::EngineDisplayOffset::BufferHeight), rectangle);
 
         // Preserve the signed 16-bit shifts and the final 16-bit stores.
         const std::uint16_t centerXBits = static_cast<std::uint16_t>(static_cast<std::int32_t>(rectangle[0]) + (static_cast<std::int32_t>(rectangle[2]) >> 1));
@@ -87,7 +88,7 @@ namespace NC2E2
         // 0042a98a receives false; 0040ad55 copies this point by value.
         const std::uint32_t centerPoint = static_cast<std::uint32_t>(centerXBits) | (static_cast<std::uint32_t>(centerYBits) << 16);
         const std::int32_t searchWidth = rectangle[2];
-        const std::uint32_t playerId = readWord(display, 0x7C);
+        const std::uint32_t playerId = readWord(display, NC2Layout::EngineDisplayOffset::PlayerId);
 
         for (std::uint32_t countIndex = 0; countIndex < 34u; ++countIndex)
         {

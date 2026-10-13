@@ -57,7 +57,7 @@ namespace NC2E2
     {
         if (NC2Lifetime::Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) == static_cast<std::uint8_t>(enabled)) return;
         NC2Lifetime::Write<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled, enabled);
-        NC2Lifetime::Write<std::uint8_t>(display, 0x978, 1);
+        NC2Lifetime::Write<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, 1);
     }
 
     // Original function: FUN_0047ce8e; a missing point returns zero.
@@ -489,15 +489,15 @@ namespace NC2E2
     // Original function: FUN_0047cfc6.
     std::int32_t DE_GetDisplayedCenterWorldXPosition(const void* display)
     {
-        const std::uint32_t halfWidth = DisplayDescription_HalveSigned(DisplayDescription_ReadDword(display, 0x964));
-        return DisplayDescription_SignedDword(halfWidth + DisplayDescription_ReadDword(display, 0x954));
+        const std::uint32_t halfWidth = DisplayDescription_HalveSigned(DisplayDescription_ReadDword(display, NC2Layout::EngineDisplayOffset::BufferWidth));
+        return DisplayDescription_SignedDword(halfWidth + DisplayDescription_ReadDword(display, NC2Layout::EngineDisplayOffset::WorldPixelX));
     }
 
     // Original function: FUN_0047cfd8.
     std::int32_t DE_GetDisplayedCenterWorldYPosition(const void* display)
     {
-        const std::uint32_t halfHeight = DisplayDescription_HalveSigned(DisplayDescription_ReadDword(display, 0x968));
-        return DisplayDescription_SignedDword(halfHeight + DisplayDescription_ReadDword(display, 0x958));
+        const std::uint32_t halfHeight = DisplayDescription_HalveSigned(DisplayDescription_ReadDword(display, NC2Layout::EngineDisplayOffset::BufferHeight));
+        return DisplayDescription_SignedDword(halfHeight + DisplayDescription_ReadDword(display, NC2Layout::EngineDisplayOffset::WorldPixelY));
     }
 
     // Original function: FUN_0048201b
@@ -632,15 +632,15 @@ namespace NC2E2
         DisplaySecondaryObjectReferences_Construct(displayBytes + 0xA4);
 
         // Original function: FUN_0042ae54, applied to the rectangle at +0x97A.
-        Display_WriteField<std::uint16_t>(display, 0x980, 0);
-        Display_WriteField<std::uint16_t>(display, 0x97E, 0);
-        Display_WriteField<std::uint16_t>(display, 0x97C, 0);
-        Display_WriteField<std::uint16_t>(display, 0x97A, 0);
+        Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight, 0);
+        Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth, 0);
+        Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY, 0);
+        Display_WriteField<std::uint16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX, 0);
 
         std::memset(displayBytes + 0x64, 0, 2280);
 
         Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap, bitmap);
-        Display_WriteField<std::uint8_t>(display, 0x6C, active);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::ActiveDisplayFlag, active);
         Display_WriteField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags, 7);
 
         void* buffer = NXBasics::Runtime_AllocateWithNewHandler(148, 1);
@@ -705,8 +705,8 @@ namespace NC2E2
                 return value;
             };
 
-            const std::uint32_t centerX = DisplayDescription_HalveSigned(readDword(0x964)) + readDword(0x954);
-            const std::uint32_t centerY = DisplayDescription_HalveSigned(readDword(0x968)) + readDword(0x958);
+            const std::uint32_t centerX = DisplayDescription_HalveSigned(readDword(NC2Layout::EngineDisplayOffset::BufferWidth)) + readDword(NC2Layout::EngineDisplayOffset::WorldPixelX);
+            const std::uint32_t centerY = DisplayDescription_HalveSigned(readDword(NC2Layout::EngineDisplayOffset::BufferHeight)) + readDword(NC2Layout::EngineDisplayOffset::WorldPixelY);
 
             std::int32_t oldWorldPoint[2];
             std::memcpy(&oldWorldPoint[0], &centerX, sizeof(centerX));
@@ -726,12 +726,12 @@ namespace NC2E2
             DisplayDescription_MapMigToWorldPixelCoordinates(display, packedMapPoint, newWorldPoint, true);
 
             const std::uint32_t deltaX = static_cast<std::uint32_t>(newWorldPoint[0]) - static_cast<std::uint32_t>(oldWorldPoint[0]);
-            const std::uint32_t wantedX = readDword(0x94C) + deltaX;
-            std::memcpy(bytes + 0x94C, &wantedX, sizeof(wantedX));
+            const std::uint32_t wantedX = readDword(NC2Layout::EngineDisplayOffset::WantedWorldPixelX) + deltaX;
+            std::memcpy(bytes + NC2Layout::EngineDisplayOffset::WantedWorldPixelX, &wantedX, sizeof(wantedX));
 
             const std::uint32_t deltaY = static_cast<std::uint32_t>(newWorldPoint[1]) - static_cast<std::uint32_t>(oldWorldPoint[1]);
-            const std::uint32_t wantedY = readDword(0x950) + deltaY;
-            std::memcpy(bytes + 0x950, &wantedY, sizeof(wantedY));
+            const std::uint32_t wantedY = readDword(NC2Layout::EngineDisplayOffset::WantedWorldPixelY) + deltaY;
+            std::memcpy(bytes + NC2Layout::EngineDisplayOffset::WantedWorldPixelY, &wantedY, sizeof(wantedY));
         }
         else
         {
@@ -747,7 +747,7 @@ namespace NC2E2
     {
         std::uint32_t mapPoint;
         std::memcpy(&mapPoint, packedMapPoint, sizeof(mapPoint));
-        auto* wantedPoint = reinterpret_cast<std::int32_t*>(static_cast<std::byte*>(display) + 0x94C);
+        auto* wantedPoint = reinterpret_cast<std::int32_t*>(static_cast<std::byte*>(display) + NC2Layout::EngineDisplayOffset::WantedWorldPixelX);
         DisplayDescription_MapMigToWorldPixelCoordinates(display, mapPoint, wantedPoint, true);
         DE_SetWantedPositionToPixelPoint(display, wantedPoint);
     }
@@ -755,57 +755,57 @@ namespace NC2E2
     // Original function: FUN_0047c8c6
     void DE_SetWantedPositionToPixelPoint(void* display, const std::int32_t* point)
     {
-        const std::uint32_t y = static_cast<std::uint32_t>(point[1]) - DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x968));
-        const std::uint32_t x = static_cast<std::uint32_t>(point[0]) - DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x964));
+        const std::uint32_t y = static_cast<std::uint32_t>(point[1]) - DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight));
+        const std::uint32_t x = static_cast<std::uint32_t>(point[0]) - DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth));
         DE_SetWantedPositionToPixelPosition(display, DisplayDescription_SignedDword(x), DisplayDescription_SignedDword(y));
     }
 
     // Original function: FUN_0047c8f5
     void DE_SetWantedPositionAddDeltaPixelPoint(void* display, std::int32_t deltaX, std::int32_t deltaY)
     {
-        const std::uint32_t y = Display_ReadField<std::uint32_t>(display, 0x950) + static_cast<std::uint32_t>(deltaY);
-        const std::uint32_t x = Display_ReadField<std::uint32_t>(display, 0x94C) + static_cast<std::uint32_t>(deltaX);
+        const std::uint32_t y = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY) + static_cast<std::uint32_t>(deltaY);
+        const std::uint32_t x = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX) + static_cast<std::uint32_t>(deltaX);
         DE_SetWantedPositionToPixelPosition(display, DisplayDescription_SignedDword(x), DisplayDescription_SignedDword(y));
     }
 
     // Original function: FUN_0047c913
     void DE_SetWantedPositionToPixelPosition(void* display, std::int32_t pixelX, std::int32_t pixelY)
     {
-        Display_WriteField(display, 0x94C, pixelX);
-        Display_WriteField(display, 0x950, pixelY);
-        if (pixelX < -100)
-            Display_WriteField<std::int32_t>(display, 0x94C, -100);
-        if (pixelY < -200)
-            Display_WriteField<std::int32_t>(display, 0x950, -200);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX, pixelX);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY, pixelY);
+        if (pixelX < NC2Runtime::DisplayScrolling::MinimumWorldX)
+            Display_WriteField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX, NC2Runtime::DisplayScrolling::MinimumWorldX);
+        if (pixelY < NC2Runtime::DisplayScrolling::MinimumWorldY)
+            Display_WriteField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY, NC2Runtime::DisplayScrolling::MinimumWorldY);
 
         const std::int32_t mapWidth = NC2Logic::GameMap_GetWidth();
         const std::uint32_t worldWidth = DisplayDescription_ConvertScaledFloat(Display_ReadField<float>(display, 0x04), static_cast<float>(mapWidth));
         const float verticalSpacing = Display_ReadField<float>(display, 0);
         const std::int32_t mapHeight = NC2Logic::GameMap_GetHeight();
-        const std::uint32_t maxX = worldWidth - Display_ReadField<std::uint32_t>(display, 0x964) + 100u;
+        const std::uint32_t maxX = worldWidth - Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth) + NC2Runtime::DisplayScrolling::MaximumWorldMargin;
         const std::uint32_t worldHeight = DisplayDescription_ConvertScaledFloat(verticalSpacing, static_cast<float>(mapHeight));
-        const std::uint32_t maxY = worldHeight - Display_ReadField<std::uint32_t>(display, 0x968) + 100u;
+        const std::uint32_t maxY = worldHeight - Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight) + NC2Runtime::DisplayScrolling::MaximumWorldMargin;
 
         // The upper bounds are applied after both lower bounds, even for a small map.
-        if (Display_ReadField<std::int32_t>(display, 0x94C) > DisplayDescription_SignedDword(maxX))
-            Display_WriteField(display, 0x94C, maxX);
-        if (Display_ReadField<std::int32_t>(display, 0x950) > DisplayDescription_SignedDword(maxY))
-            Display_WriteField(display, 0x950, maxY);
+        if (Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX) > DisplayDescription_SignedDword(maxX))
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX, maxX);
+        if (Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY) > DisplayDescription_SignedDword(maxY))
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY, maxY);
     }
 
     // Original function: FUN_0047cc2b.
     void DE_ToDraw_SetState(void* display, std::uint32_t flags, bool enabled)
     {
-        const std::uint32_t current = Display_ReadField<std::uint32_t>(display, 0x70);
-        Display_WriteField(display, 0x70, enabled ? current | flags : current & ~flags);
-        Display_WriteField<std::uint8_t>(display, 0x978, 1);
+        const std::uint32_t current = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::DrawFlags, enabled ? current | flags : current & ~flags);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, 1);
     }
 
     // Original function: FUN_0047cc4a.
     void DE_ToDraw_ToggleFlagset(void* display, std::uint32_t flags)
     {
-        Display_WriteField(display, 0x70, Display_ReadField<std::uint32_t>(display, 0x70) ^ flags);
-        Display_WriteField<std::uint8_t>(display, 0x978, 1);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::DrawFlags, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) ^ flags);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, 1);
     }
 
     // Original function: FUN_0047cebf; rebuild scrolling only across zero.
@@ -813,8 +813,8 @@ namespace NC2E2
     {
         if (counter < -1) counter = -1;
         if (counter > 1) counter = 1;
-        const std::int32_t previous = Display_ReadField<std::int32_t>(display, 0x78);
-        Display_WriteField(display, 0x78, counter);
+        const std::int32_t previous = Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::ZoomCounter, counter);
         if ((previous < 0) != (counter < 0))
         {
             std::uint32_t center = 0;
@@ -828,7 +828,7 @@ namespace NC2E2
     // Original function: FUN_0047cf2b.
     void DE_Zoom_ToggleLevel(void* display, bool allowZoomIn)
     {
-        std::int32_t counter = DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, 0x78) + 1u);
+        std::int32_t counter = DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter) + 1u);
         if (counter == 2) counter = -1;
         if (!allowZoomIn && counter > 0) counter = -1;
         DE_Zoom_SetCounter(display, counter);
@@ -837,7 +837,7 @@ namespace NC2E2
     // Original function: FUN_0047cf4e.
     void DE_Zoom_In(void* display, bool allowZoomIn)
     {
-        std::int32_t counter = DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, 0x78) + 1u);
+        std::int32_t counter = DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter) + 1u);
         if (!allowZoomIn && counter > 0) counter = 0;
         DE_Zoom_SetCounter(display, counter);
     }
@@ -845,24 +845,24 @@ namespace NC2E2
     // Original function: FUN_0047cf68.
     void DE_Zoom_Out(void* display)
     {
-        DE_Zoom_SetCounter(display, DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, 0x78) - 1u));
+        DE_Zoom_SetCounter(display, DisplayDescription_SignedDword(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter) - 1u));
     }
 
     // Original function: FUN_0047cf73.
     void DE_ControllingPlayer_SetId(void* display, std::int32_t playerId)
     {
-        if (Display_ReadField<std::int32_t>(display, 0x7C) != playerId)
+        if (Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId) != playerId)
         {
-            Display_WriteField(display, 0x7C, playerId);
-            Display_WriteField<std::uint8_t>(display, 0x978, 1);
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::PlayerId, playerId);
+            Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, 1);
         }
     }
 
     // Original function: FUN_0047cf89; retains the converter's AL result.
     bool DE_Misc_GetDisplayedCenterMapPosition(const void* display, std::uint32_t* packedMapPoint)
     {
-        const std::uint32_t x = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x964)) + Display_ReadField<std::uint32_t>(display, 0x954);
-        const std::uint32_t y = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x968)) + Display_ReadField<std::uint32_t>(display, 0x958);
+        const std::uint32_t x = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth)) + Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX);
+        const std::uint32_t y = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight)) + Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY);
         const std::int32_t center[2] = { DisplayDescription_SignedDword(x), DisplayDescription_SignedDword(y) };
         return DisplayDescription_WorldPixelToMapMigCoordinates(display, center, packedMapPoint);
     }
@@ -880,7 +880,7 @@ namespace NC2E2
         std::uint32_t drawFlags;
         std::memcpy(&drawFlags, bytes + 0x70, sizeof(drawFlags));
 
-        bytes[0x978] = std::byte{ 1 };
+        bytes[NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag] = std::byte{ 1 };
 
         if (horizontalSpacingPixels > 10)
             drawFlags |= 1u;
@@ -889,7 +889,7 @@ namespace NC2E2
 
         std::memcpy(bytes + 0x70, &drawFlags, sizeof(drawFlags));
 
-        bytes[0x978] = std::byte{ 1 };
+        bytes[NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag] = std::byte{ 1 };
 
         if (horizontalSpacingPixels > 5)
             drawFlags |= NXBasics::BitMask::Bit1;
@@ -898,7 +898,7 @@ namespace NC2E2
 
         std::memcpy(bytes + 0x70, &drawFlags, sizeof(drawFlags));
 
-        bytes[0x978] = std::byte{ 1 };
+        bytes[NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag] = std::byte{ 1 };
     }
 
     // Original function: FUN_0047d335
@@ -959,23 +959,23 @@ namespace NC2E2
             return shifted;
         };
 
-        storeWord(point, readWord(point, 0) - readWord(display, 0x954));
-        storeWord(point + 1, readWord(point, 4) - readWord(display, 0x958));
+        storeWord(point, readWord(point, 0) - readWord(display, NC2Layout::EngineDisplayOffset::WorldPixelX));
+        storeWord(point + 1, readWord(point, 4) - readWord(display, NC2Layout::EngineDisplayOffset::WorldPixelY));
 
         if (!applyZoom)
             return;
 
-        const std::int32_t zoom = signedValue(readWord(display, 0x78));
+        const std::int32_t zoom = signedValue(readWord(display, NC2Layout::EngineDisplayOffset::ZoomCounter));
 
         if (zoom > 0)
         {
-            const std::uint32_t centerX = static_cast<std::uint32_t>(signedValue(readWord(display, 0x964)) / 2);
-            const std::uint32_t centerY = static_cast<std::uint32_t>(signedValue(readWord(display, 0x968)) / 2);
+            const std::uint32_t centerX = static_cast<std::uint32_t>(signedValue(readWord(display, NC2Layout::EngineDisplayOffset::BufferWidth)) / 2);
+            const std::uint32_t centerY = static_cast<std::uint32_t>(signedValue(readWord(display, NC2Layout::EngineDisplayOffset::BufferHeight)) / 2);
             const std::uint32_t shiftX = static_cast<std::uint32_t>(zoom) & 31u;
 
             storeWord(point, ((readWord(point, 0) - centerX) << shiftX) + centerX);
 
-            const std::uint32_t shiftY = readWord(display, 0x78) & 31u;
+            const std::uint32_t shiftY = readWord(display, NC2Layout::EngineDisplayOffset::ZoomCounter) & 31u;
             storeWord(point + 1, ((readWord(point, 4) - centerY) << shiftY) + centerY);
         }
         else if (zoom < 0)
@@ -983,7 +983,7 @@ namespace NC2E2
             const std::uint32_t shiftX = 0u - static_cast<std::uint32_t>(zoom);
             storeWord(point, shiftRightSigned(readWord(point, 0), shiftX));
 
-            const std::uint32_t shiftY = 0u - readWord(display, 0x78);
+            const std::uint32_t shiftY = 0u - readWord(display, NC2Layout::EngineDisplayOffset::ZoomCounter);
             storeWord(point + 1, shiftRightSigned(readWord(point, 4), shiftY));
         }
     }
@@ -994,22 +994,22 @@ namespace NC2E2
         std::uint32_t x = static_cast<std::uint32_t>(point[0]), y = static_cast<std::uint32_t>(point[1]);
         if (applyZoom)
         {
-            const std::int32_t zoom = Display_ReadField<std::int32_t>(display, 0x78);
+            const std::int32_t zoom = Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter);
             if (zoom > 0)
             {
-                const std::uint32_t centerX = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x964));
-                const std::uint32_t centerY = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, 0x968));
+                const std::uint32_t centerX = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth));
+                const std::uint32_t centerY = DisplayDescription_HalveSigned(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight));
                 x = DisplayDescription_ShiftRightSigned(x - centerX, static_cast<std::uint32_t>(zoom)) + centerX;
-                y = DisplayDescription_ShiftRightSigned(y - centerY, Display_ReadField<std::uint32_t>(display, 0x78)) + centerY;
+                y = DisplayDescription_ShiftRightSigned(y - centerY, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter)) + centerY;
             }
             else if (zoom < 0)
             {
                 x <<= (0u - static_cast<std::uint32_t>(zoom)) & 31u;
-                y <<= (0u - Display_ReadField<std::uint32_t>(display, 0x78)) & 31u;
+                y <<= (0u - Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter)) & 31u;
             }
         }
-        point[0] = DisplayDescription_SignedDword(x + Display_ReadField<std::uint32_t>(display, 0x954));
-        point[1] = DisplayDescription_SignedDword(y + Display_ReadField<std::uint32_t>(display, 0x958));
+        point[0] = DisplayDescription_SignedDword(x + Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX));
+        point[1] = DisplayDescription_SignedDword(y + Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY));
     }
 
     // Original function: FUN_0048143c
@@ -1017,9 +1017,9 @@ namespace NC2E2
     {
         auto* displayBytes = static_cast<std::byte*>(display);
 
-        std::memset(displayBytes + 0x94C, 0, 72);
+        std::memset(displayBytes + NC2Layout::EngineDisplayOffset::WantedWorldPixelX, 0, NC2Layout::RecordSize::DisplayScrollState);
 
-        const std::int32_t zoom = Display_ReadField<std::int32_t>(display, 0x78);
+        const std::int32_t zoom = Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter);
         NXBasics::CBitmap* displayBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
 
         NXBasics::SRectangle rectangle = displayBitmap->GetRectangle();
@@ -1036,11 +1036,11 @@ namespace NC2E2
         rectangle.x = 0;
         rectangle.y = 0;
 
-        std::memcpy(displayBytes + 0x95C, &rectangle, sizeof(rectangle));
+        std::memcpy(displayBytes + NC2Layout::EngineDisplayOffset::BufferRectangle, &rectangle, sizeof(rectangle));
 
         if (zoom < 0)
         {
-            const std::int32_t depth = Display_ReadField<std::int32_t>(displayBitmap, 0x04);
+            const std::int32_t depth = Display_ReadField<std::int32_t>(displayBitmap, NXBasics::BitmapOffset::Depth);
             NXBasics::CBitmap* scrollBitmap = new (std::nothrow) NXBasics::CBitmap(rectangle, depth);
 
             Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap, scrollBitmap);
@@ -1053,11 +1053,11 @@ namespace NC2E2
         // Reload the assigned display bitmap at the original access point.
         displayBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
 
-        const std::int32_t depth = Display_ReadField<std::int32_t>(displayBitmap, 0x04);
+        const std::int32_t depth = Display_ReadField<std::int32_t>(displayBitmap, NXBasics::BitmapOffset::Depth);
         NXBasics::CBitmap* auxiliaryBitmap = new (std::nothrow) NXBasics::CBitmap(rectangle, depth);
 
-        Display_WriteField<NXBasics::CBitmap*>(display, 0x96C, auxiliaryBitmap);
-        Display_WriteField<std::uint8_t>(display, 0x978, 1);
+        Display_WriteField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::StaticBitmap, auxiliaryBitmap);
+        Display_WriteField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, 1);
     }
 
     // Original function: FUN_0048150e
@@ -1068,8 +1068,8 @@ namespace NC2E2
         NXBasics::CBitmap* displayBitmap;
         NXBasics::CBitmap* scrollBitmap;
 
-        std::memcpy(&displayBitmap, displayBytes + 0x64, sizeof(displayBitmap));
-        std::memcpy(&scrollBitmap, displayBytes + 0x68, sizeof(scrollBitmap));
+        std::memcpy(&displayBitmap, displayBytes + NC2Layout::EngineDisplayOffset::DestinationBitmap, sizeof(displayBitmap));
+        std::memcpy(&scrollBitmap, displayBytes + NC2Layout::EngineDisplayOffset::DrawingBitmap, sizeof(scrollBitmap));
 
         if (scrollBitmap != displayBitmap && scrollBitmap != nullptr)
         {
@@ -1077,10 +1077,10 @@ namespace NC2E2
         }
 
         scrollBitmap = nullptr;
-        std::memcpy(displayBytes + 0x68, &scrollBitmap, sizeof(scrollBitmap));
+        std::memcpy(displayBytes + NC2Layout::EngineDisplayOffset::DrawingBitmap, &scrollBitmap, sizeof(scrollBitmap));
 
         NXBasics::CBitmap* auxiliaryBitmap;
-        std::memcpy(&auxiliaryBitmap, displayBytes + 0x96C, sizeof(auxiliaryBitmap));
+        std::memcpy(&auxiliaryBitmap, displayBytes + NC2Layout::EngineDisplayOffset::StaticBitmap, sizeof(auxiliaryBitmap));
 
         if (auxiliaryBitmap != nullptr)
         {
@@ -1088,7 +1088,7 @@ namespace NC2E2
         }
 
         auxiliaryBitmap = nullptr;
-        std::memcpy(displayBytes + 0x96C, &auxiliaryBitmap, sizeof(auxiliaryBitmap));
+        std::memcpy(displayBytes + NC2Layout::EngineDisplayOffset::StaticBitmap, &auxiliaryBitmap, sizeof(auxiliaryBitmap));
     }
 
     // Original function: FUN_004821c7
@@ -1235,9 +1235,9 @@ namespace NC2E2
     void DE_SpecialFX_Earthquake_Start(void* display, std::uint32_t durationMilliseconds)
     {
         const auto endTime = ::timeGetTime() + durationMilliseconds;
-        Display_WriteField(display, 0x944, 0u);
-        Display_WriteField(display, 0x948, 0u);
-        Display_WriteField(display, 0x940, endTime);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetX, 0u);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetY, 0u);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::EarthquakeEndTime, endTime);
     }
 
     // Original function: FUN_0047dc9d; the original destructor is an empty RET.
@@ -1245,14 +1245,14 @@ namespace NC2E2
     // Original function: FUN_0047dbf3; l_DE_SpecialFX_Earthquake_Update.
     static void Display_UpdateEarthquake(void* display)
     {
-        const std::uint32_t endTime = Display_ReadField<std::uint32_t>(display, 0x940);
+        const std::uint32_t endTime = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::EarthquakeEndTime);
         if (endTime == 0)
             return;
         if (::timeGetTime() > endTime)
         {
-            Display_WriteField(display, 0x94C, Display_ReadField<std::uint32_t>(display, 0x94C) - Display_ReadField<std::uint32_t>(display, 0x944));
-            Display_WriteField(display, 0x940, 0u);
-            Display_WriteField(display, 0x950, Display_ReadField<std::uint32_t>(display, 0x950) - Display_ReadField<std::uint32_t>(display, 0x948));
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX) - Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetX));
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::EarthquakeEndTime, 0u);
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY) - Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetY));
             return;
         }
 
@@ -1260,13 +1260,17 @@ namespace NC2E2
         // 00410c3f leaves this fixed seed unchanged (its bit count is in [8,24]).
         static NC2Logic::SGameRandomState random{ NC2Runtime::RandomSeed::DisplayEffects, NC2Runtime::RandomSeed::DisplayEffects };
         static bool initialized = false;
-        if (!initialized) { initialized = true; NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(EarthquakeRandom_AtExit)); }
-        const std::uint32_t dx = NC2Logic::Random_Get(random) % 41u - 20u;
-        const std::uint32_t dy = NC2Logic::Random_Get(random) % 21u - 10u;
-        Display_WriteField(display, 0x94C, Display_ReadField<std::uint32_t>(display, 0x94C) + dx);
-        Display_WriteField(display, 0x944, Display_ReadField<std::uint32_t>(display, 0x944) + dx);
-        Display_WriteField(display, 0x950, Display_ReadField<std::uint32_t>(display, 0x950) + dy);
-        Display_WriteField(display, 0x948, Display_ReadField<std::uint32_t>(display, 0x948) + dy);
+        if (!initialized)
+        {
+            initialized = true;
+            NXBasics::Runtime_AtExit(reinterpret_cast<NXBasics::RuntimeOnExitCallback>(EarthquakeRandom_AtExit));
+        }
+        const std::uint32_t dx = NC2Logic::Random_Get(random) % NC2Runtime::EarthquakeDisplacement::HorizontalRange - NC2Runtime::EarthquakeDisplacement::HorizontalCenter;
+        const std::uint32_t dy = NC2Logic::Random_Get(random) % NC2Runtime::EarthquakeDisplacement::VerticalRange - NC2Runtime::EarthquakeDisplacement::VerticalCenter;
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX) + dx);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetX, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetX) + dx);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY) + dy);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetY, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::EarthquakeOffsetY) + dy);
     }
 
     // Original function: FUN_0047cc71; l_DE_Hightlighting_CheckUpdate.
@@ -1275,7 +1279,7 @@ namespace NC2E2
         if (Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::HighlightingEnabled) == 0)
             return;
         std::uint16_t bits[4];
-        std::memcpy(bits, static_cast<const std::byte*>(display) + 0x97A, sizeof(bits));
+        std::memcpy(bits, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::MapRectangle, sizeof(bits));
         bits[0] = static_cast<std::uint16_t>(bits[0] - 8u);
         bits[1] = static_cast<std::uint16_t>(bits[1] - 16u);
         bits[2] = static_cast<std::uint16_t>(bits[2] + 16u);
@@ -1284,7 +1288,7 @@ namespace NC2E2
         std::memcpy(rectangle, bits, sizeof(rectangle));
         NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
         if (C2IGG_EntryPoint_InputManager_Highlighting_Update(rectangle))
-            Display_WriteField(display, 0x978, std::uint8_t{1});
+            Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, std::uint8_t{1});
     }
 
     // Original function: FUN_0047c9ab.
@@ -1312,31 +1316,31 @@ namespace NC2E2
         addShort(rectangle[1], -10);
         addShort(rectangle[3], 46);
         NC2Logic::MapMigRectangle_CutInsideMap(rectangle);
-        std::memcpy(static_cast<std::byte*>(display) + 0x97A, rectangle, sizeof(rectangle));
+        std::memcpy(static_cast<std::byte*>(display) + NC2Layout::EngineDisplayOffset::MapRectangle, rectangle, sizeof(rectangle));
 
         const std::int32_t right = static_cast<std::int32_t>(rectangle[0]) + rectangle[2];
         const std::int32_t bottom = static_cast<std::int32_t>(rectangle[1]) + rectangle[3];
         const std::int32_t widthLimit = static_cast<std::uint16_t>(static_cast<std::uint32_t>(NC2Logic::GameMap_GetWidth()) - 1u);
         const std::int32_t heightLimit = static_cast<std::uint16_t>(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeight()) - 1u);
-        Display_WriteField(display, 0x982, static_cast<std::uint16_t>(rectangle[0] > 0 ? rectangle[0] : 0));
-        Display_WriteField(display, 0x984, static_cast<std::uint16_t>(right < widthLimit ? right : widthLimit));
-        Display_WriteField(display, 0x986, static_cast<std::uint16_t>(rectangle[1] > 0 ? rectangle[1] : 0));
-        Display_WriteField(display, 0x988, static_cast<std::uint16_t>(bottom < heightLimit ? bottom : heightLimit));
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapMinimumX, static_cast<std::uint16_t>(rectangle[0] > 0 ? rectangle[0] : 0));
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapMaximumX, static_cast<std::uint16_t>(right < widthLimit ? right : widthLimit));
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapMinimumY, static_cast<std::uint16_t>(rectangle[1] > 0 ? rectangle[1] : 0));
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapMaximumY, static_cast<std::uint16_t>(bottom < heightLimit ? bottom : heightLimit));
 
         const std::uint32_t x = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, 0x10) * static_cast<std::uint32_t>(rectangle[0])) - pixelX;
         const std::uint32_t y = DisplayDescription_FixedToPixels(Display_ReadField<std::uint32_t>(display, 0x0C) * static_cast<std::uint32_t>(rectangle[1])) - pixelY;
-        Display_WriteField(display, 0x98C, x);
-        Display_WriteField(display, 0x990, y);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelX, x);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelY, y);
     }
 
     // Original function: FUN_0048168c.
     static void Display_CopyStaticBitmap(void* display)
     {
-        auto* source = Display_ReadField<NXBasics::CBitmap*>(display, 0x96C);
-        const std::int32_t x = Display_ReadField<std::int32_t>(display, 0x970);
-        const std::int32_t y = Display_ReadField<std::int32_t>(display, 0x974);
-        const std::int32_t remainingWidth = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, 0x964) - static_cast<std::uint32_t>(x));
-        const std::int32_t remainingHeight = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, 0x968) - static_cast<std::uint32_t>(y));
+        auto* source = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::StaticBitmap);
+        const std::int32_t x = Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapX);
+        const std::int32_t y = Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapY);
+        const std::int32_t remainingWidth = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth) - static_cast<std::uint32_t>(x));
+        const std::int32_t remainingHeight = NXBasics::Runtime_TimeSigned32(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight) - static_cast<std::uint32_t>(y));
 
         NXBasics::CBitmap bottomRight(source, NXBasics::SRectangle(x, y, remainingWidth, remainingHeight));
         bottomRight.CopyIntoBitmap(Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), 0, 0);
@@ -1376,34 +1380,34 @@ namespace NC2E2
     // Original function: FUN_00481dd1; l_DE_WrapStaticBitmapPosition.
     static void Display_WrapStaticBitmapPosition(const void* display, S2DEngineDisplayRectangle& rectangle)
     {
-        rectangle.bitmapX = Display_WrapBitmapCoordinate(rectangle.bitmapX, Display_ReadField<std::uint32_t>(display, 0x964));
-        rectangle.bitmapY = Display_WrapBitmapCoordinate(rectangle.bitmapY, Display_ReadField<std::uint32_t>(display, 0x968));
+        rectangle.bitmapX = Display_WrapBitmapCoordinate(rectangle.bitmapX, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth));
+        rectangle.bitmapY = Display_WrapBitmapCoordinate(rectangle.bitmapY, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight));
     }
 
     // Original function: FUN_00481a74; l_DE_RebuildStaticCompletly.
     static void Display_RebuildStaticCompletly(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
     {
-        const S2DEngineDisplayRectangle rectangle{ pixelX, pixelY, 0, 0, Display_ReadField<std::uint32_t>(display, 0x964), Display_ReadField<std::uint32_t>(display, 0x968) };
+        const S2DEngineDisplayRectangle rectangle{ pixelX, pixelY, 0, 0, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight) };
         Display_l_DE_DoUpdateStaticPart1(display, nullptr, rectangle);
-        Display_WriteField(display, 0x970, 0u);
-        Display_WriteField(display, 0x974, 0u);
-        Display_WriteField(display, 0x978, std::uint8_t{0});
-        Display_WriteField(display, 0x954, pixelX);
-        Display_WriteField(display, 0x958, pixelY);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticBitmapX, 0u);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticBitmapY, 0u);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag, std::uint8_t{0});
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WorldPixelX, pixelX);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WorldPixelY, pixelY);
     }
 
     // Original function: FUN_004817dc; l_DE_DoUpdateStatic.
     static void Display_DoUpdateStatic(void* display, std::uint32_t pixelX, std::uint32_t pixelY)
     {
-        const std::uint32_t oldX = Display_ReadField<std::uint32_t>(display, 0x954);
-        const std::uint32_t oldY = Display_ReadField<std::uint32_t>(display, 0x958);
+        const std::uint32_t oldX = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX);
+        const std::uint32_t oldY = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY);
         const std::uint32_t dx = pixelX - oldX;
         const std::uint32_t dy = pixelY - oldY;
         const std::uint32_t absoluteX = (dx & NXBasics::IntegerRange::Bit31) != 0 ? 0u - dx : dx;
         const std::uint32_t absoluteY = (dy & NXBasics::IntegerRange::Bit31) != 0 ? 0u - dy : dy;
-        const std::uint32_t width = Display_ReadField<std::uint32_t>(display, 0x964);
-        const std::uint32_t height = Display_ReadField<std::uint32_t>(display, 0x968);
-        if (NXBasics::Runtime_TimeSigned32(absoluteX) >= NXBasics::Runtime_TimeSigned32(width) || NXBasics::Runtime_TimeSigned32(absoluteY) >= NXBasics::Runtime_TimeSigned32(height) || Display_ReadField<std::uint8_t>(display, 0x978) != 0)
+        const std::uint32_t width = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth);
+        const std::uint32_t height = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight);
+        if (NXBasics::Runtime_TimeSigned32(absoluteX) >= NXBasics::Runtime_TimeSigned32(width) || NXBasics::Runtime_TimeSigned32(absoluteY) >= NXBasics::Runtime_TimeSigned32(height) || Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag) != 0)
         {
             Display_RebuildStaticCompletly(display, pixelX, pixelY);
             return;
@@ -1413,7 +1417,7 @@ namespace NC2E2
 
         const std::uint32_t product = dx * dy;
         const std::uint32_t area = (product & NXBasics::IntegerRange::Bit31) != 0 ? 0u - product : product;
-        if ((area * 100u) / (height * width) >= 75u)
+        if ((area * 100u) / (height * width) >= NC2Runtime::DisplayScrolling::FullRebuildAreaPercent)
         {
             Display_RebuildStaticCompletly(display, pixelX, pixelY);
             return;
@@ -1422,7 +1426,7 @@ namespace NC2E2
         if (dx != 0)
         {
             const bool movesRight = NXBasics::Runtime_TimeSigned32(dx) > 0;
-            S2DEngineDisplayRectangle rectangle{ oldX + (movesRight ? width : dx), oldY + dy, Display_ReadField<std::uint32_t>(display, 0x970) + (movesRight ? width : dx), Display_ReadField<std::uint32_t>(display, 0x974) + dy, absoluteX, height };
+            S2DEngineDisplayRectangle rectangle{ oldX + (movesRight ? width : dx), oldY + dy, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapX) + (movesRight ? width : dx), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapY) + dy, absoluteX, height };
             Display_WrapStaticBitmapPosition(display, rectangle);
             Display_l_DE_DoUpdateStaticPart1(display, nullptr, rectangle);
         }
@@ -1430,18 +1434,18 @@ namespace NC2E2
         {
             const bool movesRight = NXBasics::Runtime_TimeSigned32(dx) > 0;
             const bool movesDown = NXBasics::Runtime_TimeSigned32(dy) > 0;
-            const std::uint32_t updatedHeight = Display_ReadField<std::uint32_t>(display, 0x968);
-            S2DEngineDisplayRectangle rectangle{ Display_ReadField<std::uint32_t>(display, 0x954) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, 0x958) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, 0x970) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, 0x974) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, 0x964) - absoluteX, absoluteY };
+            const std::uint32_t updatedHeight = Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight);
+            S2DEngineDisplayRectangle rectangle{ Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapX) + (movesRight ? dx : 0u), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapY) + (movesDown ? updatedHeight : dy), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth) - absoluteX, absoluteY };
             Display_WrapStaticBitmapPosition(display, rectangle);
             Display_l_DE_DoUpdateStaticPart1(display, nullptr, rectangle);
         }
-        Display_WriteField(display, 0x970, Display_ReadField<std::uint32_t>(display, 0x970) + dx);
-        Display_WriteField(display, 0x974, Display_ReadField<std::uint32_t>(display, 0x974) + dy);
-        Display_WriteField(display, 0x970, Display_WrapBitmapCoordinate(Display_ReadField<std::uint32_t>(display, 0x970), Display_ReadField<std::uint32_t>(display, 0x964)));
-        const std::uint32_t bitmapY = Display_WrapBitmapCoordinate(Display_ReadField<std::uint32_t>(display, 0x974), Display_ReadField<std::uint32_t>(display, 0x968));
-        Display_WriteField(display, 0x954, pixelX);
-        Display_WriteField(display, 0x974, bitmapY);
-        Display_WriteField(display, 0x958, pixelY);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticBitmapX, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapX) + dx);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticBitmapY, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapY) + dy);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticBitmapX, Display_WrapBitmapCoordinate(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapX), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth)));
+        const std::uint32_t bitmapY = Display_WrapBitmapCoordinate(Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::StaticBitmapY), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight));
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WorldPixelX, pixelX);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::StaticBitmapY, bitmapY);
+        Display_WriteField(display, NC2Layout::EngineDisplayOffset::WorldPixelY, pixelY);
     }
 
     // Original function: FUN_004910ba; Mac name: NC2E2::Tool_Sound_IsCDAUsable.
@@ -1456,14 +1460,14 @@ namespace NC2E2
         DrawAtom_FishManager_DoDraw(display);
         if ((Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 2u) != 0)
             E2ParticelManager_SortParticelAndDrawBottom(gE2ParticelManager, nullptr, display);
-        const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
-        const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + 0x98C);
+        const auto* rectangle = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::MapRectangle);
+        const auto* point = reinterpret_cast<const std::int32_t*>(static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::MapRectanglePixelX);
         if ((Display_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 1u) != 0)
         {
             Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point, false, true);
             Display_l_DE_DrawLandscapeAndCreaturesField(display, rectangle, Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap), point, false, false);
         }
-        if (CLevelOfDetailManager::sLevelOfDetail == 2 && Display_ReadField<std::int32_t>(display, 0x78) >= 0)
+        if (CLevelOfDetailManager::sLevelOfDetail == 2 && Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter) >= 0)
         {
             Display_l_DE_SpecialOverlay_Rain_Draw(display);
             Display_l_DE_SpecialOverlay_Snow_Draw(display);
@@ -1480,7 +1484,7 @@ namespace NC2E2
             Display_l_DE_Debug_DrawGridLines(display);
         Display_InformGuiRedraw(display);
 
-        if (Display_ReadField<std::int32_t>(display, 0x78) > 0)
+        if (Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter) > 0)
         {
             auto* bitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DestinationBitmap);
             NXBasics::SRectangle area = bitmap->GetRectangle();
@@ -1488,7 +1492,7 @@ namespace NC2E2
             area.width = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.width) & NXBasics::BitMask::WordExceptBits0Through1);
             area.height = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(area.height) & NXBasics::BitMask::WordExceptBits0Through1);
             NXBasics::CBitmap window(bitmap, area);
-            for (std::int32_t step = 0; step < Display_ReadField<std::int32_t>(display, 0x78); ++step)
+            for (std::int32_t step = 0; step < Display_ReadField<std::int32_t>(display, NC2Layout::EngineDisplayOffset::ZoomCounter); ++step)
                 window.ZoomIn();
         }
     }
@@ -1497,9 +1501,9 @@ namespace NC2E2
     void Display_UpdateDisplay(void* display)
     {
         Display_UpdateEarthquake(display);
-        Display_SetMapRectangle(display, Display_ReadField<std::uint32_t>(display, 0x94C), Display_ReadField<std::uint32_t>(display, 0x950));
+        Display_SetMapRectangle(display, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY));
         Display_Highlighting_CheckUpdate(display);
-        Display_DoUpdateStatic(display, Display_ReadField<std::uint32_t>(display, 0x94C), Display_ReadField<std::uint32_t>(display, 0x950));
+        Display_DoUpdateStatic(display, Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelX), Display_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WantedWorldPixelY));
         Display_CopyStaticBitmap(display);
         Display_DrawForeground(display);
         auto* workBitmap = Display_ReadField<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::DrawingBitmap);

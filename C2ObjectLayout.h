@@ -182,6 +182,30 @@ namespace NC2Layout
 
     namespace EngineDisplayOffset
     {
+        inline constexpr auto ActiveDisplayFlag = 0x6C;
+        inline constexpr auto ZoomCounter = 0x78;
+        inline constexpr auto EarthquakeEndTime = 0x940;
+        inline constexpr auto EarthquakeOffsetX = 0x944;
+        inline constexpr auto EarthquakeOffsetY = 0x948;
+        inline constexpr auto WantedWorldPixelX = 0x94C;
+        inline constexpr auto WantedWorldPixelY = 0x950;
+        inline constexpr auto BufferRectangle = 0x95C;
+        inline constexpr auto StaticBitmap = 0x96C;
+        inline constexpr auto StaticBitmapX = 0x970;
+        inline constexpr auto StaticBitmapY = 0x974;
+        inline constexpr auto StaticRebuildRequiredFlag = 0x978;
+        inline constexpr auto MapRectangle = 0x97A;
+        inline constexpr auto MapRectangleX = 0x97A;
+        inline constexpr auto MapRectangleY = 0x97C;
+        inline constexpr auto MapRectangleWidth = 0x97E;
+        inline constexpr auto MapRectangleHeight = 0x980;
+        inline constexpr auto MapMinimumX = 0x982;
+        inline constexpr auto MapMaximumX = 0x984;
+        inline constexpr auto MapMinimumY = 0x986;
+        inline constexpr auto MapMaximumY = 0x988;
+        inline constexpr auto MapRectanglePixelX = 0x98C;
+        inline constexpr auto MapRectanglePixelY = 0x990;
+
         inline constexpr auto RainEnabled = 0x928;
         inline constexpr auto RainColorTable = 0x92C;
         inline constexpr auto SnowEnabled = 0x930;
@@ -604,6 +628,7 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto DisplayScrollState = 72;
         inline constexpr auto WeatherSector = 12u;
         inline constexpr auto WeatherSectorDimensions = 8;
         inline constexpr auto WeatherDensity = 4u;

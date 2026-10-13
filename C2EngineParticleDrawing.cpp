@@ -190,14 +190,14 @@ namespace NC2E2
 	void __fastcall E2ParticelManager_SortParticelAndDrawBottom(void* manager, void* /*unusedEdx*/, void* display)
 	{
 		Write<std::uint32_t>(manager, 8, 0);
-		const auto player = Read<std::uint32_t>(display, 0x7C);
+		const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
 		std::uint32_t previous = 0;
 		std::uint32_t index = 0;
 		do
 		{
 			auto* particle = At(manager, NC2Layout::ParticleManagerOffset::ParticlesUnsigned + index * 0x130u);
 			const auto* point = At(particle, 0x78);
-			if (Read<std::uint8_t>(particle, 4) == 0 || !NC2Logic::MapMigPoint_IsInside(point, reinterpret_cast<const std::int16_t*>(At(display, 0x97A)))) continue;
+			if (Read<std::uint8_t>(particle, 4) == 0 || !NC2Logic::MapMigPoint_IsInside(point, reinterpret_cast<const std::int16_t*>(At(display, NC2Layout::EngineDisplayOffset::MapRectangleX)))) continue;
 			LogicParticelObject_DoOneMovementTick(particle, display);
 			if (Read<std::uint8_t>(particle, 4) == 0)
 			{
@@ -207,7 +207,7 @@ namespace NC2E2
 			// Deferred movement can carry a previously visible particle outside the map.
 			// Use the original checked accessor before visibility and brightness lookups.
 			const auto* micro = NC2Logic::GameMap_GetMapMicroPointPtr(point);
-			if (micro == nullptr || ((Read<std::uint32_t>(display, 0x70) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, 8) & (1u << player)) == 0))
+			if (micro == nullptr || ((Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(micro, 8) & (1u << player)) == 0))
 			{
 				previous = index; continue;
 			}
@@ -304,10 +304,10 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
     using namespace NC2Lifetime;
     const auto bobManager = Read<void*>(gE2StaticDataBobManagersManager, 0x14);
     NC2Logic::CFishSwarmIterator iterator;
-    const std::int16_t bounds[4] = {Read<std::int16_t>(display, 0x97A), static_cast<std::int16_t>(Read<std::int16_t>(display, 0x97C) - 3), Read<std::int16_t>(display, 0x97E), static_cast<std::int16_t>(Read<std::int16_t>(display, 0x980) + 3)};
+    const std::int16_t bounds[4] = {Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), static_cast<std::int16_t>(Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY) - 3), Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), static_cast<std::int16_t>(Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight) + 3)};
     const double time = NC2Logic::gGameTime.tick;
     const NXBasics::SColorRGB white(255, 255, 255);
-    const auto player = Read<std::uint32_t>(display, 0x7C);
+    const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
     const auto truncate = [](double value) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TruncateDoubleToInt64(value))); };
     const auto add = [](std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) + static_cast<std::uint32_t>(b)); };
     for (auto id = iterator.GetFirstFishSwarmId(true); id != -1; id = iterator.GetNextFishSwarmId())
@@ -336,7 +336,7 @@ void __cdecl DrawAtom_FishManager_DoDraw(void* display)
         std::uint32_t centerPoint = 0;
         DisplayDescription_WorldPixelToMapMigCoordinates(display, centerPixel, &centerPoint);
         if (NC2Logic::MapMigPoint_IsBorderPoint(&centerPoint)) continue;
-        if ((Read<std::uint8_t>(display, 0x70) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&centerPoint), 8) & (1u << player)) == 0) continue;
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&centerPoint), 8) & (1u << player)) == 0) continue;
         auto* palette = EnginePalette_GetBrightnessPalette(gStaticPalettes.palettes256 + gStaticPalettes.fishPaletteId, DE_Hightlighting_GetHighlightBrightness(display, &centerPoint));
         for (std::int32_t index = 0; index < Read<std::int32_t>(swarm, 4); ++index)
         {

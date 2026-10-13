@@ -115,7 +115,7 @@ namespace NC2E2
     static void Display_DrawTooltipOverlay_House(void* display, std::uint32_t houseId, bool showGoods, NXBasics::CBitmap* bitmap, std::int32_t x, std::int32_t y)
     {
         const void* house = Tooltip_AddressAt(NC2Logic::CHouseArray::mStaticVars, houseId * NC2Logic::CHouseArray::ElementSize);
-        if (Tooltip_ReadField<std::uint32_t>(house, 0x0C) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
+        if (Tooltip_ReadField<std::uint32_t>(house, 0x0C) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
             return;
         const void* staticData = NC2Logic::House_GetHouseTypeDataPtr(house);
         const std::uint32_t houseType = Tooltip_ReadField<std::uint32_t>(house, 0x14);
@@ -200,7 +200,7 @@ namespace NC2E2
         if (type == 3u)
         {
             const void* vehicle = Tooltip_AddressAt(NC2Logic::CVehicleArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CVehicleArray::ElementSize);
-            if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E0) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
+            if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E0) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
                 return;
             Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8)));
             if (Tooltip_ReadField<std::uint32_t>(vehicle, 0x1E8) != 5u)
@@ -241,7 +241,7 @@ namespace NC2E2
             const void* human = Tooltip_AddressAt(NC2Logic::CHumanArray::mStaticVars, Tooltip_ReadField<std::uint32_t>(moveable, 0x54) * NC2Logic::CHumanArray::ElementSize);
             const char* name = reinterpret_cast<const char*>(Tooltip_AddressAt(gDynamicDataHumans.entries, Tooltip_ReadField<std::uint32_t>(human, 4) * NC2Layout::RecordSize::DynamicHumanUnsigned + NC2Layout::DynamicHumanOffset::NameUnsigned));
             Display_DrawTooltipOverlay_String(display, bitmap, x, y, name);
-            if (Tooltip_ReadField<std::uint32_t>(human, 0x10) != Tooltip_ReadField<std::uint32_t>(display, 0x7C))
+            if (Tooltip_ReadField<std::uint32_t>(human, 0x10) != Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId))
                 return;
             if (!NC2Logic::Human_IsJobHero(human))
                 Display_DrawTooltipOverlay_String(display, bitmap, x, y, NC2Logic::StringAccess_GetJobNamePtr(Tooltip_ReadField<std::uint32_t>(human, 0x18), true));
@@ -279,8 +279,8 @@ namespace NC2E2
             const auto* micro = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
             for (std::int32_t column = 0; column < rectangle[2]; ++column, ++point[0], micro += 0x0E)
             {
-                const auto player = Tooltip_ReadField<std::uint32_t>(display, 0x7C);
-                if ((Tooltip_ReadField<std::uint8_t>(display, 0x70) & 4u) != 0 && player < 16 && (Tooltip_ReadField<std::uint16_t>(micro, 8) & (1u << player)) == 0) continue;
+                const auto player = Tooltip_ReadField<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
+                if ((Tooltip_ReadField<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Tooltip_ReadField<std::uint16_t>(micro, 8) & (1u << player)) == 0) continue;
                 const auto columnOffset = NXBasics::Runtime_TimeSigned32(Tooltip_ReadField<std::uint32_t>(display, 0x10) * static_cast<std::uint32_t>(column) + 127u) >> 8;
                 const auto x = NXBasics::Runtime_TimeSigned32(baseX + static_cast<std::uint32_t>(columnOffset));
                 const auto heightOffset = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NC2Logic::GameMap_GetHeightAtMapMigPoint(point)) * Tooltip_ReadField<std::uint32_t>(display, 0x14) + 127u) >> 8;
@@ -453,14 +453,14 @@ void __fastcall Display_l_DE_Debug_DrawGridLines(void* display)
     const auto halfStep = round(Read<std::int32_t>(display, 0x10) / 2);
     const auto fullStep = round(Read<std::int32_t>(display, 0x10));
     const auto rowStep = round(Read<std::int32_t>(display, 0x0C));
-    for (std::int32_t row = 0; row < Read<std::int16_t>(display, 0x980); ++row)
+    for (std::int32_t row = 0; row < Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight); ++row)
     {
-        std::int16_t point[2] = {Read<std::int16_t>(display, 0x97A), static_cast<std::int16_t>(Read<std::int16_t>(display, 0x97C) + row)};
-        const auto rowY = add(round(mul(Read<std::int32_t>(display, 0x0C), row)), Read<std::int32_t>(display, 0x990));
-        const auto rowX = add(mul((point[1] & 1) + 1, Read<std::int32_t>(display, 0x2C)), Read<std::int32_t>(display, 0x98C));
+        std::int16_t point[2] = {Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), static_cast<std::int16_t>(Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY) + row)};
+        const auto rowY = add(round(mul(Read<std::int32_t>(display, 0x0C), row)), Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelY));
+        const auto rowX = add(mul((point[1] & 1) + 1, Read<std::int32_t>(display, 0x2C)), Read<std::int32_t>(display, NC2Layout::EngineDisplayOffset::MapRectanglePixelX));
         EngineMap_GetConstMapMicroPointPtr(point);
         const auto* logic = static_cast<const std::byte*>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point));
-        for (std::int32_t column = 0; column < Read<std::int16_t>(display, 0x97E); ++column, ++point[0], logic += 14)
+        for (std::int32_t column = 0; column < Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth); ++column, ++point[0], logic += 14)
         {
             const auto x = add(round(mul(Read<std::int32_t>(display, 0x10), column)), rowX);
             const auto y = sub(rowY, round(mul(NC2Logic::GameMap_GetHeightAtMapMigPoint(point), Read<std::int32_t>(display, 0x14))));

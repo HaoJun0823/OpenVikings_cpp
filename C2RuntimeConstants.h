@@ -85,6 +85,22 @@ namespace NC2Runtime
         inline constexpr auto Sand = 3;
     }
 
+    namespace DisplayScrolling
+    {
+        inline constexpr auto MinimumWorldX = -100;
+        inline constexpr auto MinimumWorldY = -200;
+        inline constexpr auto MaximumWorldMargin = 100u;
+        inline constexpr auto FullRebuildAreaPercent = 75u;
+    }
+
+    namespace EarthquakeDisplacement
+    {
+        inline constexpr auto HorizontalRange = 41u;
+        inline constexpr auto HorizontalCenter = 20u;
+        inline constexpr auto VerticalRange = 21u;
+        inline constexpr auto VerticalCenter = 10u;
+    }
+
     namespace RandomSeed
     {
         inline constexpr auto Game = 0x18273645;

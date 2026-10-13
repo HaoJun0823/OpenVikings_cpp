@@ -1,5 +1,8 @@
 #pragma once
 
+#include "XBasicTypes.h"
+
+#include <cstddef>
 #include <cstdint>
 
 namespace NXBasics
@@ -11,6 +14,30 @@ namespace NXBasics
 
 namespace NC2E2
 {
+    // The contiguous Windows scroll state begins at display +0x94C.
+    struct SDisplayScrollState
+    {
+        std::int32_t wantedWorldPixelX;
+        std::int32_t wantedWorldPixelY;
+        std::int32_t worldPixelX;
+        std::int32_t worldPixelY;
+        NXBasics::SRectangle bufferRectangle;
+        NXBasics::CBitmap* staticBitmap;
+        std::int32_t staticBitmapX;
+        std::int32_t staticBitmapY;
+        std::uint8_t staticRebuildRequired;
+        std::byte padding2D;
+        std::int16_t mapRectangle[4];
+        std::uint16_t mapMinimumX;
+        std::uint16_t mapMaximumX;
+        std::uint16_t mapMinimumY;
+        std::uint16_t mapMaximumY;
+        std::byte padding3E[2];
+        std::int32_t mapRectanglePixelX;
+        std::int32_t mapRectanglePixelY;
+    };
+    static_assert(sizeof(SDisplayScrollState) == 72);
+
     struct S2DEngineDisplayRectangle
     {
         std::uint32_t worldX;

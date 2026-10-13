@@ -297,8 +297,8 @@ namespace NC2E2
     // Original function: FUN_00481cdd.
     void Display_l_DE_DoUpdateStaticPart4(void* display, S2DEngineDisplayRectangle rectangle)
     {
-        auto* source = Read<NXBasics::CBitmap*>(display, 0x96C);
-        const U height = Read<U>(display, 0x968);
+        auto* source = Read<NXBasics::CBitmap*>(display, NC2Layout::EngineDisplayOffset::StaticBitmap);
+        const U height = Read<U>(display, NC2Layout::EngineDisplayOffset::BufferHeight);
         if (Bits(rectangle.bitmapY + rectangle.height) > Bits(height))
         {
             const U firstHeight = height - rectangle.bitmapY;
@@ -325,7 +325,7 @@ namespace NC2E2
         auto first = rectangle; first.height = split;
         Display_l_DE_DoUpdateStaticPart4(display, first);
         rectangle.bitmapY += split;
-        const U bufferHeight = Read<U>(display, 0x968);
+        const U bufferHeight = Read<U>(display, NC2Layout::EngineDisplayOffset::BufferHeight);
         if (Bits(rectangle.bitmapY) >= Bits(bufferHeight)) rectangle.bitmapY -= bufferHeight;
         rectangle.worldY = crossesZero ? 0 : U(worldHeight);
         rectangle.height -= split;
@@ -335,7 +335,7 @@ namespace NC2E2
     // Original function: FUN_00481baf.
     void Display_l_DE_DoUpdateStaticPart2(void* display, S2DEngineDisplayRectangle rectangle)
     {
-        const U width = Read<U>(display, 0x964);
+        const U width = Read<U>(display, NC2Layout::EngineDisplayOffset::BufferWidth);
         if (Bits(rectangle.bitmapX + rectangle.width) > Bits(width))
         {
             const U split = width - rectangle.bitmapX;
@@ -357,7 +357,7 @@ namespace NC2E2
         auto first = rectangle; first.width = split;
         Display_l_DE_DoUpdateStaticPart2(display, first);
         rectangle.bitmapX += split;
-        const U bufferWidth = Read<U>(display, 0x964);
+        const U bufferWidth = Read<U>(display, NC2Layout::EngineDisplayOffset::BufferWidth);
         if (Bits(rectangle.bitmapX) >= Bits(bufferWidth)) rectangle.bitmapX -= bufferWidth;
         rectangle.worldX = crossesZero ? 0 : U(worldWidth);
         rectangle.width -= split;

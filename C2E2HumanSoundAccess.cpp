@@ -108,7 +108,7 @@ namespace NC2E2
         case SwitchIds::CallbackType::PlayPlayerJingle:
         {
             const void* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
-            if (display != nullptr && Read<std::uint32_t>(display, 0x7C) == parameter1) NDSManager::CManager::Jingle_Play(parameter2);
+            if (display != nullptr && Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId) == parameter1) NDSManager::CManager::Jingle_Play(parameter2);
             return true;
         }
         case SwitchIds::CallbackType::UpdateHouseOverlayParticles:
@@ -155,10 +155,10 @@ namespace NC2E2
         if (type != 0x17 || NDSManager::CManager::sTheObjectPtr == nullptr) return true;
         const auto* display = C2DEngineDisplayManager::sTheObjectPtr->GetActiveDisplay();
         const auto x = Read<std::int16_t>(&point, 0), y = Read<std::int16_t>(&point, 2);
-        const auto left = Read<std::int16_t>(display, 0x97A), top = Read<std::int16_t>(display, 0x97C), width = Read<std::int16_t>(display, 0x97E), height = Read<std::int16_t>(display, 0x980);
+        const auto left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX), top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY), width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth), height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
         if (x < left || x > static_cast<std::int16_t>(left + width - 1) || y < top || y > static_cast<std::int16_t>(top + height - 1)) return true;
-        const auto player = Read<std::uint32_t>(display, 0x7C);
-        if ((Read<std::uint8_t>(display, 0x70) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), 8) & (1u << player)) == 0) return true;
+        const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
+        if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0 && player < 16 && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(&point), 8) & (1u << player)) == 0) return true;
         const auto pan = (x - width / 2 - left) * 128 / width, vertical = (y - height / 2 - top) * 128 / height;
         const auto distance = ((pan < 0 ? -pan : pan) + (vertical < 0 ? -vertical : vertical)) / 2;
         if (distance > 64) return true;
@@ -216,9 +216,9 @@ namespace NC2E2
         if (Read<std::uint32_t>(manager, 0) == tick) return;
         NC2Lifetime::Write(manager, 0, tick);
         std::int16_t rectangle[4]{};
-        DisplayDescription_GetMapRectangle(display, Read<std::uint32_t>(display, 0x954), Read<std::uint32_t>(display, 0x958), Read<std::uint32_t>(display, 0x964), Read<std::uint32_t>(display, 0x968), rectangle);
+        DisplayDescription_GetMapRectangle(display, Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelX), Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::WorldPixelY), Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferWidth), Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::BufferHeight), rectangle);
         const std::uint32_t center = static_cast<std::uint16_t>(rectangle[0] + (rectangle[2] >> 1)) | (static_cast<std::uint32_t>(static_cast<std::uint16_t>(rectangle[1] + (rectangle[3] >> 1))) << 16);
-        const auto player = Read<std::uint32_t>(display, 0x7C);
+        const auto player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
         const auto chance = static_cast<std::uint32_t>(NXBasics::Runtime_Rand() % 2000);
         for (std::uint32_t tribe = 0; tribe < 8; ++tribe)
         {
@@ -294,18 +294,18 @@ namespace NC2E2
         if (NDSManager::CManager::sTheObjectPtr == nullptr || Read<std::uint8_t>(NDSManager::CManager::sTheObjectPtr, 4) == 0 || soundId == NXBasics::IntegerRange::UInt32Maximum) return;
         const std::int32_t x = Read<std::int16_t>(point, 0);
         const std::int32_t y = Read<std::int16_t>(point, 2);
-        const std::int32_t left = Read<std::int16_t>(display, 0x97A);
-        const std::int32_t top = Read<std::int16_t>(display, 0x97C);
-        const std::int32_t width = Read<std::int16_t>(display, 0x97E);
-        const std::int32_t height = Read<std::int16_t>(display, 0x980);
+        const std::int32_t left = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleX);
+        const std::int32_t top = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleY);
+        const std::int32_t width = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleWidth);
+        const std::int32_t height = Read<std::int16_t>(display, NC2Layout::EngineDisplayOffset::MapRectangleHeight);
         if (attenuate)
         {
             const std::int16_t right = static_cast<std::int16_t>(left + width - 1);
             const std::int16_t bottom = static_cast<std::int16_t>(top + height - 1);
             if (x < left || x > right || y < top || y > bottom) return;
-            if ((Read<std::uint8_t>(display, 0x70) & 4u) != 0)
+            if ((Read<std::uint8_t>(display, NC2Layout::EngineDisplayOffset::DrawFlags) & 4u) != 0)
             {
-                const std::uint32_t player = Read<std::uint32_t>(display, 0x7C);
+                const std::uint32_t player = Read<std::uint32_t>(display, NC2Layout::EngineDisplayOffset::PlayerId);
                 if (player < 16u && (Read<std::uint16_t>(NC2Logic::GameMap_GetConstMapMicroPointPtr(point), 8) & (1u << player)) == 0) return;
             }
         }

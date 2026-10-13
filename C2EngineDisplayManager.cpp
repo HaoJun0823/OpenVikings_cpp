@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2EngineDisplayAccess.h"
 #include "C2EngineDisplayManager.h"
@@ -60,7 +61,7 @@ namespace NC2E2
         PushBack(display);
 
         std::uint8_t active;
-        std::memcpy(&active, static_cast<const std::byte*>(display) + 0x6c, sizeof(active));
+        std::memcpy(&active, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::ActiveDisplayFlag, sizeof(active));
 
         if (active != 0)
         {
@@ -74,7 +75,7 @@ namespace NC2E2
         Remove(display);
 
         std::uint8_t active;
-        std::memcpy(&active, static_cast<const std::byte*>(display) + 0x6c, sizeof(active));
+        std::memcpy(&active, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::ActiveDisplayFlag, sizeof(active));
 
         if (active != 0)
         {
@@ -89,9 +90,9 @@ namespace NC2E2
         for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
         {
             std::uint32_t player;
-            std::memcpy(&player, static_cast<const std::byte*>(display) + 0x7C, sizeof(player));
-            const auto* visible = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + 0x97A);
-            if ((playerId == NXBasics::IntegerRange::UInt32Maximum || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[2424] = std::byte{1};
+            std::memcpy(&player, static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::PlayerId, sizeof(player));
+            const auto* visible = reinterpret_cast<const std::int16_t*>(static_cast<const std::byte*>(display) + NC2Layout::EngineDisplayOffset::MapRectangle);
+            if ((playerId == NXBasics::IntegerRange::UInt32Maximum || playerId == player) && NC2Logic::MapMigRectangle_IsTouching(rectangle, visible)) static_cast<std::byte*>(display)[NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag] = std::byte{1};
         }
     }
 
@@ -102,7 +103,7 @@ namespace NC2E2
 
         for (void* display = iterator.First(); display != nullptr; display = iterator.Next())
         {
-            static_cast<std::byte*>(display)[2424] = std::byte{ 1 };
+            static_cast<std::byte*>(display)[NC2Layout::EngineDisplayOffset::StaticRebuildRequiredFlag] = std::byte{ 1 };
         }
     }
 
