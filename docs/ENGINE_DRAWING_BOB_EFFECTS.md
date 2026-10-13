@@ -1,5 +1,13 @@
 # Engine drawing bob effects
 
+## MMX helper boundary and C4799 correction - 2026-10-13
+
+The transparency blend helper and pixel callback previously exposed MMX state across C++ function boundaries, relying on the enclosing renderer's final EMMS. Packed transparency factors now cross these internal boundaries as `std::uint64_t`; only `BlendTransparentMmx` constructs `__m64` values. Factor calculation still occurs twice per drawing call, preserving the original DWORD wrap and repeated-lane bits. Saturating products, shifts, RGB masks, paired/trailing pixels and clipping branches are retained.
+
+Both blend returns extract the packed integer into a `volatile` DWORD before `_mm_empty()`. This ordering is required: inspection of MSVC `/O2` output showed ordinary local result expressions deferred until after EMMS, leaving MMX dirty again at return. Final `/Od` and `/O2` listings confirm two EMMS instructions and clean MMX state on every helper return. The callback carries only integer factors, so it no longer needs its own MMX cleanup. The existing outer cleanup remains, matching original `00465346` in the `0046467D` renderer. Cleanup now also occurs at the helper boundary; this changes register-state timing, not packed pixel arithmetic. Rendering performance has not been measured.
+
+All three warning-related units pass Win32 unlinked MSVC code-generation checks under `/Od` and `/O2`, with C4805/C4700/C4799 promoted to errors. The audit verifies 166 native GUI/CRT instruction byte sequences and the original EMMS bytes. A separate existing CRT C4334 remains visible at `/W3`; the requested warnings are not disabled. No Debug/Release project build, tests or game run occurred.
+
 State: 2026-09-30. All five previously unresolved calls in `C2EngineDrawingAccess.cpp` have production implementations in `XBobRenderingEffects.cpp`. The main Visual Studio project includes that source. The existing game output configuration is unchanged.
 
 Windows x86 assembly is the behavioral source. The macOS reference is used only for names and parameter identity, as explicitly requested by the user. All behavior descriptions below refer to Windows.

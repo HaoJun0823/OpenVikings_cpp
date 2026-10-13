@@ -175,16 +175,17 @@ namespace NXBasics
             return red + green + blue;
         }
 
-        __m64 TransparencyFactors(std::uint32_t value)
+        std::uint64_t TransparencyFactors(std::uint32_t value)
         {
-            const auto repeated = Runtime_MultiplyUInt64(value, 0x100000001ull);
-            __m64 factors;
-            std::memcpy(&factors, &repeated, sizeof(factors));
-            return factors;
+            return Runtime_MultiplyUInt64(value, 0x100000001ull);
         }
 
-        std::uint32_t BlendTransparentMmx(std::uint32_t background, std::uint32_t foreground, __m64 inverse, __m64 alpha, std::uint32_t greenMask, bool highColour, bool paired)
+        std::uint32_t BlendTransparentMmx(std::uint32_t background, std::uint32_t foreground, std::uint64_t inversePacked, std::uint64_t alphaPacked, std::uint32_t greenMask, bool highColour, bool paired)
         {
+            __m64 inverse;
+            __m64 alpha;
+            std::memcpy(&inverse, &inversePacked, sizeof(inverse));
+            std::memcpy(&alpha, &alphaPacked, sizeof(alpha));
             const auto zero = _mm_setzero_si64();
             auto bg = _mm_cvtsi32_si64(static_cast<int>(background));
             auto fg = _mm_cvtsi32_si64(static_cast<int>(foreground));
@@ -192,7 +193,10 @@ namespace NXBasics
             {
                 bg = _mm_mullo_pi16(_mm_unpacklo_pi8(bg, zero), inverse);
                 fg = _mm_mullo_pi16(_mm_unpacklo_pi8(fg, zero), alpha);
-                return static_cast<std::uint32_t>(_mm_cvtsi64_si32(_mm_packs_pu16(_mm_srli_pi16(_mm_adds_pu16(bg, fg), 8), zero)));
+                // Materialize the integer before EMMS; MSVC can otherwise defer MMX work.
+                const volatile std::uint32_t result = static_cast<std::uint32_t>(_mm_cvtsi64_si32(_mm_packs_pu16(_mm_srli_pi16(_mm_adds_pu16(bg, fg), 8), zero)));
+                _mm_empty();
+                return result;
             }
             const auto mask = _mm_cvtsi32_si64(static_cast<int>(greenMask));
             auto bgGreen = _mm_and_si64(bg, mask);
@@ -213,7 +217,9 @@ namespace NXBasics
             green = _mm_srli_pi16(green, 4);
             if (paired) green = _mm_packs_pi32(green, zero);
             green = _mm_and_si64(green, mask);
-            return static_cast<std::uint32_t>(_mm_cvtsi64_si32(_mm_adds_pu16(other, green)));
+            const volatile std::uint32_t result = static_cast<std::uint32_t>(_mm_cvtsi64_si32(_mm_adds_pu16(other, green)));
+            _mm_empty();
+            return result;
         }
     }
 
@@ -450,6 +456,7 @@ namespace NXBasics
         if (table == nullptr) return;
         const auto greenMask = depth == 1 ? (BobRead<std::uint8_t>(g16BitPixelConverter, 0x3A) != 0 ? NXBasics::Rgb565::PairedGreenMask : NXBasics::Rgb555::PairedGreenMask) : NXBasics::Rgb888::GreenMaskUnsigned;
         const bool mmx = CPU_HasMMX();
+        // Keep MMX values inside the helper that clears their shared x87 register state.
         const auto inverse = TransparencyFactors(0x01000100u - strength * 0x10001u);
         const auto alpha = TransparencyFactors(strength * 0x10001u);
         DrawBobRuns(bobManager, bitmap, region, 1, depth == 1 && !region.wasClipped, false, [&](std::byte* destination, const std::byte* source, bool unchecked, std::uint32_t, std::uint32_t, std::uint32_t pixel, std::uint32_t count)
