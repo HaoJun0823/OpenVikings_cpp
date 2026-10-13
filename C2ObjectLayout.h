@@ -1460,6 +1460,18 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MissionData = 0xDD8;
+
+        inline constexpr auto MissionResult = 76;
+
+        inline constexpr auto MissionGoal = 40;
+
+        inline constexpr auto MissionResultUnsigned = 0x4Cu;
+
+        inline constexpr auto MissionGoalUnsigned = 0x28u;
+
+        inline constexpr auto MissionDataUnsigned = 0xDD8u;
+
         inline constexpr auto HumanListWindowState = 0x18;
 
         inline constexpr auto StatisticsListPointers = 12;
@@ -2655,6 +2667,75 @@ namespace NC2Layout
     namespace StatisticsDiagramStateOffset
     {
         inline constexpr auto Colors = 0x24;
+    }
+
+    namespace MissionManagerOffset
+    {
+        inline constexpr auto FirstMissionVars = 0x40;
+
+        inline constexpr auto Missions = 0x1C;
+
+        inline constexpr auto FailedFlag = 5;
+
+        inline constexpr auto WonFlag = 4;
+
+        inline constexpr auto CurrentBriefingId = 0;
+
+        inline constexpr auto SubMapId = 0x10;
+
+        inline constexpr auto SubMapCampaignId = 0x0C;
+
+        inline constexpr auto ReturnToParentFlag = 0x14;
+
+        inline constexpr auto MissionCount = 0x18;
+
+        inline constexpr auto EvaluationInterruptedFlag = 6;
+
+        inline constexpr auto StartSubMapFlag = 8;
+    }
+
+    namespace MissionDataOffset
+    {
+        inline constexpr auto DescriptionId = 0x30;
+
+        inline constexpr auto InitiallyActiveFlag = 0x2C;
+
+        inline constexpr auto VisibleFlag = 0x24;
+
+        inline constexpr auto Results = 0x4F0;
+
+        inline constexpr auto Goals = 0x3C;
+
+        inline constexpr auto FirstGoalFulfilledFlagUnsigned = 0x60u;
+
+        inline constexpr auto FulfilledFlag = 0x25;
+
+        inline constexpr auto ResultCount = 0x4EC;
+
+        inline constexpr auto GoalMatchMode = 0x34;
+
+        inline constexpr auto ActivationTick = 0x28;
+
+        inline constexpr auto GoalCount = 0x38;
+
+        inline constexpr auto ActiveFlag = 0x26;
+    }
+
+    namespace MissionResultOffset
+    {
+        inline constexpr auto ParametersUnsigned = 4u;
+    }
+
+    namespace MissionGoalOffset
+    {
+        inline constexpr auto FulfilledFlag = 0x24;
+    }
+
+    namespace MissionDataVarsOffset
+    {
+        inline constexpr auto ResultsUnsigned = 0x4CCu;
+
+        inline constexpr auto GoalsUnsigned = 0x18u;
     }
 
 }

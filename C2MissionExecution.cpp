@@ -52,11 +52,11 @@ namespace NC2Logic
     using namespace NC2Lifetime;
 
     // Original function: FUN_00422fdb; the original index is unchecked.
-    std::uint32_t SResult::GetParameter(std::uint32_t index) const { return Read<std::uint32_t>(this, 4u + index * 4u); }
+    std::uint32_t SResult::GetParameter(std::uint32_t index) const { return Read<std::uint32_t>(this, NC2Layout::MissionResultOffset::ParametersUnsigned + index * 4u); }
 
     namespace
     {
-        void* GetMission(void* manager, std::uint32_t index) { return static_cast<std::byte*>(manager) + 0x1C + index * 0xDD8u; }
+        void* GetMission(void* manager, std::uint32_t index) { return static_cast<std::byte*>(manager) + NC2Layout::MissionManagerOffset::Missions + index * NC2Layout::RecordSize::MissionDataUnsigned; }
         bool GoalsMatch(std::int32_t mode, std::int32_t count, std::int32_t fulfilled)
         {
             switch (mode)
@@ -80,23 +80,23 @@ namespace NC2Logic
     // Original function: FUN_0041e2ae; parent restoration takes precedence over submap start.
     bool MissionManager_CheckAllMissionGoals(void* manager)
     {
-        Write<std::uint8_t>(manager, 8, 0);
-        Write<std::uint8_t>(manager, 6, 0);
-        for (std::int32_t index = 0; index < Read<std::int32_t>(manager, 0x18); ++index)
+        Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::StartSubMapFlag, 0);
+        Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::EvaluationInterruptedFlag, 0);
+        for (std::int32_t index = 0; index < Read<std::int32_t>(manager, NC2Layout::MissionManagerOffset::MissionCount); ++index)
         {
             void* mission = GetMission(manager, static_cast<std::uint32_t>(index));
-            if (Read<std::uint8_t>(mission, 0x26) == 0) continue;
+            if (Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::ActiveFlag) == 0) continue;
             MissionManager_l_CheckMission(manager, mission, true);
-            if (Read<std::uint8_t>(manager, 6) != 0) break;
+            if (Read<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::EvaluationInterruptedFlag) != 0) break;
         }
-        if (Read<std::uint8_t>(manager, 0x14) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::ReturnToParentFlag) != 0)
         {
             SubMap_BackToParent();
             return false;
         }
-        if (Read<std::uint8_t>(manager, 8) != 0)
+        if (Read<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::StartSubMapFlag) != 0)
         {
-            const auto campaignId = Read<std::uint32_t>(manager, 0x0C), mapId = Read<std::uint32_t>(manager, 0x10), pathfinderLimitOverride = Read<std::uint32_t>(gGameControl, NC2Layout::GameControlOffset::DifficultyLevel);
+            const auto campaignId = Read<std::uint32_t>(manager, NC2Layout::MissionManagerOffset::SubMapCampaignId), mapId = Read<std::uint32_t>(manager, NC2Layout::MissionManagerOffset::SubMapId), pathfinderLimitOverride = Read<std::uint32_t>(gGameControl, NC2Layout::GameControlOffset::DifficultyLevel);
             SubMap_StartSubMap(campaignId, mapId, pathfinderLimitOverride);
             // The old mission manager can have been freed by either transition.
             return false;
@@ -108,9 +108,9 @@ namespace NC2Logic
     bool MissionManager_l_CheckMission(void* manager, void* mission, bool executeResults)
     {
         std::int32_t fulfilled = 0;
-        for (std::int32_t index = 0; index < Read<std::int32_t>(mission, 0x38); ++index)
+        for (std::int32_t index = 0; index < Read<std::int32_t>(mission, NC2Layout::MissionDataOffset::GoalCount); ++index)
         {
-            auto* goal = reinterpret_cast<SMissionGoal*>(static_cast<std::byte*>(mission) + 0x3C + static_cast<std::uint32_t>(index) * 0x28u);
+            auto* goal = reinterpret_cast<SMissionGoal*>(static_cast<std::byte*>(mission) + NC2Layout::MissionDataOffset::Goals + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MissionGoalUnsigned);
             bool success;
             if (goal->type == 28 || goal->type == 45)
             {
@@ -124,24 +124,24 @@ namespace NC2Logic
                     }
                     seconds = goal->parameters[1];
                 }
-                success = Read<std::uint32_t>(mission, 0x28) + seconds * 12u <= gGameTime.tick;
+                success = Read<std::uint32_t>(mission, NC2Layout::MissionDataOffset::ActivationTick) + seconds * 12u <= gGameTime.tick;
                 if (success && goal->type == 45) goal->parameters[1] = 0;
             }
             else success = MissionManager_l_CheckGoal(manager, *goal);
-            Write<std::uint8_t>(goal, 0x24, success);
+            Write<std::uint8_t>(goal, NC2Layout::MissionGoalOffset::FulfilledFlag, success);
             if (success) ++fulfilled;
         }
-        const bool success = GoalsMatch(Read<std::int32_t>(mission, 0x34), Read<std::int32_t>(mission, 0x38), fulfilled);
+        const bool success = GoalsMatch(Read<std::int32_t>(mission, NC2Layout::MissionDataOffset::GoalMatchMode), Read<std::int32_t>(mission, NC2Layout::MissionDataOffset::GoalCount), fulfilled);
         if (success && executeResults)
         {
             MissionData_SetMissionActiveFlag(mission, false);
-            for (std::int32_t index = 0; index < Read<std::int32_t>(mission, 0x4EC); ++index)
+            for (std::int32_t index = 0; index < Read<std::int32_t>(mission, NC2Layout::MissionDataOffset::ResultCount); ++index)
             {
-                const auto* result = reinterpret_cast<const SResult*>(static_cast<const std::byte*>(mission) + 0x4F0 + static_cast<std::uint32_t>(index) * 0x4Cu);
+                const auto* result = reinterpret_cast<const SResult*>(static_cast<const std::byte*>(mission) + NC2Layout::MissionDataOffset::Results + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MissionResultUnsigned);
                 MissionManager_l_ExecuteResult(manager, *result);
             }
         }
-        Write<std::uint8_t>(mission, 0x25, success);
+        Write<std::uint8_t>(mission, NC2Layout::MissionDataOffset::FulfilledFlag, success);
         return success;
     }
 
@@ -294,15 +294,15 @@ namespace NC2Logic
             }
             return false;
         }
-        case SwitchIds::MissionGoal::IfMissionIsActive: return Read<std::uint8_t>(GetMission(manager, goal.parameters[0]), 0x26) != 0;
+        case SwitchIds::MissionGoal::IfMissionIsActive: return Read<std::uint8_t>(GetMission(manager, goal.parameters[0]), NC2Layout::MissionDataOffset::ActiveFlag) != 0;
         case SwitchIds::MissionGoal::IsMissionDone:
         {
             const void* mission = GetMission(manager, goal.parameters[0]);
-            const auto count = Read<std::int32_t>(mission, 0x38);
+            const auto count = Read<std::int32_t>(mission, NC2Layout::MissionDataOffset::GoalCount);
             std::int32_t fulfilled = 0;
             for (std::int32_t index = 0; index < count; ++index)
-                if (Read<std::uint8_t>(mission, 0x60u + static_cast<std::uint32_t>(index) * 0x28u) != 0) ++fulfilled;
-            return GoalsMatch(Read<std::int32_t>(mission, 0x34), count, fulfilled);
+                if (Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::FirstGoalFulfilledFlagUnsigned + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MissionGoalUnsigned) != 0) ++fulfilled;
+            return GoalsMatch(Read<std::int32_t>(mission, NC2Layout::MissionDataOffset::GoalMatchMode), count, fulfilled);
         }
         case SwitchIds::MissionGoal::NumberOfHousesInArea:
         {
@@ -690,22 +690,22 @@ namespace NC2Logic
             break;
         }
         case SwitchIds::MissionResult::PlayCutscene:
-            if (p[1] != 0) Write(manager, 0, p[0]);
+            if (p[1] != 0) Write(manager, NC2Layout::MissionManagerOffset::CurrentBriefingId, p[0]);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x1B, 1, p[0], 0, 0);
-            Write<std::uint8_t>(manager, 6, 1);
+            Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::EvaluationInterruptedFlag, 1);
             if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_LoadAndPlay("data\\engine2d\\bin\\sounds\\gui\\Briefing_Popup.wav", 100, NXBasics::IntegerRange::UInt32Maximum, 1, false, false, 100);
             break;
         case SwitchIds::MissionResult::ActivateMission: MissionData_SetMissionActiveFlag(GetMission(manager, p[0]), true); break;
         case SwitchIds::MissionResult::DeactivateMission: MissionData_SetMissionActiveFlag(GetMission(manager, p[0]), false); break;
         case SwitchIds::MissionResult::MissionWon:
             NC2LogicExternals::External_Misc_SendToUserStringMessage(StringAccess_GetMiscStringPtr(10), false);
-            Write<std::uint8_t>(manager, 4, 1);
+            Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::WonFlag, 1);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, p[0], 6, 0);
             if (gGameStaticVars.mapType == 4) MultiPlayerGoalManager_ExternalTrigger_WonByMissionManager(gMultiPlayerGoalManager, p[0]);
             break;
         case SwitchIds::MissionResult::MissionFailed:
             NC2LogicExternals::External_Misc_SendToUserStringMessage(StringAccess_GetMiscStringPtr(11), false);
-            Write<std::uint8_t>(manager, 5, 1);
+            Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::FailedFlag, 1);
             CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, p[0], 7, 0);
             if (gGameStaticVars.mapType == 4) MultiPlayerGoalManager_ExternalTrigger_LostByMissionManager(gMultiPlayerGoalManager, p[0]);
             break;
@@ -732,7 +732,7 @@ namespace NC2Logic
             Tool_MapChest_SetRandomChestOnPosition(mask, &point);
             break;
         }
-        case SwitchIds::MissionResult::SetVisible: Write<std::uint8_t>(GetMission(manager, p[0]), 0x24, p[1] != 0); break;
+        case SwitchIds::MissionResult::SetVisible: Write<std::uint8_t>(GetMission(manager, p[0]), NC2Layout::MissionDataOffset::VisibleFlag, p[1] != 0); break;
         case SwitchIds::MissionResult::ChangeHumanPlayerId:
             for (auto id = MissionCheck_GetFirstHumanIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextHumanIdWithMissionCheckId(p[0], id))
                 Human_ChangePlayerId(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NXBasics::Runtime_TimeSigned32(p[1]), true);
@@ -855,8 +855,8 @@ namespace NC2Logic
                 if (House_Stock_CanStoreGoodType(house, p[1], false) || House_Stock_CanStoreGoodType(house, p[1], true)) House_Stock_ModifyAmount(house, nullptr, p[1], p[2], false);
             }
             break;
-        case SwitchIds::MissionResult::StartSubMission: Write(manager, 0x0C, p[0]); Write(manager, 0x10, p[1]); Write<std::uint8_t>(manager, 8, 1); break;
-        case SwitchIds::MissionResult::EndSubMission: Write<std::uint8_t>(manager, 0x14, 1); break;
+        case SwitchIds::MissionResult::StartSubMission: Write(manager, NC2Layout::MissionManagerOffset::SubMapCampaignId, p[0]); Write(manager, NC2Layout::MissionManagerOffset::SubMapId, p[1]); Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::StartSubMapFlag, 1); break;
+        case SwitchIds::MissionResult::EndSubMission: Write<std::uint8_t>(manager, NC2Layout::MissionManagerOffset::ReturnToParentFlag, 1); break;
         case SwitchIds::MissionResult::ChangeVehiclesPlayerId:
             for (auto id = MissionCheck_GetFirstVehicleIdWithMissionCheckId(p[0]); id != -1; id = MissionCheck_GetNextVehicleIdWithMissionCheckId(p[0], id))
                 Vehicle_ChangePlayerId(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, p[1]);
@@ -883,7 +883,7 @@ namespace NC2Logic
             if (Read<std::uint8_t>(gGameControl, p[0] * NC2Layout::RecordSize::GameControlPlayer + p[1] * 55u + p[2] + 0x3126u) == 0) PlayerAllowedThings_MarkHouseAvailable(static_cast<std::byte*>(gGameControl) + p[0] * NC2Layout::RecordSize::GameControlPlayer + 0x18, p[1], p[2]);
             break;
         case SwitchIds::MissionResult::DisableAll:
-            for (std::int32_t index = 0; index < Read<std::int32_t>(manager, 0x18); ++index) MissionData_SetMissionActiveFlag(GetMission(manager, static_cast<std::uint32_t>(index)), false);
+            for (std::int32_t index = 0; index < Read<std::int32_t>(manager, NC2Layout::MissionManagerOffset::MissionCount); ++index) MissionData_SetMissionActiveFlag(GetMission(manager, static_cast<std::uint32_t>(index)), false);
             break;
         case SwitchIds::MissionResult::AllowGood:
         {

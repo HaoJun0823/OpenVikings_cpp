@@ -1,3 +1,5 @@
+#include "C2ObjectLayout.h"
+#include "C2RuntimeConstants.h"
 #include "SwitchIdentifiers.h"
 #include "C2SavegameStateAccess.h"
 #include "C2IoHelper.h"
@@ -17,16 +19,16 @@ namespace NC2Logic
     // Original function: FUN_0041cfb0; CMissionData member construction.
     static void* MissionData_ConstructMembers(void* record)
     {
-        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x18u + index * 0x28u, 0, 40);
-        for (std::uint32_t index = 0; index < 30; ++index) std::memset(static_cast<std::byte*>(record) + 0x4CCu + index * 0x4Cu, 0, 76);
+        for (std::uint32_t index = 0; index < NC2Runtime::MissionCapacity::GoalsAndResults; ++index) std::memset(static_cast<std::byte*>(record) + NC2Layout::MissionDataVarsOffset::GoalsUnsigned + index * NC2Layout::RecordSize::MissionGoalUnsigned, 0, NC2Layout::RecordSize::MissionGoal);
+        for (std::uint32_t index = 0; index < NC2Runtime::MissionCapacity::GoalsAndResults; ++index) std::memset(static_cast<std::byte*>(record) + NC2Layout::MissionDataVarsOffset::ResultsUnsigned + index * NC2Layout::RecordSize::MissionResultUnsigned, 0, NC2Layout::RecordSize::MissionResult);
         return record;
     }
     // Original function: FUN_0041cf8d.
     static void* MissionManager_ConstructMembers(void* manager)
     {
-        for (std::uint32_t index = 0; index < 150; ++index)
+        for (std::uint32_t index = 0; index < NC2Runtime::MissionCapacity::Missions; ++index)
         {
-            auto* record = static_cast<std::byte*>(manager) + 0x40 + index * 0xDD8;
+            auto* record = static_cast<std::byte*>(manager) + NC2Layout::MissionManagerOffset::FirstMissionVars + index * NC2Layout::RecordSize::MissionData;
             MissionData_ConstructMembers(record);
         }
         return manager;
@@ -64,7 +66,7 @@ namespace NC2Logic
     void __fastcall MissionManager_IO_Savegame_DoSave(void* manager, void* /*unusedEdx*/, CIoHelper* io)
     {
         io->IO_Tool_Chunk_StartCreation(SwitchIds::SavegameChunk::Missions, 2);
-        io->IO_Memory_WriteBinary(manager, 0x81CAC);
+        io->IO_Memory_WriteBinary(manager, NC2Layout::ObjectSize::MissionManager);
         io->IO_Tool_Chunk_FinishAndWrite();
     }
 
@@ -74,11 +76,11 @@ namespace NC2Logic
         // Windows constructs the mission records before clearing the entire object.
         MissionManager_ConstructMembers(manager);
         gMissionManager = manager;
-        std::memset(manager, 0, 531628);
+        std::memset(manager, 0, NC2Layout::ObjectSize::MissionManager);
         CCallbackManager::sTheObjectPtr->RegisterCallback(1, MissionManager_l_Mission_Callback, 0xA, 1);
         if (io->mReadHeader.version == 2)
         {
-            io->IO_File_ReadBinary(manager, 0x81CAC);
+            io->IO_File_ReadBinary(manager, NC2Layout::ObjectSize::MissionManager);
         }
         else io->IO_File_Chunk_Skip();
         return manager;
@@ -201,7 +203,7 @@ namespace NC2Logic
     {
         MissionManager_ConstructMembers(manager);
         gMissionManager = manager;
-        std::memset(manager, 0, 531628);
+        std::memset(manager, 0, NC2Layout::ObjectSize::MissionManager);
         CCallbackManager::sTheObjectPtr->RegisterCallback(1, MissionManager_l_Mission_Callback, 10, 1);
         return manager;
     }

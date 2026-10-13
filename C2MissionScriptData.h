@@ -13,6 +13,34 @@ namespace NC2Logic
     static_assert(sizeof(SResult) == 76);
     static_assert(offsetof(SResult, text) == 0x2C);
 
+    // Physical Windows records; unknown bytes and the goal status overlay remain explicit.
+    struct SMissionDataStorage
+    {
+        char debugInfo[30];
+        std::byte unresolved1E[6];
+        std::uint8_t visible, fulfilled, active;
+        std::byte unresolved27;
+        std::uint32_t activationTick;
+        std::uint8_t initiallyActive;
+        std::byte unresolved2D[3];
+        std::int32_t descriptionId, goalMatchMode, goalCount;
+        SMissionGoal goals[30];
+        std::int32_t resultCount;
+        SResult results[30];
+    };
+    struct SMissionManagerStorage
+    {
+        std::uint32_t currentBriefingId;
+        std::uint8_t won, failed, evaluationInterrupted;
+        std::byte unresolved07;
+        std::uint8_t startSubMap;
+        std::byte unresolved09[3];
+        std::uint32_t subMapCampaignId, subMapId;
+        std::uint8_t returnToParent;
+        std::byte unresolved15[3];
+        std::int32_t missionCount;
+        SMissionDataStorage missions[150];
+    };
     std::uint32_t Logic_EntryPoint_GetTribeType(const char* name);
     std::uint32_t Logic_EntryPoint_GetJobType(const char* name);
     std::uint32_t Logic_EntryPoint_GetHouseType(const char* name);

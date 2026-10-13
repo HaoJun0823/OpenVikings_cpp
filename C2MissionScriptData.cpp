@@ -499,9 +499,9 @@ namespace NC2Logic
     void MissionData_SetMissionActiveFlag(void* mission, bool active)
     {
         using namespace NC2Lifetime;
-        if (Read<std::uint8_t>(mission, 0x26) == static_cast<std::uint8_t>(active)) return;
-        Write<std::uint8_t>(mission, 0x26, active);
-        if (active) Write<std::uint32_t>(mission, 0x28, gGameTime.tick);
+        if (Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::ActiveFlag) == static_cast<std::uint8_t>(active)) return;
+        Write<std::uint8_t>(mission, NC2Layout::MissionDataOffset::ActiveFlag, active);
+        if (active) Write<std::uint32_t>(mission, NC2Layout::MissionDataOffset::ActivationTick, gGameTime.tick);
     }
 
     // Original function: FUN_0041d0b6.
@@ -510,12 +510,12 @@ namespace NC2Logic
         using namespace NC2Lifetime;
         // Complete Windows token region: 004F38B8..004F38F7, including the terminator.
         static constexpr NXBasics::SToken sMissionTokenArray[] = {{"description", SwitchIds::MissionScriptToken::Description}, {"active", SwitchIds::MissionScriptToken::Active}, {"successfullif", SwitchIds::MissionScriptToken::Successfullif}, {"goal", SwitchIds::MissionScriptToken::Goal}, {"result", SwitchIds::MissionScriptToken::Result}, {"visible", SwitchIds::MissionScriptToken::Visible}, {"debuginfo", SwitchIds::MissionScriptToken::DebugInfo}, {nullptr, 0}};
-        std::memset(manager, 0, 531628);
+        std::memset(manager, 0, NC2Layout::ObjectSize::MissionManager);
         for (auto* group = reader->GetFirstGroup("MissionData"); group != nullptr; group = reader->GetNextGroup("MissionData"))
         {
-            const auto index = Read<std::uint32_t>(manager, 0x18);
-            Write<std::uint32_t>(manager, 0x18, index + 1u);
-            auto* mission = static_cast<std::byte*>(manager) + 0x1C + index * 0xDD8u;
+            const auto index = Read<std::uint32_t>(manager, NC2Layout::MissionManagerOffset::MissionCount);
+            Write<std::uint32_t>(manager, NC2Layout::MissionManagerOffset::MissionCount, index + 1u);
+            auto* mission = static_cast<std::byte*>(manager) + NC2Layout::MissionManagerOffset::Missions + index * NC2Layout::RecordSize::MissionDataUnsigned;
             while (reader->GetNextCommandLineInGroup() != nullptr)
             {
                 switch (NXBasics::XB_Token_FindTokenInArray(sMissionTokenArray, reader->GetCurrentName()))
@@ -523,32 +523,32 @@ namespace NC2Logic
                 case SwitchIds::MissionScriptToken::Active:
                 {
                     const bool active = reader->GetInt() != 0;
-                    Write<std::uint8_t>(mission, 0x2C, active);
+                    Write<std::uint8_t>(mission, NC2Layout::MissionDataOffset::InitiallyActiveFlag, active);
                     MissionData_SetMissionActiveFlag(mission, active);
                     break;
                 }
                 case SwitchIds::MissionScriptToken::DebugInfo: std::strncpy(reinterpret_cast<char*>(mission), reader->GetString(), 30); break;
-                case SwitchIds::MissionScriptToken::Description: Write<std::int32_t>(mission, 0x30, reader->GetInt()); break;
+                case SwitchIds::MissionScriptToken::Description: Write<std::int32_t>(mission, NC2Layout::MissionDataOffset::DescriptionId, reader->GetInt()); break;
                 case SwitchIds::MissionScriptToken::Goal:
                 {
                     SMissionGoal goal{};
                     NC2Logic_MissionTool::Mission_Tool_ReadGoalData(*reader, goal);
-                    const auto count = Read<std::uint32_t>(mission, 0x38);
-                    std::memcpy(mission + 0x3C + count * 0x28u, &goal, 40);
-                    Write<std::uint32_t>(mission, 0x38, count + 1u);
+                    const auto count = Read<std::uint32_t>(mission, NC2Layout::MissionDataOffset::GoalCount);
+                    std::memcpy(mission + NC2Layout::MissionDataOffset::Goals + count * NC2Layout::RecordSize::MissionGoalUnsigned, &goal, NC2Layout::RecordSize::MissionGoal);
+                    Write<std::uint32_t>(mission, NC2Layout::MissionDataOffset::GoalCount, count + 1u);
                     break;
                 }
                 case SwitchIds::MissionScriptToken::Result:
                 {
                     SResult result{};
                     NC2Logic_MissionTool::Mission_Tool_ReadResultData(*reader, result);
-                    const auto count = Read<std::uint32_t>(mission, 0x4EC);
-                    std::memcpy(mission + 0x4F0 + count * 0x4Cu, &result, 76);
-                    Write<std::uint32_t>(mission, 0x4EC, count + 1u);
+                    const auto count = Read<std::uint32_t>(mission, NC2Layout::MissionDataOffset::ResultCount);
+                    std::memcpy(mission + NC2Layout::MissionDataOffset::Results + count * NC2Layout::RecordSize::MissionResultUnsigned, &result, NC2Layout::RecordSize::MissionResult);
+                    Write<std::uint32_t>(mission, NC2Layout::MissionDataOffset::ResultCount, count + 1u);
                     break;
                 }
-                case SwitchIds::MissionScriptToken::Successfullif: Write<std::int32_t>(mission, 0x34, reader->GetInt()); break;
-                case SwitchIds::MissionScriptToken::Visible: Write<std::uint8_t>(mission, 0x24, reader->GetInt() != 0); break;
+                case SwitchIds::MissionScriptToken::Successfullif: Write<std::int32_t>(mission, NC2Layout::MissionDataOffset::GoalMatchMode, reader->GetInt()); break;
+                case SwitchIds::MissionScriptToken::Visible: Write<std::uint8_t>(mission, NC2Layout::MissionDataOffset::VisibleFlag, reader->GetInt() != 0); break;
                 }
             }
         }

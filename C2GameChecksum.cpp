@@ -93,7 +93,7 @@ namespace NC2Logic
     // Original function: FUN_0041cef3; shared Windows tail-jump entry, not separate array-specific bodies.
     std::uint32_t __fastcall Array_Checksum_Calculate(void* array, void* /*unusedEdx*/) { return static_cast<CArrayHandler*>(array)->Checksum_Calculate(); }
     // Original function: FUN_0041d08d.
-    std::uint32_t __fastcall MissionManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/) { return Tool_Checksum_Calculate(manager, 0x81CAC); }
+    std::uint32_t __fastcall MissionManager_Checksum_Calculate(const void* manager, void* /*unusedEdx*/) { return Tool_Checksum_Calculate(manager, NC2Layout::ObjectSize::MissionManager); }
 
     // Original function: FUN_00424d9d; the native map object argument is unused.
     void __fastcall GameMap_Checksum_Calculate(void* /*map*/, void* /*unusedEdx*/, SGameChecksum* output)

@@ -254,18 +254,18 @@ namespace NC2InGameGuiMiscWindows
         }
         bitmap->Text_PrintV(resources.font08, dark, 20, 55, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x42));
         std::int32_t y = 80;
-        const auto count = Read<std::int32_t>(NC2Logic::gMissionManager, 0x18);
+        const auto count = Read<std::int32_t>(NC2Logic::gMissionManager, NC2Layout::MissionManagerOffset::MissionCount);
         for (std::int32_t index = 0; index < count; ++index)
         {
-            const auto* mission = static_cast<const std::byte*>(NC2Logic::gMissionManager) + 0x1C + static_cast<std::uint32_t>(index) * 0xDD8u;
-            const auto description = Read<std::uint32_t>(mission, 0x30);
-            if (description == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(mission, 0x24) == 0) continue;
+            const auto* mission = static_cast<const std::byte*>(NC2Logic::gMissionManager) + NC2Layout::MissionManagerOffset::Missions + static_cast<std::uint32_t>(index) * NC2Layout::RecordSize::MissionDataUnsigned;
+            const auto description = Read<std::uint32_t>(mission, NC2Layout::MissionDataOffset::DescriptionId);
+            if (description == NXBasics::IntegerRange::UInt32Maximum || Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::VisibleFlag) == 0) continue;
             const char* text = MissionInfoWindow_l_Goals_GetStringPtr(window, description);
             NXBasics::SColorRGB color = *dark;
             if (*text == '@') { ++text; color = NXBasics::SColorRGB(0, 0, 0); }
-            if (Read<std::uint8_t>(mission, 0x25) != 0 || Read<std::uint8_t>(mission, 0x26) != 0)
+            if (Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::FulfilledFlag) != 0 || Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::ActiveFlag) != 0)
             {
-                bitmap->Text_PrintV(resources.font08, &color, 20, y, Read<std::uint8_t>(mission, 0x25) != 0 ? "X" : "o");
+                bitmap->Text_PrintV(resources.font08, &color, 20, y, Read<std::uint8_t>(mission, NC2Layout::MissionDataOffset::FulfilledFlag) != 0 ? "X" : "o");
                 y += NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 40, y, 500, resources.font08, &color, text) + 4;
             }
             else
@@ -308,7 +308,7 @@ namespace NC2InGameGuiMiscWindows
         if (page == 0)
         {
             const bool historyButtons = gMissionBriefingHistory.count > 1;
-            const auto currentId = Read<std::int32_t>(NC2Logic::gMissionManager, 0);
+            const auto currentId = Read<std::int32_t>(NC2Logic::gMissionManager, NC2Layout::MissionManagerOffset::CurrentBriefingId);
             if (currentId != -1 && Read<std::int32_t>(window, 0x180) == -1) MissionInfoWindow_l_Briefing_SetId(window, currentId, true);
             if (Read<std::uint8_t>(window, 0x17C) != 0)
             {

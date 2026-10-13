@@ -259,4 +259,11 @@ namespace NC2Runtime
         inline constexpr auto LifetimeTicksUnsigned = 3600u;
     }
 
+    namespace MissionCapacity
+    {
+        inline constexpr auto Missions = 150;
+
+        inline constexpr auto GoalsAndResults = 30;
+    }
+
 }

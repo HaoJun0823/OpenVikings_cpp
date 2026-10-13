@@ -580,8 +580,8 @@ namespace NC2InGameGuiMiscWindows
         else return;
         if (mode == 2)
         {
-            if (Read<std::uint8_t>(NC2Logic::gMissionManager, 4) != 0) { std::strcat(title, " "); std::strcat(title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x51)); }
-            if (Read<std::uint8_t>(NC2Logic::gMissionManager, 5) != 0) { std::strcat(title, " "); std::strcat(title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x52)); }
+            if (Read<std::uint8_t>(NC2Logic::gMissionManager, NC2Layout::MissionManagerOffset::WonFlag) != 0) { std::strcat(title, " "); std::strcat(title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x51)); }
+            if (Read<std::uint8_t>(NC2Logic::gMissionManager, NC2Layout::MissionManagerOffset::FailedFlag) != 0) { std::strcat(title, " "); std::strcat(title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x52)); }
         }
         if (*title == 0) return;
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
@@ -592,7 +592,7 @@ namespace NC2InGameGuiMiscWindows
         const NXBasics::SRectangle closeRectangle(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
-        const bool restart = mode == 2 && Read<std::uint8_t>(NC2Logic::gMissionManager, 5) != 0;
+        const bool restart = mode == 2 && Read<std::uint8_t>(NC2Logic::gMissionManager, NC2Layout::MissionManagerOffset::FailedFlag) != 0;
         const auto count = restart ? 3 : 2;
         NXBasics::SRectangle rectangle(4, 20, 396 / count - 4, 116);
         for (std::int32_t index = 0; index < count; ++index)
