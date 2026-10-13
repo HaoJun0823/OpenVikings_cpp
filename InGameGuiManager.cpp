@@ -678,7 +678,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2b52.
     void CInGameGuiManager::Options_GuiMisc_SetExpertFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE0) == enabled) return;
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE0) == static_cast<std::uint8_t>(enabled)) return;
         NC2Lifetime::Write<std::uint8_t>(this, 0xE0, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
@@ -686,7 +686,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2b77.
     void CInGameGuiManager::Options_GuiMisc_SetTooltipsOffFlag(bool disabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE1) == disabled) return;
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE1) == static_cast<std::uint8_t>(disabled)) return;
         NC2Lifetime::Write<std::uint8_t>(this, 0xE1, disabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
@@ -694,7 +694,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2b9c.
     void CInGameGuiManager::Options_Scrolling_SetThirdMouseButtonScrollFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE2) == enabled) return;
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE2) == static_cast<std::uint8_t>(enabled)) return;
         NC2Lifetime::Write<std::uint8_t>(this, 0xE2, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
@@ -702,7 +702,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2bc1.
     void CInGameGuiManager::Options_Scrolling_SetBorderScrollFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE3) == enabled) return;
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE3) == static_cast<std::uint8_t>(enabled)) return;
         NC2Lifetime::Write<std::uint8_t>(this, 0xE3, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }
@@ -710,7 +710,7 @@ namespace NInGameGuiManager
     // Original function: FUN_004a2be6.
     void CInGameGuiManager::Options_Scrolling_SetSoftwareMouseFlag(bool enabled, bool save)
     {
-        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE4) == enabled) return;
+        if (NC2Lifetime::Read<std::uint8_t>(this, 0xE4) == static_cast<std::uint8_t>(enabled)) return;
         NC2Lifetime::Write<std::uint8_t>(this, 0xE4, enabled);
         if (save) NMasterPropertyManager::CPropertyManager::sTheObjectPtr->Options_Save_InGame();
     }

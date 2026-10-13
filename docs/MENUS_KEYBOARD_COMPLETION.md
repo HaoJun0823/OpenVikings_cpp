@@ -1,5 +1,11 @@
 # Menus, keyboard commands and cheats
 
+## GUI option comparison warnings - 2026-10-13
+
+The five C4805 warnings in `InGameGuiManager.cpp` are removed by explicitly converting each bool argument to `std::uint8_t` before comparing it with the stored option byte. Expert mode, tooltips, third-button scrolling, border scrolling and software mouse flags retain exact byte equality: a stored noncanonical byte is not normalized to true. Stores and conditional option-save calls are unchanged. Windows `004A2B52..004A2C0A` confirms byte comparison before assignment and saving.
+
+Targeted Win32 MSVC code-generation checks pass with `/Od` and `/O2`, promoting C4805 to an error. These are unlinked object/listing checks under `.codex-work`, not Debug/Release project builds or runtime tests. The complete three-warning audit verifies 166 native GUI/CRT instruction byte sequences and the original renderer EMMS. Separate pre-existing C4334 at the CRT mantissa increment remains visible at `/W3`; none of the requested warning IDs is suppressed.
+
 ## Extras assistant-page text correction - 2026-10-13
 
 The user screenshot shows unrelated `Fische`, `Tutorial` and campaign labels, `<11:...:NOT DEFINED!>` diagnostics and clipped long button captions in the Extras window. `InGameGuiGlobalGameSettingsWindow.cpp` incorrectly used `StringTool_GetOdin001StringPtr` for the entire assistant page. Windows control construction at `004C2502` and drawing at `004C2F2B` call `004E1EB3`, the existing `StringTool_GetWonders001StringPtr`, for all 25 concrete text lookups. Its native wrapper selects table 12 (`wonders/wonders001.ini`); the incorrect Odin wrapper selects table 11. Mac declarations confirm the wrapper names only. This is a reconstruction error, not missing localized assets or an original layout defect.
