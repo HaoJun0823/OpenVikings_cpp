@@ -1,6 +1,7 @@
 #pragma once
 
 #include "C2LifetimeAccess.h"
+#include "C2RuntimeConstants.h"
 
 namespace NC2E2
 {
@@ -16,12 +17,12 @@ namespace NC2E2
     struct SE2StaticDataMapMoveableAnimationPart
     {
         std::uint32_t type;
-        std::uint32_t startTime;
-        std::uint32_t endTime;
-        std::int32_t dataId;
-        std::int32_t parameter10;
-        std::int32_t parameter14;
-        std::int32_t parameter18;
+        std::uint32_t startPercent;
+        std::uint32_t endPercent;
+        union { std::int32_t walkDirection; std::int32_t atomicAction; std::int32_t overlayBobId; std::int32_t overlayLandscapeId; };
+        union { std::int32_t walkGood; std::int32_t atomicSubId; std::int32_t overlayOffsetX; };
+        union { std::int32_t walkEndOffsetX; std::int32_t atomicDirection; std::int32_t overlayOffsetY; };
+        std::int32_t walkEndOffsetY;
     };
 
     struct SE2StaticDataMapMoveableAnimationData
@@ -55,6 +56,19 @@ namespace NC2E2
 
     static_assert(sizeof(SMapMoveableFrameList) == 8);
     static_assert(sizeof(SE2StaticDataMapMoveableAnimationPart) == 28);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, startPercent) == 4);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, endPercent) == 8);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, walkDirection) == 12);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, atomicAction) == 12);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, overlayBobId) == 12);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, overlayLandscapeId) == 12);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, walkGood) == 16);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, atomicSubId) == 16);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, overlayOffsetX) == 16);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, walkEndOffsetX) == 20);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, atomicDirection) == 20);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, overlayOffsetY) == 20);
+    static_assert(offsetof(SE2StaticDataMapMoveableAnimationPart, walkEndOffsetY) == 24);
     static_assert(sizeof(SE2StaticDataMapMoveableAnimationData) == 100);
     static_assert(offsetof(SE2StaticDataMapMoveableAnimationData, animationMode) == 0x10);
     static_assert(offsetof(SE2StaticDataMapMoveableAnimationData, frames) == 0x1C);

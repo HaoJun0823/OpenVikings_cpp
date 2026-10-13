@@ -56,9 +56,9 @@ namespace NC2E2
     struct SMapMoveableAnimationOverlays
     {
         std::uint32_t behindCount;
-        const SE2StaticDataMapMoveableAnimationPart* behind[5];
+        const SE2StaticDataMapMoveableAnimationPart* behind[NC2Runtime::MoveableAnimationLimits::OverlaysPerLayer];
         std::uint32_t frontCount;
-        const SE2StaticDataMapMoveableAnimationPart* front[5];
+        const SE2StaticDataMapMoveableAnimationPart* front[NC2Runtime::MoveableAnimationLimits::OverlaysPerLayer];
     };
 
     struct S2DEngineDisplaySearchObjectBobData

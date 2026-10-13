@@ -415,6 +415,7 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto MoveableAnimationPartUnsigned = 28u;
         inline constexpr auto DisplayAtomInformation = 60;
         inline constexpr auto DynamicAnimalVehicle = 0x44;
         inline constexpr auto DynamicAnimalVehicleUnsigned = 0x44u;

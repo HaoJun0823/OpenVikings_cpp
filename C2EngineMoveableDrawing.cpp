@@ -124,12 +124,12 @@ namespace NC2E2
         void SetAnimationFrame(SE2DynamicDataMapMoveableData& dynamic, const SE2StaticDataMapMoveableAnimationData& animation, const SMapMoveableFrameList& frames, std::uint32_t done, std::uint32_t total)
         {
             std::uint32_t index = 0;
-            if (animation.animationMode == 0)
+            if (animation.animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames)
             {
                 index = (frames.count * done) / total;
                 if (index >= frames.count) index = frames.count - 1u;
             }
-            else if (animation.animationMode == 1) index = done % frames.count;
+            else if (animation.animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames) index = done % frames.count;
             SetFrame(dynamic, animation.bodySequenceOrPartCount, animation.headSequenceOrPartAddress, frames.frames[index]);
         }
 
@@ -587,15 +587,15 @@ namespace NC2E2
             for (std::int32_t index = 0; index < NXBasics::Runtime_TimeSigned32(count); ++index)
             {
                 const auto& part = *parts[index];
-                const auto overlayX = AddOffset(AddOffset(x, anchorX), part.parameter10);
-                const auto overlayY = AddOffset(AddOffset(y, anchorY), part.parameter14);
+                const auto overlayX = AddOffset(AddOffset(x, anchorX), part.overlayOffsetX);
+                const auto overlayY = AddOffset(AddOffset(y, anchorY), part.overlayOffsetY);
                 const auto overlayBrightness = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(brightness) * 2u);
-                if (part.type == 4)
-                    EngineGraphic_Draw(static_cast<std::uint32_t>(part.dataId), 1, bitmap, overlayX, overlayY, NC2Logic::gGameTime.tick, overlayBrightness, -1, false);
-                else if (part.type == 3)
+                if (part.type == NC2Runtime::MoveableAnimationPartType::LandscapeOverlay)
+                    EngineGraphic_Draw(static_cast<std::uint32_t>(part.overlayLandscapeId), 1, bitmap, overlayX, overlayY, NC2Logic::gGameTime.tick, overlayBrightness, -1, false);
+                else if (part.type == NC2Runtime::MoveableAnimationPartType::HouseBobOverlay)
                 {
                     const auto houseId = Read<std::uint8_t>(micro, 0) == 2 ? static_cast<std::int32_t>(Read<std::uint16_t>(micro, 4)) : -1;
-                    DrawAtom_House_Tool_DoDrawBob(houseId, bitmap, overlayX, overlayY, overlayBrightness, static_cast<std::uint32_t>(part.dataId));
+                    DrawAtom_House_Tool_DoDrawBob(houseId, bitmap, overlayX, overlayY, overlayBrightness, static_cast<std::uint32_t>(part.overlayBobId));
                 }
             }
         };
@@ -720,16 +720,16 @@ namespace NC2E2
         }
         const auto* animation = dynamic.animation;
         if (animation == nullptr) return;
-        if (animation->animationMode == 0 || animation->animationMode == 1)
+        if (animation->animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animation->animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames)
         {
             const auto& frames = animation->frames.frames != nullptr ? animation->frames : animation->directionFrames[DrawingDirection(moveable)];
             SetAnimationFrame(dynamic, *animation, frames, done, total);
             return;
         }
-        if (animation->animationMode != 2) return;
+        if (animation->animationMode != NC2Runtime::MoveableAnimationMode::Compound) return;
         const auto partCount = animation->bodySequenceOrPartCount;
         const auto* parts = reinterpret_cast<const SE2StaticDataMapMoveableAnimationPart*>(static_cast<std::uintptr_t>(animation->headSequenceOrPartAddress));
-        const auto percent = (done * 10000u) / total;
+        const auto animationProgress = (done * 10000u) / total;
         if (display != nullptr && Read<std::uint8_t>(moveable, NC2Layout::MapMoveableOffset::AttachedToMapFlag) != 0)
         {
             const auto* point = static_cast<const std::byte*>(moveable) + NC2Layout::MapMoveableOffset::MapPosition;
@@ -749,46 +749,51 @@ namespace NC2E2
         for (std::uint32_t index = 0; index < partCount; ++index)
         {
             const auto& part = parts[index];
-            const auto begin = part.startTime * 100u;
-            const auto end = part.endTime * 100u;
-            if (percent < begin) continue;
-            if (percent >= end)
+            const auto partStartProgress = part.startPercent * 100u;
+            const auto partEndProgress = part.endPercent * 100u;
+            if (animationProgress < partStartProgress) continue;
+            if (animationProgress >= partEndProgress)
             {
-                if (part.type == 1) { startX = part.parameter14; startY = part.parameter18; }
+                if (part.type == NC2Runtime::MoveableAnimationPartType::Walk)
+                {
+                    startX = part.walkEndOffsetX;
+                    startY = part.walkEndOffsetY;
+                }
                 continue;
             }
-            const auto progress = (percent * 10000u - begin * 10000u) / (end - begin);
-            if (part.type == 3 || part.type == 4) continue;
-            if (part.type == 1)
+            const auto progress = (animationProgress * 10000u - partStartProgress * 10000u) / (partEndProgress - partStartProgress);
+            if (part.type == NC2Runtime::MoveableAnimationPartType::HouseBobOverlay || part.type == NC2Runtime::MoveableAnimationPartType::LandscapeOverlay) continue;
+            if (part.type == NC2Runtime::MoveableAnimationPartType::Walk)
             {
                 auto lookupJob = job;
                 const SE2StaticDataMapMoveableWalkData* walk;
                 while (true)
                 {
-                    walk = StaticMapMoveables_GetWalkDataPtr(gE2StaticDataMapMoveablesManager, tribe, lookupJob, static_cast<std::uint32_t>(part.parameter10), Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep));
+                    walk = StaticMapMoveables_GetWalkDataPtr(gE2StaticDataMapMoveablesManager, tribe, lookupJob, static_cast<std::uint32_t>(part.walkGood), Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::WalkingTicksPerStep));
                     if (walk != nullptr) break;
                     lookupJob = ParentJob(lookupJob);
                     if (lookupJob == 0) break;
                 }
                 if (walk != nullptr)
                 {
-                    const auto& frames = walk->walkFrames[part.dataId];
+                    const auto& frames = walk->walkFrames[part.walkDirection];
                     SetFrame(dynamic, static_cast<std::uint32_t>(walk->bodySequence), static_cast<std::uint32_t>(walk->headSequence), frames.frames[NC2Logic::gGameTime.tick % frames.count]);
-                    startX = InterpolateOffset(startX, part.parameter14, progress);
-                    startY = InterpolateOffset(startY, part.parameter18, progress);
+                    startX = InterpolateOffset(startX, part.walkEndOffsetX, progress);
+                    startY = InterpolateOffset(startY, part.walkEndOffsetY, progress);
                 }
             }
-            else if (part.type == 2)
+            else if (part.type == NC2Runtime::MoveableAnimationPartType::AtomicAnimation)
             {
-                const auto* atomic = FindAnimation(tribe, job, static_cast<std::uint32_t>(part.dataId), static_cast<std::uint32_t>(part.parameter10));
+                const auto* atomic = FindAnimation(tribe, job, static_cast<std::uint32_t>(part.atomicAction), static_cast<std::uint32_t>(part.atomicSubId));
                 if (atomic != nullptr)
                 {
-                    const auto direction = part.parameter14 == -1 ? DrawingDirection(moveable) : static_cast<std::uint32_t>(part.parameter14);
+                    const auto direction = part.atomicDirection == -1 ? DrawingDirection(moveable) : static_cast<std::uint32_t>(part.atomicDirection);
                     const auto& frames = atomic->frames.frames != nullptr ? atomic->frames : atomic->directionFrames[direction];
                     SetAnimationFrame(dynamic, *atomic, frames, progress, 10000);
                 }
             }
-            offsetX = AddOffset(offsetX, startX); offsetY = AddOffset(offsetY, startY);
+            offsetX = AddOffset(offsetX, startX);
+            offsetY = AddOffset(offsetY, startY);
             break;
         }
         if (overlays == nullptr) return;
@@ -796,13 +801,13 @@ namespace NC2E2
         for (std::uint32_t index = 0; index < partCount; ++index)
         {
             const auto& part = parts[index];
-            if (percent < part.startTime * 100u || percent >= part.endTime * 100u) continue;
-            if (part.type == 1 || part.type == 2) behind = false;
-            else if (part.type == 3 || part.type == 4)
+            if (animationProgress < part.startPercent * 100u || animationProgress >= part.endPercent * 100u) continue;
+            if (part.type == NC2Runtime::MoveableAnimationPartType::Walk || part.type == NC2Runtime::MoveableAnimationPartType::AtomicAnimation) behind = false;
+            else if (part.type == NC2Runtime::MoveableAnimationPartType::HouseBobOverlay || part.type == NC2Runtime::MoveableAnimationPartType::LandscapeOverlay)
             {
                 auto& count = behind ? overlays->behindCount : overlays->frontCount;
                 auto* entries = behind ? overlays->behind : overlays->front;
-                if (count != 5) entries[count++] = &part;
+                if (count != NC2Runtime::MoveableAnimationLimits::OverlaysPerLayer) entries[count++] = &part;
             }
         }
     }

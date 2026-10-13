@@ -1,5 +1,9 @@
 # Reverse-Engineering State
 
+## Compound moveable animation records - 2026-10-13
+
+Replaced generic part parameters with type-specific signed members, named modes/part types and retained parser read order, 28-byte layout, capacities and overlay ordering. Both affected C++ units, 16 value/type pairs and layout/trivial-copy assertions pass Win32 `/Zs`; 2205 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [COMPOUND_MOVEABLE_ANIMATION_REVIEW.md](COMPOUND_MOVEABLE_ANIMATION_REVIEW.md). Whole-source review continues with static appearance/job-graphics data and remaining engine/GUI/control/data structures.
+
 ## Dynamic actor drawing layouts - 2026-10-13
 
 Named human appearance, palette/name and display-state storage, common sprite-cache members and distinct human/animal/vehicle tails. Corrected the animation-cache name to atomic start count. Original copying, callback order, palette lifetime and serialization boundaries are retained. All 21 affected C++ units, 36 value/type pairs and layout assertions pass Win32 `/Zs`; 3011 native instruction bytes verify against Game.exe. No build or runtime run occurred. See [DYNAMIC_ACTOR_LAYOUT_REVIEW.md](DYNAMIC_ACTOR_LAYOUT_REVIEW.md). Whole-source review continues with compound animation records and remaining engine/GUI/control/data layouts.

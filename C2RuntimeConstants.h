@@ -10,6 +10,33 @@ namespace NC2Runtime
         inline constexpr auto TicksPerDurationUnit = 0x2D0u;
     }
 
+    namespace MoveableAnimationMode
+    {
+        inline constexpr auto Unspecified = -1;
+        inline constexpr auto ProgressFrames = 0;
+        inline constexpr auto CyclicFrames = 1;
+        inline constexpr auto Compound = 2;
+    }
+
+    namespace MoveableAnimationPartType
+    {
+        inline constexpr auto Walk = 1;
+        inline constexpr auto WalkUnsigned = 1u;
+        inline constexpr auto AtomicAnimation = 2;
+        inline constexpr auto AtomicAnimationUnsigned = 2u;
+        inline constexpr auto HouseBobOverlay = 3;
+        inline constexpr auto HouseBobOverlayUnsigned = 3u;
+        inline constexpr auto LandscapeOverlay = 4;
+        inline constexpr auto LandscapeOverlayUnsigned = 4u;
+    }
+
+    namespace MoveableAnimationLimits
+    {
+        inline constexpr auto FramesPerList = 500;
+        inline constexpr auto CompoundParts = 50;
+        inline constexpr auto OverlaysPerLayer = 5;
+    }
+
     namespace RandomSeed
     {
         inline constexpr auto Game = 0x18273645;

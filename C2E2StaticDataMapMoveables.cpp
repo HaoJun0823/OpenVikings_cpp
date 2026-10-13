@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2DataIds.h"
 #include "C2RuntimeConstants.h"
 #include "XNumericConstants.h"
@@ -228,9 +229,9 @@ namespace NC2E2
                     auto* animation = animations;
                     for (char* group = reader.GetFirstGroup("gfxanimatomic"); group != nullptr; group = reader.GetNextGroup("gfxanimatomic"), ++animation)
                     {
-                        animation->animationMode = -1;
-                        std::uint32_t frames[500], directionFrames[8][500], frameCount = 0, directionCounts[8]{};
-                        SE2StaticDataMapMoveableAnimationPart parts[50];
+                        animation->animationMode = NC2Runtime::MoveableAnimationMode::Unspecified;
+                        std::uint32_t frames[NC2Runtime::MoveableAnimationLimits::FramesPerList], directionFrames[8][NC2Runtime::MoveableAnimationLimits::FramesPerList], frameCount = 0, directionCounts[8]{};
+                        SE2StaticDataMapMoveableAnimationPart parts[NC2Runtime::MoveableAnimationLimits::CompoundParts];
                         std::uint32_t partCount = 0;
                         bool gotFrames = false, gotDirectionFrames = false;
                         while (reader.GetNextCommandLineInGroup() != nullptr)
@@ -244,11 +245,11 @@ namespace NC2E2
                             case SwitchIds::HumanAnimationToken::LogicInHouseAtomicSubId: animation->inHouseSubId = static_cast<std::uint32_t>(reader.GetInt()); break;
                             case SwitchIds::HumanAnimationToken::Gfxanimmode:
                                 animation->animationMode = reader.GetInt();
-                                if (animation->animationMode >= 0 && animation->animationMode <= 1) { animation->bodySequenceOrPartCount = 0; animation->headSequenceOrPartAddress = NXBasics::IntegerRange::UInt32Maximum; }
+                                if (animation->animationMode >= NC2Runtime::MoveableAnimationMode::ProgressFrames && animation->animationMode <= NC2Runtime::MoveableAnimationMode::CyclicFrames) { animation->bodySequenceOrPartCount = 0; animation->headSequenceOrPartAddress = NXBasics::IntegerRange::UInt32Maximum; }
                                 break;
                             case SwitchIds::HumanAnimationToken::Gfxbobseqbody:
                             case SwitchIds::HumanAnimationToken::Gfxbobseqhead:
-                                if (animation->animationMode == 0 || animation->animationMode == 1)
+                                if (animation->animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animation->animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames)
                                 {
                                     const auto sequence = static_cast<std::uint32_t>(SearchBobSequence(manager, reader.GetString()));
                                     if (token == SwitchIds::HumanAnimationToken::Gfxbobseqbody) animation->bodySequenceOrPartCount = sequence;
@@ -256,17 +257,17 @@ namespace NC2E2
                                 }
                                 break;
                             case SwitchIds::HumanAnimationToken::GfxAnimFrameList:
-                                if ((animation->animationMode == 0 || animation->animationMode == 1) && !gotDirectionFrames)
+                                if ((animation->animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animation->animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames) && !gotDirectionFrames)
                                 {
-                                    while (reader.GetTypeOfNextParameter() == 3 && frameCount != 500) frames[frameCount++] = static_cast<std::uint32_t>(reader.GetInt());
+                                    while (reader.GetTypeOfNextParameter() == 3 && frameCount != NC2Runtime::MoveableAnimationLimits::FramesPerList) frames[frameCount++] = static_cast<std::uint32_t>(reader.GetInt());
                                     gotFrames = true;
                                 }
                                 break;
                             case SwitchIds::HumanAnimationToken::Gfxanimframelistdir:
-                                if ((animation->animationMode == 0 || animation->animationMode == 1) && !gotFrames)
+                                if ((animation->animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animation->animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames) && !gotFrames)
                                 {
                                     const auto direction = static_cast<std::uint32_t>(reader.GetInt());
-                                    while (reader.GetTypeOfNextParameter() == 3 && directionCounts[direction] != 500) directionFrames[direction][directionCounts[direction]++] = static_cast<std::uint32_t>(reader.GetInt());
+                                    while (reader.GetTypeOfNextParameter() == 3 && directionCounts[direction] != NC2Runtime::MoveableAnimationLimits::FramesPerList) directionFrames[direction][directionCounts[direction]++] = static_cast<std::uint32_t>(reader.GetInt());
                                     gotDirectionFrames = true;
                                 }
                                 break;
@@ -274,36 +275,54 @@ namespace NC2E2
                             case SwitchIds::HumanAnimationToken::Gfxinhouseanim:
                             case SwitchIds::HumanAnimationToken::Gfxinhouseoverlaybob:
                             case SwitchIds::HumanAnimationToken::GfxInHouseOverlayLandscape:
-                                if (animation->animationMode == 2 && partCount != 50)
+                                if (animation->animationMode == NC2Runtime::MoveableAnimationMode::Compound && partCount != NC2Runtime::MoveableAnimationLimits::CompoundParts)
                                 {
                                     auto& part = parts[partCount];
-                                    part.type = token == SwitchIds::HumanAnimationToken::GfxInHouseWalk ? 1u : token == SwitchIds::HumanAnimationToken::Gfxinhouseanim ? 2u : token == SwitchIds::HumanAnimationToken::Gfxinhouseoverlaybob ? 3u : 4u;
-                                    if (part.type == 1)
+                                    if (token == SwitchIds::HumanAnimationToken::GfxInHouseWalk) part.type = NC2Runtime::MoveableAnimationPartType::WalkUnsigned;
+                                    else if (token == SwitchIds::HumanAnimationToken::Gfxinhouseanim) part.type = NC2Runtime::MoveableAnimationPartType::AtomicAnimationUnsigned;
+                                    else if (token == SwitchIds::HumanAnimationToken::Gfxinhouseoverlaybob) part.type = NC2Runtime::MoveableAnimationPartType::HouseBobOverlayUnsigned;
+                                    else part.type = NC2Runtime::MoveableAnimationPartType::LandscapeOverlayUnsigned;
+                                    if (part.type == NC2Runtime::MoveableAnimationPartType::Walk)
                                     {
-                                        part.dataId = reader.GetInt(); part.parameter10 = reader.GetInt(); part.parameter14 = reader.GetInt(); part.parameter18 = reader.GetInt();
+                                        part.walkDirection = reader.GetInt();
+                                        part.walkGood = reader.GetInt();
+                                        part.walkEndOffsetX = reader.GetInt();
+                                        part.walkEndOffsetY = reader.GetInt();
+                                    }
+                                    else if (part.type == NC2Runtime::MoveableAnimationPartType::AtomicAnimation)
+                                    {
+                                        part.atomicAction = reader.GetInt();
+                                        part.atomicSubId = reader.GetInt();
+                                        part.atomicDirection = reader.GetInt();
                                     }
                                     else
                                     {
-                                        part.dataId = part.type == 4 ? E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString()) : reader.GetInt();
-                                        if (part.type == 4 && part.dataId == -1) break;
-                                        part.parameter10 = reader.GetInt(); part.parameter14 = reader.GetInt();
+                                        if (part.type == NC2Runtime::MoveableAnimationPartType::LandscapeOverlay)
+                                        {
+                                            part.overlayLandscapeId = E2StaticDataLandscapesManager_GetLandscapeId(reader.GetString());
+                                            if (part.overlayLandscapeId == -1) break;
+                                        }
+                                        else part.overlayBobId = reader.GetInt();
+                                        part.overlayOffsetX = reader.GetInt();
+                                        part.overlayOffsetY = reader.GetInt();
                                     }
-                                    part.startTime = static_cast<std::uint32_t>(reader.GetInt()); part.endTime = static_cast<std::uint32_t>(reader.GetInt());
+                                    part.startPercent = static_cast<std::uint32_t>(reader.GetInt());
+                                    part.endPercent = static_cast<std::uint32_t>(reader.GetInt());
                                     ++partCount;
                                 }
                                 break;
                             }
                         }
-                        if (animation->animationMode == 0 || animation->animationMode == 1)
+                        if (animation->animationMode == NC2Runtime::MoveableAnimationMode::ProgressFrames || animation->animationMode == NC2Runtime::MoveableAnimationMode::CyclicFrames)
                         {
                             CopyFrames(animation->frames, frames, frameCount);
                             for (std::uint32_t direction = 0; direction < 8; ++direction) CopyFrames(animation->directionFrames[direction], directionFrames[direction], directionCounts[direction]);
                         }
-                        if (animation->animationMode == 2 && partCount != 0)
+                        if (animation->animationMode == NC2Runtime::MoveableAnimationMode::Compound && partCount != 0)
                         {
                             animation->bodySequenceOrPartCount = partCount;
                             auto* data = Allocate<SE2StaticDataMapMoveableAnimationPart>(partCount);
-                            std::memcpy(data, parts, partCount * 28u);
+                            std::memcpy(data, parts, partCount * NC2Layout::RecordSize::MoveableAnimationPartUnsigned);
                             animation->headSequenceOrPartAddress = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(data));
                         }
                         if (animation->inHouseSubId == 0) InsertSorted(manager, 8, animation, false);
