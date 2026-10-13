@@ -36,14 +36,14 @@ namespace NC2Logic
     // Original function: FUN_0044B96C.
     bool Human_Production_IsStopped(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 0; }
     // Original function: FUN_0044B97F.
-    bool Human_Production_IsForbidden(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 12; }
+    bool Human_Production_IsForbidden(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == NC2Runtime::ProductionCounter::Forbidden; }
     // Original function: FUN_0044B993.
-    bool Human_Production_IsIncapable(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 13; }
+    bool Human_Production_IsIncapable(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == NC2Runtime::ProductionCounter::Incapable; }
     // Original function: FUN_0044B9A7.
-    bool Human_Production_IsImpossible(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == 14; }
+    bool Human_Production_IsImpossible(const void* human, std::uint32_t good) { return NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u) == NC2Runtime::ProductionCounter::Impossible; }
 
     // Original function: FUN_0042c8e6.
-    bool Human_IsForcedToHaveFinishedWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint8_t>(gStaticJobTypeData, NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u) != 0; }
+    bool Human_IsForcedToHaveFinishedWorkHouse(const void* human) { return NC2Lifetime::Read<std::uint8_t>(gStaticJobTypeData, NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouseUnsigned) != 0; }
     using namespace NC2Lifetime;
 
     // Original function: FUN_0044b3c5.
@@ -449,9 +449,9 @@ namespace NC2Logic
         if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) == 0 || !Human_IsCapableToProduceGood(human, good)) return false;
         const auto houseId = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId);
         const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-        if (houseId == NXBasics::IntegerRange::UInt32Maximum) return Read<std::uint8_t>(gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x83u) == 0;
+        if (houseId == NXBasics::IntegerRange::UInt32Maximum) return Read<std::uint8_t>(gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::MustHaveWorkHouseUnsigned) == 0;
         const void* house = CHouseArray::mStaticVars + houseId * CHouseArray::ElementSize;
-        if (Read<std::uint8_t>(gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x84u) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return false;
+        if (Read<std::uint8_t>(gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::MustHaveFinishedWorkHouseUnsigned) != 0 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) != 3) return false;
         return House_Production_IsAbleToProduceGood(house, good, true) || House_Production_IsAbleToProduceGood(house, good, false);
     }
     // Original function: FUN_0042d95e.
@@ -511,38 +511,38 @@ namespace NC2Logic
     // Original function: FUN_0044a07c; update existing capabilities after script allowances change.
     void Human_UpdatePlayerSpecificStuffAndCaps(void* human)
     {
-        std::byte message[772];
+        std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 18);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, SwitchIds::UserMessage::ExperienceUnlocks);
         const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
         if (Human_IsSexMale(human) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit6) == 0)
         {
             for (std::uint32_t job = 6; job <= 41; ++job)
             {
-                if (Read<std::uint8_t>(player, 0x18u + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 56u + job) == 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 0);
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) == 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 0);
                 else if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job) == 0 && Human_DoesExperienceAllowJobChange(human, job))
                 {
                     Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
-                    AppendMessageItem(message, 0x138, job);
+                    AppendMessageItem(message, NC2Layout::ToUserMessageOffset::JobCount, job);
                 }
             }
         }
-        else Write<std::uint8_t>(human, 0x161, Read<std::uint8_t>(player, 0x1Du + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 56u) != 0);
+        else Write<std::uint8_t>(human, NC2Layout::HumanOffset::WomanJobAllowedFlag, Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::WomanJobAllowedFlagUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned) != 0);
         if (Human_IsJobSoldier(human))
         {
             for (std::uint32_t job = 31; job <= 41; ++job)
-                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job) == 0 && Read<std::uint8_t>(player, 0x18u + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 56u + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job) == 0 && Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
             for (std::uint32_t item = 37; item <= 42; ++item)
             {
-                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item) != 0 || Read<std::uint8_t>(player, 0x1278u + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 66u + item) == 0) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item) != 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + item) == 0) continue;
                 Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
                 Human_UserMessage_SendToUserMessage_CanEquipNewItem(human, item);
             }
             for (std::uint32_t item = 33; item <= 36; ++item)
             {
-                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item) != 0 || Read<std::uint8_t>(player, 0x1278u + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 66u + item) == 0) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item) != 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + item) == 0) continue;
                 Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
                 Human_UserMessage_SendToUserMessage_CanEquipNewItem(human, item);
             }
@@ -550,11 +550,11 @@ namespace NC2Logic
         else if (Human_IsJobHero(human))
         {
             for (std::uint32_t job = 42; job <= 47; ++job)
-                if (Read<std::uint8_t>(player, 0x18u + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 56u + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
             for (std::uint32_t item = 33; item <= 36; ++item)
-                if (Read<std::uint8_t>(player, 0x1278u + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 66u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
         }
-        if (Read<std::uint32_t>(message, 0x138) != 0 || Read<std::uint32_t>(message, 0x1FC) != 0 || Read<std::uint32_t>(message, 0x2C) != 0 || Read<std::uint32_t>(message, 0x2DC) != 0)
+        if (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::JobCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::GoodCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::EquipmentCount) != 0)
         {
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -567,14 +567,14 @@ namespace NC2Logic
     // Original function: FUN_0044a45d.
     void Human_SetupCurrentJobType(void* human)
     {
-        std::byte message[772];
+        std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
         const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-        Write<std::uint32_t>(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         const auto player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
-        Write<std::uint32_t>(message, 0, 0x12);
-        Write<std::uint32_t>(message, 8, player);
-        Write<std::uint8_t>(human, NC2Layout::HumanOffset::ProductionSelectionMode, Read<std::uint8_t>(gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + 0x85u) != 0 ? 1 : 0);
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, SwitchIds::UserMessage::ExperienceUnlocks);
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::PlayerId, player);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::ProductionSelectionMode, Read<std::uint8_t>(gStaticJobTypeData, job * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::UserCanChangeProductionUnsigned) != 0 ? 1 : 0);
         const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
         auto* playerData = static_cast<std::byte*>(gGameControl) + player * NC2Layout::RecordSize::GameControlPlayer;
         const auto& enables = JobEnables(human);
@@ -583,28 +583,28 @@ namespace NC2Logic
         {
             if (unlockedJob == 15)
             {
-                if (good == 56) Write<std::uint8_t>(human, 0x1CD, 1);
+                if (good == 56) Write<std::uint8_t>(human, NC2Layout::HumanOffset::HuntingProductionAllowedFlag, 1);
             }
             else if (unlockedJob != 16 || good == 57 || good == 58) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good, 1);
-            const auto availableOffset = 0x1D4Cu + tribe * 66u + good;
+            const auto availableOffset = NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good;
             if (Read<std::uint8_t>(playerData, availableOffset) == 0)
             {
                 Write<std::uint8_t>(playerData, availableOffset, 1);
-                AppendMessageItem(message, 0x2C, good);
+                AppendMessageItem(message, NC2Layout::ToUserMessageOffset::GoodCount, good);
             }
         };
         const auto requirementsMet = [&](std::uint32_t house)
         {
             STribeBuildRequirement requirement;
-            std::memcpy(&requirement, &gStaticTribeTypeData[tribe].houseBuildNeeds[house], 408);
-            for (std::uint32_t i = 0; i < requirement.jobCount; ++i) if (Read<std::uint8_t>(playerData, 0x948u + tribe * 56u + static_cast<std::uint32_t>(requirement.jobs[i])) == 0) return false;
-            for (std::uint32_t i = 0; i < requirement.goodCount; ++i) if (Read<std::uint8_t>(playerData, 0x1D4Cu + tribe * 66u + static_cast<std::uint32_t>(requirement.goods[i])) == 0) return false;
+            std::memcpy(&requirement, &gStaticTribeTypeData[tribe].houseBuildNeeds[house], NC2Layout::RecordSize::TribeBuildRequirement);
+            for (std::uint32_t i = 0; i < requirement.jobCount; ++i) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(requirement.jobs[i])) == 0) return false;
+            for (std::uint32_t i = 0; i < requirement.goodCount; ++i) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + static_cast<std::uint32_t>(requirement.goods[i])) == 0) return false;
             return true;
         };
         const auto enableHouse = [&](std::uint32_t house)
         {
-            PlayerAllowedThings_MarkHouseAvailable(playerData + 0x18, tribe, house);
-            AppendMessageItem(message, 0x1FC, house);
+            PlayerAllowedThings_MarkHouseAvailable(playerData + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);
+            AppendMessageItem(message, NC2Layout::ToUserMessageOffset::HouseCount, house);
         };
 
         for (std::uint32_t i = 0; i < enables.jobCount; ++i)
@@ -613,22 +613,22 @@ namespace NC2Logic
             if (!Human_DoesExperienceAllowJobChange(human, unlockedJob) && !Human_DoesEducationAllowJobChange(human, unlockedJob) && Human_GetPlayerType(human) != 2) continue;
             auto* currentPlayer = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
             const auto currentTribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
-            if (Read<std::uint8_t>(currentPlayer, 0x18u + currentTribe * 56u + unlockedJob) == 0) continue;
+            if (Read<std::uint8_t>(currentPlayer, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + unlockedJob) == 0) continue;
             Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + unlockedJob, 1);
-            const auto availableOffset = 0x948u + currentTribe * 56u + unlockedJob;
+            const auto availableOffset = NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + unlockedJob;
             if (Read<std::uint8_t>(currentPlayer, availableOffset) != 0) continue;
             Write<std::uint8_t>(currentPlayer, availableOffset, 1);
-            AppendMessageItem(message, 0x138, unlockedJob);
+            AppendMessageItem(message, NC2Layout::ToUserMessageOffset::JobCount, unlockedJob);
             const auto& unlocked = gStaticTribeTypeData[currentTribe].jobEnables[unlockedJob];
             for (std::uint32_t j = 0; j < unlocked.goodCount; ++j)
             {
                 const auto good = static_cast<std::uint32_t>(unlocked.goods[j]);
-                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 || Read<std::uint8_t>(currentPlayer, 0x1278u + currentTribe * 66u + good) == 0) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 || Read<std::uint8_t>(currentPlayer, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0) continue;
                 if (Human_DoesExperienceAllowGoodProduction(human, good) || Human_DoesEducationAllowGoodProduction(human, good) || Human_GetPlayerType(human) == 2) enableGood(unlockedJob, good);
             }
             for (std::uint32_t house = 2; house < 55; ++house)
             {
-                if (Read<std::uint8_t>(currentPlayer, 0x2820u + currentTribe * 55u + house) == 0 || Read<std::uint8_t>(currentPlayer, 0x3126u + currentTribe * 55u + house) != 0) continue;
+                if (Read<std::uint8_t>(currentPlayer, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(currentPlayer, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + currentTribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0) continue;
                 if (Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7 || !requirementsMet(house)) continue;
                 enableHouse(house);
             }
@@ -636,8 +636,8 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < enables.goodCount; ++i)
         {
             const auto good = static_cast<std::uint32_t>(enables.goods[i]);
-            if (Read<std::uint8_t>(playerData, 0x1278u + tribe * 66u + good) == 0) continue;
-            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 && Read<std::uint8_t>(playerData, 0x1D4Cu + tribe * 66u + good) != 0) continue;
+            if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0) continue;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 && Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) != 0) continue;
             if (!Human_DoesExperienceAllowGoodProduction(human, good) && !Human_DoesEducationAllowGoodProduction(human, good) && Human_GetPlayerType(human) != 2) continue;
             enableGood(Human_IsJobHunter(human) ? 15u : (Human_IsJobBreeder(human) ? 16u : 0u), good);
         }
@@ -645,7 +645,7 @@ namespace NC2Logic
         {
             const auto house = static_cast<std::uint32_t>(enables.houses[i]);
             if (!Human_DoesExperienceAllowHouseBuilding(human, house) && Human_GetPlayerType(human) != 2) continue;
-            if (Read<std::uint8_t>(playerData, 0x2820u + tribe * 55u + house) == 0 || Read<std::uint8_t>(playerData, 0x3126u + tribe * 55u + house) != 0) continue;
+            if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0) continue;
             if (Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7) continue;
             const bool allowed = requirementsMet(house);
             if (Human_GetPlayerType(human) == 2 || allowed) enableHouse(house);
@@ -665,39 +665,39 @@ namespace NC2Logic
             else for (std::uint32_t i = 0; i < enables.goodCount; ++i) if (Human_IsAbleToProduceGoodNow(human, static_cast<std::uint32_t>(enables.goods[i]))) { Human_DoExecuteUserCommand_ChangeProducedGood(human, static_cast<std::uint32_t>(enables.goods[i])); break; }
         }
         std::memset(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AllowedEquipmentFlagsSigned, 0, 56);
-        Write<std::uint8_t>(human, 0x1DF, Human_IsAgeAdult(human) && Human_IsSexMale(human) && !Human_IsJobHero(human) ? 1 : 0);
-        if (Read<std::uint8_t>(human, 0x1DF) != 0)
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::JobSelectionEnabledFlag, Human_IsAgeAdult(human) && Human_IsSexMale(human) && !Human_IsJobHero(human) ? 1 : 0);
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::JobSelectionEnabledFlag) != 0)
         {
             // Windows uses goodCount here, not the adjacent equipmentCount field.
             for (std::uint32_t i = 0; i < enables.goodCount; ++i)
             {
                 const auto item = static_cast<std::uint32_t>(enables.equipment[i]);
                 if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item) != 0) continue;
-                if ((Human_DoesExperienceAllowEquipment(human, item) || Human_GetPlayerType(human) == 2) && Read<std::uint8_t>(playerData, 0x3C78u + tribe * 56u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+                if ((Human_DoesExperienceAllowEquipment(human, item) || Human_GetPlayerType(human) == 2) && Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
             }
             if (Human_CanEquipShoes(human))
             {
-                Write<std::uint8_t>(human, 0x1FE, 1);
-                if (Human_CanEquipToolIron(human)) Write<std::uint8_t>(human, 0x1FF, 1);
-                if (Human_CanEquipToolIron(human)) Write<std::uint8_t>(human, 0x200, 1);
+                Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipment30Flag, 1);
+                if (Human_CanEquipToolIron(human)) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipment31Flag, 1);
+                if (Human_CanEquipToolIron(human)) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipment32Flag, 1);
             }
-            for (std::uint32_t item = 43; item <= 55; ++item) if (Read<std::uint8_t>(playerData, 0x3C78u + tribe * 56u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+            for (std::uint32_t item = 43; item <= 55; ++item) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
             if (Human_IsJobSoldier(human))
             {
-                for (std::uint32_t nextJob = 31; nextJob <= 41; ++nextJob) if (Read<std::uint8_t>(playerData, 0x18u + tribe * 56u + nextJob) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + nextJob, 1);
-                for (std::uint32_t item = 37; item <= 42; ++item) if (Read<std::uint8_t>(playerData, 0x3C78u + tribe * 56u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
-                for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(playerData, 0x3C78u + tribe * 56u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+                for (std::uint32_t nextJob = 31; nextJob <= 41; ++nextJob) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + nextJob) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + nextJob, 1);
+                for (std::uint32_t item = 37; item <= 42; ++item) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+                for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
             }
             else if (Human_IsJobHero(human))
             {
-                for (std::uint32_t nextJob = 42; nextJob <= 47; ++nextJob) if (Read<std::uint8_t>(playerData, 0x18u + tribe * 56u + nextJob) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + nextJob, 1);
-                for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(playerData, 0x3C78u + tribe * 56u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+                for (std::uint32_t nextJob = 42; nextJob <= 47; ++nextJob) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + nextJob) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + nextJob, 1);
+                for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(playerData, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
             }
         }
         // Original PE constants: 004F3B8C/90/94/98 = 10/5/20/20.
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::ExplorationRadius, Human_IsJobScout(human) ? 20u : (Human_IsJobHero(human) ? 20u : (Human_IsAgeAdult(human) ? 10u : 5u)));
         Human_DoCheckAllUserCommands(human);
-        if (Read<std::uint32_t>(message, 0x138) != 0 || Read<std::uint32_t>(message, 0x1FC) != 0 || Read<std::uint32_t>(message, 0x2C) != 0 || Read<std::uint32_t>(message, 0x2DC) != 0)
+        if (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::JobCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::GoodCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::EquipmentCount) != 0)
         {
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -708,20 +708,20 @@ namespace NC2Logic
     // Original function: FUN_0044ad2e; update only newly unlocked entries and retain native message order.
     void Human_UpdateCurrentJobType(void* human)
     {
-        std::byte message[772];
+        std::byte message[NC2Layout::RecordSize::ToUserMessage];
         ToUserMessage_Construct(message);
-        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
-        Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        Write<std::uint32_t>(message, 0, 18);
+        Write(message, NC2Layout::ToUserMessageOffset::HumanId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+        Write(message, NC2Layout::ToUserMessageOffset::PlayerId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
+        Write<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::Type, SwitchIds::UserMessage::ExperienceUnlocks);
         const auto& enables = JobEnables(human);
         const auto requirementsMet = [human](std::uint32_t house)
         {
             const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
             const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
             STribeBuildRequirement requirement;
-            std::memcpy(&requirement, &gStaticTribeTypeData[tribe].houseBuildNeeds[house], 408);
-            for (std::uint32_t i = 0; i < requirement.jobCount; ++i) if (Read<std::uint8_t>(player, 0x948u + tribe * 56u + static_cast<std::uint32_t>(requirement.jobs[i])) == 0) return false;
-            for (std::uint32_t i = 0; i < requirement.goodCount; ++i) if (Read<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + static_cast<std::uint32_t>(requirement.goods[i])) == 0) return false;
+            std::memcpy(&requirement, &gStaticTribeTypeData[tribe].houseBuildNeeds[house], NC2Layout::RecordSize::TribeBuildRequirement);
+            for (std::uint32_t i = 0; i < requirement.jobCount; ++i) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(requirement.jobs[i])) == 0) return false;
+            for (std::uint32_t i = 0; i < requirement.goodCount; ++i) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + static_cast<std::uint32_t>(requirement.goods[i])) == 0) return false;
             return true;
         };
         for (std::uint32_t i = 0; i < enables.jobCount; ++i)
@@ -731,30 +731,30 @@ namespace NC2Logic
             if (!Human_DoesExperienceAllowJobChange(human, job) && !Human_DoesEducationAllowJobChange(human, job) && Human_GetPlayerType(human) != 2) continue;
             const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
             auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
-            if (Read<std::uint8_t>(player, 0x18u + tribe * 56u + job) == 0) continue;
+            if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) == 0) continue;
             Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
-            if (Read<std::uint8_t>(player, 0x948u + tribe * 56u + job) != 0) continue;
-            Write<std::uint8_t>(player, 0x948u + tribe * 56u + job, 1);
-            AppendMessageItem(message, 0x138, job);
+            if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) != 0) continue;
+            Write<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job, 1);
+            AppendMessageItem(message, NC2Layout::ToUserMessageOffset::JobCount, job);
             const auto& unlocked = gStaticTribeTypeData[tribe].jobEnables[job];
             for (std::uint32_t j = 0; j < unlocked.goodCount; ++j)
             {
                 const auto good = static_cast<std::uint32_t>(unlocked.goods[j]);
-                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 || Read<std::uint8_t>(player, 0x1278u + tribe * 66u + good) == 0) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0) continue;
                 if (!Human_DoesExperienceAllowGoodProduction(human, good) && !Human_DoesEducationAllowGoodProduction(human, good) && Human_GetPlayerType(human) != 2) continue;
-                if (job == 15) { if (good == 56) Write<std::uint8_t>(human, 0x1CD, 1); }
+                if (job == 15) { if (good == 56) Write<std::uint8_t>(human, NC2Layout::HumanOffset::HuntingProductionAllowedFlag, 1); }
                 else if (job != 16 || good == 57 || good == 58) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good, 1);
-                if (Read<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good) == 0)
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0)
                 {
-                    Write<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good, 1);
-                    AppendMessageItem(message, 0x2C, good);
+                    Write<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good, 1);
+                    AppendMessageItem(message, NC2Layout::ToUserMessageOffset::GoodCount, good);
                 }
             }
             for (std::uint32_t house = 2; house < 55; ++house)
             {
-                if (Read<std::uint8_t>(player, 0x2820u + tribe * 55u + house) == 0 || Read<std::uint8_t>(player, 0x3126u + tribe * 55u + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7 || !requirementsMet(house)) continue;
-                PlayerAllowedThings_MarkHouseAvailable(player + 0x18, tribe, house);
-                AppendMessageItem(message, 0x1FC, house);
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7 || !requirementsMet(house)) continue;
+                PlayerAllowedThings_MarkHouseAvailable(player + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);
+                AppendMessageItem(message, NC2Layout::ToUserMessageOffset::HouseCount, house);
             }
         }
         for (std::uint32_t i = 0; i < enables.goodCount; ++i)
@@ -764,16 +764,16 @@ namespace NC2Logic
             if (!Human_DoesExperienceAllowGoodProduction(human, good) && !Human_DoesEducationAllowGoodProduction(human, good) && Human_GetPlayerType(human) != 2) continue;
             const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
             auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
-            if (Read<std::uint8_t>(player, 0x1278u + tribe * 66u + good) == 0) continue;
+            if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0) continue;
             if ((!Human_IsJobHunter(human) || good == 56) && (!Human_IsJobBreeder(human) || good == 57 || good == 58))
             {
                 Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good, 1);
-                Human_Production_SetCounter(human, good, Human_IsAbleToProduceGoodNow(human, good) ? 0u : 14u);
+                Human_Production_SetCounter(human, good, Human_IsAbleToProduceGoodNow(human, good) ? 0u : NC2Runtime::ProductionCounter::ImpossibleUnsigned);
             }
-            if (Read<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good) == 0)
+            if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good) == 0)
             {
-                Write<std::uint8_t>(player, 0x1D4Cu + tribe * 66u + good, 1);
-                AppendMessageItem(message, 0x2C, good);
+                Write<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good, 1);
+                AppendMessageItem(message, NC2Layout::ToUserMessageOffset::GoodCount, good);
             }
         }
         for (std::uint32_t i = 0; i < enables.houseCount; ++i)
@@ -782,29 +782,29 @@ namespace NC2Logic
             if (!Human_DoesExperienceAllowHouseBuilding(human, house) && Human_GetPlayerType(human) != 2) continue;
             const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
             auto* player = static_cast<std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
-            if (Read<std::uint8_t>(player, 0x2820u + tribe * 55u + house) == 0 || Read<std::uint8_t>(player, 0x3126u + tribe * 55u + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7) continue;
+            if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) == 0 || Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house) != 0 || Read<std::uint32_t>(gStaticHouseTypeData, house * 0x624u) == 7) continue;
             const auto allowed = requirementsMet(house);
             if (Human_GetPlayerType(human) != 2 && !allowed) continue;
-            PlayerAllowedThings_MarkHouseAvailable(player + 0x18, tribe, house);
-            AppendMessageItem(message, 0x1FC, house);
+            PlayerAllowedThings_MarkHouseAvailable(player + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);
+            AppendMessageItem(message, NC2Layout::ToUserMessageOffset::HouseCount, house);
         }
         // Windows retains the goods-loop index when selecting the equipment pointer
         // and never advances that pointer (0044B309..0044B387).
         if (enables.equipmentCount != 0)
         {
-            const auto item = Read<std::uint32_t>(&enables, 0x338u + enables.goodCount * 4u);
+            const auto item = Read<std::uint32_t>(&enables, NC2Layout::TribeJobEnablesOffset::EquipmentUnsigned + enables.goodCount * 4u);
             for (std::uint32_t i = 0; i < enables.equipmentCount; ++i)
             {
                 if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item) != 0) continue;
                 if (!Human_DoesExperienceAllowEquipment(human, item) && Human_GetPlayerType(human) != 2) continue;
                 const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
                 const auto* player = static_cast<const std::byte*>(gGameControl) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) * NC2Layout::RecordSize::GameControlPlayer;
-                if (Read<std::uint8_t>(player, 0x3C78u + tribe * 56u + item) == 0) continue;
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + item) == 0) continue;
                 Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
                 Human_UserMessage_SendToUserMessage_CanEquipNewItem(human, item);
             }
         }
-        if (Read<std::uint32_t>(message, 0x138) != 0 || Read<std::uint32_t>(message, 0x1FC) != 0 || Read<std::uint32_t>(message, 0x2C) != 0 || Read<std::uint32_t>(message, 0x2DC) != 0)
+        if (Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::JobCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::HouseCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::GoodCount) != 0 || Read<std::uint32_t>(message, NC2Layout::ToUserMessageOffset::EquipmentCount) != 0)
         {
             ToUserMessage_FinishMessage(message);
             NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -869,24 +869,24 @@ namespace NC2Logic
         {
             for (std::uint32_t job = 6; job <= 41; ++job)
             {
-                if (Read<std::uint8_t>(player, 0x18u + tribe * 56u + job) != 0)
+                if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) != 0)
                 {
                     if (Human_DoesExperienceAllowJobChange(human, job)) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
                 }
                 else Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 0);
             }
         }
-        else Write<std::uint8_t>(human, 0x161, Read<std::uint8_t>(player, 0x1Du + tribe * 56u) != 0 ? 1 : 0);
+        else Write<std::uint8_t>(human, NC2Layout::HumanOffset::WomanJobAllowedFlag, Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::WomanJobAllowedFlagUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned) != 0 ? 1 : 0);
         if (Human_IsJobSoldier(human))
         {
-            for (std::uint32_t job = 31; job <= 41; ++job) if (Read<std::uint8_t>(player, 0x18u + tribe * 56u + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
-            for (std::uint32_t item = 37; item <= 42; ++item) if (Read<std::uint8_t>(player, 0x1278u + tribe * 66u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
-            for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(player, 0x1278u + tribe * 66u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+            for (std::uint32_t job = 31; job <= 41; ++job) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
+            for (std::uint32_t item = 37; item <= 42; ++item) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+            for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
         }
         else if (Human_IsJobHero(human))
         {
-            for (std::uint32_t job = 42; job <= 47; ++job) if (Read<std::uint8_t>(player, 0x18u + tribe * 56u + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
-            for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(player, 0x1278u + tribe * 66u + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
+            for (std::uint32_t job = 42; job <= 47; ++job) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
+            for (std::uint32_t item = 33; item <= 36; ++item) if (Read<std::uint8_t>(player, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + item) != 0) Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + item, 1);
         }
     }
 
@@ -896,9 +896,9 @@ namespace NC2Logic
         for (std::uint32_t good = 1; good < 66; ++good)
         {
             std::uint32_t state;
-            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) == 0) state = 12;
-            else if (!Human_IsCapableToProduceGood(human, good)) state = 13;
-            else state = Human_IsAbleToProduceGoodNow(human, good) ? 0u : 14u;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) == 0) state = NC2Runtime::ProductionCounter::Forbidden;
+            else if (!Human_IsCapableToProduceGood(human, good)) state = NC2Runtime::ProductionCounter::Incapable;
+            else state = Human_IsAbleToProduceGoodNow(human, good) ? 0u : NC2Runtime::ProductionCounter::ImpossibleUnsigned;
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::ProductionCounters + good * 4u, state);
         }
         const auto& enables = JobEnables(human);
@@ -958,7 +958,7 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < enables.goodCount; ++i)
         {
             const auto good = static_cast<std::uint32_t>(enables.goods[i]);
-            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0) Human_Production_SetCounter(human, good, Human_IsAbleToProduceGoodNow(human, good) ? 0u : 14u);
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedProductionGoodFlags + good) != 0) Human_Production_SetCounter(human, good, Human_IsAbleToProduceGoodNow(human, good) ? 0u : NC2Runtime::ProductionCounter::ImpossibleUnsigned);
         }
         const auto preferred = static_cast<std::uint32_t>(enables.defaultGood);
         if (preferred != 0)
@@ -1002,7 +1002,7 @@ namespace NC2Logic
         return false;
     }
     // Original function: FUN_0042c8cf.
-    bool Human_IsForcedToHaveWorkHouse(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x83u) != 0; }
+    bool Human_IsForcedToHaveWorkHouse(const void* human) { return Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + NC2Layout::StaticJobTypeOffset::MustHaveWorkHouseUnsigned) != 0; }
     // Original function: FUN_0042c8fd; Windows accepts every job.
     bool Human_IsAbleToUseVehicle(const void* human) { (void)human; return true; }
     // Original function: FUN_0042c96c.

@@ -20,7 +20,7 @@ namespace NC2Logic
     // Original function: FUN_00436A68; Windows command-24 predicate, no separate Mac export established.
     bool Human_UserControl_CanChangeJob(const void* human) { return (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit6) == 0 && Human_IsSexMale(human) && Human_IsAgeAdult(human); }
     // Original function: FUN_00436A97; Windows command-26 predicate, no separate Mac export established.
-    bool Human_UserControl_CanChooseJob(const void* human) { return !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32) && Read<std::uint8_t>(human, 0x1DF) != 0; }
+    bool Human_UserControl_CanChooseJob(const void* human) { return !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32) && Read<std::uint8_t>(human, NC2Layout::HumanOffset::JobSelectionEnabledFlag) != 0; }
     // Original function: FUN_0040b01f; failed allocation checks leave the output untouched.
     bool Logic_UserControl_GetHumanCommands(std::int32_t id, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3)
     {

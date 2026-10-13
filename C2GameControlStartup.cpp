@@ -1,3 +1,4 @@
+#include "C2RuntimeConstants.h"
 #include "C2DataIds.h"
 #include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
@@ -116,14 +117,14 @@ namespace NC2Logic
     void PlayerAllowedThings_MarkHouseAvailable(void* allowedThings, std::uint32_t tribe, std::uint32_t house)
     {
         using NC2Lifetime::Write;
-        Write<std::uint8_t>(allowedThings, 0x310E + tribe * 55u + house, 1);
-        if (house == 10) Write<std::uint8_t>(allowedThings, 0x1D35 + tribe * 66u, 1);
-        if (house == 11) Write<std::uint8_t>(allowedThings, 0x1D40 + tribe * 66u, 1);
+        Write<std::uint8_t>(allowedThings, NC2Layout::PlayerAllowedThingsOffset::AvailableHouses + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house, 1);
+        if (house == 10) Write<std::uint8_t>(allowedThings, NC2Layout::PlayerAllowedThingsOffset::AvailableGood1Flag + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
+        if (house == 11) Write<std::uint8_t>(allowedThings, NC2Layout::PlayerAllowedThingsOffset::AvailableGood12Flag + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
         if (house == 17)
         {
-            Write<std::uint8_t>(allowedThings, 0x1D49 + tribe * 66u, 1);
-            Write<std::uint8_t>(allowedThings, 0x1D3D + tribe * 66u, 1);
-            Write<std::uint8_t>(allowedThings, 0x1D3E + tribe * 66u, 1);
+            Write<std::uint8_t>(allowedThings, NC2Layout::PlayerAllowedThingsOffset::AvailableGood21Flag + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
+            Write<std::uint8_t>(allowedThings, NC2Layout::PlayerAllowedThingsOffset::AvailableGood9Flag + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
+            Write<std::uint8_t>(allowedThings, NC2Layout::PlayerAllowedThingsOffset::AvailableGood10Flag + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
         }
     }
 
@@ -292,13 +293,13 @@ namespace NC2Logic
                     if (Read<std::uint8_t>(data, 0) == 0) continue;
                     if (house && command == NC2DataIds::GameControlToken::AllowHouse)
                     {
-                        PlayerAllowedThings_MarkHouseAvailable(data + 0x18, static_cast<std::uint32_t>(tribe), static_cast<std::uint32_t>(item));
+                        PlayerAllowedThings_MarkHouseAvailable(data + NC2Layout::GameControlPlayerOffset::AllowedThings, static_cast<std::uint32_t>(tribe), static_cast<std::uint32_t>(item));
                         continue;
                     }
-                    const std::uint32_t stride = house ? 55u : job ? 56u : 66u;
+                    const std::uint32_t stride = house ? NC2Runtime::PlayerAllowanceStride::HousesUnsigned : job ? NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned : NC2Runtime::PlayerAllowanceStride::GoodsUnsigned;
                     const std::uint32_t index = static_cast<std::uint32_t>(tribe) * stride + static_cast<std::uint32_t>(item);
-                    const std::uint32_t allowed = house ? 0x2820u : job ? 0x18u : 0x1278u;
-                    const std::uint32_t available = house ? 0x3126u : job ? 0x948u : 0x1D4Cu;
+                    const std::uint32_t allowed = house ? NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned : job ? NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned : NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned;
+                    const std::uint32_t available = house ? NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned : job ? NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned : NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned;
                     if (command == NC2DataIds::GameControlToken::ForbidHouse || command == NC2DataIds::GameControlToken::ForbidJob || command == NC2DataIds::GameControlToken::ForbidGood)
                     {
                         Write<std::uint8_t>(data, allowed + index, 0);
@@ -339,48 +340,48 @@ namespace NC2Logic
             auto* data = PlayerData(gameControl, player);
             if (Read<std::uint8_t>(data, 0) == 0) continue;
             const auto playerTribe = Read<std::uint32_t>(data, 0x0C);
-            for (std::uint32_t tribe = 1; tribe < 42; ++tribe)
+            for (std::uint32_t tribe = 1; tribe < NC2Runtime::PlayerAllowanceSlots::Tribes; ++tribe)
             {
                 if (!Tool_AllowedItems_IsTribeTypeAllowed(tribe)) continue;
                 const auto& definition = gStaticTribeTypeData[tribe];
                 for (std::uint32_t job = 0; job < 56; ++job)
-                    if (definition.allowedJobs[job] != 0) Write<std::uint8_t>(data, 0x18u + tribe * 56u + job, 1);
+                    if (definition.allowedJobs[job] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job, 1);
                 for (std::uint32_t good = 0; good < 66; ++good)
-                    if (definition.allowedGoods[good] != 0) Write<std::uint8_t>(data, 0x1278u + tribe * 66u + good, 1);
+                    if (definition.allowedGoods[good] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + good, 1);
                 // Windows uses a 56-byte tribe stride for 66 equipment flags.
                 for (std::uint32_t equipment = 0; equipment < 66; ++equipment)
-                    if (definition.allowedEquipment[equipment] != 0) Write<std::uint8_t>(data, 0x3C78u + tribe * 56u + equipment, 1);
+                    if (definition.allowedEquipment[equipment] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedEquipmentUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + equipment, 1);
                 for (std::uint32_t house = 0; house < 55; ++house)
-                    if (definition.allowedHouses[house] != 0) Write<std::uint8_t>(data, 0x2820u + tribe * 55u + house, 1);
+                    if (definition.allowedHouses[house] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house, 1);
                 for (std::uint32_t vehicle = 0; vehicle < 7; ++vehicle)
-                    if (definition.allowedVehicles[vehicle] != 0) Write<std::uint8_t>(data, 0x3A2Cu + tribe * 7u + vehicle, 1);
+                    if (definition.allowedVehicles[vehicle] != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedVehiclesUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::VehiclesUnsigned + vehicle, 1);
                 if (tribe != playerTribe) continue;
                 for (std::uint32_t job = 0; job < 56; ++job)
                 {
-                    const auto index = tribe * 56u + job;
-                    if (Read<std::uint8_t>(data, 0x18u + index) == 0 || Read<std::uint8_t>(data, 0x948u + index) != 0) continue;
+                    const auto index = tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + job;
+                    if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedJobsUnsigned + index) == 0 || Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + index) != 0) continue;
                     STribeExperienceRequirement requirement;
                     std::memcpy(&requirement, &definition.jobNeeds[job], sizeof(requirement));
                     bool needsExperience = requirement.requiredExperience != 0 || requirement.jobCount != 0;
                     if ((job >= 31 && job <= 41) || Read<std::uint32_t>(data, 4) == 2) needsExperience = false;
-                    if (!needsExperience) Write<std::uint8_t>(data, 0x948u + index, 1);
+                    if (!needsExperience) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + index, 1);
                 }
                 for (std::uint32_t house = 0; house < 55; ++house)
                 {
-                    const auto index = tribe * 55u + house;
-                    if (Read<std::uint8_t>(data, 0x2820u + index) == 0 || Read<std::uint8_t>(data, 0x3126u + index) != 0) continue;
+                    const auto index = tribe * NC2Runtime::PlayerAllowanceStride::HousesUnsigned + house;
+                    if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AllowedHousesUnsigned + index) == 0 || Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableHousesUnsigned + index) != 0) continue;
                     STribeBuildRequirement requirement;
                     std::memcpy(&requirement, &definition.houseBuildNeeds[house], sizeof(requirement));
                     bool available = true;
                     for (std::uint32_t needed = 0; needed < requirement.jobCount; ++needed)
-                        if (Read<std::uint8_t>(data, 0x948u + tribe * 56u + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, 8u + needed * 4u))) == 0) { available = false; break; }
+                        if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableJobsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::JobsAndEquipmentUnsigned + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, NC2Layout::TribeBuildRequirementOffset::JobsUnsigned + needed * 4u))) == 0) { available = false; break; }
                     if (available)
                         for (std::uint32_t needed = 0; needed < requirement.goodCount; ++needed)
-                            if (Read<std::uint8_t>(data, 0x1D4Cu + tribe * 66u + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, 0xD0u + needed * 4u))) == 0) { available = false; break; }
+                            if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::AvailableGoodsUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned + static_cast<std::uint32_t>(Read<std::int32_t>(&requirement, NC2Layout::TribeBuildRequirementOffset::GoodsUnsigned + needed * 4u))) == 0) { available = false; break; }
                     if (Read<std::uint32_t>(data, 4) == 2) available = true;
-                    if (available) PlayerAllowedThings_MarkHouseAvailable(data + 0x18, tribe, house);
+                    if (available) PlayerAllowedThings_MarkHouseAvailable(data + NC2Layout::GameControlPlayerOffset::AllowedThings, tribe, house);
                 }
-                if (Read<std::uint8_t>(data, 0x1288u + tribe * 66u) != 0) Write<std::uint8_t>(data, 0x1D5Cu + tribe * 66u, 1);
+                if (Read<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::Good16AllowedFlagUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned) != 0) Write<std::uint8_t>(data, NC2Layout::GameControlPlayerOffset::Good16AvailableFlagUnsigned + tribe * NC2Runtime::PlayerAllowanceStride::GoodsUnsigned, 1);
             }
         }
     }

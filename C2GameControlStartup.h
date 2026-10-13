@@ -6,6 +6,21 @@ namespace NXBasics { class CIniFileReader; struct SToken; }
 
 namespace NC2Logic
 {
+    // Physical flag region of the Windows player record, starting at +0x18.
+    // Raw equipment writes use stride 56 even when iterating 66 flags.
+    struct SPlayerAllowedThingsStorage
+    {
+        std::uint8_t allowedJobs[42][56];
+        std::uint8_t availableJobs[42][56];
+        std::uint8_t allowedGoods[42][66];
+        std::uint8_t availableGoods[42][66];
+        std::uint8_t allowedHouses[42][55];
+        std::uint8_t availableHouses[42][55];
+        std::uint8_t allowedVehicles[42][7];
+        std::byte unresolved3B3A[294];
+        std::uint8_t allowedEquipment[42][56];
+    };
+
     // Complete Windows state 005109D8..005109F7, outside the player allocation.
     struct SGameControlRuntimeStorage
     {

@@ -21,6 +21,10 @@ namespace NC2Runtime
 
     namespace ProductionCounter
     {
+        inline constexpr auto ImpossibleUnsigned = 14u;
+        inline constexpr auto Impossible = 14;
+        inline constexpr auto Incapable = 13;
+        inline constexpr auto Forbidden = 12;
         inline constexpr auto Infinite = 11;
     }
 
@@ -233,6 +237,19 @@ namespace NC2Runtime
         inline constexpr auto WallBuildPendingUnsigned = 8u;
         inline constexpr auto RoadBuildPendingUnsigned = 4u;
         inline constexpr auto RoadUnsigned = 2u;
+    }
+
+    namespace PlayerAllowanceStride
+    {
+        inline constexpr auto VehiclesUnsigned = 7u;
+        inline constexpr auto HousesUnsigned = 55u;
+        inline constexpr auto JobsAndEquipmentUnsigned = 56u;
+        inline constexpr auto GoodsUnsigned = 66u;
+    }
+
+    namespace PlayerAllowanceSlots
+    {
+        inline constexpr auto Tribes = 42;
     }
 
 }

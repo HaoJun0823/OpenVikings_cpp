@@ -513,6 +513,18 @@ namespace NC2Layout
 
     namespace GameControlPlayerOffset
     {
+        inline constexpr auto AllowedThings = 0x18;
+        inline constexpr auto AllowedJobsUnsigned = 0x18u;
+        inline constexpr auto WomanJobAllowedFlagUnsigned = 0x1Du;
+        inline constexpr auto AvailableJobsUnsigned = 0x948u;
+        inline constexpr auto AllowedGoodsUnsigned = 0x1278u;
+        inline constexpr auto Good16AllowedFlagUnsigned = 0x1288u;
+        inline constexpr auto AvailableGoodsUnsigned = 0x1D4Cu;
+        inline constexpr auto Good16AvailableFlagUnsigned = 0x1D5Cu;
+        inline constexpr auto AllowedHousesUnsigned = 0x2820u;
+        inline constexpr auto AvailableHousesUnsigned = 0x3126u;
+        inline constexpr auto AllowedVehiclesUnsigned = 0x3A2Cu;
+        inline constexpr auto AllowedEquipmentUnsigned = 0x3C78u;
         inline constexpr auto AreaSearchCount = 0x4A24u;
         inline constexpr auto PointPathfinderStartCount = 0x4A28u;
         inline constexpr auto AreaSearchWithoutEarlyExitCount = 0x4A2Cu;
@@ -607,6 +619,15 @@ namespace NC2Layout
 
     namespace HumanOffset
     {
+        inline constexpr auto AllowedEquipment32Flag = 0x200;
+
+        inline constexpr auto AllowedEquipment31Flag = 0x1FF;
+
+        inline constexpr auto AllowedEquipment30Flag = 0x1FE;
+
+        inline constexpr auto JobSelectionEnabledFlag = 0x1DF;
+        inline constexpr auto HuntingProductionAllowedFlag = 0x1CD;
+        inline constexpr auto WomanJobAllowedFlag = 0x161;
         inline constexpr auto WeaponCategory1Experience = 0x140;
         inline constexpr auto WeaponCategory2Experience = 0x144;
         inline constexpr auto WeaponCategory3Experience = 0x148;
@@ -618,7 +639,6 @@ namespace NC2Layout
         inline constexpr auto WeaponCategory6ExperienceUnsigned = 0x150u;
         inline constexpr auto WeaponCategory7ExperienceUnsigned = 0x154u;
         inline constexpr auto SoldierWorkExperience = 0x138;
-
         inline constexpr auto AllocatedFlag = 0;
         inline constexpr auto HumanId = 4;
         inline constexpr auto UniqueId = 8;
@@ -1416,6 +1436,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto TribeBuildRequirement = 408;
+        inline constexpr auto ToUserMessage = 772;
         inline constexpr auto BuildPlayerPointer = 4;
         inline constexpr auto BuildPlayerPointerUnsigned = 4u;
         inline constexpr auto BuildPlayerPointerArray = 80;
@@ -1776,6 +1798,63 @@ namespace NC2Layout
     {
         inline constexpr auto MaximumValency = 4;
         inline constexpr auto LogicType = 0;
+    }
+
+    namespace ToUserMessageOffset
+    {
+        inline constexpr auto Type = 0;
+        inline constexpr auto FinishedFlag = 4;
+        inline constexpr auto PlayerId = 8;
+        inline constexpr auto PlayerIdUnsigned = 8u;
+        inline constexpr auto HumanId = 0x10;
+        inline constexpr auto HumanIdUnsigned = 0x10u;
+        inline constexpr auto HumanUniqueId = 0x14;
+        inline constexpr auto HouseId = 0x18;
+        inline constexpr auto HouseIdUnsigned = 0x18u;
+        inline constexpr auto HouseUniqueId = 0x1C;
+        inline constexpr auto VehicleId = 0x20;
+        inline constexpr auto VehicleIdUnsigned = 0x20u;
+        inline constexpr auto VehicleUniqueId = 0x24;
+        inline constexpr auto MapPositionX = 0x28;
+        inline constexpr auto MapPositionY = 0x2A;
+        inline constexpr auto GoodCount = 0x2C;
+        inline constexpr auto FirstPayloadItem = 0x30;
+        inline constexpr auto FirstPayloadItemUnsigned = 0x30u;
+        inline constexpr auto JobCount = 0x138;
+        inline constexpr auto JobItems = 0x13C;
+        inline constexpr auto JobItemsUnsigned = 0x13Cu;
+        inline constexpr auto HouseCount = 0x1FC;
+        inline constexpr auto HouseItemsUnsigned = 0x200u;
+        inline constexpr auto EquipmentCount = 0x2DC;
+        inline constexpr auto EquipmentItemsUnsigned = 0x2E0u;
+    }
+
+    namespace StaticJobTypeOffset
+    {
+        inline constexpr auto MustHaveWorkHouseUnsigned = 0x83u;
+        inline constexpr auto MustHaveFinishedWorkHouseUnsigned = 0x84u;
+        inline constexpr auto UserCanChangeProductionUnsigned = 0x85u;
+    }
+
+    namespace TribeJobEnablesOffset
+    {
+        inline constexpr auto EquipmentUnsigned = 0x338u;
+    }
+
+    namespace PlayerAllowedThingsOffset
+    {
+        inline constexpr auto AvailableGood1Flag = 0x1D35;
+        inline constexpr auto AvailableGood9Flag = 0x1D3D;
+        inline constexpr auto AvailableGood10Flag = 0x1D3E;
+        inline constexpr auto AvailableGood12Flag = 0x1D40;
+        inline constexpr auto AvailableGood21Flag = 0x1D49;
+        inline constexpr auto AvailableHouses = 0x310E;
+    }
+
+    namespace TribeBuildRequirementOffset
+    {
+        inline constexpr auto JobsUnsigned = 8u;
+        inline constexpr auto GoodsUnsigned = 0xD0u;
     }
 
 }

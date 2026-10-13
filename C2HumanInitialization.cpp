@@ -423,7 +423,7 @@ namespace NC2Logic
         std::memset(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AllowedJobFlagsSigned, 0, 56);
         Write<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedJobFlags + job, 1);
         std::memset(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::AllowedEquipmentFlagsSigned, 0, 56);
-        Write<std::uint8_t>(human, 0x1DF, 0);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::JobSelectionEnabledFlag, 0);
         Write(human, NC2Layout::HumanOffset::MissionCheckId, missionCheck);
         Write(human, NC2Layout::HumanOffset::MiscFlags, flags);
         if (tribe == 5 || tribe == 6)
