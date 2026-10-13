@@ -93,44 +93,44 @@ namespace NC2InGameGuiMiscWindows
     static void* TechTreeHouseTypeElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t id, void* window)
     {
         BaseToolTextButton_Construct(element, nullptr, rectangle, NC2Logic::StringAccess_GetHouseNamePtr(id, 1), 10100, window);
-        std::memset(static_cast<std::byte*>(element) + 0x60, 0, 8); Write(element, 0, gTechTreeHouseVirtualTable.data());
+        std::memset(static_cast<std::byte*>(element) + 0x60, 0, 8); Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeHouseVirtualTable.data());
         Write(element, 0x60, id); Write(element, 0x4C, id); Write<std::uint32_t>(element, 0x50, 0); Write(element, 0x64, window); return element;
     }
     // Original function: FUN_004a5aca.
     static void* __fastcall TechTreeHouseTypeElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gTechTreeHouseVirtualTable.data()); BaseToolTextButton_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeHouseVirtualTable.data()); BaseToolTextButton_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
     }
     // Original function: FUN_004a5aec.
     static void __fastcall TechTreeHouseTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 4) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 4) == id ? 3 : (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         auto* font = DrawTool_GetFont10Ptr(); const auto* palette = CGuiBaseDataManager::mStaticVars.resources.fontWhitePalette;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(palette, 0x400);
         if (!TechTreeWindow_IsHouseTypeFree(id)) color = Read<NXBasics::SColorRGB>(palette, 0x2D4);
         if (TechTreeWindow_IsHouseTypeForbidden(id)) color = Read<NXBasics::SColorRGB>(palette, 0x194);
         const auto* text = Read<const char*>(element, 0x30);
-        bitmap->Text_Print(font, &color, (Read<std::int32_t>(element, 0xC) - NXBasics::Font_GetPixelWidth(font, text)) / 2 - rectangle->x, (Read<std::int32_t>(element, 0x10) - 12) / 2 - rectangle->y - 3, text);
+        bitmap->Text_Print(font, &color, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - NXBasics::Font_GetPixelWidth(font, text)) / 2 - rectangle->x, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - 12) / 2 - rectangle->y - 3, text);
     }
     // Original function: FUN_004a5bc0.
     static void* TechTreeGoodTypeElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t id, void* window)
     {
         BaseToolTextButton_Construct(element, nullptr, rectangle, NC2Logic::StringAccess_GetGoodNamePtr(id, 1), 10101, window);
-        std::memset(static_cast<std::byte*>(element) + 0x60, 0, 8); Write(element, 0, gTechTreeGoodVirtualTable.data());
+        std::memset(static_cast<std::byte*>(element) + 0x60, 0, 8); Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeGoodVirtualTable.data());
         Write(element, 0x60, id); Write(element, 0x4C, id); Write<std::uint32_t>(element, 0x50, 0); Write(element, 0x64, window); return element;
     }
     // Original function: FUN_004a5c16.
     static void* __fastcall TechTreeGoodTypeElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gTechTreeGoodVirtualTable.data()); BaseToolTextButton_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeGoodVirtualTable.data()); BaseToolTextButton_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
     }
     // Original function: FUN_004a5c38.
     static void __fastcall TechTreeGoodTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 8) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 8) == id ? 3 : (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
@@ -140,7 +140,7 @@ namespace NC2InGameGuiMiscWindows
             if (TechTreeWindow_IsGoodTypeForbidden(id)) { color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x194); format = "{setx:-4}[{gfxgood:%d,1}]"; }
             else { color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x2D4); format = "{setx:-4}({gfxgood:%d,1})"; }
         }
-        DrawTool_PrintStringXV(bitmap, Read<std::int32_t>(element, 0xC) / 2 - 12, Read<std::int32_t>(element, 0x10) / 2 - 10, resources.font08, &color, format, id);
+        DrawTool_PrintStringXV(bitmap, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2 - 12, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2 - 10, resources.font08, &color, format, id);
     }
     // Original function: FUN_004a5cf8.
     static bool __fastcall TechTreeGoodTypeElement_ToolTip(void* element, void*, const char** output) { *output = NC2Logic::StringAccess_GetGoodNamePtr(Read<std::uint32_t>(element, 0x60), 1); return true; }
@@ -148,26 +148,26 @@ namespace NC2InGameGuiMiscWindows
     static void* TechTreeJobTypeElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t id, void* window)
     {
         BaseToolTextButton_Construct(element, nullptr, rectangle, NC2Logic::StringAccess_GetJobNamePtr(id, 1), 10102, window);
-        std::memset(static_cast<std::byte*>(element) + 0x60, 0, 8); Write(element, 0, gTechTreeJobVirtualTable.data());
+        std::memset(static_cast<std::byte*>(element) + 0x60, 0, 8); Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeJobVirtualTable.data());
         Write(element, 0x60, id); Write(element, 0x4C, id); Write<std::uint32_t>(element, 0x50, 0); Write(element, 0x64, window); return element;
     }
     // Original function: FUN_004a5d65.
     static void* __fastcall TechTreeJobTypeElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gTechTreeJobVirtualTable.data()); BaseToolTextButton_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeJobVirtualTable.data()); BaseToolTextButton_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
     }
     // Original function: FUN_004a5d87.
     static void __fastcall TechTreeJobTypeElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const auto id = Read<std::uint32_t>(element, 0x60);
-        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 12) == id ? 3 : (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = Read<std::uint32_t>(gTechTreeWindowStatics, 12) == id ? 3 : (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources; auto* font = resources.font08;
         NXBasics::SColorRGB color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x400);
         if (!TechTreeWindow_IsJobTypeFree(id)) color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x2D4);
         if (TechTreeWindow_IsJobTypeForbidden(id)) color = Read<NXBasics::SColorRGB>(resources.fontWhitePalette, 0x194);
         const auto* text = Read<const char*>(element, 0x30);
-        bitmap->Text_Print(font, &color, (Read<std::int32_t>(element, 0xC) - NXBasics::Font_GetPixelWidth(font, text)) / 2 - rectangle->x, (Read<std::int32_t>(element, 0x10) - 12) / 2 - rectangle->y - 3, text);
+        bitmap->Text_Print(font, &color, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - NXBasics::Font_GetPixelWidth(font, text)) / 2 - rectangle->x, (Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - 12) / 2 - rectangle->y - 3, text);
     }
     // Original function: FUN_004a5e5a.
     static void* TechTreeLineElement_Construct(void* element, const NXBasics::SPoint* first, const NXBasics::SPoint* second)
@@ -176,13 +176,13 @@ namespace NC2InGameGuiMiscWindows
         const auto dx = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(first->x) - static_cast<std::uint32_t>(second->x));
         const auto dy = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(first->y) - static_cast<std::uint32_t>(second->y));
         const NXBasics::SRectangle rectangle(x, y, NXBasics::Runtime_TimeSigned32((dx < 0 ? 0u - static_cast<std::uint32_t>(dx) : static_cast<std::uint32_t>(dx)) + 1u), NXBasics::Runtime_TimeSigned32((dy < 0 ? 0u - static_cast<std::uint32_t>(dy) : static_cast<std::uint32_t>(dy)) + 1u));
-        NXBaseGui::BaseElement_Construct(element, &rectangle, 0, 0); Write(element, 0, gTechTreeLineVirtualTable.data());
+        NXBaseGui::BaseElement_Construct(element, &rectangle, 0, 0); Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeLineVirtualTable.data());
         Write(element, 0x2C, first->x - x); Write(element, 0x30, first->y - y); Write(element, 0x34, second->x - x); Write(element, 0x38, second->y - y); return element;
     }
     // Original function: FUN_004a5eea.
     static void* __fastcall TechTreeLineElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gTechTreeLineVirtualTable.data()); NXBaseGui::BaseElement_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeLineVirtualTable.data()); NXBaseGui::BaseElement_Destruct(element); if (flags & 1u) NXBasics::Runtime_Free(element); return element;
     }
     // Original function: FUN_004a5f0c.
     static void __fastcall TechTreeLineElement_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle*)
@@ -197,13 +197,13 @@ namespace NC2InGameGuiMiscWindows
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         BaseToolWindow_Construct(window, &rectangle);
         auto* buttons = new (static_cast<std::byte*>(window) + 0x70) CDynamicSubButtonsHandler();
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 2804); Write(window, 0, gTechTreeWindowVirtualTable.data()); Write<std::uint32_t>(window, 0x6C, 1); buttons->SetWindow(window);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 2804); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeWindowVirtualTable.data()); Write<std::uint32_t>(window, 0x6C, 1); buttons->SetWindow(window);
         TechTreeWindow_l_GuiButtons_Add(window); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Stop_LargeWindowOpened(); return window;
     }
     // Original function: FUN_004a5fc0.
     static void* __fastcall TechTreeWindow_Delete(void* window, void*, std::uint32_t flags)
     {
-        Write(window, 0, gTechTreeWindowVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed(); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gTechTreeWindowVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed(); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
         if (flags & 1u) NXBasics::Runtime_Free(window); return window;
     }
     // Original function: FUN_004a6022; the text-button command data is the second parameter.
@@ -346,7 +346,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004a6a8d; the complete ten-page layout is sourced from Game.exe.
     void TechTreeWindow_l_GuiButtons_Add(void* window)
     {
-        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14), close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
+        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14), close(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, StringTool_GetGameGuiMiscWindowStringPtr(380)));
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);

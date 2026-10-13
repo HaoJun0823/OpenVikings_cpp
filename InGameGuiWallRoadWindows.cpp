@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "InGameGuiWallRoadWindows.h"
 #include "InGameGuiSelectionWindowAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -111,7 +112,7 @@ namespace NC2InGameGuiSelection
         const SRectangle rectangle(state.displayWidth - 200, state.displayHeight - 100, 200, 100);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         Write<std::uint8_t>(window, 0x70, 0);
-        Write(window, 0, gSelectionWallBuildWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionWallBuildWindowVirtualTable.data());
         const SRectangle camera(4, 82, 192, 14);
         auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         auto* button = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(313), 10100, window);
@@ -129,7 +130,7 @@ namespace NC2InGameGuiSelection
         const SRectangle rectangle(state.displayWidth - 200, state.displayHeight - 100, 200, 100);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         Write<std::uint8_t>(window, 0x70, 0);
-        Write(window, 0, gSelectionRoadBuildWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionRoadBuildWindowVirtualTable.data());
         const SRectangle camera(4, 82, 192, 14);
         auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
         auto* button = memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(323), 10100, window);

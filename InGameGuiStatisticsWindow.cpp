@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "InGameGuiStatisticsWindow.h"
 #include "InGameGuiStatisticsData.h"
 #include "InGameGuiWindowState.h"
@@ -66,7 +67,7 @@ namespace NC2InGameGuiMiscWindows
     {
         const auto& display = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(display.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(display.displayHeight) - 420u) / 2, 500, 420);
-        BaseToolWindow_Construct(window, &area); StatisticsWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x88); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 508); Write(window, 0, gStatisticsWindowVirtualTable.data());
+        BaseToolWindow_Construct(window, &area); StatisticsWindow_Vars_Construct(static_cast<std::byte*>(window) + 0x88); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 508); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gStatisticsWindowVirtualTable.data());
         const NXBasics::SColorRGB colors[12] = {{255,49,56}, {248,155,44}, {252,241,43}, {89,211,106}, {0,153,211}, {0,114,188}, {46,49,146}, {146,39,143}, {0,0,0}, {255,255,255}, {128,128,128}, {64,28,0}};
         std::memcpy(static_cast<std::byte*>(window) + 0xAC, colors, sizeof(colors)); StatisticsWindow_l_GuiButtons_Add(window);
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; manager->FrameCall_Register(window); manager->Misc_GameTime_Stop_LargeWindowOpened(); return window;
@@ -74,8 +75,8 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1daf.
     static void StatisticsWindow_Destruct(void* window)
     {
-        Write(window, 0, gStatisticsWindowVirtualTable.data()); auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
-        manager->Misc_GameTime_Continue_LargeWindowClosed(); manager->FrameCall_UnRegister(window); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gStatisticsWindowVirtualTable.data()); auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
+        manager->Misc_GameTime_Continue_LargeWindowClosed(); manager->FrameCall_UnRegister(window); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
     }
     // Original function: FUN_004b1d75.
     static void* __fastcall StatisticsWindow_Delete(void* window, void*, std::uint32_t flags) { StatisticsWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
@@ -119,7 +120,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1fba.
     void StatisticsWindow_l_GuiButtons_Add(void* window)
     {
-        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14), close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
+        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14), close(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, StringTool_GetGameGuiMiscWindowStringPtr(180)));
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close));
         constexpr std::uint32_t graphics[7] = {162,158,161,160,164,163,159}; NXBasics::SRectangle area(4, 22, 68, 24);

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "GuiClockToolElementAccess.h"
 #include "C2LifetimeAccess.h"
 #include "GuiToolsBase.h"
@@ -63,7 +64,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004d0823; shared CBaseToolElement deleting destructor.
     void* __fastcall BaseToolElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gBaseToolElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolElementVirtualTable + 0);
         BaseElement_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
@@ -78,7 +79,7 @@ namespace NC2InGameGuiBase
     void* BaseToolElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
     {
         BaseElement_Construct(element, rectangle, flags, elementId);
-        Write(element, 0, gBaseToolElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 1);
         return element;
     }
@@ -86,9 +87,9 @@ namespace NC2InGameGuiBase
     void* ToolClockElement_Construct(void* element, const NXBasics::SRectangle* rectangle)
     {
         BaseElement_Construct(element, rectangle, 0, 0);
-        Write(element, 0, gBaseToolElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 1);
-        Write(element, 0, gClockVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gClockVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x30, 0, 31);
         return element;
     }
@@ -143,8 +144,8 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b9c71; l_DrawPointer.
     static void ToolClockElement_DrawPointer(void* element, NXBasics::CBitmap* bitmap, float angle, const NXBasics::SColorRGB* colour, float start, float end, std::int32_t offsetX, std::int32_t offsetY)
     {
-        const auto halfWidth = Read<std::int32_t>(element, 12) / 2;
-        const auto halfHeight = Read<std::int32_t>(element, 16) / 2;
+        const auto halfWidth = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2;
+        const auto halfHeight = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2;
         const float x = static_cast<float>(Runtime_Sin(static_cast<double>(angle)) * halfWidth);
         const double y = -(Runtime_Cos(static_cast<double>(angle)) * halfHeight);
         const auto coordinate = [] (double value, std::int32_t center, std::int32_t offset)
@@ -190,8 +191,8 @@ namespace NC2InGameGuiBase
             const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
             auto* font = resources.font10;
             const auto width = NXBasics::Font_GetPixelWidth(font, text);
-            const auto x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 12) - static_cast<std::uint32_t>(width)) / 2) + static_cast<std::uint32_t>(offsetX));
-            const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 16) - Read<std::uint32_t>(font, 8)) / 2) + static_cast<std::uint32_t>(offsetY) - 3u);
+            const auto x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - static_cast<std::uint32_t>(width)) / 2) + static_cast<std::uint32_t>(offsetX));
+            const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - Read<std::uint32_t>(font, 8)) / 2) + static_cast<std::uint32_t>(offsetY) - 3u);
             const auto* colour = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400);
             bitmap->Text_Print(font, colour, x, y, text);
         }

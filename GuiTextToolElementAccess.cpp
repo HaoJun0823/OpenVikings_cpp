@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "GuiTextToolElementAccess.h"
 #include "GuiClockToolElementAccess.h"
@@ -71,7 +72,7 @@ namespace NC2InGameGuiBase
     {
         BaseElement_Construct(element, rectangle, 0, 0);
         Write<std::uint8_t>(element, 0x2C, 0);
-        Write(element, 0, gTextElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTextElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x30, 0, 206);
         std::strncpy(static_cast<char*>(element) + 0x30, caption, 0xC7);
         Write<std::uint8_t>(element, 0xF9, fillBackground);
@@ -95,14 +96,14 @@ namespace NC2InGameGuiBase
         const char* caption = static_cast<const char*>(element) + 0x30;
         if (Read<std::uint8_t>(element, 0xFC) != 0)
         {
-            NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 2, 2, Read<std::int32_t>(element, 0xC), font, color, caption);
+            NC2GuiToolsBase::DrawTool_PrintStringWrapping(bitmap, 2, 2, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), font, color, caption);
         }
         else if (Read<std::uint8_t>(element, 0xF8) != 0)
         {
             const auto textWidth = static_cast<std::uint32_t>(NXBasics::Font_GetPixelWidth(font, caption));
             const auto fontHeight = Read<std::uint32_t>(font, 8);
-            const auto x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0xC) - textWidth) / 2) - static_cast<std::uint32_t>(rectangle->x));
-            const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0x10) - fontHeight) / 2) - static_cast<std::uint32_t>(rectangle->y) - 3u);
+            const auto x = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - textWidth) / 2) - static_cast<std::uint32_t>(rectangle->x));
+            const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - fontHeight) / 2) - static_cast<std::uint32_t>(rectangle->y) - 3u);
             bitmap->Text_Print(font, color, x, y, caption);
         }
         else NC2GuiToolsBase::DrawTool_PrintStringX(bitmap, NXBasics::Runtime_TimeSigned32(2u - static_cast<std::uint32_t>(rectangle->x)), NXBasics::Runtime_TimeSigned32(0u - static_cast<std::uint32_t>(rectangle->y)), font, color, caption);
@@ -115,7 +116,7 @@ namespace NC2InGameGuiBase
         Write<std::uint8_t>(element, 0x2C, 0);
         new (static_cast<std::byte*>(element) + 0x5C) NXBasics::SColorRGB();
         std::memset(static_cast<std::byte*>(element) + 0x30, 0, 48);
-        Write(element, 0, gTextButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTextButtonVirtualTable + 0);
         BaseToolTextButton_SetCaptionString(element, caption);
     }
 
@@ -168,7 +169,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b8f9e.
     void BaseToolTextButton_Destruct(void* element)
     {
-        Write(element, 0, gTextButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gTextButtonVirtualTable + 0);
         FreeAndClearField(element, 0x30);
         FreeAndClearField(element, 0x44);
         BaseElement_Destruct(element);
@@ -194,14 +195,14 @@ namespace NC2InGameGuiBase
     static void __fastcall TextButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         const bool disabled = Read<std::uint8_t>(element, 0x56) != 0;
-        const auto mode = ((Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
+        const auto mode = ((Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 && !disabled) ? 4 : (Read<std::uint8_t>(element, 0x55) != 0 ? 3 : 2);
         if (Read<std::uint8_t>(element, 0x59) != 0) bitmap->Fill(Read<NXBasics::SColorRGB>(element, 0x5C));
         else NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
         auto* font = Read<std::uint8_t>(element, 0x57) != 0 ? resources.font08 : resources.font10;
         const auto fontHeight = Read<std::uint32_t>(font, 8);
-        const auto width = Read<std::uint32_t>(element, 0xC), height = Read<std::uint32_t>(element, 0x10);
+        const auto width = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width), height = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height);
         char* caption = Read<char*>(element, 0x30);
         const bool centered = Read<std::uint8_t>(element, 0x54) != 0;
         if (Read<std::uint8_t>(element, 0x34) == 0)
@@ -270,7 +271,7 @@ namespace NC2InGameGuiBase
         }
         else if (message == 0x100)
         {
-            void* handler = Read<void*>(element, 0x24);
+            void* handler = Read<void*>(element, NC2Layout::GuiBaseElementOffset::MessageHandler);
             if (handler != nullptr)
             {
                 using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -280,7 +281,7 @@ namespace NC2InGameGuiBase
         else if (message == 0x40)
         {
             using TAction = void(__thiscall*)(void*);
-            Read<TAction*>(element, 0)[17](element);
+            Read<TAction*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[17](element);
         }
         return false;
     }

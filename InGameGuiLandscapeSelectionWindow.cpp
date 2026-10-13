@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "InGameGuiLandscapeSelectionWindow.h"
 #include "InGameGuiSelectionWindowAccess.h"
@@ -43,12 +44,12 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004bdea6; native allocation 0x88, including the unaligned packed map point.
     void* SelectionLandscapeTypeWindow_Construct(void* window)
     {
-        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 240, 160, 240); BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 24); Write(window, 0, gSelectionLandscapeTypeVirtualTable.data()); Write<std::uint32_t>(window, 0x72, NXBasics::IntegerRange::UInt32Maximum);
+        const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 240, 160, 240); BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 24); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionLandscapeTypeVirtualTable.data()); Write<std::uint32_t>(window, 0x72, NXBasics::IntegerRange::UInt32Maximum);
         if (Read<std::uint32_t>(gInputManager, 4) == 9) { Write<std::uint8_t>(window, 0x70, 1); Write(window, 0x72, Read<std::uint32_t>(Selection_GetSelectedEngineLandscapeMapPointRef(gInputManager), 0)); Write(window, 0x78, Selection_GetSelectedEngineLandscapePlayerId(gInputManager)); Write(window, 0x7C, Selection_GetSelectedEngineLandscapeTypeId(gInputManager)); Write(window, 0x80, Selection_GetSelectedEngineLandscapeValency(gInputManager)); }
         SelectionLandscapeTypeWindow_l_Gui_UpdateElements(window); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(window); return window;
     }
     // Original function: FUN_004bdf75.
-    static void* __fastcall SelectionLandscapeTypeWindow_Delete(void* window, void*, std::uint32_t flags) { Write(window, 0, gSelectionLandscapeTypeVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(window); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
+    static void* __fastcall SelectionLandscapeTypeWindow_Delete(void* window, void*, std::uint32_t flags) { Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionLandscapeTypeVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(window); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
     // Original function: FUN_004bdfab.
     static bool __fastcall SelectionLandscapeTypeWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
     {

@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XGuiWindowAccess.h"
 #include "XGuiElementAccess.h"
 #include "InGameGuiBaseAccess.h"
@@ -129,7 +130,7 @@ namespace NC2InGameGuiBase
     void* BaseToolWindow_Construct(void* window, const NXBasics::SRectangle* rectangle)
     {
         NXBaseGui::BaseWindow_Construct(window, nullptr, rectangle, 0, 0);
-        Write(window, 0, gBaseToolWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 4);
         Write<std::uint32_t>(window, 0x6C, 0);
         return window;

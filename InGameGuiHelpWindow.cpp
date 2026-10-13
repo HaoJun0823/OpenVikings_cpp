@@ -67,7 +67,7 @@ namespace NC2InGameGuiMiscWindows
         BaseToolWindow_Construct(window, &rectangle);
         auto* buttons = new (static_cast<std::byte*>(window) + 0x55C) CDynamicSubButtonsHandler();
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 4064);
-        Write(window, 0, gHyperLinkTextWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHyperLinkTextWindowVirtualTable.data());
         Write<std::int32_t>(window, 0x3AC, -1); buttons->SetWindow(window);
         Write<std::uint32_t>(window, 0x6C, 1);
         const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId();
@@ -124,12 +124,12 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004c3452; string arrays are owned by the window.
     static void HyperLinkTextWindow_Destruct(void* window)
     {
-        Write(window, 0, gHyperLinkTextWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHyperLinkTextWindowVirtualTable.data());
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
         delete Read<NXBasics::CStringArray*>(window, 0x550);
         delete Read<NXBasics::CStringArray*>(window, 0x544);
         delete Read<NXBasics::CStringArray*>(window, 0x3A8);
-        Write(window, 0, gBaseToolWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
     }
 
@@ -210,11 +210,11 @@ namespace NC2InGameGuiMiscWindows
     {
         Write<void*>(window, 0x558, nullptr);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
-        NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 22u), 14);
+        NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22u), 14);
         void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(30));
         NXBaseGui::BaseWindow_Element_Add(window, element);
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
-        rectangle = NXBasics::SRectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 18u), 2, 16, 14);
+        rectangle = NXBasics::SRectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18u), 2, 16, 14);
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
         const auto button = [window](const NXBasics::SRectangle& area, const char* caption, std::uint32_t command, bool selected) -> void*
@@ -458,7 +458,7 @@ namespace NInGameGuiManager
         if (void* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E8, 0, 0, 0))
         {
             using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-            NC2Lifetime::Read<TMessage*>(window, 0)[2](window, 0x800, 20000, 0, type, developmentStage);
+            NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, 0x800, 20000, 0, type, developmentStage);
         }
     }
     // Original function: FUN_004a22e8.
@@ -468,7 +468,7 @@ namespace NInGameGuiManager
         if (void* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E8, 0, 0, 0))
         {
             using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-            NC2Lifetime::Read<TMessage*>(window, 0)[2](window, 0x800, 20001, 0, good, 0);
+            NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, 0x800, 20001, 0, good, 0);
         }
     }
 }

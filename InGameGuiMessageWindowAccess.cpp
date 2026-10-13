@@ -54,11 +54,11 @@ namespace NC2InGameGuiMessages
         {
             using namespace NC2InGameGuiBase;
             auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
-            const NXBasics::SRectangle headline(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14);
+            const NXBasics::SRectangle headline(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14);
             auto* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &headline, NC2GuiToolsBase::StringTool_GetGameGuiMessagesStringPtr(0));
             NXBaseGui::BaseWindow_Element_Add(window, element);
             allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
-            const NXBasics::SRectangle close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
+            const NXBasics::SRectangle close(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
             element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close);
             NXBaseGui::BaseWindow_Element_Add(window, element);
             allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
@@ -87,9 +87,9 @@ namespace NC2InGameGuiMessages
         // Original function: FUN_004d0975; queued closure clears the owner's pointer.
         void* __fastcall MessagePresentationWindow_Delete(void* window, void*, std::uint32_t flags)
         {
-            Write(window, 0, gMessagePresentationWindowVirtualTable + 0);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessagePresentationWindowVirtualTable + 0);
             Manager()->PresentationWindow_Closed();
-            Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
             NXBaseGui::BaseWindow_Destruct(window);
             if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
             return window;
@@ -210,8 +210,8 @@ namespace NC2InGameGuiMessages
             const NXBasics::SRectangle rectangle((vars.displayWidth - 440) / 2, (vars.displayHeight - 240) / 2, 440, 240);
             NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
             new (static_cast<std::byte*>(window) + 0x74) NC2InGameGuiBase::CDynamicSubButtonsHandler;
-            Write(window, 0x1C, Read<std::uint32_t>(window, 0x1C) | NXBasics::BitMask::Bit5);
-            Write(window, 0, gMessagePresentationWindowVirtualTable + 0);
+            Write(window, NC2Layout::GuiBaseElementOffset::ElementId, Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::ElementId) | NXBasics::BitMask::Bit5);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMessagePresentationWindowVirtualTable + 0);
             std::memset(static_cast<std::byte*>(window) + 0x70, 0, 2808);
             Write(window, 0x70, uniqueId); Buttons(window).SetWindow(window);
             MessagePresentationWindow_l_GuiElements_Add(window);

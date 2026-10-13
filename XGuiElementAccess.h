@@ -4,6 +4,28 @@
 namespace NXBasics { class CBitmap; }
 namespace NXBaseGui
 {
+    // Windows physical GUI prefixes; these models do not own or construct child lists.
+    struct SBaseElementStorage
+    {
+        const void* virtualTable;
+        NXBasics::SRectangle rectangle;
+        std::uint32_t interactionState;
+        std::uint32_t flags;
+        std::uint32_t elementId;
+        void* parentWindow;
+        void* messageHandler;
+        std::uint32_t serial;
+    };
+    struct SBaseWindowStorage
+    {
+        SBaseElementStorage element;
+        NXBasics::SRectangle clippingRectangle;
+        std::byte drawChildren[20];
+        std::byte inputChildren[20];
+        void* activeChild;
+        std::byte unresolved68[4];
+    };
+
     extern const std::uintptr_t gBaseElementVirtualTable[18];
     inline NXBasics::SRectangle BaseElement_GetRectangle(const void* element)
     {

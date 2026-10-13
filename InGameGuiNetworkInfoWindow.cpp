@@ -48,10 +48,10 @@ namespace NC2InGameGuiMiscWindows
     void* NetworkInfoWindow_Construct(void* window)
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
-        BaseToolWindow_Construct(window, &area); new (static_cast<std::byte*>(window) + 0x74) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12008); Write(window, 0, gNetworkInfoWindowVirtualTable.data()); NetworkInfoWindow_l_GuiButtons_Add(window); return window;
+        BaseToolWindow_Construct(window, &area); new (static_cast<std::byte*>(window) + 0x74) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12008); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gNetworkInfoWindowVirtualTable.data()); NetworkInfoWindow_l_GuiButtons_Add(window); return window;
     }
     // Original function: FUN_004c52aa.
-    static void NetworkInfoWindow_Destruct(void* window) { Write(window, 0, gNetworkInfoWindowVirtualTable.data()); Tooltips(window)->~CStaticToolTipHandler(); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); }
+    static void NetworkInfoWindow_Destruct(void* window) { Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gNetworkInfoWindowVirtualTable.data()); Tooltips(window)->~CStaticToolTipHandler(); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); }
     // Original function: FUN_004c528e.
     static void* __fastcall NetworkInfoWindow_Delete(void* window, void*, std::uint32_t flags) { NetworkInfoWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
     // Original function: FUN_004c52ca.
@@ -75,8 +75,8 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004c5fd5.
     void NetworkInfoWindow_l_GuiButtons_Add(void* window)
     {
-        NXBasics::SRectangle area(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(248, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowMoverButton_Construct(memory, &area, Text(100)));
-        area = NXBasics::SRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowCloserButton_Construct(memory, nullptr, &area));
+        NXBasics::SRectangle area(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(248, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowMoverButton_Construct(memory, &area, Text(100)));
+        area = NXBasics::SRectangle(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : WindowCloserButton_Construct(memory, nullptr, &area));
         const auto page = Read<std::uint32_t>(window, 0x70); area = NXBasics::SRectangle(4, 22, 121, 22); for (std::uint32_t index = 0; index < 4; ++index) { AddTextButton(window, area, Text(101 + index), 10000 + index, true, page == index); area.x += area.width + 2; }
         if (page == 2) { NNetwork::Network_IsInSession(); return; } if (page != 3 || !NNetwork::Network_IsInSession() || !NNetwork::Network_IsHost()) return;
         area = NXBasics::SRectangle(4, 120, 492, 20); AddTextButton(window, area, Text(105), 14010); area.y += 34; constexpr std::uint32_t frequencies[6] = {1,2,3,4,6,12};

@@ -72,7 +72,7 @@ namespace NC2InGameGuiMiscWindows
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 136);
-        Write(window, 0, gDiplomacyWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gDiplomacyWindowVirtualTable.data());
         Write<std::uint32_t>(gDiplomacyWindowStatics, 0, 0);
         Write(window, 0xE0, NC2Logic::StringIO_GetMissionStringArrayPtr());
         DiplomacyWindow_l_GuiButtons_Add(window);
@@ -83,11 +83,11 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004af017.
     static void DiplomacyWindow_Destruct(void* window)
     {
-        Write(window, 0, gDiplomacyWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gDiplomacyWindowVirtualTable.data());
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         manager->Misc_GameTime_Continue_LargeWindowClosed(); manager->FrameCall_UnRegister(window);
         delete Read<NXBasics::CStringArray*>(window, 0xE0);
-        Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
     }
     // Original function: FUN_004aeffb.
     static void* __fastcall DiplomacyWindow_Delete(void* window, void*, std::uint32_t flags)
@@ -128,7 +128,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004af29c; tabs, tributes, bilateral trade offers and overview.
     void DiplomacyWindow_l_GuiButtons_Add(void* window)
     {
-        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0x0C) - 22, 14), closer(Read<std::int32_t>(window, 0x0C) - 18, 2, 16, 14);
+        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14), closer(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         void* memory = NXBasics::Runtime_Allocate(248); Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(memory, &title, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(350)));
         memory = NXBasics::Runtime_Allocate(84); Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowCloserButton_Construct(memory, nullptr, &closer));
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 108);
@@ -158,7 +158,7 @@ namespace NC2InGameGuiMiscWindows
         }
         if (SelectedPage() == 0)
         {
-            NXBasics::SRectangle area(4, tab.y + tab.height + 8, Read<std::int32_t>(window, 0x0C) - 8, Read<std::int32_t>(window, 0x10) - tab.y - tab.height - 12); area.Inflate(-2, -2); Write(window, 0xE4, area);
+            NXBasics::SRectangle area(4, tab.y + tab.height + 8, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 8, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height) - tab.y - tab.height - 12); area.Inflate(-2, -2); Write(window, 0xE4, area);
             memory = NXBasics::Runtime_Allocate(33132); auto* overview = memory == nullptr ? nullptr : NC2InGameGuiOverviewDisplay::WorldOverviewElement_Construct(memory, &area, 2);
             Write(window, 0xF4, overview); Add(window, overview);
             Write<std::uint8_t>(overview, 0x806C, 1); Write<std::uint8_t>(overview, 0x806D, 1); Write<std::uint8_t>(overview, 0x806E, 0); Write<std::uint8_t>(overview, 0x806F, 1); Write<std::uint8_t>(overview, 0x8070, 1); Write<std::uint8_t>(overview, 0x8072, 0); Write<std::uint8_t>(overview, 0x8074, 1); Write<std::uint8_t>(overview, 0x8044, 1); Write<std::uint8_t>(overview, 0x8075, 0); Write<std::uint8_t>(overview, 0x8044, 1); Write<std::uint8_t>(overview, 0x807B, 0);

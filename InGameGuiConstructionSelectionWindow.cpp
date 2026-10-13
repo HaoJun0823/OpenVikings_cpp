@@ -45,7 +45,7 @@ namespace NC2InGameGuiMiscWindows
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         BaseToolWindow_Construct(window, &rectangle);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 824);
-        Write(window, 0, gConstructionSelectionWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gConstructionSelectionWindowVirtualTable.data());
         Write(window, 0x7C, specialItemType); Write(window, 0x80, specialItem);
         ConstructionSelectionWindow_l_GuiButtons_Add(window);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(window);
@@ -56,9 +56,9 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004c651e; combined destructor/deleting-destructor entry.
     static void* __fastcall ConstructionSelectionWindow_Delete(void* window, void*, std::uint32_t flags)
     {
-        Write(window, 0, gConstructionSelectionWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gConstructionSelectionWindowVirtualTable.data());
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(window);
-        Write(window, 0, gBaseToolWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
         return window;
@@ -113,7 +113,7 @@ namespace NC2InGameGuiMiscWindows
         else if (command == 10300) manager->MiscWindows_GlobalGameSettingsWindow_Open(true, false);
         else if (command == 33331)
         {
-            return Read<std::uint32_t>(window, 0x14) == 1 && static_cast<std::uint8_t>(param2) != 0 && NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_CenterOnEntry_StartingWithLetter(Read<void*>(window, 0x74), static_cast<char>(param2));
+            return Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::InteractionState) == 1 && static_cast<std::uint8_t>(param2) != 0 && NC2InGameGuiBaseListBox::BaseListBoxElement_ScrollOffset_CenterOnEntry_StartingWithLetter(Read<void*>(window, 0x74), static_cast<char>(param2));
         }
         return true;
     }
@@ -122,11 +122,11 @@ namespace NC2InGameGuiMiscWindows
     void __fastcall ConstructionSelectionWindow_l_GuiButtons_Add(void* window)
     {
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
-        NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 22u), 14);
+        NXBasics::SRectangle rectangle(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22u), 14);
         void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &rectangle, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(Read<std::uint32_t>(window, 0x7C) == 0 ? 0 : 1));
         NXBaseGui::BaseWindow_Element_Add(window, element);
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
-        rectangle = NXBasics::SRectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 18u), 2, 16, 14);
+        rectangle = NXBasics::SRectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18u), 2, 16, 14);
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
         const auto button = [window](const NXBasics::SRectangle& area, std::uint32_t caption, std::uint32_t command, bool selected)
@@ -300,7 +300,7 @@ namespace NInGameGuiManager
         void* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7DA, 0, 0, 0);
         if (window == nullptr) return false;
         using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-        auto* methods = NC2Lifetime::Read<TMessage*>(window, 0);
+        auto* methods = NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable);
         return methods[2](window, 0x800, 33331, key, static_cast<std::uint32_t>(static_cast<std::int32_t>(character)), 0);
     }
 }

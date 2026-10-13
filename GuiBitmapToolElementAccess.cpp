@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "XBitmap.h"
@@ -34,15 +35,15 @@ namespace NC2InGameGuiBase
     void BaseElement_GlobalToLocalCoordinates(const void* element, std::int32_t* point)
     {
         const auto subtract = [](std::int32_t value, std::int32_t offset) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(value) - static_cast<std::uint32_t>(offset)); };
-        if (const void* parent = BitmapTool_Read<void*>(element, 0x20))
+        if (const void* parent = BitmapTool_Read<void*>(element, NC2Layout::GuiBaseElementOffset::ParentWindow))
         {
-            const std::int32_t y = BitmapTool_Read<std::int32_t>(parent, 8);
-            const std::int32_t x = BitmapTool_Read<std::int32_t>(parent, 4);
+            const std::int32_t y = BitmapTool_Read<std::int32_t>(parent, NC2Layout::GuiBaseElementOffset::PositionY);
+            const std::int32_t x = BitmapTool_Read<std::int32_t>(parent, NC2Layout::GuiBaseElementOffset::PositionX);
             point[0] = subtract(point[0], x);
             point[1] = subtract(point[1], y);
         }
-        const std::int32_t y = BitmapTool_Read<std::int32_t>(element, 8);
-        const std::int32_t x = BitmapTool_Read<std::int32_t>(element, 4);
+        const std::int32_t y = BitmapTool_Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY);
+        const std::int32_t x = BitmapTool_Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX);
         point[0] = subtract(point[0], x);
         point[1] = subtract(point[1], y);
     }
@@ -92,7 +93,7 @@ namespace NC2InGameGuiBase
     void* BaseBitmapToolElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId, std::int32_t depth)
     {
         NXBaseGui::BaseElement_Construct(element, rectangle, flags, elementId);
-        BitmapTool_Write(element, 0, gBaseBitmapToolElementVirtualTable + 0);
+        BitmapTool_Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseBitmapToolElementVirtualTable + 0);
         BitmapTool_Write<void*>(element, 0x2C, nullptr);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         NXBasics::CBitmap* bitmap = allocation == nullptr ? nullptr : ::new (allocation) NXBasics::CBitmap(rectangle->width, rectangle->height, depth);
@@ -104,7 +105,7 @@ namespace NC2InGameGuiBase
     void BaseBitmapToolElement_Destruct(void* element)
     {
         auto* bitmap = BitmapTool_Read<NXBasics::CBitmap*>(element, 0x2C);
-        BitmapTool_Write(element, 0, gBaseBitmapToolElementVirtualTable + 0);
+        BitmapTool_Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseBitmapToolElementVirtualTable + 0);
         if (bitmap != nullptr)
             delete bitmap;
         NXBaseGui::BaseElement_Destruct(element);
@@ -173,7 +174,7 @@ namespace NC2InGameGuiBase
     void* __fastcall BaseToolGfxElement_Construct(void* element, void*, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId)
     {
         BaseElement_Construct(element, rectangle, 0, 0);
-        Write(element, 0, gGfxElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gGfxElementVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 12);
         Write(element, 0x2C, graphicsId);
         Write<std::uint8_t>(element, 0x34, 1);
@@ -183,7 +184,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b93e5.
     static void* __fastcall GfxElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gGfxElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gGfxElementVirtualTable + 0);
         BaseElement_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
@@ -198,8 +199,8 @@ namespace NC2InGameGuiBase
         const auto id = Read<std::uint32_t>(element, 0x2C);
         const auto type = NXBasics::BobManager_GetBobType(resources.windowBobManager, id);
         const bool centered = Read<std::uint8_t>(element, 0x34) != 0;
-        const auto x = centered ? Read<std::int32_t>(element, 0xC) / 2 : 0;
-        const auto y = centered ? Read<std::int32_t>(element, 0x10) / 2 : 0;
+        const auto x = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2 : 0;
+        const auto y = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2 : 0;
         if (type == 4) NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, id, bitmap, x, y, palette, 128);
         else NXBasics::BobManager_PrintBob(resources.windowBobManager, id, bitmap, x, y, palette);
     }
@@ -211,7 +212,7 @@ namespace NC2InGameGuiBase
     void* __fastcall BaseToolGfxButton_Construct(void* element, void*, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, std::uint32_t command, void* handler)
     {
         BaseElement_Construct(element, rectangle, 2, 0x140);
-        Write(element, 0, gGfxButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gGfxButtonVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 40);
         Write(element, 0x2C, graphicsId);
         Write(element, 0x38, command);
@@ -224,7 +225,7 @@ namespace NC2InGameGuiBase
     void* __fastcall BaseToolGfxButton_ConstructWithToolTip(void* element, void*, const NXBasics::SRectangle* rectangle, std::uint32_t graphicsId, const char* tooltip, std::uint32_t command, void* handler)
     {
         BaseElement_Construct(element, rectangle, 2, 0x140);
-        Write(element, 0, gGfxButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gGfxButtonVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x2C, 0, 40);
         Write(element, 0x2C, graphicsId);
         Write(element, 0x38, command);
@@ -245,8 +246,8 @@ namespace NC2InGameGuiBase
     void* __fastcall WindowCloserButton_Construct(void* element, void*, const NXBasics::SRectangle* rectangle)
     {
         BaseToolGfxButton_Construct(element, nullptr, rectangle, 0x11, 0, nullptr);
-        Write(element, 0x18, Read<std::uint32_t>(element, 0x18) | 8u);
-        Write(element, 0, gCloserButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::Flags, Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) | 8u);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gCloserButtonVirtualTable + 0);
         BaseToolGfxButton_SetToolTipString(element, NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x8D));
         return element;
     }
@@ -254,7 +255,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b957b.
     static void GfxButton_Destruct(void* element)
     {
-        Write(element, 0, gGfxButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gGfxButtonVirtualTable + 0);
         FreeAndClearField(element, 0x40);
         BaseElement_Destruct(element);
     }
@@ -270,7 +271,7 @@ namespace NC2InGameGuiBase
     // Original function: FUN_004b9996.
     static void* __fastcall CloserButton_Delete(void* element, void*, std::uint32_t flags)
     {
-        Write(element, 0, gCloserButtonVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gCloserButtonVirtualTable + 0);
         GfxButton_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
@@ -280,7 +281,7 @@ namespace NC2InGameGuiBase
     // to the background/frame helpers, while the Bob coordinates remain local.
     static void __fastcall GfxButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
-        const bool highlighted = (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 && Read<std::uint8_t>(element, 0x50) == 0;
+        const bool highlighted = (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 && Read<std::uint8_t>(element, 0x50) == 0;
         if (Read<std::uint8_t>(element, 0x35) != 0)
         {
             const auto mode = highlighted ? 4 : (Read<std::uint8_t>(element, 0x36) != 0 ? 3 : 2);
@@ -293,8 +294,8 @@ namespace NC2InGameGuiBase
         const auto bobId = Read<std::uint32_t>(element, 0x2C);
         const auto type = NXBasics::BobManager_GetBobType(resources.windowBobManager, bobId);
         const bool centered = Read<std::uint8_t>(element, 0x34) != 0;
-        const auto x = centered ? Read<std::int32_t>(element, 0xC) / 2 : 0;
-        const auto y = centered ? Read<std::int32_t>(element, 0x10) / 2 : 0;
+        const auto x = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2 : 0;
+        const auto y = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2 : 0;
         if (type == 4) NXBasics::BobManager_PrintBob_UsingShadedAlpha(resources.windowBobManager, bobId, bitmap, x, y, palette, highlighted ? 0xC0 : 0x80);
         else if (highlighted) NXBasics::BobManager_PrintBob_Shade_MMX(resources.windowBobManager, bobId, bitmap, x, y, palette, 0xC0);
         else NXBasics::BobManager_PrintBob(resources.windowBobManager, bobId, bitmap, x, y, palette);
@@ -312,7 +313,7 @@ namespace NC2InGameGuiBase
         }
         if (message == 0x100)
         {
-            void* handler = Read<void*>(element, 0x24);
+            void* handler = Read<void*>(element, NC2Layout::GuiBaseElementOffset::MessageHandler);
             if (handler != nullptr)
             {
                 using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -322,7 +323,7 @@ namespace NC2InGameGuiBase
         else if (message == 0x40)
         {
             using TAction = void(__thiscall*)(void*);
-            Read<TAction*>(element, 0)[17](element);
+            Read<TAction*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[17](element);
         }
         return false;
     }
@@ -332,8 +333,8 @@ namespace NC2InGameGuiBase
     {
         if (Read<std::uint8_t>(element, 0x35) != 0) return true;
         const bool centered = Read<std::uint8_t>(element, 0x34) != 0;
-        const auto x = centered ? Read<std::int32_t>(element, 0xC) / 2 : 0;
-        const auto y = centered ? Read<std::int32_t>(element, 0x10) / 2 : 0;
+        const auto x = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) / 2 : 0;
+        const auto y = centered ? Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) / 2 : 0;
         const std::int32_t localPoint[2] = {NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[0]) - static_cast<std::uint32_t>(x)), NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(point[1]) - static_cast<std::uint32_t>(y))};
         return NXBasics::BobManager_IsBobHit(NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.windowBobManager, Read<std::uint32_t>(element, 0x2C), localPoint);
     }
@@ -390,9 +391,9 @@ namespace NC2InGameGuiBase
     void* WindowMoverButton_Construct(void* element, const NXBasics::SRectangle* rectangle, const char* caption)
     {
         NXBaseGui::BaseElement_Construct(element, rectangle, 0x12, 0);
-        BitmapTool_Write(element, 0, gBaseToolElementVirtualTable + 0);
+        BitmapTool_Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolElementVirtualTable + 0);
         BitmapTool_Write<std::uint8_t>(element, 0x2C, 0);
-        BitmapTool_Write(element, 0, gWindowMoverButtonVirtualTable + 0);
+        BitmapTool_Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWindowMoverButtonVirtualTable + 0);
         std::memset(static_cast<std::byte*>(element) + 0x30, 0, 200);
         // Original CRT entry 004E66A0 is strncpy, including its zero padding.
         std::strncpy(static_cast<char*>(element) + 0x30, caption, 199);
@@ -403,14 +404,14 @@ namespace NC2InGameGuiBase
     static void __fastcall WindowMoverButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
         using namespace NC2Lifetime;
-        const auto mode = (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         NC2GuiToolsBase::DrawTool_FillArea(element, bitmap, rectangle, mode);
         NC2GuiToolsBase::DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         auto* font = NC2GuiToolsBase::DrawTool_GetFont10Ptr();
         const char* caption = static_cast<const char*>(element) + 0x30;
         const auto textWidth = NXBasics::Font_GetPixelWidth(font, caption);
-        const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0x10) - Read<std::uint32_t>(font, 8)) / 2) - 3u);
-        const auto x = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, 0xC) - static_cast<std::uint32_t>(textWidth)) / 2;
+        const auto y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - Read<std::uint32_t>(font, 8)) / 2) - 3u);
+        const auto x = NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - static_cast<std::uint32_t>(textWidth)) / 2;
         bitmap->Text_Print(font, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, y, caption);
     }
 

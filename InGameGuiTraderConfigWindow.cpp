@@ -262,7 +262,7 @@ namespace NC2InGameGuiSelectedAction
             using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
             void* owner = Read<void*>(window, 0x70);
             Read<TMessage*>(owner, 0)[2](owner, 0x800, Read<std::uint32_t>(window, 0x74), 0, 0, 0);
-            Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
             NXBaseGui::BaseWindow_Destruct(window);
             if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
             return window;
@@ -333,7 +333,7 @@ namespace NC2InGameGuiSelectedAction
         const SRectangle area((screen.displayWidth - 660) / 2, (screen.displayHeight - 360) / 2, 660, 360);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &area);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 580);
-        Write(window, 0, gTraderConfigVirtualTable.data()); Write(window, 0x70, owner); Write(window, 0x74, closeCommand);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gTraderConfigVirtualTable.data()); Write(window, 0x70, owner); Write(window, 0x74, closeCommand);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         const SRectangle mover(2, 2, 638, 14);
         Add(window, allocation == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(allocation, &mover, HumanString(110)));

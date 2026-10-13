@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "InGameGuiMissionOnscreenInfoWindow.h"
 #include "InGameGuiManager.h"
 #include "C2MissionOnscreenInfoAccess.h"
@@ -34,7 +35,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b867a.
     static void MissionOnscreenInfoStaticGuiWindow_Destruct(void* window)
     {
-        Write(window, 0, gMissionOnscreenInfoVirtualTable.data()); auto* strings = Read<NXBasics::CStringArray*>(window, 0x7C); if (strings != nullptr) delete strings; Write<void*>(window, 0x7C, nullptr); std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 16); NXBaseGui::BaseWindow_Destruct(window);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMissionOnscreenInfoVirtualTable.data()); auto* strings = Read<NXBasics::CStringArray*>(window, 0x7C); if (strings != nullptr) delete strings; Write<void*>(window, 0x7C, nullptr); std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 16); NXBaseGui::BaseWindow_Destruct(window);
     }
     // Original function: FUN_004b865e.
     static void* __fastcall MissionOnscreenInfoStaticGuiWindow_Delete(void* window, void*, std::uint32_t flags) { MissionOnscreenInfoStaticGuiWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
@@ -90,5 +91,5 @@ namespace NC2InGameGuiMiscWindows
 // Original function: FUN_004b8607; replaces the isolated temporary constructor stub.
 void* __fastcall MissionOnscreenInfoStaticGuiWindow_Construct(void* window)
 {
-    const NXBasics::SRectangle area(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayWidth - 600, 0, 600, 160); NXBaseGui::BaseWindow_Construct(window, nullptr, &area, 0, 0); std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 10052); NC2Lifetime::Write(window, 0, NC2InGameGuiMiscWindows::gMissionOnscreenInfoVirtualTable.data()); return window;
+    const NXBasics::SRectangle area(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayWidth - 600, 0, 600, 160); NXBaseGui::BaseWindow_Construct(window, nullptr, &area, 0, 0); std::memset(static_cast<std::byte*>(window) + 0x6C, 0, 10052); NC2Lifetime::Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiMiscWindows::gMissionOnscreenInfoVirtualTable.data()); return window;
 }

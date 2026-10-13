@@ -68,7 +68,7 @@ namespace NC2InGameGuiMiscWindows
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
-        BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 4008); Write(window, 0, gHumanListWindowVirtualTable.data());
+        BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 4008); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHumanListWindowVirtualTable.data());
         CCallbackManager::sTheObjectPtr->RegisterCallback(1, HumanListWindow_ls_Callback_Logic, reinterpret_cast<std::uint32_t>(window), 10);
         if (job != 0) { HumanListWindow_l_Filter_Reset(); Write(gHumanListWindowStatics, 0x10, job); HumanListWindow_l_UpdateHumanListElements(window, true); }
         if (possibleJob != 0) { HumanListWindow_l_Filter_Reset(); Write(gHumanListWindowStatics, 0x14, possibleJob); HumanListWindow_l_UpdateHumanListElements(window, true); }
@@ -77,10 +77,10 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b008e.
     static void HumanListWindow_Destruct(void* window)
     {
-        Write(window, 0, gHumanListWindowVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHumanListWindowVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
         auto* subwindow = Read<NXBaseGui::CBaseWindow*>(window, 0x1014); if (subwindow != nullptr) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(subwindow);
         CCallbackManager::sTheObjectPtr->UnRegisterCallback(1, HumanListWindow_ls_Callback_Logic, reinterpret_cast<std::uint32_t>(window));
-        Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
     }
     // Original function: FUN_004b0072.
     static void* __fastcall HumanListWindow_Delete(void* window, void*, std::uint32_t flags) { HumanListWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
@@ -188,7 +188,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1134; CHumanListButton stores its allocation revision.
     static void* HumanListButton_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t human, std::uint32_t pressed, std::uint32_t doubleClicked, void* handler, bool debug)
     {
-        BaseToolElement_Construct(element, rectangle, 3, 0x120); std::memset(static_cast<std::byte*>(element) + 0x30, 0, 24); Write(element, 0, gHumanListButtonVirtualTable.data());
+        BaseToolElement_Construct(element, rectangle, 3, 0x120); std::memset(static_cast<std::byte*>(element) + 0x30, 0, 24); Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gHumanListButtonVirtualTable.data());
         Write(element, 0x30, human); Write(element, 0x34, Read<std::uint32_t>(Human(human), NC2Layout::HumanOffset::UniqueId)); Write(element, 0x38, pressed); Write(element, 0x3C, doubleClicked); Write(element, 0x40, handler); Write<std::uint8_t>(element, 0x44, debug); return element;
     }
     // Original function: FUN_004b1729.
@@ -201,7 +201,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1691; 0x100 messages are forwarded to the parent list.
     static bool __fastcall HumanListButton_Message(void* element, void*, std::uint32_t message, std::uint32_t command, std::uint32_t first, std::uint32_t second, std::uint32_t third)
     {
-        if (message == 0x100) { auto* parent = Read<void*>(element, 0x24); return parent == nullptr ? true : Read<TMessage*>(parent, 0)[2](parent, message, command, first, second, third); }
+        if (message == 0x100) { auto* parent = Read<void*>(element, NC2Layout::GuiBaseElementOffset::MessageHandler); return parent == nullptr ? true : Read<TMessage*>(parent, 0)[2](parent, message, command, first, second, third); }
         if (message != 0x20) return false;
         auto* handler = Read<void*>(element, 0x40);
         if (handler != nullptr)
@@ -222,11 +222,11 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1198; row details are rebuilt from live native object data.
     static void __fastcall HumanListButton_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const NXBasics::SRectangle* rectangle)
     {
-        const auto mode = (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
+        const auto mode = (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit8) != 0 ? 4 : 2;
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         if (!HumanListButton_l_ValidateHuman(element)) return;
         const auto id = Read<std::uint32_t>(element, 0x30); const auto* human = Human(id);
-        NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), bitmap, Read<std::int32_t>(element, 0xC) - 30, Read<std::int32_t>(element, 0x10) - 4, nullptr, true, -1);
+        NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), bitmap, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width) - 30, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - 4, nullptr, true, -1);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
         const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(static_cast<const std::byte*>(static_cast<const void*>(resources.fontWhitePalette)) + 0x400);
         bitmap->Text_Print(resources.font10, color, 4, 4, Name(id));
@@ -256,7 +256,7 @@ namespace NC2InGameGuiMiscWindows
         if (Read<std::uint8_t>(element, 0x44) != 0)
         {
             char debug[100]; NXBasics::Runtime_PrintString(debug, "#%d - %d - %8.8x", Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), NXBasics::XB_GetMemoryChecksum(human, 0xC58));
-            bitmap->Text_Print(resources.font08, color, 4, Read<std::int32_t>(element, 0x10) - 18, debug); return;
+            bitmap->Text_Print(resources.font08, color, 4, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height) - 18, debug); return;
         }
         if (Human_IsJobHero(human)) return;
         caption[0] = '\0';
@@ -270,7 +270,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b0490; controls follow the native list/filter order.
     void HumanListWindow_l_GuiButtons_Add(void* window)
     {
-        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14), close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
+        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14), close(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, Text(0)));
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close));
@@ -321,7 +321,7 @@ namespace NC2InGameGuiMiscWindows
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 340u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 260u) / 2, 340, 260);
-        BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, 0, gHumanListJobSelectionVirtualTable.data()); Write(window, 0x70, owner); Write<std::uint8_t>(window, 0x74, currentJob);
+        BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gHumanListJobSelectionVirtualTable.data()); Write(window, 0x70, owner); Write<std::uint8_t>(window, 0x74, currentJob);
         HumanListJobSelectionWindow_l_GuiButtons_Add(window); return window;
     }
 
@@ -344,7 +344,7 @@ namespace NC2InGameGuiMiscWindows
     // Original functions: FUN_004b17cc and FUN_004b17e8.
     static void* __fastcall HumanListJobSelectionWindow_Delete(void* window, void*, std::uint32_t flags)
     {
-        Write<std::uint32_t>(Read<void*>(window, 0x70), 0x1014, 0); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window;
+        Write<std::uint32_t>(Read<void*>(window, 0x70), 0x1014, 0); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window;
     }
     // Original function: FUN_004b17fd.
     static bool __fastcall HumanListJobSelectionWindow_Message(void* window, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t job, std::uint32_t)
@@ -381,7 +381,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004b1856; all allowed tribe/job pairs are collected and name-sorted.
     static void HumanListJobSelectionWindow_l_GuiButtons_Add(void* window)
     {
-        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14), close(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
+        const NXBasics::SRectangle title(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14), close(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &title, Text(50)));
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &close));
         NXBasics::SRectangle area(4, 22, 308, 234); allocation = NXBasics::Runtime_AllocateWithNewHandler(116, 1);

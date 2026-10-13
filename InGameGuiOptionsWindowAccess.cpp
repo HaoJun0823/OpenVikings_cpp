@@ -73,7 +73,7 @@ namespace NC2InGameGuiMiscWindows
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        Write(window, 0, gOptionsWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gOptionsWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8);
         Write<std::uint32_t>(window, 0x70, 0);
         if (loadPage) Write<std::uint32_t>(window, 0x70, 4);
@@ -96,11 +96,11 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004bfa26.
     static void OptionsWindow_Destruct(void* window)
     {
-        Write(window, 0, gOptionsWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gOptionsWindowVirtualTable + 0);
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
         manager->Misc_GameTime_Continue_LargeWindowClosed();
         manager->FrameCall_UnRegister(window);
-        Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
     }
 
@@ -125,7 +125,7 @@ namespace NC2InGameGuiMiscWindows
         if (allocation != nullptr)
         {
             const char* title = NC2GuiToolsBase::StringTool_GetGameGuiMainStringPtr(0x1E);
-            const NXBasics::SRectangle rectangle(4, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 0x1Cu), 14);
+            const NXBasics::SRectangle rectangle(4, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 0x1Cu), 14);
             element = WindowMoverButton_Construct(allocation, &rectangle, title);
         }
         NXBaseGui::BaseWindow_Element_Add(window, element);
@@ -133,7 +133,7 @@ namespace NC2InGameGuiMiscWindows
         element = nullptr;
         if (allocation != nullptr)
         {
-            const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 0x14u), 2, 16, 14);
+            const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 0x14u), 2, 16, 14);
             element = WindowCloserButton_Construct(allocation, nullptr, &rectangle);
         }
         NXBaseGui::BaseWindow_Element_Add(window, element);
@@ -585,11 +585,11 @@ namespace NC2InGameGuiMiscWindows
         }
         if (*title == 0) return;
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
-        const NXBasics::SRectangle moverRectangle(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14);
+        const NXBasics::SRectangle moverRectangle(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14);
         void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &moverRectangle, title);
         NXBaseGui::BaseWindow_Element_Add(window, element);
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
-        const NXBasics::SRectangle closeRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14);
+        const NXBasics::SRectangle closeRectangle(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14);
         element = allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
         NXBaseGui::BaseWindow_Element_Add(window, element);
         const bool restart = mode == 2 && Read<std::uint8_t>(NC2Logic::gMissionManager, 5) != 0;
@@ -610,7 +610,7 @@ namespace NC2InGameGuiMiscWindows
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 400u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 140u) / 2, 400, 140);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        Write(window, 0, gGameSafetyBoxWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gGameSafetyBoxWindowVirtualTable + 0);
         Write<std::uint32_t>(window, 0x70, 0);
         Write(window, 0x70, mode);
         GameSafetyBoxWindow_l_GuiButtons_Add(window);

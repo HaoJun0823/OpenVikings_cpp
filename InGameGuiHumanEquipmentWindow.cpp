@@ -66,7 +66,7 @@ namespace NC2InGameGuiSelectedAction
         void l_GuiButtons_Add(void* window)
         {
             using namespace NC2InGameGuiBase;
-            const auto width = Read<std::int32_t>(window, 0x0C);
+            const auto width = Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width);
             void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
             const SRectangle mover(2, 2, width - 22, 14);
             void* element = allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &mover, MiscString(300));
@@ -212,7 +212,7 @@ namespace NC2InGameGuiSelectedAction
         const SRectangle rectangle((state.displayWidth - 420) / 2, (state.displayHeight - 300) / 2, 420, 300);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 16);
-        Write(window, 0, gEquipmentWindowVirtualTable.data());
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gEquipmentWindowVirtualTable.data());
         Write(window, 0x70, type); Write(window, 0x74, slot);
         l_GuiButtons_Add(window);
         return window;

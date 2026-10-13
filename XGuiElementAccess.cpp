@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "XGuiElementAccess.h"
 #include "C2LifetimeAccess.h"
@@ -39,21 +40,21 @@ namespace NXBaseGui
     // Original function: FUN_00478936; serial assignment follows state/flags.
     static void BaseElement_ConstructState(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
     {
-        std::memset(static_cast<std::byte*>(element) + 4, 0, 40);
-        Write<std::uint32_t>(element, 0x14, 0);
-        std::memcpy(static_cast<std::byte*>(element) + 4, rectangle, sizeof(*rectangle));
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::GuiBaseElementOffset::Rectangle, 0, 40);
+        Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 0);
+        std::memcpy(static_cast<std::byte*>(element) + NC2Layout::GuiBaseElementOffset::Rectangle, rectangle, sizeof(*rectangle));
         flags |= NXBasics::BitMask::Bit5;
         if ((flags & 2u) != 0) flags |= 1u;
-        Write(element, 0x18, flags);
-        Write(element, 0x1C, elementId);
-        Write(element, 0x28, gNextElementSerial);
+        Write(element, NC2Layout::GuiBaseElementOffset::Flags, flags);
+        Write(element, NC2Layout::GuiBaseElementOffset::ElementId, elementId);
+        Write(element, NC2Layout::GuiBaseElementOffset::Serial, gNextElementSerial);
         ++gNextElementSerial;
     }
 
     // Original function: FUN_004788c6.
     void* BaseElement_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t flags, std::uint32_t elementId)
     {
-        Write(element, 0, gBaseElementVirtualTable + 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseElementVirtualTable + 0);
         BaseElement_ConstructState(element, rectangle, flags, elementId);
         return element;
     }
@@ -61,9 +62,9 @@ namespace NXBaseGui
     // Original function: FUN_00478917; base destruction preserves the table.
     void BaseElement_Destruct(void* element)
     {
-        Write(element, 0, gBaseElementVirtualTable + 0);
-        std::memset(static_cast<std::byte*>(element) + 4, 0, 40);
-        Write<std::uint32_t>(element, 0x14, 0);
+        Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseElementVirtualTable + 0);
+        std::memset(static_cast<std::byte*>(element) + NC2Layout::GuiBaseElementOffset::Rectangle, 0, 40);
+        Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 0);
     }
 
     // Original function: FUN_004788e6.
@@ -76,7 +77,7 @@ namespace NXBaseGui
     }
 
     // Original function: FUN_004788a7.
-    bool __fastcall BaseElement_HasSubElements(void* element) { return (Read<std::uint32_t>(element, 0x18) & NXBasics::BitMask::Bit6) != 0; }
+    bool __fastcall BaseElement_HasSubElements(void* element) { return (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & NXBasics::BitMask::Bit6) != 0; }
 
     // Original function: FUN_004788b1; the base hit test accepts every local point.
     bool __fastcall BaseElement_IsHit(void*, void*, const std::int32_t*) { return true; }
@@ -94,34 +95,34 @@ namespace NXBaseGui
     void __fastcall BaseWindow_DrawOverlays(void*, void*, std::uint32_t, std::uint32_t) {}
 
     // Original function: FUN_004788c2.
-    void* __fastcall BaseWindow_GetRealActiveElementPtr(void* window) { return Read<void*>(window, 0x64); }
+    void* __fastcall BaseWindow_GetRealActiveElementPtr(void* window) { return Read<void*>(window, NC2Layout::GuiBaseWindowOffset::ActiveChild); }
 
     // Original function: FUN_00478983; the base renderer is an empty original body.
     void __fastcall BaseElement_Draw(void*, void*, NXBasics::CBitmap*, const NXBasics::SRectangle*) {}
 
     // Original function: FUN_00478986.
-    void __fastcall BaseElement_Activate(void* element, void*, const std::int32_t*) { Write<std::uint32_t>(element, 0x14, 1); }
+    void __fastcall BaseElement_Activate(void* element, void*, const std::int32_t*) { Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 1); }
 
     // Original function: FUN_00478994.
-    void __fastcall BaseElement_DeActivate(void* element) { Write<std::uint32_t>(element, 0x14, 0); }
+    void __fastcall BaseElement_DeActivate(void* element) { Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 0); }
 
     // Original function: FUN_0047899f.
-    bool __fastcall BaseElement_ButtonPressed(void* element, void*, const std::int32_t*) { Write<std::uint32_t>(element, 0x14, 2); return true; }
+    bool __fastcall BaseElement_ButtonPressed(void* element, void*, const std::int32_t*) { Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 2); return true; }
 
     // Original function: FUN_004789af.
     bool __fastcall BaseElement_ButtonReleased(void* element)
     {
-        const auto state = Read<std::uint32_t>(element, 0x14);
-        if (state == 1) Write<std::uint32_t>(element, 0x14, 0);
+        const auto state = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState);
+        if (state == 1) Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 0);
         if (state != 2) return false;
-        if ((Read<std::uint8_t>(element, 0x18) & 8u) != 0)
+        if ((Read<std::uint8_t>(element, NC2Layout::GuiBaseElementOffset::Flags) & 8u) != 0)
         {
-            auto* parent = Read<CBaseWindow*>(element, 0x20);
+            auto* parent = Read<CBaseWindow*>(element, NC2Layout::GuiBaseElementOffset::ParentWindow);
             BaseWindow_AddToCloseList(parent);
         }
-        Write<std::uint32_t>(element, 0x14, 1);
+        Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 1);
         using TPressedAction = void(__thiscall*)(void*);
-        Read<TPressedAction*>(element, 0)[17](element);
+        Read<TPressedAction*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[17](element);
         return true;
     }
 
@@ -131,29 +132,29 @@ namespace NXBaseGui
     // Original function: FUN_004789eb; entering while the button is down restores pressed state.
     void BaseElement_MouseEnteredArea(void* element)
     {
-        Write<std::uint8_t>(element, 0x19, Read<std::uint8_t>(element, 0x19) | 1u);
-        if (BaseElement_CanBePressed(element) && Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) != 0 && Read<std::uint32_t>(element, 0x14) == 1) Write<std::uint32_t>(element, 0x14, 2);
+        Write<std::uint8_t>(element, NC2Layout::GuiBaseElementOffset::FlagsByte1, Read<std::uint8_t>(element, NC2Layout::GuiBaseElementOffset::FlagsByte1) | 1u);
+        if (BaseElement_CanBePressed(element) && Read<std::uint8_t>(CDesktop::sTheObjectPtr, 0x12C) != 0 && Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState) == 1) Write<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState, 2);
     }
     // Original function: FUN_00478a3b.
-    bool BaseElement_CanBeActivated(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & NXBasics::BitMask::Bit10) == 0 && (flags & 1u) != 0; }
+    bool BaseElement_CanBeActivated(const void* element) { const auto flags = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags); return (flags & NXBasics::BitMask::Bit10) == 0 && (flags & 1u) != 0; }
     // Original function: FUN_00478a4f.
-    bool BaseElement_CanBePressed(const void* element) { const auto flags = Read<std::uint32_t>(element, 0x18); return (flags & NXBasics::BitMask::Bit10) == 0 && (flags & 2u) != 0; }
+    bool BaseElement_CanBePressed(const void* element) { const auto flags = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags); return (flags & NXBasics::BitMask::Bit10) == 0 && (flags & 2u) != 0; }
 
     // Original function: FUN_00478a65; unsigned subtraction preserves x86 wraparound.
     void __fastcall BaseElement_ParentToLocalPosition(void* element, void*, std::int32_t* point)
     {
-        Write(point, 0, Read<std::uint32_t>(point, 0) - Read<std::uint32_t>(element, 4));
-        Write(point, 4, Read<std::uint32_t>(point, 4) - Read<std::uint32_t>(element, 8));
+        Write(point, 0, Read<std::uint32_t>(point, 0) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX));
+        Write(point, 4, Read<std::uint32_t>(point, 4) - Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY));
     }
 
     // Original function: FUN_00478ad8.
     void* __fastcall BaseElement_FindElementOnPosition(void* element, void*, const std::int32_t* point, bool includeDisabled)
     {
-        const auto flags = Read<std::uint32_t>(element, 0x18);
+        const auto flags = Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::Flags);
         if (!includeDisabled && ((flags & NXBasics::BitMask::Bit10) != 0 || (flags & 1u) == 0)) return nullptr;
         if ((flags & NXBasics::BitMask::Bit9Unsigned) != 0) return nullptr;
         using THitTest = bool(__thiscall*)(void*, const std::int32_t*);
-        return Read<THitTest*>(element, 0)[8](element, point) ? element : nullptr;
+        return Read<THitTest*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[8](element, point) ? element : nullptr;
     }
 
     // Original function: FUN_0048e569; shared identity-returning virtual entry.

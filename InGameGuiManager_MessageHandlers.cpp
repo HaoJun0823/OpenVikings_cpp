@@ -68,7 +68,7 @@ namespace
 // Original function: FUN_004a0145; flags zero destroy the embedded handler without freeing it.
 void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Delete(void* element, void* /*unusedEdx*/, std::uint32_t flags)
 {
-    NC2Lifetime::Write(element, 0, gInGameDefaultMessageHandlerVirtualTable + 0);
+    NC2Lifetime::Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gInGameDefaultMessageHandlerVirtualTable + 0);
     NXBaseGui::BaseElement_Destruct(element);
     if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
     return element;
@@ -79,7 +79,7 @@ void* __fastcall InGameGuiManagerDefaultMessageHandlerElement_Construct(void* el
 {
     const NXBasics::SRectangle rectangle(0, 0, 0, 0);
     NXBaseGui::BaseElement_Construct(element, &rectangle, 0, 0x800);
-    NC2Lifetime::Write(element, 0, gInGameDefaultMessageHandlerVirtualTable + 0);
+    NC2Lifetime::Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gInGameDefaultMessageHandlerVirtualTable + 0);
     return element;
 }
 
@@ -101,7 +101,7 @@ namespace
         if (std::strncmp(history, "netsaklam", 9) == 0) { auto* world = manager->GetDesktop(); auto variant = NC2Lifetime::Read<std::uint32_t>(world, 0x238) + 1u; if (variant == 4) variant = 0; NC2InGameGuiWorldElement::WorldDisplayElement_DarkenBitmap_Init(world, variant); matched = true; }
         if (matched) { NC2GuiToolsBase::FXTool_Chat(); history[0] = 0; NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0x18, true, manager->GetLocalPlayerId(), 9, 0); }
     }
-    static bool SendElementMessage(void* element, std::uint32_t message, std::uint32_t command) { using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t); return NC2Lifetime::Read<TMessage*>(element, 0)[2](element, message, command, 0, 0, 0); }
+    static bool SendElementMessage(void* element, std::uint32_t message, std::uint32_t command) { using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t); return NC2Lifetime::Read<TMessage*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](element, message, command, 0, 0, 0); }
     static void CycleHumanJob(std::uint32_t job)
     {
         using namespace NC2Lifetime; using namespace NC2Logic; using namespace NC2InGameGuiInputManager; if (Read<std::uint32_t>(gInputManager, 0) != 0) return;
@@ -189,7 +189,7 @@ namespace
     // Original function: FUN_004bc34d.
     void* __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Delete(void* element, void*, std::uint32_t flags)
     {
-        NC2Lifetime::Write(element, 0, gInGamePrimaryMessageHandlerVirtualTable.data()); NXBaseGui::BaseElement_Destruct(element);
+        NC2Lifetime::Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gInGamePrimaryMessageHandlerVirtualTable.data()); NXBaseGui::BaseElement_Destruct(element);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(element);
         return element;
     }
@@ -199,7 +199,7 @@ void* __fastcall InGameGuiManagerPrimaryMessageHandlerElement_Construct(void* el
 {
     const NXBasics::SRectangle rectangle(0, 0, 0, 0);
     NXBaseGui::BaseElement_Construct(element, &rectangle, 4, 0xA01);
-    NC2Lifetime::Write(element, 0, gInGamePrimaryMessageHandlerVirtualTable.data()); return element;
+    NC2Lifetime::Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gInGamePrimaryMessageHandlerVirtualTable.data()); return element;
 }
 
 namespace NInGameGuiManager

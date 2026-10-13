@@ -1009,7 +1009,7 @@ namespace NC2InGameGuiSelection
                     NXBasics::CBitmap scratch(10, 10, 1);
                     const SRectangle bounds(0, 0, 10, 10);
                     using TDraw = void(__thiscall*)(void*, NXBasics::CBitmap*, const SRectangle*);
-                    Read<TDraw*>(window, 0)[3](window, &scratch, &bounds);
+                    Read<TDraw*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[3](window, &scratch, &bounds);
                 }
                 l_SubTabs_UpdateAll(window, true);
             }
@@ -1081,7 +1081,7 @@ namespace NC2InGameGuiSelection
         // Original function: FUN_004ab9b7; close the owned popup before unregistering.
         void SelectionSingleHumanWindow_Destruct(void* window)
         {
-            Write(window, 0, gSingleHumanWindowVirtualTable + 0);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSingleHumanWindowVirtualTable + 0);
             auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr;
             if (void* popup = Read<void*>(window, NC2Layout::SingleHumanWindowOffset::TraderConfigWindow)) NXBaseGui::CDesktop::sTheObjectPtr->Window_Close(static_cast<NXBaseGui::CBaseWindow*>(popup));
             NC2InGameGuiWorldElement::WorldDisplayElement_FollowMode_End(manager->GetDesktop());
@@ -1089,7 +1089,7 @@ namespace NC2InGameGuiSelection
             gSelectionSingleHumanWindowStatics[0] = std::byte{1};
             std::memcpy(gSelectionSingleHumanWindowStatics + 1, static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabCollapsedFlags, 6);
             Tooltips(window).~CStaticToolTipHandler();
-            Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
             NXBaseGui::BaseWindow_Destruct(window);
         }
         // Original function: FUN_004ab989.
@@ -1133,7 +1133,7 @@ namespace NC2InGameGuiSelection
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
         SelectionSingleHumanWindow_Vars_Construct(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabEnabledFlags);
         ::new(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::DynamicButtons) NC2InGameGuiBase::CDynamicSubButtonsHandler;
-        Write(window, 0, gSingleHumanWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSingleHumanWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + NC2Layout::SingleHumanWindowOffset::TabEnabledFlags, 0, NC2Layout::RecordSize::SingleHumanWindowVars);
         Buttons(window).SetWindow(window);
         Write<std::uint8_t>(window, NC2Layout::SingleHumanWindowOffset::TabEnabledFlags, 1);

@@ -2106,4 +2106,30 @@ namespace NC2Layout
         inline constexpr auto CenteredFlag = 0x54;
     }
 
+    namespace GuiBaseElementOffset
+    {
+        inline constexpr auto Serial = 0x28;
+
+        inline constexpr auto VirtualTable = 0;
+        inline constexpr auto Rectangle = 4;
+        inline constexpr auto PositionX = 4;
+        inline constexpr auto PositionY = 8;
+        inline constexpr auto Width = 0xC;
+        inline constexpr auto Height = 0x10;
+        inline constexpr auto InteractionState = 0x14;
+        inline constexpr auto Flags = 0x18;
+        inline constexpr auto FlagsByte1 = 0x19;
+        inline constexpr auto ElementId = 0x1C;
+        inline constexpr auto ParentWindow = 0x20;
+        inline constexpr auto MessageHandler = 0x24;
+    }
+
+    namespace GuiBaseWindowOffset
+    {
+        inline constexpr auto ClippingRectangle = 0x2C;
+        inline constexpr auto DrawChildren = 0x3C;
+        inline constexpr auto InputChildren = 0x50;
+        inline constexpr auto ActiveChild = 0x64;
+    }
+
 }

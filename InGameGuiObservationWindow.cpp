@@ -37,11 +37,11 @@ namespace NC2InGameGuiWorldWindow
     {
         auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         NXBasics::SRectangle area(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 260u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 200u) / 2, 260, 200);
-        BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 28); Write(window, 0, gObservationWindowVirtualTable.data());
-        area = NXBasics::SRectangle(2, 2, Read<std::int32_t>(window, 0xC) - 22, 14); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
+        BaseToolWindow_Construct(window, &area); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 28); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gObservationWindowVirtualTable.data());
+        area = NXBasics::SRectangle(2, 2, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22, 14); auto* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &area, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(240)));
-        area = NXBasics::SRectangle(Read<std::int32_t>(window, 0xC) - 18, 2, 16, 14); allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &area));
-        area = NXBasics::SRectangle(4, 20, Read<std::int32_t>(window, 0xC) - 8, Read<std::int32_t>(window, 0x10) - 24); allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
+        area = NXBasics::SRectangle(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18, 2, 16, 14); allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1); NXBaseGui::BaseWindow_Element_Add(window, allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &area));
+        area = NXBasics::SRectangle(4, 20, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 8, Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height) - 24); allocation = NXBasics::Runtime_AllocateWithNewHandler(580, 1);
         void* element = allocation == nullptr ? nullptr : WorldDisplayElement_Construct(allocation, &area, false, true); Write(window, 0x70, element); NXBaseGui::BaseWindow_Element_Add(window, element); WorldDisplayElement_DrawFrame_SetMode(element, 2);
         std::uint32_t point = 0; NC2E2::DE_Misc_GetDisplayedCenterMapPosition(Read<void*>(manager->GetDesktop(), 0x30), &point); NC2E2::DE_SetWantedPositionToMapPoint(Display(window), &point); NC2E2::DE_ControllingPlayer_SetId(Display(window), manager->GetLocalPlayerId());
         WorldDisplayElement_Misc_LeftMouseClick_HandlerSet(element, window, 20000); WorldDisplayElement_Misc_LeftMouseDoubleClick_HandlerSet(element, window, 20001);
@@ -55,7 +55,7 @@ namespace NC2InGameGuiWorldWindow
     // Original function: FUN_004bd67e.
     static void WorldObserveDisplayWindow_Destruct(void* window)
     {
-        Write(window, 0, gObservationWindowVirtualTable.data()); auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; manager->FrameCall_UnRegister(window); manager->ObservationWindow_UnRegister(window); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gObservationWindowVirtualTable.data()); auto* manager = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr; manager->FrameCall_UnRegister(window); manager->ObservationWindow_UnRegister(window); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
     }
     // Original function: FUN_004bd662.
     static void* __fastcall WorldObserveDisplayWindow_Delete(void* window, void*, std::uint32_t flags) { WorldObserveDisplayWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }

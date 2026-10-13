@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "GuiListBoxElementAccess.h"
@@ -27,7 +28,7 @@ namespace NC2InGameGuiBaseListBox
     static std::int32_t Add(std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) + static_cast<std::uint32_t>(b)); }
     static std::int32_t Subtract(std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) - static_cast<std::uint32_t>(b)); }
     static std::int32_t Multiply(std::int32_t a, std::int32_t b) { return NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(a) * static_cast<std::uint32_t>(b)); }
-    template<class T> static T Virtual(void* element, std::uint32_t slot) { return Read<T*>(element, 0)[slot]; }
+    template<class T> static T Virtual(void* element, std::uint32_t slot) { return Read<T*>(element, NC2Layout::GuiBaseElementOffset::VirtualTable)[slot]; }
     using TDeactivate = void(__thiscall*)(void*);
     using TActivate = void(__thiscall*)(void*, const std::int32_t*);
     using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
@@ -106,7 +107,7 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004cffba.
     static void __fastcall ToolList_Draw(void* element, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)
     {
-        const SRectangle frame(0, 0, Read<std::int32_t>(element, 0x0C), Read<std::int32_t>(element, 0x10));
+        const SRectangle frame(0, 0, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
         NC2GuiToolsBase::DrawTool_DrawFrame(bitmap, frame, 2);
         List_Draw(element, nullptr, bitmap, rectangle);
     }
@@ -130,13 +131,13 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d02c1.
     static std::int32_t ScrollOffset_GetXPercentage(void* element)
     {
-        const auto range = Subtract(Read<std::int32_t>(element, 0x40), Read<std::int32_t>(element, 0x0C));
+        const auto range = Subtract(Read<std::int32_t>(element, 0x40), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width));
         return range <= 0 ? -1 : Multiply(Add(Read<std::int32_t>(element, 0x38), Read<std::int32_t>(element, 0x30)), -100) / range;
     }
     // Original function: FUN_004d02df.
     static std::int32_t ScrollOffset_GetYPercentage(void* element)
     {
-        const auto range = Subtract(Read<std::int32_t>(element, 0x44), Read<std::int32_t>(element, 0x10));
+        const auto range = Subtract(Read<std::int32_t>(element, 0x44), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
         return range <= 0 ? -1 : Multiply(Add(Read<std::int32_t>(element, 0x3C), Read<std::int32_t>(element, 0x34)), -100) / range;
     }
     // Original function: FUN_004d003d.
@@ -145,8 +146,8 @@ namespace NC2InGameGuiBaseListBox
         reinterpret_cast<TDraw>(NC2InGameGuiBase::gBaseToolElementVirtualTable[3])(element, bitmap, rectangle);
         void* list = Read<void*>(element, 0x30);
         const auto inset = Read<std::int32_t>(element, 0x38);
-        const auto width = Read<std::int32_t>(element, 0x0C);
-        const auto height = Read<std::int32_t>(element, 0x10);
+        const auto width = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width);
+        const auto height = Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height);
         const auto xPercentage = ScrollOffset_GetXPercentage(list);
         const auto yPercentage = ScrollOffset_GetYPercentage(list);
         const auto x = Read<std::uint8_t>(element, 0x34) != 0 && xPercentage >= 0 ? Add(Multiply(Subtract(width, Add(inset, inset)), xPercentage) / 100, inset) : width / 2;
@@ -191,10 +192,10 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_00478661; BW_Element_DoNotUse.
     static void BaseWindow_Element_DoNotUse(void* window, void* element)
     {
-        if (Read<void*>(window, 0x64) == element)
+        if (Read<void*>(window, NC2Layout::GuiBaseWindowOffset::ActiveChild) == element)
         {
             Virtual<TDeactivate>(element, 5)(element);
-            Write<void*>(window, 0x64, nullptr);
+            Write<void*>(window, NC2Layout::GuiBaseWindowOffset::ActiveChild, nullptr);
         }
     }
     // Original function: FUN_004d01cc.
@@ -241,7 +242,7 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d02fd.
     static void l_ScrollOffset_Validate(void* element)
     {
-        SRectangle viewport(Subtract(0, Read<std::int32_t>(element, 0x30)), Subtract(0, Read<std::int32_t>(element, 0x34)), Read<std::int32_t>(element, 0x0C), Read<std::int32_t>(element, 0x10));
+        SRectangle viewport(Subtract(0, Read<std::int32_t>(element, 0x30)), Subtract(0, Read<std::int32_t>(element, 0x34)), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
         SRectangle bounds(0, 0, 0, 0);
         std::memcpy(&bounds, static_cast<std::byte*>(element) + 0x38, sizeof(bounds));
         viewport.PlaceInside(bounds);
@@ -269,7 +270,7 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d040e.
     static void l_BoundingElementBox_Calculate(void* element)
     {
-        SRectangle bounds(0, 0, Read<std::int32_t>(element, 0x0C), Read<std::int32_t>(element, 0x10));
+        SRectangle bounds(0, 0, Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height));
         NXBasics::CListBase::Iterator iterator(ElementList(element, 0x4C));
         for (void* child = iterator.First(); child != nullptr; child = iterator.Next())
             if ((Read<std::uint32_t>(child, 0x18) & NXBasics::BitMask::Bit9Unsigned) == 0) bounds.CombineWith(BaseElement_GetRectangle(child));
@@ -326,7 +327,7 @@ namespace NC2InGameGuiBaseListBox
     static void __fastcall List_Activate(void* element, void*, const std::int32_t* point)
     {
         BaseElement_Activate(element, nullptr, point);
-        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, 4)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, 8)), Read<std::int32_t>(element, 0x34))};
+        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY)), Read<std::int32_t>(element, 0x34))};
         void* child = l_FindElementOnPosition(element, local, false);
         void* active = Read<void*>(element, 0x48);
         if (child == active) return;
@@ -347,8 +348,8 @@ namespace NC2InGameGuiBaseListBox
     // Original function: FUN_004d0670.
     static bool __fastcall List_ButtonPressed(void* element, void*, const std::int32_t* point)
     {
-        if (Read<std::uint32_t>(element, 0x14) != 1) return false;
-        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, 4)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, 8)), Read<std::int32_t>(element, 0x34))};
+        if (Read<std::uint32_t>(element, NC2Layout::GuiBaseElementOffset::InteractionState) != 1) return false;
+        std::int32_t local[2] = {Subtract(Subtract(point[0], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionX)), Read<std::int32_t>(element, 0x30)), Subtract(Subtract(point[1], Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::PositionY)), Read<std::int32_t>(element, 0x34))};
         void* child = l_FindElementOnPosition(element, local, false);
         if (child == nullptr) return false;
         if (!BaseElement_CanBePressed(child)) return false;
@@ -425,9 +426,9 @@ namespace NC2InGameGuiBaseListBox
         point[0] = Subtract(point[0], inset);
         point[1] = Subtract(point[1], inset);
         void* list = Read<void*>(element, 0x30);
-        const auto width = Subtract(Read<std::int32_t>(element, 0x0C), Add(inset, inset));
+        const auto width = Subtract(Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Width), Add(inset, inset));
         if (Read<std::uint8_t>(element, 0x34) != 0 && width > 1) BaseListBoxElement_ScrollOffset_SetPercentage(list, Multiply(point[0], 100) / width, -1);
-        const auto height = Subtract(Read<std::int32_t>(element, 0x10), Add(inset, inset));
+        const auto height = Subtract(Read<std::int32_t>(element, NC2Layout::GuiBaseElementOffset::Height), Add(inset, inset));
         if (Read<std::uint8_t>(element, 0x35) != 0 && height > 1) BaseListBoxElement_ScrollOffset_SetPercentage(list, -1, Multiply(point[1], 100) / height);
         return true;
     }
@@ -453,7 +454,7 @@ void* __fastcall ToolListBoxControllerElement_Construct(void* element, void*, co
 // Original function: FUN_004d01a3.
 void __fastcall BaseListBoxElement_Element_Add(void* list, void*, void* element)
 {
-    Write(element, 0x24, list);
+    Write(element, NC2Layout::GuiBaseElementOffset::MessageHandler, list);
     ElementList(list, 0x4C).InsertAtEnd(element);
     ElementList(list, 0x60).InsertAtStart(element);
     l_BoundingElementBox_Calculate(list);

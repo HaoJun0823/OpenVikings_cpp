@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "C2GameState.h"
 #include "C2LifetimeAccess.h"
@@ -578,7 +579,7 @@ namespace NInGameGuiManager
         if (window != nullptr)
         {
             using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-            NC2Lifetime::Read<TMessage*>(window, 0)[2](window, 0x800, 50000, briefingId, goalsPage ? 1u : 0u, 0);
+            NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, 0x800, 50000, briefingId, goalsPage ? 1u : 0u, 0);
             return;
         }
         MiscWindows_CloseAllLargeOnes(true);
@@ -593,7 +594,7 @@ namespace NInGameGuiManager
         auto* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(0x7E6, 0, 0, 0);
         if (window == nullptr) return;
         using TMessage = bool(__thiscall*)(void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t);
-        NC2Lifetime::Read<TMessage*>(window, 0)[2](window, 0x800, 50001, 0, 0, 0);
+        NC2Lifetime::Read<TMessage*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable)[2](window, 0x800, 50001, 0, 0, 0);
     }
 
     // Original function: FUN_004a28a6.

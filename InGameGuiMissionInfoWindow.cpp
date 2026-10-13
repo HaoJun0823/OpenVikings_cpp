@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "C2RuntimeConstants.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
@@ -86,7 +87,7 @@ namespace NC2InGameGuiMiscWindows
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayWidth) - 500u) / 2, NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u) / 2, 500, 420);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        Write(window, 0, gMissionInfoWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMissionInfoWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 840);
         Write<std::uint32_t>(window, 0x6C, 1);
         Write<std::uint32_t>(window, 0x70, goalsPage ? 1u : 0u);
@@ -153,7 +154,7 @@ namespace NC2InGameGuiMiscWindows
     // Original function: FUN_004a4a8d; shared previews are released before base-window teardown.
     static void MissionInfoWindow_Destruct(void* window)
     {
-        Write(window, 0, gMissionInfoWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gMissionInfoWindowVirtualTable + 0);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
         MissionInfoWindow_l_Briefing_FreeData(window);
         if (NDSManager::CManager::sTheObjectPtr != nullptr) NDSManager::CManager::sTheObjectPtr->FireAndForget_Stop(NC2Runtime::SoundTag::MissionBriefingVoice);
@@ -167,7 +168,7 @@ namespace NC2InGameGuiMiscWindows
         lsUserCallbackMapDisplayBitmapPtr = nullptr;
         DeleteStorable(lsUserCallbackHumanDisplayBitmapPtr);
         lsUserCallbackHumanDisplayBitmapPtr = nullptr;
-        Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
     }
 
@@ -282,10 +283,10 @@ namespace NC2InGameGuiMiscWindows
         const auto add = [window](void* element) { NXBaseGui::BaseWindow_Element_Add(window, element); };
         Write<void*>(window, 0x3B4, nullptr);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
-        const NXBasics::SRectangle mover(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 22u), 14);
+        const NXBasics::SRectangle mover(2, 2, NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 22u), 14);
         add(allocation == nullptr ? nullptr : WindowMoverButton_Construct(allocation, &mover, NC2GuiToolsBase::StringTool_GetGameGuiMiscWindowStringPtr(0x3C)));
         allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
-        const NXBasics::SRectangle closer(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, 0xC) - 18u), 2, 16, 14);
+        const NXBasics::SRectangle closer(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::Width) - 18u), 2, 16, 14);
         add(allocation == nullptr ? nullptr : WindowCloserButton_Construct(allocation, nullptr, &closer));
         NXBasics::SRectangle tab(4, 22, 164, 22);
         for (std::uint32_t index = 0; index < 3; ++index)

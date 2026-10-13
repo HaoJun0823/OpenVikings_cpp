@@ -50,7 +50,7 @@ namespace NC2InGameGuiSelectedAction
         void Respond(std::int32_t id) { NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id); }
         void Frame(void* window, std::uint32_t title)
         {
-            const auto width = Read<std::int32_t>(window, 0x0C);
+            const auto width = Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width);
             void* memory = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
             const SRectangle mover(2, 2, width - 22, 14);
             NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : NC2InGameGuiBase::WindowMoverButton_Construct(memory, &mover, Misc(title)));
@@ -254,7 +254,7 @@ namespace NC2InGameGuiSelectedAction
             if (command == 10000) { SelectedSingleHumanChangeNameWindow_l_Misc_DoChangeName(window); Close(window); }
             else if (command == 0x8233)
             {
-                if (Read<std::uint32_t>(window, 0x14) != 1) return false;
+                if (Read<std::uint32_t>(window, NC2Layout::GuiBaseElementOffset::InteractionState) != 1) return false;
                 if (key == 27) Close(window);
                 else if (TextInput(window)->WorkOnKey(key, static_cast<char>(character)) == 3) { SelectedSingleHumanChangeNameWindow_l_Misc_DoChangeName(window); Close(window); }
             }
@@ -343,16 +343,16 @@ namespace NC2InGameGuiSelectedAction
         // Original function: FUN_004c73df.
         void* __fastcall SelectedSingleHumanChangeJobWindow_Delete(void* window, void*, std::uint32_t flags)
         {
-            Write(window, 0, gJobWindowVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(window);
-            Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gJobWindowVirtualTable.data()); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_UnRegister(window);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
             if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
             return window;
         }
         // Original function: FUN_004c7b39.
         void* __fastcall SelectedSingleHumanChangeNameWindow_Delete(void* window, void*, std::uint32_t flags)
         {
-            Write(window, 0, gNameWindowVirtualTable.data()); TextInput(window)->Exit();
-            Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gNameWindowVirtualTable.data()); TextInput(window)->Exit();
+            Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window);
             if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
             return window;
         }
@@ -362,7 +362,7 @@ namespace NC2InGameGuiSelectedAction
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const SRectangle rectangle((state.displayWidth - 300) / 2, (state.displayHeight - 320) / 2, 300, 320);
-        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 16); Write(window, 0, gJobWindowVirtualTable.data());
+        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 16); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gJobWindowVirtualTable.data());
         SelectedSingleHumanChangeJobWindow_l_GuiButtons_Add(window); NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->FrameCall_Register(window); return window;
     }
     // Original function: FUN_004c7a7d.
@@ -371,7 +371,7 @@ namespace NC2InGameGuiSelectedAction
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const SRectangle rectangle((state.displayWidth - 320) / 2, (state.displayHeight - 100) / 2, 320, 100);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); new (TextInput(window)) NC2InGameGuiBaseTextInputElement::CStringInputHandler;
-        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, 0, gNameWindowVirtualTable.data()); TextInput(window)->Init(12, true, true, 13, 0);
+        std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gNameWindowVirtualTable.data()); TextInput(window)->Init(12, true, true, 13, 0);
         if (Read<std::uint32_t>(Input(), 4) != 1 || SelectedId() == -1) Close(window);
         else { TextInput(window)->SetString(Name(SelectedId())); SelectedSingleHumanChangeNameWindow_l_GuiButtons_Add(window); }
         return window;
@@ -381,7 +381,7 @@ namespace NC2InGameGuiSelectedAction
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const SRectangle rectangle((state.displayWidth - 200) / 2, (state.displayHeight - 260) / 2, 200, 260);
-        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, 0, gProducedGoodWindowVirtualTable.data());
+        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gProducedGoodWindowVirtualTable.data());
         Frame(window, 440); SelectedSingleHumanLearnJobWindow_l_System_Validate(window);
         if (Read<std::uint8_t>(window, 0x70) == 0) return window;
         void* list = List(SRectangle(4, 22, 168, 216));
@@ -413,7 +413,7 @@ namespace NC2InGameGuiSelectedAction
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const SRectangle rectangle((state.displayWidth - 320) / 2, (state.displayHeight - 300) / 2, 320, 300);
-        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, 0, gLearnWindowVirtualTable.data());
+        NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle); std::memset(static_cast<std::byte*>(window) + 0x70, 0, 8); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gLearnWindowVirtualTable.data());
         Frame(window, 450); SelectedSingleHumanLearnJobWindow_l_System_Validate(window);
         if (Read<std::uint8_t>(window, 0x70) == 0) return window;
         void* list = List(SRectangle(4, 22, 288, 256));
@@ -473,7 +473,7 @@ namespace NInGameGuiManager
     {
         void* window = NXBaseGui::CDesktop::sTheObjectPtr->Message_SendToAllWindows(2014, 0, 0, 0);
         if (window == nullptr) return false;
-        const auto table = NC2Lifetime::Read<const std::uintptr_t*>(window, 0);
+        const auto table = NC2Lifetime::Read<const std::uintptr_t*>(window, NC2Layout::GuiBaseElementOffset::VirtualTable);
         return reinterpret_cast<bool(__fastcall*)(void*, void*, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t)>(table[2])(window, nullptr, 0x800, 0x8233, key, static_cast<std::uint32_t>(static_cast<std::int32_t>(character)), 0);
     }
     // Original function: FUN_004a2761.

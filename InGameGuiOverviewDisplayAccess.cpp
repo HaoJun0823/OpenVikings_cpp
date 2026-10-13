@@ -292,7 +292,7 @@ namespace NC2InGameGuiOverviewDisplay
         NC2InGameGuiBase::BaseBitmapToolElement_Construct(element, rectangle, 1, 0x1A1, OverviewDisplay_Read<std::int32_t>(desktopBitmap, 4));
         void* state = static_cast<std::byte*>(element) + 0x30;
         WorldOverviewElement_ConstructState(state);
-        OverviewDisplay_Write(element, 0, gWorldOverviewElementVirtualTable + 0);
+        OverviewDisplay_Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewElementVirtualTable + 0);
         std::memset(state, 0, 33084);
         auto* bitmap = OverviewDisplay_Read<NXBasics::CBitmap*>(element, 0x2C);
         bitmap->Fill(static_cast<std::uint8_t>(0));
@@ -328,7 +328,7 @@ namespace NC2InGameGuiOverviewDisplay
     // Original function: FUN_004ce5d8.
     void WorldOverviewElement_Destruct(void* element)
     {
-        OverviewDisplay_Write(element, 0, gWorldOverviewElementVirtualTable + 0);
+        OverviewDisplay_Write(element, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewElementVirtualTable + 0);
         CWorldOverviewElementHandler::sTheObjectPtr->System_UnRegisterElement(static_cast<CWorldOverviewBitmapGuiElement*>(element));
         auto* background = OverviewDisplay_Read<NXBasics::CBitmap*>(element, 0x8040);
         if (background != nullptr)

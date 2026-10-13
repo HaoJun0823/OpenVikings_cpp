@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "GuiBitmapToolElementAccess.h"
 #include "GuiClockToolElementAccess.h"
 #include "XGuiElementAccess.h"
@@ -71,13 +72,13 @@ namespace NC2InGameGuiMiscWindows
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars;
         const NXBasics::SRectangle rectangle(170, AddWrapped(state.displayHeight, 0xFFFFFFC0u), AddWrapped(state.displayWidth, 0xFFFFFE48u), 64);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        Write(window, 0, gStringOutputWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gStringOutputWindowVirtualTable + 0);
         Write<std::uint32_t>(window, 0x70, 0);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(84, 1);
         void* closer = nullptr;
         if (allocation != nullptr)
         {
-            const NXBasics::SRectangle closeRectangle(AddWrapped(Read<std::int32_t>(window, 0xC), 0xFFFFFFEEu), 2, 16, 14);
+            const NXBasics::SRectangle closeRectangle(AddWrapped(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width), 0xFFFFFFEEu), 2, 16, 14);
             closer = NC2InGameGuiBase::WindowCloserButton_Construct(allocation, nullptr, &closeRectangle);
         }
         NXBaseGui::BaseWindow_Element_Add(window, closer);
@@ -85,7 +86,7 @@ namespace NC2InGameGuiMiscWindows
         void* clock = nullptr;
         if (allocation != nullptr)
         {
-            const NXBasics::SRectangle clockRectangle(AddWrapped(Read<std::int32_t>(window, 0xC), 0xFFFFFFE8u), AddWrapped(Read<std::int32_t>(window, 0x10), 0xFFFFFFE8u), 20, 20);
+            const NXBasics::SRectangle clockRectangle(AddWrapped(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width), 0xFFFFFFE8u), AddWrapped(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height), 0xFFFFFFE8u), 20, 20);
             clock = NC2InGameGuiBase::ToolClockElement_Construct(allocation, &clockRectangle);
         }
         Write<std::uint8_t>(clock, 0x30, 1);
@@ -98,9 +99,9 @@ namespace NC2InGameGuiMiscWindows
     static void* __fastcall StringOutputWindow_Delete(void* window, void* unusedEdx, std::uint32_t flags)
     {
         (void)unusedEdx;
-        Write(window, 0, gStringOutputWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gStringOutputWindowVirtualTable + 0);
         StringOutputWindow_String_Exit(window);
-        Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
         return window;
@@ -139,7 +140,7 @@ namespace NC2InGameGuiMiscWindows
             const auto* colour = FontColour255(resources.fontDimmedPalette);
             auto* font = resources.font08;
             const auto textWidth = NXBasics::Font_GetPixelWidth(font, elapsed);
-            const auto x = AddWrapped(Read<std::int32_t>(window, 0xC), 0u - static_cast<std::uint32_t>(textWidth) - 2u);
+            const auto x = AddWrapped(Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Width), 0u - static_cast<std::uint32_t>(textWidth) - 2u);
             bitmap->Text_Print(font, colour, x, 20, elapsed);
         }
         auto* font = resources.font08;
@@ -163,7 +164,7 @@ namespace NC2InGameGuiMiscWindows
             y = AddWrapped(y, 12);
         }
         auto index = Read<NXBasics::CStringArray*>(window, 0x70)->GetNumberOfStrings() - 1u;
-        while (NXBasics::Runtime_TimeSigned32(index) >= 0 && y < Read<std::int32_t>(window, 0x10))
+        while (NXBasics::Runtime_TimeSigned32(index) >= 0 && y < Read<std::int32_t>(window, NC2Layout::GuiBaseElementOffset::Height))
         {
             const auto* colour = FontColour255(resources.fontWhitePalette);
             const char* text = Read<NXBasics::CStringArray*>(window, 0x70)->GetStringPtr(index);

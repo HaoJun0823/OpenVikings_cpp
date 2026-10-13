@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "XNumericConstants.h"
 #include "SwitchIdentifiers.h"
 #include "GuiBitmapToolElementAccess.h"
@@ -113,9 +114,9 @@ namespace NC2InGameGuiOverviewDisplay
     // Original function: FUN_004c9777; notify the manager before destroying children.
     static void* __fastcall WorldOverviewStaticWindow_Delete(void* window, void*, std::uint32_t flags)
     {
-        OverviewWindow_Write(window, 0, gWorldOverviewStaticWindowVirtualTable + 0);
+        OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewStaticWindowVirtualTable + 0);
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->MiscWindows_OverviewWindow_Closed();
-        OverviewWindow_Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
         if ((flags & 1u) != 0) NXBasics::Runtime_Free(window);
         return window;
@@ -127,7 +128,7 @@ namespace NC2InGameGuiOverviewDisplay
         const std::int32_t y = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(NInGameGuiManager::CInGameGuiManager::mStaticVars.displayHeight) - 120u);
         const NXBasics::SRectangle rectangle(0, y, 140, 120);
         NC2InGameGuiBase::BaseToolWindow_Construct(window, &rectangle);
-        OverviewWindow_Write(window, 0, gWorldOverviewStaticWindowVirtualTable + 0);
+        OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewStaticWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12);
         OverviewWindow_Write<std::uint32_t>(window, 0x70, 0);
         WorldOverviewStaticWindow_AddButtons(window);
@@ -294,12 +295,12 @@ namespace NC2InGameGuiOverviewDisplay
     // Original function: FUN_004c4eba; save all fifteen flags before deleting the overview.
     static void WorldOverviewLargeWindow_Destruct(void* window)
     {
-        OverviewWindow_Write(window, 0, gWorldOverviewLargeWindowVirtualTable + 0);
+        OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewLargeWindowVirtualTable + 0);
         const auto* overview = static_cast<const std::byte*>(OverviewWindow_Read<void*>(window, 0x80));
         std::memcpy(gLargeOverviewDisplayFlags.flags, overview + 0x806C, sizeof(gLargeOverviewDisplayFlags.flags));
         gLargeOverviewDisplayFlags.valid = 1;
         NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->Misc_GameTime_Continue_LargeWindowClosed();
-        OverviewWindow_Write(window, 0, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
+        OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, NC2InGameGuiBase::gBaseToolWindowVirtualTable + 0);
         NXBaseGui::BaseWindow_Destruct(window);
     }
 
@@ -312,7 +313,7 @@ namespace NC2InGameGuiOverviewDisplay
         const auto top = NXBasics::Runtime_TimeSigned32(static_cast<std::uint32_t>(state.displayHeight) - 420u);
         const NXBasics::SRectangle rectangle(topRight ? left : left / 2, topRight ? 0 : top / 2, 500, 420);
         BaseToolWindow_Construct(window, &rectangle);
-        OverviewWindow_Write(window, 0, gWorldOverviewLargeWindowVirtualTable + 0);
+        OverviewWindow_Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gWorldOverviewLargeWindowVirtualTable + 0);
         std::memset(static_cast<std::byte*>(window) + 0x70, 0, 72);
         void* allocation = NXBasics::Runtime_AllocateWithNewHandler(248, 1);
         const NXBasics::SRectangle titleRectangle(2, 2, 478, 14);

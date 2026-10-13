@@ -49,12 +49,12 @@ namespace NC2InGameGuiSelection
     void* SelectionGuideWindow_Construct(void* window)
     {
         const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 170, state.displayHeight - 250, 170, 250); BaseToolWindow_Construct(window, &area);
-        new (static_cast<std::byte*>(window) + 0x70) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12004); Write(window, 0, gSelectionGuideVirtualTable.data());
+        new (static_cast<std::byte*>(window) + 0x70) CStaticToolTipHandler; std::memset(static_cast<std::byte*>(window) + 0x70, 0, 12004); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionGuideVirtualTable.data());
         const SRectangle camera(4, 18, 80, 14); auto* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &camera, "->", Text(271), 10100, window));
         const SRectangle remove(86, 18, 80, 14); memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1); NXBaseGui::BaseWindow_Element_Add(window, memory == nullptr ? nullptr : BaseToolTextButton_ConstructWithToolTip(memory, nullptr, &remove, Text(272), Text(273), 10101, window)); return window;
     }
     // Original function: FUN_004be754.
-    static void* __fastcall SelectionGuideWindow_Delete(void* window, void*, std::uint32_t flags) { Write(window, 0, gSelectionGuideVirtualTable.data()); Tooltips(window)->~CStaticToolTipHandler(); Write(window, 0, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
+    static void* __fastcall SelectionGuideWindow_Delete(void* window, void*, std::uint32_t flags) { Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionGuideVirtualTable.data()); Tooltips(window)->~CStaticToolTipHandler(); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gBaseToolWindowVirtualTable + 0); NXBaseGui::BaseWindow_Destruct(window); if (flags & 1u) NXBasics::Runtime_Free(window); return window; }
     // Original function: FUN_004be786.
     static bool __fastcall SelectionGuideWindow_Message(void*, void*, std::uint32_t message, std::uint32_t command, std::uint32_t, std::uint32_t, std::uint32_t)
     {
@@ -72,11 +72,11 @@ namespace NC2InGameGuiSelection
     // Original function: FUN_004be9a9.
     static bool __fastcall SelectionGuideWindow_ToolTip_Available(void* window, void*, const char** output) { std::int32_t point[2]; std::memcpy(point, NXSysMouseManager::CMouseManager::sTheObjectPtr, sizeof(point)); BaseElement_GlobalToLocalCoordinates(window, point); const auto* caption = Tooltips(window)->Get(point); if (caption == nullptr) return false; *output = caption; return true; }
     // Original function: FUN_004be9ea; native allocation 0x74.
-    void* SelectionHouseTypeWindow_Construct(void* window) { const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 100, 160, 100); BaseToolWindow_Construct(window, &area); Write<std::uint8_t>(window, 0x70, 0); Write(window, 0, gSelectionHouseTypeVirtualTable.data()); return window; }
+    void* SelectionHouseTypeWindow_Construct(void* window) { const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 160, state.displayHeight - 100, 160, 100); BaseToolWindow_Construct(window, &area); Write<std::uint8_t>(window, 0x70, 0); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionHouseTypeVirtualTable.data()); return window; }
     // Original function: FUN_004bea39.
     static void __fastcall SelectionHouseTypeWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle) { BaseToolWindow_Draw(window, nullptr, bitmap, rectangle); const SRectangle title(0, 0, 160, 16); SelectionTool_FillRectangle(bitmap, title, 5); SelectionTool_PrintCenteredString(bitmap, title, true, Text(520)); const auto type = Selection_GetSelectedEngineHouseTypeId(gInputManager); if (type != -1) bitmap->Text_PrintV(CGuiBaseDataManager::mStaticVars.resources.font08, White(), 4, 20, NC2Logic::StringAccess_GetHouseNamePtr(type, Selection_GetSelectedEngineHouseExtensionLevel(gInputManager), 1)); }
     // Original function: FUN_004bef73; native allocation 0x74.
-    void* SelectionSingleAnimalWindow_Construct(void* window) { const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 140, state.displayHeight - 160, 140, 160); BaseToolWindow_Construct(window, &area); Write<std::uint8_t>(window, 0x70, 0); Write(window, 0, gSelectionSingleAnimalVirtualTable.data()); return window; }
+    void* SelectionSingleAnimalWindow_Construct(void* window) { const auto& state = NInGameGuiManager::CInGameGuiManager::mStaticVars; const SRectangle area(state.displayWidth - 140, state.displayHeight - 160, 140, 160); BaseToolWindow_Construct(window, &area); Write<std::uint8_t>(window, 0x70, 0); Write(window, NC2Layout::GuiBaseElementOffset::VirtualTable, gSelectionSingleAnimalVirtualTable.data()); return window; }
     // Original function: FUN_004befda.
     static void __fastcall SelectionSingleAnimalWindow_Draw(void* window, void*, NXBasics::CBitmap* bitmap, const SRectangle* rectangle)
     {
