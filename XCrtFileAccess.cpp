@@ -11010,8 +11010,13 @@ namespace NXBasics
         }
         if (flags != 0 && !Runtime_HandleMaskedMathException(flags, &error->result, controlWord))
         {
-            // The native stack record is not zeroed; unused bytes retain their contents.
+            // Native metadata contains unspecified stack bits. Define the words read by C++;
+            // unused operand values, value tails and padding remain untouched.
             volatile RuntimeMathExceptionRecord record;
+            record.controlAndOperation = 0;
+            record.operand1.flags = 0;
+            record.operand2.flags = 0;
+            record.result.flags = 0;
             if (operation == 0x10 || operation == 0x16 || operation == 0x1D)
             {
                 const auto previousFlags = record.operand2.flags;

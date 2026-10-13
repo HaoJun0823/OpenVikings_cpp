@@ -1,5 +1,13 @@
 # Windows math-error dispatcher - 2026-10-11
 
+## Defined exception metadata and C4700 correction - 2026-10-13
+
+The reported uninitialized-record warning exposed C++ reads of indeterminate metadata in the exceptional false-return branch of the masked-response helper. The parent now initializes four DWORDs before their read/modify/write operations: `controlAndOperation` and the flags for operand1, operand2 and result. Cause/enable/status remain supplied by the IEEE child; unused operand values, value tails and padding remain untouched. The previous claim below that volatile preserves unspecified native stack bits is historical: volatile does not make an uninitialized C++ read defined.
+
+Windows `004F04D7/004F04DD` confirms that the native stack metadata is unspecified, and `004F1AEF` supplies rounding, precision, operation, valid/format, exception-status and value fields. This correction deliberately gives the four previously unspecified metadata words a zero baseline; their reserved bits no longer reflect arbitrary stack contents. Defined flag masks, operation-specific argument2 handling, IEEE handler invocation and resumed result/control propagation retain their order. This is a C++ correctness adjustment to undefined metadata, not a claim of identical unused stack bytes.
+
+Win32 MSVC unlinked code-generation checks pass for `/Od` and `/O2` with C4700 promoted to an error. The three-unit warning audit also verifies C4805/C4799 and 166 native GUI/CRT instruction byte sequences. A separate existing C4334 at the mantissa increment remains visible under `/W3`. No requested warning is suppressed; no Debug/Release project build, tests or game run occurred.
+
 Later naming checkpoint (2026-10-12): 0050F250 and 0056998C now use descriptive names for their proven native bypass effects. Their original CRT policy identities remain unresolved; widths, values, volatile access and behavior are unchanged. Historical DAT labels below refer to the same storage. See [SYMBOL_NAMING_PASS.md](SYMBOL_NAMING_PASS.md).
 
 The body of **004F046B**, `NXBasics::Runtime_DispatchMathError`, is translated from Windows ASM/Game.exe. At this initial parent checkpoint its immediate child **004F1DA2 was a temporary link-only dummy**. It is subsequently replaced with a partial body; see [SHARED_MASKED_RESPONSE_VALUE_PATHS.md](SHARED_MASKED_RESPONSE_VALUE_PATHS.md). That child remains excluded from completion counts, with hardware generation 004F2024 now the isolated dummy. This is a reconstructed parent body, not a completed, connected or functionally validated math-error tree. The existing numeric log10/sin/cos adapters remain partial and do not call this new dispatcher. Their exceptional behavior is not promoted to complete.
