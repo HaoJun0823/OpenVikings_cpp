@@ -319,7 +319,7 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Human:
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
-            if (Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, 0x10)) == 3) { Prepare(command, 104, vehicle, targetId, Read<std::uint32_t>(human, 8)); return 5; }
+            if (Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) == 3) { Prepare(command, 104, vehicle, targetId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); return 5; }
             break;
         }
         case SwitchIds::MapObjectUnderCursor::Animal: case SwitchIds::MapObjectUnderCursor::Guide: case SwitchIds::MapObjectUnderCursor::Landscape: case SwitchIds::MapObjectUnderCursor::Position: break;
@@ -369,7 +369,7 @@ namespace NC2Logic
         case SwitchIds::MapObjectUnderCursor::Human:
         {
             const auto targetId = Read<std::uint32_t>(target, 8); const auto* human = Human(targetId);
-            return Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, 0x10)) == 3 && commitTarget(5, 104, targetId, human);
+            return Human_IsAgeAdult(human) && available.IsCommandAllowed(5) && Logic_EntryPoint_GetDiplomacyState(player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) == 3 && commitTarget(5, 104, targetId, human);
         }
         case SwitchIds::MapObjectUnderCursor::Vehicle:
         {

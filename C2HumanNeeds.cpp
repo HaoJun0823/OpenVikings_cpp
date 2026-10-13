@@ -97,12 +97,12 @@ namespace NC2Logic
     // Original function: FUN_0045bde4; retain the two original message filters.
     void Human_UserMessage_SendToUserMessage(void* human, std::uint32_t type)
     {
-        if (type == 11 && (Human_GetPlayerType(human) == 2 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 || !Human_IsAgeAdult(human) || Read<std::uint8_t>(human, 0xB51) != 0)) return;
+        if (type == 11 && (Human_GetPlayerType(human) == 2 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 || !Human_IsAgeAdult(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)) return;
         if (type == 2 && Human_IsAttachedToWorkHouse(human) && Read<std::uint8_t>(gStaticJobTypeData, Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) * NC2Layout::RecordSize::JobType + 0x84u) != 0 && Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::ConstructionState) != 3) return;
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write(message, 0, type);
-        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         ToUserMessage_FinishMessage(message);
         NC2LogicExternals::External_Misc_SendToUserMessage(message);
@@ -115,7 +115,7 @@ namespace NC2Logic
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 4);
-        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, 0x30, good);
         ToUserMessage_FinishMessage(message);
@@ -128,7 +128,7 @@ namespace NC2Logic
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 5);
-        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, 0x30, good);
         ToUserMessage_FinishMessage(message);
@@ -144,7 +144,7 @@ namespace NC2Logic
         std::byte message[772];
         ToUserMessage_Construct(message);
         Write<std::uint32_t>(message, 0, 6);
-        Write(message, 0x10, Read<std::uint32_t>(human, 4));
+        Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
         Write(message, 0x30, good);
         ToUserMessage_FinishMessage(message);
@@ -187,8 +187,8 @@ namespace NC2Logic
         std::uint32_t best = 0;
         for (std::uint32_t slot = 0; slot < 4; ++slot)
         {
-            const auto offset = 0xAF4u + slot * 8u;
-            if (Read<std::uint32_t>(human, offset) == 0 || Read<std::int32_t>(human, offset + 4) <= 0) continue;
+            const auto offset = NC2Layout::HumanOffset::InventorySlots + slot * NC2Layout::RecordSize::HumanInventorySlot;
+            if (Read<std::uint32_t>(human, offset) == 0 || Read<std::int32_t>(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition) <= 0) continue;
             auto rank = Human_l_Item_GetUseabilityForUrgentNeed(human, need, slot);
             if (rank == 0) continue;
             if (!Human_l_Item_IsItemUnused(human, static_cast<std::int32_t>(slot))) rank += 3u;
@@ -201,35 +201,35 @@ namespace NC2Logic
     void Human_l_Item_UseItemInSlot(void* human, std::int32_t slot)
     {
         if (slot == -1) return;
-        const auto offset = 0xAF4u + static_cast<std::uint32_t>(slot) * 8u;
+        const auto offset = NC2Layout::HumanOffset::InventorySlots + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HumanInventorySlot;
         switch (Read<std::uint32_t>(human, offset))
         {
-        case SwitchIds::GoodType::Mead: AddAttribute(human, NC2Layout::HumanOffset::Food, 5000); AddAttribute(human, NC2Layout::HumanOffset::Stamina, 5000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case SwitchIds::GoodType::PotionFoodSmall: AddAttribute(human, NC2Layout::HumanOffset::Food, 10000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case SwitchIds::GoodType::PotionFoodBig: AddAttribute(human, NC2Layout::HumanOffset::Food, 10000); AddAttribute(human, offset + 4, 0u - 20u); break;
-        case SwitchIds::GoodType::PotionStaminaSmall: AddAttribute(human, NC2Layout::HumanOffset::Stamina, 10000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case SwitchIds::GoodType::PotionStaminaBig: AddAttribute(human, NC2Layout::HumanOffset::Stamina, 10000); AddAttribute(human, offset + 4, 0u - 20u); break;
-        case SwitchIds::GoodType::PotionHealSmall: AddAttribute(human, NC2Layout::HumanOffset::Hitpoints, 2000); AddAttribute(human, offset + 4, 0u - 50u); break;
-        case SwitchIds::GoodType::PotionHealBig: AddAttribute(human, NC2Layout::HumanOffset::Hitpoints, 2000); AddAttribute(human, offset + 4, 0u - 20u); break;
+        case SwitchIds::GoodType::Mead: AddAttribute(human, NC2Layout::HumanOffset::Food, 5000); AddAttribute(human, NC2Layout::HumanOffset::Stamina, 5000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionFoodSmall: AddAttribute(human, NC2Layout::HumanOffset::Food, 10000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionFoodBig: AddAttribute(human, NC2Layout::HumanOffset::Food, 10000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 20u); break;
+        case SwitchIds::GoodType::PotionStaminaSmall: AddAttribute(human, NC2Layout::HumanOffset::Stamina, 10000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionStaminaBig: AddAttribute(human, NC2Layout::HumanOffset::Stamina, 10000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 20u); break;
+        case SwitchIds::GoodType::PotionHealSmall: AddAttribute(human, NC2Layout::HumanOffset::Hitpoints, 2000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 50u); break;
+        case SwitchIds::GoodType::PotionHealBig: AddAttribute(human, NC2Layout::HumanOffset::Hitpoints, 2000); AddAttribute(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition, 0u - 20u); break;
         case SwitchIds::GoodType::AmuletFood: AddAttribute(human, NC2Layout::HumanOffset::Food, 4000); break;
         case SwitchIds::GoodType::AmuletStamina: AddAttribute(human, NC2Layout::HumanOffset::Stamina, 4000); break;
         default: break;
         }
-        if (Read<std::int32_t>(human, offset + 4) <= 0) Write<std::uint32_t>(human, offset, 0);
+        if (Read<std::int32_t>(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition) <= 0) Write<std::uint32_t>(human, offset, 0);
     }
 
     // Original function: FUN_0045d0a8.
     bool Human_l_Item_IsItemUnused(const void* human, std::int32_t slot)
     {
-        return slot != -1 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlots + static_cast<std::uint32_t>(slot) * 8u) != 0 && Read<std::uint32_t>(human, 0xAF8u + static_cast<std::uint32_t>(slot) * 8u) == 100u;
+        return slot != -1 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlots + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HumanInventorySlot) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventoryConditions + static_cast<std::uint32_t>(slot) * NC2Layout::RecordSize::HumanInventorySlot) == 100u;
     }
 
     // Original function: FUN_0045d0f4; slot indices are not range-checked.
     std::uint32_t Human_l_Item_GetUseabilityForUrgentNeed(const void* human, std::uint32_t need, std::uint32_t slot)
     {
-        const auto offset = 0xAF4u + slot * 8u;
+        const auto offset = NC2Layout::HumanOffset::InventorySlots + slot * NC2Layout::RecordSize::HumanInventorySlot;
         const auto good = Read<std::uint32_t>(human, offset);
-        if (good == 0 || Read<std::int32_t>(human, offset + 4) <= 0 || !Tool_Item_CanBeUsedForNeed(need, good)) return 0;
+        if (good == 0 || Read<std::int32_t>(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition) <= 0 || !Tool_Item_CanBeUsedForNeed(need, good)) return 0;
         if (Tool_Item_IsAmulett(good)) return 3;
         if (Tool_Item_IsBigPotion(good)) return 2;
         return Tool_Item_IsSmallPotion(good) ? 1u : 0u;
@@ -283,7 +283,7 @@ namespace NC2Logic
         if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Stamina) <= 8000) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 2);
         else if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Food) <= 8000 && House_Stock_GetAmountOfGoods(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), 16, false) > 0) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 1);
         else if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Religion) <= 8000 && Human_IsJobNeedingReligion(human)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 4);
-        else if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Social) <= 8000 && Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum && Human_IsInHomeHouse(CHumanArray::mStaticVars + Read<std::uint32_t>(human, 0xB20) * CHumanArray::ElementSize)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 3);
+        else if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Social) <= 8000 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::SpouseId) != NXBasics::IntegerRange::UInt32Maximum && Human_IsInHomeHouse(CHumanArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::SpouseId) * CHumanArray::ElementSize)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 3);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 7);
     }
 
@@ -306,7 +306,7 @@ namespace NC2Logic
         }
         if (need == 1) Write<std::uint32_t>(human, 0xA64, 0);
         if (repeat) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
-        else if (message != 0) NC2LogicExternals::External_Misc_RemoveUserMessage(Read<std::uint32_t>(human, 4), message);
+        else if (message != 0) NC2LogicExternals::External_Misc_RemoveUserMessage(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), message);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 2) return;
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 8);
@@ -334,7 +334,7 @@ namespace NC2Logic
             const bool candy = Human_IsAbleToEatCandy(human) && (cargo == 20 || cargo == 17);
             // Original outlined operation 00438CEC; no separate Mac name recovered.
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
-            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
             Human_l_StartAtomicAnimation(human, candy ? 11u : 10u, -1);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
@@ -367,16 +367,16 @@ namespace NC2Logic
         Human_Target_Reset(human);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 16);
         std::uint32_t real = 0, work = 0;
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             for (std::uint32_t good = 16; good < 24; ++good)
             {
                 if (Vehicle_Stock_GetAmountOfGoods(vehicle, good) == 0) continue;
-                Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
-                Vehicle_Stock_ModifyAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
+                Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
+                Vehicle_Stock_ModifyAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
                 Write(human, NC2Layout::HumanOffset::CarriedGood, good);
-                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, good);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
                 return;
             }
@@ -416,7 +416,7 @@ namespace NC2Logic
                 House_Stock_ModifyAmount(house, good, -1, 0, false);
                 House_Stock_ModifyFutureAmount(house, good, -1, false);
                 Write(human, NC2Layout::HumanOffset::CarriedGood, good);
-                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, good);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
                 return;
             }
@@ -447,7 +447,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
         if (!Human_IsRefreshingInWorld(human) && Human_UserControl_GetLastCommandType(human) != 8) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return; }
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
@@ -472,7 +472,7 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget, 6);
             Write(human, 0xA98, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
             Write(human, 0xA9C, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
-            Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4));
+            Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         }
         if (Human_IsAtTargetPoint(human) && Human_CanSleepAtTargetMapPosition(human))
         {
@@ -515,7 +515,7 @@ namespace NC2Logic
     void Human_l_StartTask_FulfillNeeds_Social(void* human)
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
-        if (Read<std::uint8_t>(human, 0xB51) == 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) == 0)
         {
             void* other = Human_FindHumanToTalkInTalkRange_Adult(human);
             if (other != nullptr && Human_StartWaitingForOtherHuman(other))
@@ -552,7 +552,7 @@ namespace NC2Logic
     void Human_l_StartTask_FulfillNeeds_Religion(void* human)
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human); return; }
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 0);
@@ -583,7 +583,7 @@ namespace NC2Logic
         const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
         std::uint32_t work = 0;
         const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
-        House_Religion_GetNextPrayPoint(house, Human_GetMapPositionRef(human), &work, false, Read<std::uint32_t>(human, 4), continent);
+        House_Religion_GetNextPrayPoint(house, Human_GetMapPositionRef(human), &work, false, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent);
         if (!Human_l_StartAtomicWalk(human, &real, &work)) Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
     }
 
@@ -630,7 +630,7 @@ namespace NC2Logic
             }
         }
         if (selected == nullptr) return false;
-        if (!House_Religion_GetNextPrayPoint(selected, position, work, true, Read<std::uint32_t>(human, 4), continent))
+        if (!House_Religion_GetNextPrayPoint(selected, position, work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent))
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 7);
@@ -668,19 +668,19 @@ namespace NC2Logic
         const auto hitpointMaximum = Human_GetHumanAttributeMaximum_Hitpoints(human);
         const auto hitpointLimit = hitpointMaximum + (hitpointMaximum >> 1);
         if (Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints) > static_cast<std::int32_t>(hitpointLimit)) Write(human, NC2Layout::HumanOffset::Hitpoints, hitpointLimit);
-        if (Read<std::int32_t>(human, 0x378) <= 0) Write<std::uint32_t>(human, 0x378, 0);
+        if (Read<std::int32_t>(human, NC2Layout::HumanOffset::WaitingHumanCount) <= 0) Write<std::uint32_t>(human, NC2Layout::HumanOffset::WaitingHumanCount, 0);
         if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit18) == 0) AddAttribute(human, 0xAA4, 1);
         if (!Human_IsAgeAdult(human))
         {
             const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-            const auto age = Read<std::int32_t>(human, 0xAA4);
+            const auto age = Read<std::int32_t>(human, NC2Layout::HumanOffset::AgeCounter);
             if (((job == 1 || job == 2) && age > 1440) || ((job == 3 || job == 4) && age > 2880))
             {
                 const bool becameAdult = job >= 3;
                 Write<std::uint8_t>(human, job == 1 || job == 3 ? 0x15D : 0x15E, 0);
                 Write<std::uint8_t>(human, job == 1 || job == 3 ? 0x15F : 0x160, becameAdult ? 0 : 1);
                 Human_SetJobType(human, job + 2u);
-                CCallbackManager::sTheObjectPtr->ExecuteCallback(4, true, Read<std::uint32_t>(human, 4), 1, 1);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(4, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 1);
                 if (becameAdult)
                 {
                     for (const auto offset : {0xB14u, 0xB18u})
@@ -688,13 +688,13 @@ namespace NC2Logic
                         const auto parent = Read<std::uint32_t>(human, offset);
                         if (parent != NXBasics::IntegerRange::UInt32Maximum)
                         {
-                            Write<std::uint32_t>(CHumanArray::mStaticVars + parent * CHumanArray::ElementSize, 0xB24, NXBasics::IntegerRange::UInt32Maximum);
+                            Write<std::uint32_t>(CHumanArray::mStaticVars + parent * CHumanArray::ElementSize, NC2Layout::HumanOffset::ChildId, NXBasics::IntegerRange::UInt32Maximum);
                             Write<std::uint32_t>(human, offset, NXBasics::IntegerRange::UInt32Maximum);
                         }
                     }
                     if (Human_IsAttachedToHomeHouse(human))
                     {
-                        House_Inhabitants_DetachHuman(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, 4), 1);
+                        House_Inhabitants_DetachHuman(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1);
                     }
                     Human_UserMessage_SendToUserMessage(human, 0x25);
                 }
@@ -715,7 +715,7 @@ namespace NC2Logic
                     std::byte message[772];
                     ToUserMessage_Construct(message);
                     Write<std::uint32_t>(message, 0, 0x3B);
-                    Write(message, 0x10, Read<std::uint32_t>(human, 4));
+                    Write(message, 0x10, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
                     Write(message, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
                     ToUserMessage_FinishMessage(message);
                     Write<std::uint32_t>(message, 0x10, NXBasics::IntegerRange::UInt32Maximum);

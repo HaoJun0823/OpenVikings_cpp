@@ -61,7 +61,7 @@ namespace NC2Logic
         if (AIGoodManager_Producer_IsHumanValid(producer)) return true;
         const auto id = AIVillageManager_Good_GetWorkHumanId(village, House_Door_GetEntryPointRef(House(producer)));
         if (id == -1) return false;
-        Write(producer, 0, id); Write(producer, 4, Read<std::uint32_t>(Human(producer), 8));
+        Write(producer, 0, id); Write(producer, 4, Read<std::uint32_t>(Human(producer), NC2Layout::HumanOffset::UniqueId));
         return true;
     }
     // Original function: FUN_0045778b.
@@ -73,10 +73,10 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(producer, 0);
         if (!House_Inhabitants_IsFreeWorkSlotAvailable(house, job) && !House_Inhabitants_IsHumanAttachedAsWorker(house, id)) { AIGoodManager_Producer_Clear(producer); return false; }
         auto* human = Human(producer);
-        if (Read<std::uint32_t>(human, 24) == job)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == job)
         {
-            if (Read<std::uint32_t>(human, 0xB34) != Read<std::uint32_t>(producer, 8)) Command(human, 28, Read<std::uint32_t>(producer, 8), Read<std::uint32_t>(producer, 12));
-            else if (Read<std::uint32_t>(human, 28) != good) Command(human, 22, good, 0);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) != Read<std::uint32_t>(producer, 8)) Command(human, 28, Read<std::uint32_t>(producer, 8), Read<std::uint32_t>(producer, 12));
+            else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) != good) Command(human, 22, good, 0);
             else return House_Stock_GetAmountOfGoods(house, good, true) != 0;
         }
         else if (Human_IsJobBuilder(human) && Human_IsAttachedToBuildSite(human)) Write<std::int32_t>(producer, 0, -1);
@@ -91,7 +91,7 @@ namespace NC2Logic
         std::uint32_t point = 0;
         if (!AIVillageManager_Good_GetWorkCenterPoint(village, good, &point)) { Write<std::int32_t>(producer, 0, -1); Write<std::int32_t>(producer, 8, -1); return false; }
         auto* human = Human(producer);
-        if (Read<std::uint32_t>(human, 0xB30) == point) return true;
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter) == point) return true;
         Command(human, 17, MapMigPoint_GetLong(&point), 0);
         return false;
     }

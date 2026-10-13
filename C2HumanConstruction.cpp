@@ -22,9 +22,9 @@ namespace NC2Logic
     using namespace NC2Lifetime;
     namespace
     {
-        void* WorkCenter(void* human) { return static_cast<std::byte*>(human) + 0xB30; }
-        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, 0x36C, 3); Write(human, 0x374, reason); }
-        void StartBuild(void* human, std::uint32_t action) { Human_l_StartAtomicAnimation(human, action, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human))); Write<std::uint32_t>(human, 0x36C, 1); }
+        void* WorkCenter(void* human) { return static_cast<std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter; }
+        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
+        void StartBuild(void* human, std::uint32_t action) { Human_l_StartAtomicAnimation(human, action, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human))); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); }
     }
 
     // Original function: FUN_0046c822.
@@ -42,7 +42,7 @@ namespace NC2Logic
     {
         if (!Human_IsAttachedToWorkHouse(human)) { Fail(human, 2); return; }
         void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(house)) { House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 4); return; }
+        if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(house)) { House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 4); return; }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0)
         {
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human);
@@ -97,8 +97,8 @@ namespace NC2Logic
         {
             const void* realTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
             if (Read<std::uint32_t>(realTarget, 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_HouseBuilder_BuildHouse(human); return; }
-            const void* workTarget = static_cast<const std::byte*>(human) + 0xA70;
-            if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, 4), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
+            const void* workTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
+            if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
             if (Read<std::uint32_t>(workTarget, 0) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, realTarget, &work)) { Fail(human, 0); Human_Target_Reset(human); }
@@ -109,7 +109,7 @@ namespace NC2Logic
         else
         {
             const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
-            if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, 4), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
+            if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
             if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, &real, &work)) Fail(human, 0);

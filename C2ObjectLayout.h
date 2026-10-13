@@ -117,40 +117,92 @@ namespace NC2Layout
 
     namespace HumanOffset
     {
+        inline constexpr auto AllocatedFlag = 0;
+        inline constexpr auto HumanId = 4;
+        inline constexpr auto UniqueId = 8;
         inline constexpr auto MapMoveableId = 0xC;
         inline constexpr auto PlayerId = 0x10;
         inline constexpr auto TribeType = 0x14;
         inline constexpr auto JobType = 0x18;
+        inline constexpr auto ProducedGoodType = 28;
+        inline constexpr auto CollectionGoodType = 0x20;
+        inline constexpr auto JobExperience = 0x24u;
+        inline constexpr auto JobExperienceSigned = 0x24;
+        inline constexpr auto EducationLevel = 0x158;
+        inline constexpr auto AllowedJobFlags = 0x15Cu;
+        inline constexpr auto AllowedJobFlagsSigned = 0x15C;
+        inline constexpr auto ProductionSelectionMode = 0x194;
+        inline constexpr auto AllowedProductionGoodFlags = 0x195u;
+        inline constexpr auto AllowedEquipmentFlags = 0x1E0u;
+        inline constexpr auto AllowedEquipmentFlagsSigned = 0x1E0;
+        inline constexpr auto ProductionRotationIndex = 0x218;
         inline constexpr auto ProductionCounters = 0x21Cu;
         inline constexpr auto CurrentTask = 0x368;
         inline constexpr auto CurrentTaskStatus = 0x36C;
         inline constexpr auto CurrentTaskParameter = 0x370;
         inline constexpr auto CurrentTaskStep = 0x374;
+        inline constexpr auto WaitingHumanCount = 0x378;
+        inline constexpr auto WorkRetriesRequired = 0x388;
+        inline constexpr auto WorkRetryCount = 0x38C;
         inline constexpr auto UserCommandQueue = 0x390u;
+        inline constexpr auto LastUserCommandIndex = 0xA5C;
+        inline constexpr auto UserCommandActiveFlag = 0xA60;
         inline constexpr auto InteractionTarget = 0xA68;
         inline constexpr auto TargetPosition = 0xA6C;
+        inline constexpr auto TargetPositionX = 0xA6C;
+        inline constexpr auto TargetPositionY = 0xA6E;
+        inline constexpr auto TargetWorkPosition = 0xA70;
+        inline constexpr auto TargetWorkPositionX = 0xA70;
+        inline constexpr auto TargetWorkPositionY = 0xA72;
+        inline constexpr auto TargetLandscapeType = 0xA74;
         inline constexpr auto TargetObjectId = 0xA7C;
         inline constexpr auto TargetObjectRevision = 0xA80;
         inline constexpr auto SecondaryInteractionTarget = 0xA84;
         inline constexpr auto Hitpoints = 0xAA0;
+        inline constexpr auto AgeCounter = 0xAA4;
         inline constexpr auto Food = 0xAA8;
         inline constexpr auto Stamina = 0xAAC;
         inline constexpr auto Social = 0xAB0;
         inline constexpr auto Religion = 0xAB4;
+        inline constexpr auto AtomicAction = 0xAB8;
+        inline constexpr auto AtomicAnimationRunningFlag = 0xABC;
+        inline constexpr auto AtomicAnimationId = 0xAC0;
+        inline constexpr auto AtomicAnimationFrame = 0xAC4;
+        inline constexpr auto AtomicAnimationStartCount = 0xAC8;
         inline constexpr auto GoodCirculationMode = 0xACC;
         inline constexpr auto RequestedGood = 0xAD0;
         inline constexpr auto CarriedGood = 0xAD4;
+        inline constexpr auto SuspendedGoodCirculationMode = 0xAD8;
+        inline constexpr auto ShoeCondition = 0xADC;
+        inline constexpr auto ToolCondition = 0xAE0;
         inline constexpr auto EquippedWeapon = 0xAE4;
         inline constexpr auto EquippedArmor = 0xAE8;
         inline constexpr auto EquippedShoes = 0xAEC;
         inline constexpr auto EquippedTools = 0xAF0;
         inline constexpr auto InventorySlots = 0xAF4u;
         inline constexpr auto InventorySlotsSigned = 0xAF4;
+        inline constexpr auto InventoryConditions = 0xAF8u;
+        inline constexpr auto FatherId = 0xB14;
+        inline constexpr auto MotherId = 0xB18;
+        inline constexpr auto WaitingHumanId = 0xB1C;
+        inline constexpr auto SpouseId = 0xB20;
+        inline constexpr auto ChildId = 0xB24;
         inline constexpr auto HomeHouseId = 0xB28;
+        inline constexpr auto HomeHouseRevision = 0xB2C;
         inline constexpr auto WorkCenter = 0xB30;
+        inline constexpr auto WorkCenterX = 0xB30;
+        inline constexpr auto WorkCenterY = 0xB32;
         inline constexpr auto WorkAttachmentHouseId = 0xB34;
+        inline constexpr auto WorkAttachmentHouseRevision = 0xB38;
+        inline constexpr auto VehicleConstructionHouseId = 0xB3C;
+        inline constexpr auto VehicleConstructionWorkshopRevision = 0xB40;
+        inline constexpr auto MerchantId = 0xB44;
         inline constexpr auto AttachedVehicleId = 0xB48;
         inline constexpr auto AttachedVehicleRevision = 0xB4C;
+        inline constexpr auto InsideHouseFlag = 0xB50;
+        inline constexpr auto InsideVehicleFlag = 0xB51;
+        inline constexpr auto ExplorationRadius = 0xB7C;
+        inline constexpr auto MissionCheckId = 0xB80;
         inline constexpr auto MiscFlags = 0xB84;
     }
 
@@ -159,6 +211,22 @@ namespace NC2Layout
         inline constexpr auto MapPosition = 0x12;
         inline constexpr auto PathfinderId = 0x28;
         inline constexpr auto ObjectId = 0x54;
+    }
+
+    namespace HumanInventorySlotOffset
+    {
+        inline constexpr auto GoodType = 0;
+        inline constexpr auto PercentageCondition = 4;
+    }
+
+    namespace UserNetworkCommandOffset
+    {
+        inline constexpr auto Opcode = 0;
+        inline constexpr auto PlayerId = 1;
+        inline constexpr auto ObjectId = 4;
+        inline constexpr auto ObjectRevision = 8;
+        inline constexpr auto Parameter1 = 12;
+        inline constexpr auto Parameter2 = 16;
     }
 
     namespace ObjectSize
@@ -204,6 +272,8 @@ namespace NC2Layout
 
     namespace RecordSize
     {
+        inline constexpr auto HumanInventorySlot = 8u;
+        inline constexpr auto UserNetworkCommand = 20u;
         inline constexpr auto HouseQualityEnhancer = 8u;
         inline constexpr auto HouseAttachment = 16u;
         inline constexpr auto HouseConstructionGood = 20u;

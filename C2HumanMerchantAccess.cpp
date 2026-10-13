@@ -142,7 +142,7 @@ namespace NC2Logic
         const void* human = Human(humanId);
         const void* house = House(houseId);
         if (MerchantData_IsHouseInArray(merchant, houseId, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId)) || Read<std::uint32_t>(merchant, 0x14) >= 2) return false;
-        const auto player = Read<std::int32_t>(human, 0x10), owner = Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId);
+        const auto player = Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), owner = Read<std::int32_t>(house, NC2Layout::HouseOffset::PlayerId);
         if (player == owner) return true;
         if (HumanMerchantArray_GetNextTradeAgreementId(gHumanMerchantArray, house, NXBasics::IntegerRange::UInt32Maximum) == NXBasics::IntegerRange::UInt32Maximum) return false;
         if (GameControl_Diplomacy_GetState(gGameControl, player, owner) != 1 || GameControl_Diplomacy_GetState(gGameControl, owner, player) != 1) return false;
@@ -225,7 +225,7 @@ namespace NC2Logic
             {
                 const void* human = Human(id);
                 if (!Human_IsJobTrader(human)) continue;
-                void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+                void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId));
                 for (std::uint32_t slot = 0; slot < Read<std::uint32_t>(merchant, 0x14); ++slot)
                 {
                     void* data = MerchantData_GetHouseDataPtr(merchant, slot);
@@ -242,7 +242,7 @@ namespace NC2Logic
     void Human_l_Trader_ResetImportFlags(void* human)
     {
         if (!Human_IsJobTrader(human)) return;
-        void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+        void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId));
         auto remaining = Read<std::uint32_t>(merchant, 0x14);
         while (remaining != 0)
         {
@@ -255,7 +255,7 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_AttachTradeHouse(void* human, std::int32_t id, std::uint32_t revision)
     {
         if (!Human_IsJobTrader(human)) return 1;
-        void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+        void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId));
         if (!MerchantData_AddHouse(merchant, id, revision, Read<std::uint32_t>(House(id), NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId))) return 1;
         Human_l_Trader_ResetImportFlags(human); return 2;
     }
@@ -263,7 +263,7 @@ namespace NC2Logic
     std::uint32_t Human_DoExecuteUserCommand_DetachTradeHouse(void* human, std::int32_t id, std::uint32_t revision)
     {
         if (!Human_IsJobTrader(human)) return 1;
-        MerchantData_ClearHouse(HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)), id, revision);
+        MerchantData_ClearHouse(HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)), id, revision);
         Human_l_Trader_ResetImportFlags(human); return 2;
     }
 }

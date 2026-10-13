@@ -48,7 +48,7 @@ namespace NC2Logic
     void GameAssistantManager_l_Human_Command_Add(void*, std::uint32_t id, std::uint32_t command, std::uint32_t parameter1, std::uint32_t parameter2, std::uint32_t duration)
     {
         auto* human = Human(id);
-        Human_DoAddNewUserCommand(human, static_cast<std::uint8_t>(command), Read<std::uint8_t>(human, 16), id, Read<std::uint32_t>(human, 8), parameter1, parameter2);
+        Human_DoAddNewUserCommand(human, static_cast<std::uint8_t>(command), Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), parameter1, parameter2);
         if (duration != 0) GameAssistantSingleHumanData_CommandHistory_Add(human + 0xB88, command, parameter1, parameter2, duration);
     }
     // Original function: FUN_00418d3b.
@@ -92,7 +92,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
         {
             const auto* human = Human(id);
-            if (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 0xB28) == NXBasics::IntegerRange::UInt32Maximum || Human_UserControl_DoesWantToGetChild(human)) continue;
+            if (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) == NXBasics::IntegerRange::UInt32Maximum || Human_UserControl_DoesWantToGetChild(human)) continue;
             SUserCommandsForHumanHandler commands;
             Human_UserControl_GetCommands(human, &commands, false, false);
             if (!commands.IsCommandAllowed(8) && !commands.IsCommandAllowed(9)) continue;
@@ -106,8 +106,8 @@ namespace NC2Logic
                 for (std::uint32_t pass = count - 1; pass != 0; --pass)
                     for (std::uint32_t i = 0; i < count - 1; ++i)
                     {
-                        const auto* first = House(Read<std::uint32_t>(Human(candidates[i]), 0xB28)) + 36;
-                        const auto* second = House(Read<std::uint32_t>(Human(candidates[i + 1]), 0xB28)) + 36;
+                        const auto* first = House(Read<std::uint32_t>(Human(candidates[i]), NC2Layout::HumanOffset::HomeHouseId)) + 36;
+                        const auto* second = House(Read<std::uint32_t>(Human(candidates[i + 1]), NC2Layout::HumanOffset::HomeHouseId)) + 36;
                         const auto firstDistance = Distance(&center, first), secondDistance = Distance(&center, second);
                         if (firstDistance > secondDistance) { const auto id = candidates[i]; candidates[i] = candidates[i + 1]; candidates[i + 1] = id; }
                     }
@@ -158,7 +158,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
             {
                 const auto* human = Human(id);
-                if (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0) continue;
+                if (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0) continue;
                 if (amulet)
                 {
                     if (Human_IsSexFemale(human) || Human_IsJobSoldier(human) != soldiers || Human_HasEquippedItemType(human, 43, -1)) continue;
@@ -196,7 +196,7 @@ namespace NC2Logic
                 for (auto id = humans.GetFirstHumanId(player); id != -1; id = humans.GetNextHumanId())
                 {
                     const auto* human = Human(id);
-                    if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || Read<std::uint32_t>(human, 24) != 6 || Read<std::uint32_t>(human, 0xB34) != NXBasics::IntegerRange::UInt32Maximum) continue;
+                    if (!Human_IsAgeAdult(human) || !Human_IsSexMale(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 6 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) != NXBasics::IntegerRange::UInt32Maximum) continue;
                     const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
                     std::uint32_t b = 0;
                     while (b < barrackCount && Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(House(barracks[b]) + 28), 6) != continent) ++b;
@@ -239,7 +239,7 @@ namespace NC2Logic
             for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
             {
                 const auto* human = Human(id);
-                if (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, 0xB51) != 0 || !Human_IsJobSoldier(human) || Human_HasEquippedWeapon(human) || Read<std::uint32_t>(human, 20) != 1 || Read<std::uint32_t>(human, 24) != 31 || GameAssistantSingleHumanData_CommandHistory_IsInArray(const_cast<std::byte*>(human) + 0xB88, 81)) continue;
+                if (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || !Human_IsJobSoldier(human) || Human_HasEquippedWeapon(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 1 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 31 || GameAssistantSingleHumanData_CommandHistory_IsInArray(const_cast<std::byte*>(human) + 0xB88, 81)) continue;
                 candidates[count++] = id; if (count == 100) break;
             }
             Shuffle(candidates, count);

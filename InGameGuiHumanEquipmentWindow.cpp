@@ -1,3 +1,4 @@
+#include "C2ObjectLayout.h"
 #include "SwitchIdentifiers.h"
 #include "InGameGuiHumanEquipmentWindow.h"
 #include "InGameGuiBaseAccess.h"
@@ -94,7 +95,7 @@ namespace NC2InGameGuiSelectedAction
                 for (std::uint32_t good = 30; good <= 55; ++good)
                 {
                     if (category != 6 && NC2Logic::Tool_GoodEquipmentType_Convert(good) != category) continue;
-                    if (Read<std::uint8_t>(human, 0x1E0u + good) == 0) continue;
+                    if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + good) == 0) continue;
                     const auto equipped = (slot != -1 || category != 6) && NC2Logic::Human_HasEquippedItemType(human, good, slot);
                     if (!equipped && !NC2Logic::Human_IsAbleToEquipGoodNow(human, good, true)) continue;
                     const auto label = equipped ? (good >= 33 ? 301u : 302u) : 303u;
@@ -114,7 +115,7 @@ namespace NC2InGameGuiSelectedAction
                     for (std::uint32_t good = 30; good <= 55; ++good)
                     {
                         if (!allowed[good]) continue;
-                        if ((category != 6 && NC2Logic::Tool_GoodEquipmentType_Convert(good) != category) || Read<std::uint8_t>(human, 0x1E0u + good) == 0 || !NC2Logic::Human_IsAbleToEquipGoodNow(human, good, true)) allowed[good] = false;
+                        if ((category != 6 && NC2Logic::Tool_GoodEquipmentType_Convert(good) != category) || Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllowedEquipmentFlags + good) == 0 || !NC2Logic::Human_IsAbleToEquipGoodNow(human, good, true)) allowed[good] = false;
                     }
                 }
                 for (std::uint32_t good = 30; good <= 55; ++good) if (allowed[good]) AddRow(list, window, row, NC2Logic::StringAccess_GetGoodNamePtr(good, 1), true, 10000, good, false);

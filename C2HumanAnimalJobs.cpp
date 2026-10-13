@@ -27,7 +27,7 @@ namespace NC2Logic
         void* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
         void* Animal(std::uint32_t id) { return CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize; }
         std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
-        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, 0x36C, 3); Write(human, 0x374, reason); }
+        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
         struct SBreederAnimalCandidates
         {
             struct SEntry { const void* house; std::uint32_t count; void* animal; std::uint32_t distance; };
@@ -70,7 +70,7 @@ namespace NC2Logic
     // Original function: FUN_0046cb2c.
     void Human_l_StartTask_ExecuteJob_Breeder(void* human)
     {
-        const auto good = Read<std::uint32_t>(human, 0x1C);
+        const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType);
         if (!Human_IsAttachedToWorkHouse(human) || good == 0) { Fail(human, 2); return; }
         if (!Human_IsAbleToProduceGoodNow(human, good)) { Fail(human, 0); return; }
         switch (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode))
@@ -177,7 +177,7 @@ namespace NC2Logic
     void Human_l_PerformTaskEvent_Produce_Animal(void* human)
     {
         const auto* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId));
-        const auto type = Read<std::uint32_t>(human, 0x1C) == 57 ? 19u : 10u;
+        const auto type = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) == 57 ? 19u : 10u;
         CAnimalIterator iterator;
         std::uint32_t adults = 0;
         for (auto id = iterator.GetFirstSectorAnimalId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition), 40, false, true); id != -1; id = iterator.GetNextSectorAnimalId())

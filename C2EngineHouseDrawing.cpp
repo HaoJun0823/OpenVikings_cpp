@@ -287,8 +287,8 @@ namespace NC2E2
                 used[families[slot]] = true;
                 const auto humanId = Read<std::int32_t>(attachment, 4);
                 const auto* human = Human(humanId);
-                const auto sign = Read<std::int32_t>(human, 0xB18) != -1 || Read<std::int32_t>(human, 0xB14) != -1 || Read<std::int32_t>(human, 0xB24) != -1 ? 2u : Read<std::int32_t>(human, 0xB20) != -1 ? 1u : 0u;
-                const auto graphic = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(human, 0x10), sign);
+                const auto sign = Read<std::int32_t>(human, NC2Layout::HumanOffset::MotherId) != -1 || Read<std::int32_t>(human, NC2Layout::HumanOffset::FatherId) != -1 || Read<std::int32_t>(human, NC2Layout::HumanOffset::ChildId) != -1 ? 2u : Read<std::int32_t>(human, NC2Layout::HumanOffset::SpouseId) != -1 ? 1u : 0u;
+                const auto graphic = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), sign);
                 if (graphic == -1) continue;
                 output->signs[output->count++] = {graphic, x, y, humanId};
                 if (output->count == 30) return;
@@ -312,7 +312,7 @@ namespace NC2E2
         {
             const auto* human = Human(ordinary[i]);
             const auto sign = NC2Logic::Human_IsJobCarrier(human) ? 7u : static_cast<std::uint32_t>(ordinary[i] % 4 + 3);
-            const auto graphic = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(human, 0x10), sign);
+            const auto graphic = StaticHumanMisc_InhabitantSign_GetLandscapeId(Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId), sign);
             if (graphic == -1) continue;
             output->signs[output->count++] = {graphic, x, y, ordinary[i]};
             if (output->count == 30) return;
@@ -320,7 +320,7 @@ namespace NC2E2
         }
         if (soldierCount != 0)
         {
-            const auto graphic = StaticHumanMisc_SoldierSign_GetLandscapeId(Read<std::int32_t>(Human(soldiers[0]), 0x10), soldierCount);
+            const auto graphic = StaticHumanMisc_SoldierSign_GetLandscapeId(Read<std::int32_t>(Human(soldiers[0]), NC2Layout::HumanOffset::PlayerId), soldierCount);
             if (graphic != -1) output->signs[output->count++] = {graphic, Read<std::int32_t>(data, 0x7E4), Read<std::int32_t>(data, 0x7E8), -1};
         }
     }

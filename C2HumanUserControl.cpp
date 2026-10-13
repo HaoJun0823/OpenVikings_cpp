@@ -25,7 +25,7 @@ namespace NC2Logic
     bool Logic_UserControl_GetHumanCommands(std::int32_t id, SUserCommandsForHumanHandler* commands, bool parameter2, bool parameter3)
     {
         const void* human = CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * CHumanArray::ElementSize;
-        if (Read<std::uint8_t>(human, 0) == 0) return false;
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0) return false;
         Human_UserControl_GetCommands(human, commands, parameter2, parameter3);
         return true;
     }
@@ -44,11 +44,11 @@ namespace NC2Logic
         {
             if (Human_IsJobTrader(human))
             {
-                const void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44));
+                const void* merchant = HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId));
                 if (Read<std::uint32_t>(merchant, 0x14) < 2) commands->AddCommand(22);
                 if (Read<std::uint32_t>(merchant, 0x14) != 0) commands->AddCommand(23);
             }
-            if (Read<std::uint8_t>(human, 0xB51) != 0) goto passenger;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0) goto passenger;
             if (Human_IsAttachedToVehicle(human)) commands->AddCommand(13);
             if (Human_IsJobSoldier(human) || Human_IsJobHero(human))
             {
@@ -97,7 +97,7 @@ namespace NC2Logic
             if (Human_UserControl_GetNextJobType(human) == 27) { commands->AddCommand(31); commands->AddCommand(32); }
             return;
         }
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
         passenger:
             const void* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;

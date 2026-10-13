@@ -231,7 +231,7 @@ namespace NC2Logic
         {
             if (count != maximum) { ++count; continue; }
             void* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId))) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(&outside), 0);
+            if (Human_IsDefendingHouse(human, Read<std::int32_t>(house, NC2Layout::HouseOffset::HouseId))) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), MapMigPoint_GetLong(&outside), 0);
         }
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint), 40, false); id != -1 && count < maximum; id = iterator.GetNextSectorHumanId())
         {
@@ -248,7 +248,7 @@ namespace NC2Logic
                 if (distance >= previousDistance) continue;
             }
             else if (Human_UserControl_IsExecutingUserCommand(human)) continue;
-            Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)), Read<std::uint32_t>(human, 4), 0, MapMigPoint_GetLong(door), 1);
+            Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 0, MapMigPoint_GetLong(door), 1);
             ++count;
         }
     }

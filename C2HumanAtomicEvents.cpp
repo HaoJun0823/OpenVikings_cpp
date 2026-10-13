@@ -45,7 +45,7 @@ namespace NC2Logic
         constexpr std::uint32_t WeaponExerciseAction = 90;
 
         void* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
-        void* TargetHuman(const void* human) { return CHumanArray::mStaticVars + Read<std::uint32_t>(human, 0xA7C) * CHumanArray::ElementSize; }
+        void* TargetHuman(const void* human) { return CHumanArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectId) * CHumanArray::ElementSize; }
         void AddAttribute(void* human, std::uint32_t offset, std::uint32_t amount) { Write(human, offset, Read<std::uint32_t>(human, offset) + amount); }
 
     }
@@ -70,8 +70,8 @@ namespace NC2Logic
     // Original function: FUN_0045cca7.
     void Human_l_ResetAtomic(void* human)
     {
-        Write<std::uint32_t>(human, 0xAB8, 0);
-        Write<std::uint8_t>(human, 0xABC, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction, 0);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 0);
     }
 
     // Original function: FUN_00468b68; Windows invokes callback 0x17.
@@ -104,13 +104,13 @@ namespace NC2Logic
             return;
         case SwitchIds::AtomicAnimationEvent::ModifySocial:
         {
-            const auto action = Read<std::uint32_t>(human, 0xAB8);
+            const auto action = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction);
             if ((action == 14 || action == 15) && !Human_Target_IsValid(human) && Human_l_IsAtomicInterruptable(human))
             {
                 if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget) == 7)
                 {
                     void* other = TargetHuman(human);
-                    if (Read<std::uint8_t>(other, 0) != 0 && Read<std::uint32_t>(other, 8) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) Human_StopWaitingForOtherHuman(other);
+                    if (Read<std::uint8_t>(other, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(other, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) Human_StopWaitingForOtherHuman(other);
                 }
                 Human_CurrentTask_DoInterrupt(human);
                 Human_l_ResetAtomic(human);
@@ -175,7 +175,7 @@ namespace NC2Logic
         case SwitchIds::AtomicAnimationEvent::EnterHouse: Human_HouseMisc_Enter(human); return;
         case SwitchIds::AtomicAnimationEvent::PlaySoundFX: Human_l_PerformTaskEvent_PlaySoundFX(human, amount); return;
         case SwitchIds::AtomicAnimationEvent::ChangeMiscPalette:
-            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x22, true, Read<std::uint32_t>(human, 4), amount, 0);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x22, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), amount, 0);
             return;
         case SwitchIds::AtomicAnimationEvent::HouseParticleEffect:
         {
@@ -228,27 +228,27 @@ namespace NC2Logic
     void Human_l_PerformTaskEvent_SendSocial(void* human, std::int32_t amount)
     {
         void* other = TargetHuman(human);
-        if (other == nullptr || Read<std::uint32_t>(other, 8) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) return;
+        if (other == nullptr || Read<std::uint32_t>(other, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) return;
         AddAttribute(other, 0xAB0, static_cast<std::uint32_t>(amount));
         if (amount < 0) return;
-        Human_DoAddNewUserCommand(other, 12, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
-        if (Read<std::uint32_t>(other, 0x368) == 1 && Human_l_IsAtomicInterruptable(other)) Human_CurrentTask_DoInterrupt(other);
+        Human_DoAddNewUserCommand(other, 12, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
+        if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::CurrentTask) == 1 && Human_l_IsAtomicInterruptable(other)) Human_CurrentTask_DoInterrupt(other);
     }
 
     // Original function: FUN_0046a121; Windows PE constant 004F3B50 is 8000.
     void Human_l_PerformTaskEvent_SendReligion(void* human, std::int32_t amount)
     {
         void* other = TargetHuman(human);
-        if (other == nullptr || Read<std::uint32_t>(other, 8) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) { Human_Target_Reset(human); return; }
-        if (Read<std::int32_t>(other, 0xAB4) <= 8000) AddAttribute(other, 0xAB4, static_cast<std::uint32_t>(amount));
+        if (other == nullptr || Read<std::uint32_t>(other, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) { Human_Target_Reset(human); return; }
+        if (Read<std::int32_t>(other, NC2Layout::HumanOffset::Religion) <= 8000) AddAttribute(other, 0xAB4, static_cast<std::uint32_t>(amount));
     }
 
     // Original function: FUN_0046a165; the receiver maximum is checked before adding.
     void Human_l_PerformTaskEvent_SendHitpoints(void* human, std::int32_t amount)
     {
         void* other = TargetHuman(human);
-        if (other == nullptr || Read<std::uint32_t>(other, 8) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) { Human_Target_Reset(human); return; }
-        const auto hitpoints = Read<std::int32_t>(other, 0xAA0);
-        if (hitpoints < static_cast<std::int32_t>(Human_GetHumanAttributeMaximum_Hitpoints(other)) && (amount > 0 || (Read<std::uint32_t>(other, 0xB84) & 8u) == 0)) AddAttribute(other, 0xAA0, static_cast<std::uint32_t>(amount));
+        if (other == nullptr || Read<std::uint32_t>(other, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetObjectRevision)) { Human_Target_Reset(human); return; }
+        const auto hitpoints = Read<std::int32_t>(other, NC2Layout::HumanOffset::Hitpoints);
+        if (hitpoints < static_cast<std::int32_t>(Human_GetHumanAttributeMaximum_Hitpoints(other)) && (amount > 0 || (Read<std::uint32_t>(other, NC2Layout::HumanOffset::MiscFlags) & 8u) == 0)) AddAttribute(other, 0xAA0, static_cast<std::uint32_t>(amount));
     }
 }

@@ -116,7 +116,7 @@ namespace NC2Logic
             const auto id = AIHighLevelHandler_Tool_GetUnusedHuman(high, house + NC2Layout::HouseOffset::DoorEntryPoint);
             if (id == -1) return;
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            Human_DoAddNewUserCommand(human, 32, static_cast<std::uint8_t>(player), id, Read<std::uint32_t>(human, 8), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+            Human_DoAddNewUserCommand(human, 32, static_cast<std::uint8_t>(player), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             if (++count > 190) return;
             ++needed;
         }
@@ -136,7 +136,7 @@ namespace NC2Logic
             for (auto id = humans.GetFirstSectorHumanId(player, true); id != -1; id = humans.GetNextSectorHumanId())
             {
                 const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                const auto weapon = 0x1458 + (Read<std::uint32_t>(human, 20) * 22 + Human_Equipment_GetWeaponType(human)) * 12;
+                const auto weapon = 0x1458 + (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) * 22 + Human_Equipment_GetWeaponType(human)) * 12;
                 Write(manager, weapon, Read<std::uint32_t>(manager, weapon) + weight);
                 const auto armor = 0x1C98 + Human_Equipment_GetArmorType(human) * 12;
                 Write(manager, armor, Read<std::uint32_t>(manager, armor) + weight);
@@ -236,7 +236,7 @@ namespace NC2Logic
                 const auto danger = AIMilitaryManager_Military_GetCivilianDangerValueForPosition(Human_GetMapPositionRef(human), player, 5);
                 const auto score = static_cast<std::int32_t>(static_cast<std::uint32_t>(distance) + static_cast<std::uint32_t>(danger));
                 if (score >= best) continue;
-                best = score; Write(target, 4, id); Write(target, 8, Read<std::uint32_t>(human, 8)); Write<std::uint32_t>(target, 0, 1);
+                best = score; Write(target, 4, id); Write(target, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)); Write<std::uint32_t>(target, 0, 1);
             }
         }
         return TargetData_IsValid(target);

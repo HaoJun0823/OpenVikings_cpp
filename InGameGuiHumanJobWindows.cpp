@@ -121,7 +121,7 @@ namespace NC2InGameGuiSelectedAction
             {
                 const void* human = Human(SelectedId());
                 for (std::uint32_t job = 0; job < 56; ++job) if (!NC2Logic::Human_IsAbleToDoJob(human, job)) allowed[job] = false;
-                currentJob = Read<std::uint32_t>(human, 0x18);
+                currentJob = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
             }
             else if (selection == 2)
             {
@@ -144,7 +144,7 @@ namespace NC2InGameGuiSelectedAction
                 Row(window, list, row, NC2Logic::StringAccess_GetJobNamePtr(job, 1), job, 0, currentJob != 0 && job == currentJob);
                 if (job != 8 || selection != 1) continue;
                 const void* human = Human(SelectedId());
-                const auto player = Read<std::int32_t>(human, 0x10);
+                const auto player = Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId);
                 const auto tribe = player < 20 ? Read<std::uint32_t>(NC2Logic::gGameControl, player * NC2Layout::RecordSize::GameControlPlayerSigned + 0x0C) : 1u;
                 for (const auto& entry : farmerGoods)
                 {
@@ -235,7 +235,7 @@ namespace NC2InGameGuiSelectedAction
             NC2E2::DynamicHuman_SetName(static_cast<std::byte*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8, text);
             if (NC2Logic::gGameStaticVars.networkGame == 0 || !NNetwork::Network_IsInSession()) return;
             char formatted[100];
-            NXBasics::Runtime_PrintStringN(formatted, sizeof(formatted), "%d:%d:%d:%s", Read<std::int32_t>(Human(id), 0x10), id, Read<std::uint32_t>(Human(id), 8), text);
+            NXBasics::Runtime_PrintStringN(formatted, sizeof(formatted), "%d:%d:%d:%s", Read<std::int32_t>(Human(id), NC2Layout::HumanOffset::PlayerId), id, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId), text);
             // The first UTF-16 code unit is the original rename record discriminator.
             wchar_t record[128]{}; record[0] = 2;
             NNetwork::CopyNetworkAnsiToWide(record + 1, formatted, -1);
@@ -265,7 +265,7 @@ namespace NC2InGameGuiSelectedAction
         {
             NC2InGameGuiBase::BaseToolWindow_Draw(window, nullptr, bitmap, rectangle);
             if (Read<std::uint32_t>(Input(), 4) != 1 || SelectedId() == -1) return;
-            NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(Human(SelectedId()), 0x0C), bitmap, 290, 80, nullptr, true, -1);
+            NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(Human(SelectedId()), NC2Layout::HumanOffset::MapMoveableId), bitmap, 290, 80, nullptr, true, -1);
             auto* font = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources.font08;
             bitmap->Text_Print(font, White(), 10, 30, TextInput(window)->GetString());
             const std::uint8_t channel = ((timeGetTime() / 200u) & 1u) != 0 ? 255 : 100;
@@ -396,10 +396,10 @@ namespace NC2InGameGuiSelectedAction
                 void* memory = NXBasics::Runtime_AllocateWithNewHandler(available ? 0x60 : 0x100, 1);
                 const char* caption = NC2Logic::StringAccess_GetGoodNamePtr(good, 1);
                 void* element = nullptr;
-                if (memory != nullptr) element = available ? NC2InGameGuiBase::BaseToolTextButton_ConstructToggle(memory, nullptr, &row, caption, 10000 + good, window, Read<std::uint32_t>(human, 0x1C) == good) : NC2InGameGuiBase::BaseToolTextElement_Construct(memory, nullptr, &row, caption, false, false);
+                if (memory != nullptr) element = available ? NC2InGameGuiBase::BaseToolTextButton_ConstructToggle(memory, nullptr, &row, caption, 10000 + good, window, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) == good) : NC2InGameGuiBase::BaseToolTextElement_Construct(memory, nullptr, &row, caption, false, false);
                 BaseListBoxElement_Element_Add(list, nullptr, element); row.y += 24;
             }
-            if (Read<std::uint32_t>(human, 0x18) == 8)
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 8)
             {
                 void* memory = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 NXBaseGui::CBaseElement* element = static_cast<NXBaseGui::CBaseElement*>(memory == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_Construct(memory, nullptr, &row, NC2Logic::StringAccess_GetGoodNamePtr(65, 1), 10065, window));
@@ -420,7 +420,7 @@ namespace NC2InGameGuiSelectedAction
         const auto id = SelectedId();
         if (id != -1)
         {
-            const void* human = Human(id); const auto player = Read<std::int32_t>(human, 0x10); const auto tribe = Read<std::uint32_t>(human, 0x14);
+            const void* human = Human(id); const auto player = Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId); const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
             std::uint32_t jobs[56], count = 0;
             for (std::uint32_t job = 7; job <= 30; ++job)
             {

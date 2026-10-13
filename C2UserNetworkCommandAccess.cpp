@@ -57,7 +57,7 @@ namespace NC2Logic
         if (opcode > 1 && opcode < 0x58)
         {
             auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(command, 4) * CHumanArray::ElementSize;
-            if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(command, 8)) return;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(command, 8)) return;
             if (opcode == 2) Logic_EntryPoint_FreeMapMoveable(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId));
             else Human_DoAddNewUserCommand(human, command);
             return;
@@ -226,7 +226,7 @@ namespace NC2Logic
                 }
                 else if (Human_IsJobHero(human)) continue;
                 const auto parameter = opcode == SwitchIds::UserCommand::EquipMeadForPlayer ? 0x2Bu : 0x1Eu + opcode - 0x81u;
-                Human_DoAddNewUserCommand(human, 0x53, player, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), parameter, opcode == SwitchIds::UserCommand::EquipMeadForPlayer ? NXBasics::IntegerRange::UInt32Maximum : 0u);
+                Human_DoAddNewUserCommand(human, 0x53, player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), parameter, opcode == SwitchIds::UserCommand::EquipMeadForPlayer ? NXBasics::IntegerRange::UInt32Maximum : 0u);
             }
             return;
         }

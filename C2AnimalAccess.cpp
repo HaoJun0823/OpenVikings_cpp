@@ -43,7 +43,7 @@ namespace NC2Logic
         if (Type(animal).cannotBeAttacked != 0) return false;
         const auto player = Read<std::int32_t>(animal, NC2Layout::AnimalOffset::PlayerId);
         if (player == 20) return true;
-        const auto humanPlayer = Read<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize, 0x10);
+        const auto humanPlayer = Read<std::int32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(humanId) * CHumanArray::ElementSize, NC2Layout::HumanOffset::PlayerId);
         if (player == humanPlayer && allowOwnAnimals) return true;
         return Logic_EntryPoint_GetDiplomacyState(humanPlayer, player) == 3;
     }

@@ -38,12 +38,12 @@ namespace NC2Logic
             for (auto id = CHumanArray::sTheObjectPtr->mFirstScanIndex; id <= CHumanArray::sTheObjectPtr->mLastScanIndex; ++id)
             {
                 const auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-                if (Read<std::uint8_t>(human, 0) == 0) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0) continue;
                 const auto player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
                 if (player >= 20u) continue;
                 auto& count = counts[player];
                 ++count.allocated;
-                if (Read<std::uint8_t>(human, 0xB50) != 0 || Read<std::uint8_t>(human, 0xB51) != 0) ++count.hidden;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag) != 0 || Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0) ++count.hidden;
                 const auto moveableId = Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId);
                 if (moveableId != -1)
                 {

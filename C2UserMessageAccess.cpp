@@ -140,7 +140,7 @@ namespace NC2Logic
         if (humanId != NXBasics::IntegerRange::UInt32Maximum)
         {
             auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
-            if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(message, 0x14)) return false;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(message, 0x14)) return false;
             if (checkHuman && Human_UserMessage_IsInvalid(human, message)) return false;
         }
         const auto houseId = Read<std::uint32_t>(message, 0x18);
@@ -172,11 +172,11 @@ namespace NC2Logic
         const auto otherId = Read<std::uint32_t>(other, 0x10);
         if (otherId == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* otherHuman = CHumanArray::mStaticVars + otherId * CHumanArray::ElementSize;
-        if (Read<std::uint8_t>(otherHuman, 0) == 0 || Read<std::uint32_t>(otherHuman, 8) != Read<std::uint32_t>(other, 0x14)) return false;
+        if (Read<std::uint8_t>(otherHuman, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(otherHuman, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(other, 0x14)) return false;
         const auto humanId = Read<std::uint32_t>(message, 0x10);
         if (humanId == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
-        if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(message, 0x14)) return false;
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(message, 0x14)) return false;
         std::uint32_t otherPoint = 0, point = 0;
         Human_GetMapPosition(otherHuman, &otherPoint);
         Human_GetMapPosition(human, &point);

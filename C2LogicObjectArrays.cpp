@@ -67,7 +67,7 @@ namespace NC2Logic
         const auto id = NC2Lifetime::Read<std::uint32_t>(reference, 0);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-        return NC2Lifetime::Read<std::uint8_t>(human, 0) != 0 && NC2Lifetime::Read<std::uint32_t>(human, 8) == NC2Lifetime::Read<std::uint32_t>(reference, 4);
+        return NC2Lifetime::Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == NC2Lifetime::Read<std::uint32_t>(reference, 4);
     }
     // Original function: FUN_0042d2ee.
     bool Human_HasEquippedShoes(const void* human)

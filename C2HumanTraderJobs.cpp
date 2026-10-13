@@ -28,25 +28,25 @@ namespace NC2Logic
     using namespace NC2Lifetime;
     namespace
     {
-        void* Vehicle(const void* human) { return CVehicleArray::mStaticVars + Read<std::uint32_t>(human, 0xB48) * CVehicleArray::ElementSize; }
+        void* Vehicle(const void* human) { return CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize; }
         void* House(const void* data) { return MerchantHouseData_IsValid(data) ? CHouseArray::mStaticVars + Read<std::uint32_t>(data, 0) * CHouseArray::ElementSize : nullptr; }
-        void* Merchant(const void* human) { return HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, 0xB44)); }
+        void* Merchant(const void* human) { return HumanMerchantArray_GetMerchantDataPtr(gHumanMerchantArray, Read<std::int32_t>(human, NC2Layout::HumanOffset::MerchantId)); }
         bool IsFoodGroup16(std::uint32_t good) { return good == 16 || good == 18 || good == 19 || good == 21 || good == 56 || good == 22 || good == 23; }
         bool IsFoodGroup17(std::uint32_t good) { return good == 17 || good == 20; }
         std::uint32_t NormalizedGood(std::uint32_t good) { return TGoodTypes_IsFood(good) ? (IsFoodGroup16(good) ? 16u : 17u) : good; }
         bool StockOnly(const void* house) { const auto type = Read<std::uint32_t>(house, 0x14); return type == 1 || type == 7 || type == 8 || type == 9; }
-        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, 0x36C, 3); Write(human, 0x374, reason); }
-        void Start(void* human, std::uint32_t animation) { Human_l_StartAtomicAnimation(human, animation, 6); Write<std::uint32_t>(human, 0x36C, 1); }
-        void TargetVehicle(void* human) { Write<std::uint32_t>(human, 0xA68, 6); Write(human, 0xA7C, Read<std::uint32_t>(human, 0xB48)); Write(human, 0xA80, Read<std::uint32_t>(human, 0xB4C)); }
-        void TargetHouseData(void* human, const void* data) { Write<std::uint32_t>(human, 0xA68, 5); Write(human, 0xA7C, Read<std::uint32_t>(data, 0)); Write(human, 0xA80, Read<std::uint32_t>(data, 4)); }
-        void EnterVehicle(void* human) { TargetVehicle(human); Write<std::uint32_t>(human, 0x368, 21); Write<std::uint32_t>(human, 0x36C, 0); }
-        bool IsCommander(const void* human) { return Human_IsAttachedToVehicle(human) && Vehicle_Passengers_IsCommander(Vehicle(human), Read<std::uint32_t>(human, 4)); }
+        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
+        void Start(void* human, std::uint32_t animation) { Human_l_StartAtomicAnimation(human, animation, 6); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); }
+        void TargetVehicle(void* human) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 6); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision)); }
+        void TargetHouseData(void* human, const void* data) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5); Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(data, 0)); Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(data, 4)); }
+        void EnterVehicle(void* human) { TargetVehicle(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 21); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0); }
+        bool IsCommander(const void* human) { return Human_IsAttachedToVehicle(human) && Vehicle_Passengers_IsCommander(Vehicle(human), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)); }
         bool IsRestockForbidden(void* house, std::uint32_t good) { return (good == 15 || good == 28 || good == 29) && House_GetHouseMainType(house) == 2; }
         bool WalkToHouse(void* human, void* house, const void* data)
         {
             TargetHouseData(human, data);
             if (!Human_l_StartAtomicWalkAndBring(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24)) { Fail(human, 1); return false; }
-            Write<std::uint32_t>(human, 0xACC, 4);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 4);
             return true;
         }
         bool WalkToVehicle(void* human)
@@ -55,7 +55,7 @@ namespace NC2Logic
             std::uint32_t door = 0;
             Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
             if (!Human_l_StartAtomicWalkAndBring(human, Vehicle_GetMapPositionRef(vehicle), &door)) { Fail(human, 1); return false; }
-            Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, 0xAD4), 1, Read<std::uint32_t>(human, 8));
+            Vehicle_Stock_ModifyFutureAmount(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
             TargetVehicle(human);
             return true;
         }
@@ -74,10 +74,10 @@ namespace NC2Logic
             if (IsFoodGroup16(good) || IsFoodGroup17(good))
                 for (std::uint32_t candidate = 16; candidate < 24; ++candidate)
                     if ((IsFoodGroup16(good) ? IsFoodGroup16(candidate) : IsFoodGroup17(candidate)) && House_Stock_CanStoreGoodType(house, candidate, true)) { good = candidate; break; }
-            Write(human, 0xAD0, good);
-            Write<std::uint32_t>(human, 0xA68, 5);
-            Write(human, 0xA7C, Read<std::uint32_t>(house, 4));
-            Write(human, 0xA80, Read<std::uint32_t>(house, 8));
+            Write(human, NC2Layout::HumanOffset::RequestedGood, good);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 5);
+            Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(house, 4));
+            Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(house, 8));
             if (!Human_l_StartAtomicWalkAndFetch(human, static_cast<std::byte*>(house) + 0x1C, static_cast<std::byte*>(house) + 0x24, false)) Fail(human, 1);
         }
 
@@ -86,11 +86,11 @@ namespace NC2Logic
         {
             auto* vehicle = Vehicle(human);
             std::uint32_t door = 0;
-            Write(human, 0xAD0, good);
+            Write(human, NC2Layout::HumanOffset::RequestedGood, good);
             Vehicle_Door_GetEntryPoint(vehicle, &door, 0);
             if (!Human_l_StartAtomicWalk(human, Vehicle_GetMapPositionRef(vehicle), &door)) { Fail(human, 1); return; }
-            Write<std::uint32_t>(human, 0xACC, 2);
-            Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 2);
+            Vehicle_Stock_ModifyFutureAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
             TargetVehicle(human);
         }
     }
@@ -316,7 +316,7 @@ namespace NC2Logic
             Human_Target_Reset(human);
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
             Human_GetMapPositionRef(human);
-            if (Human_IsAttachedToVehicle(human) && Read<std::uint8_t>(human, 0xB51) != 0 && Vehicle_Passengers_IsCommander(Vehicle(human), Read<std::uint32_t>(human, 4)))
+            if (Human_IsAttachedToVehicle(human) && Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 && Vehicle_Passengers_IsCommander(Vehicle(human), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)))
             {
                 const auto good = Human_l_Trader_GetNextGoodFromVehicle(human);
                 if (good != 0) { TraderFetchFromVehicle(human, good); return; }
@@ -497,7 +497,7 @@ namespace NC2Logic
         if (!Vehicle_IsPriorityCommandInQueue(vehicle) && Read<std::uint32_t>(vehicle, 0x4FC) != 1 && VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(work, 0), Read<std::int16_t>(work, 2)) <= 5) return false;
         if (Vehicle_IsPriorityCommandInQueue(vehicle) || Read<std::uint32_t>(vehicle, 0x4FC) == 1)
         {
-            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 ? 1u : 21u);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
             return true;
         }
@@ -549,7 +549,7 @@ namespace NC2Logic
                 auto* target = Human_GetHousePtrAtTargetPosition(human);
                 if (target == house)
                 {
-                    if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(target, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) != Read<std::uint32_t>(target, 0x24)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
                     const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
                     if (House_Stock_CanStoreGoodType(target, good, true) && House_Stock_GetAmountOfGoods(target, good, true) > House_Stock_GetMinimumValue(house, good))
                     {

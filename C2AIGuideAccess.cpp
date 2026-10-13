@@ -140,7 +140,7 @@ namespace NC2Logic
             std::byte target[12]{}; Write<std::uint32_t>(target, 0, 5); Write(target, 4, Read<std::uint32_t>(destination, 0)); Write<std::uint16_t>(target, 10, 0);
             AIMilitaryManager_MilitaryPoint_Add(military, 2, 0, target, 60, 4, 4); return;
         }
-        const auto owner = Read<std::uint32_t>(human, 16);
+        const auto owner = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         Human_DoAddNewUserCommand(human, 19, static_cast<std::uint8_t>(owner), 0, 0, MapMigPoint_GetLong(destination), 0);
     }
     // Original function: FUN_004298ae.

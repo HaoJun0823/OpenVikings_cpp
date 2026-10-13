@@ -227,7 +227,7 @@ namespace NC2E2
         {
             const auto* human = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize;
             dynamic = HumanDynamic(human);
-            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), Read<std::uint8_t>(human, 0xABC) != 0, Read<std::uint32_t>(human, 0xAB8), Read<std::uint32_t>(human, 0xAC4), AtomicLength(human, 0xAC0), Read<std::uint32_t>(human, 0xAC8), NC2Logic::Human_Misc_IsHidden(human), display, offsetX, offsetY, nullptr, false);
+            sl_DoUpdateMapMoveableDynamicBobData(moveable, dynamic, Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), Read<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationFrame), AtomicLength(human, 0xAC0), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationStartCount), NC2Logic::Human_Misc_IsHidden(human), display, offsetX, offsetY, nullptr, false);
         }
         else if (type == 2)
         {
@@ -364,9 +364,9 @@ namespace NC2E2
         if (!centered && NC2Logic::Human_Misc_IsHidden(human)) return;
         auto* dynamic = HumanDynamic(human);
         brightness = DynamicBrightness(dynamic, 0x8C4, brightness);
-        const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Human_GetMarkType(display, Read<std::uint32_t>(human, 4)) : 0u;
+        const auto marking = display != nullptr ? Display_DE_ObjectsToMark_Human_GetMarkType(display, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) : 0u;
         auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-        if ((NC2Logic::Human_IsJobTrader(human) || NC2Logic::Human_IsJobCarrier(human)) && (Read<std::uint8_t>(human, 0xB51) == 0 || centered))
+        if ((NC2Logic::Human_IsJobTrader(human) || NC2Logic::Human_IsJobCarrier(human)) && (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) == 0 || centered))
         {
             job = 6;
             const auto vehicleId = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId);
@@ -383,7 +383,7 @@ namespace NC2E2
         const auto player = Read<std::int32_t>(human, NC2Layout::HumanOffset::PlayerId);
         const bool specialHero = tribe == 2 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 47;
         const auto* effect = (NC2Logic::Human_IsJobHero(human) || (flags & (1u << 19)) != 0) && !specialHero ? Tool_PlayerColors_GetColorRef(player) : nullptr;
-        sl_DoDrawMapMoveable(moveable, dynamic, tribe, job, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), Read<std::uint8_t>(human, 0xABC) != 0, Read<std::uint32_t>(human, 0xAB8), Read<std::uint32_t>(human, 0xAC4), AtomicLength(human, 0xAC0), Read<std::uint32_t>(human, 0xAC8), HumanBody(dynamic), HumanHead(dynamic), bitmap, x, y, brightness, marking, player, NC2Logic::Human_Misc_IsHidden(human), centered, (flags & (1u << 14)) != 0, effect, -1, -1, display, false);
+        sl_DoDrawMapMoveable(moveable, dynamic, tribe, job, Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood), Read<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag) != 0, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationFrame), AtomicLength(human, 0xAC0), Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAnimationStartCount), HumanBody(dynamic), HumanHead(dynamic), bitmap, x, y, brightness, marking, player, NC2Logic::Human_Misc_IsHidden(human), centered, (flags & (1u << 14)) != 0, effect, -1, -1, display, false);
         auto iconY = AddOffset(y, -56);
         const bool tallSoldier = tribe == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32;
         if (tallSoldier) iconY = AddOffset(iconY, -16);
@@ -409,7 +409,7 @@ namespace NC2E2
         if ((flags & (1u << 7)) != 0 && (!NC2Logic::Human_IsJobHero(human) || specialHero)) { icon(10); iconY = AddOffset(iconY, -16); }
         if (!centered && Read<std::uint8_t>(human, 0xB8C) != 0) icon(22);
         if (display == nullptr || centered || Read<void*>(display, 0x924) == nullptr || player != playerId || NC2InGameGuiGroups::gObjectGroupManager == nullptr) return;
-        const auto group = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman(Read<std::uint32_t>(human, 4));
+        const auto group = static_cast<const NC2InGameGuiGroups::CObjectGroupManager*>(NC2InGameGuiGroups::gObjectGroupManager)->Misc_GetGroupIdOfHuman(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
         if (group == -1) return;
         static const NXBasics::SColorRGB white(255, 255, 255), black(0, 0, 0);
         static std::uint8_t initialized = 0;

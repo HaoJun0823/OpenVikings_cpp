@@ -228,7 +228,7 @@ namespace NC2InGameGuiSelection
             const auto id = NC2InGameGuiInputManager::Selection_GetSelectedSingleHumanId(NC2InGameGuiInputManager::gInputManager);
             if (id == -1) return nullptr;
             auto* human = NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize;
-            return Read<std::uint8_t>(human, 0) != 0 ? human : nullptr;
+            return Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 ? human : nullptr;
         }
         // Original function: FUN_004aee9c; unsigned experience order and name tie-breaking.
         void l_SubTabs_Experiences_GetMostExperiences(SSelectionSingleHumanWindowMostExperiencesData* output)
@@ -239,7 +239,7 @@ namespace NC2InGameGuiSelection
             for (std::uint32_t job = 0; job < 78; ++job)
             {
                 if (job == 2 || job == 46 || job == 48 || job == 53) continue;
-                const auto amount = Read<std::uint32_t>(human, 0x24u + job * 4u);
+                const auto amount = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobExperience + job * 4u);
                 if (amount != 0) output->entries[output->count++] = {job, amount};
             }
             for (std::uint32_t pass = 0; pass + 1 < output->count; ++pass)
@@ -286,7 +286,7 @@ namespace NC2InGameGuiSelection
             if (human == nullptr || preview == nullptr) return;
             void* display = Read<void*>(preview, 0x30);
             std::int32_t point[2];
-            Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, Read<std::uint32_t>(human, 0x0C), point);
+            Display_DE_MapMoveableToGlobalWorldPixelCoordinates(display, nullptr, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), point);
             point[1] -= 25;
             NC2E2::DE_SetWantedPositionToPixelPoint(display, point);
         }
@@ -408,12 +408,12 @@ namespace NC2InGameGuiSelection
                 AddGraphicButton(window, SRectangle(basic.x + 6, basic.y + 22, 18, 16), 18, 100, 10003);
                 AddGraphicButton(window, SRectangle(basic.x + 44, basic.y + 22, 18, 16), 28, 101, 10004);
                 AddGraphicButton(window, SRectangle(basic.x + basic.width - 20, basic.y + basic.height - 20, 18, 18), 142, 102, 10005);
-                const auto id = Read<std::uint32_t>(human, 4);
+                const auto id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId);
                 const char* name = reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + id * 0x8C8u + 0x85C;
                 const SRectangle nameRect(basic.x + 68, basic.y + 20, basic.width - 72, 14);
                 allocation = NXBasics::Runtime_AllocateWithNewHandler(96, 1);
                 void* nameElement = allocation == nullptr ? nullptr : NC2InGameGuiBase::BaseToolTextButton_ConstructWithToolTip(allocation, nullptr, &nameRect, name, HumanString(103), 10006, window);
-                if (nameElement != nullptr) Write<std::uint8_t>(nameElement, 0x56, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit7) != 0);
+                if (nameElement != nullptr) Write<std::uint8_t>(nameElement, 0x56, NC2Logic::Human_IsJobHero(human) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit7) != 0);
                 Write(window, 0x108, nameElement);
                 NXBaseGui::BaseWindow_Element_Add(window, nameElement);
             }
@@ -759,26 +759,26 @@ namespace NC2InGameGuiSelection
             if (Read<std::uint8_t>(window, 0x70) != 0 && Read<std::uint8_t>(window, 0x76) == 0)
             {
                 char job[140];
-                const auto tribe = Read<std::uint32_t>(human, 0x14), type = Read<std::uint32_t>(human, 0x18);
+                const auto tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType), type = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
                 const char* jobName = NC2Logic::Human_IsJobHero(human) ? (tribe == 2 && type == 47 ? NC2GuiToolsBase::StringTool_GetOdin001StringPtr(31) : HumanString(120)) : NC2Logic::StringAccess_GetJobNamePtr(type, 1);
                 // Original 00512584 has only read references into zero-initialized storage.
                 if (tribe == 3 && type == 32 && !NC2Logic::Human_IsJobHero(human)) jobName = "";
                 if (NC2Logic::Human_IsAgeAdult(human)) NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s", jobName);
-                else NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s - %d %s", jobName, Read<std::int32_t>(human, 0xAA4) / 270, HumanString(10));
+                else NXBasics::Runtime_PrintStringN(job, sizeof(job), "%s - %d %s", jobName, Read<std::int32_t>(human, NC2Layout::HumanOffset::AgeCounter) / 270, HumanString(10));
                 job[139] = '\0';
                 bitmap->Text_Print(resources.font08, reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400), basic.x + 68 + (basic.width - 72 - NXBasics::Font_GetPixelWidth(resources.font08, job)) / 2, basic.y + 34, job);
-                DrawBar(window, bitmap, basic.x + 68, basic.y + 48, Read<std::int32_t>(human, 0xAA0), static_cast<std::int32_t>(NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), 34, 11, resources.hitpointsBarPalette, true);
+                DrawBar(window, bitmap, basic.x + 68, basic.y + 48, Read<std::int32_t>(human, NC2Layout::HumanOffset::Hitpoints), static_cast<std::int32_t>(NC2Logic::Human_GetHumanAttributeMaximum_Hitpoints(human)), 34, 11, resources.hitpointsBarPalette, true);
                 // Windows helper 00463AD2: children and adult behavior-flag bit 0 omit needs.
-                if (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, 0xB84) & 1u) == 0)
+                if (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 1u) == 0)
                 {
-                    DrawBar(window, bitmap, basic.x + 68, basic.y + 59, Read<std::int32_t>(human, 0xAA8), 10000, 38, 12, resources.standardBarPalette, false);
-                    DrawBar(window, bitmap, basic.x + 68, basic.y + 70, Read<std::int32_t>(human, 0xAAC), 10000, 35, 13, resources.standardBarPalette, false);
-                    DrawBar(window, bitmap, basic.x + 68, basic.y + 81, Read<std::int32_t>(human, 0xAB0), 10000, 36, 14, resources.standardBarPalette, false);
-                    DrawBar(window, bitmap, basic.x + 68, basic.y + 92, Read<std::int32_t>(human, 0xAB4), 10000, 37, 15, NC2Logic::Human_IsJobNeedingReligion(human) ? resources.standardBarPalette : resources.disabledBarPalette, false);
+                    DrawBar(window, bitmap, basic.x + 68, basic.y + 59, Read<std::int32_t>(human, NC2Layout::HumanOffset::Food), 10000, 38, 12, resources.standardBarPalette, false);
+                    DrawBar(window, bitmap, basic.x + 68, basic.y + 70, Read<std::int32_t>(human, NC2Layout::HumanOffset::Stamina), 10000, 35, 13, resources.standardBarPalette, false);
+                    DrawBar(window, bitmap, basic.x + 68, basic.y + 81, Read<std::int32_t>(human, NC2Layout::HumanOffset::Social), 10000, 36, 14, resources.standardBarPalette, false);
+                    DrawBar(window, bitmap, basic.x + 68, basic.y + 92, Read<std::int32_t>(human, NC2Layout::HumanOffset::Religion), 10000, 37, 15, NC2Logic::Human_IsJobNeedingReligion(human) ? resources.standardBarPalette : resources.disabledBarPalette, false);
                 }
-                std::int32_t rowY = basic.y + (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, 0xB84) & 1u) == 0 ? 103 : 100);
+                std::int32_t rowY = basic.y + (NC2Logic::Human_IsAgeAdult(human) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 1u) == 0 ? 103 : 100);
                 NC2Logic::SUserCommandsForHumanHandler available;
-                const auto allowed = [&](std::int32_t action) { return NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false) && available.IsCommandAllowed(action); };
+                const auto allowed = [&](std::int32_t action) { return NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false) && available.IsCommandAllowed(action); };
                 const auto relative = [&](std::size_t field, std::uint32_t command, std::uint32_t label, std::uint32_t icon)
                 {
                     const auto id = Read<std::uint32_t>(human, field);
@@ -796,7 +796,7 @@ namespace NC2InGameGuiSelection
                 }
                 else Buttons(window).RemoveButton(10026, 0);
                 relative(0xB24, 10025, 22, 31);
-                const bool canGetPregnant = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false) && (available.IsCommandAllowed(8) || available.IsCommandAllowed(9));
+                const bool canGetPregnant = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false) && (available.IsCommandAllowed(8) || available.IsCommandAllowed(9));
                 if (canGetPregnant)
                 {
                     NC2GuiToolsBase::DrawTool_DrawIcon(31, bitmap, basic.x + 10, rowY + 6);
@@ -813,7 +813,7 @@ namespace NC2InGameGuiSelection
                 {
                     NC2GuiToolsBase::DrawTool_DrawIcon(32, bitmap, basic.x + 10, rowY + 6);
                     auto x = basic.x + 24;
-                    const auto house = Read<std::uint32_t>(human, 0xB28);
+                    const auto house = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId);
                     std::uint32_t type = 0;
                     if (house != NXBasics::IntegerRange::UInt32Maximum)
                     {
@@ -829,7 +829,7 @@ namespace NC2InGameGuiSelection
                     rowY += 12;
                 }
                 else for (auto command : {10011u, 10012u, 10013u}) Buttons(window).RemoveButton(command, 0);
-                const bool hasCommands = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, 4), &available, false, false);
+                const bool hasCommands = NC2Logic::Logic_UserControl_GetHumanCommands(Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId), &available, false, false);
                 const bool attached = NC2Logic::Human_IsAttachedToVehicle(human);
                 if (hasCommands && (attached || available.IsCommandAllowed(12) || available.IsCommandAllowed(13)))
                 {
@@ -844,7 +844,7 @@ namespace NC2InGameGuiSelection
                     else Buttons(window).RemoveButton(10016, 0);
                     if (attached)
                     {
-                        const auto vehicle = Read<std::uint32_t>(human, 0xB48);
+                        const auto vehicle = Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId);
                         bitmap->Text_Print(resources.font08, NC2GuiToolsBase::DrawTool_GetFontColorRef(), x, rowY, NC2Logic::StringAccess_GetVehicleTypeNamePtr(Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + vehicle * NC2Logic::CVehicleArray::ElementSize, 0x1E8)));
                     }
                     rowY += 12;
@@ -1139,7 +1139,7 @@ namespace NC2InGameGuiSelection
         if (const void* human = l_Misc_GetSelectedHumanPtr())
         {
             Write<std::uint8_t>(window, 0x71, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && (NC2Logic::Human_IsJobHero(human) || NC2Logic::Human_IsJobSoldier(human)));
-            Write<std::uint8_t>(window, 0x72, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human) && !NC2Logic::Human_IsJobScout(human) && !NC2Logic::Human_IsJobTrader(human) && Read<std::uint32_t>(human, 0x18) != 6);
+            Write<std::uint8_t>(window, 0x72, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human) && !NC2Logic::Human_IsJobScout(human) && !NC2Logic::Human_IsJobTrader(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != 6);
             Write<std::uint8_t>(window, 0x73, NC2Logic::Human_IsSexMale(human) && NC2Logic::Human_IsAgeAdult(human) && !NC2Logic::Human_IsJobHero(human));
             // Native 00436A97: inspect the enable byte and the Odin exception.
             Write<std::uint8_t>(window, 0x74, NC2Logic::Human_UserControl_CanChooseJob(human) && !NC2Logic::Human_IsJobHero(human));

@@ -49,7 +49,7 @@ namespace NC2Logic
             for (std::int32_t id = 0; id < CHumanArray::sTheObjectPtr->mCapacity; ++id)
             {
                 const auto* human = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-                if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != player) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != player) continue;
                 std::uint32_t position = 0;
                 bool createAnimal = false;
                 const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;

@@ -1,5 +1,9 @@
 # Open Tasks
 
+## Human layout review - 2026-10-13
+
+Named 1148 human scalar/base expressions in 76 sources plus 41 inventory/command strides. Family links, task/atomic state, experience, equipment condition and vehicle-builder workshop references now have Windows-supported names. All affected value/type and syntax checks pass; no build or runtime test occurred. See [HUMAN_LAYOUT_REVIEW.md](HUMAN_LAYOUT_REVIEW.md), [HUMAN_LAYOUT_FIELDS.csv](HUMAN_LAYOUT_FIELDS.csv) and [HUMAN_LAYOUT_ACCESS_MAP.csv](HUMAN_LAYOUT_ACCESS_MAP.csv). Whole-source review remains in progress; next are vehicle records and the remaining engine/GUI/control/data blocks.
+
 ## House layout block reviewed - 2026-10-13
 
 Named 710 house scalar/base expressions in 72 source files, 88 subrecord accesses and 30 native row strides. Construction-good anonymous arrays and static worker/output-stock placeholders now have verified field names; all native structure widths are retained. The fractional stock area (0x220) is distinguished from projected stock (0x328), and 0x7CC is the mission tag. See [HOUSE_LAYOUT_REVIEW.md](HOUSE_LAYOUT_REVIEW.md), [HOUSE_LAYOUT_FIELDS.csv](HOUSE_LAYOUT_FIELDS.csv) and [HOUSE_LAYOUT_ACCESS_MAP.csv](HOUSE_LAYOUT_ACCESS_MAP.csv).

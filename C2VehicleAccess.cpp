@@ -393,13 +393,13 @@ namespace NC2Logic
         if (Read<std::uint8_t>(vehicle, 0x2EC) != 0)
         {
             auto* human = Vehicle_Passengers_GetAttachedCommanderPtr(vehicle);
-            if (Read<std::uint32_t>(human, 0x368) == 1) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::RestartJobExecution, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 1) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::RestartJobExecution, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
         }
         for (std::uint32_t slot = 0; slot < count; ++slot)
         {
             if (!HumanReference_IsAllocated(AddressAt(vehicle, 0x1F0u + slot * 12u))) continue;
             auto* human = Vehicle_Passengers_GetAttachedHumanPtr(vehicle, slot);
-            if (Read<std::uint32_t>(human, 0x368) == 1) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::ChangeJob, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, 0x18), 0);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 1) Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::ChangeJob, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), 0);
         }
     }
 
@@ -454,7 +454,7 @@ namespace NC2Logic
         for (std::uint32_t slot = 0; ; ++slot)
         {
             const void* target = static_cast<const std::byte*>(vehicle) + 0x1F0u + slot * 12u;
-            if (InteractionTargetData_IsValid(target) && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(target, 0) * CHumanArray::ElementSize, 0x18) == 25) return Read<std::int32_t>(target, 0);
+            if (InteractionTargetData_IsValid(target) && Read<std::uint32_t>(CHumanArray::mStaticVars + Read<std::uint32_t>(target, 0) * CHumanArray::ElementSize, NC2Layout::HumanOffset::JobType) == 25) return Read<std::int32_t>(target, 0);
             if (slot + 1u > static_cast<std::uint32_t>(Vehicle_GetVehicleTypeDataPtr(vehicle)->passengerSlots)) return -1;
         }
     }

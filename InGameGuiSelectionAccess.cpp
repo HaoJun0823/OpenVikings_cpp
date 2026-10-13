@@ -104,7 +104,7 @@ namespace NC2InGameGuiInputManager
         {
             if (id == NXBasics::IntegerRange::UInt32Maximum) return;
             const auto* object = Human(id);
-            if (Read<std::uint8_t>(object, 0) == 0 || Read<std::uint32_t>(object, 8) != revision) return;
+            if (Read<std::uint8_t>(object, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(object, NC2Layout::HumanOffset::UniqueId) != revision) return;
             NC2Logic::CCallbackManager::sTheObjectPtr->ExecuteCallback(0xE, true, id, selected ? 3u : 2u, 0);
             if (!selected) static_cast<NC2InGameGuiMessages::CMessageManager*>(NC2InGameGuiMessages::gMessageManager)->Message_RemoveAllForHuman(id);
         }
@@ -317,7 +317,7 @@ namespace NC2InGameGuiInputManager
         {
             switch (Read<std::uint32_t>(object, 0))
             {
-            case SwitchIds::MapObjectUnderCursor::Human: id = Read<std::int32_t>(object, 8); if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
+            case SwitchIds::MapObjectUnderCursor::Human: id = Read<std::int32_t>(object, 8); if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
             case SwitchIds::MapObjectUnderCursor::Animal: id = Read<std::int32_t>(object, 0x10); if (Read<std::uint32_t>(Animal(id), 0x10) == Player()) action = 3; break;
             case SwitchIds::MapObjectUnderCursor::Vehicle: id = Read<std::int32_t>(object, 0x18); if (Read<std::uint32_t>(Vehicle(id), 0x1E0) == Player()) action = 4; break;
             case SwitchIds::MapObjectUnderCursor::House: id = Read<std::int32_t>(object, 0x28); action = 6; break;
@@ -344,7 +344,7 @@ namespace NC2InGameGuiInputManager
                 id = Read<std::int32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
                 switch (Read<std::uint32_t>(moveable, 8))
                 {
-                case SwitchIds::MapMoveableType::Human: if (Read<std::uint32_t>(Human(id), 0x10) == Player()) action = 1; break;
+                case SwitchIds::MapMoveableType::Human: if (Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::PlayerId) == Player()) action = 1; break;
                 case SwitchIds::MapMoveableType::Animal: if (Read<std::uint32_t>(Animal(id), 0x10) == Player() || Read<std::uint32_t>(Animal(id), 0x10) == 20) action = 3; break;
                 case SwitchIds::MapMoveableType::Vehicle: if (Read<std::uint32_t>(Vehicle(id), 0x1E0) == Player() || Read<std::int32_t>(Vehicle(id), 0x1E0) == -1) action = 4; break;
                 default: break;
@@ -440,20 +440,20 @@ namespace NC2InGameGuiInputManager
             if (old == static_cast<std::uint32_t>(id)) return false;
             Selection_UnselectAll(manager); InputMode_Set(manager, 0);
             Write<std::uint32_t>(manager, 4, 2); Write<std::uint32_t>(manager, 0x10, 2);
-            Write(manager, 0x14, old); Write(manager, 0x18, Read<std::uint32_t>(Human(old), 8));
-            Write(manager, 0x1C, id); Write(manager, 0x20, Read<std::uint32_t>(Human(id), 8));
+            Write(manager, 0x14, old); Write(manager, 0x18, Read<std::uint32_t>(Human(old), NC2Layout::HumanOffset::UniqueId));
+            Write(manager, 0x1C, id); Write(manager, 0x20, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId));
             Changed(manager);
-            Inform(0xE, old, Read<std::uint32_t>(Human(old), 8), true);
+            Inform(0xE, old, Read<std::uint32_t>(Human(old), NC2Layout::HumanOffset::UniqueId), true);
         }
         else
         {
             const auto count = Read<std::uint32_t>(manager, 0x10);
             for (std::uint32_t i = 0; i < count; ++i) if (Read<std::int32_t>(manager, 0x14u + i * 8u) == id) return false;
             if (count == 300) return false;
-            Write(manager, 0x14u + count * 8u, id); Write(manager, 0x18u + count * 8u, Read<std::uint32_t>(Human(id), 8)); Write(manager, 0x10, count + 1u);
+            Write(manager, 0x14u + count * 8u, id); Write(manager, 0x18u + count * 8u, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId)); Write(manager, 0x10, count + 1u);
             Changed(manager);
         }
-        Inform(0xE, id, Read<std::uint32_t>(Human(id), 8), true);
+        Inform(0xE, id, Read<std::uint32_t>(Human(id), NC2Layout::HumanOffset::UniqueId), true);
         return true;
     }
 
@@ -494,7 +494,7 @@ namespace NC2InGameGuiInputManager
         bool valid = true;
         switch (mode)
         {
-        case SwitchIds::SelectionType::SingleHuman: valid = IsLive(Human(Read<std::uint32_t>(manager, 8)), Read<std::uint32_t>(manager, 0xC)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10) == Player(); break;
+        case SwitchIds::SelectionType::SingleHuman: valid = IsLive(Human(Read<std::uint32_t>(manager, 8)), Read<std::uint32_t>(manager, 0xC)) && Read<std::uint32_t>(Human(Read<std::uint32_t>(manager, 8)), NC2Layout::HumanOffset::PlayerId) == Player(); break;
         case SwitchIds::SelectionType::MultipleHumans: ValidateGroup(manager, false); return;
         case SwitchIds::SelectionType::SingleAnimal: valid = IsLive(Animal(Read<std::uint32_t>(manager, 0x974)), Read<std::uint32_t>(manager, 0x978)) && Read<std::uint32_t>(Animal(Read<std::uint32_t>(manager, 0x974)), 0x10) == Player(); break;
         case SwitchIds::SelectionType::SingleVehicle: valid = IsLive(Vehicle(Read<std::uint32_t>(manager, 0x97C)), Read<std::uint32_t>(manager, 0x980)) && Read<std::uint32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0) == Player(); break;
@@ -600,14 +600,14 @@ namespace NC2InGameGuiInputManager
             std::uint32_t radius;
             if (displayArea)
             {
-                const auto job = Read<std::uint32_t>(human, 0x18);
+                const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
                 radius = job == 18 || job == 29 ? 10u : 20u; // Game.exe 004F430C/004F4310.
-                source = static_cast<const std::byte*>(human) + 0xB30;
+                source = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter;
             }
             else if (NC2Logic::Human_IsAttachedToWorkHouse(human))
             {
                 radius = NC2Logic::Human_IsJobCarrier(human) ? 43u : 5u; // Game.exe 004F4320/004F4324.
-                source = static_cast<const std::byte*>(House(Read<std::uint32_t>(human, 0xB34))) + 0x24;
+                source = static_cast<const std::byte*>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId))) + 0x24;
             }
             else
             {
@@ -839,8 +839,8 @@ namespace NC2InGameGuiInputManager
         {
             switch (Read<std::uint32_t>(manager, 4))
             {
-            case SwitchIds::SelectionType::SingleHuman: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), 0x10);
-            case SwitchIds::SelectionType::MultipleHumans: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), 0x10);
+            case SwitchIds::SelectionType::SingleHuman: return Read<std::int32_t>(Human(Read<std::uint32_t>(manager, 8)), NC2Layout::HumanOffset::PlayerId);
+            case SwitchIds::SelectionType::MultipleHumans: return Read<std::int32_t>(Human(Selection_GetSelectedMultipleHumanId(manager, 0)), NC2Layout::HumanOffset::PlayerId);
             case SwitchIds::SelectionType::SingleVehicle: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x97C)), 0x1E0);
             case SwitchIds::SelectionType::MultipleVehicles: return Read<std::int32_t>(Vehicle(Read<std::uint32_t>(manager, 0x984) != 0 ? Read<std::uint32_t>(manager, 0x988) : NXBasics::IntegerRange::UInt32Maximum), 0x1E0);
             default: return -1;
@@ -886,7 +886,7 @@ namespace NC2InGameGuiInputManager
     bool Misc_Human_IsEnemyToAttack(const void* manager, std::int32_t id)
     {
         const auto player = SelectedAttackPlayer(manager);
-        return player != -1 && NC2Logic::Human_IsAgeAdult(Human(id)) && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(Human(id), 0x10)) == 3;
+        return player != -1 && NC2Logic::Human_IsAgeAdult(Human(id)) && NC2Logic::Logic_EntryPoint_GetDiplomacyState(player, Read<std::int32_t>(Human(id), NC2Layout::HumanOffset::PlayerId)) == 3;
     }
 
     // Original function: FUN_004b7a38; a group uses its first member for eligibility.
@@ -1200,8 +1200,8 @@ namespace NC2InGameGuiInputManager
                     if (Read<std::uint32_t>(moveable, 8) != 1) continue;
                     const auto humanId = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
                     const auto* human = Human(humanId);
-                    const auto humanJob = Read<std::uint32_t>(human, 0x18);
-                    if (Read<std::uint32_t>(human, 0x10) != Player() || NC2Logic::Human_Misc_IsHidden(human) || (job != 0 && humanJob != job) || (military && humanJob < 42) || humanJob > 47) continue;
+                    const auto humanJob = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
+                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Player() || NC2Logic::Human_Misc_IsHidden(human) || (job != 0 && humanJob != job) || (military && humanJob < 42) || humanJob > 47) continue;
                     NC2E2::S2DEngineDisplaySearchObjectBobData bobs;
                     NC2E2::DrawAtom_MapMoveable_GetBobData(static_cast<std::uint32_t>(id), display, &bobs, Player());
                     std::uint32_t bob = 0;
@@ -1228,9 +1228,9 @@ namespace NC2InGameGuiInputManager
         {
             Selection_UnselectAll(manager); InputMode_Set(manager, 0);
             Write<std::uint32_t>(manager, 4, 2); Write(manager, 0x10, count);
-            for (std::uint32_t i = 0; i < count; ++i) { Write(manager, 0x14u + i * 8u, ids[i]); Write(manager, 0x18u + i * 8u, Read<std::uint32_t>(Human(ids[i]), 8)); }
+            for (std::uint32_t i = 0; i < count; ++i) { Write(manager, 0x14u + i * 8u, ids[i]); Write(manager, 0x18u + i * 8u, Read<std::uint32_t>(Human(ids[i]), NC2Layout::HumanOffset::UniqueId)); }
             Changed(manager);
-            for (std::uint32_t i = 0; i < count; ++i) Inform(0xE, ids[i], Read<std::uint32_t>(Human(ids[i]), 8), true);
+            for (std::uint32_t i = 0; i < count; ++i) Inform(0xE, ids[i], Read<std::uint32_t>(Human(ids[i]), NC2Layout::HumanOffset::UniqueId), true);
         }
         return true;
     }

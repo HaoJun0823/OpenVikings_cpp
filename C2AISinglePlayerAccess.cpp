@@ -64,7 +64,7 @@ namespace NC2Logic
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if (!Human_IsJobWoman(human) || Human_IsAboutToMarry(human)) continue;
-            if (!Human_IsMarried(human)) { Human_DoAddNewUserCommand(human, 14, Read<std::uint8_t>(human, 16), 0, 0, 0, 0); continue; }
+            if (!Human_IsMarried(human)) { Human_DoAddNewUserCommand(human, 14, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, 0, 0); continue; }
             if (!Human_IsAttachedToHomeHouse(human)) continue;
             auto* home = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) * CHouseArray::ElementSize;
             const auto* stats = PlayerStatisticManager_GetCurrentStatistics(gPlayerStatisticManager, Read<std::uint32_t>(handler, 0));
@@ -76,10 +76,10 @@ namespace NC2Logic
             if (!Human_IsAbleToGetPregnant(human) || House_Stock_RequestAmountOfGoods(home, 16, false) < 3) continue;
             if (static_cast<std::int32_t>(workers) / 3 > Read<std::uint16_t>(stats, 8))
             {
-                Human_DoAddNewUserCommand(human, 16, Read<std::uint8_t>(human, 16), 0, 0, 0, 0);
+                Human_DoAddNewUserCommand(human, 16, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, 0, 0);
                 return;
             }
-            Human_DoAddNewUserCommand(human, 15, Read<std::uint8_t>(human, 16), 0, 0, 0, 0);
+            Human_DoAddNewUserCommand(human, 15, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, 0, 0);
         }
     }
     // Original function: FUN_0045b7ea.

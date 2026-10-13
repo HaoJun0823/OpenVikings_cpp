@@ -65,7 +65,7 @@ namespace NC2Logic
     void Human_l_FailTask_GoHome(void* human)
     {
         Human_StopWaitingForOtherHuman_Detach(human);
-        Human_DoAddNewUserCommand(human, 6, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+        Human_DoAddNewUserCommand(human, 6, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
     }
 
     // Original function: FUN_00445ce7; callback is retained even for empty cargo.
@@ -75,7 +75,7 @@ namespace NC2Logic
         if (failure != 7 && failure != 11) return;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); }
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
-        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
     }
 
     namespace
@@ -119,7 +119,7 @@ namespace NC2Logic
 
     namespace
     {
-        void* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 0x0C) * NC2Layout::RecordSize::MapMoveable; }
+        void* Moveable(const void* human) { return gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable; }
         const void* Position(const void* human) { return Human_GetMapPositionRef(human); }
 
         struct NearbyPoints { NearbyPoints() { SearchNearbyMapPoints_ConstructMembers(this); } std::uint32_t count = 0; std::uint32_t points[8]; };
@@ -152,9 +152,9 @@ namespace NC2Logic
         void SetHumanTarget(void* human, const void* other)
         {
             Human_Target_SetTargetPositions(human, Position(other), Position(human));
-            Write<std::uint32_t>(human, 0xA68, 7);
-            Write(human, 0xA7C, Read<std::uint32_t>(other, 4));
-            Write(human, 0xA80, Read<std::uint32_t>(other, 8));
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 7);
+            Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(other, 4));
+            Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(other, 8));
         }
     }
 
@@ -169,19 +169,19 @@ namespace NC2Logic
     bool Human_IsDoingGoodie(const void* human) { const auto task = Read<std::int32_t>(human, NC2Layout::HumanOffset::CurrentTask); return task >= 24 && task <= 29; }
 
     // Original function: FUN_0042d00a.
-    void Human_Target_SetWorkPosition(void* human, const void* position) { Write(human, 0xA70, Read<std::uint32_t>(position, 0)); }
+    void Human_Target_SetWorkPosition(void* human, const void* position) { Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(position, 0)); }
 
     // Original function: FUN_0042cf55.
     std::uint32_t Human_Target_GetDirectionTo(const void* human)
     {
-        return VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(human, 0xA70), Read<std::int16_t>(human, 0xA72), Read<std::int16_t>(human, NC2Layout::HumanOffset::TargetPosition), Read<std::int16_t>(human, 0xA6E), false);
+        return VE_HexagonDirection_GetDirectionFromPositions(Read<std::int16_t>(human, NC2Layout::HumanOffset::TargetWorkPositionX), Read<std::int16_t>(human, NC2Layout::HumanOffset::TargetWorkPositionY), Read<std::int16_t>(human, NC2Layout::HumanOffset::TargetPositionX), Read<std::int16_t>(human, NC2Layout::HumanOffset::TargetPositionY), false);
     }
 
     // Original function: FUN_0042cf88; both positions are stored before house lookup.
     void Human_Target_SetTargetPositions(void* human, const void* realPosition, const void* workPosition)
     {
         Write(human, NC2Layout::HumanOffset::TargetPosition, Read<std::uint32_t>(realPosition, 0));
-        Write(human, 0xA70, Read<std::uint32_t>(workPosition, 0));
+        Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(workPosition, 0));
         const auto id = Logic_EntryPoint_House_GetOnPosition(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition);
         if (id != -1)
         {
@@ -200,8 +200,8 @@ namespace NC2Logic
     // Original function: FUN_00443d74; verified from PE bytes after a misdecoded table.
     bool Human_StartWaitingForOtherHuman(void* human)
     {
-        const auto count = Read<std::uint32_t>(human, 0x378) + 1u;
-        Write(human, 0x378, count);
+        const auto count = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WaitingHumanCount) + 1u;
+        Write(human, NC2Layout::HumanOffset::WaitingHumanCount, count);
         if (static_cast<std::int32_t>(count) >= 10) return false;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask) == 1)
         {
@@ -236,41 +236,41 @@ namespace NC2Logic
     // Original function: FUN_00441a39.
     bool Human_HouseMisc_Leave(void* human)
     {
-        if (Read<std::uint8_t>(human, 0xB50) == 0) return false;
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag) == 0) return false;
         Write<std::uint32_t>(Moveable(human), 0x20, 2);
-        Write<std::uint8_t>(human, 0xB50, 0);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag, 0);
         return true;
     }
 
     // Original function: FUN_00441a63; forced house exit is distinct from animation-driven Leave.
     void Human_HouseMisc_Exit(void* human)
     {
-        if (Read<std::uint32_t>(human, 0xAB8) != 1)
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction) != 1)
         {
             Human_l_ResetAtomic(human);
             Human_CurrentTask_DoInterrupt(human);
             Write<std::uint8_t>(human, 0xA61, 1);
-            Write<std::uint8_t>(human, 0xA60, 1);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::UserCommandActiveFlag, 1);
             Human_AI_DoUpdateTaskMachine(human);
             Write<std::uint32_t>(Moveable(human), 0x20, 2);
         }
-        Write<std::uint8_t>(human, 0xB50, 0);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::InsideHouseFlag, 0);
     }
 
     // Original function: FUN_0045c82f.
     bool Human_l_StartAtomicWalk(void* human, const void* realPosition, const void* workPosition)
     {
         if (!Human_l_IsAtomicInterruptable(human)) return false;
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4))) return false;
+            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
         }
         if (Read<std::uint32_t>(Position(human), 0) == Read<std::uint32_t>(workPosition, 0))
         {
-            Write<std::uint8_t>(human, 0xABC, 0);
-            Write<std::uint32_t>(human, 0xAB8, 1);
+            Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction, 1);
             Human_Target_SetTargetPositions(human, realPosition, workPosition);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 2);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
@@ -280,8 +280,8 @@ namespace NC2Logic
         const auto useSectors = Human_UsesExtendedPathfinder(human);
         // Windows 004F4300/004F4304: normal/carrier search radii 50/63.
         if (!MapMoveable_Pathfinder_Start(Moveable(human), workPosition, Human_IsJobCarrier(human) ? 63u : 50u, true, useSectors, true)) return false;
-        Write<std::uint8_t>(human, 0xABC, 0);
-        Write<std::uint32_t>(human, 0xAB8, 1);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction, 1);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 2);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
         Human_Target_SetTargetPositions(human, realPosition, workPosition);
@@ -296,15 +296,15 @@ namespace NC2Logic
     {
         if (!Human_l_IsAtomicInterruptable(human)) return false;
         const auto useSectors = Human_UsesExtendedPathfinder(human);
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             const auto kind = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
-            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, 4))) return false;
+            if (((kind == 3 || kind == 4) && Read<std::uint8_t>(vehicle, 0x1D0) == 0) || !Vehicle_Passengers_MoveOut_h(vehicle, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId))) return false;
         }
         if (!MapMoveable_Pathfinder_Start(Moveable(human), moveableId, static_cast<std::int32_t>(distance), Human_IsJobCarrier(human) ? 63u : 50u, true, useSectors, true)) return false;
-        Write<std::uint8_t>(human, 0xABC, 0);
-        Write<std::uint32_t>(human, 0xAB8, 1);
+        Write<std::uint8_t>(human, NC2Layout::HumanOffset::AtomicAnimationRunningFlag, 0);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction, 1);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 2);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
         const void* micro = GameMap_GetConstMapMicroPointPtr(Position(human));
@@ -338,7 +338,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Position(human), 1); id != -1; id = iterator.GetNextHumanId())
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Human_Misc_IsHidden(other)) continue;
+            if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other)) continue;
             if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
             // Windows retains one candidate and still consumes random % 1.
             Game_Random_GetNumber();
@@ -354,7 +354,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Position(human), 10); id != -1; id = iterator.GetNextHumanId())
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Human_Misc_IsHidden(other)) continue;
+            if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other)) continue;
             if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
             Game_Random_GetNumber();
             return other;
@@ -369,7 +369,7 @@ namespace NC2Logic
         {
             if (Human_UserControl_GetLastCommandType(human) == 11)
             {
-                const auto task = Read<std::int32_t>(human, 0x39Cu + Read<std::uint32_t>(human, 0xA5C) * 20u);
+                const auto task = Read<std::int32_t>(human, 0x39Cu + Read<std::uint32_t>(human, NC2Layout::HumanOffset::LastUserCommandIndex) * 20u);
                 Write<std::int32_t>(human, NC2Layout::HumanOffset::CurrentTask, task >= 24 && task <= 29 ? task : 24);
             }
             Write<std::uint8_t>(human, 0x444, 0);
@@ -468,7 +468,7 @@ namespace NC2Logic
         if (Human_FindPlaceToSleep(human, &realPosition, &workPosition) && Human_l_StartAtomicWalk(human, &realPosition, &workPosition))
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 27);
-            Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 27, 0);
+            Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 27, 0);
             return;
         }
         Human_l_StartAtomicAnimation(human, 5, -1);
@@ -506,7 +506,7 @@ namespace NC2Logic
             if (Human_l_StartAtomicWalk(human, point, point))
             {
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 29);
-                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 2) Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 29, 0);
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 2) Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 29, 0);
                 return;
             }
         }
@@ -534,10 +534,10 @@ namespace NC2Logic
         if (other != nullptr && Human_StartWaitingForOtherHuman(other))
         {
             Human_StopWaitingForOtherHuman(other);
-            if (Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, 0x0C), 1))
+            if (Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, NC2Layout::HumanOffset::MapMoveableId), 1))
             {
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 28);
-                Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 28, 0);
+                Human_DoAddNewUserCommand(human, 11, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 28, 0);
                 return;
             }
         }
@@ -566,7 +566,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Position(human), 1); id != -1; id = iterator.GetNextHumanId())
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
+            if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
             if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
             // Windows retains one candidate and still consumes random % 1.
             Game_Random_GetNumber();
@@ -582,7 +582,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Position(human), 10); id != -1; id = iterator.GetNextHumanId())
         {
             void* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
+            if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Human_Misc_IsHidden(other) || !Human_IsAgeAdult(other)) continue;
             if (Read<std::uint32_t>(Position(other), 0) == Read<std::uint32_t>(Position(human), 0) || !Human_IsAbleToListenNow(other)) continue;
             Game_Random_GetNumber();
             return other;

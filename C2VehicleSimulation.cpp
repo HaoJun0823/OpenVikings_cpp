@@ -416,14 +416,14 @@ namespace NC2Logic
             auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(slot, 0) * CHumanArray::ElementSize;
             if (Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) != continent)
             {
-                Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::DetachVehicle, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+                Human_DoAddNewUserCommand(human, SwitchIds::UserCommand::DetachVehicle, Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
                 continue;
             }
             inside = false;
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) == 0)
             {
-                Write(command, 4, Read<std::uint32_t>(human, 4));
-                Write(command, 8, Read<std::uint32_t>(human, 8));
+                Write(command, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
+                Write(command, 8, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
                 Human_DoAddNewUserCommand(human, command);
                 Write<std::uint32_t>(vehicle, 0x1C8, 3);
             }

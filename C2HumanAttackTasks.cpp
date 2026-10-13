@@ -35,7 +35,7 @@ namespace NC2Logic
     namespace
     {
         const void* Position(const void* human) { return Human_GetMapPositionRef(human); }
-        const SStaticWeaponTypeData& Weapon(const void* human) { return static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)])[Read<std::uint32_t>(human, 0xAE4)]; }
+        const SStaticWeaponTypeData& Weapon(const void* human) { return static_cast<const SStaticWeaponTypeData*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)])[Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon)]; }
         std::uint32_t Distance(const void* first, const void* second) { return static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(first, 0), Read<std::int16_t>(first, 2), Read<std::int16_t>(second, 0), Read<std::int16_t>(second, 2))); }
         void* Human(std::uint32_t id) { return CHumanArray::mStaticVars + id * CHumanArray::ElementSize; }
         const void* Moveable(std::int32_t id) { return gMapMoveableArrayStorage.entries + static_cast<std::intptr_t>(id) * NC2Layout::RecordSize::MapMoveableSigned; }
@@ -44,10 +44,10 @@ namespace NC2Logic
             CMapMoveableIterator iterator;
             for (auto id = iterator.GetFirstMapMoveableId(point); id != -1; id = iterator.GetNextMapMoveableId())
             {
-                if (id == Read<std::int32_t>(human, 12) || Read<std::uint32_t>(Moveable(id), 8) != 1) continue;
+                if (id == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) || Read<std::uint32_t>(Moveable(id), 8) != 1) continue;
                 const auto* other = Human(Read<std::uint32_t>(Moveable(id), 0x54));
                 if (soldiersOnly && !Human_IsJobSoldier(other) && !(includeHeroes && Human_IsJobHero(other))) continue;
-                if (Read<std::uint32_t>(other, 0x10) == Read<std::uint32_t>(human, 0x10) && Read<std::uint32_t>(other, 0xAB8) == 81) return true;
+                if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) && Read<std::uint32_t>(other, NC2Layout::HumanOffset::AtomicAction) == 81) return true;
             }
             return false;
         }
@@ -267,7 +267,7 @@ namespace NC2Logic
                     auto replacement = Read<std::uint32_t>(center, 0);
                     Tool_Map_GetNotBlockedPosition(&replacement, false);
                     Write(center, 0, replacement);
-                    Write<std::uint32_t>(human, 0x38C, 0);
+                    Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
                     Human_WorkCenterMarker_Update(human);
                     return;
                 }

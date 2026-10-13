@@ -87,9 +87,9 @@ namespace NC2Logic
         else if (attackerType == 1)
         {
             const auto* human = Human(attackerId);
-            action.attackerRevision = Read<std::uint32_t>(human, 8);
-            action.player = Read<std::uint32_t>(human, 0x10);
-            action.tribe = Read<std::uint32_t>(human, 0x14);
+            action.attackerRevision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId);
+            action.player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
+            action.tribe = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType);
             action.sourcePosition = MapMigPoint_GetLong(Human_GetMapPositionRef(human));
         }
         else return false;
@@ -141,8 +141,8 @@ namespace NC2Logic
             switch (Read<std::uint32_t>(moveable, 8))
             {
             case SwitchIds::MapMoveableType::Human:
-                if ((Read<std::uint32_t>(Human(object), 0x10) == action->player && weapon.hitSelf == 0) || Human_Misc_IsHidden(Human(object))) break;
-                if (!Add(targets, 1, Read<std::uint32_t>(Human(object), 4))) return;
+                if ((Read<std::uint32_t>(Human(object), NC2Layout::HumanOffset::PlayerId) == action->player && weapon.hitSelf == 0) || Human_Misc_IsHidden(Human(object))) break;
+                if (!Add(targets, 1, Read<std::uint32_t>(Human(object), NC2Layout::HumanOffset::HumanId))) return;
                 break;
             case SwitchIds::MapMoveableType::Animal: if (!Add(targets, 3, Read<std::uint32_t>(Animal(object), 4))) return; break;
             case SwitchIds::MapMoveableType::Vehicle:
@@ -233,7 +233,7 @@ namespace NC2Logic
         if (hit && action->attackerType == 1)
         {
             auto* human = Human(action->attackerId);
-            if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == action->attackerRevision) Human_GainExperienceForWeapon(human, action->weapon, 1);
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == action->attackerRevision) Human_GainExperienceForWeapon(human, action->weapon, 1);
         }
         else if (hit && action->attackerType == 2)
         {

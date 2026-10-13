@@ -52,7 +52,7 @@ namespace NC2InGameGuiSelectedAction
             if (id != -1)
             {
                 void* human = NC2Logic::CHumanArray::mStaticVars + id * NC2Logic::CHumanArray::ElementSize;
-                if (Read<std::uint8_t>(human, 0) != 0 && NC2Logic::Human_IsJobTrader(human)) return human;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && NC2Logic::Human_IsJobTrader(human)) return human;
             }
             Close(window); return nullptr;
         }
@@ -82,7 +82,7 @@ namespace NC2InGameGuiSelectedAction
             for (std::uint32_t slot = 0; slot < 2; ++slot)
             {
                 const void* data = NC2Logic::MerchantData_GetHouseDataPtr(merchant, slot);
-                if (NC2Logic::MerchantHouseData_IsValid(data) && Read<std::uint32_t>(House(Read<std::int32_t>(data, 0)), NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, 0x10)) return House(Read<std::int32_t>(data, 0));
+                if (NC2Logic::MerchantHouseData_IsValid(data) && Read<std::uint32_t>(House(Read<std::int32_t>(data, 0)), NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) return House(Read<std::int32_t>(data, 0));
             }
             return nullptr;
         }
@@ -221,7 +221,7 @@ namespace NC2InGameGuiSelectedAction
                 void* merchant = Merchant(human);
                 if (human == nullptr || (command != 10000 && (merchant == nullptr || !l_Merchant_IsRouteValid(window)))) { if (command == 10200) Close(window); return true; }
                 std::byte network[20]{};
-                Write(network, 4, Read<std::uint32_t>(human, 4));
+                Write(network, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId));
                 if (command == 10000) Write<std::uint8_t>(network, 0, 49);
                 else if (command == 10200) { Write<std::uint8_t>(network, 0, 51); Write(network, 12, param2); }
                 else
@@ -233,7 +233,7 @@ namespace NC2InGameGuiSelectedAction
                     Write<std::uint8_t>(network, 0, 50); Write(network, 12, Read<std::uint32_t>(house, 4) | (param2 << 16u) | (enabled ? 0x1000000u : 0u)); Write(network, 16, Read<std::uint32_t>(house, 8));
                 }
                 NC2Logic::UserNetworkCommand_AddHumanCommand(NC2Logic::gUserNetworkCommandManager, network);
-                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(human, 4));
+                NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, Read<std::int32_t>(human, NC2Layout::HumanOffset::HumanId));
                 if (command == 10200) Close(window);
             }
             else if (command == 2030)
@@ -273,7 +273,7 @@ namespace NC2InGameGuiSelectedAction
             NC2InGameGuiSelection::SelectionTool_FillRectangle(bitmap, bitmap->GetRectangle(), 1);
             const auto& resources = NC2GuiToolsBase::CGuiBaseDataManager::mStaticVars.resources;
             const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(reinterpret_cast<const std::byte*>(resources.fontWhitePalette) + 0x400);
-            if (const void* human = l_Merchant_GetHumanPtr(window)) bitmap->Text_Print(resources.font10, color, 8, 24, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, 4) * 0x8C8u + 0x85C);
+            if (const void* human = l_Merchant_GetHumanPtr(window)) bitmap->Text_Print(resources.font10, color, 8, 24, reinterpret_cast<const char*>(NC2E2::gDynamicDataHumans.entries) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) * 0x8C8u + 0x85C);
             for (std::uint32_t row = 0; row < 2; ++row)
                 if (const void* house = l_Merchant_GetHousePtr(window, row, nullptr))
                 {

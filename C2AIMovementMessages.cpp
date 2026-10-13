@@ -54,8 +54,8 @@ namespace NC2Logic
                 const auto* inhabitant = House_Inhabitants_GetAttachedHumanSlotPtrBySlotId(house, slot);
                 if (Read<std::uint8_t>(inhabitant, 0) == 0) continue;
                 auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(inhabitant, 4) * CHumanArray::ElementSize;
-                if (Read<std::int32_t>(human, 24) != job) continue;
-                Human_DoAddNewUserCommand(human, 29, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 16)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+                if (Read<std::int32_t>(human, NC2Layout::HumanOffset::JobType) != job) continue;
+                Human_DoAddNewUserCommand(human, 29, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
                 break;
             }
         }
@@ -65,9 +65,9 @@ namespace NC2Logic
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || !Human_IsJobSoldier(human)) continue;
-            const auto job = Read<std::uint32_t>(human, 24);
+            const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
             if (flags[job] == std::byte{0}) continue;
-            Human_DoAddNewUserCommand(human, 28, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+            Human_DoAddNewUserCommand(human, 28, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId), Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
             flags[job] = std::byte{0}; changed = true;
         }
         return changed;
@@ -190,19 +190,19 @@ namespace NC2Logic
     {
         auto* soldier = Soldier(handler, slot);
         const auto* enemy = CHumanArray::mStaticVars + target * CHumanArray::ElementSize;
-        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 1 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, 8) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
+        if (Read<std::uint32_t>(soldier, 0x34) == 14 && Read<std::uint32_t>(soldier, 0x48) == 1 && Read<std::uint32_t>(soldier, 0x50) == Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId) && Read<std::uint8_t>(soldier, 0x44) == static_cast<std::uint8_t>(defence)) return true;
         auto* human = const_cast<void*>(GetHumanPtr(NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(soldier, 0))));
-        const auto player = Read<std::uint32_t>(enemy, 0x10);
+        const auto player = Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::PlayerId);
         GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), player, 3);
         alignas(4) std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 43);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)));
         Write(command, 0xC, target);
-        Write(command, 0x10, Read<std::uint32_t>(enemy, 8));
+        Write(command, 0x10, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Human_DoAddNewUserCommand(human, command);
         Write<std::uint32_t>(soldier, 0x34, 14);
         Write(soldier, 0x4C, target);
-        Write(soldier, 0x50, Read<std::uint32_t>(enemy, 8));
+        Write(soldier, 0x50, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Write<std::uint32_t>(soldier, 0x48, 1);
         if (defence) AISinglePlayerHandler_l_SingleSoldier_StartSelfDefenceMode(handler, slot);
         else Write<std::uint8_t>(soldier, 0x44, 0);
@@ -424,17 +424,17 @@ namespace NC2Logic
         auto* entry = static_cast<std::byte*>(handler) + 0x5CB8u + slot * 0x1Cu;
         auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(entry, 0) * CVehicleArray::ElementSize;
         auto* enemy = CHumanArray::mStaticVars + target * CHumanArray::ElementSize;
-        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, 16), 3);
+        GameControl_Diplomacy_SetState(gGameControl, nullptr, Read<std::uint32_t>(handler, 0), Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::PlayerId), 3);
         std::byte command[20]{};
         Write<std::uint8_t>(command, 0, 104);
         Write<std::uint8_t>(command, 1, static_cast<std::uint8_t>(Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::PlayerId)));
         Write(command, 4, Read<std::uint32_t>(vehicle, 4));
         Write(command, 8, Read<std::uint32_t>(vehicle, 8));
         Write(command, 12, target);
-        Write(command, 16, Read<std::uint32_t>(enemy, 8));
+        Write(command, 16, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Vehicle_DoAddNewUserCommand(vehicle, command);
         Write<std::uint32_t>(entry, 12, 1);
-        Write(entry, 24, Read<std::uint32_t>(enemy, 8));
+        Write(entry, 24, Read<std::uint32_t>(enemy, NC2Layout::HumanOffset::UniqueId));
         Write(entry, 20, target);
         Write<std::uint32_t>(entry, 16, 1);
         return true;

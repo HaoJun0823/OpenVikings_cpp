@@ -26,9 +26,9 @@ namespace NC2Logic
     using namespace NC2Lifetime;
     namespace
     {
-        void Fail(void* human) { Write<std::uint32_t>(human, 0x374, 0); Write<std::uint32_t>(human, 0x36C, 3); }
-        const void* RealTarget(const void* human) { return static_cast<const std::byte*>(human) + 0xA6C; }
-        const void* WorkTarget(const void* human) { return static_cast<const std::byte*>(human) + 0xA70; }
+        void Fail(void* human) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); }
+        const void* RealTarget(const void* human) { return static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition; }
+        const void* WorkTarget(const void* human) { return static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition; }
     }
 
     // Original function: FUN_0043d34b.
@@ -45,7 +45,7 @@ namespace NC2Logic
         Human_Target_SetTargetPositions(human, point, &work);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 2);
-        Write<std::uint32_t>(human, 0xA74, landscape);
+        Write<std::uint32_t>(human, NC2Layout::HumanOffset::TargetLandscapeType, landscape);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 1);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, 18);
         return 2;
@@ -56,7 +56,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0)
         {
-            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(RealTarget(human)), 0);
+            Human_DoAddNewUserCommand(human, 18, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), MapMigPoint_GetLong(RealTarget(human)), 0);
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0) { Human_StopCurrentGoodCirculationMode(human); Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0); }
             Human_l_StartTask_Tool_DropCarriedGoodNearby_Remember(human);
             return;
@@ -68,11 +68,11 @@ namespace NC2Logic
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
             return;
         }
-        const auto landscape = Read<std::uint32_t>(human, 0xA74);
+        const auto landscape = Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetLandscapeType);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 64);
         if (!Human_l_StartAtomicWalkAndFetch(human, RealTarget(human), WorkTarget(human), true)) { Fail(human); return; }
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 2);
-        Write(human, 0xA74, landscape);
+        Write(human, NC2Layout::HumanOffset::TargetLandscapeType, landscape);
     }
 
     // Original function: FUN_0043b00c; enable the good and its Windows producer job.
@@ -163,7 +163,7 @@ namespace NC2Logic
     void Human_l_PerformTaskEvent_OpenChest(void* human)
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 0) Human_Target_Reset(human);
-        if (!Human_Target_IsValid(human) || !Tool_MapChest_UseChest(Read<std::uint32_t>(human, 4), RealTarget(human))) Fail(human);
+        if (!Human_Target_IsValid(human) || !Tool_MapChest_UseChest(Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), RealTarget(human))) Fail(human);
         else
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);

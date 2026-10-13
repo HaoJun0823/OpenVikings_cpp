@@ -194,7 +194,7 @@ namespace NC2Logic
         case SwitchIds::InteractionTargetType::Human:
         {
             const auto* human = CHumanArray::mStaticVars + Read<std::uint32_t>(target, 0x14) * CHumanArray::ElementSize;
-            if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(target, 0x18) != Read<std::uint32_t>(human, 8)) return false;
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(target, 0x18) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)) return false;
             return Read<std::uint32_t>(target, 4) == Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);
         }
         case SwitchIds::InteractionTargetType::Animal:

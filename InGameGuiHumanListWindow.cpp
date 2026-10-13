@@ -98,7 +98,7 @@ namespace NC2InGameGuiMiscWindows
         auto* input = NC2InGameGuiInputManager::gInputManager;
         if (command == 10000 || command == 10001)
         {
-            const auto* human = Human(data); if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != revision) return true;
+            const auto* human = Human(data); if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != revision) return true;
             if (Modifiers() & 1u) { NC2InGameGuiInputManager::Selection_SelectAddSingleHuman(input, data); return true; }
             if (Modifiers() & 2u) NC2InGameGuiInputManager::UnSelect_Human(input, data); else NC2InGameGuiInputManager::Selection_SelectSingleHuman(input, data);
             if ((Modifiers() & 2u) == 0) NC2InGameGuiEntryPoints::C2IGG_EntryPoint_MainDisplay_SetToMapPosition(Human_GetMapPositionRef(human));
@@ -151,30 +151,30 @@ namespace NC2InGameGuiMiscWindows
             if (Filter(3) && !Human_IsJobSoldier(human)) continue;
             if (Filter(4) && !Human_IsJobHero(human)) continue;
             if (Filter(5) && (!Human_IsSexMale(human) || !Human_IsAgeAdult(human) || Human_IsJobSoldier(human) || Human_IsJobHero(human) || Human_UserControl_GetNextJobType(human) == 6)) continue;
-            if (Filter(6) && (Read<std::uint32_t>(human, 0xB28) != NXBasics::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human))) continue;
+            if (Filter(6) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId) != NXBasics::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human))) continue;
             if (Filter(7))
             {
                 if (!Human_IsSexMale(human) || !Human_IsAgeAdult(human) || Human_IsJobSoldier(human) || Human_IsJobHero(human)) continue;
                 const auto good = Human_GetEquipmentType_Tool(human);
-                const auto percentage = good == 31 || good == 32 ? NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, 0xAE0) * 100u) / 10000 : 0;
+                const auto percentage = good == 31 || good == 32 ? NXBasics::Runtime_TimeSigned32(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ToolCondition) * 100u) / 10000 : 0;
                 if (percentage > 0) continue;
             }
-            if (Filter(8) && (Read<std::uint32_t>(human, 0xB20) != NXBasics::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human) || !Human_IsAgeAdult(human))) continue;
+            if (Filter(8) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::SpouseId) != NXBasics::IntegerRange::UInt32Maximum || Human_IsJobSoldier(human) || Human_IsJobHero(human) || !Human_IsAgeAdult(human))) continue;
             if (Filter(9) || Filter(10)) continue;
-            if (Filter(11) && (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint32_t>(human, 0xB24) != NXBasics::IntegerRange::UInt32Maximum)) continue;
+            if (Filter(11) && (!Human_IsAgeAdult(human) || !Human_IsSexFemale(human) || Human_IsJobHero(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::ChildId) != NXBasics::IntegerRange::UInt32Maximum)) continue;
             if (Filter(12) && (!Human_IsAgeAdult(human) || Human_IsJobHero(human) || Human_HasEquippedShoes(human))) continue;
-            if (Filter(13) && (!Human_IsAgeAdult(human) || !Human_IsJobSoldier(human) || Human_IsJobHero(human) || Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 0x14)], Read<std::uint32_t>(human, 0xAE4) * 0xC4u + 0x24) != 0)) continue;
+            if (Filter(13) && (!Human_IsAgeAdult(human) || !Human_IsJobSoldier(human) || Human_IsJobHero(human) || Read<std::uint32_t>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)], Read<std::uint32_t>(human, NC2Layout::HumanOffset::EquippedWeapon) * 0xC4u + 0x24) != 0)) continue;
             const auto job = Read<std::uint32_t>(gHumanListWindowStatics, 0x10), possible = Read<std::uint32_t>(gHumanListWindowStatics, 0x14);
-            if (job != 0 && Read<std::uint32_t>(human, 0x18) != job) continue;
-            if (possible != 0 && Read<std::uint32_t>(human, 0x18) != possible && (!Human_UserControl_CanChangeJob(human) || !Human_IsAllowedToDoJob(human, possible) || !Human_IsAbleToDoJob(human, possible))) continue;
+            if (job != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != job) continue;
+            if (possible != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != possible && (!Human_UserControl_CanChangeJob(human) || !Human_IsAllowedToDoJob(human, possible) || !Human_IsAbleToDoJob(human, possible))) continue;
             ids[count++] = id; if (count == 500) break;
         }
         if (count > 1) for (auto end = static_cast<std::int32_t>(count) - 1; end >= 0; --end) for (std::int32_t index = 0; index < end; ++index) if (HumanListWindow_ls_HumanSortFunction(ids[index], ids[index + 1])) { const auto old = ids[index]; ids[index] = ids[index + 1]; ids[index + 1] = old; }
         bool same = Read<std::uint32_t>(window, 0x70) == count;
-        if (same) for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(window, 0x74u + index * 8u) != ids[index] || Read<std::uint32_t>(window, 0x78u + index * 8u) != Read<std::uint32_t>(Human(ids[index]), 8)) { same = false; break; }
+        if (same) for (std::uint32_t index = 0; index < count; ++index) if (Read<std::uint32_t>(window, 0x74u + index * 8u) != ids[index] || Read<std::uint32_t>(window, 0x78u + index * 8u) != Read<std::uint32_t>(Human(ids[index]), NC2Layout::HumanOffset::UniqueId)) { same = false; break; }
         if (same) return false;
         Write(window, 0x70, count);
-        for (std::uint32_t index = 0; index < count; ++index) { Write(window, 0x74u + index * 8u, ids[index]); Write(window, 0x78u + index * 8u, Read<std::uint32_t>(Human(ids[index]), 8)); }
+        for (std::uint32_t index = 0; index < count; ++index) { Write(window, 0x74u + index * 8u, ids[index]); Write(window, 0x78u + index * 8u, Read<std::uint32_t>(Human(ids[index]), NC2Layout::HumanOffset::UniqueId)); }
         return true;
     }
     // Original function: FUN_004b106f.
@@ -189,13 +189,13 @@ namespace NC2InGameGuiMiscWindows
     static void* HumanListButton_Construct(void* element, const NXBasics::SRectangle* rectangle, std::uint32_t human, std::uint32_t pressed, std::uint32_t doubleClicked, void* handler, bool debug)
     {
         BaseToolElement_Construct(element, rectangle, 3, 0x120); std::memset(static_cast<std::byte*>(element) + 0x30, 0, 24); Write(element, 0, gHumanListButtonVirtualTable.data());
-        Write(element, 0x30, human); Write(element, 0x34, Read<std::uint32_t>(Human(human), 8)); Write(element, 0x38, pressed); Write(element, 0x3C, doubleClicked); Write(element, 0x40, handler); Write<std::uint8_t>(element, 0x44, debug); return element;
+        Write(element, 0x30, human); Write(element, 0x34, Read<std::uint32_t>(Human(human), NC2Layout::HumanOffset::UniqueId)); Write(element, 0x38, pressed); Write(element, 0x3C, doubleClicked); Write(element, 0x40, handler); Write<std::uint8_t>(element, 0x44, debug); return element;
     }
     // Original function: FUN_004b1729.
     static bool HumanListButton_l_ValidateHuman(void* element)
     {
         const auto id = Read<std::uint32_t>(element, 0x30); if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
-        const auto* human = Human(id); if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(element, 0x34)) return true;
+        const auto* human = Human(id); if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(element, 0x34)) return true;
         Write<std::uint32_t>(element, 0x30, NXBasics::IntegerRange::UInt32Maximum); Write<std::uint32_t>(element, 0x34, 0); return false;
     }
     // Original function: FUN_004b1691; 0x100 messages are forwarded to the parent list.
@@ -226,36 +226,36 @@ namespace NC2InGameGuiMiscWindows
         DrawTool_FillArea(element, bitmap, rectangle, mode); DrawTool_DrawFrame(element, bitmap, rectangle, mode);
         if (!HumanListButton_l_ValidateHuman(element)) return;
         const auto id = Read<std::uint32_t>(element, 0x30); const auto* human = Human(id);
-        NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, 0xC), bitmap, Read<std::int32_t>(element, 0xC) - 30, Read<std::int32_t>(element, 0x10) - 4, nullptr, true, -1);
+        NC2E2::DrawAtom_MapMoveable_DoDraw(Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), bitmap, Read<std::int32_t>(element, 0xC) - 30, Read<std::int32_t>(element, 0x10) - 4, nullptr, true, -1);
         const auto& resources = CGuiBaseDataManager::mStaticVars.resources;
         const auto* color = reinterpret_cast<const NXBasics::SColorRGB*>(static_cast<const std::byte*>(static_cast<const void*>(resources.fontWhitePalette)) + 0x400);
         bitmap->Text_Print(resources.font10, color, 4, 4, Name(id));
         char caption[200]{};
         if (Human_IsJobHero(human)) std::strcat(caption, CGuiBaseStringsManager::GetStringPtr(7, 120));
-        else if (Read<std::uint32_t>(human, 0x14) == 2 && Read<std::uint32_t>(human, 0x18) == 47) std::strcat(caption, CGuiBaseStringsManager::GetStringPtr(12, 31));
-        else std::strcat(caption, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, 0x18), 1));
-        if (Read<std::uint32_t>(human, 0x1C) != 0) { std::strcat(caption, " ("); std::strcat(caption, NC2Logic::Human_GetReallyProducedGoodType_GetGuiNamePtr(human)); std::strcat(caption, ")"); }
-        if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && !Human_IsJobHero(human) && !(Read<std::uint32_t>(human, 0x14) == 3 && Read<std::uint32_t>(human, 0x18) == 32))
+        else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 2 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 47) std::strcat(caption, CGuiBaseStringsManager::GetStringPtr(12, 31));
+        else std::strcat(caption, StringAccess_GetJobNamePtr(Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), 1));
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) != 0) { std::strcat(caption, " ("); std::strcat(caption, NC2Logic::Human_GetReallyProducedGoodType_GetGuiNamePtr(human)); std::strcat(caption, ")"); }
+        if (Human_IsAgeAdult(human) && Human_IsSexMale(human) && !Human_IsJobHero(human) && !(Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) == 3 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 32))
         {
             char detail[100];
             if (Human_IsJobSoldier(human)) NXBasics::Runtime_PrintString(detail, " - %s: %d%%", CGuiBaseStringsManager::GetStringPtr(7, 83), Human_Tool_Gui_GetExperienceForEquippedWeapon(human));
             else NXBasics::Runtime_PrintString(detail, " - %s: %d%%", Text(40), Human_JobEfficiency_CalculateExperienceFactor(human));
             std::strcat(caption, detail);
         }
-        const auto job = Read<std::uint32_t>(human, 0x18);
+        const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
         // Native IsJobWoman (0042C5AA) tests job 5 alone.
         if (job == 5 && !Human_IsMarried(human)) { std::strcat(caption, " - "); std::strcat(caption, Text(41)); }
-        if (job == 5 && Read<std::uint32_t>(human, 0xB24) != NXBasics::IntegerRange::UInt32Maximum) { std::strcat(caption, " - "); std::strcat(caption, Text(42)); std::strcat(caption, ": "); std::strcat(caption, Name(Read<std::uint32_t>(human, 0xB24))); }
+        if (job == 5 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::ChildId) != NXBasics::IntegerRange::UInt32Maximum) { std::strcat(caption, " - "); std::strcat(caption, Text(42)); std::strcat(caption, ": "); std::strcat(caption, Name(Read<std::uint32_t>(human, NC2Layout::HumanOffset::ChildId))); }
         if (Human_IsAttachedToWorkHouse(human))
         {
-            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB34) * CHouseArray::ElementSize;
+            const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
             if (house != nullptr) { std::strcat(caption, " - "); std::strcat(caption, StringAccess_GetHouseNamePtr(Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType), 1)); }
         }
         if (!Human_IsJobSoldier(human) && !Human_IsAttachedToHomeHouse(human) && !Human_IsJobHero(human)) { std::strcat(caption, " - "); std::strcat(caption, Text(43)); }
         bitmap->Text_Print(resources.font08, color, 10, 18, caption);
         if (Read<std::uint8_t>(element, 0x44) != 0)
         {
-            char debug[100]; NXBasics::Runtime_PrintString(debug, "#%d - %d - %8.8x", Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 0x10), NXBasics::XB_GetMemoryChecksum(human, 0xC58));
+            char debug[100]; NXBasics::Runtime_PrintString(debug, "#%d - %d - %8.8x", Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), NXBasics::XB_GetMemoryChecksum(human, 0xC58));
             bitmap->Text_Print(resources.font08, color, 4, Read<std::int32_t>(element, 0x10) - 18, debug); return;
         }
         if (Human_IsJobHero(human)) return;
@@ -263,7 +263,7 @@ namespace NC2InGameGuiMiscWindows
         const auto appendGood = [&](std::uint32_t good) { if (good != 0) { char fragment[100]; NXBasics::Runtime_PrintString(fragment, "{gfxgood:%d,1}", good); std::strcat(caption, fragment); } };
         if (Human_IsJobSoldier(human)) { appendGood(Human_GetEquipmentType_Weapon(human)); appendGood(Human_GetEquipmentType_Armor(human)); }
         if (Human_IsAgeAdult(human) && Human_IsSexMale(human)) { appendGood(Human_GetEquipmentType_Shoes(human)); appendGood(Human_GetEquipmentType_Tool(human)); }
-        for (std::uint32_t index = 0; index < 4; ++index) if (Read<std::int32_t>(human, 0xAF8u + index * 8u) > 0) appendGood(Read<std::uint32_t>(human, 0xAF4u + index * 8u));
+        for (std::uint32_t index = 0; index < 4; ++index) if (Read<std::int32_t>(human, NC2Layout::HumanOffset::InventoryConditions + index * NC2Layout::RecordSize::HumanInventorySlot) > 0) appendGood(Read<std::uint32_t>(human, NC2Layout::HumanOffset::InventorySlots + index * NC2Layout::RecordSize::HumanInventorySlot));
         DrawTool_PrintStringX(bitmap, 10, 32, resources.font08, color, caption);
     }
 
@@ -372,8 +372,8 @@ namespace NC2InGameGuiMiscWindows
         CHumanIterator iterator;
         for (auto id = iterator.GetFirstHumanId(player); id != -1; id = iterator.GetNextHumanId())
         {
-            const auto* human = Human(id); if (Human_IsJobHero(human) || Read<std::uint32_t>(human, 0x14) != tribe) continue;
-            if (Read<std::uint32_t>(human, 0x18) == job) return true;
+            const auto* human = Human(id); if (Human_IsJobHero(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != tribe) continue;
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == job) return true;
             if (Read<std::uint8_t>(window, 0x74) == 0 && Human_UserControl_CanChangeJob(human) && Human_IsAllowedToDoJob(human, job)) return true;
         }
         return false;

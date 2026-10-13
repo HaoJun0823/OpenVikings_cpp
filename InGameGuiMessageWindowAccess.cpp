@@ -167,7 +167,7 @@ namespace NC2InGameGuiMessages
                     {
                         Buttons(window).UpdateGfxButton(10201, id, 160, y, 143, nullptr);
                         std::uint32_t stage = 0, tribe;
-                        if (humanId != -1) tribe = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(humanId) * NC2Logic::CHumanArray::ElementSize, 0x14);
+                        if (humanId != -1) tribe = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(humanId) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::TribeType);
                         else { const auto player = NInGameGuiManager::CInGameGuiManager::sTheObjectPtr->GetLocalPlayerId(); tribe = player >= 20 ? 1u : Read<std::uint32_t>(NC2Logic::gGameControl, static_cast<std::uint32_t>(player) * NC2Layout::RecordSize::GameControlPlayer + 0xC); }
                         const auto engineType = NC2E2::Engine2d_EntryPoint_GetHouseId(tribe, id, &stage);
                         Buttons(window).SetButtonMiscCommandData(10201, id, engineType, stage);

@@ -72,7 +72,7 @@ namespace NC2Logic
                 if (!House_Military_GetNextFreeAttackPoint(object, Human_GetMapPositionRef(human), &position, human, false)) continue;
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
-                if (weapon.hasMunition == 0) hit = House_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, Human_GetExperienceForEquippedWeapon(human));
+                if (weapon.hasMunition == 0) hit = House_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 1, Human_GetExperienceForEquippedWeapon(human));
                 else
                 {
                     std::int16_t x = 0, y = 0;
@@ -86,7 +86,7 @@ namespace NC2Logic
                 position = MapMigPoint_GetLong(Animal_GetMapPositionRef(object));
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
-                if (weapon.hasMunition == 0) hit = Animal_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, Human_GetExperienceForEquippedWeapon(human), true);
+                if (weapon.hasMunition == 0) hit = Animal_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 1, Human_GetExperienceForEquippedWeapon(human), true);
                 else moveableId = Read<std::uint32_t>(object, 12);
                 break;
             case SwitchIds::TargetType::Vehicle:
@@ -94,13 +94,13 @@ namespace NC2Logic
                 if (!Vehicle_Military_GetAttackPoint(object, Human_GetMapPositionRef(human), &position, nullptr, false))
                 {
                     // Native fallback calls direct damage even for a weapon with munition.
-                    hit = Vehicle_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, Human_GetExperienceForEquippedWeapon(human));
+                    hit = Vehicle_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 1, Human_GetExperienceForEquippedWeapon(human));
                     if (hit) { Human_GainExperienceForEquippedWeapon(human, 1); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2); return; }
                     continue;
                 }
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
-                if (weapon.hasMunition == 0) hit = Vehicle_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, 0);
+                if (weapon.hasMunition == 0) hit = Vehicle_Military_StartGettingHitByWeapon(object, tribe, weaponId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 1, 0);
                 else moveableId = Read<std::uint32_t>(object, 0x1DC);
                 break;
             case SwitchIds::TargetType::Human:
@@ -108,8 +108,8 @@ namespace NC2Logic
                 position = MapMigPoint_GetLong(Human_GetMapPositionRef(object));
                 distance = Distance(&position, Human_GetMapPositionRef(human));
                 if (distance > range) continue;
-                if (weapon.hasMunition == 0) hit = Human_Military_StartGettingHitByWeapon(object, Human_GetMapPositionRef(human), tribe, weaponId, Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 1, Human_GetExperienceForEquippedWeapon(human), true);
-                else moveableId = Read<std::uint32_t>(object, 12);
+                if (weapon.hasMunition == 0) hit = Human_Military_StartGettingHitByWeapon(object, Human_GetMapPositionRef(human), tribe, weaponId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 1, Human_GetExperienceForEquippedWeapon(human), true);
+                else moveableId = Read<std::uint32_t>(object, NC2Layout::HumanOffset::MapMoveableId);
                 break;
             default: continue;
             }
@@ -179,7 +179,7 @@ namespace NC2Logic
         callback.munition = tribe == 2 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 47 ? 3u : static_cast<std::uint32_t>(weapon.munitionType);
         callback.flightTicks = ticks;
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x23, true, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(&callback)), 0, 0);
-        DelayedActionManager_DelayedAction_AddWeaponHit(gDelayedActionManager, ticks, 1, Read<std::uint32_t>(human, 4), &position, weaponId);
+        DelayedActionManager_DelayedAction_AddWeaponHit(gDelayedActionManager, ticks, 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), &position, weaponId);
         GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), &position, 1);
     }
 }

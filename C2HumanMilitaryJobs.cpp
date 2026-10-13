@@ -79,7 +79,7 @@ namespace NC2Logic
         if (Human_IsAttachedToWorkHouse(human))
         {
             auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
-            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, 4), 2);
+            if (Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)) House_Inhabitants_DetachHuman(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 2);
             const auto weaponType = NXBasics::Runtime_TimeSigned32(Human_Equipment_GetWeaponType(human));
             if (weaponType >= 16 && weaponType <= 17)
             {
@@ -103,7 +103,7 @@ namespace NC2Logic
         {
             if (Human_IsAttachedToVehicle(human))
             {
-                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, 0xB51) != 0 ? 1u : 21u);
+                Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask, Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 ? 1u : 21u);
                 Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 0);
                 return;
             }
@@ -141,7 +141,7 @@ namespace NC2Logic
         {
             const auto* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) * CHouseArray::ElementSize;
             Write(workCenter, 0, Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint));
-            Write<std::uint32_t>(human, 0x38C, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
             returnDistance = 0;
         }
@@ -152,7 +152,7 @@ namespace NC2Logic
             // Windows deliberately ignores the fallback lookup's return value.
             Tool_Map_GetNotBlockedPosition(&replacement, false);
             Write(workCenter, 0, replacement);
-            Write<std::uint32_t>(human, 0x38C, 0);
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::WorkRetryCount, 0);
             Human_WorkCenterMarker_Update(human);
             if (Human_l_StartAtomicWalk(human, workCenter, workCenter)) return;
         }

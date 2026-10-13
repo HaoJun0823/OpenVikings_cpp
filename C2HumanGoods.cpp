@@ -647,7 +647,7 @@ namespace NC2Logic
     bool Human_FindGoodsDemandedForBuildVehicle(void* human, void* realPosition, void* workPosition, std::uint32_t* good, const void* source)
     {
         SHumanSearchGoodsComplexData data(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
-        const void* house = House(Read<std::uint32_t>(human, 0xB3C));
+        const void* house = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId));
         for (std::int32_t slot = 0; slot < Read<std::int32_t>(house, NC2Layout::HouseOffset::ConstructionGoodsCount); ++slot)
         {
             const auto offset = 0x3Cu + static_cast<std::uint32_t>(slot) * 20u;
@@ -846,7 +846,7 @@ namespace NC2Logic
         }
         if (auto* house = Human_GetTargetHousePtr(human)) { House_Stock_ModifyFutureAmount(house, Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood), -1, false); return true; }
         const auto landscape = Human_GetLandscapeTypeAtTargetPosition(human);
-        Write(human, 0xA74, landscape);
+        Write(human, NC2Layout::HumanOffset::TargetLandscapeType, landscape);
         if (landscape != 0 && landscape != 1) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 2); return true; }
         if (job == 18 || job == 29 || job == 22 || job == 23) return true;
         Human_Target_Reset(human);
@@ -874,7 +874,7 @@ namespace NC2Logic
         std::uint32_t action = 22;
         if (house != nullptr)
         {
-            if (Read<std::uint32_t>(human, 0xA70) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetWorkPosition) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::DoorEntryPoint)) C2Debug_WarningBox("standing at invalid position for interaction with house stock!");
             const auto type = Read<std::uint32_t>(house, 0x14);
             auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
             if (type == 10 || type == 11)
@@ -893,11 +893,11 @@ namespace NC2Logic
                 else
                 {
                     const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-                    if ((job != 9 && job != 10) || Read<std::uint32_t>(house, 4) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) || Read<std::uint32_t>(human, 0xB3C) == NXBasics::IntegerRange::UInt32Maximum || House_Stock_RequestAmountOfGoods(house, good, false) < 1u) return false;
+                    if ((job != 9 && job != 10) || Read<std::uint32_t>(house, 4) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) == NXBasics::IntegerRange::UInt32Maximum || House_Stock_RequestAmountOfGoods(house, good, false) < 1u) return false;
                 }
             }
         }
-        else if (Human_GetLandscapeTypeAtTargetPosition(human) != Read<std::uint32_t>(human, 0xA74)) return false;
+        else if (Human_GetLandscapeTypeAtTargetPosition(human) != Read<std::uint32_t>(human, NC2Layout::HumanOffset::TargetLandscapeType)) return false;
         Human_l_StartAtomicAnimation(human, action, 6);
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1);
         return true;
@@ -1094,13 +1094,13 @@ namespace NC2Logic
         auto startPile = [human](std::int32_t direction) { Human_l_StartAtomicAnimation(human, 23, direction); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); };
         const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
         if (Human_IsAtTargetPoint(human) && Map_GoodTool_CanBePutOnMap(good, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition)) { startPile(6); return; }
-        auto* vehicle = Read<std::uint8_t>(human, 0xB51) != 0 ? CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize : nullptr;
+        auto* vehicle = Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 ? CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize : nullptr;
         auto reserveVehicle = [human, good, vehicle]()
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 6);
             Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId));
             Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision));
-            Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, Read<std::uint32_t>(human, 8));
+            Vehicle_Stock_ModifyFutureAmount(vehicle, good, 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
         };
         if (Human_Misc_IsHidden(human))
         {
@@ -1122,7 +1122,7 @@ namespace NC2Logic
                     if (Read<std::uint8_t>(house, 0x7D8) != 0 && Human_IsDefendingHouse(human, Read<std::int32_t>(house, 4)))
                     {
                         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
-                        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+                        CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
                         return;
                     }
                 }
@@ -1165,17 +1165,17 @@ namespace NC2Logic
         Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStep, 3);
         if (!Human_Target_IsValid(human))
         {
-            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) == 1) Human_DoAddNewUserCommand(human, 7, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) == 1) Human_DoAddNewUserCommand(human, 7, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
             return;
         }
         auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood);
         bool taken = false;
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
             if (Vehicle_Stock_CanStoreGoodType(vehicle, good) && Vehicle_Stock_GetAmountOfGoods(vehicle, good) > 0)
             {
-                Vehicle_Stock_ModifyAmount(vehicle, good, -1, Read<std::uint32_t>(human, 8));
+                Vehicle_Stock_ModifyAmount(vehicle, good, -1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
                 taken = true;
             }
         }
@@ -1189,7 +1189,7 @@ namespace NC2Logic
                 if (!available)
                 {
                     const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType);
-                    available = (job == 9 || job == 10) && Read<std::uint32_t>(house, 4) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && Read<std::uint32_t>(human, 0xB3C) != NXBasics::IntegerRange::UInt32Maximum && House_Stock_RequestAmountOfGoods(house, good, false) >= 1u;
+                    available = (job == 9 || job == 10) && Read<std::uint32_t>(house, 4) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum && House_Stock_RequestAmountOfGoods(house, good, false) >= 1u;
                 }
                 if (available) { House_Stock_ModifyAmount(house, good, -1, 0, false); taken = true; }
             }
@@ -1201,7 +1201,7 @@ namespace NC2Logic
                     good = static_cast<std::uint32_t>(result);
                     // Windows changes the wanted good after invoking the carried-good callback.
                     Write(human, NC2Layout::HumanOffset::CarriedGood, good);
-                    CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good);
+                    CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, good);
                     if ((Human_IsJobHunter(human) && (good == 21 || good == 9)) || (Human_IsJobFisher(human) && (good == 22 || good == 16))) Write(human, NC2Layout::HumanOffset::RequestedGood, good);
                     Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
                     taken = true;
@@ -1214,7 +1214,7 @@ namespace NC2Logic
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) != 2)
             {
                 Write(human, NC2Layout::HumanOffset::CarriedGood, good);
-                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, good);
+                CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, good);
             }
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) == 1)
@@ -1234,31 +1234,31 @@ namespace NC2Logic
         const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood);
         std::uint32_t failure = 11;
         bool stored = false;
-        if (Read<std::uint8_t>(human, 0xB51) != 0)
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0)
         {
             auto* vehicle = CVehicleArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleId) * CVehicleArray::ElementSize;
-            if (Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFull(vehicle)) stored = Vehicle_Stock_ModifyAmount(vehicle, good, 1, Read<std::uint32_t>(human, 8));
+            if (Vehicle_Stock_CanStoreGoodType(vehicle, good) && !Vehicle_Stock_IsFull(vehicle)) stored = Vehicle_Stock_ModifyAmount(vehicle, good, 1, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
         }
         else if (auto* house = Human_GetHousePtrAtTargetPosition(human))
         {
             if (!House_Stock_IsFull(house, good))
             {
                 const auto id = Read<std::uint32_t>(house, 4);
-                const auto construction = (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 && Human_IsAttachedToHomeHouse(human) && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)) || (Human_IsAttachedToWorkHouse(human) && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) || (Read<std::uint32_t>(human, 0xB3C) != NXBasics::IntegerRange::UInt32Maximum && id == Read<std::uint32_t>(human, 0xB3C)) || Human_IsDefendingHouse(human, static_cast<std::int32_t>(id));
+                const auto construction = (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 5 && Human_IsAttachedToHomeHouse(human) && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HomeHouseId)) || (Human_IsAttachedToWorkHouse(human) && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)) || (Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) != NXBasics::IntegerRange::UInt32Maximum && id == Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId)) || Human_IsDefendingHouse(human, static_cast<std::int32_t>(id));
                 stored = House_Stock_ModifyAmount(house, good, 1, 0, construction);
             }
         }
         else { failure = 7; stored = Map_GoodTool_PutOnMap(good, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition, false); }
         if (stored)
         {
-            if ((Read<std::uint8_t>(human, 0xB51) != 0 || Human_IsAtTargetPoint(human)) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood))
+            if ((Read<std::uint8_t>(human, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || Human_IsAtTargetPoint(human)) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood))
             {
                 if (Human_IsJobCarrier(human)) Human_l_JobExperience_Gain(human);
-                else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) == Read<std::uint32_t>(human, 0x1C)) Human_Production_DidProduceGoods(human, 1);
+                else if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)) Human_Production_DidProduceGoods(human, 1);
             }
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood, 0);
-            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, 4), 1, 0);
+            CCallbackManager::sTheObjectPtr->ExecuteCallback(0x21, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), 1, 0);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 0);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood, 0);
         }
@@ -1274,20 +1274,20 @@ namespace NC2Logic
     void Human_Target_RestoreSecondaryTarget(void* human)
     {
         const auto type = Read<std::int32_t>(human, NC2Layout::HumanOffset::SecondaryInteractionTarget);
-        if (type == 7 || type == 8) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), MapMigPoint_GetLong(static_cast<std::byte*>(human) + 0xA88), 0);
+        if (type == 7 || type == 8) Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), MapMigPoint_GetLong(static_cast<std::byte*>(human) + 0xA88), 0);
         else if (type == 6)
         {
-            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(human, 0xA9C)) Human_DoAddNewUserCommand(human, 40, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(human, 0xA98), Read<std::uint32_t>(human, 0xA9C));
+            if (Human_IsAttachedToVehicle(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::AttachedVehicleRevision) == Read<std::uint32_t>(human, 0xA9C)) Human_DoAddNewUserCommand(human, 40, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(human, 0xA98), Read<std::uint32_t>(human, 0xA9C));
         }
         else if (type >= 1 && type <= 5)
         {
-            const auto mode = Read<std::uint32_t>(human, 0xAD8);
+            const auto mode = Read<std::uint32_t>(human, NC2Layout::HumanOffset::SuspendedGoodCirculationMode);
             if (mode != 0 && !(TGoodTypes_IsFood(Read<std::uint32_t>(human, 0xA94)) && mode == 1))
             {
                 Write(human, NC2Layout::HumanOffset::RequestedGood, Read<std::uint32_t>(human, 0xA94));
                 std::memcpy(static_cast<std::byte*>(human) + NC2Layout::HumanOffset::InteractionTarget, static_cast<std::byte*>(human) + NC2Layout::HumanOffset::SecondaryInteractionTarget, 28);
                 auto* real = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
-                auto* work = static_cast<std::byte*>(human) + 0xA70;
+                auto* work = static_cast<std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
                 if (mode >= 1 && mode <= 4) Human_l_StartAtomicWalkAndFetch(human, real, work, mode == 1);
                 else if (mode == 5)
                 {
@@ -1303,7 +1303,7 @@ namespace NC2Logic
     // Original function: FUN_0042cec4.
     std::uint32_t Human_Target_GetType(const void* human) { return Read<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget); }
     // Original function: FUN_0042cf47.
-    const void* Human_Target_GetWorkPositionRef(const void* human) { return static_cast<const std::byte*>(human) + 0xA70; }
+    const void* Human_Target_GetWorkPositionRef(const void* human) { return static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition; }
     // Original function: FUN_0042cf4e.
     const void* Human_Target_GetRealPositionRef(const void* human) { return static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition; }
     // Original function: FUN_0042d709.

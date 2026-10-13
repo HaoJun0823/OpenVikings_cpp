@@ -55,7 +55,7 @@ namespace NC2Logic
     void AIScout_Set(void* scout, std::int32_t human)
     {
         Write(scout, 0, human);
-        Write(scout, 4, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, 8));
+        Write(scout, 4, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
         Write<std::uint8_t>(scout, 8, 0);
     }
 
@@ -70,7 +70,7 @@ namespace NC2Logic
     {
         if (!AIGoodManager_Producer_IsHumanValid(scout)) return;
         auto* human = Human(scout);
-        Human_DoAddNewUserCommand(human, 21, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, 6, 0);
+        Human_DoAddNewUserCommand(human, 21, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), 0, 0, 6, 0);
         Write<std::uint32_t>(scout, 0, NXBasics::IntegerRange::UInt32Maximum);
     }
 
@@ -79,7 +79,7 @@ namespace NC2Logic
     {
         auto* human = Human(scout);
         if (Human_IsJobScout(human)) return true;
-        Human_DoAddNewUserCommand(human, 21, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), 0, 0, 27, 0);
+        Human_DoAddNewUserCommand(human, 21, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), 0, 0, 27, 0);
         return false;
     }
 
@@ -96,7 +96,7 @@ namespace NC2Logic
     void AIScout_MoveToPos(const void* scout, const void* point)
     {
         auto* human = Human(scout);
-        const auto revision = Read<std::uint32_t>(human, 8), id = Read<std::uint32_t>(human, 4), player = Read<std::uint32_t>(human, 0x10);
+        const auto revision = Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), id = Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), player = Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId);
         Human_DoAddNewUserCommand(human, 4, static_cast<std::uint8_t>(player), id, revision, MapMigPoint_GetLong(point), 0);
     }
 
@@ -144,7 +144,7 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(producer, 0);
         if (id == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(producer);
-        if (Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(producer, 4)) return true;
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(producer, 4)) return true;
         Write<std::uint32_t>(producer, 0, NXBasics::IntegerRange::UInt32Maximum);
         return false;
     }
@@ -154,7 +154,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(producer, 0) == NXBasics::IntegerRange::UInt32Maximum) return false;
         const auto* human = Human(producer);
-        return Read<std::uint8_t>(human, 0) != 0 && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(producer, 4);
+        return Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(producer, 4);
     }
 
     // Windows shares the producer validity entries at 00457500 and 00457529 with scout records.
@@ -178,7 +178,7 @@ namespace NC2Logic
         if (AIGoodManager_Producer_IsHumanValid(producer))
         {
             auto* human = Human(producer);
-            if (Human_IsAttachedToWorkHouse(human)) Human_DoAddNewUserCommand(human, 22, static_cast<std::uint8_t>(Read<std::uint32_t>(human, 0x10)), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), 0, 0);
+            if (Human_IsAttachedToWorkHouse(human)) Human_DoAddNewUserCommand(human, 22, static_cast<std::uint8_t>(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId)), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 0, 0);
         }
         Write<std::uint32_t>(producer, 0, NXBasics::IntegerRange::UInt32Maximum);
     }

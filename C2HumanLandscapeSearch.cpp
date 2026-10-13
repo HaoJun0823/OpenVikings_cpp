@@ -16,7 +16,7 @@ namespace NC2Logic
     using namespace NC2Lifetime;
     namespace
     {
-        std::uint32_t Radius(const void* human) { const auto job = Read<std::uint32_t>(human, 0x18); return job == 18 || job == 29 ? 10u : 20u; }
+        std::uint32_t Radius(const void* human) { const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType); return job == 18 || job == 29 ? 10u : 20u; }
         bool TryCandidatePoints(std::uint32_t count, const std::uint32_t* points, void* real, void* work)
         {
             Write(real, 0, points[0]);
@@ -348,7 +348,7 @@ namespace NC2Logic
         if (data.count < data.limit && Human_FindGrowPatternNearWorkCenter(human, real, work)) return true;
         if (data.matureCount != 0)
         {
-            Write(real, 0, data.mature[Read<std::uint32_t>(human, 8) % data.matureCount]);
+            Write(real, 0, data.mature[Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) % data.matureCount]);
             if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;
             Write(real, 0, data.mature[Game_Random_GetNumber() % data.matureCount]);
             if (GameMap_Misc_GetLandscapeWorkPosition(real, work)) return true;

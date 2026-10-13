@@ -28,23 +28,23 @@ namespace NC2Logic
     namespace
     {
         void* House(std::uint32_t id) { return CHouseArray::mStaticVars + id * CHouseArray::ElementSize; }
-        const void* WorkCenter(const void* human) { return static_cast<const std::byte*>(human) + 0xB30; }
-        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, 0x36C, 3); Write(human, 0x374, reason); }
-        std::int32_t WorkRadius(const void* human) { const auto job = Read<std::uint32_t>(human, 0x18); return job == 18 || job == 29 ? 10 : 20; }
-        void StartBuild(void* human, std::uint32_t action) { Human_l_StartAtomicAnimation(human, action, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human))); Write<std::uint32_t>(human, 0x36C, 1); }
+        const void* WorkCenter(const void* human) { return static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter; }
+        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
+        std::int32_t WorkRadius(const void* human) { const auto job = Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType); return job == 18 || job == 29 ? 10 : 20; }
+        void StartBuild(void* human, std::uint32_t action) { Human_l_StartAtomicAnimation(human, action, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human))); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 1); }
 
         // The two invalid-site branches of Windows 00474205 queue the same command.
         void RestartUnfinishedShips(const void* human)
         {
             CVehicleIterator iterator;
-            for (auto id = iterator.GetFirstVehicleId(Read<std::uint32_t>(human, 0x10), WorkCenter(human), WorkRadius(human)); id != -1; id = iterator.GetNextVehicleId())
+            for (auto id = iterator.GetFirstVehicleId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), WorkCenter(human), WorkRadius(human)); id != -1; id = iterator.GetNextVehicleId())
             {
                 void* vehicle = CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize;
                 const auto type = Read<std::uint32_t>(vehicle, NC2Layout::VehicleOffset::LogicType);
                 if ((type != 3 && type != 4) || Read<std::uint8_t>(vehicle, 0x1D0) != 0) continue;
                 std::byte command[20]{};
                 Write<std::uint8_t>(command, 0, 103);
-                Write(command, 4, Read<std::uint32_t>(human, 0x10));
+                Write(command, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId));
                 Write(command, 8, static_cast<std::uint32_t>(id));
                 Write(command, 12, MapMigPoint_GetLong(WorkCenter(human)));
                 Vehicle_DoAddNewUserCommand(vehicle, command);
@@ -152,15 +152,15 @@ namespace NC2Logic
     // Original function: FUN_00474205.
     void Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder(void* human)
     {
-        if (!Human_IsAttachedToWorkHouse(human) || Read<std::uint32_t>(human, 0x1C) == 0) { Fail(human, 2); return; }
-        if (!Human_IsAbleToProduceGoodNow(human, Read<std::uint32_t>(human, 0x1C))) { Fail(human, 0); return; }
+        if (!Human_IsAttachedToWorkHouse(human) || Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType) == 0) { Fail(human, 2); return; }
+        if (!Human_IsAbleToProduceGoodNow(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType))) { Fail(human, 0); return; }
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode) != 0)
         {
             if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) Human_l_StartTask_ExecuteJob_Tool_FillStock_BringAway(human);
             else Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_Collect(human);
             return;
         }
-        if (Human_Production_GetCounter(human, Read<std::uint32_t>(human, 0x1C)) == 0) { Human_Production_Rotate(human); return; }
+        if (Human_Production_GetCounter(human, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType)) == 0) { Human_Production_Rotate(human); return; }
         if (!Human_IsAttachedToBuildSite(human))
         {
             Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_TryToBuild(human);
@@ -168,24 +168,24 @@ namespace NC2Logic
         }
         else
         {
-            const void* site = House(Read<std::uint32_t>(human, 0xB3C));
+            const void* site = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId));
             if (Read<std::uint8_t>(site, NC2Layout::HouseOffset::AllocatedFlag) == 0)
             {
-                Write<std::int32_t>(human, 0xB3C, -1); Write<std::uint32_t>(human, 0xB40, 0);
+                Write<std::int32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId, -1); Write<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionWorkshopRevision, 0);
                 Human_Production_Rotate(human);
                 RestartUnfinishedShips(human);
                 return;
             }
             const auto type = Read<std::uint32_t>(site, NC2Layout::HouseOffset::LogicType);
-            const auto good = Read<std::uint32_t>(human, 0x1C);
+            const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType);
             if (type < 42 || type > 46 || good != type + 17u)
             {
-                Write<std::int32_t>(human, 0xB3C, -1); Write<std::uint32_t>(human, 0xB40, 0);
+                Write<std::int32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId, -1); Write<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionWorkshopRevision, 0);
                 RestartUnfinishedShips(human);
                 return;
             }
         }
-        void* site = House(Read<std::uint32_t>(human, 0xB3C));
+        void* site = House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId));
         if (Read<std::uint32_t>(site, NC2Layout::HouseOffset::ConstructionState) == 3 && House_Repair_IsFinished(site)) return;
         if (House_Construction_CanUseOneGoodNow(site)) House_Construction_DoUseOneGood(site);
         if (!House_Construction_IsUseGoodRunning(site) && House_Repair_IsFinished(site))
@@ -227,7 +227,7 @@ namespace NC2Logic
     // Original function: FUN_00474e6f.
     void Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_TryToBuild(void* human)
     {
-        const auto good = Read<std::uint32_t>(human, 0x1C);
+        const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType);
         const auto type = good >= 59 && good <= 63 ? good - 17u : 42u;
         if (void* site = Human_FindVehicleConstructionSiteNearWorkCenter(human, type)) { Human_l_AttachToVehicleBuildHouse(human, Read<std::int32_t>(site, 4)); return; }
         std::uint32_t real = 0, work = 0;
@@ -244,8 +244,8 @@ namespace NC2Logic
     // No separate Mac identity was established for this outlined entry.
     void Human_l_AttachToVehicleBuildHouse(void* human, std::int32_t house)
     {
-        Write(human, 0xB3C, house);
-        Write(human, 0xB40, Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::UniqueId));
+        Write(human, NC2Layout::HumanOffset::VehicleConstructionHouseId, house);
+        Write(human, NC2Layout::HumanOffset::VehicleConstructionWorkshopRevision, Read<std::uint32_t>(House(Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkAttachmentHouseId)), NC2Layout::HouseOffset::UniqueId));
         Human_UpdateCurrentWorkHouse(human);
     }
     // Original function: FUN_00474c3e; occupied builder positions are retried before the unrestricted search.
@@ -253,14 +253,14 @@ namespace NC2Logic
     {
         const auto continent = Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6);
         const bool atTarget = Human_IsAtTargetPoint(human);
-        void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, 0xB3C) * CHouseArray::ElementSize;
+        void* house = CHouseArray::mStaticVars + Read<std::uint32_t>(human, NC2Layout::HumanOffset::VehicleConstructionHouseId) * CHouseArray::ElementSize;
         std::uint32_t work = 0;
         if (atTarget)
         {
             const void* realTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetPosition;
             if (Read<std::uint32_t>(realTarget, 0) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition)) { Human_Target_Reset(human); Human_l_StartTask_ExecuteJob_Tool_VehicleBuilder_BuildVehicle(human); return; }
-            const void* workTarget = static_cast<const std::byte*>(human) + 0xA70;
-            if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, 4), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
+            const void* workTarget = static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::TargetWorkPosition;
+            if (!House_Construction_GetNextWorkPoint(house, workTarget, &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, workTarget, &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
             if (Read<std::uint32_t>(workTarget, 0) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, realTarget, &work)) { Fail(human, 0); Human_Target_Reset(human); }
@@ -271,7 +271,7 @@ namespace NC2Logic
         else
         {
             const auto real = Read<std::uint32_t>(house, NC2Layout::HouseOffset::MapPosition);
-            if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, 4), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
+            if (!House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, true, Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), continent) && !House_Construction_GetNextWorkPoint(house, Human_GetMapPositionRef(human), &work, false, NXBasics::IntegerRange::UInt32Maximum, continent)) { Fail(human, 7); Human_Target_Reset(human); return; }
             if (Read<std::uint32_t>(Human_GetMapPositionRef(human), 0) != work)
             {
                 if (!Human_l_StartAtomicWalk(human, &real, &work)) Fail(human, 0);

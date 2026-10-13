@@ -302,7 +302,7 @@ namespace NC2Logic
             const auto* position = Human_GetMapPositionRef(human);
             const auto candidate = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(position, 0), Read<std::int16_t>(position, 2), Read<std::int16_t>(point, 0), Read<std::int16_t>(point, 2)));
             if (candidate >= distance) continue;
-            std::uint32_t target[3] = {1, static_cast<std::uint32_t>(id), Read<std::uint32_t>(human, 8)};
+            std::uint32_t target[3] = {1, static_cast<std::uint32_t>(id), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId)};
             if (AIHighLevelHandler_IsObjectUsed(handler, target)) continue;
             distance = candidate; best = id;
         }

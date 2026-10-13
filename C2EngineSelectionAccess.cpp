@@ -104,7 +104,7 @@ namespace NC2E2
                             for (std::uint32_t j = 0; j < bobs.count; ++j) { bobs.bobs[j].offsetX += sign.x; bobs.bobs[j].offsetY += sign.y; }
                             if (!IsHit(bobs, mouse, base)) continue;
                             const auto* human = Human(sign.human);
-                            SetMoveable(output, 1, sign.human, human, point, Read<std::uint32_t>(human, 0xC), bobs); priority = 50;
+                            SetMoveable(output, 1, sign.human, human, point, Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId), bobs); priority = 50;
                         }
                     }
                     if (priority <= 30)
@@ -146,7 +146,7 @@ namespace NC2E2
                         const auto* data = static_cast<const std::byte*>(NC2Logic::gMarkerEntries) + id * 0x18u;
                         if (Read<std::uint32_t>(data, 0x10) != 1 || Read<std::int32_t>(data, 0x14) == -1) continue;
                         id = Read<std::uint32_t>(data, 0x14); object = Human(id); objectType = 1;
-                        objectPoint = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(object), 0); objectMoveable = Read<std::uint32_t>(object, 0xC);
+                        objectPoint = Read<std::uint32_t>(NC2Logic::Human_GetMapPositionRef(object), 0); objectMoveable = Read<std::uint32_t>(object, NC2Layout::HumanOffset::MapMoveableId);
                     }
                     else continue;
                     const auto objectPriority = objectType == 2 ? 40u : 50u;

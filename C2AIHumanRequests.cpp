@@ -71,7 +71,7 @@ namespace NC2Logic
         }
         void CreateRequest(void* request, std::uint32_t type, std::uint32_t target, std::uint32_t revision, std::uint32_t human, std::uint32_t job)
         {
-            Write(request, 0, type); Write(request, 4, target); Write(request, 8, revision); Write(request, 12, human); Write(request, 16, Read<std::uint32_t>(Human(human), 8)); Write(request, 20, job);
+            Write(request, 0, type); Write(request, 4, target); Write(request, 8, revision); Write(request, 12, human); Write(request, 16, Read<std::uint32_t>(Human(human), NC2Layout::HumanOffset::UniqueId)); Write(request, 20, job);
         }
     }
     // Original function: FUN_004581f3.
@@ -85,7 +85,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             const auto* human = Human(id);
-            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || !Human_IsAgeAdult(human) || Human_IsJobScout(human) || Human_IsJobTrader(human) || Human_IsAttachedToLearnHouse(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id)) continue;
+            if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || !Human_IsAgeAdult(human) || Human_IsJobScout(human) || Human_IsJobTrader(human) || Human_IsAttachedToLearnHouse(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id)) continue;
             const auto signedType = static_cast<std::int32_t>(type);
             if (signedType > 0 && signedType <= 4)
             {
@@ -103,8 +103,8 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstSectorHumanId(Read<std::uint32_t>(handler, 0), gAISearchHumanPoint, radius, false); id != -1; id = iterator.GetNextSectorHumanId())
         {
             const auto* human = Human(id);
-            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || !Human_IsAgeAdult(human)) continue;
-            if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, 24) == 7) continue;
+            if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || !Human_IsAgeAdult(human)) continue;
+            if (Human_IsAttachedToWorkHouse(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7) continue;
             if (Human_IsJobScout(human) || Human_IsJobTrader(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id) || Human_IsSexFemale(human) || Human_UserControl_IsPriorityCommandInQueue(human)) continue;
             const auto* point = Human_GetMapPositionRef(human);
             const auto distance = VE_HexagonDirection_GetDistance(point[0], point[1], Read<std::int16_t>(&gAISearchHumanPoint, 0), Read<std::int16_t>(&gAISearchHumanPoint, 2));
@@ -118,7 +118,7 @@ namespace NC2Logic
         const auto id = AISinglePlayerHandler_l_Misc_SearchHuman(handler, point, 4, 400, true);
         if (id == -1) return false;
         auto* human = Human(id);
-        if (Read<std::uint32_t>(human, 24) == 7) { Send(human, 17, point, 0); return true; }
+        if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7) { Send(human, 17, point, 0); return true; }
         auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler);
         if (request == nullptr) return false;
         CreateRequest(request, 4, point, 0, id, 7); Send(human, 21, 7, 0); return true;
@@ -138,11 +138,11 @@ namespace NC2Logic
                 if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::AllocatedFlag) == 0 || Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0 || Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId) != Read<std::uint32_t>(request, 8)) { Write<std::uint32_t>(request, 0, 0); continue; }
             }
             auto* human = Human(Read<std::uint32_t>(request, 12));
-            if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != Read<std::uint32_t>(request, 16) || Human_IsJobScout(human)) { Write<std::uint32_t>(request, 0, 0); continue; }
-            if (Read<std::uint32_t>(human, 24) != Read<std::uint32_t>(request, 20))
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != Read<std::uint32_t>(request, 16) || Human_IsJobScout(human)) { Write<std::uint32_t>(request, 0, 0); continue; }
+            if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) != Read<std::uint32_t>(request, 20))
             {
                 if (type == 2 || type == 3 || type == 4 || Human_IsAttachedToWorkHouse(human)) Write<std::uint32_t>(request, 0, 0);
-                else Human_DoAddNewUserCommand(human, 21, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, 4), Read<std::uint32_t>(human, 8), Read<std::uint32_t>(request, 20), 0);
+                else Human_DoAddNewUserCommand(human, 21, Read<std::uint8_t>(handler, 0), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), Read<std::uint32_t>(request, 20), 0);
                 continue;
             }
             if (type == 1 || type == 2 || type == 5) Send(human, type == 1 ? 28 : type == 2 ? 30 : 26, Read<std::uint32_t>(request, 4), Read<std::uint32_t>(house, 8));
@@ -189,7 +189,7 @@ namespace NC2Logic
                     const auto humanId = AISinglePlayerHandler_l_Misc_SearchHuman(handler, id, 1, 80, false);
                     if (humanId == -1) continue;
                     auto* human = Human(humanId);
-                    if (Read<std::uint32_t>(human, 24) == static_cast<std::uint32_t>(job)) Send(human, 28, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == static_cast<std::uint32_t>(job)) Send(human, 28, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                     else if (auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler)) { CreateRequest(request, 1, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId), humanId, job); Send(human, 21, job, 0); }
                 }
                 else if (House_GetHouseMainType(house) == 2 && House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(definition->homeSize))
@@ -208,7 +208,7 @@ namespace NC2Logic
                     const auto humanId = AISinglePlayerHandler_l_Misc_SearchHuman(handler, id, 2, 400, false);
                     if (humanId == -1) break;
                     auto* human = Human(humanId);
-                    if (Read<std::uint32_t>(human, 24) == 7) Send(human, 30, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
+                    if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7) Send(human, 30, id, Read<std::uint32_t>(house, NC2Layout::HouseOffset::UniqueId));
                     else
                     {
                         auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler);
@@ -230,7 +230,7 @@ namespace NC2Logic
                 const auto id = AISinglePlayerHandler_l_Misc_SearchHuman(handler, point, 3, 400, true);
                 if (id == -1) continue;
                 auto* human = Human(id);
-                if (Read<std::uint32_t>(human, 24) == 7) Send(human, 17, point, 0);
+                if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType) == 7) Send(human, 17, point, 0);
                 else
                 {
                     auto* request = AISinglePlayerHandler_l_Misc_Human_AllocateStructure(handler);

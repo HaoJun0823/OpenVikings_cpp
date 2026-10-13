@@ -21,21 +21,21 @@ namespace NC2Logic
     using namespace NC2Lifetime;
     namespace
     {
-        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, 0x36C, 3); Write(human, 0x374, reason); }
-        bool IsWorking(const void* human) { const auto status = Read<std::uint32_t>(human, 0x36C); return status == 1 || status == 2; }
+        void Fail(void* human, std::uint32_t reason) { Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); Write(human, NC2Layout::HumanOffset::CurrentTaskStep, reason); }
+        bool IsWorking(const void* human) { const auto status = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus); return status == 1 || status == 2; }
         bool HasUnsharedPosition(const void* human)
         {
             const auto* micro = GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human));
             const auto moveable = Read<std::int16_t>(micro, 10);
-            return moveable == Read<std::int32_t>(human, 12) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, 0x24) == -1;
+            return moveable == Read<std::int32_t>(human, NC2Layout::HumanOffset::MapMoveableId) && Read<std::int32_t>(gMapMoveableArrayStorage.entries + static_cast<std::uint32_t>(moveable) * NC2Layout::RecordSize::MapMoveable, 0x24) == -1;
         }
         void TargetHuman(void* human, const void* other)
         {
-            Write<std::uint32_t>(human, 0xA68, 7);
-            Write(human, 0xA7C, Read<std::uint32_t>(other, 4));
-            Write(human, 0xA80, Read<std::uint32_t>(other, 8));
-            Write(human, 0xA70, Read<std::uint32_t>(Human_GetMapPositionRef(other), 0));
-            Write(human, 0xA6C, Read<std::uint32_t>(Human_GetMapPositionRef(other), 0));
+            Write<std::uint32_t>(human, NC2Layout::HumanOffset::InteractionTarget, 7);
+            Write(human, NC2Layout::HumanOffset::TargetObjectId, Read<std::uint32_t>(other, 4));
+            Write(human, NC2Layout::HumanOffset::TargetObjectRevision, Read<std::uint32_t>(other, 8));
+            Write(human, NC2Layout::HumanOffset::TargetWorkPosition, Read<std::uint32_t>(Human_GetMapPositionRef(other), 0));
+            Write(human, NC2Layout::HumanOffset::TargetPosition, Read<std::uint32_t>(Human_GetMapPositionRef(other), 0));
         }
     }
 
@@ -47,7 +47,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, job == 18 || job == 29 ? 10 : 20); id != -1; id = iterator.GetNextHumanId())
         {
             auto* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Read<std::uint8_t>(other, 0xB51) != 0 || Read<std::int32_t>(other, 0xAB0) > 8000 || !Human_IsJobNeedingSocial(other)) continue;
+            if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Read<std::uint8_t>(other, NC2Layout::HumanOffset::InsideVehicleFlag) != 0 || Read<std::int32_t>(other, NC2Layout::HumanOffset::Social) > 8000 || !Human_IsJobNeedingSocial(other)) continue;
             Game_Random_GetNumber();
             return other;
         }
@@ -62,7 +62,7 @@ namespace NC2Logic
         for (auto id = iterator.GetFirstHumanId(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter, job == 18 || job == 29 ? 10 : 20); id != -1; id = iterator.GetNextHumanId())
         {
             auto* other = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint32_t>(other, 4) == Read<std::uint32_t>(human, 4) || Read<std::int32_t>(other, 0xAA0) > static_cast<std::int32_t>(Human_GetHumanAttributeMaximum_Hitpoints(other))) continue;
+            if (Read<std::uint32_t>(other, NC2Layout::HumanOffset::HumanId) == Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId) || Read<std::int32_t>(other, NC2Layout::HumanOffset::Hitpoints) > static_cast<std::int32_t>(Human_GetHumanAttributeMaximum_Hitpoints(other))) continue;
             Game_Random_GetNumber();
             return other;
         }
@@ -100,7 +100,7 @@ namespace NC2Logic
         Human_Target_Reset(human);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         auto* other = Human_FindHumanToEnjoy(human);
-        if (other != nullptr && Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, 12), 1))
+        if (other != nullptr && Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, NC2Layout::HumanOffset::MapMoveableId), 1))
         {
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode, 2);
             TargetHuman(human, other);
@@ -155,7 +155,7 @@ namespace NC2Logic
     {
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) { Human_l_StartTask_Tool_DropCarriedGoodNearby_Forget(human); return; }
         auto* other = Human_FindHumanToBless(human);
-        if (other != nullptr && Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, 12), 1))
+        if (other != nullptr && Human_l_StartAtomicWalk(human, Read<std::int32_t>(other, NC2Layout::HumanOffset::MapMoveableId), 1))
         {
             Human_Target_Reset(human);
             TargetHuman(human, other);

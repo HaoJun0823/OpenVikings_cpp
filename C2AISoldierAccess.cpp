@@ -47,7 +47,7 @@ namespace NC2Logic
     {
         NXBasics::Runtime_FillMemory(soldier, 0, 84);
         const auto* human = Human(id);
-        Write(soldier, 0, id); Write(soldier, 4, Read<std::uint32_t>(human, 8));
+        Write(soldier, 0, id); Write(soldier, 4, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId));
         Write<std::uint32_t>(soldier, 20, 0); Write<std::uint32_t>(soldier, 52, 1);
         Write(soldier, 8, Human_Equipment_GetWeaponType(human)); Write(soldier, 12, Human_Equipment_GetArmorType(human));
         Write<std::int32_t>(soldier, 56, -1);
@@ -57,10 +57,10 @@ namespace NC2Logic
     {
         auto* human = Human(Read<std::uint32_t>(soldier, 0));
         Write<std::uint32_t>(soldier, 20, 0); Write<std::uint32_t>(soldier, 52, 1);
-        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * NC2Layout::RecordSize::MapMoveableSigned;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveableSigned;
         std::uint32_t point = 0;
         MapMoveable_Attachment_GetNextMapPosition(moveable, &point);
-        Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, 16), 0, 0, point, 0);
+        Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, point, 0);
         Write<std::int32_t>(soldier, 56, -1); Write<std::uint8_t>(soldier, 16, 0);
     }
     // Original function: FUN_004593ed.
@@ -77,7 +77,7 @@ namespace NC2Logic
         for (std::uint32_t i = 0; i < Read<std::uint32_t>(handler, 0x6168);)
         {
             auto* soldier = Soldier(handler, i); const auto* human = Human(Read<std::uint32_t>(soldier, 0));
-            const bool valid = Read<std::uint8_t>(human, 0) != 0 && (Human_IsJobSoldier(human) || Human_IsJobHero(human)) && Read<std::uint32_t>(human, 8) == Read<std::uint32_t>(soldier, 4) && Read<std::uint32_t>(human, 16) == Read<std::uint32_t>(handler, 0) && !Human_IsAttachedToWorkHouse(human) && !Human_IsAttachedToVehicle(human) && (Read<std::uint32_t>(human, 0xB84) & 32u) == 0;
+            const bool valid = Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) != 0 && (Human_IsJobSoldier(human) || Human_IsJobHero(human)) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) == Read<std::uint32_t>(soldier, 4) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) == Read<std::uint32_t>(handler, 0) && !Human_IsAttachedToWorkHouse(human) && !Human_IsAttachedToVehicle(human) && (Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) == 0;
             if (valid) { CountWeapon(handler, human); ++i; continue; }
             const auto remaining = Read<std::uint32_t>(handler, 0x6168) - i - 1;
             if (remaining != 0)
@@ -94,14 +94,14 @@ namespace NC2Logic
             auto count = Read<std::uint32_t>(handler, 0x6168);
             if (count >= 200) return;
             auto* human = Human(id);
-            if ((Read<std::uint32_t>(human, 0xB84) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id)) continue;
+            if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & 32u) != 0 || Human_IsAttachedToWorkHouse(human) || Human_IsAttachedToVehicle(human) || AISinglePlayerHandler_Misc_Human_CheckRequestsForCreature(handler, id)) continue;
             std::uint32_t i = 0;
             while (i < count && Read<std::uint32_t>(Soldier(handler, i), 0) != static_cast<std::uint32_t>(id)) ++i;
             if (i != count) continue;
             if (Human_IsJobSoldier(human))
             {
                 std::byte command[20]{};
-                Write<std::uint8_t>(command, 0, 41); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, 16)); Write<std::uint32_t>(command, 12, 3);
+                Write<std::uint8_t>(command, 0, 41); Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId)); Write<std::uint32_t>(command, 12, 3);
                 Human_DoAddNewUserCommand(human, command);
                 Write<std::uint8_t>(command, 0, 42); Write<std::uint32_t>(command, 12, 0); Human_DoAddNewUserCommand(human, command);
             }
@@ -135,7 +135,7 @@ namespace NC2Logic
         const auto* position = Human_GetMapPositionRef(human);
         if (static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(position[0], position[1], Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2))) >= radius)
         {
-            Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, 16), 0, 0, MapMigPoint_GetLong(&point), 0);
+            Human_DoAddNewUserCommand(human, 4, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId), 0, 0, MapMigPoint_GetLong(&point), 0);
             Write<std::uint32_t>(soldier, 52, 2); Write(soldier, 60, Read<std::uint32_t>(destination, 0)); Write(soldier, 64, radius);
         }
         else Write<std::uint32_t>(soldier, 52, 1);
@@ -211,7 +211,7 @@ namespace NC2Logic
     bool AISinglePlayerHandler_l_SingleSoldiers_CheckAttack(void* handler, std::uint32_t slot, const void* point, std::uint32_t radius, bool houses, bool civilians, bool restrictCandidates, bool defence)
     {
         const auto* human = Human(Read<std::uint32_t>(Soldier(handler, slot), 0));
-        const auto* weapon = static_cast<const std::byte*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, 20)]) + Human_Equipment_GetWeaponType(human) * 0xC4;
+        const auto* weapon = static_cast<const std::byte*>(gStaticWeaponTypeArrays[Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType)]) + Human_Equipment_GetWeaponType(human) * 0xC4;
         const auto player = Read<std::uint32_t>(handler, 0);
         const auto limit = restrictCandidates ? 1u : 5u, distance = restrictCandidates ? 0u : 3u;
         const auto attackMoveable = [&](bool humans, bool secondList)
@@ -230,7 +230,7 @@ namespace NC2Logic
             const auto id = Tool_GetOneOfNextEnemyHousesInRange(player, point, 0, radius, true, restrictCandidates ? 1u : 3u, restrictCandidates ? 0u : 5u);
             if (id != -1 && AISinglePlayerHandler_l_SingleSoldiers_Let_AttackHouse(handler, slot, id, defence)) return true;
         }
-        if ((Read<std::uint32_t>(human, 0xB84) & NXBasics::BitMask::Bit13Signed) == 0)
+        if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit13Signed) == 0)
         {
             const auto id = Tool_Animals_GetOneOfNextEnemyInRange(player, point, 0, radius, true, false, limit, distance);
             if (id != -1 && AISinglePlayerHandler_l_SingleSoldiers_Let_AttackAnimal(handler, slot, id, defence)) return true;
@@ -330,7 +330,7 @@ namespace NC2Logic
                     if (type == 1 || type == 2)
                     {
                         auto* human = Human(Read<std::uint32_t>(soldier, 0));
-                        Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, 16));
+                        Write<std::uint8_t>(command, 1, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId));
                         Write(command, 12, type == 1 ? 2u : Read<std::uint32_t>(soldier, 44));
                         Human_DoAddNewUserCommand(human, command);
                     }
@@ -413,7 +413,7 @@ namespace NC2Logic
             NXBasics::Runtime_FillMemory(soldier + 20, 0, 32);
             Write<std::uint32_t>(soldier, 20, 1); Write(soldier, 24, Read<std::uint32_t>(handler, 0xA32E)); Write(soldier, 28, Read<std::uint32_t>(handler, 0xA334));
             Write<std::int32_t>(soldier, 56, -1); Write<std::uint8_t>(soldier, 16, 1); Write<std::uint32_t>(soldier, 52, 1);
-            Write<std::uint8_t>(secondCommand, 1, Read<std::uint8_t>(human, 16)); Write<std::uint32_t>(secondCommand, 12, 2); Human_DoAddNewUserCommand(human, secondCommand);
+            Write<std::uint8_t>(secondCommand, 1, Read<std::uint8_t>(human, NC2Layout::HumanOffset::PlayerId)); Write<std::uint32_t>(secondCommand, 12, 2); Human_DoAddNewUserCommand(human, secondCommand);
         }
     }
 
@@ -426,7 +426,7 @@ namespace NC2Logic
             const auto position = Read<std::uint32_t>(Human_GetMapPositionRef(human), 0);
             const auto type = Read<std::uint32_t>(soldier, 20);
             if (type == 0) { AISinglePlayerHandler_l_SingleSoldiers_CheckAttack(handler, i, &position, 25, true, false, true, true); continue; }
-            const auto busyWalking = [&]() { const auto atomic = Read<std::uint32_t>(human, 0x368); return atomic == 2 || atomic == 4 || atomic == 14 || atomic == 15; };
+            const auto busyWalking = [&]() { const auto atomic = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask); return atomic == 2 || atomic == 4 || atomic == 14 || atomic == 15; };
             auto state = Read<std::uint32_t>(soldier, 52);
             if (state == 2)
             {
@@ -462,7 +462,7 @@ namespace NC2Logic
                 }
                 Write<std::uint32_t>(soldier, 52, 1);
             }
-            if (Read<std::uint32_t>(soldier, 52) != 1 && Read<std::uint32_t>(human, 0x36C) == 1) continue;
+            if (Read<std::uint32_t>(soldier, 52) != 1 && Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus) == 1) continue;
             if (AISingleSoldier_Tool_IsSelfDefending(soldier)) continue;
             Write<std::uint32_t>(soldier, 52, 1);
             // Reload the description: stopping a completed movement can clear the task above.

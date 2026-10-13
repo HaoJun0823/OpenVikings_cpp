@@ -27,8 +27,8 @@ namespace NC2Logic
     // Original function: FUN_0042c9c9; include a pending pathfinder start.
     bool Human_IsWalking(const void* human)
     {
-        if (NC2Lifetime::Read<std::uint32_t>(human, 0xAB8) == 1) return true;
-        const auto* moveable = gMapMoveableArrayStorage.entries + NC2Lifetime::Read<std::uint32_t>(human, 12) * NC2Layout::RecordSize::MapMoveable;
+        if (NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::AtomicAction) == 1) return true;
+        const auto* moveable = gMapMoveableArrayStorage.entries + NC2Lifetime::Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         return NC2Lifetime::Read<std::uint32_t>(MapMoveable_Pathfinder_GetPathfinderPtr(moveable), 4) == 1;
     }
     using namespace NC2Lifetime;
@@ -96,9 +96,9 @@ namespace NC2Logic
     {
         for (std::uint32_t slot = 0; slot < 4; ++slot)
         {
-            const auto offset = 0xAF4u + slot * 8u;
+            const auto offset = NC2Layout::HumanOffset::InventorySlots + slot * NC2Layout::RecordSize::HumanInventorySlot;
             const auto equipped = Read<std::uint32_t>(human, offset);
-            if (equipped != 0 && Read<std::int32_t>(human, offset + 4) > 0 && equipped == good) return true;
+            if (equipped != 0 && Read<std::int32_t>(human, offset + NC2Layout::HumanInventorySlotOffset::PercentageCondition) > 0 && equipped == good) return true;
         }
         return false;
     }
@@ -351,7 +351,7 @@ namespace NC2Logic
         Write(human, 0x384, Read<std::uint32_t>(human, 0x384) + 1u);
         const void* position = Human_GetMapPositionRef(human);
         const void* micro = GameMap_GetConstMapMicroPointPtr(position);
-        GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), position, Read<std::uint32_t>(human, 0xB7C));
+        GameMap_Exploration_DoExplore(Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), position, Read<std::uint32_t>(human, NC2Layout::HumanOffset::ExplorationRadius));
         if (Human_HasEquippedShoes(human)) CCallbackManager::sTheObjectPtr->ExecuteCallback(0x24, true, MapMigPoint_GetLong(position), 5, 100);
         if (Human_IsAgeAdult(human) && Read<std::uint32_t>(human, NC2Layout::HumanOffset::TribeType) != 5 && (Read<std::uint8_t>(micro, 0x0D) & 2u) == 0)
         {
@@ -369,13 +369,13 @@ namespace NC2Logic
         auto resistance = (Read<std::uint8_t>(micro, 0x0C) >> 3) & 15u;
         Human_WalkSpeed_Update(human, resistance);
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CarriedGood) != 0) resistance *= 2u;
-        const auto shoes = Read<std::uint32_t>(human, 0xADC);
+        const auto shoes = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ShoeCondition);
         if (shoes != 0)
         {
             if ((Read<std::uint32_t>(human, NC2Layout::HumanOffset::MiscFlags) & NXBasics::BitMask::Bit12) == 0)
             {
                 const auto remaining = NXBasics::Runtime_TimeSigned32(shoes - resistance);
-                Write<std::int32_t>(human, 0xADC, remaining < 0 ? 0 : remaining > 10000 ? 10000 : remaining);
+                Write<std::int32_t>(human, NC2Layout::HumanOffset::ShoeCondition, remaining < 0 ? 0 : remaining > 10000 ? 10000 : remaining);
             }
         }
         else if (!Human_AI_IsIgnoringNeeds(human)) Write(human, NC2Layout::HumanOffset::Food, Read<std::uint32_t>(human, NC2Layout::HumanOffset::Food) - resistance);
@@ -401,7 +401,7 @@ namespace NC2Logic
             return false;
         }
         if (!Human_IsJobSoldier(human) && !Human_IsJobHero(human)) return true;
-        if ((Read<std::uint32_t>(human, 0x384) + Read<std::uint32_t>(human, 4)) % 10u != 0) return true;
+        if ((Read<std::uint32_t>(human, 0x384) + Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId)) % 10u != 0) return true;
         const auto task = Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTask);
         if (task != 14 && task != 15 && !(Human_GetPlayerType(human) == 2 && task == 4)) return true;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskParameter) != 0 && Human_IsRefreshingInWorld(human)) return true;
@@ -417,7 +417,7 @@ namespace NC2Logic
         const auto* source = mode == 2 && Human_GetPlayerType(human) != 2 ? static_cast<const void*>(static_cast<const std::byte*>(human) + NC2Layout::HumanOffset::WorkCenter) : Human_GetMapPositionRef(human);
         if (Human_l_CheckForEnemyTarget(human, source, 0, 18, target))
         {
-            if (Human_GetPlayerType(human) == 2) { AIManager_Message_StartSelfDefence(gAIManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(human, 4), target); return true; }
+            if (Human_GetPlayerType(human) == 2) { AIManager_Message_StartSelfDefence(gAIManager, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), Read<std::uint32_t>(human, NC2Layout::HumanOffset::HumanId), target); return true; }
             for (std::uint32_t index = 0; index < 3; ++index) Write(human, 0xB70u + index * 4u, target[index]);
             Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 2);
             return false;
@@ -427,7 +427,7 @@ namespace NC2Logic
             auto point = Read<std::uint32_t>(human, NC2Layout::HumanOffset::WorkCenter);
             auto* secondary = static_cast<std::byte*>(human) + 0xB70;
             if (TargetData_IsValid(secondary)) TargetData_GetMapPosition(secondary, &point);
-            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenter), Read<std::int16_t>(human, 0xB32), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
+            const auto distance = static_cast<std::uint32_t>(VE_HexagonDirection_GetDistance(Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterX), Read<std::int16_t>(human, NC2Layout::HumanOffset::WorkCenterY), Read<std::int16_t>(&point, 0), Read<std::int16_t>(&point, 2)));
             if (distance > 40) { Write<std::uint32_t>(secondary, 0, 0); Write<std::uint32_t>(human, NC2Layout::HumanOffset::CurrentTaskStatus, 3); return false; }
         }
         return true;

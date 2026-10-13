@@ -155,7 +155,7 @@ namespace NC2E2
         auto* reference = static_cast<std::byte*>(display) + 0xB0u + count * 0x48u;
         Write(reference, 0x44, markType); DisplayObjectReference_Reset(reference);
         Write<std::uint32_t>(reference, 0, 1); Write(reference, 8, humanId);
-        Write(reference, 0xC, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize, 8));
+        Write(reference, 0xC, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + humanId * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
         Write(display, 0xAC, count + 1u);
     }
 

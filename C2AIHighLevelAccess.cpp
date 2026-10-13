@@ -78,8 +78,8 @@ namespace NC2Logic
         for (auto id = static_cast<std::int32_t>(static_cast<std::uint32_t>(previous) + 1); id < CHumanArray::sTheObjectPtr->mLastScanIndex; ++id)
         {
             auto* human = CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize;
-            if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 16) != Read<std::uint32_t>(handler, 0)) continue;
-            if (Human_IsAgeAdult(human) && !Human_HasEquippedShoes(human) && AIVillagesData_GetVillageId(villages, Human_GetMapPositionRef(human)) != -1) Human_DoAddNewUserCommand(human, 79, Read<std::uint8_t>(handler, 0), id, Read<std::uint32_t>(human, 8), 30, 0);
+            if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(handler, 0)) continue;
+            if (Human_IsAgeAdult(human) && !Human_HasEquippedShoes(human) && AIVillagesData_GetVillageId(villages, Human_GetMapPositionRef(human)) != -1) Human_DoAddNewUserCommand(human, 79, Read<std::uint8_t>(handler, 0), id, Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId), 30, 0);
             return id;
         }
         return -1;

@@ -407,7 +407,7 @@ namespace NC2Logic
         const auto id = Read<std::uint32_t>(moveable, NC2Layout::MapMoveableOffset::ObjectId);
         switch (Read<std::uint32_t>(moveable, 8))
         {
-        case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, 8);
+        case SwitchIds::MapMoveableType::Human: return Read<std::uint32_t>(CHumanArray::mStaticVars + id * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId);
         case SwitchIds::MapMoveableType::Animal: return Read<std::uint32_t>(CAnimalArray::mStaticVars + id * CAnimalArray::ElementSize, 8);
         case SwitchIds::MapMoveableType::Vehicle: return Read<std::uint32_t>(CVehicleArray::mStaticVars + id * CVehicleArray::ElementSize, 8);
         case SwitchIds::MapMoveableType::Marker: return Read<std::uint32_t>(static_cast<const std::byte*>(gMarkerEntries) + id * 0x18u, 8);

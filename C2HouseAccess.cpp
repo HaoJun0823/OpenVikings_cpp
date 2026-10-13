@@ -197,7 +197,7 @@ namespace NC2Logic
                 const auto role = Read<std::uint8_t>(house, NC2Layout::HouseOffset::Attachments + slot * NC2Layout::RecordSize::HouseAttachment);
                 if (role == 0 || role == 1) continue;
                 const void* human = CHumanArray::mStaticVars + Read<std::uint32_t>(house, NC2Layout::HouseOffset::AttachmentHumanIds + slot * 16u) * CHumanArray::ElementSize;
-                if (Read<std::uint8_t>(human, 0) == 0) continue;
+                if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0) continue;
                 const auto state = Read<std::uint32_t>(human, NC2Layout::HumanOffset::GoodCirculationMode);
                 if (state == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::RequestedGood) != Read<std::uint32_t>(house, offset + NC2Layout::HouseConstructionGoodOffset::GoodType)) continue;
                 if (state == 5) break;
@@ -330,7 +330,7 @@ namespace NC2Logic
         for (const auto offset : {0xB14u, 0xB18u, 0xB24u, 0xB20u})
         {
             const auto relative = Read<std::uint32_t>(human, offset);
-            if (relative != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(CHumanArray::mStaticVars + relative * CHumanArray::ElementSize, 0xB28) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)) return true;
+            if (relative != NXBasics::IntegerRange::UInt32Maximum && Read<std::uint32_t>(CHumanArray::mStaticVars + relative * CHumanArray::ElementSize, NC2Layout::HumanOffset::HomeHouseId) == Read<std::uint32_t>(house, NC2Layout::HouseOffset::HouseId)) return true;
         }
         return House_Inhabitants_GetNumberOfFamiliesLivingInHome(house, nullptr) < static_cast<std::uint32_t>(House_GetHouseTypeDataPtr(house)->homeSize);
     }
@@ -351,7 +351,7 @@ namespace NC2Logic
         if (worker == data->workerCount) return false;
         if (!attached && House_Inhabitants_GetNumberOfAttachedWorkersOfPassedJob(house, job) >= data->workers[worker].maximumWorkers) return false;
         if (job == 30 && Read<std::uint32_t>(house, NC2Layout::HouseOffset::LogicType) == 37) return true;
-        const auto good = Read<std::uint32_t>(human, 0x1C);
+        const auto good = Read<std::uint32_t>(human, NC2Layout::HumanOffset::ProducedGoodType);
         if (good == 0 || good == 65) return true;
         const auto produced = Tool_Human_GetReallyProducedGoodType(Read<std::uint32_t>(human, NC2Layout::HumanOffset::JobType), good);
         return House_Production_IsAbleToProduceGood(house, produced, true) || House_Production_IsAbleToProduceGood(house, produced, false);
@@ -385,7 +385,7 @@ namespace NC2Logic
         if (Read<std::uint8_t>(house, NC2Layout::HouseOffset::DemolitionFlag) != 0) return false;
         const auto* human = CHumanArray::mStaticVars + humanId * CHumanArray::ElementSize;
         if (Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId) != Read<std::uint32_t>(house, NC2Layout::HouseOffset::PlayerId)) return false;
-        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, 12) * NC2Layout::RecordSize::MapMoveable;
+        const auto* moveable = gMapMoveableArrayStorage.entries + Read<std::uint32_t>(human, NC2Layout::HumanOffset::MapMoveableId) * NC2Layout::RecordSize::MapMoveable;
         return Read<std::uint8_t>(moveable, 0x10) == 0 || Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(Human_GetMapPositionRef(human)), 6) == Read<std::uint8_t>(GameMap_GetConstMapMicroPointPtr(static_cast<const std::byte*>(house) + NC2Layout::HouseOffset::MapPosition), 6);
     }
 
@@ -591,7 +591,7 @@ namespace NC2Logic
                                     const auto id = Read<std::uint32_t>(house, offset + NC2Layout::HouseAttachmentOffset::HumanId);
                                     if (id == humanId) continue;
                                     const auto* other = CHumanArray::mStaticVars + id * CHumanArray::ElementSize;
-                                    if (Read<std::uint32_t>(Human_GetMapPositionRef(other), 0) == candidate && Read<std::uint32_t>(other, 0xAB8) != 1) { occupied = true; break; }
+                                    if (Read<std::uint32_t>(Human_GetMapPositionRef(other), 0) == candidate && Read<std::uint32_t>(other, NC2Layout::HumanOffset::AtomicAction) != 1) { occupied = true; break; }
                                 }
                             }
                             if (!occupied) { Write(point, 0, candidate); best = distance; }

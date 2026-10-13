@@ -72,7 +72,7 @@ namespace NC2Logic
     void Human_l_StartTask_ExecuteJob_Hunter_Collect(void* human)
     {
         if (!Human_IsAtTargetPoint(human)) { Human_StopCurrentGoodCirculationMode(human); Human_l_StartTask_ExecuteJob_Hunter_TryToCollect(human); return; }
-        const auto landscape = Read<std::int32_t>(human, 0xA74);
+        const auto landscape = Read<std::int32_t>(human, NC2Layout::HumanOffset::TargetLandscapeType);
         if (landscape == 25 || landscape == 44)
         {
             Human_l_StartAtomicAnimation(human, 22, static_cast<std::int32_t>(Human_Target_GetDirectionTo(human)));

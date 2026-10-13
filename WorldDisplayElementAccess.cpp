@@ -85,7 +85,7 @@ namespace NC2InGameGuiWorldElement
         if (Read<std::uint32_t>(target, 0) == 1)
         {
             const auto* hoveredHuman = NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(target, 8) * NC2Logic::CHumanArray::ElementSize;
-            if (Read<std::int32_t>(hoveredHuman, 0x10) == localPlayer)
+            if (Read<std::int32_t>(hoveredHuman, NC2Layout::HumanOffset::PlayerId) == localPlayer)
             {
                 for (const auto offset : {0xB20u, 0xB18u, 0xB14u, 0xB24u})
                 {
@@ -197,7 +197,7 @@ namespace NC2InGameGuiWorldElement
             {
                 const auto id = NC2InGameGuiInputManager::Selection_GetSelectedMultipleHumanId(input, i);
                 std::byte selectedCommand[20]; std::memcpy(selectedCommand, command, sizeof(selectedCommand));
-                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
+                Write(selectedCommand, 4, id); Write(selectedCommand, 8, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
                 NC2Logic::UserNetworkCommandManager_AddCommand(NC2Logic::gUserNetworkCommandManager, nullptr, selectedCommand, false, false);
                 NC2E2::E2HumanSoundManager_PlayRespondingSound(NC2E2::gE2HumanSoundManager, 0, id);
             }
@@ -566,7 +566,7 @@ namespace NC2InGameGuiWorldElement
         using namespace NC2Lifetime;
         std::memset(static_cast<std::byte*>(element) + 0x220, 0, 24);
         Write(element, 0x224, id); Write<std::uint8_t>(element, 0x220, 1); Write<std::uint8_t>(element, 0x221, 1);
-        Write(element, 0x228, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize, 8));
+        Write(element, 0x228, Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + static_cast<std::intptr_t>(id) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId));
         WorldDisplayElement_l_FollowMode_Update(element);
     }
     // Original function: FUN_004bb3d5; validate the revision before reporting the id.
@@ -620,7 +620,7 @@ namespace NC2InGameGuiWorldElement
         WorldDisplayElement_l_FollowMode_Validate(element);
         if (Read<std::uint8_t>(element, 0x220) == 0) return;
         std::uint32_t moveable;
-        if (Read<std::uint8_t>(element, 0x221) != 0) moveable = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize, 0xC);
+        if (Read<std::uint8_t>(element, 0x221) != 0) moveable = Read<std::uint32_t>(NC2Logic::CHumanArray::mStaticVars + Read<std::uint32_t>(element, 0x224) * NC2Logic::CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId);
         else if (Read<std::uint8_t>(element, 0x22C) != 0) moveable = Read<std::uint32_t>(NC2Logic::CVehicleArray::mStaticVars + Read<std::uint32_t>(element, 0x230) * NC2Logic::CVehicleArray::ElementSize, 0x1DC);
         else return;
         std::int32_t point[2];

@@ -89,7 +89,7 @@ namespace NC2Logic
         HappinessManager_Messages_HouseAttacked(gHappinessManager, house);
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
-        if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != attackerRevision) return false;
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != attackerRevision) return false;
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 0);
         alignas(4) std::byte message[772];
         ToUserMessage_Construct(message);
@@ -121,7 +121,7 @@ namespace NC2Logic
         if (Read<std::int32_t>(vehicle, 12) <= 0) RecordKill(attacker, 0x461C);
         if (attackerType != 1) return true;
         const auto* human = CHumanArray::mStaticVars + attackerId * CHumanArray::ElementSize;
-        if (Read<std::uint8_t>(human, 0) == 0 || Read<std::uint32_t>(human, 8) != attackerRevision) return false;
+        if (Read<std::uint8_t>(human, NC2Layout::HumanOffset::AllocatedFlag) == 0 || Read<std::uint32_t>(human, NC2Layout::HumanOffset::UniqueId) != attackerRevision) return false;
         CCallbackManager::sTheObjectPtr->ExecuteCallback(0x28, true, player, Read<std::uint32_t>(human, NC2Layout::HumanOffset::PlayerId), 0);
         alignas(4) std::byte message[772];
         ToUserMessage_Construct(message);

@@ -65,7 +65,7 @@ namespace NC2InGameGuiWorldWindow
         Write<std::int32_t>(window, 0x74, -1); Write<std::int32_t>(window, 0x7C, -1); Write<std::int32_t>(window, 0x84, -1); Write<std::uint32_t>(window, 0x78, 0); Write<std::uint32_t>(window, 0x80, 0); Write<std::uint32_t>(window, 0x88, 0); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 1);
     }
     // Original function: FUN_004bd907.
-    void WorldObserveDisplayWindow_l_Follow_Human(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x74, id); Write(window, 0x78, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, 8)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
+    void WorldObserveDisplayWindow_l_Follow_Human(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x74, id); Write(window, 0x78, Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(id) * CHumanArray::ElementSize, NC2Layout::HumanOffset::UniqueId)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
     // Original function: FUN_004bd934.
     void WorldObserveDisplayWindow_l_Follow_Vehicle(void* window, std::int32_t id) { WorldObserveDisplayWindow_l_Follow_Stop(window); Write(window, 0x7C, id); Write(window, 0x80, Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(id) * CVehicleArray::ElementSize, 8)); Write<std::uint8_t>(Read<void*>(window, 0x70), 0x34, 0); }
     // Original function: FUN_004bd964.
@@ -101,7 +101,7 @@ namespace NC2InGameGuiWorldWindow
             WorldObserveDisplayWindow_l_Follow_Validate(window); const auto human = Read<std::int32_t>(window, 0x74), vehicle = Read<std::int32_t>(window, 0x7C), house = Read<std::int32_t>(window, 0x84);
             if (human != -1 || vehicle != -1)
             {
-                const auto moveable = human != -1 ? Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, 0xC) : Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicle) * CVehicleArray::ElementSize, 0x1DC);
+                const auto moveable = human != -1 ? Read<std::uint32_t>(CHumanArray::mStaticVars + static_cast<std::uint32_t>(human) * CHumanArray::ElementSize, NC2Layout::HumanOffset::MapMoveableId) : Read<std::uint32_t>(CVehicleArray::mStaticVars + static_cast<std::uint32_t>(vehicle) * CVehicleArray::ElementSize, 0x1DC);
                 std::int32_t point[2]; Display_DE_MapMoveableToGlobalWorldPixelCoordinates(Display(window), nullptr, moveable, point); point[1] -= 30; NC2E2::DE_SetWantedPositionToPixelPoint(Display(window), point);
             }
             else if (house != -1) NC2E2::DE_SetWantedPositionToMapPoint(Display(window), reinterpret_cast<const std::uint32_t*>(CHouseArray::mStaticVars + static_cast<std::uint32_t>(house) * CHouseArray::ElementSize + 0x1C));
